@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
@@ -72,6 +73,6 @@ abstract class RenderingStrategy
 		return strategy;
 	}
 	
-	abstract BufferedImage render(Renderer ctx);
+	abstract BufferedImage render(Renderer ctx) throws DataSourceException;
 	
 }

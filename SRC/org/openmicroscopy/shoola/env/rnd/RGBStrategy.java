@@ -45,6 +45,7 @@ import java.awt.image.Raster;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
@@ -83,6 +84,7 @@ class RGBStrategy
 	
 	
 	BufferedImage render(Renderer ctx)
+		throws DataSourceException
 	{
 		//Set the context and retrieve rendering settings.
 		renderer = ctx;
@@ -104,7 +106,7 @@ class RGBStrategy
 			//NOTE: RenderingDef enforces the constraint 
 			//i == cBindings[i].getIndex().
 			if (cBindings[i].isActive()) {
-				wData = dSink.getPlane2D(planeDef, i, sizeX1, sizeX2);
+				wData = dSink.getPlane2D(planeDef, i);
 				renderWave(renderedDataBuf, wData, 
 							qManager.getStrategyFor(i), 
 							cBindings[i].getRGBA());
@@ -152,7 +154,8 @@ class RGBStrategy
 	
 	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
-							QuantumStrategy qs, int[] rgba)
+		QuantumStrategy qs, int[] rgba)
+		throws DataSourceException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v;

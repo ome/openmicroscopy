@@ -37,12 +37,18 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
@@ -52,6 +58,7 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
  * 
@@ -138,7 +145,7 @@ public class RenderingEngine
 				ImageRendered response = new ImageRendered(request, img);
 				EventBus eventBus = registry.getEventBus();
 				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-			} catch (Exception dse) {  //TODO: DataSourceException, omeis.
+			} catch (DataSourceException dse) {
 				hanldeException("Can't load pixels data. Pixels id: "+
 													request.getPixelsID(), dse);
 			}
@@ -155,10 +162,12 @@ public class RenderingEngine
 		return new MetadataSource(imageID, pixelsID, registry);
 	}
 	
-	DataSink getDataSink(int imageID, int pixelsID)
+	DataSink getDataSink(Pixels pixelsID, int pixelType, PixelsDimensions dims) 
 	{
-		//TODO: implement!
-		return null;
+		//TODO: TMP (and wrong if multiple pixels), do it properly when
+		//PixelsService supports int pixelsID instead of Pixels.
+		return new DataSink(pixelsID, pixelType, dims, 
+							registry.getPixelsService());
 	}
 	
 	public void activate()

@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -164,7 +165,8 @@ class Renderer
 											renderingDef.getCodomainChainDef());
 		
 		//Cache a reference to the pixels source gateway. 
-		dataSink = engine.getDataSink(imageID, pixelsID);
+		dataSink = engine.getDataSink(source.getPixels(),  //TODO: to be turned into int. 
+										source.getPixelType(), pixelsDims);
 		
 		//Create an appropriate rendering strategy.
 		renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());
@@ -191,8 +193,11 @@ class Renderer
 	 * @param pd	Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 * 				or <i>Z</i> axes.  Mustn't be <code>null</code>.
 	 * @return	A buffered image ready to be displayed on screen.
+	 * @throws DataSourceException If an error occured while trying to pull out
+	 * 								data from the pixels data repository.
 	 */
 	BufferedImage render(PlaneDef pd)
+		throws DataSourceException
 	{
 		if (pd == null)
 			throw new NullPointerException("No plane definition.");
@@ -208,8 +213,11 @@ class Renderer
 	 * {@link #render(PlaneDef)}.
 	 * 
 	 * @return	A buffered image ready to be displayed on screen.
+	 * @throws DataSourceException If an error occured while trying to pull out
+	 * 								data from the pixels data repository.
 	 */
 	BufferedImage render()
+		throws DataSourceException
 	{
 		//Note that planeDef can never be null.
 		return renderingStrategy.render(this);
