@@ -308,29 +308,35 @@ public interface DataManagementService
     /**
      * Update a specified project.
      * 
-     * @param retVal	DataObject 
+     * @param retVal		DataObject to update.
+     * @param dsToRemove	List of dataset summary to remove.
+     * @param dsToAdd		List of dataset summary to add. 
      * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
      */
-    public void updateProject(ProjectData retVal)
+    public void updateProject(ProjectData retVal, List dsToRemove, 
+    								List dsToAdd)
 		throws DSOutOfServiceException, DSAccessException;
 		
 	/**
 	 * Update a specified dataset.
 	 * 
-	 * @param projectID
+	 * @param retVal		DataObject to update.
+     * @param isToRemove	List of image summary to remove.
+     * @param isToAdd		List of image summary to add. 
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
 	 */
-	public void updateDataset(DatasetData retVal)
+	public void updateDataset(DatasetData retVal, List isToRemove, 
+									List isToAdd)
 			throws DSOutOfServiceException, DSAccessException;
 			
 	/**
 	 * Update a specified image.
 	 * 
-	 * @param projectID
+	 * @param retVal		DataObject to update.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  

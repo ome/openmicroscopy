@@ -30,6 +30,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -39,7 +41,6 @@ import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
-import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
@@ -93,8 +94,8 @@ class DMSAdapter
 	int getUserID() 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		UserState us = gateway.getUserState(UserMapper.getUserStateCriteria());
-		return us.getExperimenter().getID();
+		Criteria c = UserMapper.getUserStateCriteria();
+		return gateway.getCurrentUser(c).getID();
 	}
     
     /**Implemented as specified in {@link DataManagementService}. */
@@ -327,13 +328,17 @@ class DMSAdapter
 		//Make a new proto if none was provided.
 		if (pProto == null) pProto = new ProjectSummary();
 		
-		/*
-		Project p = (Project) createNewData(Project.class);
+		//Create a new project Object
+		Criteria c = UserMapper.getUserStateCriteria(); 
+		Project p = (Project) gateway.createNewData(Project.class);
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
-		updateData(p);
-		ProjectMapper.fillNewProject(p, pProto);
-		*/
+		p.setOwner(gateway.getCurrentUser(c));
+		gateway.markForUpdate(p);
+		gateway.updateMarkedData();
+		List ids = ProjectMapper.fillNewProject(p, retVal.getDatasets(), 
+												pProto);
+		if (ids.size() != 0) gateway.addDatasetsToProject(p.getID(), ids);
 		return pProto;
 	}
 	
@@ -346,13 +351,36 @@ class DMSAdapter
 	{
 		//Make a new proto if none was provided.
 		if (dProto == null) dProto = new DatasetSummary();
-		/*
-		Dataset d = (Dataset) createNewData(Dataset.class);
+		
+		//Create a new project Object
+		Criteria c = UserMapper.getUserStateCriteria(); 
+		Dataset d = (Dataset) gateway.createNewData(Dataset.class);
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
-		updateData(d);
-		DatasetMapper.fillNewDataset(d, dProto);
-		*/
+		d.setOwner(gateway.getCurrentUser(c));
+		gateway.markForUpdate(d);
+		gateway.updateMarkedData();
+		
+		//prepare list for Manager.
+		List pIds = new ArrayList(), iIds = new ArrayList();		
+		if (projectSummaries != null) {
+			Iterator i =  projectSummaries.iterator();
+			while (i.hasNext())	
+				pIds.add(new Integer(((ProjectSummary) i.next()).getID()));
+		}
+		
+		if (imageSummaries != null) {
+			Iterator j = imageSummaries.iterator();
+			while (j.hasNext())
+				iIds.add(new Integer(((ImageSummary) j.next()).getID()));
+		}
+		
+		if (pIds.size() != 0) gateway.addDatasetToProjects(d.getID(), pIds);
+		if (iIds.size() != 0) gateway.addImagesToDataset(d.getID(), iIds);
+		
+		//fill in the proto
+		dProto.setID(d.getID());
+		dProto.setName(d.getName());
 		return dProto;
 	}
 	
@@ -373,42 +401,100 @@ class DMSAdapter
 	}
 
 	/**Implemented as specified in {@link DataManagementService}. */
-    public void updateProject(ProjectData retVal)
+    public void updateProject(ProjectData retVal, List dsToRemove,
+    								 List dsToAdd)
 		throws DSOutOfServiceException, DSAccessException
     {
-    	/*
-		Project p = (Project) createNewData(Project.class);
-		p.setID(retVal.getID());
-		p.setName(retVal.getName());
-		p.setDescription(retVal.getDescription());
-		updateData(p);
-		*/
+    	Criteria c = ProjectMapper.buildUpdateCriteria(retVal.getID());
+		Project p = (Project) gateway.retrieveData(Project.class, c);
+		if (p != null) {
+			p.setName(retVal.getName());
+			p.setDescription(retVal.getDescription());
+			gateway.markForUpdate(p);
+			gateway.updateMarkedData();
+			
+			//prepare list for Manager.
+			List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
+			List datasets = retVal.getDatasets();	
+			DatasetSummary ds;	
+		  	if (dsToRemove != null) {
+				Iterator i =  dsToRemove.iterator();
+				while (i.hasNext())	{
+					ds = (DatasetSummary) i.next();
+					toRemoveIds.add(new Integer(ds.getID()));
+					datasets.remove(ds);
+			  	}	  
+			}
+			if (dsToAdd != null) {
+				Iterator j = dsToAdd.iterator();
+				while (j.hasNext()) {
+					ds = (DatasetSummary) j.next();
+					toAddIds.add(new Integer(ds.getID()));	
+					if (!datasets.contains(ds)) datasets.add(ds);
+				}
+			}
+			//Remove the specified datasets.
+			if (toRemoveIds.size() != 0)
+				gateway.removeDatasetsFromProject(retVal.getID(), toRemoveIds);
+			//Add the specified datasets.
+			if (toAddIds.size() != 0)
+				gateway.addDatasetsToProject(retVal.getID(), toAddIds);
+			retVal.setDatasets(datasets);
+		}
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
-	public void updateDataset(DatasetData retVal)
+	public void updateDataset(DatasetData retVal, List isToRemove, 
+									List isToAdd)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		/*
-		Dataset d = (Dataset) createNewData(Dataset.class);
-		d.setID(retVal.getID());
-		d.setName(retVal.getName());
-		d.setDescription(retVal.getDescription());
-		updateData(d);
-		*/
+		Criteria c = DatasetMapper.buildUpdateCriteria(retVal.getID());
+		Dataset d = (Dataset) gateway.retrieveData(Dataset.class, c);
+		if (d != null) {
+			d.setName(retVal.getName());
+			d.setDescription(retVal.getDescription());
+			gateway.markForUpdate(d);
+			gateway.updateMarkedData();
+			//prepare list for Manager.
+			List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
+			List images = retVal.getImages();	
+			ImageSummary is;	
+			if (isToRemove != null) {
+				Iterator i =  isToRemove.iterator();
+				while (i.hasNext())	{
+					is = (ImageSummary) i.next();
+					toRemoveIds.add(new Integer(is.getID()));
+					images.remove(is);
+				}	  
+			}
+			if (isToAdd != null) {
+				Iterator j = isToAdd.iterator();
+				while (j.hasNext()) {
+					is = (ImageSummary) j.next();
+					toAddIds.add(new Integer(is.getID()));	
+					if (!images.contains(is)) images.add(is);
+				}
+			}
+
+			//Remove the specified datasets.
+			if (toRemoveIds.size() != 0)
+				gateway.removeImagesFromDataset(retVal.getID(), toRemoveIds);
+			//Add the specified datasets.
+			if (toAddIds.size() != 0)
+				gateway.addImagesToDataset(retVal.getID(), toAddIds);
+		}
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateImage(ImageData retVal)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		/*
-  		Image i = (Image) createNewData(Image.class);
-  		i.setID(retVal.getID());
-  		i.setName(retVal.getName());
-  		i.setDescription(retVal.getDescription());
-  		updateData(i);
-		*/
+		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
+  		Image i = (Image) gateway.retrieveData(Image.class, c);
+  		if (i != null) {
+			i.setName(retVal.getName());
+			i.setDescription(retVal.getDescription());
+  		}
 	}
-	
 
 }
