@@ -110,6 +110,12 @@ public class Constants {
 	/** Highlighting of a link  between modules */
 	public static final Color LINK_HIGHLIGHT_COLOR=Color.WHITE;
     
+	/** basic and highlight colors for mexes */
+	public static final Color MEX_COLOR = new Color(128,144,183);
+	public static final Color MEX_HIGHLIGHT_COLOR = new Color(251,24,251);
+	
+	/* mex size */
+	public static final float MEX_SIDE=4.0f;
 	
 	/** Highlighting of generic boxes*/
 	public static final Color HIGHLIGHT_COLORS[] = {

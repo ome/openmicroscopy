@@ -41,7 +41,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
 import java.util.Collection;
-
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
@@ -49,8 +48,9 @@ import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
+//import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByModuleID;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
@@ -79,17 +79,12 @@ public class PaletteChainView extends ChainView {
 	
 	private boolean showingFull = false;
 	
-	private Collection executions;
+	private ChainExecutionsByModuleID executions;
 	
 	public PaletteChainView(LayoutChainData chain,ChainDataManager dataManager) {
 		super(chain);
 		this.registry = dataManager.getRegistry();
 		this.executions = dataManager.getChainExecutionsByChainID(chain.getID());
-		if (executions != null) { 
-			if (ChainBuilderAgent.DEBUG)
-				System.err.println("palette chain.."+chain.getName()+"...executions.."
-						+executions.size());
-		}
 		drawChain();
 		setPickable(false);
 	}	
@@ -108,7 +103,11 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	protected ModuleView getModuleView(ChainModuleData mod) {
-		PaletteModuleView moduleView = new PaletteModuleView(mod);
+		Collection mexes = null;
+		if (executions != null)
+			mexes = executions.getMexes(mod);
+		PaletteModuleView moduleView = 
+			new PaletteModuleView(mod,mexes);
 		//find the execution here..
 		return moduleView;
 	}
@@ -127,11 +126,6 @@ public class PaletteChainView extends ChainView {
 	protected ModuleLink getModuleLink(LinkLayer linkLayer,ParamLink newLinkNode) {
 		return null; 
 	}
-/*	protected ModuleLink getModuleLink(LinkLayer linkLayer,ParamLink newLinkNode) {
-		ModuleLink  mLink = super.getModuleLink(linkLayer,newLinkNode);
-		mLink.setPickable(false);
-		return mLink;
-	}*/
 			
 	//	 if this chain is in a chainbox - which would then be the grandparent
 	// return a chain box that is the enclosing grandparent

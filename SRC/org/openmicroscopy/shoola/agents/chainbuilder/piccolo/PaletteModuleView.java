@@ -3,7 +3,7 @@
  *
  *------------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 Open Microscopy Environment
+ *  Copyright (C) 2004 Open Microscopy Environment
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
@@ -44,6 +44,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.Iterator;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -54,6 +56,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
@@ -76,6 +79,9 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 public class PaletteModuleView extends SingleModuleView {
 	
+	private static final int MEX_GAP=1;
+	
+	private PNode mexNode = null;
 	public PaletteModuleView() {
 		super();
 	}
@@ -92,10 +98,49 @@ public class PaletteModuleView extends SingleModuleView {
 	 * The main constructor 
 	 * @param module The OME Module being represented
 	 */
-	public PaletteModuleView(ChainModuleData module) {
+	public PaletteModuleView(ChainModuleData module,Collection mexes) {
 		super(module);
 		showDetails();
 		labelNodes.setPickable(false);
+		if (mexes != null && mexes.size() > 0)
+			addMexes(mexes);
+	}
+	
+	/**
+	 * Add the widgets for the individual mexes.
+	 * @param mexes
+	 */
+	private void addMexes(Collection mexes) {
+		
+		// set up the mex node
+		double x = 0;
+		double y = 0;
+		// get the width of the node thus far.
+		float width = getBodyWidth();
+		mexNode = new PNode();
+		addChild(mexNode);
+		
+		// add the mexes.
+		ModuleExecutionData mex;
+		Iterator iter = mexes.iterator();
+		MexView view;
+		
+		while (iter.hasNext()) {
+			mex = (ModuleExecutionData) iter.next();
+			view = new MexView(mex);
+			mexNode.addChild(view);
+			if (x + view.getWidth() > width) {
+				// move to next row
+				x =0;
+				y += view.getHeight()+MEX_GAP;
+			}
+			view.setOffset(x,y);
+			x += view.getWidth()+MEX_GAP;
+		}
+		// place the mexNode . remember, main overview/detail @ 0,0
+		mexNode.setBounds(mexNode.getUnionOfChildrenBounds(null));
+		mexNode.setOffset(0,-mexNode.getHeight());
+		
 	}
 	
 	
