@@ -184,19 +184,6 @@ public class ExecutionsCanvas extends JPanel implements
 		if (e.isPopupTrigger()) {
 			handlePopup(e);
 		}
-		ChainExecutionData exec = null;
-		ExecutionView ev = getViewAt(e.getX(),e.getY());
-		if (ev != null) {
-			currentExecution = ev;
-			pressSelected = true;
-			exec = ev.getChainExecution();
-			System.err.println("selected execution "+exec.getID());
-		}
-		else
-			pressSelected = false;
-		SelectChainExecutionEvent event =
-			new SelectChainExecutionEvent(exec);
-		registry.getEventBus().post(event);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -228,9 +215,17 @@ public class ExecutionsCanvas extends JPanel implements
 		ChainExecutionData execData = exec.getChainExecution();
 		System.err.println("viewing results for execution "+execData.getID());
 		String name = execData.getChain().getName();
+		// this is a hack to let me pull up spots viewer. once history view
+		//is done, remove this.
 		if (name.compareTo("Find and track spots") ==0) {
 			System.err.println("viewing trajectories...");
 			ViewTrackSpotsEvent event = new ViewTrackSpotsEvent(execData);
+			registry.getEventBus().post(event);
+			
+		}
+		else {
+			SelectChainExecutionEvent event = 
+				new SelectChainExecutionEvent(execData);
 			registry.getEventBus().post(event);
 			
 		}
