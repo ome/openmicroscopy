@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -93,6 +94,8 @@ public class DatasetEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
+	Registry getRegistry() { return registry; } 
+	
 	DatasetImagesPane getImagesPane() { return imagesPane; }
 	
 	/**  Returns the save button displayed {@link DatasetEditorBar}. */
@@ -116,7 +119,6 @@ public class DatasetEditor
 	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
 	JButton getResetToAddButton() { return imagesPane.getResetToAddButton(); }
 	
-	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
 
@@ -131,7 +133,6 @@ public class DatasetEditor
 	 * 				<code>POS_OWNER</code>.
 	 */
 	void setSelectedPane(int index) { tabs.setSelectedIndex(index); }
-	
 	
 	/** Reset the imagesPane. */
 	void rebuildComponent()
@@ -164,8 +165,12 @@ public class DatasetEditor
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
+		TitlePanel tp = new TitlePanel("Edit Dataset", 
+								"Edit an existing dataset.", 
+									im.getIcon(IconManager.DATASET_BIG));
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}

@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -94,6 +95,8 @@ public class ProjectEditor
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
+	
+	Registry getRegistry() { return registry; } 
 	
 	ProjectDatasetsPane getDatasetsPane() { return datasetsPane; }
 	
@@ -165,8 +168,12 @@ public class ProjectEditor
   		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
+		TitlePanel tp = new TitlePanel("Edit Project", 
+										"Edit an existing project.", 
+										im.getIcon(IconManager.PROJECT_BIG));
   		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}

@@ -115,6 +115,7 @@ class ChannelEditorBar
 		gridbag.setConstraints(cp, c);
 		add(cp);
 		setOpaque(false); //make panel transparent
+		setFloatable(false);
 	}
 
 	/** Build panel with buttons. */

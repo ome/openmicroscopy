@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
@@ -49,6 +48,7 @@ import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -129,11 +129,15 @@ public class ChannelEditor
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");	
-		tabs.addTab("Info", im.getIcon(IconManager.INFO), channelPane);	
+		tabs.addTab("Channel", im.getIcon(IconManager.CHANNEL), channelPane);	
 		tabs.setFont(font);		
 		tabs.setForeground(STEELBLUE);
+		TitlePanel tp = new TitlePanel("Edit Channel", 
+										" Edit the selected channel.", 
+										im.getIcon(IconManager.CHANNEL_BIG));
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}

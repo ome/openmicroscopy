@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.util.List;
 import javax.swing.Box;
@@ -46,7 +47,9 @@ import javax.swing.table.AbstractTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -79,10 +82,13 @@ class DatasetImagesDiffPane
 	
 	private JPanel							contents;
 	
+	private IconManager						im;
+	
 	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
 	{
 		super(control.getView(), "List of exiting images", true);
 		this.control = control;
+		im = IconManager.getInstance(control.getView().getRegistry());
 		initButtons(imagesDiff);
 		manager = new DatasetImagesDiffPaneManager(this, control, imagesDiff);
 		buildGUI();
@@ -141,9 +147,13 @@ class DatasetImagesDiffPane
 	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
+		TitlePanel tp = new TitlePanel("Add images", 
+							"Select images to add to the dataset.", 
+							im.getIcon(IconManager.IMAGE_BIG));
 		contents = buildImagesPanel();
 		contents.setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
-		getContentPane().add(contents);
+		getContentPane().add(tp, BorderLayout.NORTH);
+		getContentPane().add(contents, BorderLayout.CENTER);
 		setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
 	}
 	

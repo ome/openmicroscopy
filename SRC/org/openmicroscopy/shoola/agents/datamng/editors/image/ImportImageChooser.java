@@ -40,8 +40,10 @@ import javax.swing.JFileChooser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.util.filter.file.DVFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -91,6 +93,12 @@ public class ImportImageChooser
 		setAcceptAllFileFilterUsed(false);
 		setApproveButtonToolTipText(
 			UIUtilities.formatToolTipText("Select Images to import."));
+		
+		IconManager im = IconManager.getInstance(control.getRegistry());
+		TitlePanel tp = new TitlePanel("Import Image", 
+								"Import new images in a existing dataset.", 
+								im.getIcon(IconManager.IMPORT_IMAGE_BIG));
+		add(tp, BorderLayout.NORTH);
 		add(iiSelection, BorderLayout.SOUTH);
 		//Parent and approve button txt
 		showDialog(control.getReferenceFrame(), "Select Images");		

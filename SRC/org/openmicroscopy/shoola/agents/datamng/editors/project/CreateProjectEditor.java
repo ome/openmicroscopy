@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -72,7 +73,7 @@ public class CreateProjectEditor
 	private CreateProjectDatasetsPane	datasetsPane;
 	private CreateProjectEditorBar		bar;
 	private CreateProjectEditorManager	manager;
-
+	
 	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
 								ProjectData model, List datasets)
 	{
@@ -134,17 +135,21 @@ public class CreateProjectEditor
 		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		tabs.addTab("New Project", im.getIcon(IconManager.CREATE_PROJECT), 
+		tabs.addTab("New Project", im.getIcon(IconManager.PROJECT), 
 					creationPane);
 		tabs.addTab("Add Datasets", im.getIcon(IconManager.DATASET), 
 					datasetsPane);
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
+		TitlePanel tp = new TitlePanel("Project", "Create a new project.", 
+						im.getIcon(IconManager.CREATE_PROJECT_BIG));
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);
 	}
 
+	
 }

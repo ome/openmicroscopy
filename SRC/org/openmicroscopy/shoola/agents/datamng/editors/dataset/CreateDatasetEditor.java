@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 
 /** 
@@ -161,7 +162,7 @@ public class CreateDatasetEditor
 		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		tabs.addTab("New Dataset", im.getIcon(IconManager.CREATE_DATASET), 
+		tabs.addTab("New Dataset", im.getIcon(IconManager.DATASET), 
 					creationPane);
 		tabs.addTab("Add to Projects", im.getIcon(IconManager.PROJECT), 
 					projectsPane);
@@ -170,8 +171,11 @@ public class CreateDatasetEditor
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
+		TitlePanel tp = new TitlePanel("Dataset", "Create a new dataset.", 
+							im.getIcon(IconManager.CREATE_DATASET_BIG));
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);
 	}

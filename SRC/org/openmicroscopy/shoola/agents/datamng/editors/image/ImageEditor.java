@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -119,8 +120,11 @@ public class ImageEditor
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
+		TitlePanel tp = new TitlePanel("Image", "Edit an existing image.", 
+								im.getIcon(IconManager.IMAGE_BIG));
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		getContentPane().add(bar, BorderLayout.SOUTH);		
 	}
