@@ -37,7 +37,6 @@ import java.util.HashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -80,11 +79,13 @@ class RegistryImpl
     {
         entriesMap = new HashMap();
     }
+    
 	/**  Implemented as specified by {@link Registry}. */
 	public void bind(String name, Object obj)
 	{
 		entriesMap.put(name, obj);
 	}
+	
 	/** Implemented as specified by {@link Registry}. */
     public Object lookup(String name)
     {
@@ -93,47 +94,47 @@ class RegistryImpl
         if (entry != null)	ret = entry.getValue();
         return ret;
     }
+    
 	/** Implemented as specified by {@link Registry}. */
     public EventBus getEventBus()
     {
     	return eb;
-
     }
+    
 	/** Implemented as specified by {@link Registry}. */
 	public DataManagementService getDataManagementService()
-        throws NotLoggedInException
 	{
-        if (dms == null)
-            throw new NotLoggedInException("Not logged into data server");
-
 		return dms;
 	}
+	
 	/** Implemented as specified by {@link Registry}. */
 	public SemanticTypesService getSemanticTypesService()
-        throws NotLoggedInException
 	{
-        if (sts == null)
-            throw new NotLoggedInException("Not logged into data server");
-
 		return sts;
 	}
+	
 	/** Implemented as specified by {@link Registry}. */
 	public Logger getLogger()
 	{
 		return logger;
 	}
+	
 	/** Implemented as specified by {@link Registry}. */
 	public TopFrame getTopFrame()
 	{
 		return tf;
 	}
+	
 	/** Implemented as specified by {@link Registry}. */
 	public UserNotifier getUserNotifier() 
 	{
    		return un;
    	}
+   	
 	/** Implemented as specified by {@link Registry}. */
 //	public PixelsService getPixelsServices();
+//TODO: add it when ready.
+
 	/** 
 	* Add a new entry in the map of {@link Entry}.
 	* The {@link Entry} object is created after parsing the configuration file.
@@ -144,6 +145,7 @@ class RegistryImpl
 	{
 		entriesMap.put(e.getName(), e);
    	}
+   	
 	/**
 	* Sets the {@link EventBus}.
 	* 
@@ -153,6 +155,7 @@ class RegistryImpl
 	{
 		this.eb = eb;
 	}
+	
    	/**
 	* Sets the {@link DataManagementService}.
 	* 
@@ -162,6 +165,7 @@ class RegistryImpl
 	{
 		this.dms = dms;
 	}
+	
 	/**
 	* Sets the {@link SemanticTypeService}.
 	* 
@@ -171,6 +175,7 @@ class RegistryImpl
    	{
 		this.sts = sts;
    	}
+   	
    	/**
 	* Sets the {@link TopFrame}.
 	* 
@@ -180,6 +185,7 @@ class RegistryImpl
    	{
 		this.tf = tf;
    	}
+   	
 	/**
 	* Sets the {@link Logger}.
 	* 
@@ -189,6 +195,7 @@ class RegistryImpl
 	{
 		this.logger = logger;
 	}
+	
 	/**
 	* Sets the {@link UserNotifier}.
 	* 
@@ -198,6 +205,5 @@ class RegistryImpl
 	{
 		this.un = un;
 	}
-
-			
+	
 }

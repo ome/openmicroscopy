@@ -36,7 +36,6 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -66,6 +65,7 @@ public interface Registry
 	 * @param object
 	 */
 	public void bind(String name, Object obj);
+	
 	/**
 	 * Retrieves an {@link Entry} from the map maintained by the Registry.
 	 * 
@@ -73,49 +73,55 @@ public interface Registry
 	 * @return See above.
 	 */  
 	public Object lookup(String name);
+	
    	/**
     * Returns the {@link EventBus} registered.
     * 
     * @return See above.
     */
 	public EventBus getEventBus();
+	
    	/**
     * Returns the {@link DataManagementService} registered.
     * 
     * @return See above.
     */
-   	public DataManagementService getDataManagementService()
-        throws NotLoggedInException;
+   	public DataManagementService getDataManagementService();
+   	
    	/**
    	* Returns the {@link SemanticTypesService} registered.
    	* 
    	* @return See above.
    	*/
-    public SemanticTypesService getSemanticTypesService()
-        throws NotLoggedInException;
+    public SemanticTypesService getSemanticTypesService();
+    
    	/**
    	* Returns the {@link Logger} registered.
    	* 
    	* @return See above.
    	*/
 	public Logger getLogger();
+	
    	/**
    	* Returns the {@link TopFrame} registered.
    	* 
    	* @return See above.
    	*/
 	public TopFrame getTopFrame();
+	
    	/**
    	* Returns the {@link UserNotifier} registered.
    	* 
    	* @return See above.
    	*/
    	public UserNotifier getUserNotifier();
+   	
 	/**
 	* Returns the {@link PixelsService} registered.
 	* 
 	* @return See above.
 	*/
 	//	public PixelsService getPixelsServce();
+	//TODO: add it when ready.
    
 }
