@@ -195,9 +195,10 @@ public class DatasetImagesNode extends PNode  {
                   
 			// use {@link PNode.toImage} to get a snapshot of the thumbnails.       
 			thumbnailNode = new PImage(imagesNode.toImage((int)b.getWidth(),
-							(int) b.getHeight(),null),false);
+							(int) b.getHeight(),null)); // was  false); as second
 			addChild(thumbnailNode);
-			moveToBack(thumbnailNode);
+			thumbnailNode.moveToBack();
+		//	moveToBack(thumbnailNode);
 		}
 	}
         

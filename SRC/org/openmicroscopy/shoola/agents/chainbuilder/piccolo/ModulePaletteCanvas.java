@@ -276,7 +276,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 			PText nameText = new PText(name);
 			nameText.setFont(Constants.LARGE_NAME_FONT);
 			nameText.setPickable(false);
-		//	nameText.setGreekThreshold(0);
+			nameText.setGreekThreshold(0);
 			box.addLabel(nameText);
 			nameText.setScale(2);
 			nameText.moveToFront();

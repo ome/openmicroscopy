@@ -103,19 +103,19 @@ public class ProjectLabel extends PText implements MouseableNode {
 	//	if (project == SelectionState.getState().getSelectedProject())
 		//	return; 
 		setScale(NORMAL_SCALE);
-		setPaint(Constants.DEFAULT_COLOR);
+		setTextPaint(Constants.DEFAULT_COLOR);
 	}
 	
 	public void setActive() {
 		//if (project == SelectionState.getState().getSelectedProject())
 		//			return; 
 		setScale(NORMAL_SCALE);
-		setPaint(Constants.PROJECT_ACTIVE_COLOR);
+		setTextPaint(Constants.PROJECT_ACTIVE_COLOR);
 	}
 	
 	public void setSelected() {
 		setScale(SELECTED_SCALE);
-		setPaint(Constants.PROJECT_SELECTED_COLOR);
+		setTextPaint(Constants.PROJECT_SELECTED_COLOR);
 		
 	}
 	
@@ -124,7 +124,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 		//	return;
 		if (v == true) {
 			setScale(ROLLOVER_SCALE);
-			setPaint(Constants.PROJECT_ROLLOVER_COLOR);
+			setTextPaint(Constants.PROJECT_ROLLOVER_COLOR);
 		}
 		else  {
 			setNormal();

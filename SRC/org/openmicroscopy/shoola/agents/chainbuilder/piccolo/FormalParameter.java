@@ -140,15 +140,28 @@ public abstract class FormalParameter extends PNode implements
 	 */
 	protected PNode labelNode;
 	
+	private FormalParameterMouseDelegate delegate = null;
+	
+	
+	public FormalParameter(ModuleView node,FormalParameterData param) {
+		this(node,param,null);
+	}
 	/**
 	 * 
 	 * @param node The ModuleView containing this parameter
 	 * @param param The OME Formal Parameter
 	 */
-	public FormalParameter(ModuleView node,FormalParameterData param) {
+	public FormalParameter(ModuleView node,FormalParameterData param,
+			FormalParameterMouseDelegate delegate) {
 		super();
 		this.param = param;
 		this.node = node;
+		if (delegate == null) 
+			this.delegate = new FormalParameterMouseDelegate();
+		else
+			this.delegate = delegate;
+		
+		this.delegate.setParam(this);
 		
 		setChildrenPickable(false);
 		labelNode = new PNode();
@@ -156,7 +169,8 @@ public abstract class FormalParameter extends PNode implements
 		
 		textNode = new PText(param.getName());
 		textNode.setFont(Constants.NAME_FONT);
-		textNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
+		textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
+		textNode.setGreekThreshold(0);
 		labelNode.addChild(textNode);
 		
 		
@@ -164,15 +178,17 @@ public abstract class FormalParameter extends PNode implements
 		SemanticTypeData type = param.getSemanticType();
 		if (type != null) {
 			typeNode = new PText(type.getName());
+			typeNode.setGreekThreshold(0);
 			labelNode.addChild(typeNode);
 			typeNode.setScale(TYPE_NODE_DEFAULT_SCALE);
-			typeNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
+			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 			typeNode.setFont(Constants.NAME_FONT);
 		}						
 		
 		// this formal parameter will listen to any changes that happen to
 		// the node.
 		node.addNodeEventListener(this);
+		
 		
 		
 	}
@@ -227,12 +243,12 @@ public abstract class FormalParameter extends PNode implements
 	public void setLinkable(boolean v) {
 		linkable = v;
 		if (v == true) {
-			typeNode.setPaint(Constants.HIGHLIGHT_COLOR);
-			textNode.setPaint(Constants.HIGHLIGHT_COLOR);
+			typeNode.setTextPaint(Constants.HIGHLIGHT_COLOR);
+			textNode.setTextPaint(Constants.HIGHLIGHT_COLOR);
 		}
 		else {
-			typeNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
-			textNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
+			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
+			textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 		}
 		getModuleView().setLinkableHighlighted(v);
 		repaint();
@@ -451,24 +467,26 @@ public abstract class FormalParameter extends PNode implements
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
+		delegate.mouseClicked(handler);
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
 	}
 
 	public void mouseEntered(GenericEventHandler handler) {
-		setParamsHighlighted(true);
-		node.setModulesHighlighted(true);
-		((ModuleNodeEventHandler) handler).setSelectedForDrag(node);
+		if (delegate != null)
+			delegate.mouseEntered(handler);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
-		setParamsHighlighted(false);
-		node.setAllHighlights(false);
-		((ModuleNodeEventHandler) handler).setSelectedForDrag(node);
+		if (delegate != null)
+			delegate.mouseExited(handler);
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
+		delegate.mousePopup(handler);
 	}
+	
+	
 
 }

@@ -195,7 +195,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
     {
         super();
         init();
-        setAccelerated(true);
+        //setAccelerated(true);
         this.model = tdm;
         baseID = tdm.getID();
     }
@@ -208,7 +208,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      */
     public Thumbnail(Image thumbImage, ThumbnailDataModel tdm)
     {
-        super(thumbImage,false);
+        super(thumbImage); // was  ,false); as second arg.
         init();
         this.model = tdm;
         baseID = tdm.getID();

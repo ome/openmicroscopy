@@ -376,9 +376,11 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/**
 	 * @param width The width to set.
 	 */
-	public void setWidth(double width) {
+	public boolean setWidth(double width) {
+		boolean changed = (width != getWidth());
 		prevWidth = this.width;
 		this.width = width;
+		return changed;
 	}
 	
 	/**
@@ -397,8 +399,10 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		width = prevWidth = 0;
 	}
 	
-	public void setHeight(double height) {
+	public boolean setHeight(double height) {
+		boolean changed = (height != getHeight()); 
 		this.height = height;
+		return changed;
 	}
 	
 	/**
