@@ -151,14 +151,20 @@ public class LinkLayer extends PLayer {
 		PCamera camera = aPaintContext.getCamera();
 		double scale = camera.getViewScale();
 		if (scale < Constants.SCALE_THRESHOLD) {
-			params.setVisible(false);
-			modules.setVisible(true);
-			modules.setPickable(true);
+			if (params != null)
+				params.setVisible(false);
+			if (modules != null) {
+				modules.setVisible(true);
+				modules.setPickable(true);
+			}
 		}
 		else {
-			params.setVisible(true);
-			modules.setVisible(false);
-			params.setPickable(true);
+			if (params != null) {
+				params.setVisible(true);
+				params.setPickable(true);
+			}
+			if (modules != null)
+				modules.setVisible(false);
 		}
 	}
 
