@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel;
 public class LocalTSMLoader
 {
     private static final String ROOT_PATH =
-        "/Library/WebServer/Documents/jeff/thumbs/";
+        "/Users/jeffmellen/OME/Shoola/SRC/images/";
         
     private static final String[][] imageNumbers =
     {{"358","359","360","361","365","366","367","777"},
