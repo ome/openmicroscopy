@@ -40,9 +40,10 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java Imports
-import edu.umd.cs.piccolo.PNode;
+import java.util.Iterator;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 /** 
@@ -71,5 +72,13 @@ public class ParameterNode extends PNode {
 	
 	public void addChild(FormalParameter p) {
 		super.addChild(p);
+	}
+	
+	public void setPickable(boolean b) {
+		Iterator iter = getChildrenIterator();
+		while (iter.hasNext()) {
+			PNode p = (PNode)iter.next();
+			p.setPickable(b);
+		}
 	}
 }
