@@ -41,6 +41,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 //Java imports
 import java.awt.Dimension;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
@@ -136,6 +138,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * The event handler for this canvas
 	 */
 	private DatasetBrowserEventHandler eventHandler;
+	
 	
 	public DatasetBrowserCanvas(MainWindow mainWindow) {
 		super();
@@ -572,6 +575,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		displayDatasets(datasetsToDisplay);
 	}
 	
+	
 	public void setSelectedDataset(BrowserDatasetData dataset) {
 		// if they're the same, return
 		// except for if it's null. then we might need to redraw
@@ -597,13 +601,40 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			System.err.println("..."+chain.getID());
 		else
 			System.err.println("...null");
+		HashMap chainExecutions = mainWindow.getChainExecutions();
+		if (chainExecutions == null) 
+			return; //do nothing if no executions;
+	
+		Iterator iter = layer.getChildrenIterator();
+		DatasetNode n;
+		while (iter.hasNext()) {
+			n = (DatasetNode) iter.next();
+			int id = n.getDataset().getID();
+			Collection execs = (Collection) chainExecutions.get(new Integer(id));
+			// execs are the executions for this dataset
+			if (execs != null && chain != null && hasExecutionForChain(execs,chain)) 
+				n.setHighlighted(true);
+			else
+				n.setHighlighted(false);
+			
+		}
+		
+	}
+	
+	public boolean hasExecutionForChain(Collection execs,AnalysisChainData chain) {
+		ChainExecutionData exec;
+		Iterator iter = execs.iterator();
+		while (iter.hasNext()) {
+			exec = (ChainExecutionData) iter.next();
+			AnalysisChainData execChain = exec.getChain();
+			if (execChain != null && execChain.getID() == chain.getID())
+				return true;
+		}
+		return false;
 	}
 	
 	public void mouseOverAnalysisChain(AnalysisChainData chain) {
-		System.err.println("dataset browser. moused over chain...");
-		if (chain != null)
-			System.err.println("..."+chain.getID());
-		else
-			System.err.println("...null");
+		selectAnalysisChain(chain);
+		
 	}
  } 
