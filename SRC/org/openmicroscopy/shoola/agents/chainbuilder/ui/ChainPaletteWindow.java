@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteCanvas;
  */
 public class ChainPaletteWindow extends JFrame  {
 
-	private static final String TITLE="Chain Palette";
+	private static final String TITLE="ChainBuilder Preview - Chain Palette";
 	
 	/** Data manager*/
 	private ChainDataManager dataManager;

@@ -99,7 +99,7 @@ public class ChainFrame extends ManageableTopWindow implements ActionListener {
 	
 	public ChainFrame(int index,final ChainDataManager manager,CmdTable cmdTable,
 			final UIManager uiManager) {
-		super("New OME Chain: "+index);
+		super("ChainBuilder Preview - New OME Chain: "+index);
 		
 		this.manager = manager;
 		this.uiManager = uiManager;

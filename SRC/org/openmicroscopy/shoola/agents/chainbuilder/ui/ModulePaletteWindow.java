@@ -147,7 +147,7 @@ public class ModulePaletteWindow
 		//We have to specify the title of the window to the superclass
 		//constructor and pass a reference to the TaskBar, which we get
 		//from the Registry.
-		super("Chain Builder: Module Palette", dataManager.getTaskBar());
+		super("Chain Builder Preview: Module Palette", dataManager.getTaskBar());
 		this.uiManager = uiManager;
 		this.cmdTable = cmdTable;
 		this.dataManager = dataManager;

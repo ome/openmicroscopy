@@ -101,7 +101,7 @@ public class ChainSaveFrame extends JFrame implements ActionListener, FocusListe
 	 * @param The {@link Chain Frame} that contains the chain being saved
 	 */
 	public ChainSaveFrame(ChainFrame frame,ChainDataManager manager) {
-		super("Save Chain");
+		super("ChainBuilder Preview - Save Chain");
 		this.frame = frame;
 		this.manager = manager;
 		setResizable(false);
