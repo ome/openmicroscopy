@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
@@ -57,6 +58,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -176,7 +178,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 				new Class[] { 
 					SelectAnalysisChain.class,
 					MouseOverAnalysisChain.class,
-					ChainExecutionsLoadedEvent.class});
+					ChainExecutionsLoadedEvent.class,
+					MouseOverChainExecutionEvent.class});
 		enableButtons(false);
 	}
 		
@@ -210,6 +213,12 @@ public class MainWindow extends TopWindow implements ComponentListener,
 				datasetBrowser.selectAnalysisChain(chain);
 			else if (event instanceof MouseOverAnalysisChain)
 				datasetBrowser.mouseOverAnalysisChain(chain);
+		}
+		else if (e instanceof MouseOverChainExecutionEvent) {
+			MouseOverChainExecutionEvent event = (MouseOverChainExecutionEvent) e;
+			ChainExecutionData exec = event.getChainExecution();
+			datasetBrowser.mouseOverChainExecution(exec);
+			
 		}
 		else if (e instanceof ChainExecutionsLoadedEvent) {
 			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
