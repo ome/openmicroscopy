@@ -301,16 +301,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategory(int)
-     */
-    public CategoryData retrieveCategory(int id)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createCategoryGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
      */
     public void createCategoryGroup(CategoryGroupData data)
@@ -361,16 +351,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryWithIAnnotations(int)
-     */
-    public CategoryData retrieveCategoryWithIAnnotations(int id)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoriesNotInGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
      */
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
@@ -384,6 +364,26 @@ public class NullSemanticTypesService
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImagesNotInGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
      */
     public List retrieveImagesNotInGroup(CategoryGroupData group)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategory(int)
+     */
+    public CategoryData retrieveCategory(int id)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryWithIAnnotations(int)
+     */
+    public CategoryData retrieveCategoryWithIAnnotations(int id)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub

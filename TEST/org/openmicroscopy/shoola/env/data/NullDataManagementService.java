@@ -525,4 +525,24 @@ public class NullDataManagementService
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserProjectsWithDAnnotations()
+     */
+    public List retrieveUserProjectsWithDAnnotations()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserProjectsWithDAnnotations(org.openmicroscopy.shoola.env.data.model.ProjectSummary, org.openmicroscopy.shoola.env.data.model.DatasetSummary)
+     */
+    public List retrieveUserProjectsWithDAnnotations(ProjectSummary pProto, DatasetSummary dProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
