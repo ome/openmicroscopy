@@ -101,7 +101,7 @@ public class LayoutLinkData  extends AnalysisLinkData
 		if (nodes.size() == 0)
 			nodes.add(node);
 		else
-			nodes.setElementAt((LayoutNodeData) node,0);
+			nodes.setElementAt( node,0);
 	}
 	
 	public void setToNode(AnalysisNodeData node) {

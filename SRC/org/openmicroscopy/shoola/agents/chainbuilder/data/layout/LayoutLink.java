@@ -72,7 +72,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 	}
 	
 	public LayoutLink(LayoutLinkData semanticLink,GraphLayoutNode fromNode,GraphLayoutNode toNode) {
-		this.semanticLink = (LayoutLinkData) semanticLink;
+		this.semanticLink = semanticLink;
 		this.fromNode = fromNode;
 		this.toNode = toNode;
 	}
@@ -80,7 +80,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 	public LayoutLink(LayoutLinkData link) {
 		this.fromNode = (GraphLayoutNode) link.getFromNode();
 		this.toNode = (GraphLayoutNode) link.getToNode();
-		this.semanticLink = (LayoutLinkData) link;
+		this.semanticLink = link;
 	}
  	
  	public LayoutLinkData getSemanticLink() {
