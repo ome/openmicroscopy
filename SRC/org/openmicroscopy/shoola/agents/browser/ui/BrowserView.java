@@ -138,6 +138,10 @@ public class BrowserView extends PCanvas
     // Keeps track of all embedded RegionSensitive objects.
     private Set regionSensitive;
     
+    // Keeps track of everyone listening to zoom parameters.
+    private Set zoomParamListeners;
+    private double minZoomLevel;
+    
     // indicates whether or not the view should scale to show the entire
     // set, or should remain fixed at a certain zoom level.
     private boolean scaleToShow;
@@ -248,6 +252,7 @@ public class BrowserView extends PCanvas
         footprint = new Rectangle2D.Double(0,0,0,0);
         hoverSensitive = new HashSet();
         regionSensitive = new HashSet();
+        zoomParamListeners = new HashSet();
         
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
@@ -294,6 +299,30 @@ public class BrowserView extends PCanvas
     }
     
     /**
+     * Adds a listener for min zoom/actual zoom level changes.
+     * @param listener The listener to add.
+     */
+    public void addZoomParamListener(ZoomParamListener listener)
+    {
+        if(listener != null)
+        {
+            zoomParamListeners.add(listener);
+        }
+    }
+    
+    /**
+     * Removes the listener for min/actual zoom level changes.
+     * @param listener The listener to remove.
+     */
+    public void removeZoomParamListener(ZoomParamListener listener)
+    {
+        if(listener != null)
+        {
+            zoomParamListeners.remove(listener);
+        }
+    }
+    
+    /**
      * Sets the scale/zoom level.  1 is 100%.
      * @param zoomLevel The magnification of the camera.
      */
@@ -304,7 +333,8 @@ public class BrowserView extends PCanvas
         {
             return;
         }
-        scaleToShow = false;
+        
+        if(scaleToShow) return;
         
         Dimension dim = getSize();
         double width = dim.getWidth();
@@ -344,10 +374,13 @@ public class BrowserView extends PCanvas
     /**
      * Sets the scale level to automatically adjust with window size.
      */
-    public void setZoomToScale()
+    public void setZoomToScale(boolean zoomToScale)
     {
-        scaleToShow = true;
-        updateConstraints();
+        if(scaleToShow != zoomToScale)
+        {
+            scaleToShow = zoomToScale;
+            updateConstraints();
+        }
     }
     
     /**
@@ -395,22 +428,26 @@ public class BrowserView extends PCanvas
         {
             if(mode == BrowserMode.ZOOM_TO_FIT_MODE)
             {
-                setZoomToScale();
+                setZoomToScale(true);
             }
             else if(mode == BrowserMode.ZOOM_ACTUAL_MODE)
             {
+                setZoomToScale(false);
                 setZoomLevel(1);
             }
             else if(mode == BrowserMode.ZOOM_50_MODE)
             {
+                setZoomToScale(false);
                 setZoomLevel(0.5);
             }
             else if(mode == BrowserMode.ZOOM_75_MODE)
             {
+                setZoomToScale(false);
                 setZoomLevel(0.75);
             }
             else if(mode == BrowserMode.ZOOM_200_MODE)
             {
+                setZoomToScale(false);
                 setZoomLevel(2);
             }
         }
@@ -582,6 +619,16 @@ public class BrowserView extends PCanvas
         double xRatio = width / footprint.getWidth();
         double yRatio = height / footprint.getHeight();
         
+        if(Math.min(xRatio,yRatio) != minZoomLevel)
+        {
+            minZoomLevel = Math.min(xRatio,yRatio);
+            for(Iterator iter = zoomParamListeners.iterator(); iter.hasNext();)
+            {
+                ZoomParamListener listener = (ZoomParamListener)iter.next();
+                listener.minZoomLevelChanged(minZoomLevel);
+            }
+        }
+        
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
         if(scaleToShow)
@@ -613,6 +660,12 @@ public class BrowserView extends PCanvas
         System.err.println(footprint);
         System.err.println("Dim: "+width+","+height);
         overlayCamera.cameraResized(new Rectangle2D.Double(0,0,width,height));
+        
+        for(Iterator iter = zoomParamListeners.iterator(); iter.hasNext();)
+        {
+            ZoomParamListener listener = (ZoomParamListener)iter.next();
+            listener.zoomLevelChanged(viewScale);
+        }
     }
     
     /**

@@ -52,7 +52,9 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -94,6 +96,7 @@ public class BrowserInternalFrame extends JInternalFrame
             String title = controller.getName();
             setTitle("Image Browser: "+title);
             this.embeddedView = controller.getView();
+            embeddedView.setZoomToScale(true);
             this.env = BrowserEnvironment.getInstance();
         }
         
@@ -125,6 +128,57 @@ public class BrowserInternalFrame extends JInternalFrame
         toolbarPanel.add(zoomButton);
         toolbarPanel.add(optionsButton);
         
+        final JSlider slider = new JSlider(new DefaultBoundedRangeModel(100,10,10,200));
+        slider.setPaintLabels(true);
+        slider.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent arg0)
+            {
+                int value = slider.getValue();
+                if(slider.getValueIsAdjusting())
+                {
+                    embeddedView.setZoomToScale(false);
+                }
+                embeddedView.setZoomLevel(((double)value)/100.0);
+            }
+        });
+        
+        embeddedView.addZoomParamListener(new ZoomParamListener()
+        {
+            public void minZoomLevelChanged(double level)
+            {
+                System.err.println("minzoom change: "+level);
+                int val = (int)Math.round(level*100);
+                if(slider.getValue() < val)
+                {
+                    slider.setValue(val);
+                }
+                slider.setMinimum(val);
+            }
+            
+            public void maxZoomLevelChanged(double level)
+            {
+                int val = (int)Math.round(level*100);
+                if(slider.getValue() > val)
+                {
+                    slider.setValue(val);
+                }
+                slider.setMaximum(val);
+            }
+            
+            public void zoomLevelChanged(double level)
+            {
+                System.err.println("zoom changed: "+level);
+                if(!slider.getValueIsAdjusting())
+                {
+                    int val = (int)Math.round(level*100);
+                    slider.setValue(val);
+                }
+            }
+        });
+        
+        toolbarPanel.add(slider);
+
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
         
