@@ -37,9 +37,11 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
+import org.openmicroscopy.ds.FieldsSpecification;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
@@ -79,36 +81,29 @@ class DMSAdapter
 		this.proxy = proxy;
 		this.registry = registry;
 	}
-	//TODO: write the method in STSAdapter b/c Experimenter is a semantic type
-	public int getUserID()
+	
+	/** 
+	 * Retrieves the user's ID. 
+	 */
+	int getUserID()
 	{
-		int userID = 1;
-		/*
-		Attribute experimenter = null;
-		Criteria crit = new Criteria();
-		crit.addWantedField("id");
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-		crit.addFilter("ome_name", uc.getUserName());
+		//Make the criteria
+		FieldsSpecification fs = new FieldsSpecification();
+		fs.addWantedField("id");
+		UserState us = null;
 		try {
-			System.out.println("step 0: "+userID);
-			experimenter = (Attribute) 
-								proxy.retrieve(Experimenter.class, crit);
-								
-			userID = experimenter.getID();	
-			System.out.println("step 1: "+userID);
-	 	} catch (Exception e) {
+			us = (UserState) proxy.getUserState(fs);
+		} catch (Exception e) {
 		 // TODO: handle exception by throwing either NotLoggedInException
 		 //(broken connection, expired session) or ServiceUnavailableExc
 		 //(temp server failure, temp middleware failure).
 		 //throw new RuntimeException(e);
-		 System.out.println(e);
-	 	}
-	 	*/
-	 	 return userID;
+
+		}
+		return us.getID();
 	}
     
-    /** Retrieve user projects. */
+    /**Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
     								DatasetSummary dProto)
 	{	
@@ -138,12 +133,13 @@ class DMSAdapter
     	return ProjectMapper.fillUserProjects(projects, pProto, dProto);
 	}
 	
+	/**Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects()
     {
     	return retrieveUserProjects(null, null);
     }
     
-    /** Retrieve a project. */
+    /**Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
     {
 		//Make a new retVal if none was provided.
@@ -172,6 +168,7 @@ class DMSAdapter
     	return retVal;
     }
     
+	/**Implemented as specified in {@link DataManagementService}. */
 	public ProjectData retrieveProject(int id)
 	{
 		return retrieveProject(id, null);
@@ -205,17 +202,13 @@ class DMSAdapter
     	return retVal;
     }
     
+	/**Implemented as specified in {@link DataManagementService}. */
 	public DatasetData retrieveDataset(int id)
 	{
 		return retrieveDataset(id, null);
 	}
 	
-    /**
-     * Retrieves the images linked to a given dataset.
-     * 
-     * @param datasetID	dataset id.
-     * @return list of image summary objects.
-     */
+    /**Implemented as specified in {@link DataManagementService}. */
     public List retrieveImages(int datasetID)
     {
     	Criteria criteria = DatasetMapper.buildImagesCriteria();
@@ -236,15 +229,7 @@ class DMSAdapter
 	  	return DatasetMapper.fillListImages(dataset);
     }
     
-    /** 
-     * 
-     * Retrieves the data of a selected image.
-     * Create an image data object if none is provided.
-     * 
-     * @param id		image id.
-     * @param retVal	image data object.
-     * @return	an image data object.
-     */
+    /**Implemented as specified in {@link DataManagementService}. */
     public ImageData retrieveImage(int id, ImageData retVal) 
     {
 		//Make a new retVal if none was provided.
@@ -272,16 +257,10 @@ class DMSAdapter
   		return retVal;	  
     }
     
-	/**  
-	 * Retrieves the data of a selected image.
-	 * 
-	 * @param id		image id.
-	 * @return	an image data object.
-	 */
+	/**Implemented as specified in {@link DataManagementService}. */
 	public ImageData retrieveImage(int id) 
 	{
 		return retrieveImage(id, null);
 	}
     
-
 }
