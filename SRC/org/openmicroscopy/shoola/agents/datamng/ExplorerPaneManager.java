@@ -388,7 +388,7 @@ class ExplorerPaneManager
 					DataManagerUIF presentation = 
 								agentCtrl.getAbstraction().getPresentation();
 					TreePopupMenu popup = presentation.getPopupMenu();
-					popup.setTarget(target);  
+					popup.setTarget(target); 
 					popup.show(view.tree, e.getX(), e.getY());
 				} else {
 					if (e.getClickCount() == 2)

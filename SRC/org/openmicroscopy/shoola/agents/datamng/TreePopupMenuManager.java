@@ -71,7 +71,6 @@ class TreePopupMenuManager
 	 */
 	private DataObject				target;
     
-    
 	/** 
 	 * Creates a new instance which will register itself as appropiate with the
 	 * view's widgets.

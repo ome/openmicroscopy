@@ -70,7 +70,7 @@ class ToolBar
     JToolBar                                explToolBar, classifierToolBar;
     JButton                                 project, dataset, image;
 	
-    JButton                                 createGAndC;
+    JButton                                 createGroup, createCategory;
     
 	ToolBar(DataManagerCtrl control, Registry registry)
 	{
@@ -92,11 +92,16 @@ class ToolBar
 		image =  new JButton(im.getIcon(IconManager.IMPORT_IMAGE));
 		image.setToolTipText(
 			UIUtilities.formatToolTipText("Import a new image."));
-        createGAndC = new JButton(
-                im.getIcon(IconManager.CREATE_CG));
-        createGAndC.setToolTipText(
+        createGroup = new JButton(
+                im.getIcon(IconManager.CREATE_GROUP));
+        createGroup.setToolTipText(
                 UIUtilities.formatToolTipText("Create a new " +
-                        "category group and/or category."));
+                        "category group."));
+        createCategory = new JButton(
+                im.getIcon(IconManager.CREATE_CATEGORY));
+        createCategory.setToolTipText(
+                UIUtilities.formatToolTipText("Create a new " +
+                        "category."));
 	}
     
 	/** Build and lay out the explorer toolBar. */
@@ -121,8 +126,9 @@ class ToolBar
         classifierToolBar.putClientProperty("JToolBar.isRollover", 
                                         new Boolean(true));
         classifierToolBar.setFloatable(false);
-        classifierToolBar.add(createGAndC);
+        classifierToolBar.add(createGroup);
         classifierToolBar.addSeparator(SEPARATOR);
+        classifierToolBar.add(createCategory);
         return classifierToolBar;
     }
     

@@ -60,7 +60,7 @@ class ToolBarManager
 	
 	/** Action command ID. */
 	private static final int           PROJECT = 0, DATASET = 1, IMAGE = 2,
-                                       CREATE_CG = 3;
+                                       CREATE_GROUP = 3, CREATE_CATEGORY = 4;
 
 	private DataManagerCtrl            control;
     
@@ -79,7 +79,8 @@ class ToolBarManager
         attachButtonListener(view.project, PROJECT);
         attachButtonListener(view.dataset, DATASET);
         attachButtonListener(view.image, IMAGE);
-        attachButtonListener(view.createGAndC, CREATE_CG);
+        attachButtonListener(view.createGroup, CREATE_GROUP);
+        attachButtonListener(view.createCategory, CREATE_CATEGORY);
 	}
 
 	/** Handle event fired by buttons. */
@@ -94,8 +95,10 @@ class ToolBarManager
 					control.createDataset(); break;
 				case IMAGE:
 					control.showImagesImporter(); break;
-                case CREATE_CG:
-                    control.createCG(); break;
+                case CREATE_GROUP:
+                    control.createGroup(); break;
+                case CREATE_CATEGORY:
+                    control.createCategory(); break;         
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe);
