@@ -33,7 +33,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser;
+package org.openmicroscopy.shoola.agents.browser.events;
 
 /**
  * Specifies an action within the browser framework.  This may be changed or
