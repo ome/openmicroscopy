@@ -88,14 +88,13 @@ class ColorChooserManager
 	 * @param view			reference to the view {@link ColorChooser}.
 	 * @param hsbManager	referenve to {@link HSBPaneManager}.
 	 * @param c				color saved in user settings.
-	 * @param alpha			alpha component (GUI version).
 	 */
 	ColorChooserManager(ColorChooser view, HSBPaneManager hsbManager,
-						int[] rgba, int alpha, int index)
+						int[] rgba, int index)
 	{
 		this.view = view;
 		this.hsbManager = hsbManager;
-		this.alpha = alpha;
+		this.alpha = rgba[ColorChooser.ALPHA];
 		this.rgba = rgba;
 		this.index = index;
 		initColor();

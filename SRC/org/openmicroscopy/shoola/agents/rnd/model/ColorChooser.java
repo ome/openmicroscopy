@@ -80,7 +80,7 @@ public class ColorChooser
 	private static final int			H_EXTRA = 25;
 	private static final int			WLABEL = 40;
 	
-	private static final int			WBUTTON = 70;
+	private static final int			WBUTTON = 90;
 	
 	private static final int			MAX_SLIDER = 100;
 	
@@ -117,7 +117,7 @@ public class ColorChooser
 		super(hsbManager.getReferenceFrame(), "ColorChooser", true);
 		int v = (int) (rgba[ALPHA]*100/255);
 		Color c = new Color(rgba[RED], rgba[GREEN], rgba[BLUE], rgba[ALPHA]);
-		ccManager = new ColorChooserManager(this, hsbManager, rgba, v, index);
+		ccManager = new ColorChooserManager(this, hsbManager, rgba, index);
 		cp = new ColorPalette(ccManager);
 		Container contentPane = super.getContentPane(); 
 		initButtons();
@@ -224,7 +224,7 @@ public class ColorChooser
 	private JLabel buildLabel()
 	{
 		JLabel label = new JLabel("Preview");
-		label.setBounds(2*BORDER+ColorPalette.WIDTH_PANEL+HSPACE, 15, 45, 10);
+		label.setBounds(2*BORDER+ColorPalette.WIDTH_PANEL+HSPACE, 15, 55, 10);
 		return label;	
 	}
 	

@@ -88,7 +88,7 @@ class ColorSelector
 	private static final int			WIDTH = 160;
 	private static final int			HEIGHT = 50;
 	private static final int			TOP = 15;
-	private static final int			WBUTTON = 70;
+	private static final int			WBUTTON = 90;
 	
 	private static final int 			WIN_W = 250;
 	private static final int 			WIN_H = 140;
@@ -196,7 +196,7 @@ class ColorSelector
 	private JLabel buildLabel()
 	{
 		JLabel label = new JLabel("Preview");
-		label.setBounds(BORDER+WIDTH+HSPACE, TOP, 45, 10);
+		label.setBounds(BORDER+WIDTH+HSPACE, TOP, 55, 10);
 		return label;	
 	}
 	
