@@ -123,7 +123,7 @@ class CreateDatasetImagesPane
             add(buildImagesPanel(images));
             setButtonsEnabled(true);
         }
-        setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+        manager.getView().repaint();
     }
 
     /** Set the buttons enabled. */

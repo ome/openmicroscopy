@@ -123,8 +123,7 @@ class CreateCategoryImagesPane
             add(buildImagesPanel(images));
             setButtonsEnabled(true);
         }
-        setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
-        repaint();
+        manager.getView().repaint();
     }
 
     /** Set the buttons enabled. */
