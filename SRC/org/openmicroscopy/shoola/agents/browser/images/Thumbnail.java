@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -88,6 +89,14 @@ public class Thumbnail extends PImage
      */
     protected boolean usesImageSet;
 
+
+    protected void init()
+    {
+        backgroundPaintMethods = new ArrayList();
+        middlePaintMethods = new ArrayList();
+        foregroundPaintMethods = new ArrayList();
+        defaultZOrder = new PaintMethodZOrder();
+    }
     /**
      * Constructs a thumbnail around this model (no renderer specified yet)
      * @param tdm The data model.
@@ -95,9 +104,9 @@ public class Thumbnail extends PImage
     public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
     {
         super();
+        init();
         setAccelerated(true);
         this.model = tdm;
-        defaultZOrder = new PaintMethodZOrder(); // not established yet
     }
     
     /**
@@ -109,8 +118,8 @@ public class Thumbnail extends PImage
     public Thumbnail(Image thumbImage, ThumbnailDataModel tdm)
     {
         super(thumbImage,false);
+        init();
         this.model = tdm;
-        defaultZOrder = new PaintMethodZOrder();
     }
 
     /**
@@ -245,7 +254,7 @@ public class Thumbnail extends PImage
      * Paints the Thumbnail and all its overlays.
      * @param context The Piccolo paint context.
      */
-    public void paintComponent(PPaintContext context)
+    public void paint(PPaintContext context)
     {
         Graphics2D g2 = context.getGraphics();
         
@@ -266,6 +275,7 @@ public class Thumbnail extends PImage
             p.paint(g2,this);
         }
         
+        System.err.println("paint me");
         // now draw the default overlays
         for(Iterator iter = defaultZOrder.getMethodOrder().iterator();
             iter.hasNext();)

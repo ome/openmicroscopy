@@ -35,9 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.Map;
 
 /**
  * A repository of commonly used paint methods.
@@ -57,6 +55,7 @@ public class PaintMethods
         public void paint(Graphics2D g, Thumbnail t)
         {
             // dummy method for now
+            System.err.println("paint");
             g.drawString("I",4,4);
         }
 

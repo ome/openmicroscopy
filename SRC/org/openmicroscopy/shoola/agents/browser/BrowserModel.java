@@ -366,6 +366,7 @@ public class BrowserModel
         
         if(changed)
         {
+            updatePaintMethods();
             for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
             {
                 BrowserModelListener bml =
@@ -379,6 +380,8 @@ public class BrowserModel
     // applies the current z order to all thumbnails in the model.
     private void updatePaintMethods()
     {
+        System.err.println("update paint methods");
+        System.err.println(annotationModel.getMethodOrder().size());
         for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
         {
             Thumbnail t = (Thumbnail)iter.next();

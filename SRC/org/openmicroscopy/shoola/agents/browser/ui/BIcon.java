@@ -321,6 +321,17 @@ public class BIcon extends PNode implements MouseOverSensitive,
      */
     public void respondMouseClick(PInputEvent event)
     {
+        if(sticky)
+        {
+            if(activated)
+            {
+                setActivated(false);
+            }
+            else
+            {
+                setActivated(true);
+            }
+        }
         PiccoloAction action =
             mouseDownActions.getMouseClickAction(PiccoloModifiers.getModifier(event));
         action.execute(event);
