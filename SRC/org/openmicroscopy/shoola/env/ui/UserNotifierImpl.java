@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
+import org.openmicroscopy.shoola.env.config.Registry;
+
 //Java imports
 
 //Third-party libraries
@@ -64,11 +66,12 @@ public class UserNotifierImpl
     private static final String     DEFAULT_WARNING_TITLE = "Warning";
     private static final String     DEFAULT_WARNING_MESSAGE = "Message Warning"; 
     private TopFrameImpl            topFrame;
-    
+    private Registry				reg;
     /** Creates a new instance of UserNotifierImpl. */
-    public UserNotifierImpl(TopFrameImpl topFrame)
+    public UserNotifierImpl(TopFrameImpl topFrame, Registry reg)
     {
         this.topFrame = topFrame;
+        this.reg = reg;
     }
     // TODO: to be modified. Display message using a JDialog:
     // will implement code soon
@@ -133,7 +136,7 @@ public class UserNotifierImpl
 	 */
 	private void showMessageDialog(String title, String summary, int iconID)
 	{	
-		new UserNotifierDialog(topFrame, title, summary, iconID);
+		new UserNotifierDialog(reg, topFrame, title, summary, iconID);
 	}
 	
 	/**
@@ -149,9 +152,9 @@ public class UserNotifierImpl
 									String detail, int iconID)
 	{
 		if (detail == null) 
-			new UserNotifierDialog(topFrame, title, summary, iconID);
+			new UserNotifierDialog(reg, topFrame, title, summary, iconID);
 		else	
-			new UserNotifierDialog(topFrame, title, summary, detail, iconID); 
+			new UserNotifierDialog(reg, topFrame, title, summary, detail, iconID); 
 	}
 	
 }

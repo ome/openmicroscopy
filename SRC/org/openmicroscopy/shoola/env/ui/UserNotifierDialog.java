@@ -51,6 +51,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -109,17 +112,18 @@ public class UserNotifierDialog
 	/**
 	 * Creates a new instance of {@link UserNotifierDialog}.
 	 * 
+	 * @param reg			reference to the {@link Registry}.
 	 * @param frame			parentComponent, reference to the topFrame.
 	 * @param title			dialog's window title.
 	 * @param summary		summary to display.
 	 * @param iconID		icon ID.
 	 */
-	public UserNotifierDialog(JFrame frame, String title, String summary, 
-								int iconID)
+	public UserNotifierDialog(Registry reg, JFrame frame, String title, 
+								String summary, int iconID)
 	{
 		super(frame, title, true);
 		isShown = false;
-		loadImages();
+		loadImages(reg);
 		setResizable(false);
 		contentPane = super.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
@@ -131,19 +135,20 @@ public class UserNotifierDialog
 	/**
 	 * Creates a new instance of {@link UserNotifierDialog}.
 	 * 
+	 * @param reg			reference to the {@link Registry}.
 	 * @param frame			parentComponent, reference to the topFrame.
 	 * @param title			dialog's window title.
 	 * @param summary		summary to display.
 	 * @param message		complement of informations.
 	 * @param iconID		icon ID.
 	 */
-	public UserNotifierDialog(JFrame frame, String title, String summary, 
-								String detail, int iconID)
+	public UserNotifierDialog(Registry reg, JFrame frame, String title, 
+								String summary, String detail, int iconID)
 	{
 		super(frame, title, true);
 		this.detail = detail;
 		isShown = false;
-		loadImages();
+		loadImages(reg);
 		setResizable(false);
 		contentPane = super.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
@@ -195,14 +200,13 @@ public class UserNotifierDialog
 	/**
 	 * Fills up the <code>images</code> array.
 	 */
-	private void loadImages()
+	private void loadImages(Registry reg)
 	{
-		//TODO: upload icon from registry
 		images = new Icon[3];
-		//Paths relative to UIFactory.
-		images[INFORMATION_MESSAGE] = UIFactory.createIcon("graphx/OME16.png");
-		images[WARNING_MESSAGE] = UIFactory.createIcon("graphx/OME16.png");
-		images[ERROR_MESSAGE] = UIFactory.createIcon("graphx/OME16.png");
+		IconFactory factory = (IconFactory) reg.lookup("/resources/icons");
+		images[INFORMATION_MESSAGE] = factory.getIcon("OME16.png");
+		images[WARNING_MESSAGE] = factory.getIcon("OME16.png");
+		images[ERROR_MESSAGE] = factory.getIcon("OME16.png");
 		//TODO: handle nulls (image not loaded).
 	}
 	

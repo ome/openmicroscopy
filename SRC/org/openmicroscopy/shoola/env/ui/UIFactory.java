@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.net.URL;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -40,6 +41,7 @@ import javax.swing.ImageIcon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Factory for the various windows and widgets used within the container.
@@ -86,11 +88,12 @@ public class UIFactory
 	 * Creates the {@link UserNotifier}.
 	 * 
 	 * @param tf	Reference to the {@link TopFrame}. 
+	 * @param reg	reference to the {@link Registry}.
 	 * @return	The {@link UserNotifier}.
 	 */
-	public static UserNotifier makeUserNotifier(TopFrame tf)
+	public static UserNotifier makeUserNotifier(TopFrame tf, Registry reg)
 	{
-		return new UserNotifierImpl((TopFrameImpl) tf);
+		return new UserNotifierImpl((TopFrameImpl) tf, reg);
 	}
 	
 	/** Utility factory method to create an icon from a file.

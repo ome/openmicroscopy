@@ -96,7 +96,7 @@ final class UserNotifierInit
 	{
 		Registry reg = container.getRegistry();
 		TopFrame tf = reg.getTopFrame();
-		UserNotifier un = UIFactory.makeUserNotifier(tf);
+		UserNotifier un = UIFactory.makeUserNotifier(tf, reg);
 		RegistryFactory.linkUserNotifier(un, reg);
 	}
 	
