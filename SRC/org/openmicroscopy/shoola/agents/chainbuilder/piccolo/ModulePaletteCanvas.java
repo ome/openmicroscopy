@@ -208,7 +208,6 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private CategoryBox decorateCategory(PNode parent,String name) {
 		CategoryBox box  = new CategoryBox(name);
 		parent.addChild(box);
-		box.moveToBack();
 		return box;
 	}
 	
@@ -249,6 +248,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		CategoryBox box = decorateCategory(parent,cat.getName());
 		displayCategoryName(box,cat.getName());
 		ModuleTreeNode catNode = new ModuleTreeNode(cat); // was .getName(),cat.getID());
+		System.err.println("adding category..."+cat.getName());
 		treeParent.add(catNode);
 
 		// display the module in the box.
