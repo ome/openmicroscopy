@@ -267,7 +267,7 @@ public class DatasetImagesNode extends PNode  {
 	
 
 	/**
-	 * To get the halo bounds, find the index of the node in the list of 
+	 * To get the zooming bounds, find the index of the node in the list of 
 	 * children and build highlight bounds around it
 	 * * To build the highlight, iterate over the range implied by the radius
 	 * and add everythin in that region
@@ -280,7 +280,7 @@ public class DatasetImagesNode extends PNode  {
 		calculatePosition(index);
 		PBounds b = new PBounds();
 		
-		//	build up bounds of zoomhalo
+		//	build up bounds of zooming
 		int lowRow = highlightRow-radius;
 		int highRow = highlightRow+radius;
 		
@@ -378,7 +378,7 @@ public class DatasetImagesNode extends PNode  {
 		
 		int radius = getRadius(level);
 	
-		//	calculate the current halo
+		//	calculate the current zoom bounds
 		doHighlightThumbnail(thumb,radius);
 		
 		  
