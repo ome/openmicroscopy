@@ -1,0 +1,184 @@
+/*
+ * org.openmicroscopy.shoola.agents.datamng.ExplorerPane
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.datamng;
+
+
+
+//Java imports
+import java.awt.Component;
+
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+
+//Third-party libraries
+
+//Application-internal dependencies
+
+/** 
+ * UI component to browse the whole project-dataset
+ * hierarchy for the current user.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">
+ * 					a.falconi@dundee.ac.uk</a>
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+class ExplorerPane
+	extends JScrollPane
+{
+
+	/** This UI component's controller and model. */
+	private ExplorerPaneManager     manager;
+	
+	/** Reference to the Registry. */
+	private Registry				registry;
+	
+	/** The tree used to represent the project-dataset hierarchy. */
+	JTree       					tree;
+
+	 
+	/** 
+	 * Creates a new instance.
+	 *
+	 *@param    agentCtrl   The agent's control component.
+	 */
+	ExplorerPane(DataManagerCtrl agentCtrl, Registry registry)
+	{
+		this.registry = registry;
+		tree = new JTree();
+		manager = new ExplorerPaneManager(this, agentCtrl);
+		DefaultTreeModel dtm = new DefaultTreeModel(manager.getUserTreeModel());
+		tree.setModel(dtm);
+		buildGUI();
+	}
+	
+	/** 
+	 * Returns the last selected node on the tree only if that is a project, 
+	 * dataset or image.
+	 * If the above condition is not met, <code>null</code> is returned instead.
+	 *
+	 * @return  See above.
+	 */
+	Object getCurrentOMEObject()
+	{
+		Object  target = null;
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+											tree.getLastSelectedPathComponent();
+		if (node != null) {
+			Object  usrObj = node.getUserObject();
+			if( usrObj instanceof ProjectSummary  || 
+				usrObj instanceof DatasetSummary  ||
+				usrObj instanceof ImageSummary )
+				target = usrObj;
+		}
+		return target;
+	}	
+	
+	/** 
+	 * Builds and lays out the GUI.
+	 */
+	private void buildGUI() {
+		tree.putClientProperty("JTree.lineStyle", "Angled");
+		tree.setCellRenderer(new DataTreeCellRenderer());
+		tree.getSelectionModel().setSelectionMode(
+									TreeSelectionModel.SINGLE_TREE_SELECTION);
+		setViewportView(tree);
+	}
+	
+	/** Custom tree renderer. */
+	private final class DataTreeCellRenderer
+		extends DefaultTreeCellRenderer
+	{
+		private static final int    ROOT_ICON = 0;   
+		private static final int    PROJECT_ICON = 1;
+		private static final int    DATASET_ICON = 2;
+		private static final int    IMAGE_ICON = 3;
+		private static final int    NO_ICON = 4;
+		
+		public Component getTreeCellRendererComponent(JTree tree, Object value,
+							boolean sel, boolean expanded, boolean leaf,
+							int row, boolean hasFocus)
+		{
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
+													row, hasFocus);
+													
+			IconFactory factory = (IconFactory) 
+							registry.lookup("/resources/icons/Factory");
+			switch (getIconID(value)) {
+				case ROOT_ICON:
+					setIcon(factory.getIcon("OME16.png"));
+					break;
+				case PROJECT_ICON:
+					setIcon(factory.getIcon("project16.png"));
+					break;
+				case DATASET_ICON:
+					setIcon(factory.getIcon("dataset16.png"));
+					break;
+				case IMAGE_ICON:
+					setIcon(factory.getIcon("image16.png"));
+					break;
+				case NO_ICON:
+					setIcon(null);
+			}
+			return this;
+		}
+		
+		private int getIconID(Object value)
+		{
+			DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
+			Object  usrObject = node.getUserObject();
+			int     id = ROOT_ICON;
+			if (node.getLevel() != 0 ) {
+				if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;
+				else if (usrObject instanceof DatasetSummary)id = DATASET_ICON;
+				else if (usrObject instanceof ImageSummary)id = IMAGE_ICON;
+				else if (usrObject instanceof String)id = NO_ICON;
+			}
+			return id;
+		}
+	}
+		
+}
