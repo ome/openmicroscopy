@@ -11,9 +11,9 @@
    * Fail at import time if the external properties this child depends upon
    * have not been defined. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <checkdef prop="build.dir"/> 
-  <checkdef prop="base.test.dir"/>
-  <checkdef prop="base.test.lib.dir"/>
+  <checkdef prop="build.dir" /> 
+  <checkdef prop="base.test.dir" />
+  <checkdef prop="base.test.lib.dir" />
   <!-- 
     NOTE: The last dependency is app.run.classpath, which is a path ref.
     This can only be checked after the path elements have been created,
@@ -57,32 +57,32 @@
    *           include the test compile-classpath as well as all compiled 
    *           test classes.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <property name="test.dir" location="${build.dir}/test"/>
-  <property name="test.compiled.dir" location="${test.dir}/compiled"/> 
-  <property name="test.lib.dir" location="${test.dir}/lib"/>
-  <property name="test.reports.dir" location="${test.dir}/reports"/>
-  <property name="test.reports.xml.dir" location="${test.reports.dir}/xml"/>
-  <property name="test.reports.html.dir" location="${test.reports.dir}/html"/> 
+  <property name="test.dir" location="${build.dir}/test" />
+  <property name="test.compiled.dir" location="${test.dir}/compiled" /> 
+  <property name="test.lib.dir" location="${test.dir}/lib" />
+  <property name="test.reports.dir" location="${test.dir}/reports" />
+  <property name="test.reports.xml.dir" location="${test.reports.dir}/xml" />
+  <property name="test.reports.html.dir" location="${test.reports.dir}/html" /> 
   <patternset id="test.sources">
-    <include name="**/*.java"/>
-    <exclude name="**/omeds/**/*.java"/> 
+    <include name="**/*.java" />
+    <exclude name="**/omeds/**/*.java" /> 
   </patternset> 
   <fileset id="test.suite" dir="${base.test.dir}"> 
-    <include name="**/Test*.java"/>
-    <exclude name="**/omeds/**/*.java"/> 
+    <include name="**/Test*.java" />
+    <exclude name="**/omeds/**/*.java" /> 
   </fileset> 
-  <fileset id="test.libs" dir="${base.test.lib.dir}" includes="*.jar"/>
+  <fileset id="test.libs" dir="${base.test.lib.dir}" includes="*.jar" />
   <fileset id="test.resources" dir="${base.test.dir}">
-    <exclude name="**/*.java"/>
-    <exclude name="**/omeds/**/*"/> 
+    <exclude name="**/*.java" />
+    <exclude name="**/omeds/**/*" /> 
   </fileset>
   <path id="test.compile.classpath">
-    <path refid="app.run.classpath"/> 
-    <fileset dir="${test.lib.dir}" includes="*.jar"/> 
+    <path refid="app.run.classpath" /> 
+    <fileset dir="${test.lib.dir}" includes="*.jar" /> 
   </path> 
   <path id="test.classpath">
-    <path refid="test.compile.classpath"/>
-    <pathelement location="${test.compiled.dir}"/>
+    <path refid="test.compile.classpath" />
+    <pathelement location="${test.compiled.dir}" />
   </path>
  
  
@@ -107,19 +107,19 @@
    * report of any previous run wouldn't be deleted.)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="test-init" depends="init">
-    <checkdup dir="${base.test.dir}" targetdir="${base.src.dir}"/> 
-    <mkdir dir="${test.dir}"/>
-    <mkdir dir="${test.compiled.dir}"/>
-    <mkdir dir="${test.lib.dir}"/> 
-    <delete dir="${test.reports.dir}"/>
-    <mkdir dir="${test.reports.dir}"/> 
-    <mkdir dir="${test.reports.xml.dir}"/> 
-    <mkdir dir="${test.reports.html.dir}"/> 
+    <checkdup dir="${base.test.dir}" targetdir="${base.src.dir}" /> 
+    <mkdir dir="${test.dir}" />
+    <mkdir dir="${test.compiled.dir}" />
+    <mkdir dir="${test.lib.dir}" /> 
+    <delete dir="${test.reports.dir}" />
+    <mkdir dir="${test.reports.dir}" /> 
+    <mkdir dir="${test.reports.xml.dir}" /> 
+    <mkdir dir="${test.reports.html.dir}" /> 
     <copy todir="${test.compiled.dir}">
-      <fileset refid="test.resources"/>
+      <fileset refid="test.resources" />
     </copy> 
     <copy todir="${test.lib.dir}">
-      <fileset refid="test.libs"/>
+      <fileset refid="test.libs" />
     </copy> 
   </target>
 
@@ -136,18 +136,70 @@
    * depends on app-init, we defer this check until compile has been called.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="test-compile" depends="test-init,compile">
-    <checkdef ref="app.run.classpath"/> 
+    <checkdef ref="app.run.classpath" /> 
     <javac srcdir="${base.test.dir}" 
            destdir="${test.compiled.dir}"
            includeantruntime="no" 
            deprecation="yes"
            debug="yes"
            debuglevel="lines,vars,source">
-      <classpath refid="test.compile.classpath"/>
-      <patternset refid="test.sources"/> 
+      <classpath refid="test.compile.classpath" />
+      <patternset refid="test.sources" /> 
     </javac> 
   </target> 
-  
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Run a single test and produce a report on the console.
+   * This is mainly a convenience target for developers.  In order to use it
+   * you have to set the 'test.case' property to the fully qualified name of
+   * the test case class.  (This class must be part of the application test
+   * suite, which is defined by the test.suite fileset.)
+   * There are several ways to set the 'test.case' property, ranging from 
+   * manually editing this file to specifying it on the Ant's command line,
+   * like in:
+   * 
+   * ant -Dtest.case=org.openmicroscopy.shoola.my.Test test-case
+   *
+   * (You can also load properties from a file, please refer to the Ant's
+   * help or manual.)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="test-case" depends="test-compile">
+    <junit printsummary="yes" 
+           haltonerror="yes"
+           haltonfailure="yes" 
+           fork="yes">
+      <classpath refid="test.classpath" /> 
+      <test name="${test.case}" if="test.case" />  
+    </junit> 
+  </target> 
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Run all tests matching a given pattern and produce a report on the console.
+   * This is mainly a convenience target for developers.  In order to use it
+   * you have to set the 'test.matching' property to an Ant include pattern.
+   * (The pattern will be used to match files in ${base.test.dir}.)
+   * For example:
+   *
+   * ant -Dtest.matching=**/util/mem/Test*.java test-matching
+   *
+   * Will run all tests in every util.mem package found under ${base.test.dir}.
+   * (You can also load properties from a file, please refer to the Ant's
+   * help or manual.)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="test-matching" depends="test-compile">
+    <junit printsummary="yes" 
+           haltonerror="yes"
+           haltonfailure="yes" 
+           fork="yes">
+      <classpath refid="test.classpath" /> 
+      <batchtest if="test.matching">
+        <fileset dir="${base.test.dir}">
+          <include name="${test.matching}" />
+        </fileset> 
+      </batchtest> 
+    </junit> 
+  </target>
+   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run all tests, produce a report, and halt the build upon test failure. 
    * The test suite is specifed by the test.suite fileset.  Every test case
@@ -195,7 +247,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="clean"
           description="Remove all output generated by test targets.">
-    <delete dir="${test.dir}"/>
+    <delete dir="${test.dir}" />
   </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
