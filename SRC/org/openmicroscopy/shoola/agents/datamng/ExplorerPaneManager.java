@@ -411,9 +411,9 @@ class ExplorerPaneManager
 							view.tree.addTreeExpansionListener(listeners[i]);
 					}	
 				}
-	   		} else { //Test click on the root node.
-				if (e.isPopupTrigger()) rebuildTree();
-	   		}
+	   		}// else { //Test click on the root node.
+				//if (e.isPopupTrigger()) rebuildTree();
+	   		//}
 		}
 	}
 	
@@ -486,7 +486,7 @@ class ExplorerPaneManager
 										node.getChildCount());						
 			}
 		} else {
-			removeNodesFromDatasetMaps(datasetID, node);
+			//removeNodesFromDatasetMaps(datasetID, node);
 			DefaultMutableTreeNode childNode = 
 					new DefaultMutableTreeNode(LOADING);
 			treeModel.insertNodeInto(childNode, node, node.getChildCount());		
