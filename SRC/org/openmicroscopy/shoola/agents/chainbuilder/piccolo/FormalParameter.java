@@ -208,12 +208,12 @@ public abstract class FormalParameter extends PNode implements
 		return param.getName();
 	}
 	
-	public ModuleView getModuleNode() {
+	public ModuleView getModuleView() {
 		return node;
 	}
 	
 	public ChainModuleData getModule() {
-		return getModuleNode().getModule();
+		return getModuleView().getModule();
 	}
 	
 	/**
@@ -234,7 +234,7 @@ public abstract class FormalParameter extends PNode implements
 			typeNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
 			textNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
 		}
-		getModuleNode().setLinkableHighlighted(v);
+		getModuleView().setLinkableHighlighted(v);
 		repaint();
 	}
 	

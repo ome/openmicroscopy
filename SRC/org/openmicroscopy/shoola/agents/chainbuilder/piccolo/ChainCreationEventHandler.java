@@ -285,7 +285,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			lastParameterEntered = (FormalParameter) node;
 			//System.err.println("mouse entered last entered.."+
 			if (linkState == NOT_LINKING) {
-				ModuleView mod = lastParameterEntered.getModuleNode();
+				ModuleView mod = lastParameterEntered.getModuleView();
 				mod.setParamsHighlighted(false);
 				// must turn on params for this parameter _after_
 				// we turn off all params for the module, 
@@ -321,7 +321,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			FormalParameter param = (FormalParameter) node;
 			if (linkState == NOT_LINKING) {	
 				param.setParamsHighlighted(false);
-				ModuleView mod = param.getModuleNode();
+				ModuleView mod = param.getModuleView();
 				mod.setAllHighlights(false);
 			}			
 			e.setHandled(true);
@@ -605,7 +605,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (count ==2) {
 			if (node instanceof FormalParameter) {
 				FormalParameter p = (FormalParameter) node;
-				ModuleView mod = p.getModuleNode();
+				ModuleView mod = p.getModuleView();
 				finishModuleLinks(mod);
 			}
 			else if (node instanceof ModuleView) {

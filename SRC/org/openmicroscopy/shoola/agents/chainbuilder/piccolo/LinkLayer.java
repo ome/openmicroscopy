@@ -125,8 +125,8 @@ public class LinkLayer extends PLayer {
 	public ModuleLink completeLink(ParamLink link) {
 		FormalOutput output = link.getOutput();
 		FormalInput input = link.getInput();
-		ModuleView start = output.getModuleNode();
-		ModuleView end = input.getModuleNode();
+		ModuleView start = output.getModuleView();
+		ModuleView end = input.getModuleView();
 	
 		// only add a link if we don't have one already
 	
@@ -164,8 +164,8 @@ public class LinkLayer extends PLayer {
 	 * @param link
 	 */
 	public void removeModuleLinks(ParamLink link) {
-		ModuleView start = link.getOutput().getModuleNode();
-		ModuleView end = link.getInput().getModuleNode();
+		ModuleView start = link.getOutput().getModuleView();
+		ModuleView end = link.getInput().getModuleView();
 		
 		ParamLink lnk;
 		ModuleView s;
@@ -176,8 +176,14 @@ public class LinkLayer extends PLayer {
 			Object obj = iter.next();
 			if (obj instanceof ParamLink) {
 				lnk = (ParamLink) obj;
-				s = lnk.getOutput().getModuleNode();
-				e = lnk.getInput().getModuleNode();
+				if (lnk.getOutput() != null)
+					s = lnk.getOutput().getModuleView();
+				else
+					s = null;
+				if (lnk.getInput() != null)
+					e = lnk.getInput().getModuleView();
+				else 
+					e=null;
 				// if same thing, we're done. don't clobber.
 				if (s == start && e == end)
 					return;
@@ -239,8 +245,8 @@ public class LinkLayer extends PLayer {
 			Object obj = iter.next();
 			if (obj instanceof ParamLink) {
 				ParamLink lnk = (ParamLink) obj;
-				ModuleView s = lnk.getOutput().getModuleNode();
-				ModuleView e = lnk.getInput().getModuleNode();
+				ModuleView s = lnk.getOutput().getModuleView();
+				ModuleView e = lnk.getInput().getModuleView();
 				// if it's a link betweenn our two places, kill it.
 				// but we don't call lnk.remove(), as this would do bad 
 				// recursive things, as it would try to remove the
