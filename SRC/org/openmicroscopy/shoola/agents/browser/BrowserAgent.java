@@ -60,8 +60,10 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
+import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
@@ -221,6 +223,14 @@ public class BrowserAgent implements Agent, AgentEventListener
         final BrowserModel model = new BrowserModel();
         model.setLayoutMethod(new NumColsLayoutMethod(8));
         BrowserTopModel topModel = new BrowserTopModel();
+        
+        BPalette modePalette = PaletteFactory.getMainPalette(model,topModel);
+        topModel.addPalette("Modes",modePalette);
+        BPalette paintPalette = PaletteFactory.getPaintModePalette(model,topModel);
+        topModel.addPalette("Overlays",paintPalette);
+        
+        modePalette.setOffset(0,0);
+        paintPalette.setOffset(0,50);
         BrowserView view = new BrowserView(model,topModel);
         BrowserController controller = new BrowserController(model,view);
         controller.setStatusView(new StatusBar());
