@@ -60,6 +60,7 @@ import org.w3c.dom.NodeList;
 class FontEntry
     extends Entry
 {
+	
 	private static Map fontStyle;
 	
 	static {
@@ -68,28 +69,27 @@ class FontEntry
 		fontStyle.put("italic", new Integer(Font.ITALIC));
 		fontStyle.put("bold", new Integer(Font.BOLD));	
 	}
+	
 	/** tag's name. */
 	private static final String		NAME = "family", SIZE = "size", 
 									STYLE = "style";
 	/** Default size. */
-    private static int			DEFAULT_SIZE = 12; 
+    private static int				DEFAULT_SIZE = 12; 
     
     /** Default style. */
-    private static int 			DEFAULT_STYLE = Font.PLAIN;
+    private static int 				DEFAULT_STYLE = Font.PLAIN;
     
-    private static int			MAX_SIZE = 20, MIN_SIZE =2;
+    private static int				MAX_SIZE = 20, MIN_SIZE =2;
     
     /** Font attributes. */
-    private static int 			size;
-    private static int 			style;
-    private static String 		name;
+    private static int 				size;
+    private static int 				style;
+    private static String 			name;
     
     
     private Font value;
     
-    FontEntry()
-    {
-    }
+    FontEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node) { 
@@ -99,8 +99,9 @@ class FontEntry
             //b/c we don't use yet a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
+				Node child;
                 for (int i = 0; i < childList.getLength(); i++) {
-                    Node child = childList.item(i);
+                    child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)  
 						setFontAttribute(child.getFirstChild().getNodeValue(), 
                                 child.getNodeName()) ;
@@ -111,12 +112,8 @@ class FontEntry
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return value; 
-    }
-    
-    
+    Object getValue() { return value; }
+      
 	/** 
 	 * Initializes the fields to create the font.
 	 * 
@@ -139,4 +136,5 @@ class FontEntry
 			else style = i.intValue();
 		}
 	}
+	
 }

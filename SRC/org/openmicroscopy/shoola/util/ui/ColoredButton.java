@@ -60,9 +60,9 @@ public class ColoredButton
 	/** Overrides the paintComponent method. */
 	public void paintComponent(Graphics g)
 	{
-		Graphics2D      g2D = (Graphics2D) g;
+		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(getBackground());
-		Dimension   d = getSize();
+		Dimension d = getSize();
 		g2D.fillRect(0, 0, d.width, d.height); 
 	}
 	

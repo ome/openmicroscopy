@@ -109,6 +109,7 @@ public class Quantization_8_16_bit
 		double a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
 		int x = min;
 		double v;
+		
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 

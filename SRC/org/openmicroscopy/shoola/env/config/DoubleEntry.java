@@ -54,24 +54,19 @@ class DoubleEntry
 {
     
     private Double value;
-    DoubleEntry()
-    {
-    }
+    
+    DoubleEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
-            Node child = node.getFirstChild(); // has only one child
-            value = new Double(child.getNodeValue());
+            // has only one child
+            value = new Double(node.getFirstChild().getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return value; 
-    }
-    
+    Object getValue() { return value; }   
     
 }

@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 class GreyScaleStrategy 
 	extends RenderingStrategy
 {
+	
 	/** Number of Pixels on the X1-axis. */
 	private int 		sizeX1;
 	
@@ -94,7 +95,7 @@ class GreyScaleStrategy
 		//Initialize sizeX1 and sizeX2 according to the plane definition and
 		//create the GS buffer used by the Java2D API.
 		initAxesSize(planeDef, dims);
-		DataBufferByte renderedDataBuf = new DataBufferByte(sizeX1*sizeX2, 1);
+		DataBufferByte renderedDataBuf = new DataBufferByte(sizeX1*sizeX2, 3);
 
 		//Process the first active wavelength. 
 		Plane2D wData;
@@ -103,12 +104,19 @@ class GreyScaleStrategy
 				//NOTE: RenderingDef enforces the constraint 
 				//i == cBindings[i].getIndex().
 				wData = dSink.getPlane2D(planeDef, i);
-				renderWave(renderedDataBuf, wData, qManager.getStrategyFor(i), 
-							cBindings[i].getRGBA());
+				try {
+					renderWave(renderedDataBuf, wData, 
+								qManager.getStrategyFor(i), 
+								cBindings[i].getRGBA());
+				} catch (QuantizationException e) {
+					e.setWavelength(i);
+					throw e;
+				}
 				break;
 			}
 		}
 		
+		/*
 		//Now we only need to tell Java2D how to handle the GS buffer.
 		ComponentColorModel ccm = new ComponentColorModel(
 									ColorSpace.getInstance(ColorSpace.CS_GRAY), 
@@ -119,6 +127,17 @@ class GreyScaleStrategy
 		return new BufferedImage(ccm, 
 						Raster.createWritableRaster(csm, renderedDataBuf, null), 
 						false, null);
+		*/
+		//Now we only need to tell Java2D how to handle the RGB buffer. 
+		ComponentColorModel ccm = new ComponentColorModel(
+									ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+									null, false, false, Transparency.OPAQUE, 
+									DataBuffer.TYPE_BYTE);
+		BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+									sizeX1, sizeX2, 3);
+		return new BufferedImage(ccm, 
+					Raster.createWritableRaster(csm, renderedDataBuf, null), 
+					false, null);
 	}
 
 	/** 
@@ -154,13 +173,16 @@ class GreyScaleStrategy
 		throws DataSourceException, QuantizationException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
-		int x1, x2, discreteValue, v;
+		int x1, x2, discreteValue, v, value;
 		float alpha = ((float) rgba[3])/255;
 		for (x2 = 0; x2 < sizeX2; ++x2) 
 			for (x1 = 0; x1 < sizeX1; ++x1) {
 				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
 				v = cc.transform(discreteValue);
-				dataBuf.setElem(0, sizeX1*x2+x1, (int) (v*alpha));
+				value = (int) (v*alpha);
+				dataBuf.setElem(RGBStrategy.R_BAND, sizeX1*x2+x1, value);
+				dataBuf.setElem(RGBStrategy.G_BAND, sizeX1*x2+x1, value);
+				dataBuf.setElem(RGBStrategy.B_BAND, sizeX1*x2+x1, value);
 	   } 
 	}
 	

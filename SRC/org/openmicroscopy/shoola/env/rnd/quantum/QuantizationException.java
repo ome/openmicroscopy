@@ -57,6 +57,9 @@ public class QuantizationException
 	extends Exception
 {
 
+	/** OME index of the wavelength. */
+	private int		wavelength;
+	
 	/** Creates a new exception. */
 	public QuantizationException() { super(); }
 
@@ -85,4 +88,14 @@ public class QuantizationException
 		super(message, cause);
 	}
 
+	public void setWavelength(int index)
+	{
+		wavelength = index;
+	}
+	
+	public int getWavelength()
+	{
+		return wavelength;
+	}
+	
 }

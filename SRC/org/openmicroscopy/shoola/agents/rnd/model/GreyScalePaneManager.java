@@ -95,8 +95,7 @@ class GreyScalePaneManager
 		Object obj = (Object) e.getSource();
 		try {
 			int w = Integer.parseInt(s);
-			if (obj instanceof JRadioButton) 
-				eventManager.setActive(w, ((JRadioButton) obj).isSelected());
+			if (obj instanceof JRadioButton) eventManager.setActive(w);
 			else showChannelInfo(w);
 		} catch(NumberFormatException nfe) {
 				throw nfe;  //just to be on the safe side...

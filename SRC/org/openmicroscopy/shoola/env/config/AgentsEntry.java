@@ -59,6 +59,7 @@ class AgentsEntry
 {
     
     private List    listAgents;
+    
     AgentsEntry()
     {
 		listAgents = new ArrayList();
@@ -72,8 +73,9 @@ class AgentsEntry
             //add control b/c we don't use yet a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
+                Node child;
                 for (int i = 0; i < childList.getLength(); i++) {
-                    Node child = childList.item(i);
+                    child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE) 
                         retrieveAgentContent(child);
                 }
@@ -82,23 +84,21 @@ class AgentsEntry
     }
    
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return listAgents; 
-    }
+    Object getValue() { return listAgents; }
     
 	/** 
-	* Parse the Agent node.
-	*
-	* @param node      agent node.
-	*/    
+	 * Parse the Agent node.
+	 *
+	 * @param node      agent node.
+	 */    
      private void retrieveAgentContent(Node node)
      {
         if (node.hasChildNodes()) {
             AgentInfo agtInfo = new AgentInfo();
             NodeList childList = node.getChildNodes();
+			Node child;
             for (int i = 0; i < childList.getLength(); i++) {
-                Node child = childList.item(i);
+                child = childList.item(i);
                 if (child.getNodeType()== Node.ELEMENT_NODE)
                         agtInfo.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());

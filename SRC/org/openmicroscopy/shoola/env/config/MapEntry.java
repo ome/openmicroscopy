@@ -69,8 +69,9 @@ class MapEntry
         try {
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
+				Node child;
                 for (int i = 0; i < childList.getLength(); i++) {
-                    Node child = childList.item(i);
+                    child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
                         tagsValues.put(child.getNodeName(), 
                                         child.getFirstChild().getNodeValue());
@@ -80,9 +81,6 @@ class MapEntry
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return tagsValues; 
-    }
+    Object getValue() { return tagsValues; }
     
 }

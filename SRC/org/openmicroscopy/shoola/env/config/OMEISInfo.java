@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.config;
 
 
-
 //Java imports
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -72,13 +71,7 @@ public class OMEISInfo
 		} catch (MalformedURLException ex) { throw new RuntimeException(ex); }
 	}
 
-	/**
-	 * Returns the content of the tag <code>url</code>.
-	 * 
-	 * @return See above.
-	 */
-	public URL getServerAddress() {
-		return serverAddress;
-	}
+	/** Returns the content of the tag <code>url</code>. */
+	public URL getServerAddress() { return serverAddress; }
 	
 }

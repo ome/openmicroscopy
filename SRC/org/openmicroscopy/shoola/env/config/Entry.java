@@ -217,17 +217,13 @@ abstract class Entry
 	/** The content of the <i>name</i> attribute. */
 	private String      name;
 	
-	
 	/** 
 	 * Returns the content of the <i>name</i> attribute 
 	 * of a configuration entry.
 	 *
 	 * @return The content of the <i>name</i> attribute.
 	 */  
-    String getName()
-    {
-        return name;
-    }
+    String getName() { return name; }
     
     /**
      * Subclasses implement this method to grab the tag’s content, which is

@@ -107,8 +107,14 @@ class RGBStrategy
 			//i == cBindings[i].getIndex().
 			if (cBindings[i].isActive()) {
 				wData = dSink.getPlane2D(planeDef, i);
-				renderWave(renderedDataBuf, wData, qManager.getStrategyFor(i), 
-							cBindings[i].getRGBA());
+				try {
+					renderWave(renderedDataBuf, wData, 
+								qManager.getStrategyFor(i), 
+								cBindings[i].getRGBA());
+				} catch (QuantizationException e) {
+					e.setWavelength(i);
+					throw e;
+				}	
 			}
 		}
 		

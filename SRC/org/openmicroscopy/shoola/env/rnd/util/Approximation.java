@@ -67,15 +67,9 @@ public class Approximation
 	}
     
 	/** Returns the smallest integer. */
-	public static double smallestInteger(double v)
-	{
-		return Math.floor(v);
-	}
+	public static double smallestInteger(double v) { return Math.floor(v); }
 	
 	/**Returns the largest integer. */    
-	public static double largestInteger(double v)
-	{
-		return Math.ceil(v);
-	}
+	public static double largestInteger(double v) { return Math.ceil(v); }
 
 }

@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.Agent;
  */
 public class AgentInfo 
 {
+	
 	static final String         NAME = "name", 
 								CLASS = "class", 
 								CONFIG = "config";
@@ -70,11 +71,13 @@ public class AgentInfo
 	private Agent				agent;
 	
 	private Registry			registry;
-	/** Set the pair (name, value).
-	* 
-	* @param value		tag's value.
-	* @param tag		tag's name.
-	*/
+	
+	/** 
+	 * Set the pair (name, value).
+	 * 
+	 * @param value		tag's value.
+	 * @param tag		tag's name.
+	 */
     void setValue(String value, String tag)
     {
         try {
@@ -86,69 +89,25 @@ public class AgentInfo
         }
     }
     
-	/**
-	 * Returns the value of the <code>name</code> tag.
-	 *
-	 * @return	See above.
-	 */
-    public String getName()
-    {
-        return name;
-    }
+	/** Returns the value of the <code>name</code> tag. */
+	public String getName() { return name; }
     
-	/**  
-	 * Returns the value of the <code>class</code> tag.
-	 *
-	 * @return	See above.
-	 */
-    public String getAgentClass()
-    {
-        return agentClass;
-    }
+	/** Returns the value of the <code>class</code> tag. */
+    public String getAgentClass() { return agentClass; }
         
-	/**
-	 * Returns the value of the <code>config</code> tag. 
-	 *
-	 * @return	See above.
-	 */
-    public String getConfigPath()
-    {
-        return configPath;
-    }
+	/** Returns the value of the <code>config</code> tag. */
+    public String getConfigPath() { return configPath;}
     
-	/**
-	 * Return the {@link Agent}.
-	 * 
-	 * @return See above.
-	 */
-	public Agent getAgent() {
-		return agent;
-	}
+	/** Return the {@link Agent}. */
+	public Agent getAgent() { return agent; }
 
-	/**
-	 * Return the  {@link Registry}.
-	 * 
-	 * @return See above.
-	 */
-	public Registry getRegistry() {
-		return registry;
-	}
+	/** Return the  {@link Registry}. */
+	public Registry getRegistry() { return registry; }
 
-	/**
-	 * Set the {@link Registry}.
-	 * 
-	 * @param registry 
-	 */
-	public void setRegistry(Registry registry) {
-		this.registry = registry;
-	}
-	/**
-	 * Set the {@link Agent}.
-	 * 
-	 * @param agent
-	 */
-	public void setAgent(Agent agent) {
-		this.agent = agent;
-	}
+	/** Set the {@link Registry}. */
+	public void setRegistry(Registry registry) { this.registry = registry; }
+	
+	/** Set the {@link Agent}. */
+	public void setAgent(Agent agent) { this.agent = agent; }
 
 }

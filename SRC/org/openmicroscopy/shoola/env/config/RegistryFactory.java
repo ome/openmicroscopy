@@ -64,15 +64,13 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 public class RegistryFactory 
 {
+	
 	/**
 	 * Creates a new empty {@link Registry}.
 	 * 
 	 * @return	See above.
 	 */
-	public static Registry makeNew()
-	{
-		return new RegistryImpl();
-	}
+	public static Registry makeNew() { return new RegistryImpl(); }
 	
 	/**
 	 * Creates a new {@link Registry} and fills it up with the entries

@@ -62,21 +62,17 @@ public class ColorPanel
 	private static final int 	Y_COORD = 5;
 	private static final int	SPACE = 10;
 	
-	private Color		colorSelected;
+	private Color				colorSelected;
 	
 	/** Sets the color. */
-	public void setColor(Color c)
-	{
-		colorSelected = c;
-		
-	}
+	public void setColor(Color c) { colorSelected = c; }
 	
 	/** Overrides the paintComponent method. */
 	public void paintComponent(Graphics g)
 	{
-		Graphics2D      g2D = (Graphics2D) g;
+		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(DEFAULT_BACKGROUND);
-		Dimension   d = getSize();
+		Dimension d = getSize();
 		g2D.fillRect(0, 0, d.width, d.height); 
 		g2D.setColor(colorSelected);
 		g2D.fillRect(X_COORD, Y_COORD, d.width-SPACE, d.height-SPACE);

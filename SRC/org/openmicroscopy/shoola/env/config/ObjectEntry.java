@@ -29,11 +29,11 @@
 
 package org.openmicroscopy.shoola.env.config;
 
-import org.w3c.dom.Node;
 
 //Java imports
 
 //Third-party libraries
+import org.w3c.dom.Node;
 
 //Application-internal dependencies
 
@@ -78,10 +78,7 @@ class ObjectEntry
 	 * Returns this entry's value.
 	 * @see Entry#getValue()
 	 */
-	Object getValue()
-	{
-		return value;
-	}
+	Object getValue() { return value; }
 
 	/**
 	 * Does nothing as this entry is created by the 
@@ -98,17 +95,9 @@ class ObjectEntry
 	 * 
 	 * @param content	The entry's value.
 	 */
-	void setContent(Object content)
-	{
-		value = content;	
-	}
+	void setContent(Object content) { value = content; }
 	
-	/**
-	 * Overrides the superclass method to return the correct value.
-	 */
-	String getName()
-	{
-		return name;
-	}
+	/** Overrides the superclass method to return the correct value. */
+	String getName() { return name; }
 
 }

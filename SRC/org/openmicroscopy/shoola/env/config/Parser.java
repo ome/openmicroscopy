@@ -69,29 +69,26 @@ class Parser
 	/** The tags that we handle. */
 	static private String[]		tagsEntry = { Entry.ENTRY, Entry.STRUCT_ENTRY };
 	 
-	 
 	/** Points to the configuration file schema. */ 
-	private String          configFileXMLSchema;
+	private String          	configFileXMLSchema;
 	
 	/** 
 	 * Tells whether or not we're validating the configuration file against
 	 * a schema.
 	 */  
-	private boolean         validating;
+	private boolean         	validating;
 	
 	/** The configuration file. */
-    private Document        document;
+    private Document        	document;
     
     /** Points to the configuration file. */
-    private String          configFile;
+    private String          	configFile;
     
     /** Collects all tags that we have to handle from the configuration file. */
-    private List	        entriesTags;
+    private List	        	entriesTags;
     
     /** The registry that we have to fill up. */
-    private RegistryImpl    registry;
-     
-    
+    private RegistryImpl    	registry;
     
 	/** 
 	 * Creates a new instance to fill up the specified registry with the
@@ -151,8 +148,9 @@ class Parser
             }
             readConfigEntries();
             Iterator i = entriesTags.iterator();
+			Node node;
             while (i.hasNext()) {
-               Node node = (Node) i.next();
+               node = (Node) i.next();
                Entry entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }
@@ -168,10 +166,12 @@ class Parser
 	 */
     private void readConfigEntries()
     {
+		NodeList list;
+		Node n;
         for (int k = 0; k < tagsEntry.length; ++k) {
-            NodeList list = document.getElementsByTagName(tagsEntry[k]);
+            list = document.getElementsByTagName(tagsEntry[k]);
 			for (int i = 0; i < list.getLength(); ++i) {
-				Node n = list.item(i);
+				n = list.item(i);
 				if (n.hasChildNodes()) entriesTags.add(n);
 			}
         }

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
 
-
 // Third-party libraries
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -57,9 +56,8 @@ class OMEDSEntry
 {
     
     private OMEDSInfo value;
-    OMEDSEntry()
-    {
-    }
+    
+    OMEDSEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
@@ -69,9 +67,10 @@ class OMEDSEntry
             //add control b/c we don't use a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
+				Node child;
                 OMEDSInfo info = new OMEDSInfo();
                 for (int i = 0; i < childList.getLength(); i++) {
-                    Node child = childList.item(i);
+                    child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
                         info.setValue(child.getFirstChild().getNodeValue(), 
                                     child.getNodeName());
@@ -82,9 +81,6 @@ class OMEDSEntry
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return value; 
-    }
+    Object getValue() { return value; }
     
 }

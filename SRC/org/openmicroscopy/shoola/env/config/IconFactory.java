@@ -81,7 +81,6 @@ public class IconFactory
 	 */
 	private String location;
 
-
 	/**
 	 * Creates a new instance.
 	 * 

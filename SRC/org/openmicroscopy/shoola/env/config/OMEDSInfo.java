@@ -71,13 +71,7 @@ public class OMEDSInfo
 		} catch (MalformedURLException ex) { throw new RuntimeException(ex); }
 	}
 	
-	/**
-	 * Returns the content of the tag <code>url</code>.
-	 * 
-	 * @return See above.
-	 */
-	public URL getServerAddress() {
-		return serverAddress;
-	}
+	/** Returns the content of the tag <code>url</code>. */
+	public URL getServerAddress() { return serverAddress; }
 
 }

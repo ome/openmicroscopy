@@ -56,24 +56,19 @@ class FloatEntry
 {
     
     private Float value;
-    FloatEntry()
-    {
-    }
+    
+    FloatEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
-            Node child = node.getFirstChild(); // has only one child
-            value = new Float(child.getNodeValue());
+            // has only one child
+            value = new Float(node.getFirstChild().getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return value; 
-    }
-    
+    Object getValue() { return value; }
     
 }

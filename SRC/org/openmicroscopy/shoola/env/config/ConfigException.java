@@ -58,10 +58,7 @@ public class ConfigException
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public ConfigException(String message)
-	{
-		super(message);
-	}
+	public ConfigException(String message) { super(message); }
 
 	/**
 	 * Constructs a new exception with the specified detail message and cause.

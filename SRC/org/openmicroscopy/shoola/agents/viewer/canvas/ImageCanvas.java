@@ -162,9 +162,9 @@ public class ImageCanvas
 				int imgW = c.picture.getIcon().getIconWidth(),
 					imgH = c.picture.getIcon().getIconHeight(),
 					x = 0, y = 0;
-				Dimension d = c.contentPane.getSize();
-				if (imgW < d.width) x = (d.width-imgW)/2;
-				if (imgH < d.height) y = (d.height-imgH)/2; 
+				//Dimension d = c.contentPane.getSize();
+				//if (imgW < d.width) x = (d.width-imgW)/2;
+				//if (imgH < d.height) y = (d.height-imgH)/2; 
 				c.imgLayers.setBounds(x, y, imgW, imgH);
 				c.picture.setBounds(0, 0, imgW, imgH);	
 				//if (c.imgGlassPane != null) 
@@ -181,7 +181,7 @@ public class ImageCanvas
 		 */
 		public Dimension preferredLayoutSize(Container canvas)
 		{
-			ImageCanvas c = (ImageCanvas)canvas;
+			ImageCanvas c = (ImageCanvas) canvas;
 			int w = 0, h = 0;
 			if (c.picture != null) {
 				w = c.picture.getIcon().getIconWidth();

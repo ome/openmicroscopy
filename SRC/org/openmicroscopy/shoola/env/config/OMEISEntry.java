@@ -57,9 +57,7 @@ class OMEISEntry
 {
     
     private OMEISInfo value;
-    OMEISEntry()
-    {
-    }
+    OMEISEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
@@ -70,8 +68,9 @@ class OMEISEntry
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 OMEISInfo info = new OMEISInfo();
+				Node child;
                 for (int i = 0; i < childList.getLength(); i++){
-                    Node child = childList.item(i);
+                    child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
                         info.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());
@@ -82,9 +81,6 @@ class OMEISEntry
     }
     
 	/** Implemented as specified by {@link Entry}. */  
-    Object getValue()
-    {
-        return value; 
-    } 
+    Object getValue() { return value; } 
     
 }

@@ -69,6 +69,9 @@ public class LoadImage
 	/** The ID of the pixels set. */
 	private int		pixelsID;
 	
+	/** The name of the image to load. */
+	private String	imageName;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -81,11 +84,28 @@ public class LoadImage
 		this.pixelsID = pixelsID;
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param imageID	The ID of the image to load.
+	 * @param pixelsID	The ID of the pixels set.
+	 * @param imageName	The name of the image to load.
+	 */
+	public LoadImage(int imageID, int pixelsID, String imageName)
+	{
+		this.imageID = imageID;
+		this.pixelsID = pixelsID;
+		this.imageName = imageName;
+	}
+	
 	/** Returns the ID of the image to load. */
 	public int getImageID() { return imageID; }
 
 	/** Return the ID of the pixels set. */
 	public int getPixelsID() { return pixelsID; }
+	
+	/** Return the name of the image to load. */
+	public String getImageName() { return imageName; }
 
 }
 

@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.event.MouseEvent;
-import java.io.Serializable;
 import java.util.EventObject;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -65,7 +64,7 @@ import javax.swing.tree.TreeCellEditor;
  * @since OME2.2
  */
 public class TableComponentCellEditor 
-	implements TableCellEditor, TreeCellEditor, Serializable 
+	implements TableCellEditor, TreeCellEditor
 {
 	
 	protected EventListenerList listenerList = new EventListenerList();
@@ -75,36 +74,26 @@ public class TableComponentCellEditor
 	protected JComponent container = null;		// Can be tree or table
 	
 	
-	public Component getComponent()
-	{
-		return editorComponent;
-	}
+	public Component getComponent() { return editorComponent; }
 	
-	public Object getCellEditorValue()
-	{
-		return editorComponent;
-	}
+	public Object getCellEditorValue() { return editorComponent; }
 	
-	public boolean isCellEditable(EventObject anEvent)
-	{
-		return true;
-	}
+	public boolean isCellEditable(EventObject anEvent) { return true; }
 	
 	public boolean shouldSelectCell(EventObject anEvent)
 	{
 		if (editorComponent != null && anEvent instanceof MouseEvent
-			&& ((MouseEvent) anEvent).getID() == MouseEvent.MOUSE_PRESSED)
-		{
+			&& ((MouseEvent) anEvent).getID() == MouseEvent.MOUSE_PRESSED) {
 		 	Component dispatchComponent = 
-		 		SwingUtilities.getDeepestComponentAt(editorComponent, 3, 3 );
-			MouseEvent e = (MouseEvent)anEvent;
+		 		SwingUtilities.getDeepestComponentAt(editorComponent, 3, 3);
+			MouseEvent e = (MouseEvent) anEvent;
 			MouseEvent e2 = new MouseEvent(dispatchComponent, 
 								MouseEvent.MOUSE_RELEASED,
-								e.getWhen() + 100000, e.getModifiers(),
+								e.getWhen()+100000, e.getModifiers(),
 								3, 3, e.getClickCount(), e.isPopupTrigger());
 			dispatchComponent.dispatchEvent(e2); 
 			e2 = new MouseEvent(dispatchComponent, MouseEvent.MOUSE_CLICKED,
-						e.getWhen() + 100001, e.getModifiers(), 3, 3, 1,
+						e.getWhen()+100001, e.getModifiers(), 3, 3, 1,
 						e.isPopupTrigger());
 			dispatchComponent.dispatchEvent(e2); 
 		}
@@ -117,10 +106,7 @@ public class TableComponentCellEditor
 		return true;
 	}
 	
-	public void cancelCellEditing()
-	{
-		fireEditingCanceled();
-	}
+	public void cancelCellEditing() { fireEditingCanceled(); }
 	
 	public void addCellEditorListener(CellEditorListener l)
 	{
@@ -164,7 +150,7 @@ public class TableComponentCellEditor
 		}
 	}
 	
-	// implements javax.swing.tree.TreeCellEditor
+	/** implements {@link TreeCellEditor}. */
 	public Component getTreeCellEditorComponent(JTree tree, Object value,
 		boolean isSelected, boolean expanded, boolean leaf, int row)
 	{
@@ -175,7 +161,7 @@ public class TableComponentCellEditor
 		return editorComponent;
 	}
 	
-	// implements javax.swing.table.TableCellEditor
+	/** implements {@link TreeCellEditor}. */
 	public Component getTableCellEditorComponent(JTable table, Object value,
 		boolean isSelected, int row, int column)
 	{

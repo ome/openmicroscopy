@@ -92,18 +92,14 @@ class RegistryImpl
     /** Reference to the container's pixel service. */
     private PixelsService           ps;
     //private ImageService			is;
-   
-   
-   
-    /**
-     * Just creates an empty map.
-     */
+
+    /** Just creates an empty map. */
     RegistryImpl()
     {
         entriesMap = new HashMap();
     }
     
-	/**  Implemented as specified by {@link Registry}. */
+	/** Implemented as specified by {@link Registry}. */
 	public void bind(String name, Object value)
 	{
 		if (name != null) {
@@ -123,46 +119,25 @@ class RegistryImpl
     }
     
 	/** Implemented as specified by {@link Registry}. */
-    public EventBus getEventBus()
-    {
-    	return eb;
-    }
+    public EventBus getEventBus() { return eb; }
     
 	/** Implemented as specified by {@link Registry}. */
-	public DataManagementService getDataManagementService()
-	{
-		return dms;
-	}
+	public DataManagementService getDataManagementService() { return dms; }
 	
 	/** Implemented as specified by {@link Registry}. */
-	public SemanticTypesService getSemanticTypesService()
-	{
-		return sts;
-	}
+	public SemanticTypesService getSemanticTypesService() { return sts; }
 	
 	/** Implemented as specified by {@link Registry}. */
-	public Logger getLogger()
-	{
-		return logger;
-	}
+	public Logger getLogger() { return logger; }
 	
 	/** Implemented as specified by {@link Registry}. */
-	public TopFrame getTopFrame()
-	{
-		return tf;
-	}
+	public TopFrame getTopFrame() { return tf; }
 	
 	/** Implemented as specified by {@link Registry}. */
-	public UserNotifier getUserNotifier() 
-	{
-   		return un;
-   	}
+	public UserNotifier getUserNotifier() { return un; }
    	
 	/** Implemented as specified by {@link Registry}. */
-    public PixelsService getPixelsService()
-    {
-        return ps;
-    }
+    public PixelsService getPixelsService() { return ps; }
 
 	/** 
 	* Adds the specified {@link Entry} to the map.
@@ -170,79 +145,55 @@ class RegistryImpl
 	* @param e 	A new {@link Entry} created from an entry tag in the
 	* 			configuration file.
 	*/
-	void addEntry(Entry e)
-	{
-		entriesMap.put(e.getName(), e);
-   	}
+	void addEntry(Entry e) { entriesMap.put(e.getName(), e); }
    	
 	/**
 	 * Stores a reference to the {@link EventBus}.
 	 * 
 	 * @param eb	The {@link EventBus}.
 	 */
-	void setEventBus(EventBus eb)
-	{
-		this.eb = eb;
-	}
+	void setEventBus(EventBus eb) { this.eb = eb; }
 	
    	/**
 	 * Stores a reference to the {@link DataManagementService}.
 	 * 
 	 * @param dms	The {@link DataManagementService}.
 	 */
-	void setDMS(DataManagementService dms)
-	{
-		this.dms = dms;
-	}
+	void setDMS(DataManagementService dms) { this.dms = dms; }
 	
 	/**
 	 * Stores a reference to the {@link SemanticTypesService}.
 	 * 
 	 * @param sts	The {@link SemanticTypesService}.
 	 */
-	void setSTS(SemanticTypesService sts)
-   	{
-		this.sts = sts;
-   	}
+	void setSTS(SemanticTypesService sts) { this.sts = sts; }
     
     /**
      * Stores a reference to the {@link PixelsService}.
      * 
-     * @param ps The {@link PixelsService}
+     * @param ps The {@link PixelsService}.
      */
-    void setPS(PixelsService ps)
-    {
-        this.ps = ps;    
-    }
+    void setPS(PixelsService ps) { this.ps = ps; }
    	
    	/**
 	 * Stores a reference to the {@link TopFrame}.
 	 * 
 	 * @param tf	The {@link TopFrame}.
 	 */
-   	void setTopFrame(TopFrame tf)
-   	{
-		this.tf = tf;
-   	}
+   	void setTopFrame(TopFrame tf) { this.tf = tf; }
    	
 	/**
 	 * Stores a reference to the {@link Logger}.
 	 * 
 	 * @param logger	The {@link Logger}.
 	 */
-	void setLogger(Logger logger)
-	{
-		this.logger = logger;
-	}
+	void setLogger(Logger logger) { this.logger = logger; }
 	
 	/**
 	 * Stores a reference to the {@link UserNotifier}.
 	 * 
 	 * @param un	The {@link UserNotifier}.
 	 */
-	void setUserNotifier(UserNotifier un)
-	{
-		this.un = un;
-	}
+	void setUserNotifier(UserNotifier un) { this.un = un; }
 	
 }

@@ -144,7 +144,9 @@ public class RenderingEngine
 				hanldeException("Can't load pixels data. Pixels id: "+
 													request.getPixelsID(), dse);
 			} catch (QuantizationException qee) {
-				hanldeException("Can' render the specified image", qee);
+				//TODO: need to post an event to update the GUI.
+				hanldeException("Can't map the wavelength "
+								+qee.getWavelength(), qee);
 			}
 		}
 	}
