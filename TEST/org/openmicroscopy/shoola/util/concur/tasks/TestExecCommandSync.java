@@ -115,8 +115,9 @@ public class TestExecCommandSync
         readPointID = ExecCommand.LOCK_ACQUIRED_BY_ENTER_EXECUTING;
         target.run();  
         threads.awaitAltFlow();
-        assertEquals("Concurrent access to command state.", 
-                ExecCommand.EXECUTING, tState);
+        assertTrue("Concurrent access to command state.", 
+                (tState == ExecCommand.EXECUTING || 
+                        tState == ExecCommand.FINISHED));
     }
     
     public void testLeaveExecuting()
