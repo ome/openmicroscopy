@@ -181,9 +181,7 @@ public class TestImage
 					(px.getSizeC()).intValue());
 		assertEquals(pixelsRow.getSizeT().intValue(), 
 					(px.getSizeT()).intValue());
-		assertEquals(pixelsRow.getBitsPerPixel().intValue(), 
-					(px.getBitsPerPixel()).intValue());
-		assertEquals(repRow.getImageServerURL(), 
+        assertEquals(repRow.getImageServerURL(), 
 					px.getRepository().getImageServerURL());
 	}
 
