@@ -98,7 +98,7 @@ public class CategoryMapper
      * 
      * @return Corresponding criteria.
      */
-    public static Criteria buildCategoryGroupCriteria()
+    public static Criteria buildCategoryGroupCriteria(int groupID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Name");
@@ -124,6 +124,7 @@ public class CategoryMapper
         //group mex
         c.addWantedField("module_execution", "experimenter");
 
+        if (groupID != -1) c.addFilter("id", new Integer(groupID));
         return c;
     }
     
@@ -300,6 +301,38 @@ public class CategoryMapper
                 result.add(cgd);
             }
         }
+    }
+    
+    public static CategoryGroupData fillCategoryGroup(CategoryGroup group, 
+                                                    int userID)
+    {
+        if (group.getModuleExecution().getExperimenter().getID() != userID) 
+            return null;
+        CategoryGroupData data = buildCategoryGroup(group);
+        List categories = new ArrayList();
+        if (group.getCategoryList() != null) {
+            Iterator j = group.getCategoryList().iterator();
+            Category c;
+            Integer id;
+            Map cMap = new HashMap();
+            CategorySummary cs;
+            while (j.hasNext()) {
+                c = (Category) j.next();
+                if (c.getModuleExecution().getExperimenter().getID() 
+                        == userID) {
+                    id = new Integer(c.getID());
+                    cs = (CategorySummary) cMap.get(id);
+                    if (cs == null) {
+                        cs = createCategorySummary(c, userID);
+                        cMap.put(id, cs);
+                    }
+                    //Add the categories
+                    categories.add(cs);
+                }
+            }
+        }
+        data.setCategories(categories);
+        return data;
     }
     
     /**
