@@ -80,23 +80,20 @@ class ToolBarManager
 	/** Attach the listeners. */
 	private void attachListeners()
 	{
-		JButton greyButton = view.getGreyButton(), 
-				rgbButton = view.getRgbButton(),
-				hsbButton = view.getHsbButton(),
-				saveButton = view.getSave(), 
-				resetButton = view.getResetButton();
-		saveButton.setActionCommand(""+SAVE);
-		saveButton.addActionListener(this);		
-		greyButton.setActionCommand(""+GREY);
-		greyButton.addActionListener(this);
-		rgbButton.setActionCommand(""+RGB);
-		rgbButton.addActionListener(this);
-		hsbButton.setActionCommand(""+HSB);
-		hsbButton.addActionListener(this);
-		resetButton.setActionCommand(""+RESET_DEFAULTS);
-		resetButton.addActionListener(this);
+        attachButtonListener(view.getSave(), SAVE);
+        attachButtonListener(view.getGreyButton(), GREY);
+        attachButtonListener(view.getRgbButton(), RGB);
+        attachButtonListener(view.getHsbButton(), HSB);
+        attachButtonListener(view.getResetButton(), RESET_DEFAULTS);
 	}
 
+    /** Attach listener and setActionCommand to a JButton.*/
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this);  
+    }
+    
 	/** Handle events fired by buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
