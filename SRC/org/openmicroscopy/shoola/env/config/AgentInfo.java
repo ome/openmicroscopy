@@ -29,6 +29,13 @@
  
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
+
 /** 
  * Holds the configration information for an agent entry in the container's
  * configuration file.
@@ -43,7 +50,7 @@ package org.openmicroscopy.shoola.env.config;
  * @version 2.2
  * @since OME2.2
  */
-class AgentInfo 
+public class AgentInfo 
 {
 	static final String         NAME = "name", 
 								CLASS = "class", 
@@ -58,6 +65,9 @@ class AgentInfo
 	/** The value of the <code>config</code> tag. */
 	private String				configPath;
 	
+	private Agent				agent;
+	
+	private Registry			registry;
 	/** Set the pair (name, value).
 	* 
 	* @param value		tag's value.
@@ -79,7 +89,7 @@ class AgentInfo
 	 *
 	 * @return	See above.
 	 */
-    String getName()
+    public String getName()
     {
         return name;
     }
@@ -89,7 +99,7 @@ class AgentInfo
 	 *
 	 * @return	See above.
 	 */
-    String getAgentClass()
+    public String getAgentClass()
     {
         return agentClass;
     }
@@ -99,8 +109,44 @@ class AgentInfo
 	 *
 	 * @return	See above.
 	 */
-    String getConfigPath()
+    public String getConfigPath()
     {
         return configPath;
     }
+    
+	/**
+	 * Return the {@link Agent}.
+	 * 
+	 * @return See above.
+	 */
+	public Agent getAgent() {
+		return agent;
+	}
+
+	/**
+	 * Return the  {@link Registry}.
+	 * 
+	 * @return See above.
+	 */
+	public Registry getRegistry() {
+		return registry;
+	}
+
+	/**
+	 * Set the {@link Registry}.
+	 * 
+	 * @param registry 
+	 */
+	public void setRegistry(Registry registry) {
+		this.registry = registry;
+	}
+	/**
+	 * Set the {@link Agent}.
+	 * 
+	 * @param agent
+	 */
+	public void setAgent(Agent agent) {
+		this.agent = agent;
+	}
+
 }
