@@ -120,6 +120,9 @@ public class AnnotatorCtrl
     /** Forward event to the {@link Annotator abstraction}. */ 
     public void viewImage() { abstraction.viewImage(); }
     
+    /** Forward event to the {@link Annotator abstraction}. */ 
+    public void viewDataset() { abstraction.viewDataset(); }
+    
     public int getUserIndex() { return abstraction.getUserIndex(); }
     
     public int getAnnotationIndex() { return abstraction.getAnnotationIndex(); }

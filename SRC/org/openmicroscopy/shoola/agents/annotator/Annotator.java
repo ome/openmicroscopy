@@ -42,6 +42,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
+import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -198,6 +199,15 @@ public class Annotator
             //the renderingContol != null iff not modal dialog
             renderImage(); 
         }
+    }
+    
+    /**
+     * Posts a request to view all images in the specified dataset.
+     */
+    void viewDataset()
+    {
+        LoadDataset request = new LoadDataset(annotatedDatasetID);
+        registry.getEventBus().post(request);   
     }
     
     /**
