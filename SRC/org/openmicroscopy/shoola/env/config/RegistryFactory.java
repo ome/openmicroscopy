@@ -82,6 +82,22 @@ public class RegistryFactory
 		return reg;
 	}
 	
+	/**
+	 * Fills up the specified {@link Registry} with the entries
+	 * in the specified cofiguration file.
+	 * 
+	 * @param file	Path to a configuration file.
+	 * @param reg	The {@link Registry} to fill.
+	 * @throws ConfigException	If an error occurs while accessing the file
+	 * 							or the file contents are not valid.
+	 */
+	public static void fillFromFile(String file, Registry reg)
+		throws ConfigException
+	{
+		Parser p = new Parser(file, (RegistryImpl) reg);
+		p.parse();
+	}
+	
 	/* TODO: helper methods to link a service to the registry
 	 * linkDataMngService(dms, reg)
 	 * linkSemTypesService(sts, reg)

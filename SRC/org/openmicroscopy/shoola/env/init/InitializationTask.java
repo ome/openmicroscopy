@@ -72,6 +72,8 @@ abstract class InitializationTask
 	
 	/**
 	 * Returns the name of this task.
+	 * The returned string should be something meaningful to the user, as
+	 * it will be displayed on the splash screen.
 	 * This method is called after {@link #configure()}, but before 
 	 * {@link #execute()}. 
 	 * 
