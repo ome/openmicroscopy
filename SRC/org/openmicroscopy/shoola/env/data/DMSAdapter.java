@@ -397,28 +397,41 @@ class DMSAdapter
     public void updateProject(ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
+		//Comments b/c of OMEDS status
+		/*
 		Project p = (Project) createNewData(Project.class);
 		p.setID(retVal.getID());
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
 		updateData(p);
+		*/
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateDataset(DatasetData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		//Comments b/c of OMEDS status
+		/*
 		Dataset d = (Dataset) createNewData(Dataset.class);
 		d.setID(retVal.getID());
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
 		updateData(d);
+		*/
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateImage(ImageData retVal)
 	{
-	
+		//Comments b/c of OMEDS status
+  		/*
+  		Image i = (Image) createNewData(Image.class);
+  		i.setID(retVal.getID());
+  		i.setName(retVal.getName());
+  		i.setDescription(retVal.getDescription());
+  		updateData(i);
+  		*/
 	}
 	
 	/**
