@@ -114,7 +114,7 @@ public class ImageCanvas
         this.view = view;
         this.control = control;
         filters = new ArrayList();
-        manager = new ImageCanvasMng(this);
+        manager = new ImageCanvasMng(this, control);
         magFactor = 1.0;
         setBackground(Viewer.BACKGROUND_COLOR); 
         setDoubleBuffered(true);

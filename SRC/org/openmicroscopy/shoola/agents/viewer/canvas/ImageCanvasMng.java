@@ -39,6 +39,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
+import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 
 //Third-party libraries
@@ -69,25 +70,33 @@ public class ImageCanvasMng
     private Rectangle           drawingArea;
     
     /** Control to handle dragged event. */
-    private boolean             dragging, onOff, pin, painting;
+    private boolean             dragging, onOff, pin, painting, click;
     
+    /** Width of the lens. */
     private int                 width;
     
+    /** Magnification factor for the lens image. */
     private double              magFactor;
     
+    /** Anchor point. */
     private Point               anchor;
     
+    /** Color of the lens' border. */
     private Color               c;
     
-    ImageCanvasMng(ImageCanvas view)
+    private ViewerCtrl          control;
+    
+    ImageCanvasMng(ImageCanvas view, ViewerCtrl control)
     {
         this.view = view;
+        this.control = control;
         width = ViewerUIF.DEFAULT_WIDTH;
         magFactor = ViewerUIF.DEFAULT_MAG;
         drawingArea = new Rectangle();
         onOff = true;
         pin = false;
         painting = false;
+        click = false;
         attachListeners();
     }
     
@@ -113,6 +122,17 @@ public class ImageCanvasMng
         }
     }
     
+    public void setClick(boolean b) { click = b; }
+    
+    /** Call when the image inspector widget is closed. */
+    public void resetDefault(boolean b)
+    { 
+        click = b;
+        view.resetLens();
+        view.repaint();
+    }
+    
+    /** Set the width of the lens. */
     public void setWidth(int w)
     {
         width = w;
@@ -157,19 +177,20 @@ public class ImageCanvasMng
     
     void setDrawingArea(int x, int y, int w, int h)
     { 
-        //drawingArea.setBounds(x-width, y-width, w-2*width, h-2*width);
         drawingArea.setBounds(x+width/2, y+width/2, w-width, h-width);
     }
     
     /** Handle Mouse pressed event. */
     public void mousePressed(MouseEvent e)
     {
-        Point p = new Point(e.getPoint());
-        view.resetLens();
-        if (!dragging && onOff && drawingArea.contains(p)) {
-            dragging = true;
-            drawLens(p);
-        }
+        if (e.getClickCount() == 1 && click) {
+            Point p = new Point(e.getPoint());
+            view.resetLens();
+            if (!dragging && onOff && drawingArea.contains(p)) {
+                dragging = true;
+                drawLens(p);
+            }
+        } else if (e.getClickCount() == 2 && !click) control.showInspector();
     }
 
     /** Handle Mouse dragged event. */
