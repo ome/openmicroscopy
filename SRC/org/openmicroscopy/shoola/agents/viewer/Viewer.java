@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
