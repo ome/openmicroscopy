@@ -169,7 +169,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         BrowserInternalFrame bif = new BrowserInternalFrame(controller);
         
         tf.addToDesktop(bif,TopFrame.DEFAULT_LAYER);
-        
+        // TODO: load images
         
         return true;
     }
