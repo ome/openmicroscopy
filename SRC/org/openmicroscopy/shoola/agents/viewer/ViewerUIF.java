@@ -97,18 +97,20 @@ public class ViewerUIF
 	
 	private Registry				registry;
 	
+	private IconManager				im;
 	private boolean					active;
 	
-	ViewerUIF(ViewerCtrl control, Registry registry)
+	ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
+				int defaultT, int defaultZ)
 	{
 		setFrame();
 		this.control = control;
 		this.registry = registry;
-		PixelsDimensions pxsDims = control.getPixelsDims();
+		im = IconManager.getInstance(registry);
 		int maxT = pxsDims.sizeT-1;
 		int maxZ = pxsDims.sizeZ-1;
-		int t = control.getDefaultT();
-		int z = control.getDefaultZ();
+		int t = defaultT;
+		int z = defaultZ;
 		setJMenuBar(createMenuBar(maxT));
 		toolBar = new ToolBar(control, registry, maxT, t, maxZ, z);
 		initSliders(maxT, t, maxZ, z);
@@ -225,11 +227,15 @@ public class ViewerUIF
 	/** Create a Movie menu. */
 	private void createMovieMenu(int maxT)
 	{
-		IconManager im = IconManager.getInstance(registry);
 		movieMenu = new JMenu("Movie");
 		JMenuItem menuItem = new JMenuItem("Play", 
 									im.getIcon(IconManager.MOVIE));
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
+		menuItem.setEnabled(maxT != 0);
+		movieMenu.add(menuItem);
+		menuItem = new JMenuItem("Pause", 
+									im.getIcon(IconManager.PLAYER_PAUSE));
+		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PAUSE);
 		menuItem.setEnabled(maxT != 0);
 		movieMenu.add(menuItem);
 		menuItem = new JMenuItem("Stop", 
@@ -242,19 +248,26 @@ public class ViewerUIF
 		menuItem.setEnabled(maxT != 0);
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_REWIND);
 		movieMenu.add(menuItem);
+		menuItem = new JMenuItem("Forward", 
+								im.getIcon(IconManager.FORWARD));
+		menuItem.setEnabled(maxT != 0);
+		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_FORWARD);
+		movieMenu.add(menuItem);
 	}
 	
 	/** Create the control Menu. */
 	private JMenu createControlMenu()
 	{
 		JMenu menu = new JMenu("Controls");
-		JMenuItem menuItem = new JMenuItem("Rendering");
+		JMenuItem menuItem = new JMenuItem("Rendering", 
+										im.getIcon(IconManager.RENDER));
 		control.attachItemListener(menuItem, ViewerCtrl.RENDERING);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("Inspector");
+		menuItem = new JMenuItem("Inspector", 
+									im.getIcon(IconManager.INSPECTOR));
 		control.attachItemListener(menuItem, ViewerCtrl.INSPECTOR);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("SAVE AS...");
+		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);
 		return menu;
@@ -271,7 +284,7 @@ public class ViewerUIF
 		buildContents();
 		JScrollPane scrollPane = new JScrollPane(contents);
 		container.add(scrollPane);
-		setFrameIcon(IconManager.getOMEIcon());
+		setFrameIcon(im.getIcon(IconManager.VIEWER));
 	}
 		
 	private void buildContents()

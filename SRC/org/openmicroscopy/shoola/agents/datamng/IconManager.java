@@ -104,30 +104,46 @@ public class IconManager
 	
 	/** ID of the import image icon. */
 	public static final int		IMPORT_IMAGE = 13;
+	
+	/** ID of the owner icon. */
+	public static final int		OWNER = 14;
+	
+	/** ID of the explorer icon. */
+	public static final int		EXPLORER = 15;	
+	
+	/** ID of the createProject icon. */
+	public static final int		CREATE_PROJECT = 16;
+	
+	/** ID of the createDataset icon. */
+	public static final int		CREATE_DATASET = 17;	
 		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 13;
+	private static int          MAX_ID = 17;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 	static {
-		relPaths[PROJECT] = "project16.png";
-		relPaths[DATASET] = "dataset16.png";
-		relPaths[IMAGE] = "image16.png";
-		relPaths[SAVE_DB] = "save_DB30.png";
+		relPaths[PROJECT] = "nuvola_document16.png";
+		relPaths[DATASET] = "nuvola_folder_image16.png";
+		relPaths[IMAGE] = "nuvola_image16.png";
+		relPaths[SAVE_DB] = "nuvola_save_all16.png";
 		relPaths[RELOAD_DB] = "reload_DB30.png";
-		relPaths[INFO] = "information16.png";
+		relPaths[INFO] = "nuvola_info16.png";
 		relPaths[PROPERTIES] = "properties16.png";
 		relPaths[VIEWER] = "viewer16.png";
 		relPaths[BROWSER] = "browser-small.png";
-		relPaths[REFRESH] = "refresh16.png";
+		relPaths[REFRESH] = "nuvola_reload16.png";
 		relPaths[ANNOTATE] = "annotate16.png";
-		relPaths[DMANAGER] = "annotate16.png";
-		relPaths[ROOT] = "project16.png";
-		relPaths[IMPORT_IMAGE] = "project16.png";		
+		relPaths[DMANAGER] = "nuvola_file-manager16.png";
+		relPaths[ROOT] = "nuvola_trashcan_empty16.png";
+		relPaths[IMPORT_IMAGE] = "OpenOffice_stock_insert_image-16.png";
+		relPaths[OWNER] = "nuvola_kdmconfig16.png";
+		relPaths[EXPLORER] = "nuvola_kfind16.png";	
+		relPaths[CREATE_PROJECT] = "nuvola_filenew16.png";				
+		relPaths[CREATE_DATASET] = "nuvola_folder_new16.png";
 	}
 	
 	/** The sole instance. */

@@ -92,6 +92,8 @@ public class TopFrameImpl
 	/** Reference to the {@link TopFrameImplManager manager}. */ 
     private TopFrameImplManager		manager;
     
+    private IconManager				im;
+    
     /**
      * Creates a new Instance of {@link TopFrameImpl}
      *
@@ -101,6 +103,7 @@ public class TopFrameImpl
     {
         super("Open Microscopy Environment");
         this.container = container;
+        im = IconManager.getInstance(container.getRegistry());
         manager = new TopFrameImplManager(this, container);
         
         //Make sure we have nice window decorations.
@@ -223,7 +226,8 @@ public class TopFrameImpl
     private void createHelpMenu()
     {
 		helpMenu = new JMenu("Help");
-		JMenuItem menuItem = new JMenuItem("help");
+		JMenuItem menuItem = new JMenuItem("help", 
+											im.getIcon(IconManager.HELP));
 		manager.attachComponentListener(menuItem, TopFrameImplManager.HELPME);
 		helpMenu.add(menuItem);
     }
@@ -232,7 +236,8 @@ public class TopFrameImpl
     private void createFileMenu()
     {
         fileMenu = new JMenu("File");
-        JMenuItem menuItem = new JMenuItem("Exit");
+        JMenuItem menuItem = new JMenuItem("Exit", 
+        									im.getIcon(IconManager.EXIT));
         manager.attachComponentListener(menuItem, TopFrameImplManager.EXIT_APP);
         fileMenu.add(menuItem);
     }
@@ -241,7 +246,8 @@ public class TopFrameImpl
 	private void createConnectMenu()
 	{
 		connectMenu = new JMenu("Connect");
-		JMenuItem menuItem = new JMenuItem("OMEDS");
+		JMenuItem menuItem = new JMenuItem("OMEDS", 
+											im.getIcon(IconManager.CONNECT_DS));
 		menuItem.setEnabled(false);
 		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEDS);
 		connectMenu.add(menuItem);

@@ -115,7 +115,7 @@ public class ImageEditor
 		
 		tabs.addTab("General", im.getIcon(IconManager.IMAGE), generalPane);
 		tabs.addTab("Info", im.getIcon(IconManager.INFO), infoPane);
-		tabs.addTab("Owner", IconManager.getOMEIcon(), ownerPane);
+		tabs.addTab("Owner", im.getIcon(IconManager.OWNER), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);

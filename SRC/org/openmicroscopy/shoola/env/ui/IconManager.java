@@ -129,11 +129,11 @@ public class IconManager
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
-	static {  //TODO: modify when icons are ready.
-		relPaths[HELP] = "information16.png";
-		relPaths[CONNECT_DS] = "information16.png";
-		relPaths[EXIT] = "information16.png";
-		relPaths[LOGIN] = "information16.png";
+	static {  
+		relPaths[HELP] = "nuvola_help16.png";
+		relPaths[CONNECT_DS] = "nuvola_server16.png";
+		relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
+		relPaths[LOGIN] = "nuvola_server16.png";
 	}
 	
 	/** The sole instance. */

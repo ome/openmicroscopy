@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.viewer;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
@@ -106,8 +108,10 @@ public class Viewer
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, ImageRendered.class);
 		topFrame = registry.getTopFrame();
-		viewItem = getViewMenuItem();
-		viewButton = getViewButton();
+		IconManager im = IconManager.getInstance(registry);
+		Icon icon = im.getIcon(IconManager.VIEWER);
+		viewItem = getViewMenuItem(icon);
+		viewButton = getViewButton(icon);
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 	}
@@ -138,8 +142,7 @@ public class Viewer
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
 		def.setZ(z);
-		RenderImage event = new RenderImage(curPixelsID, def);
-		registry.getEventBus().post(event);	
+		registry.getEventBus().post(new RenderImage(curPixelsID, def));	
 	}
 	
 	/** Post an event to bring up the rendering agt. */
@@ -162,24 +165,24 @@ public class Viewer
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
+		PixelsDimensions pxsDims = renderingControl.getPixelsDims();
 		if (curImageID != request.getImageID()) {
-			if (presentation == null) buildPresentation();
-			PixelsDimensions pxsDims = control.getPixelsDims();
-			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
-									  pxsDims.sizeT, pxsDims.sizeZ);
-			presentation.setImageName(request.getImageName());
-			setPresentation();
+			if (presentation == null) buildPresentation(pxsDims);
+			initPresentation(request.getImageName(), pxsDims);
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
-			RenderImage event = new RenderImage(curPixelsID);
-			registry.getEventBus().post(event);
-		} else {
-			PixelsDimensions pxsDims = control.getPixelsDims();
-			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
-									  pxsDims.sizeT, pxsDims.sizeZ);
-			presentation.setImageName(request.getImageName());
-			setPresentation();
-		}
+			registry.getEventBus().post(new RenderImage(curPixelsID));
+		} else
+			initPresentation(request.getImageName(), pxsDims);
+	}
+	
+	/** Set the default. */
+	private void initPresentation(String imageName, PixelsDimensions pxsDims)
+	{
+		presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
+									pxsDims.sizeT, pxsDims.sizeZ);
+		presentation.setImageName(imageName);
+		setPresentation();
 	}
 	
 	/** Handle event @see ImageRendered. */
@@ -229,10 +232,11 @@ public class Viewer
 	}
 	
 	/** Build the GUI. */
-	private void buildPresentation()
+	private void buildPresentation(PixelsDimensions pxsDims)
 	{
 		control = new ViewerCtrl(this);
-		presentation = new ViewerUIF(control, registry);
+		presentation = new ViewerUIF(control, registry, pxsDims, getDefaultT(), 
+									getDefaultZ());
 		control.setPresentation(presentation);
 		control.attachListener();
 		control.attachItemListener(viewItem, ViewerCtrl.V_VISIBLE);
@@ -247,17 +251,16 @@ public class Viewer
 	 * Menu item to add to the 
 	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
 	 */
-	private JCheckBoxMenuItem getViewMenuItem()
+	private JCheckBoxMenuItem getViewMenuItem(Icon icon)
 	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Viewer");
+		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Viewer", icon);
 		menuItem.setEnabled(false);
 		return menuItem;
 	}
 	
-	private JButton getViewButton()
+	private JButton getViewButton(Icon icon)
 	{
-		IconManager im = IconManager.getInstance(registry);
-		JButton b = new JButton(im.getIcon(IconManager.VIEWER));
+		JButton b = new JButton(icon);
 		b.setEnabled(false);
 		b.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the viewer."));

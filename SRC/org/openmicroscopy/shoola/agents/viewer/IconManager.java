@@ -71,47 +71,59 @@ public class IconManager
 	/** ID of the rewind icon. */
 	public static final int     REWIND = 2;
 	
-	/** ID of the question mark icon. */
-	public static final int		QUESTION = 3;
-	
 	/** ID of the rendering icon. */
-	public static final int		RENDER = 4;
+	public static final int		RENDER = 3;
 	
 	/** ID of the viewer icon. */
-	public static final int		VIEWER = 5;
+	public static final int		VIEWER = 4;
 	
 	/** ID of the zoom in icon. */
-	public static final int		ZOOMIN = 6;
+	public static final int		ZOOMIN = 5;
 	
 	/** ID of the zoom out icon. */
-	public static final int		ZOOMOUT = 7;
+	public static final int		ZOOMOUT = 6;
 	
 	/** ID of the zoom fit icon. */
-	public static final int		ZOOMFIT = 8;
+	public static final int		ZOOMFIT = 7;
 	
 	/** ID of the inspector icon. */
-	public static final int		INSPECTOR = 9;
-		
+	public static final int		INSPECTOR = 8;
+	
+	/** ID of the player pause icon. */
+	public static final int		PLAYER_PAUSE = 9;
+	
+	/** ID of the save image as icon. */
+	public static final int		SAVEAS = 10;	
+	
+	/** ID of the player fwd icon. */
+	public static final int		FORWARD = 11;
+	
+	/** ID of the question icon. */
+	public static final int		QUESTION = 12;
+
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 9;
+	private static int          MAX_ID = 12;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
-		relPaths[MOVIE] = "movie16.png";
-		relPaths[STOP] = "stop16.png";
-		relPaths[REWIND] = "rewind16.png";
-		relPaths[QUESTION] = "question24.png";	
+		relPaths[MOVIE] = "nuvola_player_play16.png";
+		relPaths[STOP] = "nuvola_player_stop16.png";
+		relPaths[REWIND] = "nuvola_player_rev16.png";
 		relPaths[RENDER] = "render16.png";
 		relPaths[VIEWER] = "viewer16.png";
-		relPaths[ZOOMIN] = "zoomin16.png";
-		relPaths[ZOOMOUT] = "zoomout16.png";
-		relPaths[ZOOMFIT] = "zoomfit16.png";
-		relPaths[INSPECTOR] = "render16.png";
+		relPaths[ZOOMIN] = "nuvola_viewmag+16.png";
+		relPaths[ZOOMOUT] = "nuvola_viewmag-16.png";
+		relPaths[ZOOMFIT] = "nuvola_viewmagfit16.png";
+		relPaths[INSPECTOR] = "nuvola_viewmag16.png";
+		relPaths[PLAYER_PAUSE] = "nuvola_player_pause16.png";
+		relPaths[SAVEAS] = "nuvola_filesaveas16.png";
+		relPaths[FORWARD] = "nuvola_player_fwd16.png";
+		relPaths[QUESTION] = "question24.png";
 	}
 	
 	/** The sole instance. */

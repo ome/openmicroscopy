@@ -404,7 +404,7 @@ class ExplorerPaneManager
 	}
 	
 	/** Build the tree model to represent the project-dataset hierarchy. */
-	private void buildTree()
+	void buildTree()
 	{
 		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();

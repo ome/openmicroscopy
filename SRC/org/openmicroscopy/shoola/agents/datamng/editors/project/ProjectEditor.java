@@ -160,7 +160,7 @@ public class ProjectEditor
 						null, POS_MAIN);
 		tabs.insertTab("Datasets", im.getIcon(IconManager.DATASET), 
 						datasetsPane, null, POS_DATASET);
-		tabs.insertTab("Owner", IconManager.getOMEIcon(), ownerPane, null, 
+		tabs.insertTab("Owner", im.getIcon(IconManager.OWNER), ownerPane, null, 
 						POS_OWNER);
   		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);

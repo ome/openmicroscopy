@@ -84,13 +84,13 @@ class ToolBar
 	private void initButtons(Registry registry)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		projectButton =  new JButton(im.getIcon(IconManager.PROJECT));
+		projectButton =  new JButton(im.getIcon(IconManager.CREATE_PROJECT));
 		projectButton.setToolTipText(
 			UIUtilities.formatToolTipText("Create a new project."));
-		datasetButton =  new JButton(im.getIcon(IconManager.DATASET));
+		datasetButton =  new JButton(im.getIcon(IconManager.CREATE_DATASET));
 		datasetButton.setToolTipText(
 			UIUtilities.formatToolTipText("Create a new Dataset."));
-		imageButton =  new JButton(im.getIcon(IconManager.IMAGE));
+		imageButton =  new JButton(im.getIcon(IconManager.IMPORT_IMAGE));
 		imageButton.setToolTipText(
 			UIUtilities.formatToolTipText("Import a new image."));
 	}

@@ -134,7 +134,7 @@ public class CreateProjectEditor
 		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		tabs.addTab("New Project", im.getIcon(IconManager.PROJECT), 
+		tabs.addTab("New Project", im.getIcon(IconManager.CREATE_PROJECT), 
 					creationPane);
 		tabs.addTab("Add Datasets", im.getIcon(IconManager.DATASET), 
 					datasetsPane);

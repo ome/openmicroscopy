@@ -54,6 +54,7 @@ import javax.swing.border.BevelBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -145,8 +146,10 @@ public class LoginOMEDS
 	private void initLoginButton(Registry registry)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		login = new JButton(im.getIcon(IconManager.LOGIN));
+		login = new JButton("Connect", im.getIcon(IconManager.LOGIN));
 		login.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		login.setToolTipText(
+			UIUtilities.formatToolTipText("Connect to the DB."));
 	}
 	
 	/** Build and layout the GUI. */
@@ -159,9 +162,9 @@ public class LoginOMEDS
 		buttonPanel.add(login);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(txtPanel);
-		p.add(buildPanel(user, "name: "));
+		p.add(buildPanel(user, "Name: "));
 		p.add(Box.createRigidArea(new Dimension(0,5)));
-		p.add(buildPanel(pass, "password: "));
+		p.add(buildPanel(pass, "Password: "));
 		getContentPane().add(p, BorderLayout.CENTER);
 		getContentPane().add(buttonPanel, BorderLayout.SOUTH);	
 	}

@@ -99,12 +99,15 @@ class RenderingAgtUIF
 	
 	private JPanel					mappingPanel;
 	
+	private IconManager				im;
+	
 	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry)
 	{
 		//name, resizable, closable, maximizable, iconifiable.
 		super("Rendering", true, true, true, true);
 		this.registry = registry;
 		this.control = control;
+		im = IconManager.getInstance(registry); 
 		setJMenuBar(createMenuBar());
 		initPanes();
 		buildMappingPanel();
@@ -124,8 +127,8 @@ class RenderingAgtUIF
 		modelPane.removeAll();
 		modelPane = pane;
 		modelPane.buildComponent();
-		tabs.insertTab(control.getModelType()+" Model", null, modelPane, null, 
-						POS_MODEL);
+		tabs.insertTab(control.getModelType()+" Model", control.getModelIcon(), 
+						modelPane, null, POS_MODEL);
 		tabs.setSelectedIndex(POS_MODEL);	
 	}
 
@@ -135,7 +138,8 @@ class RenderingAgtUIF
 		tabs.remove(POS_MAPPING);
 		mappingPanel.removeAll();
 		buildMappingPanel();
-		tabs.insertTab("Mapping", null, mappingPanel, null, POS_MAPPING);
+		tabs.insertTab("Mapping", im.getIcon(IconManager.MAPPING), mappingPanel,
+						null, POS_MAPPING);
 		tabs.setSelectedIndex(POS_MAPPING);	
 	}
 	
@@ -156,17 +160,19 @@ class RenderingAgtUIF
 		tabs = new JTabbedPane(JTabbedPane.TOP, 
 												JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		tabs.insertTab("Mapping", null, mappingPanel, null, POS_MAPPING);
-		tabs.insertTab(control.getModelType()+" Model", null, modelPane, null, 
-						POS_MODEL);
-		tabs.insertTab("Options", null, quantumPane.getCodomainPane(), null, 
-									POS_CD);
+		tabs.insertTab("Mapping", im.getIcon(IconManager.MAPPING), mappingPanel,
+						 null, POS_MAPPING);
+		tabs.insertTab(control.getModelType()+" Model", 
+							im.getIcon(IconManager.GREYSCALE), modelPane, null, 
+							POS_MODEL);
+		tabs.insertTab("Options", im.getIcon(IconManager.CODOMAIN), 
+							quantumPane.getCodomainPane(), null, POS_CD);
 		
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(new ToolBar(control, registry), 
 							BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(IconManager.getOMEIcon());		
+		setFrameIcon(im.getIcon(IconManager.RENDER));		
 	}
 	
 	/** Build a panel with graphics and control. */
@@ -190,7 +196,8 @@ class RenderingAgtUIF
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("Save");
-		JMenuItem menuItem = new JMenuItem("SAVE");
+		JMenuItem menuItem = new JMenuItem("SAVE", 
+									im.getIcon(IconManager.SAVE_SETTINGS));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.SAVE);
 		menu.add(menuItem);
 		return menu;
@@ -200,13 +207,14 @@ class RenderingAgtUIF
 	private JMenu createModelMenu()
 	{
 		JMenu menu = new JMenu("Model");
-		JMenuItem menuItem = new JMenuItem("GreyScale");
+		JMenuItem menuItem = new JMenuItem("GreyScale", 
+								im.getIcon(IconManager.GREYSCALE));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.GREY);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("RGB");
+		menuItem = new JMenuItem("RGB", im.getIcon(IconManager.RGB));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.RGB);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("HSB");
+		menuItem = new JMenuItem("HSB", im.getIcon(IconManager.HSB));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.HSB);
 		menu.add(menuItem);
 		

@@ -92,12 +92,15 @@ class DataManagerUIF
 	/** On-request menu displayed for nodes in the tree. */
 	private TreePopupMenu					popupMenu;
 	
+	private IconManager 					im;
+	
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
 		//name, resizable, closable, maximizable, iconifiable.
 		super("DataManager", true, true, true, true);
 		this.registry = registry;
 		this.control = control;
+		im = IconManager.getInstance(registry);
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
 		setJMenuBar(createMenuBar());
@@ -106,6 +109,9 @@ class DataManagerUIF
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
 	}
 
+	/** Forward event to {@link ExplorerPaneManager}. */
+	void rebuildTree() {explPane.getManager().buildTree();}
+	
 	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateProjectInTree() { explPane.getManager().updateProjectInTree(); }
 
@@ -141,7 +147,7 @@ class DataManagerUIF
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");					
-		tabs.addTab("Explorer", IconManager.getOMEIcon(), explPane);
+		tabs.addTab("Explorer", im.getIcon(IconManager.EXPLORER), explPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
 		tabs.setSelectedComponent(explPane);
@@ -149,8 +155,9 @@ class DataManagerUIF
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(bar, BorderLayout.NORTH);
-		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(IconManager.getOMEIcon());	
+		//getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(explPane, BorderLayout.CENTER);
+		setFrameIcon(im.getIcon(IconManager.DMANAGER));	
 	} 	
 	
 	/** Creates an internal menu. */
@@ -166,10 +173,12 @@ class DataManagerUIF
 	private JMenu createNewMenu()
 	{
 		JMenu newMenu = new JMenu("New...");
-		JMenuItem menuItem = new JMenuItem("Project");
+		JMenuItem menuItem = new JMenuItem("Project", 
+							im.getIcon(IconManager.CREATE_PROJECT));
 		control.attachItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
 		newMenu.add(menuItem);
-		menuItem = new JMenuItem("Dataset");
+		menuItem = new JMenuItem("Dataset", 
+							im.getIcon(IconManager.CREATE_DATASET));
 		control.attachItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
 		newMenu.add(menuItem);
 		return newMenu;
@@ -179,7 +188,8 @@ class DataManagerUIF
 	private JMenu createImportMenu()
 	{
 		JMenu menu = new JMenu("Import");
-		JMenuItem menuItem = new JMenuItem("Image");
+		JMenuItem menuItem = new JMenuItem("Image", 
+								im.getIcon(IconManager.IMPORT_IMAGE));
 		control.attachItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
 		//menuItem.setEnabled(false); //tempo
 		menu.add(menuItem);

@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.rnd.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
@@ -43,7 +45,9 @@ import javax.swing.WindowConstants;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 
 /** 
@@ -85,16 +89,16 @@ public class ChannelEditor
 	private ChannelPane				channelPane;
 	private ChannelEditorBar		bar;
 	
-	public ChannelEditor(RenderingAgtCtrl eventManager, ChannelData data)
+	public ChannelEditor(RenderingAgtCtrl control, ChannelData data)
 	{
-		super(eventManager.getReferenceFrame(), "Channel Info", true);
-		ChannelEditorManager manager = new ChannelEditorManager(eventManager, 
-											this, data);
+		super(control.getReferenceFrame(), "Channel Info", true);
+		ChannelEditorManager manager = new ChannelEditorManager(control, this, 
+																data);
 		channelPane = new ChannelPane(manager);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		bar = new ChannelEditorBar(manager);
 		manager.attachListeners();
-		buildGUI();
+		buildGUI(control.getRegistry());
 		setSize(EDITOR_WIDTH+EXTRA, EDITOR_HEIGHT);
 	}
 	
@@ -117,13 +121,16 @@ public class ChannelEditor
 	JButton getCancelButton() { return bar.getCancelButton(); }
 	
 	/** Build and lay out the GUI. */
-	private void buildGUI()
+	private void buildGUI(Registry registry)
 	{
+		IconManager im = IconManager.getInstance(registry);
 		//create and initialize the tabs
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		tabs.addTab("Info", channelPane);			
+		Font font = (Font) registry.lookup("/resources/fonts/Titles");	
+		tabs.addTab("Info", im.getIcon(IconManager.INFO), channelPane);	
+		tabs.setFont(font);		
 		tabs.setForeground(STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));

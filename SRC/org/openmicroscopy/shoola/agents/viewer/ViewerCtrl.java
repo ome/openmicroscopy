@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -79,7 +78,9 @@ public class ViewerCtrl
 	static final int			MOVIE_PLAY = 3;
 	static final int			MOVIE_STOP = 4;
 	static final int			MOVIE_REWIND = 5;
-	static final int			INSPECTOR = 6;
+	static final int			MOVIE_FORWARD = 6;
+	static final int			MOVIE_PAUSE = 7;
+	static final int			INSPECTOR = 8;
 	
 	private JSlider				tSlider, zSlider;
 	
@@ -136,24 +137,6 @@ public class ViewerCtrl
 	public BufferedImage getBufferedImage()
 	{
 		return abstraction.getCurImage();
-	}
-	
-	/** Forward event to {@link Viewer abstraction}. */
-	public PixelsDimensions getPixelsDims()
-	{
-		return abstraction.getPixelsDims();
-	}
-	
-	/** Forward event to {@link Viewer abstraction}. */
-	public int getDefaultT()
-	{
-		return abstraction.getDefaultT();
-	}
-	
-	/** Forward event to {@link Viewer abstraction}. */
-	public int getDefaultZ()
-	{
-		return abstraction.getDefaultZ();
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
@@ -248,7 +231,7 @@ public class ViewerCtrl
 	}
 	
 	/** Bring up the file chooser. */
-	private void showImageSaver()
+	public void showImageSaver()
 	{
 		if (abstraction.getCurImage() == null) {
 			UserNotifier un = getRegistry().getUserNotifier();

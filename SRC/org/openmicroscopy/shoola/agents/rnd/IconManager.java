@@ -90,17 +90,23 @@ public class IconManager
 	/** ID of the save icon. */
 	public static final int		SAVE_SETTINGS = 8;
 	
+	/** ID of the save icon. */
+	public static final int		RENDER = 9;
+	
+	/** ID of the mapping icon. */
+	public static final int		MAPPING = 10;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 8;
+	private static int          MAX_ID = 10;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
-		relPaths[INFO] = "information16.png";
+		relPaths[INFO] = "nuvola_info16.png";
 		relPaths[HISTOGRAM] = "histogram16.png";
 		relPaths[STRETCHING] = "contrastStretching16.png";
 		relPaths[SLICING] = "planeSlicing16.png";
@@ -108,7 +114,9 @@ public class IconManager
 		relPaths[RGB] = "rgb16.png";
 		relPaths[HSB] = "hsb16.png";
 		relPaths[CODOMAIN] = "codomain16.png";
-		relPaths[SAVE_SETTINGS] = "save_DB16.png";
+		relPaths[SAVE_SETTINGS] = "nuvola_filesave16.png";
+		relPaths[RENDER] = "render16.png";
+		relPaths[MAPPING] = "nuvola_kmplot16.png";
 	}
 	
 	/** The sole instance that provides. */

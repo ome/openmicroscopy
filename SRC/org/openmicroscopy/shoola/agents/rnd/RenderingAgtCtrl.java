@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
@@ -93,11 +95,16 @@ public class RenderingAgtCtrl
 	
 	private RenderingAgtUIF			presentation;
 	
+	private Icon					modelIcon;
+	
+	private IconManager				im;
+	
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
 		this.abstraction = abstraction;
 		displayed = false;
 		renderersPool = new HashMap();
+		im = IconManager.getInstance(abstraction.getRegistry());
 	}
 
 	void setDisplayed(boolean b) { displayed = b; }
@@ -310,6 +317,8 @@ public class RenderingAgtCtrl
 	
 	String getModelType() { return modelType; }
 	
+	Icon getModelIcon() { return modelIcon; }
+	
 	/** Attach listener to a menu Item. */
 	void setMenuItemListener(JMenuItem item, int id)
 	{
@@ -357,14 +366,17 @@ public class RenderingAgtCtrl
 				case GREY:
 					result = GreyScalePane.class;
 					modelType = "Grey";
+					modelIcon = im.getIcon(IconManager.GREYSCALE);
 					break;
 				case HSB:
 					result = HSBPane.class;
 					modelType = "HSB";
+					modelIcon = im.getIcon(IconManager.HSB);
 					break;
 				case RGB:
 					result = RGBPane.class;
 					modelType = "RGB";
+					modelIcon = im.getIcon(IconManager.RGB);
 			}
 		}catch(NumberFormatException nfe) {   
 			throw new Error("Invalid Action ID "+index, nfe);
