@@ -150,6 +150,7 @@ public class ModulePaletteWindow
 		Icon smallChain = icons.getIcon("chains-small.png");
 		JButton newChain = new JButton(smallChain);
 		newChain.addActionListener(cmdTable.lookupActionListener("new chain"));
+		tb.setFloatable(false);
 		tb.add(newChain);
 		content.add(tb,BorderLayout.NORTH);
 		moduleCanvas = new ModulePaletteCanvas(this);
@@ -268,7 +269,6 @@ public class ModulePaletteWindow
 	}
 	
 	public void componentShown(ComponentEvent e) {
-		System.err.println("showing module palette..");
 		uiManager.showWindows();
 	}
 	
