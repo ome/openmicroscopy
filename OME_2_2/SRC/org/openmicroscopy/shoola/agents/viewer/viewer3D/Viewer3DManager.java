@@ -210,7 +210,6 @@ public class Viewer3DManager
 		back.setSize(d);
 		DrawingCanvasMng dm = drawing.getManager();
 		xMain = x+ZYimage.getWidth()+Viewer3D.SPACE;
-		System.out.println(x);
 		yMain = y+XZimage.getHeight()+Viewer3D.SPACE;
 		drawing.setDrawingDimension(XYimage.getWidth(), XYimage.getHeight(), 
 									ZYimage.getWidth(), xMain, yMain);
