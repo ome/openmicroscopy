@@ -111,7 +111,6 @@ class PlaneSlicingDialogManager
 									rightBorder = PlaneSlicingPanel.rightBorder;
 	private static final int 		lS = leftBorder+square, 
 									tS = topBorder+square;
-	private static final int 		triangleW = PlaneSlicingPanel.triangleW;
 				
 	private Rectangle				boxOutputStart, boxOutputEnd;
 	

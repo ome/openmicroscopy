@@ -99,8 +99,6 @@ public class ViewerUIF
 	
 	private IconManager				im;
 	
-	private boolean					active;
-	
 	private JScrollPane 			scrollPane;
 
 	ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
@@ -322,15 +320,14 @@ public class ViewerUIF
 		int height = 8*(screenSize.height/10);
 		if (w > width) w = width;
 		if (h > height) h = height;
-		setTBSize(w, h);
+		setTBSize(w);
 		setSize(w, h);		
 	}
 	
-	private void setTBSize(int w, int h)
+	private void setTBSize(int w)
 	{
 		Dimension d = toolBar.getSize();
-		int wSeparator = w-3*d.width;
-		if (wSeparator > 0) {
+		if (w-d.width > 0) {
 			toolBar.addSeparator();
 		}
 	}

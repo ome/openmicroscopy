@@ -484,25 +484,6 @@ class ExplorerPaneManager
 		treeModel.reload((TreeNode) node);
 	}
 	
-	/** 
-	 * Remove the specified node from the dataset maps.
-	 * 
-	 * @param datasetID map's key.
-	 * @param node		node to be removed.
-	 */
-	private void removeNodesFromDatasetMaps(Integer datasetID,
-											DefaultMutableTreeNode node)
-	{
-		List nodes = (List) cDNodes.get(datasetID);
-		if (nodes != null) {
-			nodes.remove(node);
-			if (nodes.size() == 0) {
-				imagesInDataset.remove(datasetID);
-				cDNodes.remove(datasetID);
-			} else cDNodes.put(datasetID, nodes);
-		}						
-	}
-	
 	/**
 	 * Add the specified node to the dataset maps.
 	 * @param datasetID		maps' key.

@@ -63,7 +63,6 @@ public class ToolBar
 {
 	
 	/** Dimension of the separator between the toolBars. */
-	private static final Dimension	SEPARATOR_END = new Dimension(180, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	private JButton					saveButton, greyButton, rgbButton, 

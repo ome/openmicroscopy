@@ -307,7 +307,6 @@ public class ToolBarManager
 	/** Handle events fired by the spinner. */
 	public void stateChanged(ChangeEvent e)
 	{
-		Object src = e.getSource();
 		//TODO: implement along with movie controls
 		int v = ((Integer) view.getFPS().getValue()).intValue();
 		view.getEditor().setText(""+v);

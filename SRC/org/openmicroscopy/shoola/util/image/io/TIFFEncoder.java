@@ -144,21 +144,6 @@ public class TIFFEncoder
 		output.writeShort(8);
 		output.writeShort(8);
 	}
-	
-	/** 
-	 * Writes the 16 bytes of data required by the XResolution and 
-	 * YResolution tags.
-	 */
-	private void  writeScale(DataOutputStream out) 
-		throws IOException
-	{
-		//TODO: should be modified if the pixel.width and height != 1
-		int scale = 1000000;
-		out.writeInt(scale);
-		out.writeInt(scale);
-		out.writeInt(scale);
-		out.writeInt(scale);
-	}
 
 	/** Write the header. */
 	private void writeHeader()

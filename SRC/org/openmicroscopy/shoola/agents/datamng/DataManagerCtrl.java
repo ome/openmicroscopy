@@ -128,7 +128,6 @@ public class DataManagerCtrl
 	 */
 	void showProperties(DataObject target)
 	{
-		DataManagerUIF presentation = abstraction.getPresentation();
 		Registry registry = abstraction.getRegistry();
 		if (target == null)    return;
 		if (target instanceof ProjectSummary) {

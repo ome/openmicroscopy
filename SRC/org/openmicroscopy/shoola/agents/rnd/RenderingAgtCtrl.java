@@ -385,22 +385,4 @@ public class RenderingAgtCtrl
 		return result;
 	}
 	
-	/** Display or not the presentation. */
-	private void showPresentation()
-	{
-		RenderingAgtUIF presentation = abstraction.getPresentation();
-		if (presentation != null) {
-			if (displayed) {
-				if (presentation.isClosed()) abstraction.displayPresentation();
-				if (presentation.isIcon()) abstraction.deiconifyPresentation();
-			} else
-				abstraction.showPresentation();	
-			//Activate the Frame.
-  			try {
-	  			presentation.setSelected(true);
-  			} catch (Exception e) {}
-			displayed = true;	
-		}
-	}
-	
 }

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.Rectangle;
-import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
@@ -151,14 +150,6 @@ public class RenderingAgt
 		initChannelData();
 		if (presentation != null) removePresentation();
 		else buildPresentation();	
-	}
-
-	/** Menu item to add to the {@link TopFrame} menu bar. */
-	private JCheckBoxMenuItem getViewMenuItem()
-	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Rendering");
-		menuItem.setEnabled(false);
-		return menuItem;
 	}
 	
 	/** Build the presentation. */

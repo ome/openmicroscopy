@@ -37,7 +37,6 @@ import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
@@ -203,7 +202,6 @@ public class ViewerCtrl
 	{
 		Object src = e.getSource();
 		int valT, valZ;
-		JTextField field;
 		valT = tSlider.getValue();
 		valZ = zSlider.getValue();
 		ToolBarManager tbm = presentation.getToolBar().getManager();
