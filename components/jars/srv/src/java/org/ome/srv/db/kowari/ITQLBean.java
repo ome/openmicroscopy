@@ -3,16 +3,16 @@
  */
 package org.ome.srv.db.kowari;
 
-import java.sql.*;
-
 //Kowari packages
 import org.kowari.itql.ItqlInterpreterBean;
 import org.kowari.query.Answer;
+import org.ome.interfaces.GenericService;
+import org.ome.srv.db.GenericStore;
 
 /**
  * @author josh
  */
-public class ITQLBean {
+public class ITQLBean implements GenericService, GenericStore {
 
     protected ItqlInterpreterBean interpreter;
     protected Answer answer;

@@ -1,4 +1,4 @@
-; Wed Mar 02 21:48:52 CET 2005
+; Sat Mar 05 15:38:10 CET 2005
 ; 
 ;+ (version "3.0")
 ;+ (build "Build 131")
@@ -6,11 +6,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[ome_ProjectKB_Instance_40007]
-		[ome_ProjectKB_Instance_40008]
-		[ome_ProjectKB_Instance_40009]
-		[ome_ProjectKB_Instance_40010]
-		[ome_ProjectKB_Instance_40011]))
+		[ome_ProjectKB_Instance_50121]
+		[ome_ProjectKB_Instance_50122]
+		[ome_ProjectKB_Instance_50123]
+		[ome_ProjectKB_Instance_50124]
+		[ome_ProjectKB_Instance_50125]))
 
 ([CLSES_TAB] of  Widget
 
@@ -1704,8 +1704,8 @@
 
 ([ome_ProjectKB_Instance_10209] of  Map
 
-	(entries [ome_ProjectKB_Instance_40013])
-	(referenced_maps [ome_ProjectKB_Instance_40012]))
+	(entries [ome_ProjectKB_Instance_50127])
+	(referenced_maps [ome_ProjectKB_Instance_50126]))
 
 ([ome_ProjectKB_Instance_11] of  Property_List
 )
@@ -2238,7 +2238,8 @@
 		[ome_ProjectKB_Instance_30595]
 		[ome_ProjectKB_Instance_30597]
 		[ome_ProjectKB_Instance_30599]
-		[ome_ProjectKB_Instance_30603]))
+		[ome_ProjectKB_Instance_30603]
+		[ome_ProjectKB_Instance_50112]))
 
 ([ome_ProjectKB_Instance_30564] of  Widget
 
@@ -5094,41 +5095,6 @@
 	(property_list [ome_ProjectKB_Instance_41])
 	(widget_class_name "edu.stanford.smi.RemoteKBTab.UMLSTab"))
 
-([ome_ProjectKB_Instance_40007] of  String
-
-	(name "owl:Class")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_40008] of  String
-
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_40009] of  String
-
-	(name ":INSTANCE-ANNOTATION")
-	(string_value "%3AANNOTATION-TEXT"))
-
-([ome_ProjectKB_Instance_40010] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([ome_ProjectKB_Instance_40011] of  String
-
-	(name "owl:Thing")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_40012] of  Map
-)
-
-([ome_ProjectKB_Instance_40013] of  Map_Entry
-
-	(key "InstanceDisplay.yellow_stickies")
-	(key_class "java.lang.String")
-	(value "ome_ProjectKB_Instance_40012")
-	(value_class "java.util.Map"))
-
 ([ome_ProjectKB_Instance_41] of  Property_List
 )
 
@@ -5148,6 +5114,106 @@
 
 ([ome_ProjectKB_Instance_5] of  Property_List
 )
+
+([ome_ProjectKB_Instance_50045] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_50046])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 300))
+
+([ome_ProjectKB_Instance_50046] of  Property_List
+)
+
+([ome_ProjectKB_Instance_50055] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_50056])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 420))
+
+([ome_ProjectKB_Instance_50056] of  Property_List
+)
+
+([ome_ProjectKB_Instance_50098] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_50099])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 300))
+
+([ome_ProjectKB_Instance_50099] of  Property_List
+)
+
+([ome_ProjectKB_Instance_50108] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_50109])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 420))
+
+([ome_ProjectKB_Instance_50109] of  Property_List
+)
+
+([ome_ProjectKB_Instance_50112] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_50113]))
+
+([ome_ProjectKB_Instance_50113] of  Property_List
+)
+
+([ome_ProjectKB_Instance_50121] of  String
+
+	(name "owl:Class")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_50122] of  String
+
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_50123] of  String
+
+	(name ":INSTANCE-ANNOTATION")
+	(string_value "%3AANNOTATION-TEXT"))
+
+([ome_ProjectKB_Instance_50124] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([ome_ProjectKB_Instance_50125] of  String
+
+	(name "owl:Thing")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_50126] of  Map
+)
+
+([ome_ProjectKB_Instance_50127] of  Map_Entry
+
+	(key "InstanceDisplay.yellow_stickies")
+	(key_class "java.lang.String")
+	(value "ome_ProjectKB_Instance_50126")
+	(value_class "java.util.Map"))
 
 ([ome_ProjectKB_Instance_6] of  Widget
 
@@ -5183,35 +5249,35 @@
 	(browser_slot_names [BROWSER_SLOT_NAMES])
 	(customized_instance_widgets
 		[KB_420361_Instance_54]
-		[ome_ProjectKB_Instance_30428]
 		[INSTANCE_ANNOTATION_FORM_WIDGET]
+		[ome_ProjectKB_Instance_30518]
+		[ome_ProjectKB_Instance_30428]
 		[KB_313796_Instance_852]
-		[ome_ProjectKB_Instance_20045]
 		[Instance_581]
-		[ome_ProjectKB_Instance_20248]
-		[ome_ProjectKB_Instance_20338]
+		[ome_ProjectKB_Instance_30473]
 		[KB_764103_Instance_545]
-		[KB_553917_Instance_637]
-		[KB_868747_Instance_76]
 		[ome_ProjectKB_Instance_10000]
+		[ome_ProjectKB_Instance_20383]
+		[KB_553917_Instance_637]
+		[ome_ProjectKB_Instance_20248]
+		[KB_868747_Instance_76]
 		[KB_691299_Instance_537]
 		[Instance_1005]
 		[KB_379625_Instance_617]
+		[ome_ProjectKB_Instance_20338]
 		[STANDARD_FACET_FORM_WIDGET]
-		[ome_ProjectKB_Instance_20293]
-		[ome_ProjectKB_Instance_30473]
 		[KB_691299_Instance_398]
-		[ome_ProjectKB_Instance_30518]
 		[KB_313796_Instance_943]
-		[ome_ProjectKB_Instance_20090]
 		[STANDARD_SLOT_FORM_WIDGET]
 		[KB_303942_Instance_68]
-		[KB_465546_Instance_567]
+		[ome_ProjectKB_Instance_20090]
 		[Instance_443]
+		[KB_465546_Instance_567]
+		[ome_ProjectKB_Instance_20293]
 		[PAL_FORM_WIDGET]
+		[ome_ProjectKB_Instance_20045]
 		[KB_301165_Instance_1013]
 		[KB_301165_Instance_856]
-		[ome_ProjectKB_Instance_20383]
 		[KB_379625_Instance_777]
 		[STANDARD_CLASS_FORM_WIDGET])
 	(default_cls_metaclass "owl:Class")
@@ -5255,8 +5321,8 @@
 		"rdfs:Literal"
 		"rdfs:Alt"
 		"rdfs:comment"
-		"owl:hasValue"
 		"ExternalResource"
+		"owl:hasValue"
 		"owl:incompatibleWith"
 		"rdfs:Seq"
 		":OWL-INFERRED-SUBCLASSES"

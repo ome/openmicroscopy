@@ -29,6 +29,9 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 	 */
 	public IImage retrieveImage(LSID lsid)  {
 	    LSObject returnObj = retrieveObject(lsid);
+	    if (null==returnObj){
+	        return null;//TODO do this everywhere
+	    }
 	    return new Image(returnObj);
 	}
     
@@ -42,7 +45,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ImageService#retrieveImagesByExperimenter(org.ome.model.LSID)
 	 */
-	public List retrieveImagesByExperimenter(LSID experimenterId)  {
+	public List queryImagesByExperimenter(LSID experimenterId)  {
 		NamedQuery nq = new ImagesByExperimenterQuery(experimenterId);
 		List lsObjects = db.evaluateNamedQuery(nq);
 		List domainObjects = ImageWrapper.wrap(lsObjects);
@@ -54,7 +57,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ImageService#retrieveImagesByProject(org.ome.model.LSID)
 	 */
-	public List retrieveImagesByProject(LSID projId)  {
+	public List queryImagesByProject(LSID projId)  {
 		NamedQuery nq = new ImagesByProjectQuery(projId);
 		List lsObjects = db.evaluateNamedQuery(nq);
 		List domainObjects = ImageWrapper.wrap(lsObjects);
@@ -66,7 +69,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ImageService#retrieveImagesByDataset(org.ome.model.LSID)
 	 */
-	public List retrieveImagesByDataset(LSID dsId)  {
+	public List queryImagesByDataset(LSID dsId)  {
 		NamedQuery nq = new ImagesByDatasetQuery(dsId);
 		List lsObjects = db.evaluateNamedQuery(nq);
 		List domainObjects = ImageWrapper.wrap(lsObjects);
@@ -80,7 +83,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ImageService#retrieveImagesByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public List retrieveImagesByExperimenter(LSID arg0, LSID arg1)  {
+	public List queryImagesByExperimenter(LSID arg0, LSID arg1)  {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");

@@ -7,6 +7,7 @@ import org.ome.interfaces.VersionService;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.model.OMEObject;
+import org.ome.srv.db.jena.JenaProperties;
 
 /**
  * it is assumed that the version service has its own model which cannot corrupt
@@ -16,14 +17,16 @@ import org.ome.model.OMEObject;
  */
 public class VersionServiceImpl extends AbstractService implements
         VersionService {
-
+    
+    protected final static String modelName = "versions";//FIXME
+    
     /*
      * (non-Javadoc)
      * 
      * @see org.ome.interfaces.VersionService#retrieveVersion(org.ome.model.LSID)
      */
     public int retrieveVersion(LSID key) {
-        LSObject obj = db.getLSObject(key);
+        LSObject obj = db.getLSObject(key,modelName);
         if (null != obj) {
             Integer i = ((OMEObject) obj).getVersion();
             if (null != i) {
@@ -41,7 +44,7 @@ public class VersionServiceImpl extends AbstractService implements
      */
     public void updateVersion(LSID key, int version) {
         boolean update = false;
-        LSObject obj = db.getLSObject(key);
+        LSObject obj = db.getLSObject(key,modelName);
         if (null == obj) {
             update = true;
             obj = new OMEObject(key);
@@ -54,7 +57,7 @@ public class VersionServiceImpl extends AbstractService implements
 
         if (update) {
             ((OMEObject) obj).setVersion(new Integer(version));
-            db.setLSObject(obj);
+            db.setLSObject(obj,modelName);
         }
 
     }

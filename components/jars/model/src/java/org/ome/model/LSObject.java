@@ -14,7 +14,6 @@ public interface LSObject {
 	public Object get(String predicate);
 
 	public LSID getLSID();
-	
 	public Map getMap();
 	
 	public boolean save();

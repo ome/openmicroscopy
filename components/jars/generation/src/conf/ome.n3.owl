@@ -19,6 +19,13 @@ default:FirstName
       rdfs:domain default:Experimenter ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
 
+default:MyNewCategory
+      a       default:Category ;
+      default:contains default:img3 , default:img1 , default:img2 ;
+      default:inactive "true"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
+      default:owner default:Josh ;
+      default:tracked "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+
 default:ImageService
       a       owl:Class ;
       rdfs:subClassOf default:Service ;
@@ -87,13 +94,13 @@ default:Image
       rdfs:subClassOf default:Leaf ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
-                owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:defaultPixels
+                owl:cardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+                owl:onProperty default:owner
               ] ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:owner
+                owl:onProperty default:defaultPixels
               ] .
 
 default:defaultPixels
@@ -213,13 +220,13 @@ default:directory
       rdfs:domain default:Experimenter ;
       rdfs:range default:Directory .
 
-default:FollowGroup
-      a       owl:Class ;
-      rdfs:subClassOf default:DevelopmentComponent .
-
 default:GOBiologicalProcessAnnotation
       a       owl:Class ;
       rdfs:subClassOf default:GOAnnotation .
+
+default:FollowGroup
+      a       owl:Class ;
+      rdfs:subClassOf default:DevelopmentComponent .
 
 default:ROI
       a       owl:Class ;

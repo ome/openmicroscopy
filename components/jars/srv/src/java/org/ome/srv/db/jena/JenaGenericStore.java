@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.pool.KeyedObjectPool;
 import org.ome.model.AbstractLSObject;
 import org.ome.model.Factory;
 import org.ome.model.LSID;
@@ -39,21 +40,38 @@ import com.hp.hpl.jena.vocabulary.RDF;
  */
 public class JenaGenericStore implements GenericService, GenericStore {
 
-    protected JenaModelFactory factory;
+    protected KeyedObjectPool pool;
+
+    protected String defaultModelName;
+
+    // TODO should such strings be runtime changeable
+
+    /**
+     * calls evaluateNamedQuery with the default model
+     */
+    public List evaluateNamedQuery(NamedQuery nq) {
+        return this.evaluateNamedQuery(nq, defaultModelName);
+    }
 
     /**
      * main querying mechanism. Returns non-resolved objects (i.e. no data)
      * simply pointers to that data which have to be manually resolved with the
      * other methods on this class.
      */
-    public List evaluateNamedQuery(NamedQuery nq) {
+    public List evaluateNamedQuery(NamedQuery nq, String modelName) {
 
-        Model m = factory.getModel();
-        Map map = parseMap(m, nq);
-        QueryResults results = queryWithBinding(m, nq.getQueryString(), map);
+        List l = null;
+        Model m = getModel(modelName);
 
-        List l = lsObjectFromQueryResult(results, nq.getTarget());
-        results.close();
+        try {
+            Map map = parseMap(m, nq);
+            QueryResults results = queryWithBinding(m, nq.getQueryString(), map);
+            l = lsObjectFromQueryResult(results, nq.getTarget());
+            results.close();
+        } finally {
+            returnModel(modelName, m);
+        }
+
         return l;
     }
 
@@ -84,22 +102,38 @@ public class JenaGenericStore implements GenericService, GenericStore {
      * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
      */
     public void setLSObject(LSObject lsobj) {
-        Model m = factory.getModel();
-        Resource subj = m.createResource(lsobj.getLSID().getURI());
-        subj.removeProperties();
+        this.setLSObject(lsobj, defaultModelName);
+    }
 
-        Map map = lsobj.getMap();
-        for (Iterator iter1 = map.keySet().iterator(); iter1.hasNext();) {
-            String key = (String) iter1.next();
-            Property prop = m.getProperty(key);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#setLSObject(org.ome.model.LSObject,
+     *      java.lang.String)
+     */
+    public void setLSObject(LSObject lsobj, String modelName) {
 
-            Object newValue = map.get(key);
-            List nodes = getAddableResourcesFromObject(m, newValue);
+        Model m = getModel(modelName);
 
-            for (Iterator iter2 = nodes.iterator(); iter2.hasNext();) {
-                RDFNode node = (RDFNode) iter2.next();
-                subj.addProperty(prop, node);
+        try {
+            Resource subj = m.createResource(lsobj.getLSID().getURI());
+            subj.removeProperties();
+
+            Map map = lsobj.getMap();
+            for (Iterator iter1 = map.keySet().iterator(); iter1.hasNext();) {
+                String key = (String) iter1.next();
+                Property prop = m.getProperty(key);
+
+                Object newValue = map.get(key);
+                List nodes = getAddableResourcesFromObject(m, newValue);
+
+                for (Iterator iter2 = nodes.iterator(); iter2.hasNext();) {
+                    RDFNode node = (RDFNode) iter2.next();
+                    subj.addProperty(prop, node);
+                }
             }
+        } finally {
+            returnModel(modelName, m);
         }
 
     }
@@ -110,45 +144,61 @@ public class JenaGenericStore implements GenericService, GenericStore {
      * @see org.ome.interfaces.GenericService#updateLSObject(org.ome.LSObject)
      */
     public void updateLSObject(LSObject lsobj) {
-        Model m = factory.getModel();
-        Resource subj = m.getResource(lsobj.getLSID().getURI());
+        this.updateLSObject(lsobj, defaultModelName);
+    }
 
-        if (!m.contains(subj, null)) {
-            throw new RuntimeException("Object " + lsobj + "doesn't exist");
-            // FIXME check other models
-        }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#updateLSObject(org.ome.model.LSObject,
+     *      java.lang.String)
+     */
+    public void updateLSObject(LSObject lsobj, String modelName) {
 
-        Map map = lsobj.getMap();
-        m.begin();
+        Model m = getModel(modelName);
         try {
-            for (Iterator i = map.keySet().iterator(); i.hasNext();) {
-                String key = (String) i.next();
-                Property prop = m.getProperty(key);
+            Resource subj = m.getResource(lsobj.getLSID().getURI());
 
-                /* the existing values */
-                StmtIterator stmts = subj.listProperties(prop);
-                List objects = new ArrayList();
-                for (Iterator j = stmts; j.hasNext();) {
-                    objects.add(((Statement) j.next()).getObject());
-                }
-
-                /* the new values */
-                // TODO This list must be kept in sync with AbstractLSObject
-                Object newValue = map.get(key);
-                List nodes = getAddableResourcesFromObject(m, newValue);
-
-                /* mapping the changes *///FIXME TRANSACTIONS!!!
-                subj.removeAll(prop);
-                for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-                    RDFNode value = (RDFNode) iter.next();
-                    m.add(subj, prop, value);
-                }
+            if (!m.contains(subj, null)) {
+                throw new RuntimeException("Object " + lsobj + "doesn't exist");
+                // FIXME check other models
             }
-        } catch (Exception e) {
-            m.abort();
-            throw new RuntimeException(e); // TODO
+
+            Map map = lsobj.getMap();
+            m.begin();
+            try {
+                for (Iterator i = map.keySet().iterator(); i.hasNext();) {
+                    String key = (String) i.next();
+                    Property prop = m.getProperty(key);
+
+                    /* the existing values */
+                    StmtIterator stmts = subj.listProperties(prop);
+                    List objects = new ArrayList();
+                    for (Iterator j = stmts; j.hasNext();) {
+                        objects.add(((Statement) j.next()).getObject());
+                    }
+
+                    /* the new values */
+                    // TODO This list must be kept in sync with AbstractLSObject
+                    Object newValue = map.get(key);
+                    List nodes = getAddableResourcesFromObject(m, newValue);
+
+                    /* mapping the changes *///FIXME TRANSACTIONS!!!
+                    subj.removeAll(prop);
+                    for (Iterator iter = nodes.iterator(); iter.hasNext();) {
+                        RDFNode value = (RDFNode) iter.next();
+                        m.add(subj, prop, value);
+                    }
+                }
+            } catch (Exception e) {
+                m.abort();
+                throw new RuntimeException(e); // TODO
+            } finally {
+                m.commit();
+            }
         } finally {
-            m.commit();
+            returnModel(modelName, m);//TODO please remember to return your
+            // models!!!
         }
     }
 
@@ -196,10 +246,22 @@ public class JenaGenericStore implements GenericService, GenericStore {
      * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
      */
     public LSObject getLSObject(LSID lsid) {
+        return this.getLSObject(lsid, defaultModelName);
+    }
 
-        Model m = factory.getModel();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#getLSObject(org.ome.model.LSID,
+     *      java.lang.String)
+     */
+    public LSObject getLSObject(LSID lsid, String modelName) {
+        Model m = getModel(modelName);
+        LSObject lsobj = null;
+        
+        try {
         Resource subj = m.getResource(lsid.getURI());
-        LSObject lsobj = Factory.make(lsid.getURI(), getType(subj));
+        lsobj = Factory.make(lsid.getURI(), getType(subj));
 
         if (!m.contains(subj, null)) {
             return null;
@@ -229,6 +291,10 @@ public class JenaGenericStore implements GenericService, GenericStore {
             }
 
         }
+        } finally {
+            returnModel(modelName, m);    
+        }
+        
         return lsobj;
 
     }
@@ -373,18 +439,74 @@ public class JenaGenericStore implements GenericService, GenericStore {
         return results;
     }
 
-    /**
-     * @return Returns the factory.
-     */
-    public JenaModelFactory getModelFactory() {
-        return factory;
+    private void returnModel(String modelName, Model m) {
+        try {
+            pool.returnObject(modelName, m);
+        } catch (Exception e1) {
+            throw new RuntimeException("Failed to return model to pool.", e1);
+        }
+    }
+
+    private Model getModel(String modelName) {
+        Model m;
+        try {
+            m = (Model) pool.borrowObject(modelName);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get model from pool.", e);
+        }
+        return m;
     }
 
     /**
-     * @param factory
-     *            The factory to set.
+     * @param pool
+     *            The pool to set.
      */
-    public void setModelFactory(JenaModelFactory modelFactory) {
-        this.factory = modelFactory;
+    public void setPool(KeyedObjectPool pool) {
+        this.pool = pool;
+    }
+
+    /**
+     * @param defaultModelName
+     *            The defaultModelName to set.
+     */
+    public void setDefaultModelName(String defaultModelName) {
+        this.defaultModelName = defaultModelName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#getLSObjectWithFollowGroup(org.ome.model.LSID,
+     *      org.ome.model.FollowGroup, java.lang.String)
+     */
+    public LSObject getLSObjectWithFollowGroup(LSID lsid, FollowGroup fg,
+            String modelName) {
+        // TODO Auto-generated method stub
+        /* return null; */
+        throw new RuntimeException("implement me");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#getLSObjectsByLSIDType(org.ome.model.LSID,
+     *      java.lang.String)
+     */
+    public List getLSObjectsByLSIDType(LSID type, String modelName) {
+        // TODO Auto-generated method stub
+        /* return null; */
+        throw new RuntimeException("implement me");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.ome.srv.db.GenericStore#getLSObjectsByClassType(java.lang.Class,
+     *      java.lang.String)
+     */
+    public List getLSObjectsByClassType(Class klass, String modelName) {
+        // TODO Auto-generated method stub
+        /* return null; */
+        throw new RuntimeException("implement me");
     }
 }

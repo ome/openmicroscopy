@@ -3,6 +3,9 @@
  */
 package org.ome.tests.srv;
 
+import java.util.Iterator;
+
+import org.apache.commons.pool.KeyedObjectPool;
 import org.ome.srv.db.jena.JenaModelFactory;
 import org.ome.srv.db.jena.JenaProperties;
 
@@ -16,12 +19,18 @@ import junit.framework.TestCase;
  */
 public class BaseServiceTestCase extends TestCase {
 
-    static JenaModelFactory factory = (JenaModelFactory) SpringTestHarness.ctx
-            .getBean("defaultJenaModelFactory");
+    static KeyedObjectPool pool = (KeyedObjectPool) SpringTestHarness.ctx
+            .getBean("modelPool");
+    static JenaModelFactory factory = (JenaModelFactory) SpringTestHarness.ctx.
+    getBean("modelFactory");
 
     static {
         if (true) {
-            jenaInit();
+                try {
+                    jenaInit();
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to init db for test",e);
+                }
         }
         
     }
@@ -29,15 +38,18 @@ public class BaseServiceTestCase extends TestCase {
     static void kowariInit() {
     }
 
-    static void jenaInit() {
+    static void jenaInit() throws Exception {
         ModelMaker mm = factory.getMaker();
-        if (mm.hasModel(factory.getModelName())) {
-            mm.removeModel(factory.getModelName());
+        for (Iterator iter = mm.listModels(); iter.hasNext();) {
+            String model = (String) iter.next();
+            mm.removeModel(model);
+            
         }
-        Model m = factory.getModel();
+        String key = JenaProperties.getString("jena.model.name.default");
+        Model m = (Model) pool.borrowObject(key);
         m.read(JenaProperties.getString("jena.ontology"), JenaProperties
                 .getString("jena.ontology.format"));
-
+        pool.returnObject(key,m);
     }
 
     public static void main(String[] args) {

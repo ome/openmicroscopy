@@ -1,9 +1,5 @@
 package org.ome.srv.net;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,8 +7,6 @@ import org.ome.interfaces.ImageService;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.model.Vocabulary;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 

@@ -43,7 +43,7 @@ public class SpringFacadeTest extends TestCase {
         List l = cs.retrieveProjectsByExperimenter(lsid);
         System.out.println(l.get(0));
         
-        l = is.retrieveImagesByProject(null);
+        l = is.queryImagesByProject(null);
         System.out.println(l.get(0));
         
         as.createExperimenter();

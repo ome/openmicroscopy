@@ -13,9 +13,9 @@ import org.ome.model.LSID;
  */
 public interface ImageService {
 
-	public List retrieveImagesByExperimenter(LSID experimenterId);
+	public List queryImagesByExperimenter(LSID experimenterId);
 
-	public List retrieveImagesByExperimenter(LSID experimenterId,
+	public List queryImagesByExperimenter(LSID experimenterId,
 			LSID predicateGroupId) ;
 
 	public IImage retrieveImage(LSID imageId) ;
@@ -25,9 +25,9 @@ public interface ImageService {
 	// The next could be generated as (?container :contains ?image) //TODO
 	// or just generalized "getByContainer()" since Transitive??
 
-	public List retrieveImagesByDataset(LSID datasetId) ;
+	public List queryImagesByDataset(LSID datasetId) ;
 
-	public List retrieveImagesByProject(LSID projectId) ;
+	public List queryImagesByProject(LSID projectId) ;
 
 	public void updateImage(IImage data) ;
 

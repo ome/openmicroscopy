@@ -48,6 +48,22 @@ public abstract class AbstractLSObject implements Serializable, LSObject {
         this.save();
     }
 
+    public boolean isOwner(String test){ 
+        LSObject owner = (LSObject) this.get(Vocabulary.owner);
+        
+        if (null==owner){
+            return false;
+        }
+        
+        /* TODO test==null ==> false; should it be true if owner==null?? */
+        if (owner.getLSID().toString().equals(Vocabulary.NS+test)){ 
+            return true;
+        }
+        
+        return false;
+        
+    }
+    
     //	 FIXME lsid keys and runtime checks on object be sure to also change other
     // cast classes here
     public boolean put(String predicate, Object object) {

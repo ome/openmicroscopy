@@ -23,7 +23,7 @@ public class ${class.LocalName}
 #else
    extends AbstractLSObject
 #end
-   implements I${class.LocalName},LSObject
+   implements I${class.LocalName} //,LSObject
 {
 
 	public static final double ontologyVersion = $version ;

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+wget -q -O- --http-user=admin --http-passwd=admin http://localhost:8080/ome3-srv/Image?id=$1

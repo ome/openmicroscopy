@@ -1,2 +1,4 @@
+#if ($lsobject)
 $lsobject.toString()
+#end
   

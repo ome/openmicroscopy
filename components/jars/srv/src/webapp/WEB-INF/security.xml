@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
+<beans>
+
+    <!-- ============== INTERCEPTOR =========== -->
+	<bean id="serviceSecurity"
+		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="validateConfigAttributes"><value>true</value></property>
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+<!--
+		<property name="runAsManager"><ref bean="runAsManager"/></property>
+-->
+		<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
+		<property name="objectDefinitionSource">
+			<value>
+				org.ome.interfaces.ImageService.retrieve*=ROLE_USER,LOOKUP
+				org.ome.interfaces.ImageService.query*=ROLE_USER,QUERY
+			</value>
+		</property>
+	</bean>
+
+	<bean id="memoryAuthenticationDao" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+	    <property name="userMap">
+	        <value>
+	            Josh=Moore,ROLE_USER
+	            admin=admin,ROLE_USER,ROLE_ADMIN
+	        </value>
+	    </property>
+	</bean>
+
+    <!-- ============== ACCESS =========== -->
+
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+	<bean id="lsidVoter" class="org.ome.srv.logic.LSIDVoter">
+	    <property name="cache"><ref bean="cache"/></property>
+	    <property name="store"><ref bean="store"/></property>
+   	    <property name="versionService"><ref bean="versionService"/></property>
+	</bean>
+
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
+	    <property name="allowIfAllAbstainDecisions">
+	        <value>false</value>
+	    </property>
+	    <property name="decisionVoters">
+	        <list>
+	           <ref local="roleVoter"/>
+   	           <ref local="lsidVoter"/>
+	        </list>
+	    </property>
+	</bean>
+
+
+   <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
+
+   <bean id="afterQueryFilter" class="org.ome.srv.logic.AfterQueryInvocation">
+	    <property name="cache"><ref bean="cache"/></property>
+	    <property name="store"><ref bean="store"/></property>
+   	    <property name="versionService"><ref bean="versionService"/></property>
+   </bean>
+   
+   <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="afterQueryFilter"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- ============== AUTHENTICATION =========== -->
+   
+	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref bean="authenticationEntryPoint"/></property>
+	</bean>
+
+	<bean id="authenticationEntryPoint"
+		class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+		<property name="realmName"><value>Name Of Your Realm</value></property>
+	</bean>
+
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	     <property name="authenticationDao">
+	         <ref local="memoryAuthenticationDao"/>
+	     </property>
+	</bean>
+	
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	    <property name="providers">
+	        <list>
+	            <ref bean="daoAuthenticationProvider"/>
+	        </list>
+	    </property>
+	</bean>
+
+   <!-- ======================== FILTER CHAIN ======================= -->
+
+	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
+	      of "httpSessionContextIntegrationFilter" in the list below -->
+	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+		    PATTERN_TYPE_APACHE_ANT
+            /**=httpSessionContextIntegrationFilter,basicProcessingFilter
+         </value>
+      </property>
+    </bean>
+<!-- WAS
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
+-->
+
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
+
+
+</beans>
+
