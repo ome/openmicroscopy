@@ -150,6 +150,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	/** Builds and lays out this window. */
 	public void buildGUI()
 	{
+		System.err.println("trying to build executions gui");
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		
@@ -198,7 +199,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		
 		// listen to events
 		pack();
-		
+		show();
 		enableButtons(true);
 	}
 	
@@ -263,9 +264,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	
 	public void contentComplete() {
 		if (dataManager.getChainExecutions() != null) {
-			System.err.println("getting executions");
 			ExecutionsData execs = dataManager.getChainExecutions();
-			System.err.println("executions retrieved");
 			execsModel = new ExecutionsModel(execs);
 			if (execsModel.size() >0)
 				buildGUI();
