@@ -192,7 +192,7 @@ public class RenderingDef
 		return defaultT;
 	}
 	
-	RenderingDef copy()
+	public RenderingDef copy()
 	{
 		RenderingDef copy = new RenderingDef();
 		copy.defaultZ = this.defaultZ;
