@@ -577,6 +577,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     Image image = ps.getThumbnail(pix);
                                     ImageData data = new ImageData();
                                     data.setID(pix.getID());
+                                    data.setName(sum.getName());
                                     ThumbnailDataModel tdm = new ThumbnailDataModel(data);
                                     tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                     tdm.getAttributeMap().putAttribute(pix);

@@ -166,6 +166,12 @@ public class PaletteFactory
         return palette;
     }
     
+    public static BPalette getModePalette(final BrowserModel backingModel,
+                                          final BrowserTopModel model)
+    {
+        return null;
+    }
+    
     public static BPalette getZoomPalette(final BrowserModel backingModel,
                                           final BrowserTopModel model)
     {
