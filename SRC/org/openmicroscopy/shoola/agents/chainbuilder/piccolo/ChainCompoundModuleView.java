@@ -47,6 +47,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import java.util.List;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
@@ -132,28 +133,28 @@ public class ChainCompoundModuleView extends ModuleView {
 		return null;
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		PaletteChainView chainView = getChainView();
 		((ChainPaletteEventHandler) handler).animateToNode(chainView);
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		PNode p = getChainBox();
 		if (p != null) {
 			((ModuleNodeEventHandler) handler).animateToNode(p);
 		}
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		ChainPaletteEventHandler modHandler = (ChainPaletteEventHandler) handler;
 		showDetails();
 		moveUp();
-		super.mouseEntered(handler);
+		super.mouseEntered(handler,e);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		showOverview();
-		super.mouseExited(handler);
+		super.mouseExited(handler,e);
 	}
 	
 	public Integer getMaxIOCardinality() {

@@ -43,6 +43,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java Imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -83,25 +84,25 @@ public class CategoryBox extends GenericBox implements MouseableNode {
 		else return false;
 	}
 	 
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		((ModulePaletteEventHandler) handler).setLastCategoryBox(this);
 		setHighlighted(true);
 	}
 	
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		((ModulePaletteEventHandler) handler).setLastCategoryBox(null);
 		setHighlighted(false);
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
 	}
 	
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 		
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		PNode p = getParent();
 		if (p instanceof BufferedObject) {
 			((ModuleNodeEventHandler) handler).animateToNode(p);		

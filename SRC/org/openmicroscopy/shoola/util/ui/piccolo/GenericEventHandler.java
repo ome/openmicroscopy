@@ -44,7 +44,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import javax.swing.Timer;
 
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ProjectSelectionCanvas;
+
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
@@ -52,7 +52,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ProjectSelectionCanvas;
 
 /** 
  * An event handler for {@link ProjectSelectionCanvas} canvases.
@@ -84,7 +84,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void mouseEntered(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseEntered(this);
+			((MouseableNode) n).mouseEntered(this,e);
 		else 
 			defaultMouseEntered(e);
 		e.setHandled(true);
@@ -98,7 +98,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseExited(this);
+			((MouseableNode) n).mouseExited(this,e);
 		e.setHandled(true);
 	}
 	
@@ -130,7 +130,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void doMouseClicked(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) {
-			((MouseableNode) n).mouseClicked(this); 
+			((MouseableNode) n).mouseClicked(this,e); 
 		}
 	}
 	
@@ -147,7 +147,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void doMouseDoubleClicked(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseDoubleClicked(this);
+			((MouseableNode) n).mouseDoubleClicked(this,e);
 		e.setHandled(true);
 	}
     
@@ -166,7 +166,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 		postPopup = true;
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mousePopup(this);
+			((MouseableNode) n).mousePopup(this,e);
 		e.setHandled(true);
 	}
  

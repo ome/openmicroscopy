@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Vector;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
@@ -490,25 +491,25 @@ public abstract class FormalParameter extends PNode implements
 		return (myID-otherID);
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
-		delegate.mouseClicked(handler);
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
+		delegate.mouseClicked(handler,e);
 	}
 
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 	}
 
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		if (delegate != null)
-			delegate.mouseEntered(handler);
+			delegate.mouseEntered(handler,e);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		if (delegate != null)
-			delegate.mouseExited(handler);
+			delegate.mouseExited(handler,e);
 	}
 
-	public void mousePopup(GenericEventHandler handler) {
-		delegate.mousePopup(handler);
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
+		delegate.mousePopup(handler,e);
 	}
 	
 	public boolean sameTypeAs(FormalParameter p) {

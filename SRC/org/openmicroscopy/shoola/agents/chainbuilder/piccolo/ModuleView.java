@@ -57,6 +57,7 @@ import javax.swing.event.EventListenerList;
 
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
@@ -899,15 +900,15 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 			return null;
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
 	}
 
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 	}
 
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		setAllHighlights(true);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
 		// make sure that the category box gets highlighted when
@@ -916,16 +917,15 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		// in the same category box.
 		CategoryBox cb = getCategoryBox();
 		if (cb !=null)
-			cb.mouseEntered(handler);
+			cb.mouseEntered(handler,e);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		setAllHighlights(false);
 		((ModuleNodeEventHandler) handler).setLastEntered(null);
-		CategoryBox cb = getCategoryBox();
 	}
 
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
 			((ModuleNodeEventHandler) handler).animateToNode(p);	

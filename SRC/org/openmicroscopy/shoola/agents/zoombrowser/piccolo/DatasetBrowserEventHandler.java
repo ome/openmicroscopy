@@ -115,7 +115,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 			popup.popup(thumb,e.getCanvasPosition());
 		}
 		else if (node instanceof MouseableNode) {
-			((MouseableNode) node).mousePopup(this);
+			((MouseableNode) node).mousePopup(this,e);
 		}
 		else {
 			PNode p = node.getParent();

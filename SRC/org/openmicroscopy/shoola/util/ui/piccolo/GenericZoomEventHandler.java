@@ -109,7 +109,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
 			
 			if (node instanceof MouseableNode) {
-				((MouseableNode) node).mouseClicked(this);
+				((MouseableNode) node).mouseClicked(this,e);
 			}
 			else if (node instanceof BufferedObject) {
 				animateToNode(node);		
@@ -140,7 +140,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		postPopup = true;
 		PNode node = e.getPickedNode();
 		if (node instanceof MouseableNode) {
-			((MouseableNode) node).mousePopup(this);
+			((MouseableNode) node).mousePopup(this,e);
 		}
 		else {
 			PNode p = node.getParent();

@@ -41,6 +41,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 import java.awt.Paint;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -131,27 +132,27 @@ public class ProjectLabel extends PText implements MouseableNode {
 		}
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		BrowserProjectSummary p = getProject();
 		canvas.setRolloverProject(p);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		canvas.setRolloverProject(null);
 	}
 
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		BrowserProjectSummary p = getProject();
 		if (p.hasDatasets()) 
 			canvas.setSelectedProject(p);
 	}
 
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		BrowserProjectSummary picked = getProject();
 		canvas.setSelectedProject(null);	
 	}
 
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 		canvas.setSelectedProject(null);
 	}
 	

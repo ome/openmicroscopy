@@ -43,6 +43,7 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 
 //Application-internal dependencies
 
@@ -62,14 +63,14 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
 
 public interface MouseableNode {
 
-	public void mouseEntered(GenericEventHandler handler);
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e);
 	
-	public void mouseExited(GenericEventHandler handler);
+	public void mouseExited(GenericEventHandler handler,PInputEvent e);
 	
-	public void mouseClicked(GenericEventHandler handler);
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e);
 	
-	public void mouseDoubleClicked(GenericEventHandler handler);
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e);
 	
-	public void mousePopup(GenericEventHandler handler);
+	public void mousePopup(GenericEventHandler handler,PInputEvent e);
 		
 }

@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
@@ -406,15 +407,15 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 			images.setHandler(handler);
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		canvas.setRolloverDataset(dataset);
 	}
 	
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		canvas.setRolloverDataset(null);
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		DatasetBrowserEventHandler 
 			dsHandler = (DatasetBrowserEventHandler) handler;
 		if (dsHandler != null && dsHandler.getZoomLevel() == 0) {
@@ -423,7 +424,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		}
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		DatasetBrowserEventHandler 
 			dsHandler = (DatasetBrowserEventHandler) handler;
 		if (dsHandler != null)
@@ -431,6 +432,6 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		canvas.setSelectedDataset(null);
 	}
 	
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 	}
 }

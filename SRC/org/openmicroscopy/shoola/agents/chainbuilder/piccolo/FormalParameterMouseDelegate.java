@@ -41,11 +41,12 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
-import edu.umd.cs.piccolo.PNode;
 
 /** 
 * A delegate to handle mouse events for formal parameter objects
@@ -77,7 +78,7 @@ public class FormalParameterMouseDelegate  {
 	}
 	
 
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		if (param == null) 
 			return;
 		ModuleView node = param.getModuleView();
@@ -86,7 +87,7 @@ public class FormalParameterMouseDelegate  {
 		((ModuleNodeEventHandler) handler).setSelectedForDrag(node);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		if (param == null) 
 			return;
 		param.setParamsHighlighted(false);
@@ -98,13 +99,13 @@ public class FormalParameterMouseDelegate  {
 	/** must go up to parent to tell where to click on - don't
 	 *  want to click on parameter directly.
 	 */
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		ModuleView module = getModuleView();
-		module.mouseClicked(handler);
+		module.mouseClicked(handler,e);
 	}
 	
 	
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		if (param == null)
 			return;
 	}

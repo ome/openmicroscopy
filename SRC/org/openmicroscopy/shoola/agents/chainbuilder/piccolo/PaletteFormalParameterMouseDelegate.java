@@ -42,6 +42,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
@@ -69,14 +70,14 @@ public class PaletteFormalParameterMouseDelegate extends
 		super();
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
-		super.mouseEntered(handler);
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
+		super.mouseEntered(handler,e);
 		ChainBox cb = getChainBoxParent();
 		if (cb != null)
-			cb.mouseEntered(handler);
+			cb.mouseEntered(handler,e);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 	}
 
 	

@@ -45,6 +45,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java Imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -71,15 +72,15 @@ public class ModulePaletteModuleView extends SingleModuleView {
 		showOverview();
 	}
 		
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		ModuleNodeEventHandler modHandler = (ModuleNodeEventHandler) handler;
 		showDetails();
 		moveUp();
-		super.mouseEntered(handler);
+		super.mouseEntered(handler,e);
 	}
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		showOverview();
-		super.mouseExited(handler);
+		super.mouseExited(handler,e);
 	}
 }

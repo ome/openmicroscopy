@@ -42,6 +42,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 import java.awt.Image;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
@@ -265,23 +266,23 @@ public class Thumbnail extends PImage implements BufferedObject,
 			pin.zoomOutOfHalo(this);
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		setHighlightedWithHalo(true);
 	}
 	
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 		setHighlightedWithHalo(false);
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		zoomInToHalo();
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		zoomOutOfHalo();
 	}
 	
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 	}
 	
 	public void viewImage(Registry registry) {

@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Vector;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
@@ -443,25 +444,22 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	
 	
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
-		mouseEntered(handler);
+		mouseEntered(handler,e);
 	}
 
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 	}
 
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
-	}
-
-	// let the grandparent handle the event. otherwise, clear last enetered.
-	public void mouseExited(GenericEventHandler handler) {
-		//((ModuleNodeEventHandler) handler).setLastEntered(null);
+	} 
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
-		mouseClicked(handler);
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
+		mouseClicked(handler,e);
 	}
 	
 	public PNode getToolTip() {
