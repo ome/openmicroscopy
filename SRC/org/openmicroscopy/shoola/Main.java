@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.init.StartupException;
 
 /** 
  * Application entry point.
