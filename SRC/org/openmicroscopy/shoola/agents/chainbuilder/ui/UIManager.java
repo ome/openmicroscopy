@@ -147,7 +147,6 @@ public class UIManager implements ContentGroupSubscriber
 		// have the center contents.
 		if (firstShowing == true) {
 			chainWindow.focusOnPalette();
-			mainWindow.focusOnPalette();
 			firstShowing = false;
 		}
 	}
@@ -157,7 +156,7 @@ public class UIManager implements ContentGroupSubscriber
 	}
 	
 	private void setWindowsVisibility(boolean v) {
-		if (chainWindow != null)
+		if (chainWindow != null) 
 			chainWindow.setVisible(v);
 	}
 	
