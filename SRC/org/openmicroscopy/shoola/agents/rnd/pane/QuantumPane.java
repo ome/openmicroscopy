@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
