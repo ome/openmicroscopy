@@ -70,16 +70,16 @@ public class ROI5D
         return new ROI5D(size);
     }
 
-    public void set(ROI4D stackAcrossTimeROI, int channel)
-    {
-        set(stackAcrossTimeROI, channel);
-    }
-    
     public void set(Copiable roi4D, int channel)
     {
         if (!(roi4D instanceof ROI4D))
             throw new IllegalArgumentException();
         super.set(roi4D, channel);
+    }
+   
+    public void setChannel(ROI4D stackAcrossTimeROI, int channel)
+    {
+        set(stackAcrossTimeROI, channel);
     }
     
     public PlaneArea getPlaneArea(int z, int t, int channel)
@@ -87,6 +87,13 @@ public class ROI5D
         ROI4D stackAcrossTimeROI = (ROI4D) get(channel);
         ROI3D stackROI = (ROI3D) stackAcrossTimeROI.get(t);
         return stackROI.getPlaneArea(z);
+    }
+    
+    public void setPlaneArea(PlaneArea pa, int z, int t, int channel)
+    {
+        ROI4D stackAcrossTimeROI = (ROI4D) get(channel);
+        ROI3D stackROI = (ROI3D) stackAcrossTimeROI.get(t);
+        stackROI.setPlaneArea(pa, z);
     }
     
 }

@@ -71,14 +71,14 @@ public class ROI3D
         return new ROI3D(size);
     }
 
-    public void set(PlaneArea pa, int z)
+    public void setPlaneArea(PlaneArea pa, int z)
     {
         set(pa, z);
     }
     
     public void set(Copiable planeArea, int z)
     {
-        if (!(planeArea instanceof PlaneArea))
+        if (planeArea != null && !(planeArea instanceof PlaneArea))
             throw new IllegalArgumentException();
         super.set(planeArea, z);
     }

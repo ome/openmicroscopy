@@ -70,11 +70,6 @@ public class ROI4D
         return new ROI4D(size);
     }
 
-    public void set(ROI3D stackROI, int t)
-    {
-        set(stackROI, t);
-    }
-    
     public void set(Copiable roi3D, int t)
     {
         if (!(roi3D instanceof ROI3D))
@@ -82,10 +77,27 @@ public class ROI4D
         super.set(roi3D, t);
     }
     
+    public ROI3D getStack(int t) 
+    {
+        return (ROI3D) get(t);
+    }
+    
+    public void setStack(ROI3D stackROI, int t)
+    {
+        set(stackROI, t);
+    }
+    
     public PlaneArea getPlaneArea(int z, int t)
     {
         ROI3D stackROI = (ROI3D) get(t);
         return stackROI.getPlaneArea(z);
     }
+    
+    public void setPlaneArea(PlaneArea pa, int z, int t)
+    {
+        ROI3D stackROI = (ROI3D) get(t);
+        stackROI.setPlaneArea(pa, z);
+    }
+    
     
 }
