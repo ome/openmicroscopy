@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.images;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -74,6 +75,29 @@ public class PaintMethods
             g.setPaint(new Color(0,0,255,128));
             g.fill(bounds);
             g.setPaint(oldPaint);
+        }
+    };
+    
+    public static final PaintMethod DRAW_ANNOTATION_METHOD =
+        new AbstractPaintMethod()
+    {
+        public void paint(Graphics2D g, Thumbnail t)
+        {
+            // TODO: change this to check for annotations
+            boolean dummyVariable = false;
+            if(dummyVariable)
+            {
+                Rectangle2D bounds = t.getBounds().getBounds2D();
+                double width = bounds.getWidth();
+                double height = bounds.getHeight();
+                DrawStyle noteStyle = DrawStyles.ANNOTATION_NODE_STYLE;
+                DrawStyle oldStyle = noteStyle.applyStyle(g);
+                PaintShapeGenerator generator = PaintShapeGenerator.getInstance();
+                Shape note = generator.getAnnotationNoteShape(width-10,height-15);
+                g.fill(note);
+                g.draw(note);
+                oldStyle.applyStyle(g);
+            }
         }
     };
     
