@@ -349,7 +349,7 @@ public class BrowserCamera implements RegionSensitive,
         
         for(Iterator iter = panNodeList.iterator(); iter.hasNext();)
         {
-            camera.addChild((PanCameraNode)iter.next());
+            camera.addChild(0,(PanCameraNode)iter.next());
         }
          
     }

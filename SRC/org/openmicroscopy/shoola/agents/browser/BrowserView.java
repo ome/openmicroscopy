@@ -220,6 +220,7 @@ public class BrowserView extends PCanvas
                 while((node = pickPath.getPickedNode()) != null &&
                       !e.isHandled())
                 {
+                    System.err.println(node);
                     if(node instanceof MouseDragSensitive)
                     {
                         ((MouseDragSensitive)node).respondDrag(e);
