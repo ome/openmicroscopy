@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.*;
 
 import org.openmicroscopy.is.CompositingSettings;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -60,11 +61,11 @@ public class BrowserModel
     private Set thumbnailSet;
 
     private LayoutMethod layoutMethod;
-    
     private List groupModels;
     private GroupingMethod groupingMethod;
     
     private CompositingSettings renderSettings;
+    private PaintMethodZOrder annotationModel;
 
     private Set selectedImages;
     private Set hiddenImages;
@@ -79,6 +80,7 @@ public class BrowserModel
         hiddenImages = new HashSet();
         groupModels = new ArrayList();
         thumbnailSet = new HashSet();
+        annotationModel = new PaintMethodZOrder();
 
         // default behavior (may replace later)
         currentMode = BrowserMode.DEFAULT_MODE;

@@ -44,6 +44,7 @@ import org.openmicroscopy.ds.DataException;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.shoola.agents.browser.*;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 /**
  * A factory that constructs ThumbnailSourceMaps from a particular data
@@ -76,9 +77,9 @@ public class DatasetLoader
      * @param tsm The thumbnail source map in which to place image
      *            information (extracted from the DTO)
      */
-    public void loadInto(Dataset dto, ThumbnailSourceModel tsm)
+    public void loadInto(DatasetData data, ThumbnailSourceModel tsm)
     {
-        if(dto == null || tsm == null)
+        if(data == null || tsm == null)
         {
             // do nothing
             return;
@@ -87,12 +88,12 @@ public class DatasetLoader
         List imageList;
         try
         {
-            imageList = dto.getImages();
+            imageList = data.getImages();
         }
         catch(DataException de)
         {
-            fillInDatasetDTO(dto);
-            imageList = dto.getImages();
+            fillInDatasetDTO(data);
+            imageList = data.getImages();
         }
         
         // now, suck the images into the TSM
@@ -132,7 +133,7 @@ public class DatasetLoader
     /*
      * Populate the Dataset dto if it has not been done already.
      */
-    private void fillInDatasetDTO(Dataset dto)
+    private void fillInDatasetDTO(DatasetData data)
     {
         // notify everyone that a DB read (expensive) is about to go down
         for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
