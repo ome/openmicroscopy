@@ -35,8 +35,12 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -133,6 +137,8 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      * Gets the lowest (or only) ID of all the images in the thumbnail.
      */
     protected int baseID;
+    
+    private Color overColor = new Color(192,192,192);
 
     /**
      * Initializes the thumbnail.
@@ -470,6 +476,31 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         
         // now draw the image (methinks this will work)
         super.paint(context);
+        
+        if(hasMultipleImages)
+        {
+            PaintShapeGenerator psg = PaintShapeGenerator.getInstance();
+            Shape rightFold = psg.getFoldUpperShape();
+            DrawStyle backgroundStyle =
+                new DrawStyle(null,overColor,null);
+            
+            DrawStyle oldStyle = backgroundStyle.applyStyle(g2);
+            AffineTransform shiftXForm =
+                AffineTransform.getTranslateInstance(getWidth()-11,-1);
+            g2.fill(shiftXForm.createTransformedShape(rightFold));
+            
+            Color c = (Color)backgroundStyle.getFillPaint();
+            Paint p = new Color(c.getRed(),c.getGreen(),c.getBlue(),153);
+            backgroundStyle.setFillPaint(p);
+            backgroundStyle.applyStyle(g2);
+            
+            shiftXForm =
+                AffineTransform.getTranslateInstance(getWidth()-10,0);
+            
+            Shape leftFold = psg.getFoldLowerShape();
+            g2.fill(shiftXForm.createTransformedShape(leftFold));
+            oldStyle.applyStyle(g2);
+        }
         
         // now draw the middle paint methods
         for(Iterator iter = middlePaintMethods.iterator(); iter.hasNext();)

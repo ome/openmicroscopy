@@ -117,6 +117,26 @@ public final class PaintShapeGenerator
         return circlePath;
     }
     
+    public Shape getFoldUpperShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0,0);
+        path.lineTo(12,0);
+        path.lineTo(12,12);
+        path.closePath();
+        return path;
+    }
+    
+    public Shape getFoldLowerShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0,0);
+        path.lineTo(0,10);
+        path.lineTo(10,10);
+        path.closePath();
+        return path;
+    }
+    
     /**
      * Get an instance of the PaintShapeGenerator.
      * @return See above.
