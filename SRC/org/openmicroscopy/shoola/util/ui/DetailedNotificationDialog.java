@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -114,7 +115,26 @@ public class DetailedNotificationDialog
 	{
 		MultilineLabel explanation = new MultilineLabel(expl);
 		explanation.setLineWrap(false);
-		JScrollPane scrollPane = new JScrollPane(explanation);
+		buildExplanationPanel(explanation);
+		/*JScrollPane scrollPane = new JScrollPane(explanation);
+		scrollPane.setPreferredSize(SCROLL_PANE_SIZE);
+		explanationPanel.setLayout(
+							new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
+		explanationPanel.setBorder(
+								BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		explanationPanel.add(Box.createRigidArea(V_SPACER_SIZE));
+		explanationPanel.add(new JSeparator());
+		explanationPanel.add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
+		explanationPanel.add(scrollPane);*/
+	}
+	
+	/**
+	 * Builds and lays out the explanation string
+	 *
+	 * @param component - the component to go in the explanation panel
+	 */
+	private void buildExplanationPanel(Component component) {
+		JScrollPane scrollPane = new JScrollPane(component);
 		scrollPane.setPreferredSize(SCROLL_PANE_SIZE);
 		explanationPanel.setLayout(
 							new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
@@ -171,6 +191,18 @@ public class DetailedNotificationDialog
 	}
 	
 	/**
+	 * Hooks up the {@link #detailsButton} and the {@link #explanationPanel} to
+	 * the parent's GUI.
+	 * 
+	 * @param component A component containing the description of the notification
+	 */
+	private void buildGUI(Component component) {
+		buttonPanel.add(detailsButton);
+		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		buildExplanationPanel(component);
+	}
+	
+	/**
 	 * Creates a new dialog.
 	 * You have to call {@link #open()} to actually display it on screen.
 	 * 
@@ -188,6 +220,27 @@ public class DetailedNotificationDialog
 		createComponents();
 		attachListeners();
 		buildGUI(explanation);
+		isExplanationShowing = false;
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #open()} to actually display it on screen.
+	 * 
+	 * @param owner	The parent window.
+	 * @param title	The title to display on the title bar.
+	 * @param message	The notification message.
+	 * @param messageIcon	An optional icon to display by the message.
+	 * @param component A component holding the details
+	 */
+	public DetailedNotificationDialog(JFrame owner, String title,
+										String message, Icon messageIcon,
+										Component component)
+	{
+		super(owner, title, message, messageIcon);
+		createComponents();
+		attachListeners();
+		buildGUI(component);
 		isExplanationShowing = false;
 	}
 	
