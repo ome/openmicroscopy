@@ -45,6 +45,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -87,8 +88,8 @@ public class AssistantDialog
     extends JDialog
 {
     
-    private static final String     MSG = "TODO: write a short and explicit " +
-                                    "message";
+    private static final String     MSG = "Click on cell, drag, release and " +
+            "copy the selection if any drawn on the corresponding plane";
     
     private static final String     TITLE = "ROI Assistant, ROI #";
     
@@ -103,11 +104,13 @@ public class AssistantDialog
 
     private JScrollPane             scrollPane;
 
-    JButton                         copy, copySegment, copyStack, close, erase;
+    JButton                         copyStack;
 
     JTextField                      startT, endT;
 
     JRadioButton                    allTimepoints, finalTimepoints;
+    
+    JCheckBox                       moveResizeBox;
     
     /** Width of a caracter. */
     private int                     txtWidth;
@@ -126,6 +129,7 @@ public class AssistantDialog
                     numColumns, roi);
         buildComponent(roi);
         manager.attachListeners();
+        manager.initDimensions();
         buildGUI((""+numRows).length());
         pack();
     }
@@ -133,8 +137,7 @@ public class AssistantDialog
     public void buildComponent(ScreenROI roi)
     {
         manager.setSelectedColor(roi.getAreaColor());
-        table.buildTableData(roi.getLogicalROI(), 
-                            manager.getAlphaSelectedColor());
+        table.buildTableData(roi.getLogicalROI());
         table.repaint();
         setTitle(TITLE+""+roi.getIndex());
     }
@@ -143,37 +146,28 @@ public class AssistantDialog
     private void initComponents(IconManager im, int numRows, int numColumns, 
                                 ScreenROI roi)
     {
-        allTimepoints = new JRadioButton("Timepoints from start to end");
-        finalTimepoints = new JRadioButton("Only start and end timepoints");
+        moveResizeBox = new JCheckBox("Apply op to the stack");
+        moveResizeBox.setToolTipText(
+                UIUtilities.formatToolTipText("Apply the Move/Resize action " +
+                        "to all 2D-selections drawn on planes " +
+                        "within the stack"));
+        allTimepoints = new JRadioButton("Fill from start to end");
+        finalTimepoints = new JRadioButton("Copy start to end timepoints");
         allTimepoints.setSelected(true);
         ButtonGroup group = new ButtonGroup();
         group.add(allTimepoints);
         group.add(finalTimepoints);
-        close = new JButton(im.getIcon(IconManager.CLOSE));
-        close.setToolTipText(
-                UIUtilities.formatToolTipText("Close the widget."));
-        copySegment = new JButton(im.getIcon(IconManager.COPY_SEGMENT));
-        copySegment.setToolTipText(
-                UIUtilities.formatToolTipText("Copy area across the " +
-                                                "selected segment."));
-        copy = new JButton(im.getIcon(IconManager.COPY));
-        copy.setToolTipText(
-                UIUtilities.formatToolTipText("Copy the selected area."));
         copyStack = new JButton(im.getIcon(IconManager.COPY_STACK));
         copyStack.setToolTipText(
                 UIUtilities.formatToolTipText("Copy the selected stack " +
                         "across time."));
-        erase = new JButton(im.getIcon(IconManager.ERASE));
-        erase.setToolTipText(
-                UIUtilities.formatToolTipText("Erase the current selection."));
         //TextField
         startT = new JTextField(""+0, (""+numColumns).length());
         endT = new JTextField(""+(numColumns-1), (""+numColumns).length());
         initTxtWidth(startT);
         
         //Initialize the table
-        table = new ColoredCellTable(numRows, numColumns, roi.getLogicalROI(), 
-                manager.getAlphaSelectedColor());
+        table = new ColoredCellTable(numRows, numColumns, roi.getLogicalROI());
         JList rowHeader = new JList(new HeaderListModel(numRows));
         if (numRows > MAX) rowHeader.setFixedCellWidth(WIDTH_MAX);
         else rowHeader.setFixedCellWidth(WIDTH_MIN);
@@ -206,12 +200,21 @@ public class AssistantDialog
     {
         JPanel  p = new JPanel(), allControls = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(UIUtilities.buildComponentPanel(buildMajorBar()));
-        p.add(Box.createRigidArea(ROIAgtUIF.VBOX));
         p.add(buildStack(l));
+        p.add(Box.createRigidArea(ROIAgtUIF.VBOX));
+        p.add(buildMoveResizePanel());
         allControls.setLayout(new FlowLayout(FlowLayout.LEFT));
         allControls.add(p);
         return allControls;
+    }
+    
+    private JPanel buildMoveResizePanel()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(UIUtilities.setTextFont(" Move/Resize"));
+        p.add(moveResizeBox);
+        return UIUtilities.buildComponentPanel(p);
     }
     
     private JPanel buildStack(int l)
@@ -224,12 +227,14 @@ public class AssistantDialog
         pStack.add(buildMinorBar());
         pStack.add(UIUtilities.buildComponentPanel(buildCopyStack(l)));
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(UIUtilities.buildComponentPanel(
+                UIUtilities.setTextFont(" Copy stack")));
         p.add(pStack);
         p.add(Box.createRigidArea(ROIAgtUIF.VBOX));
         p.add(radioPanel);
         return p;
     }
-    
+
     private JPanel buildCopyStack(int length)
     {
         JPanel p = new JPanel(), msp;
@@ -264,23 +269,6 @@ public class AssistantDialog
         gridbag.setConstraints(msp, c);
         p.add(msp);
         return p; 
-    }
-
-    /** Build toolBar with JButtons. */
-    private JToolBar buildMajorBar()
-    {
-        JToolBar bar = new JToolBar();
-        bar.setBorder(BorderFactory.createEtchedBorder());
-        bar.setFloatable(true);
-        bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        bar.add(copy);
-        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
-        bar.add(copySegment);
-        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
-        bar.add(erase);
-        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
-        bar.add(close);
-        return bar;
     }
     
     private JToolBar buildMinorBar()

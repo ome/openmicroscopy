@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /** 
  * 
  *
@@ -162,13 +163,13 @@ public class ToolBar
         UIUtilities.formatToolTipText("Bring up the assistant dialog."));
         createROI = new JButton(im.getIcon(IconManager.CREATE_ROI));
         createROI.setToolTipText(
-                UIUtilities.formatToolTipText("Create a 5D selection."));
+                UIUtilities.formatToolTipText("Create a 4D-selection."));
         eraseCurrentROI = new JButton(im.getIcon(IconManager.ERASE_ALL));
         eraseCurrentROI.setToolTipText(
-             UIUtilities.formatToolTipText("Erase the current 5D selection."));
+             UIUtilities.formatToolTipText("Erase the current 4D-selection."));
         listROI = new JComboBox(data);
         listROI.setToolTipText(
-           UIUtilities.formatToolTipText("Select the current 5D selection."));
+           UIUtilities.formatToolTipText("Select the current 4D-selection."));
         if (data.length == 0) {
             listROI.setEnabled(false);
             assistant.setEnabled(false);

@@ -79,18 +79,18 @@ public class ROIViewer
     /** Background color. */
     private static final Color      STEELBLUE = new Color(0x4682B4);
     
-    private static final int        WIDTH = 80, HEIGHT = 120;
+    private static final int        WIDTH = 150, HEIGHT = 150;
 
     private static final String     MAX_LETTER = "1000%";
     
-    static final int                PIXELS = 0, REAL = 1, MAX = 1;
+    static final int                PIXELS = 0, MICRONS = 1, MAX = 1;
     
     private static final String[]   UNITS;
     
     static {
         UNITS = new String[MAX+1];
         UNITS[PIXELS] = "pixels";
-        //UNIT
+        UNITS[MICRONS] = "microns";
     }
     
     private boolean                 active;
@@ -104,24 +104,29 @@ public class ROIViewer
     JTextField                      magText;
     
     JComboBox                       units;
+
+    double                          unitFactor;
+    
+    private int                     width, height;
     
     private JLabel                  xyInfo, whInfo;
     
     private ROIImageCanvas          roiCanvas;
     
     private ROIViewerMng            mng;
-    
+
     public ROIViewer(ROIAgtCtrl control, int index)
     {
         super(control.getReferenceFrame(), "ROI #"+index);
         initComponents(IconManager.getInstance(control.getRegistry()));
-        mng = new ROIViewerMng(this);
+        unitFactor = 1;
+        mng = new ROIViewerMng(this, control);
         buildGUI(mng);
         setSize(WIDTH, HEIGHT);
     }
     
     public void setWidgetName(int index)
-    {
+    { 
         setTitle("ROI #"+index);
     }
     
@@ -133,19 +138,26 @@ public class ROIViewer
     //NOTE: pa copy of the original drawn on screen. 
     public void setImage(BufferedImage img, PlaneArea pa)
     {
-        if (pa == null)
+        if (pa == null) {
+            width = 0;
+            height = 0;
             setWHInfo(0, 0);
-        else {
+        } else {
             Rectangle r = pa.getBounds();
             setXYInfo(r.x, r.y);
-            setWHInfo(r.width, r.height);
+            width = r.width;
+            height = r.height;
+            setWHInfo((int) (width*unitFactor), (int) (height*unitFactor));
             //Set the bounds for the clip
             pa.setBounds(0, 0, r.width, r.height);
         }
         if (!active) {
             if (img != null) {
-                setComponentsSize((int) (img.getWidth()*mng.getFactor()),
-                                (int) (img.getHeight()*mng.getFactor()));
+                int w = (int) (img.getWidth()*mng.getFactor()+
+                                2*ROIAgtUIF.START), 
+                    h = (int) (img.getHeight()*mng.getFactor()+
+                                2*ROIAgtUIF.START);
+                setComponentsSize(w, h);
                 active = true;
             }
         }
@@ -162,6 +174,11 @@ public class ROIViewer
         roiCanvas.magnify(f);
     }
     
+    void setWHInfo()
+    { 
+        setWHInfo((int) (width*unitFactor), (int) (height*unitFactor));
+    }
+    
     private void setComponentsSize(int w, int h)
     {
         Dimension d = new Dimension(w, h);
@@ -170,7 +187,7 @@ public class ROIViewer
         layer.setPreferredSize(d);
         layer.setSize(d);
     }
-    
+
     private void setXYInfo(int x, int y)
     {
         String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
@@ -178,10 +195,9 @@ public class ROIViewer
         html += "<td align=right>"+x+"<br>"+y+"</td>";
         html += "</tr></table><html>";
         xyInfo.setText(html);
-
     }
     
-    void setWHInfo(int w, int h)
+    private void setWHInfo(int w, int h)
     {
         String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
         html += "<td>width:<br>height:</td>";
@@ -213,8 +229,7 @@ public class ROIViewer
         xyInfo = new JLabel();
         setXYInfo(0, 0);
         whInfo = new JLabel();
-        setWHInfo(0, 0);
-        
+        setWHInfo(0, 0); 
     }
     
     private void buildGUI(ROIViewerMng mng)

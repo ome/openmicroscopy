@@ -110,14 +110,20 @@ public class ROIAgtCtrl
     /** Draw or not the ROI selections. */
     public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
 
+    public double getPixelsSizeX() { return abstraction.getPixelSizeX(); }
+    
+    public double getMagFactor() { return abstraction.getMagFactor(); }
+
     public BufferedImage getROIImage()
     {
         BufferedImage roiImg = null;
         int index = presentation.getToolBar().getSelectedIndex();
         ScreenPlaneArea spa = drawingCanvas.getScreenPlaneArea(index);
         if (spa != null) {
-            PlaneArea pa = spa.getPlaneArea();
-            if (pa != null) {
+            PlaneArea pa;
+            if (spa.getPlaneArea() != null) {
+                pa = (PlaneArea) spa.getPlaneArea().copy();
+                pa.scale(getMagFactor());
                 Rectangle r = pa.getBounds();
                 BufferedImage image = abstraction.getImageOnScreen();
                 if (image != null && r.width > 0 && r.height > 0) 
@@ -133,8 +139,10 @@ public class ROIAgtCtrl
         ScreenPlaneArea spa = drawingCanvas.getScreenPlaneArea(index);
         PlaneArea pa = null;
         if (spa != null) {
-            if (spa.getPlaneArea() != null)
+            if (spa.getPlaneArea() != null) {
                 pa = (PlaneArea) (spa.getPlaneArea()).copy(); 
+                pa.scale(getMagFactor());
+            }  
         }
         return pa;
     }
@@ -154,12 +162,27 @@ public class ROIAgtCtrl
         }
     }
 
+    /** 
+     * The {@link PlaneArea} has moved or been resized. Need to check it the
+     * operation applies to all 2D-selection within a stack.
+     * @param pa
+     */
+    public void moveResizePlaneArea(PlaneArea pa)
+    {
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        int currentIndex = presentation.getToolBar().getSelectedIndex();
+        if (tbm.isMoveResize())
+            abstraction.moveResizePlaneArea(pa, currentIndex);
+        else abstraction.setPlaneArea(pa, currentIndex);
+    }
+    
     /** Set the new shape selection for the current 5D-selection. */
     public void setPlaneArea(PlaneArea pa)
     {
         int currentIndex = presentation.getToolBar().getSelectedIndex();
         int z = getCurrentZ(), t = getCurrentT();
-        presentation.getToolBar().getManager().setCurrentPlane(z, t);
+        presentation.getToolBar().getManager().setCurrentPlane(z, t, 
+                ROIFactory.getLabelShapeType(pa));
         abstraction.setPlaneArea(pa, currentIndex);
     }
     
@@ -365,6 +388,19 @@ public class ROIAgtCtrl
         }
     }
     
+    public void copyAcrossZAndT(PlaneArea pa, int fromZ, int toZ, int fromT, 
+                                int toT)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        int t = getCurrentT(), z = getCurrentZ();
+        abstraction.copyAcrossZAndT(pa, index, fromZ, toZ, fromT, toT);
+        if ((z >= fromZ || z <= toZ) && (t >= fromT || t <= toT)) {
+            PlaneArea p = abstraction.getPlaneArea(z, t, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
     public void copyStackAcrossT(int from, int to)
     {
         int index = presentation.getToolBar().getSelectedIndex();
@@ -399,11 +435,7 @@ public class ROIAgtCtrl
     }
     
     /** Repaint the {@link PlaneArea}s */
-    void magnifyScreenROIs(double f)
-    {
-        drawingCanvas.magnifyPlaneAreas(f);
-        setROIThumbnail();
-    }
+    void magnifyScreenROIs() { setROIThumbnail(); }
     
     /** Paint screen ROI on screen only invoke when a new Image is rendered. */
     void paintScreenROIs(int currentZ, int currentT, double magFactor)

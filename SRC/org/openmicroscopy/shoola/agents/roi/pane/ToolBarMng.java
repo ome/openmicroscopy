@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
+import org.openmicroscopy.shoola.util.ui.ColoredLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -78,6 +79,8 @@ public class ToolBarMng
     
     private int                     maxT, maxZ;
     
+    private int                     indexViewer;
+    
     public ToolBarMng(ToolBar view, ROIAgtCtrl control, int maxT, int maxZ)
     {
         this.view = view;
@@ -94,6 +97,13 @@ public class ToolBarMng
         return b;
     }
     
+    public boolean isMoveResize()
+    {
+        boolean b = false;
+        if (assistant != null) b = assistant.moveResizeBox.isSelected();
+        return b;
+    }
+    
     public void setROIImage(BufferedImage img, PlaneArea pa)
     {
         if (viewer != null) viewer.setImage(img, pa);
@@ -102,13 +112,13 @@ public class ToolBarMng
     public void removeCurrentPlane(int z, int t)
     {
         if (assistant != null)
-            assistant.manager.removeCurrentPlane(z, t);
+            assistant.manager.setSelectedPlane(z, t, ColoredLabel.NO_SHAPE);
     }
     
-    public void setCurrentPlane(int z, int t)
+    public void setCurrentPlane(int z, int t, int shapeType)
     {
         if (assistant != null)
-            assistant.manager.setCurrentPlane(z, t);
+            assistant.manager.setSelectedPlane(z, t, shapeType);
     }
     
     void refreshDialogs(int index)
@@ -116,9 +126,12 @@ public class ToolBarMng
         if (assistant != null)
             assistant.buildComponent(control.getScreenROI());
         if (viewer != null) {
-            viewer.setWidgetName(index);
-            viewer.resetMagnificationFactor();
-            viewer.setImage(control.getROIImage(), control.getClip());
+            if (index != indexViewer) {
+                indexViewer = index;
+                viewer.setWidgetName(index);
+                viewer.resetMagnificationFactor();
+                viewer.setImage(control.getROIImage(), control.getClip());
+            }
         }
     }
     
@@ -164,7 +177,8 @@ public class ToolBarMng
     {
         if (viewer == null) {
             ScreenROI roi = control.getScreenROI();
-            viewer = new ROIViewer(control, roi.getIndex());
+            indexViewer = roi.getIndex();
+            viewer = new ROIViewer(control, indexViewer);
             viewer.setImage(control.getROIImage(), control.getClip());
         } 
         UIUtilities.centerAndShow(viewer);

@@ -99,7 +99,7 @@ class PaintingControlsMng
         attachButtonListener(view.ellipse, ELLIPSE);
         attachCheckBoxListener(view.textOnOff, TEXT_ON_OFF);
     }
-
+    
     private void attachButtonListener(JButton button, int id)
     {
         button.setActionCommand(""+id);

@@ -197,6 +197,8 @@ public class ROIAgt
         return ((Integer) channelsMap.get(new Integer(index))).intValue();
     }
     
+    double getPixelSizeX() { return pxsDims.pixelSizeX; }
+    
     int getCurrentZ() { return renderingControl.getDefaultZ(); }
     
     int getCurrentT() { return renderingControl.getDefaultT(); }
@@ -327,6 +329,21 @@ public class ROIAgt
         logicalROI.setPlaneArea(pa, z, t);
     }
 
+    void moveResizePlaneArea(PlaneArea pa, int roiIndex)
+    {
+        pa.scale(1/magFactor);
+        ScreenROI roi = (ScreenROI) listScreenROI.get(roiIndex);
+        ROI4D logicalROI = roi.getLogicalROI();
+        int t = getCurrentT();
+        PlaneArea copy;
+        for (int z = 0; z < pxsDims.sizeZ; z++) {
+            if (logicalROI.getPlaneArea(z, t) != null) {
+                copy = (PlaneArea) (pa.copy());
+                logicalROI.setPlaneArea(copy, z, t);
+            }
+        }
+    }
+    
     /** 
      * Retrieve the {@link PlaneaArea} at the specified position.
      * 
@@ -375,8 +392,9 @@ public class ROIAgt
     }
     
     /** 
-     * Copy the specified {@link PlaneArea} from the specified position
-     * <code>(from, t)</code> to the new position <code>(to, t)</code>.
+     * Fill the interval defined by the positions 
+     * <code>(from, t)</code> and <code>(to, t)</code>.
+     * with the the specified {@link PlaneArea}.
      * 
      * @param pa    {@link PlaneArea} to copy.
      * @param index roi index.
@@ -391,8 +409,9 @@ public class ROIAgt
     }
     
     /**
-     * Copy the specified {@link PlaneArea} from the specified position
-     * <code>(z, from)</code> to the new position <code>(z, to)</code>.
+     * Fill the interval defined by the positions 
+     * <code>(z, from)</code> and <code>(z, to)</code>.
+     * with the the specified {@link PlaneArea}.
      * 
      * @param pa    {@link PlaneArea} to copy.
      * @param index roi index.
@@ -404,6 +423,25 @@ public class ROIAgt
     {
         ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyAcrossT(pa, from, to, z);
+    }
+    
+    /**
+     * Fill the area defined by the positions 
+     * <code>(fromZ, fromT)</code> and <code>(toZ, toT)</code>.
+     * with the the specified {@link PlaneArea}.
+     * 
+     * @param pa        {@link PlaneArea} to copy.
+     * @param index     roi index.
+     * @param fromZ     z-section.
+     * @param toZ       z-section.
+     * @param fromT     timepoint.
+     * @param toT       timepoint.
+     */
+    void copyAcrossZAndT(PlaneArea pa, int index, int fromZ, int toZ, int fromT,
+                            int toT)
+    {
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
+        if (roi != null) roi.copyAcrossZAndT(pa, fromZ, toZ, fromT, toT);
     }
     
     /**
@@ -451,11 +489,11 @@ public class ROIAgt
     /** Handle the event @see IATChanged. */
     private void handleIATChanged(IATChanged response)
     {
-        double oldMagFactor = magFactor;
         magFactor = response.getAffineTransform().getMagFactor();
         imageOnScreen = response.getImageDisplayed();
         if (listScreenROI.size() != 0) 
-            control.magnifyScreenROIs(magFactor/oldMagFactor);
+            control.magnifyScreenROIs();
+            
     }
     
     /** Handle the event @see ImageLoaded. */

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.roi.pane;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -41,6 +40,7 @@ import javax.swing.table.TableColumn;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.ROIFactory;
 import org.openmicroscopy.shoola.util.image.roi.ROI4D;
 import org.openmicroscopy.shoola.util.ui.ColoredLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -71,39 +71,32 @@ public class ColoredCellTable
     
     private Object[][]          data;
     
-    public ColoredCellTable(int numRows, int numColumns, ROI4D logicalROI, 
-                            Color alphaColor)
+    public ColoredCellTable(int numRows, int numColumns, ROI4D logicalROI)
     {
         super(numRows, numColumns);
         this.numRows = numRows;
         this.numColumns = numColumns;
         data = new Object[numRows][numColumns];
-        buildTableData(logicalROI, alphaColor);
+        buildTableData(logicalROI);
         setModel(new ColoredLabelTableModel(data, numColumns));
         setTableLayout();
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF); //Big table
     }
     
-    public void buildTableData(ROI4D logicalROI, Color alphaColor)
+    public void buildTableData(ROI4D logicalROI)
     {
         ColoredLabel label;
         String text;
         int t;
-        Color c;
         for (int i = 0; i < numRows; i++) { //z
             for (int j = 0; j < numColumns; j++) {  //t
                 label = new ColoredLabel();
                 t = numRows-1-i;
                 text = "z = "+t+", t = "+j;
                 label.setToolTipText(UIUtilities.formatToolTipText(text));
-                //Check plane
-                c = AnalysisControls.DEFAULT_COLOR;
-                label.setDraw(false);
-                if (logicalROI.getPlaneArea(t, j) != null) {
-                    c = alphaColor;
-                    label.setDraw(true);
-                }
-                label.setBackground(c);
+                label.setShapeType(
+                ROIFactory.getLabelShapeType(logicalROI.getPlaneArea(t, j)));
+                label.setBackground(AnalysisControls.DEFAULT_COLOR);
                 data[i][j] = label;
             }
         }
@@ -115,6 +108,7 @@ public class ColoredCellTable
         int width = AnalysisControls.WIDTH_MIN;
         if (numColumns > AnalysisControls.MAX) 
             width = AnalysisControls.WIDTH_MAX; 
+        
         setRowHeight(width);
         TableColumn col;
         for (int i = 0; i < numColumns; i++) {
@@ -164,7 +158,7 @@ public class ColoredCellTable
         public Object getValueAt(int row, int col)
         { 
             return data[row][col];
-       }
+        }
     
         public boolean isCellEditable(int row, int col) { return false; }
     

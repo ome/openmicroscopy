@@ -36,6 +36,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
+import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
+
 //Third-party libraries
 
 //Application-internal dependencies;
@@ -62,19 +64,22 @@ public class ROIViewerMng
     
     /** Action ID. */
     private static final int        MAG_PLUS = 0, MAG_MINUS = 1, 
-                                    MAG_FIT = 2;
+                                    MAG_FIT = 2, UNITS = 3;
     
     private static final double     incrementMag = 0.5;
     
     private ROIViewer               view;
     
-    private double                  factor, oldFactor;
+    private ROIAgtCtrl              control;
     
-    public ROIViewerMng(ROIViewer view)
+    /** Magnification factor. */
+    private double                  factor;
+    
+    public ROIViewerMng(ROIViewer view, ROIAgtCtrl control)
     {
         this.view = view;
+        this.control = control;
         factor = MIN_MAG;
-        oldFactor = MIN_MAG;
         attachListeners();
     }
 
@@ -84,12 +89,9 @@ public class ROIViewerMng
     }
     
     public double getFactor() { return factor; }
-    
-    public double getOldFactor() { return oldFactor; }
-    
+   
     void resetMagnificationFactor()
     {
-        oldFactor = MIN_MAG;
         factor = MIN_MAG;    
         String s = ""+(int)(factor*100)+"%";
         view.magText.setText(s);
@@ -97,6 +99,8 @@ public class ROIViewerMng
     
     private void attachListeners()
     {
+        view.units.addActionListener(this);
+        view.units.setActionCommand(""+UNITS);
         attachButtonListener(view.magPlus, MAG_PLUS);
         attachButtonListener(view.magMinus, MAG_MINUS);
         attachButtonListener(view.magFit, MAG_FIT);
@@ -119,30 +123,40 @@ public class ROIViewerMng
                 case MAG_MINUS:
                     decrementMagFactor(); break;
                 case MAG_FIT:
-                    resetMagFactor();     
+                    resetMagFactor(); break;
+                case UNITS:
+                    setUnitFactor();
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }
     }
     
+    private void setUnitFactor()
+    {
+        int index = view.units.getSelectedIndex();
+        switch(index) {
+            case ROIViewer.PIXELS:
+                view.unitFactor = 1.0; break;
+            case ROIViewer.MICRONS:
+                view.unitFactor = control.getPixelsSizeX(); break;
+        }
+        view.setWHInfo();
+    }
+    
     private void resetMagFactor()
     {
-        oldFactor = factor;
         factor = MIN_MAG;
-        //oldFactor = MIN_MAG;
         magnify();
     }
     private void incrementMagFactor()
     {
-        oldFactor = factor;
         factor += incrementMag; 
         magnify();
     }
     
     private void decrementMagFactor()
     {
-        oldFactor = factor;
         factor -= incrementMag;
         if (factor < MIN_MAG) factor = MIN_MAG;
         magnify();

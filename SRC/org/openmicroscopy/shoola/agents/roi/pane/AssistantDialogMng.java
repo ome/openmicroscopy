@@ -31,19 +31,23 @@ package org.openmicroscopy.shoola.agents.roi.pane;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import javax.swing.AbstractButton;
 import javax.swing.JTextField;
+import javax.swing.table.TableColumn;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
+import org.openmicroscopy.shoola.agents.roi.ROIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.ui.ColoredLabel;
@@ -63,13 +67,11 @@ import org.openmicroscopy.shoola.util.ui.ColoredLabel;
  * @since OME2.2
  */
 public class AssistantDialogMng
-    implements ActionListener, FocusListener
+    implements ActionListener, FocusListener, MouseListener, MouseMotionListener
 {
     
     /** Action ID, to copy segment. */
-    private static final int        COPY = 0, COPY_STACK = 1, 
-                                    START_T = 2, END_T = 3, CLOSE = 4,
-                                    COPY_SEGMENT = 5, ERASE= 6;
+    private static final int        COPY_STACK = 0, START_T = 1, END_T = 2;
 
     private static final String     MSG = "To copy across Z, select two " +
             "points in the same column. To copy across T, select two " +
@@ -79,11 +81,20 @@ public class AssistantDialogMng
     
     private int                     curStart, curEnd;
     
-    private Color                   selectedColor, alphaSelectedColor;
+    private Color                   selectedColor;
+    
+    private boolean                 dragging, pressed;
     
     private AssistantDialog         view;
     
     private ROIAgtCtrl              control;
+    
+    private int                     cellWidth, cellHeight, tableWidth, 
+                                    tableHeight;
+    
+    private int                     numRows, numColumns;
+    
+    private Point                   anchor, staticAnchor;
     
     public AssistantDialogMng(AssistantDialog view, ROIAgtCtrl control, 
                             int maxT)
@@ -94,7 +105,60 @@ public class AssistantDialogMng
         curEnd = maxT;
         setDefaultLocation();
     }
+
+    /** Select the active cell.*/
+    public void mousePressed(MouseEvent e)
+    {
+        if (!pressed) {
+            pressed = true;
+            anchor = e.getPoint();
+            staticAnchor = e.getPoint();
+            onClick(); 
+        }
+    }
     
+    /** Copy the selected segment. */
+    public void mouseReleased(MouseEvent e)
+    {
+        PropagationPopupMenu popupMenu = new PropagationPopupMenu(this);
+        if (dragging) popupMenu.setOps(false);
+        //Erase
+        if (!dragging && pressed) popupMenu.setOps(true);
+        popupMenu.show(view.table, e.getX(), e.getY());
+        dragging = false;
+        pressed = false;
+    }
+
+    /** Handle mouseDragged event. Select the cell. */
+    public void mouseDragged(MouseEvent e)
+    {
+        if (pressed) {
+            dragging = true;
+            Point p = e.getPoint();
+            int lengthX, lengthY;
+            int y = anchor.y-p.y, x = anchor.x-p.x;
+            int absX = Math.abs(staticAnchor.x-p.x), 
+                absY = Math.abs(staticAnchor.y-p.y);
+            lengthX = Math.abs(x)/cellWidth;
+            lengthY = Math.abs(y)/cellHeight;
+            if (absY < cellHeight && absX > cellWidth) {
+                if (lengthX >= 1) {
+                    draggedAcrossT(lengthX, x);
+                    anchor = p;
+                }
+            } else if (absX < cellWidth &&  absY > cellHeight) {
+                if (lengthY >= 1) {
+                    draggedAcrossZ(lengthY, y);
+                    anchor = p;
+                } 
+            } else if (absX >= cellWidth && absY >= cellHeight) {
+                if (lengthX >= 1 || lengthY >= 1) {
+                    dragged(lengthX, lengthY, x, y);
+                    anchor = p;
+                }
+            }
+        }
+    }
     /** 
      * Handles the lost of focus on the timepoint text field.
      * If focus is lost while editing, then we don't consider the text 
@@ -121,67 +185,48 @@ public class AssistantDialogMng
                     handleStartChange(); break;
                 case END_T:
                     handleEndChange(); break;
-                case COPY:
-                    copy(); break;
-                case COPY_SEGMENT:
-                    copySegment(); break;
                 case COPY_STACK:
                     copyStack(); break; 
-                case CLOSE:
-                    closeWidget(); break;
-                case ERASE:
-                    removeSelected(); break;
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }
     }
 
-    //void setDefault(int z, int t, Color c)
-    //{
-     //   setSelectedColor(c);
-        //oldRow = oldColumn = -1;
-        //curRow = z;
-        //curColumn = t;
-    //}
-    
-    void removeCurrentPlane(int z, int t)
-    {
-        int row = view.table.getRowCount()-1-z;
-        //curColumn = t;
-        setPlaneColor(row, t, AssistantDialog.DEFAULT_COLOR, false);
-        setDefaultLocation();
-        //curRow = oldRow;
-        //curColumn = oldColumn;
-        view.table.repaint();
-    }
-    
-    void setCurrentPlane(int z, int t)
-    {
-        //curRow = view.table.getRowCount()-1-z;
-        //curColumn = t;
-        setDefaultLocation();
-        setPlaneColor(view.table.getRowCount()-1-z, t, alphaSelectedColor, 
-                    true);
-        //paintTable(curRow, curColumn);
-        view.table.repaint();
-    }
-    
-    Color getAlphaSelectedColor() { return alphaSelectedColor; }
-    
+    ROIAgtCtrl getControl() { return control; }
+
     Color getSelectedColor() { return selectedColor; }
     
+    /** 
+     * Initializes the <code>width</code> and <code>height</code> of a cell. 
+     * Note that they are similar.
+     * Also initializes the number of rows and columns.
+     */
+    void initDimensions()
+    {
+        TableColumn col = view.table.getColumnModel().getColumn(0);
+        cellWidth = col.getPreferredWidth();
+        cellHeight = view.table.getRowHeight();
+        numRows = view.table.getRowCount();
+        numColumns = view.table.getColumnCount();
+        tableWidth = numColumns*cellWidth;
+        tableHeight = numRows*cellHeight;
+    }
+    
+    void setSelectedPlane(int z, int t, int shapeType)
+    {
+        int row = numRows-1-z;
+        setSelectedCell(row, t, shapeType);
+        //setDefaultLocation();
+        //ONLY Painted the cell.
+        view.table.repaint(t*numColumns, row*numRows,cellWidth, cellHeight);
+    }
+
     /** Set the color of the selected cell. */
     void setSelectedColor(Color c)
     {
-       if (c == null) {
-           selectedColor = AssistantDialog.SELECTED_COLOR;
-           alphaSelectedColor = AssistantDialog.ALPHA_SELECTED;
-       } else {
-           selectedColor = c;
-           alphaSelectedColor = new Color(c.getRed(), c.getGreen(), 
-                                   c.getBlue(), 100);
-       } 
+       if (c == null) selectedColor = AssistantDialog.SELECTED_COLOR;
+       else selectedColor = c; 
    }
   
     /** Attach listeners to the GUI component. */
@@ -189,17 +234,66 @@ public class AssistantDialogMng
     {
         attachFieldListeners(view.startT, START_T);
         attachFieldListeners(view.endT, END_T);
-        attachButtonListeners(view.close, CLOSE);
-        attachButtonListeners(view.copy, COPY);
         attachButtonListeners(view.copyStack, COPY_STACK);
-        attachButtonListeners(view.copySegment, COPY_SEGMENT);
-        attachButtonListeners(view.erase, ERASE);
-        view.table.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(); }
-        });
+        //table listener
+        view.table.addMouseListener(this);
+        view.table.addMouseMotionListener(this);
+    }
+    
+    /** Copy the PlaneArea from last selected 2D-plane onto the new 2D-plane. */
+    void copy()
+    {
+        int rows = numRows-1;
+        //old must have a selection.
+        PlaneArea pa = control.getPlaneArea(rows-oldRow, oldColumn);
+        if (pa != null) {
+            control.copyPlaneArea(pa, rows-curRow, curColumn);
+            setSelectedPlane(rows-curRow, curColumn, 
+                    ROIFactory.getLabelShapeType(pa)); 
+        } else {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Invalid selection", "No ROI on selected plane."); 
+        }
+        cancel();
+    }
+    
+    /** Copy the selected interval. */
+    void copySegments()
+    {
+        if (oldRow == curRow) copyAcrossT();
+        else if (oldColumn == curColumn) copyAcrossZ();
+        else if (oldColumn != curColumn && oldRow != curRow)
+            copyAcrossZAndT();
+        else {
+            removeSelected();
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Invalid interval", MSG); 
+        }
     }
 
-    /** Attach listener to a JButton. */
+    /** Remove the selected plane from the selection. */
+    void removeSelected()
+    {
+        if (curRow != -1 && curColumn != -1) {
+            int z = numRows-1-curRow;
+            control.removePlaneArea(z, curColumn);
+            setSelectedCell(curRow, curColumn, ColoredLabel.NO_SHAPE);
+            view.table.repaint(curColumn*numColumns, curRow*numRows, cellWidth,
+                                    cellHeight);
+        } 
+        setDefaultLocation();
+    }
+    
+    /** Cancel action. */
+    void cancel()
+    {
+        setCellColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
+        view.table.repaint(curColumn*numColumns, curRow*numRows, cellWidth,
+                cellHeight);
+        setDefaultLocation();
+    }
+
+    /** Attach listener to a AbstractButton. */
     private void attachButtonListeners(AbstractButton button, int id)
     {
         button.setActionCommand(""+id);
@@ -219,14 +313,263 @@ public class AssistantDialogMng
    {
        int row = view.table.getSelectedRow();
        if (row != -1) {
-           oldRow = curRow;
-           oldColumn = curColumn;
-           curRow = row;
-           curColumn = view.table.getSelectedColumn(); 
+           oldRow = curRow = row;
+           oldColumn = curColumn = view.table.getSelectedColumn(); 
            paintTable(curRow, curColumn);
        }
    }
 
+   /** Copy interval across time. */
+   private void copyAcrossT()
+   {
+       int from = oldColumn, to = curColumn;
+       int z = numRows-1-curRow;
+       if (to < from) {
+           from = curColumn;
+           to = oldColumn;
+       }
+       PlaneArea pa = control.getPlaneArea(z, from);
+       if (pa == null) pa = control.getPlaneArea(z, to);
+       if (pa != null) {
+           control.copyAcrossT(pa, from, to, z);
+           PlaneArea paNew;
+           for (int j = from; j <= to; j++) {
+               paNew = control.getPlaneArea(z, j);
+               setSelectedCell(paNew, curRow, j);
+           }
+           setCellColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
+           view.table.repaint(0, curRow*cellHeight, tableWidth, cellHeight);
+           setDefaultLocation();
+       } else
+           handleSelectionError("No ROI on selected plane ("+z+","+from+
+                                   ") or ("+z+","+to+").");
+   }
+   
+   /** Copy interval across sections. */
+   private void copyAcrossZ()
+   {
+       int xMin = oldRow, xMax = curRow;
+       int rows = numRows-1;
+       if (xMax < xMin) {
+           xMax = oldRow;
+           xMin = curRow;
+       }
+       int from = rows-xMin, to = rows-xMax;
+       if (from > to) {
+           int s = from;
+           from = to;
+           to = s;
+       }
+       PlaneArea pa = control.getPlaneArea(from, curColumn);
+       if (pa == null) pa = control.getPlaneArea(to, curColumn);
+       if (pa != null) {
+           control.copyAcrossZ(pa, from, to, curColumn);
+           PlaneArea paNew;
+           int z;
+           for (int i = xMin; i <= xMax; i++) {
+               z = rows-i;
+               paNew = control.getPlaneArea(z, curColumn);
+               setSelectedCell(paNew, i, curColumn);
+           }
+           setCellColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
+           view.table.repaint(curColumn*cellWidth, 0, cellWidth, tableHeight);
+           setDefaultLocation();
+       } else handleSelectionError("No ROI on selected plane ("+from+","
+                           +curColumn+") or ("+to+","+curColumn+").");
+   }
+   
+   /** Copy across z-sections and timepoints. */
+   private void copyAcrossZAndT()
+   {
+       //interval across Z
+       int xMin = oldRow, xMax = curRow;
+       int rows = numRows-1;
+       if (xMax < xMin) {
+           xMax = oldRow;
+           xMin = curRow;
+       }
+       int fromZ = rows-xMin, toZ = rows-xMax;
+       if (fromZ > toZ) {
+           int s = fromZ;
+           fromZ = toZ;
+           toZ = s;
+       }
+       //interval across T
+       int fromT = oldColumn, toT = curColumn;
+       if (toT < fromT) {
+           fromT = curColumn;
+           toT = oldColumn;
+       }
+       int z = numRows-1-oldRow;
+       PlaneArea pa = control.getPlaneArea(z, oldColumn);
+       if (pa == null) {
+           z =  numRows-1-curRow;
+           pa = control.getPlaneArea(z, curColumn);
+       }
+       
+       if (pa != null) {
+           control.copyAcrossZAndT(pa, fromZ, toZ, fromT, toT);
+           PlaneArea paNew;
+           for (int j = fromT; j <= toT; j++) {
+               for (int i = xMin; i <= xMax; i++) {
+                   z = rows-i;
+                   paNew = control.getPlaneArea(z, j);
+                   setSelectedCell(paNew, i, j);
+               }
+           }
+           setCellColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
+           view.table.repaint(curColumn*cellWidth, 0, cellWidth, tableHeight);
+           setDefaultLocation();
+       } else handleSelectionError("No ROI on selected plane ("+fromZ+","
+                           +fromT+") or ("+toZ+","+toT+").");
+       //cancel();
+   }
+   
+   /** Copy a selected stack across time. */
+   private void copyStack()
+   {
+       int from = Integer.parseInt(view.startT.getText()),
+           to = Integer.parseInt(view.endT.getText());
+       if (view.allTimepoints.isSelected()) 
+           copyStackAllTimepoints(from, to);
+       else copyStackEndsTimepoints(from, to);
+   }
+   
+   /** 
+    * Copy stack for timepoints between <code>from</code> 
+    * and <code>to</code>.
+    */
+   private void copyStackAllTimepoints(int from, int to)
+   {
+       int rows = numRows-1;
+       control.copyStackAcrossT(from, to);
+       PlaneArea pa;
+       int z;
+       for (int i = 0; i < rows; i++) {
+           z = rows-i;
+           for (int j = from; j <= to; j++) {
+               pa = control.getPlaneArea(z, j);
+               setSelectedCell(pa, i, j);
+           }
+       }
+       view.table.repaint(from*numColumns, 0, (to-from+1)*cellWidth, 
+                       numRows*cellHeight);
+   }
+
+   /** Copy stack from timepoint <code>from</code> into <code>to</code>. */
+   private void copyStackEndsTimepoints(int from, int to)
+   {
+       control.copyStack(from, to);
+       int rows = numRows-1;
+       PlaneArea pa;
+       int z;
+       for (int i = 0; i < rows; i++) {
+           z = rows-i;
+           pa = control.getPlaneArea(z, from);
+           setSelectedCell(pa, i, from);
+           setSelectedCell(pa, i, to);
+       }
+       view.table.repaint(from*numColumns, 0, to*cellWidth, numRows*cellHeight);
+   }
+   
+   /** Paint the table according to the selected cell. */
+   private void paintRowDraggedCell(int row, int column)
+   {
+       ColoredLabel cl;
+       for (int i = 0; i < numColumns; i++) {
+           cl = (ColoredLabel) (view.table.getValueAt(row, i));
+           if (i != column) cl.setBackground(AssistantDialog.DEFAULT_COLOR);
+           else cl.setBackground(selectedColor); 
+       }
+       view.table.repaint(0, row*cellHeight, tableWidth, cellHeight);
+   }
+   
+   /** Paint the table according to the selected cell. */
+   private void paintColumnDraggedCell(int row, int column)
+   {
+       ColoredLabel cl;
+       for (int i = 0; i < numRows; i++) {
+           cl = (ColoredLabel) (view.table.getValueAt(i, column));
+           if (i != row) cl.setBackground(AssistantDialog.DEFAULT_COLOR);
+           else cl.setBackground(selectedColor);
+       }
+       view.table.repaint(column*cellWidth, 0, cellWidth, tableHeight);
+   }
+   
+   private void draggedAcrossT(int s, int direction)
+   {
+       curRow = oldRow;
+       if (direction < 0) curColumn = curColumn+s;  
+       else curColumn = curColumn-s; 
+       paintRowDraggedCell(curRow, curColumn);
+   }
+   
+   private void draggedAcrossZ(int s, int direction)
+   {
+       curColumn = oldColumn;
+       if (direction < 0) curRow = curRow+s;
+       else curRow = curRow-s;
+       paintColumnDraggedCell(curRow, curColumn);
+   }
+
+   private void dragged(int x, int y, int directionX, int directionY) 
+   {
+       if (directionX < 0) curColumn = curColumn+x; 
+       else  curColumn = curColumn-x; 
+       if (directionY < 0) curRow = curRow+y; 
+       else  curRow = curRow-y;
+       paintTable(curRow, curColumn);
+   }
+
+   void setSelectedCell(PlaneArea pa, int row, int column)
+   {
+       ColoredLabel cl = (ColoredLabel) (view.table.getValueAt(row, column));
+       cl.setShapeType(ROIFactory.getLabelShapeType(pa));
+   }
+  
+   /** Set the color of a cell. */
+   private void setSelectedCell(int row, int column, int shapeType)
+   {
+       ColoredLabel 
+           cl = (ColoredLabel) (view.table.getValueAt(row, column));
+       cl.setShapeType(shapeType);
+   }
+   
+   private void setCellColor(int row, int column, Color c)
+   {
+       ColoredLabel 
+           cl = (ColoredLabel) (view.table.getValueAt(row, column));
+       cl.setBackground(c);
+   }
+   
+   /** Paint the table according to the selected cell. */
+   private void paintTable(int row, int column)
+   {
+       ColoredLabel cl;
+       for (int i = 0; i < numRows; i++) {
+           for (int j = 0; j < numColumns; j++) {
+               cl = (ColoredLabel) (view.table.getValueAt(i, j));
+               if (row == i && column == j) 
+                   cl.setBackground(selectedColor);
+               else  cl.setBackground(AssistantDialog.DEFAULT_COLOR);
+           }
+       }
+       view.table.repaint();
+   }
+
+   /** Display message and reset the color. */
+   private void handleSelectionError(String msg)
+   {
+       cancel();
+       UserNotifier un = control.getRegistry().getUserNotifier();
+       un.notifyInfo("Invalid selection", msg); 
+       //remove the two selected planes.
+       //setSelectedCell(oldRow, oldColumn, false);
+       //setSelectedCell(curRow, curColumn, false);
+       //view.table.repaint();
+       //setDefaultLocation();
+   }
+   
    /** Handle start text changed event. */
    private void handleStartChange()
    {
@@ -266,219 +609,42 @@ public class AssistantDialogMng
        } else curEnd = val;
    }
    
-   /** Copy the PlaneArea from last selected 2D-plane onto the new 2D-plane. */
-   private void copy()
-   {
-       if (oldRow == -1 || oldColumn == -1) {
-           UserNotifier un = control.getRegistry().getUserNotifier();
-           un.notifyInfo("Invalid selection", "You must fisrt select a plane."); 
-       } else {
-           int rows = view.table.getRowCount()-1;
-           //old must have a selection.
-           PlaneArea pa = control.getPlaneArea(rows-oldRow, oldColumn);
-           if (pa != null) {
-               control.copyPlaneArea(pa, rows-curRow, curColumn);
-               setCurrentPlane(rows-curRow, curColumn);
-           } else {
-               UserNotifier un = control.getRegistry().getUserNotifier();
-               un.notifyInfo("Invalid selection", "No ROI on selected plane."); 
-           }
-       }
-   }
    
-   /** Copy the selected interval. */
-   private void copySegment()
-   {
-       if (oldRow == curRow && oldRow != -1) copyAcrossT();
-       else if (oldColumn == curColumn && oldColumn != -1) copyAcrossZ();
-       else {
-           removeSelected();
-           UserNotifier un = control.getRegistry().getUserNotifier();
-           un.notifyInfo("Invalid interval", MSG); 
-       }
-   }
-
-   /** Copy interval across time. */
-   private void copyAcrossT()
-   {
-       int from = oldColumn, to = curColumn;
-       int z = view.table.getRowCount()-1-curRow;
-       if (to < from) {
-           from = curColumn;
-           to = oldColumn;
-       }
-       PlaneArea pa = control.getPlaneArea(z, from);
-       if (pa == null) pa = control.getPlaneArea(z, to);
-       if (pa != null) {
-           control.copyAcrossT(pa, from, to, z);
-           PlaneArea paNew;
-           for (int j = from; j <= to; j++) {
-               paNew = control.getPlaneArea(z, j);
-               setCellColor(paNew, curRow, j);
-           }
-           view.table.repaint(); 
-       } else
-           handleSelectionError("No ROI on selected plane ("+z+","+from+
-                                   ") or ("+z+","+to+").");
-   }
-   
-   /** Copy interval across sections. */
-   private void copyAcrossZ()
-   {
-       int xMin = oldRow, xMax = curRow;
-       int rows = view.table.getRowCount()-1;
-       if (xMax < xMin) {
-           xMax = oldRow;
-           xMin = curRow;
-       }
-       int from = rows-xMin, to = rows-xMax;
-       if (from > to) {
-           int s = from;
-           from = to;
-           to = s;
-       }
-       PlaneArea pa = control.getPlaneArea(from, curColumn);
-       if (pa == null) pa = control.getPlaneArea(to, curColumn);
-       if (pa != null) {
-           control.copyAcrossZ(pa, from, to, curColumn);
-           PlaneArea paNew;
-           int z;
-           for (int i = xMin; i <= xMax; i++) {
-               z = rows-i;
-               paNew = control.getPlaneArea(z, curColumn);
-               setCellColor(paNew, i, curColumn);
-           }
-           view.table.repaint();
-       } else handleSelectionError("No ROI on selected plane ("+from+","
-                           +curColumn+") or ("+to+","+curColumn+").");
-   }
-   
-   /** Copy a selected stack across time. */
-   private void copyStack()
-   {
-       int from = Integer.parseInt(view.startT.getText()),
-           to = Integer.parseInt(view.endT.getText());
-       if (view.allTimepoints.isSelected()) 
-           copyStackAllTimepoints(from, to);
-       else copyStackEndsTimepoints(from, to);
-   }
-   
-   /** 
-    * Copy stack for timepoints between <code>from</code> 
-    * and <code>to</code>.
-    */
-   private void copyStackAllTimepoints(int from, int to)
-   {
-       int numbRows = view.table.getRowCount()-1;
-       control.copyStackAcrossT(from, to);
-       PlaneArea pa;
-       int z;
-       for (int i = 0; i < numbRows; i++) {
-           z = numbRows-i;
-           for (int j = from; j <= to; j++) {
-               pa = control.getPlaneArea(z, j);
-               setCellColor(pa, i, j);
-           }
-       }
-       view.table.repaint();
-   }
-
-   /** Copy stack from timepoint <code>from</code> into <code>to</code>. */
-   private void copyStackEndsTimepoints(int from, int to)
-   {
-       control.copyStack(from, to);
-       int numbRows = view.table.getRowCount()-1;
-       PlaneArea pa;
-       int z;
-       for (int i = 0; i < numbRows; i++) {
-           z = numbRows-i;
-           pa = control.getPlaneArea(z, from);
-           setCellColor(pa, i, from);
-           setCellColor(pa, i, to);
-       }
-       view.table.repaint(); 
-   }
-   
-   private void setCellColor(PlaneArea pa, int i, int j)
-   {
-       ColoredLabel cl = (ColoredLabel) (view.table.getValueAt(i, j));
-       cl.setDraw(pa != null);
-       if (pa != null)
-           cl.setBackground(alphaSelectedColor);
-       else cl.setBackground(AssistantDialog.DEFAULT_COLOR);
-   }
-   
-   /** Remove the selected plane from the selection. */
-   private void removeSelected()
-   {
-       System.out.println(curRow+" "+curColumn);
-       if (curRow != -1 && curColumn != -1) {
-           int z = view.table.getRowCount()-1-curRow;
-           control.removePlaneArea(z, curColumn);
-           setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR, 
-                       false);
-           view.table.repaint();
-       } 
-       setDefaultLocation();
-   }
-  
-   /** Set the color of a cell. */
-   private void setPlaneColor(int row, int column, Color c, boolean b)
-   {
-       ColoredLabel 
-           cl = (ColoredLabel) (view.table.getValueAt(row, column));
-       cl.setDraw(b);
-       cl.setBackground(c);
-   }
-
-   /** Paint the table according to the selected cell. */
-   private void paintTable(int row, int column)
-   {
-       int numbRows = view.table.getRowCount(), 
-       numColumns = view.table.getColumnCount();
-       ColoredLabel cl;
-       for (int i = 0; i < numbRows; i++) {
-           for (int j = 0; j < numColumns; j++) {
-               cl = (ColoredLabel) (view.table.getValueAt(i, j));
-               if (cl.getBackground() != AssistantDialog.DEFAULT_COLOR) 
-                   cl.setBackground(alphaSelectedColor);
-               if (row == i && column == j) 
-                   cl.setBackground(selectedColor);
-           }
-       }
-       view.table.repaint();
-   }
-
-   /** Close the widget. */
-   private void closeWidget()
-   {
-       view.dispose();
-       view.setVisible(false);
-   }
-
-   /** Display message and reset the color. */
-   private void handleSelectionError(String msg)
-   {
-       UserNotifier un = control.getRegistry().getUserNotifier();
-       un.notifyInfo("Invalid selection", msg); 
-       //remove the two selected planes.
-       setPlaneColor(oldRow, oldColumn, AssistantDialog.DEFAULT_COLOR, 
-               false);
-       setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR, false);
-       view.table.repaint();
-       setDefaultLocation();
-   }
-   
+   /** Set the default. */
    private void setDefaultLocation()
    {
        oldRow = oldColumn = -1;
        curRow = curColumn = -1;
    }
-   
-   /** 
-    * Required by I/F but not actually needed in our case, no op 
-    * implementation.
-    */ 
-   public void focusGained(FocusEvent e) {}
-   
+    
+    /** 
+     * Required by I/F but not actually needed in our case, no op 
+     * implementation.
+     */ 
+    public void focusGained(FocusEvent e) {}
+    
+    /** 
+     * Required by {@link MouseMotionListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */ 
+    public void mouseMoved(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */   
+    public void mouseClicked(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */   
+    public void mouseEntered(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */  
+    public void mouseExited(MouseEvent e) {}
+
 }

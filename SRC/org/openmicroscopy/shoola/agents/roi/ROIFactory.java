@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.roi;
 
 //Java imports
 import java.awt.Point;
-import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -39,6 +38,7 @@ import java.awt.Rectangle;
 import org.openmicroscopy.shoola.util.math.geom2D.EllipseArea;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.math.geom2D.RectangleArea;
+import org.openmicroscopy.shoola.util.ui.ColoredLabel;
 
 /** 
  * Utility class to build shapes.
@@ -62,8 +62,10 @@ public class ROIFactory
     
     public static final int     ELLIPSE = 1;
     
-    /** Size of the rectangle to handle resizing event. */
-    public static final int     SIZE = 4;
+    public static final int     SQUARE = 2;
+    
+    public static final int     CIRCLE = 3;
+    
     
     /** Return a {@link PlaneArea} according to the shapeType. */
     public static PlaneArea makeShape(Point anchor, Point p, int shapeType)
@@ -86,27 +88,28 @@ public class ROIFactory
                 area = new RectangleArea(x, y, width, height);  
                 break;
             case ELLIPSE:
-                area = new EllipseArea(x, y, width, height);      
+                area = new EllipseArea(x, y, width, height);  
+                break;
+            case SQUARE:
+                int a = Math.min(width, height);
+                area = new RectangleArea(x, y, a, a);
+                break;
+            case CIRCLE:
+                int b = Math.min(width, height);
+                area = new EllipseArea(x, y, b, b);
+                break;
         }
         return area; 
     }
     
-    /** 
-     * Build a rectangle containing the vertical border of the PlaneArea 
-     * drawn on screen. 
-     */
-    public static Rectangle getVerticalControlArea(int x, int y, int height)
+    public static int getLabelShapeType(PlaneArea pa)
     {
-        return new Rectangle(x-SIZE, y, 2*SIZE, y+height);
-    }
-    
-    /** 
-     * Build a rectangle containing the horizontal border of the PlaneArea 
-     * drawn on screen. 
-     */
-    public static Rectangle getHorizontalControlArea(int x, int y, int width)
-    {
-        return new Rectangle(x, y-SIZE, x+width, 2*SIZE);
+        int shapeType = ColoredLabel.NO_SHAPE;
+        if (pa instanceof RectangleArea) 
+            shapeType = ColoredLabel.SQUARE;
+        else if (pa instanceof EllipseArea) 
+            shapeType = ColoredLabel.CIRCLE;
+        return shapeType;
     }
     
 }

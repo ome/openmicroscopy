@@ -120,9 +120,7 @@ public class AnalysisControls
             } else if (i < index) data[i] = new String("#"+i);
         }
         ExtendedDefaultListModel newModel = new ExtendedDefaultListModel(data);
-        //listROI.removeListSelectionListener(manager);
         listROI.setModel(newModel);
-        //listROI.addListSelectionListener(manager);
     }
     
     public AnalysisControlsMng getManager() { return manager; }

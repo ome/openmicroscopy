@@ -158,6 +158,7 @@ public class PaintingControls
         ellipse.setToolTipText(
                 UIUtilities.formatToolTipText("Draw an ellipse."));
         setButtonBorder(ellipse, false);
+        
     }
     
     /** Build and lay out the GUI. */

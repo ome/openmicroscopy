@@ -61,12 +61,17 @@ public class ROIAgtUIF
     extends TopWindow
 {
 
+    /** Drawing command ID. */
     public static final int             NOT_ACTIVE_STATE = 0, MOVING = 1,
                                         CONSTRUCTING = 2, RESIZING = 3;
     
     public static final Color           STEELBLUE = new Color(0x4682B4);
+   
+    /** Background color. */
+    public static final Color           BACKGROUND_COLOR = 
+                                        new Color(204, 204, 255);
     
-    public static final int             INDEX_T = 0, INDEX_Z = 1, INDEX_ZT = 2;
+    public static final int             START = 25;
     
     public static final Dimension       BOX = new Dimension(10, 16), 
                                         HBOX = new Dimension(5, 0),
@@ -92,12 +97,12 @@ public class ROIAgtUIF
     }
     
     /** Reference to the painting panel. */
-    private PaintingControls        paintingControls;
+    private PaintingControls            paintingControls;
     
     /** Reference to the analysisControls panel. */
-    private AnalysisControls        analysisControls;
+    private AnalysisControls            analysisControls;
     
-    private ToolBar                 toolBar;
+    private ToolBar                     toolBar;
     
     ROIAgtUIF(ROIAgtCtrl control, String imageName, int maxT, int maxZ)
     {
