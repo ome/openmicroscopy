@@ -44,7 +44,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data;
 //Third-party libraries
 
 //Application-internal dependencies
-
  
 
 /** 
@@ -56,6 +55,10 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data;
  */
 
 public abstract class ChainStructureError {
+	
+		
+	public ChainStructureError() {
+	}
 	
 	public abstract String getDescription();
 	
