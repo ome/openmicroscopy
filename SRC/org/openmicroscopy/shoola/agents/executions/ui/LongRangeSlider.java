@@ -22,7 +22,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.JComponent;
 
 import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
-
+import org.openmicroscopy.shoola.util.ui.Constants;
 /**
  * Implements a Swing-based Range slider, which allows the user to enter a
  * range-based value.
@@ -34,7 +34,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	MouseMotionListener, ChangeListener {
 	private static int PICK_WIDTH = 6;
 	private static int pickWidth = PICK_WIDTH;
-	static int SZ = 6; // Size of the cutout corner on the range bar.
+	static int SZ = 0; // Size of the cutout corner on the range bar.
 	// Event handling
 	static final int PICK_NONE = 0;
 	// Event handling
@@ -193,8 +193,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		long paintStart  = System.currentTimeMillis();
-		g.setColor(Color.lightGray);
 		Rectangle rect = getInBounds();
+		g.setColor(Constants.CANVAS_BACKGROUND_COLOR);
 		g.fill3DRect(rect.x, rect.y, rect.width, rect.height, false);
 		int minX = toScreenX(getLowValue());
 		int maxX = toScreenX(getHighValue());
@@ -310,7 +310,18 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		}
 		return pick;
 	}
-	private void offset(long dx) {
+	
+	
+	public int getLeftXCoord() {
+		return toScreenX(model.getValue());
+	}
+	
+	public int getRightXCoord() {
+		return toScreenX(model.getValue()+model.getExtent());
+	}
+	
+	private void offset(long dx)
+	{
 		model.setValue(getLowValue() + dx);
 	}
 	/**
