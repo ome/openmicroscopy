@@ -33,13 +33,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.util;
+package org.openmicroscopy.shoola.agents.browser.datamodel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openmicroscopy.ds.dto.Attribute;
-import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUtils;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
@@ -159,6 +158,15 @@ public class ThumbnailStatistics
                                           String elementName)
         throws IllegalArgumentException
     {
+        if(thumbnails == null || attributeName == null || elementName == null)
+        {
+            throw new IllegalArgumentException("null parameters");
+        }
+        else if(thumbnails.length == 0)
+        {
+            return new Thumbnail[] {};
+        }
+        
         
     }
 }
