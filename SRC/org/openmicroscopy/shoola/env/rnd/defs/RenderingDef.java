@@ -67,27 +67,46 @@ public class RenderingDef
 	public static final int 	HSB = 2;
 	
 	/** The XY-plane to display when the image is open. */
-	public final int 			defaultZ;
+	private int		 			defaultZ;
 	
 	/** The timepoint to display when the image is open. */
-	public final int 			defaultT;
+	private int		 			defaultT;
 	
 	/** One the constants defined above. */
-	public int 					model;
+	private int					model;
 	
-	public ChannelBindings[]	channelBindings;
+	private ChannelBindings[]	channelBindings;
 	
-	public List					codomainMapDefs;
+	private List				codomainMapDefs;
 	
-	public QuantumDef			qDef;
+	private QuantumDef			qDef;
 
-	public RenderingDef(int defaultZ, int defaultT, 
+
+	private void setChannelBindings(ChannelBindings[] cb)
+	{
+		if (cb == null || cb.length == 0)
+			throw new IllegalArgumentException("No channel bindings.");
+		channelBindings = new ChannelBindings[cb.length];
+		for (int i = 0; i < cb.length; ++i) {
+			if(cb[i] == null)
+				throw new IllegalArgumentException(
+											"No binding for wavelength: "+i);
+			if (cb[i].getIndex() != i)
+				throw new IllegalArgumentException(
+				"The wavelength index doesn't match the element position: "+i);
+			channelBindings[i] = cb[i];
+		}
+	}
+
+	//channelBindings must be such that channelBindings[i].getIndex() == i
+	public RenderingDef(int defaultZ, int defaultT, int model, QuantumDef qDef,
 						ChannelBindings[] channelBindings)
 	{
 		this.defaultZ = defaultZ;
 		this.defaultT = defaultT;
-		this.channelBindings = channelBindings;
-		verifyChannelBindings();
+		setModel(model);
+		setQuantumDef(qDef);
+		setChannelBindings(channelBindings);
 		codomainMapDefs = new ArrayList();
 	}
 	
@@ -117,44 +136,45 @@ public class RenderingDef
 	/** Set the model. One of the constant defined above.*/
 	public void setModel(int model)
 	{
-		verifyModel(model);
+		if (model != GS && model != RGB && model != HSB)  
+			throw new IllegalArgumentException("Unsupported model type.");
 		this.model = model;
-		
+	}
+	
+	public int getModel() 
+	{
+		return model;
 	}
 
 	public void setQuantumDef(QuantumDef qDef)
 	{
-		verifyQuantumDef(qDef);
+		if (qDef == null)
+			throw new IllegalArgumentException("No quantum strategy.");
 		this.qDef = qDef;
 	}
-
-	/**
-	 * Retrieve the information associated to a specified wavelength.
-	 * 
-	 * @param index		wavelength index in OME 5D-file.
-	 * @return
-	 */
-	public ChannelBindings getChannelBindings(int index)
+	
+	public QuantumDef getQuantumDef()
 	{
-		if (index < 0 || index >= channelBindings.length)
-			throw new IllegalArgumentException("Wavelength index not valid.");
-		return channelBindings[index];
+		return qDef;
 	}
 
-	private void verifyQuantumDef(QuantumDef qDef)
+	//returned array cb is such that cb[i].getIndex() == i
+	public ChannelBindings[] getChannelBindings()
 	{
-		if (qDef == null)
-			throw new IllegalArgumentException("No quantum strategy selected.");
-	}
-	private void verifyChannelBindings()
-	{
-		if (channelBindings == null)
-			throw new IllegalArgumentException("Image without wavelength.");
+		ChannelBindings[] copy = new ChannelBindings[channelBindings.length];
+		for (int i = 0; i < copy.length; ++i)
+			copy[i] = channelBindings[i];
+		return copy;	
 	}
 	
-	private void verifyModel(int m)
+	public int getDefaultZ()
 	{
-		if (m != GS && m != RGB && m != HSB)  
-			throw new IllegalArgumentException("Unsupported model type");
+		return defaultZ;
 	}
+	
+	public int getDefaultT()
+	{
+		return defaultT;
+	}
+	
 }

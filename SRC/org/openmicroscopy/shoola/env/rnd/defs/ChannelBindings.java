@@ -61,10 +61,10 @@ public class ChannelBindings
 	private int 				index;
 	
 	/** The lower bound of the pixel intensity interval. */
-	private int 				inputStart;
+	private Comparable 			inputStart;
 	
 	/** The upper bound of the pixel intensity interval. */
-	private int 				inputEnd;
+	private Comparable 			inputEnd;
 	
 	/** Color associated to the wavelength. */
 	private int[] 				rgba;
@@ -75,14 +75,16 @@ public class ChannelBindings
 	*/
 	private boolean				active;
 	
-	public ChannelBindings(int index, int inputStart, int inputEnd, int[] rgba,
-						  boolean active)
+	public ChannelBindings(int index, 
+							Comparable inputStart, Comparable inputEnd,
+							int red, int green, int blue, int alpha,
+						  	boolean active)
 	{
 		this.index = index;
-		this.inputStart = inputStart;
-		this.inputEnd = inputEnd;
+		setInputWindow(inputStart, inputEnd);
+		rgba = new int[4];
+		setRGBA(red, green, blue, alpha);
 		this.active = active;
-		setRGBA(rgba);
 	}
 
 	public boolean isActive()
@@ -95,12 +97,12 @@ public class ChannelBindings
 		return index;
 	}
 
-	public int getInputEnd()
+	public Comparable getInputEnd()
 	{
 		return inputEnd;
 	}
 
-	public int getInputStart()
+	public Comparable getInputStart()
 	{
 		return inputStart;
 	}
@@ -115,34 +117,44 @@ public class ChannelBindings
 		this.active = active;
 	}
 
-	//TODO: checks done in QuantumStrategy.
-	public void setInputWindow(int start, int end)
+	//TODO: checks done in QuantumStrategy, where do they belong to?
+	public void setInputWindow(Comparable start, Comparable end)
 	{
 		inputStart = start;
 		inputEnd = end;
 	}
 
+	public void setRGBA(int red, int green, int blue, int alpha)
+	{
+		verifyColorComponent(red);
+		verifyColorComponent(green);
+		verifyColorComponent(blue);
+		verifyColorComponent(alpha);
+		rgba[0] = red;
+		rgba[1] = green;
+		rgba[2] = blue;
+		rgba[3] = alpha;
+	}
+	
 	public void setRGBA(int[] rgba)
 	{
-		verifyColorInput(rgba);
-		this.rgba = rgba;
+		if (rgba == null || rgba.length != 4)
+			throw new IllegalArgumentException("Invalid rgba array.");
+		verifyColorComponent(rgba[0]);
+		verifyColorComponent(rgba[1]);
+		verifyColorComponent(rgba[2]);
+		verifyColorComponent(rgba[3]);
+		this.rgba[0] = rgba[0];
+		this.rgba[1] = rgba[1];
+		this.rgba[2] = rgba[2];
+		this.rgba[3] = rgba[3];
 	}
 	
 	/** Verify the color components. */
-	private void verifyColorInput(int[] rgba)
+	private void verifyColorComponent(int c)
 	{
-		if (rgba == null)
-			throw new IllegalArgumentException("no color specified " +
-												"for this channel");
-		if (rgba.length != 4)
-			throw new IllegalArgumentException("4 components must be " +
-									"specified");
-									
-		for (int i = 0; i < rgba.length; i++) {
-			if (rgba[i] < COLOR_MIN || rgba[i] > COLOR_MAX)
-				throw new IllegalArgumentException("Value must be in the " +
-												"range 0 255");
-		}
+		if (c < COLOR_MIN || COLOR_MAX < c)
+			throw new IllegalArgumentException("Value must be in [0,255].");
 	}
 	
 }
