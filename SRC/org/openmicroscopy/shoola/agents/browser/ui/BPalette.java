@@ -49,7 +49,6 @@ import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
-import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
@@ -71,7 +70,7 @@ public class BPalette extends PNode
     private int measuredWidth = 150; // 150 to start
     private int iconSpacing;
     
-    private PNode headerNode;
+    private TitleBar titleBar;
     
     /**
      * Constructs a palette with the given name.
@@ -81,6 +80,8 @@ public class BPalette extends PNode
     public BPalette(String name)
     {
         this.paletteName = name;
+        titleBar = new TitleBar(name);
+        addChild(titleBar);
     }
     
     /**
@@ -103,9 +104,10 @@ public class BPalette extends PNode
         
         private PText titleNode;
         private PNode minimizeNode;
+        private PNode hideNode;
         private PNode closeNode;
         
-        private Font titleFont = new Font(null,Font.BOLD,10);
+        private Font titleFont = new Font(null,Font.BOLD,14);
         
         TitleBar(String name)
         {
@@ -113,17 +115,30 @@ public class BPalette extends PNode
             bounds = getPathReference().getBounds2D();
             titleName = name;
             
-            backgroundColor = new Color(102,102,102,192);
+            backgroundColor = new Color(102,102,102,128);
             titleNode = new PText(name);
             titleNode.setPaint(Color.white);
             titleNode.setFont(titleFont);
             
             addChild(titleNode);
-            titleNode.setOffset(1,1);
+            titleNode.setOffset(4,4);
+            
+            minimizeNode = new MinimizeIcon();
+            addChild(minimizeNode);
+            minimizeNode.setOffset(measuredWidth-60,0);
+            
+            hideNode = new HideIcon();
+            addChild(hideNode);
+            hideNode.setOffset(measuredWidth-40,0);
+            
+            closeNode = new CloseIcon();
+            addChild(closeNode);
+            closeNode.setOffset(measuredWidth-20,0);
         }
         
         public void paint(PPaintContext context)
         {
+            System.err.println("paint main");
             Graphics2D g2 = context.getGraphics();
             Paint oldPaint = g2.getPaint();
             g2.setPaint(backgroundColor);
@@ -132,14 +147,16 @@ public class BPalette extends PNode
         }
     }
     
-    class MinimizeIcon extends PNode
+    class MinimizeIcon extends PPath
     {
-        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
+        private Rectangle2D bounds;
         private Rectangle2D visibleIcon = new Rectangle2D.Double(3,7,14,6);
         
         // TODO: need to pass a Palette reference in here?
         public MinimizeIcon()
         {
+            super(new Rectangle2D.Double(0,0,20,20));
+            bounds = getPathReference().getBounds2D();
             addInputEventListener(new PBasicInputEventHandler()
             {
                 public void mouseClicked(PInputEvent arg0)
@@ -147,23 +164,6 @@ public class BPalette extends PNode
                     // figure out how to minimize the sucker
                 }
             });
-        }
-        
-        public PBounds getBounds()
-        {
-            return new PBounds(bounds);
-        }
-        
-        public boolean setBounds(double x, double y,
-                                 double width, double height)
-        {
-            if(super.setBounds(x,y,width,height))
-            {
-                bounds.setFrame(x,y,width,height);
-                visibleIcon = new Rectangle2D.Double(x+3,y+7,14,6);
-                return true;
-            }
-            return false;
         }
         
         public void paint(PPaintContext context)
@@ -176,14 +176,17 @@ public class BPalette extends PNode
         }
     }
     
-    class HideIcon extends PNode
+    class HideIcon extends PPath
     {
-        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
+        private Rectangle2D bounds;
         private Ellipse2D visibleIcon = new Ellipse2D.Double(5,5,10,10);
         
         // TODO: pass a Palette reference in here?
         public HideIcon()
         {
+            super(new Rectangle2D.Double(0,0,20,20));
+            bounds = getPathReference().getBounds();
+            
             addInputEventListener(new PBasicInputEventHandler()
             {
                 public void mouseClicked(PInputEvent arg0)
@@ -191,23 +194,6 @@ public class BPalette extends PNode
                     // TODO: figure out how to hide
                 }
             });
-        }
-        
-        public PBounds getBounds()
-        {
-            return new PBounds(bounds);
-        }
-        
-        public boolean setBounds(double x, double y,
-                                 double width, double height)
-        {
-            if(super.setBounds(x,y,width,height))
-            {
-                bounds.setFrame(x,y,width,height);
-                visibleIcon = new Ellipse2D.Double(x+5,y+5,10,10);
-                return true;
-            }
-            return false;
         }
         
         public void paint(PPaintContext context)
@@ -220,7 +206,7 @@ public class BPalette extends PNode
         }
     }
     
-    class CloseIcon extends PNode
+    class CloseIcon extends PPath
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Shape xPath;
@@ -246,6 +232,8 @@ public class BPalette extends PNode
         
         public CloseIcon()
         {
+            super(new Rectangle2D.Double(0,0,20,20));
+            bounds = getPathReference().getBounds2D();
             xPath = generatePath(0,0);
             addInputEventListener(new PBasicInputEventHandler()
             {
@@ -254,23 +242,6 @@ public class BPalette extends PNode
                     // TODO figure out how to close palette
                 }
             });
-        }
-        
-        public PBounds getBounds()
-        {
-            return new PBounds(bounds);
-        }
-        
-        public boolean setBounds(double x, double y,
-                                 double width, double height)
-        {
-            if(super.setBounds(x,y,width,height))
-            {
-                bounds.setFrame(x,y,width,height);
-                xPath = generatePath((float)x,(float)y);
-                return true;
-            }
-            return false;
         }
         
         public void paint(PPaintContext context)
