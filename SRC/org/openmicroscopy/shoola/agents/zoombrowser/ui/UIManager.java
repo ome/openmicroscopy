@@ -98,6 +98,7 @@ public class UIManager implements ContentGroupSubscriber
 	}
 	
 	public void contentComplete() {
-		mainWindow.buildGUI();
+		if (manager.getDatasets() != null || manager.getProjects() != null)
+			mainWindow.buildGUI();
 	}
 }
