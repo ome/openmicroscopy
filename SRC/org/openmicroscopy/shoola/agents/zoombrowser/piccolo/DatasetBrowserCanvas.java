@@ -595,6 +595,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	
 	
 	public void setSelectedDataset(BrowserDatasetData dataset) {
+		 
 		// if they're the same, return
 		// except for if it's null. then we might need to redraw
 		if (dataset == selectedDataset && dataset != null)
@@ -613,6 +614,12 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		mainWindow.setSelectedDataset(dataset);
 	}
 	
+	public void respondToDatasetLoad(BrowserDatasetData dataset) {
+		setRolloverDataset(dataset);
+		eventHandler.resetZoomLevel();
+		eventHandler.animateToNode(dataset.getNode());
+		setSelectedDataset(dataset);
+	}
 	
 	public void selectAnalysisChain(AnalysisChainData chain) {
 		ChainExecutions chainExecutions = mainWindow.getChainExecutions();
