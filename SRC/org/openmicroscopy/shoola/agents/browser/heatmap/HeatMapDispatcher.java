@@ -80,8 +80,8 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     private HeatMapModel model;
     private HeatMapStatus status;
     private HeatMapGradient gradient;
-    private String attributeName = "";
-    private String elementName = "";
+    private String attributeName = null; // BUG 347-348
+    private String elementName = null; // BUG 347-348
     
     private boolean loadInProgress = false;
     private Set loadListeners = new HashSet();
@@ -183,8 +183,11 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             ThumbnailDataPair[] stats =
                 ThumbnailStatistics.sortByValue(thumbnails,currentMode,
                                                 attributeName,elementName);
-                                                
-            browserModel.setLayoutMethod(new GraphLayoutMethod(stats));
+            // BUG 347
+            if(stats != null && stats.length > 0)
+            {
+                browserModel.setLayoutMethod(new GraphLayoutMethod(stats));
+            }
         }
     }
     
@@ -224,6 +227,12 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     
     private void recalibrateScale()
     {
+        // BUG 347-348
+        if(attributeName == null || elementName == null)
+        {
+            return;
+        }
+        
         if(currentScaleName.equals(Scale.LINEAR_SCALE))
         {
             currentScale = new LinearScale(gradient.getMin(),gradient.getMax());

@@ -139,8 +139,13 @@ public final class HeatMapUI extends JPanel
                 if(!(node instanceof SemanticTypeTree.ElementNode))
                 {
                     gradPanel.setEnabled(false);
+                    modeBar.setEnabled(false);
                 }
-                else gradPanel.setEnabled(true);
+                else
+                {
+                    gradPanel.setEnabled(true);
+                    modeBar.setEnabled(true);
+                }
             }
         });
         
@@ -161,9 +166,11 @@ public final class HeatMapUI extends JPanel
         JPanel barPanel = new JPanel();
         barPanel.setLayout(new BorderLayout());
         barPanel.add(graphPanel,BorderLayout.NORTH);
+        modeBar.setEnabled(false);
         barPanel.add(modeBar,BorderLayout.CENTER);
         
         JPanel scalePanel = new JPanel();
+        scaleBar.setEnabled(false);
         scalePanel.add(scaleBar,BorderLayout.CENTER);
         
         controlPanel.add(barPanel,BorderLayout.NORTH);

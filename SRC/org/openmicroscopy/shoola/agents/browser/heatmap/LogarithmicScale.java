@@ -57,10 +57,17 @@ public class LogarithmicScale implements Scale
     
     public LogarithmicScale(double min, double max)
     {
-        if(min > max || min == max)
+        if(min > max)
         {
             throw new IllegalArgumentException("max cannot <= min");
         }
+        // BUG 348: this is hackish, but it'll work; it'll keep all values
+        // at the floor, which is all that really should happen
+        else if(min == max)
+        {
+            max = min + 0.0001;
+        }
+            
         this.min = min;
         this.max = max;
         logMin = Math.log(min);
