@@ -64,7 +64,7 @@ public class ImageSaver
     static final String         MESSAGE = "A file with the same name and " +
                                         "extension already exists in " +
                                         "this directory. Do you " +
-                                        "still want to save the image?";
+                                        "really want to save the image?";
     
     static final String         TITLE = "Save Image";
     
@@ -76,6 +76,7 @@ public class ImageSaver
     
     static final String         MSG_DIR = "The image has been saved in \n";
     
+    /** ID to identify the selected image to save. */
     static final int            IMAGE = 0;
     static final int            IMAGE_AND_ROI = 1;
     static final int            PIN_IMAGE = 2;

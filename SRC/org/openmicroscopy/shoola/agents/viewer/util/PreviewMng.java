@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.viewer.util.SelectionDialog
+ * org.openmicroscopy.shoola.agents.viewer.util.PreviewMng
  *
  *------------------------------------------------------------------------------
  *
@@ -29,54 +29,77 @@
 
 package org.openmicroscopy.shoola.agents.viewer.util;
 
+
+
+
 //Java imports
-import javax.swing.Icon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.OptionsDialog;
 
 /** 
- * Dialog widget that gives the user the choice to save or not the image
- * with the specified name. Note that this dialog only pops up if 
- * a file with the same 
- * name and extension already exists in the current directory.
+ * Manager of the {@link Preview} widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-class SelectionDialog
-    extends OptionsDialog
+class PreviewMng
+    implements ActionListener
 {
     
-    /** Reference to the parent. */                         
-    private ImageSaverMng           manager;
+    /** Action command ID. */
+    private static final int    SAVE = 0, CANCEL = 1;
     
-   SelectionDialog (ImageSaverMng manager, Icon messageIcon) 
+    private ImageSaverMng       mng;
+    
+    private Preview             view;
+    
+    PreviewMng(Preview view, ImageSaverMng mng)
     {
-        super(manager.getView(), ImageSaver.TITLE, ImageSaver.MESSAGE, 
-                messageIcon);
-        this.manager = manager;
+        this.mng = mng;
+        this.view = view;
+    }
+    
+    void attachListeners()
+    {
+        attachButtonListener(view.save, SAVE);
+        attachButtonListener(view.cancel, CANCEL);
+    }
+    
+    /** Attach listener to a {@link JButton}. */
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
     }
 
-    /** Overrides the {@link #onNoSelection() onNoSelection} method. */
-    protected void onNoSelection() { manager.setDisplay(true); }
-    
-    /** Overrides the {@link #onYesSelection() onYesSelection} method. */
-    protected void onYesSelection()
+    /** Handle event fired by buttons. */
+    public void actionPerformed(ActionEvent e)
     {
-        manager.setDisplay(false);
-        manager.saveImage();
-        manager.disposeView();
+        int index = Integer.parseInt(e.getActionCommand());
+        try {
+            switch (index) {
+                case SAVE:
+                    mng.savePreviewImage(); break;
+                case CANCEL:
+                    mng.cancelPreviewSaveImage(); 
+                
+            }
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
+        }
     }
-
+    
 }

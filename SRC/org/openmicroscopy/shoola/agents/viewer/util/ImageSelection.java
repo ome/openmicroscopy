@@ -77,18 +77,17 @@ class ImageSelection
     static {
         selections = new String[ImageSaver.MAX_TYPE+1];
         selections[ImageSaver.IMAGE] = "Image";
-        selections[ImageSaver.PIN_IMAGE] = "Pin Image"; 
-        selections[ImageSaver.PIN_ON_IMAGE] = "Pin on Image"; 
-        selections[ImageSaver.PIN_AND_IMAGE] = "Pin and Image"; 
-        selections[ImageSaver.PIN_ON_SIDE_TOP_LEFT] = "Pin in top-left corner";
-        selections[ImageSaver.PIN_ON_SIDE_TOP_RIGHT] = "Pin in top-right " +
+        selections[ImageSaver.PIN_IMAGE] = "Lens image"; 
+        selections[ImageSaver.PIN_ON_IMAGE] = "Lens on Image"; 
+        selections[ImageSaver.PIN_AND_IMAGE] = "Lens and Image"; 
+        selections[ImageSaver.PIN_ON_SIDE_TOP_LEFT] = "Lens in top-left corner";
+        selections[ImageSaver.PIN_ON_SIDE_TOP_RIGHT] = "Lens in top-right " +
                                                     "corner";
-        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_LEFT] = "Pin in bottom-left " +
-                                                     "corner";
-        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_RIGHT] = "Pin in " +
-                                                    "bottom-right corner";
-        
-        selections[ImageSaver.IMAGE_AND_ROI] = "Image and ...";
+        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_LEFT] = "Lens in bottom-left " 
+                                                    + "corner";
+        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_RIGHT] = "Lens in " +
+                                                    "bottom-right corner"; 
+        selections[ImageSaver.IMAGE_AND_ROI] = "Image and overlay";
         
         selectionOfColors = new String[MAX_COLOR+1];
         selectionOfColors[RED] = "Red";
@@ -118,11 +117,10 @@ class ImageSelection
         imageTypes.setSelectedIndex(ImageSaver.IMAGE);
         colors = new JComboBox(selectionOfColors);
         colors.setToolTipText(
-                UIUtilities.formatToolTipText("Pick a color to draw the pin" +
-                        " area."));
+                UIUtilities.formatToolTipText("Color of the lens' area."));
         paintingOnOff = new JCheckBox();
         paintingOnOff.setToolTipText(
-                UIUtilities.formatToolTipText("Paint the pin area."));
+                UIUtilities.formatToolTipText("Paint the lens's border."));
         paintingOnOff.setSelected(false);
     }
 
@@ -143,9 +141,9 @@ class ImageSelection
         add(buildComponent(UIUtilities.buildComponentPanel(imageTypes), 
                             "Images: "));
         add(buildComponent(UIUtilities.buildComponentPanel(colors), 
-                            "Color pin area: "));
+                            "Color lens' border"));
         add(buildComponent(UIUtilities.buildComponentPanel(paintingOnOff), 
-                            "Paint pin area"));
+                            "Paint lens' border"));
     }
 
 }

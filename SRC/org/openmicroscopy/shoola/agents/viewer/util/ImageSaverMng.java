@@ -42,6 +42,8 @@ import javax.swing.JComboBox;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -50,6 +52,7 @@ import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * 
@@ -82,19 +85,34 @@ class ImageSaverMng
         colorSelection[ImageSelection.YELLOW] = Color.YELLOW;
     }
     
-    private static final String     PIN_MSG = "No pin image displayed.",
+    private static final String     PIN_MSG = "No lens image displayed.",
                                     MAIN_MSG = "No image displayed",
-                                    BOTH_MSG = "Must have a pin image " +
+                                    BOTH_MSG = "Must have a lens image " +
                                             "displayed on the main one.";
+    
+    private String                  fileName, message, format, saveMessage;
+    
+    private BufferedImage           lensImage, image;
+    
+    private Encoder                 encoder;
+    
     private ViewerCtrl              control;
     
     private ImageSaver              view;
+    
+    private Preview                 preview;
     
     ImageSaverMng(ImageSaver view, ViewerCtrl control)
     {
         this.view = view;
         this.control = control; 
+        setDefault();
+        preview = new Preview(this);
     }
+    
+    Registry getRegistry() { return control.getRegistry(); }
+    
+    ViewerUIF getReferenceFrame() { return control.getReferenceFrame(); }
     
     ImageSaver getView() { return view; }
     
@@ -107,113 +125,164 @@ class ImageSaverMng
     /** Bring up the selection dialog. */
     void showSelectionDialog(String format, String fileName, String message)
     {
+        if (format == null || fileName == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyError("Save image", "name cannot be null");
+            return;
+        }
+        this.format = format;
+        this.fileName = fileName;
+        this.message = message;
         IconManager im = IconManager.getInstance(control.getRegistry());
-        SelectionDialog dialog = new SelectionDialog(this, format,
-                                        fileName, message, 
+        SelectionDialog dialog = new SelectionDialog(this, 
                                         im.getIcon(IconManager.QUESTION));
         dialog.pack();  
         UIUtilities.centerAndShow(dialog);
     }
     
+    /** Close the {@link ImageSaver } widget. */
     void disposeView()
     {
         view.setVisible(false);
         view.dispose();
     }
     
+    void saveImage() { saveImage(format, fileName, message); }
+    
+    /** Save the preview image .*/
+    void savePreviewImage()
+    {
+        if (image ==  null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyError("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
+        if (image != null && lensImage == null)
+            writeImage(image, fileName);
+        else if (image != null && lensImage != null) {
+            writeImage(image, fileName);
+            fileName +="_lens";
+            writeImage(image, fileName);
+        }
+        cancelPreviewSaveImage();
+    }
+    
+    /** 
+     * Don't save the preview image. Keep the {@link ImageSaver} widget 
+     * visible.
+     */
+    void cancelPreviewSaveImage()
+    {
+        setDefault();
+        preview.setVisible(false);
+        preview.dispose();
+    }
+    
     /** Save the current bufferedImage. */
     void saveImage(String format, String fileName, String message)
-    {
+    {   
+        if (format == null || fileName == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyError("Save image", "name cannot be null");
+            return;
+        }
+        this.format = format;
+        this.fileName = fileName;
+        this.message = message;
         JComboBox box = view.selection.imageTypes;
         int index = box.getSelectedIndex();
-        Encoder encoder = createEncoder(format);
+        encoder = createEncoder(format);
         switch (index) {
             case ImageSaver.IMAGE:
-                handleSaveImage(encoder, format, fileName, message);
+                handleSaveImage();
                 break;
             case ImageSaver.PIN_AND_IMAGE:
-                handleSavePinAndImage(encoder, format, fileName, message);
+                handleSavePinAndImage();
                 break;
             case ImageSaver.PIN_IMAGE:
-                handleSavePinImage(encoder, format, fileName, message);
+                handleSavePinImage();
                 break;
             case ImageSaver.PIN_ON_IMAGE:
-                handleSavePinOnImage(encoder, format, fileName, message);
+                handleSavePinOnImage();
                 break;
             case ImageSaver.PIN_ON_SIDE_TOP_LEFT:
-                handleSavePinTopLeft(encoder, format, fileName, message);
+                handleSavePinTopLeft();
                 break;
             case ImageSaver.PIN_ON_SIDE_TOP_RIGHT:
-                handleSavePinTopRight(encoder, format, fileName, message);
+                handleSavePinTopRight();
                 break;
             case ImageSaver.PIN_ON_SIDE_BOTTOM_LEFT:
-                handleSavePinBottomLeft(encoder, format, fileName, message);
+                handleSavePinBottomLeft();
                 break;
             case ImageSaver.PIN_ON_SIDE_BOTTOM_RIGHT:
-                handleSavePinBottomRight(encoder, format, fileName, message);
+                handleSavePinBottomRight();
                 break;
             case ImageSaver.IMAGE_AND_ROI:
-                handleSaveImageAndROI(encoder, format, fileName, message);
+                handleSaveImageAndROI();
                 break;   
         }
     }
     
-    private void handleSaveImageAndROI(Encoder encoder, String format, 
-                                        String name, String msg)
+    private void handleSaveImageAndROI()
     {
-        BufferedImage img = control.getImageAndROIs();
-        writeImage(img, encoder, format, name, msg, MAIN_MSG);
+        image = control.getImageAndROIs();
+        lensImage = null;
+        saveMessage = MAIN_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     
     /** Save the main image. */
-    private void handleSaveImage(Encoder encoder, String format, String name, 
-                                String msg)
+    private void handleSaveImage()
     {
-        BufferedImage img = control.getDisplayImage();
-        writeImage(img, encoder, format, name, msg, MAIN_MSG);
+        image = control.getDisplayImage();
+        lensImage = null;
+        saveMessage = MAIN_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** Save the pin image. */
-    private void handleSavePinImage(Encoder encoder, String format, String name,
-                                    String msg)
+    private void handleSavePinImage()
     {
-        BufferedImage img = control.getPinImage();
-        name +="_pin";
-        writeImage(img, encoder, format, name, msg, PIN_MSG);
+        image = control.getPinImage();
+        lensImage = null;
+        saveMessage = PIN_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** Save the pin and the main image in two separate files. */
-    private void handleSavePinAndImage(Encoder encoder, String format, 
-                                        String name, String msg)
+    private void handleSavePinAndImage()
     {
-        BufferedImage img = null;
         JCheckBox box = view.selection.paintingOnOff;
         if (box.isSelected()) {
             int i = view.selection.colors.getSelectedIndex();
-            img = control.getDisplayImageWithPinArea(true, colorSelection[i]);
-        } else img = control.getDisplayImage();
-        
-        writeImage(img, encoder, format, name, msg, MAIN_MSG);
-        img = control.getPinImage();
-        name +="_pin";
-        writeImage(img, encoder, format, name, msg, PIN_MSG);
+            image = control.getDisplayImageWithPinArea(true, colorSelection[i]);
+        } else image = control.getDisplayImage();
+        saveMessage = BOTH_MSG;
+        lensImage = control.getPinImage();
+        preview.setImages(image, lensImage);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** Save the pin image on top of the main one. */
-    private void handleSavePinOnImage(Encoder encoder, String format, 
-                                    String name,  String msg)
+    private void handleSavePinOnImage()
     {
-        BufferedImage img = control.getPinOnImage();
-        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+        image = control.getPinOnImage();
+        saveMessage = BOTH_MSG;
+        lensImage = null;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** 
      * Save the pin image and the main one in the same image. The pin
      * image is painted in the top-left corner.
      */
-    private void handleSavePinTopLeft(Encoder encoder, String format, 
-                                            String name,  String msg)
+    private void handleSavePinTopLeft()
     {
         JCheckBox box = view.selection.paintingOnOff;
         Color c = null;
@@ -221,16 +290,18 @@ class ImageSaverMng
             int i = view.selection.colors.getSelectedIndex();
             c = colorSelection[i];
         } 
-        BufferedImage img = control.getPinOnSideTopLeft(box.isSelected(), c);   
-        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+        image = control.getPinOnSideTopLeft(box.isSelected(), c);   
+        lensImage = null;
+        saveMessage = BOTH_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** 
      * Save the pin image and the main one in the same image. The pin
      * image is painted in the top-right corner.
      */
-    private void handleSavePinTopRight(Encoder encoder, String format, 
-                                            String name,  String msg)
+    private void handleSavePinTopRight()
     {
         JCheckBox box = view.selection.paintingOnOff;
         Color c = null;
@@ -238,16 +309,18 @@ class ImageSaverMng
             int i = view.selection.colors.getSelectedIndex();
             c = colorSelection[i];
         } 
-        BufferedImage img = control.getPinOnSideTopRight(box.isSelected(), c);   
-        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+        image = control.getPinOnSideTopRight(box.isSelected(), c);   
+        lensImage = null;
+        saveMessage = BOTH_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** 
      * Save the pin image and the main one in the same image. The pin
      * image is painted in the bottom-left corner.
      */
-    private void handleSavePinBottomLeft(Encoder encoder, String format, 
-                                            String name,  String msg)
+    private void handleSavePinBottomLeft()
     {
         JCheckBox box = view.selection.paintingOnOff;
         Color c = null;
@@ -255,16 +328,18 @@ class ImageSaverMng
             int i = view.selection.colors.getSelectedIndex();
             c = colorSelection[i];
         } 
-        BufferedImage img = control.getPinOnSideBottomLeft(box.isSelected(), c);   
-        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+        image = control.getPinOnSideBottomLeft(box.isSelected(), c);   
+        lensImage = null;
+        saveMessage = BOTH_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** 
      * Save the pin image and the main one in the same image. The pin
      * image is painted in the bottom-right corner.
      */
-    private void handleSavePinBottomRight(Encoder encoder, String format, 
-                                            String name,  String msg)
+    private void handleSavePinBottomRight()
     {
         JCheckBox box = view.selection.paintingOnOff;
         Color c = null;
@@ -272,33 +347,30 @@ class ImageSaverMng
             int i = view.selection.colors.getSelectedIndex();
             c = colorSelection[i];
         } 
-        BufferedImage img = control.getPinOnSideBottomRight(box.isSelected(), 
-                                                                c);   
-        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+        image = control.getPinOnSideBottomRight(box.isSelected(), c);   
+        lensImage = null;
+        saveMessage = BOTH_MSG;
+        preview.setImage(image);
+        UIUtilities.centerAndShow(preview);
     }
     
     /** Write the bufferedImage. */
-    private void writeImage(BufferedImage img, Encoder encoder, String format, 
-                            String name, String msg, String type_msg)
+    private void writeImage(BufferedImage img, String name)
     {
         UserNotifier un = control.getRegistry().getUserNotifier();
-        if (img == null) 
-            un.notifyError("Save image", type_msg);
-        else {
-            name +="."+format; //Add extension
-            File f = new File(name);
-            try {
-                if (encoder == null) 
-                    WriterImage.saveImage(f, img, format);
-                else  
-                    WriterImage.saveImage(f, encoder, img);
-                un.notifyInfo("Image saved", msg);
-            } catch (Exception e) {
-                f.delete();
-                un.notifyError("Save image failure", "Unable to save the image",
-                                    e);
-            }
+        name +="."+format; //Add extension
+        File f = new File(name);
+        try {
+            if (encoder == null) 
+                WriterImage.saveImage(f, img, format);
+            else  
+                WriterImage.saveImage(f, encoder, img);
+            un.notifyInfo("Image saved", message);
+        } catch (Exception e) {
+            f.delete();
+            un.notifyError("Save image failure", "Unable to save the image", e);
         }
+    
     }
     
     /** 
@@ -313,6 +385,14 @@ class ImageSaverMng
         if (format.equals(TIFFFilter.TIF)) encoder = new TIFFEncoder();
         else if (format.equals(BMPFilter.BMP)) encoder = new BMPEncoder();
         return encoder;
+    }
+    
+    private void setDefault()
+    {
+        image = null;
+        lensImage = null;
+        format = null;
+        fileName = null;
     }
     
 }
