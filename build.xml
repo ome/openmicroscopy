@@ -5,6 +5,7 @@
   <property name="config" value="config"/>
   <property name="src" value="SRC"/>
   <property name="build" value="build"/>
+  <property name="path" value="org/openmicroscopy/shoola"/>
   
 <!-- Compilation options. -->
   <property name="deprecation" value="yes"/>
@@ -17,6 +18,8 @@
   <property name="jar.libdirname" value="lib"/>
   <property name="jar.config" value="jar/config"/>
   <property name="jar.file" value="jar/shoola.jar"/>
+  <property name="jar.env.file" value="jar/shoola.env.jar"/>
+  <property name="jar.util.file" value="jar/shoola.util.jar"/>
   <property name="jar.manifest.main" value="org.openmicroscopy.shoola.Main"/>
   
 <!-- Documents generation. -->
@@ -126,7 +129,24 @@
         <attribute name="Main-Class" value="${jar.manifest.main}"/>
       </manifest>
     </jar>
-    
+
+    <!-- Package env and util jars and generate manifest. -->
+    <jar destfile ="${jar.env.file}">
+      <fileset dir ="${build}" includes="${path}/env/**/*.class"/>
+      <manifest>
+   	<attribute name="Created-By" value="OME Development Team"/>
+        <attribute name="Class-Path" value="${jar.manifest.cp}"/>
+      </manifest>
+    </jar>
+
+    <jar destfile ="${jar.util.file}">
+      <fileset dir ="${build}" includes="${path}/env/util/*.class"/>
+      <manifest>
+   	<attribute name="Created-By" value="OME Development Team"/>
+        <attribute name="Class-Path" value="${jar.manifest.cp}"/>
+      </manifest>
+    </jar>
+   	 
   </target>
   
 
