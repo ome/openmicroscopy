@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the
@@ -74,6 +73,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	
 	/** the last highlighted box..*/
 	private ChainBox lastHighlighted = null;
+	
+	/** the last chain view that was expanded */
+	private PaletteChainView lastChainView;
 	
 	public ChainPaletteEventHandler(ChainPaletteCanvas canvas,Registry registry) {
 		super(canvas);
@@ -105,6 +107,16 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	protected void setLastEntered(PNode node) {
+		System.err.println("setting last entered to .."+node);
+		if (lastChainView != null && lastChainView != node 
+				&& node != null
+				&& !lastChainView.isAncestorOf(node))
+			hideLastChainView();
+		if (node instanceof ChainBox) {
+			ChainBox cb = (ChainBox)node;
+			if (cb.getChainView() instanceof PaletteChainView)
+				lastChainView = (PaletteChainView) cb.getChainView();
+		}
 		super.setLastEntered(node);
 	}
 	
@@ -122,6 +134,7 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	private void setSelectedChain(ChainView chain) {
+		System.err.println("setting selected chain.."+chain.getChain().getName());
 		if (chain != null && chain.getChain() != null) {
 			((ChainPaletteCanvas) canvas).setDraggingChain(chain.getChain());;
 		}
@@ -129,6 +142,8 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void handleBackgroundClick() {
+		System.err.println("handling background click..");
+		hideLastChainView();
 		super.handleBackgroundClick();
 		SelectAnalysisChain event = new SelectAnalysisChain(null);
 		registry.getEventBus().post(event);
@@ -144,60 +159,19 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		lastHighlighted = box;
 	}
 	
-	/** 
-	 * In the chain palette, we don't want to zoom into the chain itself,
-	 * only in the box. So, if I've clicked on a chain view, pass the click 
-	 * along to the parent.
+	/**
+	 * @param lastChainView The lastChainView to set.
 	 */
-	public void doMouseClicked(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		if (!(n instanceof ChainView))
-			super.doMouseClicked(e);
-		else {
-			//System.err.println("clicked on chain in chain palette..");
-			
-			
-			// In ChainPaletteCanvas,
-			// chain view has chain box as a grandparent. that's what we 
-			// want to zoom to
-			PNode parent = n.getParent();
-			if (parent == null) 
-				return;
-			parent = parent.getParent();
-			if (parent != null && parent instanceof MouseableNode) {
-				((MouseableNode) parent).mouseClicked(this);		
-				ChainPaletteCanvas c = (ChainPaletteCanvas) canvas;
-				//System.err.println("after zoom, scale is "+c.getCamera().getViewScale());
-			}
-		}
-		e.setHandled(true);
+	public void setLastChainView(PaletteChainView lastChainView) {
+		System.err.println("last chain view is ..."+lastChainView);
+		this.lastChainView = lastChainView;
 	}
 	
-	public void handlePopup(PInputEvent e) {
-		PNode n = e.getPickedNode();	
-		
-		if (n instanceof ModuleView) {
-			//	if we're in a module view, we go to the great-grandparent
-			// -- the chain box.
-			n = n.getParent();
-			if (n != null) {
-				n = n.getParent();
-				if (n != null) { 
-					n = n.getParent();
-					if (n != null) {
-						animateToNode(n);
-					}
-				}
-			}
+	public void hideLastChainView() {
+		if (lastChainView != null) {
+			lastChainView.hide();
 		}
-		else if (n != null && n instanceof ChainView) {
-			// if we're in a chain view, we want to zoom to canvas bounds
-			animateToCanvasBounds();
-		}
-		else
-			super.handlePopup(e);
-		
-		e.setHandled(true);
+		lastChainView = null;
 	}
 	
 }
