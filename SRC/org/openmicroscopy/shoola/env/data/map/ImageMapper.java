@@ -316,8 +316,8 @@ public class ImageMapper
 		while (i.hasNext()) {
 			rs = (RenderingSettings) i.next();
             j = index;
-            if (rs.getTheC() != null) j = rs.getTheC().intValue();
-			if (index == 0) {
+            if (rs.getTheC() != null) index = rs.getTheC().intValue();
+			if (j == 0) {
                 if (rs.getTheZ() != null) z = rs.getTheZ().intValue();
                 if (rs.getTheT() != null) t = rs.getTheT().intValue();
                 if (rs.getModel() != null) model = rs.getModel().intValue();
@@ -340,9 +340,9 @@ public class ImageMapper
             if (rs.getCoefficient() != null) 
                 coeff = rs.getCoefficient().doubleValue();
             if (rs.isActive() != null) active = rs.isActive().booleanValue();
-			channelBindings[j] = new ChannelBindings(index, dStart,
+			channelBindings[index] = new ChannelBindings(index, dStart,
 			        dEnd, red, green, blue, alpha, active, family, coeff);
-            index++;
+            j++;
 		}
         QuantumDef  qDef = new QuantumDef(pixelType, cdStart, cdEnd, 
                                 bitResolution);

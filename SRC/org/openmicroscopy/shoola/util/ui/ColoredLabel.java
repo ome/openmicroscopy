@@ -60,31 +60,36 @@ public class ColoredLabel
     extends JLabel
 {
     
-    public  static final int    NO_SHAPE = 0, SQUARE = 1, CIRCLE = 2;
+    public  static final int        NO_SHAPE = 0, SQUARE = 1, CIRCLE = 2;
     
-    private static Color        DEFAULT_FONT_COLOR = Color.BLACK;
+    /** Default size of a cell. */
+    public static final Dimension   CELL_DIM = new Dimension(8, 8);
     
-    private static final int    WIDTH = 8;
+    private static Color            DEFAULT_FONT_COLOR = Color.BLACK;
     
-    private int                 textWidth;
+    private static final int        WIDTH = 6;
     
-    private int                 shapeType;
+    private int                     textWidth;
     
-    private String              text;
+    private int                     shapeType;
     
-    private Color               fontColor; 
+    private String                  text;
+    
+    private Color                   fontColor; 
     
     public ColoredLabel(String text)
     {
         this.text = text;
         shapeType = NO_SHAPE;
         initTextWidth();
+        setSize(CELL_DIM);  //Default size
     }
     
     public ColoredLabel()
     {
         shapeType = NO_SHAPE;
         initTextWidth();
+        setSize(CELL_DIM);  //Default size
     }
     
     public void setShapeType(int type) { shapeType = type; }
@@ -105,14 +110,14 @@ public class ColoredLabel
         Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height); 
         g2D.setColor(DEFAULT_FONT_COLOR);
+        int w = WIDTH;
+        if (WIDTH >= d.width) w = d.width/2;
         switch (shapeType) {
             case SQUARE:
-                g2D.fillRect((d.width-WIDTH)/2, (d.height-WIDTH)/2, WIDTH, 
-                            WIDTH);
+                g2D.fillRect((d.width-w)/2, (d.height-w)/2, w, w);
                 break;
             case CIRCLE:
-                g2D.fillOval((d.width-WIDTH)/2, (d.height-WIDTH)/2, WIDTH, 
-                            WIDTH);
+                g2D.fillOval((d.width-w)/2, (d.height-w)/2, w, w);
                 break;
         }
         if (text != null) paintText(g2D, d.width, d.height);

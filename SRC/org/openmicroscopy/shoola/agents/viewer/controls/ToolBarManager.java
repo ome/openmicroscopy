@@ -86,6 +86,9 @@ public class ToolBarManager
      /** Action command ID to be used with the roi button. */
     private static final int                    ROI_CMD = 7;
     
+    /** Action command ID to be used with the roi button. */
+    private static final int                    ANNOTATE_CMD = 8;
+    
     private int                                 curT, maxT, curZ, maxZ;
     
     private ViewerCtrl                          control;
@@ -116,6 +119,7 @@ public class ToolBarManager
         attachButtonListener(view.getSaveAs(), SAVEAS_CMD);
         attachButtonListener(view.getViewer3D(), VIEWER3D_CMD);
         attachButtonListener(view.getROI(), ROI_CMD);
+        attachButtonListener(view.getAnnotator(), ANNOTATE_CMD);
     }
     
     public void setMaxZ(int z) { maxZ = z; }
@@ -222,7 +226,9 @@ public class ToolBarManager
                 case MOVIE_CMD:
                     control.showMovie(); break; 
                 case ROI_CMD:
-                    control.showROI();
+                   control.showROI(); break;
+                case ANNOTATE_CMD:
+                   control.annotateImage();
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 

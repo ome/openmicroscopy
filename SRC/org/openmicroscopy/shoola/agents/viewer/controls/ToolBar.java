@@ -89,6 +89,9 @@ public class ToolBar
     /** Control to bring up the movie widget. */
     private JButton                 movie;
     
+    /** Control to bring up the movie widget. */
+    private JButton                 annotator;
+    
     /** Fields displaying the current z-section and the current timepoint. */
     private JTextField              zField, tField;
         
@@ -121,6 +124,8 @@ public class ToolBar
         buildToolBar();
     }
 
+    public JButton getAnnotator() { return annotator; }
+    
     public JButton getROI() { return roi; }
     
     public JButton getMovie() { return movie; }
@@ -150,11 +155,12 @@ public class ToolBar
         IconManager im = IconManager.getInstance(registry);
         viewer3D = new JButton(im.getIcon(IconManager.VIEWER3D));
         viewer3D.setToolTipText(
-            UIUtilities.formatToolTipText("Bring up the image3D viewer."));
+            UIUtilities.formatToolTipText("3D-view of the image."));
         viewer3D.setEnabled(maxZ != 0); 
         saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
         saveAs.setToolTipText(
-            UIUtilities.formatToolTipText("Bring up the save image window."));  
+            UIUtilities.formatToolTipText("Save the image as TIFF, " +
+                                        "JPEG,PNG..."));  
         inspector = new JButton(im.getIcon(IconManager.INSPECTOR));
         inspector.setToolTipText(
             UIUtilities.formatToolTipText("Bring up the inspector panel."));
@@ -163,11 +169,15 @@ public class ToolBar
             UIUtilities.formatToolTipText("Bring up the rendering panel."));
         movie = new JButton(im.getIcon(IconManager.MOVIE));
         movie.setToolTipText(
-            UIUtilities.formatToolTipText("Bring up the movie panel."));
+            UIUtilities.formatToolTipText("Bring up the movie player."));
         movie.setEnabled(maxT != 0 || maxZ != 0);
         roi = new JButton(im.getIcon(IconManager.ROI));
         roi.setToolTipText(
-                UIUtilities.formatToolTipText("Bring up the roi panel.")); 
+                UIUtilities.formatToolTipText("Bring up the ROI Definition " +
+                        "Tool.")); 
+        annotator = new JButton(im.getIcon(IconManager.ANNOTATE));
+        annotator.setToolTipText(
+                UIUtilities.formatToolTipText("Annotate the image.")); 
     }
 
     /** 
@@ -209,6 +219,7 @@ public class ToolBar
         //bar.add(viewer3D);
         bar.add(movie);
         bar.add(roi);
+        bar.add(annotator);
         bar.add(saveAs);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;

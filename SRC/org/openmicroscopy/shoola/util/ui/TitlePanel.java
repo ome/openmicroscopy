@@ -68,8 +68,11 @@ public class TitlePanel
 	extends JPanel
 {
 
+    
+    private static final int            TEXT_THRESHOLD = 50;
+    
 	/** Default color for the background. */
-	private Color		backgroundColor = Color.WHITE;
+	private Color		                backgroundColor = Color.WHITE;
 	
 	/** 
 	 * The preferred size of the widget that displays the  message.
@@ -177,15 +180,16 @@ public class TitlePanel
 		gridbag.setConstraints(label, c);
 		p.add(label);
 		c.gridy = 1;
-		if (title != null) {
+		if (text.length() >= TEXT_THRESHOLD) {
+            MultilineLabel ml = new MultilineLabel(text);
+            gridbag.setConstraints(ml, c);
+            p.add(ml);
+		} else {
 			label = new JLabel(" "+text);
 			gridbag.setConstraints(label, c);
 			p.add(label);
-		} else {
-			MultilineLabel ml = setMessageLabel(" "+text);
-			gridbag.setConstraints(ml, c);
-			p.add(ml);
 		}
+        
 		if (note != null) {
 			c.gridy = 2;
 			MultilineLabel nl = setNoteLabel(" "+note);
@@ -207,14 +211,6 @@ public class TitlePanel
 		Font newFont = font.deriveFont(Font.BOLD);
 		label.setFont(newFont);
 		label.setBackground(Color.PINK);
-		return label;
-	}
-	
-	/** Set the font to italic. */
-	private MultilineLabel setMessageLabel(String s)
-	{
-		MultilineLabel label = new MultilineLabel(s);
-		label.setPreferredSize(MSG_AREA_SIZE);
 		return label;
 	}
 	
