@@ -33,11 +33,9 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JButton;
+import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -113,17 +111,10 @@ public class ViewerCtrl
 	Viewer getAbstraction() { return abstraction; }
 	
 	/** Attach listener to a menu Item. */
-	void setMenuItemListener(JMenuItem item, int id)
+	void attachItemListener(AbstractButton item, int id)
 	{
 		item.setActionCommand(""+id);
 		item.addActionListener(this);
-	}
-	
-	/** Attach listener to a button of the toolBar. */
-	void setToolBarItemListener(JButton b, int id)
-	{
-		b.setActionCommand(""+id);
-		b.addActionListener(this);
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */

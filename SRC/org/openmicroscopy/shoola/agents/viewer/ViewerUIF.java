@@ -221,15 +221,15 @@ public class ViewerUIF
 		JMenu menu = new JMenu("Movie");
 		JMenuItem menuItem = new JMenuItem("Play", 
 									im.getIcon(IconManager.MOVIE));
-		control.setMenuItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
+		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
 		menu.add(menuItem);
 		menuItem = new JMenuItem("Stop", 
 									im.getIcon(IconManager.STOP));
-		control.setMenuItemListener(menuItem, ViewerCtrl.MOVIE_STOP);
+		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_STOP);
 		menu.add(menuItem);
 		menuItem = new JMenuItem("Rewind", 
 									im.getIcon(IconManager.REWIND));
-		control.setMenuItemListener(menuItem, ViewerCtrl.MOVIE_REWIND);
+		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_REWIND);
 		menu.add(menuItem);
 		return menu;
 	}
@@ -239,10 +239,10 @@ public class ViewerUIF
 	{
 		JMenu menu = new JMenu("Controls");
 		JMenuItem menuItem = new JMenuItem("Rendering");
-		control.setMenuItemListener(menuItem, ViewerCtrl.RENDERING);
+		control.attachItemListener(menuItem, ViewerCtrl.RENDERING);
 		menu.add(menuItem);
 		menuItem = new JMenuItem("SAVE AS...");
-		control.setMenuItemListener(menuItem, ViewerCtrl.SAVE_AS);
+		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);
 		return menu;
 	}	

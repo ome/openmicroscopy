@@ -285,13 +285,13 @@ class DataManagerUIF
 	{
 		newMenu = new JMenu("New...");
 		JMenuItem menuItem = new JMenuItem("Project");
-		control.setMenuItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
+		control.attachItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
 		newMenu.add(menuItem);
 		menuItem = new JMenuItem("Dataset");
-		control.setMenuItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
+		control.attachItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
 		newMenu.add(menuItem);
 		menuItem = new JMenuItem("Image");
-		control.setMenuItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
+		control.attachItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
 		newMenu.add(menuItem);
 	}
 	

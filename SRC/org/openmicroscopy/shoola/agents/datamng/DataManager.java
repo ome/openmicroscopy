@@ -684,7 +684,7 @@ public class DataManager
 	private JCheckBoxMenuItem getViewMenuItem()
 	{
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager");
-		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
+		control.attachItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
 	}
 	
@@ -694,7 +694,7 @@ public class DataManager
 		JButton b = new JButton(im.getIcon(IconManager.DMANAGER));
 		b.setToolTipText(
 			UIFactory.formatToolTipText("Bring up the dataManager."));
-		control.setToolBarItemListener(b, DataManagerCtrl.DM_VISIBLE);
+		control.attachItemListener(b, DataManagerCtrl.DM_VISIBLE);
 		return b;
 	}
 	

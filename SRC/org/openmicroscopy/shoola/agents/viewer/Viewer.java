@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
@@ -217,8 +216,8 @@ public class Viewer
 		presentation = new ViewerUIF(control, registry, imageName);
 		control.setPresentation(presentation);
 		control.attachListener();
-		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
-		control.setToolBarItemListener(viewButton, ViewerCtrl.V_VISIBLE);
+		control.attachItemListener(viewItem, ViewerCtrl.V_VISIBLE);
+		control.attachItemListener(viewButton, ViewerCtrl.V_VISIBLE);
 		viewItem.setEnabled(true);
 		viewButton.setEnabled(true);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);

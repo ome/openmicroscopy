@@ -34,10 +34,8 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-
-import javax.swing.JButton;
+import javax.swing.AbstractButton;
 import javax.swing.JDialog;
-import javax.swing.JMenuItem;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -101,18 +99,11 @@ public class DataManagerCtrl
 	/** Return the abstraction. */
 	DataManager getAbstraction() {return abstraction; }
 	
-	/** Attach listener to a menu Item. */
-	void setMenuItemListener(JMenuItem item, int id)
+	/** Attach listener to a menuItem or a button. */
+	void attachItemListener(AbstractButton item, int id)
 	{
 		item.setActionCommand(""+id);
 		item.addActionListener(this);
-	}
-	
-	/** Attach listener to a toolbar button. */
-	void setToolBarItemListener(JButton b, int id)
-	{
-		b.setActionCommand(""+id);
-		b.addActionListener(this);
 	}
 	
 	/** 
