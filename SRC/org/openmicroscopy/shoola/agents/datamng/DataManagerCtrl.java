@@ -210,6 +210,18 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
+	public void annotateDataset(int datasetID)
+	{
+		abstraction.annotateDataset(datasetID);
+	}
+	
+	/** Forward event to the abstraction {@link DataManager}. */
+	public void annotateImage(int imageID)
+	{
+		abstraction.annotateImage(imageID);
+	}
+	
+	/** Forward event to the abstraction {@link DataManager}. */
 	public List getDatasetsDiff(ProjectData data)
 	{
 		return abstraction.getDatasetsDiff(data);

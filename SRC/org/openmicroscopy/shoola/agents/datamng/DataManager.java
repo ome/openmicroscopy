@@ -41,6 +41,8 @@ import javax.swing.JCheckBoxMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
@@ -165,18 +167,14 @@ public class DataManager
     /**
      * Responds to an event fired trigger on the bus.
      * Listens to ViewDatasetInfo, ViewImageInfo events.
-     * @see org.openmicroscopy.shoola.env.event.AgentEventListener#eventFired(org.openmicroscopy.shoola.env.event.AgentEvent)
+     * @see AgentEventListener#eventFired
      */
     public void eventFired(AgentEvent e)
     {
-        if(e instanceof ViewImageInfo)
-        {
-            ViewImageInfo info = (ViewImageInfo)e;
-            control.showProperties(info.getImageInfo());
-        }
+        if (e instanceof ViewImageInfo)
+            control.showProperties(((ViewImageInfo) e).getImageInfo());
     }
 
-	
 	/**
 	 * Return the list of all image summaries that belong to the user
 	 * but which are not in the specified dataset.
@@ -195,14 +193,11 @@ public class DataManager
 			Iterator i = images.iterator();
 			while (i.hasNext()) {
 				is = (ImageSummary) i.next();
-				if (is.getID() == isg.getID()) {
-					 imagesDiff.remove(isg); 
-				} 
+				if (is.getID() == isg.getID())	imagesDiff.remove(isg); 
 			}
 		}
 		return imagesDiff;
 	}
-	
 	
 	/**
 	 * Return the list of all dataset summaries that belong to the user
@@ -288,7 +283,6 @@ public class DataManager
 				registry.getEventBus().post(request);
 			} 
 		}
-		
 		return datasetSummaries;
 	}
 	
@@ -315,7 +309,6 @@ public class DataManager
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		
 		return images;
 	}
 
@@ -340,7 +333,6 @@ public class DataManager
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		}
-		
 		return images;	
 	}
 	
@@ -365,7 +357,6 @@ public class DataManager
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		
 		return project;
 	}
 	
@@ -390,7 +381,6 @@ public class DataManager
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		
 		return dataset;
 	}
 	
@@ -415,7 +405,6 @@ public class DataManager
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		
 		return image;
 	}
 	
@@ -479,8 +468,7 @@ public class DataManager
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
-		} 
-		
+		} 	
 	}
 	
 	/**
@@ -498,7 +486,9 @@ public class DataManager
 			dms.updateProject(pd, dsToRemove, dsToAdd);
 			//update the presentation and the project summary contained in the 
 			//projectSummaries list accordingly.
-			updatePSList(pd);
+			projectSummaries = null;
+			getUserProjects();
+			//updatePSList(pd);
 			if (nameChange) presentation.updateProjectInTree();
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
@@ -662,7 +652,7 @@ public class DataManager
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		try {
 			presentation.setClosed(false);
-		} catch (Exception e) {}
+		} catch (Exception e) {}	//require by setClosed method
 		presentation.setVisible(true);	
 	}
 	
@@ -672,7 +662,7 @@ public class DataManager
 		topFrame.deiconifyFrame(presentation);
 		try {
 			presentation.setIcon(false);
-		} catch (Exception e) {}	
+		} catch (Exception e) {}	//require by setIcon method
 	}
 	
 	/** Select the menuItem. */
@@ -680,6 +670,19 @@ public class DataManager
 	{
 		viewItem.setSelected(b); 
 	}
+	
+	/** Post an {@link AnnotateDataset} event. */
+	void annotateDataset(int datasetID)
+	{
+		registry.getEventBus().post(new AnnotateDataset(datasetID));
+	}
+	
+	/** Post an {@link AnnotateImage} event. */
+	void annotateImage(int imageID) 
+	{
+		//registry.getEventBus().post(new AnnotateImage(imageID));
+	}
+	
 	
 	/** 
 	 * Menu item to add into the 
