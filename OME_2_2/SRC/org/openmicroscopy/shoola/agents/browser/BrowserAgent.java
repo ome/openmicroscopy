@@ -133,38 +133,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     private List imageTypeList;
     
     private Map activeThreadMap;
-    
-    private boolean useServerThumbs;
-    private int thumbnailWidth;
-    private int thumbnailHeight;
-    
-    /**
-     * The XML key for getting the desired thumbnail extraction mode.
-     * (server or composite)
-     */
-    public static final String THUMBNAIL_MODE_KEY =
-        "/agents/browser/config/useServerThumbs";
-    
-    /**
-     * The XML key for getting the composite mode thumbnail width.
-     */
-    public static final String THUMBNAIL_WIDTH_KEY =
-        "/agents/browser/config/thumbnailWidth";
-    
-    /**
-     * The XML key for getting the composite mode thumbnail height.
-     */
-    public static final String THUMBNAIL_HEIGHT_KEY =
-        "/agents/browser/config/thumbnailHeight";
-        
-    public static final String DUMMY_DATASET_KEY =
-        "/agents/browser/config/dummyDataset";
-        
-    public static final String SEMANTIC_WIDTH_KEY =
-        "/agents/browser/config/semanticWidth";    
-    
-    public static final String SEMANTIC_HEIGHT_KEY =
-        "/agents/browser/config/semanticHeight";
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -197,9 +165,7 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public boolean canTerminate()
     {
-        // for now, return true; won't keep track of dirty bits-- will
-        // commit all changes to DB immediately & write all local config
-        // information to file (TODO: change if necessary)
+        // do nothing yet; no browser state saved to DB or disk
         return true;
     }
     
@@ -213,7 +179,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         BrowserManager manager = env.getBrowserManager();
         List browserList = manager.getAllBrowsers();
-        // TODO: flush local config stuff to disk
     }
     
     /**
@@ -234,59 +199,12 @@ public class BrowserAgent implements Agent, AgentEventListener
         this.eventBus = ctx.getEventBus();
         
         env.setIconManager(IconManager.getInstance(ctx));
-        
-        Boolean extractionMode = (Boolean)registry.lookup(THUMBNAIL_MODE_KEY);
-        this.useServerThumbs = extractionMode.booleanValue();
-        
-        Integer thumbWidth = (Integer)registry.lookup(THUMBNAIL_WIDTH_KEY);
-        Integer thumbHeight = (Integer)registry.lookup(THUMBNAIL_HEIGHT_KEY);
-        
-        this.thumbnailWidth = 120;//thumbWidth.intValue();
-        this.thumbnailHeight = 120;//thumbHeight.intValue();
+        env.setBrowserPreferences(new BrowserPreferences(ctx));
         
         eventBus.register(this,LoadDataset.class);
         eventBus.register(this,ImageAnnotated.class);
         eventBus.register(this,ImagesClassified.class);
         eventBus.register(this,CategoriesChanged.class);
-        
-        /*
-        JMenuItem testItem = new JMenuItem("Browser");
-        testItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ae)
-            {
-                Integer dummyID = (Integer)registry.lookup(DUMMY_DATASET_KEY);
-                loadDataset(dummyID.intValue());
-            }
-        });
-        
-        tf.addToMenu(TopFrame.VIEW,testItem);
-        testItem.setEnabled(true);
-        */
-        
-        // test code to check for image STs
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        try
-        {
-            List typeList = sts.getAvailableImageTypes();
-            for(Iterator iter = typeList.iterator(); iter.hasNext();)
-            {
-                SemanticType st = (SemanticType)iter.next();
-                imageTypeList.add(st);
-            }
-        }
-        catch(DSOutOfServiceException dso)
-        {
-            dso.printStackTrace();
-            UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Connection Error",dso.getMessage(),dso);
-        }
-        catch(DSAccessException dsa)
-        {
-            dsa.printStackTrace();
-            UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Server Error",dsa.getMessage(),dsa);
-        }
         
         env.setBrowserManager(BrowserManagerSelector.getInstance(registry));
         env.setHeatMapManager(new HeatMapManager(registry));
@@ -301,6 +219,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void loadDataset(int datasetID)
     {
+        BrowserLoader loader = new BrowserLoader(registry,datasetID);
+        loader.load();
+        
         BrowserManager manager = env.getBrowserManager();
         BrowserWrapper bw;
         if((bw = manager.getBrowserForDataset(datasetID)) != null)
@@ -1191,43 +1112,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         event.setCompletionHandler(new CategoryChangeHandler());
         EventBus eventBus = registry.getEventBus();
         eventBus.post(event);
-    }
-    
-    /**
-     * Returns the width and height of the size the semantic window onto a node
-     * should be, specified in the registry file.  Suggested: 150x150.  Cool.
-     * If the value is not specified in the config file, either width or height
-     * (or both) will return -1.  Also, if a negative value is specified in
-     * the config file, that parameter will be listed as -1.
-     * 
-     * @return [width,height].
-     */
-    public int[] getSemanticNodeSize()
-        throws NullPointerException
-    {
-        Integer width = (Integer)registry.lookup(SEMANTIC_WIDTH_KEY);
-        Integer height = (Integer)registry.lookup(SEMANTIC_HEIGHT_KEY);
-        
-        int widthVal, heightVal;
-        if(width == null || width.intValue() <= 0)
-        {
-            widthVal = -1;
-        }
-        else
-        {
-            widthVal = width.intValue();
-        }
-        
-        if(height == null || height.intValue() <= 0)
-        {
-            heightVal = -1;
-        }
-        else
-        {
-            heightVal = height.intValue();
-        }
-        
-        return new int[] {widthVal,heightVal};
     }
     
     /**

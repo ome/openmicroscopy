@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.util.RangeChecker;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;

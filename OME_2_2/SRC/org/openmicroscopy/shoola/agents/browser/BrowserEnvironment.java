@@ -61,6 +61,7 @@ public final class BrowserEnvironment
     private IconManager iconManager;
     // private static OMEDataAgent dataAgent;
     private MessageHandler messageHandler;
+    private BrowserPreferences browserPreferences;
 
     private BrowserEnvironment()
     {
@@ -190,7 +191,7 @@ public final class BrowserEnvironment
     }
     
     /**
-     * Setse the color map manager of the environment.
+     * Sets the color map manager of the environment.
      * @param manager The color map manager to use.
      */
     public void setColorMapManager(ColorMapManager manager)
@@ -203,6 +204,28 @@ public final class BrowserEnvironment
         if(browserManager != null)
         {
             browserManager.addSelectionListener(colorMapManager);
+        }
+    }
+    
+    /**
+     * Returns the browser display preferences.
+     * @return See above.
+     */
+    public BrowserPreferences getBrowserPreferences()
+    {
+        return browserPreferences;
+    }
+    
+    /**
+     * Sets the application's default set of browser preferences to the specified
+     * object.
+     * @param prefs The set of browser preferences.
+     */
+    public void setBrowserPreferences(BrowserPreferences prefs)
+    {
+        if(prefs != null)
+        {
+            browserPreferences = prefs;
         }
     }
 
