@@ -168,7 +168,7 @@ public class DataManager
 				un.notifyError("Data Retrieval Failure", 
 					"Unable to retrieve user's projects", dsae);
 			} catch(DSOutOfServiceException dsose) {
-				// pop up login window	
+				// pop up login window
 				throw new RuntimeException(dsose);
 			} 
 		}

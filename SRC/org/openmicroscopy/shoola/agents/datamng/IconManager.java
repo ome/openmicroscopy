@@ -114,7 +114,7 @@ public class IconManager
 			try {	
 				singleton = new IconManager(registry);
 			} catch (Exception e) {
-			throw new RuntimeException("Can't create the IconManager", e);
+				throw new RuntimeException("Can't create the IconManager", e);
 			}
 		}
 		return singleton;

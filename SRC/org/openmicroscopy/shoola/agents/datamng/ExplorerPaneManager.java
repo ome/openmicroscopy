@@ -226,8 +226,6 @@ class ExplorerPaneManager
 		DatasetSummary ds;
 		DefaultMutableTreeNode dNode;
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		cDNodes = null;
-		imagesInDataset = null;
 		while (i.hasNext()) {
 			ds = (DatasetSummary) i.next();
 			dNode = new DefaultMutableTreeNode(ds);
@@ -390,6 +388,7 @@ class ExplorerPaneManager
 	 */
 	private void onClick(MouseEvent e)
 	{
+		
 		int selRow = view.tree.getRowForLocation(e.getX(), e.getY());
 		if (selRow != -1) {
 	   		view.tree.setSelectionRow(selRow);
@@ -410,10 +409,32 @@ class ExplorerPaneManager
 						
 					}	
 				}
+	   		} else { //Test click on the root node.
+				if (e.isPopupTrigger()) rebuildTree();
 	   		}
 		}
 	}
-
+	
+	private void rebuildTree()
+	{
+		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		root.removeAllChildren();
+		if (pSummaries != null) {
+			Iterator i = pSummaries.iterator();
+			ProjectSummary ps;
+			DefaultMutableTreeNode pNode;
+			while (i.hasNext()) {
+				ps = (ProjectSummary) i.next();
+				pNode = new DefaultMutableTreeNode(ps);
+				treeModel.insertNodeInto(pNode, root, root.getChildCount());
+				pNodes.put(new Integer(ps.getID()), pNode);
+				addDatasetsToProject(ps, pNode, treeModel);
+			}
+		}
+		treeModel.reload();
+	}
+	
 	/**
 	 * Handle the Tree expansion event.
 	 * 
@@ -431,7 +452,7 @@ class ExplorerPaneManager
 		if (usrObject instanceof DatasetSummary) {
 			DatasetSummary ds = (DatasetSummary) usrObject;
 			datasetNodeNavigation(ds, node, isExpanding);
-		} 
+		}
 	}
 
 	/** 

@@ -191,9 +191,9 @@ class DatasetGeneralPane
 		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
 		// Labels
-		table.setValueAt(new JLabel(" ID"), 0, 0 );
-		table.setValueAt(new JLabel(" Name"), 1, 0 );
-		table.setValueAt(new JLabel(" Description"), 2, 0 );
+		table.setValueAt(new JLabel(" ID"), 0, 0);
+		table.setValueAt(new JLabel(" Name"), 1, 0);
+		table.setValueAt(new JLabel(" Description"), 2, 0);
 
 		DatasetData pd = manager.getDatasetData();
 		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);

@@ -171,8 +171,8 @@ class CreateDatasetPane
 		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);
 		// Labels
-		table.setValueAt(new JLabel(" Name"), 0, 0 );
-		table.setValueAt(new JLabel(" Description"), 1, 0 );
+		table.setValueAt(new JLabel(" Name"), 0, 0);
+		table.setValueAt(new JLabel(" Description"), 1, 0);
 
 		DatasetData pd = manager.getDatasetData();
 	

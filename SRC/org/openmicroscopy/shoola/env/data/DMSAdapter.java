@@ -564,6 +564,8 @@ class DMSAdapter
 		} catch (RemoteServerErrorException rsee) {
 			throw new DSAccessException("Can't retrieve data", rsee);
 		} 
+		
 		return retVal;
 	}
+	
 }

@@ -185,10 +185,10 @@ final class SplashScreenInit
 			//Ignore, the user will be prompted to log in when they try
 			//to access their remote data.
 			//no other option b/c of xmlrpc
-			TopFrame topFrame = reg.getTopFrame();
-			JMenuItem item = 
-				topFrame.getItemFromMenu(TopFrame.CONNECT, TopFrame.OMEDS);
-			item.setEnabled(true);
+			TopFrame tf = reg.getTopFrame();
+			JMenuItem item = tf.getItemFromMenu(TopFrame.CONNECT, 
+												TopFrame.OMEDS);
+			item.setEnabled(true);									
 		}
 	
 		splashScreen.close();
