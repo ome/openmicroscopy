@@ -35,6 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,6 +82,7 @@ public final class BrowserLoader
         this.appContext = appContext;
         this.datasetID = datasetToLoad;
         env = BrowserEnvironment.getInstance();
+        imageTypeList = new ArrayList();
     }
     
     /**
