@@ -90,6 +90,7 @@ final class ContainerConfigInit
 		throws StartupException
 	{
 		String file = container.getConfigFile();
+		
 		Registry reg = container.getRegistry();
 		try {
 			RegistryFactory.fillFromFile(file, reg);
