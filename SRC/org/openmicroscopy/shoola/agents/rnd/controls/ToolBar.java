@@ -31,10 +31,11 @@ package org.openmicroscopy.shoola.agents.rnd.controls;
 
 
 //Java imports
+import java.awt.FlowLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -62,8 +63,11 @@ public class ToolBar
 	extends JToolBar
 {
 	
+	
 	private JButton					saveButton, greyButton, rgbButton, 
 									hsbButton;
+	
+	private JSeparator				separator;
 	
 	public ToolBar(RenderingAgtCtrl control, Registry registry)
 	{
@@ -97,20 +101,23 @@ public class ToolBar
 		rgbButton =  new JButton(im.getIcon(IconManager.RGB));
 		rgbButton.setToolTipText(
 			UIUtilities.formatToolTipText("Select the RGB color model."));
-		hsbButton =  new JButton(im.getIcon(IconManager.HSB));
+		Icon icon = im.getIcon(IconManager.HSB);
+		hsbButton =  new JButton(icon);
 		hsbButton.setToolTipText(
 			UIUtilities.formatToolTipText("Select the HSB color model."));
+		separator = UIUtilities.toolBarSeparator(hsbButton,icon);	
 	}
 	
 	/** Build and lay out the tool bar. */
 	private void buildToolBar()
 	{
 		setFloatable(false);
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
 		add(greyButton);
 		add(rgbButton);
 		add(hsbButton);
-		add(new JSeparator(SwingConstants.VERTICAL));
+		add(separator);
 		add(saveButton);
 	}
 

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -44,6 +45,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
+import org.openmicroscopy.shoola.agents.viewer.transform.ToolBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -80,9 +82,12 @@ public class ZoomBar
 	
 	private Registry 				registry;
 	
-	public ZoomBar(Registry registry, ImageInspectorManager mng)
+	private ToolBar					tbContainer;
+	public ZoomBar(Registry registry, ImageInspectorManager mng, 
+					ToolBar tbContainer)
 	{
 		this.registry = registry;
+		this.tbContainer = tbContainer;
 		initTxtWidth();
 		initZoomComponents();
 		manager = new ZoomBarManager(this, mng);
@@ -107,7 +112,8 @@ public class ZoomBar
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
-		zoomIn = new JButton(im.getIcon(IconManager.ZOOMIN));
+		Icon zoomInIcon = im.getIcon(IconManager.ZOOMIN);
+		zoomIn = new JButton(zoomInIcon);
 		zoomIn.setToolTipText(
 			UIUtilities.formatToolTipText("Zoom in."));	
 		zoomOut = new JButton(im.getIcon(IconManager.ZOOMOUT));
@@ -120,6 +126,10 @@ public class ZoomBar
 		zoomField.setForeground(Viewer.STEELBLUE);
 		zoomField.setToolTipText(
 			UIUtilities.formatToolTipText("zooming percentage."));
+		
+		//Set the separator of tbContainer.
+		tbContainer.setSeparator(
+				UIUtilities.toolBarSeparator(zoomIn, zoomInIcon));
 	}	
 	
 	/** Build the toolBar. */

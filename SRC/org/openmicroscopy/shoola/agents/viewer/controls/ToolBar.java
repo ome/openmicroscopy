@@ -228,7 +228,7 @@ public class ToolBar
 	private void buildToolBar() 
 	{
 		setFloatable(false);
-		putClientProperty("JToolBar.isRollover", new Boolean(true));
+		putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 		add(render);
 		add(inspector);
 		add(saveAs);

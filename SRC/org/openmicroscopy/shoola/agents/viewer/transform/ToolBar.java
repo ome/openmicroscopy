@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 //Java imports
 import java.awt.FlowLayout;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 
@@ -54,19 +55,28 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * </small>
  * @since OME2.2
  */
-class ToolBar
+public class ToolBar
 	extends JPanel
 {
 	
 	private ZoomBar			zoomBar;
 	
-	ToolBar(Registry registry, ImageInspectorManager manager)
+	private JSeparator 		separator;
+	
+	public ToolBar(Registry registry, ImageInspectorManager manager)
 	{
 		setBorder(null);
-		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+		setLayout(new FlowLayout(FlowLayout.LEFT));
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
-		zoomBar = new ZoomBar(registry, manager);
+		zoomBar = new ZoomBar(registry, manager, this);
 		add(zoomBar);
+		add(separator);
+	}
+	
+	/** Set the separator. Needed b/c we reset the Layout. */
+	public void setSeparator(JSeparator separator)
+	{ 
+		this.separator = separator;
 	}
 	
 	ZoomBar getZoomBar() { return zoomBar; }

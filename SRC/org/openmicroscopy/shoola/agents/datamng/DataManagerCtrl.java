@@ -46,7 +46,7 @@ import javax.swing.event.InternalFrameListener;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageChooser;
+import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageSelector;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -228,7 +228,7 @@ public class DataManagerCtrl
 	{
 		List datasets = new ArrayList();
 		datasets.add(ds);
-		new ImportImageChooser(this, datasets);
+		new ImportImageSelector(this, datasets);
 	}
 	
 	/** Bring up the Images Importer file chooser */
@@ -238,7 +238,7 @@ public class DataManagerCtrl
 		if (datasets.size() == 0) {
 			UserNotifier un = abstraction.getRegistry().getUserNotifier();
 			un.notifyInfo("Import images", "Please create a dataset first.");
-		} else new ImportImageChooser(this, datasets);
+		} else new ImportImageSelector(this, datasets);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
