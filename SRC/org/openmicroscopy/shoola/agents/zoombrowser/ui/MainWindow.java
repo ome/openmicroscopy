@@ -43,11 +43,12 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
-import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
 
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
@@ -179,8 +180,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 				new Class[] { 
 					SelectAnalysisChain.class,
 					MouseOverAnalysisChain.class,
-					ChainExecutionsLoadedEvent.class,
-					MouseOverChainExecutionEvent.class});
+					LoadChainExecutionsEvent.class,
+					MouseOverChainExecutionEvent.class,
+					SelectChainExecutionEvent.class});
 		enableButtons(false);
 	}
 		
@@ -207,7 +209,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		if (e instanceof AnalysisChainEvent && datasetBrowser != null) {
+		System.err.println("zoom got event ..."+e);
+		if (e instanceof AnalysisChainEvent &&
+					datasetBrowser != null) {
 			AnalysisChainEvent event = (AnalysisChainEvent) e;
 			AnalysisChainData chain = event.getAnalysisChain();
 			if (event instanceof SelectAnalysisChain)
@@ -222,8 +226,14 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			datasetBrowser.mouseOverChainExecution(exec);
 			
 		}
-		else if (e instanceof ChainExecutionsLoadedEvent) {
-			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
+		else if (e instanceof SelectChainExecutionEvent && datasetBrowser != null) {
+			SelectChainExecutionEvent  event = (SelectChainExecutionEvent) e;
+			ChainExecutionData exec = event.getChainExecution();
+			System.err.println("datasetbrowser selecting..."+exec);
+			datasetBrowser.selectChainExecution(exec);
+		}
+		else if (e instanceof LoadChainExecutionsEvent) {
+			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
 			chainExecutions = event.getChainExecutions();
 		}
 	}
