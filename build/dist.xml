@@ -131,8 +131,8 @@
       <zipfileset refid="app.libs" prefix="${dist.app.lib.dir.name}"/> 
       <fileset dir="${dist.dir}" includes="${dist.jar.file}"/>
       <zipfileset refid="dist.launch.scripts" filemode="555"/>
-      <fileset file="${dist.installfile}" />
-      <fileset file="${base.licensefile}" /> 
+      <fileset file="${dist.installfile}"/>
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
     </zip> 
   </target>
  
@@ -175,7 +175,7 @@
                   fullpath="Shoola.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="555"/> 
       <fileset file="${dist.osx.installfile}"/>
-      <fileset file="${base.licensefile}"/> 
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
     </zip> 
   </target> 
   
