@@ -29,14 +29,13 @@
 
 package org.openmicroscopy.shoola.util.concur.tasks;
 
-import org.openmicroscopy.shoola.util.concur.ControlFlowObserver;
-
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.concur.ControlFlowObserver;
 
 /** 
  * Extends {@link ExecHandle} to allow clients to retrieve the result of a
