@@ -72,29 +72,25 @@ public class IconManager
 	/** ID of the clock icon. */
 	public static final int     CLOCK = 4;
 	
-	/** ID of the cursor icon. */
-	public static final int     CURSOR = 5;
-	
 	/** ID of the xyz icon. */
-	public static final int     XYZ = 6;
+	public static final int     XYZ = 5;
 	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 7;
+	private static int          MAX_ID = 6;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
 		relPaths[OME] = "OME16.png";
-		relPaths[MOVIE] = "information16.png";
-		relPaths[STOP] = "information16.png";
-		relPaths[REWIND] = "information16.png";
-		relPaths[CLOCK] = "information16.png";
-		relPaths[CURSOR] = "information16.png";
-		relPaths[XYZ] = "information16.png";
+		relPaths[MOVIE] = "movie16.png";
+		relPaths[STOP] = "stop16.png";
+		relPaths[REWIND] = "rewind16.png";
+		relPaths[CLOCK] = "navigation16.png";
+		relPaths[XYZ] = "nav_pal_icon16.png";
 	}
 	
 	/**

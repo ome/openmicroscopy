@@ -91,7 +91,7 @@ public class IconManager
 	static {
 		relPaths[OME] = "OME16.png";
 		relPaths[INFO] = "information16.png";
-		relPaths[HISTOGRAM] = "information16.png";
+		relPaths[HISTOGRAM] = "histogram16.png";
 		relPaths[STRETCHING] = "information16.png";
 		relPaths[SLICING] = "information16.png";
 		relPaths[QUANTUM] = "information16.png";
