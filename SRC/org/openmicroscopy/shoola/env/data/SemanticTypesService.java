@@ -29,6 +29,10 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import java.util.List;
+
+import org.openmicroscopy.ds.dto.SemanticType;
+
 //Java imports
 
 //Third-party libraries
@@ -43,6 +47,9 @@ package org.openmicroscopy.shoola.env.data;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ * @author  <br>Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:jeffm@alum.mit.edu">
+ *                  jeffm@alum.mit.edu</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -52,5 +59,89 @@ package org.openmicroscopy.shoola.env.data;
 
 public interface SemanticTypesService
 {
-
+    /**
+     * Gets a list of all available semantic types with global granularity.
+     * @return A list of all available global types.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List getAvailableGlobalTypes()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Gets a list of all available semantic types with project granularity.
+     * @return A list of all available project types.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List getAvailableProjectTypes()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Gets a list of all available semantic types with dataset granularity.
+     * @return A list of all available dataset types.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List getAvailableDatasetTypes()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Gets a list of all available semantic types with image granularity.
+     * @return A list of all available image types.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List getAvailableImageTypes()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Gets a list of all available semantic types with feature granularity.
+     * @return A list of all available feature types.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List getAvailableFeatureTypes()
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Counts the number of attributes of the given semantic type that
+     * correspond to the project with the specified ID.  If the answer is 0,
+     * the client should not attempt to retrieve a list of attributes.
+     * 
+     * @param type The type of attribute to count.
+     * @param projectID Which project to search.
+     * @return The number of attributes of the given type associated with
+     *         The specified project.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public int countProjectAttributes(SemanticType type, int projectID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves all the Attributes with the given SemanticType that belong
+     * to a project with the specified ID.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveProjectAttributes(SemanticType type, int projectID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves all the Attributes with the given SemanticType that
+     * belong to a dataset with the specified ID.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveDatasetAttributes(SemanticType type, int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
 }

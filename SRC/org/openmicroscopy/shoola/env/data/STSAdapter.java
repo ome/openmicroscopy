@@ -29,6 +29,9 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import org.openmicroscopy.ds.DataFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
+
 //Java imports
 
 //Third-party libraries
@@ -44,6 +47,9 @@ package org.openmicroscopy.shoola.env.data;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ * @author <br>Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:jeffm@alum.mit.edu">
+ *                  jeffm@alum.mit.edu</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -53,7 +59,18 @@ package org.openmicroscopy.shoola.env.data;
 class STSAdapter
 	implements SemanticTypesService
 {
-	
-	//TODO: implement when the SemanticTypeManager is ready.
-
+    private DataFactory proxy;
+    private Registry context;
+    
+    public STSAdapter(DataFactory proxy, Registry context)
+    {
+        if(proxy == null || context == null)
+        {
+            throw new IllegalArgumentException("INTERNAL ERROR: parameters" +
+                "cannot be null in STSAdapter constructor.");
+        }
+        
+        this.proxy = proxy;
+        this.context = context;
+    }
 }
