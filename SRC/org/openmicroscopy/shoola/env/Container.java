@@ -32,15 +32,19 @@ package org.openmicroscopy.shoola.env;
 //Java imports
 import java.io.File;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -221,7 +225,31 @@ public final class Container
 	 */
 	public void startService()
 	{
-		//TODO: implement.
+		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		Agent a;
+		
+		//Agents linking phase.
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			a.setContext(agentInfo.getRegistry());
+		}
+		
+		//Agents activation phase.
+		i = agents.iterator();
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			a.activate();
+		}
+		
+		//TODO: activate services.
+		
+		//Get ready to interact with the user...
+		TopFrame tf = singleton.registry.getTopFrame();
+		tf.open();
 	}
 	
 	/**
