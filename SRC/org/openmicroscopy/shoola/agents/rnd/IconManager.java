@@ -126,6 +126,7 @@ public class IconManager
 		relPaths[INFO] = "nuvola_info16.png";
 		relPaths[HISTOGRAM] = "nuvola_kchart_chrt16.png";
 		relPaths[STRETCHING] = "openOffice_stock_new-drawing-16.png";
+        //relPaths[STRETCHING] = "contrastStretching16.png";
 		relPaths[SLICING] = "openOffice_stock_new-labels-16.png";
 		relPaths[GREYSCALE] = "grayscale.png";
 		relPaths[RGB] = "rgb16.png";
