@@ -32,22 +32,25 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 import java.util.HashMap;
 
-/** Implements the <code>Registry</code> interface. It maintains a map of <code>Entry</code> objects
- * which are keyed by their <code>name</code> attribute and represent entries in configuration file.
- * It also maintains references to the container's services into member fields, this ensures <code>
- * o(1)</code> access time.
+/** Implements the <code>Registry</code> interface. It maintains a map of
+ * <code>Entry</code> objects which are keyed by their <code>name</code> 
+ * attribute and represent entries in configuration file.
+ * It also maintains references to the container's services into member fields,
+ * this ensures <code>o(1)</code> access time.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 public class RegistryImpl
-    implements Registry {
+    implements Registry
+{
     
     private HashMap             entriesMap;
     //private EventBus                eb;
@@ -58,20 +61,23 @@ public class RegistryImpl
     //private TopFrame                tf;
     //private UserNotifier            un;
     
-    public RegistryImpl() {
+    public RegistryImpl()
+    {
         entriesMap = new HashMap();
     }
 /* add a new entry in the map
  * 
  * @param e new Entry
  */
-    void addEntry(Entry e) {
+    void addEntry(Entry e)
+    {
         entriesMap.put(e.getName(), e);
     }
     
 /** Implemented as specified by {@link Registry}.
  */
-    public Object lookup(String name) {
+    public Object lookup(String name)
+    {
         Entry entry = (Entry) entriesMap.get(name);
         return entry.getValue();
     }

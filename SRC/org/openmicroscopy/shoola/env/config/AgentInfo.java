@@ -34,20 +34,23 @@ package org.openmicroscopy.shoola.env.config;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
 
-class AgentInfo {
+class AgentInfo 
+{
     
     String                      name, path, agtClass;
     static final String         NAME = "name", 
                                 CLASS = "class", 
                                 CONFIG = "config";
-    void setValue(String value, String tag) {
+    void setValue(String value, String tag)
+    {
         try {
             if (tag.equals(NAME))           name = value;
             else if (tag.equals(CLASS))     agtClass = value;
@@ -59,23 +62,25 @@ class AgentInfo {
  *
  * @return the above mentioned
  */
-    String getName() {
+    String getName()
+    {
         return name;
     }
     
-/* return the value of the <codeclass</code> tag
+/* return the value of the <code>class</code> tag
  *
  *  @return the above mentioned
  */
-    String getAgentClass() {
+    String getAgentClass()
+    {
         return agtClass;
-    }
-    
-/* return the value of the <codeconfig</code> tag
+    }    
+/* return the value of the <code>config</code> tag
  *
  *  @return the above mentioned
  */
-    String getConfigPath() {
+    String getConfigPath()
+    {
         return path;
     }
 }

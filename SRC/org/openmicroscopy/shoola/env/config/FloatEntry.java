@@ -37,21 +37,25 @@ import org.w3c.dom.Node;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
 class FloatEntry
-    extends Entry {
+    extends Entry
+{
     
     private Float value;
-    FloatEntry() {
+    FloatEntry()
+    {
     }
 /** Implemented as specified by {@link Entry}.
  */  
-    protected void setContent(Node node) { 
+    protected void setContent(Node node)
+    { 
         try {
             Node child = node.getFirstChild(); // has only one child
             value = new Float(child.getNodeValue());
@@ -59,7 +63,8 @@ class FloatEntry
     }
 /** Implemented as specified by {@link Entry}.
  */  
-    Object getValue() {
+    Object getValue()
+    {
         return value; 
     }
     

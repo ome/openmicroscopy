@@ -43,26 +43,29 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /** In charge of parsing a configuration file, extracting entries 
-* (<code>entry</code> and <code>structuredEntry</code> tags) obtaining a <code>Entry</code> object
- * to represent each of those entries, adding the object to a given <code>RegistryImpl</code> object.
+ * (<code>entry</code> and <code>structuredEntry</code> tags) obtaining 
+ * a <code>Entry</code> object to represent each of those entries, adding 
+ * the object to a given <code>RegistryImpl</code> object.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
-class Parser {
+class Parser
+{
 
     private Document        document;
     private String          configFile;
     private String          configFileXMLSchema;
     private ArrayList       entriesTags;
     private RegistryImpl    registry;
-    //validate against the XMLschema: not yet implemented (no XMLSchema for configFile)
+    //validate against the XMLschema: not yet implemented 
     private boolean         validating = false; 
     // we only retrieve the content of the following tags
     static String[]         tagsEntry = {
@@ -74,7 +77,8 @@ class Parser {
  * @param configFile     configuration file (XML file)
  * @param registry      registryImpl         
  */
-    Parser(String configFile, RegistryImpl registry) { // ad
+    Parser(String configFile, RegistryImpl registry)
+    { 
         this.configFile = configFile;
         this.registry = registry;
     }
@@ -86,7 +90,8 @@ class Parser {
  * @param configFileXMLSchema   XML schema linked to XML configuration file
  * @param registry                      registryImpl
  */    
-    Parser(String configFile, String configFileXMLSchema, RegistryImpl registry) {
+    Parser(String configFile, String configFileXMLSchema, RegistryImpl registry)
+    {
         this.configFile = configFile;
         this.configFileXMLSchema = configFileXMLSchema;
         this.registry = registry;
@@ -96,7 +101,8 @@ class Parser {
 /* Parse the XML configuration file and build a DOM tree 
  * 
  */
-    private void parse() {
+    private void parse()
+    {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -119,7 +125,8 @@ class Parser {
 /* retrieves the content of the  entry and structuredEntry tags.
  * Stores the DOM representation i.e. DOM node into an arrayList
  */
-    private void readConfigEntries() {
+    private void readConfigEntries()
+    {
         entriesTags = new ArrayList();
         for (int k = 0; k<tagsEntry.length; ++k) {
             NodeList list = document.getElementsByTagName(tagsEntry[k]);
@@ -132,7 +139,8 @@ class Parser {
     }
 /* validate against the config schema not yet implemented
  */
-    private void validate() {
+    private void validate()
+    {
     }
     
     

@@ -34,13 +34,15 @@ package org.openmicroscopy.shoola.env.config;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
-class HostInfo {
+class HostInfo
+{
     
     String              host;
     Integer             port;
@@ -48,24 +50,26 @@ class HostInfo {
     
     void setValue(String value, String tag) {
         try {
-            if (tag.equals(PORT)) port = new Integer(value); // catch 
+            if (tag.equals(PORT)) port = new Integer(value);  
             else if (tag.equals(HOST)) host = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
 /* return the value of the <code>host</code>
  *
- *@return String
+ *@return the above mentioned
  */
-    String getHost() {
+    String getHost()
+    {
         return host;
     }
     
 /* return the value of the <code>port</code> tag
  *
- *@return Integer
+ *@return the above mentioned
  */
-    Integer getPort() {
+    Integer getPort()
+    {
         return port;
     }
    

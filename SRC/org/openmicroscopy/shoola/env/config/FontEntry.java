@@ -43,39 +43,44 @@ import org.w3c.dom.NodeList;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
 class FontEntry
-    extends Entry {
+    extends Entry
+{
     
     private HostInfo value;
-    FontEntry() {
+    FontEntry()
+    {
     }
     
 /** Implemented as specified by {@link Entry}.
  */  
     protected void setContent(Node node) { 
         try {
-            //the node is supposed to have tags as children, add control b/c we don't use yet a 
-            // XMLSchema config
+            //the node is supposed to have tags as children, add control
+            //b/c we don't use yet a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 FontInfo fi = new FontInfo();
                 for (int i = 0; i<childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType()==child.ELEMENT_NODE)  
-                        fi.setValue(child.getFirstChild().getNodeValue(), child.getNodeName()) ;
+                    if (child.getNodeType()==Node.ELEMENT_NODE)  
+                        fi.setValue(child.getFirstChild().getNodeValue(), 
+                                child.getNodeName()) ;
                 }   
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
 /** Implemented as specified by {@link Entry}.
  */  
-    Object getValue() {
+    Object getValue()
+    {
         return value; 
     }
     

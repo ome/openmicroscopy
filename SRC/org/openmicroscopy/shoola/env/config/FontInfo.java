@@ -35,13 +35,15 @@ package org.openmicroscopy.shoola.env.config;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
-class FontInfo {
+class FontInfo
+{
     
     String              family, style;
     Integer             size;
@@ -49,9 +51,10 @@ class FontInfo {
 
 /* 
  * @param value
- * @ tag
+ * @param tag
  */
-    void setValue(String value, String tag) {
+    void setValue(String value, String tag)
+    {
         try {
             if (tag.equals(FAMILY)) family = value;
             else if (tag.equals(SIZE)) size = new Integer(value);
@@ -62,21 +65,24 @@ class FontInfo {
  *
  * @return String
  */
-    String getFamily() {
+    String getFamily()
+    {
         return family;
     }
 /*  return the value of the <code>size</code>
  *
  * @return Integer
  */
-    Integer getSize() {
+    Integer getSize()
+    {
         return size;
     }
 /* return the value of the <code>style</code> 
  *
  * @return String
  */
-    String getStyle() {
+    String getStyle()
+    {
         return style;
     }
   

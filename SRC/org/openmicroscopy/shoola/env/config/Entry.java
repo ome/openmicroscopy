@@ -36,24 +36,27 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-/** Sits at the base of a hierarchy of classes that represent entries in configuration file
- * It represents a name-value pair, where the name is the content of the <code>name</code>
- * attribute.
- * Subclasses of <code>Entry</code> implement the <code>setContent()</code> method to grab the tag's
- * content which is then used for building the object returned by the implementation of 
- * <code>getValue()<code>
+/** Sits at the base of a hierarchy of classes that represent entries in 
+ * configuration file.
+ * It represents a name-value pair, where the name is the content of 
+ * the <code>name</code> attribute.
+ * Subclasses of <code>Entry</code> implement the <code>setContent()</code> 
+ * method to grab the tag's content which is then used for building the object
+ * returned by the implementation of <code>getValue()<code>
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
-abstract class Entry {
+abstract class Entry
+{
     
     static HashMap     contentHandlers;
     static String      NAME = "name", TYPE = "type";
@@ -74,21 +77,25 @@ abstract class Entry {
         contentHandlers.put("agents", AgentsEntry.class);
     }
     
-    private static class NameTypePair {
+    private static class NameTypePair
+    {
         String  name, type;
     }
     private String      name;
     
-/* For a given entry or structuredEntry tag, creates a concrete <code>Entry</code> object to
- * handle the conversion of the tag's content into an object
+/* For a given entry or structuredEntry tag, creates a concrete 
+ * <code>Entry</code> object to handle the conversion of the tag's content 
+ * into an object
  *
  * @param n             DOM node representing the tag
  * @return Entry                    
  */  
     
-    static Entry createEntryFor(Node node) {
+    static Entry createEntryFor(Node node)
+    {
         Entry entry = null;
-        if (node.hasAttributes()) { // to be removed when we have xmlSchema (config)
+        //to be removed when we have xmlSchema (config)
+        if (node.hasAttributes()) { 
             NameTypePair ntp = retrieveEntryAttributes(node);
             String key = null;
             if (node.getNodeName()==ENTRY) // entry tag
@@ -111,7 +118,8 @@ abstract class Entry {
  * @param n    DOM node
  * @return NameTypePair
  */    
-    private static NameTypePair retrieveEntryAttributes(Node n) {
+    private static NameTypePair retrieveEntryAttributes(Node n)
+    {
         NameTypePair    ntp = new NameTypePair();
         NamedNodeMap    list = n.getAttributes();
         try {
@@ -126,11 +134,13 @@ abstract class Entry {
         return ntp;
     }
     
-/* returns the content of the <code>name</code> attribute of a configuration entry
+/* returns the content of the <code>name</code> attribute 
+ * of a configuration entry
  *
  * @return String   the content of the <code>name</code> attribute
  */  
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
     
