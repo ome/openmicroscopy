@@ -3,7 +3,7 @@
   <title>Build Files</title>
 </head>
 <body>
-<p>The various build targets have been grouped in several categories &#151; this has 
+<p>The various build targets have been grouped in several categories -- this has 
   already been discussed in a previous <a href="build2.html">section</a>. All the 
   targets within a category are in the same build file which is a child to a master 
   build file that is used as an entry point to the build. All these build files are 
@@ -21,16 +21,16 @@
 <p>Finally, there's another Ant file under the <i>build</i> directory: <i>lib.xml</i>. 
   This is an <i>antlib</i> file which contains the definitions of custom tasks that 
   are used by the various build files. It also acts as a centralized place where all 
-  the dependencies to external libraries are documented &#151; by external library 
+  the dependencies to external libraries are documented -- by external library 
   we mean a library that doesn't ship with Ant and thus has to be made available to 
   the Ant runtime in order to run a build.</p>
 <p>The <i>build.xml</i> file is the master build file on which Ant is invoked. It 
-  is responsible for pulling the child files together at runtime &#151; this is done 
+  is responsible for pulling the child files together at runtime -- this is done 
   through <code>import</code> statements. The result is that the Ant runtime treats 
   all the imported targets and properties as if they belonged to a single build file, 
   which avoids the overhead of running sub-builds. The <i>lib.xml</i> file is the 
   first one to be imported, followed by the child build files in the same order in 
-  which they depend on each other &#151; because all those files are treated just 
+  which they depend on each other -- because all those files are treated just 
   as one at runtime, it's perfectly legal for a file to reference properties and targets 
   defined in another file as long a this latter file is imported first.</p>
 <p>All the child build files are required to follow the same conventions. Specifically, 

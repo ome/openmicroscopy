@@ -6,8 +6,6 @@
 <p>The following diagram illustrates how the code is organized into packages and points 
   out the various dependencies among the packages.</p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
-  <tr> 
-    <td height="40"><hr width="80%" align="center"/></td></tr>
   <tr>
     <td align="center"><img src="images/packages.gif" width="630" height="568" /></td>
   </tr>
@@ -20,8 +18,9 @@
     <td height="40"><hr width="80%" align="center"/></td></tr>
 </table>
 <p>&#160;</p>
+<p>&#160;</p>
 <div class="noteFrame">
-  <div class="noteLabel"><b>Issue</b>: Substitutability.</div>
+  <div class="noteLabel">Issue: Substitutability.</div>
   <div class="noteContent">This organization of the source code only allows for design-time 
     substitutability. That is, the Data Services Views is a logical component that 
     can be replaced during design by another logical component that conforms to the 
@@ -29,12 +28,13 @@
     in the shoola.jar and are embedded with the data services, we have no run-time 
     substitutability. This issue has to be considered when addressing the same substitutability 
     issue for the data services (should be factored out in a separate jar) and we'll 
-    have to decide on the granularity of physical components &#151; is the Data Services 
+    have to decide on the granularity of physical components -- is the Data Services 
     View going to be a separate jar from the Data Services or they will both end up 
     in the same jar?</div>
 </div>
+<p>&#160;</p>
 <div class="noteFrame">
-  <div class="noteLabel"><b>Issue</b>: Dependency on Swing.</div>
+  <div class="noteLabel">Issue: Dependency on Swing.</div>
   <div class="noteContent">The <code>BatchCallMonitor</code> uses <code>SwingUtilities</code> 
     to relay events within the UI thread. This dependency on Swing has to be removed, 
     obviously. In fact, this is something the <code>EventBus</code> should take care 

@@ -12,8 +12,6 @@
   reason, protected methods are exposed that can be used to remove those dependencies.</p>
 <p>This is detailed by the following diagram.</p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
-  <tr> 
-    <td height="40"><hr width="80%" align="center"/></td></tr>
   <tr>
     <td align="center"><img src="images/testability.gif" width="570" height="378" /></td>
   </tr>
@@ -28,7 +26,7 @@
 <p>Relying on this just described testing set-up also eases the task of testing the 
   calls package, but a little more work is usually required for that. In fact, concrete 
   <code>BatchCallTree</code> classes in the calls package use the parent's registry 
-  to access the data services, which depend on external resources &#151; OMEDS and OMEIS. 
+  to access the data services, which depend on external resources -- OMEDS and OMEIS. 
   However, the implementations of those services can easily be replaced with mocks 
   when the container is started in test mode.</p> 
 </body>

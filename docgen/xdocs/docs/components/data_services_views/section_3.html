@@ -5,7 +5,7 @@
 <body>
 <p>The Data Services Views component provides agents with specific views on the server 
   data. A data services view is a logical grouping of data and operations that serve 
-  a specific purpose &#151; for example to support dataset browsing by providing easy 
+  a specific purpose -- for example to support dataset browsing by providing easy 
   access to datasets, thumbnails, classifications, etc. A data services view is defined 
   by an interface that extends <code>DataServiceView</code> and consists of a collection 
   of asynchronous calls that operate on (possibly) large portions of a data model 
@@ -24,8 +24,6 @@
   dispatching thread, so agents won't have to deal with concurrency.</p>
 <p>All this is summarized by the specification compartment in the following diagram:</p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
-  <tr> 
-    <td height="40"><hr width="80%" align="center"/></td></tr>
   <tr>
     <td align="center"><img src="images/overview.gif" width="560" height="589" /></td>
   </tr>
@@ -45,7 +43,7 @@
   The call's invoker specifies a listener to de-multiplex and process events generated 
   by the asynchronous computation [<b>Pattern</b>: <i>Asynchronous Completion Token</i>]. 
   The controller returns immediately a call handle to the invoker so that execution 
-  can be cancelled &#151; the invoker is now free to proceed. As the computation develops, 
+  can be cancelled -- the invoker is now free to proceed. As the computation develops, 
   an execution monitor captures execution events and relays them to the specified 
   listener [<b>Pattern</b>: <i>Observer</i>]. The monitor performs some adaptation 
   to transform the original execution events in a form suitable for the listener [<b>Pattern</b>: 
