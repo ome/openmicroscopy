@@ -64,6 +64,11 @@ public class BIcon extends PNode
     protected BrowserAction rightAction;
     
     /**
+     * The action to be executed when a mouseover occurs.
+     */
+    protected BrowserAction mouseOverAction;
+    
+    /**
      * The presentation (viewable) node... this is kept separate so an
      * icon can be either text, a glyph, or an image.
      */
@@ -93,6 +98,20 @@ public class BIcon extends PNode
     }
     
     /**
+     * Constructs an icon with a predefined node.  Overrides
+     * click behavior for the child node.  In this manner,
+     * supports image+text icons and glyph-based icons.
+     * 
+     * @param childNode
+     */
+    public BIcon(PNode childNode)
+    {
+        this.presentationNode = childNode;
+        addChild(presentationNode);
+        presentationNode.setOffset(0,0);
+    }
+    
+    /**
      * Sets the action that occurs whenever a user left-clicks on the icon
      * to the specified response.
      * @param action What should happen when the user left-clicks the icon.
@@ -100,6 +119,7 @@ public class BIcon extends PNode
     public void setLeftClickAction(BrowserAction action)
     {
         this.leftAction = action;
+        // TODO: change event handler
     }
     
     /**
@@ -110,5 +130,17 @@ public class BIcon extends PNode
     public void setRightClickAction(BrowserAction action)
     {
         this.rightAction = action;
+        // TODO: change event handler
+    }
+    
+    /**
+     * Sets the action that occurs whenever a user mouses over the icon to
+     * the specified response.
+     * @param action What should happen when the user mouses over the icon.
+     */
+    public void setMouseOverAction(BrowserAction action)
+    {
+        this.mouseOverAction = action;
+        // TODO: change event handler
     }
 }
