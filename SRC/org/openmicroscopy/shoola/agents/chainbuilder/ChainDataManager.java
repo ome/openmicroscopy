@@ -41,6 +41,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -57,12 +58,14 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
+import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
@@ -86,8 +89,15 @@ public class ChainDataManager extends DataManager {
 
 		
 	protected HashMap chainHash=null;
-		
-	protected HashMap chainExecutionHash = null;
+	
+	/** hash executions by id */
+	protected HashMap chainExecutionHashesByID = null;
+	
+	/** hash executions by dataset id */
+	protected HashMap executionsByDatasetID = null;
+	
+	/** hash executions by chain id */
+	protected HashMap executionsByChainID = null;
 	
 	/** a list of analysis nodes. populated when we get chains */
 	protected HashMap analysisNodes = null;
@@ -211,8 +221,8 @@ public class ChainDataManager extends DataManager {
 	public synchronized Collection getChainExecutions() {
 		
 		// if we're done, go for it.
-		if (chainExecutionHash != null && chainExecutionHash.size() > 0) {
-			return chainExecutionHash.values();
+		if (chainExecutionHashesByID != null && chainExecutionHashesByID.size() > 0) {
+			return chainExecutionHashesByID.values();
 		}
 		
 		if (gettingChains == false) {
@@ -221,12 +231,12 @@ public class ChainDataManager extends DataManager {
 			retrieveChainExecutions();
 			gettingExecutions = false;
 			notifyAll();
-			return chainExecutionHash.values();
+			return chainExecutionHashesByID.values();
 		}
 		else {// in progress
 			try{ 
 				wait();
-				return chainExecutionHash.values();
+				return chainExecutionHashesByID.values();
 			}
 			catch (InterruptedException e) {
 				return null;
@@ -234,7 +244,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	public synchronized void retrieveChainExecutions() {
-		if (chainExecutionHash == null ||chainExecutionHash.size() == 0) {
+		if (chainExecutionHashesByID == null ||chainExecutionHashesByID.size() == 0) {
 			try {
 				ChainExecutionData ceProto = new ChainExecutionData();
 				BrowserDatasetData dsProto = new BrowserDatasetData();
@@ -247,7 +257,10 @@ public class ChainDataManager extends DataManager {
 				Collection chainExecutions = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
 							acProto,neProto,anProto,mProto,meProto);
-				chainExecutionHash = buildExecutionHash(chainExecutions);
+				buildExecutionHashes(chainExecutions);
+				ChainExecutionsLoadedEvent event = new
+					ChainExecutionsLoadedEvent(executionsByDatasetID);
+				registry.getEventBus().post(event);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
@@ -262,22 +275,60 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected HashMap buildExecutionHash(Collection executions) {
-		HashMap map = new HashMap();
+	protected void buildExecutionHashes(Collection executions) {
+		chainExecutionHashesByID = new HashMap();
+		executionsByDatasetID = new HashMap();
+		executionsByChainID = new HashMap();
 		Iterator iter = executions.iterator();
 		while (iter.hasNext()) {
+			
+			// hash by execution id
 			ChainExecutionData p = (ChainExecutionData) iter.next();
 			Integer id = new Integer(p.getID());
-			map.put(id,p);
+			chainExecutionHashesByID.put(id,p);
+			
+			// by dataset id
+			
+			DatasetData d = p.getDataset();
+			id = new Integer(d.getID());
+			updateExecutionHash(executionsByDatasetID,id,p);
+			
+			LayoutChainData c = (LayoutChainData) p.getChain();
+			id = new Integer(c.getID());
+			updateExecutionHash(executionsByChainID,id,p);
 		}
-		return map;
 	}
 	
-	public ChainExecutionData getChainExecution(int id) {
+	private void updateExecutionHash(HashMap map, Integer id,ChainExecutionData p) {
+		ArrayList execs = null;
+		Object obj = map.get(id);
+		if (obj == null)
+			execs = new ArrayList();
+		else
+			execs = (ArrayList) obj;
+		execs.add(p);
+		map.put(id,execs);
+	}
+	
+	public ChainExecutionData getChainExecutionByID(int id) {
 		Integer ID = new Integer(id);
-		if (chainExecutionHash == null)
+		if (chainExecutionHashesByID == null)
 			getChainExecutions();
-		return (ChainExecutionData) chainExecutionHash.get(ID);
+		return (ChainExecutionData) chainExecutionHashesByID.get(ID);
+	}
+	
+	public Collection getChainExecutionsByDatasetID(int id) {
+		Integer ID = new Integer(id);
+		if (executionsByDatasetID == null)
+			getChainExecutions();
+		return (Collection) executionsByDatasetID.get(ID);
+	}
+	
+	public Collection getChainExecutionsByChainID(int id) {
+		Integer ID = new Integer(id);
+		if (executionsByChainID == null)
+			getChainExecutions();
+		return (Collection) executionsByChainID.get(ID);
 	}
 	
 	public void setAnalysisNodes(HashMap analysisNodes) {
