@@ -62,11 +62,27 @@ public class CategoryData
 {
 
     private int                     id;
+    
+    /** Category's name. */
     private String                  name;
+    
+    /** Category's description. */
     private String                  description;
+    
+    /** 
+     * Classifications map. 
+     * key: {@link ImageSummary}
+     * value: {@link Classification}.
+     */
     private Map                     classifications;
+    
+    /** 
+     * {@link CategoryGroupData} object corresponding to the 
+     * CategoryGroup containing the Category. 
+     */
     private CategoryGroupData       categoryGroupData;
     
+    /** Empty constructor. */
     public CategoryData() {}
     
     public CategoryData(int id, String name, String description, 
@@ -119,12 +135,15 @@ public class CategoryData
         return ((ClassificationData) classifications.get(is)).getConfidence();
     }
     
+    /** 
+     * Return a list of {@link ImageSummary images} 
+     * classified in the category.
+     */
     public List getImages()
     { 
         List images = new ArrayList();
         if (classifications != null) {
             Iterator k = classifications.keySet().iterator();
-            
             while (k.hasNext())
                 images.add(((ImageSummary) k.next()).copyObject());  
         }
