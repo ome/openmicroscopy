@@ -56,36 +56,61 @@ public interface MouseDownSensitive
      * a mouse press (down) event.
      * @return The action associated with mouse down.
      */
-    public BrowserAction getPressBrowserAction();
+    public PiccoloAction getPressBrowserAction();
     
     /**
      * Get the action to be executed (if any exists) when the node catches
      * a mouse release (up) event.
      * @return The action associated with mouse up.
      */
-    public BrowserAction getReleaseBrowserAction();
+    public PiccoloAction getReleaseBrowserAction();
     
     /**
      * Get the action to be executed (if any exists) when the node catches
      * a mouse click event.
      * @return The action associated with a mouse click.
      */
-    public BrowserAction getClickBrowserAction();
+    public PiccoloAction getClickBrowserAction();
     
     /**
      * Sets the action to be executed when the node catches a mouse down
      * event.
-     * @param action
+     * 
+     * @param action The action associated with a mouse press.
      */
-    public void setPressBrowserAction(BrowserAction action);
+    public void setPressBrowserAction(PiccoloAction action);
     
-    public void setReleaseBrowserAction(BrowserAction action);
+    /**
+     * Sets the action to be executed when the node catches a mouse up
+     * event.
+     * 
+     * @param action The action associated with a mouse release.
+     */
+    public void setReleaseBrowserAction(PiccoloAction action);
     
-    public void setClickBrowserAction(BrowserAction action);
+    /**
+     * Sets the action to be executed when the node catches a mouse click
+     * event.
+     * 
+     * @param action The action associated with an atomic mouse click.
+     */
+    public void setClickBrowserAction(PiccoloAction action);
     
+    /**
+     * Respond to the mouse press.
+     * @param event The event parameters.
+     */
     public void mousePressed(PInputEvent event);
     
+    /**
+     * Respond to the mouse release.
+     * @param event The event parameters.
+     */
     public void mouseReleased(PInputEvent event);
     
+    /**
+     * Respond to the mouse click.
+     * @param event The event parameters.
+     */
     public void mouseClicked(PInputEvent event);
 }

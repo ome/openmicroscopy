@@ -35,11 +35,9 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
-import edu.umd.cs.piccolo.event.PInputEvent;
-
 /**
- * Specifies an action within the browser framework.  This may be changed or
- * amended later.  Will likely be triggered by overlay nodes.
+ * Specifies an action within the browser framework.  The action is performed
+ * independently of the source.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
