@@ -96,51 +96,46 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
      */
     public List getAvailableGlobalTypes()
         throws DSOutOfServiceException, DSAccessException
     {
-        // TODO flesh out this method
-        return null;
+        Criteria criteria = buildRetrieveTypeCriteria(GLOBAL_GRANULARITY);
+        return (List)retrieveListData(SemanticType.class,criteria);
     }
     
     /**
-     * TODO write documentation
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableDatasetTypes()
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
      */
     public List getAvailableDatasetTypes()
         throws DSOutOfServiceException, DSAccessException
     {
-        // TODO flesh out this method
-        return null;
+        Criteria criteria = buildRetrieveTypeCriteria(DATASET_GRANULARITY);
+        return (List)retrieveListData(SemanticType.class,criteria);
     }
     
     /**
-     * TODO write documentation
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableImageTypes()
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
      */
     public List getAvailableImageTypes()
         throws DSOutOfServiceException, DSAccessException
     {
-        // TODO flesh out this method
-        return null;
+        Criteria criteria = buildRetrieveTypeCriteria(IMAGE_GRANULARITY);
+        return (List)retrieveListData(SemanticType.class,criteria);
     }
     
     /**
-     * TODO write documentation
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableFeatureTypes()
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
      */
     public List getAvailableFeatureTypes()
         throws DSOutOfServiceException, DSAccessException
     {
-        // TODO flesh out this method
-        return null;
+        Criteria criteria = buildRetrieveTypeCriteria(FEATURE_GRANULARITY);
+        return (List)retrieveListData(SemanticType.class,criteria);
     }
     
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public int countDatasetAttributes(SemanticType type, int datasetID)
@@ -151,8 +146,7 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public int countImageAttributes(SemanticType type, int imageID)
         throws DSOutOfServiceException, DSAccessException
@@ -162,8 +156,7 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public int countFeatureAttributes(SemanticType type, int featureID)
         throws DSOutOfServiceException, DSAccessException
@@ -173,7 +166,6 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveDatasetAttributes(SemanticType type, int datasetID)
@@ -185,7 +177,6 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveImageAttributes(SemanticType type, int imageID)
@@ -197,7 +188,6 @@ class STSAdapter
     }
     
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveFeatureAttributes(SemanticType type, int featureID)
@@ -209,7 +199,6 @@ class STSAdapter
     }
 
     /**
-     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAttribute(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public Attribute retrieveAttribute(SemanticType type, int attributeID)
@@ -324,6 +313,43 @@ class STSAdapter
     }
     
     /**
+     * Loads the objects defined by the criteria (there is the same call
+     * in DMSAdapter, but it fits well here)
+     * 
+     * @param typeClass The class of object to retrieve.
+     * @param criteria The criteria to search by.
+     * @return All objects of the specified type that adhere to the
+     *         specified criteria.
+     * @throws DSOutOfServiceException If the connection is broken, or if the
+     *                                 user isn't logged in.
+     * @throws DSAccessException If a server communication error occurs.
+     */
+    private Object retrieveListData(Class typeClass, Criteria criteria)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Object retVal = null;
+        
+        try
+        {
+            retVal = proxy.retrieveList(typeClass, criteria);
+        }
+        catch(RemoteConnectionException rce)
+        {
+            throw new DSOutOfServiceException("Can't connect to OMEDS",rce);
+        }
+        catch(RemoteAuthenticationException rae)
+        {
+            throw new DSOutOfServiceException("Not logged in",rae);
+        }
+        catch(RemoteServerErrorException rsee)
+        {
+            throw new DSAccessException("Can't retrieve data",rsee);
+        }
+        
+        return retVal;
+    }
+    
+    /**
      * Returns a Criteria object which contains the amount of information
      * required to call <code>count()</code>: that is, the granularity of
      * the attribute desired and the target ID.
@@ -408,6 +434,45 @@ class STSAdapter
         {
             criteria.addFilter(GLOBAL_KEY, new Integer(targetID));
         }
+        return criteria;
+    }
+    
+    /**
+     * Returns a Criteria object which will extract the appropriate amount
+     * of information to get SemanticTypes.  Passing null will form the
+     * Criteria to get all SemanticTypes.
+     * 
+     * @param granularity The granularity of semantic types to get.
+     * @return An appropriate Criteria object.
+     */
+    private Criteria buildRetrieveTypeCriteria(String granularity)
+    {
+        if(granularity == null)
+        {
+            return new Criteria();
+        }
+        Criteria criteria = new Criteria();
+        
+        criteria.addWantedField("id");
+        criteria.addWantedField("name");
+        criteria.addWantedField("description");
+        
+        criteria.addWantedField("elements");
+        criteria.addWantedField("elements","id");
+        criteria.addWantedField("elements","name");
+        criteria.addWantedField("elements","description");
+        criteria.addWantedField("elements","data_column");
+        
+        criteria.addWantedField("elements.data_column","id");
+        criteria.addWantedField("elements.data_column","column_name");
+        criteria.addWantedField("elements.data_column","sql_type");
+        criteria.addWantedField("elements.data_column","reference_type");
+        criteria.addWantedField("elements.data_column","data_table");
+        
+        criteria.addWantedField("elements.data_column.data_table","id");
+        criteria.addWantedField("elements.data_column.data_table","table_name");
+        
+        criteria.addFilter("granularity",granularity);
         return criteria;
     }
 }
