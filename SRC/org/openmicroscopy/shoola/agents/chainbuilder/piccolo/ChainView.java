@@ -369,7 +369,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 			linkLayer.addChild(newLinkNode);
 			// create the module link between the two modules
 			ModuleLink modLink = getModuleLink(linkLayer,newLinkNode);
-			if (from.getLayer() > (to.getLayer()+1))
+			if (from.getLayer() > (to.getLayer()+1)) 
 				adjustLink(link,from,to,newLinkNode,modLink);
 			adjustVerticalExtents(newLinkNode.getGlobalFullBounds());
 			adjustVerticalExtents(modLink.getGlobalFullBounds());
@@ -417,13 +417,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	 * @param j index of the new point to be added. (1 for the first point,
 	 * 	then 2, etc.
 	 */
-	private void adjustLink(LayoutLinkData LayoutLinkData,LayoutNodeData from,LayoutNodeData to,
+	private void adjustLink(LayoutLinkData layoutLinkData,LayoutNodeData from,LayoutNodeData to,
 			ParamLink link, ModuleLink modLink,int i, int j) {
 		
 		
 		//find appropriate node
 		//System.err.println("...adjusting link at position "+j);
-		GraphLayoutNode node = LayoutLinkData.getIntermediateNode(j);
+		GraphLayoutNode node = layoutLinkData.getIntermediateNode(j);
 		ModuleView mod = node.getModuleView();
 	
 		float xpos = nodeLayers.getXPosition(i);//?
