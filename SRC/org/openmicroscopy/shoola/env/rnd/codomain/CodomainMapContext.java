@@ -67,7 +67,7 @@ public abstract class CodomainMapContext
 	 * @param intervalStart	Lower bound of the codomain interval.
 	 * @param intervalEnd	Upper bound of the codomain interval.
 	 */
-	void setCodomain(int intervalStart, int intervalEnd)
+	public void setCodomain(int intervalStart, int intervalEnd)
 	{
 		this.intervalStart = intervalStart;
 		this.intervalEnd = intervalEnd;
