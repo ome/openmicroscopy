@@ -30,10 +30,11 @@
 package org.openmicroscopy.shoola.agents.zoombrowser;
 
 //Java imports
-import java.awt.Component;
+import java.awt.Container;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+
 
 
 //Third-party libraries
@@ -41,10 +42,6 @@ import javax.swing.JSplitPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.ProjectSelectionCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.
@@ -66,7 +63,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
  * </smalbl>
  * @since OME2.2
  */
-public class MainWindow extends TopWindow implements ContentGroupSubscriber
+public class MainWindow extends TopWindow implements ComponentListener
 {
 	
 	/** horizontal extent */
@@ -77,9 +74,9 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 	
 	/** Cached reference to access the icons. */
 	private IconFactory icons;
-			
-	/** The split pane in the window. */
-	private JSplitPane split;
+		
+	/** contents container */
+	private Container contents;
 	
 	/** canvases contained in this window */
 	private DatasetBrowserCanvas datasetBrowser;
@@ -97,36 +94,32 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 	}
 	
 	/** Builds and lays out this window. */
-	private void buildGUI()
+	public void buildGUI()
 	{
-		JPanel framePanel = new JPanel();
-		framePanel.setLayout(new BoxLayout(framePanel,BoxLayout.Y_AXIS));
+		contents = getContentPane();
+		contents.setLayout(new BoxLayout(contents,BoxLayout.Y_AXIS));
 		
 		
 			
 		// create datasets, etc here.
 		datasetBrowser = new DatasetBrowserCanvas(this);		
 		projectBrowser = new ProjectSelectionCanvas(this);
-		ContentGroup group = new ContentGroup(this);
 		
-		final DatasetLoader dl = new DatasetLoader(dataManager,datasetBrowser,group);
-		final ProjectLoader pl = new ProjectLoader(dataManager,projectBrowser,group);
-		group.setAllLoadersAdded();
+		datasetBrowser.setContents(dataManager.getDatasets());
+		datasetBrowser.layoutContents();
+		projectBrowser.setContents(dataManager.getProjects());
+		projectBrowser.layoutContents();
+		datasetBrowser.completeInitialization();
+		projectBrowser.completeInitialization();
 		
-		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,projectBrowser,
-					datasetBrowser);
-		split.setOneTouchExpandable(true);
-		split.setResizeWeight(0.33);
-		split.setAlignmentX(Component.CENTER_ALIGNMENT);
-		framePanel.add(split);
 		
-		// else, do something reasonable when no projects
-		getContentPane().add(framePanel);
+		contents.add(projectBrowser);
+		contents.add(datasetBrowser);
+		
+		addComponentListener(this);
+		enableButtons(true);
 	}
 	
-	public void contentComplete() {
-		//enableButtons(true);
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -145,12 +138,12 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 		
 		configureDisplayButtons();
 		//enableButtons(false);
-		buildGUI();
+		//buildGUI();
 	}
-	
-	public void setDividerLocation(int h) {
-		if (split != null)
-			split.setDividerLocation(h);
+		
+	public void setToPreferredSizes() {
+		pack();
+		setResizable(false);
 	}
 
 	public void setRolloverProject(BrowserProjectSummary proj) {
@@ -167,5 +160,19 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 	
 	public void setSelectedDataset(BrowserDatasetSummary dataset) {
 		projectBrowser.setSelectedDataset(dataset);
+	}
+	
+	public void componentHidden(ComponentEvent e) {
+	}
+	
+	public void componentMoved(ComponentEvent e) {
+	}
+	
+	public void componentResized(ComponentEvent e) {
+	}
+	
+	public void componentShown(ComponentEvent e) {
+		if (datasetBrowser != null)
+			datasetBrowser.scaleToSize();
 	}
 }
