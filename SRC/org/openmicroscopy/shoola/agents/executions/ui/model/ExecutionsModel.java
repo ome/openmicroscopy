@@ -67,8 +67,9 @@ public class ExecutionsModel {
 	//private LinkedHashMap execsByDataset;
 	//private LinkedHashMap execsByChain;
 	private Collection sortedExecs;
-	private BoundedLongRangeModel model= null;
+
 	
+	private LongRangeSlider slider;
 	
 	private GridModel gm;
 	
@@ -76,44 +77,33 @@ public class ExecutionsModel {
 	
 	public ExecutionsModel(LoadChainExecutionsEvent event) {
 		chainExecutions = event.getChainExecutions();
-		//this.execsByDataset = event.getChainExecutionsByDatasetID();
-		//this.execsByChain = event.getChainExecutionsByChainID();		
 		sortedExecs = chainExecutions.getExecutions();
+		long start = chainExecutions.getStartTime();
+		long end = chainExecutions.getEndTime();
+		slider = new LongRangeSlider(start,end);
 	}
 	
 	public int size() {
 		return sortedExecs.size();
 	}
 	
-	public BoundedLongRangeModel getRangeModel() {
-		if (model == null) {
-			long start = chainExecutions.getStartTime();
-			long end = chainExecutions.getEndTime();
-			model= new BoundedLongRangeModel(start,end);
-		}
-		return model;
+	public LongRangeSlider getSlider() {
+		return slider;
 	}
 	
 	public GridModel getGridModel() {
-		if (model == null)
-			model = getRangeModel();
 		if (gm == null) {
-			gm = new GridModel(this,model.getMinimum(),model.getMaximum(),
+			gm = new GridModel(this,slider.getMinimum(),slider.getMaximum(),
 					getLastRowIndex());
-			model.addListener(gm);
+			slider.addListener(gm);
 		}
 		return gm;
 	}
 	
-	public LongRangeSlider getSlider() {
-		return new LongRangeSlider(getRangeModel());
-	}
-	
-	
 	public void resetRangeProperties() {
 		long start = chainExecutions.getStartTime();
 		long end = chainExecutions.getEndTime();
-		model.reset();
+		slider.reset();
 	}
 
 	public int getChainCount() {
@@ -201,11 +191,11 @@ public class ExecutionsModel {
 
 	
 	public void addChangeListener(ChangeListener listener) {
-		model.addListener(listener);
+		slider.addListener(listener);
 	}
 	
 	public boolean isInRange(long time) {
-		return model.isInRange(time);
+		return slider.isInRange(time);
 	}
 }
 

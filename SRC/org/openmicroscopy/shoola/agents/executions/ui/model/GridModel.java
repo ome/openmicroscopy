@@ -47,6 +47,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.executions.ui.AxisHash;
 import org.openmicroscopy.shoola.agents.executions.ui.AxisRowDecoration;
 import org.openmicroscopy.shoola.agents.executions.ui.ExecutionsCanvas;
+import org.openmicroscopy.shoola.agents.executions.ui.LongRangeSlider;
 import org.openmicroscopy.shoola.util.ui.Constants;
 /** 
 * A model of the mapping between values in a set of executions 
@@ -397,9 +398,9 @@ public class GridModel implements ChangeListener {
 	
 	public void stateChanged(ChangeEvent e) {
 		Object o = e.getSource();
-		if (!(o instanceof BoundedLongRangeModel))
+		if (!(o instanceof LongRangeSlider))
 			return;
-		BoundedLongRangeModel blrm = (BoundedLongRangeModel) o;
+		LongRangeSlider blrm = (LongRangeSlider) o;
 		setExtent(blrm.getStart(),blrm.getEnd());
 		if (canvas != null)
 			canvas.repaint();

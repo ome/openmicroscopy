@@ -19,9 +19,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+
 import javax.swing.JComponent;
 
-import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
 import org.openmicroscopy.shoola.util.ui.Constants;
 /**
  * Implements a Swing-based Range slider, which allows the user to enter a
@@ -31,7 +32,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * @version $Revision$
  */
 public class LongRangeSlider extends JComponent implements MouseListener,
-	MouseMotionListener, ChangeListener {
+	MouseMotionListener {
 	private static int PICK_WIDTH = 6;
 	private static int pickWidth = PICK_WIDTH;
 	static int SZ = 0; // Size of the cutout corner on the range bar.
@@ -43,7 +44,6 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	static final int PICK_MAX = 2;
 	// Event handling
 	static final int PICK_MID = 4;
-	private BoundedLongRangeModel model;
 	private boolean enabled = false;
 	// PAINT METHOD
 	int[] xPts = new int[7];
@@ -53,23 +53,34 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	int pickOffset;
 	int mouseX;
 	// PUBLIC API
-	private static long time;
-	private static int count;
-	private long start;
-	
-	private static long paintTime;
-	private static long dragTime=0;
 
+	// listeners
+	private EventListenerList listeners = new EventListenerList();
+	private transient ChangeEvent changeEvent = null;
 	
+	// the values of the range
+	private long start = 0;
+	private long end = 0;
+	private long min = 0;
+	private long max  = 100;
+	private boolean adjusting =false;
 	/**
 	 * Creates a new LongRangeSlider object.
 	 * 
-	 * @param model
-	 *            the BoundedLongRangeModel.
+	 * @param min ,max the min and max values for the slider.
 	 */
-	public LongRangeSlider(BoundedLongRangeModel model) {
-		this.model = model;
-		model.addListener(this);
+	
+	
+	public LongRangeSlider(long min,long max) {
+		 if (max >= min) {
+            this.start = min;
+            this.end = max;
+            this.min = min;
+            this.max = max;
+        }
+        else {
+            throw new IllegalArgumentException("invalid range properties");
+        }
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -80,8 +91,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * 
 	 * @return the current "low" value shown by the range slider's bar.
 	 */
-	public long getLowValue() {
-		return model.getStart();
+	public long getStart() {
+		return start;
 	}
 	/**
 	 * Returns the current "high" value shown by the range slider's bar. The
@@ -90,8 +101,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * 
 	 * @return the current "high" value shown by the range slider's bar.
 	 */
-	public long getHighValue() {
-		return model.getEnd();
+	public long getEnd() {
+		return end;
 	}
 	/**
 	 * Returns the minimum possible value for either the low value or the high
@@ -101,7 +112,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *         value.
 	 */
 	public long getMinimum() {
-		return model.getMinimum();
+		return min;
 	}
 	/**
 	 * Returns the maximum possible value for either the low value or the high
@@ -111,7 +122,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *         value.
 	 */
 	public long getMaximum() {
-		return model.getMaximum();
+		return max;
 	}
 	/**
 	 * Returns true if the specified value is within the range indicated by
@@ -122,9 +133,9 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * 
 	 * @return true if the specified value is within the range indicated by
 	 *         this range slider.
-	 */
-	public boolean contains(long v) {
-		return (v >= getLowValue() && v <= getHighValue());
+	 */	
+	public boolean isInRange(long v) {
+		return (v >= start && v <= end);
 	}
 	/**
 	 * Sets the low value shown by this range slider. This causes the range
@@ -134,7 +145,9 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *            the low value shown by this range slider
 	 */
 	public void setLowValue(long lowValue) {
-		model.setStart(lowValue);
+		if (lowValue < min)
+			lowValue=min;
+		update(lowValue,end,adjusting);
 	}
 	/**
 	 * Sets the high value shown by this range slider. This causes the range
@@ -144,7 +157,13 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *            the high value shown by this range slider
 	 */
 	public void setHighValue(long highValue) {
-		model.setEnd(highValue);
+		if (highValue > max)
+			highValue = max;
+		update(start,highValue,adjusting);
+	}
+	
+	public void reset() {
+		update(min,max,false);
 	}
 	
 	Rectangle getInBounds() {
@@ -171,8 +190,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		Rectangle rect = getInBounds();
 		g.setColor(Constants.CANVAS_BACKGROUND_COLOR);
 		g.fill3DRect(rect.x, rect.y, rect.width, rect.height, false);
-		int minX = toScreenX(getLowValue());
-		int maxX = toScreenX(getHighValue());
+		int minX = toScreenX(start);
+		int maxX = toScreenX(end);
 		if ((maxX - minX) > 10) {
 			xPts[0] = minX;
 			yPts[0] = rect.y + SZ;
@@ -252,8 +271,6 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 			pickWidth = (int) ((maxX - minX) / 3);
 		}
 		setToolTipText("LongRangeSlider");
-		long end = System.currentTimeMillis();
-		paintTime+=end-paintStart;
 	}
 	// Converts from screen coordinates to a range value.
 	private long toLocalX(int x) {
@@ -268,8 +285,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		return (int) ((x - getMinimum()) * xScale + getInsets().left);
 	}
 	private int pickHandle(int x) {
-		int minX = toScreenX(getLowValue());
-		int maxX = toScreenX(getHighValue());
+		int minX = toScreenX(start);
+		int maxX = toScreenX(end);
 		int pick = 0;
 		if (Math.abs(x - minX) < PICK_WIDTH) {
 			pick |= PICK_MIN;
@@ -288,16 +305,22 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	
 	
 	public int getLeftXCoord() {
-		return toScreenX(model.getStart());
+		return toScreenX(getStart());
 	}
 	
 	public int getRightXCoord() {
-		return toScreenX(model.getEnd());
+		return toScreenX(getEnd());
 	}
 	
 	private void offset(long dx)
 	{
-		model.offset(dx);
+		long newStart = start+dx;
+		long newEnd = end+dx;
+		if (newStart < min)
+			newStart = min;
+		if (newEnd > max)
+			newEnd = max;
+		update(newStart,newEnd,adjusting);	
 	}
 	/**
 	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
@@ -308,9 +331,9 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		}
 	
 		pick = pickHandle(e.getX());
-		pickOffset = e.getX() - toScreenX(getLowValue());
+		pickOffset = e.getX() - toScreenX(start);
 		mouseX = e.getX();
-		model.setAdjusting(true);
+		adjusting = true;
 	}
 	/**
 	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
@@ -319,9 +342,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		if (enabled == false) {
 			return;
 		}
-		start = System.currentTimeMillis();
-		long dragStart = System.currentTimeMillis();
-	
+		
 		long x = toLocalX(e.getX());
 		if (x < getMinimum()) {
 			x = getMinimum();
@@ -340,38 +361,34 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		}
 		switch (pick) {
 			case PICK_MIN :
-				if (x < getHighValue()) {
+				if (x < end) {
 					setLowValue(x);
 				}
 				break;
 			case PICK_MAX :
-				if (x > getLowValue()) {
+				if (x > start) {
 					setHighValue(x);
 				}
 				break;
 			case PICK_MID :
-				long dx = toLocalX(e.getX() - pickOffset) - getLowValue();
-				if ((dx < 0) && ((getLowValue() + dx) < getMinimum())) {
-					dx = getMinimum() - getLowValue();
+				long dx = toLocalX(e.getX() - pickOffset) - start;
+				if ((dx < 0) && ((start + dx) < getMinimum())) {
+					dx = getMinimum() - start;
 				}
-				if ((dx > 0) && ((getHighValue() + dx) > getMaximum())) {
-					dx = getMaximum() - getHighValue();
+				if ((dx > 0) && ((end + dx) > getMaximum())) {
+					dx = getMaximum() - end;
 				}
 				if (dx != 0) {
 					offset(dx);
 				}
 				break;
 		}
-		long dragEnd = System.currentTimeMillis();
-		dragTime += dragEnd-dragStart;
-		count++;
-		time += dragEnd - start;
 	}
 	/**
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {
-		model.setAdjusting(false);
+		adjusting = false;
 		
 	}
 	private void setCurs(int c) {
@@ -408,9 +425,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 */
 	public void mouseClicked(MouseEvent e) {
 		if (e.getClickCount() == 2) {
-			model.setStart(model.getMinimum());
-			model.setEnd(model.getMaximum());
-			repaint();
+			reset();
 		}
 	}
 	/**
@@ -444,42 +459,55 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		enabled = v;
 		repaint();
 	}
-	/**
-	 * @see javax.swing.event.ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e) {
-		repaint();
-	}
-	/**
-	 * Returns the sizeModel.
-	 * 
-	 * @return BoundedLongRangeModel
-	 */
-	public BoundedLongRangeModel getModel() {
-		return model;
-	}
-	/**
-	 * Sets the sizeModel.
-	 * 
-	 * @param model
-	 *            The BoundedLongRangeModel to set
-	 */
-	public void setModel(BoundedLongRangeModel model) {
-		this.model = model;
-		repaint();
-	}
+	
+	
+	private void update(long newStart, long newEnd, boolean adjusting) {
+    		if (newStart < min)
+    			newStart = min;
+    		
+    		if (newEnd > max)
+    			newEnd = max;
+    
+        if (newEnd < newStart) 
+            newEnd = newStart;
+
+        boolean changed =
+            (newStart != start) ||
+            (newEnd != end) ||
+            (this.adjusting != adjusting);
+
+        if (changed) {
+            start = newStart;
+            end = newEnd;
+            this.adjusting = adjusting;
+            repaint();
+            fireChange();
+        }
+    }
+	
+
+	public void addListener(ChangeListener l) {
+        listeners.add(ChangeListener.class, l);
+    }
+
+    private void fireChange() 
+    {
+        Object[] targets = listeners.getListenerList();
+        for (int i = targets.length - 2; i >= 0; i -=2 ) {
+            if (targets[i] == ChangeListener.class) {
+                if (changeEvent == null) {
+                    changeEvent = new ChangeEvent(this);
+                }
+                ((ChangeListener)targets[i+1]).stateChanged(changeEvent);
+            }          
+        }
+    }   
+	
 	/**
 	 * @see javax.swing.JComponent#getToolTipText(MouseEvent)
 	 */
 	public String getToolTipText(MouseEvent event) {
-		return "[" + getMinimum() + " [" + getLowValue() + ":" + getHighValue()
+		return "[" + getMinimum() + " [" + start + ":" + end
 		+ "] " + getMaximum() + "]";
-	}
-	public static void dumpTimes() {
-		double ave = (double) time / (double) count;
-		System.err.println("in range slider total time " + time + ", count "
-				+ count + "ave " + ave);
-		System.err.println("paint time "+paintTime);
-		System.err.println("drag time "+dragTime);
 	}
 }
