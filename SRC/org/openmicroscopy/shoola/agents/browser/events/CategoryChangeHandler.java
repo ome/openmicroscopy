@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.events.ClassificationHandler
+ * org.openmicroscopy.shoola.agents.browser.events.CategoryChangeHandler
  *
  *------------------------------------------------------------------------------
  *
@@ -33,95 +33,62 @@
  *
  *------------------------------------------------------------------------------
  */
- 
 package org.openmicroscopy.shoola.agents.browser.events;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
-import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
-import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
-import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
-import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
-import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
-import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
-import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
+import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.env.event.CompletionHandler;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /**
- * Handles the classification/reclassification of images by telling all
- * relevant browsers to update their views.
- *
+ * Completion handler for LoadCategories/CategoriesChanged event pairs.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ClassificationHandler implements CompletionHandler
+public class CategoryChangeHandler implements CompletionHandler
 {
     public void handle(RequestEvent request, ResponseEvent response)
     {
-        if(!(request instanceof ClassifyImage) &&
-           !(request instanceof ClassifyImages) &&
-           !(request instanceof ReclassifyImage) &&
-           !(request instanceof ReclassifyImages))
+        if(!(request instanceof LoadCategories) ||
+           !(response instanceof CategoriesChanged))
         {
-            throw new IllegalArgumentException("Cannot handle this message");
-        }
-        if(!(response instanceof ImagesClassified))
-        {
-            throw new IllegalArgumentException("Cannot handle this message");
+            System.err.println("Invalid ACT types for CategoryChangeHandler");
+            return;
         }
         
-        ImagesClassified ic = (ImagesClassified)response;
+        LoadCategories lc = (LoadCategories)request;
+        CategoriesChanged cc = (CategoriesChanged)response;
+        
+        if(!cc.isDirty()) return; // no changes to be made
         
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         BrowserManager manager = env.getBrowserManager();
+        List browserList = manager.getAllBrowsers();
         
-        if(ic.getClassifications() == null ||
-           ic.getClassifications().size() == 0)
-        {
-            return; // nothing to do
-        }
-        
-        List browsers = manager.getAllBrowsers();
-        List imageMaps = new ArrayList();
-        for(Iterator iter = browsers.iterator(); iter.hasNext();)
+        for(Iterator iter = browserList.iterator(); iter.hasNext();)
         {
             UIWrapper wrapper = (UIWrapper)iter.next();
             BrowserController controller = wrapper.getController();
             BrowserModel model = controller.getBrowserModel();
-            Map imageIDMap = model.getImageDataMap();
-            imageMaps.add(imageIDMap);
-        }
-        
-        Set classifications = ic.getClassifications();
-        
-        for(Iterator iter = classifications.iterator(); iter.hasNext();)
-        {
-            Classification c = (Classification)iter.next();
-            Integer key = new Integer(c.getImage().getID());
-            for(Iterator iter2 = imageMaps.iterator(); iter2.hasNext();)
+            int browserID = model.getDataset().getID();
+            if(browserID == cc.getDatasetID())
             {
-                Map imageMap = (Map)iter2.next();
-                if(imageMap.containsKey(key))
-                {
-                    ThumbnailDataModel tdm =
-                        (ThumbnailDataModel)imageMap.get(key);
-                    AttributeMap attrs = tdm.getAttributeMap();
-                    attrs.putAttribute(c);
-                }
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.loadCategoryTree(browserID);
+                model.fireModelUpdated();
             }
         }
     }

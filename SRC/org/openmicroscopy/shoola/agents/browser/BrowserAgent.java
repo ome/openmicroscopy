@@ -62,6 +62,7 @@ import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.agents.browser.datamodel.*;
 import org.openmicroscopy.shoola.agents.browser.events.AnnotateImageHandler;
+import org.openmicroscopy.shoola.agents.browser.events.CategoryChangeHandler;
 import org.openmicroscopy.shoola.agents.browser.events.ClassificationHandler;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
@@ -69,6 +70,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
+import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
@@ -1062,6 +1064,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     public void loadCategories(int datasetID, String displayName)
     {
         LoadCategories event = new LoadCategories(datasetID,displayName);
+        event.setCompletionHandler(new CategoryChangeHandler());
         EventBus eventBus = registry.getEventBus();
         eventBus.post(event);
     }
@@ -1260,6 +1263,11 @@ public class BrowserAgent implements Agent, AgentEventListener
         else if(e instanceof ImagesClassified)
         {
             ImagesClassified event = (ImagesClassified)e;
+            event.complete();
+        }
+        else if(e instanceof CategoriesChanged)
+        {
+            CategoriesChanged event = (CategoriesChanged)e;
             event.complete();
         }
     }
