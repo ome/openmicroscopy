@@ -42,6 +42,7 @@ import java.util.List;
 
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.agents.classifier.AttributeComparator;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
  * Event that indicates multiple classifications should be erased.
@@ -51,7 +52,7 @@ import org.openmicroscopy.shoola.agents.classifier.AttributeComparator;
  * @version 2.2.1
  * @since OME2.2.1
  */
-public class DeclassifyImages
+public class DeclassifyImages extends RequestEvent
 // just like DeclassifyImage, I'd ideally like this to extend ReclassifyImages,
 // because, in the short term, that's exactly what's happening; but (a) that could
 // change and (b) it would introduce a hidden dependency into any class that
