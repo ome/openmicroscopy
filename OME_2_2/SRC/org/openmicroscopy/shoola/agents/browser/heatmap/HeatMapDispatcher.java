@@ -408,6 +408,13 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                         if(status != null)
                         {
                             status.showMessage("Loading "+attributeName+" attributes...");
+                            if(attributeList == null)
+                            {
+                                status.showMessage("Dataset loading or no such attributes.");
+                                notifyLoadFinished();
+                                loadInProgress = false;
+                                return;
+                            }
                         }
                         for(Iterator iter = attributeList.iterator(); iter.hasNext();)
                         {
