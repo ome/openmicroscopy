@@ -55,6 +55,12 @@ public class BrowserManager
     // TODO: add listener methods (ask JM/Andrea how to pull this off)
     
     private List browserList;
+    
+    /**
+     * The return value for hasBrowser(datasetID) if the browser is not
+     * present.
+     */
+    public static final int NOT_FOUND = -1;
 
     /**
      * Constructs a new browser manager.
@@ -132,12 +138,41 @@ public class BrowserManager
     }
     
     /**
+     * Determines if the browser model contains the browser with the
+     * specified dataset ID, and if so, returns its index.  If not, it will
+     * return NOT_FOUND.
+     * @param datasetID The ID of the dataset to find.
+     * @return 
+     */
+    public int hasBrowser(int datasetID)
+    {
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        for(int i=0;i<browserList.size();i++)
+        {
+            UIWrapper browser = (UIWrapper)browserList.get(i);
+            BrowserModel model = browser.getController().getBrowserModel();
+            int theID = model.getDataset().getID();
+            if(theID == datasetID)
+            {
+                return i;
+            }
+        }
+        return NOT_FOUND;
+    }
+    
+    /**
      * Returns the active controller.
      *
      */
     public UIWrapper getActiveBrowser()
     {
         return (UIWrapper)browserList.get(0);
+    }
+    
+    public void setActiveBrowser(int browserIndex)
+    {
+        UIWrapper browser = (UIWrapper)browserList.get(browserIndex);
+        setActiveBrowser(browser);
     }
     
     /**
@@ -152,5 +187,6 @@ public class BrowserManager
             browserList.add(0,browser);
             browserList.remove(prevIndex);
         }
+        browser.select();
     }
 }

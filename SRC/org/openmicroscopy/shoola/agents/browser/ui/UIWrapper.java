@@ -57,6 +57,11 @@ public interface UIWrapper
     public BrowserController getController();
     
     /**
+     * Selects the specified wrapper.
+     */
+    public void select();
+    
+    /**
      * Sets the title of the browser to the specified string.
      * @param title See above.
      */

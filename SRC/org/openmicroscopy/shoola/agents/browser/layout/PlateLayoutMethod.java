@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.browser.layout;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -186,7 +187,7 @@ public class PlateLayoutMethod implements LayoutMethod
         
         // MAJOR ASSUMPTION: all images are of the same size in the
         // plate layout method.  If this is incorrect, this is bad news.
-        Map pointMap = new HashMap();
+        Map pointMap = new IdentityHashMap();
         for(int i=0;i<ts.length;i++)
         {
             pointMap.put(ts[i],getAnchorPoint(ts[i]));

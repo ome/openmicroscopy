@@ -35,6 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
+
 /**
  * Singleton class which contains references to all universally referencable
  * browser components, such as the OMEBrowserAgent and OMEDataAgent.
@@ -52,6 +54,8 @@ public final class BrowserEnvironment
     private BrowserAgent browserAgent;
 
     private BrowserManager browserManager;
+    
+    private HeatMapManager heatMapManager;
     
     private IconManager iconManager;
     // private static OMEDataAgent dataAgent;
@@ -139,6 +143,24 @@ public final class BrowserEnvironment
     public void setIconManager(IconManager manager)
     {
         this.iconManager = manager;
+    }
+    
+    /**
+     * Gets the heat map manager of the environment.
+     * @return The heat map manager of the environment.
+     */
+    public HeatMapManager getHeatMapManager()
+    {
+        return heatMapManager;
+    }
+    
+    /**
+     * Sets the heat map manager for the environment.
+     * @param manager The heat map manager to use.
+     */
+    public void setHeatMapManager(HeatMapManager manager)
+    {
+        this.heatMapManager = manager;
     }
 
     /**

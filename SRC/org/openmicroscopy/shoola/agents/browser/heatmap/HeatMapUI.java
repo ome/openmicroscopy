@@ -78,8 +78,8 @@ public final class HeatMapUI extends JFrame
         contentPane.setLayout(new BorderLayout());
         
         JScrollPane scrollPane = new JScrollPane(treePanel);
-        scrollPane.setPreferredSize(new Dimension(175,250));
-        scrollPane.setSize(new Dimension(175,250));
+        scrollPane.setPreferredSize(new Dimension(250,200));
+        scrollPane.setSize(new Dimension(250,200));
         contentPane.add(scrollPane,BorderLayout.CENTER);
         
         setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());

@@ -92,6 +92,16 @@ public class BrowserFrame extends JFrame implements UIWrapper
     }
     
     /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#select()
+     */
+    public void select()
+    {
+        // can't really do anything here, for now... more applicable
+        // to the JInternalFrame...
+    }
+
+    
+    /**
      * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#setBrowserTitle(java.lang.String)
      */
     public void setBrowserTitle(String title)

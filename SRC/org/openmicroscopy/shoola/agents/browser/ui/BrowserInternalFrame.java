@@ -40,8 +40,10 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
 
 import javax.swing.JButton;
+import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
@@ -149,6 +151,20 @@ public class BrowserInternalFrame extends JInternalFrame
     {
         return controller;
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#select()
+     */
+    public void select()
+    {
+        try
+        {
+            setLayer(JDesktopPane.PALETTE_LAYER);
+            setSelected(true);
+        }
+        catch(PropertyVetoException ex) {}
+    }
+
     
     /**
      * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#setBrowserTitle(java.lang.String)

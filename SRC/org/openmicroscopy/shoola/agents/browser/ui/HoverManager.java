@@ -98,6 +98,7 @@ public final class HoverManager
             }
         };
         
+        
         showNodeTimer.schedule(pendingTask,delayInMillis);
         awaitingDisplay = true;
     }

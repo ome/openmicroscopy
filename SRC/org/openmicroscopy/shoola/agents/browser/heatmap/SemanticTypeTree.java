@@ -242,6 +242,7 @@ public class SemanticTypeTree
         protected Set children;
         protected String name;
         protected String fqName; // fully qualified name
+        protected boolean lazilyInitialized = false;
         
         public TreeNode(String nodeName)
         {
@@ -326,6 +327,29 @@ public class SemanticTypeTree
         public String toString()
         {
             return name;
+        }
+        
+        /**
+         * Indicates whether or not this node has its info filled in (that is,
+         * whether or not the thumbnails in a model have the values of this
+         * ST filled in)
+         * 
+         * @return See above.
+         */
+        public boolean isLazilyInitialized()
+        {
+            return lazilyInitialized;
+        }
+        
+        /**
+         * Sets whether or not this ndoe has its info filled in (that is,
+         * whether or not the thumbnails in a model have the values of this
+         * ST filled in)
+         * @param initialized
+         */
+        public void markAsInitialized(boolean initialized)
+        {
+            lazilyInitialized = initialized;
         }
     }
 }

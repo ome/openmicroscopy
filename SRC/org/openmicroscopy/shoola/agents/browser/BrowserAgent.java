@@ -264,6 +264,14 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void loadDataset(int datasetID)
     {
+        BrowserManager manager = env.getBrowserManager();
+        int index;
+        if((index = manager.hasBrowser(datasetID))
+            != BrowserManager.NOT_FOUND)
+        {
+            manager.setActiveBrowser(index);
+            return;
+        }
         DataManagementService dms = registry.getDataManagementService();
         DatasetData dataset;
         
