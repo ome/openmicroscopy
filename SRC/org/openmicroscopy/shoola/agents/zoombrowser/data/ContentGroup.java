@@ -61,9 +61,16 @@ public class ContentGroup
 	/** a flag to indicate when all have been added */
 	private boolean allAdded = false;
 	
-	/** number completed */
+	/** object that gets notified when this is done */
+	private ContentGroupSubscriber subscriber = null;
 	
-	public ContentGroup() {
+	
+	private ContentGroup() {
+		
+	}
+	
+	public ContentGroup(ContentGroupSubscriber subscriber) {
+		this.subscriber = subscriber;
 	}
 	
 	
@@ -95,5 +102,7 @@ public class ContentGroup
 			loader = (ContentLoader) iter.next();
 			loader.completeInitialization();	
 		}
+		if (subscriber != null) 
+			subscriber.contentComplete();
 	}
 }
