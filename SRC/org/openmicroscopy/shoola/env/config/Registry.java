@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.env.config;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -145,5 +146,21 @@ public interface Registry
 	 * @return See above.
 	 */
 	public PixelsService getPixelsService();
+    
+    /**
+     * Returns an implementation of the specified <code>view</code>.
+     * The <code>view</code> argument specifies the interface class that
+     * defines the desired view.  It has to be one of the sub-interfaces 
+     * of {@link DataServicesView} defined in its enclosing package.  The
+     * returned object implements the <code>view</code> interface and can
+     * be safely cast to it.
+     * 
+     * @param view The view's interface.
+     * @return An implementation of the specified <code>view</code>.
+     * @throws NullPointerException If <code>view</code> is <code>null</code>.
+     * @throws IllegalArgumentException If <code>view</code> is not one of the
+     *          supported {@link DataServicesView} interfaces.
+     */
+    public DataServicesView getDataServicesView(Class view);
    
 }

@@ -38,6 +38,8 @@ import java.util.HashMap;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.views.DataServicesView;
+import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -138,6 +140,12 @@ class RegistryImpl
    	
 	/** Implemented as specified by {@link Registry}. */
     public PixelsService getPixelsService() { return ps; }
+    
+    /** Implemented as specified by {@link Registry}. */
+    public DataServicesView getDataServicesView(Class view)
+    {
+        return DataViewsFactory.makeView(view);
+    }
 
 	/** 
 	* Adds the specified {@link Entry} to the map.
