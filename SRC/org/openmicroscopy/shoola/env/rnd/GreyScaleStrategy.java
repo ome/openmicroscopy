@@ -170,7 +170,7 @@ class GreyScaleStrategy
 	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
 		QuantumStrategy qs, int[] rgba)
-		throws DataSourceException, QuantizationException
+		throws QuantizationException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v, value;

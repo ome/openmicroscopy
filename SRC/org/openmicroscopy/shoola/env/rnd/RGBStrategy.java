@@ -114,7 +114,7 @@ class RGBStrategy
 				} catch (QuantizationException e) {
 					e.setWavelength(i);
 					throw e;
-				}	
+				}
 			}
 		}
 		
@@ -160,26 +160,26 @@ class RGBStrategy
 	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
 		QuantumStrategy qs, int[] rgba)
-		throws DataSourceException, QuantizationException
+		throws QuantizationException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v;
 		int red, green, blue;
 		float alpha = ((float) rgba[3])/255; 
-		for (x2 = 0; x2 < sizeX2; ++x2) 
-	   		for (x1 = 0; x1 < sizeX1; ++x1) {
-				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-				v = cc.transform(discreteValue);
-		   		red = dataBuf.getElem(R_BAND, sizeX1*x2+x1);
-			   	green = dataBuf.getElem(G_BAND, sizeX1*x2+x1);
-			   	blue = dataBuf.getElem(B_BAND, sizeX1*x2+x1);
-				dataBuf.setElem(R_BAND, sizeX1*x2+x1,
-								red+(int) ((rgba[R_BAND]*v*alpha)/255));
-				dataBuf.setElem(G_BAND, sizeX1*x2+x1,
-								green+(int) ((rgba[G_BAND]*v*alpha)/255));
-				dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
-								blue+(int) ((rgba[B_BAND]*v*alpha)/255));
-	   } 
+			for (x2 = 0; x2 < sizeX2; ++x2)
+				for (x1 = 0; x1 < sizeX1; ++x1) {
+					discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+					v = cc.transform(discreteValue);
+					red = dataBuf.getElem(R_BAND, sizeX1*x2+x1);
+					green = dataBuf.getElem(G_BAND, sizeX1*x2+x1);
+					blue = dataBuf.getElem(B_BAND, sizeX1*x2+x1);
+					dataBuf.setElem(R_BAND, sizeX1*x2+x1,
+									red+(int) ((rgba[R_BAND]*v*alpha)/255));
+					dataBuf.setElem(G_BAND, sizeX1*x2+x1,
+									green+(int) ((rgba[G_BAND]*v*alpha)/255));
+					dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
+									blue+(int) ((rgba[B_BAND]*v*alpha)/255));
+				}  
 	}
 	
 }
