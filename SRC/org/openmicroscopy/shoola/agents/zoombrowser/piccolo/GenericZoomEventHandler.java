@@ -155,7 +155,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
 	}
 	
-	protected void animateToCanvasBounds() {
+	public void animateToCanvasBounds() {
 		animateToBounds(canvas.getBufferedBounds());
 	}
 	
