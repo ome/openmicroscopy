@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator
+ * org.openmicroscopy.shoola.agents.browser.datamodel.CompletePlate
  *
  *------------------------------------------------------------------------------
  *
@@ -33,45 +33,52 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.layout;
+ 
+package org.openmicroscopy.shoola.agents.browser.datamodel;
 
-import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /**
- * Compares all thumbnails by ID.  When used with a sort method, orders
- * images by image ID.
- * 
+ * Maps wells to image summary objects for placement.
+ *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ImageIDComparator extends LayoutComparator
+public class CompletePlate
 {
-    /**
-     * Compares the IDs of the two thumbnails.
-     */
-    public int compareThumbnails(Thumbnail t1, Thumbnail t2)
+    private Map plateMap;
+    
+    public CompletePlate()
     {
-        // null: undefined behavior (maybe tighten this up)
-        if(t1 == null || t2 == null)
+        plateMap = new HashMap();
+    }
+    
+    public void put(String wellName, Integer imageID)
+    {
+        if(plateMap.containsKey(wellName))
         {
-            throw new NullPointerException();
-        }
-        int ID1 = t1.getBaseID();
-        int ID2 = t2.getBaseID();
-        
-        if(ID1 < ID2)
-        {
-            return -1;
-        }
-        else if(ID1 == ID2)
-        {
-            return 0;
+            List list = (List)plateMap.get(wellName);
+            list.add(imageID);
         }
         else
         {
-            return 1;
+            List list = new ArrayList();
+            list.add(imageID);
+            plateMap.put(wellName,list);
         }
     }
+    
+    public List get(String wellName)
+    {
+        return (List)plateMap.get(wellName);
+    }
 }
+

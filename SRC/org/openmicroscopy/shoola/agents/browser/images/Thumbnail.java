@@ -128,6 +128,11 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      * Indicates the selected image/model index (for multiple-site images)
      */
     protected int multipleSelectedIndex = 0;
+    
+    /**
+     * Gets the lowest (or only) ID of all the images in the thumbnail.
+     */
+    protected int baseID;
 
     /**
      * Initializes the thumbnail.
@@ -162,6 +167,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         init();
         setAccelerated(true);
         this.model = tdm;
+        baseID = tdm.getID();
     }
     
     /**
@@ -175,6 +181,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         super(thumbImage,false);
         init();
         this.model = tdm;
+        baseID = tdm.getID();
     }
     
     /**
@@ -201,6 +208,20 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         init();
         initMultiple(thumbImages,models);
         setModel(models[0]);
+        
+        baseID = Integer.MAX_VALUE;
+        for(int i=0;i<models.length;i++)
+        {
+            if(models[i].getID() < baseID)
+            {
+               baseID = models[i].getID();
+            }
+        }
+    }
+    
+    public int getBaseID()
+    {
+        return baseID;
     }
 
     /**

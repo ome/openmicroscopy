@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +49,17 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
+import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CompletePlate;
+import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfo;
+import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfoParser;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
@@ -339,6 +345,10 @@ public class BrowserAgent implements Agent, AgentEventListener
             }
         };
         
+        boolean plateMode = false;
+        List plateList;
+        PlateInfo plateInfo = new PlateInfo();
+        
         try
         {
             // will this order by image ID?
@@ -364,8 +374,22 @@ public class BrowserAgent implements Agent, AgentEventListener
                 idList.add(new Integer(summary.getID()));
             }
             
-            List plateList = sts.retrieveImageAttributes("ImagePlate",idList);
-            System.err.println(plateList.size());
+            plateList = sts.retrieveImageAttributes("ImagePlate",idList);
+            
+            // going to assume that all image plates in dataset belong to
+            // same plate (could be very wrong)
+            if(plateList != null && plateList.size() > 0)
+            {
+                plateMode = true;
+                String[] wellNames = new String[plateList.size()];
+                for(int i=0;i<plateList.size();i++)
+                {
+                    ImagePlate plate = (ImagePlate)plateList.get(i);
+                    wellNames[i] = plate.getWell();
+                }
+            
+                plateInfo = PlateInfoParser.buildPlateInfo(wellNames);
+            }
             
         }
         catch(DSOutOfServiceException dso)
@@ -379,11 +403,151 @@ public class BrowserAgent implements Agent, AgentEventListener
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error",dsa.getMessage(),dsa);
             return false;
-        }    
+        }
+        
+        final Map imageMap = new HashMap();
+        for(Iterator iter = imageList.iterator(); iter.hasNext();)
+        {
+            ImageSummary summary = (ImageSummary)iter.next();
+            imageMap.put(new Integer(summary.getID()),summary);
+        }
         
         status.processStarted(imageList.size());
         // see imageList initialization note above
         final List refList = Collections.unmodifiableList(imageList);
+        final List refPlateList = Collections.unmodifiableList(plateList);
+        final PlateInfo refInfo = plateInfo;
+        
+        Thread plateLoader = new Thread()
+        {
+            public void run()
+            {
+                int count = 1;
+                int total = refList.size();
+                
+                PlateLayoutMethod lm = new PlateLayoutMethod(refInfo.getNumRows(),
+                                                             refInfo.getNumCols());
+                model.setLayoutMethod(lm);
+                
+                CompletePlate plate = new CompletePlate();
+                for(Iterator iter = refPlateList.iterator(); iter.hasNext();)
+                {
+                    ImagePlate ip = (ImagePlate)iter.next();
+                    plate.put(ip.getWell(),new Integer(ip.getImage().getID()));
+                }
+                
+                boolean wellSized = false;
+                for(int i=0;i<refInfo.getNumRows();i++)
+                {
+                    for(int j=0;j<refInfo.getNumCols();j++)
+                    {
+                        String row = refInfo.getRowName(i);
+                        String col = refInfo.getColumnName(j);
+                        String well = row+col;
+                        List sampleList = (List)plate.get(well);
+                        if(sampleList.size() == 1)
+                        {
+                            Integer intVal = (Integer)sampleList.get(0);
+                            ImageSummary sum = (ImageSummary)imageMap.get(intVal);
+                            try
+                            {
+                                Pixels pix = sum.getDefaultPixels().getPixels();
+                                Image image = ps.getThumbnail(pix);
+                                if(!wellSized)
+                                {
+                                    lm.setWellWidth(image.getWidth(null));
+                                    lm.setWellHeight(image.getHeight(null));
+                                    wellSized = true;
+                                }
+                                ImageData data = new ImageData();
+                                data.setID(pix.getID());
+                                ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                final Thumbnail t = new Thumbnail(image,tdm);
+                                lm.setIndex(t,i,j);
+                                
+                                final int theCount = count;
+                                final int theTotal = total;
+                                Runnable addTask = new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        model.addThumbnail(t);
+                                        String message =
+                                            ProgressMessageFormatter.format("Loaded image %n of %t...",
+                                                                            theCount,theTotal);
+                                        status.processAdvanced(message);
+                                    }
+                                };
+                                SwingUtilities.invokeLater(addTask);
+                                count++;
+                            }
+                            catch(ImageServerException ise)
+                            {
+                                UserNotifier un = registry.getUserNotifier();
+                                un.notifyError("ImageServer Error",ise.getMessage(),ise);
+                                status.processFailed("Error loading images.");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            Image[] images = new Image[sampleList.size()];
+                            ThumbnailDataModel[] models =
+                                new ThumbnailDataModel[sampleList.size()];
+                            for(int k=0;k<sampleList.size();k++)
+                            {
+                                Integer intVal = (Integer)sampleList.get(k);
+                                ImageSummary sum = (ImageSummary)imageMap.get(intVal);
+                                try
+                                {
+                                    Pixels pix = sum.getDefaultPixels().getPixels();
+                                    Image image = ps.getThumbnail(pix);
+                                    ImageData data = new ImageData();
+                                    data.setID(pix.getID());
+                                    ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                    images[k] = image;
+                                    models[k] = tdm;
+                                    count++;
+                                    String message =
+                                        ProgressMessageFormatter.format("Loaded image %n of %t...",
+                                                                        count,total);
+                                    status.processAdvanced(message);
+                                }
+                                catch(ImageServerException ise)
+                                {
+                                    UserNotifier un = registry.getUserNotifier();
+                                    un.notifyError("ImageServer Error",ise.getMessage(),ise);
+                                    status.processFailed("Error loading images.");
+                                    return;
+                                }
+                            }
+                            
+                            final Thumbnail t = new Thumbnail(images,models);
+                            lm.setIndex(t,i,j);
+                            
+                            Runnable addTask = new Runnable()
+                            {
+                                public void run()
+                                {
+                                    model.addThumbnail(t);
+                                }
+                            };
+                            SwingUtilities.invokeLater(addTask);
+                        }
+                    }
+                }
+                
+                Runnable finalTask = new Runnable()
+                {
+                    public void run()
+                    {
+                        status.processSucceeded("All images loaded.");
+                    }
+                };
+                SwingUtilities.invokeLater(finalTask);
+                return;
+            }
+        };
         
         Thread loader = new Thread()
         {
@@ -391,9 +555,11 @@ public class BrowserAgent implements Agent, AgentEventListener
             {
                 int count = 1;
                 int total = refList.size();
+                
                 for(Iterator iter = refList.iterator(); iter.hasNext();)
                 {
                     ImageSummary summary = (ImageSummary)iter.next();
+                    
                     try
                     {
                         Pixels pix = summary.getDefaultPixels().getPixels();
@@ -440,7 +606,15 @@ public class BrowserAgent implements Agent, AgentEventListener
                 return;
             }
         };
-        loader.start();
+        
+        if(plateMode)
+        {
+            plateLoader.start();
+        }
+        else
+        {
+            loader.start();
+        }
         return true;
     }
     

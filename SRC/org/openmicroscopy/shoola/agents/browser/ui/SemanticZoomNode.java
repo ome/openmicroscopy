@@ -143,11 +143,18 @@ public class SemanticZoomNode extends PImage
         g2.drawImage(getImage(),0,0,null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
-        g2.drawString(parentThumbnail.getModel().getName(),4,26);
+        
+        String name = parentThumbnail.getModel().getName();
+        if(name != null)
+        {
+            g2.drawString(parentThumbnail.getModel().getName(),4,26);
+        }
         g2.setFont(oldFont);
         g2.setColor(oldColor);
         
         Rectangle2D bounds = getBounds().getBounds2D();
+        
+       /*
         double width = bounds.getWidth();
         double height = bounds.getHeight();
         DrawStyle noteStyle = DrawStyles.ANNOTATION_NODE_STYLE;
@@ -160,5 +167,6 @@ public class SemanticZoomNode extends PImage
         g2.fill(glass);
         g2.draw(glass);
         oldStyle.applyStyle(g2);
+        */
     }
 }
