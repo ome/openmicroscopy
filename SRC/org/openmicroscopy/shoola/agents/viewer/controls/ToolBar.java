@@ -168,7 +168,7 @@ public class ToolBar
         roi = new JButton(im.getIcon(IconManager.ROI));
         roi.setToolTipText(
                 UIUtilities.formatToolTipText("Bring up the roi panel.")); 
-        if (maxT == 0 && maxZ == 0) movie.setEnabled(true); 
+        if (maxT == 0 && maxZ == 0) movie.setEnabled(false); 
     }
 
     /** 
