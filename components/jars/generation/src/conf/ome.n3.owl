@@ -1,6 +1,10 @@
 # Base: http://www.openmicroscopy.org/2005/OME.owl#
+@prefix swrlbImport:  <http://www.daml.org/rules/proposal/swrlb.owl#> .
+@prefix swrl:    <http://www.w3.org/2003/11/swrl#> .
 @prefix default:  <http://www.openmicroscopy.org/2005/OME.owl#> .
+@prefix swrlb:   <http://www.w3.org/2003/11/swrlb#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix swrlImport:  <http://www.daml.org/rules/proposal/swrl.owl#> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl:     <http://www.w3.org/2002/07/owl#> .
 
@@ -31,14 +35,19 @@ default:zeroFollowGroup
 
 default:Attribute
       a       owl:Class ;
-      rdfs:comment "Attributes are containers of raw information (and other attributes) attached to leaves."^^<http://www.w3.org/2001/XMLSchema#string> ;
-      rdfs:subClassOf default:OMEObject .
+      rdfs:comment "Attributes are containers of raw information (and other attributes) attached to leaves."^^<http://www.w3.org/2001/XMLSchema#string> .
 
 default:sizeC
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Pixels ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#int> ;
       rdfs:subPropertyOf default:size .
+
+default:img3
+      a       default:Image ;
+      default:defaultPixels
+              default:pix1 ;
+      default:owner default:Jason .
 
 default:imageServerID
       a       owl:DatatypeProperty , owl:FunctionalProperty ;
@@ -64,22 +73,38 @@ default:defaultPixels
       rdfs:domain default:Image ;
       rdfs:range default:Pixels .
 
+default:img5
+      a       default:Image ;
+      default:defaultPixels
+              default:pix1 ;
+      default:owner default:Josh .
+
+default:Cellline
+      a       default:CategoryGroup ;
+      default:contains default:M2348 , default:M2188 , default:M2348z .
+
 default:AnalysisComponent
       a       owl:Class ;
       rdfs:comment "Special class of interaction components which are administered within the system."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:OMEObject .
 
-default:Cellline
-      a       default:CategoryGroup .
-
 default:Analyzing
       a       owl:Class ;
       rdfs:subClassOf default:Interaction .
+
+default:img2
+      a       default:Image ;
+      default:defaultPixels
+              default:pix1 ;
+      default:owner default:Josh .
 
 default:group
       a       owl:ObjectProperty , owl:FunctionalProperty ;
       rdfs:domain default:Experimenter ;
       rdfs:range default:Group .
+
+default:ome_Individual_13
+      a       default:OMEObject .
 
 default:produced
       a       owl:ObjectProperty ;
@@ -99,6 +124,14 @@ default:ImageAtrribute
       a       owl:Class ;
       rdfs:subClassOf default:Result .
 
+default:FeatureAttribute
+      a       owl:Class ;
+      rdfs:subClassOf default:Result .
+
+default:Annotating
+      a       owl:Class ;
+      rdfs:subClassOf default:Interaction .
+
 default:Dataset
       a       owl:Class ;
       rdfs:subClassOf default:Container ;
@@ -107,14 +140,6 @@ default:Dataset
                 owl:allValuesFrom default:Image ;
                 owl:onProperty default:contains
               ] .
-
-default:Annotating
-      a       owl:Class ;
-      rdfs:subClassOf default:Interaction .
-
-default:FeatureAttribute
-      a       owl:Class ;
-      rdfs:subClassOf default:Result .
 
 default:Experimenter
       a       owl:Class ;
@@ -141,7 +166,8 @@ default:Interaction
       rdfs:subClassOf default:OMEObject .
 
 default:M2348z
-      a       default:Category .
+      a       default:Category ;
+      default:contains default:img4 , default:img5 .
 
 default:repository
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
@@ -158,7 +184,8 @@ default:img1
       default:defaultPixels
               default:pix1 ;
       default:label "day1_plate1"^^<http://www.w3.org/2001/XMLSchema#string> ;
-      default:owner default:Josh .
+      default:owner default:Josh ;
+      default:version "1"^^<http://www.w3.org/2001/XMLSchema#int> .
 
 <http://www.openmicroscopy.org/2005/OME.owl>
       a       owl:Ontology ;
@@ -183,6 +210,12 @@ default:Screen
                 owl:onProperty default:contains
               ] .
 
+default:img4
+      a       default:Image ;
+      default:defaultPixels
+              default:pix1 ;
+      default:owner default:Josh .
+
 default:ArwensAnnotation1
       a       default:GOBiologicalProcessAnnotation ;
       default:createdBy default:Josh .
@@ -204,7 +237,8 @@ default:proj2
       default:owner default:Josh .
 
 default:M2348
-      a       default:Category .
+      a       default:Category ;
+      default:contains default:img3 , default:img2 .
 
 default:Plate
       a       owl:Class ;
@@ -531,7 +565,6 @@ default:dev_team
 
 default:pix1
       a       default:Pixels ;
-      default:label "day1_plate1"^^<http://www.w3.org/2001/XMLSchema#string> ;
       default:pixelType "???"^^<http://www.w3.org/2001/XMLSchema#string> ;
       default:repository "ome.org/omeis"^^<http://www.w3.org/2001/XMLSchema#anyURI> ;
       default:sizeC "3"^^<http://www.w3.org/2001/XMLSchema#int> ;
@@ -569,7 +602,8 @@ default:test
       rdfs:range default:OMEObject .
 
 default:M2188
-      a       default:Category .
+      a       default:Category ;
+      default:contains default:img1 .
 
 default:label
       a       owl:FunctionalProperty , owl:DatatypeProperty ;

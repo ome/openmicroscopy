@@ -3,8 +3,7 @@
  */
 package org.ome.interfaces;
 
-import org.ome.LSID;
-import org.ome.texen.interfaces.*;
+import org.ome.model.LSID;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

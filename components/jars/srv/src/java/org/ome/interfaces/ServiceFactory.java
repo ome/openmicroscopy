@@ -14,5 +14,5 @@ package org.ome.interfaces;
 public interface ServiceFactory {
 	public AdministrationService getAdministrationService();
 	public GenericService getGenericService();
-	public PredicateGroupService getPredicateGroupService();
+	public FollowGroupService getFollowGroupService();
 }

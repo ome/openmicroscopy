@@ -1,12 +1,9 @@
 #set ($file = "wrapper.vm") 
 
 #if( $package )
-  package ${package}.srv;
-  import ${package}.interfaces.*;
-#else
-  import interfaces.*;  
+  package ${package}.model;
 #end
-  import org.ome.LSObject;
+  import org.ome.model.LSObject;
   import java.util.Iterator;
   import java.util.ArrayList;
   import java.util.List;
@@ -25,7 +22,7 @@ public class ${class.LocalName}Wrapper
 	}
 	
 	public static ${class.LocalName} wrap(LSObject lsObject){
-		$class.LocalName obj = new ${class.LocalName}();
+		$class.LocalName obj = new ${class.LocalName}(lsObject.getLSID());
 #foreach( $p in $class.Predicates )
 	 	//-----------------------------------
 		// $p

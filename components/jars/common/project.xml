@@ -3,10 +3,10 @@
 <project>
   <extend>../../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>client</id>
+  <id>${pom.groupId}-common</id>
   <name>OME Common Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome</package>
+  <package>org.ome.common</package>
   <description>Common code</description>
   <dependencies>
    <!-- ideally should remain none -->

@@ -3,10 +3,10 @@
  */
 package org.ome.interfaces;
 
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
-import org.ome.texen.srv.PredicateGroup;
+import org.ome.model.FollowGroup;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+
 
 import java.rmi.Remote;
 
@@ -20,6 +20,6 @@ public interface GenericService extends Remote {
 	public void setLSOjbect(ILSObject obj);
 	public void updateLSObject(ILSObject obj);
 	public ILSObject getLSObject(LSID lsid);
-	public ILSObject getLSObject(LSID lsid, PredicateGroup pg);
+	public ILSObject getLSObject(LSID lsid, FollowGroup pg);
 	
 }

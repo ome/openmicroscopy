@@ -1,7 +1,21 @@
 <project name="OWL2JAVAGenerator" default="generate">
 
-  <taskdef name="texen" classname="org.ome.gen.TexenTask"/>
-  <property name="outputDir" location="${basedir}/../model/src/generated/org/ome/texen"/>
+  <!-- INHERITED FROM CALLING MAVEN.XML 
+  <property name="outputDir" location="${basedir}/src/generated/org/ome/texen"/>
+  <property name="tmplDir" location=""/>
+  <property name="ontology" location=""/>
+  classpath defined externally as well
+    <classpath>
+      <pathelement location="${tmplir}/"/>
+      <fileset dir="${tmplDir}/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    </classpath>
+  -->
+  <taskdef 
+        name="texen" 
+        classname="org.ome.gen.TexenTask">
+  </taskdef>
 
   <!-- ================================================================ -->
   <!-- G E N E R A T E  O W L  B I N D I N G S                          -->
@@ -23,17 +37,16 @@
     <delete dir="${outputDir}"/>
 
     <mkdir dir="${outputDir}"/>
-    <mkdir dir="${outputDir}/interfaces"/>
-    <mkdir dir="${outputDir}/srv"/>
-    <mkdir dir="${outputDir}/client"/>
+    <!-- TODO these could be omitted -->
+    <mkdir dir="${outputDir}/model"/>
     <mkdir dir="${outputDir}/xsd"/>
 
     <texen
       controlTemplate="Control.vm"
       outputDirectory="${outputDir}"
       outputFile="generation.log"
-      ontology = "file:///${basedir}/src/conf/ome.n3.owl"
-      templatePath="src/templates" 
+      ontology = "${ontology}"
+      templatePath="${tmplDir}"
     />
 
   </target>

@@ -4,8 +4,8 @@
 package org.ome.srv.db.kowari;
 
 import org.ome.interfaces.AdministrationService;
+import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.GenericService;
-import org.ome.interfaces.PredicateGroupService;
 import org.ome.interfaces.ServiceFactory;
 
 
@@ -33,7 +33,16 @@ public class KowariServiceFactoryImpl implements ServiceFactory {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ServiceFactory#getPredicateGroupService()
 	 */
-	public PredicateGroupService getPredicateGroupService() {
+	public FollowGroupService getPredicateGroupService() {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getFollowGroupService()
+	 */
+	public FollowGroupService getFollowGroupService() {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");

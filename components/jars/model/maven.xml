@@ -1,0 +1,20 @@
+<project 
+   xmlns:ant="jelly:ant"
+   xmlns:j="jelly:core" 
+   xmlns:maven="jelly:maven" 
+>
+  <preGoal name="java:compile">
+    <ant:path
+      id="generated.src"
+      location="${basedir}/src/generated"/>
+    <maven:addPath
+      id="maven.compile.src.set"
+      refid="generated.src"/>
+  </preGoal>
+
+  <postGoal name="clean:clean">
+    <ant:delete dir="${basedir}/src/generated"/>
+  </postGoal>
+  
+</project>
+

@@ -1,4 +1,4 @@
-; Wed Feb 16 22:01:48 CET 2005
+; Fri Feb 18 00:10:10 CET 2005
 ; 
 ;+ (version "3.0")
 ;+ (build "Build 131")
@@ -6,11 +6,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[ome_ProjectKB_Instance_50]
-		[ome_ProjectKB_Instance_51]
-		[ome_ProjectKB_Instance_52]
-		[ome_ProjectKB_Instance_53]
-		[ome_ProjectKB_Instance_54]))
+		[ome_ProjectKB_Instance_30156]
+		[ome_ProjectKB_Instance_30157]
+		[ome_ProjectKB_Instance_30158]
+		[ome_ProjectKB_Instance_30159]
+		[ome_ProjectKB_Instance_30160]))
 
 ([CLSES_TAB] of  Widget
 
@@ -52,9 +52,6 @@
 
 	(name "owl_namespace")
 	(string_value "http://owl.protege.stanford.edu"))
-
-([Instance_2531] of  Property_List
-)
 
 ([Instance_2534] of  Widget
 
@@ -140,7 +137,8 @@
 	(widget_class_name "edu.stanford.smi.protege.widget.KAToolTab"))
 
 ([Instance_46] of  Property_List
-)
+
+	(properties [ome_ProjectKB_Instance_10193]))
 
 ([Instance_47] of  Property_List
 
@@ -186,12 +184,6 @@
 	(properties
 		[Instance_96]
 		[Instance_97]))
-
-([Instance_89] of  Widget
-
-	(is_hidden TRUE)
-	(property_list [Instance_2531])
-	(widget_class_name "edu.stanford.smi.protegex.owl.jena.rdql.RDQLTab"))
 
 ([Instance_91] of  Integer
 
@@ -436,15 +428,6 @@
 	(property_list [XY_Instance_890])
 	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
 
-([KB_484936_Instance_0] of  Widget
-
-	(is_hidden TRUE)
-	(property_list [KB_484936_Instance_1])
-	(widget_class_name "ca.concordia.cs.rql.tab.RqlTab"))
-
-([KB_484936_Instance_1] of  Property_List
-)
-
 ([KB_484936_Instance_10] of  Widget
 
 	(height 174)
@@ -523,7 +506,7 @@
 
 ([KB_484936_Instance_2] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [KB_484936_Instance_3])
 	(widget_class_name "edu.stanford.smi.protegex.prompt.PromptTab"))
 
@@ -1632,7 +1615,7 @@
 
 ([ome_ProjectKB_Instance_0] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_1])
 	(widget_class_name "TGViztab.TGVizTab"))
 
@@ -1644,6 +1627,241 @@
 	(is_hidden TRUE)
 	(property_list [ome_ProjectKB_Instance_11])
 	(widget_class_name "edu.stanford.smi.RemoteKBTab.WordNetTab"))
+
+([ome_ProjectKB_Instance_10000] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:Imp")
+	(property_list [ome_ProjectKB_Instance_10027])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_10003] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_10004]))
+
+([ome_ProjectKB_Instance_10004] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10005] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_10006]))
+
+([ome_ProjectKB_Instance_10006] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10007] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_10008]))
+
+([ome_ProjectKB_Instance_10008] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10009] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_10010]))
+
+([ome_ProjectKB_Instance_10010] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10011] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_10012]))
+
+([ome_ProjectKB_Instance_10012] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10013] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_10014]))
+
+([ome_ProjectKB_Instance_10014] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10015] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_10016]))
+
+([ome_ProjectKB_Instance_10016] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10017] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_10018]))
+
+([ome_ProjectKB_Instance_10018] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10019] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_10020]))
+
+([ome_ProjectKB_Instance_10020] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10021] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_10022]))
+
+([ome_ProjectKB_Instance_10022] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10023] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_10024]))
+
+([ome_ProjectKB_Instance_10024] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10025] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_10026]))
+
+([ome_ProjectKB_Instance_10026] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10027] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_10028]
+		[ome_ProjectKB_Instance_10042]
+		[ome_ProjectKB_Instance_20045]
+		[ome_ProjectKB_Instance_20047]
+		[ome_ProjectKB_Instance_20049]
+		[ome_ProjectKB_Instance_20051]
+		[ome_ProjectKB_Instance_20053]
+		[ome_ProjectKB_Instance_20055]
+		[ome_ProjectKB_Instance_20059]
+		[ome_ProjectKB_Instance_20061]
+		[ome_ProjectKB_Instance_20063]
+		[ome_ProjectKB_Instance_20067]
+		[ome_ProjectKB_Instance_20069]
+		[ome_ProjectKB_Instance_20071]
+		[ome_ProjectKB_Instance_20073]
+		[ome_ProjectKB_Instance_20075]))
+
+([ome_ProjectKB_Instance_10028] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_10029])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLClsMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_10029] of  Property_List
+
+	(properties [ome_ProjectKB_Instance_20149]))
+
+([ome_ProjectKB_Instance_10042] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_10043]
+		[ome_ProjectKB_Instance_20044]))
+
+([ome_ProjectKB_Instance_10043] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_10044] of  String
+
+	(name "KnowledgeTreeTab.TOP_LEVEL_INSTANCE"))
+
+([ome_ProjectKB_Instance_10193] of  String
+
+	(name "KATool.TOP_LEVEL_INSTANCE")
+	(string_value "ome_Individual_13"))
+
+([ome_ProjectKB_Instance_10194] of  Property_List
+
+	(name "layout properties"))
+
+([ome_ProjectKB_Instance_10195] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_10196])
+	(widget_class_name "edu.stanford.smi.protege.widget.InstanceNameWidget")
+	(width 200)
+	(x 0)
+	(y 100))
+
+([ome_ProjectKB_Instance_10196] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10197] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_10198]))
+
+([ome_ProjectKB_Instance_10198] of  Property_List
+)
+
+([ome_ProjectKB_Instance_10199] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_10200])
+	(widget_class_name "edu.stanford.smi.protege.widget.InstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 160))
+
+([ome_ProjectKB_Instance_10200] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_10201]
+		[ome_ProjectKB_Instance_10202]))
+
+([ome_ProjectKB_Instance_10201] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_10202] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_10203] of  String
+
+	(name "SearchTab_Query"))
+
+([ome_ProjectKB_Instance_10209] of  Map
+
+	(entries [ome_ProjectKB_Instance_30162])
+	(referenced_maps [ome_ProjectKB_Instance_30161]))
 
 ([ome_ProjectKB_Instance_11] of  Property_List
 )
@@ -1659,12 +1877,13 @@
 
 ([ome_ProjectKB_Instance_14] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_15])
 	(widget_class_name "edu.stanford.smi.protegex.queries_tab.QueriesTab"))
 
 ([ome_ProjectKB_Instance_15] of  Property_List
-)
+
+	(properties [ome_ProjectKB_Instance_10203]))
 
 ([ome_ProjectKB_Instance_16] of  Widget
 
@@ -1677,7 +1896,7 @@
 
 ([ome_ProjectKB_Instance_18] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_19])
 	(widget_class_name "ezOWLTab"))
 
@@ -1686,15 +1905,621 @@
 
 ([ome_ProjectKB_Instance_2] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_3])
 	(widget_class_name "dfki.protege.ontoviz_tab.OntovizTab"))
 
 ([ome_ProjectKB_Instance_20] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_21])
 	(widget_class_name "edu.stanford.smi.protegex.owl.swrl.ui.tab.SWRLTab"))
+
+([ome_ProjectKB_Instance_20044] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_20045] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_20046])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_20046] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20047] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_20048]))
+
+([ome_ProjectKB_Instance_20048] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20049] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_20050]))
+
+([ome_ProjectKB_Instance_20050] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20051] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_20052]))
+
+([ome_ProjectKB_Instance_20052] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20053] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_20054]))
+
+([ome_ProjectKB_Instance_20054] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20055] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_20056]))
+
+([ome_ProjectKB_Instance_20056] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20059] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_20060]))
+
+([ome_ProjectKB_Instance_20060] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20061] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_20062]))
+
+([ome_ProjectKB_Instance_20062] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20063] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_20064]))
+
+([ome_ProjectKB_Instance_20064] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20067] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_20068]))
+
+([ome_ProjectKB_Instance_20068] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20069] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_20070]))
+
+([ome_ProjectKB_Instance_20070] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20071] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_20072]))
+
+([ome_ProjectKB_Instance_20072] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20073] of  Widget
+
+	(height 1)
+	(is_hidden TRUE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_20074])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.ListInstanceWidget")
+	(width 1)
+	(x 5)
+	(y 5))
+
+([ome_ProjectKB_Instance_20074] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20075] of  Widget
+
+	(height 1)
+	(is_hidden TRUE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_20076])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.ListInstanceWidget")
+	(width 1)
+	(x 5)
+	(y 5))
+
+([ome_ProjectKB_Instance_20076] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20077] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_20078]))
+
+([ome_ProjectKB_Instance_20078] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20079] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_20080]))
+
+([ome_ProjectKB_Instance_20080] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20081] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_20082]))
+
+([ome_ProjectKB_Instance_20082] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20083] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_20084]))
+
+([ome_ProjectKB_Instance_20084] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20085] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_20086]))
+
+([ome_ProjectKB_Instance_20086] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20087] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_20088]))
+
+([ome_ProjectKB_Instance_20088] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20089] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_20090]))
+
+([ome_ProjectKB_Instance_20090] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20091] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_20092]))
+
+([ome_ProjectKB_Instance_20092] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20093] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_20094]))
+
+([ome_ProjectKB_Instance_20094] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20095] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_20096]))
+
+([ome_ProjectKB_Instance_20096] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20097] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_20098]))
+
+([ome_ProjectKB_Instance_20098] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20099] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_20100]))
+
+([ome_ProjectKB_Instance_20100] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20101] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_20102]))
+
+([ome_ProjectKB_Instance_20102] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20103] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_20104]))
+
+([ome_ProjectKB_Instance_20104] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20105] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_20106]))
+
+([ome_ProjectKB_Instance_20106] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20107] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_20108]))
+
+([ome_ProjectKB_Instance_20108] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20109] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_20110]))
+
+([ome_ProjectKB_Instance_20110] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20111] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_20112]))
+
+([ome_ProjectKB_Instance_20112] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20113] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_20114]))
+
+([ome_ProjectKB_Instance_20114] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20115] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_20116]))
+
+([ome_ProjectKB_Instance_20116] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20117] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_20118]))
+
+([ome_ProjectKB_Instance_20118] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20119] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_20120]))
+
+([ome_ProjectKB_Instance_20120] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20121] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_20122]))
+
+([ome_ProjectKB_Instance_20122] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20123] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_20124]))
+
+([ome_ProjectKB_Instance_20124] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20125] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_20126]))
+
+([ome_ProjectKB_Instance_20126] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20127] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_20128]))
+
+([ome_ProjectKB_Instance_20128] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20129] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_20130]))
+
+([ome_ProjectKB_Instance_20130] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20131] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_20132]))
+
+([ome_ProjectKB_Instance_20132] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20133] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_20134]))
+
+([ome_ProjectKB_Instance_20134] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20135] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_20136]))
+
+([ome_ProjectKB_Instance_20136] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20137] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_20138]))
+
+([ome_ProjectKB_Instance_20138] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20139] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_20140]))
+
+([ome_ProjectKB_Instance_20140] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20141] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_20142]))
+
+([ome_ProjectKB_Instance_20142] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20143] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_20144]))
+
+([ome_ProjectKB_Instance_20144] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20145] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_20146]))
+
+([ome_ProjectKB_Instance_20146] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20147] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_20148]))
+
+([ome_ProjectKB_Instance_20148] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20149] of  Widget
+
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_20150])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget"))
+
+([ome_ProjectKB_Instance_20150] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20151]
+		[ome_ProjectKB_Instance_20152]))
+
+([ome_ProjectKB_Instance_20151] of  Widget
+
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget"))
+
+([ome_ProjectKB_Instance_20152] of  Widget
+
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget"))
+
+([ome_ProjectKB_Instance_20153] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:args")
+	(property_list [ome_ProjectKB_Instance_20154]))
+
+([ome_ProjectKB_Instance_20154] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20155] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument1")
+	(property_list [ome_ProjectKB_Instance_20156]))
+
+([ome_ProjectKB_Instance_20156] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20157] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:arguments")
+	(property_list [ome_ProjectKB_Instance_20158]))
+
+([ome_ProjectKB_Instance_20158] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20159] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:argument2")
+	(property_list [ome_ProjectKB_Instance_20160]))
+
+([ome_ProjectKB_Instance_20160] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20161] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:maxArgs")
+	(property_list [ome_ProjectKB_Instance_20162]))
+
+([ome_ProjectKB_Instance_20162] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20163] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:head")
+	(property_list [ome_ProjectKB_Instance_20164]))
+
+([ome_ProjectKB_Instance_20164] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20165] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:builtin")
+	(property_list [ome_ProjectKB_Instance_20166]))
+
+([ome_ProjectKB_Instance_20166] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20167] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:classPredicate")
+	(property_list [ome_ProjectKB_Instance_20168]))
+
+([ome_ProjectKB_Instance_20168] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20169] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:dataRange")
+	(property_list [ome_ProjectKB_Instance_20170]))
+
+([ome_ProjectKB_Instance_20170] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20171] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:propertyPredicate")
+	(property_list [ome_ProjectKB_Instance_20172]))
+
+([ome_ProjectKB_Instance_20172] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20173] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrl:body")
+	(property_list [ome_ProjectKB_Instance_20174]))
+
+([ome_ProjectKB_Instance_20174] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20175] of  Widget
+
+	(is_hidden FALSE)
+	(name "swrlb:minArgs")
+	(property_list [ome_ProjectKB_Instance_20176]))
+
+([ome_ProjectKB_Instance_20176] of  Property_List
+)
 
 ([ome_ProjectKB_Instance_21] of  Property_List
 )
@@ -1744,12 +2569,48 @@
 	(property_list [ome_ProjectKB_Instance_31])
 	(widget_class_name "edu.stanford.smi.protege.widget.instance_tree.KnowledgeTreeTab"))
 
-([ome_ProjectKB_Instance_31] of  Property_List
+([ome_ProjectKB_Instance_30156] of  String
+
+	(name "owl:Class")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30157] of  String
+
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30158] of  String
+
+	(name ":INSTANCE-ANNOTATION")
+	(string_value "%3AANNOTATION-TEXT"))
+
+([ome_ProjectKB_Instance_30159] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([ome_ProjectKB_Instance_30160] of  String
+
+	(name "owl:Thing")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30161] of  Map
 )
+
+([ome_ProjectKB_Instance_30162] of  Map_Entry
+
+	(key "InstanceDisplay.yellow_stickies")
+	(key_class "java.lang.String")
+	(value "ome_ProjectKB_Instance_30161")
+	(value_class "java.util.Map"))
+
+([ome_ProjectKB_Instance_31] of  Property_List
+
+	(properties [ome_ProjectKB_Instance_10044]))
 
 ([ome_ProjectKB_Instance_32] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_33])
 	(widget_class_name "edu.stanford.smi.protege.widget.instance_tree.InstanceTreeTab"))
 
@@ -1793,7 +2654,8 @@
 
 ([ome_ProjectKB_Instance_38] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
+	(name "Algernon")
 	(property_list [ome_ProjectKB_Instance_39])
 	(widget_class_name "org.algernon.kb.okbc.protege.plugins.AlgernonTab"))
 
@@ -1836,7 +2698,7 @@
 
 ([ome_ProjectKB_Instance_42] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_43])
 	(widget_class_name "uk.ac.man.cs.mig.coode.owlviz.ui.OWLVizTab"))
 
@@ -1851,31 +2713,6 @@
 ([ome_ProjectKB_Instance_5] of  Property_List
 )
 
-([ome_ProjectKB_Instance_50] of  String
-
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_51] of  String
-
-	(name "owl:Class")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_52] of  String
-
-	(name ":INSTANCE-ANNOTATION")
-	(string_value "%3AANNOTATION-TEXT"))
-
-([ome_ProjectKB_Instance_53] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([ome_ProjectKB_Instance_54] of  String
-
-	(name "owl:Thing")
-	(string_value "%3ANAME"))
-
 ([ome_ProjectKB_Instance_6] of  Widget
 
 	(is_hidden TRUE)
@@ -1887,7 +2724,7 @@
 
 ([ome_ProjectKB_Instance_8] of  Widget
 
-	(is_hidden TRUE)
+	(is_hidden FALSE)
 	(property_list [ome_ProjectKB_Instance_9])
 	(widget_class_name "edu.stanford.smi.protege.keywordsearch.StringSearch"))
 
@@ -1910,27 +2747,27 @@
 	(browser_slot_names [BROWSER_SLOT_NAMES])
 	(customized_instance_widgets
 		[KB_420361_Instance_54]
+		[INSTANCE_ANNOTATION_FORM_WIDGET]
+		[KB_313796_Instance_852]
+		[Instance_581]
+		[KB_764103_Instance_545]
+		[KB_553917_Instance_637]
+		[KB_868747_Instance_76]
+		[KB_691299_Instance_537]
 		[KB_379625_Instance_617]
 		[Instance_1005]
 		[STANDARD_FACET_FORM_WIDGET]
-		[INSTANCE_ANNOTATION_FORM_WIDGET]
 		[KB_691299_Instance_398]
 		[KB_313796_Instance_943]
-		[KB_313796_Instance_852]
-		[Instance_581]
 		[STANDARD_SLOT_FORM_WIDGET]
 		[KB_303942_Instance_68]
-		[KB_764103_Instance_545]
-		[KB_465546_Instance_567]
 		[Instance_443]
+		[KB_465546_Instance_567]
 		[PAL_FORM_WIDGET]
-		[KB_553917_Instance_637]
-		[KB_301165_Instance_1013]
 		[KB_301165_Instance_856]
-		[KB_868747_Instance_76]
+		[KB_301165_Instance_1013]
 		[KB_379625_Instance_777]
-		[STANDARD_CLASS_FORM_WIDGET]
-		[KB_691299_Instance_537])
+		[STANDARD_CLASS_FORM_WIDGET])
 	(default_cls_metaclass "owl:Class")
 	(default_facet_metaclass ":STANDARD-FACET")
 	(default_instance_widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget")
@@ -1938,16 +2775,15 @@
 	(hidden_classes
 		"owl:maxCardinality"
 		":OWL-INFERRED-SUPERCLASSES"
-		"rdf:value"
 		"owl:versionInfo"
-		"rdfs:Container"
+		"rdf:value"
 		"rdf:type"
-		"owl:someValuesFrom"
+		"rdfs:Container"
 		"owl:cardinality"
-		"rdf:predicate"
+		"owl:someValuesFrom"
 		"rdf:Property"
+		"rdf:predicate"
 		"rdf:object"
-		"rdf:List"
 		"rdfs:isDefinedBy"
 		"owl:onProperty"
 		"owl:differentFrom"
@@ -1965,42 +2801,63 @@
 		"owl:DatatypeProperty"
 		":OWL-ANONYMOUS-ROOT"
 		"rdf:rest"
-		":FROM"
-		"rdf:Statement"
 		"rdfs:seeAlso"
+		"rdf:Statement"
+		":FROM"
 		"rdf:first"
 		"rdfs:Bag"
-		"rdfs:Alt"
 		"rdfs:Literal"
+		"rdfs:Alt"
 		"rdfs:comment"
-		"owl:hasValue"
 		"ExternalResource"
+		"owl:hasValue"
 		"owl:incompatibleWith"
 		"rdfs:Seq"
 		":OWL-INFERRED-SUBCLASSES"
-		"owl:Nothing"
-		":DIRECTED-BINARY-RELATION"
 		"owl:allValuesFrom"
+		":DIRECTED-BINARY-RELATION"
+		"owl:Nothing"
 		"rdf:subject"
-		"owl:oneOf"
-		"owl:backwardCompatibleWith")
+		"owl:backwardCompatibleWith"
+		"owl:oneOf")
 	(next_frame_number 0)
 	(options [Instance_48])
+	(property_map [ome_ProjectKB_Instance_10209])
 	(sources [SOURCES])
 	(tabs
-		[CLSES_TAB]
 		[Instance_86]
-		[SLOTS_TAB]
 		[Instance_2600]
 		[FORMS_TAB]
-		[INSTANCES_TAB]
 		[Instance_3234]
-		[Instance_43]
-		[Instance_45]
-		[Instance_89]
 		[Instance_2534]
-		[KB_484936_Instance_0]
-		[KB_484936_Instance_2]))
+		[ome_ProjectKB_Instance_2]
+		[ome_ProjectKB_Instance_42]
+		[ome_ProjectKB_Instance_14]
+		[ome_ProjectKB_Instance_20]
+		[ome_ProjectKB_Instance_0]
+		[ome_ProjectKB_Instance_38]
+		[ome_ProjectKB_Instance_18]
+		[ome_ProjectKB_Instance_32]
+		[KB_484936_Instance_2]
+		[ome_ProjectKB_Instance_8]
+		[ome_ProjectKB_Instance_40]
+		[ome_ProjectKB_Instance_24]
+		[Instance_43]
+		[CLSES_TAB]
+		[ome_ProjectKB_Instance_28]
+		[ome_ProjectKB_Instance_22]
+		[INSTANCES_TAB]
+		[ome_ProjectKB_Instance_34]
+		[ome_ProjectKB_Instance_6]
+		[Instance_45]
+		[ome_ProjectKB_Instance_30]
+		[ome_ProjectKB_Instance_26]
+		[ome_ProjectKB_Instance_4]
+		[ome_ProjectKB_Instance_12]
+		[SLOTS_TAB]
+		[ome_ProjectKB_Instance_16]
+		[ome_ProjectKB_Instance_36]
+		[ome_ProjectKB_Instance_10]))
 
 ([prot-test2_ProjectKB_Instance_10045] of  Property_List
 )
@@ -2101,7 +2958,11 @@
 		[XY_Instance_1]
 		[XY_Instance_2]
 		[XY_Instance_3]
-		[XY_Instance_4]))
+		[XY_Instance_4]
+		[ome_ProjectKB_Instance_10194]
+		[ome_ProjectKB_Instance_10195]
+		[ome_ProjectKB_Instance_10197]
+		[ome_ProjectKB_Instance_10199]))
 
 ([XY_Instance_1] of  Widget
 

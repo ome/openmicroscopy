@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="multiproject:build">
+  <preGoal name="clean">
+    <attainGoal name="multiproject:clean" />
+  </preGoal>
+
   <goal name="multiproject:build">
     <attainGoal name="multiproject:jar-install" />
     <attainGoal name="multiproject:war-install" />

@@ -8,7 +8,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ome.LSID;
+import org.ome.model.LSID;
 import org.ome.interfaces.AdministrationService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.srv.logic.ServiceFactoryImpl;

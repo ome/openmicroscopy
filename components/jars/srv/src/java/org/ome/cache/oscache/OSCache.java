@@ -3,9 +3,9 @@
  */
 package org.ome.cache.oscache;
 
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+import org.ome.model.LSObject;
 import org.ome.cache.Cache;
 
 import com.opensymphony.oscache.base.NeedsRefreshException;

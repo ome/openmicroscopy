@@ -35,9 +35,8 @@
        the connection element has the form:
        scm:<system>:<system specific connection string> -->
 
-<!--
   <repository>
-    <connection>scm:cvs:pserver:anoncvs@cvs..org:</connection>
+    <connection>scm|svn|file|///home/josh/repos/ome3|trunk|</connection>
     <url>http://cvs.org/</url>
   </repository>
   -->

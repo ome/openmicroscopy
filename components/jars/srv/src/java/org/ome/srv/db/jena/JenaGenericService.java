@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
+import org.ome.model.Factory;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+import org.ome.model.LSObject;
 import org.ome.interfaces.GenericService;
-import org.ome.texen.srv.PredicateGroup;
+import org.ome.model.FollowGroup;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -54,7 +55,7 @@ public class JenaGenericService implements GenericService {
 		ILSObject lsobj = null;
 		Model m = JenaModelFactory.getModel();
 		
-		lsobj = new LSObject(lsid);
+		lsobj = Factory.make( lsid.getURI() );
 		
 		Resource subj = m.getResource(lsid.getURI());
 		
@@ -69,13 +70,8 @@ public class JenaGenericService implements GenericService {
 				
 				if (obj.canAs(Resource.class)){
 					ILSObject child = null;
-					try {
-						child = new LSObject(new LSID(((Resource)obj).getURI()));
-						lsobj.put(pred.getURI(),child);
-					} catch (URISyntaxException e) {
-						// TODO what exactly is the condition here
-						e.printStackTrace();
-					}
+					child = Factory.make( ((Resource)obj).getURI() );
+					lsobj.put(pred.getURI(),child);
 				} else if (obj.canAs(Literal.class)){
 					lsobj.put(pred.getURI(),((Literal)obj).getValue());	
 				}
@@ -91,7 +87,7 @@ public class JenaGenericService implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID, org.ome.texen.srv.PredicateGroup)
 	 */
-	public ILSObject getLSObject(LSID lsid, PredicateGroup pg) {
+	public ILSObject getLSObject(LSID lsid, FollowGroup fg) {
 		throw new RuntimeException("implement me");//FIXME	}
 	}
 }

@@ -7,16 +7,16 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+import org.ome.model.LSObject;
 import org.ome.cache.Cache;
 import org.ome.cache.CacheFactory;
 import org.ome.cache.TemporaryCacheFactoryFactory;
 import org.ome.interfaces.AdministrationService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.srv.db.TemporaryDBFactoryFactory;
-import org.ome.texen.srv.ProjectWrapper;
+import org.ome.model.ProjectWrapper;
 
 /**
  * @author josh

@@ -1,7 +1,7 @@
 /*
  * Created on Feb 16, 2005 
 */
-package org.ome;
+package org.ome.model;
 
 
 /**

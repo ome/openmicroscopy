@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ome.Factory;
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
+import org.ome.model.Factory;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+import org.ome.model.LSObject;
 import org.ome.interfaces.AdministrationService;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -55,13 +55,8 @@ public class JenaAdministrationStore implements AdministrationService {
 			ResultBinding res = (ResultBinding) iter.next();
 			Resource p = (Resource) res.get("project");
 			if (null != p) {
-				try {
-					ILSObject obj = Factory.make(p.getURI());
-					l.add(obj);
-				} catch (URISyntaxException e) {
-					System.err.println("Error constructing LSID "
-							+ "\n" + e.getMessage());
-				}
+				ILSObject obj = Factory.make(p.getURI());
+				l.add(obj);
 			}
 		}
 		results.close();

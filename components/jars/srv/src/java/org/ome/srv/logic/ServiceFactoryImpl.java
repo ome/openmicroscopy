@@ -5,7 +5,7 @@ package org.ome.srv.logic;
 
 import org.ome.interfaces.AdministrationService;
 import org.ome.interfaces.GenericService;
-import org.ome.interfaces.PredicateGroupService;
+import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.ServiceFactory;
 
 /**
@@ -30,9 +30,10 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ServiceFactory#getPredicateGroupService()
 	 */
-	public PredicateGroupService getPredicateGroupService() {
-		return new PredicateGroupServiceImpl();
+	public FollowGroupService getFollowGroupService() {
+		return new FollowGroupServiceImpl();
 	}
 
+	
 	
 }

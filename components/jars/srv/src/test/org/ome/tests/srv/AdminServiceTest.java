@@ -10,15 +10,15 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.ome.ILSObject;
-import org.ome.LSID;
-import org.ome.LSObject;
+import org.ome.model.ILSObject;
+import org.ome.model.LSID;
+import org.ome.model.LSObject;
 import org.ome.interfaces.AdministrationService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.srv.db.TemporaryDBFactoryFactory;
 import org.ome.srv.db.jena.JenaAdministrationStore;
-import org.ome.texen.Vocabulary;
-import org.ome.texen.interfaces.IProject;
+import org.ome.model.Vocabulary;
+import org.ome.model.IProject;
 ;
 
 /**

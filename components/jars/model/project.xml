@@ -3,15 +3,20 @@
 <project>
   <extend>../../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>model</id>
+  <id>${pom.groupId}-model</id>
   <name>OME Model Objects</name>
   <currentVersion>1.0</currentVersion>
   <package>org.ome.model</package>
   <description>Model code generated from owl</description>
   <dependencies>
     <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>gen</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-gen</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-common</artifactId>
       <version>1.0</version>
     </dependency>
   </dependencies>
@@ -24,19 +29,5 @@
         <include>**/*Test.java</include>
       </includes>
     </unitTest>
-    <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/generated</directory>
-        <includes>
-          <include>*.java</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 </project>

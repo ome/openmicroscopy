@@ -4,8 +4,8 @@
 package org.ome.srv.db.jena;
 
 import org.ome.srv.db.Queries;
-import org.ome.texen.Vocabulary;
-import org.ome.texen.interfaces.IProject;
+import org.ome.model.Vocabulary;
+import org.ome.model.IProject;
 
 import com.hp.hpl.jena.vocabulary.RDF;
 

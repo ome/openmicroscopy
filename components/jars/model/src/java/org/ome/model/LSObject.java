@@ -1,7 +1,7 @@
 /*
  * Created on Feb 12, 2005
  */
-package org.ome;
+package org.ome.model;
 
 import java.io.Serializable;
 import java.util.HashMap;

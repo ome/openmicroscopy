@@ -1,23 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
   <extend>../../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>srv</id>
+  <id>${pom.groupId}-srv</id>
   <name>OME Server Code</name>
   <currentVersion>1.0</currentVersion>
   <package>org.ome.srv</package>
   <description>Server code</description>
   <dependencies>
-
-     <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>model</artifactId>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-model</artifactId>
       <version>1.0</version>
     </dependency>
-  
+    <dependency>
+      <groupId>opensymphony</groupId>
+      <artifactId>oscache</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>7.4.1-jdbc3</version>
+    </dependency>
+    <!-- TODO SHOULD BE MOVED OUT TO A JENA COMPONENT -->
+    <!-- TODO cc needed? -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <!-- JENA REQUIREMENTS -->
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>antlr</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>jakarta-oro</artifactId>
+      <version>2.0.5</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>jena</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>junit</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.7</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ome-jena</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>ome</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
   </dependencies>
-
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -26,13 +123,5 @@
         <include>**/*Test.java</include>
       </includes>
     </unitTest>
-    <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 </project>

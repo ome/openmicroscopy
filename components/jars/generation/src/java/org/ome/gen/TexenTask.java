@@ -44,7 +44,7 @@ public class TexenTask extends org.apache.velocity.texen.ant.TexenTask {
 		
 		context.put("package", System.getProperties().get(
 				"ome.generated.package"));
-		context.put("package", "org.ome.texen"); // FIXME
+		context.put("package", "org.ome"); // FIXME
 		
 		context.put("version","0.0001");//FIXME
 	}
