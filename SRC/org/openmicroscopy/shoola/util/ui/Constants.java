@@ -82,6 +82,9 @@ public class Constants {
 	/** font for tooltips */		
 	public static final Font TOOLTIP_FONT = new Font("Helvetica",Font.BOLD,12);
 	
+	/** small tooltips */
+	public static final Font SMALL_TOOLTIP_FONT = new Font("Helvetica",Font.BOLD,8);
+	
 	/** The {@link Font} used for the name of a Formal Parameter */
 	public static final Font THUMBNAIL_NAME_FONT = 
 			new Font("Helvetica",Font.BOLD,6);
