@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
-import org.openmicroscopy.shoola.env.rnd.metadata.ImageDimensions;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
@@ -81,39 +81,46 @@ class RGBStrategy
 	
 	private Renderer	renderer;
 	
+	
 	BufferedImage render(Renderer ctx)
 	{
+		//Set the context and retrieve rendering settings.
 		renderer = ctx;
-		ImageDimensions	d = renderer.getImageDims();
-		PlaneDef		pd = renderer.getPlaneDef();
-		RenderingDef	rd = renderer.getRenderingDef();
+		PixelsDimensions dims = renderer.getPixelsDims();
+		PlaneDef planeDef = renderer.getPlaneDef();
+		RenderingDef rndDef = renderer.getRenderingDef();
+		QuantumManager qManager = renderer.getQuantumManager();
+		DataSink dSink = renderer.getDataSink();
+		ChannelBindings[] cBindings = rndDef.getChannelBindings();
+				
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer used by the Java2D API.
+		initAxesSize(planeDef, dims);
+		DataBufferByte renderedDataBuf = new DataBufferByte(sizeX1*sizeX2, 3);
 		
-		//init sizeX1 and sizeX2
-		initAxesSize(pd, d);
-		DataBufferByte dataBuf = new DataBufferByte(sizeX1*sizeX2, 3);
-		
-		QuantumManager QM = renderer.getQuantumManager();
-		DataSink ds = renderer.getDataSink();
-		ChannelBindings[] cBindings = rd.channelBindings;
-		ChannelBindings cb;
-		Plane2D plane;
+		//Process each active wavelength. 
+		Plane2D wData;
 		for (int i = 0; i < cBindings.length; i++) {
-			cb = (ChannelBindings) cBindings[i];
-			if (cb.isActive()) {
-				plane = ds.getPlane2D(pd, cb.getIndex(), sizeX1, sizeX2);
-				renderWave(dataBuf, plane, QM.getStrategyFor(cb.getIndex()), 
-							cb.getRGBA());
+			//NOTE: RenderingDef enforces the constraint 
+			//i == cBindings[i].getIndex().
+			if (cBindings[i].isActive()) {
+				wData = dSink.getPlane2D(planeDef, i, sizeX1, sizeX2);
+				renderWave(renderedDataBuf, wData, 
+							qManager.getStrategyFor(i), 
+							cBindings[i].getRGBA());
 			}
 		}
+		
+		//Now we only need to tell Java2D how to handle the RGB buffer. 
 		ComponentColorModel ccm = new ComponentColorModel(
 									ColorSpace.getInstance(ColorSpace.CS_sRGB), 
 									null, false, false, Transparency.OPAQUE, 
 									DataBuffer.TYPE_BYTE);
-		BandedSampleModel   csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+		BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
 									sizeX1, sizeX2, 3);
 		return new BufferedImage(ccm, 
-								Raster.createWritableRaster(csm, dataBuf, null), 
-								false, null);
+						Raster.createWritableRaster(csm, renderedDataBuf, null), 
+						false, null);
 	}
 
 	/** 
@@ -122,7 +129,7 @@ class RGBStrategy
 	 * @param pd	reference to the PlaneDef object defined for the strategy.
 	 * @param d		image dimensions object.
 	 */
-	private void initAxesSize(PlaneDef pd, ImageDimensions d)
+	private void initAxesSize(PlaneDef pd, PixelsDimensions d)
 	{
 		switch (pd.getSlice()) {
 			case PlaneDef.XY:
@@ -159,11 +166,11 @@ class RGBStrategy
 			   	green = dataBuf.getElem(G_BAND, sizeX1*x2+x1);
 			   	blue = dataBuf.getElem(B_BAND, sizeX1*x2+x1);
 				dataBuf.setElem(R_BAND, sizeX1*x2+x1,
-							   red+(int) ((rgba[0]*v*alpha)/255));
-			   dataBuf.setElem(G_BAND, sizeX1*x2+x1,
-							   green+(int) ((rgba[1]*v*alpha)/255));
-			   dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
-							   blue+(int) ((rgba[2]*v*alpha)/255));
+								red+(int) ((rgba[0]*v*alpha)/255));
+				dataBuf.setElem(G_BAND, sizeX1*x2+x1,
+								green+(int) ((rgba[1]*v*alpha)/255));
+				dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
+								blue+(int) ((rgba[2]*v*alpha)/255));
 	   } 
 	}
 	
