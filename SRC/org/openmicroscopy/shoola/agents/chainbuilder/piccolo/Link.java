@@ -177,8 +177,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	 * @param y
 	 */
 	public void setEndCoords(float x,float y) {
-		if (ChainBuilderAgent.DEBUG)
-			System.err.println("adding link end point "+x+","+y);
+	//	if (ChainBuilderAgent.DEBUG)
+		//	System.err.println("adding link end point "+x+","+y);
 		setPoint(pointCount,new Point2D.Float(x,y));
 		setLine();
 	}
@@ -191,8 +191,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	 * @param pt
 	 */
 	public void setPoint(int index,Point2D pt) {
-		if (ChainBuilderAgent.DEBUG)
-		System.err.println("setting point # "+index+", # of points is "+points.size());
+		//if (ChainBuilderAgent.DEBUG)
+		//	System.err.println("setting point # "+index+", # of points is "+points.size());
 		if (points.size() <= index) {
 			points.add(index,pt);
 		}
