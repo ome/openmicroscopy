@@ -483,4 +483,6 @@ public interface SemanticTypesService
     public void updateAttributes(List attributes)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveAttributesByMEXs(String typeName, List mexes)
+		throws DSOutOfServiceException, DSAccessException;
 }

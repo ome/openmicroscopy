@@ -548,4 +548,18 @@ class STSAdapter
         gateway.updateAttributes(attributes);
     }
     
+    public List retrieveAttributesByMEXs(String typeName, List mexes)
+    		throws DSOutOfServiceException, DSAccessException {
+    		
+    	if (typeName == null || mexes == null || mexes.size() == 0) return null;
+
+	    // test to see if the List is all Integers here
+	    for (Iterator iter = mexes.iterator(); iter.hasNext();) {
+	        if (!(iter.next() instanceof Number))
+	            throw new IllegalArgumentException("Illegal ID type.");
+	    }
+	
+	    Criteria c = STSMapper.buildRetrieveCriteriaWithMEXs(mexes);
+	    return (List) gateway.retrieveListSTSData(typeName, c);
+    }
 }
