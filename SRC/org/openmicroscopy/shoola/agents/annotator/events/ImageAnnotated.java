@@ -27,14 +27,13 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.agents.annotator.events;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
@@ -50,6 +49,7 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
 public class ImageAnnotated
 	extends ResponseEvent
 {
+    
     private ImageAnnotation annotation;
     
     /**
@@ -66,10 +66,7 @@ public class ImageAnnotated
      * Gets the new ImageAnnotation (if any).  Saves a round trip to the DB.
      * @return The new annotation.
      */
-    public ImageAnnotation getAnnotation()
-    {
-        return annotation;
-    }
+    public ImageAnnotation getAnnotation() { return annotation; }
     
     /**
      * Sets the new annotation associated with the response.  Saves a round

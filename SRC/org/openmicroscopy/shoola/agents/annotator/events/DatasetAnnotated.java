@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
 public class DatasetAnnotated
 	extends ResponseEvent
 {
+    
 	private DatasetAnnotation annotation;
     
 	/**
@@ -72,16 +73,14 @@ public class DatasetAnnotated
 	 * Gets the new DatasetAnnotation (if any).  Saves a round trip to the DB.
 	 * @return The new annotation.
 	 */
-	public DatasetAnnotation getAnnotation()
-	{
-		return annotation;
-	}
+	public DatasetAnnotation getAnnotation() { return annotation; }
 
 	/**
 	 * Sets the new annotation associated with the response.  Saves a round
 	 * trip back to the DB for verification.
 	 * @param annotation The new ImageAnnotation in the response.
 	 */
+   
 	public void setAnnotation(DatasetAnnotation annotation)
 	{
 		this.annotation = annotation;
