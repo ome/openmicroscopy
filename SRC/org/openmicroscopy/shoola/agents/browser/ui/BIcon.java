@@ -38,16 +38,8 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.openmicroscopy.shoola.agents.browser.events.BrowserAction;
-import org.openmicroscopy.shoola.agents.browser.events.BrowserActions;
-import org.openmicroscopy.shoola.agents.browser.events.ReversibleBrowserAction;
 
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -69,10 +61,10 @@ public class BIcon extends PNode
      */
     protected PNode presentationNode;
     
-    protected int vertBuffer = 2;
-    protected int horizBuffer = 2;
-    protected int minWidth = 16;
-    protected int minHeight = 16;
+    protected int vertBuffer = 2; // border buffer (vertical)
+    protected int horizBuffer = 2; // border buffer (horiz)
+    protected int minWidth = 16; // minimum icon width
+    protected int minHeight = 16; // minimum icon height
     
     // initialization method
     private void init()
@@ -80,6 +72,8 @@ public class BIcon extends PNode
         // do nothing for now
     }
     
+    // centers the node inside the icon, especially if it is smaller than
+    // the minimum icon dimensions
     private void placeNode(PNode presentationNode)
     {
         if(presentationNode == null)
@@ -91,6 +85,8 @@ public class BIcon extends PNode
         double nodeWidth = presentationNode.getWidth();
         double nodeHeight = presentationNode.getHeight();
         
+        // in each case, this code centers the presentation node
+        // the node is too skinny (like me)
         if(nodeWidth < minWidth-horizBuffer*2)
         {
             offsetX = (minWidth-nodeWidth)/2;
@@ -101,6 +97,8 @@ public class BIcon extends PNode
             offsetX = horizBuffer;
             setBounds(getX(),getY(),(horizBuffer*2)+nodeWidth,getHeight());
         }
+        
+        // the node is short (Andrea?)
         if(nodeHeight < minHeight-vertBuffer*2)
         {
             offsetY = (minHeight-nodeHeight)/2;
@@ -111,6 +109,8 @@ public class BIcon extends PNode
             offsetY = vertBuffer;
             setBounds(getX(),getY(),getWidth(),(vertBuffer*2)+nodeHeight);
         }
+        
+        // now do the centering
         presentationNode.setOffset(offsetX,offsetY);
         
     }
@@ -145,7 +145,7 @@ public class BIcon extends PNode
      * click behavior for the child node.  In this manner,
      * supports image+text icons and glyph-based icons.
      * 
-     * @param childNode
+     * @param childNode The node to embed in this icon.
      */
     public BIcon(PNode childNode)
     {

@@ -73,9 +73,9 @@ public class BPalette extends PNode
      * INVARIANT: the first child node is *always* the palette header.
      */
     private String paletteName;
-    private int maxWidth; // the maximum width of the 
+    private int maxWidth; // the maximum width of the palette
     private int measuredWidth = 150; // 150 to start
-    private int iconSpacing;
+    private final int ICON_SPACING = 2;
     
     private TitleBar titleBar;
     private IconBar iconBar;
@@ -114,7 +114,8 @@ public class BPalette extends PNode
     }
     
     /**
-     * The palette's icon bar.
+     * The palette's icon bar.  This is the parent of the icons in the palette,
+     * and does the automatic layout for the icons.
      */
     class IconBar extends PNode
     {
@@ -173,54 +174,78 @@ public class BPalette extends PNode
          */
         public void layoutChildren()
         {
-            int currentOffsetX = 2;
-            int currentOffsetY = 2;
+            int currentOffsetX = ICON_SPACING;
+            int currentOffsetY = ICON_SPACING;
+            
+            // for the case in which one icon's width > max width
             boolean firstPlaced = false;
-            int maxHeight = 0; // simplistic LM for now
-            Iterator iter = getChildrenIterator();
+            
+            // simplistic LM for now (top-align)
+            int maxHeight = 0;
+            
+            /*
+             * Child placement loop.  This has several cases-- one where
+             * a single icon is too wide for the icon bar (in which case,
+             * expand the size of the icon bar), the line break case, and
+             * the normal placement case.  Icons are placed left-to-right,
+             * top-to-bottom, spaced horizontally and vertically by
+             * ICON_SPACING.
+             */
             for(int i=0;i<getChildrenCount();i++)
             {
                 PNode node = getChild(i);
+                
+                // condition: icon too wide
                 if(!firstPlaced && node.getWidth() > maxWidth)
                 {
                     // craptastic error condition, just place the thing
                     setMaxWidth((int)Math.ceil(node.getWidth()));
                     maxHeight = (int)Math.ceil(node.getHeight());
                     node.setOffset(currentOffsetX,currentOffsetY);
-                    currentOffsetY += maxHeight+2;
-                    currentOffsetX = 2;
+                    currentOffsetY += maxHeight+ICON_SPACING;
+                    currentOffsetX = ICON_SPACING;
                 }
+                // row empty condition: just place the icon to the right (normal)
                 else if(!firstPlaced)
                 {
                     firstPlaced = true;
                     node.setOffset(currentOffsetX,currentOffsetY);
                     maxHeight = (int)Math.ceil(node.getHeight());
-                    currentOffsetX += Math.ceil(node.getWidth())+2;
+                    currentOffsetX += Math.ceil(node.getWidth())+ICON_SPACING;
                 }
                 else
                 {
+                    // breakout condition, reset values
                     if(currentOffsetX + node.getWidth() > maxWidth)
                     {
-                        currentOffsetY += maxHeight+2;
+                        currentOffsetY += maxHeight+ICON_SPACING;
                         maxHeight = 0;
                         firstPlaced = false;
-                        currentOffsetX = 2;
+                        currentOffsetX = ICON_SPACING;
                         i--; // break and repeat
                     }
                     else
                     {
+                        // continue to place right condition
                         if(node.getWidth() > maxHeight)
                         {
                             maxHeight = (int)Math.ceil(node.getHeight());
                         }
                         node.setOffset(currentOffsetX,currentOffsetY);
-                        currentOffsetX += (int)Math.ceil(node.getWidth())+2;
+                        currentOffsetX += (int)Math.ceil(node.getWidth())+
+                                          ICON_SPACING;
                     }
                 }
             }
-            setBounds(getX(),getY(),maxWidth,currentOffsetY+maxHeight+4);
+            
+            // reset bounds to ensure spacing, adjusted max width (if applicable)
+            setBounds(getX(),getY(),maxWidth,
+                      currentOffsetY+maxHeight+(ICON_SPACING*2));
         }
         
+        /**
+         * Paints the background of the icon bar.
+         */
         public void paint(PPaintContext context)
         {
              Graphics2D graphics = context.getGraphics();
@@ -231,7 +256,10 @@ public class BPalette extends PNode
         }
     }
    
-    
+    /**
+     * The palette's title bar.  This acts as the drag event handler, and
+     * embeds the hide/minimize, close functions.
+     */
     class TitleBar extends PNode implements MouseDragSensitive
     {
         private String titleName;
@@ -248,6 +276,10 @@ public class BPalette extends PNode
         
         private Font titleFont = new Font(null,Font.BOLD,14);
         
+        /**
+         * Make a title bar with the specified name.
+         * @param name The name of the title bar.
+         */
         TitleBar(String name)
         {
             setBounds(bounds);
@@ -268,15 +300,16 @@ public class BPalette extends PNode
             minimizeNode = new MinimizeIcon();
             addChild(minimizeNode);
             minimizeNode.setOffset(measuredWidth-60,0);
+            
+            // we assign the minimize icon's behavior here because it's
+            // always going to be applicable here.
             MouseDownActions mouseActions = minimizeNode.getMouseDownActions();
             mouseActions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                              new PiccoloAction()
             {
-                /* (non-Javadoc)
-                 * @see org.openmicroscopy.shoola.agents.browser.events.PiccoloAction#execute()
-                 */
                 public void execute()
                 {
+                    // TODO: actually do something useful
                     System.err.println("Minimize clicked");
                 }
                 
@@ -342,6 +375,9 @@ public class BPalette extends PNode
             }
         }
 
+        /**
+         * Paint the title bar.
+         */
         public void paint(PPaintContext context)
         {
             Graphics2D g2 = context.getGraphics();
@@ -352,6 +388,9 @@ public class BPalette extends PNode
         }
     }
     
+    /**
+     * The icon on the title bar which triggers a palette minimization.
+     */
     class MinimizeIcon extends PNode implements MouseDownSensitive
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
@@ -422,6 +461,9 @@ public class BPalette extends PNode
         }
     }
     
+    /**
+     * The icon which triggers a palette hide.
+     */
     class HideIcon extends PNode
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
@@ -443,6 +485,9 @@ public class BPalette extends PNode
         }
     }
     
+    /**
+     * The icon that triggers a palette close.
+     */
     class CloseIcon extends PNode
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
