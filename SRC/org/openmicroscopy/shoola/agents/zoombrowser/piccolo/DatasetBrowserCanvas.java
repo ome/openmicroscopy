@@ -442,6 +442,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public void layoutContents() {
 		
+		System.err.println("laying out datasets");
 		eventHandler = new DatasetBrowserEventHandler(this);
 		// layout treemaps
 		arrangeDisplay(allDatasets);
