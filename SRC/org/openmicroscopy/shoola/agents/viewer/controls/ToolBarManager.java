@@ -142,6 +142,10 @@ public class ToolBarManager
 		view.getFPS().addChangeListener(this);
 	}
 	
+	public void setMaxZ(int z) { maxZ = z; }
+	
+	public void setMaxT(int t) { maxT = t; }
+	
 	public void onTChange(int t)
 	{
 		curT = t;
@@ -302,4 +306,5 @@ public class ToolBarManager
 	 * implementation.
 	 */ 
 	public void focusGained(FocusEvent e) {}
+	
 }

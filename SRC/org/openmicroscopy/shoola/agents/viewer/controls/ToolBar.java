@@ -47,7 +47,6 @@ import javax.swing.SpinnerNumberModel;
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -106,8 +105,6 @@ public class ToolBar
 		manager.attachListeners();
 		buildToolBar();
 	}
-	
-	
 	
 	public JLabel getZLabel() { return zLabel; }
 	
@@ -183,7 +180,7 @@ public class ToolBar
 		if (maxZ-1 == 0) zField.setEditable(false);
 	}
 	
-	
+	/** Build the main tool bar. */
 	private void buildToolBar() 
 	{
 		setFloatable(false);
@@ -240,7 +237,5 @@ public class ToolBar
 		tb.add(fps);
 		return tb;
 	}
-	
-
 		
 }
