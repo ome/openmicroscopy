@@ -51,19 +51,15 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
 public class ImageAnnotated extends ResponseEvent
 {
     private ImageAnnotation annotation;
+    
     /**
-     * Must take an AnnotateImage request event as a constructor, or an
-     * IllegalArgumentException will be thrown.
-     * @param re The RequestEvent that this is a response to (must be an
-     *           AnnotateImage object)
+     * Creates a new instance.
+     * 
+     * @param re The RequestEvent that this is a response to.
      */
-    public ImageAnnotated(RequestEvent re)
+    public ImageAnnotated(AnnotateImage re)
     {
-        super(re); // forced to do initial, but...
-        if(!(re instanceof AnnotateImage))
-        {
-            throw new IllegalArgumentException("Illegal request event type");
-        }
+        super(re);
     }
     
     /**
