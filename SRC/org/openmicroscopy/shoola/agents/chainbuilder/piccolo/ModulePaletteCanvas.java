@@ -165,7 +165,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 
 			//	set up tooltips.
 		 final PCamera camera = getCamera();
-		 camera.addInputEventListener(new ModulePaletteToolTipHandler(camera));
+		 camera.addInputEventListener(new ChainbuilderToolTipHandler(camera));
 	}
 	
 	
