@@ -43,7 +43,6 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.agents.datamng.editors.image.*;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /** 

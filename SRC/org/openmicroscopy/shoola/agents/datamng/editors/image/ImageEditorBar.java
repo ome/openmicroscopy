@@ -72,6 +72,7 @@ class ImageEditorBar
 		this.manager = manager;
 		initButtons();
 		buildGUI();
+		setFloatable(false);
 	}
 
 	/** Returns the save button. */
