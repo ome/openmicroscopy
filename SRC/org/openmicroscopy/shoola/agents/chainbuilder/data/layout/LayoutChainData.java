@@ -101,7 +101,7 @@ public class LayoutChainData  extends AnalysisChainData
 		getUnbounded();
 		initNodes();
 		layerNodes();
-//		layering.flattenLayers();
+		layering.flattenLayers();
 		makeProper();
 		reduceCrossings();
 	
