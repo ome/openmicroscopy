@@ -79,7 +79,7 @@ public class AnnotationMapper
         return c;
     }
 
-    public static Criteria buildImageAnnotationCriteria(List ids)
+    public static Criteria buildImageAnnotationCriteria(List ids, int userID)
     {
         Criteria c = new Criteria();
         fillAnnotationCriteria(c);
@@ -87,6 +87,10 @@ public class AnnotationMapper
         c.addWantedField("TheT");
         c.addWantedField("image");
         c.addFilter("image_id", "IN", ids);
+        //Retrieve user's annotation only
+        if (userID != -1)
+            c.addFilter("module_execution.experimenter_id", 
+                    new Integer(userID));
         return c;
     }
     
@@ -99,12 +103,17 @@ public class AnnotationMapper
         return c;
     }
    
-    public static Criteria buildDatasetAnnotationCriteria(List datasetIDs)
+    public static Criteria buildDatasetAnnotationCriteria(List datasetIDs, 
+                                                    int userID)
     {
         Criteria c = new Criteria();
         fillAnnotationCriteria(c);
         c.addWantedField("dataset");
         c.addFilter("dataset_id", "IN", datasetIDs);
+        //Retrieve user's annotation only
+        if (userID != -1)
+            c.addFilter("module_execution.experimenter_id", 
+                    new Integer(userID));
         return c;
     }
     
@@ -125,37 +134,33 @@ public class AnnotationMapper
         c.addWantedField("module_execution", "timestamp");
         c.addWantedField("module_execution", "experimenter");
         //Specify which fields we want for the owner.
-        c.addWantedField("module_execution.experimenter", "id");
         c.addWantedField("module_execution.experimenter", "FirstName");
         c.addWantedField("module_execution.experimenter", "LastName");
         c.addFilter("Valid", Boolean.TRUE);
     }
     
-    public static Map reverseListImageAnnotations(List annotations, int userID)
+    public static Map reverseListImageAnnotations(List annotations)
     {
         Map map = new HashMap();
         Iterator i = annotations.iterator();
         ImageAnnotation annotation;
         while (i.hasNext()) {
             annotation = (ImageAnnotation) i.next();
-            if (userID == 
-                annotation.getModuleExecution().getExperimenter().getID())
-                map.put(new Integer(annotation.getImage().getID()), annotation);
+            map.put(new Integer(annotation.getImage().getID()), annotation);
         }
         return map;
     }
     
-    public static Map reverseListDatasetAnnotations(List annotations, 
-                                                    int userID)
+    public static Map reverseListDatasetAnnotations(List annotations)
     {
         Map map = new HashMap();
         Iterator i = annotations.iterator();
         DatasetAnnotation annotation;
         while (i.hasNext()) {
             annotation = (DatasetAnnotation) i.next();
-            if (userID == 
-                annotation.getModuleExecution().getExperimenter().getID())
-                map.put(new Integer(annotation.getDataset().getID()), 
+            //if (userID == 
+            //    annotation.getModuleExecution().getExperimenter().getID())
+            map.put(new Integer(annotation.getDataset().getID()), 
                                        annotation);
         }
         return map;
@@ -257,4 +262,5 @@ public class AnnotationMapper
         }
         return results;  
     }
+    
 }

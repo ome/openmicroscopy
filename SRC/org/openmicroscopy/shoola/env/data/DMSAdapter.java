@@ -240,11 +240,12 @@ class DMSAdapter
         if (projects != null) {
             List ids = ProjectMapper.prepareListDatasetsID(projects);
             if (ids != null && ids.size() != 0) {
-                c = AnnotationMapper.buildDatasetAnnotationCriteria(ids);
+                c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, 
+                                uc.getUserID());
                 List l = (List) gateway.retrieveListSTSData("DatasetAnnotation",
                                                             c);
-                ProjectMapper.fillListAnnotatedDatasets(projects, 
-                        pProto, dProto, l, uc.getUserID(), projectsDS);
+                ProjectMapper.fillListAnnotatedDatasets(projects, pProto, 
+                                dProto, l, projectsDS);
             }
         }
         return projectsDS;
@@ -556,12 +557,11 @@ class DMSAdapter
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
         List ids = DatasetMapper.prepareListImagesID(dataset);
-        c = AnnotationMapper.buildImageAnnotationCriteria(ids);
+        c = AnnotationMapper.buildImageAnnotationCriteria(ids, uc.getUserID());
         if (ids != null && ids.size() != 0) {
             List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
                                     c);
-            DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
-                                uc.getUserID(), images);
+            DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, images);
         }  
         return images;
     }

@@ -391,14 +391,13 @@ public class DatasetMapper
      */
     public static List fillListAnnotatedImages(Dataset dataset, 
                                          ImageSummary iProto, List annotations, 
-                                         int userID, List images)
+                                         List images)
     {
         Iterator i = dataset.getImages().iterator();
         Image image;
         ImageSummary is;
         int id;
-        Map ids = AnnotationMapper.reverseListImageAnnotations(annotations, 
-                                                                userID);
+        Map ids = AnnotationMapper.reverseListImageAnnotations(annotations);
         while (i.hasNext()) {
             image = (Image) i.next();
             //Make a new DataObject and fill it up.
