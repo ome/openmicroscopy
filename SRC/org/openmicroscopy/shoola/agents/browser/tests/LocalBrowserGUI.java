@@ -35,14 +35,9 @@
  */
 package org.openmicroscopy.shoola.agents.browser.tests;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.beans.PropertyVetoException;
 
 import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 

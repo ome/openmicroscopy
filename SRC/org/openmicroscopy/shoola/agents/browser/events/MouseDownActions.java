@@ -111,7 +111,8 @@ public class MouseDownActions
     /**
      * Sets the action bound to a mouse click event to the
      * specified action and modifier.  If the action is NULL, the bound mouse
-     * click action will be PiccoloAction.PNOOP_ACTION.
+     * click action will be PiccoloAction.PNOOP_ACTION.  Put any actions
+     * which have conditional modifier logic using the NORMAL modifier.
      * 
      * @param action See above.
      */

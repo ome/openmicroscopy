@@ -159,22 +159,32 @@ public class BrowserModel
      */
     public void addThumbnail(Thumbnail thumb)
     {
-        if(thumb != null)
+        if(thumb == null)
         {
-            thumbnailSet.add(thumb);
-            GroupModel group = groupingMethod.getGroup(thumb);
-            group.addThumbnail(thumb);
-            updateModelListeners();
+            return;
         }
+        
+        thumbnailSet.add(thumb);
+        GroupModel group = groupingMethod.getGroup(thumb);
+        group.addThumbnail(thumb);
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener listener =
+                (BrowserModelListener)iter.next();
+            
+            listener.thumbnailAdded(thumb);
+        }
+        updateModelListeners();
+        
     }
     
    	/**
    	 * Batch add thumbnails to the browser.
-   	 * @param thumbs An array of thumbnails to add
+   	 * @param thumbs An array of thumbnails to add.
    	 */
     public void addThumbnails(Thumbnail[] thumbs)
     {
-    	System.err.println("Add thumbnails");
     	if(thumbs == null || thumbs.length == 0)
     	{
     		return;
@@ -186,6 +196,17 @@ public class BrowserModel
     		GroupModel group = groupingMethod.getGroup(thumbs[i]);
     		group.addThumbnail(thumbs[i]);
     	}
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener listener =
+                (BrowserModelListener)iter.next();
+            
+            for(int i=0;i<thumbs.length;i++)
+            {
+                listener.thumbnailAdded(thumbs[i]);
+            }
+        }
     	updateModelListeners();
     }
     
@@ -195,13 +216,23 @@ public class BrowserModel
      */
     public void removeThumbnail(Thumbnail thumb)
     {
-        if(thumb != null)
+        if(thumb == null)
         {
-            thumbnailSet.remove(thumb);
-            GroupModel group = groupingMethod.getGroup(thumb);
-            group.removeThumbnail(thumb);
-            updateModelListeners();
+            return;
         }
+        thumbnailSet.remove(thumb);
+        GroupModel group = groupingMethod.getGroup(thumb);
+        group.removeThumbnail(thumb);
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener listener =
+                (BrowserModelListener)iter.next();
+            
+            listener.thumbnailRemoved(thumb);
+        }
+        
+        updateModelListeners();
     }
     
     /**

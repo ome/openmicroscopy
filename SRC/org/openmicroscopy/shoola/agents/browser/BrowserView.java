@@ -54,9 +54,11 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -114,6 +116,10 @@ public class BrowserView extends PCanvas
     /** REUSABLE PICCOLO ACTIONS... **/
     private PiccoloAction selectThumbnailAction;
     private PiccoloAction deselectThumbnailAction;
+    
+    /** CURRENT THUMBNAIL ACTIONS (FOR THUMBNAILS TO BE ADDED) **/
+    private MouseDownActions defaultTDownActions;
+    private MouseOverActions defaultTOverActions;
 
     /**
      * Constructs the browser view with the two backing models-- one for the
@@ -165,8 +171,15 @@ public class BrowserView extends PCanvas
             return;
         }
         
+        defaultTDownActions = new MouseDownActions();
+        defaultTOverActions = new MouseOverActions();
+        
         selectThumbnailAction =
             PiccoloActionFactory.getSelectThumbnailAction(targetModel);
+        
+        defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                                selectThumbnailAction);
+        
     }
     
     //  initialization code
@@ -347,6 +360,7 @@ public class BrowserView extends PCanvas
     {
         // TODO change the action and paint for behaviors for the images;
         // modify the selected region
+        System.err.println("Selection");
     }
     
     /**
@@ -438,27 +452,55 @@ public class BrowserView extends PCanvas
      * Responds to a model-triggered update.
      * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#modelUpdated()
      */
-    public void modelUpdated() // TODO: refine this brute-force method
+    public void modelUpdated()
     {
-        getLayer().removeAllChildren();
-        List thumbnailList = browserModel.getThumbnails();
-        
-        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
-        {
-            getLayer().addChild((Thumbnail)iter.next());
-        }
         updateThumbnails();
     }
     
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailAdded(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+     */
+    public void thumbnailAdded(Thumbnail t)
+    {
+        // apply the current UI modes...
+        t.setMouseDownActions(defaultTDownActions);
+        t.setMouseOverActions(defaultTOverActions);
+        getLayer().addChild(t);
+        updateThumbnails();
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+     */
+    public void thumbnailRemoved(Thumbnail t)
+    {
+        getLayer().removeChild(t);
+        updateThumbnails();
+    }
+
+
+    
     /*** UI MODE MASS-APPLICATION METHODS ***/
     
-    private void setUniversalDownAction(MouseDownActions actions)
+    // sets the mouse down actions (default) for each thumbnail
+    private void setThumbnailDownActions(MouseDownActions actions)
     {
         List thumbnailList = browserModel.getThumbnails();
         for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
         {
             Thumbnail t = (Thumbnail)iter.next();
-            // TODO: apply method
+            t.setMouseDownActions(actions);
+        }
+    }
+    
+    // sets the mouse over actions (default) for each thumbnail
+    private void setThumbnailOverActions(MouseOverActions actions)
+    {
+        List thumbnailList = browserModel.getThumbnails();
+        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.setMouseOverActions(actions);
         }
     }
     

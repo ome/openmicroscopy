@@ -51,13 +51,11 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 public interface BrowserModelListener
 {
     /**
-     * Indicates that the model has updated, and the view should
-     * redraw its children, or repaint, or something to indicate the
-     * underlying change.  This isn't very informative, but the view
-     * should know how to draw a model each time.
+     * Indicates that some change to the model (grouping model change, etc)
+     * has occurred and associated views should update.
      */
     public void modelUpdated();
-    
+       
     /**
      * Changes the major UI mode of the browser model.
      * @param className The browser mode class which this applies to.
@@ -71,6 +69,18 @@ public interface BrowserModelListener
      *
      */
     public void paintMethodsChanged();
+    
+    /**
+     * Indicates that the specified thumbnail has been added to the view.
+     * @param t The thumbnail that was added.
+     */
+    public void thumbnailAdded(Thumbnail t);
+    
+    /**
+     * Indicates that the specified thumbnail has been removed from the view.
+     * @param t The thumbnail that was removed.
+     */
+    public void thumbnailRemoved(Thumbnail t);
     
     /**
      * Indicates that the specified thumbnails have been selected.

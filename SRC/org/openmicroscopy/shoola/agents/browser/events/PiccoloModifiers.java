@@ -53,7 +53,10 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public class PiccoloModifiers
 {
     /**
-     * No modifiers flag.
+     * No modifiers flag and fallback flag.  If you want to do conditional
+     * modifier checking, then create a PiccoloAction with conditional logic
+     * inside the execute(PInputEvent) call, and assign it to NORMA in the
+     * event action collection classes.
      */
     public static int NORMAL = 0;
     
