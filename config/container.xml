@@ -5,7 +5,7 @@
        <url>http://somehost/however/not/needed/right/now</url>
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-       <url>http://valewalker.openmicroscopy.org.uk/remote</url>
+       <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
      </structuredEntry>
    </services>
    <agents>
