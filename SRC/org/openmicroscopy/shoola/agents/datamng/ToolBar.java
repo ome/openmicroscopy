@@ -93,6 +93,7 @@ class ToolBar
 		imageButton =  new JButton(im.getIcon(IconManager.IMAGE));
 		imageButton.setToolTipText(
 			UIUtilities.formatToolTipText("Import a new image."));
+		imageButton.setEnabled(false);
 	}
 	
 	/** Build and lay out the tool bar. */

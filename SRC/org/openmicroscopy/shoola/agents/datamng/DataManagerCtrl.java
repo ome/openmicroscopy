@@ -219,9 +219,9 @@ public class DataManagerCtrl
 	/** Bring up the corresponding editor. */
 	void importImage()
 	{
-		List datasets = abstraction.getUserDatasets();
-		UIUtilities.centerAndShow(new ImportImageEditor(
-								abstraction.getRegistry(), this, datasets));
+		//List datasets = abstraction.getUserDatasets();
+		//UIUtilities.centerAndShow(new ImportImageEditor(
+		//						abstraction.getRegistry(), this, datasets));
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */

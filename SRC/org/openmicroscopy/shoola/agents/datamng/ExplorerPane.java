@@ -38,6 +38,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
@@ -95,8 +96,11 @@ class ExplorerPane
 		this.registry = registry;
 		tree = new JTree();
 		manager = new ExplorerPaneManager(this, agentCtrl);
-		DefaultTreeModel dtm = new DefaultTreeModel(manager.getUserTreeModel());
+		DefaultMutableTreeNode r = manager.getUserTreeModel();
+		DefaultTreeModel dtm = new DefaultTreeModel(r);
 		tree.setModel(dtm);
+		tree.setShowsRootHandles(true);
+		tree.collapsePath(new TreePath(r.getPath()));
 		buildGUI();
 	}
 	
@@ -138,7 +142,6 @@ class ExplorerPane
 	private final class DataTreeCellRenderer
 		extends DefaultTreeCellRenderer
 	{
-
 		public Component getTreeCellRendererComponent(JTree tree, Object value,
 							boolean sel, boolean expanded, boolean leaf,
 							int row, boolean hasFocus)
@@ -150,17 +153,13 @@ class ExplorerPane
 			try {
 				switch (index) {
 					case ROOT_ICON:
-						setIcon(IconManager.getOMEIcon());
-						break;
+						setIcon(im.getIcon(IconManager.ROOT)); break;
 					case PROJECT_ICON:
-						setIcon(im.getIcon(IconManager.PROJECT));
-						break;
+						setIcon(im.getIcon(IconManager.PROJECT)); break;
 					case DATASET_ICON:
-						setIcon(im.getIcon(IconManager.DATASET));
-						break;
+						setIcon(im.getIcon(IconManager.DATASET)); break;
 					case IMAGE_ICON:
-						setIcon(im.getIcon(IconManager.IMAGE));
-						break;
+						setIcon(im.getIcon(IconManager.IMAGE)); break;
 					case NO_ICON:
 						setIcon(null);
 				}									

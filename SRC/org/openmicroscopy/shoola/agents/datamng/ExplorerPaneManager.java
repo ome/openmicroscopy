@@ -84,7 +84,12 @@ class ExplorerPaneManager
 	/** Root of the tree. */
 	private DefaultMutableTreeNode  root;
 	
-	private boolean					treeDisplayed;
+	/** 
+	 * Boolean value used to control if the project-dataset hierarchy has 
+	 * been loaded. 
+	 */
+	private boolean					treeLoaded;
+	
 	/** 
 	 * Map of expanded dataset nodes.
 	 * Key: datasetSummary id, value: list of expanded nodes.
@@ -115,7 +120,7 @@ class ExplorerPaneManager
 		this.agentCtrl = agentCtrl;
 		pNodes = new TreeMap();
 		initListeners();
-		treeDisplayed = false;
+		treeLoaded = false;
 	}
 	
 	/** 
@@ -127,6 +132,10 @@ class ExplorerPaneManager
 	DefaultMutableTreeNode getUserTreeModel()
 	{
 		root = new DefaultMutableTreeNode("My OME");
+		DefaultMutableTreeNode childNode = 
+								new DefaultMutableTreeNode("");
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		treeModel.insertNodeInto(childNode, root, root.getChildCount());
 		return root;
 	}
 	
@@ -135,8 +144,8 @@ class ExplorerPaneManager
 	 * each of those nodes to the node representing <code>p</code>, that is, 
 	 * <code>pNode</code>. 
 	 *
-	 * @param   p   	The project summary.
-	 * @param   pNode   The node for project <code>p</code>.
+	 * @param p		The project summary.
+	 * @param pNode	The node for project <code>p</code>.
 	 */
 	private void addDatasetsToProject(ProjectSummary p, 
 									DefaultMutableTreeNode pNode, 
@@ -154,7 +163,6 @@ class ExplorerPaneManager
 									dNode, dNode.getChildCount());
 		}
 	}
-	
 	
 	/** Update a <code>project</code> node. */
 	void updateProjectInTree()
@@ -199,7 +207,7 @@ class ExplorerPaneManager
 	}
 	
 	/** 
-	 * Called when a  <code>project</code> node is modified. 
+	 * Called when a <code>project</code> node is modified. 
 	 * 
 	 * @param datasets		list of datasets in the project.
 	 * @param pNode			project node associated to the project 
@@ -229,7 +237,7 @@ class ExplorerPaneManager
 	 * If the image is displayed in several expanded datasets, the image data
 	 * node will also be updated.
 	 * 
-	 * @param	id		image data object.
+	 * @param id		image data object.
 	 */
 	void updateImageInTree(ImageData id)
 	{
@@ -257,9 +265,9 @@ class ExplorerPaneManager
 	}
 	
 	/** 
-	 * Update the map of expanded datasets. Internal used only.
+	 * Update the map of expanded datasets.
 	 * 
-	 * @param	id		image data object.
+	 * @param id		image data object.
 	 */
 	private void updateImagesInDataset(ImageData id)
 	{
@@ -283,7 +291,7 @@ class ExplorerPaneManager
 	/** 
 	 * Add a new project to the Tree. 
 	 * 
-	 * @param ps	Project summary to be displayed.
+	 * @param ps	Project summary to display.
 	 */
 	void addNewProjectToTree(ProjectSummary ps)
 	{
@@ -334,7 +342,6 @@ class ExplorerPaneManager
 
 	/**
 	 * Create and add an image's node to the dataset node.
-	 * Internal used only.
 	 * 
 	 * @param images	List of image summary object.
 	 * @param dNode		The node for the dataset
@@ -355,8 +362,8 @@ class ExplorerPaneManager
 	/**
 	 * Make sure the user can see the new node.
 	 * 
-	 * @param	child	Node to display.
-	 * @param	parent	Parent's node of the child.
+	 * @param child		Node to display.
+	 * @param parent	Parent's node of the child.
 	 */
 	private void setNodeVisible(DefaultMutableTreeNode child, 
 								DefaultMutableTreeNode parent)
@@ -371,7 +378,7 @@ class ExplorerPaneManager
 	 * popup menu is brought up. Otherwise, double-clicking on a project, 
 	 * dataset node brings up the corresponding property sheet dialog.
 	 *
-	 * @param   e   The mouse event.
+	 * @param e   The mouse event.
 	 */
 	private void onClick(MouseEvent e)
 	{
@@ -391,20 +398,9 @@ class ExplorerPaneManager
 						agentCtrl.showProperties(target);
 				}
 	   		} else { //click on the root node.
-				if (e.getClickCount() == 2) {
-					if (treeDisplayed) rootExpandOrCollapse();
-					else buildTree(); 
-				} 
+				if (e.getClickCount() == 2 && !treeLoaded) buildTree();
 	   		}
 		}
-	}
-	
-	/** Expand or collapse the tree. */
-	private void rootExpandOrCollapse()
-	{
-		TreePath path = new TreePath(root.getPath());
-		if (view.tree.isCollapsed(path)) view.tree.expandPath(path);
-		else view.tree.collapsePath(path);
 	}
 	
 	/** Build the tree model to represent the project-dataset hierarchy. */
@@ -412,6 +408,7 @@ class ExplorerPaneManager
 	{
 		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		root.removeAllChildren();
 		if (pSummaries != null) {
 			Iterator i = pSummaries.iterator();
 			ProjectSummary ps;
@@ -424,11 +421,12 @@ class ExplorerPaneManager
 				addDatasetsToProject(ps, pNode, treeModel);
 			}	
 		}
-		treeDisplayed = true;
+		treeModel.reload((TreeNode) root);
+		treeLoaded = true;
 	}
 	
 	/**
-	 * Handle the Tree expansion event.
+	 * Handle the tree expansion event.
 	 * 
 	 * @param e				event	
 	 * @param isExpanding	true if a treeExpanded event has been fired,
@@ -444,6 +442,8 @@ class ExplorerPaneManager
 		if (usrObject instanceof DatasetSummary) {
 			DatasetSummary ds = (DatasetSummary) usrObject;
 			datasetNodeNavigation(ds, node, isExpanding);
+		} else {
+			if (node.equals(root) && !treeLoaded && isExpanding) buildTree();
 		}
 	}
 
@@ -506,7 +506,7 @@ class ExplorerPaneManager
 	/**
 	 * Add the specified node to the dataset maps.
 	 * @param datasetID		maps' key.
-	 * @param node			node to be added.
+	 * @param node			node to add.
 	 * @param images		list of images in the specified dataset.
 	 */
 	private void addNodesToDatasetMaps(Integer datasetID, 
