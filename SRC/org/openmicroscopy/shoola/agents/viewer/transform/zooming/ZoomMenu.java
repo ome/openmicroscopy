@@ -61,7 +61,7 @@ public class ZoomMenu
 	
 	public ZoomMenu(ImageInspectorManager mng)
 	{
-		setLabel("Zooming");
+		setText("Zooming");
 		manager = new ZoomMenuManager(this, mng);
 		buildGUI();
 	} 
