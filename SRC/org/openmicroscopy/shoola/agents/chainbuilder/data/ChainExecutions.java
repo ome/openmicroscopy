@@ -30,9 +30,11 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
+import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -40,9 +42,11 @@ import java.util.Vector;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 
 
 /** 
@@ -59,15 +63,23 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
  */
 public class ChainExecutions {
 	
-	private TreeMap byExecId = new TreeMap();
-	private TreeMap byChainId = new TreeMap();
-	private TreeMap byDatasetId = new TreeMap();
+	/* we iterate over key sets on these, so treemaps are good */
+	private Map byExecId = new TreeMap();
+	private Map byChainId = new TreeMap();
+	private Map byDatasetId = new TreeMap();
 	
 	private String datasetNames[];
 	private String chainNames[];
 	
 	private long firstExecTime = Long.MAX_VALUE;
 	private long lastExecTime = Long.MIN_VALUE;
+
+	private transient Map nodeCounts = new HashMap();
+	
+	private transient Map nexesByMex = new HashMap();
+	private transient Map nexesByModule = new HashMap();
+	
+	private int maxNodeExecutionCount = 0;
 	
 	public ChainExecutions(Collection executions) {
 		Iterator iter = executions.iterator();
@@ -99,21 +111,73 @@ public class ChainExecutions {
 	private void addChainExecution(ChainExecutionData exec) {
 		
 		// add it to hash by exec id.
-		addToMap(exec,exec.getID(),byExecId);
+		addToMap(byExecId,exec.getID(),exec);
 		
 		// add it to hash by chain id
-		addToMappedList(exec,exec.getChain().getID(),byChainId);
+		addToMappedList(byChainId,exec.getChain().getID(),exec);
 		
 		// add it to hash by dataset id.
-		addToMappedList(exec,exec.getDataset().getID(),byDatasetId);
+		addToMappedList(byDatasetId,exec.getDataset().getID(),exec);
+		
+		// find module with most executions
+		addNodeExecution(exec);
 	}
 	
-	private void addToMap(ChainExecutionData exec,int id,TreeMap map) {
+	private void addNodeExecution(ChainExecutionData exec) {
+		// look at all of the node executions
+		Collection nodeExecs = exec.getNodeExecutions();
+		Iterator iter = nodeExecs.iterator();
+		ChainNodeExecutionData nodeExec;
+		LayoutNodeData node;
+		
+		while (iter.hasNext()) {
+			nodeExec = (ChainNodeExecutionData) iter.next();
+			// add nex by mex
+			addNodeExecution(nodeExec);
+			node = (LayoutNodeData) nodeExec.getAnalysisNode();
+			addExecutionForNode(node);
+		}
+	}
+	
+	private void addNodeExecution(ChainNodeExecutionData nodeExec) {
+		ModuleExecutionData mex = nodeExec.getModuleExecution();
+		ChainModuleData mod = (ChainModuleData) mex.getModule();
+		addToMexNexHash(mex,nodeExec);
+		addToModuleNexHash(mod,nodeExec);
+	}
+	
+	private void addToMexNexHash(ModuleExecutionData mex,ChainNodeExecutionData nodeExec) {
+		addToMappedList(nexesByMex,mex.getID(),nodeExec);
+	}
+	
+	private void addToModuleNexHash(ChainModuleData mod,ChainNodeExecutionData nodeExec) {
+		addToMappedList(nexesByModule,mod.getID(),nodeExec);
+	}
+	
+	private void addExecutionForNode(LayoutNodeData node) {
+		int count;
+		Integer c;
+		Integer hashIndex = new Integer(node.getID());
+		Object obj  = nodeCounts.get(hashIndex);
+		if (obj == null) 
+			count = 0;
+		else {
+			c = (Integer) obj;
+			count = c.intValue();
+		}
+		count++; // add one for current
+		if (count > maxNodeExecutionCount)
+			maxNodeExecutionCount = count;
+		c = new Integer(count);
+		nodeCounts.put(hashIndex,c);
+	}
+
+	private void addToMap(Map map,int id,Object newObj) {
 		Integer ID = new Integer(id);
-		map.put(ID,exec);
+		map.put(ID,newObj);
 	}
 	
-	private void addToMappedList(ChainExecutionData exec,int id,TreeMap map) {
+	private void addToMappedList(Map map,int id,Object newObj) {
 		Integer ID = new Integer(id);
 		Object obj = map.get(ID);
 		Vector items;
@@ -122,8 +186,12 @@ public class ChainExecutions {
 		}
 		else 
 			items = (Vector) obj;
-		items.add(exec);
+		items.add(newObj);
 		map.put(ID,items);
+	}
+	
+	public int getMaxNodeExecutionCount() {
+		return maxNodeExecutionCount;
 	}
 	
 	public Collection getExecutions() {
@@ -177,7 +245,6 @@ public class ChainExecutions {
 	// to be revised.
 	public ChainExecutionsByNodeID getChainExecutionsByChainID(int id) {
 		Integer ID = new Integer(id);
-		Collection execs = (Collection) byChainId.get(ID);
 		return new ChainExecutionsByNodeID((Collection) byChainId.get(ID));
 	}
 	
@@ -208,7 +275,7 @@ public class ChainExecutions {
 		return getIndex(id,byDatasetId);
 	}
 	
-	private int getIndex(int id,TreeMap map) {
+	private int getIndex(int id,Map map) {
 		int index = 0;
 		Iterator iter = map.keySet().iterator();
 		while (iter.hasNext()) {
@@ -244,6 +311,14 @@ public class ChainExecutions {
 		return lastExecTime;
 	}
 
+	public Collection getNexesForMex(int mexid) {
+		Integer ID = new Integer(mexid);
+		return (Collection) nexesByMex.get(ID);
+	}
 	
+	public Collection getNexesForModule(int modid) {
+		Integer ID = new Integer(modid);
+		return (Collection) nexesByModule.get(ID);
+	}
 	
 }
