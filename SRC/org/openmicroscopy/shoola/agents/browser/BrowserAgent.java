@@ -35,6 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
@@ -159,7 +161,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     // images.
     private boolean loadDataset(DatasetData datasetModel)
     {
-        BrowserModel model = new BrowserModel();
+        BrowserModel model = new BrowserModel(datasetModel);
         BrowserTopModel topModel = new BrowserTopModel();
         BrowserView view = new BrowserView(model,topModel);
         BrowserController controller = new BrowserController(model,view);
@@ -172,6 +174,16 @@ public class BrowserAgent implements Agent, AgentEventListener
         // TODO: load images
         
         return true;
+    }
+    
+    /**
+     * Gets the valid image types for the particular dataset.
+     * @param dataset
+     * @return
+     */
+    public List getImageTypesForDataset(DatasetData dataset)
+    {
+        return null;
     }
 
     /**

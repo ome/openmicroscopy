@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 /**
  * The backing data model for the browser (not including overlays) and
@@ -59,6 +60,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
 public class BrowserModel
 {
     private BrowserEnvironment env;
+    private DatasetData backingModel;
 
     private Set thumbnailSet;
     
@@ -73,6 +75,8 @@ public class BrowserModel
     private PaintMethodZOrder annotationModel;
 
     private Set selectedThumbnails;
+    
+    private List relevantImageSTs;
 
     private Map modeClassMap;
 
@@ -106,6 +110,7 @@ public class BrowserModel
         progressListeners = new HashSet();
         modelListeners = new HashSet();
         selectedThumbnails = new HashSet();
+        relevantImageSTs = new ArrayList();
         groupingMethod = new SingleGroupingMethod();
         groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
@@ -140,13 +145,43 @@ public class BrowserModel
     }
 
     /**
-     * Creates a BrowserModel with an empty backing ThumbnailSourceModel.  That is,
-     * there are not yet any loaded thumbnails, although the model is accessible.
-     *
+     * Creates a BrowserModel with empty backing dataset information.  The
+     * model does not yet contain any images-- the images are loaded lazily.
      */
     public BrowserModel()
     {
         init();
+    }
+    
+    /**
+     * Creates a BrowserModel with the specified backing dataset.  The model
+     * does not yet contain any images-- the images are loaded lazily.
+     * @param dataset The backing dataset.
+     */
+    public BrowserModel(DatasetData dataset)
+    {
+        setDataset(dataset);
+        init();
+    }
+    
+    /**
+     * Returns the backing dataset.
+     * @return See above.
+     */
+    public DatasetData getDataset()
+    {
+        return backingModel;
+    }
+    
+    /**
+     * Sets the OME dataset for the browser model.  Can be null if you
+     * want to nullify the dataset model.
+     * 
+     * @param dataset The backing dataset.
+     */
+    public void setDataset(DatasetData dataset)
+    {
+        this.backingModel = dataset;
     }
     
     // TODO: include constructor which loads settings (so that the grouping
