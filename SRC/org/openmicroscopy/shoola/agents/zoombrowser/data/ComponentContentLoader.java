@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader
+ * org.openmicroscopy.shoola.agents.zoombrowser.data.ComponentContentLoader
  *
  *------------------------------------------------------------------------------
  *
@@ -36,12 +36,12 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.SwingWorker;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
-
+import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
 
 /** 
- * A swing worker class that can be used to load different types of content.
+ * A swing worker class that can be used to load different types of content and
+ * associate that content with a component.
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -52,21 +52,18 @@ import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
  * </small>
  * @since OME2.2
  */
-public abstract class ContentLoader extends SwingWorker
+public abstract class ComponentContentLoader extends ContentLoader
 {
+	/** Component */
+	protected ContentComponent component;
 	
-	/** Thread group */
-	protected ContentGroup group;
 	
-	/** Data manager */
-	protected DataManager dataManager;
-	
-	public ContentLoader(final DataManager dataManager,
+	public ComponentContentLoader(final DataManager dataManager,
+			final ContentComponent component,
 			final ContentGroup group) {
-		super();
-		this.dataManager = dataManager;
-		this.group = group;
-		group.addLoader(this);
+		super(dataManager,group);
+		this.component = component;
+		start();
 	}	
 	
 	/**
@@ -74,6 +71,10 @@ public abstract class ContentLoader extends SwingWorker
 	 */
 	public Object construct() {
 		List items = getContents();
+		if (component != null) {
+			component.setContents(items);
+			component.layoutContents();
+		}
 		return items;
 	}
 	
@@ -86,7 +87,15 @@ public abstract class ContentLoader extends SwingWorker
 		group.finishLoader(this);
 	}
 	
+	/**
+	 * retrieve the component 
+	 */
+	public ContentComponent getComponent() {
+		return component;
+	}
+	
 	public void completeInitialization() {
-		
+		if (component != null)
+			component.completeInitialization();
 	}
 }
