@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.awt.Frame;
+
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -132,7 +134,7 @@ public abstract class TopWindow
 	}
 	
 	/**
-	 * Called by subclasses to perform intialization.
+	 * Called by subclasses to perform initialization.
 	 * This constructor adds a button to the 
 	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry to the
 	 * {@link TaskBar#WINDOW_MENU} &#151; subclasses can then use the 
@@ -156,6 +158,28 @@ public abstract class TopWindow
 		configureButtons();
 		manager = new TopWindowManager(this, 
 						new AbstractButton[] {quickLaunchBtn, winMenuEntry});
+	}
+	
+	/**
+	 * Called by subclasses to perform initialization.
+	 * 
+	 * @param title	The title of the window.
+	 */
+	protected TopWindow(String title)
+	{
+		super(title);
+		setIconImage(IconManager.getOMEImageIcon());  //Default.
+	}
+	
+	/** 
+	 * Deiconify the frame if it's the {@link #getExtendedState()}
+	 * returns {@see Frame.Iconified}.
+	 */
+	public void deIconify()
+	{
+		if (getExtendedState() == Frame.ICONIFIED)
+			setExtendedState(Frame.NORMAL);
+		setVisible(true);	
 	}
 	
 	/**
