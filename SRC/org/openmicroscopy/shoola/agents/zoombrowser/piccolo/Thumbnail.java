@@ -138,7 +138,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 	private PPath makeHighlight() {
 		 PBounds b = getBounds();
 		 PPath path = new PPath(b);
-		 path.setStroke(Constants.BORDER_STROKE);
+		 path.setStroke(Constants.THUMBNAIL_HIGHLIGHT_STROKE);
 		 path.setStrokePaint(Constants.SELECTED_HIGHLIGHT_COLOR);
 		 path.setPickable(false);
 		 return path;
