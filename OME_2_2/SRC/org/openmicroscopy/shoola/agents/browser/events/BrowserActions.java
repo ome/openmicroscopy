@@ -35,22 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
-import java.beans.PropertyVetoException;
-
-import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
-import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
-import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapUI;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 
 /**
  * A collection of common browser actions.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public final class BrowserActions
@@ -66,63 +59,29 @@ public final class BrowserActions
         }
     };
     
+    /**
+     * Activate and display the heatmap.
+     */
     public static BrowserAction SHOW_HEATMAP_ACTION = new BrowserAction()
     {
         public void execute()
         {
             BrowserEnvironment env = BrowserEnvironment.getInstance();
-            BrowserAgent agent = env.getBrowserAgent();
-            TopFrame tf = agent.getTopFrame();
-            
-            HeatMapManager manager = env.getHeatMapManager();
-            HeatMapUI ui = manager.getUI();
-            ui.setClosable(true);
-            ui.setIconifiable(true);
-            ui.setResizable(false);
-            ui.setMaximizable(false);
-            if(!ui.isShowing())
-            {
-                tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                ui.show();
-            }
-            else
-            {
-                try
-                {
-                    ui.setSelected(true);
-                }
-                catch(PropertyVetoException ex) {}
-            }
+            BrowserManager bManager = env.getBrowserManager();
+            bManager.showStaticWindow(BrowserManager.HEATMAP_KEY);
         }
     };
     
+    /**
+     * Activate and display the color map.
+     */
     public static BrowserAction SHOW_COLORMAP_ACTION = new BrowserAction()
     {
         public void execute()
         {
             BrowserEnvironment env = BrowserEnvironment.getInstance();
-            BrowserAgent agent = env.getBrowserAgent();
-            TopFrame tf = agent.getTopFrame();
-            
-            ColorMapManager manager = env.getColorMapManager();
-            ColorMapUI ui = manager.getUI();
-            ui.setClosable(true);
-            ui.setIconifiable(true);
-            ui.setResizable(false);
-            ui.setMaximizable(false);
-            if(!ui.isShowing())
-            {
-                tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                ui.show();
-            }
-            else
-            {
-                try
-                {
-                    ui.setSelected(true);
-                }
-                catch(PropertyVetoException ex) {}
-            }
+            BrowserManager bManager = env.getBrowserManager();
+            bManager.showStaticWindow(BrowserManager.COLORMAP_KEY);
         }
     };
 }

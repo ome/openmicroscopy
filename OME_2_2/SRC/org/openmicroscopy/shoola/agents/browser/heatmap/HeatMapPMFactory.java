@@ -91,6 +91,7 @@ public class HeatMapPMFactory
                 Rectangle2D region = t.getBounds().getBounds2D();
                 ThumbnailDataModel tdm = t.getModel();
                 AttributeMap map = tdm.getAttributeMap();
+                // TODO fix for multiple attributes
                 Attribute attr = map.getAttribute(attributeName);
                 if(attr == null)
                 {

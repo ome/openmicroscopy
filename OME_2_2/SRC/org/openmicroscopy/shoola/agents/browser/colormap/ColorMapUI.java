@@ -36,21 +36,19 @@
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 
-import javax.swing.JInternalFrame;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
+import javax.swing.JPanel;
 
 /**
- * The UI for the colormap.
+ * The UI for the colormap.  Wrapped in a JPanel to promote layout
+ * flexibility (between JIF and JFs)
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
-public class ColorMapUI extends JInternalFrame
+public class ColorMapUI extends JPanel
                         implements ColorMapModelListener
 {
     private ColorMapModel model;
@@ -75,7 +73,6 @@ public class ColorMapUI extends JInternalFrame
     
     public void init()
     {
-        setTitle("View Phenotypes");
         groupBar = new ColorMapGroupBar();
         listUI = new ColorMapListUI();
         if(model != null)
@@ -124,36 +121,36 @@ public class ColorMapUI extends JInternalFrame
     {
         dispatch.fireRedraw();
     }
-
     
+    /**
+     * Tells the dispatcher to cancel the display.
+     */
+    public void fireModeCancel()
+    {
+        if(dispatch != null)
+        {
+            dispatch.fireModeCancel();
+        }
+    }
+    
+    /**
+     * Tells the dispatcher to redisplay its previous settings, if
+     * it had any.
+     */
+    public void fireModeReactivate()
+    {
+        if(dispatch != null)
+        {
+            dispatch.fireModeReactivate();
+        }
+    }
+
+    // build the user interface.
     private void buildUI()
     {
-        Container container = getContentPane();
-        
-        container.setLayout(new BorderLayout(2,2));
-        container.add(groupBar,BorderLayout.NORTH);
-        container.add(listUI,BorderLayout.CENTER);
-        
-        addInternalFrameListener(new InternalFrameAdapter()
-        {
-            public void internalFrameClosing(InternalFrameEvent arg0)
-            {
-                if(dispatch != null)
-                {
-                    dispatch.fireModeCancel();
-                }
-            }
-            
-            public void internalFrameOpened(InternalFrameEvent arg0)
-            {
-                if(dispatch != null)
-                {
-                    dispatch.fireModeReactivate();
-                }
-            }
-        });
-        
-        pack();
+        setLayout(new BorderLayout(2,2));
+        add(groupBar,BorderLayout.NORTH);
+        add(listUI,BorderLayout.CENTER);
     }
 
 }

@@ -136,7 +136,7 @@ public class IconManager
     
     static
     {
-        smallPaths[BROWSER] = "browser16.png";
+        smallPaths[BROWSER] = "browser-small.png";
         smallPaths[ZOOM_BAR] = "zoombar.png";
         smallPaths[OPTIONS_BAR] = "optionsbar.png";
         smallPaths[OPEN_IMAGE] = "openimage.png";
@@ -156,7 +156,7 @@ public class IconManager
     
     static
     {
-        largePaths[BROWSER] = "browser24.png";
+        largePaths[BROWSER] = "browser-large.png";
         largePaths[ZOOM_BAR] = "zoombar.png";
         largePaths[OPTIONS_BAR] = "optionsbar.png";
         largePaths[OPEN_IMAGE] = "openimage.png";

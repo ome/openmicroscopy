@@ -35,7 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser.ui;
 
-import org.openmicroscopy.shoola.agents.browser.BrowserController;
+import java.awt.Component;
 
 /**
  * Specifies the interface for a UI component that wraps a Browser MVC
@@ -45,25 +45,37 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.2
  * @since OME2.2
  */
 public interface UIWrapper
-{
+{   
     /**
-     * Returns the controller embedded in this UI component.
+     * Returns the component UI that wraps the browser view.
      * @return See above.
      */
-    public BrowserController getController();
+    public Component getRealUI();
+    
+    /**
+     * Indicates that the wrapper has been opened.  To be triggered by
+     * the wrapper's native open notification event.
+     */
+    public void wrapperOpened();
+    
+    /**
+     * Indicates that the wrapper has been selected.  To be triggered by
+     * the wrapper's native selection notification event.
+     */
+    public void wrapperSelected();
+    
+    /**
+     * Indicates that the wrapper has been closed.  To be triggered by
+     * the wrapper's native closing notification event.
+     */
+    public void wrapperClosed();
     
     /**
      * Selects the specified wrapper.
      */
     public void select();
-    
-    /**
-     * Sets the title of the browser to the specified string.
-     * @param title See above.
-     */
-    public void setBrowserTitle(String title);
 }

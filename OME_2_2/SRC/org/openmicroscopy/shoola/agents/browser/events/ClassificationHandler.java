@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
-import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class ClassificationHandler implements CompletionHandler
@@ -101,7 +101,7 @@ public class ClassificationHandler implements CompletionHandler
         List imageMaps = new ArrayList();
         for(Iterator iter = browsers.iterator(); iter.hasNext();)
         {
-            UIWrapper wrapper = (UIWrapper)iter.next();
+            BrowserWrapper wrapper = (BrowserWrapper)iter.next();
             BrowserController controller = wrapper.getController();
             BrowserModel model = controller.getBrowserModel();
             Map imageIDMap = model.getImageDataMap();

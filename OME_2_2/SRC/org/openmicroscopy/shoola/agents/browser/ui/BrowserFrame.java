@@ -42,48 +42,59 @@ import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
-
-import edu.umd.cs.piccolo.PCanvas;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 
 /**
- * A (tentative) JFrame wrapper for a BrowserView object.
+ * Wraps a BrowserView in a JFrame for use in multi-window applications.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
- * @since OME2.2
+ * @version 2.2.1
+ * @since OME2.2.1
  */
-public class BrowserFrame extends JFrame implements UIWrapper
+public class BrowserFrame extends StandaloneFrame
+                          implements BrowserWrapper
 {
-    private IntraDragAdapter dragAdapter;
     private BrowserController controller;
-    private BrowserView embeddedView;
-    private BrowserEnvironment env;
+    private BrowserManager manager;
     
-    public BrowserFrame(BrowserController controller)
+    /**
+     * Constructs a JFrame that wraps the BrowserController and its
+     * BrowserView (which ultimately extends JPanel)
+     * 
+     * @param controller The controller to wrap.
+     * @throws IllegalArgumentException If theController is null.
+     */
+    public BrowserFrame(BrowserController theController)
     {
-        setSize(600,600);
-        setTitle("Image Browser-- "); // TODO: add code to get name of view
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this may be wrong
-        
         if(controller != null)
         {
-            this.controller = controller;
-            this.embeddedView = controller.getView();
-            PCanvas.CURRENT_ZCANVAS = embeddedView;
-            embeddedView.setVisible(true);
-            this.env = BrowserEnvironment.getInstance();
+            this.controller = theController;
         }
-        
+        else
+        {
+            throw new IllegalArgumentException("Null controller");
+        }
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        this.manager = env.getBrowserManager();
+        buildUI();
+    }
+    
+    // builds the UI.
+    private void buildUI()
+    {
+        setSize(600,600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setJMenuBar(new BrowserMenuBar(controller.getBrowserModel()));
+        setTitle(controller.getName());
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
-        container.add(embeddedView,BorderLayout.CENTER);
-        this.addFocusListener(new CommonFocusAdapter(this));
+        container.add(new BrowserPanel(controller),BorderLayout.CENTER);
     }
     
     /**
-     * Returns the embedded controller. 
-     *
+     * Returns the embedded controller.
+     * 
      * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#getController()
      */
     public BrowserController getController()
@@ -92,12 +103,45 @@ public class BrowserFrame extends JFrame implements UIWrapper
     }
     
     /**
+     * Indicates to the browser application that this window has been
+     * selected.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#wrapperSelected()
+     */
+    public void wrapperSelected()
+    {
+        manager.setActiveBrowser(this);
+    }
+    
+    /**
+     * Indicate to the browser application that this window has been
+     * closed.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#wrapperClosed()
+     */
+    public void wrapperClosed()
+    {
+        manager.removeBrowser(this);
+    }
+    
+    /**
+     * Indicate to the browser application that this window has been
+     * opened.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#wrapperOpened()
+     */
+    public void wrapperOpened()
+    {
+        // manager.addBrowser(controller);
+    }
+
+    /**
      * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#select()
      */
     public void select()
     {
-        // can't really do anything here, for now... more applicable
-        // to the JInternalFrame...
+        setExtendedState(JFrame.NORMAL);
+        toFront();
     }
 
     

@@ -96,15 +96,30 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 /**
  * The agent class that connects the browser to the rest of the client
  * system, and receives events triggered by other parts of the client.
- * Subscribes and places events on the EventBus.
+ * Subscribes and places events on the EventBus.  Also is (currently)
+ * responsible for correctly initializing a browser window based on
+ * information from the database.  This functionality can likely be
+ * abstracted in a cleaner manner.
  * 
- * The BrowserAgent responds to the following events: (list events)
+ * The BrowserAgent responds to the following events:
+ * LoadDataset
+ * ImageAnnotated
+ * ImagesAnnotated
+ * CategoriesChanged
  * 
- * The BrowserAgent places the following events on the queue: (list)
+ * The BrowserAgent places the following events on the queue:
+ * LoadImage
+ * ViewImageInfo
+ * AnnotateImage
+ * LoadCategories
+ * ClassifyImage
+ * ClassifyImages
+ * ReclassifyImage
+ * ReclassifyImages
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br><br>
  * <b>Internal Version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class BrowserAgent implements Agent, AgentEventListener
@@ -112,7 +127,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     private Registry registry;
     private EventBus eventBus;
     private BrowserEnvironment env;
-    private TopFrame tf;
     
     private List imageTypeList;
     
@@ -163,15 +177,15 @@ public class BrowserAgent implements Agent, AgentEventListener
     }
     
     /**
-     * Does activation stuff (incomplete).
+     * Activates the browser and initializes the environment.
+     * Initializes the browser manager, heat map manager, and color
+     * map manager for all browser windows.
      * 
      * @see org.openmicroscopy.shoola.env.Agent#activate()
      */
     public void activate()
     {
-        env.setBrowserManager(new BrowserManager());
-        env.setHeatMapManager(new HeatMapManager());
-        env.setColorMapManager(new ColorMapManager());
+        // do nothing
     }
     
     /**
@@ -188,7 +202,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     }
     
     /**
-     * Does termination stuff (incomplete)
+     * Does termination stuff (incomplete). Browser does not currently
+     * retain state, so nothing is necessary upon termination (yet).
      * 
      * @see org.openmicroscopy.shoola.env.Agent#terminate()
      */
@@ -200,13 +215,21 @@ public class BrowserAgent implements Agent, AgentEventListener
     }
     
     /**
+     * Sets the context of the browser agent within the Shoola
+     * environment.  Links the browser to the Registry, event bus,
+     * icon manager, and looks up local configuration information
+     * from the configuration XML files.  Finally, subscribes for
+     * events in the EventBus and establishes a link with the
+     * SemanticTypeService.
+     * 
+     * @param ctx The registry to retrieve container-level objects and
+     *            local configuration information from.
      * @see org.openmicroscopy.shoola.env.Agent#setContext(org.openmicroscopy.shoola.env.config.Registry)
      */
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
         this.eventBus = ctx.getEventBus();
-        this.tf = ctx.getTopFrame();
         
         env.setIconManager(IconManager.getInstance(ctx));
         
@@ -262,6 +285,10 @@ public class BrowserAgent implements Agent, AgentEventListener
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error",dsa.getMessage(),dsa);
         }
+        
+        env.setBrowserManager(BrowserManagerSelector.getInstance(registry));
+        env.setHeatMapManager(new HeatMapManager(registry));
+        env.setColorMapManager(new ColorMapManager(registry));
     }
     
     /**
@@ -273,11 +300,10 @@ public class BrowserAgent implements Agent, AgentEventListener
     public void loadDataset(int datasetID)
     {
         BrowserManager manager = env.getBrowserManager();
-        int index;
-        if((index = manager.hasBrowser(datasetID))
-            != BrowserManager.NOT_FOUND)
+        BrowserWrapper bw;
+        if((bw = manager.getBrowserForDataset(datasetID)) != null)
         {
-            manager.setActiveBrowser(index);
+            manager.setActiveBrowser(bw);
             return;
         }
         DataManagementService dms = registry.getDataManagementService();
@@ -294,28 +320,18 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         optionPalette.setOffset(0,0);
         BrowserView view = new BrowserView(model,topModel);
-        BrowserController controller = new BrowserController(model,topModel,view);
+        final BrowserController controller = new BrowserController(model,topModel,view);
         controller.setStatusView(new StatusBar());
 
-        final int browserIndex = 0; // default behavior for new browser
-        final BrowserInternalFrame bif = new BrowserInternalFrame(controller);
-        env.getBrowserManager().addBrowser(bif);
-
-        StatusBar status = controller.getStatusView();
-
-        tf.addToDesktop(bif,TopFrame.PALETTE_LAYER);
-        bif.setClosable(true);
-        bif.setIconifiable(true);
-        bif.setMaximizable(true);
-        bif.setResizable(true);
-        bif.show();
+        final BrowserWrapper wrapper =
+            env.getBrowserManager().addBrowser(controller);
         
         final int theDataset = datasetID;
         KillableThread retrieveThread = new KillableThread()
         {
             public void run()
             {
-                addLoaderThread(bif.getController(),this);
+                addLoaderThread(controller,this);
                 try
                 {
                     DataManagementService dms =
@@ -324,8 +340,8 @@ public class BrowserAgent implements Agent, AgentEventListener
                     model.setDataset(dataset);
                     if(!kill)
                     {
-                        bif.setTitle("Image Browser: "+dataset.getName());
-                        loadDataset(browserIndex,dataset);
+                        wrapper.setBrowserTitle("Image Browser: "+dataset.getName());
+                        loadDataset(wrapper,dataset);
                     }
                     else
                     {
@@ -344,19 +360,21 @@ public class BrowserAgent implements Agent, AgentEventListener
                     // pop up new login window (eventually caught)
                     throw new RuntimeException(dsoe);
                 }
-                removeLoaderThread(bif.getController(),this);
+                removeLoaderThread(controller,this);
             }
         };
         
         retrieveThread.start();
-        writeStatusImmediately(status,"Loading dataset from DB...");
+        writeStatusImmediately(controller.getStatusView(),
+                               "Loading dataset from DB...");
             
     }
     
     // loads the information from the Dataset into a BrowserModel, and the
     // also is responsible for triggering the mechanism that loads all the
     // images.
-    private boolean loadDataset(int whichBrowser, DatasetData datasetModel)
+    private boolean loadDataset(final BrowserWrapper wrapper,
+                                DatasetData datasetModel)
     {
         // get that s**t out of here; call a proper parameter, man!
         if(datasetModel == null)
@@ -364,10 +382,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             return false; // REEEEE-JECTED.
         }
         
-        // TODO sync bug here (messes up if other browser closed)
-        final BrowserController controller =
-            env.getBrowserManager().getBrowser(whichBrowser).getController();
-        
+        final BrowserController controller = wrapper.getController();
         final BrowserModel model = controller.getBrowserModel();
         final BrowserView view = controller.getView();
         final StatusBar status = controller.getStatusView();
@@ -786,7 +801,6 @@ public class BrowserAgent implements Agent, AgentEventListener
                                 tdm.getAttributeMap().putAttribute(c);
                             }
                         }
-                        // TODO: figure out strategy for adding attributes.  do it here?
                         final Thumbnail t = new Thumbnail(image,tdm);
                         
                         final int theCount = count;
@@ -876,7 +890,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         final int theDataset = datasetID;
         final int theIndex = browserIndex;
         BrowserManager manager = env.getBrowserManager();
-        final UIWrapper browser = manager.getBrowser(browserIndex);
+        final BrowserWrapper browser = manager.getBrowser(browserIndex);
         
         BrowserController controller = browser.getController();
         
@@ -893,7 +907,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                     DatasetData dataset = dms.retrieveDataset(theDataset);
                     model.setDataset(dataset);
                     browser.setBrowserTitle("Image Browser: "+dataset.getName());
-                    loadDataset(theIndex,dataset);
+                    loadDataset(browser,dataset);
                 }
                 catch(DSAccessException dsae)
                 {
@@ -983,6 +997,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
     }
     
+    // remove a loader thread from the list of active threads.
     private void removeLoaderThread(BrowserController loader,
                                     KillableThread thread)
     {
@@ -1082,6 +1097,13 @@ public class BrowserAgent implements Agent, AgentEventListener
         annotateImage(summary,null); // default popup location
     }
     
+    /**
+     * Use the Annotator to annotate the image currently selected in the
+     * specified thumbnail.
+     * @param t The thumbnail with the image to annotate.
+     * @param popupLocation The location to pop up the annotator window,
+     *                      in screen coordinates.
+     */
     public void annotateImage(Thumbnail t, Point popupLocation)
     {
         if(t == null) return;
@@ -1093,6 +1115,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     /**
      * Use the Annotator to annotate the image with the specified ID.
      * @param imageID The ID of the image to annotate.
+     * @param popupLocation (optional) The location to pop up the annotator
+     *                                 window, in screen coordinates.
      */
     public void annotateImage(ImageSummary imageInfo, Point popupLocation)
     {
@@ -1125,10 +1149,11 @@ public class BrowserAgent implements Agent, AgentEventListener
     }
     
     /**
-     * Instruct the BrowserAgent to fire a LoadCategories evnet, to be
+     * Instruct the BrowserAgent to fire a LoadCategories event, to be
      * processed by another part of the client.
      * 
      * @param datasetID The ID of the dataset to trigger.
+     * @param displayName The name of the category edit box to display.
      */
     public void loadCategories(int datasetID, String displayName)
     {
@@ -1177,6 +1202,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     
     /**
      * Gets a thumbnail of a different size (same settings)
+     * @param pix The pixels that are the base of the thumbnail.
      * @param width The width of the image with the default thumb settings
      *              to retrieve.
      * @param height The height of the image with the default thumb settings
@@ -1205,8 +1231,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     
     /**
      * Loads the semantic type with the given name.
-     * @param typeName
-     * @return
+     * @param typeName The name fo the type to retrieve.
+     * @return The SemanticType corresponding to the specified name.
      */
     public SemanticType loadTypeInformation(String typeName)
     {
@@ -1276,9 +1302,9 @@ public class BrowserAgent implements Agent, AgentEventListener
     
     /**
      * Adds a single (new) image classification to the DB, and fires the
-     * appropriate 
-     * @param imageID
-     * @param category
+     * appropriate ClassifyImage event.
+     * @param imageID The ID of the image to newly classify.
+     * @param category Which category to classify the image under.
      */
     public void classifyImage(int imageID, Category category)
     {
@@ -1288,6 +1314,12 @@ public class BrowserAgent implements Agent, AgentEventListener
         eventBus.post(classifyEvent);
     }
     
+    /**
+     * Adds new classifications to the DB, mapping the specified images
+     * to the specified category.  Fires a ClassifyImages event.
+     * @param imageIDs The IDs of the images to newly classify.
+     * @param category Which category to classify the image as.
+     */
     public void classifyImages(int[] imageIDs, Category category)
     {
         if(imageIDs == null || imageIDs.length == 0 || category == null)
@@ -1300,6 +1332,10 @@ public class BrowserAgent implements Agent, AgentEventListener
         eventBus.post(classifyEvent);
     }
     
+    /**
+     * Changes the stored classification of a single image.
+     * @param modifiedClassification The new classification.
+     */
     public void reclassifyImage(Classification modifiedClassification)
     {
         if(modifiedClassification == null) return;
@@ -1309,6 +1345,10 @@ public class BrowserAgent implements Agent, AgentEventListener
         eventBus.post(classifyEvent);
     }
     
+    /**
+     * Changes the stored classification of multiple images.
+     * @param modified The new classifications.
+     */
     public void reclassifyImages(Classification[] modified)
     {
         if(modified == null || modified.length == 0) return;

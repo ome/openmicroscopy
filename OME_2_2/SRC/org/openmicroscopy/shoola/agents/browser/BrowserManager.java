@@ -37,196 +37,283 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.swing.Icon;
+
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /**
- * A class that manages multiple instances of browser windows.  Automatically
- * manages/keeps track of the current Z order of the browsers.
+ * A superclass for all browser manager functions, that contains the same
+ * code that are used for both layout implementations.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
- * @since OME2.2
+ * @version 2.2.1
+ * @since OME2.2.1
  */
-public class BrowserManager
+public abstract class BrowserManager
 {
-    // TODO: add listener methods (ask JM/Andrea how to pull this off)
-    
-    private List browserList;
-    
-    // A set of browser selection listeners.
-    private Set listeners;
+    /**
+     * The list of browser windows in the manager.
+     */
+    protected List browserList;
     
     /**
-     * The return value for hasBrowser(datasetID) if the browser is not
-     * present.
+     * The active browser window.
      */
-    public static final int NOT_FOUND = -1;
-
+    protected BrowserWrapper activeBrowser;
+    
     /**
-     * Constructs a new browser manager.
+     * The active component window (which may not be a browser)
      */
-    public BrowserManager()
+    protected UIWrapper activeWindow;
+    
+    /**
+     * The application context.
+     */
+    protected Registry registry;
+    
+    /**
+     * The application's icon manager.
+     */
+    protected IconManager iconManager;
+    
+    /**
+     * The set of active window listeners.
+     */
+    protected Set activeWindowListeners;
+    
+    /**
+     * A mapping between static window components and their actual implementations.
+     */
+    protected Map staticWindowMap;
+    
+    /**
+     * Key for the color map UI component in the static window map.
+     */
+    public static final String COLORMAP_KEY = "colormap";
+    
+    /**
+     * Key for the heat map UI component in the static window map.
+     */
+    public static final String HEATMAP_KEY = "heatmap";
+    
+    /**
+     * Parent constructor that initializes common data structures.
+     * 
+     * @param registry The registry to extract application context from.
+     */
+    protected BrowserManager(Registry registry)
     {
+        this.registry = registry;
+        this.iconManager = IconManager.getInstance(registry);
         browserList = new ArrayList();
-        listeners = new HashSet();
+        activeWindowListeners = new HashSet();
+        staticWindowMap = new HashMap();
     }
-
+    
     /**
-     * Adds a browser to the manager.
-     * @param browser The controller to the browser to add.
+     * Adds a browser to the manager.  Uses a controller as the parameter to
+     * maintain layout independence in the subclasses.  The concrete subclass
+     * returned by this method will depend on the implementation of this method.
+     * 
+     * @param controller The controller of the browser to add.
+     * @return A reference to the newly created browser component, if needed.
      */
-    public void addBrowser(UIWrapper browser)
-    {
-        if (browser != null)
-        {
-            browserList.add(0,browser);
-        }
-    }
-
+    public abstract BrowserWrapper addBrowser(BrowserController controller);
+    
     /**
-     * Gets the browser at the specified index.  This will return null
-     * if the index is invalid.  The front-most (most recently selected)
-     * browser will be at position 0.
+     * Gets a references to the browser at the specified index.  This will return
+     * null if the index is invalid, or if an internal error occurs.
      * 
      * @param index The index of the browser to access.
      * @return The accessed browser.
      */
-    public UIWrapper getBrowser(int index)
+    public BrowserWrapper getBrowser(int index)
     {
         try
         {
-            return (UIWrapper) browserList.get(index);
+            return (BrowserWrapper)browserList.get(index);
         }
-        catch (Exception e)
+        // possible candidates: ArrayIndexOutOfBounds (most likely); NPE (maybe),
+        // ClassCastException (if subclass code is screwed up)
+        catch(Exception e)
         {
-            // TODO: log message here
+            System.err.println("Invalid browser index/return type");
             return null;
         }
     }
-
+    
     /**
      * Gets the number of browsers in the manager.
-     * @return
+     * @return See above.
      */
     public int getBrowserCount()
     {
         return browserList.size();
     }
-
+    
     /**
-     * Returns an unmodifiable list of all the browsers in the manager, in
-     * order of front most to rear most.
-     * 
+     * Returns an unmodifiable list of all the browsers tracked by the manager.
      * @return See above.
      */
     public List getAllBrowsers()
     {
         return Collections.unmodifiableList(browserList);
     }
-
-    /**
-     * Removes the specified browser from the manager, if it is present.
-     * @param browser The browser to remove.
-     */
-    public void removeBrowser(UIWrapper browser)
-    {
-        if (browser != null && browserList.contains(browser))
-        {
-            browserList.remove(browser);
-            BrowserEnvironment env = BrowserEnvironment.getInstance();
-            env.getBrowserAgent().interruptThread(browser.getController());
-        }
-    }
     
     /**
-     * Determines if the browser model contains the browser with the
-     * specified dataset ID, and if so, returns its index.  If not, it will
-     * return NOT_FOUND.
-     * @param datasetID The ID of the dataset to find.
-     * @return 
+     * Removes the specified browser from the manager, if it is present, and
+     * deletes it from the GUI.
+     * 
+     * @param browser The browser to remove.
      */
-    public int hasBrowser(int datasetID)
+    public abstract void removeBrowser(BrowserWrapper browser);
+    
+    /**
+     * Returns the browser window which reflects the contents of the dataset with
+     * the specified ID, if such a browser is tracked in the manager.  If not, this
+     * method will return null.
+     * 
+     * @param datasetID The ID of the dataset to retrieve the browser for.
+     * @return A reference to that browser window, if one exists.
+     */
+    public BrowserWrapper getBrowserForDataset(int datasetID)
     {
-        BrowserEnvironment env = BrowserEnvironment.getInstance();
         for(int i=0;i<browserList.size();i++)
         {
-            UIWrapper browser = (UIWrapper)browserList.get(i);
+            BrowserWrapper browser = (BrowserWrapper)browserList.get(i);
             BrowserModel model = browser.getController().getBrowserModel();
             int theID = model.getDataset().getID();
             if(theID == datasetID)
             {
-                return i;
+                return browser;
             }
         }
-        return NOT_FOUND;
+        return null;
     }
     
     /**
-     * Returns the active controller.
-     *
+     * Returns the active window.  Does not return the controller, as the
+     * controller does not have a window reference (but the window has a reference
+     * to the controller).
+     * 
+     * @return The active browser window.
      */
-    public UIWrapper getActiveBrowser()
+    public BrowserWrapper getActiveBrowser()
     {
-        return (UIWrapper)browserList.get(0);
+        return activeBrowser;
     }
     
+    /**
+     * Sets the active browser to the browser at the specified index.
+     * 
+     * @param browserIndex The index of the browser to make active.
+     */
     public void setActiveBrowser(int browserIndex)
     {
-        UIWrapper browser = (UIWrapper)browserList.get(browserIndex);
+        BrowserWrapper browser =
+            (BrowserWrapper)browserList.get(browserIndex);
         setActiveBrowser(browser);
     }
     
     /**
-     * Sets the current browser to be the active.
+     * Sets the specified browser to be the active browser.
      * @param browser The browser to make active.
      */
-    public void setActiveBrowser(UIWrapper browser)
+    public void setActiveBrowser(BrowserWrapper browser)
     {
         if(getActiveBrowser() == browser)
         {
             return;
         }
-        synchronized(browserList) // will this lock?
-        {
-            int prevIndex = browserList.indexOf(browser)+1;
-            browserList.add(0,browser);
-            browserList.remove(prevIndex);
-        }
         browser.select();
-        for(Iterator iter = listeners.iterator(); iter.hasNext();)
+        for(Iterator iter = activeWindowListeners.iterator(); iter.hasNext();)
         {
-            BrowserSelectionListener listener =
-                (BrowserSelectionListener)iter.next();
-            listener.browserSelected(browser.getController());
+            ActiveWindowListener awl = (ActiveWindowListener)iter.next();
+            awl.windowActive(browser);
         }
     }
     
     /**
-     * Adds a selection listener to the manager.
+     * Adds a static window to the layout-- that is, a window that should
+     * have a single instance in the entire UI (like a palette).  This
+     * window will have the default browser icon as its frame icon.
+     * @param windowKey The key to identify the window by.
+     * @param window The window to bind to that key.
      */
-    public void addSelectionListener(BrowserSelectionListener listener)
+    public abstract void addStaticWindow(String windowKey, UIWrapper window);
+    
+    /**
+     * Add a static window with a custom icon.  Otherwise, this method
+     * is the same as addStaticWindow(String,UIWrapper).
+     * 
+     * @param windowKey The key to bind the window to.
+     * @param window The window to add.
+     * @param windowIcon The icon to display in that window's title bar.
+     */
+    public abstract void addStaticWindow(String windowKey, UIWrapper window,
+                                         Icon windowIcon);
+    
+    /**
+     * Returns a reference to the static window bound to the
+     * specified key by addStaticWindow(windowKey,window).
+     * 
+     * @param windowKey The key of the window to retrieve.
+     * @return A reference to the window bound to that key.
+     */
+    public UIWrapper getStaticWindow(String windowKey)
+    {
+        return (UIWrapper)staticWindowMap.get(windowKey);
+    }
+    
+    /**
+     * Show the static window bound to the specified key.
+     * @param windowKey The key bound to the desired window.
+     */
+    public abstract void showStaticWindow(String windowKey);
+    
+    /**
+     * Disposes of the window bound to the specified key.
+     * @param windowKey The key of the static window to dispose.
+     */
+    public abstract void removeStaticWindow(String windowKey);
+    
+    /**
+     * Adds a selection listener to the manager.
+     * @param listener The listener to add.
+     */
+    public void addSelectionListener(ActiveWindowListener listener)
     {
         if(listener != null)
         {
-            listeners.add(listener);
+            activeWindowListeners.add(listener);
         }
     }
     
     /**
      * Removes a selection listener from the manager.
-     * @param listener
+     * @param listener The listener to remove.
      */
-    public void removeSelectionListener(BrowserSelectionListener listener)
+    public void removeSelectionListener(ActiveWindowListener listener)
     {
         if(listener != null)
         {
-            listeners.remove(listener);
+            activeWindowListeners.remove(listener);
         }
     }
+    
+    /**
+     * Returns whether or not this manager manages internal or standalone frames.
+     * @return See above.
+     */
+    public abstract boolean managesInternalFrames();
 }
