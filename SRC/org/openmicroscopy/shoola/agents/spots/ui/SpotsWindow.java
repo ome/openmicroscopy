@@ -127,7 +127,7 @@ public class SpotsWindow extends JFrame implements ActionListener, ItemListener 
 		
 		
 		
-		// creat the visad panel for the right	
+		// creat the java3d  panel for the right	
 		Panel3D panel3d = new Panel3D(tSet);
 	
 		panel3d.setPreferredSize(new Dimension(500,500));
