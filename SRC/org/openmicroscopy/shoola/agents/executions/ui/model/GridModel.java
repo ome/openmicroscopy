@@ -75,6 +75,7 @@ public class GridModel implements ChangeListener {
 	public static final int RIGHT_GAP = 2*GRID_OFFSET;
 	public static final int BOTTOM_GAP=2*GRID_OFFSET;
 	private static final Color AXIS_COLOR= new Color(150,150,240);
+	private static final Color GUIDE_COLOR = new Color(50,50,150,30);
 	public static final int DOT_SIDE=4;
 	public static final float AXIS_STROKE_WIDTH=2.0f;
 	protected final static BasicStroke axisStroke = 
@@ -123,6 +124,8 @@ public class GridModel implements ChangeListener {
 	
 	private ExecutionsModel model;
 	
+	private int canvasHeight;
+	
 	public GridModel(ExecutionsModel model,long min,long max,int rowCount) {
 		this.model = model;
 		setExtent(min,max);
@@ -136,6 +139,7 @@ public class GridModel implements ChangeListener {
 	
 	public void setDimensions(int canvasWidth,int canvasHeight) {
 		
+		this.canvasHeight = canvasHeight;
 		// First, horizontal parameters.
 		// axes are LEFT_GAP away from left, to
 		// account for label space and general buffer.
@@ -322,6 +326,31 @@ public class GridModel implements ChangeListener {
 			hash = (AxisHash) iter.next();
 			hash.paint(g);
 		}
+	}
+	
+	public void drawSliderGuides(Graphics2D g,int sliderLeft,int sliderRight) {
+		// top is yStartAxis
+		// bottom is canvasHeight
+		// left is xStartAxis
+		// right is xEndAxis
+	int rightslider = sliderRight+LABEL_SIZE+GRID_OFFSET;
+		int xpts[] = new int[4];
+		int ypts[] = new int[4];
+		xpts[0] =xStartAxis;
+		ypts[0] = yStartAxis;
+		xpts[1] = sliderLeft+LABEL_SIZE+GRID_OFFSET;
+		ypts[1] = canvasHeight;
+		xpts[2] = rightslider;
+		ypts[2] = canvasHeight;
+		xpts[3] =  xEndAxis;
+		ypts[3] = yStartAxis;
+		
+		Paint oldPaint  = g.getPaint();
+		g.setPaint(GUIDE_COLOR);
+		
+		g.fillPolygon(xpts,ypts,4);
+		g.setPaint(oldPaint);
+		
 	}
 
 	public void clearDecorations() {
