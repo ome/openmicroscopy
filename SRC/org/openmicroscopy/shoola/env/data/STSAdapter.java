@@ -39,6 +39,9 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.ds.dto.Feature;
+import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
 
@@ -211,7 +214,7 @@ class STSAdapter
     public Attribute createAttribute(SemanticType type, int objectID)
         throws DSOutOfServiceException, DSAccessException
     {
-        return createAttribute(type.getName(),objectID);
+        return createAttribute(type.getName(), objectID);
     }
     
     /** @see SemanticTypesService#createAttribute(String). */
@@ -224,7 +227,18 @@ class STSAdapter
     public Attribute createAttribute(String typeName, int objectID)
         throws DSOutOfServiceException, DSAccessException
     {
-        return gateway.createNewData(typeName,objectID);   
+    	Attribute retVal = gateway.createNewData(typeName);
+		String granularity = retVal.getSemanticType().getGranularity();
+		//Build the criteria.
+		Criteria c = STSMapper.buildCreateNew(granularity, objectID);
+		if (granularity.equals(STSMapper.DATASET_GRANULARITY))
+			retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
+		else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
+			retVal.setImage((Image) gateway.retrieveData(Image.class, c));
+		else if (granularity.equals(STSMapper.FEATURE_GRANULARITY))
+			retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
+		
+		return retVal; 
     }
     
     /**
@@ -246,7 +260,7 @@ class STSAdapter
     public List retrieveDatasetAttributes(SemanticType type, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveDatasetAttributes(type.getName(),datasetID);
+        return retrieveDatasetAttributes(type.getName(), datasetID);
     }
     
     /**
@@ -533,4 +547,5 @@ class STSAdapter
     {
         gateway.updateAttributes(attributes);
     }
+    
 }

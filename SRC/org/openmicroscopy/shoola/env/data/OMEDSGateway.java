@@ -40,16 +40,12 @@ import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.DataServer;
 import org.openmicroscopy.ds.DataServices;
-import org.openmicroscopy.ds.FieldsSpecification;
 import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.DataInterface;
-import org.openmicroscopy.ds.dto.Dataset;
-import org.openmicroscopy.ds.dto.Feature;
-import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
@@ -205,58 +201,6 @@ class OMEDSGateway
 		return retVal; 
 	}
     
-    /**
-     * Create a new Attribute object that pertains to the data object with
-     * the specified ID (can be a dataset, image, or feature)
-     * @param semanticTypeName The name of the semantic type to c reate.
-     * @param objectID The ID of the object this Attribute will belong to.
-     * @return An Attribute.
-     * @throws DSOutOfServiceException If the connection is broken, or you are
-     *                                 not logged in.
-     * @throws DSAccessException If an error occurred while trying to create
-     *                           d DataInterface from the OMEDS service.
-     */
-    Attribute createNewData(String semanticTypeName, int objectID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Attribute retVal = null;
-        try
-        {
-            retVal = getDataFactory().createNew(semanticTypeName);
-            String granularity = retVal.getSemanticType().getGranularity();
-            FieldsSpecification fs = new FieldsSpecification();
-            fs.addWantedField("id");
-            if(granularity.equals("D"))
-            {
-                Dataset d =
-                    (Dataset)getDataFactory().load(Dataset.class,objectID,fs);
-                retVal.setDataset(d);
-            }
-            else if(granularity.equals("I"))
-            {
-                Criteria c = new Criteria();
-                c.addWantedField(":all:");
-                c.addFilter("id",new Integer(objectID));
-                Image i = (Image)getDataFactory().retrieve(Image.class,c);
-                retVal.setImage(i);
-            }
-            else if(granularity.equals("F"))
-            {
-                Feature f = (Feature)getDataFactory().load(Feature.class,objectID,fs);
-                retVal.setFeature(f);
-            }
-        }
-        catch (RemoteConnectionException rce) {
-            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-        } catch (RemoteAuthenticationException rae) {
-            throw new DSOutOfServiceException("Not logged in", rae);
-        } catch (RemoteServerErrorException rsee) {
-            throw new DSAccessException("Can't load data", rsee);
-        } 
-        return retVal;
-        
-    }
-	
 	/**
 	 * Retrieve the graph defined by the criteria.
 	 * Wrap the call to the 
