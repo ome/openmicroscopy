@@ -59,10 +59,11 @@ class EllipseAreaAdapter
     implements PlaneArea
 {
     
+    private static double           epsilon = 1.0;
+    
     EllipseAreaAdapter(float x, float y, float width, float height)
     {
         super(x, y, width, height);
-        
     }
 
     /** Implemented as specified in the {@link PlaneArea} I/F. */
@@ -91,17 +92,24 @@ class EllipseAreaAdapter
         setFrame(x, y, width, height); 
     }
 
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /** 
+     * Implemented as specified in the {@link PlaneArea} I/F. 
+     * Remind that the equation of an ellipse is given by
+     * <p>
+     * ((x-x0)/a)^2+((y-y0)/b)^2 = 1
+     * </p>
+     * where, in this case, a = getWidth()/2 , b = getHeight()/2
+     * x0 = getX()+a, y0 = getY()+b.
+     * 
+     * */
     public boolean onBoundaries(double x, double y)
     {
-        double w = getWidth();
-        if (w <= 0.0) return false;
-        double normx = (x-getX())/w-0.5;
-        double h = getHeight();
-        if (h <= 0.0) return false;
-        double normy = (y-getY())/h-0.5;
-        double eq = normx * normx + normy * normy;
-        return (eq >= 0.23 && eq <= 0.25);
+        
+        double wEps = getWidth()+2*epsilon, hEps = getHeight()+2*epsilon;
+        if (wEps <= 0.0 || hEps <= 0) return false;
+        double normx = (x-getX())/wEps-getWidth()/(2*wEps);
+        double normy = (y-getY())/hEps-getHeight()/(2*hEps);
+        return ((normx * normx + normy * normy <= 0.25) && !contains(x, y));  
     }
     
     /** 
