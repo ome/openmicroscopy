@@ -72,7 +72,7 @@ class RenderingAgtUIF
 	private static final int 		WIN_WIDTH = 300;
 	
 	/** Height of the widget. */
-	private static final int 		WIN_HEIGHT = 550;
+	private static final int 		WIN_HEIGHT = 600;
 	
 	/** Location x-coordinate. */
 	private static final int		X_LOCATION = 0;
