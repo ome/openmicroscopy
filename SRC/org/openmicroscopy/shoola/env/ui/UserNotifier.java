@@ -35,8 +35,10 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 
 /** 
- * Acts as a centralized place where errors are collected and then notified 
- * to the user. 
+ * Acts as a centralized place where user notifications are collected and 
+ * then displayed on screen.
+ * The various methods defined by this service will bring up a modal dialog to
+ * notify the user of the specified message.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,56 +51,76 @@ package org.openmicroscopy.shoola.env.ui;
  * </small>
  * @since OME2.2
  */
-
 public interface UserNotifier
  {
  	
-	/**
-	 * error notification. This notification is used at initialization time.
-	 * 
-	 * @param title		title of the Dialog window.
-	 * @param summary	error's summary.
-	 * @param detail	error's details.
-	 */
-	public void notifyInitError(String title, String summary, Exception detail);
-
-	/**
-	 * error notification. This notification is used at initialization time.
-	 * 
-	 * @param title		title of the Dialog window.
-	 * @param summary	error's summary.* @param detail	error's details.
-	 */
-	public void notifyInitError(String title, String message);
- 	
  	/**
- 	 * error notification.
+ 	 * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.  However the user can press
+ 	 * a <i>details</i> button to have the dialog show the error detail.
  	 * 
- 	 * @param title		title of the Dialog window.
- 	 * @param summary	error's summary.
- 	 * @param detail	error's details.
+ 	 * @param title		The title of the dialog.
+ 	 * @param summary	A brief description of the error.
+ 	 * @param detail	The cause of the error.
  	 */
-    public void notifyError(String title, String summary, Exception detail);
+    public void notifyError(String title, String summary, Throwable detail);
+    
+    /**
+     * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.  However the user can press
+ 	 * a <i>details</i> button to have the dialog show the error detail.
+ 	 * 
+     * @param title		The title of the dialog.
+ 	 * @param summary	A brief description of the error.
+ 	 * @param detail	A more detailed description of the cause of the error.
+     */
+	public void notifyError(String title, String summary, String detail);
     
 	/**
-	 * error notification.
+	 * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.
 	 * 
-	 * @param title		title of the Dialog window.
-	 * @param summary	error's summary.* @param detail	error's details.
+	 * @param title		The title of the dialog.
+	 * @param summary	A brief description of the error.
 	 */
     public void notifyError(String title, String message);
     
 	/**
+	 * Brings up a modal dialog to notify the user of the specified warning.
+	 * The dialog will just show the warning summary.  However the user can
+	 * press a <i>details</i> button to have the dialog show the warning detail.
 	 * 
-	 * @param title		title of the Dialog window.
-	 * @param message	info's message.
+	 * @param title		The title of the dialog.
+	 * @param summary	A brief description of the warning.
+	 * @param detail	The cause of the warning.
+	 */
+	public void notifyWarning(String title, String summary, Throwable detail);
+    
+	/**
+	 * Brings up a modal dialog to notify the user of the specified warning.
+	 * The dialog will just show the warning summary.  However the user can
+	 * press a <i>details</i> button to have the dialog show the warning detail.
+	 * 
+	 * @param title		The title of the dialog.
+	 * @param summary	A brief description of the warning.
+	 * @param detail	A more detailed description of the cause of the warning.
+	 */
+	public void notifyWarning(String title, String summary, String detail);
+	
+	/**
+	 * Brings up a modal dialog to notify the user of the specified warning.
+	 * 
+	 * @param title		The title of the dialog.
+	 * @param message	The warning message that will be shown.
+	 */
+	public void notifyWarning(String title, String message);
+	
+	/**
+	 * Brings up a modal dialog to notify the user of the specified message.
+ 	 * 
+	 * @param title		The title of the dialog.
+	 * @param message	The message that will be shown.
 	 */
     public void notifyInfo(String title, String message);
-    
-    /**
-     * 
-     * @param title		title of the Dialog window.
-     * @param message	warning's message.
-     */
-    public void notifyWarning(String title, String message);
 
 }
