@@ -81,7 +81,7 @@ public class ModulePaletteWindow
 	extends TopWindow implements TreeSelectionListener, ComponentListener
 {
 	
-	public static int SIDE=100;
+	public static int SIDE=200;
 	
 	/** the ui manager */
 	private final UIManager uiManager;

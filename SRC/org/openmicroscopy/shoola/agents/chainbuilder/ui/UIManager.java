@@ -80,6 +80,9 @@ public class UIManager implements ContentGroupSubscriber
 	/** The chain library window */
 	private ChainPaletteWindow chainWindow=null;
 	
+	/** the overview window */
+	private ChainPaletteOverviewWindow overview = null;
+	
 	/** Command mapping */
 	private CmdTable cmdTable;
 	
@@ -115,6 +118,7 @@ public class UIManager implements ContentGroupSubscriber
 		cmdTable = new CmdTable(this);
 		mainWindow = new ModulePaletteWindow(this,manager,cmdTable);
 		chainWindow = new ChainPaletteWindow(manager);
+		overview = new ChainPaletteOverviewWindow(chainWindow);
 		config = manager.getRegistry();
 		IconFactory icons = manager.getIconFactory();
 		chainGroup = new TopWindowGroup("chains",icons.getIcon("chains.png"), config.getTaskBar());
@@ -156,14 +160,17 @@ public class UIManager implements ContentGroupSubscriber
 	}
 	
 	private void setWindowsVisibility(boolean v) {
-		if (chainWindow != null) 
+		if (chainWindow != null) {
 			chainWindow.setVisible(v);
+			overview.setVisible(v);
+		}
 	}
 	
 	public void contentComplete() {
 		ModulesData modData = (ModulesData) modLoader.getContents();
 		mainWindow.buildGUI(modData);
 		chainWindow.buildGUI();
+		overview.buildGUI();
 	}
 	
 	public void setCurrentChainFrame(ChainFrame frame) {

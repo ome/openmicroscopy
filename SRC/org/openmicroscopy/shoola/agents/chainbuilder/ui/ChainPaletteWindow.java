@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.chainbuilder.ModulePaletteWindow
+ * org.openmicroscopy.shoola.agents.chainbuilder.ChainPaletteWindow
  *
  *------------------------------------------------------------------------------
  *
@@ -73,14 +73,18 @@ public class ChainPaletteWindow extends JFrame  {
 	
 	private JButton zoom;
 	private JButton pan;
+	
+	private ChainPaletteOverviewWindow overview;
 
 	public ChainPaletteWindow(ChainDataManager dataManager) {
 		super(TITLE);
 		this.dataManager = dataManager;
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		
-		
+	}
+	
+	public void setOverview(ChainPaletteOverviewWindow overview) {
+		this.overview = overview;
 	}
 	
 	public void buildGUI() {
@@ -95,7 +99,7 @@ public class ChainPaletteWindow extends JFrame  {
 	
 		setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
 		content.add(chainCanvas);
-	
+
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
 				if (chainCanvas != null)
@@ -106,6 +110,10 @@ public class ChainPaletteWindow extends JFrame  {
 	
 	public void focusOnPalette() {
 		chainCanvas.scaleToSize();
+	}
+	
+	public ChainPaletteCanvas getCanvas() {
+		return chainCanvas;
 	}
 	
 	public void displayNewChain(LayoutChainData chain) {
