@@ -73,10 +73,11 @@ abstract class Entry {
         contentHandlers.put("icon", IconEntry.class);
         contentHandlers.put("agents", AgentsEntry.class);
     }
-    private String name;
+    
     private static class NameTypePair {
         String  name, type;
     }
+    private String      name;
     
 /* For a given entry or structuredEntry tag, creates a concrete <code>Entry</code> object to
  * handle the conversion of the tag's content into an object

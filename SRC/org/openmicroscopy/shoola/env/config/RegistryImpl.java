@@ -72,7 +72,8 @@ public class RegistryImpl
 /** Implemented as specified by {@link Registry}.
  */
     public Object lookup(String name) {
-        return entriesMap.get(name);
+        Entry entry = (Entry) entriesMap.get(name);
+        return entry.getValue();
     }
 /** Implemented as specified by {@link Registry}.
  */

@@ -85,16 +85,18 @@ class AgentsEntry
  * @param node      agent node
  */    
      private void retrieveAgentContent(Node node) {
-         if (node.hasChildNodes()) {
-             AgentInfo agtInfo = new AgentInfo();
-             NodeList childList = node.getChildNodes();
-                for (int i = 0; i<childList.getLength(); i++) {
-                    Node child = childList.item(i);
-                    if (child.getNodeType()==child.ELEMENT_NODE)
+        if (node.hasChildNodes()) {
+            AgentInfo agtInfo = new AgentInfo();
+            NodeList childList = node.getChildNodes();
+            for (int i = 0; i<childList.getLength(); i++) {
+                Node child = childList.item(i);
+                if (child.getNodeType()==child.ELEMENT_NODE)
                         agtInfo.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());
-                }
-             listAgents.add(agtInfo);
-         }
+            }
+            listAgents.add(agtInfo);
+        }
     }
+     
+     
 }

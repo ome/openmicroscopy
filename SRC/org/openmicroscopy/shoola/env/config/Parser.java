@@ -57,24 +57,26 @@ import org.w3c.dom.NodeList;
  */
 class Parser {
 
-    private Document    document;
-    private String      configFile;
-    private String      configFileXMLSchema;
-    private ArrayList   entriesTags;
+    private Document        document;
+    private String          configFile;
+    private String          configFileXMLSchema;
+    private ArrayList       entriesTags;
+    private RegistryImpl    registry;
     //validate against the XMLschema: not yet implemented (no XMLSchema for configFile)
-    private boolean     validating = false; 
+    private boolean         validating = false; 
     // we only retrieve the content of the following tags
-    static String[] tagsEntry = {
+    static String[]         tagsEntry = {
         "entry",
         "structuredEntry",
     };
 /* creates an instance of Parser with one parameter
  *
  * @param configFile     configuration file (XML file)
- * @param registry      registry         
+ * @param registry      registryImpl         
  */
-    Parser(String configFile) { // ad
+    Parser(String configFile, RegistryImpl registry) { // ad
         this.configFile = configFile;
+        this.registry = registry;
     }
     
 /* creates an instance of Parser with two parameters
@@ -82,11 +84,12 @@ class Parser {
  *
  * @param  configFile                   configuration file (XML file)
  * @param configFileXMLSchema   XML schema linked to XML configuration file
- * @param registry                      registry
+ * @param registry                      registryImpl
  */    
-    Parser(String configFile, String configFileXMLSchema) {
+    Parser(String configFile, String configFileXMLSchema, RegistryImpl registry) {
         this.configFile = configFile;
         this.configFileXMLSchema = configFileXMLSchema;
+        this.registry = registry;
         validating = true;
     }
     
@@ -108,7 +111,7 @@ class Parser {
             while (i.hasNext()) {
                Node node = (Node)i.next();
                Entry entry = Entry.createEntryFor(node);
-               // add new code
+               registry.addEntry(entry);
             }
         } catch (Exception e) { throw new RuntimeException(e); }   
     }
