@@ -40,7 +40,6 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
-import edu.umd.cs.piccolo.PLayer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -74,7 +73,6 @@ public class PaletteChainView extends ChainView {
 	public PaletteChainView(LayoutChainData chain,Registry registry) {
 		super(chain);
 		this.registry =registry;
-		fullLayer.setVisible(true);
 		setPickable(false);
 	}	
 	
@@ -83,14 +81,11 @@ public class PaletteChainView extends ChainView {
 		setChildrenPickable(b);
 		// links are always not pickable..
 		super.setPickable(false);
-		fullLayer.setPickable(false);
 		linkLayer.setPickable(false);
 	}
 	
 
-	protected PLayer getFullView() {
-		return fullLayer;
-	}
+	
 	protected ModuleView getModuleView(ChainModuleData mod) {
 		return new PaletteModuleView(mod);
 	}
@@ -127,16 +122,13 @@ public class PaletteChainView extends ChainView {
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
-		chainHandler.animateToNode(fullLayer);
 		chainHandler.setLastEntered(this);
 		SelectAnalysisChain event = new SelectAnalysisChain(getChain());
 		registry.getEventBus().post(event);
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
-		ChainBox parent = getParentChainBox();
-		if (parent != null)
-			((ModuleNodeEventHandler) handler).animateToNode(parent);
-		((ModuleNodeEventHandler) handler).setLastEntered(this);
+	//	ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
+		//chainHandler.zoomOut();
 	}	
 }
