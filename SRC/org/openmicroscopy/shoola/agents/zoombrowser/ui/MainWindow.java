@@ -207,7 +207,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		if (e instanceof AnalysisChainEvent) {
+		if (e instanceof AnalysisChainEvent && datasetBrowser != null) {
 			AnalysisChainEvent event = (AnalysisChainEvent) e;
 			AnalysisChainData chain = event.getAnalysisChain();
 			if (event instanceof SelectAnalysisChain)
@@ -215,7 +215,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			else if (event instanceof MouseOverAnalysisChain)
 				datasetBrowser.mouseOverAnalysisChain(chain);
 		}
-		else if (e instanceof MouseOverChainExecutionEvent) {
+		else if (e instanceof MouseOverChainExecutionEvent &&
+				datasetBrowser!=null) {
 			MouseOverChainExecutionEvent event = (MouseOverChainExecutionEvent) e;
 			ChainExecutionData exec = event.getChainExecution();
 			datasetBrowser.mouseOverChainExecution(exec);
