@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.env.config;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -70,5 +71,6 @@ public class NullRegistry
     public TaskBar getTaskBar() { return null; }
     public UserNotifier getUserNotifier() { return null; }
     public PixelsService getPixelsService() { return null; }
+    public DataServicesView getDataServicesView(Class view) { return null; }
 
 }
