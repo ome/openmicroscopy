@@ -52,22 +52,27 @@ import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailDataPair;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailStatistics;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.layout.GraphLayoutMethod;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 
 /**
+ * Controls responses to UI events in the heat map.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class HeatMapDispatcher implements HeatMapTreeListener,
-                                          HeatMapModeListener
+                                          HeatMapModeListener,
+                                          HeatMapGraphListener
 {
     private DisplayValueMode currentMode;
     private Scale currentScale;
@@ -160,6 +165,26 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                                         Thumbnail.MIDDLE_PAINT_METHOD);
             browserModel.addPaintMethod(currentMethod,
                                         Thumbnail.FOREGROUND_PAINT_METHOD);
+        }
+    }
+    
+    /**
+     * Show the graph view in the browser model.
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGraphListener#showGraphView()
+     */
+    public void showGraphView()
+    {
+        if(attributeName != null && elementName != null)
+        {
+            BrowserModel browserModel = model.getInfoSource();
+            List thumbList = browserModel.getThumbnails();
+            Thumbnail[] thumbnails = new Thumbnail[thumbList.size()];
+            thumbList.toArray(thumbnails);
+            ThumbnailDataPair[] stats =
+                ThumbnailStatistics.sortByValue(thumbnails,currentMode,
+                                                attributeName,elementName);
+                                                
+            browserModel.setLayoutMethod(new GraphLayoutMethod(stats));
         }
     }
     
@@ -316,18 +341,8 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             if(selectedNode.isLazilyInitialized())
             {
                 // get attribute
-                elementName = selectedNode.getFQName();
-                SemanticTypeTree.TreeNode pathNode = selectedNode;
-                SemanticTypeTree.TypeNode parentNode = null;
-                while(pathNode.getParent() instanceof SemanticTypeTree.TypeNode &&
-                      pathNode.getParent() != null)
-                {
-                    parentNode = (SemanticTypeTree.TypeNode)pathNode.getParent();
-                    pathNode = parentNode;
-                }
-                SemanticType type = 
-                    ((SemanticTypeTree.TypeNode)pathNode).getType();
-                attributeName = type.getName();
+                elementName = NodeNameParser.getElementName(selectedNode);
+                attributeName = NodeNameParser.getAttributeName(selectedNode);
                 
                 if(dataType == DataElementType.BOOLEAN)
                 {

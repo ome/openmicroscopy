@@ -59,6 +59,7 @@ public final class HeatMapUI extends JPanel
     private HeatMapStatusUI statusPanel;
     private HeatMapTreeUI treePanel;
     private HeatMapGradientUI gradPanel;
+    private HeatMapGraphUI graphPanel;
     private HeatMapModeBar modeBar;
     private HeatMapScaleBar scaleBar;
     private HeatMapDispatcher dispatcher;
@@ -92,16 +93,19 @@ public final class HeatMapUI extends JPanel
         treePanel = new HeatMapTreeUI(model.getModel());
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
         dispatcher.addLoadListener(treePanel);
+        dispatcher.addLoadListener(graphPanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
         scaleBar.addListener(dispatcher);
+        graphPanel.addListener(dispatcher);
         buildUI();
     }
     
     private void init()
     {
+        graphPanel = new HeatMapGraphUI();
         gradPanel = new HeatMapGradientUI();
         gradPanel.addDTListener(this);
         statusPanel = new HeatMapStatusUI();
@@ -155,6 +159,8 @@ public final class HeatMapUI extends JPanel
         controlPanel.add(gradPanel,BorderLayout.CENTER);
         
         JPanel barPanel = new JPanel();
+        barPanel.setLayout(new BorderLayout());
+        barPanel.add(graphPanel,BorderLayout.NORTH);
         barPanel.add(modeBar,BorderLayout.CENTER);
         
         JPanel scalePanel = new JPanel();
@@ -184,13 +190,16 @@ public final class HeatMapUI extends JPanel
         treePanel.setModel(model.getModel());
         treePanel.removeListener(dispatcher);
         modeBar.removeListener(dispatcher);
+        graphPanel.removeListener(dispatcher);
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
         dispatcher.addLoadListener(treePanel);
+        dispatcher.addLoadListener(graphPanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
         scaleBar.addListener(dispatcher);
+        graphPanel.addListener(dispatcher);
         gradPanel.setEnabled(false);
         revalidate();
         repaint();

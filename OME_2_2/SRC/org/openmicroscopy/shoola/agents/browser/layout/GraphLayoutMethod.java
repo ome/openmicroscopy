@@ -73,25 +73,28 @@ public class GraphLayoutMethod implements LayoutMethod
      * @param maximumValue The maximum value of the compared elements.
      * @param thumbnails The list of thumbnails to layout.
      */
-    public GraphLayoutMethod(double minimumValue,
-                             double maximumValue,
-                             ThumbnailDataPair[] thumbnails)
+    public GraphLayoutMethod(ThumbnailDataPair[] thumbnails)
     {
-       this.min = minimumValue;
-       this.max = maximumValue;
+        if(thumbnails == null || thumbnails.length == 0)
+        {
+            return;
+        }
+        positionMap = new HashMap();
        
-       int xOffset = 0;
-       int yMax = 16*thumbnails.length;
-       
-       LinearScale scale = new LinearScale(minimumValue,maximumValue);
-       
-       for(int i=0;i<thumbnails.length;i++)
-       {
-           Thumbnail t = thumbnails[i].getThumbnail();
-           double num = thumbnails[i].getValue().doubleValue();
-           positionMap.put(t,new Point2D.Double(xOffset,
-                                                yMax-scale.getScalar(num,0,yMax)));
-       }
+        int xOffset = 0;
+        double yMax = 16*thumbnails.length;
+        double[] localStats = computeLocalMinMax(thumbnails);
+        
+        LinearScale scale = new LinearScale(localStats[0],localStats[1]);
+        
+        for(int i=0;i<thumbnails.length;i++)
+        {
+            Thumbnail t = thumbnails[i].getThumbnail();
+            double num = thumbnails[i].getValue().doubleValue();
+            double yOffset = yMax-scale.getScalar(num,0,yMax);
+            positionMap.put(t,new Point2D.Double(xOffset,yOffset));
+            xOffset += 16;
+        }
     }
     
     /**
@@ -116,5 +119,33 @@ public class GraphLayoutMethod implements LayoutMethod
             returnMap.put(ts[i],positionMap.get(ts[i]));
         }
         return returnMap;
+    }
+    
+    /*
+     * Returns {0,1} on null or zero-length input.
+     * Returns: double[2]{localMin,localMax}
+     */
+    private double[] computeLocalMinMax(ThumbnailDataPair[] data)
+    {
+        double localMin = Double.POSITIVE_INFINITY;
+        double localMax = Double.NEGATIVE_INFINITY;
+        if(data == null || data.length == 0)
+        {
+            return new double[] {0,1};
+        }
+        
+        for(int i=0;i<data.length;i++)
+        {
+            double value = data[i].getValue().doubleValue();
+            if(value < localMin)
+            {
+                localMin = value;
+            }
+            if(value > localMax)
+            {
+                localMax = value;
+            }
+        }
+        return new double[] {localMin,localMax};
     }
 }

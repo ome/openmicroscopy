@@ -60,6 +60,7 @@ public final class BrowserLoader
     
     // TODO [BUG 184]: change this
     private int datasetID; // the dataset being loaded by this loader.
+    private String datasetName;
     
     /**
      * Constructs a browser loader that will be taking care of loading the dataset
