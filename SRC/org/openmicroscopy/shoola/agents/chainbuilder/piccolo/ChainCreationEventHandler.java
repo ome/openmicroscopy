@@ -372,7 +372,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	
 	public void actionPerformed(ActionEvent e) {
-		System.err.println("mouse single click");
+		//System.err.println("mouse single click");
 		if (cachedEvent != null) 
 			doMouseClicked(cachedEvent);
 		cachedEvent = null;
@@ -381,7 +381,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	public void mouseClicked(PInputEvent e) {
 		if (timer.isRunning()) {
-			System.err.println("mouse double click");
+			//System.err.println("mouse double click");
 			// this is effectively a double click.
 			timer.stop();
 			if (wasDoubleClick == true)
@@ -463,7 +463,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private void doMouseDoubleClicked(PInputEvent e) {
 		PNode node = e.getPickedNode();
-		System.err.println("got a double click on "+node);
+		//System.err.println("got a double click on "+node);
 		if (node instanceof ModuleView)
 			startModuleLinks(e);
 		else if (node instanceof FormalParameter) {
@@ -502,9 +502,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mousePressed(PInputEvent e) {
 		
-		System.err.println("mouse pressed on "+e.getPickedNode());
+		//System.err.println("mouse pressed on "+e.getPickedNode());
 		if (wasDoubleClick == true) {
-			System.err.println("just came from double click..");
+			//System.err.println("just came from double click..");
 			wasDoubleClick = false;
 			return;
 		}
@@ -586,7 +586,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param node the node that was pressed
 	 */
 	private void mousePressedSelectionTarget(PNode node) {
-		System.err.println("pressing on selection target..");
+		//System.err.println("pressing on selection target..");
 		selectionTarget = (LinkSelectionTarget) node;
 		selectionTarget.getLink().setSelected(true);
 		linkState = LINK_CHANGING_POINT;
@@ -628,15 +628,15 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedLinkingModules(PNode node,PInputEvent e) {
 		int count = e.getClickCount();
-		System.err.println("node is..."+node);
-		if (node instanceof ParamLink)
-			System.err.println("param link");
-		if (node instanceof ModuleLink)
-			System.err.println("module link");
+		//System.err.println("node is..."+node);
+		//if (node instanceof ParamLink)
+			//System.err.println("param link");
+		//if (node instanceof ModuleLink)
+			//System.err.println("module link");
 		
-		System.err.println("caling mouse pressed linking modules..");
+		//System.err.println("caling mouse pressed linking modules..");
 		if (count ==2) {
-			System.err.println("2 presses. node is "+node);
+			//System.err.println("2 presses. node is "+node);
 			if (node instanceof FormalParameter) {
 				FormalParameter p = (FormalParameter) node;
 				ModuleView mod = p.getModuleView();
@@ -650,9 +650,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			wasDoubleClick = true;
 		}
 		else if (node instanceof PCamera){ // single click on camera
-			System.err.println("on camera");
+			//System.err.println("on camera");
 			//when linking modules..
-			System.err.println("adding an intermediate point to modules link");
+			//System.err.println("adding an intermediate point to modules link");
 			
 			Iterator iter = links.iterator();
 			Point2D pos = e.getPosition();
@@ -708,7 +708,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedChangingPoint(PNode node,PInputEvent e) {
 		if (node instanceof PCamera)  {
-			System.err.println("clearing link selection target...");
+		//	System.err.println("clearing link selection target...");
 			linkState = NOT_LINKING;
 			if (selectionTarget != null) {
 				Link link = selectionTarget.getLink();
@@ -724,7 +724,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param param the origin of the new link
 	 */
  	private void startParamLink(FormalParameter param) {
-		System.err.println("mouse pressing and starting link");
+		//System.err.println("mouse pressing and starting link");
 		linkOrigin = param;
 		link = new ParamLink();
 		linkLayer.addChild(link);
@@ -923,7 +923,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mouseReleased(PInputEvent e) {
 		if (e.isPopupTrigger()) {
-			System.err.println("mouse released");
+		//	System.err.println("mouse released");
 			evaluatePopup(e);
 		}
 	}
