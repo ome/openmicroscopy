@@ -33,11 +33,9 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -57,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -75,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class DataManagerUIF
 	extends JInternalFrame
 {
+	
 	/** Width of the widget. */
 	private static final int 				WIN_WIDTH = 350;
 	
@@ -104,7 +104,6 @@ class DataManagerUIF
 	/** On-request menu displayed for nodes in the tree. */
 	private TreePopupMenu					popupMenu;
 	
-			
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
 		//name, resizable, closable, maximizable, iconifiable.
@@ -234,20 +233,10 @@ class DataManagerUIF
 	 */
 	void showPS(JDialog editor)
 	{
-		//editor.pack();
-		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)	offsetX = 0;
-		if (offsetY < 0)	offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
+		UIFactory.showEditor(editor);
 	}
 
-	/** 
-	 * Build and lay out the GUI.
-	 */
+	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
 	{
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
