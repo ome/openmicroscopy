@@ -63,9 +63,9 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
  * </small>
  */
 
-public class ModuleNodeEventHandler extends GenericZoomEventHandler  {
+public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	
-	private ModuleView lastEntered;
+	protected ModuleView lastEntered;
 	
 	public ModuleNodeEventHandler(BufferedObject canvas) {
 		super(canvas);
@@ -92,8 +92,7 @@ public class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 		setSelectedForDrag(node);
 	}
 	
-	public void setSelectedForDrag(PNode node) {
-	}
+	public abstract void setSelectedForDrag(PNode node);
 	
 	protected void highlightModules(ChainModuleData mod) {		
 		unhighlightModules();
