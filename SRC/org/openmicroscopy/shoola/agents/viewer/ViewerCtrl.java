@@ -159,8 +159,11 @@ public class ViewerCtrl
 	private void showPresentation()
 	{
 		ViewerUIF presentation = abstraction.getPresentation();
-		if (presentation != null && presentation.isClosed()) 
-			abstraction.showPresentation();	
+		if (presentation != null) {
+			if (presentation.isClosed()) abstraction.showPresentation();
+			if (presentation.isIcon()) abstraction.deiconifyPresentation();
+		}
+				
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF}. */

@@ -96,7 +96,6 @@ public class Viewer
 		registry = ctx;
 		register(this, ImageLoaded.class);
 		register(this, ImageRendered.class);
-		
 		topFrame = registry.getTopFrame();
 		viewItem = getViewMenuItem();
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
@@ -108,10 +107,15 @@ public class Viewer
 		return true;
 	}
 
+	/** Display the presentation. */
 	void showPresentation()
 	{
+		topFrame.removeFromDesktop(presentation);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
+		try {
+			presentation.setClosed(false);
+		} catch (Exception e) {}	
 	}
 
 	ViewerUIF getPresentation()
@@ -139,6 +143,7 @@ public class Viewer
 		return renderingControl.getDefaultZ();
 	}
 	
+	/** Return the current buffered image. */
 	BufferedImage getCurImage()
 	{
 		return curImage;
@@ -166,7 +171,12 @@ public class Viewer
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
+	
 		if (presentation == null) buildPresentation();
+		else {
+			if (presentation.isClosed()) showPresentation();
+			else if (presentation.isIcon()) deiconifyPresentation();
+		}
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
 		RenderImage event = new RenderImage(curPixelsID);
@@ -179,6 +189,15 @@ public class Viewer
 		curImage = null;
 		curImage = response.getRenderedImage();
 		presentation.setImage(curImage);
+	}
+	
+	/** Pop up the presentation. */
+	void deiconifyPresentation()
+	{
+		topFrame.deiconifyFrame(presentation);
+		try {
+			presentation.setIcon(false);
+		} catch (Exception e) {}	
 	}
 	
 	/** Build the GUI. */
