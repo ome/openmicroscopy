@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data.map;
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 
 /** 
  * 
@@ -175,8 +177,8 @@ public class ImageMapper
 		empty.setID(image.getID());
 		empty.setName(image.getName());
 		empty.setDescription(image.getDescription());
-		empty.setCreated(image.getCreated());
-		empty.setInserted(image.getInserted());
+		empty.setCreated(Timestamp.valueOf(image.getCreated()));
+		empty.setInserted(Timestamp.valueOf(image.getInserted()));
 		
 		//Fill in the data coming from Experimenter.
 		Experimenter owner = image.getOwner();
@@ -230,7 +232,7 @@ public class ImageMapper
 			is.setID(img.getID());
 			is.setName(img.getName());
 			is.setPixelsIDs(fillListPixelsID(px));
-			is.setDate(img.getCreated());
+			is.setDate(Timestamp.valueOf(img.getCreated()));
 			//is.setImageServerPixelsID(fillListPixelsID(px));
 			//Add the images to the list of returned images
 			imagesList.add(is);
@@ -281,6 +283,62 @@ public class ImageMapper
 		return channelData;
 	}
 	
+	/*
+	public static RenderingDef fillInRenderingDef(List rsList, int pixelType)
+	{
+		//Create a new QuantumDef object.
+		 
+		
+		QuantumDef qDef;
+		ChannelBindings[] channelBindings = new ChannelBindings[cbList.size()];
+		RenderingSettings rs;
+		Iterator i = rsList.iterator();
+		
+		while (i.hasNext()) {
+			rs = (RenderingSettings) i.next();
+			index = (cb.getID()).intValue();
+			if (index == 0) {
+				qDef = = new QuantumDef(rs.getFamily(), pixelType,
+						 rs.getCoefficient(), rs.getCDStart(), rs.getCDEnd(),
+						 rs.getBitResolution();
+			}
+			
+			channelBindings[index] = new ChannelData(index, rs.getInputStart(),
+					rs.getInputEnd(), rs.getRed(), rs.getGreen(), rs.getBlue(),
+					rs.getAlpha(), rs.isActive());
+		}
+		return new RenderingDef(qs.getID(), qs.getDefaultZ(), qs.getDefaultT(),
+								qs.getModel(), qDef, channelBindings);	
+	}
+	*/
+	
+	/**
+	 * Fill in the renderingSettings ST.
+	 */
+	/*
+	public static void fillInRenderingSettings(int z, int t, int model, 
+									int family, double coeff, int cdStart, 
+									int cdEnd, int bitResolution, 
+									ChannelBindings cb, RenderingSettings rs)
+	{
+		rs.setTheT(t);
+		rs.setTheZ(z);
+		rs.setFamily(family);
+		rs.setModel(model);
+		rs.setCoefficient(coeff);
+		rs.setCDStart(cdStart);
+		rs.setCDEnd(cdEnd);
+		rs.setBitResolution(bitResolution);
+		int rgba[] = cb.getRGBA();
+		rs.setRed(rgba[0]);
+		rs.setGreen(rgba[1]);
+		rs.setBlue(rgba[2]);
+		rs.setAlpha(rgba[3]);
+		rs.setInputStart(cb.getInputStart());
+		rs.setInputEnd(cb.getInputEnd());
+		rs.setTheC(cb.getIndex());		//call the C to be consistent.
+	}
+	*/
 	/** 
 	 * Fill in the PixelDescription object.
 	 * @return List of pixelDescription object.
