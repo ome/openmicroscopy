@@ -41,7 +41,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,6 +48,7 @@ import java.util.LinkedHashMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
@@ -89,15 +88,6 @@ public class ChainDataManager extends DataManager {
 		
 	protected LinkedHashMap chainHash=null;
 	
-	/** hash executions by id */
-	protected LinkedHashMap chainExecutionHashesByID = null;
-	
-	/** hash executions by dataset id */
-	protected LinkedHashMap executionsByDatasetID = null;
-	
-	/** hash executions by chain id */
-	protected LinkedHashMap executionsByChainID = null;
-	
 	/** a list of analysis nodes. populated when we get chains */
 	protected LinkedHashMap analysisNodes = null;
 	
@@ -105,8 +95,7 @@ public class ChainDataManager extends DataManager {
 	private boolean gettingChains = false;
 	private boolean gettingExecutions =false;
 	
-	/** flags to see if getting chains */
-	
+	private ChainExecutions chainExecutions; 
 	
 	public ChainDataManager(Registry registry) {
 		super(registry);
@@ -226,8 +215,8 @@ public class ChainDataManager extends DataManager {
 	public synchronized Collection getChainExecutions() {
 		
 		// if we're done, go for it.
-		if (chainExecutionHashesByID != null && chainExecutionHashesByID.size() > 0) {
-			return chainExecutionHashesByID.values();
+		if (chainExecutions != null) {
+			return chainExecutions.getExecutions();
 		}
 		
 		if (gettingChains == false) {
@@ -235,12 +224,12 @@ public class ChainDataManager extends DataManager {
 			retrieveChainExecutions();
 			gettingExecutions = false;
 			notifyAll();
-			return chainExecutionHashesByID.values();
+			return chainExecutions.getExecutions();
 		}
 		else {// in progress
 			try{ 
 				wait();
-				return chainExecutionHashesByID.values();
+				return chainExecutions.getExecutions();
 			}
 			catch (InterruptedException e) {
 				return null;
@@ -248,7 +237,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	public synchronized void retrieveChainExecutions() {
-		if (chainExecutionHashesByID == null ||chainExecutionHashesByID.size() == 0) {
+		if (chainExecutions== null) {
 			try {
 				ChainExecutionData ceProto = new ChainExecutionData();
 				BrowserDatasetData dsProto = new BrowserDatasetData();
@@ -258,13 +247,14 @@ public class ChainDataManager extends DataManager {
 				ChainModuleData mProto = new ChainModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
 				DataManagementService dms = registry.getDataManagementService();
-				Collection chainExecutions = 
+				Collection execs = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
 							acProto,neProto,anProto,mProto,meProto);
-				buildExecutionHashes(chainExecutions);
+				chainExecutions = new ChainExecutions(execs);
+	
+				
 				ChainExecutionsLoadedEvent event = new
-					ChainExecutionsLoadedEvent(executionsByDatasetID,
-							executionsByChainID,chainExecutionHashesByID);
+					ChainExecutionsLoadedEvent(chainExecutions);
 				registry.getEventBus().post(event);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
@@ -280,60 +270,10 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected void buildExecutionHashes(Collection executions) {
-		chainExecutionHashesByID = new LinkedHashMap();
-		executionsByDatasetID = new LinkedHashMap();
-		executionsByChainID = new LinkedHashMap();
-		Iterator iter = executions.iterator();
-		while (iter.hasNext()) {
-			
-			// hash by execution id
-			ChainExecutionData p = (ChainExecutionData) iter.next();
-			Integer id = new Integer(p.getID());
-			chainExecutionHashesByID.put(id,p);
-			
-			// by dataset id
-			
-			DatasetData d = p.getDataset();
-			id = new Integer(d.getID());
-			updateExecutionHash(executionsByDatasetID,id,p);
-			
-			LayoutChainData c = (LayoutChainData) p.getChain();
-			id = new Integer(c.getID());
-			updateExecutionHash(executionsByChainID,id,p);
-		}
-	}
-	
-	private void updateExecutionHash(LinkedHashMap map, Integer id,ChainExecutionData p) {
-		ArrayList execs = null;
-		Object obj = map.get(id);
-		if (obj == null)
-			execs = new ArrayList();
-		else
-			execs = (ArrayList) obj;
-		execs.add(p);
-		map.put(id,execs);
-	}
-	
-	public ChainExecutionData getChainExecutionByID(int id) {
-		Integer ID = new Integer(id);
-		if (chainExecutionHashesByID == null)
-			getChainExecutions();
-		return (ChainExecutionData) chainExecutionHashesByID.get(ID);
-	}
-	
-	public Collection getChainExecutionsByDatasetID(int id) {
-		Integer ID = new Integer(id);
-		if (executionsByDatasetID == null)
-			getChainExecutions();
-		return (Collection) executionsByDatasetID.get(ID);
-	}
-	
-	public Collection getChainExecutionsByChainID(int id) {
-		Integer ID = new Integer(id);
-		if (executionsByChainID == null)
-			getChainExecutions();
-		return (Collection) executionsByChainID.get(ID);
+	public boolean chainHasExecutionsForDataset(int chainID,int datasetID) {
+		if (chainExecutions!= null)
+			return chainExecutions.chainHasExecutionsForDataset(chainID,datasetID);
+		return false;
 	}
 	
 	public void setAnalysisNodes(LinkedHashMap analysisNodes) {
