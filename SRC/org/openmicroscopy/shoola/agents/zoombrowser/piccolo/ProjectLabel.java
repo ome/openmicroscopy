@@ -69,14 +69,13 @@ public class ProjectLabel extends PText implements MouseableNode {
 	
 	private double previousScale =NORMAL_SCALE;
 	private Paint previousPaint;
-	ProjectSelectionCanvas canvas;
 	
-	
+	private ProjectSelectionCanvas canvas;
 	
 	ProjectLabel(BrowserProjectSummary project,ProjectSelectionCanvas canvas) {
 		super();
-		this.project = project;
 		this.canvas = canvas;
+		this.project = project;
 		setText(project.getName());
 		setFont(PConstants.PROJECT_LABEL_FONT);
 		
@@ -132,12 +131,13 @@ public class ProjectLabel extends PText implements MouseableNode {
 	
 	public void mouseEntered(GenericEventHandler handler) {
 		BrowserProjectSummary p = getProject();
-		if (p.hasDatasets())
-			SelectionState.getState().setRolloverProject(p); 
+		if (p.hasDatasets()) {
+			canvas.setRolloverProject(p);
+		}
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
-		SelectionState.getState().setRolloverProject(null);
+		canvas.setRolloverProject(null);
 	}
 
 	public void mouseClicked(GenericEventHandler handler) {
@@ -157,17 +157,12 @@ public class ProjectLabel extends PText implements MouseableNode {
 
 	public void mousePopup(GenericEventHandler handler) {
 		BrowserProjectSummary picked = getProject();
-		BrowserProjectSummary selected = 
-			SelectionState.getState().getSelectedProject();
-		if (picked == selected) 
-			SelectionState.getState().setSelectedProject(null);	
+		SelectionState.getState().setSelectedProject(null);	
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
 		SelectionState state = SelectionState.getState();
-		if (state.getSelectedProject() != null) {
-			state.setSelectedProject(null);
-		}
+		state.setSelectedProject(null);
 	}
 	
 }

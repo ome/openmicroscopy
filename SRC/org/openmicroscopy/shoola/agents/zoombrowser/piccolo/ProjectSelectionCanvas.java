@@ -192,13 +192,13 @@ public class ProjectSelectionCanvas extends PCanvas implements
 		}
 		
 		int height  = (int) (y+VSEP);
-		if (height > lastHeight) {
+		//if (height > lastHeight) {
 			Dimension d= new Dimension(width,height);
 			setMinimumSize(d);
 			setPreferredSize(d);
 			panel.setDividerLocation(height);
 			lastHeight = height;
-		}
+		//}
 		reentrant = false;
 	}
 	
@@ -206,26 +206,16 @@ public class ProjectSelectionCanvas extends PCanvas implements
 	
 	public void selectionChanged(SelectionEvent e) {
 		SelectionState state = e.getSelectionState();
-	 	if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)) {
+		if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)) {
 	 			setSelectedProject();
 	 	}
-		else if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_DATASET)) {
-			BrowserDatasetSummary rolled = state.getRolloverDataset();
-
-			setRollover(rolled);
-		}
-		else if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_PROJECT)) {
-			setRollover(state.getRolloverProject());
-		}
 	}
 	
 	public int getEventMask() {
-		return SelectionEvent.SET_SELECTED_PROJECT |
-			SelectionEvent.SET_ROLLOVER_PROJECT |
-			SelectionEvent.SET_ROLLOVER_DATASET;
+		return SelectionEvent.SET_SELECTED_PROJECT;
 	}
 	
-	public void setRollover(BrowserDatasetSummary rolled) {
+	public void setRolloverDataset(BrowserDatasetSummary rolled) {
 		Iterator iter = layer.getChildrenIterator();
 		ProjectLabel pLabel=null;
 		SelectionState state = SelectionState.getState();
@@ -246,7 +236,7 @@ public class ProjectSelectionCanvas extends PCanvas implements
 		layoutContents();
 	}
 			
- 	public void setRollover(BrowserProjectSummary proj) {
+ 	public void setRolloverProject(BrowserProjectSummary proj) {
 		Iterator iter = layer.getChildrenIterator();
 		ProjectLabel pLabel;
 		SelectionState state = SelectionState.getState();
@@ -268,6 +258,7 @@ public class ProjectSelectionCanvas extends PCanvas implements
 
 			}
 		}
+		panel.setRolloverProject(proj);
 		layoutContents();
  	}
  	

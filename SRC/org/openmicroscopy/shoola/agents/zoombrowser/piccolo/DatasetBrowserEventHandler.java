@@ -88,7 +88,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	 * What happens when I enter a node that is not a MouseableNode?
 	 */	
 	protected void defaultMouseEntered() {
-		SelectionState.getState().setRolloverDataset(null);
+		//SelectionState.getState().setRolloverDataset(null);
 		zoomLevel = 0;
 	}
 

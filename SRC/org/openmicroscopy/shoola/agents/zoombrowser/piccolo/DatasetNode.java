@@ -108,11 +108,17 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/** 
 	 * Max width of any thumbnail. Used to guarantee aligned columns
 	 */
+	
+	/** THE canvas that we're on */
+	private DatasetBrowserCanvas canvas;
+	
+	/** The calculated maximum width of a thumbnail */
 	private double maxThumbWidth = 0;
 	
-	public DatasetNode(BrowserDatasetSummary dataset) {
+	public DatasetNode(BrowserDatasetSummary dataset,DatasetBrowserCanvas canvas) {
 		super();
 		this.dataset = dataset;
+		this.canvas = canvas;
 		dataset.setNode(this);
 	}
 
@@ -411,9 +417,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 			images.setSelected(v);
 	}
 		
-	public void rollover() {
-		SelectionState.getState().setRolloverDataset(dataset);
-	}
+	
 	
 	public void setHandler(DatasetBrowserEventHandler handler) {
 		if (images != null)
@@ -421,10 +425,11 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	}
 	
 	public void mouseEntered(GenericEventHandler handler) {
-		rollover();
+		canvas.setRolloverDataset(dataset);
 	}
 	
 	public void mouseExited(GenericEventHandler handler) {
+		canvas.setRolloverDataset(null);
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {

@@ -41,9 +41,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 //Java imports
 import java.awt.Dimension;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 
 //Third-party libraries
@@ -54,11 +52,13 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEvent;
 import 
 	org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEventListener;
+import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 /** 
@@ -107,6 +107,9 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * Collection of all current datasets
 	 */	
 	private Collection allDatasets;
+	
+	/** the main window in which this panel is being stored */
+	private MainWindow mainWindow;
 
 	/**
 	 * A {@link PExecutionList} that may show the lists of executions for a
@@ -136,8 +139,9 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */
 	private DatasetBrowserEventHandler eventHandler;
 	
-	public DatasetBrowserCanvas() {
+	public DatasetBrowserCanvas(MainWindow mainWindow) {
 		super();
+		this.mainWindow = mainWindow;
 		layer = getLayer();
 		
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
@@ -174,7 +178,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		DatasetNode node;
 		node = d.getNode();
 		if (node == null)
-			node = new DatasetNode(d);
+			node = new DatasetNode(d,this);
 		if (node == null)
 			return 0;
 		node.clearWidths();
@@ -469,48 +473,15 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		Collection sets = null;
 		SelectionState state = e.getSelectionState();
 		
-		if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_PROJECT)) {
-			//when we roll over a project, highlight the project's datasets
-			BrowserProjectSummary rollover = state.getRolloverProject();
-			if (rollover != null)
-				highlightDatasets(rollover);
-		}
-		else if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_DATASET)) {
-			// highlight a dataset when we roll over it.
-			BrowserDatasetSummary rolled = state.getRolloverDataset();
-			highlightDataset(rolled);	 
-		}
-		else if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_CHAIN)) {
-			//when we roll over a chain, we highlight the datasets with 
-			// executions.
-		/*	CChain chain = state.getRolloverChain();
-			if (chain != null)
-				sets = chain.getDatasetsWithExecutions();
-			highlightDatasets(sets); */	 
-		}
-		
-		else if (e.isEventOfType(SelectionEvent.SET_SELECTED_CHAIN)) {
-			// show only those that are for current project
-			// and have executions for this chain
-			
-			List executed = state.getExecutedDatasets();
-			Collection datasets;
-			if (sets != null) {
-				Collections.sort(executed);
-				datasets = executed;
-			}
-			else
-				datasets = allDatasets;
-			displayDatasets(datasets);
-		}
-		else if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)
+
+		if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)
 			|| e.isEventOfType(SelectionEvent.SET_SELECTED_DATASET)) {
 			// if we select a project or dataset, update their state.
 			updateProjectDatasetSelection(state);	
 		}
 	  
 	}
-	
+		
 	/**
 	 * Highlight selected datasets and display as needed.
 	 * @param state
@@ -539,51 +510,18 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	public int getEventMask() {
 		return SelectionEvent.SET_SELECTED_DATASET | 
 			SelectionEvent.SET_SELECTED_PROJECT | 
-			SelectionEvent.SET_ROLLOVER_PROJECT |
-			SelectionEvent.SET_ROLLOVER_DATASET | 
 			SelectionEvent.SET_ROLLOVER_CHAIN |
 			SelectionEvent.SET_SELECTED_CHAIN;
 	}
 
-	/**
-	 * Clear the list of executions for the active chain
-	 *
-	 */	
-	/*public void clearExecutionList() {
-		if (executionList != null) {
-			if (executionList.getParent() == layer)
-				layer.removeChild(executionList);
-			executionList = null;
-		}
-	}*/
 
-	/**
-	 * Show a list of executions for the given {@link PChainLabelText}. The 
-	 * {@link PChainLabelText} is a text node indicating that a chain has
-	 * been executed against this dataset. The executionList will show the 
-	 * executions for this dataset,chain pair.
-	 * 
-	 * @param cl The chain label 
-	 * 
-	 */	
-	/*public void showExecutionList(PChainLabelText cl) {
-		clearExecutionList();
-
-		executionList = cl.getExecutionList();
-		
-		
-		layer.addChild(executionList);
-		
-		PBounds b = cl.getGlobalFullBounds();
-		executionList.setOffset(b.getX(),b.getY()+b.getHeight());
-	} */
 	
 
 	/**
 	 * Highlight all of the datasets in a collection. 
 	 * @param p The project with datasets to be highlighted.
 	 */
-	private void highlightDatasets(BrowserProjectSummary p) {
+	public  void setRolloverProject(BrowserProjectSummary p) {
 		
 		// we must look at all datasets, as we want to turn off the 
 		// highlighting in those that are not in the collection c.
@@ -593,7 +531,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			if (obj instanceof DatasetNode) {
 				DatasetNode dNode = (DatasetNode) obj;
 				BrowserDatasetSummary d = dNode.getDataset();
-				if (p.hasDataset(d))
+				if (p != null && p.hasDataset(d))
 					dNode.setHighlighted(true);
 				else
 					dNode.setHighlighted(false);
@@ -618,7 +556,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * 
 	 * @param rolled the dataset to be highlighted.
 	 */	
-	private void highlightDataset(BrowserDatasetSummary rolled) {
+	public void setRolloverDataset(BrowserDatasetSummary rolled) {
 		
 		if (rolled == null && lastRolledOver == null)
 			return;
@@ -633,6 +571,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		if (rolled != null) {	
 			lastRolledOver = rolled.getNode();
 			lastRolledOver.setSelected(true);
-		}		
+		}
+		mainWindow.setRolloverDataset(rolled);
 	}
  }
