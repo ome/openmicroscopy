@@ -152,7 +152,7 @@ public class ChainExecutionMapper
 			//chain
 			c = e.getChain();
 			chain = (AnalysisChainData) acProto.makeNew();
-			chain.setID(e.getID());
+			chain.setID(c.getID());
 			exec.setChain(chain);
 			
 			//node executions
