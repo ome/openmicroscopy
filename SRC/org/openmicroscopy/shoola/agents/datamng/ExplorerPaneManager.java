@@ -395,8 +395,9 @@ class ExplorerPaneManager
 			// remove tree expansion listener
 			//otherwise a tree expansion event is fired when we
 			//double-click
-			for (int i = 0; i < listeners.length; i++) 
-				view.tree.removeTreeExpansionListener(listeners[i]);
+			//for (int i = 0; i < listeners.length; i++) 
+			//	view.tree.removeTreeExpansionListener(listeners[i]);
+				
 	   		if (target != null) {
 				if (e.isPopupTrigger()) {
 					DataManagerUIF presentation = 
@@ -407,8 +408,8 @@ class ExplorerPaneManager
 				} else {
 					if (e.getClickCount() == 2) {
 						agentCtrl.showProperties(target);
-						for (int i = 0; i < listeners.length; i++) 
-							view.tree.addTreeExpansionListener(listeners[i]);
+						//for (int i = 0; i < listeners.length; i++) 
+						//	view.tree.addTreeExpansionListener(listeners[i]);
 					}	
 				}
 	   		}// else { //Test click on the root node.

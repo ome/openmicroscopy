@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 public class DataManager
 	implements Agent
 {
+	
 	public static final Color   	STEELBLUE = new Color(0x4682B4);
 
 	/** Width of the editor dialog window. */
@@ -550,10 +551,20 @@ public class DataManager
 		bus.post(request);	
 	}
 	
+	/** Display the widget. */
 	void showPresentation()
 	{
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
+	}
+	
+	/** Pop up the presentation. */
+	void deiconifyPresentation()
+	{
+		topFrame.deiconifyFrame(presentation);
+		try {
+			presentation.setIcon(false);
+		} catch (Exception e) {}	
 	}
 	
 }

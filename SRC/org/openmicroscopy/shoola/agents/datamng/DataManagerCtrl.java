@@ -166,8 +166,11 @@ public class DataManagerCtrl
 	private void showPresentation()
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
-		if (presentation != null && presentation.isClosed()) 
-			abstraction.showPresentation();	
+		if (presentation != null) {
+			if (presentation.isClosed()) abstraction.showPresentation();	
+			if (presentation.isIcon()) abstraction.deiconifyPresentation();	
+		}  
+			
 	}	
 	
 	/** Forward event to the presentation {@link DataManagerUIF}. */
