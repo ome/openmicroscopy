@@ -32,11 +32,9 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
-import java.awt.Component;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -68,14 +66,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class ExplorerPane
 	extends JScrollPane
 {
-	
-	/** ID used to select the appropriated icon. */
-	static final int    			ROOT_ICON = 0;   
-	static final int    			PROJECT_ICON = 1;
-	static final int    			DATASET_ICON = 2;
-	static final int    			IMAGE_ICON = 3;
-	static final int    			OWNER_ICON = 4;
-	static final int    			NO_ICON = 5; 
 	
 	/** This UI component's controller and model. */
 	private ExplorerPaneManager     manager;
@@ -130,58 +120,13 @@ class ExplorerPane
 	ExplorerPaneManager getManager() { return manager; }
 	
 	/** Builds and lay out the GUI. */
-	private void buildGUI() {
+	private void buildGUI()
+	{
 		tree.putClientProperty("JTree.lineStyle", "Angled");
-		tree.setCellRenderer(new DataTreeCellRenderer());
+		tree.setCellRenderer(new DataTreeCellRenderer(registry));
 		tree.getSelectionModel().setSelectionMode(
 									TreeSelectionModel.SINGLE_TREE_SELECTION);
 		setViewportView(tree);
-	}
-	
-	/** Custom tree renderer. */
-	private final class DataTreeCellRenderer
-		extends DefaultTreeCellRenderer
-	{
-		public Component getTreeCellRendererComponent(JTree tree, Object value,
-							boolean sel, boolean expanded, boolean leaf,
-							int row, boolean hasFocus)
-		{
-			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
-													row, hasFocus);
-			IconManager im = IconManager.getInstance(registry);
-			int index = getIconID(value);
-			try {
-				switch (index) {
-					case ROOT_ICON:
-						setIcon(im.getIcon(IconManager.ROOT)); break;
-					case PROJECT_ICON:
-						setIcon(im.getIcon(IconManager.PROJECT)); break;
-					case DATASET_ICON:
-						setIcon(im.getIcon(IconManager.DATASET)); break;
-					case IMAGE_ICON:
-						setIcon(im.getIcon(IconManager.IMAGE)); break;
-					case NO_ICON:
-						setIcon(null);
-				}									
-			} catch(NumberFormatException nfe) {   
-				throw new Error("Invalid Action ID "+index, nfe);
-			} 
-			return this;
-		}
-		
-		private int getIconID(Object value)
-		{
-			DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
-			Object usrObject = node.getUserObject();
-			int id = ROOT_ICON;
-			if (node.getLevel() != 0) {
-				if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;
-				else if (usrObject instanceof DatasetSummary) id = DATASET_ICON;
-				else if (usrObject instanceof ImageSummary) id = IMAGE_ICON;
-				else if (usrObject instanceof String) id = NO_ICON;
-			}
-			return id;
-		}
 	}
 		
 }

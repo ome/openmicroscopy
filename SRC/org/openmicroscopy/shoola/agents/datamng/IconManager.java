@@ -135,11 +135,20 @@ public class IconManager
 	/** ID of the image big icon. */
 	public static final int		IMPORT_IMAGE_BIG = 23;	
 	
+	/** ID of the orderByName icon. */
+	public static final int		ORDER_BY_NAME = 24;
+	
+	/** ID of the orderByDate icon. */
+	public static final int		ORDER_BY_DATE = 25;
+	
+	/** ID of the filter icon. */
+	public static final int		FILTER = 26;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 23;
+	private static int          MAX_ID = 26;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -159,7 +168,7 @@ public class IconManager
 		relPaths[ROOT] = "nuvola_trashcan_empty16.png";
 		relPaths[IMPORT_IMAGE] = "nuvola_digikam16.png";
 		relPaths[OWNER] = "nuvola_kdmconfig16.png";
-		relPaths[EXPLORER] = "nuvola_kfind16.png";	
+		relPaths[EXPLORER] = "eclipse_hierarchy_co16.png";	
 		relPaths[CREATE_PROJECT] = "nuvola_filenew16.png";				
 		relPaths[CREATE_DATASET] = "nuvola_folder_new16.png";
 		relPaths[CREATE_PROJECT_BIG] = "nuvola_filenew48.png";
@@ -168,6 +177,9 @@ public class IconManager
 		relPaths[DATASET_BIG] = "nuvola_folder_image48.png";
 		relPaths[IMPORT_IMAGE_BIG] = "nuvola_digikam48.png";
 		relPaths[IMAGE_BIG] = "nuvola_image48.png";
+		relPaths[ORDER_BY_NAME] = "eclipse_alphab_sort_co16.png";
+		relPaths[ORDER_BY_DATE] = "nuvola_clock16.png";
+		relPaths[FILTER] = "eclipse_filter_ps16.png";
 	}
 	
 	/** The sole instance. */

@@ -107,13 +107,6 @@ class ExplorerPaneManager
 	 */
 	private Map						pNodes;
 	
-	/** 
-	 * Store all the treeExpansion listeners in an array.
-	 * The listeners are removed (then re-added) when a MousePressed event
-	 * is fired.
-	 */
-	private TreeExpansionListener[] listeners;
-	
 	ExplorerPaneManager(ExplorerPane view, DataManagerCtrl agentCtrl)
 	{
 		this.view = view;
@@ -529,7 +522,6 @@ class ExplorerPaneManager
 				onNodeNavigation(e, true);	
 			}	
 		});
-		listeners = view.tree.getTreeExpansionListeners();
 	}
 	
 }

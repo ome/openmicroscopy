@@ -156,6 +156,12 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward the call to the {@link DataManager abstraction}. */
+	List getUserImages()
+	{
+		return abstraction.getUserImages();
+	}
+	
+	/** Forward the call to the {@link DataManager abstraction}. */
 	void viewDataset(DatasetSummary ds)
 	{ 
 		abstraction.viewDataset(ds.getID());
@@ -292,7 +298,6 @@ public class DataManagerCtrl
 		abstraction.updateImage(id, nameChange);
 	}
 	
-
 	/** Select the checkBox in menu. */
 	public void internalFrameOpened(InternalFrameEvent e)
 	{

@@ -83,6 +83,9 @@ class DataManagerUIF
 	 */
 	private ExplorerPane					explPane;
 	
+	
+	private ImagesPane						imgPane;
+	
 	/** Reference to the regisry. */
 	private Registry						registry;
 	
@@ -103,6 +106,7 @@ class DataManagerUIF
 		im = IconManager.getInstance(registry);
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
+		imgPane = new ImagesPane(control, registry);
 		setJMenuBar(createMenuBar());
 		buildGUI(new ToolBar(control, registry));
 		//set the size and position the window.
@@ -145,12 +149,13 @@ class DataManagerUIF
 	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
 	{
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
+		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 											JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");					
-		tabs.addTab("Explorer", im.getIcon(IconManager.EXPLORER), explPane);
+		tabs.addTab("Hierarchy", im.getIcon(IconManager.EXPLORER), explPane);
+		tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imgPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
 		tabs.setSelectedComponent(explPane);
@@ -158,8 +163,8 @@ class DataManagerUIF
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(bar, BorderLayout.NORTH);
-		//getContentPane().add(tabs, BorderLayout.CENTER);
-		getContentPane().add(explPane, BorderLayout.CENTER);
+		getContentPane().add(tabs, BorderLayout.CENTER);
+		//getContentPane().add(explPane, BorderLayout.CENTER);
 		setFrameIcon(im.getIcon(IconManager.DMANAGER));	
 	} 	
 	
