@@ -437,7 +437,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	
 	public double getHeight() { 
 		//return chainHeight;
-		return (float) chainBounds.getHeight()+VGAP;
+		return  chainBounds.getHeight()+VGAP;
 	}
 	
 	public void adjustVerticalExtents(PBounds b) {
