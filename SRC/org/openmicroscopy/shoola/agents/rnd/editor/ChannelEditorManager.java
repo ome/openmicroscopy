@@ -34,6 +34,10 @@ package org.openmicroscopy.shoola.agents.rnd.editor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -56,41 +60,117 @@ import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
  * @since OME2.2
  */
 class ChannelEditorManager
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
-	/** ID to handle events. */
-	private static final int	SAVE = 0;
-	private ChannelData 		data;
-	private ChannelEditor 		view;
+	
+	/** Action command ID, handle events. */
+	private static final int	SAVE = 100;
+	private static final int	CANCEL = 101;
+	private static final int	DICTIONARY = 102;
+	
+	/** Save Button displayed in {@link ChannelEditorBar}. */
 	private JButton				saveButton;
+	
+	/** Cancel Button displayed in {@link ChannelEditorBar}. */
+	private JButton				cancelButton;
+	
+	/** Help Button displayed in {@link ChannelEditorBar}. */
+	private JButton				helpButton;
+	
+	/** textArea displayed in the {@link ChannelPane}. */
+	private JTextArea			interpretationArea;
+	
+	/** textField displayed in the {@link ChannelPane}. */	
+	private JTextField			excitation;
+	
+	/** textField displayed in the {@link ChannelPane}. */	
+	private JTextField			fluor;
+	
 	private RenderingAgtCtrl 	eventManager;
 	
-	/** Channel index. */
-	private int					index;
+	private ChannelData 		model;
+	private ChannelEditor 		view;
 	
 	ChannelEditorManager(RenderingAgtCtrl eventManager, ChannelEditor view, 
-						ChannelData data, int index)
+						ChannelData model)
 	{
 		this.eventManager = eventManager;
 		this.view = view;
-		this.data = data;
-		this.index = index;
+		this.model =model;
 	}
 	
-	ChannelData getChannelData() { return data; }
+	ChannelData getChannelData() { return model; }
 	
 	/** Attach the listeners. */
-	void initListeners()
+	void attachListeners()
 	{
 		saveButton = view.getSaveButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		helpButton = view.getHelpButton();
+		helpButton.addActionListener(this);
+		helpButton.setActionCommand(""+DICTIONARY);
+		
+		//text area.
+		interpretationArea = view.getInterpretationArea();
+		interpretationArea.getDocument().addDocumentListener(this);
+		excitation = view.getExcitation();
+		excitation.getDocument().addDocumentListener(this);
+		fluor = view.getFluor();
+		fluor.getDocument().addDocumentListener(this);
 	}
 
 	public void actionPerformed(ActionEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+		String s = (String) e.getActionCommand();
+		try {
+			int index = Integer.parseInt(s);
+			switch (index) { 
+				case SAVE:
+					save(); break;
+				case CANCEL:
+					cancel(); break;
+				case DICTIONARY:
+					dictionary(); break;
+			}// end switch  
+		} catch(NumberFormatException nfe) {
+		   throw nfe;  //just to be on the safe side...
+		} 
 	}
+	
+	private void dictionary()
+	{
+		eventManager.showChannelDictionary();
+	}
+	
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
+	{
+		view.setVisible(false);
+		view.dispose();
+	}
+
+	/** Save in DB. */
+	private void save()
+	{
+		model.setInterpretation(interpretationArea.getText());
+		model.setFluor(fluor.getText());
+		int value = Integer.parseInt(excitation.getText());
+		model.setExcitation(value);
+		eventManager.updateChannelData(model);
+		view.dispose();
+	}
+
+	/** Require by {@link DocumentListener} I/F. */
+	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
+
+	/** Require by {@link DocumentListener} I/F. */
+	public void insertUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
+
+	/** Require by {@link DocumentListener} I/F. */
+	public void removeUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
 	
 }

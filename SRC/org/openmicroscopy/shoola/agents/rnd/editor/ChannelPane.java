@@ -30,26 +30,22 @@
 package org.openmicroscopy.shoola.agents.rnd.editor;
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -71,13 +67,14 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class ChannelPane
 	extends JPanel
 {
+	
 	private static final int				ROW_HEIGHT = 25;
 	private static final Dimension			DIM_SCROLL_TABLE = 
 													new Dimension(40, 60);
 	
 	private ChannelEditorManager			manager;
 	private JTextArea						interpretationArea;
-	private JButton							saveButton;
+	private JTextField						excitation, fluor;
 	
 	ChannelPane(ChannelEditorManager manager)
 	{
@@ -85,9 +82,11 @@ class ChannelPane
 		buildGUI();
 	}
 
+	JTextField getFluor() { return fluor; }
+	
 	JTextArea getInterpretationArea() { return interpretationArea; }
 	
-	JButton getSaveButton() { return saveButton; }
+	JTextField getExcitation() { return excitation; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -102,71 +101,59 @@ class ChannelPane
 	private JPanel buildSummaryPanel()
 	{
 		JPanel  p = new JPanel();
-		//save button
-		saveButton = new JButton("Save");
-		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		saveButton.setOpaque(false);
-		//suppress button press decoration
-		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText(
-			UIFactory.formatToolTipText("Save data in the DB."));
-		saveButton.setEnabled(false);
-
-		JPanel controls = new JPanel(), all = new JPanel();
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		all.setLayout(gridbag);  
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(saveButton);
-		controls.setOpaque(false); //make panel transparent
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls, c); 
-		all.add(controls);
-		all.setOpaque(false); //make panel transparent
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildTable());
-		//TODO: add save button if needed.
-		//p.add(all);
-		//make panel transparent
 		p.setOpaque(false);
-		
 		return p;
 	}
 	
 	/** 
-	* A <code>2x2</code> table model to view wavelength summary.
-	* The first column contains the property names (id, name, description)
-	* and the second column holds the corresponding values. 
-	* <code>name</code> and <code>description</code> values
-	* are marked as editable. 
-	*/
+	 * A <code>2x4</code> table model to view channel summary.
+	 * The first column contains the property names 
+	 * (emission, interpretation, excitation, fluorescence)
+	 * and the second column holds the corresponding values. 
+	 * <code>interpretation</code>, <code>excitation</code>, 
+	 * <code>fluorescence</code> values are marked as editable. 
+	 */
 	private TableComponent buildTable()
 	{
-		TableComponent table = new TableComponent(2, 2);
+		TableComponent table = new TableComponent(4, 2);
 		setTableLayout(table);
-		
-		// Labels
-		table.setValueAt(new JLabel(" Emission (in nano.) "), 0, 0);
-		table.setValueAt(new JLabel(" Interpretation"), 1, 0);
-
 		ChannelData wd = manager.getChannelData();
-		table.setValueAt(new JLabel(""+wd.nanometer), 0, 1);
-	
-		//textfields
-		interpretationArea = new JTextArea(wd.info);
+		
+		//First row 
+		JLabel label = new JLabel(" Emission (in nano.)");
+		table.setValueAt(label, 0, 0);
+		table.setValueAt(new JLabel(""+wd.getNanometer()), 0, 1);
+		
+		//Third row.
+		label = new JLabel(" Excitation (in nano.)");
+	  	excitation = new JTextField(""+wd.getExcitation());
+	  	excitation.setForeground(ChannelEditor.STEELBLUE);
+	  	excitation.setEnabled(true);
+
+	  	table.setValueAt(label, 1, 0);	
+	  	table.setValueAt(excitation, 1, 1);	
+	  	
+		//Second row
+		label = new JLabel(" Interpretation");
+		interpretationArea = new JTextArea(wd.getInterpretation());
 		interpretationArea.setForeground(ChannelEditor.STEELBLUE);
-		//TODO: setEditable to true.
-		//interpretationArea.setEditable(true);
+		interpretationArea.setEditable(true);
 		interpretationArea.setLineWrap(true);
 		interpretationArea.setWrapStyleWord(true);
 		JScrollPane scrollPane = new JScrollPane(interpretationArea);
 		scrollPane.setPreferredSize(DIM_SCROLL_TABLE);
-		table.setValueAt(scrollPane, 1, 1);
-					
+		table.setValueAt(label, 2, 0);
+		table.setValueAt(scrollPane, 2, 1);
+		
+		//Fourth row.
+		label = new JLabel(" Fluorescence");
+		fluor = new JTextField(wd.getFluor());
+		fluor.setForeground(ChannelEditor.STEELBLUE);
+		fluor.setEnabled(true);
+		table.setValueAt(label, 3, 0);
+		table.setValueAt(fluor, 3, 1);
 		return table;
 	}
 	

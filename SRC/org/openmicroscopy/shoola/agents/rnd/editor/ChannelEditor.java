@@ -34,9 +34,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 //Third-party libraries
 
@@ -73,26 +74,41 @@ public class ChannelEditor
 	private static final int		EXTRA = 100;
 	
 	private ChannelPane				channelPane;
+	private ChannelEditorBar		bar;
 	
-	public ChannelEditor(RenderingAgtCtrl eventManager, ChannelData data, int w)
+	public ChannelEditor(RenderingAgtCtrl eventManager, ChannelData data)
 	{
-		super((JFrame) eventManager.getRegistry().getTopFrame().getFrame(), 
-				"Channel Info", true);
+		super(eventManager.getReferenceFrame(), "Channel Info", true);
 		ChannelEditorManager manager = new ChannelEditorManager(eventManager, 
-											this, data, w);
+											this, data);
 		channelPane = new ChannelPane(manager);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		bar = new ChannelEditorBar(manager);
+		manager.attachListeners();
 		buildGUI();
 		setSize(EDITOR_WIDTH+EXTRA, EDITOR_HEIGHT);
 	}
 	
-	/** Returns the TextArea displayed in {@link WavelengthPane}. */
+	/** Returns the TextField displayed in {@link ChannelPane}. */
+	JTextField getFluor() { return channelPane.getFluor(); }
+		
+	/** Returns the TextField displayed in {@link ChannelPane}. */
+	JTextField getExcitation() { return channelPane.getExcitation(); }
+	
+	/** Returns the TextArea displayed in {@link ChannelPane}. */
 	JTextArea getInterpretationArea()
 	{
 		return channelPane.getInterpretationArea();
 	}
 
-	/** Returns the save button displayed in {@link CreateDatasetPane}. */
-	JButton getSaveButton() { return channelPane.getSaveButton();}
+	/** Returns the save button displayed in {@link ChannelEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
+	
+	/** Returns the save button displayed in {@link ChannelEditorBar}. */
+	JButton getCancelButton() { return bar.getCancelButton(); }
+	
+	/** Returns the help button displayed in {@link ChannelEditorBar}. */
+	JButton getHelpButton() { return bar.getHelpButton(); }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -106,6 +122,7 @@ public class ChannelEditor
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}
 	
 }
