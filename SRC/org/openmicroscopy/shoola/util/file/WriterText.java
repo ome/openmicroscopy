@@ -77,6 +77,14 @@ public class WriterText
         BufferedWriter output = new BufferedWriter(new FileWriter(f));
         String s = "", tail = "";
         int col = table.getColumnCount();
+        for (int k = 0; k < col; k++) {
+            if (k < col-1) tail = ",";
+            s += table.getColumnName(k)+tail;
+            tail = "";
+        }
+        output.write(s);
+        output.newLine();
+        s = "";
         for (int i = 0; i < table.getRowCount(); i++) {
             for (int j = 0; j < col; j++) {
                 if (j < col-1) tail = ",";
