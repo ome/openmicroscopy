@@ -48,6 +48,7 @@ import javax.swing.event.InternalFrameListener;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
+import org.openmicroscopy.shoola.agents.viewer.util.ProgressNotifier;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3D;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -88,6 +89,8 @@ public class ViewerCtrl
 	private Viewer				abstraction;
 	
 	private ViewerUIF			presentation;
+	
+	private ProgressNotifier 	progressNotifier;
 	
 	public ViewerCtrl(Viewer abstraction)
 	{
@@ -190,6 +193,11 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 	
+	public void synchPlaneSelected(int z) 
+	{
+		zSlider.setValue(z);
+	}
+	
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -232,10 +240,24 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(valZ, valT);
 	}
 
+	/** Bring up the progressNotifier dialog. */
+	void showProgressNotifier(String imageName)
+	{
+		progressNotifier = new ProgressNotifier(this, imageName);
+		UIUtilities.centerAndShow(progressNotifier);
+	}
+	
+	void removeProgressNotifier()
+	{
+		progressNotifier.dispose();
+		progressNotifier = null;
+	}
+	
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
-		UIUtilities.centerAndShow(new Viewer3D(this));
+		UIUtilities.centerAndShow(new Viewer3D(this, 
+									abstraction.getPixelsDims().sizeZ));
 	}
 	
 	/** Bring up the image inspector widget. */

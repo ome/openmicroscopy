@@ -82,16 +82,20 @@ public class Viewer
 	
 	public static final Dimension	TOOLBAR_DIMENSION = new Dimension(20, 300);
 	
-		/** Dimension of the separator between the toolBars. */
+	/** Dimension of the separator between the toolBars. */
 	public static final Dimension	SEPARATOR_END = new Dimension(100, 0);
+	
 	public static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	/** Reference to the {@link Registry}. */
 	private Registry				registry;
 	
 	private ViewerUIF				presentation;
+	
 	private ViewerCtrl				control;
+	
 	private TopFrame				topFrame;
+	
 	private RenderingControl		renderingControl;
 	
 	private int						curImageID, curPixelsID;
@@ -100,6 +104,7 @@ public class Viewer
 	private String					curImageName;
 	
 	private JCheckBoxMenuItem		viewItem;
+	
 	private JButton 				viewButton;
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -113,6 +118,7 @@ public class Viewer
 	{
 		registry = ctx;
 		EventBus bus = registry.getEventBus();
+		bus.register(this, LoadImage.class);
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, ImageRendered.class);
 		topFrame = registry.getTopFrame();
@@ -122,6 +128,7 @@ public class Viewer
 		viewButton = getViewButton(icon);
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
+		control = new ViewerCtrl(this);
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -174,6 +181,14 @@ public class Viewer
 			handleImageLoaded((ImageLoaded) e);
 		else if (e instanceof ImageRendered)
 			handleImageRendered((ImageRendered) e);
+		else if (e instanceof LoadImage)
+			handleLoadImage((LoadImage) e);
+	}
+	
+	/** Handle event @see LoadImage. */
+	private void handleLoadImage(LoadImage request)
+	{
+		control.showProgressNotifier(request.getImageName());
 	}
 	
 	/** Handle event @see ImageLoaded. */
@@ -182,6 +197,7 @@ public class Viewer
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
 		PixelsDimensions pxsDims = renderingControl.getPixelsDims();
+		control.removeProgressNotifier();
 		if (curImageID != request.getImageID()) {
 			if (presentation == null) buildPresentation(pxsDims);
 			initPresentation(request.getImageName(), pxsDims, false);
@@ -253,7 +269,6 @@ public class Viewer
 	/** Build the GUI. */
 	private void buildPresentation(PixelsDimensions pxsDims)
 	{
-		control = new ViewerCtrl(this);
 		presentation = new ViewerUIF(control, registry, pxsDims, getDefaultT(), 
 									getDefaultZ());
 		control.setPresentation(presentation);
