@@ -40,7 +40,9 @@
 
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 //Java imports
 import java.awt.geom.Point2D;
@@ -51,6 +53,8 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.zoombrowser.ui.ThumbnailPopupMenu;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * An event handler for the {@link DatasetBrowserCanvas}. Handle zooming into
@@ -83,11 +87,17 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	 */
 	private int zoomLevel = 0;
 	
-	public DatasetBrowserEventHandler(DatasetBrowserCanvas canvas) {
+	private ThumbnailPopupMenu popup;
+	
+	public DatasetBrowserEventHandler(DatasetBrowserCanvas canvas,
+			Registry registry) {
 		super(canvas);
-		this.canvas = canvas;	
+		this.canvas = canvas;
+		popup =  new ThumbnailPopupMenu(canvas,registry);
 	}
-
+	
+	
+	
 	/**
 	 * What happens when I enter a node that is not a MouseableNode?
 	 */	
@@ -95,6 +105,29 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		zoomLevel = 0;
 	}
 
+	
+	// handle a popup.
+	public void handlePopup(PInputEvent e) {
+		postPopup = true;
+		PNode node = e.getPickedNode();
+		if (node instanceof Thumbnail) {
+			Thumbnail  thumb = (Thumbnail) node;
+			boolean canZoomOut = (zoomLevel != 0);
+			popup.popup(thumb,canZoomOut,e.getCanvasPosition());
+		}
+		else if (node instanceof MouseableNode) {
+			((MouseableNode) node).mousePopup(this);
+		}
+		else {
+			PNode p = node.getParent();
+			if (p instanceof BufferedObject) {
+				animateToNode(p);		
+			} else if (isBackgroundClick(node) || isBackgroundClick(p)) {
+				handleBackgroundClick();
+			}
+		}
+		e.setHandled(true);
+	}
 	
 	/** 
 	 * for mouse exit calls, do not pass the exit along if the node
