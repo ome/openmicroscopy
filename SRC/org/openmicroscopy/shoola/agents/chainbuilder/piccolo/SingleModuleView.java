@@ -102,7 +102,6 @@ public class SingleModuleView extends ModuleView {
 	public void setAllHighlights(boolean v) {
 		super.setAllHighlights(v);
 		setModulesHighlighted(v);
-		setHighlighted(v);
 	}
 	
 	public String getName() {
