@@ -514,7 +514,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             }
             
             writeStatusImmediately(status,"Filling in relevant ST info from DB...");
-            loadRelevantTypes(imageList,model);
+            loadRelevantTypes(imageList,model,status);
             
             // going to assume that all image plates in dataset belong to
             // same plate (could be very wrong)
@@ -876,7 +876,8 @@ public class BrowserAgent implements Agent, AgentEventListener
      * Fills the model with a list of pertinent image-granular attributes.
      * @param model The model to load.
      */
-    private void loadRelevantTypes(List imageList, BrowserModel targetModel)
+    private void loadRelevantTypes(List imageList, BrowserModel targetModel,
+                                   StatusBar status)
     {
         if(imageList == null || targetModel == null) return;
         List relevantTypes = new ArrayList();
@@ -890,16 +891,19 @@ public class BrowserAgent implements Agent, AgentEventListener
             integerList.add(new Integer(is.getID()));
         }
         
-        System.err.println("listsize="+integerList.size());
-        for(Iterator iter = imageTypeList.iterator(); iter.hasNext();)
+        for(int i=0;i<imageTypeList.size();i++)
         {
-            SemanticType st = (SemanticType)iter.next();
+            SemanticType st = (SemanticType)imageTypeList.get(i);
             try
             {
-                System.err.println("checking "+st.getName());
+                writeStatusImmediately(status,"Counting "+st.getName()+
+                                       " attributes from DB ("+
+                                       (i+1)+"/"+imageTypeList.size()+")");
                 int count = sts.countImageAttributes(st,integerList);
-                System.err.println("got count");
-                if(count > 0) relevantTypes.add(st);
+                if(count > 0)
+                {
+                    relevantTypes.add(st);
+                } 
             }
             catch(DSAccessException dsa)
             {
@@ -916,6 +920,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         SemanticType[] types = new SemanticType[relevantTypes.size()];
         relevantTypes.toArray(types);
         targetModel.setRelevantTypes(types);
+        writeStatusImmediately(status,"Filling in analyzed semantic types...");
         HeatMapModel hmm = new HeatMapModel(targetModel);
         HeatMapManager manager = env.getHeatMapManager();
         manager.putHeatMapModel(hmm);

@@ -35,6 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -75,6 +76,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     
     // current method applied to every thumbnnail.
     private PaintMethod currentMethod = null;
+    private PaintMethod currentValueMethod = null;
     
     public HeatMapDispatcher(HeatMapModel model)
     {
@@ -133,7 +135,8 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
         {
             Thumbnail t = (Thumbnail)iter.next();
-            t.removeMiddlePaintMethod(currentMethod);    
+            t.removeMiddlePaintMethod(currentMethod);
+            t.removeForegroundPaintMethod(currentValueMethod);
         }
     }
     
@@ -151,6 +154,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             {
                 Thumbnail t = (Thumbnail)iter.next();
                 t.addMiddlePaintMethod(currentMethod);
+                t.addForegroundPaintMethod(currentValueMethod);
             }
         }
     }
@@ -223,6 +227,9 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             HeatMapPMFactory.getPaintMethod(currentMode,attribute,elementName,
                                             currentScale,gradient.getMinColor(),
                                             gradient.getMaxColor());
+        PaintMethod vpm =
+            HeatMapPMFactory.getShowValueMethod(currentMode,attribute,elementName,
+                                                0.75,Color.yellow);
         for(Iterator iter = browserModel.getThumbnails().iterator();
             iter.hasNext();)
         {
@@ -230,10 +237,13 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             if(currentMethod != null)
             {
                 t.removeMiddlePaintMethod(currentMethod);
+                t.removeForegroundPaintMethod(currentValueMethod);
             }
             t.addMiddlePaintMethod(pm);
+            t.addForegroundPaintMethod(vpm);
         }
         currentMethod = pm;
+        currentValueMethod = vpm;
         browserModel.fireModelUpdated();
     }
     
@@ -256,6 +266,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             {
                 fireModeCancel();
                 currentMethod = null;
+                currentValueMethod = null;
                 return;
             }
             if(selectedNode.isLazilyInitialized())

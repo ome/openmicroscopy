@@ -36,8 +36,11 @@
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -45,9 +48,13 @@ import java.util.Map;
 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.images.AbstractPaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.images.ZoomDependentPaintMethod;
+
+import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
  * Constructs paint methods based on current heat map parameters.
@@ -76,13 +83,14 @@ public class HeatMapPMFactory
                                              final Color coldColor,
                                              final Color warmColor)
     {
-        PaintMethod pm = new PaintMethod()
+        PaintMethod pm = new AbstractPaintMethod()
         {
             private Map thumbnailColorMap = new IdentityHashMap();
             private Color alpha = new Color(0,0,0,0);
             
-            public void paint(Graphics2D g, Thumbnail t)
+            public void paint(PPaintContext c, Thumbnail t)
             {
+                Graphics2D g = c.getGraphics();
                 Rectangle2D region = t.getBounds().getBounds2D();
                 if(thumbnailColorMap.containsKey(t.getModel()))
                 {
@@ -117,7 +125,7 @@ public class HeatMapPMFactory
                 List attributes = attrMap.getAttributes(attributeName);
                 if(attributes == null || attributes.size() == 0)
                 {
-                    thumbnailColorMap.put(tdm,null);
+                    thumbnailColorMap.put(tdm,alpha);
                     return;
                 }
                 Attribute[] attrs = new Attribute[attributes.size()];
@@ -132,4 +140,82 @@ public class HeatMapPMFactory
         };
         return pm;
     }
+    
+    /**
+     * Returns the paint method that should be executed to display the value
+     * of the element, at the specified zoom level or greater.
+     * @param attributeName The name of the attribute to query.
+     * @param elementName The name of the element to query.
+     * @param minZoomLevel The minimum zoom level which to display the value.
+     * @param textColor The color at which to display the value.
+     * @return
+     */
+    public static PaintMethod getShowValueMethod(final HeatMapMode mode,
+                                                 final String attributeName,
+                                                 final String elementName,
+                                                 final double minZoomLevel,
+                                                 final Color textColor)
+    {
+        final Font displayFont = new Font("null",Font.BOLD,12);
+        
+        PaintMethod pm = new AbstractPaintMethod()
+        {
+            private Map valueStringMap = new IdentityHashMap();
+            private Map stringLocationMap = new IdentityHashMap();
+            
+            public void paint(PPaintContext context, Thumbnail t)
+            {
+                Graphics2D g = context.getGraphics();
+                Rectangle2D bounds = t.getBounds().getBounds2D();
+                
+                if(valueStringMap.containsKey(t.getModel()))
+                {
+                    Point2D anchorPoint = (Point2D)stringLocationMap.get(t.getModel());
+                    String valueString = (String)valueStringMap.get(t.getModel());
+                    g.setColor(textColor);
+                    g.drawString(valueString,(float)anchorPoint.getX(),
+                                             (float)anchorPoint.getY());
+                }
+                else
+                {
+                    setupMethod(g,bounds,t.getModel());
+                    Point2D anchorPoint = (Point2D)stringLocationMap.get(t.getModel());
+                    String valueString = (String)valueStringMap.get(t.getModel());
+                    g.setColor(textColor);
+                    g.drawString(valueString,(float)anchorPoint.getX(),
+                                             (float)anchorPoint.getY());
+                }
+            }
+            
+            private void setupMethod(Graphics2D context,
+                                     Rectangle2D thumbBounds,
+                                     ThumbnailDataModel model)
+            {
+                AttributeMap attrMap = model.getAttributeMap();
+                List attributes = attrMap.getAttributes(attributeName);
+                if(attributes == null  || attributes.size() == 0)
+                {
+                    valueStringMap.put(model,"");
+                    stringLocationMap.put(model,new Point2D.Double());
+                    return;
+                }
+                Attribute[] attrs = new Attribute[attributes.size()];
+                attributes.toArray(attrs);
+                double val = mode.computeValue(attrs,elementName);
+                String valueString = String.valueOf(val);
+                
+                FontMetrics fm = context.getFontMetrics(displayFont);
+                Rectangle2D rect = fm.getStringBounds(valueString,context);
+                
+                Point2D anchorPoint =
+                    new Point2D.Double((thumbBounds.getWidth()-rect.getWidth())/2,
+                                       (thumbBounds.getHeight()-10));
+                
+                valueStringMap.put(model,valueString);
+                stringLocationMap.put(model,anchorPoint);
+            }
+
+        };
+        return new ZoomDependentPaintMethod(minZoomLevel,Double.POSITIVE_INFINITY,pm);
+    }                
 }

@@ -42,6 +42,8 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import edu.umd.cs.piccolo.util.PPaintContext;
+
 /**
  * A repository of commonly used paint methods.
  * 
@@ -60,8 +62,9 @@ public class PaintMethods
         /* (non-Javadoc)
          * @see org.openmicroscopy.shoola.agents.browser.images.PaintMethod#paint(java.awt.Graphics, org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
          */
-        public void paint(Graphics2D g, Thumbnail t)
+        public void paint(PPaintContext c, Thumbnail t)
         {
+            Graphics2D g = c.getGraphics();
             Font oldFont = g.getFont();
             Color oldColor = g.getColor();
             g.setFont(nameFont);
@@ -77,8 +80,9 @@ public class PaintMethods
         /* (non-Javadoc)
          * @see org.openmicroscopy.shoola.agents.browser.images.PaintMethod#paint(java.awt.Graphics2D, org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
          */
-        public void paint(Graphics2D g, Thumbnail t)
+        public void paint(PPaintContext c, Thumbnail t)
         {
+            Graphics2D g = c.getGraphics();
             Rectangle2D bounds = t.getBounds().getBounds2D();
             Paint oldPaint = g.getPaint();
             g.setPaint(new Color(0,0,255,128));
@@ -90,8 +94,9 @@ public class PaintMethods
     public static final PaintMethod DRAW_ANNOTATION_METHOD =
         new AbstractPaintMethod()
     {
-        public void paint(Graphics2D g, Thumbnail t)
+        public void paint(PPaintContext c, Thumbnail t)
         {
+            Graphics2D g = c.getGraphics();
             // TODO: change this to check for annotations
             boolean dummyVariable = false;
             if(dummyVariable)
@@ -113,8 +118,9 @@ public class PaintMethods
     public static final PaintMethod MAGNIFIER_ICON_METHOD =
         new AbstractPaintMethod()
     {
-        public void paint(Graphics2D g, Thumbnail t)
+        public void paint(PPaintContext c, Thumbnail t)
         {
+            Graphics2D g = c.getGraphics();
             Rectangle2D bounds = t.getBounds().getBounds2D();
             double width = bounds.getWidth();
             double height = bounds.getHeight();

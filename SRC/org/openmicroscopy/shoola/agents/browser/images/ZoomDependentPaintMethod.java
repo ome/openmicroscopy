@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.images.PaintMethod
+ * org.openmicroscopy.shoola.agents.browser.images.ZoomDependentPaintMethod
  *
  *------------------------------------------------------------------------------
  *
@@ -38,22 +38,52 @@ package org.openmicroscopy.shoola.agents.browser.images;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
- * Specifies how an overlay gets painted on a thumbnail.  Uses the thumbnail
- * to check the underlying model.
+ * Specifies a paint method that should only occur at certain levels of zoom.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public interface PaintMethod
+public class ZoomDependentPaintMethod extends AbstractPaintMethod
 {
+    protected double minApplicableZoomLevel;
+    protected double maxApplicableZoomLevel;
+    protected PaintMethod method;
+    
     /**
-     * Determine if a thumbnail meets the criteria for additional graphics, and
-     * if so, paint an appropriate overlay atop the thumbnail.
-     * 
-     * @param g The canvas to draw to.
-     * @param t The thumbnail to draw.
+     * Constructs a paint method with the range over which it applies.
+     * @param zoomMin The minimum applicable zoom level (1.0 = 100%), inclusive.
+     * @param zoomMax The maximum applicable zoom level (1.0 = 100%), exclusive.
+     * @param method The paint method to apply if the zoom level is applicable.
      */
-    public void paint(PPaintContext context, Thumbnail t);
+    public ZoomDependentPaintMethod(double zoomMin, double zoomMax,
+                                    PaintMethod method)
+    {
+        this.minApplicableZoomLevel = zoomMin;
+        this.maxApplicableZoomLevel = zoomMax;
+        if(method != null)
+        {
+            this.method = method;
+        }
+    }
+    
+    /**
+     * Executes the paint method (dependent on the zoom level indicated in the
+     * context)
+     * @param t The thumbnail over which to paint.
+     * @param context The context in which the thumbnail is being drawn.
+     */
+    public void paint(PPaintContext context, Thumbnail t)
+    {
+        if(t == null || context == null)
+        {
+            return;
+        }
+        double scale = context.getScale();
+        if(scale >= minApplicableZoomLevel && scale < maxApplicableZoomLevel)
+        {
+            method.paint(context,t);
+        }
+    }
 }

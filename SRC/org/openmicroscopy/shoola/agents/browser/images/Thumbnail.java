@@ -69,6 +69,21 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
                                                  MouseOverSensitive
 {
     /**
+     * Indicates that the overlay should be drawn in the foreground.
+     */
+    public static final int BACKGROUND_PAINT_METHOD = 1;
+    
+    /**
+     * Indicates that the overlay should be drawn underneath other overlays.
+     */
+    public static final int MIDDLE_PAINT_METHOD = 2;
+    
+    /**
+     * Indicates that the overlay should be drawn in the foreground.
+     */
+    public static final int FOREGROUND_PAINT_METHOD = 3;
+    
+    /**
      * The base model of the thumbnail.
      */
     protected ThumbnailDataModel model;
@@ -520,7 +535,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         for(Iterator iter = backgroundPaintMethods.iterator(); iter.hasNext();)
         {
             PaintMethod p = (PaintMethod)iter.next();
-            p.paint(g2,this);
+            p.paint(context,this);
         }
         
         // now draw the image (methinks this will work)
@@ -555,7 +570,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         for(Iterator iter = middlePaintMethods.iterator(); iter.hasNext();)
         {
             PaintMethod p = (PaintMethod)iter.next();
-            p.paint(g2,this);
+            p.paint(context,this);
         }
         
         // now draw the default overlays
@@ -563,14 +578,14 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
             iter.hasNext();)
         {
             PaintMethod p = (PaintMethod)iter.next();
-            p.paint(g2,this);
+            p.paint(context,this);
         }
         
         // now draw the foreground paint methods
         for(Iterator iter = foregroundPaintMethods.iterator(); iter.hasNext();)
         {
             PaintMethod p = (PaintMethod)iter.next();
-            p.paint(g2,this);
+            p.paint(context,this);
         }
     }
     
