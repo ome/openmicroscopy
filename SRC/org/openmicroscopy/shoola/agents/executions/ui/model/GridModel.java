@@ -36,11 +36,14 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.executions.ui.ExecutionsCanvas;
 
 /** 
 * A model of the mapping between values in a set of executions 
@@ -55,7 +58,7 @@ import java.awt.Stroke;
 * @since OME2.2
 */
 
-public class GridModel {
+public class GridModel implements ChangeListener {
 	
 	public static final int GRID_OFFSET=15;
 	public static final Color AXIS_COLOR=Color.BLACK;
@@ -91,6 +94,9 @@ public class GridModel {
 	/** min row */
 	private int rowMin = 0;
 	
+	/** the canvas in question */
+	private ExecutionsCanvas canvas = null;
+	
 	public GridModel(long min,long max,int rowCount) {
 		setExtent(min,max);
 		this.rowCount = rowCount;
@@ -99,6 +105,7 @@ public class GridModel {
 	public void setExtent(long min,long max) {
 		this.min = min;
 		this.max = max;
+		System.err.println("setting grid extent to..."+min+"-"+max);
 	}
 	
 	public void setDimensions(int canvasWidth,int canvasHeight) {
@@ -133,10 +140,16 @@ public class GridModel {
 	}
 	
 	public float getHorizCoord(long x) {
+		System.err.println("getting x coord of "+x);
 		float offset = x-min;
+		System.err.println("offset..."+offset);
 		float range = max-min;
+		System.err.println("range.."+range);
+		
 		float ratio = offset/range;
+		System.err.println("ratio "+ratio);
 		float res = xStart+ratio*gridWidth;
+		System.err.println("res is "+res);
 		return res;
 	}
 	
@@ -173,6 +186,26 @@ public class GridModel {
 	
 	public int getVertStart() {
 		return yStartAxis;
+	}
+	
+	public void setCanvas(ExecutionsCanvas canvas) {
+		this.canvas = canvas;
+	}
+	
+	public void updateExtent(long min,long max) {
+		setExtent(min,max);
+		if (canvas != null) 
+			canvas.repaint();
+	}
+	
+	public void stateChanged(ChangeEvent e) {
+		Object o = e.getSource();
+		if (!(o instanceof BoundedLongRangeModel))
+			return;
+		BoundedLongRangeModel blrm = (BoundedLongRangeModel) o;
+		setExtent(blrm.getValue(),blrm.getMax());
+		if (canvas != null)
+			canvas.repaint();
 	}
 }
 
