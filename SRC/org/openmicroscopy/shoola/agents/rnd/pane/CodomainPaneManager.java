@@ -164,6 +164,7 @@ class CodomainPaneManager
 	{
 		rCtx = null;	//if was already defined
 		rCtx = new ReverseIntensityContext();	
+		rCtx.setCodomain(control.getCodomainStart(), control.getCodomainEnd());
 		control.setCodomainMap(rCtx, b, RI);
 	}
 	

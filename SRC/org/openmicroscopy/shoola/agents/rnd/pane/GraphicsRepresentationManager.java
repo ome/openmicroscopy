@@ -292,7 +292,7 @@ class GraphicsRepresentationManager
 	{
 		setOutputStartBox(y);
 		view.updateOutputStart(y);
-		int yReal = convertGraphicsIntoReal(y, 255, square, 0);
+		int yReal = convertGraphicsIntoReal(y-topBorder, -255, square, 255);
 		control.setCodomainLowerBound(yReal);
 	}
 
@@ -305,7 +305,7 @@ class GraphicsRepresentationManager
 	{
 		setOutputEndBox(y);
 		view.updateOutputEnd(y);
-		int yReal = convertGraphicsIntoReal(y, 255, square, 0);
+		int yReal = convertGraphicsIntoReal(y-topBorder, -255, square, 255);
 		control.setCodomainUpperBound(yReal);
 	}
 	

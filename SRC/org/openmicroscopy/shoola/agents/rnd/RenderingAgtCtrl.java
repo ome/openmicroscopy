@@ -210,7 +210,7 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt}. */
-	public void setQuantumStrategy(int k, int family, int resolution)
+	public void setQuantumStrategy(double k, int family, int resolution)
 	{
 		abstraction.setQuantumStrategy(k, family, resolution);
 	}
@@ -257,6 +257,7 @@ public class RenderingAgtCtrl
 					break;
 				case SAVE:
 					saveDisplayOptions();
+					break;
 				case GREY:
 				case RGB:
 				case HSB:

@@ -320,6 +320,8 @@ class PlaneSlicingDialogManager
 		isSelected = true;
 		view.getPSPanel().setIsSelected(true);
 		view.getPSSPanel().setIsSelected(false);
+		ctx.setConstant(isSelected);
+		control.updateCodomainMap(ctx);
 	}
 	
 	/**
@@ -331,6 +333,8 @@ class PlaneSlicingDialogManager
 		isSelected = false;
 		view.getPSPanel().setIsSelected(false);
 		view.getPSSPanel().setIsSelected(true);
+		ctx.setConstant(isSelected);
+		control.updateCodomainMap(ctx);
 	}
 	
 	/**

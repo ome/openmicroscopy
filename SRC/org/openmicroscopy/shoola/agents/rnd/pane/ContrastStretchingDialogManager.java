@@ -216,7 +216,7 @@ class ContrastStretchingDialogManager
 		view.getCSPanel().updateStartOutputCursor(y);
 		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
-										e-control.getCodomainStart(), e);
+										control.getCodomainStart()-e, e);
 		ctx.setYStart(yReal);
 		control.updateCodomainMap(ctx);
 	}
@@ -228,7 +228,7 @@ class ContrastStretchingDialogManager
 		view.getCSPanel().updateEndOutputCursor(y);
 		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
-										e-control.getCodomainStart(), e);
+										control.getCodomainStart()-e, e);
 		ctx.setYEnd(yReal);
 		control.updateCodomainMap(ctx);
 	}

@@ -180,6 +180,7 @@ public class Viewer
 	/** Handle event @see ImageRendered. */
 	private void handleImageRendered(ImageRendered response)
 	{
+		curImage = null;
 		curImage = response.getRenderedImage();
 		presentation.setImage(curImage);
 	}
@@ -223,7 +224,6 @@ public class Viewer
 	 * implementation.
 	 */
 	public void remove(AgentEventListener subscriber) {}
-
 
 	/**
 	 * Required by I/F but not actually needed in our case, no op 

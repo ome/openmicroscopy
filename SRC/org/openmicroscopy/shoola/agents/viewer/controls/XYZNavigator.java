@@ -218,7 +218,6 @@ class XYZNavigator
 	 */
 	private JPanel buildSliderPanel()	
 	{
-		//JPanel p = new JPanel(), field = new JPanel(), slider = new JPanel();
 		JPanel slider = new JPanel();
 		slider.setLayout(null);
 		slider.setOpaque(false);
@@ -227,16 +226,6 @@ class XYZNavigator
 		zSlider.setPreferredSize(DIM);
 		zSlider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		slider.add(zSlider);
-		
-		//JLabel current = new JLabel("Current Z: ");
-		//current.setForeground(NavigationPalette.STEELBLUE);
-		///field.add(current);
-		//field.add(zField);
-		//field.setAlignmentX(LEFT_ALIGNMENT);
-		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		//p.add(field);
-		//p.add(slider);
-		//return p;
 		return slider;
 	}
 	

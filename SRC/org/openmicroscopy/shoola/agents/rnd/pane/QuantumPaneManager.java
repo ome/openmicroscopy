@@ -173,12 +173,12 @@ class QuantumPaneManager
 	 * @param id			Action command id, one the constant defined by 
 	 * 						{@link DomainPaneManager}.
 	 */
-	void setQuantumStrategy(int k, int family, int resolution, int id)
+	void setQuantumStrategy(double k, int family, int resolution, int id)
 	{
 		if (id == DomainPaneManager.FAMILY)	
 			updateGraphic(family);
 		else if (id == DomainPaneManager.GAMMA)
-			updateGraphic(k*10, family);	//for graphic *10
+			updateGraphic((int) (k*10), family);	//for graphic *10
 		eventManager.setQuantumStrategy(k, family, resolution);
 	}
 	

@@ -180,13 +180,13 @@ class DomainPaneManager
 	 */
 	private void setCurveCoefficient(int value)
 	{
-		double k = value/10;
+		double k = (double) value/10;
 		view.getGammaLabel().setText(" Gamma: "+k);
 		view.repaint();
 		int family = view.getTransformations().getSelectedIndex(); //family
 		int b = view.getBitResolution().getValue();	// bitResolution
 		int br = ((Integer) resolutions.get(new Integer(b))).intValue();
-		control.setQuantumStrategy((int) k, family, br, GAMMA);
+		control.setQuantumStrategy(k, family, br, GAMMA);
 	}
 	
 	/**

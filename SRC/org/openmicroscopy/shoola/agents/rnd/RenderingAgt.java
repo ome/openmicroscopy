@@ -362,7 +362,7 @@ public class RenderingAgt
 	 * @param family		constant that identifies a transformation.
 	 * @param resolution	bit-resolution.
 	 */
-	void setQuantumStrategy(int k, int family, int resolution)
+	void setQuantumStrategy(double k, int family, int resolution)
 	{
 		renderingControl.setQuantumStrategy(family, k, resolution);
 		refreshImage();
