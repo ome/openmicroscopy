@@ -148,6 +148,7 @@ public class ModuleMapper
 			mod.setModuleDTO(m);
 			mod.setID(m.getID());
 			mod.setName(m.getName());
+			mod.setDescription(m.getDescription());
 			
 			
 			// category
