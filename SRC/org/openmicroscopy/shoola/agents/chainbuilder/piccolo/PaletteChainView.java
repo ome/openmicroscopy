@@ -46,6 +46,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
+import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 import edu.umd.cs.piccolo.PNode;
@@ -64,9 +66,45 @@ import edu.umd.cs.piccolo.PNode;
  */
 public class PaletteChainView extends ChainView {
 	
-	public PaletteChainView(LayoutChainData chain) {
+	private Registry registry;
+ 
+	private ChainCompoundModuleView compoundView;
+	
+	
+	public PaletteChainView(LayoutChainData chain,Registry registry) {
 		super(chain);
+		this.registry =registry;
+		//		 how can we set the full view to scale into module view?
+		fullLayer.setVisible(false);
+		
+		compoundView = new  ChainCompoundModuleView(chain);
+		addChild(compoundView);
+		scaleFullView();
+		setBounds(getUnionOfChildrenBounds(null));
 	}	
+	
+	/** 
+	 * Scale the view of the full chain to occupy the space in which
+	 * the compound view was drawn - the chain box.
+	 * To do this,
+	 * 1) find the max aspect ratio difference (width or height)
+	 * 2) scale the chain by that amount.
+	 * 3) recenter.
+	 *
+	 */
+	private void scaleFullView() {
+		double compoundHeight = getHeight();
+		double compoundWidth = getWidth();
+		
+		double fullHeight = fullLayer.getGlobalFullBounds().getHeight();
+		double fullWidth = fullLayer.getGlobalFullBounds().getWidth();
+		double widthRatio = compoundWidth/fullWidth;
+		double heightRatio = compoundHeight/fullHeight;
+		double newScale = heightRatio;
+		if (widthRatio < heightRatio)
+			newScale = widthRatio;
+		fullLayer.setScale(newScale);
+	}
 	
 	protected ModuleView getModuleView(ChainModuleData mod) {
 		return new PaletteModuleView(mod);
@@ -117,4 +155,52 @@ public class PaletteChainView extends ChainView {
 		else 
 			return null;
 	}
+	
+	public void mouseClicked(GenericEventHandler handler) {
+		((ChainPaletteEventHandler) handler).animateToNode(this);
+		((ChainPaletteEventHandler) handler).setLastEntered(this);
+		SelectAnalysisChain event = new SelectAnalysisChain(getChain());
+		registry.getEventBus().post(event);
+	}
+	
+	public void mousePopup(GenericEventHandler handler) {
+		((ModuleNodeEventHandler) handler).animateToNode(this);
+		((ModuleNodeEventHandler) handler).setLastEntered(this);
+		showFullView(false);
+	}	
+	
+	/**
+	 * zoom to the full view 
+	 *
+	 */
+	public void zoomToFullView(GenericEventHandler handler) {
+		showFullView(true);
+		if (handler instanceof ModuleNodeEventHandler) 
+			((ModuleNodeEventHandler) handler).animateToNode(this);
+		
+		if (handler instanceof ChainPaletteEventHandler) 
+			((ChainPaletteEventHandler) handler).setLastChainView(this);
+	}
+	
+	public void showFullView(boolean b) {
+		fullLayer.setVisible(b);
+		fullLayer.setPickable(b);
+		boolean compStatus = !b;
+		compoundView.setVisible(compStatus);
+		compoundView.setPickable(compStatus);
+	}
+	
+	public void hide() {
+		showFullView(false);
+	}
+	
+	public double getHeight() {
+		return compoundView.getHeight();
+	}
+	
+	public double getWidth() {
+		return compoundView.getWidth();
+	}
+	
+	
 }
