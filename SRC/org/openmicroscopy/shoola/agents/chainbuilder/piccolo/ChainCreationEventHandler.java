@@ -211,6 +211,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private PInputEvent cachedEvent;
 	
+	private boolean wasDoubleClick;
+	
 	public ChainCreationEventHandler(ChainCreationCanvas canvas,LinkLayer linkLayer) {
 		super();
 		
@@ -235,7 +237,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	protected void drag(PInputEvent e) {
 		PNode node = e.getPickedNode();
-		System.err.println("calling drag on "+node);
 		
 		if (node instanceof ModuleView) {
 			if (linkState != LINKING_MODULES) {
@@ -255,7 +256,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else if (!(node instanceof FormalParameter) 
 			&& linkState == NOT_LINKING){
-			System.err.println("super drag.....");
 			super.drag(e);
 			e.setHandled(true);
 		}
@@ -342,7 +342,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * mouseDragged() behavior is equivalent to mouseMoved() behavior.
 	 */
 	public void mouseDragged(PInputEvent e) {
-		System.err.println("mouse dragged..."+e.getPickedNode());
+		//System.err.println("mouse dragged..."+e.getPickedNode());
 	//	System.err.println("CHAIN HANDLER:got a drag event in chain canvas");
 		mouseMoved(e);
 		super.mouseDragged(e);
@@ -372,6 +372,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	
 	public void actionPerformed(ActionEvent e) {
+		System.err.println("mouse single click");
 		if (cachedEvent != null) 
 			doMouseClicked(cachedEvent);
 		cachedEvent = null;
@@ -380,12 +381,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	public void mouseClicked(PInputEvent e) {
 		if (timer.isRunning()) {
+			System.err.println("mouse double click");
+			// this is effectively a double click.
 			timer.stop();
-			PNode node = e.getPickedNode();
-			if (node instanceof ModuleView)
-				startModuleLinks(e);
-			//mousePressed(e);
-			cachedEvent = null;
+			if (wasDoubleClick == true)
+				wasDoubleClick  = false;
+			else
+				doMouseDoubleClicked(e);
 		}
 		else {
 			timer.restart();
@@ -458,6 +460,20 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}  
 	} 
 	
+	
+	private void doMouseDoubleClicked(PInputEvent e) {
+		PNode node = e.getPickedNode();
+		System.err.println("got a double click on "+node);
+		if (node instanceof ModuleView)
+			startModuleLinks(e);
+		else if (node instanceof FormalParameter) {
+			selectedModule = ((FormalParameter) node).getModuleView();
+			startModuleLinks(e);
+		}
+		e.setHandled(true);
+	}
+	
+	
 	/***
 	 * Adjust the magnification around the point of the {@link PInputEvent}.
 	 * @param scale how much to zoom
@@ -485,6 +501,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * type of node, and another for the current state
 	 */
 	public void mousePressed(PInputEvent e) {
+		
+		System.err.println("mouse pressed on "+e.getPickedNode());
+		if (wasDoubleClick == true) {
+			System.err.println("just came from double click..");
+			wasDoubleClick = false;
+			return;
+		}
 		
 		if (e.isPopupTrigger()) {
 			//System.err.println("mouse pressed..");
@@ -613,7 +636,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		System.err.println("caling mouse pressed linking modules..");
 		if (count ==2) {
-			System.err.println("2 presses..");
+			System.err.println("2 presses. node is "+node);
 			if (node instanceof FormalParameter) {
 				FormalParameter p = (FormalParameter) node;
 				ModuleView mod = p.getModuleView();
@@ -624,6 +647,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			}
 			else
 				cancelModuleLinks();
+			wasDoubleClick = true;
 		}
 		else if (node instanceof PCamera){ // single click on camera
 			System.err.println("on camera");
@@ -700,7 +724,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param param the origin of the new link
 	 */
  	private void startParamLink(FormalParameter param) {
-		//System.err.println("mouse pressing and starting link");
+		System.err.println("mouse pressing and starting link");
 		linkOrigin = param;
 		link = new ParamLink();
 		linkLayer.addChild(link);
