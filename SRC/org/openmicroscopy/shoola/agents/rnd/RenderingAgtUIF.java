@@ -119,15 +119,7 @@ class RenderingAgtUIF
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
 	}
 	
-	/** 
-	 * Menu item to add to the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
-	JMenuItem getViewMenuItem()
-	{
-		JMenuItem menuItem = new JMenuItem("Rendering");
-		control.setMenuItemListener(menuItem, RenderingAgtCtrl.R_VISIBLE);
-		return menuItem;
-	}
+
 	
 	/** 
 	 * Sizes, centers and brings up the specified editor dialog.

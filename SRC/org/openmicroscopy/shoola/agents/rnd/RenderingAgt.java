@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 
 //Java imports
+import javax.swing.JMenuItem;
 
 //Third-party libraries
 
@@ -45,6 +46,9 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
@@ -88,14 +92,21 @@ public class RenderingAgt
 	/** Reference to the topFrame. */
 	private TopFrame			topFrame;
 	
+	private JMenuItem 			viewItem;
+	
+	private int					curImageID, curPixelsID;
+	
 	/** Creates a new instance. */
 	public RenderingAgt() {}
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
 	{
-		//register(this, ImageLoaded.class);
-		//register(this, RenderImage.class);	
+		//TODO: add control. 
+		if (presentation != null) {  
+	   		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+	   		presentation.setVisible(true);
+   		}
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -107,7 +118,10 @@ public class RenderingAgt
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-		control  = new RenderingAgtCtrl(this);	
+		register(this, ImageLoaded.class);
+		topFrame = registry.getTopFrame();
+		viewItem = getViewMenuItem();
+		topFrame.addToMenu(TopFrame.VIEW, viewItem);	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -119,14 +133,41 @@ public class RenderingAgt
 	/** Implement as specified by {@link AgentEventListener}. */
 	public void eventFired(AgentEvent e) 
 	{
-		//if (e instanceof ImageLoaded) {
-			//init the renderingControl
-			presentation = new RenderingAgtUIF(control, registry);
-			topFrame = registry.getTopFrame();
-			topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);
-		//}	
+		if (e instanceof ImageLoaded)
+			handleImageLoaded((ImageLoaded) e);	
+	}
+	
+	private void refreshImage()
+	{
+		RenderImage event = new RenderImage(curPixelsID);
+		registry.getEventBus().post(event);	
+	}
+	
+	private void handleImageLoaded(ImageLoaded response)
+	{
+		LoadImage request = (LoadImage) response.getACT();
+		renderingControl = response.getProxy();
+		buildPresentation();
+		curImageID = request.getImageID();
+		curPixelsID = request.getPixelsID();
+	}
+	
+	private void buildPresentation()
+	{
+		control  = new RenderingAgtCtrl(this);
+		presentation = new RenderingAgtUIF(control, registry);
+		control.setMenuItemListener(viewItem, RenderingAgtCtrl.R_VISIBLE);
+		viewItem.setEnabled(true);
+		//topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		//presentation.setVisible(true);
+	}
+	
+	/** Menu item to add to the {@link TopFrame} menu bar. */
+	JMenuItem getViewMenuItem()
+	{
+		JMenuItem menuItem = new JMenuItem("Rendering");
+		menuItem.setEnabled(false);
+		return menuItem;
 	}
 	
 	/** Implement as specified by {@link EventBus}. */
@@ -177,6 +218,7 @@ public class RenderingAgt
 	void setModel(int model)
 	{
 		renderingControl.setModel(model);
+		refreshImage();
 	}
 	
 	/** 
@@ -213,6 +255,7 @@ public class RenderingAgt
 	{
 		QuantumDef qDef = renderingControl.getQuantumDef();
 		renderingControl.setCodomainInterval(x, qDef.cdEnd);
+		refreshImage();
 	}
 	
 	/** 
@@ -233,6 +276,7 @@ public class RenderingAgt
 	{
 		QuantumDef qDef = renderingControl.getQuantumDef();
 		renderingControl.setCodomainInterval(qDef.cdStart, x);
+		refreshImage();
 	}
 	
 	/**
@@ -280,6 +324,7 @@ public class RenderingAgt
 	{
 		Comparable end = renderingControl.getChannelWindowEnd(w);
 		renderingControl.setChannelWindow(w, x, end);
+		refreshImage();
 	}
 	
 	/**
@@ -303,6 +348,7 @@ public class RenderingAgt
 	{
 		Comparable start = renderingControl.getChannelWindowStart(w);
 		renderingControl.setChannelWindow(w, start, x);
+		refreshImage();
 	}
 	
 	/** Return the strategy definition object. */
@@ -321,24 +367,28 @@ public class RenderingAgt
 	void setQuantumStrategy(int k, int family, int resolution)
 	{
 		renderingControl.setQuantumStrategy(family, k, resolution);
+		refreshImage();
 	}
 	
 	/** Add the codomainMap context. */
 	void addCodomainMap(CodomainMapContext ctx)
 	{
 		renderingControl.addCodomainMap(ctx);
+		refreshImage();
 	}
 	
 	/** Remove the codomainMap context. */
 	void removeCodomainMap(CodomainMapContext ctx)
 	{
 		renderingControl.removeCodomainMap(ctx);
+		refreshImage();
 	}
 	
 	/** Update the codomain map context. */
 	void updateCodomainMap(CodomainMapContext ctx)
 	{
 		renderingControl.updateCodomainMap(ctx);
+		refreshImage();
 	}
 	
 	/** 
@@ -364,6 +414,7 @@ public class RenderingAgt
 	void setRGBA(int w, int red, int green, int blue, int alpha)
 	{
 		renderingControl.setRGBA(w, red, green, blue, alpha);
+		refreshImage();
 	}
 	
 	/**
@@ -376,6 +427,7 @@ public class RenderingAgt
 	void setActive(int w, boolean active)
 	{
 		renderingControl.setActive(w, active);
+		refreshImage();
 	}
 
 	boolean isActive(int w)
