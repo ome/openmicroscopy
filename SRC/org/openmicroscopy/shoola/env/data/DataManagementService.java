@@ -243,13 +243,14 @@ public interface DataManagementService
 	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
 	 * to a pixels set.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID	The id of the pixels set.
+	 * @param imageID	The id of the OME image
 	 * @return An object containing the common pixels metadata.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service.  
 	 */
-	public PixelsDescription retrievePixels(int pixelsID)
+	public PixelsDescription retrievePixels(int pixelsID, int imageID)
 		throws DSOutOfServiceException, DSAccessException;
 		
 	/**

@@ -45,9 +45,11 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.dto.UserState;
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
+import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -337,10 +339,19 @@ class DMSAdapter
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
-	public PixelsDescription retrievePixels(int pixelsID)
+	public PixelsDescription retrievePixels(int pixelsID, int imageID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		return null;
+		PixelsDescription retVal = new PixelsDescription();
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = PixelsMapper.buildPixelsCriteria(imageID);
+		
+		Image img = (Image) retrieveData(Image.class, criteria);
+		if (img != null)
+			//Put the server data into the corresponding client object.
+			PixelsMapper.fillPixelsDescription((Pixels) img.getDefaultPixels(), 
+												retVal);
+		return retVal;
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
