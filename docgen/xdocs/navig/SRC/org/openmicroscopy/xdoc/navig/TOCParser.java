@@ -57,7 +57,7 @@ import org.openmicroscopy.xdoc.navig.xml.XMLStreamParser;
  * </small>
  * @since OME2.2
  */
-class TOCParser
+public class TOCParser
     implements ParserObserver
 {
 
@@ -117,7 +117,7 @@ class TOCParser
      * @param xdoc Points to the 'doc.xml' file to parse.  
      *              Mustn't be <code>null</code>.
      */
-    TOCParser(URL xdoc)
+    public TOCParser(URL xdoc)
     {
         if (xdoc == null) throw new NullPointerException("No xdoc.");
         this.xdoc = xdoc;
@@ -136,7 +136,7 @@ class TOCParser
      * @throws NavMenuException If an error occurs while parsing the 
      *                          'doc.xml' file.
      */
-    DefaultMutableTreeNode parse()
+    public DefaultMutableTreeNode parse()
         throws NavMenuException
     {
         sectionsPath = new Stack();

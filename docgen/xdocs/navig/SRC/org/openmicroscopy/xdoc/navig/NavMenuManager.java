@@ -54,7 +54,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * </small>
  * @since OME2.2
  */
-class NavMenuManager
+public class NavMenuManager
     implements TreeSelectionListener
 {
 
@@ -72,7 +72,7 @@ class NavMenuManager
      * @param docViewer A viewer capable to show the document pages.
      *                  Mustn't be <code>null</code>.
      */
-    NavMenuManager(NavMenuUI toc, DocumentViewer docViewer)
+    public NavMenuManager(NavMenuUI toc, DocumentViewer docViewer)
     {
         if (toc == null) throw new NullPointerException("No toc.");
         if (docViewer == null) throw new NullPointerException("No docViewer.");

@@ -56,7 +56,7 @@ import javax.swing.tree.TreeSelectionModel;
  * </small>
  * @since OME2.2
  */
-class NavMenuUI
+public class NavMenuUI
     extends JScrollPane
 {
 
@@ -70,7 +70,7 @@ class NavMenuUI
      * @param toc The tree model representing the table of contents.
      *              Mustn't be <code>null</code>.
      */
-    NavMenuUI(DefaultMutableTreeNode toc)
+    public NavMenuUI(DefaultMutableTreeNode toc)
     {
         super();
         if (toc == null) throw new NullPointerException("No toc.");

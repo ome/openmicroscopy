@@ -54,7 +54,7 @@ import java.net.URL;
  * </small>
  * @since OME2.2
  */
-class UserAgentViewer
+public class UserAgentViewer
     implements DocumentViewer
 {
 
@@ -76,7 +76,7 @@ class UserAgentViewer
      * @param displayWindow The name of the browser's window in which to display
      *                      the pages.
      */
-    UserAgentViewer(AppletContext ctx, URL docBase,String displayWindow)
+    public UserAgentViewer(AppletContext ctx, URL docBase,String displayWindow)
     {
         if (ctx == null) throw new NullPointerException("No applet context.");
         if (docBase == null) throw new NullPointerException("No doc base.");
