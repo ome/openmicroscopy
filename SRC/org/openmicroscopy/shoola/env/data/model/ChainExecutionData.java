@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.List;
+import java.util.Date;
 
 //Third-party libraries
 
@@ -49,7 +50,7 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ChainExecutionData implements DataObject
+public class ChainExecutionData implements DataObject, Comparable
 {
 
 	private int id;
@@ -57,6 +58,7 @@ public class ChainExecutionData implements DataObject
 	private DatasetData dataset;
 	private List nodeExecutions;
 	private String timestamp;
+	private Date date;
 	
 	public ChainExecutionData() {}
 	
@@ -92,6 +94,10 @@ public class ChainExecutionData implements DataObject
 		return timestamp;
 	}
 	
+	public Date getDate() {
+		return date;
+	}
+	
 	public void setChain(AnalysisChainData data) {
 		chain = data;
 	}
@@ -110,5 +116,22 @@ public class ChainExecutionData implements DataObject
 	
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
+	}
+	
+	public void setDate(Date date) {
+		this.date =date;
+	}
+	
+	// executions can be ordered by date
+	public int compareTo(Object o) throws ClassCastException {
+		if (! (o instanceof ChainExecutionData))
+			throw new ClassCastException();
+		ChainExecutionData otherExec = (ChainExecutionData) o;
+		if (date == null)
+			return -1;
+		if (otherExec.getDate() == null)
+			return -1;
+		
+		return date.compareTo(otherExec.getDate());
 	}
 }
