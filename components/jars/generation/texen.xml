@@ -1,12 +1,8 @@
-<project name="OWL2JAVAGenerator" default="generate" basedir=".">
+<project name="OWL2JAVAGenerator" default="generate">
 
   	<taskdef name="texen" classname="org.ome.gen.TexenTask"/>
-	<property name="outputDir" location="${basedir}/src/generated/org/ome/texen"/>
+	<property name="outputDir" location="${basedir}/../model/src/generated/org/ome/texen"/>
 
-	<target name="refreshEclipse" depends="generate">
-		<eclipse.refreshLocal/>
-	</target>
-	
   <!-- ================================================================ -->
   <!-- G E N E R A T E  O W L  B I N D I N G S                          -->
   <!-- ================================================================ -->
@@ -24,9 +20,9 @@
     <echo message="|                                          |"/>
     <echo message="+------------------------------------------+"/>
 
-	<delete dir="${outputDir}"/>
+    <delete dir="${outputDir}"/>
 
-  	<mkdir dir="${outputDir}"/>
+    <mkdir dir="${outputDir}"/>
     <mkdir dir="${outputDir}/interfaces"/>
     <mkdir dir="${outputDir}/srv"/>
     <mkdir dir="${outputDir}/client"/>
