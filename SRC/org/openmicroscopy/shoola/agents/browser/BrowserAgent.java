@@ -35,13 +35,18 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -71,6 +76,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     public BrowserAgent()
     {
         env = BrowserEnvironment.getInstance();
+        env.setBrowserAgent(this);
     }
     
     /**
@@ -80,10 +86,8 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void activate()
     {
-        BrowserManager manager = env.getBrowserManager();
-        // TODO: check registry settings, load, but for now, create
-        // TODO: also set up initial window?
-        
+        // for now, do nothing; wait until triggered to load
+        // this will be different if there's save info in the context file
     }
     
     /**
@@ -113,11 +117,9 @@ public class BrowserAgent implements Agent, AgentEventListener
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
-        // TODO: extract registry settings from context
         this.eventBus = ctx.getEventBus();
         this.tf = ctx.getTopFrame();
-        // TODO: register event listening here (this,type.class)
-        //eventBus.register(this,LoadDataset.class);
+        eventBus.register(this,LoadDataset.class);
     }
     
     /**
@@ -128,7 +130,33 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public boolean loadDataset(int datasetID)
     {
-        
+        DataManagementService dms = registry.getDataManagementService();
+        DatasetData dataset;
+        try
+        {
+            dataset = dms.retrieveDataset(datasetID);
+            return loadDataset(dataset);
+        }
+        catch(DSAccessException dsae)
+        {
+            UserNotifier notifier = registry.getUserNotifier();
+            notifier.notifyError("Data retrieval failure",
+                "Unable to retrieve dataset (id = " + datasetID + ")", dsae);
+            return false;
+        }
+        catch(DSOutOfServiceException dsoe)
+        {
+            // pop up new login window (eventually caught)
+            throw new RuntimeException(dsoe);
+        }
+    }
+    
+    // loads the information from the Dataset into a BrowserModel, and the
+    // also is responsible for triggering the mechanism that loads all the
+    // images.
+    private boolean loadDataset(DatasetData datasetModel)
+    {
+        // TODO fill in this mother
         return true;
     }
 
@@ -143,25 +171,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     public boolean loadDataset(int browserIndex, int datasetID)
     {
         // TODO: fill in loadDataset(int)
-        return true;
-    }
-
-    /**
-     * Instructs the agent to load the specified Dataset into the specified
-     * browser window.
-     * 
-     * @param browserIndex The index of the browser to load.
-     * @param dataset The dataset to load.
-     * @return true If the load was successful, false if not or if dataset was
-     *         null.
-     */
-    public boolean loadDataset(int browserIndex, Dataset dataset)
-    {
-        if (dataset == null)
-        {
-            return false; // maybe unload?  nah...
-        }
-        // TODO: fill in loadDataset(Dataset)
         return true;
     }
 
@@ -198,6 +207,11 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void eventFired(AgentEvent e)
     {
-        // TODO handle listening events here
+        if(e instanceof LoadDataset)
+        {
+            LoadDataset event = (LoadDataset)e;
+            // TODO: how to trigger a response
+            
+        }
     }
 }
