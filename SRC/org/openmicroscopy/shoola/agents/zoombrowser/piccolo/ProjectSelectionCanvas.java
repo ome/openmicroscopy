@@ -39,7 +39,6 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //java imports
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -49,7 +48,6 @@ import java.util.Vector;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 
-import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
@@ -140,12 +138,9 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		if (width == 0)
 			width = Constants.BROWSER_SIDE;
 		
-		Rectangle bounds = getBounds();
-		
 		Vector rows = new Vector();
 		Vector row = new Vector();
 		Vector widths = new Vector();
-		PBounds b;
 		double rowWidth;
 		
 		Iterator iter = layer.getChildrenIterator();
@@ -189,7 +184,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 				pl = (ProjectLabel) iter.next();
 				// place this
 				pl.setOffset(x,y);
-				b = pl.getGlobalFullBounds();
+				
 				x += pl.getScaledMaxWidth()+spacing;
 				if (pl.getScaledMaxHeight() > rowHeight) 
 					rowHeight= pl.getScaledMaxHeight();
