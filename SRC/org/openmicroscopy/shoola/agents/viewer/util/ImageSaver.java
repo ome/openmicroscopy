@@ -37,6 +37,7 @@ import javax.swing.JFileChooser;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -61,9 +62,20 @@ public class ImageSaver
 	extends JFileChooser
 {
 	
+	static String 					MESSAGE = "A file with the same name and " +
+												"extension already exists in " +
+												"this directory. Do you " +
+												"still want to save the image?";
+	
+	static String					TITLE = "Save Image";
+	
 	/** Default extension format. */
 	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
+	
+	/** Reference to the {@link ViewerCtrl controller}. */
 	private ViewerCtrl				controller;
+	
+	private IconManager				im;
 	
 	/** 
 	 * Control used to display or not the fileChooser, when the dialog is shown.
@@ -73,6 +85,7 @@ public class ImageSaver
 	public ImageSaver(ViewerCtrl controller)
 	{
 		this.controller = controller;
+		im = IconManager.getInstance(controller.getRegistry());
 		display = false;
 		createChooser();
 	}
@@ -144,8 +157,10 @@ public class ImageSaver
 			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
 			
 		if (exist) {
-			UIUtilities.centerAndShow(new SelectionDialog(this, format, 
-									fileName, message));
+			SelectionDialog dialog = new SelectionDialog(this, format, fileName,
+									 message, im.getIcon(IconManager.QUESTION));
+			dialog.pack();	
+			UIUtilities.centerAndShow(dialog);
 		} else {
 			display = false;
 			new SaveImage(controller.getRegistry(), format, 

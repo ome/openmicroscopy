@@ -31,10 +31,10 @@ package org.openmicroscopy.shoola.agents.rnd.controls;
 
 
 //Java imports
-import java.awt.Dimension;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -61,9 +61,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ToolBar
 	extends JToolBar
 {
-	
-	/** Dimension of the separator between the toolBars. */
-	private static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	private JButton					saveButton, greyButton, rgbButton, 
 									hsbButton;
@@ -109,32 +106,12 @@ public class ToolBar
 	private void buildToolBar()
 	{
 		setFloatable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		add(buildModelToolBar());
-		addSeparator(SEPARATOR);
-		add(buildSaveBar());
-	}
-	
-	/** Toolbar containing the model buttons. */
-	private JToolBar buildModelToolBar()
-	{
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.add(greyButton);
-		tb.addSeparator();
-		tb.add(rgbButton);
-		tb.addSeparator();
-		tb.add(hsbButton);
-		return tb;
-	}
-	
-	/** Tool bar with the save setting button. */
-	private JToolBar buildSaveBar()
-	{
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.add(saveButton);
-		return tb;
+		putClientProperty("JToolBar.isRollover", new Boolean(true));
+		add(greyButton);
+		add(rgbButton);
+		add(hsbButton);
+		add(new JSeparator(SwingConstants.VERTICAL));
+		add(saveButton);
 	}
 
 }

@@ -89,7 +89,6 @@ public class NotificationDialog
 	 */
 	protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
 	
-	
 	/** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
@@ -105,11 +104,8 @@ public class NotificationDialog
 	
 	/** Hides and disposes of the dialog. */
 	protected JButton	okButton;
-	
-	
-	/**
-	 * Creates the various UI components that make up the dialog.
-	 */
+		
+	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
 	{
 		contentPanel = new JPanel();
@@ -146,7 +142,7 @@ public class NotificationDialog
 	 * It will contain the notification message along with the message icon, 
 	 * if any.
 	 * 
-	 * @param msg	The notification message.
+	 * @param msg		The notification message.
 	 * @param msgIcon	The icon to display by the message.
 	 */
 	private void buildMessagePanel(String msg, Icon msgIcon)
@@ -180,7 +176,7 @@ public class NotificationDialog
 	 * Builds and lays out the {@link #contentPanel}, then adds it to the
 	 * content pane.
 	 * 
-	 * @param msg	The notification message.
+	 * @param msg		The notification message.
 	 * @param msgIcon	The icon to display by the message.
 	 */
 	private void buildGUI(String message, Icon messageIcon)
@@ -203,9 +199,9 @@ public class NotificationDialog
 	 * Creates a new dialog.
 	 * You have to call {@link #open()} to actually display it on screen.
 	 * 
-	 * @param owner	The parent window.
-	 * @param title	The title to display on the title bar.
-	 * @param message	The notification message.
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
 	 * @param messageIcon	An optional icon to display by the message.
 	 */
 	public NotificationDialog(JFrame owner, String title, String message, 

@@ -65,8 +65,16 @@ public class TitlePanel
 	extends JPanel
 {
 
+	/** Default color for the background. */
 	private Color	BACKGROUND = Color.WHITE;
 	
+	/** 
+	 * Create an instance.
+	 * 
+	 * @param title		title displayed in header.
+	 * @param text		brief summary to explain.
+	 * @param icon		icon displayed in the header.
+	 */
 	public TitlePanel(String title, String text, Icon icon)
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -74,6 +82,7 @@ public class TitlePanel
 		add(new JSeparator());
 	}
 
+	/** Build header. */
 	private JPanel buildPanel(String title, String text, Icon icon)
 	{
 		JPanel p = new JPanel();
@@ -87,6 +96,7 @@ public class TitlePanel
 		return p;
 	}
 	
+	/** Build Panel with text displayed header. */
 	private JPanel buildTextPanel(String title, String text)
 	{
 		JPanel p = new JPanel();
@@ -97,6 +107,7 @@ public class TitlePanel
 		return p;
 	}
 	
+	/** Set the font of the string to bold. */
 	private JLabel setLabel(String s)
 	{
 		JLabel label = new JLabel(s);
@@ -105,4 +116,5 @@ public class TitlePanel
 		label.setFont(newFont);
 		return label;
 	}
+	
 }

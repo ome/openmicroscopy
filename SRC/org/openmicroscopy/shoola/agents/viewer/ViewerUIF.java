@@ -324,12 +324,12 @@ public class ViewerUIF
 		setSize(w, h);		
 	}
 	
+	/** Add a rigid area to the toolBar. */
 	private void setTBSize(int w)
 	{
 		Dimension d = toolBar.getSize();
-		if (w-d.width > 0) {
-			toolBar.addSeparator();
-		}
+		if (w-d.width > 0)
+			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));
 	}
 	
 }

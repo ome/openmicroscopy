@@ -89,7 +89,6 @@ public class DetailedNotificationDialog
 	 */
 	private static final Dimension	SMALL_V_SPACER_SIZE = new Dimension(1, 6);
 	
-	
 	/** Shows/hides the explanation message. */
 	private JButton			detailsButton;
 	
@@ -99,10 +98,7 @@ public class DetailedNotificationDialog
 	/** Tells whether the {@link #explanationPane} is showing. */
 	private boolean			isExplanationShowing;
 	
-	
-	/**
-	 * Creates the various UI components that make up the dialog.
-	 */
+	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
 	{
 		detailsButton = new JButton(SHOW_DETAILS);
