@@ -247,7 +247,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      */
     public void setModel(ThumbnailDataModel model)
     {
-        if (model == null)
+        if(model != null)
         {
             this.model = model;
         }
