@@ -89,7 +89,6 @@ public class ChainStructureErrors {
 		if (errors == null) 
 			return;
 		Iterator iter = errors.iterator();
-		String res = new String();
 		
 		HashMap nodes = new HashMap();
 		DefaultMutableTreeNode classNode;
