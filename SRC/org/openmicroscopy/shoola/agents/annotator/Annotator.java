@@ -44,11 +44,15 @@ import javax.swing.JInternalFrame;
 
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
  * Model and agent for the Annotator set of widgets.  The annotator makes
@@ -225,8 +229,22 @@ public class Annotator implements Agent, AgentEventListener
      */
     List getDatasetAttributes(int datasetID)
     {
-        // TODO call registry to find out this information and change this
-        return new ArrayList();
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        try
+        {
+            return sts.retrieveImageAttributes("DatasetAnnotation",datasetID);
+        }
+        catch(DSAccessException dsa)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Communication Error",dso.getMessage(),dso);
+        }
+        return null;
     }
     
     /**
@@ -236,8 +254,22 @@ public class Annotator implements Agent, AgentEventListener
      */
     List getImageAnnotations(int imageID)
     {
-        // TODO call registry to find out this information and change this
-        return new ArrayList();
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        try
+        {
+            return sts.retrieveImageAttributes("ImageAnnotation",imageID);
+        }
+        catch(DSAccessException dsa)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Communication Error",dso.getMessage(),dso);
+        }
+        return null;
     }
     
     /**
