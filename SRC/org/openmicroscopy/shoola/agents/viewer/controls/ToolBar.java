@@ -157,6 +157,15 @@ public class ToolBar
 						"(frames per second).";
 	  	editor.setToolTipText(UIUtilities.formatToolTipText(s));
 	  	fps.setEditor(editor);
+	  	//only one timepoint.
+	  	boolean b;
+	  	if (maxT == 0) b = false;
+	  	else b = true;
+		play.setEnabled(b);
+		rewind.setEnabled(b);
+		stop.setEnabled(b);
+		fps.setEnabled(b);
+		editor.setEnabled(b);
 	}
 	
 	/** 
