@@ -73,9 +73,9 @@ class ColorSelector
 	
 	/** table constants. */
 	private static final int			ROW_HEIGHT = 25;
-	private static final int			WIDTH_ONE = 80;
+	private static final int			WIDTH_ONE = 120;
 	
-	private static final int			WIDTH_TWO = 100;
+	private static final int			WIDTH_TWO = 120;
 	private static final Dimension		SLIDER_PANEL = new Dimension(WIDTH_TWO,
 															ROW_HEIGHT);
 	
@@ -86,12 +86,12 @@ class ColorSelector
 
 	private static final int			H_EXTRA = 25;
 	
-	private static final int			WIDTH = 160;
+	private static final int			WIDTH = 220;
 	private static final int			HEIGHT = 50;
 	private static final int			TOP = 15;
 	private static final int			WBUTTON = 90;
 	
-	private static final int 			WIN_W = 250;
+	private static final int 			WIN_W = 310;
 	private static final int 			WIN_H = 140;
 	
 	private static final int			MAX_SLIDER = 100;
