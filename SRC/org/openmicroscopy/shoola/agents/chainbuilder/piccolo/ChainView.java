@@ -82,7 +82,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  * </small>
  */
 public class ChainView extends PNode implements BufferedObject, MouseableNode, 
-	ToolTipNode {
+	ToolTipNode, Comparable {
 
 	/**
 	 * The Chain to be rendered
@@ -135,9 +135,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	protected LinkLayer linkLayer;
 
 	
-	/** layers for full view */
-	protected PLayer fullLayer = new PLayer();
-	
 	/**
 	 * 
 	 * @param chain		the chain to be drawn
@@ -150,8 +147,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 
 		
 		linkLayer = getLinkLayer();
-		addChild(fullLayer);
-		fullLayer.addChild(linkLayer);
+		addChild(linkLayer);
 		
 		drawNodes();
 		layoutNodes();
@@ -159,7 +155,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		//clear it out so it can be garbage-collected
 		nodeLayers = null;
 		linkLayer.moveToFront();
-		fullLayer.setBounds(fullLayer.getUnionOfChildrenBounds(null));
+		setBounds(getUnionOfChildrenBounds(null));
 		setBounds(getUnionOfChildrenBounds(null));
 		
 	}
@@ -251,7 +247,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			mNode.showDetails();
 			// must show detail and overview of each node for links to be drawn
 			// correctly
-			fullLayer.addChild(mNode);
+			addChild(mNode);
 		}
 		node.setModuleView(mNode);
 		return mNode;
@@ -490,6 +486,19 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			return null;
 	}
 	
+	public double getArea() {
+		double area = getWidth()*getHeight();
+		return area;
+	}
+	
+	public int compareTo(Object o) {
+		if (!(o instanceof ChainView))
+			return -1;
+		double areaDiff;
+		areaDiff = getArea() - ((ChainView) o).getArea();
+		return (int) areaDiff;
+	}
+	
 	/**
 	 * A convenience class that tracks the nodes in each layer,
 	 * and the x position of each layer
@@ -522,5 +531,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			return layerXPositions[i];
 		}
 	}
+	
+	
 }
 
