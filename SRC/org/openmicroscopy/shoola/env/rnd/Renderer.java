@@ -32,15 +32,22 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.image.BufferedImage;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
-import org.openmicroscopy.shoola.env.rnd.metadata.ImageDimensions;
-import org.openmicroscopy.shoola.env.rnd.metadata.ImageStats;
+import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
+import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsGlobalStatsEntry;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * 
@@ -56,12 +63,13 @@ import org.openmicroscopy.shoola.env.rnd.metadata.ImageStats;
  * </small>
  * @since OME2.2
  */
-public class Renderer
+class Renderer
 {
 	private int 				imageID;
-	private int 				omeisPixelsID;
-	private ImageDimensions		imageDims;
-	private ImageStats			imageStats;
+	private int					pixelsID;
+	private long 				omeisPixelsID;
+	private PixelsDimensions	pixelsDims;
+	private PixelsStats			pixelsStats;
 	private RenderingDef		renderingDef;
 	
 	private PlaneDef			planeDef;
@@ -69,60 +77,125 @@ public class Renderer
 	private DataSink			dataSink;
 	private RenderingStrategy	renderingStrategy;
 	private CodomainChain		codomainChain;
+
+	private RenderingEngine		engine;	
 	
-	/** Initializes. */
-	void initialize()
+	
+	/** 
+	 * Helper method to create the default settings if none is available.
+	 * In this case we use a grayscale model to map the first wavelength in
+	 * the pixels file.  The mapping is linear and the intervals are selected
+	 * according to a "best-guess" statistical approach.
+	 * 
+	 * @param stats	For each wavelength, it contains the global minimum and
+	 * 				maximum of the wavelength stack across time.
+	 * @return	The default rendering settings.
+	 */
+	private RenderingDef createDefaultRenderingDef(PixelsDimensions dims,
+											PixelsStats stats, int pixelType)
 	{
-		// call to DB and initialize field
+		QuantumDef qDef = new QuantumDef(QuantumFactory.LINEAR, pixelType, 1, 
+											0, QuantumFactory.DEPTH_8BIT,
+											QuantumFactory.DEPTH_8BIT);
+		ChannelBindings[] waves = new ChannelBindings[dims.sizeW];
+		PixelsGlobalStatsEntry wGlobal;
+		for (int w = 0; w < dims.sizeW; ++w) {
+			wGlobal = stats.getGlobalEntry(w);
+			//TODO: calcultate default interval using sigma, etc.
+			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
+											wGlobal.getGlobalMax(),
+											0, 0, 0, 255, false);
+		}
+		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
+		return new RenderingDef(dims.sizeZ/2+dims.sizeZ%2-1, 0, 
+								RenderingDef.GS, qDef, waves);
+		//NOTE: middle of stack is z=1 if szZ==3, z=1 if szZ==4, etc.
 	}
 	
-	/** Create default settings if none stored in DB.*/
-	void createDefaultRenderingDef()
+	/**
+	 * Creates a new instance to render the specified pixels set.
+	 * The {@link #initialize() initialize} method has to be called straight
+	 * after in order to get this new instance ready for rendering.
+	 * 
+	 * @param imageID	The id of the image the pixels set belongs to.
+	 * @param pixelsID	The id of the pixels set.
+	 * @param engine	Reference to the rendering engine.
+	 */
+	Renderer(int imageID, int pixelsID, RenderingEngine engine)
 	{
+		this.imageID = imageID;
+		this.pixelsID = pixelsID;
+		this.engine = engine;
+	}
+	
+	/**
+	 * Initializes the rendering environment, loads the pixels metadata and
+	 * the display options.
+	 * 
+	 * @throws MetadataSourceException If an error occurs while retrieving the
+	 * 									data from the source repository.
+	 */
+	void initialize()
+		throws MetadataSourceException
+	{
+		MetadataSource source = engine.getMetadataSource(imageID, pixelsID);
+		source.load();
+		omeisPixelsID = source.getOmeisPixelsID();
+		pixelsDims = source.getPixelsDims();
+		pixelsStats = source.getPixelsStats();
+		renderingDef = source.getDisplayOptions();
+		if (renderingDef == null)
+			renderingDef = createDefaultRenderingDef(pixelsDims, pixelsStats,
+														source.getPixelType());
+		planeDef = null;  //RE will pass this to render().
+		QuantumDef qd = renderingDef.getQuantumDef();
+		quantumManager = new QuantumManager(pixelsDims.sizeW);
+		quantumManager.initStrategies(qd, pixelsStats);
+		codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd);
+		dataSink = engine.getDataSink(imageID, pixelsID);
+		renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());
 	}
 	
 	/** Render a specified plane. */
-	BufferedImage render()
+	BufferedImage render(PlaneDef pd)
 	{
-		return null;
+		if (pd == null)
+			throw new NullPointerException("No plane definition.");
+		planeDef = pd;
+		return renderingStrategy.render(this);
 	}
 
-	void setModel(int model)
+	PixelsDimensions getPixelsDims()
 	{
-		
+		return pixelsDims;
 	}
 
-	public ImageDimensions getImageDims()
+	PixelsStats getPixelsStats()
 	{
-		return imageDims;
+		return pixelsStats;
 	}
 
-	public ImageStats getImgStats()
-	{
-		return imageStats;
-	}
-
-	public PlaneDef getPlaneDef()
+	PlaneDef getPlaneDef()
 	{
 		return planeDef;
 	}
 
-	public RenderingDef getRenderingDef()
+	RenderingDef getRenderingDef()
 	{
 		return renderingDef;
 	}
 
-	public QuantumManager getQuantumManager()
+	QuantumManager getQuantumManager()
 	{
 		return quantumManager;
 	}
 
-	public DataSink getDataSink()
+	DataSink getDataSink()
 	{
 		return dataSink;
 	}
 
-	public CodomainChain getCodomainChain()
+	CodomainChain getCodomainChain()
 	{
 		return codomainChain;
 	}
