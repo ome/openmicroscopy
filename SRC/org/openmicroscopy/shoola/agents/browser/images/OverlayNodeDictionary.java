@@ -52,5 +52,5 @@ public interface OverlayNodeDictionary
     /**
      * Defines the type of an image annotation node.
      */
-    public static final String ANNOTATION_NODE = "ImageAnnotationNode";
+    public static final String ANNOTATION_NODE = "ImageAnnotationOverlay";
 }

@@ -60,7 +60,7 @@ public class OverlayMethods
             {
                 if(!t.hasActiveOverlay(getDisplayNodeType()))
                 {
-                    ImageAnnotationNode node = new ImageAnnotationNode(t);
+                    ImageAnnotationOverlay node = new ImageAnnotationOverlay(t);
                     t.addActiveOverlay(node);
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.images.ImageAnnotationNode
+ * org.openmicroscopy.shoola.agents.browser.images.ImageAnnotationOverlay
  *
  *------------------------------------------------------------------------------
  *
@@ -54,18 +54,18 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * @version 2.2
  * @since OME2.2
  */
-public class ImageAnnotationNode extends OverlayNode
+public class ImageAnnotationOverlay extends OverlayNode
 {
     private final Shape imageShape =
         PaintShapeGenerator.getInstance().getAnnotationNoteShape(0,0);
     private final Color fillColor = new Color(255,255,192);
     
     /**
-     * Constructs an ImageAnnotationNode that bases its actions and display
+     * Constructs an ImageAnnotationOverlay that bases its actions and display
      * action on the context of the parent thumbnail.
      * @param parent The parent thumbnail.
      */
-    public ImageAnnotationNode(final Thumbnail parent)
+    public ImageAnnotationOverlay(final Thumbnail parent)
     {
         super(OverlayNodeDictionary.ANNOTATION_NODE,
               parent);
