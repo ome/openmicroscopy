@@ -41,6 +41,7 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
@@ -58,7 +59,8 @@ public class BrowserController
     private ThumbnailSourceModel sourceModel;
 
     private BrowserView browserView;
-
+    private StatusBar statusView;
+    
     /**
      * Constructs a browser controller with an empty browser model.
      *
@@ -140,6 +142,34 @@ public class BrowserController
 			browserView.processFailed("I dunno... did you break it?");
     	}
     	
+    }
+    
+    /**
+     * Returns the status bar of this browser.
+     * @return
+     */
+    public StatusBar getStatusView()
+    {
+        return statusView;
+    }
+    
+    /**
+     * Sets the status bar of the browser to the specified widget.
+     * @param bar The bar to set.
+     */
+    public void setStatusView(StatusBar bar)
+    {
+        if(statusView != null)
+        {
+            browserModel.removeModelListener(statusView);
+        }
+        if(bar != null)
+        {
+            this.statusView = bar;
+            // TODO: change to name of dataset.
+            statusView.setLeftText("Dataset loaded.");
+            browserModel.addModelListener(statusView);
+        }
     }
     
     /**
