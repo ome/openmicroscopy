@@ -5,10 +5,10 @@
 <xsl:output method="html" indent="yes" doctype-public="--//W3C//DTD HTML 4.01 Transitional//EN"/>
 <!-- Stylesheet used to generate an AurigaDoc xml file. -->
 <!-- A: COMMON VARIABLES -->
-<xsl:variable name="title" select="/xdoc/title"/>
+<xsl:variable name="title" select="/xdoc/xdoc-info/title"/>
 
-<xsl:variable name="revision" select="/xdoc/revision/@number"/>
-<xsl:variable name="last-modified" select="/xdoc/last-modified/@date"/>
+<xsl:variable name="revision" select="/xdoc/xdoc-info/revision/@number"/>
+<xsl:variable name="last-modified" select="/xdoc/xdoc-info/last-modified/@date"/>
 
 <!-- Root -->
 
@@ -34,22 +34,22 @@ This template generates the document-meta-info, information on the document.
 <a href="http://www.openmicroscopy.org/">Open Microscopy Environment</a>
 </attribute>
 <xsl:variable name="number-authors">
-<xsl:value-of select="count(/xdoc/author)"/>
+<xsl:value-of select="count(/xdoc/xdoc-info/author)"/>
 </xsl:variable>
 <xsl:choose>
 <xsl:when test="$number-authors = 1">
 <attribute name="Author">
 <a>
 <xsl:attribute name="href">
-<xsl:value-of select="concat('mailto:', /xdoc/author/@email)"/>
+<xsl:value-of select="concat('mailto:', /xdoc/xdoc-info/author/@email)"/>
 </xsl:attribute>
-<xsl:value-of select="/xdoc/author/@name"/>
+<xsl:value-of select="/xdoc/xdoc-info/author/@name"/>
 </a>
 </attribute>
 </xsl:when>
 <xsl:when test="$number-authors &gt; 1">
 <attribute name="Authors">
-<xsl:for-each select="/xdoc/author">
+<xsl:for-each select="/xdoc/xdoc-info/author">
 <a>
 <xsl:attribute name="href">
 <xsl:value-of select="concat('mailto:', @email)"/>
