@@ -43,7 +43,6 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 
-
 /** 
  * A subclass of {@link ModuleView}, used to contain bounds in terms of an x,y 
  * position and a height. this is never added to a scenegraph or drawn -
@@ -89,4 +88,9 @@ public class LayoutModule extends ModuleView {
 	public double getHeight() {
 		return  DUMMY_HEIGHT;
 	}
+	
+	public double getWidth() {
+		return 0;
+	}
+
 }
