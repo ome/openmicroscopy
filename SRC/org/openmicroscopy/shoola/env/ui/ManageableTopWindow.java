@@ -33,13 +33,16 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.JFrame;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
+
 /** 
- * A superclass for windows that might be controlled by a {@link TopWindowManager}.
+ * A superclass for windows that might be controlled by a 
+ * {@link TopWindowManager}.
  * @see org.openmicroscopy.shoola.env.ui.TopWindowManager
- * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
  * 
@@ -61,15 +64,29 @@ public abstract class ManageableTopWindow
 		super(s);
 	}
 	
+    /**
+     * Packs and shows the {@link #window} at the center of the screen.
+     * Default location. Any class can override the method to specify the size
+     * and the location of the {@link #window}.
+     */
+    public void setOnScreen()
+    {
+        pack();
+        UIUtilities.centerAndShow(this);
+    }
+    
 	/** 
-	 * Anything that needs to be done before display of window should be done here,
-	 *  after which the manager should be told to continue with displaying the window
+	 * Anything that needs to be done before display of window should be done 
+     * here, after which the manager should be told to continue with 
+     * displaying the window
+     * 
 	 * @param manager
 	 */
-	public void preHandleDisplay(TopWindowManager manager) {
+	public void preHandleDisplay(TopWindowManager manager)
+    {
 		manager.continueHandleDisplay();
 	}
 	
-	public void postHandleDisplay() {	
-	}
+	public void postHandleDisplay() {}
+    
 }

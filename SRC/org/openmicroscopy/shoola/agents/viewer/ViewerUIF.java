@@ -114,10 +114,11 @@ public class ViewerUIF
     public static final double      MIN_MAG = 1.0, DEFAULT_MAG = 1.5, 
                                     MAX_MAG = 3.0;
     
-    
     /** Constants used to draw the XY-axis. */
     public static final int         START = 35, ORIGIN = 5, LENGTH = 20, 
                                     ARROW = 3;
+    
+    private static final int        DEFAULT_WINDOW_SIZE = 100;
     
     /** Canvas to display the currently selected 2D image. */
     private ImageCanvas             canvas;
@@ -151,15 +152,18 @@ public class ViewerUIF
 
     private JLayeredPane            layer;
     
+    private int                     windowWidth, windowHeight;
+    
     ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
                 int defaultT, int defaultZ)
     {
         super("", registry.getTaskBar());
-        active = false;
         this.control = control;
         im = IconManager.getInstance(registry);
-        int maxT = pxsDims.sizeT-1;
-        int maxZ = pxsDims.sizeZ-1;
+        windowWidth = DEFAULT_WINDOW_SIZE;
+        windowHeight = DEFAULT_WINDOW_SIZE;
+        active = false;
+        int maxT = pxsDims.sizeT-1, maxZ = pxsDims.sizeZ-1;
         setJMenuBar(createMenuBar(maxZ, maxT));
         initBars(registry, maxT, defaultT, maxZ, defaultZ);
         initSliders(maxT, defaultT, maxZ, defaultZ);
@@ -186,11 +190,7 @@ public class ViewerUIF
     void setActive(boolean b) { active = b; }
 
     /** Remove the lens if any pin. */
-    void resetLens() 
-    {
-        canvas.resetLens();
-        //canvas.repaint();
-    }
+    void resetLens() { canvas.resetLens(); }
     
     /** Reset the zoomLevel to {@link ImageInspector#ZOOM_DEFAULT}. */
     void resetMagFactor() { canvas.resetDefault(); }
@@ -204,8 +204,7 @@ public class ViewerUIF
         ToolBarManager tbm = toolBar.getManager();
         tbm.onTChange(t);
         tbm.onZChange(z);
-        int maxZ = sizeZ-1;
-        int maxT = sizeT-1;
+        int maxZ = sizeZ-1, maxT = sizeT-1;
         tbm.setMaxT(maxT);
         tbm.setMaxZ(maxZ);
         toolBar.getZLabel().setText("/"+maxZ);
@@ -405,11 +404,19 @@ public class ViewerUIF
     private void setWindowSize(int w, int h)
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = 7*(screenSize.width/10);
-        int height = 7*(screenSize.height/10);
+        int width = 8*(screenSize.width/10);
+        int height = 8*(screenSize.height/10);
         if (w > width) w = width;
         if (h > height) h = height;
-        setSize(w, h); 
+        windowWidth = w;
+        windowHeight = h;
+    }
+    
+    /** Overrides the {@link #setOnScreen()} method. */
+    public void setOnScreen()
+    {
+        setSize(windowWidth, windowHeight); 
+        UIUtilities.centerAndShow(this);
     }
 
 }
