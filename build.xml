@@ -1,0 +1,237 @@
+<project name="OME" default="compile" basedir=".">
+  <property name="src" value="SRC"/>
+  <property name="jnisrc" value="jnisrc"/>
+  <property name="build" value="build"/>
+  <property name="st-build" value="st-build"/>
+  <property name="lib"  value="LIB"/>
+  <property name="docs" value="docs"/>
+  <property name="apidocs" value="docs/api"/>
+  <property name="privapidocs" value="docs/privapi"/>
+  <property name="distzip" value="ome.zip"/>
+  <property name="jar" value="jar"/>
+  <property name="deprecation" value="yes"/>
+  <property name="omejava" value="omejava"/>
+  <property name="ome.st-jar-file" value="${lib}/ome-st.jar"/>
+  <property name="force-build-st" value="false"/>
+
+  <target name="init">
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <copy todir="${build}">
+       <fileset dir="${src}" excludes="**/*.java"/>
+    </copy>
+
+    <!-- Determine whether the semantic type jar file exists -->
+    <available file="${ome.st-jar-file}" property="ome.st-jar-exists"/>
+
+    <!-- We should rebuild the ST jar file is it doesn't exist or if
+         the user asks to force-rebuild it. -->
+
+    <condition property="build-st">
+      <or>
+        <isfalse value="${ome.st-jar-exists}"/>
+        <istrue value="${force-build-st}"/>
+      </or>
+    </condition>
+  </target>
+
+  <target name="jni">
+    <!--exec executable="sh">
+      <arg value="-c"/>
+      <arg value="gcc -Wall -O3 -shared -I/usr/java/jdk/include -I/usr/java/jdk/include/linux -o ${build}/MODULE-NAME.so ${jnisrc}/*.c"/>
+    </exec-->
+  </target>
+
+  <target name="st-jar" depends="init" if="build-st">
+    <echo message="I'm building those types, dammit!"/>
+    <fail message="Must specify an OME username." unless="ome.username"/>
+    <fail message="Must specify an OME password." unless="ome.password"/>
+
+    <delete file="${ome.st-jar-file}"/>
+    <delete dir="${src}/org/openmicroscopy/shoola/env/data/st"/>
+    <delete dir="${build}/org/openmicroscopy/shoola/env/data/st"/>
+
+    <exec executable="${omejava}">
+      <arg value="st"/>
+      <arg value="-d"/>
+      <arg value="${src}"/>
+      <arg value="-u"/>
+      <arg value="${ome.username}"/>
+      <arg value="-p"/>
+      <arg value="${ome.password}"/>
+      <arg value=":all:"/>
+    </exec>
+
+    <mkdir dir="${st-build}"/>
+    <javac srcdir="${src}"
+           destdir="${st-build}"
+           includes="org/openmicroscopy/shoola/env/data/st/**/*.java">
+      <classpath>
+        <fileset dir="${lib}">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+
+    <jar destfile="${ome.st-jar-file}">
+      <fileset dir="${st-build}" includes="org/openmicroscopy/**/*.class"/>
+    </jar>
+
+    <delete dir="${st-build}"/>
+
+  </target>
+
+  <target name="compile" depends="init,st-jar">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}"
+	       destdir="${build}"
+           excludes="org/openmicroscopy/shoola/env/data/st/**/*.java"
+           deprecation="${deprecation}">
+      <classpath>
+        <fileset dir="${lib}">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="apidocs">
+    <mkdir dir="${apidocs}"/>
+    <javadoc sourcepath="${src}" destdir="${apidocs}"
+             packagenames="org.openmicroscopy.*"
+             windowtitle="OME v2.0 Java API"
+             use="true"
+             author="true"
+             version="true"
+             Footer="">
+      <link href="http://java.sun.com/j2se/1.3/docs/api/" />
+      <link href="http://ws.apache.org/xmlrpc/apidocs/" />
+      <bottom><![CDATA[<i>Copyright &#169; 2002-2003 Open Microscopy Environment.  All Rights reserved.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="privapidocs">
+    <mkdir dir="${privapidocs}"/>
+    <javadoc sourcepath="${src}" destdir="${privapidocs}"
+             packagenames="org.openmicroscopy.*"
+             windowtitle="OME v2.0 Java Private API"
+             use="true"
+             author="true"
+             version="true"
+             Private="true"
+             Footer="">
+      <link href="http://java.sun.com/j2se/1.3/docs/api/" />
+      <link href="http://ws.apache.org/xmlrpc/apidocs/" />
+      <bottom><![CDATA[<i>Copyright &#169; 2002-2003 Open Microscopy Environment.  All Rights reserved.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="dist" depends="compile,apidocs">
+    <delete file="${distzip}" quiet="true"/>
+    <zip zipfile="${distzip}">
+      <fileset dir="." includes="${build}/**/*"/>
+      <fileset dir="." includes="${src}/**/*"/>
+      <fileset dir="." includes="${jnisrc}/**/*"/>
+      <fileset dir="." includes="${docs}/**/*"/>
+      <fileset dir="." includes="build.xml"/>
+    </zip>
+    <copy file="${distzip}" tofile="${DSTAMP}-${distzip}"/>
+  </target>
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${jar}"/>
+
+    <delete file="${jar}/ome.jar"/>
+    <delete file="${jar}/org.openmicroscopy.jar"/>
+    <delete file="${jar}/org.openmicroscopy.alligator.jar"/>
+    <delete file="${jar}/org.openmicroscopy.analysis.jar"/>
+    <delete file="${jar}/org.openmicroscopy.analysis-ui.jar"/>
+    <delete file="${jar}/org.openmicroscopy.applet.jar"/>
+    <delete file="${jar}/org.openmicroscopy.client.jar"/>
+    <delete file="${jar}/org.openmicroscopy.remote.jar"/>
+    <delete file="${jar}/org.openmicroscopy.simple.jar"/>
+    <delete file="${jar}/org.openmicroscopy.soap.jar"/>
+    <delete file="${jar}/org.openmicroscopy.util.jar"/>
+    <delete file="${jar}/org.openmicroscopy.vis-chains.jar"/>
+
+    <copy todir="${jar}">
+      <fileset dir="${lib}"/>
+    </copy>
+			
+
+    <jar destfile="${jar}/ome.jar">
+      <fileset dir="build" includes="org/openmicroscopy/**/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.jar">
+      <fileset dir="build" includes="org/openmicroscopy/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.alligator.jar"
+	 manifest="${src}/org/openmicroscopy/alligator/alligator.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/alligator/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.analysis.jar"
+	 manifest="${src}/org/openmicroscopy/analysis/analysis.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/analysis/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.analysis.ui.jar"
+	 manifest="${src}/org/openmicroscopy/analysis/ui/ui.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/analysis/ui/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.applet.jar"
+	 manifest="${src}/org/openmicroscopy/applet/applet.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/applet/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.client.jar"
+	 manifest="${src}/org/openmicroscopy/client/client.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/client/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.remote.jar"
+	 manifest="${src}/org/openmicroscopy/remote/remote.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/remote/**/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.managers.jar"
+	 manifest="${src}/org/openmicroscopy/managers/managers.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/managers/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.simple.jar"
+	 manifest="${src}/org/openmicroscopy/simple/simple.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/simple/*.class"/>
+    </jar>
+
+<!--    <jar destfile="${jar}/org.openmicroscopy.soap.jar">
+      <fileset dir="build" includes="org/openmicroscopy/soap/*.class"/>
+    </jar>
+-->
+
+    <jar destfile="${jar}/org.openmicroscopy.util.jar">
+      <fileset dir="build" includes="org/openmicroscopy/util/*.class"/>
+    </jar>
+
+    <jar destfile="${jar}/org.openmicroscopy.vis.chains.jar"
+      manifest ="${src}/org/openmicroscopy/vis/chains/chains.manifest">
+      <fileset dir="build" includes="org/openmicroscopy/vis/**/*.class"/>
+      <fileset dir="build" includes="org/openmicroscopy/vis/**/*.jpg"/>
+    </jar>
+
+  </target>
+
+  <target name="clean">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${apidocs}"/>
+    <delete dir="${privapidocs}"/>
+    <delete dir="${src}/org/openmicroscopy/shoola/env/data/st"/>
+    <delete file="${distzip}" quiet="true"/>
+  </target>
+
+</project>
