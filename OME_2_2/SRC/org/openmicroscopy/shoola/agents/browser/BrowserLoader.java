@@ -36,20 +36,16 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
  * A cleaner (and separate) implementation of the browser loader class previously
  * found in BrowserAgent.  Coordinates the retrieval of information from the
  * database and builds a browser window based on the contents of a dataset.
+ * 
+ * Part of a resolution to bug 183.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -62,11 +58,14 @@ public final class BrowserLoader
     private BrowserEnvironment env; // the browser context.
     private Registry appContext; // the Shoola context.
     
+    // TODO [BUG 184]: change this
     private int datasetID; // the dataset being loaded by this loader.
     
     /**
      * Constructs a browser loader that will be taking care of loading the dataset
      * with the specified ID.
+     * 
+     * TODO [BUG 184] change datasetToLoad to generic list of images.
      * 
      * @param appContext The application context.
      * @param datasetToLoad The ID of the dataset to load.
@@ -86,11 +85,13 @@ public final class BrowserLoader
     }
     
     /**
-     * Begins loading the dataset and creating a browser window.
+     * Begins loading the dataset and creating a browser window.  Assumes that
+     * the application context has been fully specified; that is, image types have
+     * been loaded into the browser environment, the
      */
     public void load() // TODO: throws exceptions (specify which ones)
     {
-        loadImageTypes();
+        
     }
     
     /**
@@ -98,33 +99,5 @@ public final class BrowserLoader
      */
     public void cancelLoad()
     {
-    }
-    
-    // loads the image types from the database.
-    private void loadImageTypes()
-    {
-        // test code to check for image STs
-        SemanticTypesService sts = appContext.getSemanticTypesService();
-        try
-        {
-            List typeList = sts.getAvailableImageTypes();
-            for(Iterator iter = typeList.iterator(); iter.hasNext();)
-            {
-                SemanticType st = (SemanticType)iter.next();
-                imageTypeList.add(st);
-            }
-        }
-        catch(DSOutOfServiceException dso)
-        {
-            dso.printStackTrace();
-            UserNotifier un = appContext.getUserNotifier();
-            un.notifyError("Connection Error",dso.getMessage(),dso);
-        }
-        catch(DSAccessException dsa)
-        {
-            dsa.printStackTrace();
-            UserNotifier un = appContext.getUserNotifier();
-            un.notifyError("Server Error",dsa.getMessage(),dsa);
-        }
     }
 }

@@ -129,9 +129,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     private Registry registry;
     private EventBus eventBus;
     private BrowserEnvironment env;
-    
-    private List imageTypeList;
-    
     private Map activeThreadMap;
 
     /**
@@ -143,7 +140,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         env = BrowserEnvironment.getInstance();
         env.setBrowserAgent(this);
         activeThreadMap = new IdentityHashMap();
-        imageTypeList = new ArrayList();
     }
     
     /**
@@ -197,6 +193,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         this.registry = ctx;
         this.eventBus = ctx.getEventBus();
+        loadImageTypes(); // do this immediately to set up env
+        env.setImageTypeList(loadImageTypes());
         
         env.setIconManager(IconManager.getInstance(ctx));
         env.setBrowserPreferences(new BrowserPreferences(ctx));
@@ -884,6 +882,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                    StatusBar status)
     {
         if(imageList == null || targetModel == null) return;
+        List imageTypeList = env.getImageTypeList();
         List relevantTypes = new ArrayList();
         SemanticTypesService sts = registry.getSemanticTypesService();
         
@@ -1320,6 +1319,36 @@ public class BrowserAgent implements Agent, AgentEventListener
     public TopFrame getTopFrame()
     {
         return registry.getTopFrame();
+    }
+    
+    //  loads the image types from the database.
+    private List loadImageTypes()
+    {
+        // test code to check for image STs
+        List imageTypeList = new ArrayList();
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        try
+        {
+            List typeList = sts.getAvailableImageTypes();
+            for(Iterator iter = typeList.iterator(); iter.hasNext();)
+            {
+                SemanticType st = (SemanticType)iter.next();
+                imageTypeList.add(st);
+            }
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            dso.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Connection Error",dso.getMessage(),dso);
+        }
+        catch(DSAccessException dsa)
+        {
+            dsa.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
+        return imageTypeList;
     }
     
     /**
