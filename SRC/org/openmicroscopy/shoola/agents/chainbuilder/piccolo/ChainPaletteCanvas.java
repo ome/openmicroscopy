@@ -267,7 +267,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void scaleToSize() {
-		System.err.println("chain palette canvas animating to bounds..");
 		handler.animateToCanvasBounds();
 	}
 
@@ -306,7 +305,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	public void dragGestureRecognized(DragGestureEvent event) {
 		if (isChainDragging()) {
 			Integer id = new Integer(draggingChain.getID());
-			System.err.println("dragging chain.."+id+", "+draggingChain.getName());
 			ChainSelection c = new ChainSelection(id);
 			
 			dragSource.startDrag(event,DragSource.DefaultMoveDrop,c,dragListener);

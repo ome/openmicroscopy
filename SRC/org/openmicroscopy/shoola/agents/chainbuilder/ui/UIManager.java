@@ -174,7 +174,6 @@ public class UIManager implements ContentGroupSubscriber
 	public void saveCurrentChainFrame() {
 		if (currentChainFrame == null)
 			return;
-		System.err.println("saving frame..."+currentChainFrame);
 		currentChainFrame.save();
 	}
 	

@@ -452,12 +452,10 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public void layoutContents() {
 		
-		System.err.println("laying out datasets.. # of datasets.."+allDatasets.size());
 		eventHandler = new DatasetBrowserEventHandler(this);
 		// layout treemaps
 		arrangeDisplay(allDatasets);
 		doLayout(allDatasets);
-		System.err.println("dataset layout complete...");
 	}
 	
 	public void completeInitialization() {
@@ -596,11 +594,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void selectAnalysisChain(AnalysisChainData chain) {
-		System.err.println("dataset browser. selected chain...");
-		if (chain != null)
-			System.err.println("..."+chain.getID());
-		else
-			System.err.println("...null");
 		HashMap chainExecutions = mainWindow.getChainExecutions();
 		if (chainExecutions == null) 
 			return; //do nothing if no executions;
