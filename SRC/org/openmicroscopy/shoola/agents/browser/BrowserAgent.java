@@ -1028,7 +1028,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         Pixels pixels = (Pixels)tdm.getAttributeMap().getAttribute("Pixels");
         int pixelsID = pixels.getID();
         
-        loadImage(imageID,pixelsID);
+        loadImage(imageID, pixelsID, tdm.getName());
     }
 
     /**
@@ -1037,9 +1037,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      * 
      * @param imageID The ID of the image to load (in a viewer, for example)
      */
-    public void loadImage(int imageID, int pixelsID)
+    public void loadImage(int imageID, int pixelsID, String ImgName)
     {
-        LoadImage imageEvent = new LoadImage(imageID,pixelsID);
+        LoadImage imageEvent = new LoadImage(imageID, pixelsID, ImgName);
         EventBus eventBus = registry.getEventBus();
         eventBus.post(imageEvent);
     }
