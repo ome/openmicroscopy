@@ -47,9 +47,9 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * system, and receives events triggered by other parts of the client.
  * Subscribes and places events on the EventBus.
  * 
- * The OMEBrowserAgent responds to the following events: (list events)
+ * The BrowserAgent responds to the following events: (list events)
  * 
- * The OMEBrowserAgent places the following events on the queue: (list)
+ * The BrowserAgent places the following events on the queue: (list)
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal Version:</b> $Revision$ $Date$
@@ -127,19 +127,6 @@ public class BrowserAgent implements AgentEventListener
     }
 
     /**
-     * Responds to an event posted in the EventBus's queue.
-     * 
-     * @param event The event to be processed.
-     * @see (insert reference to EventBus, AgentEventListener)
-     * TODO: insert javadoc reference to EventBus classes
-     */
-    public void eventFired(/* AgentEvent event */
-    )
-    {
-        // TODO: fill in eventFired, integrate AgentEvent into main CVS tree
-    }
-
-    /**
      * Instruct the BrowserAgent to fire a LoadImage event, to be handled
      * by another part of the client.
      * 
@@ -163,24 +150,6 @@ public class BrowserAgent implements AgentEventListener
             return;
         }
         // TODO: fill in loadImages(int[])
-    }
-
-    /**
-     * Instruct the BrowserAgent to make the browser components visible.
-     * @param browserIndex The index of the browser to show.
-     */
-    public void showBrowser(int browserIndex)
-    {
-        // TODO: fill in showBrowser()
-    }
-
-    /**
-     * Instruct the OMEBrowserAgent to make the browser components hidden.
-     * @param browserIndex The index of the browser to hide.
-     */
-    public void hideBrowser(int browserIndex)
-    {
-        // TODO: fill in hideBrowser()
     }
     
     /**

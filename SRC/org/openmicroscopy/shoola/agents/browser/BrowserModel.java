@@ -39,6 +39,10 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.*;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailSourceMap;
+import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
+import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
 
 /**
  * The backing data model for the browser (not including overlays) and
@@ -55,7 +59,10 @@ public class BrowserModel
 
     private ThumbnailSourceMap sourceModel;
 
-    //private LayoutMethod layoutMethod; // TODO: create LayoutMethod
+    private LayoutMethod layoutMethod;
+    
+    private List groupModels;
+    private GroupingMethod groupingMethod;
 
     private Set selectedImages;
     private Set hiddenImages;
@@ -68,6 +75,7 @@ public class BrowserModel
         env = BrowserEnvironment.getInstance();
         selectedImages = new HashSet();
         hiddenImages = new HashSet();
+        groupModels = new ArrayList();
 
         // default behavior (may replace later)
         currentMode = BrowserMode.DEFAULT_MODE;
@@ -82,6 +90,9 @@ public class BrowserModel
     public BrowserModel()
     {
         init();
+        GroupModel model = new GroupModel("all");
+        groupModels.add(model);
+        groupingMethod = new SingleGroupingMethod(model);
     }
 
     /**
@@ -105,6 +116,9 @@ public class BrowserModel
             this.sourceModel = dataModel;
         }
     }
+    
+    // TODO: include constructor which loads settings (so that the grouping
+    // model doesn't always revert to the default)
 
     /**
      * Gets the backing source/image data model.

@@ -89,10 +89,8 @@ public class CriteriaGroupingMethod implements GroupingMethod
      * @param condition The condition to test for.
      * @param model The model to bind to the condition.
      */
-    public void addCriteriaGroup(
-        int index,
-        GrepOperator condition,
-        GroupModel model)
+    public void addCriteriaGroup(int index,GrepOperator condition,
+                                 GroupModel model)
     {
         if (index < 0 || index > criteria.size())
         {
