@@ -264,9 +264,6 @@ public class DatasetMapper
     
     private static PixelsDescription fillDefaultPixels(Pixels px)
     {
-        System.err.println(px.getID());
-        System.err.println(px.getImageServerID());
-        System.err.println(px.getRepository().getImageServerURL());
         PixelsDescription pxd = new PixelsDescription();
         pxd.setID(px.getID());
         if(px.getImageServerID() != null)

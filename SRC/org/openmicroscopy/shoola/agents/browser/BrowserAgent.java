@@ -361,7 +361,6 @@ public class BrowserAgent implements Agent, AgentEventListener
                         {
                             public void run()
                             {
-                                System.err.println("adding pix "+t.getModel().getID());
                                 model.addThumbnail(t);
                                 String message =
                                     ProgressMessageFormatter.format("Loaded image %n of %t...",
@@ -381,7 +380,14 @@ public class BrowserAgent implements Agent, AgentEventListener
                     }
                 }
                 
-                status.processSucceeded("All images loaded.");
+                Runnable finalTask = new Runnable()
+                {
+                    public void run()
+                    {
+                        status.processSucceeded("All images loaded.");
+                    }
+                };
+                SwingUtilities.invokeLater(finalTask);
                 return;
             }
         };
