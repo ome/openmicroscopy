@@ -101,7 +101,7 @@ public class EventBusImpl
     }
     
 	/** Implemented as specified by {@link EventBus}. */    
-    public void register(AgentEventListener  subscriber, Class event)
+    public void register(AgentEventListener subscriber, Class event)
     {
         if (verifyInheritance(event)) { // check inheritance
             LinkedList list = (LinkedList) deMultiplexTable.get(event);
@@ -195,11 +195,13 @@ public class EventBusImpl
         AgentEvent e = (AgentEvent) eventQueue.removeLast();
         Class eventClass = e.getClass();
         LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
-        ListIterator i = list.listIterator();
-        while (i.hasNext()) {
-            AgentEventListener listener = (AgentEventListener) i.next();
-            if (e.getSource() != listener) listener.eventFired(e);
-        }   
+        if (list != null) {
+			ListIterator i = list.listIterator();
+			while (i.hasNext()) {
+				AgentEventListener listener = (AgentEventListener) i.next();
+				if (e.getSource() != listener) listener.eventFired(e);
+			}
+        }  //else nobody registered for this event type.
     }
     
 	/** 
