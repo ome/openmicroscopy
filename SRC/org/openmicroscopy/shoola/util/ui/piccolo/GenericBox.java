@@ -103,7 +103,7 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	 * @return the bounds of the box with the appropriate spacing buffer.
 	 */
 	public PBounds getBufferedBounds() {
-		PBounds b = getFullBoundsReference();
+		PBounds b = getGlobalFullBounds();
 		
 		PBounds p=  new PBounds(b.getX()-Constants.BORDER,
 				b.getY()-Constants.BORDER,
