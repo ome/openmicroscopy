@@ -1,5 +1,5 @@
 /*
- * omeds.DBRow
+ * omeds.SQLCommand
  *
  *------------------------------------------------------------------------------
  *
@@ -30,7 +30,6 @@
 package omeds;
 
 //Java imports
-import java.sql.PreparedStatement;
 
 //Third-party libraries
 
@@ -50,37 +49,9 @@ import java.sql.PreparedStatement;
  * </small>
  * @since OME2.2
  */
-public abstract class DBRow
+public interface SQLCommand
 {
-	private String DELETE_STM;
-	
-	private int 			id;
-	
-	public int getID()
-	{
-		return id;
-	}
-
-	public void setID(int id)
-	{
-		this.id = id;
-	}
-	
-	public void delete()
-		throws Exception
-	{
-		DBManager dbm = DBManager.getInstance();
-		DELETE_STM = "DELETE FROM "+getTableName()+" WHERE "+getIDColumnName()+
-						"="+id;
-		PreparedStatement ps = dbm.getPreparedStatement(DELETE_STM);
-		ps.execute();
-		ps.close();
-	}
-	
-	public abstract String getTableName();
-	public abstract String getIDColumnName();
-	public abstract void fillFromDB(int id) throws Exception;
-	public abstract void insert() throws Exception;
-	public abstract void update() throws Exception;
+	public void execute() throws Exception;
+	public void undo() throws Exception;
 	
 }

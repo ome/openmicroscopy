@@ -61,8 +61,7 @@ import java.util.Stack;
  */
 public class DBFixture
 {
-	private String MAX_ID_QUERY;
-	
+
 	/** Queue to order the tasks to be executed. */
 	private List				processingQueue;
 
@@ -80,11 +79,11 @@ public class DBFixture
 		doneCommands = new Stack(); 
 		idGenerationMap = new HashMap();
 	}
-	
-	public void add(DBRow row)
+
+	public void enlist(SQLCommand command)
 	{
-		if (row == null) throw new NullPointerException();
-		processingQueue.add(row);
+		if (command == null) throw new NullPointerException();
+		processingQueue.add(command);
 	}
 	
 	/** Inserts data in DB. */
@@ -93,13 +92,12 @@ public class DBFixture
 	{
 		Connection c = DBManager.getInstance().getConnection();
 		Iterator i = processingQueue.iterator();
-		DBRow row;
+		SQLCommand command;
 		try {
 			while (i.hasNext()) {
-				row = (DBRow) i.next();
-				row.setID(generateID(row));
-				row.insert();
-				doneCommands.add(row);
+				command = (SQLCommand) i.next();
+				command.execute();
+				doneCommands.push(command);
 			}
 			c.commit();
 		} catch(Exception e) {
@@ -113,12 +111,11 @@ public class DBFixture
 		throws Exception
 	{
 		Connection c = DBManager.getInstance().getConnection();
-		Iterator i = doneCommands.iterator();
-		DBRow row;
+		SQLCommand command;
 		try {
-			while (i.hasNext()) {
-				row = (DBRow) i.next();	
-				row.delete();
+			while (!doneCommands.isEmpty()) {
+				command = (SQLCommand) doneCommands.pop();	
+				command.undo();
 			}
 			c.commit();
 		} catch(Exception e) {
@@ -126,23 +123,31 @@ public class DBFixture
 			throw e;
 		}
 	}
-
-	private int generateID(DBRow row)
+	
+	/** 
+	 * Retrieves the highest value of a given column in a given table. 
+	 * 
+	 * @param row	DBRow object.
+	 * @return int	Max+1;
+	 * @throws an Exception If the ID cannot be retrieved.
+	 */
+	public int generateID(DBRow row)
 		throws Exception
 	{
 		Integer id = (Integer) idGenerationMap.get(row.getClass());
 		if (id == null) {
 			DBManager dbm = DBManager.getInstance();
-			MAX_ID_QUERY = "SELECT MAX("+row.getIDColumnName()+ 
+			String MAX_ID_QUERY = "SELECT MAX("+row.getIDColumnName()+ 
 							") FROM "+row.getTableName();
 			PreparedStatement ps = dbm.getPreparedStatement(MAX_ID_QUERY);
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			id = new Integer(rs.getInt(1));	
-			rs.close();	
+			ps.close();	
 		}
 		id = new Integer(id.intValue()+1);
 		idGenerationMap.put(row.getClass(), id);
 		return id.intValue();
 	}
+	
 }

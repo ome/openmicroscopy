@@ -69,7 +69,7 @@ public abstract class OMEDSTestCase
 			connection = dbm.getConnection();
 			omeds = omedsm.getProxy();
 			dbFixture = prepareFixture();
-			dbFixture.load();
+			if (dbFixture != null) dbFixture.load();
 		} catch (Exception e) {
 			tearDown();
 			throw new RuntimeException(e);
@@ -79,7 +79,7 @@ public abstract class OMEDSTestCase
 	
 	public final void tearDown()
 	{
-		if (connection != null) {
+		if (connection != null && dbFixture != null) {
 			try {
 				dbFixture.unload();
 			} catch (Exception e) {

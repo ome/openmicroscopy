@@ -1,5 +1,5 @@
 /*
- * omeds.DBRow
+ * omeds.RowCommand
  *
  *------------------------------------------------------------------------------
  *
@@ -29,8 +29,8 @@
 
 package omeds;
 
+
 //Java imports
-import java.sql.PreparedStatement;
 
 //Third-party libraries
 
@@ -50,37 +50,35 @@ import java.sql.PreparedStatement;
  * </small>
  * @since OME2.2
  */
-public abstract class DBRow
+public class LoadRowCommand
+	implements SQLCommand
 {
-	private String DELETE_STM;
+	private DBRow		dbRow;
+	private DBFixture	dbFixture;
 	
-	private int 			id;
-	
-	public int getID()
+	public LoadRowCommand(DBRow dbRow, DBFixture dbFixture)
 	{
-		return id;
+		this.dbRow = dbRow;
+		this.dbFixture = dbFixture;
 	}
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
-	
-	public void delete()
+	/* (non-Javadoc)
+	 * @see omeds.SQLCommand#execute()
+	 */
+	public void execute() 
 		throws Exception
 	{
-		DBManager dbm = DBManager.getInstance();
-		DELETE_STM = "DELETE FROM "+getTableName()+" WHERE "+getIDColumnName()+
-						"="+id;
-		PreparedStatement ps = dbm.getPreparedStatement(DELETE_STM);
-		ps.execute();
-		ps.close();
+		dbRow.setID(dbFixture.generateID(dbRow));
+		dbRow.insert();
 	}
-	
-	public abstract String getTableName();
-	public abstract String getIDColumnName();
-	public abstract void fillFromDB(int id) throws Exception;
-	public abstract void insert() throws Exception;
-	public abstract void update() throws Exception;
-	
+
+	/* (non-Javadoc)
+	 * @see omeds.SQLCommand#undo()
+	 */
+	public void undo()
+		throws Exception
+	{
+		dbRow.delete();
+	}
+
 }
