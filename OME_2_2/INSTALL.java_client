@@ -31,10 +31,10 @@ file to specify the URL to the OME Data Server (OMEDS).  All you have to do
 is to modify the content of the url tag within the following entry:
 
 <structuredEntry name="/services/OMEDS" type = "OMEDS">
-	<url>http://valewalker.openmicroscopy.org.uk/remote</url>
+	<url>http://valewalker.openmicroscopy.org.uk/shoola</url>
 </structuredEntry>
 
-You have to replace "http://valewalker.openmicroscopy.org.uk/remote" with
+You have to replace "http://valewalker.openmicroscopy.org.uk/shoola" with
 the actual OMEDS URL in use at your site.
 
 
