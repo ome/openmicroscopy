@@ -5,7 +5,7 @@
        <url>http://somehost/however/not/needed/right/now</url>
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-       <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
+       <url>http://runemaster.openmicroscopy.org.uk/shoola</url>
      </structuredEntry>
      
      <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
@@ -28,7 +28,7 @@
           responsiveness.  However, take into account that too a high value
           can be counterproductive (what is "high" depends on your platform
           and deployment settings). -->
-     <entry name="/services/RE/maxPreFetch" type="integer">3</entry>
+     <entry name="/services/RE/maxPreFetch" type="integer">0</entry>
      <!-- How many Mb should be allocated to the Rendering Engine to cache
           pixels stacks.  If the size of an image stack exceeds this value
           then the stack won't be cached.  This will increase the time it
@@ -92,6 +92,15 @@
          This file has to be placed in the config directory under the installation 
          directory. -->
          <config>rnd.xml</config>
+       </agent>
+       <agent>
+         <name>ROI</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.roi.ROIAgt</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>roi.xml</config>
        </agent>
      </structuredEntry>
    </agents>
