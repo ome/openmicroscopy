@@ -80,9 +80,10 @@
   <property name="base.docgen.javadoc.cssfile" 
             location="docgen/javadoc/stylesheet.css"/>
   <property name="base.docgen.xdocs.dir" location="docgen/xdocs"/> 
-  <property name="base.docgen.xdocs.cssfile" location="docgen/xdocs/style.css"/>
+  <property name="base.docgen.xdocs.cssfile" 
+            location="docgen/xdocs/styles/style.css"/>
   <property name="base.docgen.xdocs.stylefile" 
-            location="docgen/xdocs/style.xml"/> 
+            location="docgen/xdocs/styles/style.xml"/> 
   <property name="base.docgen.xdocs.xsl.dir" location="docgen/xdocs/xsl"/>
   <property name="base.docgen.xdocs.navig.dir" location="docgen/xdocs/navig"/> 
  

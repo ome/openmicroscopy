@@ -210,10 +210,10 @@
       <!-- Do multi-page HTML. --> 
       <xslt style="@{mhtml}" 
             in="@{destdir}/auriga.doc" 
-            out="@{destdir}/table_of_content.html"> 
+            out="@{destdir}/index.htm"> 
         <outputproperty name="method" value="html" />
         <param name="abs-out-dir" expression="@{destdir}/" />
-        <param name="add-dhtml-track-code" expression="no" /> 
+        <param name="index-file" expression="index.htm" /> 
       </xslt>
       
       <!-- Done, but get rid of tmp 'auriga.doc' in destdir. -->
@@ -288,14 +288,12 @@
     <attribute name="navdir" /> 
     <attribute name="cssfile" /> 
     <sequential>
-      <copy todir="@{destdir}" file="@{srcdir}/doc.xml" />
+      <copy todir="@{destdir}/menu" file="@{srcdir}/doc.xml" />
+      <copy todir="@{destdir}/menu" file="@{navdir}/nav-menu.jar" />
       <copy todir="@{destdir}">
-        <fileset dir="@{navdir}">
-          <include name="*.htm" />
-          <include name="*.jar" />
-        </fileset>
+        <fileset dir="@{navdir}/html" />
       </copy> 
-      <copy todir="@{destdir}" file="@{cssfile}" />  
+      <copy todir="@{destdir}/styles" file="@{cssfile}" />  
     </sequential>
   </macrodef>   
  
