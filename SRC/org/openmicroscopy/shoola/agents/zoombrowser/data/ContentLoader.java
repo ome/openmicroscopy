@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Java imports
 
-import java.util.List;
 
 //Third-party libraries
 
@@ -73,11 +72,11 @@ public abstract class ContentLoader extends SwingWorker
 	 * Do the work
 	 */
 	public Object construct() {
-		List items = getContents();
+		Object items = getContents();
 		return items;
 	}
 	
-	public abstract List getContents();
+	public abstract Object getContents();
 	
 	/**
 	 * handle finishing up 
