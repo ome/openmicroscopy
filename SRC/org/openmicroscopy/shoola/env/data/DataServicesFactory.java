@@ -118,6 +118,7 @@ public class DataServicesFactory
 			//retrieve the user's ID and store it in the UserCredentials.
 			uc.setUserID(dms.getUserID());
 		} catch (Exception e) {
+			boolean silly = true;
 			//TODO: handle exception by throwing upper-level exception.
 		}
 	}

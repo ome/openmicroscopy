@@ -34,9 +34,8 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Dataset;
-import org.openmicroscopy.ds.dto.Image;
-import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ProjectData;
 
 
 /** 
@@ -58,7 +57,7 @@ public interface DataManagementService
 {
     
     public int getUserID();
-    public Project retrieveProject(int id);
-    public Dataset retrieveDataset(int id);
-    public Image retrieveImage(int id);
+    public ProjectData retrieveProject(int id, ProjectData retVal);
+    public DatasetData retrieveDataset(int id, DatasetData retVal);
+    //public Image retrieveImage(int id);
 }

@@ -37,12 +37,12 @@ package org.openmicroscopy.shoola.env.data;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.dto.Dataset;
-import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
-import org.openmicroscopy.ds.st.Experimenter;
-import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.map.DatasetDataMapper;
+import org.openmicroscopy.shoola.env.data.map.ProjectDataMapper;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  *
@@ -74,151 +74,85 @@ class DMSAdapter
 
 	public int getUserID()
 	{
-		int userID = 0;
-		Experimenter experimenter = null;
+		int userID = 1;
+		/*
+		Attribute experimenter = null;
 		Criteria crit = new Criteria();
 		crit.addWantedField("id");
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		crit.addFilter("ome_name", uc.getUserName());
 		try {
-			experimenter = (Experimenter) 
+			System.out.println("step 0: "+userID);
+			experimenter = (Attribute) 
 								proxy.retrieve(Experimenter.class, crit);
+								
 			userID = experimenter.getID();	
+			System.out.println("step 1: "+userID);
 	 	} catch (Exception e) {
 		 // TODO: handle exception by throwing either NotLoggedInException
 		 //(broken connection, expired session) or ServiceUnavailableExc
 		 //(temp server failure, temp middleware failure).
+		 //throw new RuntimeException(e);
+		 System.out.println(e);
 	 	}
-
-		return userID;
+	 	*/
+	 	 return userID;
 	}
-	/* (non-Javadoc)
-	 * @see DataManagementService#retrieveProject(int)
-	 */
-	public Project retrieveProject(int id)
-	{
+    
+    public ProjectData retrieveProject(int id, ProjectData retVal)
+    {
+		//Make a new retVal if none was provided.
+		if (retVal == null) retVal = new ProjectData();
+		
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = ProjectDataMapper.buildCriteria();
+		
 		Project project = null;
-		Criteria crit = new Criteria();
-
-		//Specify which fields we want for the project.
-		crit.addWantedField("id");
-		crit.addWantedField("name");
-		crit.addWantedField("description");
-		crit.addWantedField("owner");
-		crit.addWantedField("datasets"); 
-
-		//Specify which fields we want for the owner.
-		crit.addWantedField("owner", "id");
-		crit.addWantedField("owner", "FirstName");
-		crit.addWantedField("owner", "LastName");
-		crit.addWantedField("owner", "Email");
-		crit.addWantedField("owner", "Institution");
-		crit.addWantedField("owner", "Group");
-
-		//Specify which fields we want for the owner's group.
-		crit.addWantedField("owner.Group", "id");
-		crit.addWantedField("owner.Group", "Name");
-
-		//Specify which fields we want for the datasets.
-		crit.addWantedField("datasets", "id");
-		crit.addWantedField("datasets", "name");
-		
-		//Load the graph defined by crit.
+		//Load the graph defined by criteria.
+		criteria.addFilter("id", new Integer(id));
 		try {
-			project = (Project) proxy.load(Project.class, id, crit);
+			//project = (Project) proxy.load(Project.class, id, criteria);
+			project = (Project) proxy.retrieve(Project.class, criteria);
 		} catch (Exception e) {
-			// TODO: handle exception by throwing either NotLoggedInException
-			//(broken connection, expired session) or ServiceUnavailableExc
-			//(temp server failure, temp middleware failure).
+			boolean silly = true;
+			
+			  // TODO: handle exception by throwing either NotLoggedInException
+			  //(broken connection, expired session) or ServiceUnavailableExc
+			  //(temp server failure, temp middleware failure).
 		}
 		
-		return project;
-	}
-
-	/* (non-Javadoc)
-	 * @see DataManagementService#retrieveDataset(int)
-	 */
-	public Dataset retrieveDataset(int id)
-	{
+		//Put the server data into the corresponding client object.
+		ProjectDataMapper.fill(project, retVal);
+		
+    	return retVal;
+    }
+    
+    public DatasetData retrieveDataset(int id, DatasetData retVal)
+    {
+		//Make a new retVal if none was provided.
+		if (retVal == null) retVal = new DatasetData();
+	
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = DatasetDataMapper.buildCriteria();
+	
 		Dataset dataset = null;
-		Criteria crit = new Criteria();
-
-		//Specify which fields we want for the project.
-		crit.addWantedField("id");
-		crit.addWantedField("name");
-		crit.addWantedField("description");
-		crit.addWantedField("owner");
-		crit.addWantedField("images"); 
-
-		//Specify which fields we want for the owner.
-		crit.addWantedField("owner", "id");
-		crit.addWantedField("owner", "FirstName");
-		crit.addWantedField("owner", "LastName");
-		crit.addWantedField("owner", "Email");
-		crit.addWantedField("owner", "Institution");
-		crit.addWantedField("owner", "Group");
-
-		//Specify which fields we want for the owner's group.
-		crit.addWantedField("owner.Group", "id");
-		crit.addWantedField("owner.Group", "Name");
-
-		//Specify which fields we want for the images.
-		crit.addWantedField("images", "id");
-		crit.addWantedField("images", "name");
 	
-		//Load the graph defined by crit.
+		//Load the graph defined by criteria.
 		try {
-			dataset = (Dataset) proxy.load(Dataset.class, id, crit);
+			dataset = (Dataset) proxy.load(Dataset.class, id, criteria);
 		} catch (Exception e) {
-			// TODO: handle exception by throwing either NotLoggedInException
-			//(broken connection, expired session) or ServiceUnavailableExc
-			//(temp server failure, temp middleware failure).
+			boolean silly = true;
+		
+			  // TODO: handle exception by throwing either NotLoggedInException
+			  //(broken connection, expired session) or ServiceUnavailableExc
+			  //(temp server failure, temp middleware failure).
 		}
 	
-		return dataset;
-	}
-	
-	/* (non-Javadoc)
-	 * @see DataManagementService#retrieveDataset(int)
-	 */
-	public Image retrieveImage(int id)
-	{
-		Image image = null;
-		Criteria crit = new Criteria();
-
-		//Specify which fields we want for the project.
-		crit.addWantedField("id");
-		crit.addWantedField("name");
-		crit.addWantedField("description");
-		crit.addWantedField("owner");
-		// not sure we need it
-		crit.addWantedField("created"); 
-		crit.addWantedField("inserted");
-		 
-		//Specify which fields we want for the owner.
-		crit.addWantedField("owner", "id");
-		crit.addWantedField("owner", "FirstName");
-		crit.addWantedField("owner", "LastName");
-		crit.addWantedField("owner", "Email");
-		crit.addWantedField("owner", "Institution");
-		crit.addWantedField("owner", "Group");
-
-		//Specify which fields we want for the owner's group.
-		crit.addWantedField("owner.Group", "id");
-		crit.addWantedField("owner.Group", "Name");
-
-		// grad info on the image.
-		//Load the graph defined by crit.
-		try {
-			image = (Image) proxy.load(Image.class, id, crit);
-		} catch (Exception e) {
-			// TODO: handle exception by throwing either NotLoggedInException
-			//(broken connection, expired session) or ServiceUnavailableExc
-			//(temp server failure, temp middleware failure).
-		}
-
-		return image;
-	}
+		//Put the server data into the corresponding client object.
+		DatasetDataMapper.fill(dataset, retVal);
+    	return retVal;
+    }
+    
 
 }
