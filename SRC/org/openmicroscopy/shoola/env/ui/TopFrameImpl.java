@@ -213,8 +213,6 @@ public class TopFrameImpl
     	setVisible(true);
     }
     
-
-	
 	/** 
 	 * Sizes, centers and brings up the specified login dialog.
 	 *
