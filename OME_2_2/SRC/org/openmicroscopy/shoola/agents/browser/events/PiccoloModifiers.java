@@ -36,6 +36,7 @@
 package org.openmicroscopy.shoola.agents.browser.events;
 
 import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -127,7 +128,7 @@ public class PiccoloModifiers
             // which cannot be used in conjunction w/popup trigger
             // a little worried about this, but it has to be a mouse event
             // ctrl-click not a paradigm on windows, so it's cool (I think)
-            else if(e.isPopupTrigger() || e.isControlDown())
+            else if(isPiccoloTrigger(e))
             {
                 modifier = modifier | POPUP;
             }
@@ -143,7 +144,7 @@ public class PiccoloModifiers
             }
             // which cannot be used in conjunction w/popup trigger
             // (ctrl (macs), menu key (win))
-            else if(e.isPopupTrigger())
+            else if(isPiccoloTrigger(e))
             {
                 modifier = modifier | POPUP;
             }
@@ -161,5 +162,22 @@ public class PiccoloModifiers
         
         // hope this works
         return modifier;
+    }
+    
+    /**
+     * Seems to resolve problem on Windows.
+     * BUG 134 FIX
+     * 
+     * @param e The input event to test
+     */
+    public static boolean isPiccoloTrigger(PInputEvent e)
+    {
+        if(e.isControlDown() ||
+           (e.getModifiers() & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK ||
+           (e.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK)
+        {
+            return true;
+        }
+        else return false;
     }
 }
