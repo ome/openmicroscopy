@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
  */
  
 
-public class DatasetNode extends GenericBox {
+public class DatasetNode extends GenericBox implements MouseableNode {
 	
 	/**
 	 * The dataset of interest
@@ -86,6 +86,8 @@ public class DatasetNode extends GenericBox {
 //	private ChainLabels chainLabels;
 	
 
+	/** The event handler for the canvas that we're on */
+	private DatasetBrowserEventHandler handler; 
 	/**
 	 * Width and height values,
 	 *  with prevWidth so we can revert - needed to create treemap layout.
@@ -416,7 +418,28 @@ public class DatasetNode extends GenericBox {
 	}
 	
 	public void setHandler(DatasetBrowserEventHandler handler) {
+		this.handler = handler;
 		if (images != null)
 			images.setHandler(handler);
+	}
+	
+	public void mouseEntered() {
+		rollover();
+	}
+	
+	public void mouseExited() {
+	}
+	
+	public void mouseClicked() {
+		if (handler != null && handler.getZoomLevel() == 0) {
+			SelectionState.getState().setSelectedDataset(getDataset());
+			handler.animateToNode(this);
+		}
+	}
+	
+	public void mousePopup() {
+		SelectionState.getState().setSelectedDataset(null);
+		if (handler != null)
+			handler.resetZoomLevel();
 	}
 }

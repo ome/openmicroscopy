@@ -63,7 +63,8 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
  * </small>
  */
 
-public class ScalableDatasetLabel extends PNode implements BrowserNodeWithToolTip {
+public class ScalableDatasetLabel extends PNode 
+	implements BrowserNodeWithToolTip, MouseableNode {
 
 	private static final int NUM_CHARS=20;
 	public static final double FULL_WIDTH=100;
@@ -151,4 +152,17 @@ public class ScalableDatasetLabel extends PNode implements BrowserNodeWithToolTi
 	public PNode getShortToolTip() {
 		return getFullToolTip();
 	}
+	
+	/** Don't respond to any mouse events */
+	public void mouseEntered() {
+	}
+
+	public void mouseExited() {
+	}
+
+	public void mouseClicked() {
+	}
+
+	public void mousePopup() {
+ 	}
 }

@@ -65,7 +65,8 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * </small>
  */
 
-public class ThumbnailSelectionHalo extends PPath implements BufferedObject {
+public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
+	MouseableNode {
 
 	// leave on pixel on either side of border
 	public static final int OFFSET=3;
@@ -143,5 +144,18 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject {
 		float strokeScale = BASE_STROKE_WIDTH/scale;
 		setStroke(new BasicStroke(strokeScale));
 		super.paint(aPaintContext);
+	}
+	
+	/** The halo should not respond to any mouse events */
+	public void mouseEntered() {
+	}
+	
+	public void mouseExited() {
+	}
+	
+	public void mouseClicked() {
+	}
+	
+	public void mousePopup() {
 	}
 }

@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
  */
 
 public class Thumbnail extends PImage implements BufferedObject, 
-	BrowserNodeWithToolTip {
+	BrowserNodeWithToolTip, MouseableNode {
 
 	private final static String DEFAULT_LABEL="No Thumbnail";
 	
@@ -255,5 +255,21 @@ public class Thumbnail extends PImage implements BufferedObject,
 		DatasetImagesNode pin = getDatasetImagesNode();
 		if (pin != null)
 			pin.zoomOutOfHalo(this);
+	}
+	
+	public void mouseEntered() {
+		setHighlightedWithHalo(true);
+	}
+	
+	public void mouseExited() {
+		setHighlightedWithHalo(false);
+	}
+	
+	public void mouseClicked() {
+		zoomInToHalo();
+	}
+	
+	public void mousePopup() {
+		zoomOutOfHalo();
 	}
 }
