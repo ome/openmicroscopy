@@ -171,7 +171,7 @@ public class DatasetMapper
 			img = (Image) i.next();
 			images.add(new ImageSummary(img.getID(), img.getName()));
 		}
-		empty.setDatasets(images);	
+		empty.setImages(images);	
 	}
 	
 	/**
