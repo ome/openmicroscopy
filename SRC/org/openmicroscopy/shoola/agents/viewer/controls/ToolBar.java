@@ -247,6 +247,7 @@ public class ToolBar
 		add(ztPanel);
 	}
 	
+	/** Build panel with labels and text fields. */
 	private JPanel textFieldsPanel(int zLength, int tLength)
 	{
 		JPanel p = new JPanel();
@@ -256,15 +257,14 @@ public class ToolBar
 		p.setLayout(gridbag);
 		c.gridx = 0;
 		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.EAST;
 		gridbag.setConstraints(l, c);
 		p.add(l);
 		c.gridx = 1;
 		Insets insets = zField.getInsets();
-		System.out.println(insets);
 		int x = insets.left+zLength*txtWidth+insets.right;
-		c.ipadx = x;
+		c.ipadx = x/2;
 		gridbag.setConstraints(zField, c);
 		p.add(zField);
 		c.gridx = 2;
@@ -278,7 +278,7 @@ public class ToolBar
 		c.gridx = 4;
 		insets = tField.getInsets();
 		x = insets.left+tLength*txtWidth+insets.right;
-		c.ipadx = x;
+		c.ipadx = x/2;
 		gridbag.setConstraints(tField, c);
 		p.add(tField);
 		c.gridx = 5;
