@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.CircularChainError;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.MultiplyBoundInputError;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
-import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 
 
@@ -72,7 +71,6 @@ public class LayoutChainData  extends AnalysisChainData
 		
 	/** Static parameters for layout */
 	private static final int CROSSING_ITERATIONS=4;
-	private static final double DELTA=0.1;
 	
 	/** has the order of children changed? */
 	private boolean orderChanged = false;	
@@ -112,6 +110,7 @@ public class LayoutChainData  extends AnalysisChainData
 		
 	}
 	
+	
 	private void validateChainStructure() {
 		// validate links
 		validateLinks();
@@ -137,7 +136,6 @@ public class LayoutChainData  extends AnalysisChainData
 		if (inputLinkMap.size() == 0)
 			return;
 		
-		FormalInputData inp;
 		// then, iterate over keys by input.
 		// grabbing each key that has more than two links.
 		Iterator iter = inputLinkMap.keySet().iterator();
@@ -180,7 +178,6 @@ public class LayoutChainData  extends AnalysisChainData
 		outputLinkMap = new HashMap();
 		//		 build map of links by endpoint
 		Iterator iter = links.iterator();
-		HashMap nodeMap;
 		LayoutLinkData link;
 		
 		while (iter.hasNext()) {
@@ -331,9 +328,9 @@ public class LayoutChainData  extends AnalysisChainData
 	 */
 	private void getUnbounded(LayoutNodeData node) {
 		// go over formal ins and outs.
-		List inputs = node.getModule().getFormalInputs();
+		List inputs = node.getChainModule().getFormalInputs();
 		getUnbounded(node,inputs,inputLinkMap,unboundInputs);
-		List outputs = node.getModule().getFormalOutputs();
+		List outputs = node.getChainModule().getFormalOutputs();
 		getUnbounded(node,outputs,outputLinkMap,unboundOutputs);
 	}
 	
@@ -375,6 +372,24 @@ public class LayoutChainData  extends AnalysisChainData
 			p = (UnboundedParameter) iter.next();
 			System.err.println("..param.."+p.getParam().getName()+", node.."+p.getNode().getID());
 		}
+	}
+	
+	public Vector getUnboundInputs() {
+		return getParamList(unboundInputs); 
+	}
+	
+	public Vector getUnboundOutputs() {
+		return getParamList(unboundOutputs);
+	}
+	
+	private Vector getParamList(Vector unbounds) {
+		Iterator iter = unbounds.iterator();
+		Vector res = new Vector();
+		while (iter.hasNext()){
+			UnboundedParameter p = (UnboundedParameter) iter.next();
+			res.add(p.getParam());
+		}
+		return res;
 	}
 	
 	/**
@@ -546,7 +561,7 @@ public class LayoutChainData  extends AnalysisChainData
 		HashSet newLinks) {
 		// we know node is at i.
 		
-		GraphLayoutNode to = (GraphLayoutNode) link.getToNode();
+		GraphLayoutNode to = link.getToNode();
 		//System.err.println("..link to "+to.getName());
 		int toLayer = to.getLayer();
 		if (toLayer == (i-1)) {
@@ -850,14 +865,7 @@ public class LayoutChainData  extends AnalysisChainData
 		Layering() {
 		}
 	
-		/**
-		 * Add a new layer to the end of the layering
-		 * @param layer the set of nodes in the new layer
-		 */
-		private void addLayer(Vector layer) {
-			layers.addElement(layer);		
-		}
-	
+		
 		/**
 		 * Add a node to a layer in the layering. If the layer
 		 * doesn't exist, add it.
@@ -963,6 +971,7 @@ public class LayoutChainData  extends AnalysisChainData
 		public LayoutNodeData getNode() {
 			return node;
 		}
+		
 	}
 	
 }
