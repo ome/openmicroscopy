@@ -286,6 +286,24 @@ public interface SemanticTypesService
      */
     public List retrieveImageAttributes(SemanticType type, int imageID)
         throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves all the image classification ST objects belonging to the specified
+     * images, which should all be in the dataset with the specified ID.  The
+     * datasetID is needed to filter the returned classifications; images that
+     * belong to multiple datasets may have classification objects that are in the
+     * wrong context.
+     * @param imageIDs The IDs of the images to query.
+     * @param parentDatasetID The ID of the dataset to filter classifications by.
+     * @return A list of image classification STs (ordered by attribute ID) that
+     *         belong to the specified images, whose categories are bound to the
+     *         specified dataset.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveImageClassifications(List imageIDs, int parentDatasetID)
+        throws DSOutOfServiceException, DSAccessException;
         
     /**
      * @see retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType,int)

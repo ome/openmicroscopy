@@ -66,6 +66,11 @@ class STSAdapter
 	
     private OMEDSGateway 	gateway;
     
+    /**
+     * The classification semantic type name.
+     */
+    public static final String CLASSIFICATION_ST_TYPE = "Classification";
+    
     public STSAdapter(OMEDSGateway gateway)
     {
         this.gateway = gateway;
@@ -378,6 +383,35 @@ class STSAdapter
             				STSMapper.IMAGE_GRANULARITY, childAttribute,ints);
         
         return (List) gateway.retrieveListSTSData(typeName, c);
+    }
+    
+    /**
+     * Returns a list of image classifications.  This distinction is necessary
+     * because image classifications must be filtered by the owner dataset of their
+     * respective categories.
+     * 
+     * @param imageIDs The IDs of the images to query.
+     * @param datasetID The ID of the dataset of the images.
+     * @return See above.
+     */
+    public List retrieveImageClassifications(List imageIDs, int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (imageIDs == null || imageIDs.size() == 0)
+            return null;
+        
+        // test to see if the List is all Integers here
+        for (Iterator iter = imageIDs.iterator(); iter.hasNext();) {
+            if(!(iter.next() instanceof Number))
+                throw new IllegalArgumentException("Illegal ID type.");
+        }
+        
+        Integer[] ints = new Integer[imageIDs.size()];
+        imageIDs.toArray(ints);
+        
+        Criteria c = STSMapper.buildClassificationRetrieveCriteria(ints,datasetID);
+        
+        return (List) gateway.retrieveListSTSData(CLASSIFICATION_ST_TYPE, c);
     }
     
     /**

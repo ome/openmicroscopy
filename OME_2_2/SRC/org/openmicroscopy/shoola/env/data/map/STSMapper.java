@@ -221,6 +221,24 @@ public class STSMapper
 		if (column != null) c.addFilter(column, "IN", Arrays.asList(targetIDs));
 		return c;
 	}
+    
+    /**
+     * Builds the default retrieval criteria for image classifications.  A dataset
+     * ID is needed to filter which classifications are returned. Classifications
+     * are image-granular, but their categories are currently dataset-granular.
+     * 
+     * @param targetIDs The IDs of the images to query.
+     * @param datasetID The ID of the dataset of the images.
+     * @return A criteria to retrieve image classification STs from the database.
+     */
+    public static Criteria buildClassificationRetrieveCriteria(Number[] targetIDs,
+                                                               int datasetID)
+    {
+        if(targetIDs == null || targetIDs.length == 0) return null;
+        Criteria c = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,targetIDs);
+        c.addFilter("Category.dataset",new Integer(datasetID));
+        return c;
+    }
 
 	/**
 	 * 
