@@ -43,12 +43,19 @@ import javax.swing.WindowConstants;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.events.DatasetEvent;
+import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
+import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.SelectDataset;
 import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
-
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -97,7 +104,14 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		super("Execution Manager", registry.getTaskBar());
 		this.registry = registry;
 		configureDisplayButtons();
-		registry.getEventBus().register(this, ChainExecutionsLoadedEvent.class);
+		registry.getEventBus().register(this, 
+				new Class[] {ChainExecutionsLoadedEvent.class,
+							DatasetEvent.class,
+							AnalysisChainEvent.class,
+							MouseOverDataset.class,
+							MouseOverAnalysisChain.class,
+							SelectDataset.class,
+							SelectAnalysisChain.class});
 		enableButtons(false);
 	}
 	
@@ -122,7 +136,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		// execution canvas
-		execCanvas = new ExecutionsCanvas(execsModel);
+		execCanvas = new ExecutionsCanvas(execsModel,registry);
 		
 		// slider
 		model = execsModel.getRangeModel();
@@ -146,6 +160,8 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		// add stuff to content pane
 		content.add(controls,BorderLayout.NORTH);
 		content.add(execCanvas,BorderLayout.CENTER);
+		
+		// listen to events
 		pack();
 		enableButtons(true);
 	}
@@ -156,6 +172,19 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 			execsModel = new ExecutionsModel(event);
 			buildGUI();
 		}
+		else if (e instanceof AnalysisChainEvent) {
+			AnalysisChainEvent event = (AnalysisChainEvent) e;
+			AnalysisChainData chain = event.getAnalysisChain();
+			if (execCanvas != null) 
+				execCanvas.selectChain(chain);
+		}
+		else if (e instanceof DatasetEvent) {
+			DatasetEvent event = (DatasetEvent) e;
+			DatasetData dataset = event.getDataset();
+			if (execCanvas != null) 
+				execCanvas.selectDataset(dataset);
+		}
+		
 	}
 	
 	public void actionPerformed(ActionEvent e) {
