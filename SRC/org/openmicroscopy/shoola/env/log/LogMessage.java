@@ -43,7 +43,9 @@ import java.io.StringWriter;
  * writing text that spans multiple lines is a platform-dependent operation.
  * This class conveniently encapsulates this process while providing a 
  * platform-independent interface.  This class extends {@link PrintWriter} to
- * inherit all sort of useful <code>print</code> methods.
+ * inherit all sort of useful <code>print</code> methods and adds another 
+ * {@link #print(Throwable) print} method to write a stack trace into the log
+ * message.
  * 
  * @see	org.openmicroscopy.shoola.env.log.Logger
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -74,6 +76,24 @@ public class LogMessage
 	public LogMessage() 
 	{
 		super(new StringWriter());
+	}
+	
+	/**
+	 * Writes a stack trace into this log message.
+	 * The information from the exception context is extracted and formatted
+	 * into a diagnostic message, then printed into the log message.
+	 * This information includes the exception class name, the exception
+	 * message, a snapshot of the current stack, and the name of the current
+	 * thread.
+	 * 
+	 * @param t	The exception.
+	 */
+	public void print(Throwable t)
+	{
+		t.printStackTrace(this);
+		print("Exception in thread \"");
+		print(Thread.currentThread().getName());	
+		println("\"");
 	}
 	
 	/**
