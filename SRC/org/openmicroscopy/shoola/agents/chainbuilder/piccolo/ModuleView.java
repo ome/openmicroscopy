@@ -67,6 +67,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
@@ -170,7 +171,18 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	private ChainModuleData module;
 	
+	/** the node in the analysis chain that is represented by this widget */
+	private LayoutNodeData node;
+	
 	public ModuleView() {
+	}
+	
+	public LayoutNodeData getNode() {
+		return node;
+	}
+	
+	public void setNode(LayoutNodeData node) {
+		this.node = node;
 	}
 	
 	public ModuleView(ChainModuleData module,float x,float y) {
