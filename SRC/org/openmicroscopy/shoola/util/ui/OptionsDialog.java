@@ -120,6 +120,24 @@ public class OptionsDialog
 		buildGUI(message, messageIcon);
 	}
 	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #open()} to actually display it on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param messageIcon	An optional icon to display by the message.
+	 */
+	public OptionsDialog(JDialog owner, String title, String message, 
+															Icon messageIcon) 
+	{
+		super(owner, title, true);
+		createComponents();
+		attachListeners();
+		buildGUI(message, messageIcon);
+	}
+	
 	protected void onYesSelection() {}
 	
 	protected void onNoSelection() {}
