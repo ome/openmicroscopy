@@ -110,6 +110,11 @@ public class PConstants {
 	public static final Color BORDER_MIDDLE = new Color(212,212,212);
 	public static final Color BORDER_INNER =  new Color(233,233,233);
 
+	/** color for an executed chain */	
+	public static final Color EXECUTED_COLOR = new Color(150,150,255,100);
+
+	/** color for a locked chain */
+	public static final Color LOCKED_COLOR = Color.RED;
 	/**
 	 * The color used to identify items that can be linked to the current item.
 	 */
@@ -161,7 +166,8 @@ public class PConstants {
 	public static final Font LARGE_NAME_FONT = 
 			new Font("Helvtical",Font.BOLD,24);
 	
-    
+	public static final Font LABEL_FONT  = new Font("Helvetica",Font.BOLD,18);
+	   
 	/** 
 	 * Positional offsets for a category name in a {@link CategoryBox} in a 
 	 * {@link ModulePaletteCanvas}
@@ -189,5 +195,6 @@ public class PConstants {
 	 */ 
 	public static final double SCALE_THRESHOLD=0.5;
 	
-	
+	/** how much to move in or out when scaling chain creation */
+	public static final double SCALE_FACTOR=1.2;
 }
