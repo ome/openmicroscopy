@@ -147,5 +147,11 @@ public class TestEllipseArea
             k++;
        }
     }
+
+    public void testOnBoundaries()
+    {
+        EllipseArea area = new EllipseArea(-1, -1, 2, 2);
+        assertFalse(area.onBoundaries(0, 0));
+    }
     
 }

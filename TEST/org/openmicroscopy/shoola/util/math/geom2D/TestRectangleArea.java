@@ -155,4 +155,16 @@ public class TestRectangleArea
         }
     }
     
+    public void testOnBoundaries()
+    {
+        RectangleArea area = new RectangleArea(0, 0, MAX_ITER, MAX_ITER);
+        for (int i = 1; i < MAX_ITER; i++) {
+            assertTrue(area.onBoundaries(i, 0));
+            assertTrue(area.onBoundaries(i, MAX_ITER));
+            assertTrue(area.onBoundaries(MAX_ITER, i));
+            assertTrue(area.onBoundaries(0, i));
+            assertFalse(area.onBoundaries(i, i));
+        }
+    }
+    
 }
