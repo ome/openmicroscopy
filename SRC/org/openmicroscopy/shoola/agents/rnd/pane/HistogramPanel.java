@@ -71,39 +71,43 @@ class HistogramPanel
 								lS = leftBorder+widthStat,
 								tS = topBorder+heightStat;
 								
-	private int                 controlOutputStart, controlOutputEnd, 
-								heightStart, heightEnd;
-	private int                 xStartOutput1, xStartOutput2, xStartOutput3, 
-								yStartOutput1, yStartOutput2, yStartOutput3;
-	private int                 xEndOutput1, xEndOutput2, xEndOutput3,
-								yEndOutput1, yEndOutput2, yEndOutput3;
-	private String              min, max, curMin, curMax;
-	
-	
-	private PixelsStatsEntry[]  histogramData;
-	private int                 sizeBin;   
+ 
 	 
 	/** Color of the Histogram bins. */
-	private static final Color  binColor = Color.BLUE;
+	private static final Color  	binColor = Color.BLUE;
 	
 	/** Background color of the panel. */
-	private static final Color	bgColor = Color.BLACK;
+	private static final Color		bgColor = Color.BLACK;
 
 	/** Axis color. */
-	private static final Color	axeColor = Color.GRAY;
+	private static final Color		axeColor = Color.GRAY;
 	
 	/** Color of the input start cursor. */
-	private static final Color  startColor = 
-									GraphicsRepresentation.iStartColor;
+	private static final Color  	startColor = 
+										GraphicsRepresentation.iStartColor;
 	/** Color of the input start cursor. */
-	private static final Color	endColor = 
-									GraphicsRepresentation.iEndColor;
+	private static final Color		endColor = 
+										GraphicsRepresentation.iEndColor;
 									
 	/** 
 	 * Color of the layer painted on top of the histogram.
 	 * Light_gray with alpha component.
 	 */
-	private Color               layerColor = new Color(192, 192, 192, 90);
+	private static final Color      layerColor = new Color(192, 192, 192, 90);
+	
+	
+	private int                 	controlOutputStart, controlOutputEnd, 
+									heightStart, heightEnd;
+	private int                 	xStartOutput1, xStartOutput2, xStartOutput3, 
+									yStartOutput1, yStartOutput2, yStartOutput3;
+	private int                 	xEndOutput1, xEndOutput2, xEndOutput3,
+									yEndOutput1, yEndOutput2, yEndOutput3;
+	private String              	min, max, curMin, curMax;
+	
+	
+	private PixelsStatsEntry[]  	histogramData;
+	private int                 	sizeBin;  
+	private HistogramDialogManager	manager;
 	
 	/**
 	 * 
@@ -115,10 +119,12 @@ class HistogramPanel
 	 * @param yEnd
 	 * @param histogramData
 	 */
-	HistogramPanel(int mini, int maxi, int startReal, int endReal, int yStart,
-				int yEnd, PixelsStatsEntry[] histogramData)
+	HistogramPanel(HistogramDialogManager manager, int mini, int maxi, 
+					int startReal, int endReal, int yStart, int yEnd, 
+					PixelsStatsEntry[] histogramData)
 	{
 		this.histogramData = histogramData;
+		this.manager = manager;
 		sizeBin = (int) (widthStat/histogramData.length);
 		setWindowLimits(mini, maxi);
 		setInputWindow(startReal, endReal);
@@ -342,16 +348,21 @@ class HistogramPanel
 		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
 		PixelsStatsEntry entry;
 		int min, max;
+		System.out.println("l: "+histogramData.length);
+		int[] bin = new int[histogramData.length];
 		for (int i = 0; i < histogramData.length; i++) {
 			entry = histogramData[i];
-			min = (int) entry.min;
-			max = (int) entry.max;
+			min = manager.convertRealIntoGraphics((int) entry.min);
+			max = manager.convertRealIntoGraphics((int) entry.max);
+			bin[i] = max;
 			g2D.fillRect(leftBorder+i*sizeBin, max, sizeBin, min-max); 
 		}
+		
 		g2D.setColor(axeColor);
 		int y, x;
 		for (int i = 0; i < histogramData.length; i++) {
-			 y = (int) histogramData[i].max;
+			 //y = (int) histogramData[i].max;
+			 y = bin[i];
 			 x = leftBorder+(i+1)*sizeBin;
 			 g2D.drawLine(x, y, x, topBorder+heightStat+5);
 		}

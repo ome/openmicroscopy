@@ -70,8 +70,8 @@ class HistogramDialog
 		int yStart, yEnd;
 		yStart = manager.convertRealIntoGraphics(start);
 		yEnd = manager.convertRealIntoGraphics(end);
-		histogramPanel = new HistogramPanel(mini, maxi, start, end, yStart, 
-											yEnd, histogramData);
+		histogramPanel = new HistogramPanel(manager, mini, maxi, start, end, 
+											yStart, yEnd, histogramData);
 		manager.initRectangles(yStart, yEnd);										
 		manager.attachListeners();
 		buildGUI();	
