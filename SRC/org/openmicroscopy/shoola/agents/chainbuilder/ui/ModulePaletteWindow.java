@@ -267,7 +267,7 @@ public class ModulePaletteWindow
 	
 	public void componentResized(ComponentEvent e) {
 		if (moduleCanvas != null)
-			moduleCanvas.scaleToSize();
+			moduleCanvas.scaleToResize();
 	}
 	
 	public void componentShown(ComponentEvent e) {
@@ -275,6 +275,7 @@ public class ModulePaletteWindow
 	}
 	
 	public void focusOnPalette() {
-		//moduleCanvas.scaleToSize();
+		if (moduleCanvas != null)
+			moduleCanvas.scaleToSize();
 	}
 }
