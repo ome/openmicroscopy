@@ -36,10 +36,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -111,13 +108,13 @@ class SplashScreenView
 	private static final Font		FONT = 
 										new Font("SansSerif", Font.PLAIN, 10);
 	/** Font for progress bar label and text fields. */
-	private static final Font		FONT_TASK = 
+	private static final Font		TASK_FONT = 
 										new Font("SansSerif", Font.PLAIN, 8);										
 	/** The font color for the login text fields. */
 	private static final Color		FONT_COLOR = new Color(250, 100, 0);
 		
 	/** The font color for the login text fields. */
-	private static final Color		FONT_COLOR_TASK = new Color(102, 0, 204);	
+	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
 	/** Text field to enter the login user name. */
 	JTextField      				user;
@@ -134,13 +131,6 @@ class SplashScreenView
 	/** Provides feedback on the state of the initialization process. */
 	JProgressBar					progressBar;
 	
-	/** 
-	 * The image icons needed to build the GUI.
-	 * The first icon is the OME logo, the second is the splash screen 
-	 * background image, the third is the login button and the forth is the
-	 * login button when the mouse rolls over the button.
-	*/
-	private Icon[]  				images;
 
 	/** 
 	 * Creates the splash screen UI.
@@ -148,7 +138,6 @@ class SplashScreenView
 	SplashScreenView() 
 	{
 		super("Open Microscopy Environment");
-		loadImages();
 		initProgressDisplay(); 
 		initLoginFields();
 		initLoginButton();
@@ -159,20 +148,6 @@ class SplashScreenView
 	}
 	
 	/**
-	 * Fills up the <code>images</code> array.
-	 */
-	private void loadImages()
-	{
-		images = new Icon[4];
-		//Paths relative to UIFactory.
-		images[0] = UIFactory.createIcon("graphx/OME16.png");
-		images[1] = UIFactory.createIcon("graphx/splash.jpg");
-		images[2] = UIFactory.createIcon("graphx/login_out.jpg");
-		images[3] = UIFactory.createIcon("graphx/login_over.jpg");
-		//TODO: handle nulls (image not loaded).
-	}
-	
-	/**
 	 * Initializes the widgets for displaying feedback on the initialization
 	 * state.
 	 */
@@ -180,10 +155,9 @@ class SplashScreenView
 	{
 		currentTask = new JLabel();
 		currentTask.setFont(FONT);
-		//currentTask.setForeground(FONT_COLOR);
-		currentTask.setForeground(FONT_COLOR_TASK);
+		currentTask.setForeground(TASK_FONT_COLOR);
 		progressBar = new JProgressBar();
-		progressBar.setFont(FONT_TASK);
+		progressBar.setFont(TASK_FONT);
 		progressBar.setStringPainted(true);
 	}
 	
@@ -207,8 +181,8 @@ class SplashScreenView
 	 */
 	private void initLoginButton()
 	{
-		login = new JButton(images[2]);
-		login.setRolloverIcon(images[3]);
+		login = new JButton(IconManager.getLoginButton());
+		login.setRolloverIcon(IconManager.getLoginButtonOver());
 		//Next two statements get rid of surrounding border.
 		login.setBorder(null);
 		login.setMargin(null);  
@@ -221,7 +195,7 @@ class SplashScreenView
 	*/
 	private void buildGUI()
 	{
-		setIconImage(((ImageIcon)images[0]).getImage());  //Frame icon.
+		setIconImage(IconManager.getOMEImageIcon());  //Frame icon.
 		
 		//Position window at center of screen and size it to splash image.
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -229,7 +203,7 @@ class SplashScreenView
 					WIN_W, WIN_H);
 		
 		//Get the splash screen image.
-		JLabel  splash = new JLabel(images[1]);
+		JLabel splash = new JLabel(IconManager.getSplashScreen());
 		
 		//Layer components.
 		JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
