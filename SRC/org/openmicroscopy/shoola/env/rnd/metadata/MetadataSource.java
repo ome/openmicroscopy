@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
@@ -59,6 +60,9 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
  */
 public class MetadataSource
 {
+	
+	//TODO: to be removed, when PixelsService supports int pixelsID.
+	private Pixels	pixels;
 	
 	/** The id of the image this object is dealing with. */
 	private int		imageID;
@@ -136,12 +140,19 @@ public class MetadataSource
 											desc.getSizeZ(), desc.getSizeC(), 
 											desc.getSizeT());
 			pixelsStats = makeStats(stackStats, pixelsDims);
+			pixels = desc.getPixels();  //TODO: to be removed.
 		} catch (Exception e) {
 			throw new MetadataSourceException(
 				"Can't retrieve the pixels metadata.", e);
 		}
 	}
 
+	//TODO: to be removed.
+	public Pixels getPixels()
+	{
+		return pixels;
+	}
+	
 	public RenderingDef getDisplayOptions()
 	{
 		return displayOptions;
