@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -44,9 +45,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -152,6 +156,8 @@ public class BrowserView extends PCanvas
     private Map oldModeMap;
     
     private Set browserViewListeners;
+    
+    private boolean firstTimeShown = true;
     
     /** REUSABLE PICCOLO ACTIONS... **/
     private PiccoloAction selectThumbnailAction;
@@ -723,6 +729,17 @@ public class BrowserView extends PCanvas
     public void paintComponent(Graphics g)
     {
         Graphics2D g2 = (Graphics2D)g;
+        // cheapo hack to prevent apparent delay in annotation loading
+        if(firstTimeShown)
+        {
+            Font font = new Font(null,Font.PLAIN,10);
+            AttributedString str = new AttributedString("hi");
+            g2.setFont(font);
+            FontRenderContext frc = g2.getFontRenderContext();
+            LineBreakMeasurer measurer =
+                new LineBreakMeasurer(str.getIterator(),frc);
+            firstTimeShown = false;
+        }
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         super.paintComponent(g2);
