@@ -298,7 +298,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void clearDraggingChain() {
-		//System.err.println("clear chain selection");
 		draggingChain = null;
 	}
 	
@@ -320,8 +319,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			
 			dragSource.startDrag(event,DragSource.DefaultMoveDrop,c,dragListener);
 		}
-		else 
-			System.err.println("dragging in chain library, but no selection.");
 	}
 	
        /*public void selectionChanged(SelectionEvent e) {
