@@ -73,6 +73,7 @@ public class PaletteChainView extends ChainView {
  
 	private ChainCompoundModuleView compoundView;
 	
+	private boolean showingFull = false;
 	
 	public PaletteChainView(LayoutChainData chain,Registry registry) {
 		super(chain);
@@ -128,20 +129,20 @@ public class PaletteChainView extends ChainView {
 	
 	public void mouseEntered(GenericEventHandler handler) {
 		super.mouseEntered(handler);
-		//((ModuleNodeEventHandler) handler).setLastEntered(this);
+		((ChainPaletteEventHandler) handler).setLastEntered(this);
 		ChainBox cb = getParentChainBox();
 		if (cb != null)
 			cb.mouseEntered(handler);
 	}
 
-	// let the grandparent handle the event. otherwise, clear last enetered.
+	// do nothing here. let the chainbox handle it.
 	public void mouseExited(GenericEventHandler handler) {
-		super.mouseExited(handler);
-		//((ModuleNodeEventHandler) handler).setLastEntered(null);
-		ChainBox cb = getParentChainBox();
+		
+		// super.mouseExited(handler);
+		((ChainPaletteEventHandler) handler).setLastEntered(null);
+		/*ChainBox cb = getParentChainBox();
 		if (cb != null)
-			cb.mouseExited(handler);
-	
+			cb.mouseExited(handler); */
 	}
 	
 	//	 if this chain is in a chainbox - which would then be the grandparent
@@ -160,8 +161,12 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
-		((ChainPaletteEventHandler) handler).animateToNode(this);
-		((ChainPaletteEventHandler) handler).setLastEntered(this);
+		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
+		if (showingFull == true)
+			chainHandler.animateToNode(fullLayer);
+		else
+			chainHandler.animateToNode(compoundView);
+		chainHandler.setLastEntered(this);
 		SelectAnalysisChain event = new SelectAnalysisChain(getChain());
 		registry.getEventBus().post(event);
 	}
@@ -185,19 +190,17 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void showFullView(boolean b) {
+		showingFull = b;
 		// compound becomes transparent,
 		// layer becomes opaque
-		float layerTransparency = 1f;
-		float compoundTransparency=0f;
+		boolean layerVisible = true;
 		// if it's false, switch 
 		if (b == false) {
-			layerTransparency=0f;
-			compoundTransparency=1f;
+			layerVisible=false;
 		}
-		TransparencyActivity a1 = new TransparencyActivity(fullLayer,
-				layerTransparency);
+		TransparencyActivity a1 = new TransparencyActivity(fullLayer,layerVisible);
 		TransparencyActivity a2 = new TransparencyActivity(compoundView,
-				compoundTransparency);
+				!layerVisible);
 		addActivity(a1);
 		addActivity(a2);
 
@@ -217,14 +220,19 @@ public class PaletteChainView extends ChainView {
 	
 	private class TransparencyActivity extends PInterpolatingActivity {
 		
+		private float INVISIBLE=0.0f;
+		private float VISIBLE=1.0f;
 		private PNode p;
 		private float trans;
 		private float source;
 		
-		TransparencyActivity(PNode p,float trans) {
+		TransparencyActivity(PNode p,boolean  visible) {
 			super(Constants.TRANSPARENCY_DELAY,PUtil.DEFAULT_ACTIVITY_STEP_RATE);
 			this.p = p;
-			this.trans = trans;
+			if (visible == true)
+				trans = VISIBLE;
+			else
+				trans = INVISIBLE;
 		}
 		
 		protected void activityStarted() {
@@ -239,12 +247,13 @@ public class PaletteChainView extends ChainView {
 		}
 		
 		public void activityFinished() {
-			if (trans == 0.0f) {
+			if (trans == INVISIBLE) {
 				p.setVisible(false);
 				p.setPickable(false);
 			}
-			else 
+			else {
 				p.setPickable(true);
+			}
 		}
 	}
 	
