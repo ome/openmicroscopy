@@ -19,6 +19,8 @@ class OMEISEntry extends Entry {
     private HostInfo value;
     OMEISEntry() {
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     protected void setContent(Node node) { 
         try {
             //the node is supposed to have tags as children, add control b/c we don't use yet a 
@@ -35,8 +37,11 @@ class OMEISEntry extends Entry {
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     Object getValue() {
         return value; 
     }
+    
     
 }

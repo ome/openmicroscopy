@@ -25,24 +25,39 @@ class Parser{
     private     String      configFile;
     private     String      configFileXMLSchema;
     private     ArrayList   entriesTags;
-    //to validate against the XMLschema: not yet implemented (no XMLSchema for configFile)
+    //validate against the XMLschema: not yet implemented (no XMLSchema for configFile)
     private     boolean     validating = false; 
     // we only retrieve the content of the following tags
     static String[] tagsEntry = {
         "entry",
         "structuredEntry",
     };
+/* creates an instance of Parser with one parameter
+ *
+ * @param   configFile  configuration file (XML file)
+ */
     Parser(String configFile) {
         this.configFile = configFile;
         parse(configFile);
     }
-    // not useful now b/c no XMLSchema for configFile available
+    
+/* creates an instance of Parser with two parameters
+ *  not useful now b/c no XMLSchema for configFile available
+ *
+ * @param  configFile                   configuration file (XML file)
+ * @param  configFileXMLSchema  XML schema linked to XML configuration file
+ */    
     Parser(String configFile, String configFileXMLSchema) {
         this.configFile = configFile;
         this.configFileXMLSchema = configFileXMLSchema;
         validating = true;
         parse(configFile);
     }
+    
+/* Parse the XML configuration file and build a DOM tree i.e. Document
+ * 
+ *@param name   configuraition file (XML file)
+ */
     private void parse(String name) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -62,7 +77,9 @@ class Parser{
         } catch (Exception e) { throw new RuntimeException(e); }   
     }
     
-/* read all "entry" and "structuredEntry" tags */
+/* retrieves the content of the  entry and structuredEntry tags.
+ * Stores the DOM representation i.e. DOM node into an arrayList
+ */
     private void readConfigEntries() {
         entriesTags = new ArrayList();
         for (int k = 0; k<tagsEntry.length; ++k) {
@@ -74,7 +91,10 @@ class Parser{
             }
         }
     }
-// validate against the config schema not yet implemented
+/* validate against the config schema not yet implemented
+ */
     private void validate() {
     }
+    
+    
 }

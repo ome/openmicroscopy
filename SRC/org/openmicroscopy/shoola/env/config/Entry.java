@@ -7,6 +7,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
+ * Sits at the base of a hierarchy of classes that represent entries in configuration file
+ * It represents a name-value pair, where the name is the content of the <code>name</code>
+ * attribute.
+ * Subclasses of <code>Entry</code> implement the <code>setContent()</code> method to grab the tag's
+ * content which is then used for building the object returned by the implementation of 
+ * <code>getValue()<code>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -35,6 +41,12 @@ abstract class Entry {
         String  name, type;
     }
     
+/* For a given entry or structuredEntry tag, creates a concrete <code>Entry</code> object to
+ * handle the conversion of the tag's content into an object
+ *
+ *@param   n    DOM node representing the tag
+ */  
+    
     static Entry createEntryFor(Node node) {
         Entry entry = null;
         if (node.hasAttributes()) { // to be removed when we have xmlSchema (config)
@@ -51,7 +63,10 @@ abstract class Entry {
         return entry;
     }
     
-/* retrieves the value of the attributes name and type and initializes */    
+/* retrieves the value of the attributes name and type and initializes
+ *
+ *@param   n    DOM node
+ */    
     private static NameTypePair retrieveEntryAttributes(Node n) {
         NameTypePair    ntp = new NameTypePair();
         NamedNodeMap    list = n.getAttributes();
@@ -66,10 +81,14 @@ abstract class Entry {
             throw new RuntimeException(" Blah..");
         return ntp;
     }
+/* returns the content of the <code>name</code> attribute of a configuration entry
+ */  
     public String   getName() {
         return name;
     }
+
     abstract Object getValue();
     protected abstract void setContent(Node node);
+    
     
 }

@@ -16,13 +16,19 @@ class FloatEntry extends Entry {
     private Float value;
     FloatEntry() {
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     protected void setContent(Node node) { 
         try {
             Node child = node.getFirstChild(); // has only one child
             value = new Float(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     Object getValue() {
         return value; 
     }
+    
+    
 }

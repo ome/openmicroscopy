@@ -16,13 +16,19 @@ class DoubleEntry extends Entry {
     private Double value;
     DoubleEntry() {
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     protected void setContent(Node node) { 
         try {
             Node child = node.getFirstChild(); // has only one child
             value = new Double(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     Object getValue() {
         return value; 
     }
+    
+    
 }

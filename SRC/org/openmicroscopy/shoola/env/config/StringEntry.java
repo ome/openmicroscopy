@@ -16,13 +16,20 @@ class StringEntry extends Entry {
     private String value;
     StringEntry() {
     }
+    
+/** Implemented as specified by {@linkEntry}.
+ */   
     protected void setContent(Node node) { 
         try {
             Node child = node.getFirstChild(); // has only one child
             value = child.getNodeValue();
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+/** Implemented as specified by {@linkEntry}.
+ */   
     Object getValue() {
         return value; 
     }
+    
+    
 }

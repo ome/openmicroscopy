@@ -16,13 +16,19 @@ class IntegerEntry extends Entry {
     private Integer value;
     IntegerEntry() {
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     protected void setContent(Node node) { 
         try {
             Node child = node.getFirstChild(); // has only one child
             value = new Integer(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+/** Implemented as specified by {@linkEntry}.
+ */  
     Object getValue() {
         return value; 
     }
+    
+    
 }

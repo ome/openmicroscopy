@@ -7,7 +7,7 @@ import java.util.ListIterator;
 
 
 /**
- * Implements the EventBus interface and is the pumping heart
+ * Implements the<code>EventBus</code> interface and is the pumping heart
  * or the event propagation system. It maintains a de-multiplex table to keep track of
  * what events have to be dispatched to which subscribers
  *
