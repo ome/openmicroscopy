@@ -95,12 +95,8 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		}
 	}
 	
-	public void popup(Thumbnail thumb,boolean canZoomOut,Point2D pt) {
+	public void popup(Thumbnail thumb,Point2D pt) {
 		thumbnail = thumb;
-		if (canZoomOut)
-			zoomItem.setEnabled(true);
-		else
-			zoomItem.setEnabled(false);
 		show(canvas,(int) pt.getX(),(int)pt.getY());
 	}
 }
