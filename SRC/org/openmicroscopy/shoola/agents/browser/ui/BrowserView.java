@@ -297,7 +297,27 @@ public class BrowserView extends PCanvas
             return;
         }
         scaleToShow = false;
-        getCamera().setViewScale(zoomLevel);
+        
+        Dimension dim = getSize();
+        double width = dim.getWidth();
+        double height = dim.getHeight();
+        double scale = getCamera().getViewScale();
+        
+        double scaleX = 0;
+        double scaleY = 0;
+        
+        System.err.println(footprint.getWidth()+","+footprint.getWidth());
+        System.err.println("dim:"+width+","+height);
+        if(width/zoomLevel < footprint.getWidth())
+        {
+            scaleX = getCamera().getViewBounds().getCenterX();
+        }
+        if(height/zoomLevel < footprint.getHeight())
+        {
+            scaleY = getCamera().getViewBounds().getCenterY();
+        }
+        System.err.println("scaleX="+scaleX+", scaleY="+scaleY);
+        getCamera().scaleViewAboutPoint(zoomLevel/scale,scaleX,scaleY);
         updateConstraints();
     }
     
@@ -596,12 +616,34 @@ public class BrowserView extends PCanvas
         updateThumbnails();
     }
     
+    public void thumbnailsAdded(Thumbnail[] ts)
+    {
+        if(ts == null || ts.length == 0) return;
+        for(int i=0;i<ts.length;i++)
+        {
+            ts[i].setMouseDownActions(defaultTDownActions);
+            ts[i].setMouseOverActions(defaultTOverActions);
+            getLayer().addChild(ts[i]);
+        }
+        updateThumbnails();
+    }
+    
     /**
      * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
      */
     public void thumbnailRemoved(Thumbnail t)
     {
         getLayer().removeChild(t);
+        updateThumbnails();
+    }
+    
+    public void thumbnailsRemoved(Thumbnail[] ts)
+    {
+        if(ts == null || ts.length == 0) return;
+        for(int i=0;i<ts.length;i++)
+        {
+            getLayer().removeChild(ts[i]);
+        }
         updateThumbnails();
     }
 

@@ -46,6 +46,8 @@ import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -120,6 +122,11 @@ public class BrowserInternalFrame extends JInternalFrame
         
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
+        
+        JScrollPane scrollPane = new JScrollPane();
+        JScrollBar horizontalBar = new JScrollBar();
+        
+        
         container.add(embeddedView,BorderLayout.CENTER);
         container.add(toolbarPanel,BorderLayout.NORTH);
         if(controller.getStatusView() != null)

@@ -964,7 +964,6 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void interruptThread(BrowserController loader)
     {
-        System.err.println("interrupt requested");
         if(activeThreadMap.containsKey(loader))
         {
             List list = (List)activeThreadMap.get(loader);

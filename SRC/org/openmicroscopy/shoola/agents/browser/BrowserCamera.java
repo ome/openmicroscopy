@@ -43,6 +43,8 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,16 +109,31 @@ public class BrowserCamera implements RegionSensitive,
      * @param camera The target camera (to use as parent for overlay nodes)
      * @param panRegion The legal panning region.
      */
-    public BrowserCamera(BrowserTopModel model, PCamera camera)
+    public BrowserCamera(BrowserTopModel model, PCamera c)
     {
-        if(model == null || camera == null)
+        if(model == null || c == null)
         {
             throw new NullPointerException("Null parameters passed to " +
                                            "BrowserCamera(model,camera)");
         }
         
         this.model = model;
-        this.camera = camera;
+        this.camera = c;
+        
+        camera.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            public void propertyChange(PropertyChangeEvent e)
+            {
+                // oh, this is a ticky-tack hack right here
+                if(e.getPropertyName().equals("viewTransform"))
+                {
+                    System.err.println(camera.getViewScale());
+                    System.err.println("offset="+camera.getViewBounds().getX()+
+                                       ","+camera.getViewBounds().getY());
+                }
+            }
+
+        });
         model.addModelListener(this);
         
         init();

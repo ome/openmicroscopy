@@ -277,12 +277,25 @@ public final class StatusBar extends JPanel
         // do nothing
     }
     
+    public void thumbnailsAdded(Thumbnail[] t)
+    {
+        // do nothing
+    }
+    
     /**
      * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
      */
     public void thumbnailRemoved(Thumbnail t)
     {
         // TODO: get name of thumbnail, say that it's been removed.
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsRemoved(Thumbnail[] t)
+    {
+        // do nothing
     }
     
     /**

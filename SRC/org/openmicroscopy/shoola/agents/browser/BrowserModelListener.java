@@ -76,11 +76,15 @@ public interface BrowserModelListener
      */
     public void thumbnailAdded(Thumbnail t);
     
+    public void thumbnailsAdded(Thumbnail[] t);
+    
     /**
      * Indicates that the specified thumbnail has been removed from the view.
      * @param t The thumbnail that was removed.
      */
     public void thumbnailRemoved(Thumbnail t);
+    
+    public void thumbnailsRemoved(Thumbnail[] t);
     
     /**
      * Indicates that the specified thumbnails have been selected.

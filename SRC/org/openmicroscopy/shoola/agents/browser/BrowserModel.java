@@ -333,10 +333,7 @@ public class BrowserModel
             BrowserModelListener listener =
                 (BrowserModelListener)iter.next();
             
-            for(int i=0;i<thumbs.length;i++)
-            {
-                listener.thumbnailAdded(thumbs[i]);
-            }
+            listener.thumbnailsAdded(thumbs);
         }
     	updateModelListeners();
     }
