@@ -123,7 +123,11 @@ public class ChainDataManager extends DataManager {
 	 * progress will get null instead of waiting. However, second calls are not 
 	 * frequent, and this approach seems to be faster in general.
 	 */
+	
 	public Collection getModules() {
+		return getModules(new ChainModuleData());
+	}
+	public Collection getModules(ModuleData mod) {
 		
 		// if we're done, go for it.
 		
@@ -133,8 +137,7 @@ public class ChainDataManager extends DataManager {
 		if (loadingModules == false) {
 			long start = System.currentTimeMillis();
 			loadingModules = true;
-			retrieveModules();
-		//	retrieveCategories();
+			retrieveModules(mod);
 			loadingModules = false;
 			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long end = System.currentTimeMillis()-start;
@@ -145,7 +148,7 @@ public class ChainDataManager extends DataManager {
 		return null;
 	}
 	
-	protected synchronized void retrieveModules() {
+	protected synchronized void retrieveModules(ModuleData modProto) {
 		if (moduleHash == null ||moduleHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -153,9 +156,9 @@ public class ChainDataManager extends DataManager {
 				ChainFormalInputData finProto = new ChainFormalInputData();
 				ChainFormalOutputData foutProto = new ChainFormalOutputData();
 				SemanticTypeData stProto = new SemanticTypeData();
-				ChainModuleData cmProto = new ChainModuleData();
+				//ChainModuleData cmProto = new ChainModuleData();
 				Collection modules = 
-					dms.retrieveModules(cmProto,mcProto,finProto,foutProto,
+					dms.retrieveModules(modProto,mcProto,finProto,foutProto,
 						stProto);
 				moduleHash = buildModuleHash(modules);
 			} catch(DSAccessException dsae) {
