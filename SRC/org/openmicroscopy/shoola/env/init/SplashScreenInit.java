@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import javax.swing.UIManager;
 
 //Third-party libraries
 
@@ -104,18 +103,13 @@ final class SplashScreenInit
 	}
 
 	/**
-	 * Loads L&F, registers for initialization progress notification and
+	 * Registers for initialization progress notification and
 	 * pops up the splash screen.
 	 * 
 	 * @see InitializationTask#configure()
 	 */
 	void configure()
 	{
-		try {
-			UIManager.setLookAndFeel("com.birosoft.liquid.LiquidLookAndFeel");
-		} catch(Exception e) { 
-			//Ignore, we'll use the default L&F.
-		}
 		initManager.register(this);
 		splashScreen = UIFactory.makeSplashScreen();
 		splashScreen.open();
