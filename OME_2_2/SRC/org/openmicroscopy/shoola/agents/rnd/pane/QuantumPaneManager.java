@@ -71,6 +71,13 @@ public class QuantumPaneManager
 		this.view = view;
 	}
 	
+	/** Dispose all the dialog window. */
+	public void disposeDialogs()
+	{
+		DomainPaneManager dpm = view.getDomainPane().getManager();
+		dpm.disposeDialogs();
+	}
+	
 	/** Reset the rendering defaults.update the GUI*/
 	public void resetDefaults()
 	{

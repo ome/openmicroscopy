@@ -36,6 +36,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 //Third-party libraries
 
@@ -126,6 +128,9 @@ class HistogramDialogManager
 	{
 		view.getHistogramPanel().addMouseListener(this);
 		view.getHistogramPanel().addMouseMotionListener(this);
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) { view.dispose(); }
+		});
 	}
 	
 	/**

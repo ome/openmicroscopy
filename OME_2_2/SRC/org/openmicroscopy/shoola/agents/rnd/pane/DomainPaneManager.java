@@ -118,6 +118,12 @@ class DomainPaneManager
 		button.setActionCommand(""+HISTOGRAM);
 	}
 
+	void disposeDialogs()
+	{
+		if (histogramDialog != null) histogramDialog.dispose();
+		histogramDialog = null;
+	}
+	
 	/**
 	 * Resize the input window, update the Histogram view if exists.
 	 * The method is called by the control {@link QuantumPaneManager}.
@@ -229,7 +235,7 @@ class DomainPaneManager
 	 */
 	private void setWavelength(int w)
 	{
-		histogramDialog = null;
+		disposeDialogs();
 		control.setWavelength(w);
 	}
 

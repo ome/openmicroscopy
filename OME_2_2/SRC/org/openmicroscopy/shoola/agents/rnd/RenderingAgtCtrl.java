@@ -117,6 +117,16 @@ public class RenderingAgtCtrl
 		this.qpManager = qpManager;
 	}
 	
+	/** 
+	 * I have to decide of an event to fire, 
+	 * when a new image is selected. Cannot keep all the dialogs modal.
+	 */
+	void disposeDialogs()
+	{
+		// forward event to the quantumManager.
+		if (qpManager != null) qpManager.disposeDialogs();
+	}
+	
 	void setDisplayed(boolean b) { displayed = b; }
 	
 	void setPresentation(RenderingAgtUIF presentation)
@@ -195,7 +205,8 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public void setActive(int w) { 
+	public void setActive(int w)
+	{ 
 		presentation.getQuantumPane().setSelectedWavelength(w);
 		presentation.getTabs().setSelectedIndex(RenderingAgtUIF.POS_MODEL);
 		abstraction.setActive(w); 

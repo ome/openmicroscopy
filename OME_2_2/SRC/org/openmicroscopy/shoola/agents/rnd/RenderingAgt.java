@@ -185,6 +185,7 @@ public class RenderingAgt
 		Rectangle bounds = presentation.getBounds();
 		if (presentation.isClosed()) displayed = false;
 		topFrame.removeFromDesktop(presentation);
+		control.disposeDialogs();
 		control = null;
 		presentation = null;
 		buildPresentation();

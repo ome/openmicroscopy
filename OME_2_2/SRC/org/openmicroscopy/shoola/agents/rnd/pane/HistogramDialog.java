@@ -71,7 +71,7 @@ class HistogramDialog
 	HistogramDialog(QuantumPaneManager control, int mini, int maxi, 
 					int start, int end, PixelsStatsEntry[] histogramData)
 	{
-		super(control.getReferenceFrame(), "Histogram", true);
+		super(control.getReferenceFrame(), "Histogram", false);
 		manager = new HistogramDialogManager(this, control);
 		int yStart, yEnd;
 		yStart = manager.convertRealIntoGraphics(start);
