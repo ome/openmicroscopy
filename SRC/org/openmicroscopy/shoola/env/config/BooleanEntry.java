@@ -3,7 +3,7 @@
  *
  *------------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 Open Microscopy Environment
+ *  Copyright (C) 2004 Open Microscopy Environment
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
@@ -29,14 +29,11 @@
 
 /*------------------------------------------------------------------------------
  *
-* Written by:     Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- *                      <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- *                      Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *                      <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
+ *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
