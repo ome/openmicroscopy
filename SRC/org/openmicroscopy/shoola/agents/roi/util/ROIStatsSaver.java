@@ -43,7 +43,6 @@ import javax.swing.UIManager;
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -84,7 +83,6 @@ public class ROIStatsSaver
         manager = new ROIStatsSaverMng(this, mng, control);
         buildGUI(IconManager.getInstance(control.getRegistry()));
         pack();
-        UIUtilities.centerAndShow(this);
     }
     
     void setDisplay(boolean b) { chooser.setDisplay(b); }

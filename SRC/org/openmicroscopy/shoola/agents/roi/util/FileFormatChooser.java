@@ -144,8 +144,9 @@ class FileFormatChooser
                                 File[] list)
     {
         boolean exist = false;
+        String name = fileName + "." + format;
         for (int i = 0; i < list.length; i++)
-            if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
+            if ((list[i].getAbsolutePath()).equals(name)) exist = true;
         
         if (!exist) {
             display = false;

@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.roi.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -81,7 +83,7 @@ public class ROIStats
     
     public ROIStats(ROIAgtCtrl control, Registry reg)
     {
-        super(control.getReferenceFrame(), "ROI Results");
+        super(control.getReferenceFrame(), "ROI Results", true);
         manager = new ROIStatsMng(this, control);
         IconManager im = IconManager.getInstance(reg);
         init(im);
@@ -104,11 +106,11 @@ public class ROIStats
                 UIUtilities.formatToolTipText("Close the window."));
         save.setToolTipText(
                 UIUtilities.formatToolTipText("Save the result as a " +
-                                            "text file."));
+                                            "text or XML file."));
     }
     
     /** Build toolBar with JButtons. */
-    private JToolBar buildBar()
+    private JPanel buildBar()
     {
         JToolBar bar = new JToolBar();
         bar.setBorder(BorderFactory.createEtchedBorder());
@@ -117,7 +119,10 @@ public class ROIStats
         bar.add(save);
         bar.add(Box.createRigidArea(HBOX));
         bar.add(close);
-        return bar;
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        p.add(bar);
+        return p;
     }
 
     private JPanel buildResultsTable()

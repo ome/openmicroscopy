@@ -31,17 +31,17 @@ package org.openmicroscopy.shoola.agents.roi.util;
 
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
-import org.openmicroscopy.shoola.util.image.io.WriterText;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.file.WriterText;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -105,8 +105,8 @@ class ROIStatsSaverMng
             try {
                 if (format.equals(TEXTFilter.TEXT))
                     WriterText.writeTableAsText(f, mng.getModel());
-                else if (format.equals(TEXTFilter.TEXT))
-                    writeXMLFile();
+                else if (format.equals(XMLFilter.XML))
+                    WriterText.writeTableAsXML(f, mng.getModel());
                 un.notifyInfo("ROI results saved", msg);
             } catch (Exception e) {
                 f.delete();
@@ -115,11 +115,6 @@ class ROIStatsSaverMng
                                    e);
             }
         }
-    }
-    
-    private void writeXMLFile()
-    {
-        
     }
     
 }

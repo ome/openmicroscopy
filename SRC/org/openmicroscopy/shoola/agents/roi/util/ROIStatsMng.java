@@ -92,10 +92,7 @@ class ROIStatsMng
     
     AbstractTableModel getModel() { return view.getModel(); }
     
-    String[][] getROIStats()
-    {
-        return control.getROIStats();
-    }
+    String[][] getROIStats() { return control.getROIStats(); }
 
     /** Handle events fired by JButtons. */
     public void actionPerformed(ActionEvent e)
@@ -122,6 +119,7 @@ class ROIStatsMng
     /** Handle the close event. */
     private void handleClose()
     {
+        view.setVisible(false);
         view.dispose();
     }
     

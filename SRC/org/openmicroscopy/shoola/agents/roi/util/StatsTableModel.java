@@ -29,10 +29,9 @@
 
 package org.openmicroscopy.shoola.agents.roi.util;
 
-import javax.swing.table.AbstractTableModel;
-
 
 //Java imports
+import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
@@ -84,4 +83,5 @@ class StatsTableModel
     }
 
     public boolean isCellEditable(int row, int col) { return false; }
+    
 }
