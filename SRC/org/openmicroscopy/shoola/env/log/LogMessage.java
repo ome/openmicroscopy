@@ -42,7 +42,8 @@ import java.io.StringWriter;
  * This class should be used to write a log message on multiple lines.  In fact,
  * writing text that spans multiple lines is a platform-dependent operation.
  * This class conveniently encapsulates this process while providing a 
- * platform-independent interface.
+ * platform-independent interface.  This class extends {@link PrintWriter} to
+ * inherit all sort of useful <code>print</code> methods.
  * 
  * @see	org.openmicroscopy.shoola.env.log.Logger
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -56,7 +57,8 @@ import java.io.StringWriter;
  * </small>
  * @since OME2.2
  */
-public class LogMessage 
+public class LogMessage
+	extends PrintWriter
 {
 	
 	/**
@@ -65,59 +67,13 @@ public class LogMessage
 	 */
 	public static final String	NEW_LINE = System.getProperty("line.separator");
 	
-	/** The tabulation sequence. */
-	public static final String	TAB = "\t";  //TODO: platform independent?
-	
-	
-	/** The output stream where we write the message. */
-	private StringWriter	message;
-	
-	/** Wraps {@link #message} to provide writing and buffering capabilities. */
-	private PrintWriter		formatter;
 		
 	/**
 	 * Creates a new empty message.
 	 */
 	public LogMessage() 
 	{
-		message = new StringWriter();
-		formatter = new PrintWriter(message);
-	}
-	
-	/**
-	 * Appends the specified string to the current message's content.
-	 * 
-	 * @param s	The text to add.
-	 */
-	public void write(String s)
-	{
-		formatter.print(s);
-	}
-
-	/**
-	 * Appends the specified string to the current message's content and then
-	 * terminates the line.
-	 * 
-	 * @param s	The text to add.
-	 */	
-	public void writeln(String s) { formatter.println(s); }
-	
-	/** Terminates the current line. */	
-	public void writeln() { formatter.println(); }
-	
-	/** Appends a tabulation to the current message's content. */	
-	public void writetab() { formatter.print(TAB); }
-	
-	/**
-	 * Appends the specified number of tabulations to the current message's
-	 * content.
-	 * 
-	 * @param howMany	Specifies the number of tabs to add.  This method will
-	 * 					do nothing if this number is not positive.
-	 */
-	public void writetab(int howMany)
-	{
-		for (int i = 0; i < howMany; ++i)	writetab();
+		super(new StringWriter());
 	}
 	
 	/**
@@ -129,8 +85,8 @@ public class LogMessage
 	 */
 	public String toString()
 	{
-		formatter.flush();
-		return message.toString();
+		flush();
+		return out.toString();
 	}
 
 }
