@@ -69,7 +69,23 @@ public class ProjectMapper
 	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveUserProjects.
+	 * Criteria built for updateProject.
+	 * 
+	 * @param projectID	specified project to retrieve.
+	 */
+	public static Criteria buildUpdateCriteria(int projectID)
+	{
+		Criteria c = new Criteria();
+		c.addWantedField("id");
+		c.addWantedField("name");
+		c.addWantedField("description");
+		c.addFilter("id", new Integer(projectID));
+		return c;
+	}
+	
+	/** 
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria built for retrieveUserProjects.
 	 * 
 	 * @param userID	user ID.
 	 */
@@ -94,7 +110,7 @@ public class ProjectMapper
 	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveProject.
+	 * Criteria built for retrieveProject.
 	 * 
 	 */
 	public static Criteria buildProjectCriteria(int id)
@@ -129,7 +145,8 @@ public class ProjectMapper
 		return criteria;
 	}
 	
-	/** Fill in the project data object. 
+	/** 
+	 * Fill in the project data object. 
 	 * 
 	 * @param project	project graph.
 	 * @param empty		project data to fill in.
@@ -226,17 +243,20 @@ public class ProjectMapper
 		return projectsList;
 	}
 	
-	/**
-	 * Create a project Summry when a new project is created.
-	 * 
-	 * @param p			OMEDS project object.
-	 * @param pProto	project summry object.
-	 */
-	public static void fillNewProject(Project p, ProjectSummary pProto)
+	/** */
+	public static List fillNewProject(Project p, List datasets, 
+										ProjectSummary pProto)
 	{
+		List ids = new ArrayList();
+		if (datasets != null) {	//To be on the save side
+			Iterator i = datasets.iterator();
+			while (i.hasNext())
+				ids.add(new Integer(((DatasetSummary) i.next()).getID()));
+		}
 		pProto.setID(p.getID());
 		pProto.setName(p.getName());
-		// check datasets.
+		pProto.setDatasets(datasets);
+		return ids;
 	}
 	
 }

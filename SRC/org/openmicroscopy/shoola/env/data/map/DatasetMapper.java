@@ -65,28 +65,25 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 public class DatasetMapper
 {
 	
-	public static Criteria buildDatasetsDiffCriteria(int userID, int projectID)
+	/** 
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria built for updateDataset.
+	 * 
+	 * @param datasetID	specified dataset to retrieve.
+	 */
+	public static Criteria buildUpdateCriteria(int datasetID)
 	{
-		Criteria criteria = new Criteria();
-		//Specify which fields we want for the dataset.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		criteria.addWantedField("projects");
-		
-		//Retrieve the user's datasets.
-		criteria.addFilter("owner_id", new Integer(userID));
-		
-		//Specify which fields we want for the datasets.
-		criteria.addWantedField("projects", "id");
-		List l = new ArrayList();
-		l.add(new Integer(projectID));
-		criteria.addFilter("projects.id", "NOT IN", l);
-		return criteria;
+		Criteria c = new Criteria();
+		c.addWantedField("id");
+		c.addWantedField("name");
+		c.addWantedField("description");
+		c.addFilter("id", new Integer(datasetID));
+		return c;
 	}
 	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveUserDatasets.
+	 * Criteria built for retrieveUserDatasets.
 	 * 
 	 * @param userID	user ID.
 	 */
@@ -98,7 +95,6 @@ public class DatasetMapper
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		
-		
 		criteria.addFilter("owner_id", new Integer(userID));
 		
 		return criteria;
@@ -106,7 +102,7 @@ public class DatasetMapper
 	
 	/**
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveImages.
+	 * Criteria built for retrieveImages.
 	 * 
 	 * @return 
 	 */
@@ -134,7 +130,7 @@ public class DatasetMapper
 	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveDataset.
+	 * Criteria built for retrieveDataset.
 	 * 
 	 */
 	public static Criteria buildDatasetCriteria(int id)
@@ -264,19 +260,7 @@ public class DatasetMapper
 		
 		return datasetsList;
 	}
-	
-	/**
-	 * Create a dataset summary when a new dataset is created.
-	 * 
-	 * @param d			OMEDS dataset object.
-	 * @param dProto	dataset summry object.
-	 */
-	public static void fillNewDataset(Dataset d, DatasetSummary dProto)
-	{
-		dProto.setID(d.getID());
-		dProto.setName(d.getName());
-	}
-	
+
 	//	TODO: will be modified as soon as we have a better approach.
 	private static int[] fillListPixelsID(Image image)
 	{

@@ -66,9 +66,26 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
  */
 public class ImageMapper
 {
+	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
-	 * Criteria linked to retrieveUserImges.
+	 * Criteria built for updateImage.
+	 * 
+	 * @param imageID	specified image to retrieve.
+	 */
+	public static Criteria buildUpdateCriteria(int imageID)
+	{
+		Criteria c = new Criteria();
+		c.addWantedField("id");
+		c.addWantedField("name");
+		c.addWantedField("description");
+		c.addFilter("id", new Integer(imageID));
+		return c;
+	}
+		
+	/** 
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria built for retrieveUserImges.
 	 * 
 	 * @param userID	user ID.
 	 */
@@ -90,7 +107,8 @@ public class ImageMapper
 	
 	/** 
 	 * Define the criteria by which the object graph is pulled out.
-	 * @return
+	 * Criteria built for retrieveImage.
+	 * @param	id		image to retrieve.
 	 */
 	public static Criteria buildImageCriteria(int id)
 	{
