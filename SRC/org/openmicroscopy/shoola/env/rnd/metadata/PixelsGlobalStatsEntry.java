@@ -52,10 +52,10 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 public class PixelsGlobalStatsEntry 
 {
 	/** Minimum of all minima. */
-	public final int  globalMin;
+	public final double  globalMin;
 	
 	/** Maximum of all maxima. */
-	public final int  globalMax;
+	public final double  globalMax;
     
    /** 
     * Creates a new object to store the passed stats entry.
@@ -64,7 +64,7 @@ public class PixelsGlobalStatsEntry
 	* @param   globalMax  maximum of all maxima.
 	*/   
    
-	public PixelsGlobalStatsEntry(int globalMin, int globalMax)
+	public PixelsGlobalStatsEntry(double globalMin, double globalMax)
 	{
 		this.globalMin = globalMin;
 		this.globalMax = globalMax;
@@ -72,12 +72,12 @@ public class PixelsGlobalStatsEntry
 	
 	public Comparable getGlobalMax()
 	{
-		return new Integer(globalMax);
+		return new Integer((int) globalMax);
 	}
 	
 	public Comparable getGlobalMin()
 	{
-		return new Integer(globalMin);
+		return new Integer((int) globalMin);
 	}
     
 }

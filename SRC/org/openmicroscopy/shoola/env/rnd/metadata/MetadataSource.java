@@ -169,8 +169,28 @@ public class MetadataSource
 	
 	private PixelsStats makeStats(StackStatistics s, PixelsDimensions d)
 	{
-		//TODO: implement.
-		return null;
+		double gMin = 0;
+		double gMax = 1;
+		double min, max;
+		PixelsStats ps = new PixelsStats(d.sizeW, d.sizeT);
+		//TODO: Need Polymorphic stats.
+		for (int w = 0; w < d.sizeW; w++) {
+			for (int t = 0; t < d.sizeT; t++) {
+				min = s.minimum[w][t];
+				max = s.maximum[w][t];
+				if (t == 0) {
+					gMin = min;
+					gMax = max;
+				} else {
+					gMin = Math.min(gMin, min);
+					gMax = Math.min(gMax, max);
+				}
+				ps.setEntry(w, t, min, max, s.geometricMean[w][t],
+							s.geometricSigma[w][t]); 
+			}
+			ps.setGlobalEntry(w, gMin, gMax);
+		}
+		return ps;
 	}
 
 }

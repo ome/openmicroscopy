@@ -65,18 +65,18 @@ public class PixelsStats
 		return stats[w][t];       
 	}
 
-	void setEntry(int w, int t, int min, int max)
+	void setEntry(int w, int t, double min, double max, double gMean, 
+					double gSigma)
 	{
-		if (globalStats[w] != null) {
-			int globalMin = Math.min(globalStats[w].globalMin, min);
-			int globalMax = Math.max(globalStats[w].globalMax, max);
-			globalStats[w] = new PixelsGlobalStatsEntry(globalMin, globalMax);
-		} else { 
-			globalStats[w] = new PixelsGlobalStatsEntry(min, max);
-		}
-		stats[w][t] = new PixelsStatsEntry(min, max);
+		stats[w][t] = new PixelsStatsEntry(min, max, gMean, gSigma);
 	}
 
+	void setGlobalEntry(int w, double gMin, double gMax)
+	{
+		globalStats[w] = new PixelsGlobalStatsEntry(gMin, gMax);
+	}
+	
+	
 	public PixelsGlobalStatsEntry getGlobalEntry(int w)
 	{
 		return globalStats[w];
