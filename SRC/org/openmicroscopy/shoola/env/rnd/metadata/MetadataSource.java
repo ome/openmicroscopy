@@ -126,7 +126,7 @@ public class MetadataSource
 		StackStatistics stackStats;
 		PixelsDescription desc;
 		try {
-			desc = dms.retrievePixels(pixelsID);
+			desc = dms.retrievePixels(pixelsID, imageID);
 			stackStats = ps.getStackStatistics(desc.getPixels());
 			//TODO: tmp hack; stats have to be retrieved from STS and desc
 			//shouldn't contain Pixels.
