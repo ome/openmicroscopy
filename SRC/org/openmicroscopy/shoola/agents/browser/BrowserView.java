@@ -53,6 +53,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDragActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
@@ -104,6 +105,13 @@ public class BrowserView extends PCanvas
     // set of thumbnails.
     private Rectangle2D footprint;
     
+    // the initial selection point for selecting multiple thumbnails in
+    // the region.
+    private Point2D initialSelectPoint;
+    
+    // The region being selected, right now.
+    private Rectangle2D selectingRegion;
+    
     // Keeps track of all embedded HoverSensitive objects.
     private Set hoverSensitive;
     
@@ -113,6 +121,11 @@ public class BrowserView extends PCanvas
     // indicates whether or not the view should scale to show the entire
     // set, or should remain fixed at a certain zoom level.
     private boolean scaleToShow;
+    
+    // a node that catches mouse events that don't get picked up by
+    // thumbnails and cameras and palettes (signifying the start of a multiple
+    // select, perhaps)
+    private PNode backgroundNode;
     
     /** REUSABLE PICCOLO ACTIONS... **/
     private PiccoloAction selectThumbnailAction;
@@ -187,7 +200,11 @@ public class BrowserView extends PCanvas
     private void init(BrowserTopModel topModel)
     {
         env = BrowserEnvironment.getInstance();
+        
         setBackground(new Color(192,192,192));
+        backgroundNode = new BackgroundNode();
+        getLayer().addChild(backgroundNode);
+        
         layoutMap = new HashMap();
         footprint = new Rectangle2D.Double(0,0,0,0);
         hoverSensitive = new HashSet();
@@ -274,7 +291,6 @@ public class BrowserView extends PCanvas
                 while((node = pickPath.getPickedNode()) != null &&
                       !e.isHandled())
                 {
-                    System.err.println(node);
                     if(node instanceof MouseDragSensitive)
                     {
                         ((MouseDragSensitive)node).respondDrag(e);
@@ -283,6 +299,21 @@ public class BrowserView extends PCanvas
                     else
                     {
                         pickPath.popNode(node);
+                    }
+                }
+            }
+            
+            public void endDrag(PInputEvent e)
+            {
+                PPickPath pickPath = e.getPath();
+                PNode node;
+                while((node = pickPath.getPickedNode()) != null &&
+                      !e.isHandled())
+                {
+                    if(node instanceof MouseDragSensitive)
+                    {
+                        ((MouseDragSensitive)node).respondEndDrag(e);
+                        e.setHandled(true);
                     }
                 }
             }
@@ -339,7 +370,7 @@ public class BrowserView extends PCanvas
         {
             if(mode == BrowserMode.DEFAULT_MODE)
             {
-                
+                // TODO: fill this in
             }
         }
     }
@@ -418,17 +449,13 @@ public class BrowserView extends PCanvas
     {
         Dimension dimension = getSize();
         double width = dimension.getWidth();
-        double height = dimension.getHeight();
-        
+        double height = dimension.getHeight();        
         
         double xRatio = width / footprint.getWidth();
         double yRatio = height / footprint.getHeight();
         
-        
-        
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
-        
         if(scaleToShow)
         
         {
@@ -443,6 +470,9 @@ public class BrowserView extends PCanvas
                 getCamera().setViewScale(1);
             }
         }
+        
+        double viewScale = getCamera().getViewScale();
+        backgroundNode.setBounds(0,0,width/viewScale,height/viewScale);
         
         //      update things
         for(Iterator iter = regionSensitive.iterator(); iter.hasNext();)
@@ -569,5 +599,70 @@ public class BrowserView extends PCanvas
         // TODO change to UserNotifier
         MessageHandler handler = env.getMessageHandler();
         handler.reportError(message);
+    }
+    
+    /**
+     * The background node of this view that will handle selection events.
+     */
+    class BackgroundNode extends PNode implements MouseDragSensitive
+    {
+        private MouseDragActions mouseDragActions;
+        
+        public BackgroundNode()
+        {
+            mouseDragActions = new MouseDragActions();
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#getMouseDragActions()
+         */
+        public MouseDragActions getMouseDragActions()
+        {
+            return mouseDragActions;
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#setMouseDragActions(org.openmicroscopy.shoola.agents.browser.events.MouseDragActions)
+         */
+        public void setMouseDragActions(MouseDragActions actions)
+        {
+            if(actions != null)
+            {
+                mouseDragActions = actions;
+            }
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondDrag(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondDrag(PInputEvent e)
+        {
+            System.err.println("dragging");
+            PiccoloAction action =
+                mouseDragActions.getDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondStartDrag(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondStartDrag(PInputEvent e)
+        {
+            System.err.println("Start drag");
+            PiccoloAction action =
+                mouseDragActions.getStartDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondEndDrag(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondEndDrag(PInputEvent e)
+        {
+            System.err.println("end drag");
+            PiccoloAction action =
+                mouseDragActions.getEndDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
     }
 }
