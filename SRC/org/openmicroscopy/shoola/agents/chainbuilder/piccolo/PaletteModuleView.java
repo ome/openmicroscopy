@@ -47,6 +47,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
@@ -81,6 +82,7 @@ public class PaletteModuleView extends SingleModuleView {
 	
 	public PaletteModuleView(ChainModuleData module,float x,float y) {
 		super(module,x,y);
+		showDetails();
 	}
 	
 	 
@@ -90,6 +92,7 @@ public class PaletteModuleView extends SingleModuleView {
 	 */
 	public PaletteModuleView(ChainModuleData module) {
 		super(module);
+		showDetails();
 	}
 	
 	
@@ -130,33 +133,39 @@ public class PaletteModuleView extends SingleModuleView {
 		return null;
 	}
 
-	private ChainView getChainViewParent() {
+	private PaletteChainView getChainViewParent() {
 		PNode p = getParent();
 		while (p != null) {
-			if (p instanceof ChainView)
-				return (ChainView) p;
+			if (p instanceof PaletteChainView)
+				return (PaletteChainView) p;
 			p = p.getParent();
 		}
 		return null;
 	}
-	protected LinkTarget getLinkTarget() {
-		LinkTarget link = super.getLinkTarget();
+	protected ModuleLinkTarget getLinkTarget() {
+		ModuleLinkTarget link = super.getLinkTarget();
 		link.setPickable(false);
 		return link;
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
-		ChainView view = getChainViewParent();
-		((ChainPaletteEventHandler) handler).animateToNode(view);
+		PaletteChainView view = getChainViewParent();
+		PBounds b = view.getChainDetailBounds();
+		((ChainPaletteEventHandler) handler).animateToBounds(b);
 		((ChainPaletteEventHandler) handler).setLastEntered(view);
-		((ChainPaletteEventHandler) handler).hideLastChainView();
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
-		((ChainPaletteEventHandler) handler).animateToNode(this);
+		((ChainPaletteEventHandler) handler).animateToBounds(getZoomInBounds());
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
 	}
 	
+	private PBounds getZoomInBounds() {
+		PBounds b = getGlobalBounds();
+		double buf = getGlobalScale()*60;
+		return new PBounds(b.getX()-buf,b.getY()-buf,
+				b.getWidth()+buf*2,b.getHeight()*2);
+	}
 	
 }
 	
