@@ -81,6 +81,10 @@ public class ExecutionsModel {
 		sortedExecs = chainExecutions.getExecutions();
 	}
 	
+	public int size() {
+		return sortedExecs.size();
+	}
+	
 	public BoundedLongRangeModel getRangeModel() {
 		if (model == null) {
 			long start = chainExecutions.getStartTime();
