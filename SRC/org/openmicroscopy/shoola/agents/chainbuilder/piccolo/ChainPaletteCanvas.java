@@ -217,7 +217,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// the current chain
 		
 		LayoutChainData chain;
-		float maxRowWidth=0;
 		
 		Collection chains = dataManager.getChains();
 		ArrayList sortedChains = new ArrayList(chains);
@@ -241,8 +240,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 				}
 			}
 		}
+		if (x > maxRowWidth) {
+			maxRowWidth = x;
+		}
 		// fix up the last row.
 		row.setHeight(rowHeight);
+		
 		rows.add(row);
 		adjustSizes();
 	}
@@ -267,8 +270,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		if (count >= rowSize && (x+width > maxRowWidth)) {
 			// move on to next row.
 			count = 0;
-			if (x > maxRowWidth)
+			if (x > maxRowWidth) {
 				maxRowWidth = x;
+			}
 			x = 0;
 			row.setHeight(rowHeight);
 			rows.add(row);
@@ -538,11 +542,11 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
     			
     			// find difference between maxWidth and rowWidth;
     			float horizSpace = maxWidth -width;
-   
     	
     			float padding = 0;
-    			if (horizSpace > 0)
+    			if (horizSpace > 0) {
     				padding = horizSpace/boxes.size();
+    			}
     			float boxWidth;
     			Iterator iter = boxes.iterator();
     			ChainBox box;
