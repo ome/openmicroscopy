@@ -30,16 +30,14 @@
 package org.openmicroscopy.shoola.agents.spots.ui.java3d;
 
 //Java imports
+import com.sun.j3d.utils.geometry.Text2D;
 import java.awt.Font;
 import javax.media.j3d.Appearance;
-import javax.media.j3d.FontExtrusion;
-import javax.media.j3d.Font3D;
 import javax.media.j3d.Material;
 import javax.media.j3d.PolygonAttributes; 
-import javax.media.j3d.Shape3D;
-import javax.media.j3d.Text3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.Transform3D;
+import javax.vecmath.Color3f;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
@@ -70,32 +68,42 @@ import org.openmicroscopy.shoola.agents.spots.data.SpotsTrajectorySet;
 public class LabelGroup extends TransformGroup {
 	
 	private static final Font f = new Font("Helvetica",Font.PLAIN,1);
-	private static final float TEXT_SCALE=-0.04f;
 	public static final float NAME_OFFSET=-.23f;
 	public static final float NUMBER_OFFSET=-0.18f;
+	private static final float LOW_LABEL_POS= -0.2f;
+	private static final float HIGH_LABEL_POS =0.2f;
 	private Appearance app;
-	private FontExtrusion extrusion;
-	private Font3D font;
 	
 	
 
 	// angles of rotation for individual items on each axis
+		
+	// to interpret these correctly, we must realize that 
+	// the cube has already been rotated 180 around x, to but the x/y plane i
+	// in the front with y pointing _down_ the screen.
+	// Thus, I scale each of the three labels by -1 - effectively "undoing" the
+	// flip of the cube.
+	// So, when I say "x rotates 180 around y", I've also post-multiplied by 
+	// a scale of -1.
+	// x rotates 180 around y
 	
 	// x rotates 180 around y
-	Matrix3f xrots = new Matrix3f ( -1.0f, 0.0f, 0.0f,
-			                         0.0f, 1.0f, 0.0f,
-									 0.0f, 0.0f,-1.0f);
+	Matrix3f xrots = new Matrix3f ( 1.0f, 0.0f, 0.0f,
+			                         0.0f, -1.0f, 0.0f,
+									 0.0f, 0.0f,1.0f);
 	// on y axis, rotate -90 degrees around z
-	Matrix3f yrots = new Matrix3f( 0.0f, 1.0f, 0.0f,
-								  -1.0f, 0.0f, 0.0f,
-								   0.0f, 0.0f, 1.0f);
+	Matrix3f yrots = new Matrix3f( 0.0f, -1.0f, 0.0f,
+								  1.0f, 0.0f, 0.0f,
+								   0.0f, 0.0f, -1.0f);
 	
 	// on z axis, 90 degrees around y
-	Matrix3f zrots = new Matrix3f( 0.0f, 0.0f, 1.0f,
-								   0.0f, 1.0f, 0.0f,
-								  -1.0f, 0.0f, 0.0f);
+	Matrix3f zrots = new Matrix3f( 0.0f, 0.0f, -1.0f,
+								   0.0f, -1.0f, 0.0f,
+								  1.0f, 0.0f, 0.0f);
 	
 	// not quite sure why the following matrices work right, but they do.
+	// These matrices - perhaps along with the whole class - should
+	// be refactored and clarified.
 	
 	// now, rotate whole x thing  around x
 	Matrix3f xangle = new Matrix3f( 1.0f, 0.0f, 0.0f,
@@ -112,14 +120,14 @@ public class LabelGroup extends TransformGroup {
 								    .707f, .707f, 0.0f,
 									0.0f, 0.0f, 1.0f);
 	
-	private Text3D xlow;
-	private Text3D xhigh;
+	private Text2D xlow;
+	private Text2D xhigh;
 
-	private Text3D ylow;
-	private Text3D yhigh;
+	private Text2D ylow;
+	private Text2D yhigh;
 	
-	private Text3D zlow;
-	private Text3D zhigh;
+	private Text2D zlow;
+	private Text2D zhigh;
 
 	private TransformGroup xgroup;
 	private TransformGroup ygroup;
@@ -140,9 +148,6 @@ public class LabelGroup extends TransformGroup {
 		app.setMaterial(mat);
 		
 		
-		extrusion = new FontExtrusion();
-		font = new Font3D(f,extrusion);
-		
 		//add x,
 	    xgroup = new TransformGroup();
 	    xgroup.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
@@ -150,14 +155,14 @@ public class LabelGroup extends TransformGroup {
 	    xgroup.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
 		addChild(xgroup);
 		setAxisAngle(xgroup,xangle);
-		Text3D xtext = getText3D("X");
+		Text2D xtext = getText2D("X");
 		float zfront = (float)extents.getFrontOffset(SpotsTrajectory.Z);
 		xgroup.addChild(buildAxisLabel(xtext,0.0f,NAME_OFFSET,
 				zfront,xrots));
-		xlow = getText3D(tSet.getLowLabel(SpotsTrajectory.X));
+		xlow = getText2D(tSet.getLowLabel(SpotsTrajectory.X));
 		xgroup.addChild(buildAxisLabel(xlow,-.2f,NUMBER_OFFSET,
 				zfront,xrots));
-		xhigh = getText3D(tSet.getHighLabel(SpotsTrajectory.X));
+		xhigh = getText2D(tSet.getHighLabel(SpotsTrajectory.X));
 		xgroup.addChild(buildAxisLabel(xhigh,.2f,NUMBER_OFFSET,
 				zfront,xrots));
 		
@@ -168,14 +173,14 @@ public class LabelGroup extends TransformGroup {
 	    ygroup.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
 		addChild(ygroup);
 		setAxisAngle(ygroup,yangle);
-		Text3D ytext = getText3D("Y");
+		Text2D ytext = getText2D("Y");
 		
 		ygroup.addChild(buildAxisLabel(ytext,NAME_OFFSET,0.0f,
 				zfront,yrots));
-		ylow = getText3D(tSet.getLowLabel(SpotsTrajectory.Y));
+		ylow = getText2D(tSet.getLowLabel(SpotsTrajectory.Y));
 		ygroup.addChild(buildAxisLabel(ylow,NUMBER_OFFSET,
 				-0.2f,zfront,yrots));
-		yhigh = getText3D(tSet.getHighLabel(SpotsTrajectory.Y));
+		yhigh = getText2D(tSet.getHighLabel(SpotsTrajectory.Y));
 		
 		ygroup.addChild(buildAxisLabel(yhigh,NUMBER_OFFSET,0.2f,
 				zfront,yrots));
@@ -187,14 +192,14 @@ public class LabelGroup extends TransformGroup {
 	    zgroup.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
 		addChild(zgroup);
         setAxisAngle(zgroup,zangle);
-        Text3D ztext = getText3D("Z");
+        Text2D ztext = getText2D("Z");
         float xfront = (float) extents.getFrontOffset(SpotsTrajectory.X);
         zgroup.addChild(buildAxisLabel(ztext,xfront,NAME_OFFSET,0.0f,
 				zrots));
-		zlow = getText3D(tSet.getLowLabel(SpotsTrajectory.Z));
+		zlow = getText2D(tSet.getLowLabel(SpotsTrajectory.Z));
 		zgroup.addChild(buildAxisLabel(zlow,xfront,
 				NUMBER_OFFSET,-0.2f,zrots));
-		zhigh = getText3D(tSet.getHighLabel(SpotsTrajectory.Z));
+		zhigh = getText2D(tSet.getHighLabel(SpotsTrajectory.Z));
 		zgroup.addChild(buildAxisLabel(zhigh,xfront,
 				NUMBER_OFFSET,0.2f,zrots));
 		
@@ -202,29 +207,34 @@ public class LabelGroup extends TransformGroup {
 	}
 	
 	
-	private Text3D getText3D(String label) {
-		Text3D text = new Text3D();
-		text.setFont3D(font);
-		text.setString(label);
-		text.setAlignment(Text3D.ALIGN_CENTER);
-		text.setCapability(Text3D.ALLOW_STRING_WRITE);
+	private Text2D getText2D(String label) {
+
+		Text2D text = new Text2D(label,new Color3f(0.0f,0.0f,0.0f),
+				"Helvetica",12,Font.BOLD);;
+		 text.setCapability(Text2D.ALLOW_APPEARANCE_READ);
+		 text.setCapability(Text2D.ALLOW_APPEARANCE_WRITE);
+		
+	     Appearance textAppear = text.getAppearance();
+	     textAppear.setCapability(Appearance.ALLOW_TEXTURE_READ);
+	     textAppear.setCapability(Appearance.ALLOW_TEXTURE_WRITE);
+         PolygonAttributes polyAttrib = new PolygonAttributes();
+         polyAttrib.setCullFace(PolygonAttributes.CULL_NONE);
+         polyAttrib.setBackFaceNormalFlip(true);
+         textAppear.setPolygonAttributes(polyAttrib);			
 		return text;
 	}
 	
-	private TransformGroup buildAxisLabel(Text3D text,float x,float y, float z,
+	private TransformGroup buildAxisLabel(Text2D text,float x,float y, float z,
 			Matrix3f rots) {
-		Shape3D shape = new Shape3D();
-		shape.setGeometry(text);
-		shape.setAppearance(app);
+
 		Transform3D t3 = new Transform3D();
 		t3.setRotation(rots);
-		t3.setScale(TEXT_SCALE);
 		t3.setTranslation(new Vector3f(x,y,z));
 		
 		TransformGroup xt = new TransformGroup(t3);
 		xt.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 		xt.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-		xt.addChild(shape);
+		xt.addChild(text);
 		return xt;
 	}
 	
