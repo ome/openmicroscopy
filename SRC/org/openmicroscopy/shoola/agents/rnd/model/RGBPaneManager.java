@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.agents.rnd.editor.ChannelEditor;
+import org.openmicroscopy.shoola.util.ui.ColorSelector;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -118,7 +119,7 @@ class RGBPaneManager
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			if (component instanceof ColoredButton) 
-				UIUtilities.centerAndShow(new ColorSelector(this, 
+				UIUtilities.centerAndShow(new ColorSelector(view, 
 										eventManager.getRGBA(index), index));
 			else 
 				UIUtilities.centerAndShow(new ChannelEditor(eventManager, 

@@ -37,6 +37,7 @@ import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -45,8 +46,10 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
+import org.openmicroscopy.shoola.util.ui.IColorChooser;
 
 /** 
  * 
@@ -64,6 +67,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredButton;
  */
 public class RGBPane
 	extends ModelPane
+    implements IColorChooser
 {
 
 	private IconManager 			im;
@@ -170,5 +174,19 @@ public class RGBPane
 		p.add(button);
 		return p;
 	}
+
+    /** Implemented as specified by the I/F. */
+    public JFrame getReferenceFrame()
+    {
+        return eventManager.getReferenceFrame();
+    }
+
+    /** Implemented as specified by the I/F. */
+    public void setColor(int index, Color color) 
+    {
+        manager.setRGBA(index, color);
+    }
+    
+    public Registry getRegistry() { return eventManager.getRegistry(); }
 	
 }
