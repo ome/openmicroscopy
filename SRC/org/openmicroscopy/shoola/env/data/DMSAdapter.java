@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DMSProxy
+ * org.openmicroscopy.shoola.env.data.DMSAdapter
  *
  *------------------------------------------------------------------------------
  *
