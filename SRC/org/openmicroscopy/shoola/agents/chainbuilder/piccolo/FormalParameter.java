@@ -173,7 +173,7 @@ public abstract class FormalParameter extends PNode implements
 		textNode = new PText(param.getName());
 		textNode.setFont(Constants.NAME_FONT);
 		textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
-		textNode.setGreekThreshold(0);
+		//textNode.setGreekThreshold(0);
 		labelNode.addChild(textNode);
 		
 		
@@ -181,7 +181,7 @@ public abstract class FormalParameter extends PNode implements
 		SemanticTypeData type = param.getSemanticType();
 		if (type != null) {
 			typeNode = new PText(type.getName());
-			typeNode.setGreekThreshold(0);
+		//	typeNode.setGreekThreshold(0);
 			labelNode.addChild(typeNode);
 			typeNode.setScale(TYPE_NODE_DEFAULT_SCALE);
 			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);

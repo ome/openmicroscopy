@@ -224,7 +224,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	private void buildMagnifiedLabel() {
 		// set up the magnified version of the module name
 		zoomName = new PText(getName());
-		zoomName.setGreekThreshold(0);
+		//zoomName.setGreekThreshold(0);
 		zoomName.setFont(Constants.NAME_FONT);
 		zoomName.setPickable(false);
 		zoomName.setConstrainWidthToTextWidth(false); 
