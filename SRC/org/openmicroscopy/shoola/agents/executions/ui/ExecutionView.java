@@ -83,7 +83,7 @@ public class ExecutionView extends Ellipse2D.Float {
 		
 			Color oldColor = g.getColor();
 			if (current == true)
-				g.setColor(Constants.SELECTED_FILL);
+				g.setColor(Constants.EXECUTION_SELECTED_FILL);
 			else if (highlighted == true)
 				g.setColor(Constants.HIGHLIGHT_COLOR);
 			else {
