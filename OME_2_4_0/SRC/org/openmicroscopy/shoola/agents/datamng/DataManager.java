@@ -833,8 +833,10 @@ public class DataManager
 	 */
 	void viewDataset(int datasetID)
 	{
-		LoadDataset request = new LoadDataset(datasetID);
-		registry.getEventBus().post(request);	
+        getRegistry().getUserNotifier().notifyInfo("Browser", 
+                "Sorry, not yet implemented ");  
+		//LoadDataset request = new LoadDataset(datasetID);
+		//registry.getEventBus().post(request);	
 	}
 
 	/**
