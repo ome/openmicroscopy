@@ -159,45 +159,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 
 		//		 find width. use it in layout of datasets/executions..
 		if (chainView.getWidth() > width)
-			width = chainView.getWidth();
-		
-		
-		
-		// if executions, add them here...
-		/*Collection datasets = chain.getDatasetsWithExecutions();
-		if (datasets.size() > 0) {
-			// add indication of datasets
-			PText datasetLabel = new PText("Datasets: ");
-			datasetLabel.setFont(PConstants.LABEL_FONT);
-			datasetLabel.setOffset(x+HGAP,y);
-			datasetLabel.setPickable(false);
-			datasetLabel.setScale(PConstants.FIELD_LABEL_SCALE);
-			chainLayer.addChild(datasetLabel);
-			PBounds dlbounds = datasetLabel.getGlobalFullBounds();
-			//y+=dlbounds.getHeight()+VGAP;
-			double datasetsWidth = width - (dlbounds.getWidth()+2*HGAP);
-			
-			// add individual datasets
-			PDatasetLabels datasetLabels = new 
-				PDatasetLabels(datasets,datasetsWidth);
-			
-			// adjust size
-			chainLayer.addChild(datasetLabels);
-			double ratio = PConstants.ITEM_LABEL_SCALE/
-				PConstants.FIELD_LABEL_SCALE;
-			y += (1-ratio)*dlbounds.getHeight()-VGAP-FUDGE;
-			datasetLabels.setOffset(x+dlbounds.getWidth()+2*HGAP,y);
-			PBounds b2 = datasetLabels.getGlobalFullBounds();
-			double datasetHeight = dlbounds.getHeight();
-			if (b2.getHeight() > datasetHeight)
-				datasetHeight = b2.getHeight();
-			y+= datasetHeight+VGAP;
-			// add indications of executions
-			
-			
-			/// add the individual labels;
-		} */
-		
+			width = chainView.getWidth();	
 		setExtent(width+HGAP*2,y);
 	}
 	
@@ -226,8 +188,6 @@ public class ChainBox extends GenericBox implements MouseableNode
 		// add a triangle in the corner.
 		if (chain.getIsLocked()) {
 			addLockedIndicator();
-			//PBounds b = getFullBoundsReference();
-			
 		}
 	}
 	
@@ -246,32 +206,12 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 	public void setSelected(boolean v) {
 		if (v == true)
-			setPaint(PConstants.EXECUTED_COLOR);
+			setPaint(PConstants.SELECTED_FILL);
 		else
 			setPaint(null);
 		repaint();
 	}
 	
-	/*public void selectionChanged(SelectionEvent e) {
-		SelectionState selectionState = e.getSelectionState();
-		if (e.isEventOfType(SelectionEvent.SET_ROLLOVER_CHAIN)) {
-			boolean selected = selectionState.getRolloverChain() == chain; 
-			setHighlighted(selected);
-			
-		}
-		else {
-			Collection activeDatasets = selectionState.getActiveDatasets();
-			boolean selected = 
-				chain.hasExecutionsInSelectedDatasets(activeDatasets);
-			setSelected(selected);
-		}
-	}
-	
-	public int getEventMask() {
-		return SelectionEvent.SET_SELECTED_DATASET |
-			SelectionEvent.SET_SELECTED_PROJECT |
-			SelectionEvent.SET_ROLLOVER_CHAIN;
-	}*/
 
 	public void mouseClicked(GenericEventHandler handler) {
 		((ChainPaletteEventHandler) handler).animateToNode(this);
