@@ -33,14 +33,14 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -50,6 +50,7 @@ import javax.swing.JMenuItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -73,10 +74,15 @@ public class TopFrameImpl
 	/** Constant used to size and positions the topFrame. */
 	static final int		INSET = 100;
 	
-	/** Action command ID. */    
-	static final int        EXIT = 4;
-	static final int        OMEDS = 5;
-	static final int        OMEIS = 6;
+	/** 
+	 * ID to handle action command and position the menu Item 
+	 * in the connectMenu.
+	 */ 
+	static final int        OMEDS = TopFrame.OMEDS;
+	static final int        OMEIS = TopFrame.OMEIS; 
+	
+	/** Action command ID. */ 
+	static final int        EXIT = 10;
 	
 	/** the 4 available menus. */    
     private JMenu           fileMenu, viewMenu, helpMenu, connectMenu;
@@ -100,12 +106,15 @@ public class TopFrameImpl
         //make sure we have nice window decorations
         JFrame.setDefaultLookAndFeelDecorated(true);  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-		ImageIcon ome = loadImageIcon();
-		setIconImage(ome.getImage());
+       
+        //ome icon.
+		IconFactory factory = (IconFactory) 
+			container.getRegistry().lookup("/resources/icons/DefaultFactory");
+		ImageIcon omeIcon = (ImageIcon) factory.getIcon("OME16.png");
+		setIconImage(omeIcon.getImage());
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
-        getContentPane().add(desktop);
+		getContentPane().add(desktop);
     }
     
 	/** Implemented as specified by {@link TopFrame}. */     
@@ -134,6 +143,16 @@ public class TopFrameImpl
     {
         JMenu menu = retrieveMenu(menuType);
         menu.remove(item);
+    }
+    
+	/** Implemented as specified by {@link TopFrame}. */ 
+    public JMenuItem getItemFromMenu(int menuType, int itemPosition) 
+    {
+    	JMenuItem item = null;
+    	JMenu menu = retrieveMenu(menuType);
+    	if (0 <= itemPosition && itemPosition < menu.getItemCount()) 
+    		item = menu.getItem(itemPosition);
+    	return item;
     }
     
 	/** Implemented as specified by {@link TopFrame}. */ 
@@ -167,6 +186,20 @@ public class TopFrameImpl
         }
     }
     
+	/** Connect to OMEDS. */
+	private void connectToOMEDS()
+	{
+		LoginOMEDS loginDS = new LoginOMEDS(container);
+		showLogin(loginDS);
+	}
+    
+	/** Connect to OMEIS. */
+	private void connectToOMEIS()
+	{
+		LoginOMEIS loginIS = new LoginOMEIS(container);
+		showLogin(loginIS);
+	}
+    
 	/**
 	* Pops up the top frame window.
 	*/
@@ -178,25 +211,28 @@ public class TopFrameImpl
     	setVisible(true);
     }
     
-    /**Connect to omeDS. */
-    //TODO: implement method
-    private void connectToOMEDS()
-    {
-    }
-    
-	/**Connect to omeDS. */
-	//TODO: implement method
-	private void connectToOMEIS()
-   	{
-   	}
+
 	
-	private ImageIcon loadImageIcon()
+	/** 
+	 * Sizes, centers and brings up the specified login dialog.
+	 *
+	 * @param   editor	The editor dialog.
+	 */
+	private void showLogin(JDialog editor)
 	{
-		IconFactory factory = (IconFactory) 
-			container.getRegistry().lookup("/resources/icons/DefaultFactory");
-		Icon icon = factory.getIcon("OME16.png");
-		return (ImageIcon) icon;
+		//editor.pack();
+		Registry registry = container.getRegistry();
+		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
+		Rectangle   tfB = topFrame.getBounds(), 
+					psB = editor.getBounds();
+		int         offsetX = (tfB.width-psB.width)/2, 
+					offsetY = (tfB.height-psB.height)/2;
+		if (offsetX < 0)   offsetX = 0;
+		if (offsetY < 0)   offsetY = 0;
+		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
+		editor.setVisible(true);
 	}
+
 	/** 
 	* Adds the specified menuItem to the container at the position n-1. 
 	* 
@@ -242,9 +278,11 @@ public class TopFrameImpl
 		connectMenu = new JMenu("Connect");
 		JMenuItem menuItem = new JMenuItem("OMEDS");
 		menuItem.setActionCommand(""+OMEDS);
+		menuItem.setEnabled(false);
 		menuItem.addActionListener(this);
 		connectMenu.add(menuItem);
 		menuItem = new JMenuItem("OMEIS");
+		menuItem.setEnabled(false);
 		menuItem.setActionCommand(""+OMEIS);
 		menuItem.addActionListener(this);
 		connectMenu.add(menuItem);

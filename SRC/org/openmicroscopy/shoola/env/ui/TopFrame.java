@@ -71,11 +71,15 @@ public interface TopFrame
 	 */
 	public static final int       	PALETTE_LAYER = 1;
 	
-	
+	/** ID corresponding to the specified menu. */
 	public static final int        	FILE = 0;
 	public static final int        	VIEW = 1;
 	public static final int        	HELP = 2;
 	public static final int        	CONNECT = 3;
+	
+	
+	public static final int			OMEDS = 0;
+	public static final int			OMEIS = 1; 
 	
 	/** 
 	* Positions a component on the layer of the application internal desktop.
@@ -103,10 +107,20 @@ public interface TopFrame
 	/** 
 	* Removes a component from a specified menu. 
 	*
-	* @param menuType  		ID which corresponds to specified menu.
+	* @param menuType  		ID of specified menu.
 	* @param item         	component to be removed.
 	*/
     public void removeFromMenu(int menuType, JMenuItem item);
+    
+    /** 
+     * Retrieves an item in the specified menu.
+     * 
+     * @param menuType		ID of the specified menu.
+     * @param itemPosition	position index of the item.
+     * @return 	JMenuItem or <code>null</code> if there exists no item for 
+     * 			the specified position
+     */
+    public JMenuItem getItemFromMenu(int menuType, int itemPosition);
     
     /**
      * Pops up the top frame window.
@@ -115,4 +129,5 @@ public interface TopFrame
     
     /** Returns the presentation. */
     public JFrame getFrame();
+    
 }
