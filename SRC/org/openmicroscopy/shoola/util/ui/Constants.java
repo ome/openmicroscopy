@@ -95,6 +95,9 @@ public class Constants {
 	/** The standard background color for Piccolo Canvases */
 	public static final Color CANVAS_BACKGROUND_COLOR = new Color(227,227,227);
 	
+	/** an alternative background */
+	public static final Color ALT_BACKGROUND_COLOR = new Color(215,215,215);
+	
 	/** Highlighting of a link  between modules */
 	public static final Color LINK_HIGHLIGHT_COLOR=Color.WHITE;
     
