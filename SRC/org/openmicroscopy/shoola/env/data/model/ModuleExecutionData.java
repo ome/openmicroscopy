@@ -65,6 +65,7 @@ public class ModuleExecutionData implements DataObject
 	private String errorMessage;
 	private List inputs;
 	private boolean virtual;
+	private ModuleData module;
 	
 	private Date date;
 	
@@ -73,7 +74,7 @@ public class ModuleExecutionData implements DataObject
 	public ModuleExecutionData(int id,DatasetSummary dataset,String dependence,
 			ImageSummary image,String iteratorTag,String newFeatureTag,
 			String timestamp,Float totalTime,String status,String errorMessage,
-			List inputs,boolean  virtual) 
+			List inputs,boolean  virtual,ModuleData module) 
 	{	
 		this.id = id;
 		this.dataset = dataset;
@@ -87,6 +88,7 @@ public class ModuleExecutionData implements DataObject
 		this.errorMessage = errorMessage;
 		this.inputs = inputs;
 		this.virtual = virtual;
+		this.module = module;
 	}
 	
 	/** Required by the DataObject interface. */
@@ -148,6 +150,10 @@ public class ModuleExecutionData implements DataObject
 		return virtual;
 	}
 	
+	public ModuleData getModule() {
+		return module;
+	}
+	
 	public void setDataset(DatasetSummary dataset) {
 		this.dataset = dataset;
 	}
@@ -193,5 +199,9 @@ public class ModuleExecutionData implements DataObject
 	
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	public void setModule(ModuleData module) {
+		this.module = module;
 	}
 }
