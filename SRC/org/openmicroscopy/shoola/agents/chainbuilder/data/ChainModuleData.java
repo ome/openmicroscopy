@@ -35,9 +35,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.data.MatchMapper;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
-import org.openmicroscopy.shoola.util.data.MatchMapper;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 
@@ -66,9 +66,16 @@ public class ChainModuleData  extends ModuleData
 	private static MatchMapper moduleNodeMap = new MatchMapper();
 	 
 	private static ModulePaletteWindow mainWindow = null;
+
+	private static String longestName = null;
+
 	
 	public static void setMainWindow(ModulePaletteWindow main) {
 		mainWindow=main;
+	}
+	
+	public static String getLongestName() {
+		return longestName;
 	}
 	
 	public ChainModuleData() {}
@@ -93,7 +100,7 @@ public class ChainModuleData  extends ModuleData
 
 	/**
 	 * Set modules to be highlighted. Note that this might be better and 
-	 * more generally handled by a selecion listener model.
+	 * more generally handled by a selection listener model.
 	 * 
 	 * @param v true if highlighted, else false
 	 */
@@ -114,5 +121,11 @@ public class ChainModuleData  extends ModuleData
 			else
 				mainWindow.clearTreeSelection();
 		}
+	}
+	
+	public void setName(String name) {
+		super.setName(name);
+		if (longestName == null || name.length() > longestName.length())
+			longestName =name;
 	}
 }
