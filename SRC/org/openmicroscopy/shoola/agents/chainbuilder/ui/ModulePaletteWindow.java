@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
@@ -46,6 +47,7 @@ import javax.swing.JTree;
 import javax.swing.WindowConstants;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -62,6 +64,7 @@ import
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * A top level window containing analysis modules that might be used in a chain
@@ -106,6 +109,10 @@ public class ModulePaletteWindow
 	 * A flag to prevent re-entrant UI event calls on the JTRee
 	 */
 	private boolean lockTreeChange = false;
+	
+	/** the last chain that was higlighted */
+	private ChainModuleData lastModule;
+	
 	
 	/**
 	 * Creates a new instance.
@@ -157,7 +164,6 @@ public class ModulePaletteWindow
 		moduleCanvas = new ModulePaletteCanvas(this);
 		moduleCanvas.setContents(modData);
 		moduleCanvas.layoutContents();
-		moduleCanvas.completeInitialization();
 		
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,null,moduleCanvas);
 		split.setPreferredSize(new Dimension(2*SIDE,SIDE));
@@ -189,6 +195,8 @@ public class ModulePaletteWindow
 
 		if (node != null) {
 			tree = new JTree(node);
+			tree.setCellRenderer(new ModuleTreeCellRenderer());
+			tree.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 			tree.setRootVisible(false);
 			tree.setEditable(false);
 			tree.setExpandsSelectedPaths(true);
@@ -196,12 +204,28 @@ public class ModulePaletteWindow
 				setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 			tree.addTreeSelectionListener(this);
 			treePanel = new JScrollPane(tree);
+			treePanel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 			split.setLeftComponent(treePanel);
 			split.setDividerLocation(0);
 			split.setOneTouchExpandable(true);
 			split.setResizeWeight(0.25);
 		}
-		moduleCanvas.scaleToSize();
+	}
+
+	private class ModuleTreeCellRenderer extends DefaultTreeCellRenderer {
+		
+		ModuleTreeCellRenderer() {
+			setBackgroundNonSelectionColor(Constants.CANVAS_BACKGROUND_COLOR);
+		}
+		
+		public Component getTreeCellRendererComponent(JTree tree,Object value,
+				boolean sel, boolean expanded,boolean leaf,int row,
+				boolean hasFocus) {
+			super.getTreeCellRendererComponent(tree,value,sel,expanded,
+					leaf,row,hasFocus);
+			setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+			return this;
+		}
 	}
 	
 	/**
@@ -213,14 +237,21 @@ public class ModulePaletteWindow
 		if (lockTreeChange == true)
 			return;
 		
+		
 		ModuleTreeNode node = 
 			(ModuleTreeNode) tree.getLastSelectedPathComponent();
 		if (node == null) 
 			return;
+		
+		if (lastModule != null) {
+			moduleCanvas.unhighlightModules(lastModule);
+		}
 		if (node.isLeaf()) { // it's a module
-			moduleCanvas.highlightModule((ChainModuleData)node.getObject());
+			lastModule = (ChainModuleData) node.getObject();
+			moduleCanvas.highlightModule(lastModule);
 		}
 		else if (node.getObject() instanceof ModuleCategoryData) {
+			lastModule = null;
 			ModuleCategoryData mc = (ModuleCategoryData) node.getObject();
 			moduleCanvas.highlightCategory(mc.getName());
 		
@@ -274,8 +305,4 @@ public class ModulePaletteWindow
 		uiManager.showWindows();
 	}
 	
-	public void focusOnPalette() {
-		if (moduleCanvas != null)
-			moduleCanvas.scaleToSize();
-	}
 }
