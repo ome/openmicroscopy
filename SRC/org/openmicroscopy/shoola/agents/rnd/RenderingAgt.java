@@ -177,8 +177,7 @@ public class RenderingAgt
 	 */
 	private void removePresentation()
 	{
-		if (presentation.isIcon())
-			topFrame.deiconifyFrame(presentation);
+		if (presentation.isIcon()) topFrame.deiconifyFrame(presentation);
 		Rectangle bounds = presentation.getBounds();
 		if (presentation.isClosed()) displayed = false;
 		topFrame.removeFromDesktop(presentation);
@@ -228,6 +227,7 @@ public class RenderingAgt
 		} catch (Exception e) {}
 	}
 	
+	/** Bring up the widget. */
 	private void bringUpPresentation()
 	{
 		if (presentation != null) {
@@ -282,7 +282,7 @@ public class RenderingAgt
 				channelData[cd.getIndex()] = cd;
 			} else {
 				String msg = "The channel data can't be updated b/c of a data" +
-						" Retrieveal failure at initialization time.";
+						" retrieval failure at initialization time.";
 				registry.getUserNotifier().notifyInfo("Update channel", msg);
 			}
 		}  catch(DSAccessException dsae) {

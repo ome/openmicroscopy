@@ -107,11 +107,12 @@ class OMEDSGateway
 			RemoteCaller proxy = proxiesFactory.getRemoteCaller();
 			proxy.login(userName, password);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (IllegalStateException ise) {
-			throw new DSOutOfServiceException("An internal error occured", ise);
+			throw new DSOutOfServiceException("An internal error occured.", 
+												ise);
 		} 
 		
 		//TODO: The proxy should throw a checked exception if login fails!
@@ -161,11 +162,11 @@ class OMEDSGateway
 		try {
 			us = (UserState) getDataFactory().getUserState(c);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve the user id", rsee);
+			throw new DSAccessException("Can't retrieve the user state.", rsee);
 		} 
 		return us.getExperimenter();
 	}
@@ -187,11 +188,12 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().createNew(dto);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't create new DataInterface", rsee);
+			throw new DSAccessException("Can't create a new DataInterface.",
+										rsee);
 		} 
 		return retVal; 
 	}
@@ -213,11 +215,11 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().createNew(semanticTypeName);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't create new Attribute", rsee);
+			throw new DSAccessException("Can't create a new Attribute.", rsee);
 		} 
 		return retVal; 
 	}
@@ -242,11 +244,11 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().retrieveList(dto, c);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve listData", rsee);
+			throw new DSAccessException("Can't retrieve listData.", rsee);
 		} 
 		return retVal;
 	}
@@ -269,11 +271,11 @@ class OMEDSGateway
 	   	try {
 		   	retVal = getDataFactory().retrieve(dto, c);
 	   	} catch (RemoteConnectionException rce) {
-		   	throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		   	throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 	   	} catch (RemoteAuthenticationException rae) {
-		   	throw new DSOutOfServiceException("Not logged in", rae);
+		   	throw new DSOutOfServiceException("Not logged in.", rae);
 	   	} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve data", rsee);
+			throw new DSAccessException("Can't retrieve data.", rsee);
 	   	} 
 		return retVal;
 	}
@@ -297,11 +299,11 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().retrieveList(semanticTypeName, c);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve ListSTS data", rsee);
+			throw new DSAccessException("Can't retrieve ListSTS data.", rsee);
 		} 
 		return retVal;
 	}
@@ -324,11 +326,11 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().retrieve(semanticTypeName, c);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve STS data", rsee);
+			throw new DSAccessException("Can't retrieve STS data.", rsee);
 		} 
 		return retVal;
 	}
@@ -351,11 +353,11 @@ class OMEDSGateway
 		try {
 			val = getDataFactory().count(type, c);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't count data", rsee);
+			throw new DSAccessException("Can't count data.", rsee);
 		} 
 		return val;
 	}
@@ -373,11 +375,11 @@ class OMEDSGateway
 		try {
 			getDataFactory().updateMarked();
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't update the marked data", rsee);
+			throw new DSAccessException("Can't update the marked data.", rsee);
 		} 
 	}
 	
@@ -388,11 +390,11 @@ class OMEDSGateway
 		try {
 			getProjectManager().addDatasetsToProject(projectID, datasetIDs);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't add datasets to project", rsee);
+			throw new DSAccessException("Can't add datasets to project.", rsee);
 		} 
 	}
 	
@@ -403,11 +405,11 @@ class OMEDSGateway
 		try {
 			getProjectManager().addDatasetToProjects(projectIDs, datasetID);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't add datasets to project", rsee);
+			throw new DSAccessException("Can't add datasets to project.", rsee);
 		} 
 	}
 	
@@ -419,11 +421,11 @@ class OMEDSGateway
 	  		getProjectManager().removeDatasetsFromProject(projectID, 
 	  														datasetsIDs);
   		} catch (RemoteConnectionException rce) {
-	  		throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+	  		throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
   		} catch (RemoteAuthenticationException rae) {
-	  		throw new DSOutOfServiceException("Not logged in", rae);
+	  		throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-	  		throw new DSAccessException("Can't remove datasets from project", 
+	  		throw new DSAccessException("Can't remove datasets from project.", 
 	  									rsee);
   		} 
 	}
@@ -435,11 +437,11 @@ class OMEDSGateway
 		try {
 			getDatasetManager().addImagesToDataset(datasetID, imageIDs);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't add images to dataset", rsee);
+			throw new DSAccessException("Can't add images to dataset.", rsee);
 		} 
 	}
 	
@@ -450,11 +452,11 @@ class OMEDSGateway
 		try {
 			getDatasetManager().removeImagesFromDataset(datasetID, imagesIDs);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't remove images from dataset",
+			throw new DSAccessException("Can't remove images from datase.t",
 										rsee);
 		} 
 	}
@@ -470,11 +472,11 @@ class OMEDSGateway
 		try {
             getAnnotationManager().annotateAttributes(attributes);
 		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
+			throw new DSOutOfServiceException("Not logged in.", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't annotate attributes", rsee);
+			throw new DSAccessException("Can't annotate attributes.", rsee);
 		} 
 	}
     
@@ -485,11 +487,11 @@ class OMEDSGateway
         try {
             getDataFactory().updateList(attributes);
         } catch(RemoteConnectionException rce) {
-            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+            throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
         } catch (RemoteAuthenticationException rae) {
-            throw new DSOutOfServiceException("Not logged in", rae);
+            throw new DSOutOfServiceException("Not logged in.", rae);
         } catch (RemoteServerErrorException rsee) {
-            throw new DSAccessException("Can't update atttibutes", rsee);
+            throw new DSAccessException("Can't update atttibutes.", rsee);
         }
     }
 	
