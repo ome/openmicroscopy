@@ -56,6 +56,7 @@ import javax.swing.JOptionPane;
 //Third-party libraries
 import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -97,7 +98,9 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	
 	/** the side*/
 	private static final int SIDE=200;
-	
+
+	private static final String TIP = 
+		"Drag and drop chains and modules here.\nConnect them to build new chains";
 	/**
 	 * The initial magnification of the  canvas
 	 */
@@ -109,6 +112,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 * The layer for the canvas 
 	 */
 	private PLayer layer;
+	
+	
 	
 	
 	/**
@@ -129,6 +134,9 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 */
 	private ChainFrame frame;
 	
+	
+	/*** tip node ***/
+	private PText tip =  new PText(TIP);
 	
 	public ChainCreationCanvas(ChainFrame frame,ChainDataManager manager) {
 		super();
@@ -169,7 +177,18 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	    // setup tool tips.
 		camera.addInputEventListener(new ChainbuilderToolTipHandler(camera));
 		
-		
+		camera.addChild(tip);
+		tip.setFont(Constants.TOOLTIP_FONT);
+		tip.setTextPaint(Constants.CANVAS_TIP_COLOR);
+		tip.setScale(Constants.CHAIN_CREATION_TIP_SCALE);
+	}
+	
+	public void positionTip() {
+		PBounds b = getCamera().getViewBounds();
+		System.err.println("chain creation canvas bounds.."+b);
+		System.err.println("height of window is "+getHeight()+","+ getWidth());
+		System.err.println("tip size is "+tip.getWidth()+", "+tip.getHeight());
+		tip.setOffset(10,getHeight()/2-tip.getHeight()/2);
 		
 	}
 	
@@ -221,6 +240,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				createDroppedChain(chain,loc);
 				addInputEventListener(handler);			
 			} 
+			removeUserTip();
 		}
 		catch(Exception exc ) {
 			exc.printStackTrace();
@@ -479,5 +499,11 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	
 	public void showParamLinks() {
 		linkLayer.showParamLinks();
+	}
+	
+	private void removeUserTip() {
+		PCamera camera = getCamera();
+		if (tip.getParent() == camera) 
+			camera.removeChild(tip);
 	}
  }

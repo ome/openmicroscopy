@@ -150,7 +150,7 @@ public class ChainFrame extends ManageableTopWindow implements ActionListener {
 		});
 		pack();
 		show();
-		
+		canvas.positionTip();
 		tb.setMaximumSize(tb.getSize());
 	//	tb.setPreferredSize(tb.getSize());
 		//tb.setMinimumSize(tb.getSize());
