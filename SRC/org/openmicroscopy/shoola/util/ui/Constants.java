@@ -79,6 +79,9 @@ public class Constants {
 	/** font for module names */	
 	public static final Font NAME_FONT = new Font("Helvetica",Font.BOLD,14);	
 
+	/** font for STs */
+	public static final Font ST_FONT = new Font("Helvetica",Font.BOLD,7);	
+
 	/** font for tooltips */		
 	public static final Font TOOLTIP_FONT = new Font("Helvetica",Font.BOLD,12);
 	
