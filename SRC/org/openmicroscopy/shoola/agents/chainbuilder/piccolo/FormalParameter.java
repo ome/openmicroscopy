@@ -182,7 +182,7 @@ public abstract class FormalParameter extends PNode implements
 		SemanticTypeData type = param.getSemanticType();
 		if (type != null) {
 			typeNode = new PText(type.getName());
-		//	typeNode.setGreekThreshold(0);
+			typeNode.setGreekThreshold(0);
 			labelNode.addChild(typeNode);
 			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 			typeNode.setFont(Constants.ST_FONT);
