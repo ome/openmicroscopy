@@ -203,7 +203,6 @@ public class ROIAgt
     
     private void bringUpPresentation()
     {
-        presentation.setDrawOnOff(drawOnOff);
         presentation.deIconify();
     }
     

@@ -126,11 +126,6 @@ public class ROIAgtCtrl
     {
         return abstraction.getChannels();
     }
-  
-    public void setState(int state)
-    {
-        drawingCanvas.getManager().setState(state);
-    }
     
     public void setType(int type)
     {    

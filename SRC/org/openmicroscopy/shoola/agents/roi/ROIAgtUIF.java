@@ -73,13 +73,6 @@ public class ROIAgtUIF
         buildGUI();
         pack();
     }
-
-    void setDrawOnOff(boolean b)
-    {
-        controls.getDrawOnOff().setSelected(b);
-    }
-    
-    //SlidersPane getSlidersPane() { return slidersPane; }
     
     /** Build and lay out the GUI. */
     private void buildGUI()
