@@ -140,7 +140,7 @@ class HSBPaneManager
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
 		int w = Integer.parseInt((String) box.getActionCommand());
-		eventManager.setActive(w, e.getStateChange()== ItemEvent.SELECTED);
+		eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
 	}
 	
 	/** Set the four components of the selected color. */

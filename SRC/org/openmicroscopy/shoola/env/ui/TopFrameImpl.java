@@ -46,6 +46,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -72,6 +73,7 @@ public class TopFrameImpl
     extends JFrame 
     implements TopFrame, ActionListener
 {
+	
 	/** Constant used to size and positions the topFrame. */
 	static final int		INSET = 100;
 	
@@ -167,7 +169,7 @@ public class TopFrameImpl
     {
 		desktop.getDesktopManager().deiconifyFrame(frame);
     }
-    
+
 	/** 
 	 * Handles the <code>EXIT<code> event fired by the fileMenu.
 	 * 
@@ -176,11 +178,11 @@ public class TopFrameImpl
     public void actionPerformed(ActionEvent e)
     {
         try {
-            int     cmd = Integer.parseInt(e.getActionCommand());
+            int cmd = Integer.parseInt(e.getActionCommand());
             // just in case we need to handle other events
             switch (cmd) {
                 case EXIT:
-                  //TODO: do something
+					System.exit(0);	//TODO: shut down container.
                   break;
                 case OMEDS:
                 	connectToOMEDS();
@@ -190,7 +192,7 @@ public class TopFrameImpl
                     break;
                 default: break;
             }        
-        } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
+        } catch(NumberFormatException nfe) {
                 throw nfe;  //just to be on the safe side...
         }
     }
@@ -230,10 +232,9 @@ public class TopFrameImpl
 		//editor.pack();
 		Registry registry = container.getRegistry();
 		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle   tfB = topFrame.getBounds(), 
-					psB = editor.getBounds();
-		int         offsetX = (tfB.width-psB.width)/2, 
-					offsetY = (tfB.height-psB.height)/2;
+		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
+		int offsetX = (tfB.width-psB.width)/2, 
+			offsetY = (tfB.height-psB.height)/2;
 		if (offsetX < 0)   offsetX = 0;
 		if (offsetY < 0)   offsetY = 0;
 		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
@@ -260,11 +261,11 @@ public class TopFrameImpl
         JMenuBar menuBar = new JMenuBar(); 
         createFileMenu();
         createConnectMenu();
-        viewMenu = new JMenu("View");
+        viewMenu = new JMenu("Window");
         helpMenu = new JMenu("Help");
         menuBar.add(fileMenu);
-        menuBar.add(viewMenu);
         menuBar.add(connectMenu);
+		menuBar.add(viewMenu);
         menuBar.add(helpMenu);
         return menuBar;
     }
