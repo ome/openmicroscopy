@@ -221,7 +221,6 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 
 	public void mouseClicked(GenericEventHandler handler) {
-		//chainView.mouseClicked(handler);
 		((ChainPaletteEventHandler) handler).animateToNode(this);
 		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
 		((ChainPaletteEventHandler) handler).hideLastChainView();
