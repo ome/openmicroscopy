@@ -90,6 +90,10 @@ public class TrajPoint extends TrajShape {
 		addChild(shape);  
 	}
 	
+	public SpotsTrajectoryEntry getTrajectoryEntry() {
+		return pt;
+	}
+	
 	public void getGeometry(float side) {
 		CubeGeometry cube = new CubeGeometry(side);
 		shape.setGeometry(cube);
