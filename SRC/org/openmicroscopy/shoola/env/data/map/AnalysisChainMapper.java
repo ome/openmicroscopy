@@ -82,7 +82,6 @@ public class AnalysisChainMapper
 	 */
 	public static Criteria buildChainCriteria()
 	{
-		System.err.println("building chain criteria");
 		Criteria criteria = new Criteria();
 	
 		//Specify which fields we want for the chain.
@@ -140,7 +139,6 @@ public class AnalysisChainMapper
 		FormalInputData finProto,FormalOutputData foutProto,SemanticTypeData
 		stProto)
 	{
-		System.err.println("filling chains");
 		List chainList= new ArrayList();  //The returned summary list.
 		Iterator i = chains.iterator();
 		
@@ -189,6 +187,7 @@ public class AnalysisChainMapper
 			analysisNode.setID(an.getID());
 			mod = an.getModule();
 			moduleData = (ModuleData) mdProto.makeNew();
+			moduleData.setModuleDTO(mod);
 			moduleData.setID(mod.getID());
 			moduleData.setName(mod.getName());
 			analysisNode.setModule(moduleData);
