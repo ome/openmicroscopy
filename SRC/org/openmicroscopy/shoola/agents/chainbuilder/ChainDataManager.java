@@ -417,13 +417,12 @@ public class ChainDataManager extends DataManager {
 				BrowserDatasetData dsProto = new BrowserDatasetData();
 				LayoutChainData acProto = new LayoutChainData();
 				ChainNodeExecutionData neProto = new ChainNodeExecutionData();
-				LayoutNodeData anProto = new LayoutNodeData(); 
 				ChainModuleData mProto = new ChainModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
 				DataManagementService dms = registry.getDataManagementService();
 				Collection execs = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
-							acProto,neProto,anProto,mProto,meProto);
+							acProto,neProto,mProto,meProto);
 				chainExecutions = new ChainExecutions(execs);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";

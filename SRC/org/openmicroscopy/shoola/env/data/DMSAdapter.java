@@ -753,15 +753,14 @@ class DMSAdapter
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
 			                DatasetData dsProto, AnalysisChainData acProto,
-			                NodeExecutionData neProto, AnalysisNodeData anProto,
-			                ModuleData mProto, ModuleExecutionData meProto) 
+			                NodeExecutionData neProto, ModuleData mProto, 
+							ModuleExecutionData meProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ceProto == null)    ceProto = new ChainExecutionData();
 		if (dsProto == null)    dsProto = new DatasetData();		
 		if (acProto == null)    acProto = new AnalysisChainData();
 		if (neProto == null) 	neProto = new NodeExecutionData();
-		if (anProto == null)    anProto = new AnalysisNodeData();
 		if (mProto == null)     mProto = new ModuleData();
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
@@ -777,7 +776,7 @@ class DMSAdapter
 		List execDS = null;
 		if (execs != null) 
 			execDS = ChainExecutionMapper.fillChainExecutions(execs, ceProto, 
-                     dsProto, acProto, neProto, anProto, mProto, meProto);
+                     dsProto, acProto, neProto, mProto, meProto);
 		return execDS;
 	}	
 	
@@ -785,8 +784,7 @@ class DMSAdapter
 	public List retrieveChainExecutions()
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return retrieveChainExecutions(null, null, null, null, null, null,
-                                        null);
+		return retrieveChainExecutions(null, null, null, null, null, null);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */

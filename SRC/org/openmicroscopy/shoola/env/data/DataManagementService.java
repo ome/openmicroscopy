@@ -638,7 +638,7 @@ public interface DataManagementService
 	 */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
 			DatasetData dsProto, AnalysisChainData acProto, NodeExecutionData
-			neProto, AnalysisNodeData anProto, ModuleData mProto,
+			neProto, ModuleData mProto,
 			ModuleExecutionData meProto) 
 		throws DSOutOfServiceException,DSAccessException;
 		

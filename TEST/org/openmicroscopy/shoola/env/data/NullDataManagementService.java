@@ -458,7 +458,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveChainExecutions(org.openmicroscopy.shoola.env.data.model.ChainExecutionData, org.openmicroscopy.shoola.env.data.model.DatasetData, org.openmicroscopy.shoola.env.data.model.AnalysisChainData, org.openmicroscopy.shoola.env.data.model.NodeExecutionData, org.openmicroscopy.shoola.env.data.model.AnalysisNodeData, org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.ModuleExecutionData)
      */
-    public List retrieveChainExecutions(ChainExecutionData ceProto, DatasetData dsProto, AnalysisChainData acProto, NodeExecutionData neProto, AnalysisNodeData anProto, ModuleData mProto, ModuleExecutionData meProto)
+    public List retrieveChainExecutions(ChainExecutionData ceProto, DatasetData dsProto, AnalysisChainData acProto, NodeExecutionData neProto, ModuleData mProto, ModuleExecutionData meProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub

@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
-import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
@@ -118,14 +117,16 @@ public class ExecutionsDataManager extends DataManager {
 				ChainExecutionData ceProto = new ChainExecutionData();
 				DatasetData dsProto = new DatasetData();
 				AnalysisChainData acProto = new AnalysisChainData();
-				NodeExecutionData neProto = new NodeExecutionData();
-				AnalysisNodeData anProto = new AnalysisNodeData(); 
+				NodeExecutionData neProto = new NodeExecutionData(); 
 				ModuleData mProto = new ModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
 				DataManagementService dms = registry.getDataManagementService();
+				long start = System.currentTimeMillis();
 				Collection execs = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
-							acProto,neProto,anProto,mProto,meProto);
+							acProto,neProto,mProto,meProto);
+				long end = System.currentTimeMillis()-start;
+				System.err.println("elapsed time for retreviving chexs: "+end);
 				executionsData = new ExecutionsData(execs);
 				LoadChainExecutionsEvent event =
 					new LoadChainExecutionsEvent(executionsData);

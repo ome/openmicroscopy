@@ -102,20 +102,17 @@ public class ChainExecutionMapper
 		
 		// stuff for node executions
 		criteria.addWantedField("node_executions","id");
-		criteria.addWantedField("node_executions","analysis_chain_node");
-		criteria.addWantedField("node_executions.analysis_chain_node","id");
 		
 		criteria.addWantedField("node_executions","module_execution");
 		criteria.addWantedField("node_executions.module_execution","id");
-		criteria.addWantedField("node_executions.module_execution","status");
 		criteria.addWantedField("node_executions.module_execution","timestamp");
 		
 		criteria.addWantedField("node_executions.module_execution","module");
 		
 		criteria.addWantedField("node_executions.module_execution.module","id");
 		criteria.addWantedField("node_executions.module_execution.module","name");
-		 
-				
+	
+		
 		criteria.addFilter("experimenter_id",new Integer(userID));
 		criteria.addFilter("dataset.owner_id",new Integer(userID));
 		criteria.addFilter("dataset.name", "NOT LIKE", "ImportSet");
@@ -134,7 +131,7 @@ public class ChainExecutionMapper
 	 */
 	public static List fillChainExecutions(List execs,ChainExecutionData ceProto,
 		DatasetData dsProto,AnalysisChainData acProto,NodeExecutionData 
-		neProto,AnalysisNodeData anProto,ModuleData mProto,ModuleExecutionData
+		neProto,ModuleData mProto,ModuleExecutionData
 		meProto)
 	{
 		List execList= new ArrayList();  //The returned summary list.
@@ -174,16 +171,16 @@ public class ChainExecutionMapper
 			exec.setChain(chain);
 			
 			//node executions
-			getNodeExecutions(exec,e,neProto,anProto,mProto,meProto,chain);
+			getNodeExecutions(exec,e,neProto,mProto,meProto,chain);
 			execList.add(exec);
 		}
 		
 		return execList;
 	}
 	
-	public static void getNodeExecutions(ChainExecutionData exec,ChainExecution e,
-			NodeExecutionData neProto,AnalysisNodeData anProto,
-			ModuleData mProto,ModuleExecutionData meProto,AnalysisChainData chain) {
+	private static void getNodeExecutions(ChainExecutionData exec,ChainExecution e,
+			NodeExecutionData neProto,ModuleData mProto,
+			ModuleExecutionData meProto,AnalysisChainData chain) {
 		ArrayList nodeExecutionList = new ArrayList();
 		
 		List executions = e.getNodeExecutions();
@@ -202,21 +199,12 @@ public class ChainExecutionMapper
 			ne = (NodeExecution) i.next();
 			nodeExecution = (NodeExecutionData) neProto.makeNew();
 			nodeExecution.setID(ne.getID());
-			// get the node 
-			n = ne.getNode();
-			analysisNode = (AnalysisNodeData) anProto.makeNew();
-			
-			// get the node's id.
-			analysisNode.setID(n.getID());
-			analysisNode.setChain(chain);
-			
-			
-			nodeExecution.setAnalysisNode(analysisNode);
+		
 			// get the module execution
 			me = ne.getModuleExecution();
 			moduleExecution = (ModuleExecutionData) meProto.makeNew();
 			moduleExecution.setID(me.getID());
-			moduleExecution.setStatus(me.getStatus());
+			//moduleExecution.setStatus(me.getStatus());
 			moduleExecution.setTimestamp(me.getTimestamp());
 			moduleExecution.setDate(getDate(me.getTimestamp()));
 			nodeExecution.setModuleExecution(moduleExecution);
