@@ -18,9 +18,7 @@ public class LoggerImpl
     implements Logger {
     
     // TODO: configure log4j
-    public LoggerImpl() {
-        
-    }
+    public LoggerImpl() {}
     
 /** Implemented as specified by {@linkLogger}.
  */     
