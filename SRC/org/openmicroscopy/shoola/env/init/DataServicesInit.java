@@ -95,11 +95,12 @@ final class DataServicesInit
 		throws StartupException
 	{
 		//Create services.
-		DataServicesFactory.createDataServices(container);
+		DataServicesFactory factory = 
+								DataServicesFactory.getInstance(container);
 		
 		//Retrieve them.
-		DataManagementService dms = DataServicesFactory.getDMS();
-		SemanticTypesService sts = DataServicesFactory.getSTS();
+		DataManagementService dms = factory.getDMS();
+		SemanticTypesService sts = factory.getSTS();
 		
 		//Link them to the container's registry.
 		Registry reg = container.getRegistry();
@@ -108,8 +109,13 @@ final class DataServicesInit
 	}
 	
 	/** 
-	 * Does nothing.
+	 * Shuts services down.
 	 * @see InitializationTask#rollback()
 	 */
-	void rollback() {}
+	void rollback()
+	{
+		DataServicesFactory factory = 
+								DataServicesFactory.getInstance(container);
+		factory.shutdown();
+	}
 }
