@@ -50,7 +50,9 @@ import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceAdapter;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 
@@ -202,7 +204,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		LayoutChainData chain;
 		
 		Collection chains = dataManager.getChains();
-		Iterator iter = chains.iterator();
+		ArrayList sortedChains = new ArrayList(chains);
+		Collections.sort(sortedChains);
+		Iterator iter = sortedChains.iterator();
 		
 		int num = chains.size();
 		
