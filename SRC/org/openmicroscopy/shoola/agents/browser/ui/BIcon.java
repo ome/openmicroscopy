@@ -61,21 +61,6 @@ import edu.umd.cs.piccolo.nodes.PText;
 public class BIcon extends PNode
 {   
     /**
-     * The action to be executed when a left-click occurs on this icon.
-     */
-    protected BrowserAction leftAction;
-    
-    /**
-     * The action to be executed when a right-click occurs on this icon.
-     */
-    protected BrowserAction rightAction;
-    
-    /**
-     * The action to be executed when a mouseover occurs.
-     */
-    protected BrowserAction mouseOverAction;
-    
-    /**
      * The presentation (viewable) node... this is kept separate so an
      * icon can be either text, a glyph, or an image.
      */
@@ -142,8 +127,7 @@ public class BIcon extends PNode
      */
     public void setLeftClickAction(BrowserAction action)
     {
-        this.leftAction = action;
-        // TODO: change event handler
+        eventHandler.setLeftClickAction(action);
     }
     
     /**
@@ -153,8 +137,7 @@ public class BIcon extends PNode
      */
     public void setRightClickAction(BrowserAction action)
     {
-        this.rightAction = action;
-        // TODO: change event handler
+        eventHandler.setRightClickAction(action);
     }
     
     /**
@@ -164,8 +147,7 @@ public class BIcon extends PNode
      */
     public void setMouseOverAction(BrowserAction action)
     {
-        this.mouseOverAction = action;
-        // TODO: change event handler
+        eventHandler.setMouseOverAction(action);
     }
     
     /**
