@@ -305,13 +305,7 @@ public class RenderingAgt
 	 * 
 	 * @param w		OME index of the wavelength.
 	 */
-	ChannelData getChannelData(int w)
-	{ 
-		ChannelData data = null;
-		if (w >= 0 && w < channelData.length-1)
-			data = channelData[w];
-		return data; 
-	}
+	ChannelData getChannelData(int w) { return channelData[w]; }
 	
 	/** Return the current rendering model. */
 	int getModel() { return renderingControl.getModel(); }
