@@ -71,20 +71,20 @@ class MoviePane
     extends JPanel
 {
 
-    private GraphicSlider           sliderT, sliderZ;
+    GraphicSlider               sliderT, sliderZ;
     
     /** TextField with the start (resp. end) value. */
-    private JTextField              movieStartT, movieEndT;
+    JTextField                  movieStartT, movieEndT;
     
     /** TextField with the start (resp. end) value. */
-    private JTextField              movieStartZ, movieEndZ;
+    JTextField                  movieStartZ, movieEndZ;
     
-    private JRadioButton            movieZ, movieT;
+   JRadioButton                 movieZ, movieT;
     
     /** Width of a caracter. */
-    private int                     txtWidth;
+    private int                 txtWidth;
 
-    private MoviePaneMng            manager;
+    private MoviePaneMng        manager;
     
     MoviePane(PlayerUIMng playerMng, Registry registry, int maxT, 
               int maxZ, MovieSettings settings)
@@ -97,22 +97,6 @@ class MoviePane
         manager.attachListeners();
         buildGUI(maxT, maxZ);
     }
-    
-    GraphicSlider getSliderZ() { return sliderZ; }
-
-    GraphicSlider getSliderT() { return sliderT; }
-    
-    JTextField getMovieStartT() { return movieStartT; }
-    
-    JTextField getMovieEndT() { return movieEndT; }
-    
-    JTextField getMovieStartZ() { return movieStartZ; }
-    
-    JTextField getMovieEndZ() { return movieEndZ; }
-
-    JRadioButton getMovieZ() { return movieZ; }
-    
-    JRadioButton getMovieT() { return movieT; }
 
     /** Initializes the slider. */
     private void initComponents(int maxT, int maxZ, MovieSettings settings)

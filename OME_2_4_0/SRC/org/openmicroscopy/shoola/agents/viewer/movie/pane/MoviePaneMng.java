@@ -118,27 +118,29 @@ class MoviePaneMng
     void attachListeners()
     {
         //TexField
-        startTField = view.getMovieStartT();
-        endTField = view.getMovieEndT();
-        startZField = view.getMovieStartZ();
-        endZField = view.getMovieEndZ();
+        startTField = view.movieStartT;
+        endTField = view.movieEndT;
+        startZField = view.movieStartZ;
+        endZField = view.movieEndZ;
         attachFieldListeners(startTField, START_T);
         attachFieldListeners(endTField, END_T);
         attachFieldListeners(startZField, START_Z);
         attachFieldListeners(endZField, END_Z);
         //RadioButton
-        attachButtonListener(view.getMovieZ(), Player.MOVIE_Z);
-        attachButtonListener(view.getMovieT(), Player.MOVIE_T);
-        view.getSliderT().addChangeListener(this);
-        view.getSliderZ().addChangeListener(this);
+        attachButtonListener(view.movieZ, Player.MOVIE_Z);
+        attachButtonListener(view.movieT, Player.MOVIE_T);
+        view.sliderT.addChangeListener(this);
+        view.sliderZ.addChangeListener(this);
     }
     
+    /** Attach an actionListener to an AbstractButton. */
     private void attachButtonListener(AbstractButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
     }
     
+    /** Attach listeners to a JTextField. */
     private void attachFieldListeners(JTextField field, int id)
     {
         field.setActionCommand(""+id);  
@@ -150,7 +152,7 @@ class MoviePaneMng
     public void stateChanged(ChangeEvent e)
     {
         GraphicSlider source = (GraphicSlider) e.getSource();
-        if (source == view.getSliderT()) 
+        if (source == view.sliderT) 
             handleSliderTStateChanged((ChangeEventSlider) e);
         else handleSliderZStateChanged((ChangeEventSlider) e);
     }
@@ -158,9 +160,8 @@ class MoviePaneMng
     /** Handle events fired by JTextFields. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = -1;
         try {
-            index = Integer.parseInt(e.getActionCommand());
+            int index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case START_T:
                     movieStartActionHandler(startTField, endTField);
@@ -180,7 +181,7 @@ class MoviePaneMng
                     break;
             }
         } catch(NumberFormatException nfe) { 
-            throw new Error("Invalid Action ID "+index, nfe); 
+            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe); 
         }
     }
     
@@ -213,29 +214,29 @@ class MoviePaneMng
     private void handleSliderTStateChanged(ChangeEventSlider e)
     {
         if (e.isStart())
-            setMovieStart(view.getSliderT().getStartValue());
+            setMovieStart(view.sliderT.getStartValue());
         else
-            setMovieEnd(view.getSliderT().getEndValue());
+            setMovieEnd(view.sliderT.getEndValue());
     }
     
     private void handleSliderZStateChanged(ChangeEventSlider e)
     {
         if (e.isStart())
-            setMovieStart(view.getSliderZ().getStartValue());
+            setMovieStart(view.sliderZ.getStartValue());
         else
-            setMovieEnd(view.getSliderZ().getEndValue());
+            setMovieEnd(view.sliderZ.getEndValue());
     }
 
     private void handleIndexChanged(int index)
     {
         if (maxT == 0) {
-            view.getMovieZ().setSelected(true);
+            view.movieZ.setSelected(true);
             UserNotifier un = registry.getUserNotifier();
             un.notifyInfo("Invalid selection", 
                 "The selected image has only one timepoint. ");
         }
         if (maxZ == 0) {
-            view.getMovieT().setSelected(true);
+            view.movieT.setSelected(true);
             UserNotifier un = registry.getUserNotifier();
             un.notifyInfo("Invalid selection", 
                 "The selected image has only one z-section. ");
@@ -250,16 +251,16 @@ class MoviePaneMng
         int end = Integer.parseInt(endTField.getText());
         if (movieIndex == Player.MOVIE_T) {
             max = maxT;
-            view.getSliderT().attachMouseListeners();
-            view.getSliderZ().removeMouseListeners();
+            view.sliderT.attachMouseListeners();
+            view.sliderZ.removeMouseListeners();
             setTFieldsEnabled(true);
             setZFieldsEnabled(false); 
         } else {
             start = Integer.parseInt(startZField.getText());
             end = Integer.parseInt(endZField.getText());
             max = maxZ;
-            view.getSliderT().removeMouseListeners();
-            view.getSliderZ().attachMouseListeners();
+            view.sliderT.removeMouseListeners();
+            view.sliderZ.attachMouseListeners();
             setTFieldsEnabled(false);
             setZFieldsEnabled(true);
         }
@@ -327,11 +328,12 @@ class MoviePaneMng
         } else {
             if (movieIndex == Player.MOVIE_T) {
                 curStartT = val;
-                view.getSliderT().setStartValue(val);
+                view.sliderT.setStartValue(val);
             } else {
                 curStartZ = val;
-                view.getSliderZ().setStartValue(val);
+                view.sliderZ.setStartValue(val);
             }
+            playerUIMng.setStartMovie(val);
         } 
     }
 
@@ -360,11 +362,12 @@ class MoviePaneMng
         } else {
             if (movieIndex == Player.MOVIE_T) {
                 curEndT = val;
-                view.getSliderT().setEndValue(val);
+                view.sliderT.setEndValue(val);
             } else {
                 curEndZ = val;
-                view.getSliderZ().setEndValue(val);
+                view.sliderZ.setEndValue(val);
             }
+            playerUIMng.setEndMovie(val);
         } 
     }
     

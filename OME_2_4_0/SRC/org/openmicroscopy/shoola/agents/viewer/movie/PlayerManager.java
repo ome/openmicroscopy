@@ -198,21 +198,16 @@ public class PlayerManager
         if (frameNumber <= max && frameNumber >= startMovie && 
             frameNumber <= endMovie && playing)
         {
-            
             renderImage(frameNumber);
             switch (movieType) {
                 case Player.LOOP:
-                    handleLoop();
-                    break;
+                    handleLoop(); break;
                 case Player.BACKWARD:
-                    handleBackward();
-                    break;
+                    handleBackward(); break;
                 case Player.FORWARD:
-                    handleForward();
-                    break;
+                    handleForward(); break;
                 case Player.PINGPONG:
-                    handlePingPong();
-                    break;
+                    handlePingPong(); break;
             }
         }
 	}
@@ -246,7 +241,6 @@ public class PlayerManager
             timer.stop();
             frameNumber = startMovie;      
             setBorderPlay(false);
-            
         } else frameNumber++;
     }
     
