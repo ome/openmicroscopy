@@ -8,4 +8,8 @@
 	  <!-- nothing in here yet, because I also haven't specified it. -->
 	</fonts>
   </resources>
+  <entry name="/agents/browser/config/useServerThumbs" type="boolean">false</entry>
+  <entry name="/agents/browser/config/thumbnailWidth" type="integer">120</entry>
+  <entry name="/agents/browser/config/thumbnailHeight" type="integer">120</entry>
+
 </agent>

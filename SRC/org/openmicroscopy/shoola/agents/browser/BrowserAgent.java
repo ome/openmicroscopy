@@ -73,6 +73,29 @@ public class BrowserAgent implements Agent, AgentEventListener
     private EventBus eventBus;
     private BrowserEnvironment env;
     private TopFrame tf;
+    
+    private boolean useServerThumbs;
+    private int compositeWidth;
+    private int compositeHeight;
+    
+    /**
+     * The XML key for getting the desired thumbnail extraction mode.
+     * (server or composite)
+     */
+    public static final String THUMBNAIL_MODE_KEY =
+        "/agents/browser/config/useServerThumbs";
+    
+    /**
+     * The XML key for getting the composite mode thumbnail width.
+     */
+    public static final String THUMBNAIL_WIDTH_KEY =
+        "/agents/browser/config/thumbnailWidth";
+    
+    /**
+     * The XML key for getting the composite mode thumbnail height.
+     */
+    public static final String THUMBNAIL_HEIGHT_KEY =
+        "/agents/browser/config/thumbnailHeight";
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -94,6 +117,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         // for now, do nothing; wait until triggered to load
         // this will be different if there's save info in the context file
+        
     }
     
     /**
@@ -103,9 +127,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public boolean canTerminate()
     {
-        BrowserManager manager = env.getBrowserManager();
-        List browsers = manager.getAllBrowsers();
-        
+        // for now, return true; won't keep track of dirty bits-- will
+        // commit all changes to DB immediately & write all local config
+        // information to file (TODO: change if necessary)
         return true;
     }
     
@@ -116,10 +140,12 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void terminate()
     {
-        // TODO Auto-generated method stub
+        BrowserManager manager = env.getBrowserManager();
+        List browserList = manager.getAllBrowsers();
+        // TODO: flush local config stuff to disk
     }
     
-    /* (non-Javadoc)
+    /**
      * @see org.openmicroscopy.shoola.env.Agent#setContext(org.openmicroscopy.shoola.env.config.Registry)
      */
     public void setContext(Registry ctx)
@@ -127,6 +153,16 @@ public class BrowserAgent implements Agent, AgentEventListener
         this.registry = ctx;
         this.eventBus = ctx.getEventBus();
         this.tf = ctx.getTopFrame();
+        
+        Boolean extractionMode = (Boolean)registry.lookup(THUMBNAIL_MODE_KEY);
+        this.useServerThumbs = extractionMode.booleanValue();
+        
+        Integer thumbWidth = (Integer)registry.lookup(THUMBNAIL_WIDTH_KEY);
+        Integer thumbHeight = (Integer)registry.lookup(THUMBNAIL_HEIGHT_KEY);
+        
+        this.compositeWidth = thumbWidth.intValue();
+        this.compositeHeight = thumbHeight.intValue();
+        
         eventBus.register(this,LoadDataset.class);
     }
     
