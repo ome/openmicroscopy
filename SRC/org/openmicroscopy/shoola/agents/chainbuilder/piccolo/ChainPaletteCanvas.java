@@ -233,11 +233,15 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// draw each of them.
 		while (iter.hasNext()) {
 			chain = (LayoutChainData) iter.next();
-
-			ChainBox box = buildChain(chain);
-			if (box != null)  {
-				placeChain(box);
+			if (!chain.hasCycles()) {
+				ChainBox box = buildChain(chain);
+				if (box != null)  {
+					placeChain(box);
+				}
 			}
+			else
+				System.err.println("Chain .. "+chain.getName()+
+						" has cycles -ignoring");
 		}
 	}
 	
