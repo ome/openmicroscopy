@@ -34,7 +34,7 @@ package org.openmicroscopy.shoola.omeis.proxy;
 import java.io.IOException;
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.omeis.services.ImageServiceException;
@@ -74,7 +74,7 @@ class GetStackReply
     /* (non-Javadoc)
      * @see Reply#unmarshal(org.apache.commons.httpclient.HttpMethodBase)
      */
-    public void unmarshal(HttpMethodBase response, HttpChannel context)
+    public void unmarshal(HttpMethod response, HttpChannel context)
         throws ImageServiceException, IOException
     {
         //Make sure we actually got a binary stream.

@@ -35,7 +35,7 @@ import java.io.IOException;
 
 //Third-party libraries
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.omeis.proxy.Reply;
@@ -77,7 +77,7 @@ public abstract class HttpChannel
         //Build HTTP request, send it, and wait for response.
         //Then read the response into the Reply object.
         HttpClient comLink = getCommunicationLink();
-        HttpMethodBase method = null;
+        HttpMethod method = null;
         try {
             method = out.marshal();
             method.setPath(getRequestPath());

@@ -36,7 +36,7 @@ import java.io.InputStream;
 
 //Third-party libraries
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 
 //Application-internal dependencies
@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.util.mem.ByteArray;
 public abstract class Reply
 {
 
-    protected static void checkStatusCode(HttpMethodBase response)
+    protected static void checkStatusCode(HttpMethod response)
         throws ImageServiceException
     {
         int status = response.getStatusCode();
@@ -70,8 +70,7 @@ public abstract class Reply
                         HttpStatus.getStatusText(status)+".");
     }
     
-    protected static void checkContentType(HttpMethodBase response, 
-                                            String mimeType)
+    protected static void checkContentType(HttpMethod response, String mimeType)
         throws ImageServiceException 
     {
         Header header = response.getResponseHeader("Content-Type");
@@ -128,7 +127,7 @@ public abstract class Reply
         }
     }
     
-    public abstract void unmarshal(HttpMethodBase response, HttpChannel context)
+    public abstract void unmarshal(HttpMethod response, HttpChannel context)
         throws ImageServiceException, IOException;
     
 }

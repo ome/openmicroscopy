@@ -33,7 +33,7 @@ package org.openmicroscopy.shoola.omeis.proxy;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 //Application-internal dependencies
@@ -75,7 +75,7 @@ class GetPlaneRequest
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.omeis.proxy.Request#marshal()
      */
-    public HttpMethodBase marshal()
+    public HttpMethod marshal()
     {
         PostMethod request = (PostMethod) super.marshal();
         request.addParameter(THE_Z_FIELD, Integer.toString(theZ));

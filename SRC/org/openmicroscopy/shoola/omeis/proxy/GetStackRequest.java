@@ -33,7 +33,7 @@ package org.openmicroscopy.shoola.omeis.proxy;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 //Application-internal dependencies
@@ -87,7 +87,7 @@ class GetStackRequest
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.omeis.proxy.Request#marshal()
      */
-    public HttpMethodBase marshal()
+    public HttpMethod marshal()
     {
         //Create request.
         PostMethod request = new PostMethod();

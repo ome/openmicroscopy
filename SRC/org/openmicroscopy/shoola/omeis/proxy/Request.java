@@ -33,7 +33,7 @@ package org.openmicroscopy.shoola.omeis.proxy;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpMethod;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.omeis.services.ImageServiceException;
@@ -72,7 +72,7 @@ public abstract class Request
         this.method = method;
     }
     
-    public abstract HttpMethodBase marshal()
+    public abstract HttpMethod marshal()
         throws ImageServiceException;
 
 }
