@@ -33,10 +33,10 @@ package org.openmicroscopy.shoola.agents.annotator.pane;
 import java.sql.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -93,6 +93,7 @@ class AnnotationTable
     private AnnotationTableMng      manager;
     
     private AnnotationData[]        annotations;
+    private JTextArea[]             areas;
     
     static {
         header = new String[MAX_ID+1];
@@ -108,7 +109,7 @@ class AnnotationTable
     
     /** Create a new instance. */
     AnnotationTable(int numberRows, List rows, String[] h, 
-                    AnnotatorCtrl control)
+                    AnnotatorCtrl control, boolean b)
     {
         super(numberRows, h.length);
         manager = new AnnotationTableMng(this, control);
@@ -116,7 +117,7 @@ class AnnotationTable
         height = AnnotatorUIF.SCROLLPANE_HEADER+
                 AnnotatorUIF.ROW_TABLE_HEIGHT*numberRows;
         IconManager im = IconManager.getInstance(control.getRegistry());
-        if (rows.size() > 0) initTable(rows, im);
+        if (rows.size() > 0) initTable(rows, im, b);
         else initCreationTable(im);
         initSorter();
         setTableLayout(im, h);
@@ -126,6 +127,8 @@ class AnnotationTable
     AnnotationData getAnnotationData() { return currentData; }
     
     AnnotationData getAnnotationData(int index) { return annotations[index]; }
+    
+    JTextArea getArea(int index) { return areas[index]; }
     
     /**  
      * Keep the table presentation, only use when the current user create a 
@@ -147,16 +150,17 @@ class AnnotationTable
     }
     
     /** Initializes the table. */
-    private void initTable(List rows, IconManager im)
+    private void initTable(List rows, IconManager im, boolean b)
     {
         creation = false;
         Iterator i = rows.iterator();
         AnnotationData data;
         int index = 0;
         annotations = new AnnotationData[rows.size()];
+        areas = new JTextArea[rows.size()];
         while (i.hasNext()) {
             data = (AnnotationData) i.next();
-            addRow(data, index, im);
+            addRow(data, index, im, b);
             annotations[index] = data;
             index++;
         }
@@ -172,12 +176,16 @@ class AnnotationTable
     }
     
     /** Add a row to the table. */
-    private void addRow(AnnotationData data, int index, IconManager im)
+    private void addRow(AnnotationData data, int index, IconManager im, 
+                        boolean b)
     {
         currentData = data;
         JButton viewer = createViewButton(im);
         manager.attachButtonListener(viewer, index);
         MultilineLabel annotation = new MultilineLabel(data.getAnnotation());
+        annotation.setEditable(b);
+        manager.attachAreaListener(annotation, index);
+        areas[index] = annotation;
         JScrollPane scrollPane  = new JScrollPane(annotation);
         scrollPane.setPreferredSize(AnnotatorUIF.DIM_SCROLL_TABLE);
         setValueAt(scrollPane, index, ANNOTATION);
@@ -189,6 +197,7 @@ class AnnotationTable
     /** Set the layout of the table. */
     private void setTableLayout(IconManager im, String[] h)
     {
+        getTableHeader().setReorderingAllowed(false);
         TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
         TableColumnModel tcm = getTableHeader().getColumnModel();
         TableColumn tc;

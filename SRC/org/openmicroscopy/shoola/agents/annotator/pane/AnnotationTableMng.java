@@ -36,6 +36,10 @@ package org.openmicroscopy.shoola.agents.annotator.pane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 //Third-party libraries
 
@@ -58,7 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.AnnotationData;
  * @since OME2.2
  */
 class AnnotationTableMng
-    implements ActionListener
+    implements ActionListener, DocumentListener
 {
     
     private AnnotationTable view;
@@ -68,6 +72,13 @@ class AnnotationTableMng
     {
         this.view = view;
         this.control = control;
+    }
+    
+    void attachAreaListener(JTextArea area, int id)
+    {
+        area.getDocument().addDocumentListener(this);
+        area.getDocument().putProperty("name", ""+id);
+
     }
     
     /** Attach listener to a JButton. */
@@ -86,6 +97,37 @@ class AnnotationTableMng
             AnnotationData data = view.getAnnotationData(index);
             control.viewImage(data.getTheZ(), data.getTheT());
         }
+    }
+
+    /** Required by  the {@link DocumentListener interface}. */
+    public void changedUpdate(DocumentEvent e)
+    {
+        handleTextChange(e);
+    }
+
+    /** Required by  the {@link DocumentListener interface}. */
+    public void insertUpdate(DocumentEvent e)
+    {
+        handleTextChange(e);
+    }
+
+    /** Required by  the {@link DocumentListener interface}. */
+    public void removeUpdate(DocumentEvent e)
+    {
+        handleTextChange(e);
+    }
+    
+    private void handleTextChange(DocumentEvent e)
+    {
+        Document doc = e.getDocument();
+        try {
+            int index = Integer.parseInt((String) (doc.getProperty("name")));
+            AnnotationData data = view.getAnnotationData(index);
+            JTextArea area = view.getArea(index);
+            data.setAnnotation(area.getText());
+        } catch (Exception ex) {
+            // TODO: handle exception
+        } 
     }
     
 }

@@ -40,6 +40,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.Annotator;
 import org.openmicroscopy.shoola.agents.annotator.AnnotatorCtrl;
 import org.openmicroscopy.shoola.agents.annotator.AnnotatorUIF;
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
@@ -68,7 +69,7 @@ public class AnnotationBar
     public AnnotationBar(AnnotatorCtrl control)
     {
         IconManager im = IconManager.getInstance(control.getRegistry());
-        initButtons(im);      
+        initButtons(im, control.getAnnotationIndex());      
         new AnnotationBarMng(this, control);
         buildGUI();
     }
@@ -86,7 +87,7 @@ public class AnnotationBar
     }
     
     /** Initializes the buttons. */
-    private void initButtons(IconManager im)
+    private void initButtons(IconManager im, int index)
     {
         save = new JButton(im.getIcon(IconManager.SAVE));
         save.setToolTipText(
@@ -101,6 +102,7 @@ public class AnnotationBar
         saveWithRS.setToolTipText(
                 UIUtilities.formatToolTipText("Save the annotation and " +
                         "the settings."));
+        if (index == Annotator.DATASET) saveWithRS.setEnabled(false);
     }
     
     /** Build and lay out the GUI. */

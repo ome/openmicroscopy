@@ -89,19 +89,22 @@ public class AnnotationPaneMng
     /** Select a new person. */
     private void setOwner(int index)
     {
-        view.setTableAnnotation(control.getOwnerAnnotation(index));
         //Need to synchronize the buttons in the toolBar
-        synchBar(index);
+        boolean b = synchBar(index);
+        view.setTableAnnotation(control.getOwnerAnnotation(index), b); 
     }
     
     /** Synchronize the buttonBar. */
-    public void synchBar(int index)
+    public boolean synchBar(int index)
     {
         int userIndex = control.getUserIndex();
+        boolean b = false;
         if (userIndex == index) {
+            b = true;
             if (view.table.creation) control.saveEnabled(true);
             else control.buttonsEnabled(true);
         } else control.buttonsEnabled(false);
+        return b;
     }
     
     /** Attach listeners. */

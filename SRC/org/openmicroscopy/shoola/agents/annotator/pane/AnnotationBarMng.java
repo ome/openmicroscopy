@@ -35,12 +35,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
-import org.openmicroscopy.shoola.agents.annotator.Annotator;
-import org.openmicroscopy.shoola.agents.annotator.AnnotatorCtrl;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.Annotator;
+import org.openmicroscopy.shoola.agents.annotator.AnnotatorCtrl;
 
 /** 
  * 

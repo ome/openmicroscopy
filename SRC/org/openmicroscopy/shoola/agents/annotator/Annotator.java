@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
@@ -233,17 +234,17 @@ public class Annotator
     {
         String title = "";
         try {
-            DataManagementService dms = registry.getDataManagementService();
+            SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
                     title = "Dataset annotation updated";
-                    dms.updateDatasetAnnotation(data);
+                    sts.updateDatasetAnnotation(data);
                     //Eventually post a DatasetAnnotation event.
                     break;
                 case IMAGE:
                     title = "Image annotation updated";
                     setDataToSave(data, saveIndex);
-                    dms.updateImageAnnotation(data);
+                    sts.updateImageAnnotation(data);
                     //Eventually post a ImageAnnotation event.
                     break;
             }
@@ -270,11 +271,11 @@ public class Annotator
     {
         String title = "";
         try {
-            DataManagementService dms = registry.getDataManagementService();
+            SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
                     title = "Dataset annotation created";
-                    dms.createDatasetAnnotation(annotatedDatasetID, annotation);
+                    sts.createDatasetAnnotation(annotatedDatasetID, annotation);
                     //Eventually post a ImageAnnotation event.
                     break;
                 case IMAGE:
@@ -287,7 +288,7 @@ public class Annotator
                         theZ = renderingControl.getDefaultZ();
                         renderingControl.saveCurrentSettings();
                     }
-                    dms.createImageAnnotation(annotatedImageID, annotation, 
+                    sts.createImageAnnotation(annotatedImageID, annotation, 
                                                 theZ, theT);
                     //Eventually post a ImageAnnotation event.
                     break;
@@ -330,13 +331,13 @@ public class Annotator
     void delete(AnnotationData data)
     {
         try {
-            DataManagementService dms = registry.getDataManagementService();
+            SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
-                    dms.removeDatasetAnnotation(data);
+                    sts.removeDatasetAnnotation(data);
                     break;
                 case IMAGE:
-                    dms.removeImageAnnotation(data);
+                    sts.removeImageAnnotation(data);
                     break;
             }
         } catch(DSAccessException dsa) {
@@ -402,8 +403,8 @@ public class Annotator
     {
         annotationsMap = null;
         try {
-            DataManagementService dms = registry.getDataManagementService();
-            annotationsMap = dms.getImageAnnotations(imageID);  
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            annotationsMap = sts.getImageAnnotations(imageID);  
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
@@ -425,8 +426,8 @@ public class Annotator
     {
         annotationsMap = null;
         try {
-            DataManagementService dms = registry.getDataManagementService();
-            annotationsMap = dms.getDatasetAnnotations(datasetID);  
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            annotationsMap = sts.getDatasetAnnotations(datasetID);  
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);

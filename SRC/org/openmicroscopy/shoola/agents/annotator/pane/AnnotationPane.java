@@ -97,9 +97,9 @@ public class AnnotationPane
         return table.getAnnotationData();
     }
     
-    void setTableAnnotation(List rows)
+    void setTableAnnotation(List rows, boolean b)
     {
-        initTable(rows);
+        initTable(rows, b);
         JViewport viewPort = scrollPane.getViewport();
         viewPort.removeAll();
         viewPort.add(table);
@@ -110,17 +110,17 @@ public class AnnotationPane
     {
         owners = new JComboBox(l);
         owners.setSelectedIndex(selectedIndex);
-        initTable(rows);
+        initTable(rows, selectedIndex == control.getUserIndex());
     }
     
-    private void initTable(List rows)
+    private void initTable(List rows, boolean b)
     {
         if (rows.size() > 0) 
             table = new AnnotationTable(rows.size(), rows, 
-                                        AnnotationTable.header, control);
+                                        AnnotationTable.header, control, b);
         else 
             table = new AnnotationTable(1, rows, AnnotationTable.createHeader, 
-                                        control);
+                                        control, b);
     }
     
     /** Build and lay out the GUI. */
