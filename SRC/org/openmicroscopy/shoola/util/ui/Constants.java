@@ -113,6 +113,7 @@ public class Constants {
 	/** basic and highlight colors for NEXes */
 	public static final Color NEX_COLOR = new Color(128,144,183);
 	public static final Color NEX_HIGHLIGHT_COLOR = new Color(251,24,251);
+	public static final Color NEX_COUNT_COLOR = new Color(64,80,119);
 	
 	/* NEX size */
 	public static final float NEX_SIDE=4.0f;
