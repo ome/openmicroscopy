@@ -7,11 +7,9 @@ import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
 import org.ome.interfaces.FollowGroupService;
-import org.ome.interfaces.ServiceFactory;
 import org.ome.model.IFollowGroup;
 import org.ome.model.LSID;
 import org.ome.model.Vocabulary;
-import org.ome.srv.logic.ServiceFactoryImpl;
 ;
 
 /**
@@ -30,8 +28,7 @@ public class FollowGroupServiceTest extends BaseServiceTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = new ServiceFactoryImpl();
-		fgs = factory.getFollowGroupService();
+		fgs = (FollowGroupService) SpringTestHarness.ctx.getBean("followGroupService");
 	}
 	
 	public void testGetFollowGroup() throws RemoteException, URISyntaxException{

@@ -3,7 +3,6 @@
  */
 package org.ome.interfaces;
 
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.ome.model.IImage;
@@ -14,26 +13,24 @@ import org.ome.model.LSID;
  */
 public interface ImageService {
 
-	public List retrieveImagesByExperimenter(LSID experimenterId)
-			throws RemoteException;
+	public List retrieveImagesByExperimenter(LSID experimenterId);
 
 	public List retrieveImagesByExperimenter(LSID experimenterId,
-			LSID predicateGroupId) throws RemoteException;
+			LSID predicateGroupId) ;
 
-	public IImage retrieveImage(LSID imageId) throws RemoteException;
+	public IImage retrieveImage(LSID imageId) ;
 
-	public IImage retrieveImage(LSID imageId, LSID predicateGroupId)
-			throws RemoteException;
+	public IImage retrieveImage(LSID imageId, LSID predicateGroupId);
 
 	// The next could be generated as (?container :contains ?image) //TODO
 	// or just generalized "getByContainer()" since Transitive??
 
-	public List retrieveImagesByDataset(LSID datasetId) throws RemoteException;
+	public List retrieveImagesByDataset(LSID datasetId) ;
 
-	public List retrieveImagesByProject(LSID projectId) throws RemoteException;
+	public List retrieveImagesByProject(LSID projectId) ;
 
-	public void updateImage(IImage data) throws RemoteException;
+	public void updateImage(IImage data) ;
 
-	public void setImage(IImage data) throws RemoteException;
+	public void setImage(IImage data) ;
 
 }

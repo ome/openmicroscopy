@@ -19,6 +19,15 @@ default:FirstName
       rdfs:domain default:Experimenter ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
 
+default:ImageService
+      a       owl:Class ;
+      rdfs:subClassOf default:Service ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Image ;
+                owl:onProperty default:governs
+              ] .
+
 default:Email
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Experimenter ;
@@ -35,7 +44,7 @@ default:zeroFollowGroup
 
 default:Attribute
       a       owl:Class ;
-      rdfs:comment "Attributes are containers of raw information (and other attributes) attached to leaves."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:comment "Attributes are the output of interactions which are attached to objects within the database."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:OMEObject .
 
 default:sizeC
@@ -61,12 +70,12 @@ default:Image
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:owner
+                owl:onProperty default:defaultPixels
               ] ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:defaultPixels
+                owl:onProperty default:owner
               ] .
 
 default:defaultPixels
@@ -84,13 +93,9 @@ default:Cellline
       a       default:CategoryGroup ;
       default:contains default:M2348 , default:M2188 , default:M2348z .
 
-default:AnalysisComponent
-      a       owl:Class ;
-      rdfs:comment "Special class of interaction components which are administered within the system."^^<http://www.w3.org/2001/XMLSchema#string> ;
-      rdfs:subClassOf default:OMEObject .
-
 default:Analyzing
       a       owl:Class ;
+      rdfs:comment "Represents the act -- by human or machine agent -- of computing results from the existing data."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:Interaction .
 
 default:img2
@@ -100,12 +105,9 @@ default:img2
       default:owner default:Josh .
 
 default:group
-      a       owl:ObjectProperty , owl:FunctionalProperty ;
+      a       owl:ObjectProperty ;
       rdfs:domain default:Experimenter ;
       rdfs:range default:Group .
-
-default:ome_Individual_13
-      a       default:OMEObject .
 
 default:produced
       a       owl:ObjectProperty ;
@@ -121,16 +123,22 @@ default:max
       rdfs:domain default:PlaneStats ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#float> .
 
+default:model
+      a       owl:ObjectProperty ;
+      rdfs:domain default:Experimenter ;
+      rdfs:range default:Model .
+
 default:ImageAtrribute
       a       owl:Class ;
-      rdfs:subClassOf default:Result .
+      rdfs:subClassOf default:Analysis .
 
 default:FeatureAttribute
       a       owl:Class ;
-      rdfs:subClassOf default:Result .
+      rdfs:subClassOf default:Analysis .
 
 default:Annotating
       a       owl:Class ;
+      rdfs:comment "The act of attaching subjective or external information to an object within the database."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:Interaction .
 
 default:Dataset
@@ -146,8 +154,32 @@ default:Experimenter
       a       owl:Class ;
       rdfs:subClassOf default:Leaf .
 
+default:AnnotationService
+      a       owl:Class ;
+      rdfs:subClassOf default:Service ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom
+                        [ a       owl:Class ;
+                          owl:unionOf (default:Annotation default:Annotating)
+                        ] ;
+                owl:onProperty default:governs
+              ] .
+
 default:ContainerService
-      a       default:Service .
+      a       owl:Class ;
+      rdfs:subClassOf default:Service ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Container ;
+                owl:onProperty default:governs
+              ] .
+
+default:directory
+      a       owl:ObjectProperty ;
+      rdfs:comment "This represents a URL on _some_ host which this user has access to for import."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:domain default:Experimenter ;
+      rdfs:range default:Directory .
 
 default:FollowGroup
       a       owl:Class ;
@@ -163,7 +195,7 @@ default:ROI
 
 default:Interaction
       a       owl:Class ;
-      rdfs:comment "Interactions create the attributes attached to Leaves."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:comment "Interactions create the attributes attached to Leaves. They are also the superclass of all \"Executions\". (That's why they are named with gerunds)"^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:OMEObject .
 
 default:M2348z
@@ -200,7 +232,12 @@ default:OMEObject
 
 default:Deleting
       a       owl:Class ;
+      rdfs:comment "The act of removing an object from the database. Broken links to this object or its descendent will be redirected to a deletion object."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:Interaction .
+
+default:ModuleExecution
+      a       owl:Class ;
+      rdfs:subClassOf default:Execution .
 
 default:Screen
       a       owl:Class ;
@@ -226,9 +263,6 @@ default:follow
       rdfs:domain default:Follow ;
       rdfs:range default:Follow .
 
-default:PredicateGroupService
-      a       default:Service .
-
 default:UniProtAnnotation
       a       owl:Class ;
       rdfs:subClassOf default:URLAnnotations .
@@ -250,6 +284,24 @@ default:Plate
                 owl:onProperty default:contains
               ] .
 
+default:Analysis
+      a       owl:Class ;
+      rdfs:subClassOf default:Attribute .
+
+default:immutable_Proj2
+      a       default:Project ;
+      default:description "This is an immutable object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      default:immutable "true"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
+      default:inactive "false"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
+      default:owner default:Josh ;
+      default:version "1"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+default:inactive
+      a       owl:FunctionalProperty , owl:DatatypeProperty ;
+      rdfs:comment "Nonactive elements should be ignored by most applications. This property can be sub-typed for more specific usage (\"invalid\", \"untrue\",...)"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:domain default:OMEObject ;
+      rdfs:range <http://www.w3.org/2001/XMLSchema#boolean> .
+
 default:Leaf
       a       owl:Class ;
       rdfs:comment "Central \"physical\" components of the system."^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -268,6 +320,20 @@ default:sizeT
       rdfs:domain default:Pixels ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#int> ;
       rdfs:subPropertyOf default:size .
+
+default:immutable_Proj1
+      a       default:Project ;
+      default:description "This is an immutable object"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      default:immutable "true"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
+      default:inactive "false"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
+      default:owner default:Jason ;
+      default:version "1"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+default:immutable
+      a       owl:DatatypeProperty , owl:FunctionalProperty ;
+      rdfs:comment "decides if the outgoing predicates of a resource and their values may be changed. Admin only."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:domain default:OMEObject ;
+      rdfs:range <http://www.w3.org/2001/XMLSchema#boolean> .
 
 default:LSIDAnnotation
       a       owl:Class ;
@@ -296,10 +362,6 @@ default:Category
                 owl:onProperty default:contains
               ] .
 
-default:DataAnnotations
-      a       owl:Class ;
-      rdfs:subClassOf default:Annotation .
-
 default:sizeY
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Pixels ;
@@ -313,7 +375,7 @@ default:pixelType
 
 default:TextAnnotation
       a       owl:Class ;
-      rdfs:subClassOf default:DataAnnotations .
+      rdfs:subClassOf default:LiteralAnnotations .
 
 default:contains
       a       owl:TransitiveProperty , owl:ObjectProperty ;
@@ -335,11 +397,16 @@ default:createdBy
 
 default:GlobalAttribute
       a       owl:Class ;
-      rdfs:subClassOf default:Result .
+      rdfs:subClassOf default:Analysis .
 
 default:HTMLAnnotation
       a       owl:Class ;
-      rdfs:subClassOf default:DataAnnotations .
+      rdfs:subClassOf default:LiteralAnnotations .
+
+default:LiteralAnnotations
+      a       owl:Class ;
+      rdfs:comment "Annotations which contain literal values, usually text of some form."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:subClassOf default:Annotation .
 
 default:sizeX
       a       owl:DatatypeProperty , owl:FunctionalProperty ;
@@ -349,7 +416,13 @@ default:sizeX
 
 default:Module
       a       owl:Class ;
-      rdfs:subClassOf default:AnalysisComponent .
+      rdfs:subClassOf default:Leaf .
+
+default:Model
+      a       owl:Class ;
+      rdfs:comment """A named model which stores some subset of the metadata in OME.
+"""^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:subClassOf default:DevelopmentComponent .
 
 default:Josh
       a       default:Experimenter .
@@ -361,15 +434,16 @@ default:follows
 
 default:Importing
       a       owl:Class ;
+      rdfs:comment "The act of importing objects into the database. (This probably also needs to cover Attribute creation, Module creation, etc.)"^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:Interaction .
+
+default:Feature
+      a       owl:Class ;
+      rdfs:subClassOf default:Analysis .
 
 default:Pixels
       a       owl:Class ;
       rdfs:subClassOf default:ImageAtrribute .
-
-default:Feature
-      a       owl:Class ;
-      rdfs:subClassOf default:Container .
 
 default:createdAt
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
@@ -378,6 +452,10 @@ default:createdAt
                 owl:unionOf (default:Annotation default:Image)
               ] ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#dateTime> .
+
+default:NodeExecution
+      a       owl:Class ;
+      rdfs:subClassOf default:Execution .
 
 default:governs
       a       owl:ObjectProperty ;
@@ -394,9 +472,13 @@ default:min
       rdfs:domain default:PlaneStats ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#float> .
 
+default:ChainExecution
+      a       owl:Class ;
+      rdfs:subClassOf default:Execution .
+
 default:Execution
       a       owl:Class ;
-      rdfs:subClassOf default:AnalysisComponent .
+      rdfs:subClassOf default:Analyzing .
 
 default:Group
       a       owl:Class ;
@@ -430,9 +512,9 @@ default:allContainersFollow
       default:follow default:allContainersFollow ;
       default:label "AllContainersFollow"^^<http://www.w3.org/2001/XMLSchema#string> .
 
-default:Result
-      a       owl:Class ;
-      rdfs:subClassOf default:Attribute .
+default:type
+      a       owl:FunctionalProperty , owl:DatatypeProperty ;
+      rdfs:range <http://www.w3.org/2001/XMLSchema#anyURI> .
 
 default:owner
       a       owl:ObjectProperty , owl:FunctionalProperty ;
@@ -451,6 +533,12 @@ default:CategoryGroup
                 owl:onProperty default:contains
               ] .
 
+default:tracked
+      a       owl:FunctionalProperty , owl:DatatypeProperty ;
+      rdfs:comment "Tracked resources have deltas stored of all changes that occur to them."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:domain default:OMEObject ;
+      rdfs:range <http://www.w3.org/2001/XMLSchema#boolean> .
+
 default:Project
       a       owl:Class ;
       rdfs:subClassOf default:Container ;
@@ -459,9 +547,6 @@ default:Project
                 owl:allValuesFrom default:Dataset ;
                 owl:onProperty default:contains
               ] .
-
-default:AdministrationService
-      a       default:Service .
 
 default:proj1
       a       default:Project ;
@@ -489,7 +574,17 @@ default:firstContainerFollow
 
 default:Chain
       a       owl:Class ;
-      rdfs:subClassOf default:AnalysisComponent .
+      rdfs:subClassOf default:Container ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Module ;
+                owl:onProperty default:contains
+              ] .
+
+default:Directory
+      a       owl:Class ;
+      rdfs:comment "A directory on some server used for import."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:subClassOf default:DevelopmentComponent .
 
 default:summaryFollowGroup
       a       default:FollowGroup ;
@@ -507,14 +602,14 @@ default:PlaneStats
       a       owl:Class ;
       rdfs:subClassOf default:ImageAtrribute .
 
+default:ContainerAttribute
+      a       owl:Class ;
+      rdfs:subClassOf default:Analysis .
+
 default:Institution
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Experimenter ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
-
-default:ContainerAttribute
-      a       owl:Class ;
-      rdfs:subClassOf default:Result .
 
 default:allFollow
       a       default:Follow ;
@@ -533,6 +628,7 @@ default:input
 
 default:Service
       a       owl:Class ;
+      rdfs:comment "This is an attempt to also generate the service definitions from OWL. NOT FUNCTIONAL."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:DevelopmentComponent .
 
 default:DevelopmentComponent
@@ -556,7 +652,12 @@ default:Jason
 default:Container
       a       owl:Class ;
       rdfs:comment "Containers represent mathematical sets of Leaves"^^<http://www.w3.org/2001/XMLSchema#string> ;
-      rdfs:subClassOf default:OMEObject .
+      rdfs:subClassOf default:OMEObject ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:cardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+                owl:onProperty default:owner
+              ] .
 
 default:dev_team
       a       default:Group ;

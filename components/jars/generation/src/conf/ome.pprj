@@ -1,4 +1,4 @@
-; Sun Feb 20 00:26:30 CET 2005
+; Wed Mar 02 17:35:35 CET 2005
 ; 
 ;+ (version "3.0")
 ;+ (build "Build 131")
@@ -6,11 +6,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[ome_ProjectKB_Instance_20231]
-		[ome_ProjectKB_Instance_20232]
-		[ome_ProjectKB_Instance_20233]
-		[ome_ProjectKB_Instance_20234]
-		[ome_ProjectKB_Instance_20235]))
+		[ome_ProjectKB_Instance_30131]
+		[ome_ProjectKB_Instance_30132]
+		[ome_ProjectKB_Instance_30133]
+		[ome_ProjectKB_Instance_30134]
+		[ome_ProjectKB_Instance_30135]))
 
 ([CLSES_TAB] of  Widget
 
@@ -1628,6 +1628,13 @@
 	(property_list [ome_ProjectKB_Instance_11])
 	(widget_class_name "edu.stanford.smi.RemoteKBTab.WordNetTab"))
 
+([ome_ProjectKB_Instance_10000] of  Widget
+
+	(is_hidden FALSE)
+	(name "Project")
+	(property_list [ome_ProjectKB_Instance_30815])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
 ([ome_ProjectKB_Instance_10044] of  String
 
 	(name "KnowledgeTreeTab.TOP_LEVEL_INSTANCE"))
@@ -1697,8 +1704,8 @@
 
 ([ome_ProjectKB_Instance_10209] of  Map
 
-	(entries [ome_ProjectKB_Instance_20237])
-	(referenced_maps [ome_ProjectKB_Instance_20236]))
+	(entries [ome_ProjectKB_Instance_30137])
+	(referenced_maps [ome_ProjectKB_Instance_30136]))
 
 ([ome_ProjectKB_Instance_11] of  Property_List
 )
@@ -1752,68 +1759,383 @@
 	(property_list [ome_ProjectKB_Instance_21])
 	(widget_class_name "edu.stanford.smi.protegex.owl.swrl.ui.tab.SWRLTab"))
 
-([ome_ProjectKB_Instance_20206] of  Widget
+([ome_ProjectKB_Instance_20000] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_20001]))
+
+([ome_ProjectKB_Instance_20001] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20002] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_20003]))
+
+([ome_ProjectKB_Instance_20003] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20004] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_20005]))
+
+([ome_ProjectKB_Instance_20005] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20045] of  Widget
+
+	(is_hidden FALSE)
+	(name "Plate")
+	(property_list [ome_ProjectKB_Instance_30773])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_20090] of  Widget
+
+	(is_hidden FALSE)
+	(name "Group")
+	(property_list [ome_ProjectKB_Instance_30731])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_20248] of  Widget
+
+	(is_hidden FALSE)
+	(name "Container")
+	(property_list [ome_ProjectKB_Instance_20251])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_20251] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20252]
+		[ome_ProjectKB_Instance_20266]
+		[ome_ProjectKB_Instance_20269]
+		[ome_ProjectKB_Instance_20271]
+		[ome_ProjectKB_Instance_20273]
+		[ome_ProjectKB_Instance_20275]
+		[ome_ProjectKB_Instance_20277]
+		[ome_ProjectKB_Instance_20279]
+		[ome_ProjectKB_Instance_20283]
+		[ome_ProjectKB_Instance_20285]
+		[ome_ProjectKB_Instance_20287]
+		[ome_ProjectKB_Instance_20291]))
+
+([ome_ProjectKB_Instance_20252] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_20253])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_20253] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20254]
+		[ome_ProjectKB_Instance_20258]
+		[ome_ProjectKB_Instance_20262]))
+
+([ome_ProjectKB_Instance_20254] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_20255])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_20255] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20256]
+		[ome_ProjectKB_Instance_20257]))
+
+([ome_ProjectKB_Instance_20256] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_20257] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_20258] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_20259])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_20259] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20260]
+		[ome_ProjectKB_Instance_20261]))
+
+([ome_ProjectKB_Instance_20260] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_20261] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_20262] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_20263])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_20263] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20264]
+		[ome_ProjectKB_Instance_20265]))
+
+([ome_ProjectKB_Instance_20264] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_20265] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_20266] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_20267]
+		[ome_ProjectKB_Instance_20268]))
+
+([ome_ProjectKB_Instance_20267] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_20268] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_20269] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_20270])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_20270] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20271] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_20272]))
+
+([ome_ProjectKB_Instance_20272] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20273] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_20274])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_20274] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20275] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_20276])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_20276] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20277] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_20278])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_20278] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20279] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_20280])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_20280] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_20281]
+		[ome_ProjectKB_Instance_20282]))
+
+([ome_ProjectKB_Instance_20281] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_20282] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_20283] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_20284])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_20284] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20285] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_20286])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_20286] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20287] of  Widget
 
 	(height 120)
 	(is_hidden FALSE)
-	(name "createdAt")
-	(property_list [ome_ProjectKB_Instance_20207])
-	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_20288])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
 	(width 200)
 	(x 0)
-	(y 300))
+	(y 380))
 
-([ome_ProjectKB_Instance_20207] of  Property_List
-)
+([ome_ProjectKB_Instance_20288] of  Property_List
 
-([ome_ProjectKB_Instance_20220] of  Widget
+	(properties
+		[ome_ProjectKB_Instance_20289]
+		[ome_ProjectKB_Instance_20290]))
 
-	(height 120)
+([ome_ProjectKB_Instance_20289] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_20290] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_20291] of  Widget
+
+	(height 60)
 	(is_hidden FALSE)
-	(name "createdAt")
-	(property_list [ome_ProjectKB_Instance_20221])
-	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_20292])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
 	(width 200)
-	(x 0)
-	(y 360))
+	(x 350)
+	(y 190))
 
-([ome_ProjectKB_Instance_20221] of  Property_List
+([ome_ProjectKB_Instance_20292] of  Property_List
 )
 
-([ome_ProjectKB_Instance_20231] of  String
+([ome_ProjectKB_Instance_20293] of  Widget
 
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
+	(is_hidden FALSE)
+	(name "Category")
+	(property_list [ome_ProjectKB_Instance_30563])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
 
-([ome_ProjectKB_Instance_20232] of  String
+([ome_ProjectKB_Instance_20338] of  Widget
 
-	(name "owl:Class")
-	(string_value "%3ANAME"))
+	(is_hidden FALSE)
+	(name "CategoryGroup")
+	(property_list [ome_ProjectKB_Instance_30605])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
 
-([ome_ProjectKB_Instance_20233] of  String
+([ome_ProjectKB_Instance_20383] of  Widget
 
-	(name ":INSTANCE-ANNOTATION")
-	(string_value "%3AANNOTATION-TEXT"))
-
-([ome_ProjectKB_Instance_20234] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([ome_ProjectKB_Instance_20235] of  String
-
-	(name "owl:Thing")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_20236] of  Map
-)
-
-([ome_ProjectKB_Instance_20237] of  Map_Entry
-
-	(key "InstanceDisplay.yellow_stickies")
-	(key_class "java.lang.String")
-	(value "ome_ProjectKB_Instance_20236")
-	(value_class "java.util.Map"))
+	(is_hidden FALSE)
+	(name "Dataset")
+	(property_list [ome_ProjectKB_Instance_30647])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
 
 ([ome_ProjectKB_Instance_21] of  Property_List
 )
@@ -1862,6 +2184,2861 @@
 	(is_hidden TRUE)
 	(property_list [ome_ProjectKB_Instance_31])
 	(widget_class_name "edu.stanford.smi.protege.widget.instance_tree.KnowledgeTreeTab"))
+
+([ome_ProjectKB_Instance_30000] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_30001]))
+
+([ome_ProjectKB_Instance_30001] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30005] of  Widget
+
+	(is_hidden FALSE)
+	(name "type")
+	(property_list [ome_ProjectKB_Instance_30006]))
+
+([ome_ProjectKB_Instance_30006] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30131] of  String
+
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30132] of  String
+
+	(name "owl:Class")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30133] of  String
+
+	(name ":INSTANCE-ANNOTATION")
+	(string_value "%3AANNOTATION-TEXT"))
+
+([ome_ProjectKB_Instance_30134] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([ome_ProjectKB_Instance_30135] of  String
+
+	(name "owl:Thing")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_30136] of  Map
+)
+
+([ome_ProjectKB_Instance_30137] of  Map_Entry
+
+	(key "InstanceDisplay.yellow_stickies")
+	(key_class "java.lang.String")
+	(value "ome_ProjectKB_Instance_30136")
+	(value_class "java.util.Map"))
+
+([ome_ProjectKB_Instance_30428] of  Widget
+
+	(is_hidden FALSE)
+	(name "Feature")
+	(property_list [ome_ProjectKB_Instance_30689])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_30473] of  Widget
+
+	(is_hidden FALSE)
+	(name "Screen")
+	(property_list [ome_ProjectKB_Instance_30857])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_30518] of  Widget
+
+	(is_hidden FALSE)
+	(name "Well")
+	(property_list [ome_ProjectKB_Instance_30899])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget"))
+
+([ome_ProjectKB_Instance_30563] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30564]
+		[ome_ProjectKB_Instance_30578]
+		[ome_ProjectKB_Instance_30581]
+		[ome_ProjectKB_Instance_30583]
+		[ome_ProjectKB_Instance_30585]
+		[ome_ProjectKB_Instance_30587]
+		[ome_ProjectKB_Instance_30589]
+		[ome_ProjectKB_Instance_30591]
+		[ome_ProjectKB_Instance_30595]
+		[ome_ProjectKB_Instance_30597]
+		[ome_ProjectKB_Instance_30599]
+		[ome_ProjectKB_Instance_30603]))
+
+([ome_ProjectKB_Instance_30564] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30565])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30565] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30566]
+		[ome_ProjectKB_Instance_30570]
+		[ome_ProjectKB_Instance_30574]))
+
+([ome_ProjectKB_Instance_30566] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30567])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30567] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30568]
+		[ome_ProjectKB_Instance_30569]))
+
+([ome_ProjectKB_Instance_30568] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30569] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30570] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30571])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30571] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30572]
+		[ome_ProjectKB_Instance_30573]))
+
+([ome_ProjectKB_Instance_30572] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30573] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30574] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30575])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30575] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30576]
+		[ome_ProjectKB_Instance_30577]))
+
+([ome_ProjectKB_Instance_30576] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30577] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30578] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30579]
+		[ome_ProjectKB_Instance_30580]))
+
+([ome_ProjectKB_Instance_30579] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30580] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30581] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30582])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30582] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30583] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30584]))
+
+([ome_ProjectKB_Instance_30584] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30585] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30586])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30586] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30587] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30588])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30588] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30589] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30590])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30590] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30591] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30592])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30592] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30593]
+		[ome_ProjectKB_Instance_30594]))
+
+([ome_ProjectKB_Instance_30593] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30594] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30595] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30596])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30596] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30597] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30598])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30598] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30599] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30600])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30600] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30601]
+		[ome_ProjectKB_Instance_30602]))
+
+([ome_ProjectKB_Instance_30601] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30602] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30603] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30604])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30604] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30605] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30606]
+		[ome_ProjectKB_Instance_30620]
+		[ome_ProjectKB_Instance_30623]
+		[ome_ProjectKB_Instance_30625]
+		[ome_ProjectKB_Instance_30627]
+		[ome_ProjectKB_Instance_30629]
+		[ome_ProjectKB_Instance_30631]
+		[ome_ProjectKB_Instance_30633]
+		[ome_ProjectKB_Instance_30637]
+		[ome_ProjectKB_Instance_30639]
+		[ome_ProjectKB_Instance_30641]
+		[ome_ProjectKB_Instance_30645]))
+
+([ome_ProjectKB_Instance_30606] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30607])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30607] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30608]
+		[ome_ProjectKB_Instance_30612]
+		[ome_ProjectKB_Instance_30616]))
+
+([ome_ProjectKB_Instance_30608] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30609])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30609] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30610]
+		[ome_ProjectKB_Instance_30611]))
+
+([ome_ProjectKB_Instance_30610] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30611] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30612] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30613])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30613] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30614]
+		[ome_ProjectKB_Instance_30615]))
+
+([ome_ProjectKB_Instance_30614] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30615] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30616] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30617])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30617] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30618]
+		[ome_ProjectKB_Instance_30619]))
+
+([ome_ProjectKB_Instance_30618] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30619] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30620] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30621]
+		[ome_ProjectKB_Instance_30622]))
+
+([ome_ProjectKB_Instance_30621] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30622] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30623] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30624])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30624] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30625] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30626]))
+
+([ome_ProjectKB_Instance_30626] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30627] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30628])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30628] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30629] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30630])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30630] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30631] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30632])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30632] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30633] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30634])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30634] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30635]
+		[ome_ProjectKB_Instance_30636]))
+
+([ome_ProjectKB_Instance_30635] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30636] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30637] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30638])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30638] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30639] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30640])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30640] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30641] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30642])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30642] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30643]
+		[ome_ProjectKB_Instance_30644]))
+
+([ome_ProjectKB_Instance_30643] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30644] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30645] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30646])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30646] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30647] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30648]
+		[ome_ProjectKB_Instance_30662]
+		[ome_ProjectKB_Instance_30665]
+		[ome_ProjectKB_Instance_30667]
+		[ome_ProjectKB_Instance_30669]
+		[ome_ProjectKB_Instance_30671]
+		[ome_ProjectKB_Instance_30673]
+		[ome_ProjectKB_Instance_30675]
+		[ome_ProjectKB_Instance_30679]
+		[ome_ProjectKB_Instance_30681]
+		[ome_ProjectKB_Instance_30683]
+		[ome_ProjectKB_Instance_30687]))
+
+([ome_ProjectKB_Instance_30648] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30649])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30649] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30650]
+		[ome_ProjectKB_Instance_30654]
+		[ome_ProjectKB_Instance_30658]))
+
+([ome_ProjectKB_Instance_30650] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30651])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30651] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30652]
+		[ome_ProjectKB_Instance_30653]))
+
+([ome_ProjectKB_Instance_30652] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30653] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30654] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30655])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30655] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30656]
+		[ome_ProjectKB_Instance_30657]))
+
+([ome_ProjectKB_Instance_30656] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30657] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30658] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30659])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30659] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30660]
+		[ome_ProjectKB_Instance_30661]))
+
+([ome_ProjectKB_Instance_30660] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30661] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30662] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30663]
+		[ome_ProjectKB_Instance_30664]))
+
+([ome_ProjectKB_Instance_30663] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30664] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30665] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30666])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30666] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30667] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30668]))
+
+([ome_ProjectKB_Instance_30668] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30669] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30670])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30670] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30671] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30672])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30672] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30673] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30674])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30674] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30675] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30676])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30676] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30677]
+		[ome_ProjectKB_Instance_30678]))
+
+([ome_ProjectKB_Instance_30677] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30678] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30679] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30680])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30680] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30681] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30682])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30682] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30683] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30684])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30684] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30685]
+		[ome_ProjectKB_Instance_30686]))
+
+([ome_ProjectKB_Instance_30685] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30686] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30687] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30688])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30688] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30689] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30690]
+		[ome_ProjectKB_Instance_30704]
+		[ome_ProjectKB_Instance_30707]
+		[ome_ProjectKB_Instance_30709]
+		[ome_ProjectKB_Instance_30711]
+		[ome_ProjectKB_Instance_30713]
+		[ome_ProjectKB_Instance_30715]
+		[ome_ProjectKB_Instance_30717]
+		[ome_ProjectKB_Instance_30721]
+		[ome_ProjectKB_Instance_30723]
+		[ome_ProjectKB_Instance_30725]
+		[ome_ProjectKB_Instance_30729]))
+
+([ome_ProjectKB_Instance_30690] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30691])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30691] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30692]
+		[ome_ProjectKB_Instance_30696]
+		[ome_ProjectKB_Instance_30700]))
+
+([ome_ProjectKB_Instance_30692] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30693])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30693] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30694]
+		[ome_ProjectKB_Instance_30695]))
+
+([ome_ProjectKB_Instance_30694] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30695] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30696] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30697])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30697] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30698]
+		[ome_ProjectKB_Instance_30699]))
+
+([ome_ProjectKB_Instance_30698] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30699] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30700] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30701])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30701] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30702]
+		[ome_ProjectKB_Instance_30703]))
+
+([ome_ProjectKB_Instance_30702] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30703] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30704] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30705]
+		[ome_ProjectKB_Instance_30706]))
+
+([ome_ProjectKB_Instance_30705] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30706] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30707] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30708])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30708] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30709] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30710]))
+
+([ome_ProjectKB_Instance_30710] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30711] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30712])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30712] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30713] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30714])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30714] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30715] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30716])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30716] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30717] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30718])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30718] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30719]
+		[ome_ProjectKB_Instance_30720]))
+
+([ome_ProjectKB_Instance_30719] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30720] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30721] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30722])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30722] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30723] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30724])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30724] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30725] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30726])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30726] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30727]
+		[ome_ProjectKB_Instance_30728]))
+
+([ome_ProjectKB_Instance_30727] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30728] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30729] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30730])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30730] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30731] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30732]
+		[ome_ProjectKB_Instance_30746]
+		[ome_ProjectKB_Instance_30749]
+		[ome_ProjectKB_Instance_30751]
+		[ome_ProjectKB_Instance_30753]
+		[ome_ProjectKB_Instance_30755]
+		[ome_ProjectKB_Instance_30757]
+		[ome_ProjectKB_Instance_30759]
+		[ome_ProjectKB_Instance_30763]
+		[ome_ProjectKB_Instance_30765]
+		[ome_ProjectKB_Instance_30767]
+		[ome_ProjectKB_Instance_30771]))
+
+([ome_ProjectKB_Instance_30732] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30733])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30733] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30734]
+		[ome_ProjectKB_Instance_30738]
+		[ome_ProjectKB_Instance_30742]))
+
+([ome_ProjectKB_Instance_30734] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30735])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30735] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30736]
+		[ome_ProjectKB_Instance_30737]))
+
+([ome_ProjectKB_Instance_30736] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30737] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30738] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30739])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30739] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30740]
+		[ome_ProjectKB_Instance_30741]))
+
+([ome_ProjectKB_Instance_30740] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30741] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30742] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30743])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30743] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30744]
+		[ome_ProjectKB_Instance_30745]))
+
+([ome_ProjectKB_Instance_30744] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30745] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30746] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30747]
+		[ome_ProjectKB_Instance_30748]))
+
+([ome_ProjectKB_Instance_30747] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30748] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30749] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30750])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30750] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30751] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30752]))
+
+([ome_ProjectKB_Instance_30752] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30753] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30754])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30754] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30755] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30756])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30756] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30757] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30758])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30758] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30759] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30760])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30760] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30761]
+		[ome_ProjectKB_Instance_30762]))
+
+([ome_ProjectKB_Instance_30761] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30762] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30763] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30764])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30764] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30765] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30766])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30766] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30767] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30768])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30768] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30769]
+		[ome_ProjectKB_Instance_30770]))
+
+([ome_ProjectKB_Instance_30769] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30770] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30771] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30772])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30772] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30773] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30774]
+		[ome_ProjectKB_Instance_30788]
+		[ome_ProjectKB_Instance_30791]
+		[ome_ProjectKB_Instance_30793]
+		[ome_ProjectKB_Instance_30795]
+		[ome_ProjectKB_Instance_30797]
+		[ome_ProjectKB_Instance_30799]
+		[ome_ProjectKB_Instance_30801]
+		[ome_ProjectKB_Instance_30805]
+		[ome_ProjectKB_Instance_30807]
+		[ome_ProjectKB_Instance_30809]
+		[ome_ProjectKB_Instance_30813]))
+
+([ome_ProjectKB_Instance_30774] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30775])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30775] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30776]
+		[ome_ProjectKB_Instance_30780]
+		[ome_ProjectKB_Instance_30784]))
+
+([ome_ProjectKB_Instance_30776] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30777])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30777] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30778]
+		[ome_ProjectKB_Instance_30779]))
+
+([ome_ProjectKB_Instance_30778] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30779] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30780] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30781])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30781] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30782]
+		[ome_ProjectKB_Instance_30783]))
+
+([ome_ProjectKB_Instance_30782] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30783] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30784] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30785])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30785] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30786]
+		[ome_ProjectKB_Instance_30787]))
+
+([ome_ProjectKB_Instance_30786] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30787] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30788] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30789]
+		[ome_ProjectKB_Instance_30790]))
+
+([ome_ProjectKB_Instance_30789] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30790] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30791] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30792])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30792] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30793] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30794]))
+
+([ome_ProjectKB_Instance_30794] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30795] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30796])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30796] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30797] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30798])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30798] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30799] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30800])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30800] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30801] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30802])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30802] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30803]
+		[ome_ProjectKB_Instance_30804]))
+
+([ome_ProjectKB_Instance_30803] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30804] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30805] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30806])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30806] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30807] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30808])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30808] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30809] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30810])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30810] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30811]
+		[ome_ProjectKB_Instance_30812]))
+
+([ome_ProjectKB_Instance_30811] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30812] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30813] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30814])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30814] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30815] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30816]
+		[ome_ProjectKB_Instance_30830]
+		[ome_ProjectKB_Instance_30833]
+		[ome_ProjectKB_Instance_30835]
+		[ome_ProjectKB_Instance_30837]
+		[ome_ProjectKB_Instance_30839]
+		[ome_ProjectKB_Instance_30841]
+		[ome_ProjectKB_Instance_30843]
+		[ome_ProjectKB_Instance_30847]
+		[ome_ProjectKB_Instance_30849]
+		[ome_ProjectKB_Instance_30851]
+		[ome_ProjectKB_Instance_30855]))
+
+([ome_ProjectKB_Instance_30816] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30817])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30817] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30818]
+		[ome_ProjectKB_Instance_30822]
+		[ome_ProjectKB_Instance_30826]))
+
+([ome_ProjectKB_Instance_30818] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30819])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30819] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30820]
+		[ome_ProjectKB_Instance_30821]))
+
+([ome_ProjectKB_Instance_30820] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30821] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30822] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30823])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30823] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30824]
+		[ome_ProjectKB_Instance_30825]))
+
+([ome_ProjectKB_Instance_30824] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30825] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30826] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30827])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30827] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30828]
+		[ome_ProjectKB_Instance_30829]))
+
+([ome_ProjectKB_Instance_30828] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30829] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30830] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30831]
+		[ome_ProjectKB_Instance_30832]))
+
+([ome_ProjectKB_Instance_30831] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30832] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30833] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30834])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30834] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30835] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30836]))
+
+([ome_ProjectKB_Instance_30836] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30837] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30838])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30838] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30839] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30840])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30840] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30841] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30842])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30842] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30843] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30844])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30844] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30845]
+		[ome_ProjectKB_Instance_30846]))
+
+([ome_ProjectKB_Instance_30845] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30846] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30847] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30848])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30848] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30849] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30850])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30850] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30851] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30852])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30852] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30853]
+		[ome_ProjectKB_Instance_30854]))
+
+([ome_ProjectKB_Instance_30853] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30854] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30855] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30856])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30856] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30857] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30858]
+		[ome_ProjectKB_Instance_30872]
+		[ome_ProjectKB_Instance_30875]
+		[ome_ProjectKB_Instance_30877]
+		[ome_ProjectKB_Instance_30879]
+		[ome_ProjectKB_Instance_30881]
+		[ome_ProjectKB_Instance_30883]
+		[ome_ProjectKB_Instance_30885]
+		[ome_ProjectKB_Instance_30889]
+		[ome_ProjectKB_Instance_30891]
+		[ome_ProjectKB_Instance_30893]
+		[ome_ProjectKB_Instance_30897]))
+
+([ome_ProjectKB_Instance_30858] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30859])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30859] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30860]
+		[ome_ProjectKB_Instance_30864]
+		[ome_ProjectKB_Instance_30868]))
+
+([ome_ProjectKB_Instance_30860] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30861])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30861] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30862]
+		[ome_ProjectKB_Instance_30863]))
+
+([ome_ProjectKB_Instance_30862] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30863] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30864] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30865])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30865] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30866]
+		[ome_ProjectKB_Instance_30867]))
+
+([ome_ProjectKB_Instance_30866] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30867] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30868] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30869])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30869] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30870]
+		[ome_ProjectKB_Instance_30871]))
+
+([ome_ProjectKB_Instance_30870] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30871] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30872] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30873]
+		[ome_ProjectKB_Instance_30874]))
+
+([ome_ProjectKB_Instance_30873] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30874] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30875] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30876])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30876] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30877] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30878]))
+
+([ome_ProjectKB_Instance_30878] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30879] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30880])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30880] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30881] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30882])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30882] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30883] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30884])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30884] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30885] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30886])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30886] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30887]
+		[ome_ProjectKB_Instance_30888]))
+
+([ome_ProjectKB_Instance_30887] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30888] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30889] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30890])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30890] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30891] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30892])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30892] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30893] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30894])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30894] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30895]
+		[ome_ProjectKB_Instance_30896]))
+
+([ome_ProjectKB_Instance_30895] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30896] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30897] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30898])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30898] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30899] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30900]
+		[ome_ProjectKB_Instance_30914]
+		[ome_ProjectKB_Instance_30917]
+		[ome_ProjectKB_Instance_30919]
+		[ome_ProjectKB_Instance_30921]
+		[ome_ProjectKB_Instance_30923]
+		[ome_ProjectKB_Instance_30925]
+		[ome_ProjectKB_Instance_30927]
+		[ome_ProjectKB_Instance_30931]
+		[ome_ProjectKB_Instance_30933]
+		[ome_ProjectKB_Instance_30935]
+		[ome_ProjectKB_Instance_30939]))
+
+([ome_ProjectKB_Instance_30900] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30901])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.OWLMetadataWidget")
+	(width 280)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30901] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30902]
+		[ome_ProjectKB_Instance_30906]
+		[ome_ProjectKB_Instance_30910]))
+
+([ome_ProjectKB_Instance_30902] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(property_list [ome_ProjectKB_Instance_30903])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30903] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30904]
+		[ome_ProjectKB_Instance_30905]))
+
+([ome_ProjectKB_Instance_30904] of  Widget
+
+	(height 30)
+	(is_hidden FALSE)
+	(label "Name")
+	(name ":NAME")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 0))
+
+([ome_ProjectKB_Instance_30905] of  Widget
+
+	(height 115)
+	(is_hidden FALSE)
+	(label "Comment")
+	(name "rdfs:comment")
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 0)
+	(y 30))
+
+([ome_ProjectKB_Instance_30906] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:sameAs")
+	(name "owl:sameAs")
+	(property_list [ome_ProjectKB_Instance_30907])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30907] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30908]
+		[ome_ProjectKB_Instance_30909]))
+
+([ome_ProjectKB_Instance_30908] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30909] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30910] of  Widget
+
+	(height 145)
+	(is_hidden FALSE)
+	(label "owl:differentFrom")
+	(name "owl:differentFrom")
+	(property_list [ome_ProjectKB_Instance_30911])
+	(widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
+	(width 266)
+	(x 7)
+	(y 27))
+
+([ome_ProjectKB_Instance_30911] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30912]
+		[ome_ProjectKB_Instance_30913]))
+
+([ome_ProjectKB_Instance_30912] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30913] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30914] of  Property_List
+
+	(name "layout properties")
+	(properties
+		[ome_ProjectKB_Instance_30915]
+		[ome_ProjectKB_Instance_30916]))
+
+([ome_ProjectKB_Instance_30915] of  String
+
+	(name "horizontal_stretcher")
+	(string_value "<<all>>"))
+
+([ome_ProjectKB_Instance_30916] of  String
+
+	(name "vertical_stretcher")
+	(string_value "<<none>>"))
+
+([ome_ProjectKB_Instance_30917] of  Widget
+
+	(height 180)
+	(is_hidden FALSE)
+	(name ":OWL-INFERRED-DIRECT-TYPES")
+	(property_list [ome_ProjectKB_Instance_30918])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.metadata.AnnotationsWidget")
+	(width 280)
+	(x 280)
+	(y 0))
+
+([ome_ProjectKB_Instance_30918] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30919] of  Widget
+
+	(is_hidden FALSE)
+	(name "size")
+	(property_list [ome_ProjectKB_Instance_30920]))
+
+([ome_ProjectKB_Instance_30920] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30921] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "label")
+	(property_list [ome_ProjectKB_Instance_30922])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 240))
+
+([ome_ProjectKB_Instance_30922] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30923] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "immutable")
+	(property_list [ome_ProjectKB_Instance_30924])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 290))
+
+([ome_ProjectKB_Instance_30924] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30925] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "version")
+	(property_list [ome_ProjectKB_Instance_30926])
+	(widget_class_name "edu.stanford.smi.protege.widget.IntegerFieldWidget")
+	(width 100)
+	(x 200)
+	(y 180))
+
+([ome_ProjectKB_Instance_30926] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30927] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "owner")
+	(property_list [ome_ProjectKB_Instance_30928])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceFieldWidget")
+	(width 200)
+	(x 0)
+	(y 310))
+
+([ome_ProjectKB_Instance_30928] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30929]
+		[ome_ProjectKB_Instance_30930]))
+
+([ome_ProjectKB_Instance_30929] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30930] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30931] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "inactive")
+	(property_list [ome_ProjectKB_Instance_30932])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 240))
+
+([ome_ProjectKB_Instance_30932] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30933] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "description")
+	(property_list [ome_ProjectKB_Instance_30934])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 180))
+
+([ome_ProjectKB_Instance_30934] of  Property_List
+)
+
+([ome_ProjectKB_Instance_30935] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "contains")
+	(property_list [ome_ProjectKB_Instance_30936])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLInstanceListWidget")
+	(width 200)
+	(x 0)
+	(y 380))
+
+([ome_ProjectKB_Instance_30936] of  Property_List
+
+	(properties
+		[ome_ProjectKB_Instance_30937]
+		[ome_ProjectKB_Instance_30938]))
+
+([ome_ProjectKB_Instance_30937] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-View References to Value  "))
+
+([ome_ProjectKB_Instance_30938] of  Boolean
+
+	(boolean_value FALSE)
+	(name "ButtonDisplayed-Delete Instance"))
+
+([ome_ProjectKB_Instance_30939] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "tracked")
+	(property_list [ome_ProjectKB_Instance_30940])
+	(widget_class_name "edu.stanford.smi.protege.widget.CheckBoxWidget")
+	(width 200)
+	(x 350)
+	(y 190))
+
+([ome_ProjectKB_Instance_30940] of  Property_List
+)
 
 ([ome_ProjectKB_Instance_31] of  Property_List
 
@@ -2006,27 +5183,37 @@
 	(browser_slot_names [BROWSER_SLOT_NAMES])
 	(customized_instance_widgets
 		[KB_420361_Instance_54]
+		[ome_ProjectKB_Instance_20248]
 		[INSTANCE_ANNOTATION_FORM_WIDGET]
 		[KB_313796_Instance_852]
 		[Instance_581]
 		[KB_764103_Instance_545]
+		[ome_ProjectKB_Instance_20090]
+		[ome_ProjectKB_Instance_10000]
+		[ome_ProjectKB_Instance_20045]
 		[KB_553917_Instance_637]
 		[KB_868747_Instance_76]
+		[ome_ProjectKB_Instance_30428]
 		[KB_691299_Instance_537]
 		[Instance_1005]
 		[KB_379625_Instance_617]
 		[STANDARD_FACET_FORM_WIDGET]
+		[ome_ProjectKB_Instance_30518]
 		[KB_691299_Instance_398]
 		[KB_313796_Instance_943]
 		[STANDARD_SLOT_FORM_WIDGET]
 		[KB_303942_Instance_68]
+		[ome_ProjectKB_Instance_20293]
+		[ome_ProjectKB_Instance_30473]
+		[ome_ProjectKB_Instance_20383]
 		[Instance_443]
 		[KB_465546_Instance_567]
 		[PAL_FORM_WIDGET]
 		[KB_301165_Instance_856]
 		[KB_301165_Instance_1013]
 		[KB_379625_Instance_777]
-		[STANDARD_CLASS_FORM_WIDGET])
+		[STANDARD_CLASS_FORM_WIDGET]
+		[ome_ProjectKB_Instance_20338])
 	(default_cls_metaclass "owl:Class")
 	(default_facet_metaclass ":STANDARD-FACET")
 	(default_instance_widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget")
@@ -2068,8 +5255,8 @@
 		"rdfs:Alt"
 		"rdfs:Literal"
 		"rdfs:comment"
-		"owl:hasValue"
 		"ExternalResource"
+		"owl:hasValue"
 		"owl:incompatibleWith"
 		"rdfs:Seq"
 		":OWL-INFERRED-SUBCLASSES"
@@ -2917,7 +6104,8 @@
 		[XY_Instance_215]
 		[XY_Instance_217]
 		[XY_Instance_235]
-		[prot-test2_ProjectKB_Instance_10048]))
+		[prot-test2_ProjectKB_Instance_10048]
+		[ome_ProjectKB_Instance_20004]))
 
 ([XY_Instance_2] of  Widget
 
@@ -4112,7 +7300,8 @@
 		[XY_Instance_530]
 		[XY_Instance_536]
 		[XY_Instance_538]
-		[prot-test2_ProjectKB_Instance_10046]))
+		[prot-test2_ProjectKB_Instance_10046]
+		[ome_ProjectKB_Instance_20002]))
 
 ([XY_Instance_463] of  Widget
 
@@ -4467,7 +7656,8 @@
 		[XY_Instance_575]
 		[XY_Instance_583]
 		[XY_Instance_585]
-		[prot-test2_ProjectKB_Instance_44]))
+		[prot-test2_ProjectKB_Instance_44]
+		[ome_ProjectKB_Instance_20000]))
 
 ([XY_Instance_541] of  Widget
 
@@ -4691,7 +7881,8 @@
 		[XY_Instance_653]
 		[XY_Instance_661]
 		[XY_Instance_663]
-		[prot-test2_ProjectKB_Instance_10050]))
+		[prot-test2_ProjectKB_Instance_10050]
+		[ome_ProjectKB_Instance_30000]))
 
 ([XY_Instance_592] of  Widget
 
@@ -5591,7 +8782,8 @@
 		[XY_Instance_789]
 		[XY_Instance_799]
 		[XY_Instance_812]
-		[prot-test2_ProjectKB_Instance_10055]))
+		[prot-test2_ProjectKB_Instance_10055]
+		[ome_ProjectKB_Instance_30005]))
 
 ([XY_Instance_789] of  Widget
 

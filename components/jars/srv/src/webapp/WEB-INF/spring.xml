@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>	
+
+	<!-- ### Data ####################################################### -->
+
+	<bean id="testDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>${jena.db.driver}</value></property>
+		<property name="url"><value>${jena.db.url}</value></property>
+		<property name="username"><value>${jena.db.user}</value></property>		
+		<property name="password"><value>${jena.db.password}</value></property>				
+	</bean>
+
+	<bean id="versionModelFactory" class="org.ome.srv.db.jena.JenaModelFactory">
+	    <property name="dataSource"><ref local="testDataSource"/></property>
+	    <property name="modelName"><value>versions</value></property>
+  	    <property name="databaseType"><value>${jena.db.type}</value></property>
+	</bean>
+
+	<bean id="defaultJenaModelFactory" class="org.ome.srv.db.jena.JenaModelFactory">
+	    <property name="dataSource"><ref local="testDataSource"/></property>
+	    <property name="modelName"><value>ome</value></property>
+  	    <property name="databaseType"><value>${jena.db.type}</value></property>
+	</bean>
+
+	<bean id="defaultJenaKowariModelFactory" class="org.ome.srv.db.jena.JenaKowariModelFactory">
+	    <property name="dataSource"><ref local="testDataSource"/></property>
+	    <property name="modelName"><value>ome</value></property>
+	    <property name="serverDir"><value>/tmp/kowari-tmp</value></property>
+	    <property name="serverUri">
+	    	<bean class="java.net.URI">
+	    		<constructor-arg>
+		    	<value>rmi://schriese/server1</value>
+		    	</constructor-arg>
+		   	</bean>
+	    </property>
+	</bean>
+
+	<bean id="cache" class="org.ome.cache.oscache.OSCache"/>
+	<bean id="store" class="org.ome.srv.db.jena.JenaGenericStore">
+	    <property name="modelFactory"><ref local="defaultJenaModelFactory"/></property>
+	</bean>
+	<bean id="versionStore" class="org.ome.srv.db.jena.JenaGenericStore">
+	    <property name="modelFactory"><ref local="versionModelFactory"/></property>
+	</bean>
+
+	<!-- ### Services ####################################################### -->
+	
+	<!-- not the most performant (less so than cache) but works for now -->
+	<bean id="versionService" class="org.ome.srv.logic.VersionServiceImpl">
+		<property name="store"><ref local="versionStore"/></property>
+	</bean>
+	
+	<bean id="administrationService" class="org.ome.srv.logic.AdministrationServiceImpl">
+	    <property name="cache"><ref local="cache"/></property>
+	    <property name="store"><ref local="store"/></property>
+	    <property name="versionService"><ref local="versionService"/></property>
+	</bean>
+
+	<bean id="containerService" class="org.ome.srv.logic.ContainerServiceImpl">
+	    <property name="cache"><ref local="cache"/></property>
+	    <property name="store"><ref local="store"/></property>
+   	    <property name="versionService"><ref local="versionService"/></property>
+	</bean>
+
+	<bean id="imageService" class="org.ome.srv.logic.ImageServiceImpl">
+	    <property name="cache"><ref local="cache"/></property>
+	    <property name="store"><ref local="store"/></property>
+	    <property name="versionService"><ref local="versionService"/></property>
+	</bean>
+
+</beans>

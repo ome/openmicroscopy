@@ -12,7 +12,11 @@
 
 public class ${class.LocalName}Wrapper
 {
-
+/* FIXME Do we need this? This or Factory.
+	public static ${class.LocalName} wrap(LSObject lsobj){
+		return new ${class.LocalName}(lsobj);
+	}
+*/
 	public static List wrap(List lsObjects){
 		List results = new ArrayList();
 		for (Iterator iter = lsObjects.iterator();iter.hasNext();){

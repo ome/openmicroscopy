@@ -3,8 +3,6 @@
  */
 package org.ome.srv.logic;
 
-import java.rmi.RemoteException;
-
 import org.ome.model.Experimenter;
 import org.ome.model.IExperimenter;
 import org.ome.model.LSID;
@@ -18,7 +16,7 @@ public class AdministrationServiceImpl extends AbstractService implements Admini
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getExperimenter(org.ome.model.LSID)
 	 */
-	public IExperimenter getExperimenter(LSID lsid) throws RemoteException {
+	public IExperimenter getExperimenter(LSID lsid) {
 		return new Experimenter(db.getLSObject(lsid));
 	}
 
@@ -27,7 +25,7 @@ public class AdministrationServiceImpl extends AbstractService implements Admini
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getSessionKey()
 	 */
-	public String getSessionKey() throws RemoteException {
+	public String getSessionKey() {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -36,7 +34,7 @@ public class AdministrationServiceImpl extends AbstractService implements Admini
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#createExperimenter()
 	 */
-	public IExperimenter createExperimenter() throws RemoteException {
+	public IExperimenter createExperimenter() {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -45,7 +43,7 @@ public class AdministrationServiceImpl extends AbstractService implements Admini
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#createExperimenter(org.ome.model.IExperimenter)
 	 */
-	public int createExperimenter(IExperimenter arg0) throws RemoteException {
+	public int createExperimenter(IExperimenter arg0)  {
 		// TODO Auto-generated method stub
 		/* return 0; */
 		throw new RuntimeException("implement me");
@@ -55,7 +53,7 @@ public class AdministrationServiceImpl extends AbstractService implements Admini
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public IExperimenter getExperimenter(LSID arg0, LSID arg1) throws RemoteException {
+	public IExperimenter getExperimenter(LSID arg0, LSID arg1) {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");

@@ -3,7 +3,6 @@
 */
 package org.ome.srv.logic;
 
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.ome.model.LSID;
@@ -19,7 +18,7 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
 	 */
-	public LSObject getLSObject(LSID lsid) throws RemoteException {
+	public LSObject getLSObject(LSID lsid)  {
 		return db.getLSObject(lsid);
 	}
 	
@@ -28,7 +27,7 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
 	 */
-	public void setLSOjbect(LSObject obj) {
+	public void setLSObject(LSObject obj) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("implement me");
 
@@ -54,7 +53,7 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObjectWithFollowGroup(org.ome.model.LSID, org.ome.model.FollowGroup)
 	 */
-	public LSObject getLSObjectWithFollowGroup(LSID arg0, FollowGroup arg1) throws RemoteException {
+	public LSObject getLSObjectWithFollowGroup(LSID arg0, FollowGroup arg1)  {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -63,7 +62,7 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObjectsByLSIDType(org.ome.model.LSID)
 	 */
-	public List getLSObjectsByLSIDType(LSID arg0) throws RemoteException {
+	public List getLSObjectsByLSIDType(LSID arg0)  {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -72,7 +71,7 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObjectsByClassType(java.lang.Class)
 	 */
-	public List getLSObjectsByClassType(Class arg0) throws RemoteException {
+	public List getLSObjectsByClassType(Class arg0)  {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");

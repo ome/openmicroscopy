@@ -5,10 +5,7 @@ package org.ome.tests.client;
 
 import junit.framework.TestCase;
 
-import org.ome.client.TemporaryFactoryFactory;
-import org.ome.client.rmi.ServiceFactoryImpl;
 import org.ome.interfaces.AdministrationService;
-import org.ome.interfaces.ServiceFactory;
 ;
 
 /**
@@ -25,7 +22,6 @@ public class AdminServiceTest extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = TemporaryFactoryFactory.getServiceFactory();
-		a = factory.getAdministrationService();
+		a = (AdministrationService) SpringTestHarness.ctx.getBean("administrationService");
 	}
 }

@@ -9,8 +9,6 @@ import java.rmi.RemoteException;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.interfaces.GenericService;
-import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.logic.ServiceFactoryImpl;
 ;
 
 /**
@@ -27,8 +25,7 @@ public class GenericServiceTest extends BaseServiceTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = new ServiceFactoryImpl();
-		g = factory.getGenericService();
+		g = (GenericService) SpringTestHarness.ctx.getBean("genericService");
 	}
 	
 	public void testGetLSObject() throws URISyntaxException, RemoteException{

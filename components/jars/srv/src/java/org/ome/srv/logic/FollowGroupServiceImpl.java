@@ -3,8 +3,6 @@
  */
 package org.ome.srv.logic;
 
-import java.rmi.RemoteException;
-
 import org.ome.model.FollowGroup;
 import org.ome.model.IFollowGroup;
 import org.ome.model.LSID;
@@ -18,7 +16,7 @@ public class FollowGroupServiceImpl extends AbstractService implements FollowGro
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.PredicateGroupService#getPredicateGroup(org.ome.LSID)
 	 */
-	public IFollowGroup getFollowGroup(LSID lsid) throws RemoteException {
+	public IFollowGroup getFollowGroup(LSID lsid) {
 		return new FollowGroup(db.getLSObject(lsid));
 	}
 

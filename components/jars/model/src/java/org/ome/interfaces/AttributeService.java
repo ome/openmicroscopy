@@ -3,7 +3,6 @@
  */
 package org.ome.interfaces;
 
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.ome.model.IAttribute;
@@ -19,12 +18,10 @@ public interface AttributeService {
 	// annotations and categories
 	// no ST/Attrs for Shoola !
 
-	public boolean addAttributeToLSObject(IAttribute attr, LSID lsid)
-			throws RemoteException;
+	public boolean addAttributeToLSObject(IAttribute attr, LSID lsid);
 
-	public List getAttributesForLSObject(LSID lsid) throws RemoteException;
+	public List getAttributesForLSObject(LSID lsid) ;
 
-	public List getAttributesForLSObjectWithType(LSID obj, LSID type)
-			throws RemoteException;
+	public List getAttributesForLSObjectWithType(LSID obj, LSID type);
 
 }

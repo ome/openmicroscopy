@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.hp.hpl.jena.ontology.AllValuesFromRestriction;
+import com.hp.hpl.jena.ontology.CardinalityRestriction;
 import com.hp.hpl.jena.ontology.MaxCardinalityRestriction;
 import com.hp.hpl.jena.ontology.MinCardinalityRestriction;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -30,6 +33,8 @@ public class OntologicalClass {
     protected List _predicates = new ArrayList();
     
     protected List _restrictions = new ArrayList();
+    
+    protected Map propMap;
     
     /**
      *  
@@ -56,7 +61,7 @@ public class OntologicalClass {
         this.setURI(c.getURI());
         
         getPropertiesForClass(c);
-        HashMap propMap = generatePropMap();
+        generatePropMap();
         
         Iterator iter = c.listSuperClasses(true);
         for (Iterator j = iter; j.hasNext();) {
@@ -67,33 +72,28 @@ public class OntologicalClass {
                 break;
             } else if (s.isRestriction()) {
 
+                if (s.canAs(CardinalityRestriction.class)){
+                    CardinalityRestriction cr = (CardinalityRestriction)s.as(CardinalityRestriction.class);
+                    int min_max = cr.getCardinality();
+                    OntologicalProperty p = getPropFromRestriction(cr);
+                    p.updateMin(min_max);
+                    p.updateMax(min_max);
+                }
+                
                 if (s.canAs(MinCardinalityRestriction.class)) {
                     MinCardinalityRestriction minCR = (MinCardinalityRestriction) s
                             .as(MinCardinalityRestriction.class);
                     int min = minCR.getMinCardinality();
-
-                    String prop = minCR.getOnProperty().getURI();
-                    OntologicalProperty p = (OntologicalProperty) propMap.get(prop);
-
-                    int oldMin = p.getMin().intValue();
-                    if (min > oldMin) p.setMin(min);
-
+                    OntologicalProperty p = getPropFromRestriction(minCR);
+                    p.updateMin(min);
                 }
 
                 if (s.canAs(MaxCardinalityRestriction.class)) {
                     MaxCardinalityRestriction maxCR = (MaxCardinalityRestriction) s
                             .as(MaxCardinalityRestriction.class);
                     int max = maxCR.getMaxCardinality();
-
-                    String prop = maxCR.getOnProperty().getURI();
-                    OntologicalProperty p = (OntologicalProperty) propMap.get(prop);
-                    
-                    if (null!=p.getMin()){
-                        int oldMax = p.getMax().intValue();
-                        if (max < oldMax) p.setMax(max);
-                    } else {
-                        p.setMax(max);
-                    }
+                    OntologicalProperty p = getPropFromRestriction(maxCR);
+                    p.updateMax(max);
 
                 }
 
@@ -109,7 +109,8 @@ public class OntologicalClass {
                     p.getAllValuesFrom().add(a); // FIXME could already be defined
                 }
               
-                //TODO disjoint, someValuesFrom etc.
+                //TODO hasValue makes a property immutable!!!; disjoint, someValuesFrom etc. 
+                // 
             } else {
                 System.err.println("Class "+c+" has multiple named superclasses!!"); //FIXME
             }
@@ -121,6 +122,12 @@ public class OntologicalClass {
             p.doTypes();
           
         }
+    }
+
+    private OntologicalProperty getPropFromRestriction(Restriction r) {
+        String prop = r.getOnProperty().getURI();
+        OntologicalProperty p = (OntologicalProperty) propMap.get(prop);
+        return p;
     }
 
     /** this produces a list of properties on this class. Further information will 
@@ -138,13 +145,13 @@ public class OntologicalClass {
 		}
 	}    
 
-    protected HashMap generatePropMap() {
-        HashMap propMap = new HashMap();
+	//TODO does this keep pointers around too long?
+    protected void generatePropMap() {
+        propMap = new HashMap();
         for (Iterator iter = _predicates.iterator(); iter.hasNext();) {
             OntologicalProperty element = (OntologicalProperty) iter.next();
             propMap.put(element.getURI(), element);
         }
-        return propMap;
     }
 	
     /**

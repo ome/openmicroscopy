@@ -7,5 +7,9 @@ package org.ome.exceptions;
  * @author josh
  */
 public class LSIDObjectException extends LSIDException {
+    
+    public LSIDObjectException(String string){
+        super(string);
+    }
 
 }

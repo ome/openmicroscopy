@@ -3,8 +3,6 @@
  */
 package org.ome.interfaces;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.ome.model.IDataset;
@@ -18,49 +16,46 @@ import org.ome.model.LSObject;
  * 
  * @author josh
  */
-public interface ContainerService extends Remote{
+public interface ContainerService {
 
-	public List retrieveProjectsByExperimenter(LSID experimenterId)
-			throws RemoteException;//TODO use generics
+	public List retrieveProjectsByExperimenter(LSID experimenterId);//TODO use generics
 
 	public List retrieveProjectsByExperimenter(LSID experimenterId,
-			LSID predicateGroupId) throws RemoteException;
+			LSID predicateGroupId) ;
 
-	public IProject retrieveProject(LSID projectId) throws RemoteException;
+	public IProject retrieveProject(LSID projectId) ;
 
-	public IProject retrieveProject(LSID projectId, LSID predicateGroupId)
-			throws RemoteException;
+	public IProject retrieveProject(LSID projectId, LSID predicateGroupId);
 
-	public List retrieveDatasetsByExperimenter(LSID experimenterId)
-			throws RemoteException;
+	public List retrieveDatasetsByExperimenter(LSID experimenterId);
 
 	public List retrieveDatasetsByExperimenter(LSID experimenterId,
-			LSID predicateGroupId) throws RemoteException;
+			LSID predicateGroupId) ;
 
-	public IDataset retrieveDataset(LSID datasetId) throws RemoteException;
+	public IDataset retrieveDataset(LSID datasetId) ;
 
-	public IDataset retrieveDataset(LSID datasetId, LSID predicateGroupId)
-			throws RemoteException;
+	public IDataset retrieveDataset(LSID datasetId, LSID predicateGroupId);
 
 
 	//
 
-	public IProject createProject() throws RemoteException;
+	//FIXME should these exist (in temporary models) or must one pass in the data
+	public IProject createProject() ;
 
-	public LSID createProject(IProject data) throws RemoteException;
+	public LSID createProject(IProject data) ;
 
-	public void updateProject(IProject data) throws RemoteException;
+	public void updateProject(IProject data) ;
 
-	public void setProject(IProject data) throws RemoteException;
+	public void setProject(IProject data) ;
 
-	public IDataset createDataset() throws RemoteException;
+	public IDataset createDataset() ;
 
-	public LSID createDataset(IDataset data) throws RemoteException;
+	public LSID createDataset(IDataset data) ;
 
-	public void updateDataset(IDataset data) throws RemoteException;
+	public void updateDataset(IDataset data) ;
 
-	public void setDataset(IDataset data) throws RemoteException;
+	public void setDataset(IDataset data) ;
 
-	public List retrieveIDPHierarchy(LSObject[] images) throws RemoteException;
+	public List retrieveIDPHierarchy(LSObject[] images) ;
 
 }

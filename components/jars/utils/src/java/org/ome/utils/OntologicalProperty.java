@@ -56,7 +56,7 @@ public class OntologicalProperty {
         this.setLocalName(p.getLocalName());
         this.setURI(p.getURI());
         this.setRange(p.getRange().getLocalName());
-        this.setRange(p.getRange().getURI());
+        this.setRangeURI(p.getRange().getURI());
 
         // TODO if InverseFunctional is a more complicated concept!!!
         if (p.isFunctionalProperty()) {
@@ -110,7 +110,7 @@ public class OntologicalProperty {
 
         if (null == this.getMax() || this.getMax().intValue() > 1) {
             return "java.util.List"; // TODO generics
-        } else if (null == rangeURI || null == range) {
+        } else if (null == rangeURI) { 
             return "Object"; 
         } else if (rangeURI.equals(xsd + "string")) {
             return "String";
@@ -118,6 +118,8 @@ public class OntologicalProperty {
             return "Float";
         } else if (rangeURI.equals(xsd + "int")) {
             return "Integer";
+        } else if (rangeURI.equals(xsd + "boolean")) {
+            return "Boolean";
         } else if (rangeURI.equals(xsd + "anyURI")) {
             return "java.net.URI";
         } else if (rangeURI.equals(xsd + "nonNegativeInteger")) { // TODO This logic
@@ -125,6 +127,7 @@ public class OntologicalProperty {
             // somewhere
             return "Integer";
         } else { 
+            // if range is null it'll show up at generation time.
             // the assumption at this point is that range
             // is a generated interface so we can just add "I"
             return "I" + range;
@@ -268,5 +271,29 @@ public class OntologicalProperty {
     
     public String toString(){
         return this.localName+" <"+this.URI+"> ";
+    }
+
+    /** the update method for setting a new minimum. Possible methods are:
+     * 1) strictest use the most minimum value
+     * 2) loosest use the most maximum minimum value
+     * @param min2
+     */
+    public void updateMin(int min) {
+        int oldMin = this.getMin().intValue();
+        if (min > oldMin) this.setMin(min);
+    }
+
+    /** see updateMin
+     * FIXME also : on remove check cardinality, no min > max , etc!
+     * @param max2
+     */
+    public void updateMax(int max) {
+        if (null!=this.getMin()){
+            int oldMax = this.getMax().intValue();
+            if (max < oldMax) this.setMax(max);
+        } else {
+            this.setMax(max);
+        }
+
     }
 }

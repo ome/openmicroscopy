@@ -9,9 +9,6 @@
   <id>ome3</id>
   <groupId>ome3</groupId>
   <name>Open Microscopy Environment v3</name>
-  <!-- The version of the project under development, e.g.
-       1.1, 1.2, 2.0-SNAPSHOT -->
-
   <currentVersion>1.0</currentVersion>
 
   <organization>
@@ -34,12 +31,9 @@
   <!-- the version control repository and http url for online access
        the connection element has the form:
        scm:<system>:<system specific connection string> -->
-
   <repository>
-    <connection>scm|svn|file|///home/josh/repos/ome3|trunk|</connection>
-    <url>http://cvs.org/</url>
+    <connection>scm:svn:svn+ssh://cvs.openmicroscopy.org.uk/home/svn/josh/trunk</connection>
   </repository>
-  -->
   <mailingLists/>
   <developers/>
   <dependencies/>

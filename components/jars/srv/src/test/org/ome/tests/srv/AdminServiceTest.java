@@ -9,8 +9,6 @@ import java.rmi.RemoteException;
 import org.ome.model.IExperimenter;
 import org.ome.model.LSID;
 import org.ome.interfaces.AdministrationService;
-import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.logic.ServiceFactoryImpl;
 import org.ome.model.Vocabulary;
 
 
@@ -32,8 +30,7 @@ public class AdminServiceTest extends BaseServiceTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = new ServiceFactoryImpl();
-		a = factory.getAdministrationService();
+		a = (AdministrationService) SpringTestHarness.ctx.getBean("administrationService");
 	}
 	
 	public void testExperimenter1() throws RemoteException, URISyntaxException{

@@ -7,9 +7,6 @@ import org.ome.model.FollowGroup;
 import org.ome.model.LSObject;
 import org.ome.model.LSID;
 
-
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.List;
 
 /**
@@ -17,13 +14,13 @@ import java.util.List;
  * 
  * @author josh
  */
-public interface GenericService extends Remote {
+public interface GenericService {
 
-	public void setLSOjbect(LSObject obj) throws RemoteException;
-	public void updateLSObject(LSObject obj) throws RemoteException;
-	public LSObject getLSObject(LSID lsid) throws RemoteException;
-	public LSObject getLSObjectWithFollowGroup(LSID lsid, FollowGroup fg) throws RemoteException;
-	public List getLSObjectsByLSIDType(LSID type) throws RemoteException;
-	public List getLSObjectsByClassType(Class klass) throws RemoteException;
+	public void setLSObject(LSObject obj) ;
+	public void updateLSObject(LSObject obj) ;
+	public LSObject getLSObject(LSID lsid) ;
+	public LSObject getLSObjectWithFollowGroup(LSID lsid, FollowGroup fg);
+	public List getLSObjectsByLSIDType(LSID type) ;
+	public List getLSObjectsByClassType(Class klass) ;
 	
 }

@@ -8,4 +8,8 @@ package org.ome.exceptions;
  */
 public class LSIDException extends RuntimeException {
 
+    public LSIDException(String string){
+        super(string);
+    }
+    
 }

@@ -3,8 +3,6 @@
  */
 package org.ome.interfaces;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 
 import org.ome.model.IFollowGroup;
 import org.ome.model.LSID;
@@ -12,10 +10,10 @@ import org.ome.model.LSID;
 /**
  * @author josh
  */
-public interface FollowGroupService extends Remote {
+public interface FollowGroupService  {
 
 	//public IFollowGroup createFollowGroup() throws RemoteException;;
-	public IFollowGroup getFollowGroup(LSID lsid) throws RemoteException;;
+	public IFollowGroup getFollowGroup(LSID lsid) ;
 	
 	
 }

@@ -3,6 +3,10 @@
  */
 package org.ome.srv.db.jena;
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import com.hp.hpl.jena.db.DBConnection;
 import com.hp.hpl.jena.db.IDBConnection;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -16,49 +20,83 @@ import com.hp.hpl.jena.rdf.model.ModelMaker;
  */
 public class JenaModelFactory {
 
-	private static ModelMaker maker = null;
+    protected DataSource dataSource = null;
 
-	//TODO
-	
-	public static String ontology = JenaProperties.getString("jena.ontology"); //$NON-NLS-1$
-	public static String format = JenaProperties.getString("jena.ontology.format"); //$NON-NLS-1$
-	public static String DB_URL = JenaProperties.getString("jena.db.url"); //$NON-NLS-1$
-	public static String DB_USER = JenaProperties.getString("jena.db.user"); //$NON-NLS-1$
-	public static String DB_PASSWD = JenaProperties.getString("jena.db.password"); //$NON-NLS-1$
-	public final static String DB = JenaProperties.getString("jena.db.type"); //$NON-NLS-1$
-	public final static String defaultModel = JenaProperties.getString("jena.model.name.default"); //$NON-NLS-1$
-	public static String driver = JenaProperties.getString("jena.db.driver"); //$NON-NLS-1$
-	
-	public static Model getModel() {
-		// create a spec for the new ont model
-		OntModelSpec spec = new OntModelSpec(OntModelSpec.OWL_DL_MEM);
+    protected String databaseType = null;
 
-		// create the base model as a persistent model
-		Model base = JenaModelFactory.getMaker().createModel(defaultModel);
-		OntModel m = ModelFactory.createOntologyModel(spec, base);
+    protected ModelMaker maker = null;
 
-		return m;
+    protected String modelName = null;
 
-	}
+    public Model getModel() {
+        // create a spec for the new ont model
+        OntModelSpec spec = new OntModelSpec(OntModelSpec.OWL_DL_MEM);
 
-	public static ModelMaker getMaker() {
-		if (null == maker) {
-			// 	Load the Driver
-			
-			try {
-				Class.forName(driver);
-			} catch (ClassNotFoundException cnfe) {
-				throw new RuntimeException("JDBC driver not found.", cnfe); //$NON-NLS-1$
-			}
+        // create the base model as a persistent model
+        Model base = getMaker().createModel(modelName);
+        OntModel m = ModelFactory.createOntologyModel(spec, base);
 
-			// Create database connection
-			IDBConnection conn = new DBConnection(DB_URL, DB_USER, DB_PASSWD,
-					DB);
+        return m;
 
-			// Create a model maker object
-			maker = ModelFactory.createModelRDBMaker(conn);
-		}
-		return maker;
-	}
+    }
 
+    public ModelMaker getMaker() {
+        if (null == maker) {
+            try {
+                // Create database connection
+                IDBConnection conn = new DBConnection(dataSource
+                        .getConnection(), databaseType);
+                // Create a model maker object
+                maker = ModelFactory.createModelRDBMaker(conn);
+
+            } catch (SQLException sqle) {
+                throw new RuntimeException(
+                        "Obtaining connection failed while trying to make model maker");
+            }
+        }
+        return maker;
+    }
+
+    /**
+     * @return Returns the databaseType.
+     */
+    public String getDatabaseType() {
+        return databaseType;
+    }
+    /**
+     * @param databaseType The databaseType to set.
+     */
+    public void setDatabaseType(String databaseType) {
+        this.databaseType = databaseType;
+    }
+    /**
+     * @return Returns the dataSource.
+     */
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+    /**
+     * @param dataSource The dataSource to set.
+     */
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+    /**
+     * @return Returns the modelName.
+     */
+    public String getModelName() {
+        return modelName;
+    }
+    /**
+     * @param modelName The modelName to set.
+     */
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+    /**
+     * @param maker The maker to set.
+     */
+    public void setMaker(ModelMaker maker) {
+        this.maker = maker;
+    }
 }

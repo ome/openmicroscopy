@@ -9,11 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.ome.interfaces.ImageService;
-import org.ome.interfaces.ServiceFactory;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.model.Vocabulary;
-import org.ome.srv.logic.ServiceFactoryImpl;
 ;
 
 /**
@@ -32,8 +30,7 @@ public class ImageServiceTest extends BaseServiceTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = new ServiceFactoryImpl();
-		is = factory.getImageService();
+		is = (ImageService) SpringTestHarness.ctx.getBean("imageService");
 	}
 	
 	public void testGetImage() throws RemoteException, URISyntaxException{

@@ -3,6 +3,12 @@
 
 >
 
+ <goal name="tomcat-redo">
+   <attainGoal name="tomcat:remove"/>
+   <attainGoal name="tomcat:install"/>
+ </goal>
+
+
  <postGoal name="java:compile">
    <attainGoal name="rmic"/>
  </postGoal>

@@ -3,7 +3,6 @@
 */
 package org.ome.srv.logic;
 
-import java.rmi.RemoteException;
 import java.util.List;
 
 import org.ome.interfaces.AttributeService;
@@ -18,8 +17,7 @@ public class AttributeServiceImpl extends AbstractService implements AttributeSe
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AttributeService#addAttributeToLSObject(org.ome.model.IAttribute, org.ome.model.LSID)
 	 */
-	public boolean addAttributeToLSObject(IAttribute arg0, LSID arg1)
-			throws RemoteException {
+	public boolean addAttributeToLSObject(IAttribute arg0, LSID arg1){
 		// TODO Auto-generated method stub
 		/* return false; */
 		throw new RuntimeException("implement me");
@@ -28,7 +26,7 @@ public class AttributeServiceImpl extends AbstractService implements AttributeSe
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AttributeService#getAttributesForLSObject(org.ome.model.LSID)
 	 */
-	public List getAttributesForLSObject(LSID arg0) throws RemoteException {
+	public List getAttributesForLSObject(LSID arg0) {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -37,8 +35,7 @@ public class AttributeServiceImpl extends AbstractService implements AttributeSe
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AttributeService#getAttributesForLSObjectWithType(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public List getAttributesForLSObjectWithType(LSID arg0, LSID arg1)
-			throws RemoteException {
+	public List getAttributesForLSObjectWithType(LSID arg0, LSID arg1) {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");

@@ -30,24 +30,23 @@ public abstract class AbstractLSObject implements Serializable, LSObject {
     public AbstractLSObject(LSID lsid) {
         this.lsid = lsid;
     }
-    
-	/** copy constructor. Each put uses the accessors
-	 * in the subclasses for validation
-	 */
-	public AbstractLSObject (LSObject lsObj){
-		this(lsObj.getLSID());
 
-		Map map = lsObj.getMap();
-		if ( null != map ) {
-	        for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
-    	        String key = (String) iter.next();
-        	    this.put(key, oldValues.get(key));
-	        }
-	    }
-		this.save();
-	}
+    /**
+     * copy constructor. Each put uses the accessors in the subclasses for
+     * validation
+     */
+    public AbstractLSObject(LSObject lsObj) {
+        this(lsObj.getLSID());
 
-    
+        Map map = lsObj.getMap();
+        if (null != map) {
+            for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
+                String key = (String) iter.next();
+                this.put(key, map.get(key));
+            }
+        }
+        this.save();
+    }
 
     //	 FIXME lsid keys and runtime checks on object be sure to also change other
     // cast classes here
@@ -89,27 +88,88 @@ public abstract class AbstractLSObject implements Serializable, LSObject {
         return true;
     }
 
+    public String toString() {
+        return toNTriples();
+    }
+
+    public String toNTriples() {
+        StringBuffer sb = new StringBuffer();
+        String subj = "<" + lsid + "> ";
+
+        for (Iterator iter = currentValues.keySet().iterator(); iter.hasNext();) {
+            String key = (String) iter.next();
+            String pred = "<" + key + "> ";
+
+            Object o = currentValues.get(key);
+            if (null != o) {
+                if (o instanceof LSObject) {
+                    sb.append(subj);
+                    sb.append(pred);
+                    sb.append("<");
+                    sb.append(((LSObject) o).getLSID().getURI());
+                    sb.append("> . \n");
+                } else if (o instanceof List) {
+                    for (Iterator iter2 = ((List) o).iterator(); iter2
+                            .hasNext();) {
+                        Object element = iter2.next();
+                        sb.append(subj);
+                        sb.append(pred);
+                        sb.append("<");
+                        if (element instanceof LSObject){
+                            sb.append(((LSObject)element).getLSID().getURI());
+                        } else {
+                            sb.append(element.toString());
+                        }
+                        sb.append("> . \n");
+                    }
+                } else {
+                    sb.append(subj);
+                    sb.append(pred);
+                    sb.append("<");
+                    sb.append(o.toString());
+                    sb.append("> . \n");
+                }
+            } else {
+                System.err.println("There should be no null objects in map:  "
+                        + lsid + " & " + key); // FIXME
+            }
+        }
+
+        if (sb.length()<1) {
+            sb.append(subj);
+        }
+        return sb.toString();
+
+    }
+
     //TODO should this show new or old values (will need to reimplement to show
     // new)
-    public String toString() {
+    public String toN3() {
         StringBuffer sb = new StringBuffer();
+
+        sb.append("<");
         sb.append(lsid);
-        sb.append("\n");
+        sb.append(">");
+        sb.append("\n");//TODO this bothers also missing <> and ""
+
         for (Iterator iter = currentValues.keySet().iterator(); iter.hasNext();) {
             String key = (String) iter.next();
             StringBuffer value = new StringBuffer();
             String space = "    ";
-            
+
             Object o = currentValues.get(key);
             if (null != o) {
                 if (o instanceof LSObject) {
+                    value.append("<");
                     value.append(((LSObject) o).getLSID().getURI());
-                } else if (o instanceof List)  {
-                    for (Iterator iter2 = ( (List) o).iterator(); iter2.hasNext();) {
+                    value.append(">");
+                } else if (o instanceof List) {
+                    for (Iterator iter2 = ((List) o).iterator(); iter2
+                            .hasNext();) {
                         Object element = iter2.next();
                         value.append(element.toString());
-                        if (iter2.hasNext()){
-                            value.append(",") ;
+                        if (iter2.hasNext()) {
+                            value.append(",");
                             value.append(space);
                         }
                     }
@@ -118,24 +178,27 @@ public abstract class AbstractLSObject implements Serializable, LSObject {
                 }
 
                 sb.append(space);
+                sb.append("<");
                 sb.append(key);
+                sb.append(">");
                 sb.append(space);
                 sb.append(value.toString());
                 sb.append(space);
-                if (iter.hasNext()){
+                if (iter.hasNext()) {
                     sb.append(";");
                 } else {
                     sb.append(".");
                 }
                 sb.append("\n");
-                
+
                 //TODD could add to out string "Predicate was ---> <old value>
             } else {
-                System.err.println("There should be no null objects in map:  "+lsid+" & " +key); // FIXME
+                System.err.println("There should be no null objects in map:  "
+                        + lsid + " & " + key); // FIXME
             }
         }
 
         return sb.toString();
     }
-    
+
 }
