@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 
 /** 
  * An extension of 
- * {@link org.openmicroscopy.shoola.env.data.model.AnalysisChainData}, 
+ * {@link org.openmicroscopy.shoola.env.data.model.AnalysisLinkData}, 
  * adding some state for {@link ModuleView} layout of the chain
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
