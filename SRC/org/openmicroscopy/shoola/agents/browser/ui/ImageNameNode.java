@@ -153,26 +153,30 @@ public class ImageNameNode extends PNode
     
     public void respondMouseClick(PInputEvent event)
     {
-        getParent().removeChild(this);
+        if(getParent() != null)
+            getParent().removeChild(this);
         t.respondMouseClick(pushParentNode(event,t));
     }
     
     public void respondMouseDoubleClick(PInputEvent event)
     {
-        getParent().removeChild(this);
+        if(getParent() != null)
+            getParent().removeChild(this);
         t.respondMouseDoubleClick(pushParentNode(event,t));
         
     }
     
     public void respondMousePress(PInputEvent event)
     {
-        getParent().removeChild(this);
+        if(getParent() != null)
+            getParent().removeChild(this);
         t.respondMousePress(pushParentNode(event,t));
     }
     
     public void respondMouseRelease(PInputEvent event)
     {
-        getParent().removeChild(this);
+        if(getParent() != null)
+            getParent().removeChild(this);
         t.respondMouseRelease(pushParentNode(event,t));
     }
     

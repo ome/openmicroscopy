@@ -135,6 +135,20 @@ public class ZoomButtonPanel extends JPanel
                     running = false;
                 } 
             }
+            
+            public void mouseClicked(MouseEvent me)
+            {
+                if(zoomLevel - 0.04 > minZoomLevel)
+                {
+                    zoomLevel -= 0.04;
+                    view.setZoomLevel(zoomLevel);
+                }
+                else
+                {
+                    zoomLevel = minZoomLevel;
+                    view.setZoomLevel(zoomLevel);
+                }
+            }
         });
         
         zoomTextField = new JTextField(5);
@@ -200,6 +214,20 @@ public class ZoomButtonPanel extends JPanel
                     running = false;
                     currentTimerTask.cancel();
                 } 
+            }
+            
+            public void mouseClicked(MouseEvent me)
+            {
+                if(zoomLevel + 0.04 < maxZoomLevel)
+                {
+                    zoomLevel += 0.04;
+                    view.setZoomLevel(zoomLevel);
+                }
+                else
+                {
+                    zoomLevel = maxZoomLevel;
+                    view.setZoomLevel(zoomLevel);
+                }
             }
         });
         
