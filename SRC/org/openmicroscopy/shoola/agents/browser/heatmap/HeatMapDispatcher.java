@@ -59,7 +59,8 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
  * @version 2.2
  * @since OME2.2
  */
-public class HeatMapDispatcher implements HeatMapTreeListener
+public class HeatMapDispatcher implements HeatMapTreeListener,
+                                          HeatMapModeListener
 {
     private HeatMapModel model;
     private HeatMapStatus status;
@@ -94,6 +95,25 @@ public class HeatMapDispatcher implements HeatMapTreeListener
         LoaderThread thread = new LoaderThread(node);
         thread.start();
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModeListener#modeChanged(org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapMode)
+     */
+    public void modeChanged(HeatMapMode newMode)
+    {
+        // TODO Auto-generated method stub
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModeListener#scaleChanged(org.openmicroscopy.shoola.agents.browser.heatmap.Scale)
+     */
+    public void scaleChanged(Scale newScale)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+
     
     private void displayInformation(SemanticTypeTree.TreeNode node)
     {
