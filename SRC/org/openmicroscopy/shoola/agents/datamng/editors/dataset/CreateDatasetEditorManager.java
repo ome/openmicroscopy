@@ -154,7 +154,7 @@ public class CreateDatasetEditorManager
 				case RESET_SELECTION_IMAGE:
 					resetSelectionImage(); break;
                 case SHOW_IMAGES:
-                    view.showImages(control.getUserImages());;
+                    view.showImages(control.getImportedImages());;
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
