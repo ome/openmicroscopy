@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<container>
+   <services>
+     <structuredEntry name="/services/OMEIS" type = "OMEIS">
+       <url>http://somehost/however/not/needed/right/now</url>
+     </structuredEntry>
+     <structuredEntry name="/services/OMEDS" type = "OMEDS">
+       <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
+     </structuredEntry>
+     <!-- Enables/disables the Log Service. -->
+     <entry name="/services/LOG/on" type="boolean">true</entry>
+     <!-- The directory where log files are kept. Path relative to the
+          installation directory. -->
+     <entry name="/services/LOG/dir">log</entry>
+     <!-- The name of the log file -->
+     <entry name="/services/LOG/file">shoola.log</entry>
+     <!-- Temporary switch to launch the Task Bar instead of the Top Frame.
+          Will be removed after we all transition to the Task Bar. -->
+     <entry name="/services/TASKBAR/on" type="boolean">false</entry>
+   </services>
+   <agents>
+     <structuredEntry name="/agents" type="agents">
+       <agent>
+         <name>Annotator</name>
+         <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
+         <config>annotator.xml</config>
+       </agent>
+       <agent>
+         <name>Browser</name> 
+         <class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class> 
+         <config>browser.xml</config> 
+       </agent>
+	   <agent>
+		 <name>Classifier</name>
+		 <class>org.openmicroscopy.shoola.agents.classifier.Classifier</class>
+		 <config>classifier.xml</config>
+       </agent>
+       <agent>
+         <name>DataManager</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.datamng.DataManager</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>dm.xml</config>
+       </agent>
+ 	<agent>
+         <name>Viewer</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>viewer.xml</config>
+       </agent>
+	<agent>
+         <name>Renderer</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.rnd.RenderingAgt</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>rnd.xml</config>
+       </agent>
+     </structuredEntry>
+   </agents>
+   <resources>
+     <iconFactories>
+       <!-- This entry can be used in agents' configuration files as well.
+       It is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/DefaultFactory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.env.ui.graphx</location>
+       </structuredEntry>
+     </iconFactories>
+     <fonts>
+       <!-- This entry can be used in agents' configuration files as well.
+       It is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+   </resources>
+   <!-- This entry specifies what look and feel to use for the whole application.
+   The default value is system (case insensitive).  This will result in the
+   system's look and feel being loaded - the Mac L&F on Mac OS platforms, the
+   Windows L&F on Microsoft Windows platforms, etc.
+   Alternatively, you can specify one of the following:
+   com.birosoft.liquid.LiquidLookAndFeel: the Liquid look and feel.
+   javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.-->
+   <entry name="LookAndFeel">system</entry>
+</container>
