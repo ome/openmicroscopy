@@ -227,12 +227,13 @@ public class Classifier implements Agent, AgentEventListener
                                       int datasetID)
     {
         CategoryGroup group = null;
+        /*
         try
         {
             SemanticTypesService sts = registry.getSemanticTypesService();
-            group = (CategoryGroup)sts.createAttribute(CATEGORY_GROUP,datasetID);
-            group.setName(groupName);
-            group.setDescription(description);
+            //group = (CategoryGroup)sts.createAttribute(CATEGORY_GROUP,datasetID);
+            //group.setName(groupName);
+            //group.setDescription(description);
         }
         catch(DSAccessException dsae)
         {
@@ -247,6 +248,7 @@ public class Classifier implements Agent, AgentEventListener
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return group;
     }
     
@@ -268,6 +270,7 @@ public class Classifier implements Agent, AgentEventListener
                             int datasetID)
     {
         Category category = null;
+        /*
         try
         {
             SemanticTypesService sts = registry.getSemanticTypesService();
@@ -290,6 +293,7 @@ public class Classifier implements Agent, AgentEventListener
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return category;
     }
     
@@ -304,6 +308,7 @@ public class Classifier implements Agent, AgentEventListener
     Classification createClassification(Category category, int imageID)
     {
         Classification classification = null;
+        /*
         try
         {
             SemanticTypesService sts = registry.getSemanticTypesService();
@@ -327,6 +332,7 @@ public class Classifier implements Agent, AgentEventListener
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return classification;
     }
     
@@ -345,6 +351,7 @@ public class Classifier implements Agent, AgentEventListener
         {
             return false;
         }
+        /*
         try
         {    
             SemanticTypesService sts = registry.getSemanticTypesService();
@@ -362,6 +369,8 @@ public class Classifier implements Agent, AgentEventListener
             registry.getEventBus().post(request);
             return false;
         }
+        */
+        return true;
     }
     
     /**
