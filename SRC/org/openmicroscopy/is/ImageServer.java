@@ -881,4 +881,13 @@ public abstract class ImageServer
     public abstract PlaneStatistics getPlaneStatistics(long pixelsID)
         throws ImageServerException;
 
+    /**
+     * Returns a {@link StackStatistics} object containing basic pixel
+     * statistics for each stack in the specified pixels file.
+     *
+     * @param pixelsID the pixels ID of a previously created pixels
+     * file
+     */
+    public abstract StackStatistics getStackStatistics(long pixelsID)
+        throws ImageServerException;
 }
