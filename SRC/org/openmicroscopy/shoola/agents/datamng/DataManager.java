@@ -224,8 +224,7 @@ public class DataManager
 					datasetsDiff.remove(dsg);
 					break;
 				} 
-			}
-			
+			}	
 		}
 		return datasetsDiff;
 	}
@@ -255,7 +254,6 @@ public class DataManager
 				registry.getEventBus().post(request);
 			} 
 		}
-		
 		return projectSummaries;
 	}
 	
@@ -416,7 +414,6 @@ public class DataManager
 	void createProject(ProjectData pd)
 	{
 		ProjectSummary project;
-		
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.createProject(pd);
@@ -458,8 +455,7 @@ public class DataManager
 			}
 			// forward event to the presentation.
 			if (projects != null) 
-				presentation.addNewDatasetToTree(projects);
-				
+				presentation.addNewDatasetToTree(projects);		
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
@@ -485,10 +481,8 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			dms.updateProject(pd, dsToRemove, dsToAdd);
 			//update the presentation and the project summary contained in the 
-			//projectSummaries list accordingly.
-			projectSummaries = null;
-			getUserProjects();
-			//updatePSList(pd);
+			//projectSummaries list accordingly
+			updatePSList(pd);
 			if (nameChange) presentation.updateProjectInTree();
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
@@ -562,18 +556,16 @@ public class DataManager
 	{
 		Iterator i = projectSummaries.iterator();
 		ProjectSummary ps;
-		Iterator j;
 		DatasetSummary ds;
 		while (i.hasNext()) {
 			ps = (ProjectSummary) i.next();
-			j = ps.getDatasets().iterator();
+			Iterator j = ps.getDatasets().iterator();
 			while (j.hasNext()) {
 				ds = (DatasetSummary) j.next();
 				if (ds.getID() == dd.getID()) {
 					ds.setName(dd.getName());
 					break;
-				}
-					
+				}		
 			}
 		}
 	}
@@ -672,15 +664,15 @@ public class DataManager
 	}
 	
 	/** Post an {@link AnnotateDataset} event. */
-	void annotateDataset(int datasetID)
+	void annotateDataset(int id, String name)
 	{
-		registry.getEventBus().post(new AnnotateDataset(datasetID));
+		registry.getEventBus().post(new AnnotateDataset(id, name));
 	}
 	
 	/** Post an {@link AnnotateImage} event. */
-	void annotateImage(int imageID) 
+	void annotateImage(int id, String name) 
 	{
-		//registry.getEventBus().post(new AnnotateImage(imageID));
+		registry.getEventBus().post(new AnnotateImage(id, name));
 	}
 	
 	

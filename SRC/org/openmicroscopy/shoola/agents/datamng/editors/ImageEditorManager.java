@@ -131,7 +131,7 @@ class ImageEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) { 
 				case ANNOTATE:
-					control.annotateImage(model.getID());
+					control.annotateImage(model.getID(), model.getName());
 					break;
 				case SAVE:
 					save();

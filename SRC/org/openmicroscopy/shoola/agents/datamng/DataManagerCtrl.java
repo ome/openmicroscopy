@@ -210,15 +210,15 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public void annotateDataset(int datasetID)
+	public void annotateDataset(int id, String name)
 	{
-		abstraction.annotateDataset(datasetID);
+		abstraction.annotateDataset(id, name);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public void annotateImage(int imageID)
+	public void annotateImage(int imageID, String name)
 	{
-		abstraction.annotateImage(imageID);
+		abstraction.annotateImage(imageID, name);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */

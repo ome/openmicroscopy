@@ -173,7 +173,7 @@ class DatasetEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) {
 				case ANNOTATE:
-					control.annotateDataset(model.getID()); 
+					control.annotateDataset(model.getID(), model.getName()); 
 					break;
 				case SAVE:
 					save();
