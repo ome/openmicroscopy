@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class Annotator 
@@ -82,6 +82,9 @@ public class Annotator
     
     private List activeControls;
     
+    /**
+     * Initializes the internal structure of the annotator agent.
+     */
     public Annotator()
     {
         activeControls = new ArrayList();
@@ -207,7 +210,7 @@ public class Annotator
     /**
      * Commits the annotations in the DB through the STS (controllers that
      * save annotations should call this)
-     * @param annotations
+     * @param annotations The list of new annotations to add to the database.
      */
     void commitNewAnnotations(List annotations)
     {
@@ -228,8 +231,10 @@ public class Annotator
     }
     
     /**
-     * For existing annotations in the database, trigger a SQL update.
-     * @param annotations
+     * For existing annotations in the database, trigger a SQL update.  For newly
+     * created attributes, the commitNewAnnotations() method must be called prior
+     * to executing this method.
+     * @param annotations The list of annotations to update in the database.  
      */
     void updateAnnotations(List annotations)
     {
@@ -343,7 +348,7 @@ public class Annotator
     
     /**
      * Tells the annotator agent to respond with the specified event.
-     * @param re
+     * @param re The event to post to the application's event bus.
      */
     void respondWithEvent(ResponseEvent re)
     {
@@ -351,8 +356,8 @@ public class Annotator
     }
     
     /**
-     * Indicates a close event; removes this control from the active.
-     * @param control
+     * Indicates a close event; removes this control from the active list.
+     * @param control The control UI to close.
      */
     void close(AnnotationCtrl control)
     {
