@@ -35,6 +35,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
@@ -47,6 +49,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvasMng;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvasMng;
+import org.openmicroscopy.shoola.agents.viewer.controls.BottomBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
 import org.openmicroscopy.shoola.agents.viewer.movie.Player;
@@ -160,6 +163,10 @@ public class ViewerCtrl
         zSlider = presentation.getZSlider();
         tSlider.addChangeListener(this);
         zSlider.addChangeListener(this);
+        // window listener
+        presentation.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { onWindowClose(); }
+        });
     }
     
     /** Return the {@link Viewer abstraction}. */
@@ -376,19 +383,17 @@ public class ViewerCtrl
         if (imageInspector == null)
             imageInspector = new ImageInspector(this, presentation.getCanvas(), 
                                             magFactor);
+        presentation.getCanvas().getManager().setClick(true);
         UIUtilities.centerAndShow(imageInspector);
-        if (roiOnOff) abstraction.addRoiCanvas(false);
+        if (roiOnOff) imageInspector.getManager().setLensEnabled(false);
     }
 
     /** Bring up the rendering widget. */
-    public void showRendering()
-    {
-        abstraction.showRendering();
-    }
+    public void showRendering() { abstraction.showRendering(); }
     
     /** Forward event to {@link ViewerUIF presentation}. */
     public void showDialog(JDialog dialog)
-    {
+    { 
         UIUtilities.centerAndShow(dialog);
     }
 
@@ -502,12 +507,17 @@ public class ViewerCtrl
     public void setRoiOnOff(boolean b)
     {
         roiOnOff = b;
-        if (!roiOnOff) presentation.removeFromLayer();
-        else {
+        if (!roiOnOff){
+            presentation.getBottomBar().resetMessage(BottomBar.LENS);
+            presentation.removeCanvasFromLayer();
+        } else {
+            presentation.getBottomBar().resetMessage(BottomBar.ANNOTATE);
             paintDrawing();
-            presentation.addToLayer(); 
+            presentation.addCanvasToLayer(); 
             presentation.resetLens();
         }
+        if (imageInspector != null) 
+            imageInspector.getManager().setLensEnabled(!b);
     }
 
     /** Set the bounds of the drawing canvas. */
@@ -517,6 +527,13 @@ public class ViewerCtrl
         if (roiOnOff) paintDrawing();    
     }
 
+    void setAnnotationText(String text)
+    {
+        if (text != null)
+            presentation.getBottomBar().setMessage(text);
+        else presentation.getBottomBar().resetMessage(BottomBar.ANNOTATE);
+    }
+    
     /** PRIVATE METHODS. */
     private void paintDrawing()
     {
@@ -534,4 +551,11 @@ public class ViewerCtrl
         
     }
 
+    /** Close the window. */
+    private void onWindowClose()
+    {
+        //Post an event to close roi.
+        if (roiOnOff) abstraction.addRoiCanvas(false);
+    }
+    
 }

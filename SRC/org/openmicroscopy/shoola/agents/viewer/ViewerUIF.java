@@ -51,6 +51,7 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
+import org.openmicroscopy.shoola.agents.viewer.controls.BottomBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -102,6 +103,9 @@ public class ViewerUIF
     /** Tool bar of the Agent. */
     private ToolBar                 toolBar;
     
+    /** Bottom bar displaying message. */
+    private BottomBar               bottomBar;
+    
     private JMenuItem               viewer3DItem;
     
     private JMenuItem               movieItem;
@@ -126,8 +130,7 @@ public class ViewerUIF
         int maxT = pxsDims.sizeT-1;
         int maxZ = pxsDims.sizeZ-1;
         setJMenuBar(createMenuBar(maxZ, maxT));
-        toolBar = new ToolBar(control, registry, maxT, defaultT, maxZ, 
-                                defaultZ);
+        initBars(registry, maxT, defaultT, maxZ, defaultZ);
         initSliders(maxT, defaultT, maxZ, defaultZ);
         buildGUI();
     }
@@ -144,6 +147,8 @@ public class ViewerUIF
     
     public ToolBar getToolBar() { return toolBar; } 
     
+    public BottomBar getBottomBar() { return bottomBar; } 
+   
     void setActive(boolean b) { active = b; }
 
     /** Remove the lens if any pin. */
@@ -172,11 +177,9 @@ public class ViewerUIF
         toolBar.getZLabel().setText("/"+maxZ);
         toolBar.getTLabel().setText("/"+maxT);
         resetSliders(maxT, t, maxZ, z);
-        
         boolean bT = false, bZ = false;
         if (maxT != 0) bT = true;
         if (maxZ != 0) bZ = true;
-        
         toolBar.getTField().setEditable(bT);
         toolBar.getZField().setEditable(bZ);
         toolBar.getViewer3D().setEnabled(bZ);
@@ -213,20 +216,27 @@ public class ViewerUIF
     }
     
     /** Add the {@link drawingCanvas} to the layer. */
-    void addToLayer()
+    void addCanvasToLayer()
     {
         layer.add(drawingCanvas, new Integer(Viewer.ROI_LEVEL));
-        drawingCanvas.setOnOff(true);
+        drawingCanvas.getManager().setOnOff(true);
     }
-
+    
     /** Remove the {@link drawingCanvas} from the layer. */
-    void removeFromLayer()
+    void removeCanvasFromLayer()
     {
-        drawingCanvas.setOnOff(false);
+        drawingCanvas.getManager().setOnOff(false);
         layer.remove(drawingCanvas);
         layer.repaint();
     }
 
+    /** Initialize the toolBar and the bottom bar. */
+    private void initBars(Registry reg, int maxT, int t, int maxZ, int z) 
+    {
+        toolBar = new ToolBar(control, reg, maxT, t, maxZ, z);
+        bottomBar = new BottomBar();
+    }
+    
     /** Reset the sliders' values when a new image is selected. */
     private void resetSliders(int maxT, int t, int maxZ, int z)
     {
@@ -320,6 +330,7 @@ public class ViewerUIF
         container.add(toolBar, BorderLayout.NORTH);
         container.add(buildMain(), BorderLayout.WEST);
         container.add(scrollPane, BorderLayout.CENTER);
+        container.add(bottomBar, BorderLayout.SOUTH);
         //Configure the display buttons in the TaskBar.
         configureDisplayButtons();
     }

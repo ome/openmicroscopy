@@ -42,6 +42,7 @@ import java.awt.image.BufferedImage;
 import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
+import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
 import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
 import org.openmicroscopy.shoola.agents.roi.events.IATChanged;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
@@ -83,6 +84,8 @@ public class Viewer
     public static final int         LENS_LEVEL = 1;
     
     public static final int         ROI_LEVEL = 2;
+    
+    public static final int         ANNOTATE_LEVEL = 3;
     
     /** Background color. */
     public static final Color       BACKGROUND_COLOR = new Color(204, 204, 255);
@@ -126,6 +129,7 @@ public class Viewer
         bus.register(this, ImageLoaded.class);
         bus.register(this, ImageRendered.class);
         bus.register(this, AddROICanvas.class);
+        bus.register(this, AnnotateROI.class);
         //bus.register(this, DisplayViewer3D.class);
         control = new ViewerCtrl(this);
     }
@@ -211,10 +215,12 @@ public class Viewer
         registry.getEventBus().post(new IATChanged(iat));
     }
 
+    /** Close ROIAgt when the viewer is closed. */
     void addRoiCanvas(boolean b)
     {
         registry.getEventBus().post(new AddROICanvas(b));
     }
+    
     
     /** Implement as specified by {@link AgentEventListener}. */
     public void eventFired(AgentEvent e) 
@@ -227,6 +233,8 @@ public class Viewer
             handleLoadImage((LoadImage) e);
         else if (e instanceof AddROICanvas)
             handleAddROI((AddROICanvas) e);
+        else if (e instanceof AnnotateROI)
+            handleAnnotateROI((AnnotateROI) e);
         //else if (e instanceof DisplayViewer3D)
         //    handleDisplayViewer3D((DisplayViewer3D) e);
     }
@@ -242,6 +250,11 @@ public class Viewer
         }
     }
     */
+    
+    private void handleAnnotateROI(AnnotateROI response)
+    {
+        control.setAnnotationText(response.getAnnotation());
+    }
     
     /** Handle event @see AddROICanvas. */
     private void handleAddROI(AddROICanvas response)
