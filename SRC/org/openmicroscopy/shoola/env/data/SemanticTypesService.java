@@ -238,7 +238,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void updateImageAnnotation(AnnotationData data)
+    public void updateImageAnnotation(AnnotationData data, int imageID)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -250,7 +250,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void updateDatasetAnnotation(AnnotationData data)
+    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**

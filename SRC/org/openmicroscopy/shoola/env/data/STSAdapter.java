@@ -49,12 +49,10 @@ import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
-import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
-import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
@@ -322,7 +320,7 @@ class STSAdapter
     	
         if (features == null || features.size() == 0)   return null;
         	
-        // test to see if the List is all Integers here
+        //test to see if the List is all Integers here
         for (Iterator iter = features.iterator(); iter.hasNext();) {
             if (!(iter.next() instanceof Number))
                 throw new IllegalArgumentException("Illegal ID type.");
@@ -372,35 +370,20 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void updateImageAnnotation(AnnotationData data)
+    public void updateImageAnnotation(AnnotationData data, int imgID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = AnnotationMapper.buildBasicImageCriteria(
-                STSMapper.GLOBAL_GRANULARITY, data.getID());
-        ImageAnnotation ia = 
-            (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
-        ia.setContent(data.getAnnotation());
-        if (data.getTheZ() != AnnotationData.DEFAULT) 
-            ia.setTheZ(new Integer(data.getTheZ()));
-        if (data.getTheT() != AnnotationData.DEFAULT) 
-            ia.setTheT(new Integer(data.getTheT()));
-        List l = new ArrayList();
-        l.add(ia);
-        gateway.updateAttributes(l);  
+        removeImageAnnotation(data);
+        createImageAnnotation(imgID, data.getAnnotation(), data.getTheZ(), 
+                            data.getTheT()); 
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void updateDatasetAnnotation(AnnotationData data)
+    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = AnnotationMapper.buildBasicCriteria(
-                    STSMapper.GLOBAL_GRANULARITY, data.getID());
-        DatasetAnnotation da = 
-            (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
-        da.setContent(data.getAnnotation());
-        List l = new ArrayList();
-        l.add(da);
-        gateway.updateAttributes(l);  
+        removeDatasetAnnotation(data);
+        createDatasetAnnotation(datasetID, data.getAnnotation());
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -436,15 +419,10 @@ class STSAdapter
                                         int theT)
         throws DSOutOfServiceException, DSAccessException
     {
-        //Create a new Annotation for the user.
-        //Retrieve the current user.
-        Criteria c = UserMapper.getUserStateCriteria();
-        Experimenter experimenter = gateway.getCurrentUser(c);
         ImageAnnotation retVal = (ImageAnnotation) 
                     createBasicAttribute("ImageAnnotation", 
                             STSMapper.buildBasicCriteria(imageID));
         retVal.setContent(annotation);
-        retVal.setExperimenter(experimenter);
         retVal.setValid(Boolean.TRUE);
         if (theZ != AnnotationData.DEFAULT) retVal.setTheZ(new Integer(theZ));
         if (theT != AnnotationData.DEFAULT) retVal.setTheT(new Integer(theT));
@@ -458,17 +436,11 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         //Create a new Annotation for the user.
-        //Retrieve the current user.
-        Criteria c = UserMapper.getUserStateCriteria();
-        Experimenter experimenter = gateway.getCurrentUser(c);
         DatasetAnnotation retVal = (DatasetAnnotation) 
                     createBasicAttribute("DatasetAnnotation", 
                             STSMapper.buildBasicCriteria(datasetID));
         retVal.setContent(annotation);
-        retVal.setExperimenter(experimenter);
         retVal.setValid(Boolean.TRUE);
-        //retVal.setTimestamp(
-        //        new Long(AnnotationMapper.getTimestamp().getTime()));
         ArrayList l = new ArrayList();
         l.add(retVal);
         gateway.annotateAttributesData(l);
@@ -518,7 +490,7 @@ class STSAdapter
     {
         List l = new ArrayList();
         l.add(buildCategoryGroup(data));
-        gateway.updateAttributes(l); 
+        gateway.annotateAttributesData(l);//to have a mex
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -528,31 +500,40 @@ class STSAdapter
         CategoryGroupData parent = data.getCategoryGroup();
         if (parent == null) return;
         CategoryGroup cg;
-        List l = new ArrayList();
+        List newAttributes = new ArrayList(), oldAttributes = new ArrayList();
         if (parent.getID() == -1) { //First create a new group
             cg = buildCategoryGroup(parent);
             //To be on the save-side b/c I don't know if the order is kept
             //on the server side
-            l.add(cg);
-            gateway.updateAttributes(l); 
-            l.removeAll(l);
+            newAttributes.add(cg);
+            gateway.annotateAttributesData(newAttributes);//to have a mex
+            newAttributes.removeAll(newAttributes);
         } else {
             Criteria c = STSMapper.buildBasicCriteria(parent.getID());
             cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         }
         Category category = buildCategory(data, cg);
+        newAttributes.add(category);
+        gateway.annotateAttributesData(newAttributes);//to have a mex
+        newAttributes.removeAll(newAttributes);
+        
         Classification classification;
         //Need to add the images one by one ;-)).
         Iterator j = images.iterator();
-        l.add(category);
-        gateway.updateAttributes(l); 
-        l.removeAll(l);
+        Object[] results;
         while (j.hasNext()) {
-            classification = buildClassification(category, 
+            results = buildClassification(category, 
                     ((ImageSummary) j.next()).getID());
-            l.add(classification);
+            classification = (Classification) results[1];
+            //only solution to have a max
+            if (((Boolean) results[0]).booleanValue()) { 
+                newAttributes.add(classification);
+                gateway.annotateAttributesData(newAttributes);
+                newAttributes.removeAll(newAttributes);
+            } else oldAttributes.add(classification);
         }
-        gateway.updateAttributes(l); 
+        if (oldAttributes.size() != 0) //to have a mex
+            gateway.updateAttributes(oldAttributes);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -600,9 +581,8 @@ class STSAdapter
             (Category) gateway.retrieveSTSData("Category", c);
         category.setName(data.getName());
         category.setDescription(data.getDescription());
-        List toUpdate = new ArrayList();
+        List toUpdate = new ArrayList(), newAttributes = new ArrayList();
         toUpdate.add(category);
-        
         Map classifications = data.getClassifications();    
         ClassificationData cData;
         Classification classification;
@@ -621,12 +601,21 @@ class STSAdapter
         }
         if (imgsToAdd != null) {
             Iterator j = imgsToAdd.iterator();
+            Object[] results;
             while (j.hasNext()) {
-                classification = buildClassification(category, 
+                results = buildClassification(category, 
                         ((ImageSummary) j.next()).getID());
-                toUpdate.add(classification);
-            }      
+                classification = (Classification) results[1];
+                if (((Boolean) results[0]).booleanValue()) {
+                    newAttributes.add(classification);
+                    gateway.annotateAttributesData(newAttributes);
+                    newAttributes.removeAll(newAttributes);
+                }
+                else toUpdate.add(classification);
+            }  
         }
+        if (newAttributes.size() != 0) //to have a mex
+            gateway.annotateAttributesData(newAttributes);
         gateway.updateAttributes(toUpdate);
     }
     
@@ -667,14 +656,17 @@ class STSAdapter
     }
     
     /** Create a {@link Classification} attribute. */
-    private Classification buildClassification(Category category, int imgID)
+    private Object[] buildClassification(Category category, int imgID)
         throws DSOutOfServiceException, DSAccessException 
     {
+        Object[] results = new Object[2];
         Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
                             category.getID());
         Classification classification = (Classification) 
                             gateway.retrieveSTSData("Classification",  c);
+        results[0] = Boolean.FALSE;
         if (classification == null) {
+            results[0] = Boolean.TRUE;
             c = STSMapper.buildBasicCriteria(imgID);
             classification = (Classification) 
                             createBasicAttribute("Classification", c);
@@ -682,7 +674,8 @@ class STSAdapter
             classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
         }
         classification.setValid(Boolean.TRUE);
-        return classification;
+        results[1] = classification;
+        return results;
     }
     
     /** Create a CategoryGroup attribute. */

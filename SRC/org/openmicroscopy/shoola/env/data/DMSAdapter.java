@@ -407,7 +407,21 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		Image image = (Image) gateway.retrieveData(Image.class, c);
 		//Put the server data into the corresponding client object.
-  		if (image != null) ImageMapper.fillImage(image, retVal);
+  		if (image != null) {
+            ImageMapper.fillImage(image, retVal);
+            //retrieve the realSize of a pixels.
+            c = PixelsMapper.buildPixelsDimensionCriteria(id);
+            Dimensions pixelDim = 
+                (Dimensions) gateway.retrieveSTSData("Dimensions", c);
+            if (pixelDim != null)
+                PixelsMapper.fillPixelsDimensions(pixelDim, 
+                        retVal.getDefaultPixels());
+            c = PixelsMapper.buildLogicalChannelCriteria(
+                    STSMapper.IMAGE_GRANULARITY, id);
+            List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
+            if (lc != null) 
+                retVal.setChannels(ImageMapper.fillImageChannels(lc));
+        }
   		
   		//Can be an empty data object.
   		return retVal;	  
@@ -437,7 +451,7 @@ class DMSAdapter
         Dimensions pixelDim = 
             (Dimensions) gateway.retrieveSTSData("Dimensions", c);
         if (pixelDim != null)
-            PixelsMapper.fillPixelsDescription(pixelDim, retVal);
+            PixelsMapper.fillPixelsDimensions(pixelDim, retVal);
 		return retVal;
 	}
 	
@@ -586,34 +600,24 @@ class DMSAdapter
 		if (ceProto == null)    ceProto = new ChainExecutionData();
 		if (dsProto == null)    dsProto = new DatasetData();		
 		if (acProto == null)    acProto = new AnalysisChainData();
-		if (neProto == null) 	   neProto = new NodeExecutionData();
+		if (neProto == null) 	neProto = new NodeExecutionData();
 		if (anProto == null)    anProto = new AnalysisNodeData();
 		if (mProto == null)     mProto = new ModuleData();
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
-		long start = System.currentTimeMillis();
 		//Retrieve the user ID.
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		//Define the criteria by which the object graph is pulled out
-		long mapStart = System.currentTimeMillis();
 		Criteria c = ChainExecutionMapper.
 			buildChainExecutionCriteria(uc.getUserID());
-		long mapEnd = System.currentTimeMillis()-mapStart;
 		// Load the graph defined by the criteria
-		long retStart = System.currentTimeMillis();
 		List execs = (List) gateway.retrieveListData(ChainExecution.class, c);
-		long retEnd = System.currentTimeMillis()-retStart;
 		
 		List execDS = null;
-		
-		long fillStart = System.currentTimeMillis();
 		if (execs != null) 
 			execDS = ChainExecutionMapper.fillChainExecutions(execs, ceProto, 
                      dsProto, acProto, neProto, anProto, mProto, meProto);
-		long end = System.currentTimeMillis()-start;
-		
-		long fillEnd = System.currentTimeMillis()-fillStart;
 		return execDS;
 	}	
 	

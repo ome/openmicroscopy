@@ -116,6 +116,9 @@ class OMEDSGateway
 		} else if (e instanceof ImageServerException) {
 			//tempo, throw by pixelsFactory.
 			throw new DSAccessException(contextMessage, e);
+        } else if (e instanceof IllegalArgumentException) {
+            //tempo, throw by pixelsFactory.
+            throw new DSAccessException(contextMessage, e);
 		} else {
 			//This should never be reached.  If so, there's a bug in the 
 			//connection library.
