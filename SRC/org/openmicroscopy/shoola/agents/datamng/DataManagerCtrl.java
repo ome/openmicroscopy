@@ -148,6 +148,12 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward the call to the {@link DataManager abstraction}. */
+	void updateImage(ImageSummary is)
+	{
+		abstraction.updateImage(is);
+	}
+	
+	/** Forward the call to the {@link DataManager abstraction}. */
 	void viewImage(ImageSummary is)
 	{
 		int[] pxSets = is.getPixelsIDs();

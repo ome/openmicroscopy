@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 //Third-party libraries
 
@@ -61,7 +62,7 @@ class ImagesPane
 {
 
 	/** This UI component's controller and model. */
-	private ImagesPaneManager     manager;
+	private ImagesPaneManager		manager;
 
 	/** Reference to the Registry. */
 	private Registry				registry;
@@ -92,6 +93,7 @@ class ImagesPane
 	{
 		table = new JTable();
 		table.setShowGrid(false);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollPane = new JScrollPane(table);
 	}
 	

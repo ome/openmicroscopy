@@ -50,7 +50,6 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
@@ -232,29 +231,31 @@ class ExplorerPaneManager
 	 * If the image is displayed in several expanded datasets, the image data
 	 * node will also be updated.
 	 * 
-	 * @param id		image data object.
+	 * @param is ImageSummary object.
 	 */
-	void updateImageInTree(ImageData id)
+	void updateImageInTree(ImageSummary is)
 	{
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		Iterator i = cDNodes.keySet().iterator();
-		Iterator j;
-		DefaultMutableTreeNode dNode;
-		List dNodes, images;
-		Integer datasetID;
-		//First update the images in list of expanded datasets.
-		updateImagesInDataset(id);
-		//Then update the tree.
-		while (i.hasNext()) {
-			datasetID = (Integer) i.next();
-			images = (List) imagesInDataset.get(datasetID);
-			dNodes = (List) cDNodes.get(datasetID);
-			j = dNodes.iterator();
-			while (j.hasNext()) {
-				dNode = (DefaultMutableTreeNode) j.next();
-				dNode.removeAllChildren();
-				addImagesToDataset(images, dNode); 
-				treeModel.reload(dNode);
+		if (cDNodes != null) {
+			Iterator i = cDNodes.keySet().iterator();
+			Iterator j;
+			DefaultMutableTreeNode dNode;
+			List dNodes, images;
+			Integer datasetID;
+			//First update the images in list of expanded datasets.
+			updateImagesInDataset(is);
+			//Then update the tree.
+			while (i.hasNext()) {
+				datasetID = (Integer) i.next();
+				images = (List) imagesInDataset.get(datasetID);
+				dNodes = (List) cDNodes.get(datasetID);
+				j = dNodes.iterator();
+				while (j.hasNext()) {
+					dNode = (DefaultMutableTreeNode) j.next();
+					dNode.removeAllChildren();
+					addImagesToDataset(images, dNode); 
+					treeModel.reload(dNode);
+				}
 			}
 		}
 	}
@@ -262,9 +263,9 @@ class ExplorerPaneManager
 	/** 
 	 * Update the map of expanded datasets.
 	 * 
-	 * @param id		image data object.
+	 * @param retVal	ImageSummary object.
 	 */
-	private void updateImagesInDataset(ImageData id)
+	private void updateImagesInDataset(ImageSummary retVal)
 	{
 		Iterator i = imagesInDataset.keySet().iterator();
 		Iterator j;
@@ -275,8 +276,8 @@ class ExplorerPaneManager
 			j = images.iterator();
 			while (j.hasNext()) {
 				is = (ImageSummary) j.next();
-				if (is.getID() == id.getID()) {
-					is.setName(id.getName());
+				if (is.getID() == retVal.getID()) {
+					is.setName(retVal.getName());
 					break;
 				}
 			}

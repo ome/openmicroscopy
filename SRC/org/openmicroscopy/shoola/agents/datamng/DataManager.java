@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-//import org.openmicroscopy.shoola.env.imp.events.ImportImages;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -212,7 +211,7 @@ public class DataManager
 	{
 		//EventBus eventBus = registry.getEventBus();
 		//eventBus.post(new ImportImages(datasetID, images));
-		registry.getUserNotifier().notifyInfo("Importer", "not yet implemented");
+		//registry.getUserNotifier().notifyInfo("Importer", "not yet implemented");
 	}
 	
 	/**
@@ -248,10 +247,10 @@ public class DataManager
 	List getDatasetsDiff(ProjectData data)
 	{
 		List datasetsDiff = new ArrayList();
-		if (datasetSummaries == null) getUserDatasets();
+		List datasetsAll = getUserDatasets();
 		List datasets = data.getDatasets();
 		DatasetSummary ds, dsg;
-		Iterator j = datasetSummaries.iterator();
+		Iterator j = datasetsAll.iterator();
 		while (j.hasNext()) {
 			dsg = (DatasetSummary) j.next();
 			Iterator i = datasets.iterator();
@@ -657,7 +656,13 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dms.updateImage(id);
-			if (nameChange) presentation.updateImageInTree(id);
+			if (nameChange) {
+				ImageSummary is = new ImageSummary();
+				is.setDate(id.getCreated());
+				is.setName(id.getName());
+				is.setID(id.getID());
+				synchImagesView(is);
+			} 
 		} catch(DSAccessException dsae) {
 			String s = "Can't update the image: "+id.getID()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -670,6 +675,38 @@ public class DataManager
 		} 	
 	}
 
+	
+	/**
+	 * Update a specified image.
+	 * 
+	 * @param is	Image summary object.
+	 */
+	void updateImage(ImageSummary is)
+	{
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			dms.updateImage(is);
+			synchImagesView(is);
+		} catch(DSAccessException dsae) {
+			String s = "Can't update the image: "+is.getID()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		} 	
+	}
+	
+	/** Synchronize the 2 views displaying image data. */
+	private void synchImagesView(ImageSummary is) 
+	{
+		presentation.updateImageInTree(is);
+		presentation.updateImageInTable(is);
+	}
+	
+	
 	/**
 	 * Posts a request to view all images in the specified dataset.
 	 * 

@@ -61,7 +61,7 @@ class ImagesPaneBar
 	private Registry	registry;
 	
 	/** Order by button. */
-	private JButton		orderByName, orderByDate, filter;
+	private JButton		filter;
 	
 	/** Load all tree. */
 	private JButton		load;
@@ -77,10 +77,6 @@ class ImagesPaneBar
 	
 	public JButton getLoad() { return load; }
 	
-	public JButton getOrderByName() { return orderByName; }
-	
-	public JButton getOrderByDate() { return orderByDate; }
-	
 	/** Initialize the components. */
 	private void initZoomComponents()
 	{
@@ -89,14 +85,6 @@ class ImagesPaneBar
 		load = new JButton(im.getIcon(IconManager.IMAGE));
 		load.setToolTipText(
 			UIUtilities.formatToolTipText("Retrieve user's images."));
-		orderByName = new JButton(im.getIcon(IconManager.ORDER_BY_NAME));
-		orderByName.setEnabled(false);
-		orderByName.setToolTipText(
-			UIUtilities.formatToolTipText("Order by name."));
-		orderByDate = new JButton(im.getIcon(IconManager.ORDER_BY_DATE));
-		orderByDate.setToolTipText(
-			UIUtilities.formatToolTipText("Order by date."));
-		orderByDate.setEnabled(false);	
 		filter = new JButton(im.getIcon(IconManager.FILTER));
 		filter.setToolTipText(
 			UIUtilities.formatToolTipText("Filter."));	
@@ -109,8 +97,6 @@ class ImagesPaneBar
 		setFloatable(false);
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
 		add(load);
-		add(orderByName);
-		add(orderByDate);
 		add(filter);
 	}
 	
