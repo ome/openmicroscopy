@@ -263,8 +263,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 1;
 		Insets insets = zField.getInsets();
-		int x = insets.left+zLength*txtWidth+insets.right;
-		c.ipadx = x/2;
+		c.ipadx = insets.left+zLength*txtWidth+insets.right;
 		gridbag.setConstraints(zField, c);
 		p.add(zField);
 		c.gridx = 2;
@@ -277,8 +276,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 4;
 		insets = tField.getInsets();
-		x = insets.left+tLength*txtWidth+insets.right;
-		c.ipadx = x/2;
+		c.ipadx = insets.left+tLength*txtWidth+insets.right;
 		gridbag.setConstraints(tField, c);
 		p.add(tField);
 		c.gridx = 5;
