@@ -172,6 +172,7 @@ public class ViewerCtrl
 	/** Update z-slider. */
 	public void onZChange(int z, int t)
 	{
+		System.out.println(z);
 		//remove listener otherwise an event is fired.
 		zSlider.removeChangeListener(this);
 		zSlider.setValue(z);

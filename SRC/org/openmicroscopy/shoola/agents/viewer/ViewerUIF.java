@@ -32,8 +32,11 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -75,8 +78,12 @@ public class ViewerUIF
 	
 	private static final int		EXTRA = 20;
 	
+	private static final Dimension  HBOX = new Dimension(EXTRA, 0);
+	
 	/** Canvas to display the currently selected 2D image. */
 	private ImageCanvas             canvas;
+	
+	private JPanel					contents;
 	
 	/** z-slider and t-slider. */
 	private JSlider					tSlider, zSlider;
@@ -92,7 +99,7 @@ public class ViewerUIF
 	ViewerUIF(ViewerCtrl control, Registry registry, String imageName)
 	{
 		//name, resizable, closable, maximizable, iconifiable.
-		super(imageName, false, true, true, true);
+		super(imageName, true, true, true, true);
 		this.control = control;
 		this.registry = registry;
 		setJMenuBar(createMenuBar());
@@ -111,6 +118,33 @@ public class ViewerUIF
 	public JSlider getZSlider() { return zSlider; }
 	
 	public ToolBar getToolBar() { return toolBar; } 
+	
+	/** Reset the default timepoint and z-section in the stack; */
+	void setDefaultZT(int t, int z, int sizeT, int sizeZ)
+	{
+
+		toolBar.getManager().onTChange(t);
+		toolBar.getManager().onZChange(z);
+		int maxZ = sizeZ-1;
+		int maxT = sizeT-1;
+		toolBar.getZLabel().setText("/"+maxZ);
+		toolBar.getTLabel().setText("/"+maxT);
+		resetSliders(maxT, t, maxZ, z);
+		toolBar.repaint();
+	}
+	
+	private void resetSliders(int maxT, int t, int maxZ, int z)
+	{
+		tSlider.removeChangeListener(control);
+		tSlider.setMaximum(maxT);
+		tSlider.setValue(t);
+		tSlider.addChangeListener(control);
+		zSlider.removeChangeListener(control);
+		zSlider.setMaximum(maxZ);
+		zSlider.setValue(z);
+		zSlider.addChangeListener(control);
+	}
+
 	
 	/** Initiliazes the z-slider and t-slider. */
 	private void initSliders(int maxT, int t, int maxZ, int z)
@@ -158,13 +192,12 @@ public class ViewerUIF
 		if (!active) {
 			int w = canvas.getIconWidth();
 			int h = canvas.getIconHeight();
-			tSlider.setSize(w, EXTRA);
-			zSlider.setSize(EXTRA, h);
-			setSize(w, h);
-			pack();
+			tSlider.setSize(w-EXTRA, EXTRA);
+			zSlider.setSize(EXTRA, h-EXTRA);
+			setWindowSize(w+3*EXTRA, h+2*EXTRA+2*toolBar.getHeight());
 	 	}
 	 	active = true;
-		revalidate();
+	 	revalidate();
 	 }
 	   
 	/** Create an internal menu. */
@@ -216,24 +249,50 @@ public class ViewerUIF
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		container.add(toolBar);
 		canvas = new ImageCanvas(this, container);
-		JPanel p = new JPanel(), pt = new JPanel(), pz = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		pt.setLayout(new BoxLayout(pt, BoxLayout.X_AXIS));
-		JLabel label = new JLabel("T ");
-		pt.add(label);
-		pt.add(tSlider);
-		pz.setLayout(new BoxLayout(pz, BoxLayout.Y_AXIS));
-		label = new JLabel("Z ");
-		pz.add(label);
-		pz.add(zSlider);
-		JScrollPane scrollPane = new JScrollPane(canvas);
-		p.add(pz);
-		p.add(scrollPane);
-		container.add(p);
-		container.add(pt);
+		contents = new JPanel();
+		buildContents();
+		JScrollPane scrollPane = new JScrollPane(contents);
+		container.add(scrollPane);
+		
+		
 		IconManager im = IconManager.getInstance(registry);
 		Icon icon = im.getIcon(IconManager.OME);
 		setFrameIcon(icon);
+	}
+	
+	private void buildContents()
+	{
+		JPanel p = new JPanel(), pt = new JPanel(), pz = new JPanel();
+
+		//t-slider
+		JLabel label = new JLabel("T ");
+		pt.setLayout(new BoxLayout(pt, BoxLayout.X_AXIS));
+		pt.add(Box.createRigidArea(HBOX));
+		pt.add(label);
+		pt.add(tSlider);
+		//z-slider
+		label = new JLabel("Z ");
+		pz.setLayout(new BoxLayout(pz, BoxLayout.Y_AXIS));
+		pz.add(label);
+		pz.add(zSlider);
+
+		//image+z-slider panel
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(pz);
+		p.add(canvas);
+		contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
+		contents.add(p);
+		contents.add(pt);
+	}
+	
+	private void setWindowSize(int w, int h)
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = 8*(screenSize.width/10);
+		int height = 9*(screenSize.height/10);
+		if (w > width) w = width;
+		if (h > height) h = height;
+		setSize(w, h);
 	}
 	
 }

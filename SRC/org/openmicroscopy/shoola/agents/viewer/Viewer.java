@@ -153,6 +153,9 @@ public class Viewer
 		renderingControl = response.getProxy();
 		if (curImageID != request.getImageID()) {
 			if (presentation == null) buildPresentation(request.getImageName());
+			PixelsDimensions pxsDims = control.getPixelsDims();
+			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
+									  pxsDims.sizeT, pxsDims.sizeZ);
 			if (presentation.isClosed()) showPresentation();
 			else if (presentation.isIcon()) deiconifyPresentation();
 			curImageID = request.getImageID();
@@ -160,8 +163,12 @@ public class Viewer
 			RenderImage event = new RenderImage(curPixelsID);
 			registry.getEventBus().post(event);
 		} else {
+			PixelsDimensions pxsDims = control.getPixelsDims();
+			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
+									  pxsDims.sizeT, pxsDims.sizeZ);
 			if (presentation.isClosed()) showPresentation();
 			else if (presentation.isIcon()) deiconifyPresentation();
+			
 		}
 	}
 	
