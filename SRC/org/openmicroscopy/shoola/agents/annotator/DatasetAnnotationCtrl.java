@@ -119,7 +119,8 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
      */
     public void newAnnotation(String annotation)
     {
-        DatasetAnnotation da = annotator.createDatasetAnnotation(annotation);
+        DatasetAnnotation da =
+            annotator.createDatasetAnnotation(annotation,datasetID);
         annotationList.add(da);
     }
     
