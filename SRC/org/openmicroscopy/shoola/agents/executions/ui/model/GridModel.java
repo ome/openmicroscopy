@@ -114,7 +114,7 @@ public class GridModel implements ChangeListener {
 		// remember, in window's coordinate system, (0,0) is upper-left,
 		// so canvasHeight is y-coord of window bottom.
 		xStartAxis = GRID_OFFSET;
-		yStartAxis = canvasHeight-GRID_OFFSET;
+		yStartAxis = canvasHeight-2*GRID_OFFSET;
 		
 		//need a buffer at top as well as bottom, 
 		//left as well as right.
@@ -123,8 +123,8 @@ public class GridModel implements ChangeListener {
 		// upper-left. Thus, to make all dots stay above axes, 
 		// we move the start higher up by DOT_SIDE
 	
-		gridWidth = canvasWidth-2*GRID_OFFSET-3*DOT_SIDE; 	
-		gridHeight= canvasHeight-2*GRID_OFFSET-3*DOT_SIDE; 
+		gridWidth = canvasWidth-3*GRID_OFFSET-3*DOT_SIDE; 	
+		gridHeight= canvasHeight-3*GRID_OFFSET-3*DOT_SIDE; 
 	
 		xStart = GRID_OFFSET+DOT_SIDE;
 		yStart = yStartAxis-2*DOT_SIDE;
