@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
@@ -160,7 +161,16 @@ public class ExecutionsCanvas extends JPanel implements
 	}
 	
 	public void mousePressed(MouseEvent e) {
+		ChainExecutionData exec = null;
+		ExecutionView ev = getViewAt(e.getX(),e.getY());
 		
+		if (ev != null) {
+			exec = ev.getChainExecution();
+			System.err.println("selectec execution "+exec.getID());
+		}
+		SelectChainExecutionEvent event =
+			new SelectChainExecutionEvent(exec);
+		registry.getEventBus().post(event);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
