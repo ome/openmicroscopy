@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvasMng;
+import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvasMng;
 import org.openmicroscopy.shoola.agents.viewer.controls.BottomBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
@@ -445,7 +446,7 @@ public class ViewerCtrl
     public void setLensMagFactor(double f)
     {
         ImageCanvasMng lcMng = presentation.getCanvas().getManager();
-        lcMng.setMagFactor(f); 
+        lcMng.setMagFactorLens(f); 
     }
 
     /** Decrease the lens size. */
@@ -476,24 +477,18 @@ public class ViewerCtrl
         lcMng.setPainting(b, c);
     }
     
-    /** Apply sharpen filter. */
-    public void sharpenImage()
+    /** Apply sharpen or low pass filter. */
+    public void filterImage(float[] filter)
     {
-        ImageCanvasMng lcMng = presentation.getCanvas().getManager();
-        lcMng.sharpenImage();
+        ImageCanvas canvas = presentation.getCanvas();
+        canvas.filterImage(filter);
     }
+
     
-    /** Apply lowPass filter. */
-    public void lowPassImage()
+    public void undoFiltering() 
     {
-        ImageCanvasMng lcMng = presentation.getCanvas().getManager();
-        lcMng.lowPassImage();
-    }
-    
-    public void resetImage() 
-    {
-        ImageCanvasMng lcMng = presentation.getCanvas().getManager();
-        lcMng.resetImage();
+        ImageCanvas canvas = presentation.getCanvas();
+        canvas.undoFiltering();
     }
     
     /** ROI. */

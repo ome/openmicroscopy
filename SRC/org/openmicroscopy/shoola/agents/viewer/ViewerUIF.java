@@ -159,7 +159,7 @@ public class ViewerUIF
     }
     
     /** Reset the zoomLevel to {@link ImageInspector#ZOOM_DEFAULT}. */
-    void resetMagFactor() { canvas.resetMagFactor(); }
+    void resetMagFactor() { canvas.resetDefault(); }
     
     /** Display the name of the image in the header. */
     void setImageName(String imageName) { setTitle(imageName); }

@@ -37,12 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -79,13 +74,7 @@ public class ImageCanvas
      * multiplied by the <code>magFactor</code>.
      */
     private int                         w, h;
-    
-    /** Magnification factor of the main image. */
-    private double                      magFactor;
-    
-    /** Magnification factor of the pin image. */
-    private double                      pinMagFactor;
-    
+
     private BufferedImage               lensImage;
     
     private BufferedImage               displayImage;
@@ -107,15 +96,15 @@ public class ImageCanvas
     
     private ViewerCtrl                  control;
     
-    private List                        filters;
+    private ImageTransformMng           itMng;
+    
     
     public ImageCanvas(ViewerUIF view, ViewerCtrl control)
     {
         this.view = view;
         this.control = control;
-        filters = new ArrayList();
         manager = new ImageCanvasMng(this, control);
-        magFactor = 1.0;
+        itMng = new ImageTransformMng();
         setBackground(Viewer.BACKGROUND_COLOR); 
         setDoubleBuffered(true);
     }
@@ -125,7 +114,7 @@ public class ImageCanvas
     public BufferedImage getPinOnSide(boolean painting, Color c)
     {
         if (lensImage == null || displayImage == null) return null;
-        int widthNew = (int) (manager.getWidth()/pinMagFactor);
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
         return ImageFactory.getImagePinOnSide(displayImage, lensImage, 
                 xTopCorner, yTopCorner, widthNew, widthNew, painting, c);
     }
@@ -137,7 +126,7 @@ public class ImageCanvas
     public BufferedImage getDisplayImageWithPinArea(boolean painting, Color c)
     {
         if (displayImage == null) return null;
-        int widthNew = (int) (manager.getWidth()/pinMagFactor);
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
         return ImageFactory.getImageWithPinArea(displayImage, xTopCorner, 
                         yTopCorner, widthNew, widthNew, painting, c);
     }
@@ -165,9 +154,9 @@ public class ImageCanvas
     }
      
     /** Reset the default. */
-    public void resetMagFactor()
+    public void resetDefault()
     { 
-        magFactor = 1.0;
+        itMng.setDefault();
         image = null;
         displayImage = null;
     }
@@ -184,9 +173,9 @@ public class ImageCanvas
         resetLens();
         if (image != null) {
             displayImage = image;
-            paintImage(magFactor, 
-                    (int) (image.getWidth()*magFactor)+2*ViewerUIF.START, 
-                    (int) (image.getHeight()*magFactor)+2*ViewerUIF.START);
+            double f = itMng.getMagFactor();
+            paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
+                        (int) (image.getHeight()*f)+2*ViewerUIF.START);
         }
     } 
     
@@ -202,32 +191,32 @@ public class ImageCanvas
      */ 
     public void paintImage(double level, int w, int h)
     {
-        magFactor = level;
-        lensImage = null;
+        resetLens();
         this.w = w;
         this.h = h;
         manager.setDrawingArea(ViewerUIF.START, ViewerUIF.START,
-                (int)(image.getWidth()*magFactor), 
-                (int)(image.getHeight()*magFactor));
-        AffineTransform at = new AffineTransform();
-        at.scale(magFactor, magFactor);
-        resetLens();
-        displayImage = ImageFactory.magnifyImage(image, magFactor, at, 0);
-        Iterator i = filters.iterator();
-        while (i.hasNext()) {
-            displayImage = ImageFactory.convolveImage(displayImage, 
-                            (float[]) i.next());
-            
-        }
+                (int)(image.getWidth()*level), 
+                (int)(image.getHeight()*level));
+        itMng.setMagFactor(level);
+        displayImage = itMng.buildDisplayImage(image);
         repaint();
     } 
 
-    public void paintFilterImage(float[] filter)
+    public void filterImage(float[] filter)
     {
         resetLens();
-        filters.add(filter);
-        displayImage = ImageFactory.convolveImage(displayImage, filter);
+        displayImage = itMng.filterImage(displayImage, filter);
         repaint();
+    }
+    
+    public void undoFiltering()
+    {
+        if (image != null) {
+            itMng.removeAllFilters();
+            double f = itMng.getMagFactor();
+            paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
+                    (int) (image.getHeight()*f)+2*ViewerUIF.START);
+        }
     }
     
     public void resetLens() { lensImage = null; }
@@ -236,19 +225,8 @@ public class ImageCanvas
     void resetDrawingArea()
     {
         manager.setDrawingArea(ViewerUIF.START, ViewerUIF.START,
-                (int)(image.getWidth()*magFactor), 
-                (int)(image.getHeight()*magFactor));
-    }
-
-    /** Reset the original image if some filters have been applied. */
-    void resetImage()
-    {
-        if (image != null) {
-            filters.removeAll(filters);
-            paintImage(magFactor, 
-                    (int) (image.getWidth()*magFactor)+2*ViewerUIF.START, 
-                    (int) (image.getHeight()*magFactor)+2*ViewerUIF.START);
-        }
+                (int)(image.getWidth()*itMng.getMagFactor()), 
+                (int)(image.getHeight()*itMng.getMagFactor()));
     }
 
     /** 
@@ -262,21 +240,12 @@ public class ImageCanvas
     {
         xLens = p.x-lensWidth/2;
         yLens = p.y-lensWidth/2;        
-        pinMagFactor = f;
-        int w = (int) (lensWidth/pinMagFactor);
+        int w = (int) (lensWidth/f);
         xTopCorner = p.x-w;
         yTopCorner = p.y-w;
         BufferedImage img = ImageFactory.getImage(displayImage, xTopCorner, 
                                             yTopCorner, w, w, painting, c);
-        AffineTransform at = new AffineTransform();
-        at.scale(f, f);
-        lensImage = ImageFactory.magnifyImage(img, f, at, 0);
-        Iterator i = filters.iterator();
-        while (i.hasNext()) {
-            lensImage = ImageFactory.convolveImage(lensImage, 
-                                                (float[]) i.next());
-            
-        }
+        lensImage = itMng.buildDisplayImage(img, f);
         repaint();
     }
     
@@ -291,8 +260,8 @@ public class ImageCanvas
         setLocation();
         //Set bounds of the drawing area.
         control.setDrawingArea(x+ViewerUIF.START, y+ViewerUIF.START,
-                (int)(image.getWidth()*magFactor), 
-                (int)(image.getHeight()*magFactor));
+                (int)(image.getWidth()*itMng.getMagFactor()), 
+                (int)(image.getHeight()*itMng.getMagFactor()));
 
         paintXYFrame(g2D);
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,

@@ -314,7 +314,7 @@ public class ImageFactory
         DataBuffer dataBuf = img.getRaster().getDataBuffer();
         ColorModel cm = img.getColorModel();
         int v, pos;
-        int red, green, blue;
+        int red, green, blue;      
         for (int y = 0; y < sizeY; ++y) {
             for (int x = 0; x < sizeX; ++x) {
                 pos = sizeX*y+x;

@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.viewer.transform.filter;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.AbstractButton;
 
 //Third-party libraries
@@ -83,11 +82,12 @@ class FilterMenuMng
         try {
             switch (index) {
                 case SHARPEN:
-                    control.sharpenImage(); break;
+                    control.sharpenImage();
+                    break;
                 case LOW_PASS:
                     control.lowPassImage(); break;
                 case RESET:
-                    control.resetImage();
+                    control.undoFiltering();
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe);

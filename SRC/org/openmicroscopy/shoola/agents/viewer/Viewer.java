@@ -277,7 +277,7 @@ public class Viewer
         PixelsDimensions pxsDims = renderingControl.getPixelsDims();
         //TODO: REMOVE COMMENTS
         //control.removeProgressNotifier();
-        if (curImageID != request.getImageID()) {
+        if (curImageID != request.getImageID()) {  
             if (presentation == null) buildPresentation(pxsDims);
             initPresentation(request.getImageName(), pxsDims, false);
             curImageID = request.getImageID();

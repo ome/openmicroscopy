@@ -38,6 +38,7 @@ import java.awt.event.WindowEvent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
@@ -125,11 +126,11 @@ public class ImageInspectorManager
         control.setPaintingLens(b, c); 
     }
     
-    public void sharpenImage() { control.sharpenImage(); }
+    public void sharpenImage() { control.filterImage(ImageFactory.SHARPEN); }
     
-    public void lowPassImage() { control.lowPassImage(); }
+    public void lowPassImage() { control.filterImage(ImageFactory.LOW_PASS); }
     
-    public void resetImage() { control.resetImage(); }
+    public void undoFiltering() { control.undoFiltering(); }
     
     void setCanvas(ImageCanvas canvas) { this.canvas = canvas; }
     

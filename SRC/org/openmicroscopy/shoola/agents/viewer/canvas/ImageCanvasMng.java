@@ -38,14 +38,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
-import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
-import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
-
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 
 /** 
  * 
@@ -76,7 +73,7 @@ public class ImageCanvasMng
     private int                 width;
     
     /** Magnification factor for the lens image. */
-    private double              magFactor;
+    private double              magFactorLens;
     
     /** Anchor point. */
     private Point               anchor;
@@ -91,7 +88,7 @@ public class ImageCanvasMng
         this.view = view;
         this.control = control;
         width = ViewerUIF.DEFAULT_WIDTH;
-        magFactor = ViewerUIF.DEFAULT_MAG;
+        magFactorLens = ViewerUIF.DEFAULT_MAG;
         drawingArea = new Rectangle();
         onOff = true;
         pin = false;
@@ -113,9 +110,11 @@ public class ImageCanvasMng
     
     boolean getPainting() { return painting; }
     
-    public void setMagFactor(double f)
+    double getMagFactorLens() { return magFactorLens; }
+    
+    public void setMagFactorLens(double f)
     {
-        magFactor = f;
+        magFactorLens = f;
         if (view.getLens() != null) {
             view.resetLens();
             view.repaint();
@@ -168,12 +167,6 @@ public class ImageCanvasMng
         view.resetLens();
         if (onOff && pin && anchor != null) drawLens(anchor);
     }
-   
-    public void sharpenImage() { view.paintFilterImage(ImageFactory.SHARPEN); }
-    
-    public void lowPassImage() { view.paintFilterImage(ImageFactory.LOW_PASS); }
-    
-    public void resetImage() { view.resetImage(); }
     
     void setDrawingArea(int x, int y, int w, int h)
     { 
@@ -214,7 +207,7 @@ public class ImageCanvasMng
     private void drawLens(Point p)
     {
         anchor = p;
-        view.paintLensImage(magFactor, p, width, painting, c);
+        view.paintLensImage(magFactorLens, p, width, painting, c);
     }
 
     /** 
