@@ -144,7 +144,6 @@ class CodomainPaneManager
 	private void contrastStretching(boolean b)
 	{
 		view.getCStretching().setEnabled(b);
-		view.repaint();
 		csCtx = null;
 		csCtx = getCsCtxDefault();
 		control.setCodomainMap(csCtx, b, CS);
@@ -154,7 +153,6 @@ class CodomainPaneManager
 	private void planeSlicing(boolean b)
 	{
 		view.getPSlicing().setEnabled(b);
-		view.repaint();
 		psCtx = null;
 		psCtx = getPsCtxDefault();
 		control.setCodomainMap(psCtx, b, PS);

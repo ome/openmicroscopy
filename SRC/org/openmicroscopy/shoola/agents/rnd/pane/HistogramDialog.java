@@ -31,12 +31,16 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -56,9 +60,6 @@ class HistogramDialog
 	extends JDialog
 {
 	
-	/** Height of the widget. */
-	private static final int		HEIGHT_WIN = 280;
-
 	private HistogramPanel			histogramPanel;
 	
 	private HistogramDialogManager 	manager;
@@ -75,7 +76,7 @@ class HistogramDialog
 											yStart, yEnd, histogramData);
 		manager.initRectangles(yStart, yEnd);										
 		manager.attachListeners();
-		buildGUI();	
+		buildGUI(control.getRegistry());	
 	}
 
 	HistogramPanel getHistogramPanel() { return histogramPanel; }
@@ -83,11 +84,19 @@ class HistogramDialog
 	HistogramDialogManager getManager() { return manager; }
 
 	/** Build and lay out the GUI. */
-	void buildGUI()
-	{
-		getContentPane().add(histogramPanel);
-		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
-		setResizable(false);
+	void buildGUI(Registry registry)
+	{	
+		IconManager im = IconManager.getInstance(registry);
+
+		TitlePanel tp = new TitlePanel("Histogram", 
+										" Select the pixels intensity" +
+										"interval across time.", 
+										im.getIcon(IconManager.HISTOGRAM_BIG));
+		getContentPane().add(tp, BorderLayout.NORTH);
+		getContentPane().add(histogramPanel, BorderLayout.CENTER);
+		//getContentPane().add(histogramPanel);
+		setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
+		//pack();
 	}
 	
 }

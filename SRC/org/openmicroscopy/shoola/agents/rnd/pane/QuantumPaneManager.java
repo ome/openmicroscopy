@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
@@ -70,6 +71,10 @@ class QuantumPaneManager
 		this.view = view;
 	}
 	
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	Registry getRegistry() { return eventManager.getRegistry(); }
+	
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	QuantumDef getQuantumDef() { return eventManager.getQuantumDef(); }
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */

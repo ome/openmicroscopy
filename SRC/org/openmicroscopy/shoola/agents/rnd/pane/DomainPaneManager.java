@@ -184,7 +184,6 @@ class DomainPaneManager
 	{
 		double k = (double) value/10;
 		view.getGammaLabel().setText(" Gamma: "+k);
-		view.repaint();
 		int family = view.getTransformations().getSelectedIndex(); //family
 		int b = view.getBitResolution().getValue();	// bitResolution
 		int br = ((Integer) resolutions.get(new Integer(b))).intValue();
@@ -218,7 +217,6 @@ class DomainPaneManager
 			family == QuantumFactory.LINEAR) view.getGamma().setEnabled(false);
 		else view.getGamma().setEnabled(true);
 		resetDefaultGamma();
-		view.repaint();
 		int b = view.getBitResolution().getValue();	// bitResolution
 		int br = ((Integer) resolutions.get(new Integer(b))).intValue();
 		int k = view.getGamma().getValue();	//gamma

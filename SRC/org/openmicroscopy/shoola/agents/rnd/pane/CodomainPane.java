@@ -30,26 +30,21 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -68,21 +63,6 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class CodomainPane
 	extends JPanel
 {
-	
-	/** row's height. */ 
-	private static final int 		ROW_HEIGHT = 30;
-	
-	/** row's width. */
-	private static final int		BWIDTH = 45;
-	
-	/** width of the first column. */
-	private static final int		WIDTH = 140;
-
-	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 20, BUTTON_WIDTH = 40;	
-		
-	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
-															BUTTON_HEIGHT);
 	
 	private JButton					cStretching;
 	private JButton					pSlicing;
@@ -124,7 +104,9 @@ class CodomainPane
 	{
 		IconManager im = IconManager.getInstance(registry);
 		cStretching = new JButton(im.getIcon(IconManager.STRETCHING));
+		cStretching.setBorder(null);
 		pSlicing = new JButton(im.getIcon(IconManager.SLICING));
+		pSlicing.setBorder(null);
 		cStretching.setEnabled(false);
 		pSlicing.setEnabled(false);
 		//TODO: check according to user settings.
@@ -136,65 +118,62 @@ class CodomainPane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		setLayout(new GridLayout(1, 1));
-		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-		setBorder(b);
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.add(buildTable());
-		add(p);
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		add(buildBody());
 	}
 	
-	/** Build the JTable. */
-	private TableComponent buildTable()
+	/** Build and lay out the main panel. */
+	private JPanel buildBody()
 	{
-		TableComponent table = new TableComponent(3, 3);
-		setTableLayout(table);
-		
-		//First row.
+		JPanel body = new JPanel();
+		body.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		GridBagLayout gridbag = new GridBagLayout();
+		body.setLayout(gridbag);
+		GridBagConstraints c = new GridBagConstraints();
+	
 		JLabel label = new JLabel(" Reverse Intensity");
-		table.setValueAt(label, 0, 0);
-		table.setValueAt(ri, 0, 1);
-		label = new JLabel("");
-		table.setValueAt(label, 0, 2);
-		
-		//Second row.
+		c.ipadx = RenderingAgt.H_SPACE;
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.EAST;
+		//c.insets = TOP_PADDING;
+		gridbag.setConstraints(label, c);
+		body.add(label);
 		label = new JLabel(" Contrast Stretching");
-		table.setValueAt(label, 1, 0);
-		table.setValueAt(cs, 1, 1);
-		table.setValueAt(buildButtonPanel(cStretching), 1, 2);
-		
-		//Third row.
+		c.gridy = 1;
+		gridbag.setConstraints(label, c);
+		body.add(label);
 		label = new JLabel(" Plane Slicing");
-		table.setValueAt(label, 2, 0);
-		table.setValueAt(ps, 2, 1);
-		table.setValueAt(buildButtonPanel(pSlicing), 2, 2);
-		
-		return table;
+		c.gridy = 2;
+		gridbag.setConstraints(label, c);
+		body.add(label);
+		//checkbox
+		c.gridx = 1;
+		c.gridy = 0;
+		gridbag.setConstraints(ri, c);
+		body.add(ri);
+		c.gridy = 1;
+		gridbag.setConstraints(cs, c);
+		body.add(cs);
+		c.gridy = 2;
+		gridbag.setConstraints(ps, c);
+		body.add(ps);
+		//buttons if any.
+		c.gridx = 2;
+		c.gridy = 1;
+		JPanel p = buildButtonPanel(cStretching);
+		gridbag.setConstraints(p, c);
+		body.add(p);
+		c.gridy = 2;
+		p = buildButtonPanel(pSlicing);
+		gridbag.setConstraints(p, c);
+		body.add(p);
+		return body;
 	}
-	
-	/** Set the layout of the table. */
-	private void setTableLayout(TableComponent table)
-	{
-		table.setTableHeader(null);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
-		
-		//Set the columns' width.
-		TableColumnModel columns = table.getColumnModel();
-		TableColumn column = columns.getColumn(0);
-		column.setPreferredWidth(WIDTH);
-		column.setWidth(WIDTH);
-		column = columns.getColumn(2);
-		column.setPreferredWidth(BWIDTH);
-		column.setWidth(BWIDTH);
-		table.setDefaultRenderer(JComponent.class, 
-								new TableComponentCellRenderer());
-		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());
-	}
-	
+
 	/**
 	 * Build a JPanel which contains a JButton.
 	 * 
@@ -203,12 +182,6 @@ class CodomainPane
 	private JPanel buildButtonPanel(JButton button)
 	{
 		JPanel p = new JPanel();
-		p.setBorder(null);
-		button.setPreferredSize(DIM_BUTTON);
-		button.setBounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-		button.setContentAreaFilled(false);
-		p.setPreferredSize(DIM_BUTTON);
-		p.setSize(DIM_BUTTON);
 		p.add(button);
 		return p;
 	}

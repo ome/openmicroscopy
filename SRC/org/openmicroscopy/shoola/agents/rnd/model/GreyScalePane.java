@@ -30,26 +30,22 @@
 package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.border.Border;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -69,17 +65,11 @@ public class GreyScalePane
 	extends ModelPane
 {
 								
-	/** Number of columns of the JTable. */
-	private static final int		NUM_COLUMNS = 3;
-	
-	/** ID to position the specified component in the table. */
-	static final int 				POS_INFO = 0;
-	static final int 				POS_LABEL = 1;
-	static final int 				POS_RADIO = 2;
-	
 	private IconManager 			im;
 	
 	private GreyScalePaneManager	manager;
+	
+	private JPanel					contents;
 	
 	public GreyScalePane()
 	{ 
@@ -97,32 +87,40 @@ public class GreyScalePane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		setLayout(new GridLayout(1, 1));
-		add(buildTable());
-		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-		setBorder(b);
+		buildBody();
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		add(contents);
 	}
 	
-	/** Build the JTable. */
-	private TableComponent buildTable()
+	private void buildBody()
 	{
+		contents = new JPanel();
+		contents.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		GridBagLayout gridbag = new GridBagLayout();
+		contents.setLayout(gridbag);
+		GridBagConstraints cst = new GridBagConstraints();
+		cst.ipadx = RenderingAgt.H_SPACE;
+		cst.weightx = 0.5;
+		cst.fill = GridBagConstraints.HORIZONTAL;
+		cst.anchor = GridBagConstraints.EAST;
 		ChannelData[] channelData = eventManager.getChannelData();
-		TableComponent table = new TableComponent(channelData.length, 
-													NUM_COLUMNS);
-		tableLayout(table);
 		ButtonGroup group = new ButtonGroup();
 		for (int i = 0; i < channelData.length; i++)
-			addRow(table, group, i, channelData[i], eventManager.isActive(i));
-			
-		return table;
+			addRow(gridbag, cst, group, i, channelData[i], 
+					eventManager.isActive(i));
+		
 	}
 	
+	
 	/** Build a row in the table. */
-	private void addRow(TableComponent table, ButtonGroup group, 
-								int index, ChannelData data, boolean active)
+	private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
+						ButtonGroup group, int index, ChannelData data, 
+						boolean active)
 	{
 		//init JButton
 		JButton b = new JButton();
+		b.setBorder(null);
 		b.setIcon(im.getIcon(IconManager.INFO));
 		
 		//init JLabel
@@ -133,9 +131,18 @@ public class GreyScalePane
 		JRadioButton rb = new JRadioButton();
 		rb.setSelected(active);
 		group.add(rb);
-		table.setValueAt(buttonPanel(b), index, POS_INFO);
-		table.setValueAt(label, index, POS_LABEL);
-		table.setValueAt(rb, index, POS_RADIO);
+		
+		c.gridx = 0;
+		c.gridy = index;
+		JPanel p = buttonPanel(b);
+		gridbag.setConstraints(p, c);
+		contents.add(p);
+		c.gridx = 1;
+		gridbag.setConstraints(label, c);
+		contents.add(label);
+		c.gridx = 2;
+		gridbag.setConstraints(rb, c);
+				contents.add(rb);
 		//attach listeners to the object
 		manager.attachObjectListener(b, index);
 		manager.attachObjectListener(rb, index);
@@ -145,39 +152,8 @@ public class GreyScalePane
 	private JPanel buttonPanel(JButton button)
 	{
 		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.setBorder(null);
-		button.setPreferredSize(DIM_BUTTON);
-		button.setBounds(0, 0, BUTTON_WIDTH,BUTTON_HEIGHT);
-		button.setContentAreaFilled(false);
-		p.setPreferredSize(DIM_BUTTON);
-		p.setSize(DIM_BUTTON);
 		p.add(button);
 		return p;
 	}
-	
-	/** Table layout. */
-	private void tableLayout(TableComponent table)
-	{
-		table.setTableHeader(null);
-		table.setRowHeight(ROW_HEIGHT);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		TableColumnModel columns = table.getColumnModel();
-		TableColumn column= columns.getColumn(POS_INFO);
-		column.setPreferredWidth(DEFAULT_WIDTH);
-		column.setWidth(DEFAULT_WIDTH);
-		column = columns.getColumn(POS_LABEL);
-		column.setPreferredWidth(WIDTH_LABEL);
-		column.setWidth(WIDTH_LABEL);
-		column = columns.getColumn(POS_RADIO);
-		column.setPreferredWidth(DEFAULT_WIDTH);
-		column.setWidth(DEFAULT_WIDTH);
-		
-		table.setDefaultRenderer(JComponent.class, 
-								new TableComponentCellRenderer());
-		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());
-	}	
 	
 }

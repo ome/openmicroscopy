@@ -30,31 +30,26 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.border.Border;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -75,25 +70,6 @@ class DomainPane
 	extends JPanel
 {
 	
-	/** row's height. */ 
-	private static final int 		ROW_HEIGHT = 30;
-	
-	/** row's width. */
-	private static final int		COLUMN_WIDTH = 110, COLUMN_TWO = 110;
-	
-	/** Dimension of the JPanel which contains the slider. */
-	private static final int		PANEL_HEIGHT = 25;
-	private static final int		PANEL_WIDTH = 100;
-	
-	private static final Dimension	DIM = new Dimension(PANEL_WIDTH, 
-														PANEL_HEIGHT);
-
-	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 20, BUTTON_WIDTH = 40;	
-		
-	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
-															BUTTON_HEIGHT);
-											
 	private static final int        DEPTH_START = 1, DEPTH_END = 8;
 
 	private static final int		MAX = GraphicsRepresentation.MAX;
@@ -210,75 +186,74 @@ class DomainPane
 	{
 		IconManager IM = IconManager.getInstance(registry);
 		histogram = new JButton(IM.getIcon(IconManager.HISTOGRAM));
+		histogram.setBorder(null);
 	}
-	
+
 	/**Build and layout the GUI */
 	private void buildGUI()
 	{
-		setLayout(new GridLayout(1, 1));
-		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-		setBorder(b);
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.add(buildTable());
-		add(p);
+		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		add(buildBody());
 	}
 	
-	/** Build the JTable. */
-	private TableComponent buildTable()
+	/** Build the body panel. */
+	private JPanel buildBody()
 	{
-		TableComponent table = new TableComponent(5, 2);
-		setTableLayout(table);
-
-		//First row.
+	
+		JPanel body = new JPanel();
+		body.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		GridBagLayout gridbag = new GridBagLayout();
+		body.setLayout(gridbag);
+		GridBagConstraints c = new GridBagConstraints();
+	
 		JLabel label = new JLabel(" Wavelength");
-		table.setValueAt(label, 0, 0);
-		table.setValueAt(wavelengths, 0, 1);
-		
-		//Second row.
+		c.ipadx = RenderingAgt.H_SPACE;
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.EAST;
+		//c.insets = TOP_PADDING;
+		gridbag.setConstraints(label, c);
+		body.add(label);
+		c.gridy = 1;
 		label = new JLabel(" Map");
-		table.setValueAt(label, 1, 0);
-		table.setValueAt(transformations, 1, 1);
-
-		//Third row.
-		table.setValueAt(gammaLabel, 2, 0);
-		table.setValueAt(buildSliderPanel(gamma), 2, 1);
-
-		//Fourth row.
+		gridbag.setConstraints(label, c);
+		body.add(label);
+		c.gridy = 2;
+		gridbag.setConstraints(gammaLabel, c);
+		body.add(gammaLabel);
+		c.gridy = 3;
+		
 		label = new JLabel(" Resolution");
-		table.setValueAt(label, 3, 0);
-		table.setValueAt(buildSliderPanel(bitResolution), 3, 1);
-
-		//Fifth row.
+		gridbag.setConstraints(label, c);
+		body.add(label);
+		c.gridy = 4;
 		label = new JLabel(" Histogram");
-		table.setValueAt(label, 4, 0);
-		table.setValueAt(buildButtonPanel(histogram), 4, 1);
-				
-		return table;
-	}
-	
-	/** Set the table layout. */
-	private void setTableLayout(TableComponent table) 
-	{
-		table.setTableHeader(null);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
-		
-		//Set the columns' width.
-		TableColumnModel columns = table.getColumnModel();
-		TableColumn column = columns.getColumn(0);
-		column.setPreferredWidth(COLUMN_WIDTH);
-		column.setWidth(COLUMN_WIDTH);
-		
-		//Set the width of the second column
-		column = columns.getColumn(1);
-		column.setPreferredWidth(COLUMN_TWO);
-		column.setWidth(COLUMN_TWO);
-		table.setDefaultRenderer(JComponent.class, 
-								new TableComponentCellRenderer());
-		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());	
+		gridbag.setConstraints(label, c);
+		body.add(label);
+		c.gridx = 1;
+		c.gridy = 0;
+		JPanel wp = buildComboBoxPanel(wavelengths);
+		gridbag.setConstraints(wp, c);
+		body.add(wp);
+		c.gridy = 1;
+		wp = buildComboBoxPanel(transformations);
+		gridbag.setConstraints(wp, c);
+		body.add(wp);
+		c.gridy = 2;
+		JPanel gp = buildSliderPanel(gamma);
+		gridbag.setConstraints(gp, c);
+		body.add(gp);
+		c.gridy = 3;
+		JPanel brp = buildSliderPanel(bitResolution);
+		gridbag.setConstraints(brp, c);
+		body.add(brp);
+		c.gridy = 4;
+		JPanel hp = buildButtonPanel(histogram);
+		gridbag.setConstraints(hp, c);
+		body.add(hp);
+		return body;
 	}
 	
 	/**
@@ -289,35 +264,26 @@ class DomainPane
 	 */
 	private JPanel buildSliderPanel(JSlider slider)	
 	{
-		JPanel sliderPanel = new JPanel();
-		sliderPanel.setLayout(null);
-		sliderPanel.setOpaque(false);
-		sliderPanel.setPreferredSize(DIM);
-		sliderPanel.setSize(DIM);
-		slider.setPreferredSize(DIM);
-		slider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-		slider.setOpaque(false);
-		sliderPanel.add(slider);
-		return sliderPanel;
-	}
-	
-	/**
-	 * Build a JPanel which contains a JButton.
-	 * 
-	 * @param button
-	 * @return See above.
-	 */
-	private JPanel buildButtonPanel(JButton button)
-	{
 		JPanel p = new JPanel();
-		p.setBorder(null);
-		button.setPreferredSize(DIM_BUTTON);
-		button.setBounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-		button.setContentAreaFilled(false);
-		p.setPreferredSize(DIM_BUTTON);
-		p.setSize(DIM_BUTTON);
-		p.add(button);
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		p.setOpaque(false);
+		p.add(slider);
 		return p;
 	}
 
+	private JPanel buildComboBoxPanel(JComboBox box)
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		p.add(box);
+		return p;
+	}
+	
+	private JPanel buildButtonPanel(JButton b)
+	{
+		JPanel p = new JPanel();
+		p.add(b);
+		return p;
+	}
+	
 }

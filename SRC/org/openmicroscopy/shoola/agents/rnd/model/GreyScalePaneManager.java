@@ -95,7 +95,6 @@ class GreyScalePaneManager
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			if (obj instanceof JRadioButton) {
-				view.repaint();
 				eventManager.setActive(index); 
 			} else 
 				UIUtilities.centerAndShow(new ChannelEditor(eventManager, 

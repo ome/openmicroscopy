@@ -142,7 +142,6 @@ class HSBPaneManager
 	{
 		ColoredButton cb = (ColoredButton) coloredButtons.get(new Integer(w));
 		cb.setBackground(c);
-		view.repaint();
 		eventManager.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
 							c.getAlpha());
 	}

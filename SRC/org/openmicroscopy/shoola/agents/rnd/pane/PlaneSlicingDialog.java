@@ -45,6 +45,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 
 /** 
@@ -137,7 +138,7 @@ class PlaneSlicingDialog
 		if (j != null) i = j.intValue();
 		initialize(i, constant); 
 		manager.attachListeners();
-		buildGUI();
+		buildGUI(control.getRegistry());
 	}
 
 	JComboBox getRange(){ return range; }
@@ -172,7 +173,7 @@ class PlaneSlicingDialog
 	}
 	
 	/** Build and lay out the GUI. */
-	private void buildGUI()
+	private void buildGUI(Registry registry)
 	{
 		Container contentPane = super.getContentPane();
 		contentPane.setLayout(null);
