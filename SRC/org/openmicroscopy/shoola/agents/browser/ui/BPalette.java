@@ -46,7 +46,10 @@ import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDragActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloActions;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 
 import edu.umd.cs.piccolo.PNode;
@@ -86,8 +89,6 @@ public class BPalette extends PNode
         this.paletteName = name;
         titleBar = new TitleBar(name);
         addChild(titleBar);
-        
-        
         setBounds(titleBar.getBounds());
     }
     
@@ -103,7 +104,7 @@ public class BPalette extends PNode
         this.maxWidth = width;
     }
     
-    class TitleBar extends PNode
+    class TitleBar extends PNode implements MouseDragSensitive
     {
         private String titleName;
         private Color backgroundColor;
@@ -114,6 +115,8 @@ public class BPalette extends PNode
         private MinimizeIcon minimizeNode;
         private HideIcon hideNode;
         private CloseIcon closeNode;
+        
+        private MouseDragActions actionSet;
         
         private Font titleFont = new Font(null,Font.BOLD,14);
         
@@ -126,6 +129,11 @@ public class BPalette extends PNode
             titleNode = new PText(name);
             titleNode.setPaint(Color.white);
             titleNode.setFont(titleFont);
+            
+            actionSet = new MouseDragActions();
+            actionSet.setDragAction(PiccoloModifiers.NORMAL,
+                                    PiccoloActions.DRAG_MOVE_ACTION);
+            
             
             addChild(titleNode);
             titleNode.setOffset(4,4);
@@ -161,6 +169,52 @@ public class BPalette extends PNode
             closeNode.setOffset(measuredWidth-20,0);
         }
         
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#getMouseDragActions()
+         */
+        public MouseDragActions getMouseDragActions()
+        {
+            return actionSet;
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondDrag(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondDrag(PInputEvent e)
+        {
+            PiccoloAction action =
+                actionSet.getDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondEndDrag(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondEndDrag(PInputEvent e)
+        {
+            PiccoloAction action =
+                actionSet.getEndDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
+        
+        public void respondStartDrag(PInputEvent e)
+        {
+            PiccoloAction action =
+                actionSet.getStartDragAction(PiccoloModifiers.getModifier(e));
+            action.execute(e);
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#setMouseDragActions(org.openmicroscopy.shoola.agents.browser.events.MouseDragActions)
+         */
+        public void setMouseDragActions(MouseDragActions actions)
+        {
+            if(actions != null)
+            {
+                actionSet = actions;
+            }
+        }
+
         public void paint(PPaintContext context)
         {
             Graphics2D g2 = context.getGraphics();

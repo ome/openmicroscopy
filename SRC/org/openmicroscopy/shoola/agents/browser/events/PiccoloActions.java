@@ -54,7 +54,7 @@ public interface PiccoloActions
      * The common action for a node to be moved on the canvas when
      * dragged.
      */
-    public static PiccoloAction DRAG_MOVE_ACTION = new PiccoloAction()
+    public static final PiccoloAction DRAG_MOVE_ACTION = new PiccoloAction()
     {
         public void execute(PInputEvent e)
         {
