@@ -224,7 +224,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	}
 	
 	public void layoutContents() {
-		// the current chain
 		
 		
 		PaletteChainView view;
