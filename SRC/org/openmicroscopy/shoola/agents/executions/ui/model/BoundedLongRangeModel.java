@@ -103,7 +103,7 @@ public class BoundedLongRangeModel {
 	}
 	
 	public boolean isInRange(long val) {
-		if (val >= value && val <= getMax())
+		if (val >= value && val <= (value+extent))
 			return true;
 		else
 			return false;
