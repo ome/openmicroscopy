@@ -36,7 +36,12 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 //Application-internal dependencies
 
 /** 
- * 
+ * Simple piecewise linear functions. 
+ * The idea is to increase the dynamic range of levels in the image being 
+ * processed.
+ * The locations of the points pStart and pEnd 
+ * (cf {@link ContratStretchingContext}) control the equation of the linear
+ * functions.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,24 +57,24 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 class ContrastStretchingMap
 	implements CodomainMap
 {
-	private ContrastStretchingDef csDef;
+	private ContrastStretchingContext csCtx;
 	
 	/** Implemented as specified in {@link CodomainMap}. */
 	public void setContext(CodomainMapContext ctx)
 	{
-		csDef = (ContrastStretchingDef) ctx;
+		csCtx = (ContrastStretchingContext) ctx;
 	}
 
 	/** Implemented as specified in {@link CodomainMap}. */
 	public int transform(int x)
 	{
-		int y = csDef.intervalStart;
-		if (x >= csDef.intervalStart && x < csDef.getXStart())
-			y = (int) (csDef.getA0()*x+csDef.getB0());
-		else if (x >= csDef.getXStart() && x < csDef.getXEnd())
-			y = (int) (csDef.getA1()*x+csDef.getB1());
-		else if (x >= csDef.getXEnd() && x <= csDef.intervalStart)
-			y = (int) (csDef.getA2()*x+csDef.getB2());	
+		int y = csCtx.intervalStart;
+		if (x >= csCtx.intervalStart && x < csCtx.getXStart())
+			y = (int) (csCtx.getA0()*x+csCtx.getB0());
+		else if (x >= csCtx.getXStart() && x < csCtx.getXEnd())
+			y = (int) (csCtx.getA1()*x+csCtx.getB1());
+		else if (x >= csCtx.getXEnd() && x <= csCtx.intervalStart)
+			y = (int) (csCtx.getA2()*x+csCtx.getB2());	
 		return y;
 	}
 	

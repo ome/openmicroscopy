@@ -51,17 +51,29 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
  */
 interface QuantumMap
 {
-	/**
-	 * Sets the curve coefficient k.
-	 * 
-	 * @param k	coefficient of the map.
+	/** 
+	 * Map the inputValue. 
+	 *
+	 * @param x		input value.
+	 * @param k		selected curve in the family.
 	 */
-	public void setCoefficient(double k);
+	public double transform (int x, double k);
 	
-	/** Transform the inputValue. */
-	public double transform (int x);
-	public double transform (double x);
-	public double transform (float x);
+	/** 
+	 * Map the inputValue. 
+	 *
+	 * @param x		input value.
+	 * @param k		selected curve in the family.
+	 */
+	public double transform (double x, double k);
+	
+	/** 
+	 * Map the inputValue. 
+	 *
+	 * @param x		input value.
+	 * @param k		selected curve in the family.
+	 */
+	public double transform (float x, double k);
 	
 }
 

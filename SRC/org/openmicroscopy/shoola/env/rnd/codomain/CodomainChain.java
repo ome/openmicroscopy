@@ -29,17 +29,22 @@
 
 package org.openmicroscopy.shoola.env.rnd.codomain;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.List;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Queues the spatial domain transformations that to be applied to the image.
+ * A lookup table is built by composing all transformations (in the same order
+ * as they were enqueued) in a map and then by applying the map to each value
+ * in the codomain interval [intervalStart, intervalEnd].
+ * Note that, in order to compose the transformations in the queue, 
+ * this interval has to be both the domain and codomain of each transformations.
+ * The LUT is re-built every time the definition of the interval changes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,33 +59,65 @@ import java.util.List;
  */
 public class CodomainChain
 {
-	//	current lookup table
-	private int[]		LUT;
-	private List		chains;
-	private int			intervalStart;
-	private int			intervalEnd;
-	private CodomainMap	identity;
+	/** Maximum value for the upper bound of the interval. */
+	private static final int	MAX = 255;
+	
+	/** Minimum value for the lower bound of the interval. */
+	private static final int	MIN = 0;
+	
+	/** Codomain Lookup table .*/
+	private int[]				LUT;
+	
+	/** List of the codomain transformations to be performed. */
+	private List				chains;
+	
+	/** The lower limit of the interval. */
+	private int					intervalStart;
+	
+	/** The upper limit of the interval. */
+	private int					intervalEnd;
+	
+	/** Identity map. */
+	private CodomainMap			identity;
 		
-	public CodomainChain(int intervalStart, int intervalEnd)
+	public CodomainChain(int start, int end)
 	{
-		this.intervalStart = intervalStart;
-		this.intervalEnd = intervalEnd;
+		intervalStart = start;
+		intervalEnd = end;
 		init();
 	}
 	
 	//TODO: create a copy
+	/** 
+	 * Add a codomainMap transformation to the queue. 
+	 * 
+	 * @param cdm	CodomainMap to be added.
+	 * 
+	 */
 	public void add(CodomainMap cdm)
 	{
 		chains.add(cdm);
 	}
 	
+	/** 
+ 	* Remove the specified codomainMap transformation from the queue. 
+ 	* 
+ 	* @param cdm	CodomainMap to be removed.
+ 	* 
+ 	*/
 	public void remove(CodomainMap cdm)
 	{
 		chains.remove(cdm);
 	}
 	
+	/** 
+	 * Performs the transformation.
+	 * 
+	 * @param x		input value.
+	 */
 	public int transform(int x)
 	{
+		verifyInput(x);
 		return LUT[x-intervalStart];
 	}
 
@@ -94,15 +131,17 @@ public class CodomainChain
 		return intervalStart;
 	}
 
-	public void setIntervalEnd(int intervalEnd)
+	public void setIntervalEnd(int end)
 	{
-		this.intervalEnd = intervalEnd;
+		verifyInterval(intervalStart, end);
+		intervalEnd = end;
 		buildLUT();
 	}
 
-	public void setIntervalStart(int intervalStart)
+	public void setIntervalStart(int start)
 	{
-		this.intervalStart = intervalStart;
+		verifyInterval(start, intervalEnd);
+		intervalStart = start;
 		buildLUT();
 	}
 	
@@ -120,7 +159,7 @@ public class CodomainChain
 		LUT = new int[intervalEnd-intervalStart];
 		CodomainMap cdm;
 		int v;
-		for(int x = intervalStart; x <= intervalEnd; ++x) {
+		for (int x = intervalStart; x <= intervalEnd; ++x) {
 			v = x;
 			for (int i = 0; i < chains.size(); i++) {
 				cdm = (CodomainMap) chains.get(i);
@@ -128,6 +167,30 @@ public class CodomainChain
 			}
 			LUT[x-intervalStart] = v;	
 		}
+	}
+	
+	/** 
+	 * Verify the bounds of the input interval. 
+	 * 
+	 * @param start		lower bound of the interval.
+	 * @param end		upper bound of the interval.
+	 */
+	private void verifyInterval(int start, int end)
+	{
+		if (start >= end || start < MIN || end > MAX)
+			throw new IllegalArgumentException("Interval not consistent.");
+	}
+	
+	/** 
+	 * Verify if the input value is in the interval 
+	 * [intervalStart, intervalEnd].
+	 * 
+	 * @param x		input value.
+	 */
+	private void verifyInput(int x)
+	{
+		if (x < intervalStart || x > intervalEnd)
+			throw new IllegalArgumentException("Value not in the Interval.");
 	}
 	
 }

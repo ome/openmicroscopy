@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Application-internal dependencies
 
 /** 
- * 
+ * Exponential mapping i.e. exp(x^k).
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,34 +52,21 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 class ExponentialMap
 	implements QuantumMap
 {
-	private double k;
-	
-	ExponentialMap(double k)
-	{
-		setCoefficient(k);
-	}
 	
 	/** Implemented as specified in {@link QuantumMap}. */
-	public void setCoefficient(double k)
-	{
-		//TODO: add error checking if needed.
-		this.k = k;
-	}
-	
-	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(int x)
+	public double transform(int x, double k)
 	{
 		return Math.exp(Math.pow((double) x, k));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(double x)
+	public double transform(double x, double k)
 	{
 		return Math.exp(Math.pow(x, k));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(float x)
+	public double transform(float x, double k)
 	{
 		return Math.exp(Math.pow((double) x, k));
 	}

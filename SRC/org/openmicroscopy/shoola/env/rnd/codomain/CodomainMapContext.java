@@ -29,14 +29,17 @@
 
 package org.openmicroscopy.shoola.env.rnd.codomain;
 
+
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Each concrete subclass defines transformation parameters for a CodomainMap 
+ * implementation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,10 +52,11 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
  * </small>
  * @since OME2.2
  */
-abstract class CodomainMapContext
+public abstract class CodomainMapContext
 {
 	protected int intervalStart;
 	protected int intervalEnd;
+	
 	/** 
 	 * Set the codomain i.e. output interval subset of [0, 255].
 	 * 
@@ -65,5 +69,10 @@ abstract class CodomainMapContext
 		this.intervalEnd = intervalEnd;
 	}
 
-	abstract void onCodomainChange();
+	/** Notify when the codomain interval changes. */
+	public abstract void onCodomainChange();
+	
+	/** Initializes the context of the a specified codomain transformation. */
+	public abstract void updateParams(Map params);
+	
 }

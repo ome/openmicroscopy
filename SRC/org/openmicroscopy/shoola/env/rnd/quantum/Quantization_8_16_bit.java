@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.util.Approximation;
 
 /** 
@@ -73,8 +74,8 @@ public class Quantization_8_16_bit
 	/**
 	 * Initializes the LUT. 
 	 * Comparable getGlobalMin and getGlobalMax
-	 * assumed to be Integer, QuantumStrategy enforces min < max.
-	 * QuantumFactory makes sure 0 < max-min< 2^N where N = 8 or N = 16.
+	 * assumed to be Integer, QuantumStrategy enforces min &lt; max.
+	 * QuantumFactory makes sure 0 &lt; max-min &lt; 2^N where N = 8 or N = 16.
 	 * LUT size is at most 256 bytes if N = 8 or 
 	 * 2^16 bytes = 2^6Kb = 64Kb if N = 16.
 	 */
@@ -99,17 +100,17 @@ public class Quantization_8_16_bit
 		//domain
 		int dStart = ((Integer) getWindowStart()).intValue(),
 			dEnd = ((Integer) getWindowEnd()).intValue(); 
-		double ys = qMap.transform(dStart);
-		double ye = qMap.transform(dEnd);
+		double k = qDef.curveCoefficient;
+		double ys = qMap.transform(dStart, k);
+		double ye = qMap.transform(dEnd, k);
 		double a0 = qDef.bitResolution/(ye-ys);
 		double a1 = (dEnd-dStart)/qDef.bitResolution;
-		
 		int x = min;
 		double v;
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 
-			v = Approximation.nearestInteger(a0*(qMap.transform(x)-ys));
+			v = Approximation.nearestInteger(a0*(qMap.transform(x, k)-ys));
 			v = Approximation.nearestInteger(a1*v+dStart);
 			LUT[x-min] = (byte) v;
 		}
@@ -118,14 +119,15 @@ public class Quantization_8_16_bit
 	}
 
 	/**
-	 * The input window size changed, rebuild the LUT
+	 * The input window size changed, rebuild the LUT.
 	 */
 	protected void onWindowChange()
 	{
 		buildLUT();
 	}
-
-	int quantize(Object value)
+	
+	/** Implemented as specified in {@link QuantumStrategy}. */
+	public int quantize(Object value)
 	{
 		int x = ((Integer) value).intValue();
 		int i = LUT[x-min];

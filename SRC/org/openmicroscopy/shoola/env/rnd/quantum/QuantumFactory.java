@@ -34,10 +34,14 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
- *
+ * The bit-depth constants cannot be modified b/c they have a meaning.
+ * The class also defines the constants linked to {@link QuantumMap maps} 
+ * implemented.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,41 +55,62 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
  */
 public class QuantumFactory
 {
-	/**
-	* The following constants cannot be modified b/c they have a special meaning
-	* 1Bit = 2^1-1 2Bit = 2^2-1, ..., 8Bit = 2^8-1;
-	*/
+	/** Bit-depth 1Bit = 2^1-1. */
 	public static final int   DEPTH_1BIT = 1;
+	
+	/** Bit-depth 1Bit = 2^2-1. */
 	public static final int   DEPTH_2BIT = 3;
+	
+	/** Bit-depth 1Bit = 2^3-1. */
 	public static final int   DEPTH_3BIT = 7;
+	
+	/** Bit-depth 1Bit = 2^4-1. */
 	public static final int   DEPTH_4BIT = 15;
+	
+	/** Bit-depth 1Bit = 2^5-1. */
 	public static final int   DEPTH_5BIT = 31;
+	
+	/** Bit-depth 1Bit = 2^6-1. */
 	public static final int   DEPTH_6BIT = 63;
+	
+	/** Bit-depth 1Bit = 2^7-1. */
 	public static final int   DEPTH_7BIT = 127;
+	
+	/** Bit-depth 1Bit = 2^8-1. */
 	public static final int   DEPTH_8BIT = 255;
     
-
-	/** ID of quantumMaps implemented. */
+	/** Linear mapping: equation of the form y = a*x+b. */
 	public static final int   LINEAR = 0;
+	
+	/** Exponential mapping: equation of the form y = a*(exp(x^k))+b. */
 	public static final int   EXPONENTIAL = 1;
+	
+	/** Linear mapping: equation of the form y = a*log(x)+b. */
 	public static final int   LOGARITHMIC = 2;
+	
+	/** 
+	 * Linear mapping: equation of the form y = a*x^k+b.
+	 * Note that LINEAR is a specific case of polynomial (k = 1).
+	 * We keep the LINEAR constant for some UI reason but we apply the same 
+	 * algorithm.
+	 */
 	public static final int   POLYNOMIAL = 3;
 
-	static QuantumStrategy getStrategy(QuantumDef qd)
+	public static QuantumStrategy getStrategy(QuantumDef qd)
 	{
 		verifyDef(qd);
-		QuantumStrategy     strg = null;
+		QuantumStrategy strg = null;
 		QuantumMap qMap = null;
 		switch (qd.family) {
 			case LINEAR:
 			case POLYNOMIAL:
-				qMap = new PolynomialMap(qd.curveCoefficient);
+				qMap = new PolynomialMap();
 				break;
 			case LOGARITHMIC:
 				qMap = new LogarithmicMap();
 				break;
 			case EXPONENTIAL:
-				qMap = new ExponentialMap(qd.curveCoefficient); 
+				qMap = new ExponentialMap(); 
 		}
 		if (qMap == null)
 			throw new IllegalArgumentException("Unsupportedtransformation");
@@ -95,28 +120,27 @@ public class QuantumFactory
 		return strg;
 	}
     
+    /** Retrieve a {@link QuantumStrategy}. */
 	private static QuantumStrategy getQuantization(QuantumDef qd, 
 				QuantumMap qMap)
 	{
 		QuantumStrategy     qs = null;
-		/*
 		switch (qd.pixelType) {
-			case Pixels.INT8:
-			case Pixels.UINT8:
-			case Pixels.INT16:
-			case Pixels.UINT16:
+			case DataSink.INT8:
+			case DataSink.UINT8:
+			case DataSink.INT16:
+			case DataSink.UINT16:
 				qs = new Quantization_8_16_bit(qd, qMap);
 				break;
-			case Pixels.INT32:  //TODO when we support these types
-			case Pixels.UINT32:
-			case Pixels.BIT:    
-			case Pixels.FLOAT:  
-			case Pixels.DOUBLE: break;    
+			case DataSink.INT32:  //TODO when we support these types
+			case DataSink.UINT32:
+			case DataSink.BIT:    
+			case DataSink.FLOAT:  
+			case DataSink.DOUBLE: break;    
 		}
-		*/
 		return qs;
 	}
-    
+
 	private static void verifyDef(QuantumDef qd)
 	{
 		if (qd == null)    
@@ -146,29 +170,25 @@ public class QuantumFactory
 			case DEPTH_7BIT: b = true; break;
 			case DEPTH_8BIT: b = true; break;
 		}
-		if (!b) 
-			throw new IllegalArgumentException("Unsupported output interval" +
-				" type");
+		if (!b) throw new IllegalArgumentException("Unsupported output " +
+				"interval type");
 	}
     
 	private static void verifyPixelType(int pixelType)
 	{
 		boolean     b = false;
-		/*
 		switch(pixelType) {
-			case Pixels.BIT:    b = true; break;
-			case Pixels.INT8:   b = true; break;
-			case Pixels.INT16:  b = true; break;
-			case Pixels.INT32:  b = true; break;
-			case Pixels.UINT8:  b = true; break;
-			case Pixels.UINT16: b = true; break;
-			case Pixels.UINT32: b = true; break;
-			case Pixels.FLOAT:  b = true; break;
-			case Pixels.DOUBLE: b = true;
-		}*/
-        
-		if (!b)
-			throw new IllegalArgumentException("Unsupported pixel type");
+			case DataSink.BIT:    b = true; break;
+			case DataSink.INT8:   b = true; break;
+			case DataSink.INT16:  b = true; break;
+			case DataSink.INT32:  b = true; break;
+			case DataSink.UINT8:  b = true; break;
+			case DataSink.UINT16: b = true; break;
+			case DataSink.UINT32: b = true; break;
+			case DataSink.FLOAT:  b = true; break;
+			case DataSink.DOUBLE: b = true;
+		}
+		if (!b) throw new IllegalArgumentException("Unsupported pixel type");
 	}
   
 }

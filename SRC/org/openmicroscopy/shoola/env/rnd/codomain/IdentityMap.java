@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 //Application-internal dependencies
 
 /** 
- * 
+ * Identity transformation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

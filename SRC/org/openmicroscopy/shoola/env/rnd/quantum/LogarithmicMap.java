@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Application-internal dependencies
 
 /** 
- * 
+ * Logarithmic mapping i.e. log(x).
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,30 +52,34 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 class LogarithmicMap
 	implements QuantumMap
 {
-
-	/** 
-	 * Implemented as specified in {@link QuantumMap}.
-	 * Does nothing b/c the transformation doesn't require a coefficient.
-	 */
-	public void setCoefficient(double k) {}
-	
 	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(int x)
+	public double transform(int x, double k)
 	{
-		return Math.log((double) x);
+		double y = (double) x;
+		verifyInput(y);
+		return Math.log(y);
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(double x)
+	public double transform(double x, double k)
 	{
+		verifyInput(x);
 		return Math.log(x);
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
-	public double transform(float x)
+	public double transform(float x, double k)
 	{
-		return Math.log((double) x);
+		double y = (double) x;
+		verifyInput(y);
+		return Math.log(y);
 	}
 	
+	private void verifyInput(double x)
+	{
+		if (x <= 0) 
+			throw new IllegalArgumentException("Value not consistent. " +
+						"The value must be > 0.");
+	}
 }
 

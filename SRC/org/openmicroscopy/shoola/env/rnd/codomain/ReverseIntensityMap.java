@@ -36,8 +36,13 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 //Application-internal dependencies
 
 /** 
- * 
+ * Reverses the intensity levels of an image. 
+ * It produces the equivalent of a photographic negative.
+ * This type of transformation is suited fo enhancing white or gray 
+ * detail embedded in dark regions of an image, especially when the black areas
+ * are dominant in size.
  *
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

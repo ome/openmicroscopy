@@ -29,15 +29,24 @@
 
 package org.openmicroscopy.shoola.env.rnd.quantum;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
+ * Subclasses 
+ * Work on explicit pixel types.
+ * Taking into account the pixel types, transform the pixel intensity value
+ * passed to {@link #quantize} by delegating to the configured quantum map.
+ * Encapsulate a computation strategy for the quantization process i.e. LUT and 
+ * Approximation.
+ * Implement {@link #onWindowChange} to get notified when the input interval 
+ * changes.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -49,13 +58,21 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
  * </small>
  * @since OME2.2
  */
-abstract class QuantumStrategy
+public abstract class QuantumStrategy
 {
-    
+    /** Minimum of all minima. */
 	private Comparable      		globalMin;
+	
+	/** Maximum of all maxima. */
 	private Comparable      		globalMax;
+	
+	/** The lower limit of the input Interval i.e. pixel intensity interval. */
 	private Comparable      		windowStart;
+	
+	/** The upper limit of the input Interval i.e. pixel intensity interval. */
 	private Comparable      		windowEnd;
+	
+	/** Reference to a quantumDef object. */
 	protected final QuantumDef      qDef;                  
 
 	protected QuantumStrategy(QuantumDef qd)
@@ -66,16 +83,20 @@ abstract class QuantumStrategy
 			throw new NullPointerException("No quantum definition");
 		this.qDef = qd;
 	}
-    
+	
+	/**
+	* globalMin and globalMax could be out of pixel type range 
+	* b/c of an error occured in stats calculations.
+	* 
+	* @param globalMin	lower bound.
+	* @param globalMax	upper bound.
+	*/
 	private void verifyInterval(Comparable globalMin, Comparable globalMax)
 	{
 		boolean     b = false;
 		if (globalMin != null && globalMax != null && 
 			0 < globalMax.compareTo(globalMin)) {
-			/**
-			 * min and max could be out of pixel type range 
-			 * b/c of an error occured in stats calculations
-			 */
+	
 			/*
 			switch (qDef.pixelType) { 
 				case Pixels.INT8:
@@ -128,10 +149,10 @@ abstract class QuantumStrategy
 	/** 
 	 * Sets the maximum range of the input window. 
 	 * 
-	 * @param globalMin		minimum for a specified stack of all minima.
-	 * @param globalMax		maximum for a specified stack of all maxima.
+	 * @param globalMin		minimum of all minima for a specified stack.
+	 * @param globalMax		maximum of all maxima for a specified stack.
 	 */
-	void setExtent(Comparable globalMin, Comparable globalMax)
+	public void setExtent(Comparable globalMin, Comparable globalMax)
 	{
 		 verifyInterval(globalMin, globalMax); 
 		 this.globalMin = globalMin;
@@ -144,10 +165,10 @@ abstract class QuantumStrategy
 	/**
 	 * Sets the inputWindow interval.
 	 * 
-	 * @param start		lower bound.
-	 * @param end		upper bound.
+	 * @param start		the lower bound of the interval.
+	 * @param end		the upper bound of the interval.
 	 */
-	void setWindow(Comparable start, Comparable end)
+	public void setWindow(Comparable start, Comparable end)
 	{
 		if (end.compareTo(start) <= 0 || start.compareTo(globalMin) < 0 ||
 			globalMax.compareTo(end) < 0)
@@ -158,30 +179,40 @@ abstract class QuantumStrategy
 	}
 	
 	/** Returns the globalMin. */
-	Comparable getGlobalMin()
+	public Comparable getGlobalMin()
 	{
 		return globalMin;
 	}
     
 	/** Returns the globalMax. */
-	Comparable getGlobalMax()
+	public Comparable getGlobalMax()
 	{
 		return globalMax;
 	}
     
 	/** Returns the input start value. */
-	Comparable getWindowStart() {
+	public Comparable getWindowStart()
+	{
 		return windowStart;
 	}
 	
 	/** Returns the input end value. */
-	Comparable getWindowEnd()
+	public Comparable getWindowEnd()
 	{
 		return windowEnd;
 	}
     
+    /** Notify when the input interval has changed. */
 	protected abstract void onWindowChange();
-	abstract int quantize(Object value);
+	
+	/** 
+	 * Map a value (in [windowStart, windowEnd]) to a value in the codomain
+	 * interval.
+	 * 
+	 * @param value	pixel intensity value.
+	 * @return int value in the codomain interval i.e. sub-interval of [0, 255]
+	 */
+	public abstract int quantize(Object value);
 	
 }
 
