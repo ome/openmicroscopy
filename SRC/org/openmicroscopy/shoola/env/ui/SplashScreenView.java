@@ -161,7 +161,7 @@ class SplashScreenView
 	{
 		images = new Icon[4];
 		//Paths relative to UIFactory.
-		images[0] = UIFactory.createIcon("graphx/OME16.gif");
+		images[0] = UIFactory.createIcon("graphx/OME16.png");
 		images[1] = UIFactory.createIcon("graphx/splash.jpg");
 		images[2] = UIFactory.createIcon("graphx/login_out.jpg");
 		images[3] = UIFactory.createIcon("graphx/login_over.jpg");
