@@ -45,6 +45,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.executions.ui.AxisHash;
+import org.openmicroscopy.shoola.agents.executions.ui.AxisRowDecoration;
 import org.openmicroscopy.shoola.agents.executions.ui.ExecutionsCanvas;
 import org.openmicroscopy.shoola.util.ui.Constants;
 /** 
@@ -66,6 +67,9 @@ public class GridModel implements ChangeListener {
 	private static int HASH_COUNT=10;
 	private static final int HASH_LENGTH=5;
 	
+	public static final int LABEL_SIZE=75;
+	public static final int LABEL_BUFFER=10;
+	public static final int LABEL_WIDTH=LABEL_SIZE-LABEL_BUFFER;
 	public static final int GRID_OFFSET=15;
 	private static final Color AXIS_COLOR= new Color(150,150,240);
 	public static final int DOT_SIDE=4;
@@ -104,7 +108,9 @@ public class GridModel implements ChangeListener {
 	/** the canvas in question */
 	private ExecutionsCanvas canvas = null;
 	
-	private Vector axisHashes;
+	private Vector axisHashes = null;
+	
+	private Vector rowDecorations=null;
 	
 	private ExecutionsModel model;
 	
@@ -120,12 +126,11 @@ public class GridModel implements ChangeListener {
 	}
 	
 	public void setDimensions(int canvasWidth,int canvasHeight) {
-		gridWidth = canvasWidth-GRID_OFFSET;
 		
 		// axes are GRID_OFFSET away from left and bottom. 
 		// remember, in window's coordinate system, (0,0) is upper-left,
 		// so canvasHeight is y-coord of window bottom.
-		xStartAxis = GRID_OFFSET;
+		xStartAxis = GRID_OFFSET+LABEL_SIZE;
 		yStartAxis = canvasHeight-2*GRID_OFFSET;
 		
 		//need a buffer at top as well as bottom, 
@@ -136,7 +141,7 @@ public class GridModel implements ChangeListener {
 		// we move the start higher up by DOT_SIDE
 	
 		
-		xStart = GRID_OFFSET+DOT_SIDE;
+		xStart = xStartAxis+DOT_SIDE;
 		yStart = yStartAxis-2*DOT_SIDE;
 		
 		// we also need a buffer on the right, 
@@ -147,7 +152,8 @@ public class GridModel implements ChangeListener {
 		
 		gridWidth = xEndAxis-xStart-DOT_SIDE;
 		gridHeight = yStartAxis-yEndAxis;
-	
+		buildRowDecorations();
+		buildHorizHashes();
 	}
 	
 	public float getHorizCoord(long x) {
@@ -187,7 +193,7 @@ public class GridModel implements ChangeListener {
 		g.drawLine(xStartAxis,yStartAxis,xStartAxis,yEndAxis);
 	
 		// stripes
-		drawStripes(g);
+		drawRowDecorations(g);
 		//hashes
 		g.setStroke(hashStroke);
 		drawHorizHashes(g);
@@ -196,27 +202,56 @@ public class GridModel implements ChangeListener {
 		g.setStroke(oldStroke);
 	}
 	
-	private void drawStripes(Graphics2D g) {
+	private void buildRowDecorations() {
 		int stripeCount = model.getMajorRowCount();
 		// remember, y increases as we go down the screen,
 		// so yStartAxis is larger value.
+		rowDecorations = new Vector();
 		double ratio = ((double)gridHeight)/((double) stripeCount);
 		int stripeSize = (int) Math.ceil(ratio);
-		Paint oldColor = g.getPaint();
-		g.setPaint(Constants.ALT_BACKGROUND_COLOR);
+		
 		int xStart = xStartAxis+(int)AXIS_STROKE_WIDTH;
-		for (int y = yEndAxis; y <yStartAxis; y += stripeSize*2) {
-			int bottom = y+stripeSize;
-			if (bottom >=yStartAxis)
-				stripeSize = yStartAxis-y;
-			g.fillRect(xStart,y,xEndAxis-xStartAxis,stripeSize);
+		int width  = xEndAxis-xStartAxis;
+		Color color = Constants.ALT_BACKGROUND_COLOR;
+		int count = 0;
+		int height = stripeSize;
+		for (int y = yStartAxis; y >=yEndAxis; y = y- stripeSize) {
+	
+			// first one
+			int top = y-height;
+			if (top <=yEndAxis) {
+				top = yEndAxis;
+				height = y-yEndAxis;
+				// to indicate I'm at top.
+				y=yEndAxis;
+			}
+			String label = model.getMajorRowLabel(count);
+			AxisRowDecoration decor = new
+				AxisRowDecoration(xStart,top,width,height,color,label);
+			rowDecorations.add(decor);
+			
+			// alternate colors
+			if ((count %2) == 0 )
+				color = Constants.CANVAS_BACKGROUND_COLOR;
+			else
+				color = Constants.ALT_BACKGROUND_COLOR;
+			count++;
+		}		
+	}
+
+	private void drawRowDecorations(Graphics2D g) {
+		if (rowDecorations == null)
+			buildRowDecorations();
+		Iterator iter = rowDecorations.iterator();
+		AxisRowDecoration decor;
+		while (iter.hasNext()) {
+			decor = (AxisRowDecoration) iter.next();
+			decor.paint(g);
 		}
-		g.setPaint(oldColor);
-		
-		
 	}
 	
-	private void drawHorizHashes(Graphics2D g) {
+	
+	private void buildHorizHashes() {
 		//start at xStartAxis, end at xEndAxis. 
 		// evenly space. 
 		
@@ -236,26 +271,36 @@ public class GridModel implements ChangeListener {
 		int labelCount = 0;
 		for(x =xStartAxis; x <= xEndAxis-spacing; x+= spacing) {
 			long time = getTime(x);
-			AxisHash h = new AxisHash(this,x,yStartAxis,hashBottom,time);
+			AxisHash h = new AxisHash(this,x,yStartAxis,hashBottom,time,spacing);
 			axisHashes.add(h);
-			h.paint(g);
 			// draw label every third hash, as long as it's not 
 			// right next to end
 			if ((labelCount % 3) == 0 && x+2*spacing <xEndAxis) {
-				h.drawLabel(g,spacing);
+				h.setDrawLabel(true);
 			}
 			labelCount++;
 		}
 		AxisHash h = new AxisHash(this,xEndAxis,yStartAxis,hashBottom,
-				getTime(xEndAxis));
+				getTime(xEndAxis),spacing);
+		h.setDrawLabel(true);
 		axisHashes.add(h);
-		h.paint(g);
 		// last label
-		h.drawLabel(g,spacing);
+		
+	}
+	
+	private void drawHorizHashes(Graphics2D g ) {
+		if (axisHashes == null)
+			buildHorizHashes();
+		Iterator iter = axisHashes.iterator();
+		AxisHash hash;
+		while (iter.hasNext()) {
+			hash = (AxisHash) iter.next();
+			hash.paint(g);
+		}
 	}
 
-	public Vector getAxisHashes() {
-		return axisHashes;
+	public void clearDecorations() {
+		buildRowDecorations();
 	}
 	
 	public AxisHash getHashAt(int x,int y) {
