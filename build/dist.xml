@@ -237,7 +237,8 @@ Distribution targets:
 --------------------- 
   dist: Creates the default distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
-  dist-docs: Create the documentation bundle under ${dist.dir}. 
+  dist-docs: Create the full documentation bundle under ${dist.dir}. 
+  dist-user-docs: Create the user documentation bundle under ${dist.dir}. 
   dist.clean: Remove ${dist.dir}. 
     </echo> 
   </target>  
