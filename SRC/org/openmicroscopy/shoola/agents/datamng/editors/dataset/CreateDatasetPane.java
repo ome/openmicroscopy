@@ -125,8 +125,10 @@ class CreateDatasetPane
 		setTableLayout(table);
 		
 		// Labels
-		table.setValueAt(new JLabel(" Name"), 0, 0);
-		table.setValueAt(new JLabel(" Description"), 1, 0);
+		JLabel label = new JLabel(" Name");
+		table.setValueAt(label, 0, 0);
+		label = new JLabel(" Description");
+		table.setValueAt(label, 1, 0);
 
 		DatasetData pd = manager.getDatasetData();
 	

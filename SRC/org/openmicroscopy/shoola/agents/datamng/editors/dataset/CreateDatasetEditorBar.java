@@ -73,6 +73,7 @@ class CreateDatasetEditorBar
 		this.manager = manager;
 		initButtons();
 		buildGUI();
+		setFloatable(false);
 	}
 
 	/** Returns the save button. */

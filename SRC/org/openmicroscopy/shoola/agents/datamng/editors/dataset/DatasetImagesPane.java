@@ -246,9 +246,9 @@ class DatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"ID", "Name", "Select"};
+		private final String[]	columnNames = {"Name", "Select"};
 		private final Object[]	images = listImages.toArray();
-		private Object[][]		data = new Object[images.length][3];
+		private Object[][]		data = new Object[images.length][2];
 		private Map 			imageSummaries;
 		
 		private ImagesTableModel()
@@ -257,15 +257,13 @@ class DatasetImagesPane
 			ImageSummary is;
 			for (int i = 0; i < images.length; i++) {
 				is = (ImageSummary) images[i];
-				String sID = ""+ is.getID();
-				data[i][0] = sID;
-				data[i][1] = is.getName();
-				data[i][2] = new Boolean(false);
-				imageSummaries.put(sID, is);
+				data[i][0] = is.getName();
+				data[i][1] = new Boolean(false);
+				imageSummaries.put(new Integer(i), is);
 			}
 		}
 	
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 	
 		public int getRowCount() { return images.length; }
 	
@@ -281,7 +279,7 @@ class DatasetImagesPane
 		public boolean isCellEditable(int row, int col) 
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable; 
 		}
 		
@@ -290,7 +288,7 @@ class DatasetImagesPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			ImageSummary is = (ImageSummary) 
-								imageSummaries.get((String) data[row][0]);
+								imageSummaries.get(new Integer(row));
 			manager.selectImage(((Boolean) value).booleanValue(), is);
 		}
 	}
@@ -304,24 +302,22 @@ class DatasetImagesPane
 	private class ImagesAddTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"ID", "Name", "Remove"};
+		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	images = imagesToAdd.toArray();
-		private Object[][] 		data = new Object[images.length][3];
+		private Object[][] 		data = new Object[images.length][2];
 		private Map 			imageSummaries;
 
 		private ImagesAddTableModel()
 		{
 			imageSummaries = new HashMap();
 			for (int i = 0; i < images.length; i++) {
-				String sID = ""+ ((ImageSummary) images[i]).getID();
-				data[i][0] = sID;
-				data[i][1] = ((ImageSummary) images[i]).getName();
-				data[i][2] = new Boolean(false);
-				imageSummaries.put(sID, images[i]);
+				data[i][0] = ((ImageSummary) images[i]).getName();
+				data[i][1] = new Boolean(false);
+				imageSummaries.put(new Integer(i), images[i]);
 			}
 		}
 
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 
 		public int getRowCount() { return images.length; }
 
@@ -337,7 +333,7 @@ class DatasetImagesPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 
@@ -346,7 +342,7 @@ class DatasetImagesPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			ImageSummary is = (ImageSummary) 
-								imageSummaries.get((String) data[row][0]);
+								imageSummaries.get(new Integer(row));
 			manager.updateAddSelection(((Boolean) value).booleanValue(), is);
 		}
 	}

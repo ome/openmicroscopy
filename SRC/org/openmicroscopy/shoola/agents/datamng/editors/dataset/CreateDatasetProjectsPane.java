@@ -151,24 +151,22 @@ class CreateDatasetProjectsPane
 	private class ProjectsTableModel
 		extends AbstractTableModel
 	{
-		private final String[] columnNames = {"ID", "Name", "Select"};
+		private final String[] columnNames = {"Name", "Select"};
 		private final Object[] projects = manager.getProjects().toArray();
-		private Object[][] data = new Object[projects.length][3];
+		private Object[][] data = new Object[projects.length][2];
 		
 		private Map projectSummaries;
 		private ProjectsTableModel()
 		{
 			projectSummaries = new HashMap();
 			for (int i = 0; i < projects.length; i++) {
-				String sID = ""+((ProjectSummary) projects[i]).getID();
-				data[i][0] = sID;
-				data[i][1] = ((ProjectSummary) projects[i]).getName();
-				data[i][2] = new Boolean(false);
-				projectSummaries.put(sID, projects[i]);
+				data[i][0] = ((ProjectSummary) projects[i]).getName();
+				data[i][1] = new Boolean(false);
+				projectSummaries.put(new Integer(i), projects[i]);
 			}
 		}
 
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 
 		public int getRowCount() { return projects.length; }
 
@@ -185,7 +183,7 @@ class CreateDatasetProjectsPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 		
@@ -194,7 +192,7 @@ class CreateDatasetProjectsPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			ProjectSummary is = (ProjectSummary) 
-								projectSummaries.get((String) data[row][0]);
+								projectSummaries.get(new Integer(row));
 			manager.addProject(((Boolean) value).booleanValue(), is);
 		}
 	}

@@ -79,7 +79,7 @@ public class CreateDatasetEditor
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new CreateDatasetEditorManager(this,control, model, projects,
+		manager = new CreateDatasetEditorManager(this, control, model, projects,
 												images);
 		creationPane = new CreateDatasetPane(manager, registry);
 		projectsPane = new CreateDatasetProjectsPane(manager);
