@@ -154,18 +154,18 @@ public class ScalableDatasetLabel extends PNode
 	}
 	
 	/** Don't respond to any mouse events */
-	public void mouseEntered() {
+	public void mouseEntered(GenericEventHandler handler) {
 	}
 
-	public void mouseExited() {
+	public void mouseExited(GenericEventHandler handler) {
 	}
 
-	public void mouseClicked() {
+	public void mouseClicked(GenericEventHandler handler) {
 	}
 
-	public void mousePopup() {
+	public void mousePopup(GenericEventHandler handler) {
  	}
  	
-	public void mouseDoubleClicked() {
+	public void mouseDoubleClicked(GenericEventHandler handler) {
 	}
 }

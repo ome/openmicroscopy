@@ -82,7 +82,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void mouseEntered(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseEntered();
+			((MouseableNode) n).mouseEntered(this);
 		else 
 			defaultMouseEntered(e);
 		e.setHandled(true);
@@ -96,7 +96,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseExited();
+			((MouseableNode) n).mouseExited(this);
 		e.setHandled(true);
 	}
 	
@@ -128,7 +128,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void doMouseClicked(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) {
-			((MouseableNode) n).mouseClicked(); 
+			((MouseableNode) n).mouseClicked(this); 
 		}
 	}
 	
@@ -145,7 +145,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	public void doMouseDoubleClicked(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseDoubleClicked();
+			((MouseableNode) n).mouseDoubleClicked(this);
 		e.setHandled(true);
 	}
     
@@ -164,7 +164,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 		postPopup = true;
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mousePopup();
+			((MouseableNode) n).mousePopup(this);
 		e.setHandled(true);
 	}
  

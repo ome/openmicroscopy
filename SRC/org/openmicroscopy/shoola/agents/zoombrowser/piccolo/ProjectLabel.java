@@ -130,17 +130,17 @@ public class ProjectLabel extends PText implements MouseableNode {
 		}
 	}
 	
-	public void mouseEntered() {
+	public void mouseEntered(GenericEventHandler handler) {
 		BrowserProjectSummary p = getProject();
 		if (p.hasDatasets())
 			SelectionState.getState().setRolloverProject(p); 
 	}
 
-	public void mouseExited() {
+	public void mouseExited(GenericEventHandler handler) {
 		SelectionState.getState().setRolloverProject(null);
 	}
 
-	public void mouseClicked() {
+	public void mouseClicked(GenericEventHandler handler) {
 		BrowserProjectSummary project = getProject();
 		SelectionState state = SelectionState.getState();
 
@@ -155,7 +155,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 			state.setSelectedProject(project);
 	}
 
-	public void mousePopup() {
+	public void mousePopup(GenericEventHandler handler) {
 		BrowserProjectSummary picked = getProject();
 		BrowserProjectSummary selected = 
 			SelectionState.getState().getSelectedProject();
@@ -163,7 +163,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 			SelectionState.getState().setSelectedProject(null);	
 	}
 
-	public void mouseDoubleClicked() {
+	public void mouseDoubleClicked(GenericEventHandler handler) {
 		SelectionState state = SelectionState.getState();
 		if (state.getSelectedProject() != null) {
 			state.setSelectedProject(null);

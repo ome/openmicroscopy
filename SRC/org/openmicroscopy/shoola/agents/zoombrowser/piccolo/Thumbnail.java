@@ -257,22 +257,22 @@ public class Thumbnail extends PImage implements BufferedObject,
 			pin.zoomOutOfHalo(this);
 	}
 	
-	public void mouseEntered() {
+	public void mouseEntered(GenericEventHandler handler) {
 		setHighlightedWithHalo(true);
 	}
 	
-	public void mouseExited() {
+	public void mouseExited(GenericEventHandler handler) {
 		setHighlightedWithHalo(false);
 	}
 	
-	public void mouseClicked() {
+	public void mouseClicked(GenericEventHandler handler) {
 		zoomInToHalo();
 	}
 	
-	public void mousePopup() {
+	public void mousePopup(GenericEventHandler handler) {
 		zoomOutOfHalo();
 	}
 	
-	public void mouseDoubleClicked() {
+	public void mouseDoubleClicked(GenericEventHandler handler) {
 	}
 }
