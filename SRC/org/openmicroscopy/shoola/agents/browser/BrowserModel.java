@@ -72,8 +72,7 @@ public class BrowserModel
     private CompositingSettings renderSettings;
     private PaintMethodZOrder annotationModel;
 
-    private Set selectedImages;
-    private Set hiddenImages;
+    private Set selectedThumbnails;
 
     private Map modeClassMap;
 
@@ -106,8 +105,7 @@ public class BrowserModel
         env = BrowserEnvironment.getInstance();
         progressListeners = new HashSet();
         modelListeners = new HashSet();
-        selectedImages = new HashSet();
-        hiddenImages = new HashSet();
+        selectedThumbnails = new HashSet();
         groupingMethod = new SingleGroupingMethod();
         groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
@@ -388,38 +386,105 @@ public class BrowserModel
     }
 
     /**
-     * Select the image with the specified ID.
+     * Select the specified thumbnail.
      * 
-     * @param imageID The ID of the image to select.
+     * @param t The thumbnail to select.
      */
-    public void selectImage(int imageID)
+    public void selectThumbnail(Thumbnail t)
     {
+        if(t == null)
+        {
+            return;
+        }
+        else
+        {
+            selectedThumbnails.add(t);
+            Thumbnail[] array = new Thumbnail[] {t};
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserModelListener bml =
+                    (BrowserModelListener)iter.next();
+                bml.thumbnailsSelected(array);
+            }
+        }
+    }
+    
+    /**
+     * Select the specified thumbnails.
+     * @param ts The thumbnails to select.
+     */
+    public void selectThumbnails(Thumbnail[] ts)
+    {
+        if(ts == null || ts.length == 0)
+        {
+            return;
+        }
+        else
+        {
+            for(int i=0;i<ts.length;i++)
+            {
+                selectedThumbnails.add(ts[i]);
+            }
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserModelListener bml =
+                    (BrowserModelListener)iter.next();
+                
+                bml.thumbnailsSelected(ts);
+            }
+        }
+    }
+
+    /**
+     * Deselect the specified thumbnail.
+     * 
+     * @param t The thumbnail to deselect.
+     */
+    public void deselectThumbnail(Thumbnail t)
+    {
+        if(t == null || !selectedThumbnails.contains(t))
+        {
+            return;
+        }
+        else
+        {
+            selectedThumbnails.remove(t);
+            Thumbnail[] ts = new Thumbnail[] {t};
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserModelListener bml =
+                    (BrowserModelListener)iter.next();
+                bml.thumbnailsDeselected(ts);
+            }
+        }
+    }
+    
+    /**
+     * Deselect all images in the model.
+     */
+    public void deselectAllThumbnails()
+    {
+        Thumbnail[] selected = new Thumbnail[selectedThumbnails.size()];
         
+        selectedThumbnails.toArray(selected);
+        selectedThumbnails.clear();
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener bml =
+                (BrowserModelListener)iter.next();
+            bml.thumbnailsDeselected(selected);
+        }
     }
 
     /**
-     * Deselect the image with the specified ID.
-     * @param imageID The ID of the image to deselect.
+     * Returns whether or not this thumbnail is currently selected.
+     * @param t The thumbnail to check
+     * @return Whether or not it is selected.
      */
-    public void deselectImage(int imageID)
+    public boolean isThumbnailSelected(Thumbnail t)
     {
-        // TODO: fill in method
-    }
-
-    /**
-     * Hide the image with the specified ID.
-     */
-    public void hideImage(int imageID)
-    {
-        // TODO: fill in method
-    }
-
-    /**
-     * Unhide the image with the specified ID.
-     */
-    public void showImage(int imageID)
-    {
-        // TODO: fill in method
+        return selectedThumbnails.contains(t);
     }
 
     /**
@@ -428,16 +493,7 @@ public class BrowserModel
      */
     public Set getSelectedImages()
     {
-        return Collections.unmodifiableSet(selectedImages);
-    }
-
-    /**
-     * Return an unmodifiable set of hidden images in the model.
-     * @return The set of hidden images.
-     */
-    public Set getHiddenImages()
-    {
-        return Collections.unmodifiableSet(hiddenImages);
+        return Collections.unmodifiableSet(selectedThumbnails);
     }
     
     /**

@@ -312,6 +312,24 @@ public class BrowserView extends PCanvas
     {
         repaint();
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsSelected(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsSelected(Thumbnail[] thumbnails)
+    {
+        // TODO change the action and paint for behaviors for the images;
+        // modify the selected region
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsDeselected(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsDeselected(Thumbnail[] thumbnails)
+    {
+        // TODO change the action and paint behaviors for the images;
+        // modify the selected region
+    }
 
 
     

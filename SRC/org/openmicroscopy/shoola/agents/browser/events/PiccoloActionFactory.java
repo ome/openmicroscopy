@@ -39,7 +39,9 @@ package org.openmicroscopy.shoola.agents.browser.events;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
 /**
@@ -123,6 +125,37 @@ public class PiccoloActionFactory
             public void execute(PInputEvent e)
             {
                 target.removePaintMethod(method);
+            }
+        };
+        return action;
+    }
+    
+    /**
+     * Generates a select thumbnail action that depends on the mode of the
+     * @param target
+     * @return
+     */
+    public static PiccoloAction getSelectThumbnailAction(final BrowserModel target)
+    {
+        if(target == null)
+        {
+            return null;
+        }
+        
+        final BrowserMode selectionMode =
+            target.getCurrentMode(BrowserModel.SELECT_MODE_NAME);
+            
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                PNode node = e.getPickedNode();
+                if(!(node instanceof Thumbnail))
+                {
+                    return;
+                }
+                Thumbnail t = (Thumbnail)node;
+                target.selectThumbnail(t);
             }
         };
         return action;

@@ -35,6 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+
 /**
  * Defines an interface that is responsive to changes made to the browser
  * model by a controller or external source.  The BrowserView should
@@ -69,4 +71,16 @@ public interface BrowserModelListener
      *
      */
     public void paintMethodsChanged();
+    
+    /**
+     * Indicates that the specified thumbnails have been selected.
+     * @param thumbnails The array of selected thumbnails.
+     */
+    public void thumbnailsSelected(Thumbnail[] thumbnails);
+    
+    /**
+     * Indicates that the specified thumbnails have been deselected.
+     * @param thumbnails The array of deselected thumbnails.
+     */
+    public void thumbnailsDeselected(Thumbnail[] thumbnails);
 }
