@@ -61,14 +61,34 @@ public class RenderImage
 	/** The ID of the pixels set. */
 	private int			pixelsID;
 		
-	/** Defines what data, within the pixels set, to render. */
+	/** 
+	 * Defines what data, within the pixels set, to render.
+	 * May be <code>null</code>, if this is a request to render the current
+	 * plane. 
+	 */
 	private PlaneDef	planeDef;
 	
 	
 	/**
-	 * Creates a new instance.
+	 * Creates a request to render the current plane within the given
+	 * pixels set.
 	 * 
 	 * @param pixelsID	The ID of the pixels set.
+	 */
+	public RenderImage(int pixelsID)
+	{
+		this.planeDef = null;
+		this.pixelsID = pixelsID;
+	}
+	
+	/**
+	 * Creates a request to render the given plane within the given
+	 * pixels set.
+	 * 
+	 * @param pixelsID	The ID of the pixels set.
+	 * @param planeDef	Selects a plane orthogonal to one of the <i>X</i>, 
+	 * 					<i>Y</i>, or <i>Z</i> axes.  Mustn't be 
+	 * 					<code>null</code>.
 	 */
 	public RenderImage(int pixelsID, PlaneDef planeDef)
 	{
@@ -90,6 +110,8 @@ public class RenderImage
 
 	/**
 	 * Returns the definition of what data, within the pixels set, to render.
+	 * Will return <code>null</code> if this is a request to render the current
+	 * plane.
 	 * 
 	 * @return	See above.
 	 */
