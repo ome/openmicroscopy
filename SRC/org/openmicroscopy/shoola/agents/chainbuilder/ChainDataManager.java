@@ -41,8 +41,10 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+
  
 //Third-party libraries
 
@@ -83,12 +85,19 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 public class ChainDataManager extends DataManager {
 
 		
-	protected List chains;
-	
-	protected List chainExecutions;
+	protected HashMap chainHash=null;
+		
+	protected HashMap chainExecutionHash = null;
 	
 	/** a list of analysis nodes. populated when we get chains */
-	protected List analysisNodes = null;
+	protected HashMap analysisNodes = null;
+	
+	/** flags to see if we're getting  chains & executions*/
+	private boolean gettingChains = false;
+	private boolean gettingExecutions =false;
+	
+	/** flags to see if getting chains */
+	
 	
 	public ChainDataManager(Registry registry) {
 		super(registry);
@@ -96,36 +105,10 @@ public class ChainDataManager extends DataManager {
 		
 	public Registry getRegistry() {return registry; }
 	
-	private boolean gettingModules = false;
-	
-	public synchronized List getModules() {
-		
-		// if we're done, go for it.
-		
-		if (modules != null && modules.size() > 0)
-			return modules;
-		
-		if (gettingModules == false) {
-			gettingModules = true;
-			retrieveModules();
-			gettingModules = false;
-			notifyAll();
-			return modules;
-		}
-		else {// in progress
-			try{ 
-				wait();
-				return modules;
-			}
-			catch (InterruptedException e) {
-				return null;
-			}
-		}
-	}
 	
 	
-	private synchronized List retrieveModules() {
-		if (modules == null ||modules.size() == 0) {
+	protected synchronized void retrieveModules() {
+		if (moduleHash == null ||moduleHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				ModuleCategoryData mcProto = new ModuleCategoryData();
@@ -133,9 +116,10 @@ public class ChainDataManager extends DataManager {
 				ChainFormalOutputData foutProto = new ChainFormalOutputData();
 				SemanticTypeData stProto = new SemanticTypeData();
 				ChainModuleData cmProto = new ChainModuleData();
-				modules = 
+				Collection modules = 
 					dms.retrieveModules(cmProto,mcProto,finProto,foutProto,
 						stProto);
+				moduleHash = buildModuleHash(modules);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's modules.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
@@ -148,12 +132,38 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
-		return modules;
 	}
 	
-	public List getChains() {
-		if (chains == null ||chains.size() == 0) {
+	public synchronized Collection getChains() {
+		
+		// if we're done, go for it.
+		if (chainHash != null && chainHash.size() > 0) {
+			return chainHash.values();
+		}
+		
+		if (gettingChains == false) {
+			System.err.println("loading chains..");
+			gettingChains = true;
+			retrieveChains();
+			gettingChains = false;
+			notifyAll();
+			return chainHash.values();
+		}
+		else {// in progress
+			try{ 
+				wait();
+				return chainHash.values();
+			}
+			catch (InterruptedException e) {
+				return null;
+			}
+		}
+	}
+	
+	protected synchronized void retrieveChains() {
+		if (chainHash == null ||chainHash.size() == 0) {
 			try {
+				System.err.println("trying to load chains in chain data manager.");
 				LayoutChainData acProto = new LayoutChainData();
 				LayoutLinkData alProto = new LayoutLinkData();
 				LayoutNodeData anProto = new LayoutNodeData(); 
@@ -162,9 +172,10 @@ public class ChainDataManager extends DataManager {
 				SemanticTypeData stProto = new SemanticTypeData();
 				ChainModuleData cmProto = new ChainModuleData();
 				DataManagementService dms = registry.getDataManagementService();
-				chains = 
+				Collection chains = 
 					dms.retrieveChains(acProto,alProto,anProto,cmProto,
 							finProto,foutProto,stProto);
+				chainHash = buildChainHash(chains);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
@@ -177,11 +188,53 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
-		return chains;
 	}
 	
-	public List getChainExecutions() {
-		if (chainExecutions == null ||chainExecutions.size() == 0) {
+	protected HashMap buildChainHash(Collection chains) {
+		HashMap map = new HashMap();
+		Iterator iter = chains.iterator();
+		while (iter.hasNext()) {
+			LayoutChainData p = (LayoutChainData) iter.next();
+			Integer id = new Integer(p.getID());
+			map.put(id,p);
+		}
+		return map;
+	}
+	
+	public LayoutChainData getChain(int id) {
+		Integer ID = new Integer(id);
+		if (chainHash == null)
+			getChains();
+		return (LayoutChainData) chainHash.get(ID);
+	}
+	
+	public synchronized Collection getChainExecutions() {
+		
+		// if we're done, go for it.
+		if (chainExecutionHash != null && chainExecutionHash.size() > 0) {
+			return chainExecutionHash.values();
+		}
+		
+		if (gettingChains == false) {
+			System.err.println("loading chains..");
+			gettingExecutions = true;
+			retrieveChainExecutions();
+			gettingExecutions = false;
+			notifyAll();
+			return chainExecutionHash.values();
+		}
+		else {// in progress
+			try{ 
+				wait();
+				return chainExecutionHash.values();
+			}
+			catch (InterruptedException e) {
+				return null;
+			}
+		}
+	}
+	public synchronized void retrieveChainExecutions() {
+		if (chainExecutionHash == null ||chainExecutionHash.size() == 0) {
 			try {
 				ChainExecutionData ceProto = new ChainExecutionData();
 				BrowserDatasetSummary dsProto = new BrowserDatasetSummary();
@@ -191,9 +244,10 @@ public class ChainDataManager extends DataManager {
 				ChainModuleData mProto = new ChainModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
 				DataManagementService dms = registry.getDataManagementService();
-				chainExecutions = 
+				Collection chainExecutions = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
 							acProto,neProto,anProto,mProto,meProto);
+				chainExecutionHash = buildExecutionHash(chainExecutions);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
@@ -206,61 +260,35 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
-		return chainExecutions;
 	}
 	
-	public void setAnalysisNodes(List analysisNodes) {
+	protected HashMap buildExecutionHash(Collection executions) {
+		HashMap map = new HashMap();
+		Iterator iter = executions.iterator();
+		while (iter.hasNext()) {
+			ChainExecutionData p = (ChainExecutionData) iter.next();
+			Integer id = new Integer(p.getID());
+			map.put(id,p);
+		}
+		return map;
+	}
+	
+	public ChainExecutionData getChainExecution(int id) {
+		Integer ID = new Integer(id);
+		if (chainExecutionHash == null)
+			getChainExecutions();
+		return (ChainExecutionData) chainExecutionHash.get(ID);
+	}
+	
+	public void setAnalysisNodes(HashMap analysisNodes) {
 		this.analysisNodes = analysisNodes;
 	}
 	
-	public ChainModuleData getModule(int id) {
-		List mods = getModules();
-		if (mods == null)
-			return null;
-		Iterator iter = mods.iterator();
-		while (iter.hasNext()) {
-			ChainModuleData m = (ChainModuleData) iter.next();
-			if (m.getID() == id)
-				return m;
-		}
-		return null;
-	}
 	
-	public LayoutChainData getChain(int id) {
-		List chains = getChains();
-		if (chains == null)
-			return null;
-		Iterator iter = chains.iterator();
-		while (iter.hasNext()) {
-			LayoutChainData c = (LayoutChainData) iter.next();
-			if (c.getID() == id)
-				return c;
-		}
-		return null;
-	}
-	
-	public BrowserDatasetSummary getDataset(int id ) {
-		List datasets = getDatasets();
-		if (datasets == null)
-			return null;
-		Iterator iter = datasets.iterator();
-		while (iter.hasNext()) {
-			BrowserDatasetSummary d = (BrowserDatasetSummary) iter.next();
-			if (d.getID() == id) 
-				return d;
-		}
-		return null;
-	}
 	
 	public LayoutNodeData getAnalysisNode(int id) {
 		if (analysisNodes == null)
 			return null;
-		Iterator iter = analysisNodes.iterator();
-		while (iter.hasNext()) {
-			LayoutNodeData n = (LayoutNodeData) iter.next();
-			if (n.getID() ==id)
-				return n;
-		}
-		return null;
+		return (LayoutNodeData) analysisNodes.get(new Integer(id));
 	}
 }
