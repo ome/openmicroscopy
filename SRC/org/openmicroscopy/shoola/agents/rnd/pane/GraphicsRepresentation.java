@@ -352,7 +352,8 @@ class GraphicsRepresentation
 		xStart = 0;
 		if (type == QuantumFactory.EXPONENTIAL) {
 			xControl = lS2;
-			range = lS2;
+			//range = lS2;
+			range = square/2;
 			binMin = (int) ((square-40)/(2*rangeMinExpo)); 
 			binMax = (int) ((square-40)/(2*rangeMaxExpo));
 			if (reverseIntensity) { 
@@ -368,7 +369,7 @@ class GraphicsRepresentation
 			}  
 		} else {
 			xControl = lS;
-			range = lS;
+			range = square;
 			double a;
 			binMin = (int) (square/rangeMin);
 			binMax = (int) (square/rangeMax);
@@ -469,7 +470,7 @@ class GraphicsRepresentation
 	/** 
 	 * Positions the control points. 
 	 * The method is called when the family specified falls into 
-	 * the graphical <code>EXPONENTIAL</code> type.
+	 * the <code>EXPONENTIAL</code> type.
 	 *
 	 * @param k     curveCoefficient.
 	 */
@@ -561,8 +562,7 @@ class GraphicsRepresentation
 				staticEndPt.setLocation((double) lS, yEnd);
 				setControlLocation(coefficient);
 			}
-		}
-		  
+		}  
 	}
 	
 	/** 
@@ -596,8 +596,7 @@ class GraphicsRepresentation
 			if (type == QuantumFactory.EXPONENTIAL) repaintCurve();
 			else setControlLocation(coefficient);
 		}
-		//if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
-		if (b) super.repaint();
+		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
 	}
 	
 	/** 
@@ -637,8 +636,7 @@ class GraphicsRepresentation
 				setControlLocation(coefficient);
 			} 
 		}
-		//if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
-		if (b) super.repaint();
+		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
 	}
 	
 	/** 

@@ -126,8 +126,7 @@ class GraphicsRepresentationManager
 	 */
 	void setInputWindowStart(int v, int min, int max)
 	{
-		int vg = convertRealIntoGraphics(v, max-min, 
-										view.getInputGraphicsRange(), min);
+		int vg = convertRealIntoGraphics(v, max-min, square, min);
 		vg = vg + leftBorder;
 		setInputStartBox(vg);
 		view.updateInputStart(vg, v);	
@@ -141,8 +140,7 @@ class GraphicsRepresentationManager
 	 */
 	void setInputWindowEnd(int v, int min, int max)
 	{
-		int vg = convertRealIntoGraphics(v, max-min, 
-										view.getInputGraphicsRange(), min);
+		int vg = convertRealIntoGraphics(v, max-min, square, min);
 		vg = vg + leftBorder;
 		setInputEndBox(vg);
 		view.updateInputEnd(vg, v);

@@ -142,9 +142,10 @@ class HistogramDialogManager
 	int convertGraphicsIntoReal(int x)
 	{
 		int b = control.getGlobalMaximum(); 
+		int y = x-tW;
 		double a =  
 			(double) (control.getGlobalMinimum()-b)/(double) rangeGraphics;
-		return (int) (a*(x-tW)+b);
+		return (int) (a*y+b);
 	}
 	
 	/**
