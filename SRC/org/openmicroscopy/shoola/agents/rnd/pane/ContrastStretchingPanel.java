@@ -127,7 +127,6 @@ class ContrastStretchingPanel
 	/**
 	 * Position the inputStart knob.
 	 * 
-	 * 
 	 * @param x		x-coordinate.
 	 * @param y		y-coordinate.
 	 */
@@ -248,6 +247,7 @@ class ContrastStretchingPanel
 	/** Overrides the paintComponent() method. */
 	public void paintComponent(Graphics g)
 	{
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
 		g2D.fillRect(0, 0, WIDTH, HEIGHT);

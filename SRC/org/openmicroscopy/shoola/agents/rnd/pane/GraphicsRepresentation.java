@@ -835,19 +835,17 @@ class GraphicsRepresentation
 		yEndOutput3 = y+triangleW;
 	}
 	
-	/**
-	 * Method invoked when the family type is EXPONENTIAL.
-	 *
-	 */
+	/** Method called when the family type is EXPONENTIAL. */
 	private void repaintCurve()
 	{
 		quad.setCurve(startPt, controlPt, endPt);
-		super.repaint();
+		repaint();
 	}
 	
 	/** Overrides the paintComponent() method. */ 
 	public void paintComponent(Graphics g)
 	{
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(getBackground());
 		g2D.fillRect(0, 0, width, height);

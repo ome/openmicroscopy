@@ -142,8 +142,8 @@ class PlaneSlicingDialogManager
 		this.control = control;
 		this.ctx = ctx;
 		isSelected = ctx.IsConstant();
-		boxOutputStart = new Rectangle();
-		boxOutputEnd = new Rectangle();
+		boxOutputStart = new Rectangle(0, 0, leftBorder, tS);
+		boxOutputEnd = new Rectangle(lS, 0, 3*rightBorder, tS);
 	}
 	
 	/** Attach listeners to the graphics. */
@@ -260,11 +260,11 @@ class PlaneSlicingDialogManager
 	
 	/**
 	 * Set the lower limit.
+	 * 
 	 * @param y		y-coordinate.
 	 */
 	private void setLowerLimit(int y)
 	{
-		setOutputStartBox(y);
 		view.getPSPanel().updateOutputStart(y);
 		int e = control.getCodomainEnd();
 		int s = control.getCodomainStart();
@@ -275,11 +275,11 @@ class PlaneSlicingDialogManager
 	
 	/**
 	 * Set the upper limit.
+	 * 
 	 * @param y		y-coordinate.
 	 */
 	private void setUpperLimit(int y)
 	{
-		setOutputEndBox(y);
 		view.getPSPanel().updateOutputEnd(y);
 		int e = control.getCodomainEnd();
 		int s = control.getCodomainStart();
@@ -287,27 +287,7 @@ class PlaneSlicingDialogManager
 		ctx.setUpperLimit(yReal);
 		control.updateCodomainMap(ctx);
 	}
-	
-	/** 
-	 * Resize the rectangle which controls the start cursor.
-	 * 
-	 * @param y	 y-coordinate.
-	 */
-	void setOutputStartBox(int y)
-	{
-		boxOutputStart.setBounds(0, y-triangleW, leftBorder, tS);
-	}
-	
-	/** 
-	 * Resize the rectangle which controls the end cursor.
-	 * 
-	 * @param y	 y-coordinate.
-	 */
-	void setOutputEndBox(int y)
-	{
-		boxOutputEnd.setBounds(lS, y-triangleW, 3*rightBorder, tS);
-	}
-	
+
 	/** Sets the selection control. */
 	private void activateDynamic()
 	{

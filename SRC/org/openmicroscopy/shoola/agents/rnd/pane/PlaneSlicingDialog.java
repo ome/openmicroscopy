@@ -130,8 +130,6 @@ class PlaneSlicingDialog
 		boolean constant = psCtx.IsConstant();
 		psPanel.setIsSelected(constant);
 		pssPanel.setIsSelected(!constant);
-		manager.setOutputStartBox(yStart);
-		manager.setOutputEndBox(yEnd);
 		Integer pSelected = new Integer(psCtx.getPlaneSelected());
 		Integer j = (Integer) rBitPlanes.get(pSelected);
 		int i = PlaneSlicingDialogManager.B_SEVEN;
@@ -186,7 +184,6 @@ class PlaneSlicingDialog
 		contentPane.add(buildRadioGroupPanel());
 		setSize(WIDTH_WIN, HEIGHT_WIN);
 		setResizable(false);
-		super.repaint();
 	}
 	
 	/** Build a panel containing the radiogroup. */    

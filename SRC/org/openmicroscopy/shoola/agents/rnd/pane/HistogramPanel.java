@@ -139,7 +139,7 @@ class HistogramPanel
 		//output knob
 		setKnobOutputStart(lS+10, yStart);
 		setKnobOutputEnd(lS+10, yEnd);
-		super.repaint();
+		repaint();
 	}
 
 	/**
@@ -150,7 +150,7 @@ class HistogramPanel
 	void setCurMin(int v)
 	{
 		curMin = "start: "+v;
-		super.repaint(0, 0, leftBorder, HEIGHT);
+		repaint(0, 0, leftBorder, HEIGHT);
 	}
 	
 	/** 
@@ -161,7 +161,7 @@ class HistogramPanel
 	void setCurMax(int v)
 	{
 		curMax = "end: "+v;
-		super.repaint(0, 0, leftBorder, HEIGHT);
+		repaint(0, 0, leftBorder, HEIGHT);
 	}
 	
 	/**
@@ -279,6 +279,7 @@ class HistogramPanel
 	/** Overrides the paintComponent method. */ 
 	public void paintComponent(Graphics g)
 	{
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
 		g2D.fillRect(0, 0, WIDTH, HEIGHT); 

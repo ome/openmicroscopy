@@ -31,10 +31,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import java.awt.BorderLayout;
-
 import javax.swing.JDialog;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -58,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 class HistogramDialog
 	extends JDialog
 {
+	
 	/** Height of the widget. */
 	private static final int		HEIGHT_WIN = 280;
 
@@ -87,11 +85,7 @@ class HistogramDialog
 	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new BorderLayout(0, 0));
-		p.add(histogramPanel, BorderLayout.CENTER);
-		//getContentPane().add(histogramPanel);
-		getContentPane().add(p);
+		getContentPane().add(histogramPanel);
 		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
 		setResizable(false);
 	}

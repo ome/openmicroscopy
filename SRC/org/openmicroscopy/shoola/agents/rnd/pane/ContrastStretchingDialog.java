@@ -37,6 +37,7 @@ import javax.swing.JDialog;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
+
 /** 
  * 
  *
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 class ContrastStretchingDialog
 	extends JDialog
 {
+	
 	private static final int 				LB = 
 											ContrastStretchingPanel.leftBorder,
 											TB = 

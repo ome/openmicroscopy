@@ -128,7 +128,7 @@ class PlaneSlicingPanel
 		endPt = new Point2D.Double();
 		startPt.setLocation((double) leftBorder, (double) yStart);
 		endPt.setLocation((double) lS, (double) yEnd);
-		super.repaint();
+		repaint();
 	}
 	
 	/** 
@@ -187,7 +187,7 @@ class PlaneSlicingPanel
 		yStartOutput2 = y-triangleW;
 		yStartOutput3 = y+triangleW;
 		startPt.setLocation(startPt.getX(), (double) y);
-		super.repaint();
+		repaint();
 	} 
 	
 	/** 
@@ -202,12 +202,13 @@ class PlaneSlicingPanel
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;
 		endPt.setLocation(endPt.getX(), (double) y);
-		super.repaint();
+		repaint();
 	}
 	
 	/** Overrides the paintComponent method. */ 
 	 public void paintComponent(Graphics g)
 	 {
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
 		g2D.fillRect(0, 0, WIDTH, HEIGHT); 
