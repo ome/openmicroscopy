@@ -90,9 +90,36 @@ public final class Container
 	 * The sole instance.
 	 * This object is passed around at initialization so that services'
 	 * initialization tasks may link it to the service implementation. 
-	 * Other
 	 */
 	private static Container		singleton;
+	
+	
+	/**
+	 * Performs the start up procedure.
+	 * 
+	 * @param home	Path to the installation directory.  If <code>null<code> or
+	 * 				empty, then the user directory is assumed.
+	 */
+	private static void runStartupProcedure(String home)
+	{
+		AbnormalExitHandler.configure();
+		Initializer initManager = null;
+		try {
+			singleton = new Container(home);
+			initManager = new Initializer(singleton);
+			initManager.configure();
+			initManager.doInit();
+			//startService() called by Initializer at end of doInit().
+		} catch (StartupException se) {
+			if (initManager != null)	initManager.rollback();
+			AbnormalExitHandler.terminate(se);
+		} 
+		//Any other exception will be handled automatically by
+		//AbnormalExitHandler.  In this case, we don't rollback,
+		//as something completely unforeseen happened, so it's 
+		//better not to make assumptions on the state of the
+		//initialization manager.
+	}
 	
 	/**
 	 * Returns the singleton instance.
@@ -118,28 +145,23 @@ public final class Container
 	 * @param home	Path to the installation directory.  If <code>null<code> or
 	 * 				empty, then the user directory is assumed.
 	 */
-	public static void startup(String home)
+	public static void startup(final String home)
 	{
-		AbnormalExitHandler.configure();
-		Initializer initManager = null;
-		if (singleton == null) {
-			try {
-				singleton = new Container(home);
-				initManager = new Initializer(singleton);
-				initManager.configure();
-				initManager.doInit();
-				//startService() called by Initializer at end of doInit().
-			} catch (StartupException se) {
-				if (initManager != null)	initManager.rollback();
-				AbnormalExitHandler.terminate(se);
-			} catch (Throwable t) {
-				//Don't rollback, something completely unforeseen happened,
-				//better not to make assumptions on the state of the
-				//initialization manager.
-				AbnormalExitHandler.terminate(t);
-			}
-		}
+		if (singleton != null)	return;
+		ThreadGroup root = new RootThreadGroup();
+		Runnable r = new Runnable() {
+			public void run() { runStartupProcedure(home); }
+		};
+		Thread t = new Thread(root, r, "Initializer");
+		t.start();
+		//Now the main thread exits and the initialization procedure is run
+		//within the Initializer thread which belongs to root.  As a consequence
+		//of this, any other thread created thereafter will belong to root or
+		//a subgroup of root.
 	}
+	
+	
+	
 	
 	/** Absolute path to the installation directory. */
 	private String		homeDir;
@@ -149,6 +171,7 @@ public final class Container
 	
 	/** All managed agents. */
 	private Set			agentsPool;
+	
 	
 	/** 
 	 * Intializes the member fields. 
@@ -245,35 +268,29 @@ public final class Container
 		AgentInfo agentInfo;
 		Agent a;
 		
-		try {
-			//Agents linking phase.
-			while (i.hasNext()) {
-				agentInfo = (AgentInfo) i.next();
-				a = agentInfo.getAgent();
-				a.setContext(agentInfo.getRegistry());
-			}
-			
-			//Agents activation phase.
-			i = agents.iterator();
-			while (i.hasNext()) {
-				agentInfo = (AgentInfo) i.next();
-				a = agentInfo.getAgent();
-				a.activate();
-			}
-		
-			//TODO: activate services (EventBus, what else?).
-			RenderingEngine re = RenderingEngine.getInstance(this);
-			re.activate();
-			LoginManager lm = LoginManager.getInstance(this);
-			lm.activate();
-			//TODO: RE threads should be spawn during an init task.
-			
-		} catch (Throwable t) {
-			AbnormalExitHandler.terminate(t);
+		//Agents linking phase.
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			a.setContext(agentInfo.getRegistry());
 		}
 		
-		//Get ready to interact with the user.  (AWT exceptions will be
-		//notified to the AbnormalExitHandler automatically.)
+		//Agents activation phase.
+		i = agents.iterator();
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			a.activate();
+		}
+	
+		//TODO: activate services (EventBus, what else?).
+		RenderingEngine re = RenderingEngine.getInstance(this);
+		re.activate();
+		LoginManager lm = LoginManager.getInstance(this);
+		lm.activate();
+		//TODO: RE threads should be spawn during an init task.
+			
+		//Get ready to interact with the user.
 		TopFrame tf = singleton.registry.getTopFrame();
 		tf.open();
 	}
