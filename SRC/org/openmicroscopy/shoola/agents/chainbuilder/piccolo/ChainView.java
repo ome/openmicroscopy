@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.chainbuilder.piccolo
+ * org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainView
  *
  *------------------------------------------------------------------------------
  *
@@ -134,7 +134,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	 * @param chain		the chain to be drawn
 	 * @param pickable  can the links be picked?
 	 */
-	public ChainView(LayoutChainData chain,boolean pickable) {
+	public ChainView(LayoutChainData chain){
 		
 		
 		this.chain = chain;
@@ -146,7 +146,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	//	top =y;
 		
 		LinkLayer linkLayer = new LinkLayer();
-		linkLayer.setPickable(pickable);
+		linkLayer.setPickable(false);
 		addChild(linkLayer);
 		
 		drawNodes();
@@ -236,12 +236,16 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		}
 		else { // must be a real LayoutNodeData
 			ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).getModule();
-			mNode = new ModuleView(mod);
+			mNode = getModuleView(mod);
 			mod.addModuleNode(mNode);
 			addChild(mNode);
 		}
 		node.setModuleView(mNode);
 		return mNode;
+	}
+	
+	protected ModuleView getModuleView(ChainModuleData mod) {
+		return new ModuleView(mod);
 	}
 	
 	/**
@@ -361,16 +365,24 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		
 		
 		if (inputPNode != null && outputPNode != null) {
-			ParamLink newLinkNode = new ParamLink(inputPNode,outputPNode);
-			
+			ParamLink newLinkNode = getParamLink(inputPNode,outputPNode);
 			linkLayer.addChild(newLinkNode);
 			// create the module link between the two modules
-			ModuleLink modLink = linkLayer.completeLink(newLinkNode);
+			ModuleLink modLink = getModuleLink(linkLayer,newLinkNode);
 			if (from.getLayer() > (to.getLayer()+1))
 				adjustLink(link,from,to,newLinkNode,modLink);
 			adjustVerticalExtents(newLinkNode.getGlobalFullBounds());
 			adjustVerticalExtents(modLink.getGlobalFullBounds());
 		} 	
+	}
+	
+	protected ParamLink getParamLink(FormalInput inputPNode,
+			FormalOutput outputPNode) {
+		return new ParamLink(inputPNode,outputPNode);
+	}
+	
+	protected ModuleLink getModuleLink(LinkLayer linkLayer,ParamLink newLinkNode) {
+		return linkLayer.completeLink(newLinkNode);
 	}
 	
 	/**
@@ -447,35 +459,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 
 	public void mouseEntered(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
-		ChainBox cb = getParentChainBox();
-		if (cb != null)
-			cb.mouseEntered(handler);
 	}
 
 	// let the grandparent handle the event. otherwise, clear last enetered.
 	public void mouseExited(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).setLastEntered(null);
-		ChainBox cb = getParentChainBox();
-		if (cb != null)
-			cb.mouseExited(handler);
-	
 	}
 	
-	//	 if this chain is in a chainbox - which would then be the grandparent
-	// return a chain box that is the enclosing grandparent
-	private ChainBox getParentChainBox() {
-		PNode parent = getParent();
-		if (parent == null)
-			return null;
-		parent = parent.getParent();
-		if (parent == null)
-			return null;
-		if (parent instanceof ChainBox)
-			return ((ChainBox) parent);
-		else 
-			return null;
-	}
-
 	public void mousePopup(GenericEventHandler handler) {
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
