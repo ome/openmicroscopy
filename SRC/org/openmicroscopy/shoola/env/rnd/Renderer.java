@@ -211,6 +211,9 @@ class Renderer
 		return renderingStrategy.render(this);
 	}
 	
+	/** Reset the plane definition to an XYPlane.*/
+	void resetPlaneDef(PlaneDef pd) { planeDef = pd; }
+	
 	/**
 	 * Renders the data selected by the current plane definition according to
 	 * the current rendering settings.

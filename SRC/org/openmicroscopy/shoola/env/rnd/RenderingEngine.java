@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
+import org.openmicroscopy.shoola.env.rnd.events.ResetPlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
@@ -189,6 +190,15 @@ public class RenderingEngine
 		}
 	}
 	
+	private void handleResetPlaneDef(ResetPlaneDef request)
+	{
+		Renderer rnd = (Renderer) renderers.get(
+											new Integer(request.getPixelsID()));
+		//TODO: if null, log?
+		if (rnd != null) rnd.resetPlaneDef(request.getPlaneDef());
+		
+	}
+	
 	private void handleRenderingPropChange(RenderingPropChange event)
 	{
 		event.doUpdate();
@@ -214,6 +224,7 @@ public class RenderingEngine
 		eventBus.register(this, RenderImage.class);
 		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
+		eventBus.register(this, ResetPlaneDef.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -231,6 +242,8 @@ public class RenderingEngine
 			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
+		else if (e instanceof ResetPlaneDef)
+			handleResetPlaneDef((ResetPlaneDef) e);
 	}
 
 }
