@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.util.PBounds;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -433,6 +434,66 @@ public class BrowserView extends PCanvas
     }
     
     /**
+     * Makes sure the camera doesn't go off the edge.
+     */
+    public void boundCameraPosition()
+    {
+        PBounds bounds = getCamera().getViewBounds();
+        Rectangle2D rBounds = bounds.getBounds2D();
+        
+        double correctX = rBounds.getX()+rBounds.getWidth() -
+                          (footprint.getX()+footprint.getWidth());
+        
+        double correctY = rBounds.getY()+rBounds.getHeight() -
+                          (footprint.getY()+footprint.getHeight());
+        
+        boolean move = false;
+        double moveX = 0;
+        double moveY = 0;
+        
+        if(correctX > 0)
+        {
+            move = true;
+            if(footprint.getWidth() < rBounds.getWidth())
+            {
+                moveX = rBounds.getX();
+            }
+            else
+            {
+                moveX = correctX;
+            }
+        }
+        if(correctY > 0)
+        {
+            move = true;
+            if(footprint.getHeight() < rBounds.getHeight())
+            {
+                moveY = rBounds.getY();
+            }
+            else
+            {
+                moveY = correctY;
+            }
+        }
+        
+        if(rBounds.getX() < 0)
+        {
+            move = true;
+            moveX = rBounds.getX();
+        }
+        if(rBounds.getY() < 0)
+        {
+            move = true;
+            moveY = rBounds.getY();
+        }
+        
+        if(move && (moveX != 0 || moveY != 0))
+        {
+            getCamera().translateView(moveX,moveY);
+        } 
+    }
+    
+    /**
      * Updates the zoom camera (dependent on mode) to fit the complete dataset.
      *
      */
@@ -461,6 +522,7 @@ public class BrowserView extends PCanvas
                 getCamera().setViewScale(1);
             }
         }
+        boundCameraPosition();
         
         double viewScale = getCamera().getViewScale();
         backgroundNode.setBounds(0,0,width/viewScale,height/viewScale);

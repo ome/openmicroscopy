@@ -200,8 +200,10 @@ public class BrowserCamera implements RegionSensitive,
             camera.removeChild((PanCameraNode)iter.next());
         }
         panNodeList.clear();
-        double netAmount =
-            camera.localToView(new Point2D.Double(panSpeed,0)).getX();
+        
+        // TODO: fix this bug (doesn't count scaling)
+        double netAmount = panSpeed/camera.getViewScale();
+        System.err.println("net movement="+netAmount);
         
         PanCameraNode nwNode =
             new PanCameraNode(new Rectangle2D.Double(0,0,
@@ -540,6 +542,8 @@ public class BrowserCamera implements RegionSensitive,
                 timer.cancel();
                 activated = false;
             }
+            activated = false;
+            repaint();
         }
     }
     
@@ -582,6 +586,8 @@ public class BrowserCamera implements RegionSensitive,
             double nOffset = activeRegion.getY();
             double eOffset = activeRegion.getX()+activeRegion.getWidth();
             double sOffset = activeRegion.getY()+activeRegion.getHeight();
+            System.err.println(activeRegion);
+            System.err.println(rBounds);
 
             double cWest = rBounds.getX();
             double cNorth = rBounds.getY();
@@ -592,10 +598,18 @@ public class BrowserCamera implements RegionSensitive,
             double fdY = 0;
 
             // check horizontal panning bounds
-            if((-deltaX+cWest < wOffset) ||
+            if(((-deltaX+cWest < wOffset) ||
                (-deltaX+cEast > eOffset))
+               && deltaX != 0)
             {
-                fdX = 0;
+                if(-deltaX+cWest < wOffset)
+                {
+                    fdX = -wOffset;
+                }
+                else if(-deltaX+cEast > eOffset)
+                {
+                    fdX = -(eOffset-cEast);
+                }
             }
             else
             {
@@ -603,18 +617,32 @@ public class BrowserCamera implements RegionSensitive,
             }
 
             // check vertical panning bounds
-            if((-deltaY+cNorth < nOffset) ||
+            if(((-deltaY+cNorth < nOffset) ||
                (-deltaY+cSouth > sOffset))
+               && deltaY != 0)
             {
-                fdY = 0;
+                if(-deltaY+cNorth < nOffset)
+                {
+                    fdY = nOffset;
+                }
+                else if(-deltaY+cSouth > sOffset)
+                {
+                    if(nOffset > 0)
+                    {
+                        fdY = -(sOffset-cSouth);
+                    }
+                }
             }
             else
             {
                 fdY = deltaY;
             }
 
-            c.translateView(fdX,fdY);
-            c.repaint();
+            if(fdX != 0 || fdY != 0)
+            {
+                c.translateView(fdX,fdY);
+                c.repaint();
+            }
         }
     
     
