@@ -124,9 +124,10 @@ public class DataManager {
 			System.err.println("loading projects..");
 			loadingProjects = true;
 			retrieveProjects();
+			Collection res = projectHash.values();
 			loadingProjects = false;
 			notifyAll();
-			return projectHash.values();
+			return res;
 		}
 		else {// in progress
 			try{ 
@@ -216,13 +217,12 @@ public class DataManager {
 		}	
 	}
 	protected synchronized void retrieveDatasets() {
-		System.err.println("starting retrieve datasets. currently have "+datasetHash);
 		if (datasetHash == null ||datasetHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				Collection datasets = 
 					dms.retrieveUserDatasets(new BrowserDatasetSummary());
-				System.err.println("loadded  datasets..");
+				getDatasetsWithImages(datasets);
 				datasetHash = buildDatasetHash(datasets);
 				//Collections.sort(datasets);
 				registry.getLogger().info(this,"loaded datasets...");
@@ -298,8 +298,7 @@ public class DataManager {
 		}
 	}
 
-	public Collection getDatasetsWithImages() {
-		Collection ds = getDatasets();
+	private Collection getDatasetsWithImages(Collection ds) {
 		BrowserDatasetSummary d;
 	
 		Iterator iter = ds.iterator();
@@ -333,7 +332,6 @@ public class DataManager {
 			return moduleHash.values();
 		
 		if (loadingModules == false) {
-			System.err.println("loading projects..");
 			loadingModules = true;
 			retrieveModules();
 			loadingModules = false;
@@ -398,7 +396,6 @@ public class DataManager {
 			return moduleCategoryHash.values();
 		
 		if (loadingModuleCategories == false) {
-			System.err.println("loading projects..");
 			loadingModuleCategories = true;
 			retrieveModuleCategories();
 			loadingModuleCategories = false;
