@@ -46,10 +46,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
-import org.openmicroscopy.shoola.env.ui.AWTExceptionHanlder;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -98,6 +95,17 @@ public final class Container
 	private static Container		singleton;
 	
 	/**
+	 * Returns the singleton instance.
+	 * Only used by the {@link AbnormalExitHandler}.
+	 * 
+	 * @return	See above.
+	 */
+	static Container getInstance()
+	{
+		return singleton;
+	}
+	
+	/**
 	 * Entry point to launch the container and bring up the whole client.
 	 * <p>The absolute path to the installation directory is obtained from
 	 * <code>home</code>.  If this parameter doesn't specify an absolute path,
@@ -112,6 +120,7 @@ public final class Container
 	 */
 	public static void startup(String home)
 	{
+		AbnormalExitHandler.configure();
 		Initializer initManager = null;
 		if (singleton == null) {
 			try {
@@ -122,12 +131,12 @@ public final class Container
 				//startService() called by Initializer at end of doInit().
 			} catch (StartupException se) {
 				if (initManager != null)	initManager.rollback();
-				StringBuffer buf = new StringBuffer();
-				buf.append("Error message: "+se.getMessage());
-				buf.append("Originated by: "+se.getOriginator());
-				UserNotifier un = UIFactory.makeUserNotifier();
-				un.notifyInitError("Initialization Error", buf.toString(), se);
-				System.exit(1);
+				AbnormalExitHandler.terminate(se);
+			} catch (Throwable t) {
+				//Don't rollback, something completely unforeseen happened,
+				//better not to make assumptions on the state of the
+				//initialization manager.
+				AbnormalExitHandler.terminate(t);
 			}
 		}
 	}
@@ -236,32 +245,35 @@ public final class Container
 		AgentInfo agentInfo;
 		Agent a;
 		
-		//Agents linking phase.
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			a.setContext(agentInfo.getRegistry());
+		try {
+			//Agents linking phase.
+			while (i.hasNext()) {
+				agentInfo = (AgentInfo) i.next();
+				a = agentInfo.getAgent();
+				a.setContext(agentInfo.getRegistry());
+			}
+			
+			//Agents activation phase.
+			i = agents.iterator();
+			while (i.hasNext()) {
+				agentInfo = (AgentInfo) i.next();
+				a = agentInfo.getAgent();
+				a.activate();
+			}
+		
+			//TODO: activate services (EventBus, what else?).
+			RenderingEngine re = RenderingEngine.getInstance(this);
+			re.activate();
+			LoginManager lm = LoginManager.getInstance(this);
+			lm.activate();
+			//TODO: RE threads should be spawn during an init task.
+			
+		} catch (Throwable t) {
+			AbnormalExitHandler.terminate(t);
 		}
 		
-		//Agents activation phase.
-		i = agents.iterator();
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			a.activate();
-		}
-		
-		//TODO: activate services (EventBus, what else?).
-		RenderingEngine re = RenderingEngine.getInstance(this);
-		re.activate();
-		LoginManager lm = LoginManager.getInstance(this);
-		lm.activate();
-		//TODO: RE threads should be spawn during an init task.
-		
-		//This is subject to change (see class javadoc).
-		AWTExceptionHanlder.configure(this);
-		
-		//Get ready to interact with the user...
+		//Get ready to interact with the user.  (AWT exceptions will be
+		//notified to the AbnormalExitHandler automatically.)
 		TopFrame tf = singleton.registry.getTopFrame();
 		tf.open();
 	}
