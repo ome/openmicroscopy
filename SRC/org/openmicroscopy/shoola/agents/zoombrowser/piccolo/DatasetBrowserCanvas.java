@@ -548,5 +548,9 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 		return new PBounds(b.getX()-Constants.SMALL_BORDER,
 			b.getY()-Constants.SMALL_BORDER,b.getWidth()+2*Constants.SMALL_BORDER,
 			b.getHeight()+2*Constants.SMALL_BORDER); 
-	}	
+	}
+	
+	public BrowserDatasetData getSelectedDataset() {
+		return selectedDataset;
+	}
  } 
