@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -151,11 +152,11 @@ public class ViewerUIF
 	{
 		tSlider = new JSlider(JSlider.HORIZONTAL, 0, maxT, t);
 		String s = "Move the slider to navigate across time.";
-		tSlider.setToolTipText(UIFactory.formatToolTipText(s));
+		tSlider.setToolTipText(UIUtilities.formatToolTipText(s));
 		tSlider.setEnabled(maxT != 0);
 		zSlider = new JSlider(JSlider.VERTICAL, 0, maxZ, z);
 		s = "Move the slider to navigate across Z stack.";
-		zSlider.setToolTipText(UIFactory.formatToolTipText(s));
+		zSlider.setToolTipText(UIUtilities.formatToolTipText(s));
 		zSlider.setEnabled(maxZ != 0);
 	}
 	

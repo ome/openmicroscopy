@@ -49,6 +49,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -276,7 +277,7 @@ public class TopFrameImpl
 		IconManager im = IconManager.getInstance(container.getRegistry());
 		JButton help = new JButton(im.getIcon(IconManager.HELP));
 		help.setToolTipText(
-				UIFactory.formatToolTipText("Please help me."));
+				UIUtilities.formatToolTipText("Please help me."));
 		manager.attachComponentListener(help, TopFrameImplManager.HELPME);	
 		helpToolBar.add(help);
 		helpToolBar.addSeparator();
@@ -290,7 +291,7 @@ public class TopFrameImpl
 		IconManager im = IconManager.getInstance(container.getRegistry());
 		JButton exit = new JButton(im.getIcon(IconManager.EXIT));
 		exit.setToolTipText(
-			UIFactory.formatToolTipText("Exit the application."));
+			UIUtilities.formatToolTipText("Exit the application."));
 		manager.attachComponentListener(exit, TopFrameImplManager.EXIT_APP);
 		fileToolBar.add(exit);
 		fileToolBar.addSeparator();	
@@ -305,11 +306,11 @@ public class TopFrameImpl
 		JButton connectDS = new JButton(im.getIcon(IconManager.CONNECT_DS));
 		manager.attachComponentListener(connectDS, TopFrameImplManager.OMEDS);
 		connectDS.setToolTipText(
-			UIFactory.formatToolTipText("Connect to OME DataService."));
+			UIUtilities.formatToolTipText("Connect to OME DataService."));
 		JButton connectIS = new JButton(im.getIcon(IconManager.CONNECT_IS));
 		connectIS.setEnabled(false);
 		connectIS.setToolTipText(
-			UIFactory.formatToolTipText("Connect to OME ImageService."));
+			UIUtilities.formatToolTipText("Connect to OME ImageService."));
 		manager.attachComponentListener(connectIS, TopFrameImplManager.OMEIS);
 		
 		//add buttons to toolBar

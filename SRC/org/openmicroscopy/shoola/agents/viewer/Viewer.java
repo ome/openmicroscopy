@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -252,7 +253,7 @@ public class Viewer
 		JButton b = new JButton(im.getIcon(IconManager.VIEWER));
 		b.setEnabled(false);
 		b.setToolTipText(
-			UIFactory.formatToolTipText("Bring up the viewer."));
+			UIUtilities.formatToolTipText("Bring up the viewer."));
 		return b;
 	}
 	

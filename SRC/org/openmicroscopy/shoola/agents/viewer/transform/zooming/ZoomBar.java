@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -96,18 +97,18 @@ public class ZoomBar
 		zoomField = new JTextField("100%", "200%".length());
 		zoomField.setForeground(STEELBLUE);
 		zoomField.setToolTipText(
-		UIFactory.formatToolTipText("zooming percentage."));
+		UIUtilities.formatToolTipText("zooming percentage."));
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
 		zoomIn =  new JButton(im.getIcon(IconManager.ZOOMIN));
 		zoomIn.setToolTipText(
-			UIFactory.formatToolTipText("Zoom in."));	
+			UIUtilities.formatToolTipText("Zoom in."));	
 		zoomOut =  new JButton(im.getIcon(IconManager.ZOOMOUT));
 		zoomOut.setToolTipText(
-			UIFactory.formatToolTipText("Zoom out."));
+			UIUtilities.formatToolTipText("Zoom out."));
 		zoomFit =  new JButton(im.getIcon(IconManager.ZOOMFIT));
 				zoomOut.setToolTipText(
-					UIFactory.formatToolTipText("Reset."));
+					UIUtilities.formatToolTipText("Reset."));
 	}	
 	
 	/** Build the toolBar. */

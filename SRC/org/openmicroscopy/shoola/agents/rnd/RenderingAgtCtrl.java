@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * 
  *
@@ -126,7 +127,7 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
-		UIFactory.showEditor(dialog);
+		UIUtilities.centerAndShow(dialog);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}.  */

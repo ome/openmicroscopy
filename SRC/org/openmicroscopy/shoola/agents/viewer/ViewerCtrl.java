@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -230,7 +231,7 @@ public class ViewerCtrl
 	/** Bring up the image inspector widget. */
 	public void showInspector()
 	{
-		UIFactory.showEditor(new ImageInspector(this));
+		UIUtilities.centerAndShow(new ImageInspector(this));
 	}
 	
 	/** Bring up the rendering widget. */
@@ -242,7 +243,7 @@ public class ViewerCtrl
 	/** Forward event to {@link ViewerUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
-		UIFactory.showEditor(dialog);
+		UIUtilities.centerAndShow(dialog);
 	}
 	
 	/** Bring the file chooser. */

@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.DetailedNotificationDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Implements the {@link UserNotifier} interface. 
@@ -159,7 +160,7 @@ public class UserNotifierImpl
 		NotificationDialog dialog = new NotificationDialog(
 												SHARED_FRAME, title, message, 
 												icon);
-		//TODO: position at center of screen.
+		UIUtilities.centerOnScreen(dialog);
 		dialog.open();
     }
     
@@ -177,7 +178,7 @@ public class UserNotifierImpl
 		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
 												SHARED_FRAME, title, message, 
 												icon, detail);
-		//TODO: position at center of screen.
+		UIUtilities.centerOnScreen(dialog);
 		dialog.open();
 	}
 	

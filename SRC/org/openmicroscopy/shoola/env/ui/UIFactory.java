@@ -29,13 +29,7 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-
-
 //Java imports
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -44,7 +38,6 @@ import org.openmicroscopy.shoola.env.Container;
 
 /** 
  * Factory for the various windows and widgets used within the container.
- * Other utility methods (to format tooltips, etc.) are also included.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,41 +83,6 @@ public class UIFactory
 	public static UserNotifier makeUserNotifier()
 	{
 		return new UserNotifierImpl();
-	}
-	
-	/** 
-	 * Utility factory method to build a tool tip in a fixed font and color.
-	 * Pass the tool tip text and get back an <i>HTML</i> string to be
-	 * passed, in turn, to the <code>setToolTipText</code> method of a 
-	 * {@link javax.swing.JComponent}.
-	 *
-	 * @param   toolTipText     The textual content of the tool tip.
-	 * @return  An <i>HTML</i> fomatted string to be passed to 
-	 * 			<code>setToolTipText()</code>.
-	 */
-	public static String formatToolTipText(String toolTipText) 
-	{
-		StringBuffer buf = new StringBuffer(90+toolTipText.length());
-		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
-		//TODO: change into platform independent font
-		buf.append("<font face=Arial size=2>");  
-		buf.append(toolTipText);
-		buf.append("</font></body></html>");
-		return buf.toString();
-	} 
-	
-	/**
-	 * Utility facroty method to bring up a dialog widget. 
-	 * 
-	 * @param editor	dialog widget to bring up.
-	 */
-	public static void showEditor(JDialog editor)
-	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Rectangle ed = editor.getBounds();
-		editor.setLocation((screenSize.width-ed.width)/2, 
-							(screenSize.height-ed.height)/2);
-		editor.setVisible(true);
 	}
 	
 }

@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -139,25 +140,25 @@ public class ToolBar
 		IconManager im = IconManager.getInstance(registry);
 		inspector  =  new JButton(im.getIcon(IconManager.INSPECTOR));
 		inspector.setToolTipText(
-			UIFactory.formatToolTipText("Bring up the inspector panel."));
+			UIUtilities.formatToolTipText("Bring up the inspector panel."));
 		render =  new JButton(im.getIcon(IconManager.RENDER));
 		render.setToolTipText(
-			UIFactory.formatToolTipText("Bring up the rendering panel."));	
+			UIUtilities.formatToolTipText("Bring up the rendering panel."));	
 		play = new JButton(im.getIcon(IconManager.MOVIE));
 		play.setToolTipText(
-			UIFactory.formatToolTipText("Play movie from current timepoint."));
+			UIUtilities.formatToolTipText("Play movie from current timepoint."));
 		stop = new JButton(im.getIcon(IconManager.STOP));
-		stop.setToolTipText(UIFactory.formatToolTipText("Stop movie."));
+		stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie."));
 		rewind = new JButton(im.getIcon(IconManager.REWIND));
 	  	rewind.setToolTipText(
-	  		UIFactory.formatToolTipText("Go to first timepoint."));
+	  		UIUtilities.formatToolTipText("Go to first timepoint."));
 	  	//Spinner timepoint granularity is 1, so must be stepSize
 	  	//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 	  	fps = new JSpinner(new SpinnerNumberModel(12, 12, 12, 1));
 	  	editor = new JTextField("12", (""+maxT).length());
 	  	String s = "Select or enter the movie playback rate " +
 						"(frames per second).";
-	  	editor.setToolTipText(UIFactory.formatToolTipText(s));
+	  	editor.setToolTipText(UIUtilities.formatToolTipText(s));
 	  	fps.setEditor(editor);
 	}
 	
@@ -174,11 +175,11 @@ public class ToolBar
 		if (maxT-1 == 0) tField.setEditable(false);
 		tField.setForeground(STEELBLUE);
 		tField.setToolTipText(
-			UIFactory.formatToolTipText("Enter a timepoint."));
+			UIUtilities.formatToolTipText("Enter a timepoint."));
 		zField = new JTextField(""+z, (""+maxZ).length());
 		zField.setForeground(STEELBLUE);
 		zField.setToolTipText(
-			UIFactory.formatToolTipText("Enter a Z point"));
+			UIUtilities.formatToolTipText("Enter a Z point"));
 		if (maxZ-1 == 0) zField.setEditable(false);
 	}
 	
