@@ -33,8 +33,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-//import java.awt.event.ComponentEvent;
-//import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentAdapter;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -73,12 +73,12 @@ public class ChainPaletteWindow extends JFrame  {
 		this.dataManager = dataManager;
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		/*addComponentListener(new ComponentAdapter() {
+		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
 				if (chainCanvas != null)
-					chainCanvas.scaleToSize();
+					chainCanvas.scaleToResize();
 			}
-		});*/
+		});
 
 	}
 	
