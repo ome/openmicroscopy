@@ -40,6 +40,9 @@ import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
  * 
@@ -428,5 +431,79 @@ public interface SemanticTypesService
     public void updateCategory(CategoryData data, List imgsToRemove, 
                                 List imgsToAdd)
         throws DSOutOfServiceException, DSAccessException;
+    
+    
+    
+    
+    
+    /**
+     * Retrieves the common metadata (such as dimensions, type, etc.) associated
+     * to a pixels set.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param imageID   The id of the OME image
+     * @return An object containing the common pixels metadata.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service.  
+     */
+    public PixelsDescription retrievePixels(int pixelsID, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    
+    /**
+     * Retrieve the data associated to the channels of a specified image.
+     * 
+     * @param imageID       image's ID.
+     * @return retVal       List of channelData objects.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public ChannelData[] getChannelData(int imageID)
+        throws DSOutOfServiceException, DSAccessException;  
+    
+    /**
+     * Update a specified channelData.
+     * 
+     * @param retVal        ChannelData object to update.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void updateChannelData(ChannelData retVal)   
+        throws DSOutOfServiceException, DSAccessException;
+    
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Retrieve the setting for a specified image and specified set of pixels.
+     * If not rendering settings found, return <code>null</code>.
+     * 
+     * @param pixelsID  set of pixels to take into account
+     * @param imageID   imageID
+     * @param pixelType 
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
+                                            int pixelType)
+        throws DSOutOfServiceException, DSAccessException;  
+    
+    /** 
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Save the rendering settings for the specifed image and set of pixels.
+     * 
+     * @param pixelsID
+     * @param imageID
+     * @param rDef
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public void saveRenderingSettings(int pixelsID, int imageID, 
+                                    RenderingDef rDef)
+        throws DSOutOfServiceException, DSAccessException;  
+    
     
 }

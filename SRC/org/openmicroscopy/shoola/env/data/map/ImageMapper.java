@@ -98,12 +98,25 @@ public class ImageMapper
 	 */
 	public static Criteria buildUserImagesCriteria(int userID)
 	{
-		Criteria criteria = buildBasisImagesCriteria();
-		criteria.addFilter("owner_id", new Integer(userID));
+		Criteria criteria = buildBasicImagesCriteria();
+        if (userID != -1)
+            criteria.addFilter("owner_id", new Integer(userID));
 		return criteria;
 	}
 	
-    public static Criteria buildBasisImagesCriteria()
+    /** 
+     * Create the criteria by which the object graph is pulled out.
+     * 
+     * @param userGroupIds    List of group's id, the user belongs to.
+     */
+    public static Criteria buildUserImagesCriteria(List userGroupIds)
+    {
+        Criteria criteria = buildBasicImagesCriteria();
+        criteria.addFilter("group_id", "IN", userGroupIds);
+        return criteria;
+    }
+    
+    private static Criteria buildBasicImagesCriteria()
     {
         Criteria criteria = new Criteria();
         
@@ -263,7 +276,6 @@ public class ImageMapper
 			//Add the images to the list of returned images
 			imagesList.add(is);
 		}
-		
 		return imagesList;
 	}
 	

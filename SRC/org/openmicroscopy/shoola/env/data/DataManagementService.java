@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -51,12 +50,10 @@ import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
-import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
  * 
@@ -232,10 +229,10 @@ public interface DataManagementService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Create, if none provided, two new protos and fill them up
-	 * with data retrieved form OMEDS Dataset objects.
+	 * Create, if none provided, a new proto and fill them up
+	 * with data retrieved form OMEDS Image objects.
 	 * 
-	 * @param dProto	dataset proto.
+	 * @param iProto	image proto.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
@@ -245,9 +242,9 @@ public interface DataManagementService
 		throws DSOutOfServiceException, DSAccessException;
     								
 	/**
-	 * Retrieve all user's datasets.
-	 * Create a list of dataset summary DataObjects filled up with 
-	 * data retrieved from an OMEDS dataset objects.
+	 * Retrieve images imported by the current user.
+	 * Create a list of {@link ImageSummary} DataObjects filled up with 
+	 * data retrieved from an OMEDS Image objects.
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -257,6 +254,101 @@ public interface DataManagementService
 	public List retrieveUserImages()
 		throws DSOutOfServiceException, DSAccessException; 
 
+    /**
+     * Retrieve images imported by members of the current user's group.
+     * Create a list of {@link ImageSummary} DataObjects filled up with 
+     * data retrieved from an OMEDS Image objects.
+     * 
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveUserGroupImages()
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * Create, if none provided, a new proto and fill them up
+     * with data retrieved form OMEDS Image objects.
+     * 
+     * @param iProto    image proto.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveUserGroupImages(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * Retrieve images used by the current user.
+     * Create a list of {@link ImageSummary} DataObjects filled up with 
+     * data retrieved from an OMEDS Image objects.
+     * 
+     * @param datasetIDs    collection of datasetID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveImagesInUserDatasets(List datasetIDs)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * Create, if none provided, a new proto and fill them up
+     * with data retrieved form OMEDS Image objects.
+     * 
+     * @param datasetIDs    collection of datasetID.
+     * @param iProto        image proto.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveImagesInUserDatasets(List datasetIDs, 
+                                    ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * Retrieve images used by the current user.
+     * Create a list of {@link ImageSummary} DataObjects filled up with 
+     * data retrieved from an OMEDS Image objects.
+     * 
+     * @param datasetIDs    list of datasetID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveImagesInUserDatasets()
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * Retrieve all images in the system.
+     * Create a list of {@link ImageSummary} DataObjects filled up with 
+     * data retrieved from an OMEDS Image objects.
+     * 
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveImagesInSystem()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Create, if none provided, a new proto and fill them up
+     * with data retrieved form OMEDS Image objects.
+     * 
+     * @param iProto        image proto.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveImagesInSystem(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException;
+    
 	/**
 	 * Create, if none provided, a DataObject and fill it up with
 	 * data retrieved from an OMEDS Project object.
@@ -394,23 +486,9 @@ public interface DataManagementService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service.  
      */
-    public List retrieveImagesWithAnnotations(int datasetID, ImageSummary iProto)
+    public List retrieveImagesWithAnnotations(int datasetID, 
+                                                ImageSummary iProto)
         throws DSOutOfServiceException, DSAccessException;
-        
-    
-	/**
-	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
-	 * to a pixels set.
-	 * 
-	 * @param pixelsID	The id of the pixels set.
-	 * @param imageID	The id of the OME image
-	 * @return An object containing the common pixels metadata.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service.  
-	 */
-	public PixelsDescription retrievePixels(int pixelsID, int imageID)
-		throws DSOutOfServiceException, DSAccessException;
 		
 	/**
 	 * Retrieve all of the system's analysis modules
@@ -681,29 +759,6 @@ public interface DataManagementService
 	 */
 	public void updateImage(DataObject retVal)
 		throws DSOutOfServiceException, DSAccessException;
-		
-	/**
-	 * Retrieve the data associated to the channels of a specified image.
-	 * 
-	 * @param imageID		image's ID.
-	 * @return retVal		List of channelData objects.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * 		   update data from OMEDS service.  
-	 */
-	public ChannelData[] getChannelData(int imageID)
-		throws DSOutOfServiceException, DSAccessException;	
-	
-	/**
-	 * Update a specified channelData.
-	 * 
-	 * @param retVal		ChannelData object to update.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * 		   update data from OMEDS service.  
-	 */
-	public void updateChannelData(ChannelData retVal)	
-		throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Given a list of {@link ImageSummary} objects, retrieve the hierarchy
@@ -718,35 +773,5 @@ public interface DataManagementService
      */
     public List retrieveIDPHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException;
-    
-	/**
-	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-	 * Retrieve the setting for a specified image and specified set of pixels.
-	 * If not rendering settings found, return <code>null</code>.
-	 * 
-	 * @param pixelsID	set of pixels to take into account
-	 * @param imageID	imageID
-	 * @param pixelType	
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
-											int pixelType)
-		throws DSOutOfServiceException, DSAccessException;	
-	
-	/** 
-	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-	 * Save the rendering settings for the specifed image and set of pixels.
-	 * 
-	 * @param pixelsID
-	 * @param imageID
-	 * @param rDef
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void saveRenderingSettings(int pixelsID, int imageID, 
-									RenderingDef rDef)
-		throws DSOutOfServiceException, DSAccessException;	
-    
+
 }

@@ -52,8 +52,6 @@ import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Dimensions;
 import org.openmicroscopy.ds.st.Experimenter;
-import org.openmicroscopy.ds.st.LogicalChannel;
-import org.openmicroscopy.ds.st.RenderingSettings;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
 import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
@@ -71,7 +69,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -83,14 +80,10 @@ import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
-import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
-import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -130,11 +123,13 @@ class DMSAdapter
         if (ud == null) {
             Criteria c = UserMapper.getUserStateCriteria();
             Experimenter exp = gateway.getCurrentUser(c);
+            List groups = new ArrayList();
+            groups.add(new Integer(exp.getGroup().getID()));
             ud = new UserDetails(exp.getID(), exp.getFirstName(), 
-                                exp.getLastName());
+                                exp.getLastName(), groups);
             registry.bind(LookupNames.USER_DETAILS, ud);
         }
-         return ud;
+        return ud;
     }
     
     
@@ -320,8 +315,14 @@ class DMSAdapter
 		//can be null
 		return datasetsDS;
 	}
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserImages()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveUserImages(null);
+    }
     
-	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserImages(ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException								
@@ -339,22 +340,119 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		List images = (List) gateway.retrieveListData(Image.class, c);
 	  	
-		//List of image summary objects.
-		List imagesDS = null;
 		//Put the server data into the corresponding client object.
 		if (images != null) 
-            imagesDS = ImageMapper.fillListImages(images, iProto);
+           return ImageMapper.fillListImages(images, iProto);
     
-		//can be null
-		return imagesDS;
+		return new ArrayList();
 	}
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserGroupImages()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveUserGroupImages(null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserGroupImages(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Make a new proto if none was provided.
+        if (iProto == null) iProto = new ImageSummary();
+
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = ImageMapper.buildUserImagesCriteria(
+                    getUserDetails().getGroupIDs());
+
+        //Load the graph defined by criteria.
+        List images = (List) gateway.retrieveListData(Image.class, c);
+        
+        //Put the server data into the corresponding client object.
+        if (images != null) 
+           return ImageMapper.fillListImages(images, iProto);
+    
+        return new ArrayList();
+    }
 	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public List retrieveUserImages()
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return retrieveUserImages(null);
-	}
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserDatasets(List datasetsIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasets(datasetsIDs, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserDatasets(List datasetsIDs, 
+                                            ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (datasetsIDs == null || datasetsIDs.size() == 0)
+            return new ArrayList();
+        //Create a new dataObject if none provided.
+        if (iProto == null) iProto = new ImageSummary();
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = DatasetMapper.buildImagesCriteria(datasetsIDs);
+
+        //Load the graph defined by criteria.
+        List datasets = (List) gateway.retrieveListData(Dataset.class, c);
+        //Put the server data into the corresponding client object.
+        if (datasets != null && datasets.size() != 0)
+            return DatasetMapper.fillImagesInUserDatasets(datasets, iProto);
+        return new ArrayList(); 
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserDatasets()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        List projects = retrieveUserProjects();
+        Iterator i = projects.iterator();
+        List datasets;
+        Iterator j;
+        HashMap ids = new HashMap();
+        Integer id;
+        while (i.hasNext()) {
+            datasets = ((ProjectSummary) i.next()).getDatasets();
+            j = datasets.iterator();
+            while (j.hasNext()) {
+                id = new Integer(((DatasetSummary) j.next()).getID());
+                ids.put(id, id);
+            }
+        }
+        Iterator key = ids.keySet().iterator();
+        List datasetIDs = new ArrayList();
+        while (key.hasNext())
+            datasetIDs.add(key.next());
+        return retrieveImagesInUserDatasets(datasetIDs, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInSystem()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInSystem(null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInSystem(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Make a new proto if none was provided.
+        if (iProto == null) iProto = new ImageSummary();
+
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = ImageMapper.buildUserImagesCriteria(-1);
+
+        //Load the graph defined by criteria.
+        List images = (List) gateway.retrieveListData(Image.class, c);
+        
+        //Put the server data into the corresponding client object.
+        if (images != null) 
+           return ImageMapper.fillListImages(images, iProto);
+    
+        return new ArrayList();
+    }
     
     /** Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
@@ -416,18 +514,16 @@ class DMSAdapter
 		//Object used as prototype.
 		if (retVal == null) retVal = new ImageSummary();
 		//Define the criteria by which the object graph is pulled out.
-		Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
+        List ids = new ArrayList();
+        ids.add(new Integer(datasetID));
+		Criteria c = DatasetMapper.buildImagesCriteria(ids);
 
 		//Load the graph defined by criteria.
 		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
-
-		//List of image summary object.
-		List images = null;
 		//Put the server data into the corresponding client object.
 		if (dataset != null)
-            images = DatasetMapper.fillListImages(dataset, retVal);
-
-		return images;
+            return DatasetMapper.fillListImages(dataset, retVal);
+		return new ArrayList();
 	}
 	
     /** Implemented as specified in {@link DataManagementService}. */
@@ -446,7 +542,9 @@ class DMSAdapter
         //Object used as prototype.
         if (retVal == null) retVal = new ImageSummary();
         //Define the criteria by which the object graph is pulled out.
-        Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
+        List datasetIDs = new ArrayList();
+        datasetIDs.add(new Integer(datasetID));
+        Criteria c = DatasetMapper.buildImagesCriteria(datasetIDs);
 
         //Load the graph defined by criteria.
         Dataset dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
@@ -454,19 +552,18 @@ class DMSAdapter
         //List of image summary object.
         List images = new ArrayList();
         //Put the server data into the corresponding client object.
-        if (dataset != null) {
-            //Retrieve the user ID.
-            UserCredentials uc = (UserCredentials)
-                                registry.lookup(LookupNames.USER_CREDENTIALS);
-            List ids = DatasetMapper.prepareListImagesID(dataset);
-            c = AnnotationMapper.buildImageAnnotationCriteria(ids);
-            if (ids != null && ids.size() != 0) {
-                List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
-                                        c);
-                DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
-                                    uc.getUserID(), images);
-            }  
-        }
+        if (dataset == null) return images;
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        List ids = DatasetMapper.prepareListImagesID(dataset);
+        c = AnnotationMapper.buildImageAnnotationCriteria(ids);
+        if (ids != null && ids.size() != 0) {
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
+                                    c);
+            DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
+                                uc.getUserID(), images);
+        }  
         return images;
     }
     
@@ -490,26 +587,25 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		Image image = (Image) gateway.retrieveData(Image.class, c);
 		//Put the server data into the corresponding client object.
-  		if (image != null) {
-            ImageMapper.fillImage(image, retVal);
-            //retrieve the realSize of a pixels.
-            c = PixelsMapper.buildPixelsDimensionCriteria(id);
-            Dimensions pixelDim = 
-                (Dimensions) gateway.retrieveSTSData("Dimensions", c);
-            if (pixelDim != null)
-                PixelsMapper.fillPixelsDimensions(pixelDim, 
-                        retVal.getDefaultPixels());
-            c = PixelsMapper.buildLogicalChannelCriteria(
-                    STSMapper.IMAGE_GRANULARITY, id);
-            List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-            //need to fix problem if no logical channel(shouldn't happen)
-            if (lc != null && lc.size() != retVal.getDefaultPixels().getSizeC()) 
-                retVal.setChannels(ImageMapper.fillImageChannels(lc));
-            else 
-                retVal.setChannels(ImageMapper.fillDefaultImageChannels(
-                        retVal.getDefaultPixels().getSizeC()));
-        }
-  		
+        if (image == null) return retVal;
+        ImageMapper.fillImage(image, retVal);
+        //retrieve the realSize of a pixels.
+        c = PixelsMapper.buildPixelsDimensionCriteria(id);
+        Dimensions pixelDim = 
+            (Dimensions) gateway.retrieveSTSData("Dimensions", c);
+        if (pixelDim != null)
+            PixelsMapper.fillPixelsDimensions(pixelDim, 
+                    retVal.getDefaultPixels());
+        c = PixelsMapper.buildLogicalChannelCriteria(
+                STSMapper.IMAGE_GRANULARITY, id);
+        List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
+        //need to fix problem if no logical channel(shouldn't happen)
+        if (lc != null && lc.size() != retVal.getDefaultPixels().getSizeC()) 
+            retVal.setChannels(ImageMapper.fillImageChannels(lc));
+        else 
+            retVal.setChannels(ImageMapper.fillDefaultImageChannels(
+                    retVal.getDefaultPixels().getSizeC()));
+	
   		//Can be an empty data object.
   		return retVal;	  
     }
@@ -520,28 +616,7 @@ class DMSAdapter
 	{
 		return retrieveImage(id, null);
 	}
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public PixelsDescription retrievePixels(int pixelsID, int imageID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-		PixelsDescription retVal = new PixelsDescription();
-		//Define the criteria by which the object graph is pulled out.
-		Criteria c = PixelsMapper.buildPixelsCriteria(imageID);
-		
-		Image img = (Image) gateway.retrieveData(Image.class, c);
-		//Put the server data into the corresponding client object.
-		if (img != null)
-			PixelsMapper.fillPixelsDescription(img.getDefaultPixels(), retVal);
-        //Retrieve the realSize of a pixel.
-        c = PixelsMapper.buildPixelsDimensionCriteria(imageID);
-        Dimensions pixelDim = 
-            (Dimensions) gateway.retrieveSTSData("Dimensions", c);
-        if (pixelDim != null)
-            PixelsMapper.fillPixelsDimensions(pixelDim, retVal);
-		return retVal;
-	}
-	
+
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto,
 					FormalInputData finProto, FormalOutputData foutProto,
@@ -818,40 +893,39 @@ class DMSAdapter
     {
     	Criteria c = ProjectMapper.buildUpdateCriteria(retVal.getID());
 		Project p = (Project) gateway.retrieveData(Project.class, c);
-		if (p != null) {
-			p.setName(retVal.getName());
-			p.setDescription(retVal.getDescription());
-			gateway.markForUpdate(p);
-			gateway.updateMarkedData();
-			
-			//prepare list for Manager.
-			List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
-			List datasets = retVal.getDatasets();	
-			DatasetSummary ds;	
-		  	if (dsToRemove != null) {
-				Iterator i =  dsToRemove.iterator();
-				while (i.hasNext())	{
-					ds = (DatasetSummary) i.next();
-					toRemoveIds.add(new Integer(ds.getID()));
-					datasets.remove(ds);
-			  	}	  
-			}
-			if (dsToAdd != null) {
-				Iterator j = dsToAdd.iterator();
-				while (j.hasNext()) {
-					ds = (DatasetSummary) j.next();
-					toAddIds.add(new Integer(ds.getID()));	
-					if (!datasets.contains(ds)) datasets.add(ds);
-				}
-			}
-			//Remove the specified datasets.
-			if (toRemoveIds.size() != 0)
-				gateway.removeDatasetsFromProject(retVal.getID(), toRemoveIds);
-			//Add the specified datasets.
-			if (toAddIds.size() != 0)
-				gateway.addDatasetsToProject(retVal.getID(), toAddIds);
-			retVal.setDatasets(datasets);
+        if (p == null) return;
+		p.setName(retVal.getName());
+		p.setDescription(retVal.getDescription());
+		gateway.markForUpdate(p);
+		gateway.updateMarkedData();
+		
+		//prepare list for Manager.
+		List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
+		List datasets = retVal.getDatasets();	
+		DatasetSummary ds;	
+	  	if (dsToRemove != null) {
+			Iterator i =  dsToRemove.iterator();
+			while (i.hasNext())	{
+				ds = (DatasetSummary) i.next();
+				toRemoveIds.add(new Integer(ds.getID()));
+				datasets.remove(ds);
+		  	}	  
 		}
+		if (dsToAdd != null) {
+			Iterator j = dsToAdd.iterator();
+			while (j.hasNext()) {
+				ds = (DatasetSummary) j.next();
+				toAddIds.add(new Integer(ds.getID()));	
+				if (!datasets.contains(ds)) datasets.add(ds);
+			}
+		}
+		//Remove the specified datasets.
+		if (toRemoveIds.size() != 0)
+			gateway.removeDatasetsFromProject(retVal.getID(), toRemoveIds);
+		//Add the specified datasets.
+		if (toAddIds.size() != 0)
+			gateway.addDatasetsToProject(retVal.getID(), toAddIds);
+		retVal.setDatasets(datasets);
     }
     
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -861,39 +935,38 @@ class DMSAdapter
 	{
 		Criteria c = DatasetMapper.buildUpdateCriteria(retVal.getID());
 		Dataset d = (Dataset) gateway.retrieveData(Dataset.class, c);
-		if (d != null) {
-			d.setName(retVal.getName());
-			d.setDescription(retVal.getDescription());
-			gateway.markForUpdate(d);
-			gateway.updateMarkedData();
-			//prepare list for Manager.
-			List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
-			List images = retVal.getImages();	
-			ImageSummary is;	
-			if (isToRemove != null) {
-				Iterator i =  isToRemove.iterator();
-				while (i.hasNext())	{
-					is = (ImageSummary) i.next();
-					toRemoveIds.add(new Integer(is.getID()));
-					images.remove(is);
-				}	  
-			}
-			if (isToAdd != null) {
-				Iterator j = isToAdd.iterator();
-				while (j.hasNext()) {
-					is = (ImageSummary) j.next();
-					toAddIds.add(new Integer(is.getID()));	
-					if (!images.contains(is)) images.add(is);
-				}
-			}
-
-			//Remove the specified datasets.
-			if (toRemoveIds.size() != 0)
-				gateway.removeImagesFromDataset(retVal.getID(), toRemoveIds);
-			//Add the specified datasets.
-			if (toAddIds.size() != 0)
-				gateway.addImagesToDataset(retVal.getID(), toAddIds);
+		if (d == null) return;
+		d.setName(retVal.getName());
+		d.setDescription(retVal.getDescription());
+		gateway.markForUpdate(d);
+		gateway.updateMarkedData();
+		//prepare list for Manager.
+		List toRemoveIds = new ArrayList(), toAddIds = new ArrayList();
+		List images = retVal.getImages();	
+		ImageSummary is;	
+		if (isToRemove != null) {
+			Iterator i =  isToRemove.iterator();
+			while (i.hasNext())	{
+				is = (ImageSummary) i.next();
+				toRemoveIds.add(new Integer(is.getID()));
+				images.remove(is);
+			}	  
 		}
+		if (isToAdd != null) {
+			Iterator j = isToAdd.iterator();
+			while (j.hasNext()) {
+				is = (ImageSummary) j.next();
+				toAddIds.add(new Integer(is.getID()));	
+				if (!images.contains(is)) images.add(is);
+			}
+		}
+
+		//Remove the specified datasets.
+		if (toRemoveIds.size() != 0)
+			gateway.removeImagesFromDataset(retVal.getID(), toRemoveIds);
+		//Add the specified datasets.
+		if (toAddIds.size() != 0)
+			gateway.addImagesToDataset(retVal.getID(), toAddIds);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -910,7 +983,6 @@ class DMSAdapter
 	private void updateImage(ImageData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
 		Image i = (Image) gateway.retrieveData(Image.class, c);
 		if (i != null) {
@@ -927,7 +999,6 @@ class DMSAdapter
 	{
 		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
 		Image i = (Image) gateway.retrieveData(Image.class, c);
-  		
 		if (i != null)	{
 			gateway.markForUpdate(i);
 			i.setName(retVal.getName());
@@ -935,81 +1006,6 @@ class DMSAdapter
 		} 
 	}
 
-    /** Implemented as specified in {@link DataManagementService}. */
-    public ChannelData[] getChannelData(int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria c = PixelsMapper.buildPixelChannelComponentCriteria(imageID);
-        List ciList = 
-            (List) gateway.retrieveListSTSData("PixelChannelComponent", c);
-        c = PixelsMapper.buildLogicalChannelCriteria(
-                    STSMapper.IMAGE_GRANULARITY, imageID);
-        List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-        if (ciList == null || lcList == null) return null;
-        return ImageMapper.fillImageChannelData(ciList, lcList);
-    }
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public void updateChannelData(ChannelData retVal)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Criteria c = PixelsMapper.buildLogicalChannelCriteria(
-								STSMapper.GLOBAL_GRANULARITY, retVal.getID());
-		LogicalChannel lc = 
-				(LogicalChannel) gateway.retrieveSTSData("LogicalChannel", c);
-				
-		//update the LogicalChannel object
-		lc.setExcitationWavelength(new Integer(retVal.getExcitation()));
-		lc.setFluor(retVal.getFluor());
-		lc.setPhotometricInterpretation(retVal.getInterpretation());
-		List l = new ArrayList();
-		l.add(lc);
-		gateway.updateAttributes(l);
-	}
-
-	/** Implemented as specified in {@link DataManagementService}. */
-	public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
-											int pixelType)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		RenderingDef displayOptions = null;
-        //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
-        
-        Criteria c = ImageMapper.buildRenderingSettingsCriteria(
-                        STSMapper.IMAGE_GRANULARITY, imageID);
-        List rsList = 
-            (List) gateway.retrieveListSTSData("RenderingSettings", c);
-        if (rsList != null && rsList.size() != 0)
-            displayOptions = ImageMapper.fillInRenderingDef(rsList, pixelType, 
-                                                uc.getUserID());                               
-		return displayOptions;
-	}
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public void saveRenderingSettings(int pixelsID, int imageID,
-	                                    RenderingDef rDef)
-		throws DSOutOfServiceException, DSAccessException
-	{ 
-	    Criteria c = ImageMapper.buildRenderingSettingsCriteria(
-                            STSMapper.IMAGE_GRANULARITY, imageID);
-        List rsList = 
-            (List) gateway.retrieveListSTSData("RenderingSettings", c);
-        
-        UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
-        //List of renderingSettings to save in DB.  
-        List l = new ArrayList();
-        if (rsList != null) {
-            List list = ImageMapper.filterList(rsList, uc.getUserID());
-            if (list.size() == 0)  // nothing previously saved
-                l = saveRSFirstTime(imageID, rDef);
-            else l = saveRS(rDef, list);
-            gateway.updateAttributes(l);
-        }
-	}
-    
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveIDPHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException
@@ -1032,75 +1028,11 @@ class DMSAdapter
             ids.add(id);
         }
         Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
-        List l = null;
         //Load the graph defined by criteria.
-            List images = (List) gateway.retrieveListData(Image.class, c);
-            if (images != null)
-                 l = HierarchyMapper.fillIDPHierarchy(images, map);
-            return l;
-    }
-
-    
-    /** Save the renderingSettings for the very first time. */
-    private List saveRSFirstTime(int imageID, RenderingDef rDef)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        List l = new ArrayList();
-        ChannelBindings[] channelBindings = rDef.getChannelBindings();
-        int z = rDef.getDefaultZ();
-        int t = rDef.getDefaultT();
-        int model = rDef.getModel();
-        QuantumDef qDef = rDef.getQuantumDef();
-        int cdStart = qDef.cdStart;
-        int cdEnd = qDef.cdEnd;
-        int bitResolution = qDef.bitResolution;
-        RenderingSettings rs;
-        //Need to retrieve the image object.
-        //Define the criteria by which the object graph is pulled out.
-        Criteria cImage = ImageMapper.buildImageCriteria(imageID);       
-        //Load the graph defined by criteria.
-        Image image = (Image) gateway.retrieveData(Image.class, cImage);
-        Criteria cExp = UserMapper.getUserStateCriteria();
-        Experimenter experimenter = gateway.getCurrentUser(cExp);
-        for (int i = 0; i < channelBindings.length; i++) {
-            rs = (RenderingSettings) 
-                gateway.createNewData("RenderingSettings");
-            rs.setImage(image);
-            rs.setExperimenter(experimenter);
-            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
-                            bitResolution, channelBindings[i], rs);
-            l.add(rs);
-        }  
-        return l;
-    }
-
-    /** Save the renderingSettings. */
-    private List saveRS(RenderingDef rDef, List rsList)
-        throws DSAccessException
-    {
-        List l = new ArrayList();
-        ChannelBindings[] channelBindings = rDef.getChannelBindings();
-        int z = rDef.getDefaultZ();
-        int t = rDef.getDefaultT();
-        int model = rDef.getModel();
-        QuantumDef qDef = rDef.getQuantumDef();
-        int cdStart = qDef.cdStart;
-        int cdEnd = qDef.cdEnd;
-        int bitResolution = qDef.bitResolution;
-        RenderingSettings rs;
-        Iterator j = rsList.iterator();
-        int k;
-        if (channelBindings.length != rsList.size()) 
-            throw new DSAccessException("Data retrieved from DB don't " +
-                "match the parameters passed.");
-        while (j.hasNext()) {
-            rs = (RenderingSettings) j.next();
-            k = rs.getTheC().intValue(); // need to add control
-            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
-                        bitResolution, channelBindings[k], rs);
-            l.add(rs);
-        } 
-        return l;
+        List images = (List) gateway.retrieveListData(Image.class, c);
+        if (images != null)
+             return HierarchyMapper.fillIDPHierarchy(images, map);
+        return new ArrayList();
     }
 
     private void markChainNodes(AnalysisChain chain, Collection nodes)
@@ -1109,7 +1041,6 @@ class DMSAdapter
         Iterator iter = nodes.iterator();
         AnalysisNodeData node;
         AnalysisNode n;
-        
         while (iter.hasNext()) {
             node = (AnalysisNodeData) iter.next();
             n  = (AnalysisNode) gateway.createNewData(AnalysisNode.class);

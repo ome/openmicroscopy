@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.map;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +159,7 @@ public class DatasetMapper
 	 * 
 	 * @return 
 	 */
-	public static Criteria buildImagesCriteria(int id)
+	public static Criteria buildImagesCriteria(List ids)
 	{
 		Criteria criteria = new Criteria();
 		
@@ -166,6 +167,7 @@ public class DatasetMapper
 		criteria.addWantedField("images");
 		criteria.addWantedField("images", "id");
 		criteria.addWantedField("images", "name");
+        criteria.addWantedField("images", "created");
 		criteria.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
@@ -174,7 +176,8 @@ public class DatasetMapper
         criteria.addWantedField("images.default_pixels", "Repository");
         criteria.addWantedField("images.default_pixels.Repository",
 								"ImageServerURL");
-		criteria.addFilter("id", new Integer(id));
+        criteria.addFilter("id", "IN", ids);
+		//criteria.addFilter("id", new Integer(id));
         criteria.addOrderBy("id");
 		
 		return criteria;
@@ -330,6 +333,41 @@ public class DatasetMapper
         return ids;
     }
     
+    public static List fillImagesInUserDatasets(List datasets, 
+                    ImageSummary iProto)
+    {
+        List images = new ArrayList();
+        HashMap map = new HashMap();
+        Iterator d = datasets.iterator();
+        Iterator i;
+        Image image;
+        ImageSummary is;
+        Integer imageID;
+        while (d.hasNext()) {
+            i = ((Dataset) d.next()).getImages().iterator();
+            while (i.hasNext()) {
+                image = (Image) i.next();
+                imageID = new Integer(image.getID());
+                is = (ImageSummary) map.get(imageID);
+                if (is == null) {
+                    //Make a new DataObject and fill it up.
+                    is = (ImageSummary) iProto.makeNew();
+                    is.setID(image.getID());
+                    is.setName(image.getName());
+                    is.setDate(
+                       PrimitiveTypesMapper.getTimestamp(image.getCreated()));
+                    is.setPixelsIDs(fillListPixelsID(image));
+                    is.setDefaultPixels(fillDefaultPixels(
+                                image.getDefaultPixels()));
+                    //Add the image summary object to the list.
+                    images.add(is);
+                    map.put(imageID, is);
+                }
+            }
+        }
+        return images;
+    }
+    
 	/**
 	 * Creates the image summary list.
 	 * 
@@ -339,22 +377,9 @@ public class DatasetMapper
 	 */
 	public static List fillListImages(Dataset dataset, ImageSummary iProto)
 	{
-		List images = new ArrayList();
-		Iterator i = dataset.getImages().iterator();
-		Image image;
-		ImageSummary is;
-		while (i.hasNext()) {
-			image = (Image) i.next();
-			//Make a new DataObject and fill it up.
-			is = (ImageSummary) iProto.makeNew();
-			is.setID(image.getID());
-			is.setName(image.getName());
-			is.setPixelsIDs(fillListPixelsID(image));
-			is.setDefaultPixels(fillDefaultPixels(image.getDefaultPixels()));
-			//Add the image summary object to the list.
-			images.add(is);
-		}
-		return images;
+		List datasets = new ArrayList();
+        datasets.add(dataset);
+        return fillImagesInUserDatasets(datasets, iProto);
 	}
 	
     /**
@@ -383,6 +408,7 @@ public class DatasetMapper
                     (ImageAnnotation) ids.get(new Integer(id))));
             is.setID(id);
             is.setName(image.getName());
+            is.setDate(PrimitiveTypesMapper.getTimestamp(image.getCreated()));
             is.setPixelsIDs(fillListPixelsID(image));
             is.setDefaultPixels(fillDefaultPixels(image.getDefaultPixels()));
             //Add the image summary object to the list.
