@@ -191,9 +191,9 @@ class ProjectDatasetsDiffPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"ID", "Name", "Add"};
+		private final String[]	columnNames = {"Name", "Add"};
 		private final Object[]	datasets = datasetsDiff.toArray();
-		private Object[][] 		data = new Object[datasets.length][3];
+		private Object[][] 		data = new Object[datasets.length][2];
 		private Map 			datasetSummaries;
 		
 		private DatasetsTableModel()
@@ -202,15 +202,13 @@ class ProjectDatasetsDiffPane
 			DatasetSummary ds;
 			for (int i = 0; i < datasets.length; i++) {
 				ds = (DatasetSummary) datasets[i];
-				String sID = ""+ ds.getID();
-				data[i][0] = sID;
-				data[i][1] = ds.getName();
-				data[i][2] = new Boolean(false);
-				datasetSummaries.put(sID, datasets[i]);
+				data[i][0] = ds.getName();
+				data[i][1] = new Boolean(false);
+				datasetSummaries.put(new Integer(i), datasets[i]);
 			}
 		}
 	
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 	
 		public int getRowCount() { return datasets.length; }
 	
@@ -226,7 +224,7 @@ class ProjectDatasetsDiffPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 		
@@ -235,7 +233,7 @@ class ProjectDatasetsDiffPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get((String) data[row][0]);
+								datasetSummaries.get(new Integer(row));
 			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}

@@ -47,6 +47,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
@@ -202,6 +204,11 @@ class ProjectDatasetsPane
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
+		//Set the columns' width.
+		TableColumnModel columns = t.getColumnModel();
+		TableColumn column = columns.getColumn(1);
+		column.setPreferredWidth(DataManager.SELECT_COLUMN_WIDTH);
+		column.setWidth(DataManager.SELECT_COLUMN_WIDTH);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -209,7 +216,6 @@ class ProjectDatasetsPane
 		p.add(sp);
 		return p;
 	}
-	
 	
 	private TableComponent buildLabelTable()
 	{
@@ -246,9 +252,9 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"ID", "Name", "Remove"};
+		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	datasets = listDatasets.toArray();
-		private Object[][] 		data = new Object[datasets.length][3];
+		private Object[][] 		data = new Object[datasets.length][2];
 		private Map datasetSummaries;
 
 		private DatasetsTableModel()
@@ -258,14 +264,13 @@ class ProjectDatasetsPane
 			for (int i = 0; i < datasets.length; i++) {
 				ds = (DatasetSummary) datasets[i];
 				String sID = ""+ ds.getID();
-				data[i][0] = sID;
-				data[i][1] = ds.getName();
-				data[i][2] = new Boolean(false);
-				datasetSummaries.put(sID, ds);
+				data[i][0] = ds.getName();
+				data[i][1] = new Boolean(false);
+				datasetSummaries.put(new Integer(i), ds);
 			}
 		}
 	
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 	
 		public int getRowCount() { return datasets.length; }
 	
@@ -281,7 +286,7 @@ class ProjectDatasetsPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 		
@@ -290,7 +295,7 @@ class ProjectDatasetsPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get((String) data[row][0]);
+								datasetSummaries.get(new Integer(row));
 			manager.selectDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
@@ -304,9 +309,9 @@ class ProjectDatasetsPane
 	private class DatasetsAddTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"ID", "Name", "Remove"};
+		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	datasets = datasetsToAdd.toArray();
-		private Object[][]		data = new Object[datasets.length][3];
+		private Object[][]		data = new Object[datasets.length][2];
 		private Map 			datasetSummaries;
 
 		private DatasetsAddTableModel()
@@ -315,15 +320,13 @@ class ProjectDatasetsPane
 			DatasetSummary ds;
 			for (int i = 0; i < datasets.length; i++) {
 				ds = (DatasetSummary) datasets[i];
-				String sID = ""+ ds.getID();
-				data[i][0] = sID;
-				data[i][1] = ds.getName();
-				data[i][2] = new Boolean(false);
-				datasetSummaries.put(sID, ds);
+				data[i][0] = ds.getName();
+				data[i][1] = new Boolean(false);
+				datasetSummaries.put(new Integer(i), ds);
 			}
 		}
 
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 
 		public int getRowCount() { return datasets.length; }
 
@@ -339,7 +342,7 @@ class ProjectDatasetsPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 	
@@ -348,7 +351,7 @@ class ProjectDatasetsPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get((String) data[row][0]);
+								datasetSummaries.get(new Integer(row));
 			manager.updateAddSelection(((Boolean) value).booleanValue(), ds);
 		}
 	}

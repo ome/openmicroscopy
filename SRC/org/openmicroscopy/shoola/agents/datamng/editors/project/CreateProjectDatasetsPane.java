@@ -152,7 +152,7 @@ class CreateProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[] columnNames = {"ID", "Name", "Select"};
+		private final String[] columnNames = {"Name", "Select"};
 		private final Object[] datasets = manager.getDatasets().toArray();
 		private Object[][] data;
 		private Map datasetSummaries;
@@ -162,15 +162,13 @@ class CreateProjectDatasetsPane
 			datasetSummaries = new HashMap();
 			data = new Object[datasets.length][3];
 			for (int i = 0; i < datasets.length; i++) {
-				String sID = ""+ ((DatasetSummary) datasets[i]).getID();
-				data[i][0] = sID;
-				data[i][1] = ((DatasetSummary) datasets[i]).getName();
-				data[i][2] = new Boolean(false);
-				datasetSummaries.put(sID, datasets[i]);
+				data[i][0] = ((DatasetSummary) datasets[i]).getName();
+				data[i][1] = new Boolean(false);
+				datasetSummaries.put(new Integer(i), datasets[i]);
 			}
 		}
 
-		public int getColumnCount() { return 3; }
+		public int getColumnCount() { return 2; }
 
 		public int getRowCount() { return datasets.length; }
 
@@ -187,7 +185,7 @@ class CreateProjectDatasetsPane
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
-			if (col == 2) isEditable = true;
+			if (col == 1) isEditable = true;
 			return isEditable;
 		}
 		
@@ -196,7 +194,7 @@ class CreateProjectDatasetsPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get((String) data[row][0]);
+								datasetSummaries.get(new Integer(row));
 			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}

@@ -38,6 +38,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -60,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ProjectEditorBar
-	extends JPanel	
+	extends JToolBar	
 {
 
 	private ProjectEditorManager 	manager;
@@ -71,6 +72,7 @@ class ProjectEditorBar
 		this.manager = manager;
 		initButtons();
 		buildGUI();
+		setFloatable(false);
 	}
 
 	/** Returns the save button. */
