@@ -41,6 +41,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -61,6 +62,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     private Registry registry;
     private EventBus eventBus;
     private BrowserEnvironment env;
+    private TopFrame tf;
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -80,6 +82,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         BrowserManager manager = env.getBrowserManager();
         // TODO: check registry settings, load, but for now, create
+        // TODO: also set up initial window?
         
     }
     
@@ -111,10 +114,9 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         this.registry = ctx;
         // TODO: extract registry settings from context
-        // TODO: when this method goes live from JM/Andrea, uncomment
-        // this.eventBus = ctx.getEventBus();
+        this.eventBus = ctx.getEventBus();
         // TODO: register event listening here (this,type.class)
-        
+        //eventBus.register(this.LoadDataset.class);
     }
 
     /**
