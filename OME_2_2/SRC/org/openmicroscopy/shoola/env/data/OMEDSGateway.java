@@ -161,7 +161,6 @@ class OMEDSGateway
 	{
 		try {
 			proxiesFactory = DataServer.getDefaultServices(omedsAddress);
-            serverVersionCheck();
 		} catch (Exception e) {
 			String s = "Can't connect to OMEDS. URL not valid.";
 			throw new DSOutOfServiceException(s, e);
@@ -183,6 +182,7 @@ class OMEDSGateway
 		try {
 			RemoteCaller proxy = proxiesFactory.getRemoteCaller();
 			proxy.login(userName, password);
+            serverVersionCheck();
 			connected = true;
 		} catch (RemoteConnectionException rce) {
 			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
@@ -190,6 +190,18 @@ class OMEDSGateway
 			throw new DSOutOfServiceException("Failed to log in.", rae);
 		}
 	}
+    
+    /**
+     * Returns the session key in use.
+     * 
+     * @return The current session key or <code>null</code> if not available.
+     */
+    public String getSessionKey()
+    {
+        DataFactory ds = getDataFactory();
+        if (ds == null) return null;
+        return ds.getSessionKey();
+    }
 	
 	void logout()
 	{

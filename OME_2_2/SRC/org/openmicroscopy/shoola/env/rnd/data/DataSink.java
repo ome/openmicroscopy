@@ -37,11 +37,14 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.Pixels;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.util.concur.AsyncByteBuffer;
+import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
+import org.openmicroscopy.shoola.omeis.ActivationException;
+import org.openmicroscopy.shoola.omeis.OMEISRegistry;
+import org.openmicroscopy.shoola.omeis.ServiceDescriptor;
+import org.openmicroscopy.shoola.omeis.services.PixelsReader;
+import org.openmicroscopy.shoola.omeis.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
 
 /** 
@@ -148,29 +151,75 @@ public class DataSink
         return id.intValue();
     }
     
-
-    /** The id of the pixels set. */
-    private Pixels              pixelsID;
+    /**
+     * Utility method to find out how many bytes are used to store a pixel
+     * of a given type.
+     * 
+     * @param pixelType     The type used to store pixel values.  Must be one
+     *                      of the constants defined by this class.
+     * @return  How many bytes are used to store a pixel of the given type.
+     */
+    public static int getBytesPerPixel(int pixelType)
+    {
+        if (pixelType < MIN_PIX_TYPE || MAX_PIX_TYPE < pixelType)
+            throw new IllegalArgumentException("Invalid pixel type.");
+        return BYTES_PER_PIXEL[pixelType];
+    }
     
     /**
-     * The type used to store pixel values. 
-     * One of the constants defined by this class.
+     * Factory method to create a new <code>MetadataSource</code> to handle
+     * access to the metadata associated with the specified pixels set within
+     * the given image.
+     *                 
+     * @param imageID   The id of the image the pixels set belongs to.
+     * @param pixelsID  The id of the pixels set.
+     * @param context   The container's registry.  Mustn't be <code>null</code>.
+     * @throws DataSourceException If an error occurs while creating the 
+     *                              proxy to <i>OMEIS</i>.
      */
-    private int                 pixelType;
+    public static DataSink makeNew(MetadataSource source, 
+                                    CmdProcessor cmdProcessor, 
+                                    Registry context)
+        throws DataSourceException
+    {
+        if (source == null)
+            throw new NullPointerException("No metadata source.");
+        if (context == null) throw new NullPointerException("No registry.");
+        
+        String sessionKey = context.getDataManagementService().getSessionKey();
+        int channelType = HttpChannel.CONNECTION_PER_REQUEST, 
+            connTimeout = -1, blockSize = -1;
+        ServiceDescriptor srvDesc = new ServiceDescriptor(sessionKey, 
+                                        source.getOmeisURL(),
+                                        channelType, connTimeout, blockSize);
+        PixelsReader omeis = null;
+        try {
+            omeis = OMEISRegistry.getPixelsReader(srvDesc);
+        } catch (ActivationException ae) {
+            throw new DataSourceException("Couldn't create OMEIS proxy.", ae);
+        }
+        DataSource ds = new DataSource(source.getOmeisPixelsID(), 
+                                            source.getPixelsDims(), 
+                                            source.getPixelType(),
+                                            omeis, cmdProcessor);
+        return new DataSink(ds);
+    }
     
-    /** Size of the pixels set. */
-    private PixelsDimensions    pixDims;
     
-    /** Proxy to the remote pixels source. */
-    private PixelsService       source;
+    /** Retrieves planes and stacks. */
+    private DataSource         source;
     
-    /** 
-     * Retrieves planes and stacks.  
-     * If a whole stack fits into into its internal buffer, then the
-     * stack at the current timepoint is cached into that buffer. 
+    
+    /**
+     * Creates a new object to access image data within a pixels set.
+     * 
+     * @param source        The gateway to the raw data.  
+     *                      Mustn't be <code>null</code>. 
      */
-    private DataFetcher         dataFetcher;
-    
+    private DataSink(DataSource source)
+    {
+        this.source = source;
+    }
     
     /**
      * Factory method to fetch plane data and create an object to access it.
@@ -190,60 +239,25 @@ public class DataSink
         Plane2D plane = null;
         switch (pDef.getSlice()) {
             case PlaneDef.XY:
-                plane = new XYPlane(pDef, pixDims, 
-                                    BYTES_PER_PIXEL[pixelType],
-                                    dataFetcher.getPlaneData(
+                plane = new XYPlane(pDef, source.getPixDims(), 
+                                    source.getBytesPerPixel(),
+                                    source.getPlaneData(
                                             pDef.getZ(), w, pDef.getT()), 
                                     strategy);
                 break;
             case PlaneDef.XZ:
-                if (!dataFetcher.canCacheStack())
-                    throw new DataSourceException(
-                                    "The stack exceeds the memory capability.");
-                plane = new XZPlane(pDef, pixDims, 
-                                    BYTES_PER_PIXEL[pixelType],
-                                    dataFetcher.getStackData(w, pDef.getT()), 
+                plane = new XZPlane(pDef, source.getPixDims(), 
+                                    source.getBytesPerPixel(),
+                                    source.getStackData(w, pDef.getT()), 
                                     strategy);
                 break;
             case PlaneDef.ZY:
-                if (!dataFetcher.canCacheStack())
-                    throw new DataSourceException(
-                                    "The stack exceeds the memory capability.");
-                plane = new ZYPlane(pDef, pixDims, 
-                                    BYTES_PER_PIXEL[pixelType],
-                                    dataFetcher.getStackData(w, pDef.getT()), 
+                plane = new ZYPlane(pDef, source.getPixDims(), 
+                                    source.getBytesPerPixel(),
+                                    source.getStackData(w, pDef.getT()), 
                                     strategy);
         }
         return plane;
-    }
-    
-    /**
-     * Creates a new object to deal with the image data.
-     * All references passed in mustn't be <code>null</code>.
-     * 
-     * @param pixelsID      The id of the pixels set.
-     * @param pixelType     The type used to store pixel values. 
-     *                      Must be one of the constants defined by this class.
-     * @param dims          The pixels dimensions.
-     * @param source        The gateway to the raw data.
-     * @param stackBuffer   The buffer to cache the stack data.
-     * @param cmdProcessor  To perform asynchronous data retieval.
-     */
-    public DataSink(Pixels pixelsID, int pixelType, PixelsDimensions dims, 
-                    PixelsService source, AsyncByteBuffer stackBuffer,
-                    CmdProcessor cmdProcessor)
-    {
-        if (pixelType < MIN_PIX_TYPE || MAX_PIX_TYPE < pixelType)
-            throw new IllegalArgumentException("Invalid pixel type");
-        if (dims == null)   throw new NullPointerException("No dimensions.");
-        if (source == null) throw new NullPointerException("No source.");
-
-        this.pixelsID = pixelsID;
-        this.pixelType = pixelType;
-        this.pixDims = dims;
-        this.source = source;
-        
-        dataFetcher = new DataFetcher(this, stackBuffer, cmdProcessor);
     }
     
     /**
@@ -263,38 +277,10 @@ public class DataSink
         if (pDef == null) 
             throw new NullPointerException("No plane definition.");
         BytesConverter strategy = 
-                        BytesConverter.getConverter(pixelType, BIG_ENDIAN);
+                        BytesConverter.getConverter(
+                                source.getPixelType(), BIG_ENDIAN);
         return createPlane(pDef, w, strategy);
     }
-
-    /**
-     * Returns the id of the pixels set this object is working for.
-     * 
-     * @return See above.
-     */
-    public Pixels getPixelsID() { return pixelsID; }
-    
-    /**
-     * Returns the dimensions of the pixels set this object is working for.
-     * 
-     * @return See above
-     */
-    public PixelsDimensions getPixDims() { return pixDims; }
-    
-    /** 
-     * Tells how many bytes are used for each pixel within the pixels set
-     * this object is working for.
-     * 
-     * @return See above. 
-     */
-    public int getBytesPerPixel() { return BYTES_PER_PIXEL[pixelType]; }
-    
-    /**
-     * Returns a proxy to the remote pixels source.
-     * 
-     * @return See above.
-     */
-    public PixelsService getSource() { return source; }
     
 }
 

@@ -64,6 +64,13 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 public interface DataManagementService
 {
 	
+    /**
+     * Returns the session key in use.
+     * 
+     * @return The current session key or <code>null</code> if not available.
+     */
+    public String getSessionKey();
+    
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.

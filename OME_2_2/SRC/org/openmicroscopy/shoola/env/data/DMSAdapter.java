@@ -104,6 +104,12 @@ class DMSAdapter
 		return gateway.getCurrentUser(c).getID();
 	}
     
+     /** Implemented as specified in {@link DataManagementService}. */
+    public String getSessionKey()
+    {
+        return gateway.getSessionKey();
+    }
+    
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
     								DatasetSummary dProto)
