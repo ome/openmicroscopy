@@ -78,6 +78,12 @@ public class ChainStructureErrors {
 		errors.add(error);
 	}
 	
+	public void addErrors(Vector newErrors) {
+		if (errors == null)
+			errors = new Vector();
+		errors.addAll(newErrors);
+	}
+	
 	public void display() {
 		// for now
 		if (errors == null) 
