@@ -160,7 +160,6 @@ public abstract class QuantumStrategy
 		 this.globalMax = globalMax;
 		 this.windowStart = globalMin;
 		 this.windowEnd = globalMax;
-		 onWindowChange();
 	}
 	
 	/**
