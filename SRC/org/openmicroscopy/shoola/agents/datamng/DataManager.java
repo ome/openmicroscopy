@@ -36,6 +36,8 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
@@ -62,6 +64,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -116,6 +119,7 @@ public class DataManager
 	private TopFrame				topFrame;
 	
 	private JCheckBoxMenuItem		viewItem;
+	private JButton					viewButton;
 	
 	/** 
 	 * All user's projects. 
@@ -150,6 +154,8 @@ public class DataManager
 		control.attachListener();
 		topFrame = registry.getTopFrame();
 		viewItem = getViewMenuItem();
+		viewButton = getViewButton();
+		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 	}
 	
@@ -680,6 +686,16 @@ public class DataManager
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager");
 		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
+	}
+	
+	private JButton getViewButton()
+	{
+		IconManager im = IconManager.getInstance(registry);
+		JButton b = new JButton(im.getIcon(IconManager.DMANAGER));
+		b.setToolTipText(
+			UIFactory.formatToolTipText("Bring up the dataManager."));
+		control.setToolBarItemListener(b, DataManagerCtrl.DM_VISIBLE);
+		return b;
 	}
 	
 }

@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.event.InternalFrameEvent;
@@ -104,6 +106,13 @@ public class DataManagerCtrl
 	{
 		item.setActionCommand(""+id);
 		item.addActionListener(this);
+	}
+	
+	/** Attach listener to a toolbar button. */
+	void setToolBarItemListener(JButton b, int id)
+	{
+		b.setActionCommand(""+id);
+		b.addActionListener(this);
 	}
 	
 	/** 
