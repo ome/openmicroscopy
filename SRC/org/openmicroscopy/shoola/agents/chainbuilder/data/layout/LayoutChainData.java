@@ -203,9 +203,11 @@ public class LayoutChainData  extends AnalysisChainData
 		//System.err.println("working on layer "+i);
 		try {
 			Iterator iter = layering.layerIterator(i);
-			while (iter.hasNext()) {
-				node = (GraphLayoutNode) iter.next();
-				makeProperNode(node,i);		
+			if (iter != null) {
+				while (iter.hasNext()) {
+					node = (GraphLayoutNode) iter.next();
+					makeProperNode(node,i);		
+				}
 			}
 		}
 		catch (Exception e) { 
@@ -435,7 +437,6 @@ public class LayoutChainData  extends AnalysisChainData
 			}
 		} 
 		catch(Exception e) {
-			System.err.println("exception!");
 		}
 	}
 	
@@ -557,6 +558,8 @@ public class LayoutChainData  extends AnalysisChainData
 		 * @return the iterator for that layer
 		 */
 		public Iterator layerIterator(int i) {
+			if (getLayer(i) == null)
+				return null;
 			return getLayer(i).iterator();
 		}
 	
