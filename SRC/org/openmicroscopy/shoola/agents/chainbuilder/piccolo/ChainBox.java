@@ -217,6 +217,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		locked.setFont(Constants.LABEL_FONT);
 		locked.setTextPaint(Constants.LOCKED_COLOR);
 		locked.setScale(1.5);
+		locked.setPickable(false);
 		chainLayer.addChild(locked);
 		//PBounds lockedBounds = locked.getGlobalFullBounds();
 		//float x = (float) (b.getX()+b.getWidth()-lockedBounds.getWidth()-HGAP);
