@@ -506,7 +506,8 @@ public class BrowserAgent implements Agent, AgentEventListener
             
             writeStatusImmediately(status,"Retrieving classification information from DB...");
             classificationMap = new HashMap();
-            List classificationList = sts.retrieveImageAttributes("Classification",idList);
+            List classificationList =
+                    sts.retrieveImageClassifications(idList,datasetModel.getID());
             for(Iterator iter = classificationList.iterator(); iter.hasNext();)
             {
                 Classification c = (Classification)iter.next();
