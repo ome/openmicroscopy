@@ -38,9 +38,15 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * Encapsulates a request to load a given image into an image viewer agent.
- * Currently, the Browser and the Data Manager agents post this event to
- * tell the Viewer agent to start the loading process of an image and then
- * display it on screen &#151; after it has been rendered.
+ * Currently, the <i>Browser</i> and the <i>Data Manager</i> agents post this
+ * event to tell the <i>Rendering Engine</i> to start the loading process of an
+ * image.  Upon finishing the loading process, the <i>Rendering Engine</i> fires
+ * an {@link ImageLoaded} response event, which is caught both by the
+ * <i>Viewer</i> and <i>Renderer</i> agents.  Then, the <i>Viewer</i> fires a
+ * {@link RenderImage} request; this is again fulfilled by the <i>Rendering
+ * Engine</i>, which puts a {@link ImageRendered} response on the event bus.
+ * Finally the <i>Viewer</i> receives this response and displays the renderered
+ * image on screen.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,15 +66,15 @@ public class LoadImage
 	/** The ID of the image to load. */
 	private int		imageID;
 	
-	/** The ID of the set of pixels. */
-	
+	/** The ID of the pixels set. */
 	private int		pixelsID;
+	
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param imageID	The ID of the image to load.
-	 * @param pixelsID	The ID of the set of pixels.
+	 * @param pixelsID	The ID of the pixels set.
 	 */
 	public LoadImage(int imageID, int pixelsID)
 	{
@@ -87,7 +93,7 @@ public class LoadImage
 	}
 
 	/**
-	 * Return the ID of the set of pixels.
+	 * Return the ID of the pixels set.
 	 * 
 	 * @return	See above.
 	 */
