@@ -229,6 +229,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// The display should be roughly square, 
 		// in terms of the number of rows vs. # of columns
 		rowSize = (int) Math.floor(Math.sqrt(num));
+		System.err.println(" # of chains in row is "+rowSize);
 		
 		count=0;
 		// draw each of them.
@@ -300,14 +301,36 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	public void displayNewChain(LayoutChainData chain) {
 		ChainBox box = buildChain(chain);
 		if (box != null)  {
-			placeChain(box);
+			placeChainInNewRow(box);
 			// fix up last row
-			row.setHeight(rowHeight);
-			rows.add(row);
 			adjustSizes();
 			scaleToSize();
 		}
 		
+	}
+	
+	/*
+	 * new chains must be placed in their own rows- otherwise, 
+	 * it's too difficult to figure.  
+	 */
+	private void placeChainInNewRow(ChainBox box) {
+		float height = 0;
+		
+		float width = (float)box.getWidth();
+		y+=rowHeight;
+		rowHeight = (float) box.getHeight();
+ 
+		x = 0;
+		if (width > maxRowWidth) {
+			System.err.println("new chain changes max width to "+width);
+			maxRowWidth = width;
+		}
+		row = new RowInfo();
+		row.setHeight(rowHeight);
+		rows.add(row);
+		
+		box.setOffset(x,y);
+		row.addBox(box);
 	}
 	
 	private void adjustSizes() {
@@ -517,8 +540,10 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
     			
     			// find difference between maxWidth and rowWidth;
     			float horizSpace = maxWidth -width;
+   
+    	
     			float padding = 0;
-    			if (horizSpace > 0) 
+    			if (horizSpace > 0)
     				padding = horizSpace/boxes.size();
     			float boxWidth;
     			Iterator iter = boxes.iterator();
@@ -537,6 +562,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
     				box.centerChain();
     				x += boxWidth;
     			}
+    			width = maxWidth;
     		}
     }
 	
