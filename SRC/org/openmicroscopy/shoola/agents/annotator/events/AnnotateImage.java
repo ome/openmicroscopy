@@ -40,6 +40,8 @@ package org.openmicroscopy.shoola.agents.annotator.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Point;
+
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
@@ -57,6 +59,9 @@ public class AnnotateImage
         
     /** Image's name. */
     private String name;
+    
+    /** The location to popup the window. */
+    private Point customLocation = null;
     
     /**
      * Constructs a request to bring up the annotator with parameters from
@@ -79,6 +84,35 @@ public class AnnotateImage
     public String getName()
     {
     	return name;
+    }
+    
+    /**
+     * Returns whether or not this event specifies an annotator location;
+     * that is, the onscreen point where the annotator should be launched.
+     * @return
+     */
+    public boolean isLocationSpecified()
+    {
+        return (customLocation != null);
+    }
+    
+    /**
+     * Gets the desired popup location of the annotator.
+     * @return
+     */
+    public Point getSpecifiedLocation()
+    {
+        return customLocation;
+    }
+    
+    /**
+     * Sets the desired popup location of the annotator to the specified
+     * location.
+     * @param pixelLocation
+     */
+    public void setSpecifiedLocation(Point pixelLocation)
+    {
+        customLocation = pixelLocation;
     }
     
 }

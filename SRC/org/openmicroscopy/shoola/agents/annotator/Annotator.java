@@ -36,6 +36,7 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -326,6 +327,12 @@ public class Annotator
             new ImageAnnotationCtrl(this,requestEvent);
         activeControls.add(iac);
         TextAnnotationUIF tif = new TextAnnotationUIF(iac,registry);
+        
+        if(requestEvent.isLocationSpecified())
+        {
+            Point point = requestEvent.getSpecifiedLocation();
+            tif.setBounds(point.x,point.y,tif.getWidth(),tif.getHeight());
+        }
         tif.show();
     }
     
