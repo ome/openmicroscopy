@@ -1,3 +1,4 @@
+/* Overall settings. */
 body {
   background-color: white;
   font-family: Verdana,Helvetica,sans-serif; 
@@ -6,6 +7,14 @@ body {
   margin-left: 10px;
 }
 
+/* A section body is contained in a div tag nested in a td.
+ * Such nesting doesn't much the fancy of some browsers,
+ * which ignore the size inherited from the body.  So we
+ * set it again here.
+ */
+td { font-size: 12px; }
+
+/* Links. */
 a {
   color: steelblue;
   text-decoration: none;
@@ -15,9 +24,7 @@ a:hover {
   color: #FFCC1C;
 }
 
-p { font-size: 12px; }
-td {font-size: 12px; }
-
+/* Class used by the td enclosing the navigation links. */ 
 .navigation {
   font-family: Verdana,Helvetica,sans-serif;
   text-align: left;
@@ -29,12 +36,19 @@ td {font-size: 12px; }
   background-color: #F0F0F0;
 }
 
+/* Class used by the div enclosing the document attributes
+ * in the cover page.
+ */
 .document-attributes {
   font-family: Verdana,Arial,Helvetica; 
   text-align: left;
   font-size: 12px; 
   color: #000000;
 }
+
+/* Class used by the div enclosing the document title
+ * in the cover page.
+ */
 .document-title {
   font-family: Verdana,Helvetica,sans-serif;
   text-align: left;
@@ -42,6 +56,10 @@ td {font-size: 12px; }
   font-weight: bold;
   color: gray;
 }
+
+/* Class used by the div enclosing the document title
+ * in the document header within each page.
+ */
 .document-header {
   font-family: Verdana,Helvetica,sans-serif;
   text-align: right;
@@ -49,19 +67,51 @@ td {font-size: 12px; }
   font-weight: bold;
   color: #000000;
 }
+
+/* Class used by the div enclosing the document footer
+ * in each page.
+ */
 .document-footer {
   font-family: Verdana,Helvetica,sans-serif;
   text-align: right;
   font-size: 8px; 
 }
 
+/* Class used by the p enclosing a section title. */
+.section-heading-1 {
+  font-family: Verdana,Helvetica,sans-serif;
+  text-align: left;
+  vertical-align: bottom;
+  font-size: 18px; 
+  font-weight: bold;
+  color: #000000;
+}
 
+/* Class used by the p enclosing a sub-section title. */
+.section-heading-2 {
+  font-family: Verdana,Helvetica,sans-serif; 
+  text-align: left;
+  vertical-align: bottom;
+  font-size: 14px; 
+  font-weight: bold;
+  color: #000000;
+}
+
+
+/* Class used by the pre enclosing code snippets. */
 .code { 
   border-color: #CFDCED; 
   border-style: solid; 
   border-width: 1px; 
 }
 
+/* The following three classes are used to render notes.
+ * A note is structured as follows:
+ *   [div class="noteFrame"]
+ *     [div class="noteLabel"] Label [/div]
+ *     [div class="noteContent"] Actual contents [/div]
+ *   [/div]
+ */
 .noteFrame {
   margin: 30px 20px 30px 20px;
   border: solid 1px #7099C5;
