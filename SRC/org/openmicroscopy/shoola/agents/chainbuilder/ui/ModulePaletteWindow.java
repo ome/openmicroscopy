@@ -58,7 +58,6 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
@@ -104,6 +103,9 @@ public class ModulePaletteWindow
 			
 	/* module data loader */
 	private ModuleLoader modLoader;
+	
+	/* chain loader */
+	private ChainLoader chainLoader;
 	
 	/** The split pane in the window. */
 	private JSplitPane split;
@@ -347,9 +349,10 @@ public class ModulePaletteWindow
 			start = System.currentTimeMillis();
 			topWindowManager = manager;
 			ContentGroup group = new ContentGroup(this);
+			// we must have all modules and chains loaded
+			// because we may have some modules that are not found in any chain
 			modLoader = new ModuleLoader(dataManager,group);
-			new ChainExecutionLoader(dataManager,group); // must execute this, but don't need the poitner to it.ê
-			new ChainLoader(dataManager,group);
+			chainLoader = new ChainLoader(dataManager,group);
 			
 			group.setAllLoadersAdded();
 			dataState = LOADING;
@@ -362,6 +365,7 @@ public class ModulePaletteWindow
 		if (dataManager.getChains() != null || dataManager.getModules() != null) {
 			long guiStart =System.currentTimeMillis();
 			buildGUI((ModulesData) modLoader.getContents());
+			chainLoader.reconcileChains();
 			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long guiTime =System.currentTimeMillis()-guiStart;
 				System.err.println("time spent on module palette .."+guiTime);
