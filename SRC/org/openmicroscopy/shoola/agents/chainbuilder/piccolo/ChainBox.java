@@ -129,6 +129,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 		// add name
 		name = new PText(chain.getName());
+		name.setGreekThreshold(0);
 		name.setFont(Constants.LABEL_FONT);
 		name.setPickable(false);
 		name.setScale(MAX_NAME_SCALE);
@@ -151,7 +152,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		y += owner.getHeight()+VGAP;
 		
 		// build the chain..
-		chainView = new ChainView(chain,false);
+		chainView = new PaletteChainView(chain);
 		
 		chainLayer.addChild(chainView);
 		chainView.setOffset(HGAP*2,y);
@@ -194,8 +195,9 @@ public class ChainBox extends GenericBox implements MouseableNode
 	private void addLockedIndicator() {
 		PBounds b = getFullBoundsReference();
 		PText locked = new PText("Locked");
+		locked.setGreekThreshold(0);
 		locked.setFont(Constants.LABEL_FONT);
-		locked.setPaint(Constants.LOCKED_COLOR);
+		locked.setTextPaint(Constants.LOCKED_COLOR);
 		locked.setScale(2);
 		chainLayer.addChild(locked);
 		PBounds lockedBounds = locked.getGlobalFullBounds();
@@ -203,14 +205,6 @@ public class ChainBox extends GenericBox implements MouseableNode
 		locked.setOffset(x,b.getY()+VGAP);
 	}
 			
-	
-	public void setSelected(boolean v) {
-		if (v == true)
-			setPaint(Constants.SELECTED_FILL);
-		else
-			setPaint(null);
-		repaint();
-	}
 	
 
 	public void mouseClicked(GenericEventHandler handler) {
