@@ -42,6 +42,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import java.awt.geom.Point2D;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -86,14 +87,14 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	public void mouseEntered(PInputEvent e) {
 		
 		PNode n = e.getPickedNode();
-		if (n == null || (n != lastChainView && lastChainView != null &&
-				!checkEventInNodeInterior(lastChainView,e) &&
-				!n.isAncestorOf(lastChainView) && 
-				!n.isDescendentOf(lastChainView)))
+		if (n == null || (shouldHideLastChainView(n) &&
+				!(n instanceof PCamera))) {
 			hideLastChainView();
+		}
 		super.mouseEntered(e);
 			
 	}
+	
 	/**
 	 * If the node that I'm exiting is a chain box, 
 	 * check to see if I've actually gone "outside" of the box (in
@@ -102,8 +103,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	 */
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
-		if (!checkEventInNodeInterior(n,e))
+		if (!checkEventInNodeInterior(n,e)) {
 			super.mouseExited(e);
+		}
 		e.setHandled(true);
 	}
 	
@@ -125,11 +127,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	
 	
 	protected void setLastEntered(PNode node) {
-		if (lastChainView != null && lastChainView != node 
-				&& node != null
-				&& !lastChainView.isAncestorOf(node) 
-				&& !lastChainView.isDescendentOf(node))
+		if (node != null && shouldHideLastChainView(node)) {
 			hideLastChainView();
+		}
 		if (node instanceof ChainBox) {
 			ChainBox cb = (ChainBox)node;
 			if (cb.getChainView() instanceof PaletteChainView)
@@ -138,6 +138,16 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		super.setLastEntered(node);
 	}
 	
+	/**
+	 * should we hide the last chain view when we enter this node?
+	 */
+	private boolean shouldHideLastChainView(PNode node) {
+		boolean res = lastChainView != null
+				&& lastChainView != node 
+		        && !lastChainView.isAncestorOf(node) 
+		        && !lastChainView.isDescendentOf(node);
+		return res;
+	}
 	public void setSelectedForDrag(PNode node) {
 		if (node instanceof ChainView) {
 			ChainView chain = (ChainView) node;
@@ -191,8 +201,8 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void hideLastChainView() {
-		if (lastChainView != null) {		
-			lastChainView.hide();
+		if (lastChainView != null) {	
+			lastChainView.hide(); 
 		}
 		//lastChainView = null;
 	}
