@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.MultiplyBoundInputErro
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
+import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 
 
 /** 
@@ -89,15 +90,26 @@ public class LayoutChainData  extends AnalysisChainData
 	
 
 	private boolean hasCycles = false;
+	
+	/** lists of all of unbound inputs and outputs */
+	private Vector unboundInputs = new Vector();
+	private Vector unboundOutputs = new Vector();
 
+	/** hash maps of input links and output links */
+	private HashMap inputLinkMap = null;
+	private HashMap outputLinkMap = null;
 	public void layout() {
 		validateChainStructure();
+		getUnbounded();
 		initNodes();
 		layerNodes();
 		makeProper();
 		reduceCrossings();
 		cleanupNodes();
 		//dumpChain();
+		// clear out link maps so they can be garbabe collected
+		inputLinkMap = outputLinkMap = null;
+		
 	}
 	
 	private void validateChainStructure() {
@@ -118,9 +130,10 @@ public class LayoutChainData  extends AnalysisChainData
 	 *
 	 */
 	private void validateLinks() {
-		// first, get a hash that maps formal inputs and their nodes 
-		// to associated links.
-		HashMap inputLinkMap = getInputLinkMap();
+		
+		if (inputLinkMap == null)
+			getLinkMaps();
+		
 		if (inputLinkMap.size() == 0)
 			return;
 		
@@ -161,44 +174,50 @@ public class LayoutChainData  extends AnalysisChainData
 	 * 
 	 * @return
 	 */
-	private HashMap getInputLinkMap() {
+	private void getLinkMaps() {
 		List links = getLinks();
-		HashMap inputLinkMap = new HashMap();
+		inputLinkMap = new HashMap();
+		outputLinkMap = new HashMap();
 		//		 build map of links by endpoint
 		Iterator iter = links.iterator();
 		HashMap nodeMap;
 		LayoutLinkData link;
-		FormalInputData inp;
-		Vector inLinks;
-		Integer nodeId;
-		LayoutNodeData node;
-		
 		
 		while (iter.hasNext()) {
 			link = (LayoutLinkData) iter.next();
-			inp = link.getToInput();
-			Integer inpID = new Integer(inp.getID());
-			Object obj = inputLinkMap.get(inpID);
+			addLinkToHash(inputLinkMap,link,link.getToInput(),
+					(LayoutNodeData) link.getToNode());
+			addLinkToHash(outputLinkMap,link,link.getFromOutput(),
+					(LayoutNodeData) link.getFromNode());
 			
-			// get the map  of nodes with links to this input.
-			
-			if (obj == null)
-				nodeMap  = new HashMap();
-			else
-				nodeMap = (HashMap) obj;
-			node = (LayoutNodeData) link.getToNode();
-			nodeId = new Integer(node.getID());
-			// Get the list of links for this input & node.
-			obj = nodeMap.get(nodeId);
-			if (obj == null)
-				inLinks = new Vector();
-			else
-				inLinks = (Vector) obj;
-			inLinks.add(link);
-			nodeMap.put(nodeId,inLinks);
-			inputLinkMap.put(inpID,nodeMap);
 		}
-		return inputLinkMap;
+	}
+	
+	private void addLinkToHash(HashMap inputs,LayoutLinkData link,
+			FormalParameterData inp,LayoutNodeData node) {
+	HashMap nodeMap;
+		Integer nodeId;
+		Vector inLinks;
+
+		// get the map  of nodes with links to this input.
+		Integer inpID = new Integer(inp.getID());
+		Object obj = inputs.get(inpID);
+		
+		if (obj == null)
+			nodeMap  = new HashMap();
+		else
+			nodeMap = (HashMap) obj;
+		nodeId = new Integer(node.getID());
+		// Get the list of links for this input & node.
+		obj = nodeMap.get(nodeId);
+		if (obj == null)
+			inLinks = new Vector();
+		else
+			inLinks = (Vector) obj;
+		inLinks.add(link);
+		nodeMap.put(nodeId,inLinks);
+		inputs.put(inpID,nodeMap);
+		
 	}
 	
 	/**
@@ -284,7 +303,78 @@ public class LayoutChainData  extends AnalysisChainData
 	public ChainStructureErrors getStructureErrors() {
 		if (errors == null)
 			validateChainStructure();
+		// clear out link maps so they can be garbage-collected.
+		inputLinkMap = null;
+		outputLinkMap = null;
 		return errors;
+	}
+	
+	/**
+	 * Find the unbound inputs and outputs,
+	 * as needed to draw the whole chain as a single module
+	 *
+	 */
+	private void getUnbounded() {
+		List nodes = getNodes();
+		Iterator iter = nodes.iterator();
+		LayoutNodeData node;
+		while (iter.hasNext()) {
+			node = (LayoutNodeData) iter.next();
+			getUnbounded(node);
+		}
+	}
+	
+	/**
+	 * Get the unbound inputs and ouputs for a single node,
+	 * and add them to list.
+	 *
+	 */
+	private void getUnbounded(LayoutNodeData node) {
+		// go over formal ins and outs.
+		List inputs = node.getModule().getFormalInputs();
+		getUnbounded(node,inputs,inputLinkMap,unboundInputs);
+		List outputs = node.getModule().getFormalOutputs();
+		getUnbounded(node,outputs,outputLinkMap,unboundOutputs);
+	}
+	
+	/**
+	 * do the work of finding unbounded parameters given a node, 
+	 * a list of parameters, a mapping of links, and the list 
+	 * that we're building
+	 *
+	 */
+	private void getUnbounded(LayoutNodeData node,List params,HashMap linkMap,
+			Vector unbounded) {
+		Iterator iter = params.iterator();
+		FormalParameterData param;
+		while (iter.hasNext()) {
+			param = (FormalParameterData) iter.next();
+			Object obj = linkMap.get(new Integer(param.getID()));
+			if (obj == null) {// no entries for this param 
+				unbounded.add(new UnboundedParameter(param,node));
+			}
+			else {
+				HashMap nodeMap = (HashMap) obj;
+				obj = nodeMap.get(new Integer(node.getID()));
+				if (obj == null) {
+					unbounded.add(new UnboundedParameter(param,node));
+				}
+
+			}
+		}
+	}
+	
+	private void dumpUnbounded(Vector unbounded) {
+		if (unbounded.size() > 5 ) {
+			System.err.println("..."+unbounded.size()+" unbounded");
+			return;
+		}
+		UnboundedParameter p;
+		Iterator iter = unbounded.iterator();
+		while (iter.hasNext()){
+			p = (UnboundedParameter) iter.next();
+			System.err.println("..param.."+p.getParam().getName()+", node.."+p.getNode().getID());
+		}
 	}
 	
 	/**
@@ -851,6 +941,28 @@ public class LayoutChainData  extends AnalysisChainData
 			v.setElementAt(node,n);
 		}
 	}
-
+	
+	/**
+	 * 
+	 * An unbounded paramter must be a combination of a formal parameter and a node
+	 */
+	public class UnboundedParameter {
+		
+		private FormalParameterData param;
+		private LayoutNodeData node;
+		
+		public UnboundedParameter(FormalParameterData param,LayoutNodeData node) {
+			this.param = param;
+			this.node = node;
+		}
+		
+		public FormalParameterData getParam() {
+			return param;
+		}
+		
+		public LayoutNodeData getNode() {
+			return node;
+		}
+	}
 	
 }
