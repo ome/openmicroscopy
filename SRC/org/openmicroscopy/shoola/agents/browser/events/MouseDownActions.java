@@ -115,7 +115,7 @@ public class MouseDownActions
      * 
      * @param action See above.
      */
-    public void setMouseClickAction(PiccoloAction action, int modifier)
+    public void setMouseClickAction(int modifier, PiccoloAction action)
     {
         setAction(action,mouseClickModifierMap,modifier);
     }
@@ -127,7 +127,7 @@ public class MouseDownActions
      * 
      * @param action See above.
      */
-    public void setMousePressAction(PiccoloAction action, int modifier)
+    public void setMousePressAction(int modifier, PiccoloAction action)
     {
         setAction(action,mousePressModifierMap,modifier);
     }
@@ -139,7 +139,7 @@ public class MouseDownActions
      * 
      * @param action See above.
      */
-    public void setMouseReleaseAction(PiccoloAction action, int modifier)
+    public void setMouseReleaseAction(int modifier, PiccoloAction action)
     {
         setAction(action,mouseReleaseModifierMap,modifier);
     }

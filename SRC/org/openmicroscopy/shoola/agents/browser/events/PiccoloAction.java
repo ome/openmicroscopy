@@ -59,7 +59,8 @@ public abstract class PiccoloAction implements BrowserAction
         
         public void execute(PInputEvent e)
         {
-            // do jack shite
+            // call execute unless overridden
+            execute();
         }
 
     };

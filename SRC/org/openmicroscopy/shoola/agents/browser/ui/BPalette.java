@@ -40,14 +40,16 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
+
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PDragSequenceEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -85,33 +87,7 @@ public class BPalette extends PNode
         titleBar = new TitleBar(name);
         addChild(titleBar);
         
-        addInputEventListener(new PDragSequenceEventHandler()
-        {
-            /* (non-Javadoc)
-             * @see edu.umd.cs.piccolo.event.PDragSequenceEventHandler#startDrag(edu.umd.cs.piccolo.event.PInputEvent)
-             */
-            public void startDrag(PInputEvent arg0)
-            {
-                // TODO Auto-generated method stub
-                super.startDrag(arg0);
-                System.err.println(arg0.getPickedNode());
-            }
-            
-            public void drag(PInputEvent arg0)
-            {
-                super.drag(arg0);
-                Dimension2D dim = arg0.getDeltaRelativeTo(refCopy);
-                refCopy.translate(dim.getWidth(),dim.getHeight());
-                arg0.setHandled(true);
-            }
-            
-            public void endDrag(PInputEvent arg0)
-            {
-                super.endDrag(arg0);
-                System.err.println("end drag");
-                System.err.println(arg0.getPickedNode());
-            }    
-        });
+        
         setBounds(titleBar.getBounds());
     }
     
@@ -135,9 +111,9 @@ public class BPalette extends PNode
             new Rectangle2D.Double(0,0,measuredWidth,20);
         
         private PText titleNode;
-        private PNode minimizeNode;
-        private PNode hideNode;
-        private PNode closeNode;
+        private MinimizeIcon minimizeNode;
+        private HideIcon hideNode;
+        private CloseIcon closeNode;
         
         private Font titleFont = new Font(null,Font.BOLD,14);
         
@@ -157,6 +133,24 @@ public class BPalette extends PNode
             minimizeNode = new MinimizeIcon();
             addChild(minimizeNode);
             minimizeNode.setOffset(measuredWidth-60,0);
+            MouseDownActions mouseActions = minimizeNode.getMouseDownActions();
+            mouseActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                             new PiccoloAction()
+            {
+                /* (non-Javadoc)
+                 * @see org.openmicroscopy.shoola.agents.browser.events.PiccoloAction#execute()
+                 */
+                public void execute()
+                {
+                    System.err.println("Minimize clicked");
+                }
+                
+                public void execute(PInputEvent e)
+                {
+                    execute();
+                }
+            });
+            minimizeNode.setMouseDownActions(mouseActions);
             
             hideNode = new HideIcon();
             addChild(hideNode);
@@ -177,15 +171,18 @@ public class BPalette extends PNode
         }
     }
     
-    class MinimizeIcon extends PNode
+    class MinimizeIcon extends PNode implements MouseDownSensitive
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Rectangle2D visibleIcon = new Rectangle2D.Double(3,7,14,6);
+        
+        private MouseDownActions actionSet;
         
         // TODO: need to pass a Palette reference in here?
         public MinimizeIcon()
         {
             setBounds(bounds);
+            actionSet = new MouseDownActions();
         }
         
         public void paint(PPaintContext context)
@@ -195,6 +192,54 @@ public class BPalette extends PNode
             g2.setPaint(Color.white);
             g2.fill(visibleIcon);
             g2.setPaint(oldPaint);                     
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+         */
+        public MouseDownActions getMouseDownActions()
+        {
+            return actionSet;
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseClick(PInputEvent event)
+        {
+            System.err.println("respond click");
+            PiccoloAction action =
+                actionSet.getMouseClickAction(PiccoloModifiers.getModifier(event));
+            System.err.println(action);
+            action.execute(event);
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMousePress(PInputEvent event)
+        {
+            PiccoloAction action =
+                actionSet.getMousePressAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        public void respondMouseRelease(PInputEvent event)
+        {
+            PiccoloAction action =
+                actionSet.getMouseReleaseAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+         */
+        public void setMouseDownActions(MouseDownActions actions)
+        {
+            if(actions != null)
+            {
+                this.actionSet = actions;
+            }
         }
     }
     
