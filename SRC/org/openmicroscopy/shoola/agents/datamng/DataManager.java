@@ -259,7 +259,8 @@ public class DataManager
 		if (projectSummaries.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
-				projectSummaries = dms.retrieveUserProjects();
+				//projectSummaries = dms.retrieveUserProjects();
+                projectSummaries = dms.retrieveUserProjectsWithDAnnotations();
 			} catch(DSOutOfServiceException dsose) {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
@@ -795,6 +796,7 @@ public class DataManager
             IconManager im = IconManager.getInstance(registry);
             un.notifyInfo("Update category group", "The specified group has " +
                     "now been updated.", im.getIcon(IconManager.SEND_TO_DB));
+            if (nameChange) presentation.rebuildClassificationTree();
         } catch(DSAccessException dsae) {
             String s = "Can't create a new category.";
             registry.getLogger().error(this, s+" Error: "+dsae);
@@ -819,6 +821,7 @@ public class DataManager
             IconManager im = IconManager.getInstance(registry);
             un.notifyInfo("Update category", "The specified category has " +
                     "now been updated.", im.getIcon(IconManager.SEND_TO_DB));
+            if (nameChange) presentation.rebuildClassificationTree();
         } catch(DSAccessException dsae) {
             String s = "Can't update the specified category.";
             registry.getLogger().error(this, s+" Error: "+dsae);

@@ -34,10 +34,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractButton;
 
 //Third-party libraries
@@ -438,10 +435,10 @@ public class DataManagerCtrl
     }
 
     /** Retrieve all the images contained in the specified category. */
-    public List getImagesInCategory(int categoryID)
+    public List getImagesInCategory(int id)
     {
         try {
-            CategoryData model = abstraction.getCategoryData(categoryID);
+            CategoryData model = abstraction.getCategoryData(id);
             return model.getImages();
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve the category.";

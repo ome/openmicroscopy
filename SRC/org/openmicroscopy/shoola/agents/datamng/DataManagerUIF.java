@@ -180,7 +180,10 @@ public class DataManagerUIF
 	}
 	
     /** Forward event to {@link ExplorerPaneManager}. */
-    void rebuildClassificationTree() { classifierPane.getManager().rebuildTree(); }
+    void rebuildClassificationTree()
+    { 
+        classifierPane.getManager().rebuildTree();
+    }
     
     /** Forward event to {@link ClassifierPaneManager}. */
     void addNewGroupToTree(CategoryGroupData data)

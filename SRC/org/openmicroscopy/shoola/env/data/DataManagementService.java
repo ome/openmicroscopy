@@ -106,9 +106,10 @@ public interface DataManagementService
     								
 	/**
 	 * Retrieve all user's projects.
-	 * Create a list of project summary DataObjects filled up with 
+	 * Create a list of {@link ProjectSummary} DataObjects filled up with 
 	 * data retrieved from an OMEDS project objects.
-	 * Each project summary object is linked to a list of dataset summary 
+	 * Each {@link ProjectSummary} object is linked to a list of 
+     * {@link DatasetSummary} 
 	 * objects.
 	 * 
 	 * @return See above.
@@ -118,6 +119,39 @@ public interface DataManagementService
 	 */
     public List retrieveUserProjects()
 		throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve all user's projects.
+     * Create a list of {@link ProjectSummary} DataObjects filled up with 
+     * data retrieved from an OMEDS project objects.
+     * Each {@link ProjectSummary} object is linked to a list of 
+     * {@link DatasetSummary}, in turn linked to its annotation if any.
+     * objects.
+     * 
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List retrieveUserProjectsWithDAnnotations()
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Create, if none provided, two new protos and fill them up
+     * with data retrieved form OMEDS Project objects.
+     * Each project proto object is linked to a list of dataset proto 
+     * objects.
+     * 
+     * @param pProto    project proto.
+     * @param dProto    dataset proto.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service.
+     */
+    public List retrieveUserProjectsWithDAnnotations(ProjectSummary pProto,
+                                                    DatasetSummary dProto)
+        throws DSOutOfServiceException, DSAccessException;
     
 	/**
 	 * Create, if none provided, two new protos and fill them up

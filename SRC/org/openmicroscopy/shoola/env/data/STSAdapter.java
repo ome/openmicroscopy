@@ -474,6 +474,7 @@ class STSAdapter
     {
         //List of categorySummary objects
         List result = new ArrayList();
+        System.out.println(group.getID());
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
                         group.getID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
@@ -701,7 +702,6 @@ class STSAdapter
         return results;
     }
 
-    
     /** Create a CategoryGroup attribute. */
     private CategoryGroup buildCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
@@ -728,6 +728,7 @@ class STSAdapter
      * Build a {@link CategoryData} object. 
      * 
      * @param id                id of the category to retrieve.
+     * @param groupData         CategoryGroupData containing the category.
      * @param withAnnotation    flag to retrieve or not the annotation 
      *                          associated to an image in the specified 
      *                          category.
@@ -735,11 +736,15 @@ class STSAdapter
     private CategoryData getCategory(int id, boolean withAnnotation)
         throws DSOutOfServiceException, DSAccessException
     {
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                registry.lookup(LookupNames.USER_CREDENTIALS);
         //Retrieve the specified category.
         Criteria c = CategoryMapper.buildClassificationCriteria(id);
         Category category = (Category) gateway.retrieveSTSData("Category", c);
         CategoryData model = new CategoryData();
-        if (category != null) CategoryMapper.fillCategory(category, model);
+        if (category != null) CategoryMapper.fillCategory(category, model, 
+                                                        uc.getUserID());
         if (withAnnotation) {
             List imgs = model.getImages();
             if (imgs.size() != 0) {       //i.e. some classifications
@@ -751,9 +756,7 @@ class STSAdapter
                 c = AnnotationMapper.buildImageAnnotationCriteria(ids);
                 List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
                                                         c);
-                //Retrieve the user ID.
-                UserCredentials uc = (UserCredentials)
-                        registry.lookup(LookupNames.USER_CREDENTIALS);
+                
                 CategoryMapper.fillImageAnnotationInCategory(
                         model.getClassifications(), l, uc.getUserID());
             }

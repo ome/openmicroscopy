@@ -217,6 +217,44 @@ class DMSAdapter
 		return retrieveUserProjectsWithDatasetData(null, null);
 	}
 
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserProjectsWithDAnnotations()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveUserProjectsWithDAnnotations(null, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserProjectsWithDAnnotations(ProjectSummary pProto, 
+                                                    DatasetSummary dProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Make new protos if none was provided.
+        if (pProto == null) pProto = new ProjectSummary();
+        if (dProto == null) dProto = new DatasetSummary();
+        
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
+
+        //Load the graph defined by criteria.
+        List projects = (List) gateway.retrieveListData(Project.class, c);
+        
+        //Put the server data into the corresponding client object.
+        List projectsDS = null;
+        if (projects != null) {
+            List ids = ProjectMapper.prepareListDatasetsID(projects);
+            c = AnnotationMapper.buildDatasetAnnotationCriteria(ids);
+            List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+            projectsDS = ProjectMapper.fillListAnnotatedDatasets(projects, 
+                    pProto, dProto, l, uc.getUserID());
+        }
+        return projectsDS;
+    }
+    
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserDatasets(DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
