@@ -83,13 +83,13 @@ class RenderingAgtUIF
 	private static final int		DEFAULT_WIDTH = 220;
 	
 	/** index to position the mapping component in the tabbedPane. */
-	private static final int		POS_MAPPING = 0;
+	static final int				POS_MAPPING = 0;
 	
 	/** index to position Model component in the tabbedPane. */
-	private static final int		POS_MODEL = 1 ;
+	static final int				POS_MODEL = 1 ;
 	
 	/** index to position Codomain component in the tabbedPane. */
-	private static final int		POS_CD = 2;
+	static final int				POS_CD = 2;
 	
 	/** Reference to the regisry. */
 	private Registry				registry;
@@ -118,6 +118,10 @@ class RenderingAgtUIF
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
 	}
+	
+	QuantumPane getQuantumPane() { return quantumPane; }
+	
+	JTabbedPane getTabs() { return tabs; }
 	
 	/** Set the selected model. */
 	void setModelPane(ModelPane pane)

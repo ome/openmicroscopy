@@ -170,6 +170,7 @@ public class RenderingAgt
 	{
 		control  = new RenderingAgtCtrl(this);
 		presentation = new RenderingAgtUIF(control, registry);
+		control.setPresentation(presentation);
 	}
 	
 	/** 
@@ -246,11 +247,6 @@ public class RenderingAgt
 				//} catch (Exception e) {}
 				displayed = true;	
 			}
-	}
-
-	List getChannelDictionary()
-	{
-		return (List) registry.lookup("/dictionary/ChannelDictionary");
 	}
 	
 	/** Initializes the channel data. */

@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -41,18 +40,17 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.editor.ChannelDictionary;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.agents.rnd.model.GreyScalePane;
 import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
+import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * 
@@ -93,14 +91,21 @@ public class RenderingAgtCtrl
 	
 	private RenderingAgt			abstraction;
 	
+	private RenderingAgtUIF			presentation;
+	
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
 		this.abstraction = abstraction;
 		displayed = false;
 		renderersPool = new HashMap();
 	}
-	
+
 	void setDisplayed(boolean b) { displayed = b; }
+	
+	void setPresentation(RenderingAgtUIF presentation)
+	{
+		this.presentation = presentation;
+	}
 	
 	/** Returns the {@link RenderingAgt abstraction}. */
 	RenderingAgt getAbstraction() { return abstraction; }
@@ -112,16 +117,9 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
-	public void showChannelDictionary()
-	{
-		List l = abstraction.getChannelDictionary();
-		showDialog(new ChannelDictionary(l));
-	}
-	
-	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void setMappingPane()
 	{
-		abstraction.getPresentation().setMappingPane();
+		presentation.setMappingPane();
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
@@ -178,11 +176,19 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setActive(int w, boolean active)
 	{
+		if (active) {
+			presentation.getQuantumPane().setSelectedWavelength(w);
+			presentation.getTabs().setSelectedIndex(RenderingAgtUIF.POS_MODEL);
+		}
 		abstraction.setActive(w, active);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public void setActive(int w) { abstraction.setActive(w); }
+	public void setActive(int w) { 
+		presentation.getQuantumPane().setSelectedWavelength(w);
+		presentation.getTabs().setSelectedIndex(RenderingAgtUIF.POS_MODEL);
+		abstraction.setActive(w); 
+	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public boolean isActive(int w) { return abstraction.isActive(w); }
@@ -286,14 +292,24 @@ public class RenderingAgtCtrl
 	public void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
-		abstraction.getPresentation().setModelPane(activate(c));
+		presentation.setModelPane(activate(c));
+		QuantumPane qp = presentation.getQuantumPane();
+		if (i == GREY) {
+			qp.setSelectionWavelengthsEnable(false);
+			ChannelData[] channelData = getChannelData();
+			for (int j = 0; j < channelData.length; j++) {
+				if (isActive(j)) {
+					qp.setSelectedWavelength(j);
+					presentation.getTabs().setSelectedIndex(
+											RenderingAgtUIF.POS_MODEL);
+					break;
+				}
+			}
+		} else qp.setSelectionWavelengthsEnable(true);
 		abstraction.setModel(i);
 	}
 	
-	String getModelType()
-	{
-		return modelType;
-	}
+	String getModelType() { return modelType; }
 	
 	/** Attach listener to a menu Item. */
 	void setMenuItemListener(JMenuItem item, int id)
