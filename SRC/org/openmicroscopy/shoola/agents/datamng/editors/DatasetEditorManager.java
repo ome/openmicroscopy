@@ -59,10 +59,23 @@ class DatasetEditorManager
 {
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;	
+	private static final int	REMOVE = 2;
+	private static final int	CANCEL_SELECTION = 3;
 	
-	private JButton 			saveButton, reloadButton;
 	private DatasetData			model;
 	private DatasetEditor		view;
+	
+	/** Save button displayed in the {@link DatasetGeneralPane}. */
+	private JButton 			saveButton;
+
+	/** Reload button displayed in the {@link DatasetGeneralPane}. */
+	private JButton 			reloadButton;
+
+	/** Remove button displayed in the {@link DatasetImagesPane}. */
+	private JButton 			removeButton;
+
+	/** Cancel button displayed in the {@link DatasetImagesPane}. */
+	private JButton 			cancelButton;
 	
 	DatasetEditorManager(DatasetEditor view, DatasetData model)
 	{
@@ -83,8 +96,15 @@ class DatasetEditorManager
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
-		reloadButton.setActionCommand(""+RELOAD);	
+		reloadButton.setActionCommand(""+RELOAD);
+		removeButton = view.getRemoveButton();
+		removeButton.addActionListener(this);
+		removeButton.setActionCommand(""+REMOVE);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL_SELECTION);	
 	}
+	
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -94,6 +114,15 @@ class DatasetEditorManager
 			switch (index) { 
 				case SAVE:
 					save();
+					break;
+				case RELOAD:
+					reload();
+					break;
+				case REMOVE:
+					remove();
+					break;
+				case CANCEL_SELECTION:
+					cancelSelection();
 					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
@@ -115,8 +144,26 @@ class DatasetEditorManager
 	}
 	
 	/** */
-	void save()
-	{	
+	private void save()
+	{
+		System.out.println("name: "+model.getName());
+	}
+	
+	private void remove()
+	{
+		//TODO: remove from tree and forward event to DB.
+		view.removeAll();
+		removeButton.setEnabled(false);
+	}
+	
+	private void cancelSelection()
+	{
+		removeButton.setEnabled(true);
+		view.cancelSelection();
+	}
+	/** */
+	private void reload()
+	{
 	}
 	
 }	

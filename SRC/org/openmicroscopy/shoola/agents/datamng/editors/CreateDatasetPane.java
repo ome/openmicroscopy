@@ -106,7 +106,7 @@ class CreateDatasetPane
 		//make panel transparent
 		saveButton.setOpaque(false);
 		//suppress button press decoration
-		saveButton.setContentAreaFilled( false ); 
+		saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText("Save data to the DB");
 		saveButton.setEnabled(false);
 
@@ -154,41 +154,41 @@ class CreateDatasetPane
 		extends AbstractTableModel 
 	{
 
-	private final String[]    fieldNames = {"Name", "Description"};
-	DatasetData dd = manager.getDatasetData();
+		private final String[]    fieldNames = {"Name", "Description"};
+		DatasetData dd = manager.getDatasetData();
+	
+		private final Object[]	  
+			data = {dd.getName(), dd.getDescription() };
+			
+		private DatasetTableModel() {}
+	
+		public int getColumnCount() { return 2; }
+	
+		public int getRowCount() { return 2; }
+	
+		public Object getValueAt(int row, int col) 
+		{
+			Object  val = null;
+			if (col == 0)  val = fieldNames[row];
+			else val = data[row];
+			return val;
+		}
 
-	private final Object[]	  
-		data = {dd.getName(), dd.getDescription() };
-		
-	private DatasetTableModel() {}
+		//entries in the value column can be edited
+		public boolean isCellEditable(int row, int col)
+		{
+			boolean isEditable = true;
+			if (col == 0) isEditable = false;
+			return isEditable;
+		}
 
-	public int getColumnCount() { return 2; }
-
-	public int getRowCount() { return 2; }
-
-	public Object getValueAt(int row, int col) 
-	{
-		Object  val = null;
-		if (col == 0)  val = fieldNames[row];
-		else val = data[row];
-		return val;
-	}
-
-	//entries in the value column can be edited
-	public boolean isCellEditable(int row, int col)
-	{
-		boolean isEditable = true;
-		if (col == 0) isEditable = false;
-		return isEditable;
-	}
-
-	public void setValueAt(Object value, int row, int col)
-	{
-		if (col != 0) {
-			data[row]= value;
-			fireTableCellUpdated(row, col);
-			//manager.setProjectFields(value, row);
+		public void setValueAt(Object value, int row, int col)
+		{
+			if (col != 0) {
+				data[row]= value;
+				fireTableCellUpdated(row, col);
+				manager.setDatasetFields(value, row);
+			}
 		}
 	}
-}
 }

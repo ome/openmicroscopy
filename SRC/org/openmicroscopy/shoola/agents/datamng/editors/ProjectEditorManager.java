@@ -58,10 +58,23 @@ class ProjectEditorManager
 {
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;
+	private static final int	REMOVE = 2;
+	private static final int	CANCEL_SELECTION = 3;
 	
 	private ProjectData			model;
 	private ProjectEditor		view;
-	private JButton 			saveButton, reloadButton;
+	
+	/** Save button displayed in the {@link ProjectGeneralPane}. */
+	private JButton 			saveButton;
+	
+	/** Reload button displayed in the {@link ProjectGeneralPane}. */
+	private JButton 			reloadButton;
+	
+	/** Remove button displayed in the {@link ProjectDatasetsPane}. */
+	private JButton 			removeButton;
+	
+	/** Cancel button displayed in the {@link ProjectDatasetsPane}. */
+	private JButton 			cancelButton;
 	
 	ProjectEditorManager(ProjectEditor view, ProjectData model)
 	{
@@ -83,6 +96,12 @@ class ProjectEditorManager
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
 		reloadButton.setActionCommand(""+RELOAD);
+		removeButton = view.getRemoveButton();
+		removeButton.addActionListener(this);
+		removeButton.setActionCommand(""+REMOVE);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL_SELECTION);
 	}
 	
 	/** Handles event fired by the buttons. */
@@ -97,6 +116,12 @@ class ProjectEditorManager
 					break;
 				case RELOAD:
 					reload();
+					break;
+				case REMOVE:
+					remove();
+					break;
+				case CANCEL_SELECTION:
+					cancelSelection();
 					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
@@ -123,9 +148,22 @@ class ProjectEditorManager
 		System.out.println("name: "+model.getName());
 	}
 	
+	private void remove()
+	{
+		//TODO: remove from tree and forward event to DB.
+		view.removeAll();
+		removeButton.setEnabled(false);
+	}
+	
+	private void cancelSelection()
+	{
+		removeButton.setEnabled(true);
+		view.cancelSelection();
+	}
 	/** */
 	private void reload()
 	{
 	}
+	
 }	
 	

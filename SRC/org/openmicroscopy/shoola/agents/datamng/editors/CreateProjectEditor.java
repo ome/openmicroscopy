@@ -32,8 +32,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
+import java.util.List;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -41,6 +42,8 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
@@ -62,27 +65,68 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class CreateProjectEditor
 	extends JDialog
 {
-	private static final int 		WIN_WIDTH = 300;
-	private static final int 		WIN_HEIGHT = 300;
-	private static final Color   	STEELBLUE = new Color(0x4682B4);
-	
 	private Registry 					registry;
 	private CreateProjectPane 			creationPane;
+	private CreateProjectDatasetsPane	datasetsPane;
 	private CreateProjectEditorManager	manager;
-	
-	public CreateProjectEditor(Registry registry, ProjectData model)
+
+	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
+								ProjectData model, List datasets)
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new CreateProjectEditorManager(this, model);
+		manager = new CreateProjectEditorManager(this, control, model,
+												datasets);
 		creationPane = new CreateProjectPane(manager, registry);
+		datasetsPane = new CreateProjectDatasetsPane(manager);
 		buildGUI();
-		setSize(WIN_WIDTH, WIN_HEIGHT);
+		manager.initListeners();
+		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/**
-	 * 
+	/** Returns the widget manager. */
+	public CreateProjectEditorManager getManager()
+	{
+		return manager;
+	}
+	
+	/** 
+	 * Returns the save button displayed in {@link CreateProjectPane}.
 	 */
+	public JButton getSaveButton()
+	{
+		return creationPane.getSaveButton();
+	}
+	
+	/** 
+	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
+	 */
+	public JButton getSelectButton()
+	{
+		return datasetsPane.getSelectButton();
+	}
+	
+	/** 
+	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
+	 */
+	public JButton getCancelButton()
+	{
+		return datasetsPane.getCancelButton();
+	}
+	
+	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
+	public void	selectAll()
+	{
+		datasetsPane.setSelection(new Boolean(true));
+	}
+	
+	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
+	public void	cancelSelection()
+	{
+		datasetsPane.setSelection(new Boolean(false));
+	}
+	
+	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
 		//create and initialize the tabs
@@ -94,9 +138,11 @@ public class CreateProjectEditor
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.addTab("New Project", IM.getIcon(IconManager.PROJECT), 
 					creationPane);
+		tabs.addTab("Add Datasets", IM.getIcon(IconManager.DATASET), 
+					datasetsPane);
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
-		tabs.setForeground(STEELBLUE);
+		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);

@@ -84,6 +84,12 @@ class CreateProjectPane
 		this.registry = registry;
 		buildGUI();
 	}
+
+	/** Returns the save button. */
+	public JButton getSaveButton()
+	{ 
+		return saveButton;
+	}
 	
 	/** Build and layout the GUI. */
 	private void buildGUI()
@@ -107,7 +113,7 @@ class CreateProjectPane
 		//make panel transparent
 		saveButton.setOpaque(false);
 		//suppress button press decoration
-		saveButton.setContentAreaFilled( false ); 
+		saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText("Save data to the DB");
 		saveButton.setEnabled(false);
 
@@ -139,11 +145,6 @@ class CreateProjectPane
 		return p;
 	}
 
-	/** Returns the save button. */
-	public JButton getSaveButton()
-	{ 
-		return saveButton;
-	}
 
 	/** A <code>2x2</code> table model to view project summary.
 	 * The first column contains the property names (name, description)
@@ -155,41 +156,42 @@ class CreateProjectPane
 		extends AbstractTableModel 
 	{
 
-	private final String[]    fieldNames = {"Name", "Description"};
-	ProjectData pd = manager.getProjectData();
-
-	private final Object[]	  
-		data = {pd.getName(), pd.getDescription() };
-		
-	private ProjectTableModel() {}
-
-	public int getColumnCount() { return 2; }
-
-	public int getRowCount() { return 2; }
-
-	public Object getValueAt(int row, int col) 
-	{
-		Object  val = null;
-		if (col == 0)  val = fieldNames[row];
-		else val = data[row];
-		return val;
-	}
-
-	//entries in the value column can be edited
-	public boolean isCellEditable(int row, int col)
-	{
-		boolean isEditable = true;
-		if (col == 0) isEditable = false;
-		return isEditable;
-	}
-
-	public void setValueAt(Object value, int row, int col)
-	{
-		if (col != 0) {
-			data[row]= value;
-			fireTableCellUpdated(row, col);
-			//manager.setProjectFields(value, row);
+		private final String[]    fieldNames = {"Name", "Description"};
+		ProjectData pd = manager.getProjectData();
+	
+		private final Object[]	  
+			data = {pd.getName(), pd.getDescription() };
+			
+		private ProjectTableModel() {}
+	
+		public int getColumnCount() { return 2; }
+	
+		public int getRowCount() { return 2; }
+	
+		public Object getValueAt(int row, int col) 
+		{
+			Object  val = null;
+			if (col == 0)  val = fieldNames[row];
+			else val = data[row];
+			return val;
+		}
+	
+		//entries in the value column can be edited
+		public boolean isCellEditable(int row, int col)
+		{
+			boolean isEditable = true;
+			if (col == 0) isEditable = false;
+			return isEditable;
+		}
+	
+		public void setValueAt(Object value, int row, int col)
+		{
+			if (col != 0) {
+				data[row]= value;
+				fireTableCellUpdated(row, col);
+				manager.setProjectFields(value, row);
+			}
 		}
 	}
-}
+
 }

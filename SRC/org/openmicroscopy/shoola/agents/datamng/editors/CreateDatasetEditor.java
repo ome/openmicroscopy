@@ -31,8 +31,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
+import java.util.List;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -40,6 +41,8 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -61,28 +64,98 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
  */
 public class CreateDatasetEditor
 	extends JDialog
-{
-	private static final int 		WIN_WIDTH = 300;
-	private static final int 		WIN_HEIGHT = 300;
-	private static final Color   	STEELBLUE = new Color(0x4682B4);
-	
+{	
 	private Registry 					registry;
 	private CreateDatasetPane 			creationPane;
+	private CreateDatasetProjectsPane	projectsPane;
+	private CreateDatasetImagesPane		imagesPane;
 	private CreateDatasetEditorManager	manager;
 	
-	public CreateDatasetEditor(Registry registry, DatasetData model)
+	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
+								DatasetData model, List projects, List images)
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new CreateDatasetEditorManager(this, model);
+		manager = new CreateDatasetEditorManager(this,control, model, projects,
+												images);
 		creationPane = new CreateDatasetPane(manager, registry);
+		projectsPane = new CreateDatasetProjectsPane(manager);
+		imagesPane = new CreateDatasetImagesPane(manager);
 		buildGUI();
-		setSize(WIN_WIDTH, WIN_HEIGHT);
+		manager.initListeners();
+		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/**
-	 * 
+	public CreateDatasetEditorManager getManager()
+	{ 
+		return manager;
+	}
+	
+	/** 
+	 * Returns the save button displayed in {@link CreateDatasetPane}.
 	 */
+	public JButton getSaveButton()
+	{
+		return creationPane.getSaveButton();
+	}
+
+	/** 
+	 * Returns the select button displayed in {@link CreateDatasetProjectsPane}.
+	 */
+	public JButton getSelectButton()
+	{
+		return projectsPane.getSelectButton();
+	}
+
+	/** 
+	 * Returns the cancel button displayed in {@link CreateDatasetProjectsPane}.
+	 */
+	public JButton getCancelButton()
+	{
+		return projectsPane.getCancelButton();
+	}
+	
+	/** 
+	 * Returns the select button displayed in {@link CreateDatasetImagesPane}.
+	 */
+	public JButton getSelectImageButton()
+	{
+		return imagesPane.getSelectButton();
+	}
+
+	/** 
+	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
+	 */
+	public JButton getCancelImageButton()
+	{
+		return imagesPane.getCancelButton();
+	}
+	
+	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
+	public void	selectAllProjects()
+	{
+		projectsPane.setSelection(new Boolean(true));
+	}
+
+	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
+	public void	cancelSelectionProject()
+	{
+		projectsPane.setSelection(new Boolean(false));
+	}
+	
+	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
+	public void	selectAllImages()
+	{
+		imagesPane.setSelection(new Boolean(true));
+	}
+
+	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
+	public void	cancelSelectionImage()
+	{
+		imagesPane.setSelection(new Boolean(false));
+	}
+	
+	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
 		//create and initialize the tabs
@@ -94,9 +167,13 @@ public class CreateDatasetEditor
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.addTab("New Dataset", IM.getIcon(IconManager.DATASET), 
 					creationPane);
+		tabs.addTab("Add to Projects", IM.getIcon(IconManager.PROJECT), 
+					projectsPane);
+		tabs.addTab("Add Images", IM.getIcon(IconManager.IMAGE), 
+					imagesPane);			
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
-		tabs.setForeground(STEELBLUE);
+		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);

@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -40,6 +39,7 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -61,11 +61,6 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 public class DatasetEditor
 	extends JDialog
 {
-	private static final int 		WIN_WIDTH = 300;
-	private static final int 		WIN_HEIGHT = 300;
-	
-	private static final Color   	STEELBLUE = new Color(0x4682B4);
-	
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
 	
@@ -86,9 +81,51 @@ public class DatasetEditor
 		ownerPane = new DatasetOwnerPane(manager);
 		buildGUI();
 		manager.initListeners();
-		setSize(WIN_WIDTH, WIN_HEIGHT);
+		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
+	}
+	/** 
+	 * Returns the save button displayed {@link DatasetGeneralPane}.
+	 */
+	public JButton getSaveButton()
+	{
+		return generalPane.getSaveButton();
+	}
+
+	/** 
+	 * Returns the reload button displayed in {@link DatasetGeneralPane}.
+	 */
+	public JButton getReloadButton()
+	{
+		return generalPane.getReloadButton();
+	}
+	/** 
+	 * Returns the remove button displayed in {@link DatasetImagesPane}.
+	 */
+	public JButton getRemoveButton()
+	{
+		return imagesPane.getRemoveButton();
 	}
 	
+	/** 
+	 * Returns the cancel button displayed in {@link DatasetImagesPane}.
+	 */
+	public JButton getCancelButton()
+	{
+		return imagesPane.getCancelButton();
+	}
+
+	/** Forward event to the pane {@link DatasetImagesPane}. */
+	public void	removeAll()
+	{
+		imagesPane.setSelection(new Boolean(true));
+	}
+
+	/** Forward event to the pane {@link DatasetImagesPane}. */
+	public void	cancelSelection()
+	{
+		imagesPane.setSelection(new Boolean(false));
+	}
+
 	/** Build and layout the GUI. */
 	void buildGUI()
 	{
@@ -104,27 +141,10 @@ public class DatasetEditor
 		tabs.addTab("Owner", IM.getIcon(IconManager.OME), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
-		tabs.setForeground(STEELBLUE);
+		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);	
 	}
-	
-	/** 
-	 * Returns the save button displayed in the generalPane.
-	 * Forward event to generalPane.
-	 */
-	public JButton getSaveButton()
-	{
-		return generalPane.getSaveButton();
-	}
 
-	/** 
-	 * Returns the reload button displayed in the generalPane.
-	 * Forward event to generalPane.
-	 */
-	public JButton getReloadButton()
-	{
-		return generalPane.getReloadButton();
-	}
 }

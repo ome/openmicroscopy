@@ -105,7 +105,7 @@ class ImageGeneralPane
 		//make panel transparent
 		saveButton.setOpaque(false);
 		//suppress button press decoration
-		saveButton.setContentAreaFilled( false ); 
+		saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText("Save data to the DB");
 		saveButton.setEnabled(false);
 		
@@ -118,7 +118,7 @@ class ImageGeneralPane
 		//make panel transparent
 		reloadButton.setOpaque(false);
 		//suppress button press decoration
-		reloadButton.setContentAreaFilled( false ); 
+		reloadButton.setContentAreaFilled(false); 
 		reloadButton.setToolTipText("Reload data from the DB");
 		
 		JPanel controls = new JPanel(), all = new JPanel();

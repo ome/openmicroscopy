@@ -33,12 +33,17 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
-
 /** 
  * 
  *
@@ -57,19 +62,45 @@ public class CreateProjectEditorManager
 	implements ActionListener
 {
 	private static final int		SAVE = 0;
+	private static final int		SELECT = 1;
+	private static final int		CANCEL_SELECTION = 2;
 	
 	private CreateProjectEditor 	view;
 	private ProjectData 			model;
+	private DataManagerCtrl			control;
 	
+	/** 
+	 * List of datasets which belong to the user. These datasets can be added
+	 * to the new project.
+	 */
+	private List					datasets;	
+	
+	/** List of datasets to add. */
+	private List					datasetsToAdd;
+	
+	/** Select button displayed in the {@link CreateProjectPane}. */
+	private JButton 				saveButton;
+	
+	/** Select button displayed in the {@link CreateProjectDatasetsPane}. */
+	private JButton 				selectButton;
+	
+	/** cancel button displayed in the {@link CreateProjectDatasetsPane}. */
+	private JButton 				cancelButton;
+	
+			
 	/**
 	 * @param editor
 	 * @param model
+	 * @param datasets		List of dataset summary object.
 	 */
 	public CreateProjectEditorManager(CreateProjectEditor view, 
-									ProjectData model)
+									DataManagerCtrl control, ProjectData model,
+									List datasets)
 	{
+		this.control = control;
 		this.view = view;
 		this.model = model;
+		this.datasets = datasets;
 	}
 	
 	ProjectData getProjectData()
@@ -77,9 +108,23 @@ public class CreateProjectEditorManager
 			return model;
 	}
 	
+	List getDatasets()
+	{
+		return datasets;
+	}
+	
 	/** Initializes the listeners. */
 	void initListeners()
 	{
+		saveButton = view.getSaveButton();
+		saveButton.addActionListener(this);
+		saveButton.setActionCommand(""+SAVE);
+		selectButton = view.getSelectButton();
+		selectButton.addActionListener(this);
+		selectButton.setActionCommand(""+SELECT);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL_SELECTION);
 	}
 	
 	/** Handles event fired by the buttons. */
@@ -91,10 +136,76 @@ public class CreateProjectEditorManager
 			//fo later
 			switch (index) { 
 				case SAVE:
+					save();
+					break;
+				case SELECT:
+					select();
+					break;
+				case CANCEL_SELECTION:
+					cancelSelection();
+					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
 		} 
 	}
-
+	
+	/** 
+	 * Add (resp. remove) the dataset summary to (resp. from) the list of
+	 * dataset summary objects to add to the new project.
+	 * 
+	 * @param value		boolean value true if the checkBox is selected
+	 * 					false otherwise.
+	 * @param ds		dataset summary to add or remove
+	 */
+	void addDataset(boolean value, DatasetSummary ds) 
+	{
+		if (datasetsToAdd == null) datasetsToAdd = new ArrayList();
+		if (value == true) datasetsToAdd.add(ds);
+		else 	datasetsToAdd.remove(ds);
+	}
+	
+	void setProjectFields(Object value, int row)
+	{
+		saveButton.setEnabled(true);
+		switch (row) {
+			case 0:
+				model.setName((String) value);
+				break;
+			case 1:
+				model.setDescription((String) value);	
+		}
+	}
+	
+	/** 
+	 * Save the new ProjectData object and forward event to the 
+	 * {@link DataManagerCtrl}.
+	 */
+	private void save()
+	{
+		model.setDatasets(datasetsToAdd);
+		//update tree and forward event to DB.
+		//forward event to DataManager.
+		control.addProject(model);
+		//close widget.
+		view.dispose();
+	}
+	
+	/** Select all datasets and add them to the model. */
+	private void select()
+	{
+		datasetsToAdd = datasets;
+		view.selectAll();
+		selectButton.setEnabled(false);
+	}
+	
+	/** Cancel selection. */
+	private void cancelSelection()
+	{
+		datasetsToAdd = null;
+		selectButton.setEnabled(true);
+		view.cancelSelection();
+	}
+	
+	
 }

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -41,6 +40,7 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -62,11 +62,6 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 public class ImageEditor
 	extends JDialog
 {
-	private static final int 		WIN_WIDTH = 300;
-	private static final int 		WIN_HEIGHT = 300;
-	
-	private static final Color   	STEELBLUE = new Color(0x4682B4);
-	
 	/** Reference to the manager. */
 	private ImageEditorManager 		manager;
 	
@@ -87,7 +82,7 @@ public class ImageEditor
 		ownerPane = new ImageOwnerPane(manager);
 		buildGUI();
 		manager.initListeners();
-		setSize(WIN_WIDTH, WIN_HEIGHT);
+		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
 	/** Build and layout the GUI. */
@@ -107,7 +102,7 @@ public class ImageEditor
 		tabs.addTab("Owner", IM.getIcon(IconManager.OME), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
-		tabs.setForeground(STEELBLUE);
+		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);	

@@ -30,9 +30,13 @@
 package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -67,10 +71,32 @@ class ProjectDatasetsPane
 	/** Reference to the manager. */
 	private ProjectEditorManager	manager;
 
+	private JButton					removeButton;
+	private JButton					cancelButton;
+	private DatasetsTableModel 		datasetsTM;
+	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
+	}
+	
+	public JButton getRemoveButton()
+	{
+		return removeButton;
+	}
+	
+	public JButton getCancelButton()
+	{
+		return cancelButton;
+	}
+
+	/** Select or not all datasets. */
+	void setSelection(Object val)
+	{
+		int countCol = datasetsTM.getColumnCount()-1;
+		for (int i = 0; i < datasetsTM.getRowCount(); i++)
+			datasetsTM.setValueAt(val, i, countCol);
 	}
 	
 	/** Build and layout the GUI. */
@@ -82,19 +108,41 @@ class ProjectDatasetsPane
 		setBorder(b);
 	}
 	
-	private JScrollPane buildDatasetsPanel()
+	private JPanel buildDatasetsPanel()
 	{
+		//remove button
+		removeButton = new JButton("Remove All");
+		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		removeButton.setToolTipText("Remove all datasets");
+		
+		//cancel button
+		cancelButton = new JButton("Cancel");
+		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		cancelButton.setToolTipText("Cancel selection");
+		JPanel controls = new JPanel(), p = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(cancelButton);
+		controls.add(Box.createRigidArea(new Dimension(10, 0)));
+		controls.add(removeButton);
+		controls.setOpaque(false); //make panel transparent
+		
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		
 		//datasets table
-		DatasetsTableModel datasetsTM = new DatasetsTableModel();
+		datasetsTM = new DatasetsTableModel();
 		JTable  t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane     sp = new JScrollPane(t);
-		return sp;
+		
+		p.add(sp);
+		p.add(Box.createRigidArea(new Dimension(0, 10)));
+		p.add(controls);
+		return p;
 	}
 	
-	/** A <code>2</code>-column table model to view the summary of 
+	/** A <code>3</code>-column table model to view the summary of 
 	 * datasets contained in the project.
 	 * The first column contains the datasets ID and the 
 	 * second column the names. Cells are not editable. 
@@ -103,13 +151,20 @@ class ProjectDatasetsPane
 		extends AbstractTableModel
 	{
 	
-		private final String[]    columnNames = {"ID", "Name"};
+		private final String[]    columnNames = {"ID", "Name", "Remove"};
 		private final Object[]    
 		datasets = manager.getProjectData().getDatasets().toArray();
+		private Object[][] data = new Object[datasets.length][3];
+		private DatasetsTableModel()
+		{
+			for (int i = 0; i < datasets.length; i++) {
+				data[i][0] = ""+((DatasetSummary) datasets[i]).getID();
+				data[i][1] = ((DatasetSummary) datasets[i]).getName();
+				data[i][2] = new Boolean(false);
+			}
+		}
 	
-		private DatasetsTableModel() {}
-	
-		public int getColumnCount() { return 2; }
+		public int getColumnCount() { return 3; }
 	
 		public int getRowCount() { return datasets.length; }
 	
@@ -117,17 +172,36 @@ class ProjectDatasetsPane
 		{
 			return columnNames[col];
 		}
-	
+		
+		/*
+		 * JTable uses this method to determine the default renderer/
+		 * editor for each cell.  If we didn't implement this method,
+		 * then the last column would contain text ("true"/"false"),
+		 * rather than a check box.
+		 */
+		public Class getColumnClass(int c)
+		{
+			return getValueAt(0, c).getClass();
+		}
+
 		public Object getValueAt(int row, int col)
 		{
-			Object  val = null;
-			if (col == 0) val = ""+((DatasetSummary) datasets[row]).getID();
-			else val = ((DatasetSummary) datasets[row]).getName();
-			return val;
+			return data[row][col];
 		}
 		
 		//cells may not be edited
-		public boolean isCellEditable(int row, int col) { return false; }
+		public boolean isCellEditable(int row, int col)
+		{ 
+			boolean isEditable = false;
+			if (col == 2) isEditable = true;
+			return isEditable;
+		}
+		
+		public void setValueAt(Object value, int row, int col)
+		{
+			data[row][col]= value;
+			fireTableCellUpdated(row, col);
+		}
 	}
 	
 }
