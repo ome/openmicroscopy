@@ -184,7 +184,8 @@ public class ProjectMapper
 		Project p;
 		DatasetSummary ds;
 		Dataset d;
-		
+		Iterator j;
+		List datasets;
 		//For each p in projects...
 		while (i.hasNext()) {
 			p = (Project) i.next();
@@ -195,8 +196,8 @@ public class ProjectMapper
 			ps.setName(p.getName());
 			
 			//For each d in project.datasets...
-			Iterator j = p.getDatasets().iterator();
-			List datasets = new ArrayList();
+			j = p.getDatasets().iterator();
+			datasets = new ArrayList();
 			while (j.hasNext()) {
 				d = (Dataset) j.next();
 				int id = d.getID();
