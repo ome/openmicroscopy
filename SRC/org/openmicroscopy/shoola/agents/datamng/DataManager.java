@@ -36,6 +36,8 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
@@ -52,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -60,6 +63,8 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.imp.events.ImportImages;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -153,13 +158,17 @@ public class DataManager
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-        registry.getEventBus().register(this, ViewImageInfo.class);
+		EventBus bus = registry.getEventBus();
+        bus.register(this, ViewImageInfo.class);
+        bus.register(this, ServiceActivationResponse.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
 		control.attachListener();
 		topFrame = registry.getTopFrame();
-		viewItem = getViewMenuItem();
-		viewButton = getViewButton();
+		IconManager im = IconManager.getInstance(registry);
+		Icon icon = im.getIcon(IconManager.DMANAGER);
+		viewItem = getViewMenuItem(icon);
+		viewButton = getViewButton(icon);
 		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 	}
@@ -179,21 +188,32 @@ public class DataManager
     {
         if (e instanceof ViewImageInfo)
             control.showProperties(((ViewImageInfo) e).getImageInfo());
+        else if (e instanceof ServiceActivationResponse)
+        	handleSAR((ServiceActivationResponse) e);
     }
 
 	Registry getRegistry() { return registry; }
 	
+	/** Rebuild the Tree if the connection is succesful. */
+	void handleSAR(ServiceActivationResponse response)
+	{
+		if (response.isActivationSuccessful() && presentation != null) 
+			presentation.rebuildTree();
+		else if (!response.isActivationSuccessful())
+			registry.getEventBus().post(new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES));
+	}
+	
 	/**
-	 * Import a list of images in the specified dataset.
+	 * Import a list of images into the specified dataset.
 	 * 
-	 * @param imagesToImport	list of files to import.
+	 * @param images			list of files to import.
 	 * @param datasetID			id of the dataset to import into.
 	 */
-	void importImages(List imagesToImport, int datasetID)
+	void importImages(List images, int datasetID)
 	{
-		registry.getUserNotifier().notifyInfo("Importer", 
-									"Not yet implemented. Complaints should be " +
-									"sent to Don Falconi. ;-))))");
+		EventBus eventBus = registry.getEventBus();
+		eventBus.post(new ImportImages(datasetID, images));
 	}
 	
 	/**
@@ -711,18 +731,19 @@ public class DataManager
 	 * Menu item to add into the 
 	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
 	 */
-	private JCheckBoxMenuItem getViewMenuItem()
+	private JCheckBoxMenuItem getViewMenuItem(Icon icon)
 	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager");
+		IconManager im = IconManager.getInstance(registry);
+		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager", icon);
 		control.attachItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
 	}
 	
 	/** Create the view button. */
-	private JButton getViewButton()
+	private JButton getViewButton(Icon icon)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		JButton b = new JButton(im.getIcon(IconManager.DMANAGER));
+		JButton b = new JButton(icon);
 		b.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the dataManager."));
 		control.attachItemListener(b, DataManagerCtrl.DM_VISIBLE);
