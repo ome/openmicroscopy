@@ -93,14 +93,14 @@ public class IconManager
 	 * use for notification dialogs. 
 	 */
 	private static final String		DEFAULT_ERROR_ICON_PATH = 
-													"graphx/stock_stop-32.png";
+												"graphx/nuvola_cancel32.png";
 	
 	/** 
 	 * The pathname, relative to this class, of the default warning icon to
 	 * use for notification dialogs.
 	 */
 	private static final String		DEFAULT_WARN_ICON_PATH = 
-										"graphx/stock_dialog-warning-32.png";
+										"graphx/nuvola_important32.png";
 													
 	/** 
 	 * The pathname, relative to this class, of the default info icon to
