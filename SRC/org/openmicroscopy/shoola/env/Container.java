@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
+import org.openmicroscopy.shoola.env.ui.AWTExceptionHanlder;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
@@ -265,10 +266,12 @@ public final class Container
 		//TODO: activate services (EventBus, what else?).
 		RenderingEngine re = RenderingEngine.getInstance(this);
 		re.activate();
-		
 		LoginManager lm = LoginManager.getInstance(this);
 		lm.activate();
 		//TODO: RE threads should be spawn during an init task.
+		
+		//This is subject to change (see class javadoc).
+		AWTExceptionHanlder.configure(this);
 		
 		//Get ready to interact with the user...
 		TopFrame tf = singleton.registry.getTopFrame();
