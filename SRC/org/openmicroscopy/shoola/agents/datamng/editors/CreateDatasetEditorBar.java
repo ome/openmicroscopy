@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -87,7 +86,7 @@ class CreateDatasetEditorBar
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
-		saveButton.setOpaque(false);
+		//saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText(
@@ -96,7 +95,7 @@ class CreateDatasetEditorBar
 		cancelButton = new JButton("Cancel");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//suppress button press decoration
-		cancelButton.setContentAreaFilled(false); 
+		cancelButton.setContentAreaFilled(false);
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Close without saving."));
 	}

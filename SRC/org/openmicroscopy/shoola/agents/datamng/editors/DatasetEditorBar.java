@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

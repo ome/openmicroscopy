@@ -42,7 +42,6 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

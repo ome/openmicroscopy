@@ -49,7 +49,6 @@ import javax.swing.table.AbstractTableModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -112,17 +111,12 @@ class DatasetImagesDiffPane
 
 	/** Return the save button. */
 	JButton getSaveButton() { return saveButton; }
+	
 		
-	void setImagesDiff(List l)
-	{
-		imagesDiff = l;
-	}
+	void setImagesDiff(List l) { imagesDiff = l; }
 
 	/** List of dataset to be added. */
-	void setImagesToAdd(List l)
-	{
-		imagesDiff = l;
-	}
+	void setImagesToAdd(List l) { imagesDiff = l; }
 	
 	/** Select or not all datasets. */
 	void setSelection(Object val)
@@ -160,7 +154,7 @@ class DatasetImagesDiffPane
 		}
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
 		contents = buildImagesPanel();
@@ -190,7 +184,6 @@ class DatasetImagesDiffPane
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
-		
 		p.add(sp);
 		p.add(Box.createRigidArea(DataManager.VBOX));
 		p.add(controls);

@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

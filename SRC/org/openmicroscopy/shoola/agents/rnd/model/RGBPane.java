@@ -109,9 +109,8 @@ public class RGBPane
 	}
 	
 	/** Build the JTable. */
-	private JPanel buildTable()
+	private TableComponent buildTable()
 	{
-		JPanel p = new JPanel();
 		ChannelData[]	channelData = eventManager.getChannelData();			
 		TableComponent table = new TableComponent(channelData.length, 
 													NUM_COLUMNS);
@@ -125,9 +124,8 @@ public class RGBPane
 			color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
 			addRow(table, i, channelData[i], color, active);
 		}
-		p.add(table);
-		p.setOpaque(false);
-		return p;
+		
+		return table;
 	}
 	
 	/** Build a row in the table. */
@@ -184,6 +182,7 @@ public class RGBPane
 		table.setRowHeight(ROW_HEIGHT);
 		table.setOpaque(false);
 		table.setShowGrid(false);
+		
 		TableColumnModel columns = table.getColumnModel();
 		TableColumn column= columns.getColumn(POS_INFO);
 		column.setPreferredWidth(DEFAULT_WIDTH);
@@ -197,6 +196,7 @@ public class RGBPane
 		column = columns.getColumn(POS_COLOR);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
+		
 		
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());

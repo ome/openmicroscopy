@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
@@ -61,10 +60,8 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -186,7 +183,6 @@ public class DataManager
 	 */
 	List getImagesDiff(DatasetData data)
 	{
-		//TODO: remove test, have to figure out how to retrieve data via ds
 		List imagesDiff = getUserImages();
 		List images = data.getImages();
 		ImageSummary is, isg;
@@ -210,7 +206,6 @@ public class DataManager
 	 */
 	List getDatasetsDiff(ProjectData data)
 	{
-		//TODO: remove test, have to figure out how to retrieve data via ds
 		List datasetsDiff = new ArrayList();
 		if (datasetSummaries == null) getUserDatasets();
 		List datasets = data.getDatasets();
@@ -622,8 +617,7 @@ public class DataManager
 	void viewDataset(int datasetID)
 	{
 		LoadDataset request = new LoadDataset(datasetID);
-		EventBus bus = registry.getEventBus();
-		bus.post(request);	
+		registry.getEventBus().post(request);	
 	}
 
 	/**
@@ -636,8 +630,7 @@ public class DataManager
 	void viewImage(int imageID, int pixelsID, String imageName)
 	{
 		LoadImage request = new LoadImage(imageID, pixelsID, imageName);
-		EventBus bus = registry.getEventBus();
-		bus.post(request);	
+		registry.getEventBus().post(request);	
 	}
 	
 	/** Display the widget. */

@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.datamng;
 
 
-
 //Java imports
 import java.awt.Dimension;
 import javax.swing.JButton;
@@ -40,7 +39,6 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

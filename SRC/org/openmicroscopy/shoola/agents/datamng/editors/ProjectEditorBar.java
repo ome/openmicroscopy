@@ -29,8 +29,6 @@
 
 package org.openmicroscopy.shoola.agents.datamng.editors;
 
-
-
 //Java imports
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -41,7 +39,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ProjectEditorBar
 	extends JToolBar	
 {
+	
 	/** Dimension of the separator between the toolBars. */
 	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
@@ -92,7 +90,7 @@ class ProjectEditorBar
 		//make panel transparent
 		saveButton.setOpaque(false);
 		//suppress button press decoration
-		saveButton.setContentAreaFilled(false); 
+		//saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);

@@ -53,7 +53,6 @@ import javax.swing.table.AbstractTableModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -81,6 +80,7 @@ class ProjectDatasetsPane
 	private static final int		POS_ONE = 0, POS_TWO = 1, POS_THREE = 2,
 									POS_FOUR = 3;
 	
+	private static final int		ROW_HEIGHT = 25;
 	
 	/** Reference to the manager. */
 	private ProjectEditorManager	manager;
@@ -216,21 +216,27 @@ class ProjectDatasetsPane
 	private TableComponent buildLabelTable()
 	{
 		TableComponent table = new TableComponent(1, 3);
-		table.setTableHeader(null);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		table.setRowHeight(25);
+		setTableLayout(table);
 		//First row.
 		JLabel label = new JLabel(" Datasets to add");
 		table.setValueAt(label, 0, 0);
 		label = new JLabel("");
 		table.setValueAt(label, 0, 1);
 		table.setValueAt(label, 0, 2);
+		return table;
+	}
+	
+	/** Set the layout of the table. */
+	private void setTableLayout(TableComponent table)
+	{
+		table.setTableHeader(null);
+		table.setOpaque(false);
+		table.setShowGrid(false);
+		table.setRowHeight(ROW_HEIGHT);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
-		return table;
 	}
 	
 	/** 

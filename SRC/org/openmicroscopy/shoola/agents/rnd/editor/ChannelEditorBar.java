@@ -39,7 +39,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -65,7 +64,7 @@ class ChannelEditorBar
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	private ChannelEditorManager 	manager;
-	private JButton					saveButton, cancelButton, helpButton;
+	private JButton					saveButton, cancelButton;
 	
 	ChannelEditorBar(ChannelEditorManager manager)
 	{
@@ -79,9 +78,6 @@ class ChannelEditorBar
 	
 	/** Returns the cancel button. */
 	JButton getCancelButton() { return cancelButton; }
-	
-	/** Returns the help button. */
-	JButton getHelpButton() { return helpButton; }
 	
 	/** Initializes the buttons. */
 	void initButtons()
@@ -102,13 +98,6 @@ class ChannelEditorBar
 		cancelButton.setContentAreaFilled(false); 
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Close without saving."));	
-			
-		helpButton = new JButton("Help");
-		helpButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//suppress button press decoration
-		helpButton.setContentAreaFilled(false); 
-		helpButton.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the channel dictionary."));
 	}
 	
 	/** Build and lay out the GUI. */
@@ -120,8 +109,6 @@ class ChannelEditorBar
 		add(saveButton);
 		addSeparator(SEPARATOR);
 		add(cancelButton);
-		//addSeparator(SEPARATOR);
-		//add(helpButton);
 	}
 	
 }

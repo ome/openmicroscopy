@@ -107,9 +107,6 @@ public class ChannelEditor
 	/** Returns the save button displayed in {@link ChannelEditorBar}. */
 	JButton getCancelButton() { return bar.getCancelButton(); }
 	
-	/** Returns the help button displayed in {@link ChannelEditorBar}. */
-	JButton getHelpButton() { return bar.getHelpButton(); }
-	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{

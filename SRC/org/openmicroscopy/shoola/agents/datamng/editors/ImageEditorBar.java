@@ -39,7 +39,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -59,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ImageEditorBar
 	extends JToolBar	
 {
+	
 	/** Dimension of the separator between the toolBars. */
 	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);

@@ -66,16 +66,12 @@ class ChannelEditorManager
 	/** Action command ID, handle events. */
 	private static final int	SAVE = 100;
 	private static final int	CANCEL = 101;
-	private static final int	DICTIONARY = 102;
 	
 	/** Save Button displayed in {@link ChannelEditorBar}. */
 	private JButton				saveButton;
 	
 	/** Cancel Button displayed in {@link ChannelEditorBar}. */
 	private JButton				cancelButton;
-	
-	/** Help Button displayed in {@link ChannelEditorBar}. */
-	private JButton				helpButton;
 	
 	/** textArea displayed in the {@link ChannelPane}. */
 	private JTextArea			interpretationArea;
@@ -110,10 +106,6 @@ class ChannelEditorManager
 		cancelButton = view.getCancelButton();
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
-		helpButton = view.getHelpButton();
-		helpButton.addActionListener(this);
-		helpButton.setActionCommand(""+DICTIONARY);
-		
 		//text area.
 		interpretationArea = view.getInterpretationArea();
 		interpretationArea.getDocument().addDocumentListener(this);
@@ -133,17 +125,10 @@ class ChannelEditorManager
 					save(); break;
 				case CANCEL:
 					cancel(); break;
-				case DICTIONARY:
-					dictionary(); break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
 		} 
-	}
-	
-	private void dictionary()
-	{
-		eventManager.showChannelDictionary();
 	}
 	
 	/** Close the widget, doesn't save changes. */

@@ -49,7 +49,6 @@ import javax.swing.table.AbstractTableModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -88,7 +87,7 @@ class ProjectDatasetsDiffPane
 	
 	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
 	{
-		super(control.getView(), "List of existing datasets",true);
+		super(control.getView(), "List of existing datasets", true);
 		this.datasetsDiff = datasetsDiff;
 		this.control = control;
 		initButtons();

@@ -105,9 +105,8 @@ public class HSBPane
 	}
 	
 	/** Build the JTable. */
-	private JPanel buildTable()
+	private TableComponent buildTable()
 	{
-		JPanel p = new JPanel();
 		ChannelData[] channelData = eventManager.getChannelData();
 		TableComponent table = new TableComponent(channelData.length, 
 												NUM_COLUMNS);
@@ -121,9 +120,8 @@ public class HSBPane
 			color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
 			addRow(table, i, channelData[i], color, active);
 		}
-		p.add(table);
-		p.setOpaque(false);
-		return p;
+
+		return table;
 	}
 	
 	/** Build a row in the table. */

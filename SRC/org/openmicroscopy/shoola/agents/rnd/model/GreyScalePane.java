@@ -94,7 +94,7 @@ public class GreyScalePane
 		buildGUI();
 	}
 
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
@@ -104,20 +104,17 @@ public class GreyScalePane
 	}
 	
 	/** Build the JTable. */
-	private JPanel buildTable()
+	private TableComponent buildTable()
 	{
-		JPanel p = new JPanel();
 		ChannelData[] channelData = eventManager.getChannelData();
 		TableComponent table = new TableComponent(channelData.length, 
 													NUM_COLUMNS);
 		tableLayout(table);
 		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < channelData.length; i++) {
+		for (int i = 0; i < channelData.length; i++)
 			addRow(table, group, i, channelData[i], eventManager.isActive(i));
-		}
-		p.add(table);
-		p.setOpaque(false);
-		return p;
+			
+		return table;
 	}
 	
 	/** Build a row in the table. */
@@ -176,6 +173,7 @@ public class GreyScalePane
 		column = columns.getColumn(POS_RADIO);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
+		
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
