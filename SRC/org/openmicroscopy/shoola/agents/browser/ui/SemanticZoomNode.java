@@ -96,6 +96,8 @@ public class SemanticZoomNode extends PImage
     protected Rectangle2D openIconShape;
     protected Image closeIconImage;
     protected Rectangle2D closeIconShape;
+    protected Image annotateIconImage;
+    protected Rectangle2D annotateIconShape;
     
     protected Image[] thumbnailImages;
     
@@ -210,11 +212,12 @@ public class SemanticZoomNode extends PImage
         IconManager manager = env.getIconManager();
         openIconImage = manager.getLargeImage(IconManager.ZOOM_BAR);
         closeIconImage = manager.getLargeImage(IconManager.CLOSE_IMAGE);
+        annotateIconImage = manager.getLargeImage(IconManager.ANNOTATE);
         
         int iconWidth = openIconImage.getWidth(null);
         int iconHeight = openIconImage.getHeight(null);
         
-        openIconShape = new Rectangle2D.Double(width-iconWidth-8,50,
+        openIconShape = new Rectangle2D.Double(width-iconWidth-8,64,
                                                iconWidth,iconHeight);
         
         iconWidth = closeIconImage.getWidth(null);
@@ -222,6 +225,12 @@ public class SemanticZoomNode extends PImage
         
         closeIconShape = new Rectangle2D.Double(width-iconWidth-8,8,
                                                 iconWidth,iconHeight);
+                                                
+        iconWidth = annotateIconImage.getWidth(null);
+        iconHeight = annotateIconImage.getHeight(null);
+                                                
+        annotateIconShape = new Rectangle2D.Double(width-iconWidth-8,36,
+                                                   iconWidth,iconHeight);
                                                
               
     }
@@ -367,6 +376,16 @@ public class SemanticZoomNode extends PImage
                 getParent().removeChild(this);
             }
         }
+        if(annotateIconShape != null)
+        {
+            if(annotateIconShape.contains(pos))
+            {
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.annotateImage(parentThumbnail);
+                return;
+            }
+        }
     }
     
     /**
@@ -472,6 +491,10 @@ public class SemanticZoomNode extends PImage
         g2.drawImage(closeIconImage,
                      (int)Math.round(closeIconShape.getX()),
                      (int)Math.round(closeIconShape.getY()),null);
+        g2.fill(annotateIconShape);
+        g2.drawImage(annotateIconImage,
+                     (int)Math.round(annotateIconShape.getX()),
+                     (int)Math.round(annotateIconShape.getY()),null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
         
