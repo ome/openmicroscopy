@@ -173,6 +173,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		//SelectionState.getState().addSelectionEventListener(this);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		layer = getLayer();
+		layer.setPickable(false);
 		
 		// make sure that rendering is always high quality
 		
@@ -201,7 +202,8 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 						
 		// setup tool tips.
 		PCamera camera = getCamera();
-		camera.addInputEventListener(new ModulePaletteToolTipHandler(camera));
+		camera.addInputEventListener(new ChainbuilderToolTipHandler(camera));
+		
 		
 		dataManager.getRegistry().getEventBus().register(this,new Class[] {
 				MouseOverDataset.class, SelectDataset.class,

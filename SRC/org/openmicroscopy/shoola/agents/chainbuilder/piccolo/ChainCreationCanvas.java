@@ -169,7 +169,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	    
    	    handler.setModulesDisplayMode();
 	    // setup tool tips.
-		camera.addInputEventListener(new ChainToolTipHandler(camera));
+		camera.addInputEventListener(new ChainbuilderToolTipHandler(camera));
 		
 		
 		
