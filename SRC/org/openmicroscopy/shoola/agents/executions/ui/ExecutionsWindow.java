@@ -34,9 +34,11 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -50,8 +52,8 @@ import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
-import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
+import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
@@ -59,6 +61,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 
 
@@ -89,9 +92,10 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	
 	private JButton reset;
 	
-	private BoundedLongRangeModel model;
 	
 	private ExecutionsModel execsModel;
+	
+	private JComboBox combo;
 	
 	/**
 	 * Creates a new instance.
@@ -135,14 +139,18 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		content.setLayout(new BorderLayout());
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
+		content.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// execution canvas
 		execCanvas = new ExecutionsCanvas(execsModel,registry);
 		
-		// slider
-		model = execsModel.getRangeModel();
-		slider = new LongRangeSlider(model);
-		slider.setEnabled(true);
 		
+		// slider
+		slider  = execsModel.getSlider();
+		slider.setEnabled(true);
+		slider.setBorder(BorderFactory.
+				createEmptyBorder(0,GridModel.GRID_OFFSET,0,
+						2*GridModel.GRID_OFFSET));
+		slider.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// reset button
 		IconFactory icons = (IconFactory)  
 		registry.lookup("/resources/icons/MyFactory");
@@ -154,16 +162,30 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		// panel with button and slider
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls,BoxLayout.X_AXIS));
+		controls.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		controls.add(reset);
-		controls.add(slider);
+		
+		combo = buildComboBox();
+		controls.add(combo);
 		
 		// add stuff to content pane
 		content.add(controls,BorderLayout.NORTH);
 		content.add(execCanvas,BorderLayout.CENTER);
+		content.add(slider,BorderLayout.SOUTH);
 		
 		// listen to events
 		pack();
 		enableButtons(true);
+	}
+	
+	private JComboBox buildComboBox() {
+		JComboBox combo = new JComboBox(ExecutionsModel.modes);
+		combo.setEditable(false);
+		combo.setSelectedIndex(0);
+		combo.addActionListener(this);
+		
+		return combo;
+		
 	}
 	
 	public void eventFired(AgentEvent e) {
@@ -188,8 +210,15 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == reset && model != null)
-			execsModel.resetRangeProperties();
+		if (e.getSource() == reset )  {
+			if (execsModel != null)
+					execsModel.resetRangeProperties();
+		}
+		else if (e.getSource() == combo) {
+			String choice = (String) ((JComboBox) e.getSource()).getSelectedItem();
+			execsModel.setRenderingOrder(choice);
+			execCanvas.repaint();
+		}
 	}
 	
 }
