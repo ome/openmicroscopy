@@ -70,8 +70,8 @@ public class LineGeometry extends LineStripArray {
  	    // set coordinates
  	    pts = new Point3d[t.getLength()];
  	    for (int i = 0; i < t.getLength(); i++) {
- 	    	SpotsTrajectoryEntry pt = traj.getPoint(i);
- 	    	pts[i] = extents.calculatePoint(pt);
+ 	    		SpotsTrajectoryEntry pt = traj.getPoint(i);
+ 	    		pts[i] = extents.calculatePoint(pt);
  	    }
  	    
  	    //
