@@ -130,9 +130,7 @@ class TreePopupMenuManager
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
             else if (src == view.refresh) agentCtrl.refresh(target);
-		} else {
-			//if (src == view.refresh) agentCtrl.refresh();
-		}
+		} 
 		view.setVisible(false);
 	}
 	

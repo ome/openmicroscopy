@@ -39,6 +39,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JTable;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -110,17 +111,13 @@ class ImagesPaneManager
         });
     }
     
-	/** 
-	 * Attach a mouse adapter to the tree in the view to get notified 
-	 * of mouse events on the tree.
-	 */
+	/** Initializes the listeners. */
 	private void initListeners()
 	{
         attachButtonListeners(view.bar.load, LOAD);
-		
 	}
 
-     /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void attachButtonListeners(JButton button, int id)
     {
         button.addActionListener(this);
@@ -160,12 +157,9 @@ class ImagesPaneManager
             }
             if (images == null) return;
             view.displayImages(images);
-           
             loaded = true;
         }
-	}
-	
-	
+	}	
     
 	/** 
 	 * Handles mouse clicks within the tree component in the view.
@@ -190,6 +184,5 @@ class ImagesPaneManager
 			} 
 		}	
 	}
-
 	
 }

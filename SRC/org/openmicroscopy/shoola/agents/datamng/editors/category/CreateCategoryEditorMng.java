@@ -85,6 +85,8 @@ class CreateCategoryEditorMng
     
     private DataManagerCtrl         control;
     
+    private int                     selectionIndex;
+    
     /**
      * @param editor
      * @param control
@@ -93,6 +95,7 @@ class CreateCategoryEditorMng
     {
         this.view = view;
         this.control = control;
+        selectionIndex = -1;
         imagesToAdd = new ArrayList();
     }
 
@@ -177,7 +180,29 @@ class CreateCategoryEditorMng
     {
         CategoryGroupData 
         group = (CategoryGroupData) view.getExistingGroups().getSelectedItem();
-        view.showImages(control.getImagesNotInGroup(group));
+        int selectedIndex = view.getImagesSelection().getSelectedIndex();
+        if (selectedIndex != selectionIndex) {
+            selectionIndex = selectedIndex;
+            List images = null;
+            switch (selectedIndex) {
+                case CreateCategoryImagesPane.IMAGES_IMPORTED:
+                    images = control.getImagesNotInCategoryGroup(group); break;
+                case CreateCategoryImagesPane.IMAGES_USED:
+                    images = 
+                       control.getImagesInUserDatasetsNotInCategoryGroup(group);
+                    break;
+                case CreateCategoryImagesPane.IMAGES_GROUP:
+                    images = 
+                        control.getImagesInUserGroupNotInCategoryGroup(group);
+                     break;
+                case CreateCategoryImagesPane.IMAGES_SYSTEM:
+                    images = 
+                        control.getImagesInSystemNotInCategoryGroup(group);
+                     break;
+            }
+            if (images == null || images.size() == 0) return;
+            view.showImages(images);
+        }
     }
     
     /** Handles event fired by the buttons. */

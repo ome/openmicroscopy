@@ -49,7 +49,6 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -120,6 +119,26 @@ class CategoryEditorManager
 	
 	CategoryData getCategoryData() { return model; }
 
+    List getImagesDiff()
+    {
+        return control.getImagesDiffNotInCategoryGroup(model);
+    }
+    
+    List getImagesDiffInUserDatasets()
+    {
+        return control.getImagesDiffInUserDatasetsNotInCategoryGroup(model);
+    }
+    
+    List getImagesDiffInUserGroup()
+    {
+        return control.getImagesDiffInUserGroupNotInCategoryGroup(model);
+    }
+    
+    List getImagesDiffInSystem()
+    {
+        return control.getImagesDiffInSystemNotInCategoryGroup(model);
+    }
+    
 	/** Initializes the listeners. */
 	void initListeners()
 	{
@@ -139,12 +158,6 @@ class CategoryEditorManager
 		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
-	
-    private void attachButtonListener(JButton button, int id)
-    {
-        button.addActionListener(this);
-        button.setActionCommand(""+id);
-    }
     
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
@@ -176,24 +189,12 @@ class CategoryEditorManager
 	/** Bring up the images selection dialog. */
 	private void showImagesSelection()
 	{
-		if (dialog == null) {
-			List images = control.getImagesNotInGroup(model.getCategoryGroup());
-            if (images != null)
-                dialog = new CategoryImagesDiffPane(this, images);
-            else {
-                UserNotifier un = control.getRegistry().getUserNotifier();
-                un.notifyInfo("Image Selection", "no image to add to the " +
-                        "selected category.");
-            }
-		} else {
-			dialog.remove(dialog.getContents());
-			dialog.buildGUI();
-		}
+		if (dialog == null) dialog = new CategoryImagesDiffPane(this);
+        else dialog.removeDisplay();
 		UIUtilities.centerAndShow(dialog);
 		view.setSelectedPane(CategoryEditor.POS_IMAGE);
 		view.getSaveButton().setEnabled(true);	
-	}
-	
+	}	
 	
 	/** Add the list of selected images. */
 	void addImagesSelection(List l)
@@ -287,6 +288,13 @@ class CategoryEditorManager
 			view.rebuildComponent();
 		}
 	}
+
+    
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
 
 	/** Reset the default for the queue of images to add. */
 	private void resetAdded()

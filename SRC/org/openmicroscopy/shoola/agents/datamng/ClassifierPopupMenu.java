@@ -64,7 +64,7 @@ class ClassifierPopupMenu
 {
     
     /** This UI component's controller and model. */
-    private ClassifierPopupMenuMng   manager;
+    private ClassifierPopupMenuMng  manager;
     
     /** Holds the configuration entries. */
     private Registry                config;
@@ -81,6 +81,9 @@ class ClassifierPopupMenu
     /** Button to annotate a dataset or an image. */
     JMenuItem                       annotate;
         
+    /** Button to reload data from the DB. */
+    JMenuItem                       refresh;
+    
     /** 
      * Creates a new instance.
      *
@@ -92,6 +95,7 @@ class ClassifierPopupMenu
         initProperties();
         initView();
         initAnnotate();
+        initRefresh();
         manager = new ClassifierPopupMenuMng(this, agentCtrl);
         buildGUI() ;
     }
@@ -141,6 +145,16 @@ class ClassifierPopupMenu
         annotate.setEnabled(false);  
     }
     
+    /** Creates and initializes the refresh button. */
+    private void initRefresh() 
+    {
+        IconManager icons = IconManager.getInstance(config);
+        refresh = new JMenuItem("Refresh", icons.getIcon(IconManager.REFRESH));
+        refresh.setBorder(null);
+        refresh.setFont((Font) config.lookup("/resources/fonts/Labels"));
+        refresh.setForeground(DataManagerUIF.STEELBLUE); 
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI() 
     {
@@ -148,6 +162,7 @@ class ClassifierPopupMenu
         add(properties);
         add(view);
         add(annotate);
+        add(refresh);
     }
     
 }

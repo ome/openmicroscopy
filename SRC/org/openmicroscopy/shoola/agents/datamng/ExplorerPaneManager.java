@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Modify the tree according to the events fired by the editors.
@@ -121,7 +122,7 @@ class ExplorerPaneManager
      * Builds the tree model to represent the project-dataset
      * hierarchy.
      *
-     * @param name      user's last name.
+     * @param name      user's First and Last name.
      * @return  A tree model containing the project-dataset hierarchy.
      */
     DefaultMutableTreeNode getUserTreeModel(String name)
@@ -164,19 +165,18 @@ class ExplorerPaneManager
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode pNode;
-        List pSummaries = agentCtrl.getUserProjects();                                      
-        if (pSummaries != null) {
-            Iterator j = pSummaries.iterator();
-            ProjectSummary ps;
-            Integer projectID;
-            while (j.hasNext()) {
-                ps = (ProjectSummary) j.next();
-                projectID = new Integer(ps.getID());
-                pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
-                pNode.removeAllChildren();
-                addDatasets(ps.getDatasets(), pNode, false);
-                treeModel.reload(pNode);
-            }
+        List pSummaries = agentCtrl.getUserProjects();    
+        if (pSummaries == null || pSummaries.size() == 0) return;
+        Iterator j = pSummaries.iterator();
+        ProjectSummary ps;
+        Integer projectID;
+        while (j.hasNext()) {
+            ps = (ProjectSummary) j.next();
+            projectID = new Integer(ps.getID());
+            pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
+            pNode.removeAllChildren();
+            addDatasets(ps.getDatasets(), pNode, false);
+            treeModel.reload(pNode);
         }
     }
     
@@ -186,41 +186,39 @@ class ExplorerPaneManager
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode pNode;                                       
         List pSummaries = agentCtrl.getUserProjects();
-        if (pSummaries != null) {
-            Iterator j = pSummaries.iterator();
-            ProjectSummary ps;
-            while (j.hasNext()) {
-                ps = (ProjectSummary) j.next();
-                pNode = (DefaultMutableTreeNode) 
-                        pNodes.get(new Integer(ps.getID()));
-                pNode.removeAllChildren();
-                addDatasets(ps.getDatasets(), pNode, false);
-                treeModel.reload(pNode);
-            }
-        }   
+        if (pSummaries == null || pSummaries.size() == 0) return;
+        Iterator j = pSummaries.iterator();
+        ProjectSummary ps;
+        while (j.hasNext()) {
+            ps = (ProjectSummary) j.next();
+            pNode = (DefaultMutableTreeNode) 
+                    pNodes.get(new Integer(ps.getID()));
+            pNode.removeAllChildren();
+            addDatasets(ps.getDatasets(), pNode, false);
+            treeModel.reload(pNode);
+        }  
     }
     
+    /** Refresh the specified datasetSummary node. */
     void refreshDatasetInTree(DatasetSummary ds)
     {
         //no dataset node expanded
         if (cDNodes.size() == 0) return;
         List nodes = (List) cDNodes.get(new Integer(ds.getID()));
-        //The dataset wasn't expanded, in this case, we do nothing
+        //The dataset hasn't been expanded, in this case, we do nothing
         if (nodes == null) return;
         Iterator i = nodes.iterator();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode node, childNode;   
+        DefaultMutableTreeNode node;   
         List images = agentCtrl.getImages(ds.getID());
         while (i.hasNext()) {
             node = (DefaultMutableTreeNode) i.next();
             node.removeAllChildren();
             if (images.size() != 0)
                 addImagesToDataset(images, node);    
-            else {
-                childNode = new DefaultMutableTreeNode(EMPTY);
-                treeModel.insertNodeInto(childNode, node, 
-                    node.getChildCount());            
-            } 
+            else 
+                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
+                                        node, node.getChildCount());            
             treeModel.reload(node);
         }       
     }
@@ -321,7 +319,7 @@ class ExplorerPaneManager
         treeModel.insertNodeInto(pNode, root, root.getChildCount());
         pNodes.put(new Integer(ps.getID()), pNode);
         List datasets = ps.getDatasets();
-        if (datasets != null) {
+        if (datasets != null && datasets.size() != 0) {
             Iterator i = datasets.iterator();
             DefaultMutableTreeNode dNode;
             DatasetSummary ds;
@@ -460,26 +458,27 @@ class ExplorerPaneManager
         List pSummaries = agentCtrl.getUserProjects();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         root.removeAllChildren();
-        
-        if (pSummaries != null && pSummaries.size() !=0 ) {
-            Iterator i = pSummaries.iterator();
-            ProjectSummary ps;
-            DefaultMutableTreeNode pNode;
-            while (i.hasNext()) {
-                ps = (ProjectSummary) i.next();
-                pNode = new DefaultMutableTreeNode(ps);
-                treeModel.insertNodeInto(pNode, root, root.getChildCount());
-                pNodes.put(new Integer(ps.getID()), pNode);
-                addDatasetsToProject(ps, pNode, treeModel); 
-            }
-            treeModel.reload(root);
-            treeLoaded = true;  
-        } else {
-            treeModel.insertNodeInto(new DefaultMutableTreeNode(""), 
-                                    root, root.getChildCount());
+        if (pSummaries == null && pSummaries.size() == 0) {
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(""), root, 
+                    root.getChildCount());
             treeModel.reload(root);
             view.tree.collapsePath(new TreePath(root.getPath()));
-        }   
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+            un.notifyInfo("Hierarchy", "No project created");
+            return;
+        }
+        Iterator i = pSummaries.iterator();
+        ProjectSummary ps;
+        DefaultMutableTreeNode pNode;
+        while (i.hasNext()) {
+            ps = (ProjectSummary) i.next();
+            pNode = new DefaultMutableTreeNode(ps);
+            treeModel.insertNodeInto(pNode, root, root.getChildCount());
+            pNodes.put(new Integer(ps.getID()), pNode);
+            addDatasetsToProject(ps, pNode, treeModel); 
+        }
+        treeModel.reload(root);
+        treeLoaded = true;  
     }
     
     /** 

@@ -67,5 +67,8 @@ public class ClassificationData
     
     public int getID() { return id; }
 
-    
+    public ClassificationData copyObject()
+    {
+        return new ClassificationData(this.id, this.confidence);
+    }
 }

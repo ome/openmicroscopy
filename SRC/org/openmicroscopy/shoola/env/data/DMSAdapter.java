@@ -246,7 +246,6 @@ class DMSAdapter
                 ProjectMapper.fillListAnnotatedDatasets(projects, 
                         pProto, dProto, l, uc.getUserID(), projectsDS);
             }
-            
         }
         return projectsDS;
     }
@@ -348,14 +347,14 @@ class DMSAdapter
 	}
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveUserGroupImages()
+    public List retrieveImagesInUserGroup()
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveUserGroupImages(null);
+        return retrieveImagesInUserGroup(null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveUserGroupImages(ImageSummary iProto)
+    public List retrieveImagesInUserGroup(ImageSummary iProto)
         throws DSOutOfServiceException, DSAccessException
     {
         //Make a new proto if none was provided.
