@@ -42,7 +42,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+
 
 /** 
  * 
@@ -61,14 +61,17 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 class XYZNavigatorManager
 	implements ActionListener, FocusListener, ChangeListener
 {
-	private ViewerCtrl 		eventManager;
-	private XYZNavigator 	view;	
+	private NavigationPaletteManager 		manager;
+	private XYZNavigator 					view;	
 	
-	private int curZ, maxZ;
-	XYZNavigatorManager(XYZNavigator view, ViewerCtrl eventManager)
+	private int 							curZ, maxZ;
+	XYZNavigatorManager(XYZNavigator view, NavigationPaletteManager manager,
+						int sizeZ, int z)
 	{
-		this.eventManager = eventManager;
+		this.manager = manager;
 		this.view = view;
+		curZ = z;
+		maxZ = sizeZ;
 	}
 	
 	/** Attach the listeners. */
@@ -78,23 +81,21 @@ class XYZNavigatorManager
 		JTextField zField = view.getZField();
 		zField.addActionListener(this);
 		zField.addFocusListener(this);
-		
 		//slider
 		view.getZSlider().addChangeListener(this);
 	}
-	
 	/** 
-	* Synchronizes the slider, the text field and the current Z.
-	* 
-	* @param v	The value that the slider, text field and the current Z will 
-	* 			be set to.
-	*/
+	 * Synchronizes the slider, the text field and the current Z.
+	 * 
+	 * @param v	The value that the slider, text field and the current Z will 
+	 * 			be set to.
+	 */
 	private void synch(int v)
 	{
 		curZ = v;
 		view.getZSlider().setValue(v);
 		view.getZField().setText(""+v);           
-		//forward event to eventManager
+		manager.onZChange(curZ);
 	}
 	
 	/** Listen to action events fired by the Z text field. */
@@ -122,10 +123,10 @@ class XYZNavigatorManager
 	}
 	
 	/** 
-	* Handles the lost of focus on the Z text field.
-	* If focus is lost while editing, then we don't consider the text 
-	* currently displayed in the text field and we reset it to the current Z.
-	*/
+	 * Handles the lost of focus on the Z text field.
+	 * If focus is lost while editing, then we don't consider the text 
+	 * currently displayed in the text field and we reset it to the current Z.
+	 */
 	public void focusLost(FocusEvent e)
 	{
 		String val = view.getZField().getText(), z = ""+curZ;
@@ -133,9 +134,9 @@ class XYZNavigatorManager
 	}
 	
 	/** 
- 	* Required by I/F but not actually needed in our case, no op 
- 	* implementation.
- 	*/
+ 	 * Required by I/F but not actually needed in our case, no op 
+ 	 * implementation.
+ 	 */
 	public void focusGained(FocusEvent e) {}
 	
 }

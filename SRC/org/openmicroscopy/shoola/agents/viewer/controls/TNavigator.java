@@ -31,7 +31,8 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
 //Java imports
-import javax.swing.Box;
+import java.awt.Dimension;
+import java.util.Hashtable;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -40,11 +41,11 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
-import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 
 /** 
  * 
@@ -63,37 +64,38 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 class TNavigator
 	extends JPanel
 {
-	private static final int	DEFAULT_T = 0;
-	private static final int	MAX_T = 100;
+	/** Dimension of the JPanel which contains the slider. */
+	private static final int		PANEL_HEIGHT = 40;
+	private static final int		PANEL_WIDTH = 100;
 	
+	private static final Dimension	DIM = new Dimension(PANEL_WIDTH, 
+														PANEL_HEIGHT);
 	
-	/** Displays the total number of timepoints. */
-	private JLabel				tpTotal;
-	
+
 	/** The slider used to move across time.*/
-	private JSlider         	tSlider;
+	private JSlider         		tSlider;
 		
 	/** Text field to allow user to specify a timepoint. */
-	private JTextField      	tField;
+	private JTextField      		tField;
 	
 	/** Buttons to control the playback of time movie. */
-	private JButton         	play, stop, rewind; 
+	private JButton         		play, stop, rewind; 
 	
 	/** Allows user t specify the movie playback rate in frames per second. */
-	private JSpinner        	fps;
+	private JSpinner        		fps;
 	
 	/** To define new editor for JSpinner (due to JSpinner bug). */
-	private JTextField      	editor; 
+	private JTextField      		editor; 
 
-	private TNavigatorManager	manager;
+	private TNavigatorManager		manager;
 	
-	private IconManager			im;
+	private IconManager				im;
 	
-	TNavigator(ViewerCtrl eventManager)
+	TNavigator(NavigationPaletteManager topManager, int sizeT, int t)
 	{
-		manager = new TNavigatorManager(this, eventManager);
-		im = IconManager.getInstance(eventManager.getRegistry());
-		initComponents();
+		manager = new TNavigatorManager(this, topManager, sizeT, t);
+		im = IconManager.getInstance(topManager.getRegistry());
+		initComponents(sizeT, t);
 		manager.attachListeners();
 		buildGUI();
 	}
@@ -134,13 +136,22 @@ class TNavigator
 	}
 
 	/** Initializes the component. */
-	private void initComponents() 
+	private void initComponents(int sizeT, int t) 
 	{
 		//Slider
-		tSlider = new JSlider(JSlider.HORIZONTAL, 0, MAX_T, DEFAULT_T);
+		tSlider = new JSlider(JSlider.HORIZONTAL, 0, sizeT, t);
 		tSlider.setToolTipText("Move the slider to navigate across time");
+		tSlider.setMinorTickSpacing(1);
+		tSlider.setMajorTickSpacing(10);
+		tSlider.setPaintTicks(true);
+		Hashtable labelTable = new Hashtable();
+		labelTable.put(new Integer(0), new JLabel(""+0) );
+		labelTable.put(new Integer(sizeT), new JLabel(""+sizeT));
+		tSlider.setLabelTable(labelTable);
+		tSlider.setPaintLabels(true);
+		
 		//textField
-		tField = new JTextField("0", (""+MAX_T).length());
+		tField = new JTextField("0", (""+sizeT).length());
 		tField.setForeground(NavigationPalette.STEELBLUE);
 		tField.setToolTipText("Enter a timepoint");
 		//buttons
@@ -151,9 +162,9 @@ class TNavigator
 		rewind = new JButton(im.getIcon(IconManager.REWIND));
 		rewind.setToolTipText("Go to first timepoint");
 		//Spinner timepoint granularity is 1, so must be stepSize
-		//fps = new JSpinner(new SpinnerNumberModel(12, 0, MAX_T, 1));  
+		//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 		fps = new JSpinner(new SpinnerNumberModel(12, 12, 12, 1));
-		editor = new JTextField("12", (""+MAX_T).length());
+		editor = new JTextField("12", (""+sizeT).length());
 		String s = "Select or enter the movie playback rate " +
 					"(frames per second)";
 		editor.setToolTipText(s);
@@ -165,32 +176,35 @@ class TNavigator
 	{ 
 		JPanel topControls = new JPanel();
 		topControls.setLayout(new BoxLayout(topControls, BoxLayout.X_AXIS)); 
-		//topControls.add(buildInfoPanel());
-		topControls.add(Box.createHorizontalGlue());
 		topControls.add(buildMoviePanel());
 		add(topControls);
-		add(tSlider);
+		add(buildSliderPanel());
 	}
 	
-	/** 
-	 * Builds a panel containing the timepoint text field 
-	 * along with a label indicating the total timepoints.
-	 *
-	 * @return      The above mentioned panel.
+	/**
+	 * Build a panel containing a slider along with current selection
+	 * 
+	 * @return See above.
 	 */
-	private JPanel buildInfoPanel()
+	private JPanel buildSliderPanel()
 	{
-		JPanel p = new JPanel(), field = new JPanel();
-		JLabel current = new JLabel("Current: ");
-		current.setForeground(NavigationPalette.STEELBLUE);
-		field.add(current);
-		field.add(tField);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		tpTotal.setAlignmentX(LEFT_ALIGNMENT);
-		field.setAlignmentX(LEFT_ALIGNMENT);
-		p.add(tpTotal);
-		p.add(field);
-		return p;
+		JPanel p = new JPanel(), field = new JPanel(), slider = new JPanel();
+		slider.setLayout(null);
+		slider.setOpaque(false);
+  		slider.setPreferredSize(DIM);
+  		slider.setSize(DIM);
+  		tSlider.setPreferredSize(DIM);
+  		tSlider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
+  		slider.add(tSlider);
+  		JLabel current = new JLabel("Current T: ");
+  		current.setForeground(NavigationPalette.STEELBLUE);
+  		field.add(current);
+  		field.add(tField);
+  		field.setAlignmentX(LEFT_ALIGNMENT);
+  		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+  		p.add(field);
+ 		p.add(slider);
+  		return p;
 	}
     
 	/** 

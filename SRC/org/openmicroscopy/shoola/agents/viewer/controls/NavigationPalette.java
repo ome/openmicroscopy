@@ -42,6 +42,7 @@ import javax.swing.JTabbedPane;
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
  * 
@@ -60,27 +61,44 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class NavigationPalette
 	extends JDialog
 {
-	static final Color		STEELBLUE = new Color(0x4682B4);
-	
 	/** Width of the editor dialog window. */
-	public static final int			EDITOR_WIDTH = 300;
+	private static final int			EDITOR_WIDTH = 250;
 	
 	/** Height of the editor dialog window. */
-	public static final int			EDITOR_HEIGHT = 300;
+	private static final int			EDITOR_HEIGHT = 200;
 	
-	public static final int			EXTRA = 100;
-	private TNavigator      tNavigator;
-	private	XYZNavigator    xyzNavigator;
+	static final Color					STEELBLUE = new Color(0x4682B4);
 	
-	private Registry		registry;
+	private TNavigator      			tNavigator;
+	private	XYZNavigator    			xyzNavigator;
+	
+	private Registry					registry;
+	
+	private NavigationPaletteManager	manager;
+	
 	public NavigationPalette(ViewerCtrl eventManager)
 	{
 		super(eventManager.getReferenceFrame(), "Navigation Palette", true);
 		registry = eventManager.getRegistry();
-		tNavigator = new TNavigator(eventManager);
-		xyzNavigator = new XYZNavigator(eventManager);
+		manager = new NavigationPaletteManager(this, eventManager);
+		PixelsDimensions pxsDims = eventManager.getPixelsDims();
+		tNavigator = new TNavigator(manager, pxsDims.sizeT, 
+						eventManager.getDefaultT());
+		xyzNavigator = new XYZNavigator(manager, pxsDims.sizeX, pxsDims.sizeY, 
+							pxsDims.sizeZ, eventManager.getDefaultZ());
 		buildGUI();
-		setSize(EDITOR_WIDTH+EXTRA, EDITOR_HEIGHT);
+		setResizable(false);
+		setSize(EDITOR_WIDTH, EDITOR_HEIGHT);
+	}
+
+	public TNavigator getTNavigator()
+	{
+		return tNavigator;
+	}
+
+	public XYZNavigator getXYZNavigator()
+	{
+		return xyzNavigator;
 	}
 	
 	/** Build and layout the GUI. */
@@ -101,4 +119,6 @@ public class NavigationPalette
 		getContentPane().add(tabs, BorderLayout.CENTER);
 	}
 	
+	
+
 }

@@ -36,7 +36,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
 import javax.swing.JButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -46,7 +45,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+
 
 /** 
  * 
@@ -66,33 +65,37 @@ class TNavigatorManager
 	implements ActionListener, FocusListener, ChangeListener
 {
 	/** Action command ID to be used with the timepoint text field. */
-	private static final int   	T_FIELD_CMD = 0;
+	private static final int   					T_FIELD_CMD = 0;
 	
 	/** Action command ID to be used with the play button. */
-	private static final int   	PLAY_CMD = 1;
+	private static final int   					PLAY_CMD = 1;
 	
 	/** Action command ID to be used with the stop button. */
-	private static final int   	STOP_CMD = 2;
+	private static final int   					STOP_CMD = 2;
 	
 	/** Action command ID to be used with the rewind button. */
-	private static final int   	REWIND_CMD = 3;
+	private static final int   					REWIND_CMD = 3;
 	
 	/** 
 	* Action command ID to be used to sync JSpinner 
 	* and the text field editor.
 	*/
-	private static final int   	EDITOR_CMD =4;
+	private static final int   					EDITOR_CMD =4;
 	
-	private int					curT, maxT, curR;
-	private TNavigator			view;
-	private ViewerCtrl 			eventManager;
+	private int									curT, maxT, curR;
+	private TNavigator							view;
+	private NavigationPaletteManager 			manager;
 	
-	TNavigatorManager(TNavigator view, ViewerCtrl eventManager)
+	TNavigatorManager(TNavigator view, NavigationPaletteManager manager,
+						int sizeT, int t)
 	{
 		this.view = view;
-		this.eventManager = eventManager;
+		this.manager = manager;
+		maxT = sizeT;
+		curT = t;
 	}
 	
+	/** Attach listeners. */
 	void attachListeners()
 	{	//slider
 		JSlider tSlider = view.getTSlider();
@@ -118,24 +121,24 @@ class TNavigatorManager
 	}
 
 	/** 
-	* Synchronizes the slider, the text field and the current timepoint.
-	*
-	* @param val	The value that the slider, text field and the current 
-	* 				timepoint will be set to.
-	*/
+	 * Synchronizes the slider, the text field and the current timepoint.
+	 *
+	 * @param val	The value that the slider, text field and the current 
+	 * 				timepoint will be set to.
+	 */
 	private void synch(int val)
 	{
 		curT = val;
 		view.getTField().setText(""+val);  //doesn't fire ActionEvent  
-		//TODO: forward event.;
+		manager.onTChange(curT);
 	}
 
 	/** 
-	* Synchronizes the spinner, and the text editor.
-	* 
-	* @param val	The value that the slider, text field and the current 
-	* 				Scale will be set to.
-	*/
+	 * Synchronizes the spinner, and the text editor.
+	 * 
+	 * @param val	The value that the slider, text field and the current 
+	 * 				Scale will be set to.
+	 */
 	private void synchSpinner(int val)
 	{ 
 		curR = val;
@@ -237,11 +240,11 @@ class TNavigatorManager
 	}
 	
 	/** 
-	* Handles the lost of focus on the timepoint text field.
- 	* If focus is lost while editing, then we don't consider the text 
- 	* currently displayed in the text field and we reset it to the current
- 	* timepoint.
- 	*/
+	 * Handles the lost of focus on the timepoint text field.
+ 	 * If focus is lost while editing, then we don't consider the text 
+ 	 * currently displayed in the text field and we reset it to the current
+ 	 * timepoint.
+ 	 */
 	public void focusLost(FocusEvent e)
 	{
 		String val = view.getTField().getText(), t = ""+curT;

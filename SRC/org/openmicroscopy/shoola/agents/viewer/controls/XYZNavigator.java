@@ -30,21 +30,26 @@
 package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
-
 //Java imports
 import java.awt.Dimension;
-import javax.swing.Box;
+import java.util.Hashtable;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
-import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.util.ui.TableComponent;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -63,34 +68,39 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 class XYZNavigator
 	extends JPanel
 {
-	/** Displays the spatial dimensions (XYZ) of the image. */
-	private JLabel          		dimsInfo;
+	/** Default width of a cell. */
+	private static final int		DEFAULT_WIDTH = 90;
+	
+	/** Default width of a cell. */
+	private static final int		ROW_HEIGHT = 60;
+	
+	/** Dimension of the JPanel which contains the slider. */
+	private static final int		PANEL_HEIGHT = 40;
+	private static final int		PANEL_WIDTH = 100;
+	
+	private static final Dimension	DIM = new Dimension(PANEL_WIDTH, 
+														PANEL_HEIGHT);
+
 	/** The slider used to move across the Z stack. */
 	private JSlider         		zSlider;
+	
 	/** Text field to allow user to specify a Z point. */
 	private JTextField      		zField;
-	/** Displays the current position of the cursor within the image. */    
-	private JLabel          		xyInfo;
 	
-	/** The current and maximum Z. */
-	private int             curZ, maxZ;
 	
 	private XYZNavigatorManager		manager;
 	
 	private IconManager				im;
 	
-	//TODO: retrieve real data.
-	XYZNavigator(ViewerCtrl eventManager)
+	XYZNavigator(NavigationPaletteManager topManager, int sizeX, int sizeY, 
+				int sizeZ, int z)
 	{
-		manager = new XYZNavigatorManager(this, eventManager);
-		im = IconManager.getInstance(eventManager.getRegistry());
-		initSlider(100);
-		initTextField(0);
-		initXYInfo();
+		manager = new XYZNavigatorManager(this, topManager, sizeZ, z);
+		im = IconManager.getInstance(topManager.getRegistry());
+		initSlider(sizeZ, z);
+		initTextField(sizeZ, z);
 		manager.attachListeners();
-		curZ = 0;
-		maxZ = 0;
-		buildGUI(0, 0);
+		buildGUI(sizeX, sizeY, sizeZ);
 	}
 	
 	public JTextField getZField()
@@ -104,128 +114,125 @@ class XYZNavigator
 	}
 
 	/** 
-	* Instantiates and initializes to <code>curZ</code> the Z slider.
-	* 
-	* @param max     Total number of ticks.
-	*/
-	private void initSlider(int max)
+	 * Instantiates and initializes to <code>curZ</code> the Z slider.
+	 * 
+	 * @param max     Total number of ticks.
+	 */
+	private void initSlider(int sizeZ, int z)
 	{
-		zSlider = new JSlider(JSlider.HORIZONTAL, 0, max, curZ);
+		zSlider = new JSlider(JSlider.HORIZONTAL, 0, sizeZ, z);
 		zSlider.setToolTipText("Move the slider to navigate across Z stack");
+		zSlider.setMinorTickSpacing(1);
+		zSlider.setMajorTickSpacing(10);
+		zSlider.setPaintTicks(true);
+		zSlider.setOpaque(false);
+		Hashtable labelTable = new Hashtable();
+		labelTable.put(new Integer(0), new JLabel(""+0) );
+		labelTable.put(new Integer(sizeZ), new JLabel(""+sizeZ));
+		zSlider.setLabelTable(labelTable);
+		zSlider.setPaintLabels(true);
+
 	}
     
 	/** 
-	* Instantiates and initializes to <code>curZ</code> the Z text field.
-	*
-	* @param max     Total number of planes in the Z-stack. 
-	*/
-	private void initTextField(int max)
+	 * Instantiates and initializes to <code>curZ</code> the Z text field.
+	 *
+	 * @param sizeZ		Total number of planes in the Z-stack.
+	 * @param z 		Default z.
+	 */
+	private void initTextField(int sizeZ, int z)
 	{
-		zField = new JTextField(""+curZ, (""+max).length());
+		zField = new JTextField(""+z, (""+sizeZ).length());
 		zField.setForeground(NavigationPalette.STEELBLUE);
 		zField.setToolTipText("Enter a Z point");
 	}
     
-	/** 
-	* Instantiates and initializes the label containing info about 
-	* the current position of the cursor within the image displayed by 
-	* the viewer. 
-	*/
-	private void initXYInfo()
+
+	/** Build and layout the GUI. */
+	private void buildGUI(int sizeX, int sizeY, int sizeZ)
 	{
-		xyInfo = new JLabel("x: ");
-		setXY(0, 0);
+		//add(buildDimsPanel(sizeX, sizeY, sizeZ), BorderLayout.WEST);
+		add(buildTable(sizeX, sizeY, sizeZ));
+		add(buildSliderPanel());
+	}
+	
+	private JPanel buildTable(int sizeX, int sizeY, int sizeZ)
+	{
+		JPanel p = new JPanel();
+		JTable table = new TableComponent(1, 2);
+		tableLayout(table);
+		table.setValueAt(buildDimsPanel(sizeX, sizeY, sizeZ), 0, 0);
+		table.setValueAt(new JLabel(""), 0, 1);
+		
+		p.add(table);
+		p.setOpaque(false);
+		return p;
+	}
+	
+	
+	
+	/**
+	 * Build a panel containing a slider along with current selection
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildSliderPanel()	
+	{
+		JPanel p = new JPanel(), field = new JPanel(), slider = new JPanel();
+		slider.setLayout(null);
+		slider.setOpaque(false);
+		slider.setPreferredSize(DIM);
+		slider.setSize(DIM);
+		zSlider.setPreferredSize(DIM);
+		zSlider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
+		slider.add(zSlider);
+		
+		JLabel current = new JLabel("Current Z: ");
+		current.setForeground(NavigationPalette.STEELBLUE);
+		field.add(current);
+		field.add(zField);
+		field.setAlignmentX(LEFT_ALIGNMENT);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(field);
+		p.add(slider);
+		return p;
 	}
 	
 	/** 
-	* Sets the label containing info about the current position of 
-	* the cursor within the image displayed by the viewer. 
-	*
-	* @param x   The X-position.
- 	* @param y   The Y-position.
- 	*/
-	private void setXY(int x, int y)
+ 	 * Builds a panel containing a label indicating 
+ 	 * the image dimensions across X, Y, and Z. 
+	 *
+	 * @param sizeX	The maximum X.
+	 * @param sizeY	The maximum Y.
+	 * @return	The above mentioned panel.
+	 */
+	private JPanel buildDimsPanel(int sizeX, int sizeY, int sizeZ)
 	{
-		String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
-		html += "<td>x:<br>y:</td>";
-		html += "<td align=right>"+x+"<br>"+y+"</td>";
-		html += "</tr></table><html>";
-		xyInfo.setText(html);
-	}
-	
-	/** 
-	* Resets the dimensions label on the new spatial dimensions.
-	*
-	* @param sizeX	Total number of pixels along the x axis.
-	* @param sizeY	Total number of pixels along the y axis.
-	* @param sizeZ	Total number of planes in the Z-stack.
-	*/
-	private void setXYZDimensions(int sizeX, int sizeY, int sizeZ)
-	{
+		JPanel  p = new JPanel();
+		JLabel dimsInfo = new JLabel();
 		String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
 		html += "<td>Size X:<br>Size Y:<br>Size Z:</td>";
 		html += "<td align=right>"+sizeX+"<br>"+sizeY+"<br>"+sizeZ+"</td>";
 		html += "</tr></table><html>";
 		dimsInfo.setText(html);
-	}
-	
-	/** Build and layout the GUI. */
-	private void buildGUI(int x, int y)
-	{
-		JPanel topControls = new JPanel();
-		topControls.setLayout(new BoxLayout(topControls, BoxLayout.X_AXIS)); 
-		topControls.add(buildZPanel(x, y));
-		topControls.add(Box.createHorizontalGlue());
-		topControls.add(buildXYPanel());
-		add(topControls);
-		add(zSlider);
-	}
-	
-	/** 
- 	* Builds a panel containing the Z text field along with a labels indicating 
- 	* the image dimensions across X, Y, and Z. 
-	*
-	* @param sizeX	The maximum X.
-	* @param sizeY	The maximum Y.
-	* @return	The above mentioned panel.
-	*/
-	private JPanel buildZPanel(int maxX, int maxY)
-	{
-		JPanel  p = new JPanel(), field = new JPanel();
-		JLabel  current = new JLabel("Current Z: ");
-		dimsInfo = new JLabel();
-		setXYZDimensions(maxX, maxY, maxZ);
-		current.setForeground(NavigationPalette.STEELBLUE);
-		field.add(current);
-		field.add(zField);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		dimsInfo.setAlignmentX(LEFT_ALIGNMENT);
-		field.setAlignmentX(LEFT_ALIGNMENT);
 		p.add(dimsInfo);
-		p.add(field);
 		return p;
 	}
-    
-	/** 
-	* Builds a panel containing info about the current position of the 
-	* cursor within the image displayed by the viewer.
- 	*
- 	* @return	The above mentioned panel.
- 	*/
-	private JPanel buildXYPanel()
+	
+	/** Table layout. */
+	private void tableLayout(JTable table)
 	{
-		JPanel  p = new JPanel(), xy = new JPanel(), iconPanel = new JPanel();
-		xy.add(xyInfo);
-		JLabel  icon = new JLabel(im.getIcon(IconManager.CURSOR));
-		icon.setToolTipText("Current position of the cursor on the image");
-		iconPanel.add(icon);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		xy.setAlignmentY(CENTER_ALIGNMENT);
-		iconPanel.setAlignmentY(CENTER_ALIGNMENT);
-		p.add(iconPanel);
-		p.add(xy);
-		p.add(Box.createRigidArea(new Dimension(5, 5)));
-		return p;
-	} 
-
+		table.setTableHeader(null);
+		table.setRowHeight(ROW_HEIGHT);
+		table.setOpaque(false);
+		table.setShowGrid(false);
+		TableColumnModel columns = table.getColumnModel();
+		TableColumn column= columns.getColumn(0);
+		column.setPreferredWidth(DEFAULT_WIDTH);
+		column.setWidth(DEFAULT_WIDTH);
+		table.setDefaultRenderer(JComponent.class, 
+								new TableComponentCellRenderer());
+		table.setDefaultEditor(JComponent.class, 
+								new TableComponentCellEditor());
+	}	
 }
