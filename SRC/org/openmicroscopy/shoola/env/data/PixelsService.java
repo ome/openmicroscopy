@@ -53,7 +53,6 @@ import org.openmicroscopy.is.PlaneStatistics;
 import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.ds.st.Pixels;
-import org.openmicroscopy.ds.st.Repository;
 
 /**
  * Heyo
@@ -588,5 +587,18 @@ public interface PixelsService
      * file
      */
     public abstract Image getThumbnail(Pixels pixels)
+        throws ImageServerException;
+        
+    /**
+     * Returns a thumbnail with the specified size for the specified image.
+     * This thumbnail must have been previously set by the
+     * {@link #setThumbnail} method, or specified on import.  This is a quick
+     * way to get the PGI (best-effort projection) for a specific OME image.
+     * 
+     * @param pixels The Pixels to retrieve the physical thumbnail
+     * @param width The maximum width of the thumbnail to retrieve.
+     * @param height The maximum height of the thumbnail to retrieve.
+     */
+    public abstract Image getThumbnail(Pixels pixels, int width, int height)
         throws ImageServerException;
 }

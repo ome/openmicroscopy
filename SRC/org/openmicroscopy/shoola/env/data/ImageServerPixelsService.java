@@ -330,4 +330,16 @@ public class ImageServerPixelsService
         ImageServer is = activatePixels(pixels);
         return is.getThumbnail(pixels.getImageServerID().longValue());
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.PixelsService#getThumbnail(org.openmicroscopy.ds.st.Pixels, int, int)
+     */
+    public Image getThumbnail(Pixels pixels, int width, int height)
+        throws ImageServerException
+    {
+        ImageServer is = activatePixels(pixels);
+        return is.getThumbnail(pixels.getImageServerID().longValue(),
+                               width,height);
+    }
+
 }
