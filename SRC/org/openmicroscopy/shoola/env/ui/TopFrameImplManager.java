@@ -57,12 +57,12 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 class TopFrameImplManager
 	implements ActionListener
 {
+	
 	/** 
 	 * ID to handle action command and position the menu Item 
 	 * in the connectMenu.
 	 */ 
 	static final int   				OMEDS = TopFrame.OMEDS;
-	static final int        		OMEIS = TopFrame.OMEIS;
 	
 	/** Action command ID. */ 
 	static final int        		EXIT_APP = 10;
@@ -91,24 +91,20 @@ class TopFrameImplManager
 	 */ 
 	public void actionPerformed(ActionEvent e)
 	{
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-			// just in case we need to handle other events
-			switch (cmd) {
+			switch (index) {
 				case EXIT_APP:
 					System.exit(0);	//TODO: shut down container.
 					break;
-				case OMEDS:
+				case TopFrame.OMEDS:
 					connectToOMEDS();	break;
-				case OMEIS:
-					connectToOMEIS(); break;
 				case HELPME:
 					help(); break;
 				default: break;
 			}        
 		} catch(NumberFormatException nfe) {
-			 container.getRegistry().getLogger().warn(this, 
-			 		"Unexpected NumberFormatException: "+nfe.getMessage());
+			throw new Error("Invalid Action ID "+index, nfe);
 		}
 	}
 	
@@ -118,14 +114,6 @@ class TopFrameImplManager
 		ServiceActivationRequest request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
 		container.getRegistry().getEventBus().post(request);
-	}
-
-	/** Connect to OMEIS. */
-	private void connectToOMEIS()
-	{
-		//LoginOMEIS loginIS = new LoginOMEIS(container);
-		//showLogin(loginIS);
-		//TODO: post an event
 	}
 
 	/** Bring up the help window. */

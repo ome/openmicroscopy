@@ -60,21 +60,25 @@ abstract class RenderingStrategy
 	static RenderingStrategy makeNew(int model)
 	{
 		RenderingStrategy strategy = null;
-		switch (model) {
-			case RenderingDef.GS:
-				strategy = new GreyScaleStrategy();
-				break;
-			case RenderingDef.HSB:
-			case RenderingDef.RGB:
-				strategy = new RGBStrategy();
-				break;
-			default:
-				//set the GreyScaleStrategy as the default one
-				strategy = new GreyScaleStrategy();
-				RenderingEngine.getRegistry().getLogger().debug(
-							RenderingStrategy.class, 
-									"Wrong Rendering model identifier");
-		}
+		try {
+			switch (model) {
+				case RenderingDef.GS:
+					strategy = new GreyScaleStrategy();
+					break;
+				case RenderingDef.HSB:
+				case RenderingDef.RGB:
+					strategy = new RGBStrategy();
+					break;
+				default:
+					//set the GreyScaleStrategy as the default one
+					strategy = new GreyScaleStrategy();
+					RenderingEngine.getRegistry().getLogger().debug(
+								RenderingStrategy.class, 
+										"Wrong Rendering model identifier");
+			}	
+		} catch(NumberFormatException nfe) {   
+			throw new Error("Invalid Action ID "+model, nfe);
+		} 
 		return strategy;
 	}
 	

@@ -95,10 +95,7 @@ public class LoginOMEDSManager
 		view.login.addActionListener(this);
 	}
 
-	public boolean isActivationSuccessful()
-	{
-		return activationSuccessful;
-	}
+	public boolean isActivationSuccessful() { return activationSuccessful; }
 	
 	/** 
 	 * Handles action events fired by the login fields and button.
@@ -124,22 +121,23 @@ public class LoginOMEDSManager
 	/** 
 	 * Try to connect to OMEDS.
 	 * 
-	 * @param	usr		User's name.
-	 * @param	psw		Iser's password.
+	 * @param usr		User's name.
+	 * @param psw		User's password.
 	*/
 	private void connect(String usr, String psw) 
 	{
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		uc.set(usr, psw);
-		//Now try to connect to OMEDS.
 		try { 
 			dsf.connect();
 			activationSuccessful = true;
 		} catch (Exception e) {
+			String s = "Can't connect to the server. "+e;
+			registry.getLogger().error(this, s);
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Login to OMEDS Incomplete", 
-							"Cannot connect to the server. Please try later.",
+							"Can't connect to the server. Please try later.",
 							e);
 			activationSuccessful = false;
 		}

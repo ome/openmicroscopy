@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 class RGBStrategy
 	extends RenderingStrategy
 {
+	
 	static final int	R_BAND = 0;
 	static final int   	G_BAND = 1;
 	static final int   	B_BAND = 2;
@@ -104,7 +105,6 @@ class RGBStrategy
 		Plane2D wData;
 		for (int i = 0; i < cBindings.length; i++) {
 			//NOTE: RenderingDef enforces the constraint 
-			//i == cBindings[i].getIndex().
 			if (cBindings[i].isActive()) {
 				wData = dSink.getPlane2D(planeDef, i);
 				try {
@@ -138,16 +138,18 @@ class RGBStrategy
 	 */
 	private void initAxesSize(PlaneDef pd, PixelsDimensions d)
 	{
-		switch (pd.getSlice()) {
-			case PlaneDef.XY:
-				initSizes(d.sizeX, d.sizeY);
-				break;
-			case PlaneDef.XZ:
-				initSizes(d.sizeX, d.sizeZ);
-				break;
-			case PlaneDef.YZ:
-				initSizes(d.sizeY, d.sizeZ);
-		}
+		try {
+			switch (pd.getSlice()) {
+				case PlaneDef.XY:
+					initSizes(d.sizeX, d.sizeY); break;
+				case PlaneDef.XZ:
+					initSizes(d.sizeX, d.sizeZ); break;
+				case PlaneDef.YZ:
+					initSizes(d.sizeY, d.sizeZ);
+			}
+		} catch(NumberFormatException nfe) {   
+			throw new Error("Invalid Action ID "+pd.getSlice(), nfe);
+		} 
 	}
 	
 	/** Initializes the fields <code>sizeX1</code> and <code>sizeX2</code>. */
@@ -166,7 +168,7 @@ class RGBStrategy
 		int x1, x2, discreteValue, v;
 		int red, green, blue;
 		float alpha = ((float) rgba[3])/255; 
-		for (x2 = 0; x2 < sizeX2; ++x2)
+		for (x2 = 0; x2 < sizeX2; ++x2) {
 			for (x1 = 0; x1 < sizeX1; ++x1) {
 				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
 				v = cc.transform(discreteValue);
@@ -179,7 +181,8 @@ class RGBStrategy
 						green+(int) ((rgba[G_BAND]*v*alpha)/255));
 				dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
 						blue+(int) ((rgba[B_BAND]*v*alpha)/255));
-			}  
+			} 
+		} 
 	}
 	
 }

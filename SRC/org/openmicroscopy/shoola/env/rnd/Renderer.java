@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  */
 class Renderer
 {
+	
 	private int 				imageID;
 	private int					pixelsID;
 	private long 				omeisPixelsID;

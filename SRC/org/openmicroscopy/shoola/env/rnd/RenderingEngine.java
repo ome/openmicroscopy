@@ -90,8 +90,7 @@ public class RenderingEngine
 		if (singleton == null)	singleton = new RenderingEngine();
 		return singleton;
 	}
-	
-	
+
 	private Map				renderers;
 	
 	private RenderingEngine()
@@ -99,10 +98,7 @@ public class RenderingEngine
 		renderers = new HashMap();
 	}
 	
-	public static Registry getRegistry()
-	{
-		return registry;
-	}
+	public static Registry getRegistry() { return registry; }
 	
 	private void hanldeException(String message, Exception cause)
 	{

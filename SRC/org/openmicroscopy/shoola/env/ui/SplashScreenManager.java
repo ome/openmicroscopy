@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JOptionPane;
 
 //Third-party libraries
 
@@ -162,15 +161,15 @@ class SplashScreenManager
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append(view.pass.getPassword());
-		String  usr = view.user.getText(), psw = buf.toString();
+		String usr = view.user.getText(), psw = buf.toString();
 		if (usr == null || usr.length() == 0) {
-			JOptionPane.showMessageDialog(view, "Please enter a user name", 
-				"Login Incomplete", JOptionPane.ERROR_MESSAGE); 
+			UserNotifier un = UIFactory.makeUserNotifier();
+			un.notifyWarning("Login Incomplete", "Please enter a user name");
 		} else {
-			if (psw == null || psw.length() == 0)
-				JOptionPane.showMessageDialog(view, "Please enter a password", 
-					"Login Incomplete", JOptionPane.ERROR_MESSAGE);
-			else {
+			if (psw == null || psw.length() == 0) {
+				UserNotifier un = UIFactory.makeUserNotifier();
+				un.notifyWarning("Login Incomplete", "Please enter a password");
+			} else {
 				userCredentials.set(usr, psw);
 				view.user.setEnabled(false);
 				view.pass.setEnabled(false);

@@ -57,9 +57,7 @@ package org.openmicroscopy.shoola.env.ui;
 public interface SplashScreen
 {
 	
-	/**
-	 * Pops up the splash screen window.
-	 */
+	/** Pops up the splash screen window. */
 	public void open();
 	
 	/**

@@ -54,7 +54,8 @@ import javax.swing.JMenuItem;
  */
 
 public interface TopFrame
- {
+{
+	
 	/** 
 	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
 	 * method to position a component on the bottom most layer of the
@@ -84,8 +85,6 @@ public interface TopFrame
 	public static final int			HELP_TB = 103;
 				
 	public static final int			OMEDS = 0;
-	public static final int			OMEIS = 1; 
-	
 	
 	/**
 	 * Add a component to a toolBar.

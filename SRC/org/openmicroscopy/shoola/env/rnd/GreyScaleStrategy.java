@@ -102,7 +102,6 @@ class GreyScaleStrategy
 		for (int i = 0; i < cBindings.length; i++) {
 			if (cBindings[i].isActive()) {
 				//NOTE: RenderingDef enforces the constraint 
-				//i == cBindings[i].getIndex().
 				wData = dSink.getPlane2D(planeDef, i);
 				try {
 					renderWave(renderedDataBuf, wData, 
@@ -115,19 +114,7 @@ class GreyScaleStrategy
 				break;
 			}
 		}
-		
-		/*
-		//Now we only need to tell Java2D how to handle the GS buffer.
-		ComponentColorModel ccm = new ComponentColorModel(
-									ColorSpace.getInstance(ColorSpace.CS_GRAY), 
-									null, false, false, Transparency.OPAQUE, 
-									DataBuffer.TYPE_BYTE);
-		BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-										sizeX1, sizeX2, 1);
-		return new BufferedImage(ccm, 
-						Raster.createWritableRaster(csm, renderedDataBuf, null), 
-						false, null);
-		*/
+
 		//Now we only need to tell Java2D how to handle the RGB buffer. 
 		ComponentColorModel ccm = new ComponentColorModel(
 									ColorSpace.getInstance(ColorSpace.CS_sRGB), 
@@ -148,16 +135,20 @@ class GreyScaleStrategy
 	 */
 	private void initAxesSize(PlaneDef pd, PixelsDimensions d)
 	{
-		switch (pd.getSlice()) {
-			case PlaneDef.XY:
-				initSizes(d.sizeX, d.sizeY);
-				break;
-			case PlaneDef.XZ:
-				initSizes(d.sizeX, d.sizeZ);
-				break;
-			case PlaneDef.YZ:
-				initSizes(d.sizeY, d.sizeZ);
-		}
+		try {
+			switch (pd.getSlice()) {
+				case PlaneDef.XY:
+					initSizes(d.sizeX, d.sizeY);
+					break;
+				case PlaneDef.XZ:
+					initSizes(d.sizeX, d.sizeZ);
+					break;
+				case PlaneDef.YZ:
+					initSizes(d.sizeY, d.sizeZ);
+			}	
+		}catch(NumberFormatException nfe) {   
+			throw new Error("Invalid Action ID "+pd.getSlice(), nfe);
+		} 
 	}
 	
 	/** Initializes the fields <code>sizeX1</code> and <code>sizeX2</code>. */
@@ -175,7 +166,7 @@ class GreyScaleStrategy
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v, value;
 		float alpha = ((float) rgba[3])/255;
-		for (x2 = 0; x2 < sizeX2; ++x2) 
+		for (x2 = 0; x2 < sizeX2; ++x2) {
 			for (x1 = 0; x1 < sizeX1; ++x1) {
 				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
 				v = cc.transform(discreteValue);
@@ -183,7 +174,8 @@ class GreyScaleStrategy
 				dataBuf.setElem(RGBStrategy.R_BAND, sizeX1*x2+x1, value);
 				dataBuf.setElem(RGBStrategy.G_BAND, sizeX1*x2+x1, value);
 				dataBuf.setElem(RGBStrategy.B_BAND, sizeX1*x2+x1, value);
-	   } 
+	   		} 
+		}
 	}
 	
 }

@@ -66,9 +66,7 @@ public class UserCredentials
 	/** Tells whether or not the credentials have been filled in. */
 	private boolean		isFilledIn;
 	
-	/**
-	 * Creates a new instance with no credentials.
-	 */
+	/** Creates a new instance with no credentials. */
 	UserCredentials() 
 	{
 		isFilledIn = false;
@@ -115,10 +113,7 @@ public class UserCredentials
 	 * @return	The user name or <code>null</code> if that hasn't been
 	 * 			entered yet.
 	 */
-	public String getUserName()
-	{
-		return userName;
-	}
+	public String getUserName() { return userName; }
 
 	/**
 	 * Returns the password.
@@ -126,29 +121,20 @@ public class UserCredentials
 	 * @return	The password or <code>null</code> if that hasn't been
 	 * 			entered yet.
 	 */
-	public String getPassword()
-	{
-		return password;
-	}
+	public String getPassword() { return password; }
 
 	/** 
 	 * Returns the userID.
 	 * 
 	 * @return	The user's ID stored, value retrieve from DB.
 	 */
-	public int getUserID()
-	{
-		return userID;
-	}
+	public int getUserID() { return userID; }
 	
 	/**
 	 * Sets the user's ID.
 	 * 
 	 * @param userID	user's ID retrieved from DB.
 	 */
-	public void setUserID(int userID)
-	{
-		this.userID = userID;
-	}
+	public void setUserID(int userID) { this.userID = userID; }
 	
 }

@@ -118,20 +118,16 @@ public class LoginOMEDS
 		super((JFrame) registry.getTopFrame().getFrame(), "Login", true);
 		manager = new LoginOMEDSManager(registry, dsf, this);
 		initLoginFields(registry);
-		initLoginButton();
+		initLoginButton(registry);
 		buildGUI();
 		manager.initListeners();
 		setSize(WIN_W, WIN_H);
 	}
 	
-	public LoginOMEDSManager getManager()
-	{
-		return manager;
-	}
+	/** Return the manager of the widget. */
+	public LoginOMEDSManager getManager() { return manager; }
 	
-	/** 
-	 * Creates and initializes the login fields.
-	 */
+	/** Creates and initializes the login fields. */
 	private void initLoginFields(Registry registry)
 	{
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -145,14 +141,11 @@ public class LoginOMEDS
 		pass.setForeground(FONT_COLOR);
 	}
 	
-	/** 
-	 * Creates and initializes the login button.
-	 */
-	private void initLoginButton()
+	/** Creates and initializes the login button. */
+	private void initLoginButton(Registry registry)
 	{
-		login = new JButton("Login");
-		//TODO: provide icons for login.
-		//Next two statements get rid of surrounding border.
+		IconManager im = IconManager.getInstance(registry);
+		login = new JButton(im.getIcon(IconManager.LOGIN));
 		login.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	

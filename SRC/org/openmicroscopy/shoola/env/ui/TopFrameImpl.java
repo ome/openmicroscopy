@@ -244,10 +244,6 @@ public class TopFrameImpl
 		JMenuItem menuItem = new JMenuItem("OMEDS");
 		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEDS);
 		connectMenu.add(menuItem);
-		menuItem = new JMenuItem("OMEIS");
-		menuItem.setEnabled(false);
-		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEIS);
-		connectMenu.add(menuItem);
 	}
 	
 	/** Create the 4 toolBars contained in the main one. */
@@ -307,16 +303,8 @@ public class TopFrameImpl
 		manager.attachComponentListener(connectDS, TopFrameImplManager.OMEDS);
 		connectDS.setToolTipText(
 			UIUtilities.formatToolTipText("Connect to OME DataService."));
-		JButton connectIS = new JButton(im.getIcon(IconManager.CONNECT_IS));
-		connectIS.setEnabled(false);
-		connectIS.setToolTipText(
-			UIUtilities.formatToolTipText("Connect to OME ImageService."));
-		manager.attachComponentListener(connectIS, TopFrameImplManager.OMEIS);
-		
 		//add buttons to toolBar
 		connectToolBar.add(connectDS);
-		connectToolBar.addSeparator();
-		connectToolBar.add(connectIS);
 		connectToolBar.addSeparator();
 	}
 	
@@ -341,7 +329,7 @@ public class TopFrameImpl
                 	menu = connectMenu;
             }// end switch  
         } catch(NumberFormatException nfe) {
-                throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+menuType, nfe);
         }    
         return menu;
     }
@@ -367,7 +355,7 @@ public class TopFrameImpl
 					tb = connectToolBar;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
-			throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+tbType, nfe);
 		}    
     	return tb;
     }

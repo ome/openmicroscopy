@@ -77,10 +77,7 @@ public class UserNotifierImpl
      */
     private static JFrame			SHARED_FRAME = null;
     
-    
-    /** 
-     * Creates a new instance.
-     */
+    /** Creates a new instance. */
     UserNotifierImpl()
     {
     	if (SHARED_FRAME == null) {
@@ -160,8 +157,8 @@ public class UserNotifierImpl
 		NotificationDialog dialog = new NotificationDialog(
 												SHARED_FRAME, title, message, 
 												icon);
-		UIUtilities.centerOnScreen(dialog);
-		dialog.open();
+		dialog.pack();										
+		UIUtilities.centerAndShow(dialog);
     }
     
 	/**
@@ -178,8 +175,8 @@ public class UserNotifierImpl
 		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
 												SHARED_FRAME, title, message, 
 												icon, detail);
-		UIUtilities.centerOnScreen(dialog);
-		dialog.open();
+		dialog.pack();										
+		UIUtilities.centerAndShow(dialog);
 	}
 	
 }

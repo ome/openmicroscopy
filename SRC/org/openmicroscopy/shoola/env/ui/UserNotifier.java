@@ -52,7 +52,7 @@ package org.openmicroscopy.shoola.env.ui;
  * @since OME2.2
  */
 public interface UserNotifier
- {
+{
  	
  	/**
  	 * Brings up a modal dialog to notify the user of an error.
