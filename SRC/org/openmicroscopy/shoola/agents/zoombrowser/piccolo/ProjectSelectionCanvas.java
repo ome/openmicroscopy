@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
+
 //Third-party libraries
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -90,6 +91,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	
 	private BrowserDatasetData selectedDataset;
 	
+	private int width,height;
 	
 	public ProjectSelectionCanvas(MainWindow panel) {
 		super();
@@ -99,6 +101,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 				30));
 		removeInputEventListener(getPanEventHandler());
 		removeInputEventListener(getZoomEventHandler());
+		
 	}
 	
 	public void setContents(Object obj) {
@@ -132,7 +135,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		double y =VSEP;
 		ProjectLabel pl;
 
-		int width = getWidth();
+		width = getWidth();
 		if (width == 0)
 			width = PConstants.BROWSER_SIDE;
 		
@@ -192,12 +195,12 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 			}
 			y+= rowHeight;
 		}
-		int height  = (int) (y+VSEP);
-		Dimension d= new Dimension(width,height);
-		setPreferredSize(d);
-		setMaximumSize(d);
-		panel.setToPreferredSizes();
+		height  = (int) (y+VSEP);
 		reentrant = false;
+	}
+	
+	public Dimension getPreferredSize() {
+		return new Dimension(width,height);
 	}
 	
 		

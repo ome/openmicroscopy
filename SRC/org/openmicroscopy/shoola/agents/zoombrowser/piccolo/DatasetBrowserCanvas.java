@@ -40,6 +40,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -139,6 +141,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */
 	private DatasetBrowserEventHandler eventHandler;
 	
+	private int width,height;
 	
 	public DatasetBrowserCanvas(MainWindow mainWindow) {
 		super();
@@ -149,20 +152,30 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
-		setMinimumSize(new Dimension(PConstants.BROWSER_SIDE,
-			PConstants.BROWSER_SIDE));
-		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,
-				PConstants.BROWSER_SIDE));
-		setMaximumSize(new Dimension(PConstants.BROWSER_SIDE,
-				PConstants.BROWSER_SIDE));
-		
+
 		//	remove handlers
 		removeInputEventListener(getZoomEventHandler());
 		removeInputEventListener(getPanEventHandler());
 		
-		
+		addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				scaleToSize();
+			}
+		});
 		
 	}
+	
+	
+	public Dimension getPreferredSize() {
+		height = getHeight();
+		if (height == 0)
+			height = PConstants.BROWSER_SIDE;
+		return new Dimension(getWidth(),height);
+	}
+	
+	public Dimension getMinimumSize() {
+		return getPreferredSize();
+	} 
 	
 	
 	public void setContents(Object allDatasets) {
@@ -524,8 +537,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			lastRolledOver = rolled.getNode();
 			lastRolledOver.setSelected(true);
 		}
-		if (selectedDataset != null)
-			selectedDataset.getNode().setSelected(true);
 		mainWindow.setRolloverDataset(rolled);
 	}
 	
