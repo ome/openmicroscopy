@@ -45,6 +45,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
@@ -105,7 +106,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 	/** The OME registry */
 	private Registry registry;
-	
+
+	private boolean active  = false;
 		
 	public ChainBox(ChainView chainView,Registry registry) {
 		super();
@@ -217,11 +219,23 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 			
 	
 
-	public void mouseClicked(GenericEventHandler handler) {
-		((ChainPaletteEventHandler) handler).animateToNode(this);
-		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
-		SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
-		registry.getEventBus().post(event); 
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
+		System.err.println("chain box click");
+		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
+		if (active == false) {
+			System.err.println("centering..");
+			if (!chainHandler.isZoomedIntoChain())
+				chainHandler.animateToNode(this);
+			else
+				chainHandler.zoomIn(e);
+			chainHandler.setLastEntered(chainView);
+			SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
+			registry.getEventBus().post(event);
+			active = true;
+		}
+		else {
+			chainHandler.zoomIn(e);
+		}
 	}
 	
 	public PBounds getBufferedBounds() {
@@ -235,7 +249,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		return p;
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		chainView.setPickable(true);
 		((ChainPaletteEventHandler) handler).setLastHighlighted(this);
 		setHighlighted(true);
@@ -244,14 +258,14 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		registry.getEventBus().post(event);
 	}
 
-	public void mouseDoubleClicked(GenericEventHandler handler) {
+	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
 		PBounds b = chainView.getFullBounds();
 		BufferedImage image = (BufferedImage) chainView.toImage((int) (b.getWidth()*7),
 					(int) (b.getHeight()*7),Constants.CANVAS_BACKGROUND_COLOR);
 		try { 
 			ImageIO.write(image,"png",new File("foo.png"));
 			System.err.println("Saved chain snapshot");
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			System.err.println("Failed to save chain snapshot");
 			
 		}
@@ -259,7 +273,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 
 
 
-	public void mouseExited(GenericEventHandler handler) {
+	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
+		active = false;
 		chainView.setPickable(false);
 		((ChainPaletteEventHandler) handler).setLastHighlighted(null);
 		setHighlighted(false);
@@ -268,12 +283,23 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		registry.getEventBus().post(event);
 	}
 
-	public void mousePopup(GenericEventHandler handler) {
-		PNode p = getParent();
-		if (p instanceof BufferedObject)  
-			((ChainPaletteEventHandler) handler).animateToNode(p);	
-		else
-			((ChainPaletteEventHandler) handler).animateToCanvasBounds();
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
+		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
+		if (chainHandler.isZoomedIntoChain()) {
+			System.err.println("chain box popup. zooming out...");
+			chainHandler.zoomOut(e);
+		}
+		else {
+			PNode p = getParent();
+			if (p instanceof BufferedObject)  {
+				System.err.println("chain box popup. animating to parent");
+				((ChainPaletteEventHandler) handler).animateToNode(p);
+			}
+			else {
+				System.err.println("chain box popup. animating to canvas");
+				((ChainPaletteEventHandler) handler).animateToCanvasBounds();
+			}
+		}
 	}	
 	
 	public PNode getToolTip() {
