@@ -83,6 +83,8 @@ public class ImageInspector
         pack();
     }
 
+    public ImageInspectorManager getManager() { return manager; }
+    
     /** Initializes the components. */
     private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor)
     {

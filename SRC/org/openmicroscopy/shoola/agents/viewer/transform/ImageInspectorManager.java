@@ -41,6 +41,7 @@ import java.awt.event.WindowEvent;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
+import org.openmicroscopy.shoola.agents.viewer.transform.lens.LensBarMng;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
 
@@ -90,6 +91,12 @@ public class ImageInspectorManager
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) { onClosing(); }
         });
+    }
+    
+    public void setLensEnabled(boolean b)
+    {
+        LensBarMng lbMng = view.toolBar.getLensBar().getManager();
+        lbMng.setLensEnabled(b);
     }
     
     /** Zoom in or out. */
@@ -159,8 +166,7 @@ public class ImageInspectorManager
     private void onClosing()
     {
         //control.setMagFactor(curZoomLevel);
-        canvas.resetLens();
-        canvas.repaint();
+        canvas.getManager().resetDefault(false);
         view.dispose();
     }
     
