@@ -462,16 +462,6 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#importImages(int, java.util.List)
-     */
-    public void importImages(int datasetID, List images)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveRenderingSettings(int, int, int)
      */
     public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID,
@@ -493,14 +483,18 @@ public class NullDataManagementService
 
     }
      
-    public AnalysisChainData retrieveChain(int id) {
+    public AnalysisChainData retrieveChain(int id)
+        throws DSOutOfServiceException, DSAccessException
+    {
     		return null;
     }
 
-    public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
-			alProto,AnalysisNodeData anProto,ModuleData modProto,
-			FormalInputData finProto,FormalOutputData foutProto,
-			SemanticTypeData stProto) {
+    public AnalysisChainData retrieveChain(int id, AnalysisChainData acProto,
+            AnalysisLinkData alProto, AnalysisNodeData anProto,
+            ModuleData modProto, FormalInputData finProto, 
+            FormalOutputData foutProto, SemanticTypeData stProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
     		return null;
     }
     
