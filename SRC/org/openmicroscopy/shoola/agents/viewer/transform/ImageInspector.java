@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -81,7 +84,6 @@ public class ImageInspector
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();
-		pack();//setSize(WIN_W, WIN_H);
 	}
 	
 	/** Initializes the frame. */
@@ -99,12 +101,13 @@ public class ImageInspector
 		Registry reg = control.getRegistry();
 		reg.getEventBus().register(this, ImageRendered.class);
 		manager = new ImageInspectorManager(this);
-		manager.setBufferedImage(control.getBufferedImage());
+		BufferedImage img = control.getBufferedImage();
+		manager.setBufferedImage(img);
 		zoomPanel = new ZoomPanel(manager);
 		manager.setZoomPanel(zoomPanel);
 		menuBar = new MenuBar(manager);
 		toolBar = new ToolBar(reg, manager);
-		setTBSize(control.getBufferedImage().getWidth());
+		setWindowSize(img.getWidth(), img.getHeight());
 	}
 	
 	/** Build and lay out the GUI. */
@@ -130,6 +133,18 @@ public class ImageInspector
 		manager.zoom();
 	} 
 	
+	
+	/** Set the size of the window w.r.t the size of the screen. */
+	private void setWindowSize(int w, int h)
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = 8*(screenSize.width/10);
+		int height = 8*(screenSize.height/10);
+		if (w > width) w = width;
+		if (h > height) h = height;
+		setTBSize(w);
+		setSize(w, h);		
+	}
 	
 	/** Add a rigid area to the toolBar. */
 	private void setTBSize(int w)

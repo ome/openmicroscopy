@@ -30,11 +30,9 @@
 package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 
 //Java imports
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -107,10 +105,6 @@ public class ZoomBar
 	/** Initialize the zoom components. */
 	private void initZoomComponents()
 	{
-		zoomField = new JTextField("100%", MAX_LETTER.length());
-		zoomField.setForeground(Viewer.STEELBLUE);
-		zoomField.setToolTipText(
-			UIUtilities.formatToolTipText("zooming percentage."));
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
 		zoomIn = new JButton(im.getIcon(IconManager.ZOOMIN));
@@ -120,8 +114,12 @@ public class ZoomBar
 		zoomOut.setToolTipText(
 			UIUtilities.formatToolTipText("Zoom out."));
 		zoomFit = new JButton(im.getIcon(IconManager.ZOOMFIT));
-				zoomOut.setToolTipText(
-					UIUtilities.formatToolTipText("Reset."));
+		zoomFit.setToolTipText(
+			UIUtilities.formatToolTipText("Reset."));
+		zoomField = new JTextField("100%", MAX_LETTER.length());
+		zoomField.setForeground(Viewer.STEELBLUE);
+		zoomField.setToolTipText(
+			UIUtilities.formatToolTipText("zooming percentage."));
 	}	
 	
 	/** Build the toolBar. */
@@ -130,7 +128,6 @@ public class ZoomBar
 		setFloatable(false);
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
 		add(zoomOut);
-		//add(buildTextPanel());
 		add(zoomIn);
 		add(zoomFit);
 		add(buildTextPanel());
@@ -140,16 +137,13 @@ public class ZoomBar
 	private JPanel buildTextPanel()
 	{
 		JPanel p = new JPanel();
-		p.setBackground(Color.pink);
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(gridbag);
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.EAST;
-		Insets insets = zoomField.getInsets();
-		int x = insets.left+txtWidth+insets.right;
-		c.ipadx = x/2;
+		c.ipadx = txtWidth/2;
 		gridbag.setConstraints(zoomField, c);
 		p.add(zoomField);
 		p.setAlignmentX(LEFT_ALIGNMENT);
