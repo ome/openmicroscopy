@@ -712,6 +712,8 @@ public class BrowserAgent implements Agent, AgentEventListener
                         ImageData data = new ImageData();
                         data.setID(pix.getID());
                         ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                        data.setName(summary.getName());
+                        tdm.getAttributeMap().putAttribute(pix);
                         // TODO: figure out strategy for adding attributes.  do it here?
                         final Thumbnail t = new Thumbnail(image,tdm);
                         
