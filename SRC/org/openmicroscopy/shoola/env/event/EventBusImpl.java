@@ -37,21 +37,23 @@ import java.util.ListIterator;
 
 
 /** Implements the<code>EventBus</code> interface and is the pumping heart
- * or the event propagation system. It maintains a de-multiplex table to keep track of
- * what events have to be dispatched to which subscribers
+ * or the event propagation system. It maintains a de-multiplex table to 
+ * keep track of what events have to be dispatched to which subscribers
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
 public class EventBusImpl
-    implements EventBus {
+    implements EventBus
+{
     
     private LinkedList          eventQueue;
     private HashMap             deMultiplexTable;
@@ -59,14 +61,16 @@ public class EventBusImpl
     private static final int    IDLE = 0, DISPATCHING = 1;   
     
 /** Creates a new instance of EventBusImpl */
-    public EventBusImpl() {
+    public EventBusImpl()
+    {
         eventQueue = new LinkedList();
         deMultiplexTable = new HashMap();
         state = IDLE;
     }    
 /** Implemented as specified by {@link EventBus}.
  */    
-    public void register(AgentEventListener  subscriber, Class[] events){
+    public void register(AgentEventListener  subscriber, Class[] events)
+    {
         for (int j=0; j<events.length; ++j) {
             Class eventClass = events[j];
             if (verifyInheritance(eventClass)) { // check inheritance
@@ -88,7 +92,8 @@ public class EventBusImpl
     
 /** Implemented as specified by {@link EventBus}.
  */    
-    public void register(AgentEventListener  subscriber, Class event){
+    public void register(AgentEventListener  subscriber, Class event)
+    {
         if (verifyInheritance(event)) { // check inheritance
             LinkedList list = (LinkedList) deMultiplexTable.get(event);
             if (list!=null) {
@@ -106,7 +111,8 @@ public class EventBusImpl
     }    
 /** Implemented as specified by {@link EventBus}.
  */    
-    public void remove(AgentEventListener  subscriber, Class[] events) {
+    public void remove(AgentEventListener  subscriber, Class[] events)
+    {
         for (int j=0; j<events.length; ++j) {
             Class eventClass = events[j];
             if (verifyInheritance(eventClass)) { // check inheritance
@@ -123,7 +129,8 @@ public class EventBusImpl
     }
 /** Implemented as specified by {@linkEventBus}.
  */ 
-    public void remove(AgentEventListener  subscriber, Class event) {
+    public void remove(AgentEventListener  subscriber, Class event)
+    {
         if (verifyInheritance(event)) { // check inheritance
             LinkedList list = (LinkedList) deMultiplexTable.get(event);
             ListIterator i = list.listIterator();
@@ -138,7 +145,8 @@ public class EventBusImpl
     
 /** Implemented as specified by {@linkEventBus}.
  */ 
-    public void remove(AgentEventListener  subscriber) {
+    public void remove(AgentEventListener  subscriber)
+    {
         Iterator   e = deMultiplexTable.keySet().iterator();
         while (e.hasNext()) {
             Class event = (Class)e.next();
@@ -156,7 +164,8 @@ public class EventBusImpl
     }    
 /** Implemented as specified by {@link EventBus}.
  */  
-    public void post(AgentEvent e) {
+    public void post(AgentEvent e)
+    {
         switch (state) {
             case IDLE:
                 state = DISPATCHING;
@@ -172,7 +181,8 @@ public class EventBusImpl
     }
     
 /** Dispatch the event */
-    private void dispatch() {
+    private void dispatch()
+    {
         // grab the first event posted
         AgentEvent e = (AgentEvent) eventQueue.removeLast();
         Class eventClass = e.getClass();
@@ -184,14 +194,17 @@ public class EventBusImpl
         }   
     }
     
-/** verify the inheritance of the class i.e. if the class inherits from AgentEvent class
+/** verify the inheritance of the class i.e. if the class inherits 
+ * from AgentEvent class
  *
  * @param eventClass      class 
  */
-    private boolean verifyInheritance(Class eventClass) {
+    private boolean verifyInheritance(Class eventClass)
+    {
         Class agtEvent = AgentEvent.class;
         boolean b = false;
-        while (eventClass!=null) {  //find first class, if any, in inheritance hierarchy 
+        //find first class, if any, in inheritance hierarchy
+        while (eventClass!=null) {   
             if (eventClass==agtEvent) {
                 b = true ;
                 eventClass = null;

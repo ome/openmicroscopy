@@ -33,13 +33,15 @@ package org.openmicroscopy.shoola.env.ui;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-/** Acts as a centralized place where errors are collected and then notified to the user. 
-* 
-*
+/** Acts as a centralized place where errors are collected and then notified
+ *  to the user. 
+ * 
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
@@ -57,7 +59,8 @@ public class UserNotifierImpl
     private TopFrameImpl            topFrame;
     
     /** Creates a new instance of UserNotifierImpl */
-    public UserNotifierImpl(TopFrameImpl topFrame) {
+    public UserNotifierImpl(TopFrameImpl topFrame)
+    {
         this.topFrame = topFrame;
     }
     // TODO: to be modified. Display message using a JDialog:
@@ -65,7 +68,8 @@ public class UserNotifierImpl
     
 /** Implemented as specified by {@link UserNotifier}.
  */       
-    public void notifyError(String title, String summary, Exception detail) {
+    public void notifyError(String title, String summary, Exception detail)
+    {
         if (title==null || title.length()==0)
             title = DEFAULT_ERROR_TITLE;
         StringBuffer buf = new StringBuffer();
@@ -83,12 +87,14 @@ public class UserNotifierImpl
     }
 /** Implemented as specified by {@link UserNotifier}.
  */     
-    public void notifyError(String title, String summary) {
+    public void notifyError(String title, String summary)
+    {
         notifyError(title, summary, null);
     }
 /** Implemented as specified by {@link UserNotifier}.
  */ 
-    public void notifyInfo(String title, String message) {  
+    public void notifyInfo(String title, String message)
+    {  
         if (title==null || title.length()==0)
             title = DEFAULT_INFO_TITLE;
         StringBuffer buf = new StringBuffer();
@@ -97,12 +103,13 @@ public class UserNotifierImpl
         else    buf.append(message);
         // to be modified
         JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
-                                                    JOptionPane.INFORMATION_MESSAGE);
+                                        JOptionPane.INFORMATION_MESSAGE);
     }
     
 /** Implemented as specified by {@link UserNotifier}.
  */ 
-    public void notifyWarning(String title, String message) {
+    public void notifyWarning(String title, String message)
+    {
         if (title==null || title.length()==0)
             title = DEFAULT_WARNING_TITLE;
         StringBuffer buf = new StringBuffer();
@@ -111,7 +118,7 @@ public class UserNotifierImpl
         else    buf.append(message);
         // to be modified
         JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
-                                                    JOptionPane.WARNING_MESSAGE);
+                                        JOptionPane.WARNING_MESSAGE);
     }    
 
     

@@ -35,13 +35,15 @@ package org.openmicroscopy.shoola.env.event;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
-public interface EventBus {
+public interface EventBus
+{
     
 
 /** Add the subscriber to the List
@@ -83,8 +85,9 @@ public interface EventBus {
  */     
     public void remove(AgentEventListener  subscriber, Class[] events);
     
-/** manages the event  i.e. fires an event and puts it on the EventBus so that it can be delivered
- * to allsubscribers that registered  in that type of event.
+/** manages the event  i.e. fires an event and puts it on the EventBus so that 
+ * it can be delivered to all subscribers that registered  in that type
+ * of event.
  * 
  * @param e  AgentEvent to post
  *
