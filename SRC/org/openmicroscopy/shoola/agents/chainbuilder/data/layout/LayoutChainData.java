@@ -330,8 +330,11 @@ public class LayoutChainData  extends AnalysisChainData
 		// go over formal ins and outs.
 		List inputs = node.getChainModule().getFormalInputs();
 		getUnbounded(node,inputs,inputLinkMap,unboundInputs);
-		List outputs = node.getChainModule().getFormalOutputs();
-		getUnbounded(node,outputs,outputLinkMap,unboundOutputs);
+		List outputs = node.getChainModule().getFormalOutputs();		
+		// all outputs of all modules are potential outputs of the chain
+		// even if they have outgoing links, they can be considered outputs,
+		// because multiple outlinks are allowed.
+		getUnboundedOutputs(node,outputs);
 	}
 	
 	/**
@@ -358,6 +361,15 @@ public class LayoutChainData  extends AnalysisChainData
 				}
 
 			}
+		}
+	}
+	
+	private void getUnboundedOutputs(LayoutNodeData node,List outputs) {
+		Iterator iter = outputs.iterator();
+		FormalParameterData param;
+		while (iter.hasNext()) {
+			param = (FormalParameterData) iter.next();
+			unboundOutputs.add(new UnboundedParameter(param,node));
 		}
 	}
 	
