@@ -40,6 +40,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -85,11 +86,14 @@ class ToolBar
 	{
 		IconManager im = IconManager.getInstance(registry);
 		projectButton =  new JButton(im.getIcon(IconManager.PROJECT));
-		projectButton.setToolTipText("Create a new project.");
+		projectButton.setToolTipText(
+			UIFactory.formatToolTipText("Create a new project."));
 		datasetButton =  new JButton(im.getIcon(IconManager.DATASET));
-		datasetButton.setToolTipText("Create a new Dataset.");
+		datasetButton.setToolTipText(
+			UIFactory.formatToolTipText("Create a new Dataset."));
 		imageButton =  new JButton(im.getIcon(IconManager.IMAGE));
-		imageButton.setToolTipText("Import a new image.");
+		imageButton.setToolTipText(
+			UIFactory.formatToolTipText("Import a new image."));
 	}
 	
 	/** Build and lay out the tool bar. */
