@@ -74,6 +74,15 @@ public abstract class QuantumStrategy
 	/** The upper limit of the input Interval i.e. pixel intensity interval. */
 	private double      			windowEnd;
 	
+    /** 
+     * Identifies a family of maps. 
+     * One of the constants defined by {@link QuantumFactory}.
+     */
+    private int                     family;
+    
+    /** Selects a curve in the family. */
+    private double                  curveCoefficient;
+    
 	/** Reference to a quantumDef object. */
 	protected final QuantumDef      qDef;   
 	
@@ -83,11 +92,47 @@ public abstract class QuantumStrategy
 	{
 		windowStart = globalMin = 0.0;
 		windowEnd = globalMax = 1.0;
+        family = QuantumFactory.LINEAR;
+        curveCoefficient = 1.0;
 		if (qd == null)    
 			throw new NullPointerException("No quantum definition");
 		this.qDef = qd;
 	}
 	
+    /** Define the value mapper. */
+    private void defineMapper(int family)
+    {
+        verifyFamily(family);
+        switch (family) {
+            case QuantumFactory.LINEAR:
+            case QuantumFactory.POLYNOMIAL:
+                valueMapper = new PolynomialMap();
+                break;
+            case QuantumFactory.LOGARITHMIC:
+                valueMapper = new LogarithmicMap();
+                break;
+            case QuantumFactory.EXPONENTIAL:
+                valueMapper = new ExponentialMap(); 
+                break;
+            default: 
+                // never reached: verify throws exception.
+        } 
+    }
+    
+    /** 
+     * The family must be one of the constant defined in
+     * {@link QuantumFactory}.
+     *
+     */
+    private static void verifyFamily(int family)
+    {
+        if (family != QuantumFactory.LINEAR && 
+            family != QuantumFactory.LOGARITHMIC && 
+            family != QuantumFactory.EXPONENTIAL
+            && family != QuantumFactory.POLYNOMIAL)  
+            throw new IllegalArgumentException("Unsupported family type");
+    }
+
 	/**
 	 * min and max could be out of pixel type range 
 	 * b/c of an error occured in stats calculations.
@@ -170,9 +215,27 @@ public abstract class QuantumStrategy
 		windowEnd = end;
 		onWindowChange();
 	}
-	
+	public void setMapping(int family, double k)
+    {
+        defineMapper(family);
+        this.family = family;
+        curveCoefficient = k;
+    }
+    
+    public void setQuantizationMap(int family, double k)
+    {
+        defineMapper(family);
+        this.family = family;
+        curveCoefficient = k;
+        onWindowChange();
+    }
+    
 	void setMap(QuantumMap qMap) { valueMapper = qMap; }
 	
+    int getFamily() { return family; }
+    
+    double getCurveCoefficient() { return curveCoefficient; }
+    
 	/** Returns the globalMin. */
 	double getGlobalMin()
 	{ 

@@ -184,11 +184,16 @@ public class RenderingDef
 	
 	public int getDefaultT() { return defaultT; }
 	
+    public void setDefaultZ(int z) { defaultZ = z; }
+    
+    public void setDefaultT(int t) { defaultT = t; }
+    
 	public RenderingDef copy()
 	{
 		RenderingDef copy = new RenderingDef();
 		copy.defaultZ = this.defaultZ;
 		copy.defaultT = this.defaultT;
+        copy.model = this.model;
 		copy.qDef = this.qDef.copy();
 		ChannelBindings[] cb = new ChannelBindings[channelBindings.length];
 		for (int i = 0; i < channelBindings.length; i++)

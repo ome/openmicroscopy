@@ -67,15 +67,21 @@ public interface RenderingControl
 	public int getModel();
 	public int getDefaultZ();
 	public int getDefaultT();
-	
+	//Is it the best way to do it?
+    public void setDefaultZ(int z);
+    public void setDefaultT(int t);
+    
 	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
 	//if not necessary.
-	public void setQuantumStrategy(int family, double coefficient, 
-												int bitResolution);
+	public void setQuantumStrategy(int bitResolution, boolean b);
 	public void setCodomainInterval(int start, int end);
 	public QuantumDef getQuantumDef();
 	
 	//ChannelBindings[] elements' fields.
+    public void setQuantizationMap(int w, int family, double coefficient);
+    public int getChannelFamily(int w);
+    public double[] getChannelStats(int w);
+    public double getChannelCurveCoefficient(int w);
 	public void setChannelWindow(int w, double start, double end);
 	public double getChannelWindowStart(int w);
 	public double getChannelWindowEnd(int w);

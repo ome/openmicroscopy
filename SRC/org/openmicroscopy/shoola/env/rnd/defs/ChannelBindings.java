@@ -53,9 +53,9 @@ package org.openmicroscopy.shoola.env.rnd.defs;
  */
 public class ChannelBindings
 {
-	
+    
 	/** Color range. */
-	private static final int	COLOR_MIN = 0, COLOR_MAX = 255;
+	public static final int	   COLOR_MIN = 0, COLOR_MAX = 255;
 	
 	/** The OME index of the wavelength. */
 	private int 				index;
@@ -75,90 +75,121 @@ public class ChannelBindings
 	 */
 	private boolean				active;
 	
-	public ChannelBindings(int index, double inputStart, double inputEnd,
-							int red, int green, int blue, int alpha,
-						  	boolean active)
+    /** 
+     * Identifies a family of maps. 
+     * One of the constants defined by 
+     * {@link org.openmicroscopy.shoola.env.rnd.domain.QuantumFactory 
+     * QuantumFactory}.
+     */
+    public int                  family;
+    
+    /** Selects a curve in the family. */
+    public double               curveCoefficient;
+    
+    private double[]            stats;
+    
+    public ChannelBindings(int index, double inputStart, double inputEnd,
+                            int red, int green, int blue, int alpha,
+                            boolean active, int family, double curveCoefficient)
 	{
 		this.index = index;
 		setInputWindow(inputStart, inputEnd);
 		rgba = new int[4];
 		setRGBA(red, green, blue, alpha);
 		this.active = active;
+        this.family = family;
+        this.curveCoefficient = curveCoefficient;
 	}
 
 	/** Private empty constructor. */
 	private ChannelBindings() {}
 	
-	public boolean isActive() { return active; }
+	/** TEST. can be null, value between 0 and 1*/
+    public void setStats(double[] stats) { this.stats = stats; }
+    
+    public double[] getStats() { return stats; }
+    
+    public boolean isActive() { return active; }
+    
+    public int getIndex() { return index; }
 
-	public int getIndex() { return index; }
+    public double getInputEnd() { return inputEnd; }
 
-	public double getInputEnd() { return inputEnd; }
+    public double getInputStart() { return inputStart; }
 
-	public double getInputStart() { return inputStart; }
+    public int[] getRGBA() 
+    {
+        int[] colors = new int[rgba.length];
+        for (int i = 0; i < rgba.length; i++)
+            colors[i] = rgba[i];
+        return colors;
+    }
 
-	public int[] getRGBA() 
-	{
-		int[] colors = new int[rgba.length];
-		for (int i = 0; i < rgba.length; i++)
-			colors[i] = rgba[i];
-		return colors;
-	}
+    public int getFamily() { return family; }
+    
+    public double getCurveCoefficient() { return curveCoefficient; }
+    
+    public void setQuantizationMap(int family, double curveCoefficient)
+    {
+        this.family = family;
+        this.curveCoefficient = curveCoefficient;
+    }
 
-	public void setActive(boolean active) { this.active = active; }
+    public void setActive(boolean active) { this.active = active; }
 
-	//TODO: checks done in QuantumStrategy, where do they belong to?
-	public void setInputWindow(double start, double end)
-	{
-		inputStart = start;
-		inputEnd = end;
-	}
+    //TODO: checks done in QuantumStrategy, where do they belong to?
+    public void setInputWindow(double start, double end)
+    {
+        inputStart = start;
+        inputEnd = end;
+    }
 
-	public void setRGBA(int red, int green, int blue, int alpha)
-	{
-		verifyColorComponent(red);
-		verifyColorComponent(green);
-		verifyColorComponent(blue);
-		verifyColorComponent(alpha);
-		rgba[0] = red;
-		rgba[1] = green;
-		rgba[2] = blue;
-		rgba[3] = alpha;
-	}
-	
-	public void setRGBA(int[] rgba)
-	{
-		if (rgba == null || rgba.length != 4)
-			throw new IllegalArgumentException("Invalid rgba array.");
-		verifyColorComponent(rgba[0]);
-		verifyColorComponent(rgba[1]);
-		verifyColorComponent(rgba[2]);
-		verifyColorComponent(rgba[3]);
-		this.rgba[0] = rgba[0];
-		this.rgba[1] = rgba[1];
-		this.rgba[2] = rgba[2];
-		this.rgba[3] = rgba[3];
-	}
-	
-	
-	/** Make a copy of the object. */
-	ChannelBindings copy()
-	{
-		ChannelBindings cb = new ChannelBindings();
-		cb.index = this.index;
-		cb.active = this.active;
-		//Will work b/c the objects are read-only: Integer, Float, etc.
-		cb.inputStart = this.inputStart;
-		cb.inputEnd = this.inputEnd;
-		cb.rgba = getRGBA();
-		return cb;
-	}
-	
-	/** Verify the color components. */
-	private void verifyColorComponent(int c)
-	{
-		if (c < COLOR_MIN || COLOR_MAX < c)
-			throw new IllegalArgumentException("Value must be in [0,255].");
-	}
-
+    public void setRGBA(int red, int green, int blue, int alpha)
+    {
+        verifyColorComponent(red);
+        verifyColorComponent(green);
+        verifyColorComponent(blue);
+        verifyColorComponent(alpha);
+        rgba[0] = red;
+        rgba[1] = green;
+        rgba[2] = blue;
+        rgba[3] = alpha;
+    }
+    
+    public void setRGBA(int[] rgba)
+    {
+        if (rgba == null || rgba.length != 4)
+            throw new IllegalArgumentException("Invalid rgba array.");
+        verifyColorComponent(rgba[0]);
+        verifyColorComponent(rgba[1]);
+        verifyColorComponent(rgba[2]);
+        verifyColorComponent(rgba[3]);
+        this.rgba[0] = rgba[0];
+        this.rgba[1] = rgba[1];
+        this.rgba[2] = rgba[2];
+        this.rgba[3] = rgba[3];
+    }
+    
+    /** Make a copy of the object. */
+    ChannelBindings copy()
+    {
+        ChannelBindings cb = new ChannelBindings();
+        cb.index = this.index;
+        cb.active = this.active;
+        cb.family = this.family;
+        cb.curveCoefficient = this.curveCoefficient;
+        //Will work b/c the objects are read-only: Integer, Float, etc.
+        cb.inputStart = this.inputStart;
+        cb.inputEnd = this.inputEnd;
+        cb.rgba = getRGBA();
+        cb.stats = getStats();
+        return cb;
+    }
+    
+    /** Verify the color components. */
+    private void verifyColorComponent(int c)
+    {
+        if (c < COLOR_MIN || COLOR_MAX < c)
+            throw new IllegalArgumentException("Value must be in [0,255].");
+    }
 }

@@ -93,13 +93,11 @@ public class RenderingEngine
     
     static Registry getRegistry() { return registry; }
     
-    
     private RenderingManager    rndManager;
     
     //Used by DataSink for async operation.
     private CmdProcessor        cmdProcessor;
 	
-    
 	private RenderingEngine()
 	{
 		cmdProcessor = new AsyncProcessor();
@@ -112,11 +110,11 @@ public class RenderingEngine
 		//	stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
         //                                            cmdProcessor);
 		//else 
-			//stackBuffer = new AsyncByteBuffer(1, 1);  
+		//	stackBuffer = new AsyncByteBuffer(1, 1);  
             //Won't be used b/c we first check if we can cache a stack.
 	}
 	
-	private void hanldeException(String message, Exception cause)
+	private void handleException(String message, Exception cause)
 	{
 		LogMessage msg = new LogMessage();
 		msg.print("Rendering Engine Exception: ");
@@ -138,12 +136,13 @@ public class RenderingEngine
 			EventBus eventBus = registry.getEventBus();
             eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
 		} catch (MetadataSourceException mdse) {
-			hanldeException("Can't load image metadata. Image id: "+
-													request.getImageID(), mdse);
+            handleException("Can't load image metadata. Image id: "+
+								request.getImageID(), mdse);
         } catch (DataSourceException dse) {
-            hanldeException("Can't load image metadata. Image id: "+
+            handleException("Can't load image metadata. Image id: "+
                             request.getImageID(), dse);
         }
+        
 	}
 	
 	private void handleRenderImage(RenderImage request)
@@ -156,11 +155,11 @@ public class RenderingEngine
             EventBus eventBus = registry.getEventBus();
             eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
         } catch (DataSourceException dse) {
-            hanldeException("Can't load pixels data. Pixels id: "+
+            handleException("Can't load pixels data. Pixels id: "+
                                                 request.getPixelsID(), dse);
         } catch (QuantizationException qee) {
             //TODO: need to post an event to update the GUI.
-            hanldeException("Can't map the wavelength "
+            handleException("Can't map the wavelength "
                             +qee.getWavelength(), qee);
         }
 	}
@@ -181,11 +180,11 @@ public class RenderingEngine
             EventBus eventBus = registry.getEventBus();
             eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
         } catch (DataSourceException dse) {
-            hanldeException("Can't load pixels data. Pixels id: "+
+            handleException("Can't load pixels data. Pixels id: "+
                                                 request.getPixelsID(), dse);
         } catch (QuantizationException qee) {
             //TODO: need to post an event to update the GUI.
-            hanldeException("Can't map the wavelength "
+            handleException("Can't map the wavelength "
                             +qee.getWavelength(), qee);
         }
 	}
@@ -214,7 +213,7 @@ public class RenderingEngine
 	}
 
 	public void eventFired(AgentEvent e) 
-	{
+    {
 		//TODO: put event on the queue and remove the following.
 		if (e instanceof LoadImage)	handleLoadImage((LoadImage) e);
 		else if	(e instanceof RenderImage)	handleRenderImage((RenderImage) e);

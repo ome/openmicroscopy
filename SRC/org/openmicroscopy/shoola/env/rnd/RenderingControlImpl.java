@@ -97,36 +97,41 @@ class RenderingControlImpl
 	{
 		return renderer.getRenderingDef().getDefaultT();
 	}
-
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public void setDefaultZ(int z) { renderer.setDefaultZ(z); }
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public void setDefaultT(int t) { renderer.setDefaultT(t); }
+    
 	/** Implemented as specified by {@link RenderingControl}. */
-	public void setQuantumStrategy(int family, double coefficient,
-												int bitResolution)
-	{
-		RenderingDef rd = renderer.getRenderingDef();
-		QuantumDef qd = rd.getQuantumDef(), newQd;
-		newQd = new QuantumDef(family, qd.pixelType, coefficient, 
-								qd.cdStart, qd.cdEnd, bitResolution);
-		rd.setQuantumDef(newQd);
-		renderer.updateQuantumManager();
-	}
+	public void setQuantumStrategy(int bitResolution, boolean b)
+    {
+        RenderingDef rd = renderer.getRenderingDef();
+        QuantumDef qd = rd.getQuantumDef(), newQd;
+        newQd = new QuantumDef(qd.pixelType, qd.cdStart, qd.cdEnd,
+                            bitResolution, b);
+        rd.setQuantumDef(newQd);
+        renderer.updateQuantumManager();
+    }
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void setCodomainInterval(int start, int end)
-	{
-		CodomainChain chain = renderer.getCodomainChain();
-		chain.setInterval(start, end);
-		RenderingDef rd = renderer.getRenderingDef();
-		QuantumDef qd = rd.getQuantumDef(), newQd;
-		newQd = new QuantumDef(qd.family, qd.pixelType, qd.curveCoefficient, 
-												start, end, qd.bitResolution);
-		rd.setQuantumDef(newQd);
-		CodomainMapContext mapCtx;
-		Iterator i = rd.getCodomainChainDef().iterator();
-		while (i.hasNext()) {
-			mapCtx = (CodomainMapContext) i.next();
-			mapCtx.setCodomain(start, end);
-		}
-	}
+    {
+        CodomainChain chain = renderer.getCodomainChain();
+        chain.setInterval(start, end);
+        RenderingDef rd = renderer.getRenderingDef();
+        QuantumDef qd = rd.getQuantumDef(), newQd;
+        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution,
+                                qd.noiseReduction);
+        rd.setQuantumDef(newQd);
+        CodomainMapContext mapCtx;
+        Iterator i = rd.getCodomainChainDef().iterator();
+        while (i.hasNext()) {
+            mapCtx = (CodomainMapContext) i.next();
+            mapCtx.setCodomain(start, end);
+        }
+    }
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public QuantumDef getQuantumDef()
@@ -142,6 +147,36 @@ class RenderingControlImpl
 		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		cb[w].setInputWindow(start, end);
 	}
+    
+     /** Implemented as specified by {@link RenderingControl}. */
+    public void setQuantizationMap(int w, int family, double coefficient)
+    {
+        QuantumStrategy qs = renderer.getQuantumManager().getStrategyFor(w);
+        qs.setQuantizationMap(family, coefficient);
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        cb[w].setQuantizationMap(family, coefficient);
+    }
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public double[] getChannelStats(int w)
+    {
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        return cb[w].getStats();
+    }
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public int getChannelFamily(int w)
+    {
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        return cb[w].getFamily();
+    }
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public double getChannelCurveCoefficient(int w)
+    {
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        return cb[w].getCurveCoefficient();
+    }
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public double getChannelWindowStart(int w) 
@@ -206,32 +241,35 @@ class RenderingControlImpl
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void saveCurrentSettings() 
 	{
-		int imageID = renderer.getImageID();
-		int pixelsID = renderer.getPixelsID();
+        int imageID = renderer.getImageID();
+        int pixelsID = renderer.getPixelsID();
         Registry context = RenderingEngine.getRegistry();
-		try {
-			context.getDataManagementService().saveRenderingSettings(pixelsID, 
-					imageID, renderer.getRenderingDef());
-		} catch (Exception e) {
-			MetadataSourceException mse = new MetadataSourceException(
-				"Can't save settings.", e);
-			hanldeException(context, "can't save settings", mse);
-		}
+        try {
+            context.getDataManagementService().saveRenderingSettings(pixelsID, 
+                    imageID, renderer.getRenderingDef());
+        } catch (Exception e) {
+            MetadataSourceException mse = new MetadataSourceException(
+                "Can't save settings.", e);
+            hanldeException(context, "can't save settings", mse);
+        }
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void resetDefaults()
 	{
-		//linear gamma = 1.0 and bitResolution <=> 255
-		setQuantumStrategy(QuantumFactory.LINEAR, 1.0, 
-							QuantumFactory.DEPTH_8BIT);
-		setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
-		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
-		PixelsStats stats = renderer.getPixelsStats();
-		for (int i = 0; i < cb.length; i++)
-				resetDefaultsChannel(i, stats);
-		//Remove all the codomainMapCtx except the identity.
-		renderer.getCodomainChain().remove();
+	    //bitResolution <=> 255
+        setQuantumStrategy(QuantumFactory.DEPTH_8BIT, 
+                        QuantumFactory.NOISE_REDUCTION);
+        setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        PixelsStats stats = renderer.getPixelsStats();
+        for (int i = 0; i < cb.length; i++)
+                resetDefaultsChannel(i, stats);
+        //Remove all the codomainMapCtx except the identity.
+        renderer.getCodomainChain().remove();
+        
+        //reset the strategy.
+        setModel(RenderingDef.GS);
 		
 		//reset the strategy.
 		setModel(RenderingDef.GS);
@@ -259,5 +297,5 @@ class RenderingControlImpl
 		registry.getUserNotifier().notifyError("Rendering Engine Exception", 
 												message, msg.toString());
 	}
-	
+
 }

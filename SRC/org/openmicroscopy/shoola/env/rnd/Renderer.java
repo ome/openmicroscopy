@@ -91,7 +91,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  */
 class Renderer
 {
-	
+    
     /**
      * Factory method to create a new instance to render the specified pixels
      * set.
@@ -176,7 +176,6 @@ class Renderer
     /** Allows to access the pixels raw data. */
     private DataSink            dataSink;	
 		
-    
     /**
      * Creates a new instance to render the specified pixels set.
      * The {@link #initialize() initialize} method has to be called straight
@@ -199,6 +198,7 @@ class Renderer
      * @param source    The pixels metadata source.
      */
     private void initialize(MetadataSource source)
+        throws MetadataSourceException
     {
         //Grab pixels metadata (create default display options if 
         //none available).
@@ -206,16 +206,26 @@ class Renderer
         pixelsDims = source.getPixelsDims();
         pixelsStats = source.getPixelsStats();
         renderingDef = source.getDisplayOptions();
-        if (renderingDef == null)
+        boolean isNull = false;
+        if (renderingDef == null) {
+            isNull = true;
             renderingDef = createDefaultRenderingDef(pixelsDims, pixelsStats,
-                                                        source.getPixelType());
-        
+                        source.getPixelType());
+           
+        }
         //Create and configure the quantum strategies.
         QuantumDef qd = renderingDef.getQuantumDef();
         quantumManager = new QuantumManager(pixelsDims.sizeW);
-        quantumManager.initStrategies(qd, pixelsStats, 
-                        renderingDef.getChannelBindings());
         
+        ChannelBindings[] cBindings= renderingDef.getChannelBindings();
+        //Compute the stats if necessary. Should be removed asap.
+        StatsComputer.computeStats(dataSink, source, cBindings, 
+                                    getDefaultPlaneDef(), isNull);
+        
+        //quantumManager.initStrategies(qd, pixelsStats, 
+        //                renderingDef.getChannelBindings());
+        
+        quantumManager.initStrategies(qd, pixelsStats, cBindings);
         //Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd,
                                             renderingDef.getCodomainChainDef());
@@ -237,21 +247,19 @@ class Renderer
 	private RenderingDef createDefaultRenderingDef(PixelsDimensions dims,
 											PixelsStats stats, int pixelType)
 	{
-		QuantumDef qDef = new QuantumDef(QuantumFactory.LINEAR, pixelType, 1, 
-											0, QuantumFactory.DEPTH_8BIT,
-											QuantumFactory.DEPTH_8BIT);
+        QuantumDef qDef = new QuantumDef(pixelType, 0, 
+                          QuantumFactory.DEPTH_8BIT, QuantumFactory.DEPTH_8BIT,
+                          QuantumFactory.NOISE_REDUCTION);
 		ChannelBindings[] waves = new ChannelBindings[dims.sizeW];
 		PixelsGlobalStatsEntry wGlobal;
 		int[] rgb;
 		for (int w = 0; w < dims.sizeW; ++w) {
-			wGlobal = stats.getGlobalEntry(w);
-			//TODO: calcultate default interval, should come in next version.
-			rgb = setDefaultColor(w);
-			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
-												wGlobal.getGlobalMax(),
-											rgb[0], rgb[1], rgb[2], 255, false);
-			
-			
+            wGlobal = stats.getGlobalEntry(w);
+            rgb = setDefaultColor(w);
+            waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
+                                           wGlobal.getGlobalMax(), rgb[0], 
+                                           rgb[1], rgb[2], 255, false,
+                                           QuantumFactory.LINEAR, 1);
 		}
 		
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
@@ -264,17 +272,17 @@ class Renderer
 	{
 		int[] rgb = new int[3];
 		if (w == 0) { //blue
-            rgb[0] = 0;
-            rgb[1] = 0;
-            rgb[2] = 255;
+            rgb[0] = ChannelBindings.COLOR_MIN;
+            rgb[1] = ChannelBindings.COLOR_MIN;
+            rgb[2] = ChannelBindings.COLOR_MAX;
 		} else if (w == 1) { //green
-            rgb[0] = 0;
-            rgb[1] = 255;
-            rgb[2] = 0;
+            rgb[0] = ChannelBindings.COLOR_MIN;
+            rgb[1] = ChannelBindings.COLOR_MAX;
+            rgb[2] = ChannelBindings.COLOR_MIN;
 		} else {  //red
-			rgb[0] = 255;
-			rgb[1] = 0;
-			rgb[2] = 0;
+			rgb[0] = ChannelBindings.COLOR_MAX;
+			rgb[1] = ChannelBindings.COLOR_MIN;
+			rgb[2] = ChannelBindings.COLOR_MIN;
 		}
 		return rgb;
 	}
@@ -295,6 +303,16 @@ class Renderer
 		renderingStrategy = RenderingStrategy.makeNew(model);
 	}
 	
+    void setDefaultZ(int z) 
+    {
+        renderingDef.setDefaultZ(z);
+    }
+    
+    void setDefaultT(int t) 
+    {
+        renderingDef.setDefaultT(t);
+    }
+    
 	/**
 	 * Updates the {@link QuantumManager} and configures it according to the
 	 * current quantum definition.
@@ -435,5 +453,5 @@ class Renderer
      * @return  See above.
      */
 	int getPixelsID() { return pixelsID; }
-
+    
 }

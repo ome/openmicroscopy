@@ -54,20 +54,11 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 public class QuantumDef
 {
 	
-    /** 
-     * Identifies a family of maps. 
-     * One of the constants defined by {@link QuantumFactory}.
-     */
-	public final int       family;
-	
 	/** 
 	 * The storage type of image data.
 	 * One of the constants defined by {@link DataSink}.
 	 */
 	public final int       pixelType;
-	
-	/** Selects a curve in the {@link #family}. */
-	public final double    curveCoefficient;
 	
 	/** The lower bound of the codomain interval of the quantum map. */
 	public final int       cdStart;
@@ -81,15 +72,18 @@ public class QuantumDef
      */ 
 	public final int       bitResolution;
 	
+    /**
+     * Apply or not the algorithm to reduce the noise.
+     * If <code>true</code>, the values close to the min or max are map to 
+     * a constant.
+     */
+    public final boolean    noiseReduction; 
     
     /**
-     * Craetes a new instance.
+     * Creates a new instance.
      * 
-     * @param family Identifies a family of maps.  Must be one of the constants
-     *                  defined by {@link QuantumFactory}.
      * @param pixelType The storage type of image data.  Must be one of the 
      *                  constants defined by {@link DataSink}.
-     * @param curveCoefficient Selects a curve in the <code>family</code>.
      * @param cdStart The lower bound of the codomain interval of the 
      *                  quantum map.
      * @param cdEnd The upper bound of the codomain interval of the quantum map.
@@ -97,15 +91,14 @@ public class QuantumDef
      *                      one of the constants defined by 
      *                      {@link QuantumFactory}.
      */
-	public QuantumDef(int family, int pixelType, double curveCoefficient,
-				        int cdStart, int cdEnd, int bitResolution)
+	public QuantumDef(int pixelType, int cdStart, int cdEnd, int bitResolution,
+                    boolean noiseReduction)
 	{ 
-        this.family = family;
-		this.pixelType = pixelType;
-		this.curveCoefficient = curveCoefficient;
-		this.cdStart = cdStart;
-		this.cdEnd = cdEnd;
-		this.bitResolution = bitResolution;
+        this.pixelType = pixelType;
+        this.cdStart = cdStart;
+        this.cdEnd = cdEnd;
+        this.bitResolution = bitResolution;
+        this.noiseReduction = noiseReduction;
 	}
 
 	/**
@@ -115,8 +108,8 @@ public class QuantumDef
 	 */
 	QuantumDef copy()
 	{	
-		return new QuantumDef(family, pixelType, curveCoefficient,
-                                cdStart, cdEnd, bitResolution);
+        return new QuantumDef(pixelType, cdStart, cdEnd, bitResolution, 
+                noiseReduction);
 	}
 	
 }

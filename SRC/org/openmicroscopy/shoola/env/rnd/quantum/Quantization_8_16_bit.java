@@ -54,7 +54,10 @@ import org.openmicroscopy.shoola.util.math.Approximation;
 public class Quantization_8_16_bit
 	extends QuantumStrategy
 {
-
+    private static final int        EXTRA = 10;
+    
+    private static final double     SUB_INT = 10;
+    
 	//	current lookup table
 	private byte[]      LUT;
 	private int         min;
@@ -100,55 +103,60 @@ public class Quantization_8_16_bit
 		// Comparable assumed to be Integer
 		//domain
 		double dStart = getWindowStart(), dEnd = getWindowEnd(); 
-		double k = qDef.curveCoefficient;
-		//double ys = valueMapper.transform(dStart, k);
-		//double ye = valueMapper.transform(dEnd, k);
-		//double a0 = qDef.bitResolution/(ye-ys);
+		double k = getCurveCoefficient();
 		double a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
 		int x = min;
-		
-		//Temporary, to come: "piece-wise rendering."
-		QuantumMap normalize = new PolynomialMap();
-	   	int extra = 10;
-	   	
-	   	//double decile = (max-min)/(double) 10;
-	   	//double Q1 = min+decile, Q9 = max-decile;
-		double S1 = dStart;
-	   	double ysNorm = valueMapper.transform(0, k);
-	   	double yeNorm = valueMapper.transform(255, k);
-	   	double aNorm = qDef.bitResolution/(yeNorm-ysNorm);
         
-	   	double v = extra;
-		double c0;//, nom = Q9-Q1;
-		/*
-		if (dStart >= Q1 && dEnd > Q9) {
-			nom = (Q9-dStart);
-			S1 = dStart;
-		} else if (dStart < Q1 && dEnd <= Q9) {
-			nom = dEnd-Q1;
-		} else if (dStart >= Q1 && dEnd <= Q9) {
-			nom = dEnd-dStart;
-			S1 = dStart;
-		}
-        */
-		//c0 = (255-2*extra)/nom;
-		c0 = (255)/(dEnd-dStart);
-		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
+        QuantumMap normalize = new PolynomialMap();
+        double ysNorm = valueMapper.transform(0, k);
+        double yeNorm = valueMapper.transform(255, k);
+        double aNorm = qDef.bitResolution/(yeNorm-ysNorm);
+        
+        double v = 0, extra = 0;
+        double c0, denum = (dEnd-dStart), num = 255;
+        double S1 = dStart;
+        double decile = (max-min)/SUB_INT;
+        double Q1 = min, Q9 = max;
+        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd;
+        if (qDef.noiseReduction) {
+            v = EXTRA;
+            extra = EXTRA;
+            Q1 = min+decile;
+            Q9 = max-decile;
+            S1 = Q1;
+            num = 255-2*EXTRA;
+            denum = Q9-Q1;
+            if (dStart >= Q1 && dEnd > Q9) {
+                denum = (Q9-dStart);
+                S1 = dStart;
+            } else if (dStart >= Q1 && dEnd <= Q9) {
+                denum = dEnd-dStart;
+                S1 = dStart;
+            } else if (dStart < Q1 && dEnd <= Q9)
+                denum = dEnd-Q1;
+            
+            if (qDef.cdStart < EXTRA) cdStart = EXTRA;
+            if (qDef.cdEnd > 255-EXTRA) cdEnd = 255-EXTRA;
+        }
+        
+        c0 = num/denum;
+		
+		for(; x < dStart; ++x)   LUT[x-min] = (byte) cdStart;
 		
 		for(; x < dEnd; ++x) { 
-			//if (x > Q1) {
-			//	if (x <= Q9)
-					v = c0*(normalize.transform(x, 1)-S1)+extra;
-			//	else v = 255-extra;
-			//} else v = extra;
-			v = Approximation.nearestInteger(
-								aNorm*(valueMapper.transform(v, k)-ysNorm));
-			
-			v = Approximation.nearestInteger(a1*v+qDef.cdStart);
-			LUT[x-min] = (byte) v;
+            if (x > Q1) {
+                if (x <= Q9)
+                    v = c0*(normalize.transform(x, 1)-S1)+extra;
+                else v = cdEnd;
+            } else v = cdStart;
+            v = Approximation.nearestInteger(
+                                aNorm*(valueMapper.transform(v, k)-ysNorm));
+            
+            v = Approximation.nearestInteger(a1*v+qDef.cdStart);
+            LUT[x-min] = (byte) v;
 		}
 		
-		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.cdEnd; 
+		for(; x <= max; ++x)   LUT[x-min] = (byte) cdEnd; 
 	}
 
 	/** The input window size changed, rebuild the LUT. */

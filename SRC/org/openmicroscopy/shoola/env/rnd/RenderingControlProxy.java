@@ -100,68 +100,112 @@ class RenderingControlProxy
 		eventBus.post(rpc);
 	}
 
-	public int getModel()
-	{
-		return rndDefCopy.getModel();
-	}
+    public void setDefaultZ(final int z)
+    {
+        rndDefCopy.setDefaultZ(z);
+        MethodCall mCall = new MethodCall() {
+            public void doCall() { 
+                servant.setDefaultZ(z);
+            }
+        };
+        RenderingPropChange rpc = new RenderingPropChange(mCall);
+        eventBus.post(rpc);
+    }
+    
+    public void setDefaultT(final int t)
+    {
+        rndDefCopy.setDefaultT(t);
+        MethodCall mCall = new MethodCall() {
+            public void doCall() { 
+                servant.setDefaultT(t);
+            }
+        };
+        RenderingPropChange rpc = new RenderingPropChange(mCall);
+        eventBus.post(rpc);
+    }
+    
+	public int getModel() { return rndDefCopy.getModel(); }
 
-	public int getDefaultZ() 
-	{
-		return rndDefCopy.getDefaultZ();
-	}
+	public int getDefaultZ() { return rndDefCopy.getDefaultZ(); }
 
-	public int getDefaultT()
-	{
-		return rndDefCopy.getDefaultT();
-	}
+	public int getDefaultT() { return rndDefCopy.getDefaultT(); }
 
-	public void setQuantumStrategy(final int family, final double coefficient,
-														final int bitResolution)
+	public void setQuantumStrategy(final int bitResolution, final boolean b)
 	{
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
-		
-		QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
-		newQd = new QuantumDef(family, qd.pixelType, coefficient, 
-										qd.cdStart, qd.cdEnd, bitResolution);
-		rndDefCopy.setQuantumDef(newQd);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setQuantumStrategy(family, coefficient, bitResolution);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
+        QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
+        newQd = new QuantumDef(qd.pixelType, qd.cdStart, qd.cdEnd, 
+                                bitResolution, b);
+        rndDefCopy.setQuantumDef(newQd);
+        MethodCall mCall = new MethodCall() {
+            public void doCall() { 
+                servant.setQuantumStrategy(bitResolution, b);
+            }
+        };
+        RenderingPropChange rpc = new RenderingPropChange(mCall);
+        eventBus.post(rpc);
 	}
 
 	public void setCodomainInterval(final int start, final int end)
 	{
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
-		
-		QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
-		newQd = new QuantumDef(qd.family, qd.pixelType, qd.curveCoefficient, 
-												start, end, qd.bitResolution);
-		rndDefCopy.setQuantumDef(newQd);
-		CodomainMapContext mapCtx;
-		Iterator i = rndDefCopy.getCodomainChainDef().iterator();
-		while (i.hasNext()) {
-			mapCtx = (CodomainMapContext) i.next();
-			mapCtx.setCodomain(start, end);
-		}
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setCodomainInterval(start, end);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);	
+        QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
+        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution,
+                                qd.noiseReduction);
+        rndDefCopy.setQuantumDef(newQd);
+        CodomainMapContext mapCtx;
+        Iterator i = rndDefCopy.getCodomainChainDef().iterator();
+        while (i.hasNext()) {
+            mapCtx = (CodomainMapContext) i.next();
+            mapCtx.setCodomain(start, end);
+        }
+        MethodCall mCall = new MethodCall() {
+            public void doCall() { 
+                servant.setCodomainInterval(start, end);
+            }
+        };
+        RenderingPropChange rpc = new RenderingPropChange(mCall);
+        eventBus.post(rpc); 
 	}
 
 	public QuantumDef getQuantumDef() 
 	{
 		return rndDefCopy.getQuantumDef();
 	}
+
+	public void setQuantizationMap(final int w, final int family, 
+             final double coefficient)
+	{
+	    ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+	    cb[w].setQuantizationMap(family, coefficient);
+	    MethodCall mCall = new MethodCall() {
+	        public void doCall() { 
+	            servant.setQuantizationMap(w, family, coefficient);
+	        }
+	    };
+	    RenderingPropChange rpc = new RenderingPropChange(mCall);
+	    eventBus.post(rpc); 
+	}
+     
+    public double[] getChannelStats(int w)
+    {
+        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+        return cb[w].getStats();
+    }
+    
+    public int getChannelFamily(int w)
+    {
+        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+        return cb[w].getFamily();
+    }
+    
+    public double getChannelCurveCoefficient(int w)
+    {
+        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+        return cb[w].getCurveCoefficient();
+    }
 
 	public void setChannelWindow(final int w, 
 								final double start, final double end) 
@@ -281,24 +325,24 @@ class RenderingControlProxy
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void resetDefaults()
 	{
-		setQuantumStrategy(QuantumFactory.LINEAR, 1.0, 
-							QuantumFactory.DEPTH_8BIT);
-		setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
-		
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		PixelsStats stats = servant.getPixelsStats();
-		for (int i = 0; i < cb.length; i++)
-				resetDefaultsChannel(i, stats);
-		rndDefCopy.remove();
-		setModel(RenderingDef.GS);
-		
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.resetDefaults();
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
+        setQuantumStrategy(QuantumFactory.DEPTH_8BIT, 
+                        QuantumFactory.NOISE_REDUCTION);
+        setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
+        
+        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+        PixelsStats stats = servant.getPixelsStats();
+        for (int i = 0; i < cb.length; i++)
+                resetDefaultsChannel(i, stats);
+        rndDefCopy.remove();
+        setModel(RenderingDef.GS);
+        
+        MethodCall mCall = new MethodCall() {
+            public void doCall() { 
+                servant.resetDefaults();
+            }
+        };
+        RenderingPropChange rpc = new RenderingPropChange(mCall);
+        eventBus.post(rpc);
 	}
 	
 	/** Reset defaults for all wavelengths. */

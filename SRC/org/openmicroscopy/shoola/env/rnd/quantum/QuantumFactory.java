@@ -120,6 +120,8 @@ public class QuantumFactory
      */
 	public static final int   POLYNOMIAL = 3;
 
+    /** Default value. */
+    public static final boolean NOISE_REDUCTION = true;
     
 	/**
      * Verifies that <code>qd</code> is not <code>null</code> and has been
@@ -132,26 +134,8 @@ public class QuantumFactory
     {
         if (qd == null)    
             throw new NullPointerException("No quantum definition.");
-        verifyFamily(qd.family);
         verifyBitResolution(qd.bitResolution);
         verifyPixelType(qd.pixelType);
-    }
-    
-    /**
-     * Verifies that <code>family</code> is one of the constants defined by
-     * this class.
-     * 
-     * @param family    The value to verify.
-     * @throws IllegalArgumentException If the check fails.
-     */
-    private static void verifyFamily(int family)
-    {
-        if (family != LINEAR && 
-                family != LOGARITHMIC && 
-                family != EXPONENTIAL &&
-                family != POLYNOMIAL)  
-            throw new IllegalArgumentException(
-                    "Unsupported family type: "+family+".");
     }
     
     /**
@@ -242,26 +226,12 @@ public class QuantumFactory
      */
 	public static QuantumStrategy getStrategy(QuantumDef qd)
 	{
-		verifyDef(qd);
-		QuantumStrategy strg = null;
-		QuantumMap qMap = null;
-		switch (qd.family) {
-			case LINEAR:
-			case POLYNOMIAL:
-				qMap = new PolynomialMap();
-				break;
-			case LOGARITHMIC:
-				qMap = new LogarithmicMap();
-				break;
-			case EXPONENTIAL:
-				qMap = new ExponentialMap(); 
-				break;
-			default: 
-				//Never reached, verifyDef throws exception if wrong family.	
-		}
-		strg = getQuantization(qd);
-		strg.setMap(qMap);
-		return strg;
+        verifyDef(qd);
+        QuantumStrategy strg = null;
+        strg = getQuantization(qd);
+        if (strg == null)
+            throw new IllegalArgumentException("Unsupported strategy");
+        return strg;
 	}
 
 }

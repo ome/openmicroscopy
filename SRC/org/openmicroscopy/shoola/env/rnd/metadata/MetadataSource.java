@@ -196,6 +196,7 @@ public class MetadataSource
             pixelsStats = makeStats(stackStats, pixelsDims);
 			
 			//Retrieve user settings (null if no settings available).
+            //TODO: SHOULD PASS THE PIXELS STATS TO BE ON THE SAVE SIDE.
 			displayOptions = dms.retrieveRenderingSettings(pixelsID, imageID, 
 										pixelType);
             
