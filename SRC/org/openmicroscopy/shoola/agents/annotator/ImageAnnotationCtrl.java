@@ -36,6 +36,15 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
+import java.util.List;
+
+import org.openmicroscopy.ds.st.ImageAnnotation;
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
+import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
+import org.openmicroscopy.shoola.agents.browser.util.Filter;
+import org.openmicroscopy.shoola.agents.browser.util.MapOperator;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
 /**
  * Control for the image annotator.
  *
@@ -46,33 +55,76 @@ package org.openmicroscopy.shoola.agents.annotator;
  */
 public class ImageAnnotationCtrl extends AnnotationCtrl
 {
-    private int imageID;
+    private ImageSummary imageInfo;
+    private AnnotateImage requestEvent;
     /**
      * Creates an image annotation controller using the specified image
      * as a basis.
      * @param imageID The ID of the image to annotate.
      */
-    public ImageAnnotationCtrl(Annotator annotator, int imageID)
+    public ImageAnnotationCtrl(Annotator annotator, ImageSummary imageInfo,
+                               AnnotateImage triggeringEvent)
     {
-        if(annotator == null)
+        if(annotator == null || imageInfo == null)
         {
             throw new IllegalArgumentException("Cannot construct an" +
-                " ImageAnnotationCtrl with a null Annotator");
+                " ImageAnnotationCtrl with null parameters");
         }
         
         this.annotator = annotator;
-        this.imageID = imageID;
+        this.imageInfo = imageInfo;
         
-        annotationList = annotator.getImageAnnotations(imageID);
+        annotationList = annotator.getImageAnnotations(imageInfo.getID());
         attributeList = null; // do not use this for attributes yet (if ever)
     }
     
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#save()
-	 */
-	public void save() 
-	{
-		// TODO Auto-generated method stub
-	}
-	
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTargetDescription()
+     */
+    public String getTargetDescription()
+    {
+        return "Image " + imageInfo.getName();
+    }
+    
+    /**
+     * Returns all the data about the specified image.
+     * @return
+     */
+    public ImageSummary getInfo()
+    {
+        return imageInfo;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTextAnnotations()
+     */
+    public List getTextAnnotations()
+    {
+        return Filter.map(annotationList,new MapOperator()
+        {
+            public Object execute(Object o)
+            {
+                ImageAnnotation annotation = (ImageAnnotation)o;
+                return annotation.getContent();
+            }
+        });
+    }
+   
+    /**
+     * Saves the annotation to DB and indicates such a change.
+     */
+    public boolean save()
+    {
+        // TODO save to DB
+        ImageAnnotated annotated = new ImageAnnotated(requestEvent);
+        
+        // TODO support multiple
+        if(annotationList.size() > 0)
+        {
+            annotated.setAnnotation((ImageAnnotation)annotationList.get(0));
+        }
+        annotator.respondWithEvent(annotated);
+        setSaved(true);
+        return true;
+    }
 }

@@ -40,18 +40,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.JInternalFrame;
-
-import org.openmicroscopy.ds.managers.AnnotationManager;
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -74,14 +72,10 @@ public class Annotator implements Agent, AgentEventListener
     
     private TopFrame topFrame;
     
-    // these two lists have to be in sync...
-    private List activeUIs;
-    
     private List activeControls;
     
     public Annotator()
     {
-        activeUIs = new ArrayList();
         activeControls = new ArrayList();
     }
     
@@ -95,9 +89,11 @@ public class Annotator implements Agent, AgentEventListener
      */
     public void eventFired(AgentEvent e)
     {
-        // TODO figure out what events to throw here, and do so.
-        // do one of the trigger events on a EditAnnotation and
-        // EditAttribute event, perhaps.
+        if(e instanceof AnnotateImage)
+        {
+            AnnotateImage event = (AnnotateImage)e;
+            showAnnotationDialog(event);
+        }
     }
     
     /**
@@ -124,12 +120,8 @@ public class Annotator implements Agent, AgentEventListener
     {
         for(Iterator iter = activeControls.iterator(); iter.hasNext();)
         {
-            AnnotationCtrl ctrl = (AnnotationCtrl)iter.next();
-            if(!ctrl.isSaved())
-            {
-                // TODO prompt dialog, result in ctrl.close condition or
-                // return false condition on cancel
-            }
+            AnnotationCtrl control = (AnnotationCtrl)iter.next();
+            if(!control.canExit()) return false;
         }
         return true;
     }
@@ -160,55 +152,8 @@ public class Annotator implements Agent, AgentEventListener
         }
         this.registry = ctx;
         topFrame = registry.getTopFrame();
-    }
-    
-    // trigger a text annotator GUI for a dataset.
-    private void triggerEditAnnotation(DatasetData datasetModel)
-    {
-        // 
-    }
-    
-    // trigger a text annotator GUI for an image.
-    private void triggerEditAnnotation(ImageData imageModel)
-    {
-        ImageAnnotationCtrl iac =
-            new ImageAnnotationCtrl(this,imageModel.getID());
-    }
-    
-    // trigger an attribute editor GUI for a dataset.
-    private void triggerEditAttributes(DatasetData datasetModel)
-    {
-    }
-    
-    // trigger an attribute editor GUI for an image.
-    private void triggerEditAttributes(ImageData imageModel)
-    {
-        ImageAnnotationCtrl iac =
-            new ImageAnnotationCtrl(this,imageModel.getID());
-    }
-    
-    /**
-     * Closes, hides, and then removes the UI attached to the specified
-     * control.  Does not force an update (assumed done)
-     * @param control The controller to remove.
-     */
-    public void close(AnnotationCtrl control)
-    {
-        if(control == null)
-        {
-            return;
-        }
-        
-        int index = activeControls.indexOf(control);
-        if(index == -1)
-        {
-            return;
-        } 
-        
-        JInternalFrame frame = (JInternalFrame)activeUIs.get(index);
-        frame.setVisible(false);
-        activeControls.remove(control);
-        activeUIs.remove(frame);
+        EventBus bus = registry.getEventBus();
+        bus.register(this,AnnotateImage.class);
     }
 
     /**
@@ -283,6 +228,39 @@ public class Annotator implements Agent, AgentEventListener
     {
         // TODO call registry to find out this information and change this
         return new ArrayList();
+    }
+    
+    /**
+     * Show the annotation dialog.
+     * @param summary The image summary to wrap the dialog around.
+     */
+    void showAnnotationDialog(AnnotateImage requestEvent)
+    {
+        ImageAnnotationCtrl iac =
+            new ImageAnnotationCtrl(this,requestEvent.getImageInfo(),
+                                    requestEvent);
+        activeControls.add(iac);
+        TextAnnotationUIF tif = new TextAnnotationUIF(iac,registry);
+        tif.show();
+    }
+    
+    /**
+     * Tells the annotator agent to respond with the specified event.
+     * @param re
+     */
+    void respondWithEvent(ResponseEvent re)
+    {
+        EventBus eventBus = registry.getEventBus();
+        eventBus.post(re);
+    }
+    
+    /**
+     * Indicates a close event; removes this control from the active.
+     * @param control
+     */
+    void close(AnnotationCtrl control)
+    {
+        activeControls.remove(control);
     }
     
     /**

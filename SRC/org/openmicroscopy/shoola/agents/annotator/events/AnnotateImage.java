@@ -35,7 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.annotator.events;
 
-import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
@@ -46,8 +46,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  */
 public class AnnotateImage extends RequestEvent
 {
-    private int imageID;
-    private BrowserModel whichBrowser;
+    private ImageSummary imageInfo;
     
     /**
      * Constructs a request to bring up the annotator with parameters from
@@ -55,13 +54,16 @@ public class AnnotateImage extends RequestEvent
      * 
      * @param imageID
      */
-    public AnnotateImage(int imageID)
+    public AnnotateImage(ImageSummary imageInfo)
     {
-        this.imageID = imageID;
+        if(imageInfo == null)
+            throw new IllegalArgumentException("Null image info");
+        else
+            this.imageInfo = imageInfo;
     }
     
-    public int getImageID()
+    public ImageSummary getImageInfo()
     {
-        return imageID;
+        return imageInfo;
     }
 }

@@ -36,10 +36,10 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.openmicroscopy.ds.dto.Attribute;
 /**
@@ -63,7 +63,7 @@ public abstract class AnnotationCtrl
     protected Annotator annotator;
     
     /**
-     * The list of annotations.
+     * The list of annotations. (as strings)
      */
     protected List annotationList;
     
@@ -73,13 +73,16 @@ public abstract class AnnotationCtrl
     protected List attributeList;
     
     /**
+     * Returns the description of the object being annotated.
+     * @return
+     */
+    public abstract String getTargetDescription();
+    
+    /**
      * Gets the text annotations associated with a data object.
      * @return A list of textual annotations.
      */
-    public List getTextAnnotations()
-    {
-        return Collections.unmodifiableList(annotationList);
-    }
+    public abstract List getTextAnnotations();
     
     /**
      * Gets the attributes associated with a data object.
@@ -130,13 +133,48 @@ public abstract class AnnotationCtrl
     }
     
     /**
-     * Stores the information in the DB.
+     * Prompt termination.  Expected return values: 
+     * @return
      */
-    public abstract void save();
+    public boolean canExit()
+    {
+        if(!isSaved())
+        {
+            Object[] options = {"Save","Don't Save","Cancel"};
+            int outcome = JOptionPane.showOptionDialog(null,
+                                         "Would you like to save this annotation?",
+                                         "Save Annotation",
+                                         JOptionPane.YES_NO_CANCEL_OPTION,
+                                         JOptionPane.QUESTION_MESSAGE,
+                                         null,
+                                         options,
+                                         options[0]);
+            if(outcome == JOptionPane.YES_OPTION)
+            {
+                save();
+                return true;
+            }
+            else if(outcome == JOptionPane.NO_OPTION)
+            {
+                return true;
+            }
+            else if(outcome == JOptionPane.CANCEL_OPTION)
+            {
+                return false;
+            }
+            else return true; // something's f'ed up; just bail?
+        }
+        else return true;
+    }
     
     /**
-     * Closes the window and removes this controller from the annotator's
-     * list of controllers to watch.
+     * Stores the information in the DB.
+     * @return Whether or not the save was successful.
+     */
+    public abstract boolean save();
+    
+    /**
+     * Tells the annotator that we are done.
      */
     public void close()
     {

@@ -36,6 +36,13 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
+import java.util.List;
+
+import org.openmicroscopy.ds.st.DatasetAnnotation;
+import org.openmicroscopy.shoola.agents.browser.util.Filter;
+import org.openmicroscopy.shoola.agents.browser.util.MapOperator;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+
 /**
  * Controls the dataset annotation/attribute editor GUI.
  *
@@ -46,26 +53,55 @@ package org.openmicroscopy.shoola.agents.annotator;
  */
 public class DatasetAnnotationCtrl extends AnnotationCtrl
 {
-    private int datasetID;
+    private DatasetSummary datasetInfo;
     
     /**
      * Creates an image annotation controller using the specified image
      * as a basis.
      * @param imageID The ID of the image to annotate.
      */
-    public DatasetAnnotationCtrl(Annotator annotator, int datasetID)
+    public DatasetAnnotationCtrl(Annotator annotator, DatasetSummary datasetInfo)
     {
-        if(annotator == null)
+        if(annotator == null || datasetInfo == null)
         {
             throw new IllegalArgumentException("Cannot construct an" +
                 " ImageAnnotationCtrl with a null Annotator");
         }
         
         this.annotator = annotator;
-        this.datasetID = datasetID;
+        this.datasetInfo = datasetInfo;
         
-        annotationList = annotator.getDatasetAnnotations(datasetID);
-        attributeList = annotator.getDatasetAttributes(datasetID);
+        annotationList = annotator.getDatasetAnnotations(datasetInfo.getID());
+        attributeList = null; // ignore for now
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTargetDescription()
+     */
+    public String getTargetDescription()
+    {
+        return "Dataset " + datasetInfo.getName();
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTextAnnotations()
+     */
+    public List getTextAnnotations()
+    {
+        return Filter.map(annotationList, new MapOperator()
+        {
+            public Object execute(Object o)
+            {
+                DatasetAnnotation annotation = (DatasetAnnotation)o;
+                return annotation.getContent();
+            }
+        });
+    }
+
+    public boolean save()
+    {
+        // TODO implement
+        return true;
     }
 
 	/* (non-Javadoc)
