@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.LoadImage
+ * org.openmicroscopy.shoola.agents.events.LoadDataset
  *
  *------------------------------------------------------------------------------
  *
@@ -37,10 +37,11 @@ package org.openmicroscopy.shoola.agents.events;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Encapsulates a request to load a given image into an image viewer agent.
- * Currently, the Browser and the Data Manager agents post this event to
- * tell the Viewer agent to start the loading process of an image and then
- * display it on screen &#151; after it has been rendered.
+ * Encapsulates a request to display all images in a given dataset into a
+ * thumbnail-based image browser agent.
+ * Currently, the Data Manager agent post this event to tell the Browser agent
+ * to start the loading process of the thumbnails of the images in a given
+ * dataset and then display those thumbnails on screen.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,32 +54,33 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class LoadImage
+public class LoadDataset
 	extends RequestEvent
-{	
+{
 	
-	/** The ID of the image to load. */
-	private int		imageID;
+	/** The ID of the dataset whose images have to be displayed on screen. */
+	private int		datasetID;
 	
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param imageID	The ID of the image to load.
+	 * @param datasetID		The ID of the dataset whose images have to be
+	 * 						displayed on screen. 
 	 */
-	public LoadImage(int imageID)
+	public LoadDataset(int datasetID)
 	{
-		this.imageID = imageID;
+		this.datasetID = datasetID;
 	}
 	
 	/**
-	 * Returns the ID of the image to load.
+	 * The ID of the dataset whose images have to be displayed on screen.
 	 * 
 	 * @return	See above.
 	 */
-	public int getImageID()
+	public int getDatasetID()
 	{
-		return imageID;
+		return datasetID;
 	}
-
+	
 }
