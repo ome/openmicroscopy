@@ -506,9 +506,29 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		if (overviewCanvas!= null)
 			overviewCanvas.hideOverview();
 	}
+	
+	public void panView(PBounds b) {
+		handler.setNewBounds(b);
+	}
 
 	public void scaleToResize() {
-		handler.animateToLastBounds();
+		// animating to last node returns an activity. can't adjust
+		// overview until after the activity is done. 
+		PActivity act = handler.animateToLastBounds();
+		
+		PActivityDelegate delegate = new PActivityDelegate() {
+			public void activityStarted(PActivity activity) {
+			}
+			public void activityStepped(PActivity activity) {
+			}
+			public void activityFinished(PActivity activity) {
+				if (handler.isZoomedIntoChain())
+					updateOverview();
+				else
+					hideOverview();
+			}
+		};
+		act.setDelegate(delegate);
 	}
 	
 	public void setDraggingChain(LayoutChainData chain) {
