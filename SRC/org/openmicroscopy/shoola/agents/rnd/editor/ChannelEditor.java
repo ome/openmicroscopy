@@ -73,12 +73,12 @@ public class ChannelEditor
 	
 	private ChannelPane				channelPane;
 	
-	public ChannelEditor(RenderingAgtCtrl eventManager, ChannelData data)
+	public ChannelEditor(RenderingAgtCtrl eventManager, ChannelData data, int w)
 	{
 		super((JFrame) eventManager.getRegistry().getTopFrame().getFrame(), 
 				"Channel Info", true);
 		ChannelEditorManager manager = new ChannelEditorManager(eventManager, 
-											this, data);
+											this, data, w);
 		channelPane = new ChannelPane(manager);
 		buildGUI();
 		setSize(EDITOR_WIDTH+EXTRA, EDITOR_HEIGHT);

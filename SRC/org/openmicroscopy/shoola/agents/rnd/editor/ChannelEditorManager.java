@@ -64,12 +64,16 @@ class ChannelEditorManager
 	private JButton				saveButton;
 	private RenderingAgtCtrl 	eventManager;
 	
+	/** Channel index. */
+	private int					index;
+	
 	ChannelEditorManager(RenderingAgtCtrl eventManager, ChannelEditor view, 
-						ChannelData data)
+						ChannelData data, int index)
 	{
 		this.eventManager = eventManager;
 		this.view = view;
 		this.data = data;
+		this.index = index;
 	}
 	
 	ChannelData getChannelData()
