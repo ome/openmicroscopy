@@ -150,7 +150,7 @@ class ExplorerPane
 			try {
 				switch (index) {
 					case ROOT_ICON:
-						setIcon(im.getIcon(IconManager.OME));
+						setIcon(IconManager.getOMEIcon());
 						break;
 					case PROJECT_ICON:
 						setIcon(im.getIcon(IconManager.PROJECT));
