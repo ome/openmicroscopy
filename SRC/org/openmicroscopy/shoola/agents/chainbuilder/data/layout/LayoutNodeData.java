@@ -37,6 +37,7 @@ import java.util.Iterator;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
@@ -290,5 +291,9 @@ public class LayoutNodeData  extends AnalysisNodeData
 	 */
 	public ModuleView getModuleView() {
 		return displayModule;
+	}
+	
+	public ChainModuleData getChainModule() {
+		return (ChainModuleData) super.getModule();
 	}
 }
