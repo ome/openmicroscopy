@@ -69,7 +69,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
 public class ExecutionsCanvas extends JPanel implements 
 	MouseInputListener {
 	
-	public static final int WIDTH =300;
+	public static final int WIDTH =400;
 	public static final int HEIGHT=150;
 	public static final int TIP_SPACING=5;
 	
