@@ -98,11 +98,18 @@ public interface SplashScreen
 	public void updateProgress(String task);
 	
 	/**
+	 * Clears the screen after an  unsuccesful login
+	 */
+	public void clear();
+	
+	
+	/**
 	 * Returns the login credentials of the user.
 	 * Blocks the caller until the credentials have been entered.
 	 * 
 	 * @return	The user's credentials for logging into OME.
 	 */
 	public UserCredentials getUserCredentials();
+	
 	
 }
