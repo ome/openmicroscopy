@@ -83,6 +83,7 @@ public class PaletteModuleView extends SingleModuleView {
 	public PaletteModuleView(ChainModuleData module,float x,float y) {
 		super(module,x,y);
 		showDetails();
+		labelNodes.setPickable(false);
 	}
 	
 	 
@@ -93,6 +94,7 @@ public class PaletteModuleView extends SingleModuleView {
 	public PaletteModuleView(ChainModuleData module) {
 		super(module);
 		showDetails();
+		labelNodes.setPickable(false);
 	}
 	
 	
@@ -113,9 +115,6 @@ public class PaletteModuleView extends SingleModuleView {
 	public void mouseEntered(GenericEventHandler handler) {
 		setAllHighlights(true);
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
-		ChainBox cb = getChainBoxParent();
-		if (cb != null)
-			cb.mouseEntered(handler);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
