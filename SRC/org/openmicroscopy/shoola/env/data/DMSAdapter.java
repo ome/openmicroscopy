@@ -419,8 +419,12 @@ class DMSAdapter
             c = PixelsMapper.buildLogicalChannelCriteria(
                     STSMapper.IMAGE_GRANULARITY, id);
             List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-            if (lc != null) 
+            //need to fix problem if no logical channel(shouldn't happen)
+            if (lc != null && lc.size() > 0) 
                 retVal.setChannels(ImageMapper.fillImageChannels(lc));
+            else 
+                retVal.setChannels(ImageMapper.fillDefaultImageChannels(
+                        retVal.getDefaultPixels().getSizeC()));
         }
   		
   		//Can be an empty data object.
