@@ -482,5 +482,15 @@ public class NullSemanticTypesService
         // TODO Auto-generated method stub
         return null;
     }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImagesInUserDatasetsNotInCategoryGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData, java.util.List)
+     */
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData group, List datasetsID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 }
