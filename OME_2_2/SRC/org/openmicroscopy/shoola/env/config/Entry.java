@@ -44,21 +44,22 @@ import org.w3c.dom.Node;
  * It represents a name-value pair, where the name is the content of the 
  * <i>name</i> attribute of a configuration entry (which is stored by the
  * <code>name</code> field) and the value is the object representing the
- * entry's content.
- * <p>As the logic for building an object from the entry's content depends on
- * what is specified by the <i>type</i> attribute, this class declares an
- * abstract {@link #getValue() getValue} method which subclasses implement to
- * return the desired object.  So we have subclasses ({@link StringEntry}, 
- * {@link IntegerEntry}, {@link IconFactoryEntry}, etc.) to handle the content
- * of an entry tag (either <i>entry</i> or <i>structuredEntry</i>) in 
- * correspondence of each predefined value of the <i>type</i> attribute 
- * (<i>"string"</i>, <i>"integer"</i>, <i>"icons"</i>, and so on).</p> 
+ * content of the entry tag.
+ * <p>As the logic for building an object from the content of the entry tag
+ * depends on what is specified by the <i>type</i> attribute, this class 
+ * declares an abstract {@link #getValue() getValue} method which subclasses
+ * implement to return the desired object.  So we have subclasses 
+ * ({@link StringEntry}, {@link IntegerEntry}, {@link IconFactoryEntry}, etc.) 
+ * to handle the content of an entry tag (either <i>entry</i> or 
+ * <i>structuredEntry</i>) in correspondence of each predefined value of 
+ * the <i>type</i> attribute (<i>"string"</i>, <i>"integer"</i>, 
+ * <i>"icons"</i>, and so on).</p> 
  * <p>Given an entry tag, the {@link #createEntryFor(Node) createEntryFor}
  * static method (which can be considered a Factory Method) creates a concrete
- * <code>Entry</code> object to handle the conversion of that tag's content
+ * <code>Entry</code> object to handle the conversion of the content of that tag
  * into an object.  Subclasses implement the
- * {@link #setContent(Node) setContent} method to grab the tag's content, which
- * is then used for building the object returned by the implementation of 
+ * {@link #setContent(Node) setContent} method to grab the content of the tag,
+ * which is then used for building the object returned by the implementation of 
  * {@link #getValue()}.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -126,11 +127,10 @@ abstract class Entry
     {
         String  name, type;
     }
-    
-    
+      
 	/** 
 	 * Creates a concrete <code>Entry</code> object to handle the conversion of
-	 * the passed tag's content into an object. 
+	 * the content of the passed tag into an object. 
 	 *
 	 * @param tag	DOM node representing either an <i>entry</i> or 
 	 * 				<i>structuredEntry</i> tag.
@@ -209,7 +209,7 @@ abstract class Entry
 		throws ConfigException
 	{
 		NameTypePair ntp = new NameTypePair();
-		NamedNodeMap attrList = tag.getAttributes();  //Get this tag's attrs.
+		NamedNodeMap attrList = tag.getAttributes();  //Get attrs.
 		Node attribute;
 		
 		//Store the values of name and type attributes into ntp.
@@ -258,8 +258,8 @@ abstract class Entry
 	{
 		StringBuffer msg = new StringBuffer();
 		if (message == null || message.length() == 0)
-			msg.append("An error occurred.");
-		else	msg.append(message);
+			message = "An error occurred.";	
+		msg.append(message);
 		String explanation = e.getMessage();
 		if (explanation != null && explanation.length() != 0) {
 			msg.append(" (");
@@ -270,9 +270,9 @@ abstract class Entry
 	}
 	
     /**
-     * Subclasses implement this method to grab the tag's content, which is
-     * then used for building the object returned by the implementation of 
-     * {@link #getValue()}.
+     * Subclasses implement this method to grab the content of the tag,
+     * which is then used for building the object returned by the 
+     * implementation of {@link #getValue()}.
      * 
      * @param tag	DOM node representing either an <i>entry</i> or 
 	 * 				<i>structuredEntry</i> tag.
