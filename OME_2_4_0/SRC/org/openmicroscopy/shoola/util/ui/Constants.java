@@ -173,7 +173,7 @@ public class Constants {
 	
 
 	/** strokes and size for borders of boxes */
-	public static final float STROKE_WIDTH=4.0f;
+	public static final float STROKE_WIDTH=6.0f;
 	public static final BasicStroke BORDER_STROKE = new BasicStroke(STROKE_WIDTH);
 	
 	/** stroke for thumbnail highlight */
@@ -196,8 +196,15 @@ public class Constants {
 	public static final Font LARGE_NAME_FONT = 
 			new Font("Helvtical",Font.BOLD,24);
 	
+	/** category fonts */
+	public static final Font CATEGORY_FONT = 
+		new Font("Helvtical",Font.BOLD,48);
+
 	public static final Font LABEL_FONT  = new Font("Helvetica",Font.BOLD,18);
 	   
+	/* chain box font */
+	public static final Font CHAIN_BOX_FONT  = new Font("Helvetica",Font.BOLD,54);
+	
 	/** 
 	 * Positional offsets for a category name in a {@link CategoryBox} in a 
 	 * {@link ModulePaletteCanvas}

@@ -175,7 +175,7 @@ public abstract class FormalParameter extends PNode implements
 		textNode = new PText(param.getName());
 		textNode.setFont(Constants.NAME_FONT);
 		textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
-		//textNode.setGreekThreshold(0);
+		textNode.setGreekThreshold(0);
 		labelNode.addChild(textNode);
 		
 		

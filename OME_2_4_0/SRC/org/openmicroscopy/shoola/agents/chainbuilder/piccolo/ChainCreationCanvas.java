@@ -146,9 +146,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		
 		// set rendering details.
 		
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
+		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		
 		setMinimumSize(new Dimension(SIDE,SIDE));

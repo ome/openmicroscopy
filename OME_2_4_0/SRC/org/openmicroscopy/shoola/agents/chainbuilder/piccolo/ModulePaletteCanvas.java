@@ -166,9 +166,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 		super();
 		layer = getLayer();
 		
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		setPreferredSize(new Dimension(ModulePaletteWindow.SIDE,
 			ModulePaletteWindow.SIDE));
@@ -300,11 +298,10 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 	private void displayCategoryName(CategoryBox box,String name) {
 		if (name.compareTo("") !=0) {// if there is a name
 			PText nameText = new PText(name);
-			nameText.setFont(Constants.LARGE_NAME_FONT);
+			nameText.setFont(Constants.CATEGORY_FONT);
 			nameText.setPickable(false);
-			nameText.setGreekThreshold(0);
+			//nameText.setGreekThreshold(0);
 			box.addLabel(nameText);
-			nameText.setScale(2);
 			nameText.moveToFront();
 			nameText.setOffset(Constants.CATEGORY_LABEL_OFFSET_X,
 				Constants.CATEGORY_LABEL_OFFSET_Y);
