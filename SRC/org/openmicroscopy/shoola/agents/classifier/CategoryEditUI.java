@@ -58,8 +58,8 @@ import org.openmicroscopy.ds.st.CategoryGroup;
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
 public class CategoryEditUI extends JDialog
 {
@@ -86,7 +86,7 @@ public class CategoryEditUI extends JDialog
             cancelButton.setEnabled(false);
             control.newCategory(group,nameField.getText(),
                                 descriptionArea.getText());
-            parent.buildGroupList();
+            parent.buildCategoryList(group);
             setVisible(false);
             dispose();
         }
