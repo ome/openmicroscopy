@@ -138,6 +138,10 @@ public class LinkLayer extends PLayer {
 		return lnk;
 	}
 	
+	public void addModuleLink(ModuleLink lnk) {
+		modules.addChild(lnk);
+	}
+	
 	/**
 	 * Semantic zooming - if magnification is below a certain threshold, 
 	 * make the module links visible and the paramter links invisible. 
@@ -205,6 +209,11 @@ public class LinkLayer extends PLayer {
 	private void removeModuleLink(ModuleView start,ModuleView end) {
 		
 		ModuleLink lnk = findModuleLink(start,end);
+		removeModuleLink(lnk);
+		
+	}
+	
+	public void removeModuleLink(ModuleLink lnk) {
 		if (lnk != null)
 			modules.removeChild(lnk);
 	}
