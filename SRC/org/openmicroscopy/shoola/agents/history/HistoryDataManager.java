@@ -41,13 +41,14 @@ package org.openmicroscopy.shoola.agents.history;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.history.data.HistoryModuleData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -82,10 +83,15 @@ public class HistoryDataManager extends ChainDataManager {
 		
 	public Registry getRegistry() {return registry; }
 	
+	// get modules of the right type\
+	public Collection getModules() {
+		return getModules(new HistoryModuleData());
+	}
+	
 	public List getChainExecutionHistory(int chexid) {
 		try {
 			ModuleExecutionData mexProto = new ModuleExecutionData();
-			ChainModuleData modProto = new ChainModuleData();
+			HistoryModuleData modProto = new HistoryModuleData();
 			ActualInputData inProto = new ActualInputData();
 			FormalInputData finProto = new FormalInputData();
 			FormalOutputData foutProto = new FormalOutputData();
