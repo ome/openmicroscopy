@@ -81,7 +81,6 @@ public class ImageCriteriaFactory
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
 
-
 		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
 		criteria.addWantedField("owner", "FirstName");

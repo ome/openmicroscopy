@@ -86,7 +86,6 @@ public class DatasetCriteriaFactory
 		criteria.addWantedField("description");
 		criteria.addWantedField("owner");
 		criteria.addWantedField("images"); 		
-		criteria.addWantedField("#images");
 		
 		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
@@ -111,7 +110,7 @@ public class DatasetCriteriaFactory
 	 * Create the criteria by which the object graph is pulled out.
 	 * 
 	 */
-	public static Criteria buildDatasetProjectCriteria()
+	public static Criteria buildDatasetToProjectCriteria()
 	{
 		Criteria criteria = new Criteria();
 
@@ -121,7 +120,6 @@ public class DatasetCriteriaFactory
 		criteria.addWantedField("description");
 		criteria.addWantedField("owner");		
 		criteria.addWantedField("projects"); 
-		criteria.addWantedField("#projects"); 
 		
 		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
@@ -166,7 +164,6 @@ public class DatasetCriteriaFactory
 		criteria.addWantedField("description");
 		criteria.addWantedField("owner");		
 		criteria.addWantedField("images"); 
-		criteria.addWantedField("#images"); 
 	
 		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
@@ -196,4 +193,5 @@ public class DatasetCriteriaFactory
 	
 		return criteria;
 	}
+	
 }
