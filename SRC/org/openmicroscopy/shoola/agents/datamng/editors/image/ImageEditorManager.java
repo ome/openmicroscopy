@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageEditorManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditorManager
  *
  *------------------------------------------------------------------------------
  *
@@ -70,18 +70,6 @@ class ImageEditorManager
 	private ImageData			model;
 	private ImageEditor			view;
 	private DataManagerCtrl 	control;
-
-	/** Save button displayed in the {@link ImageEditorBar}. */
-	private JButton 			saveButton;
-	
-	/** Reload button displayed in the {@link ImageEditorBar}. */
-	private JButton 			cancelButton;
-	
-	/** textArea displayed in the {@link ImagetGeneralPane}. */
-	private JTextArea			descriptionArea;
-	
-	/** text field displayed in the {@link ImageGeneralPane}. */
-	private JTextArea			nameField;
 	
 	private boolean				nameChange, isName;
 	
@@ -100,14 +88,12 @@ class ImageEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
-		saveButton = view.getSaveButton();
-        attachButtonListener(saveButton, SAVE);
-		cancelButton = view.getCancelButton();
-		attachButtonListener(cancelButton, CANCEL);
-		nameField = view.getNameField();
+        attachButtonListener(view.getSaveButton(), SAVE);
+		attachButtonListener(view.getCancelButton(), CANCEL);
+		JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
-		descriptionArea = view.getDescriptionArea();
+		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
@@ -136,8 +122,8 @@ class ImageEditorManager
 	/** Save changes in DB. */
 	private void save()
 	{
-		model.setDescription(descriptionArea.getText());
-		model.setName(nameField.getText());
+		model.setDescription(view.getDescriptionArea().getText());
+		model.setName(view.getNameField().getText());
 		control.updateImage(model, nameChange);
 		view.dispose();
 	}
@@ -150,20 +136,21 @@ class ImageEditorManager
 	}
 	
 	/** Require by I/F. */
-	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
+	public void changedUpdate(DocumentEvent e)
+    { 
+        view.getSaveButton().setEnabled(true); 
+    }
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Indicates that the name has been modified. */

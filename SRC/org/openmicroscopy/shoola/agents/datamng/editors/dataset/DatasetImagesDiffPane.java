@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetImagesDiffPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetImagesDiffPane
  *
  *------------------------------------------------------------------------------
  *
@@ -76,9 +76,9 @@ class DatasetImagesDiffPane
 {
 	
 	/** Action id. */
-	private static final int				NAME = 0, SELECT = 1;
+	private static final int               NAME = 0, SELECT = 1;
 			
-	protected static final String[]			columnNames;
+	protected static final String[]        columnNames;
 	
 	static {
 		columnNames  = new String[2];
@@ -86,21 +86,21 @@ class DatasetImagesDiffPane
 		columnNames[SELECT] = "Select";
 	}
 	
-	private JButton							selectButton, cancelButton, 
-											saveButton;
+	JButton                                selectButton, cancelButton, 
+                                           saveButton;
 											
-	private ImagesTableModel 				imagesTM;
+	private ImagesTableModel               imagesTM;
 	
-	private TableSorter 					sorter;
+	private TableSorter                    sorter;
 	
 	/** Reference to the control of the main widget. */
-	private DatasetEditorManager 			control;
+	private DatasetEditorManager           control;
 	
-	private JPanel							contents;
+	private JPanel                         contents;
 	
-	private IconManager						im;
+	private IconManager                    im;
 	
-	private DatasetImagesDiffPaneManager	manager;
+	private DatasetImagesDiffPaneManager   manager;
 	
 	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
 	{
@@ -118,15 +118,6 @@ class DatasetImagesDiffPane
 	DatasetImagesDiffPaneManager getManager() { return manager; }
 	
 	JPanel getContents() { return contents; }
-	
-	/** Return the select button. */
-	JButton getSelectButton() { return selectButton; }
-
-	/** Return the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
-
-	/** Return the save button. */
-	JButton getSaveButton() { return saveButton; }
 	
 	/** Select or not all datasets. */
 	void setSelection(Object val)

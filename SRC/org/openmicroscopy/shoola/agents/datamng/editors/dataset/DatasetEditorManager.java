@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetEditorManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditorManager
  *
  *------------------------------------------------------------------------------
  *
@@ -92,39 +92,10 @@ class DatasetEditorManager
 	
 	private DataManagerCtrl 		control;
 	
-	/** Add button displayed in the {@link DatasetEditorBar}. */
-	private JButton 				addButton;
-	
-	/** Cancel button displayed in the {@link DatasetEditorBar}. */
-	private JButton 				cancelButton;
-		
-	/** Save button displayed in the {@link DatasetEditorBar}. */
-	private JButton 				saveButton;
-
-	/** Remove button displayed in the {@link DatasetImagesPane}. */
-	private JButton 				removeButton;
-
-	/** Reset button displayed in the {@link DatasetImagesPane}. */
-	private JButton 				resetButton;
-	
-	/** Reset button displayed in the {@link DatasetImagesPane}. */
-	private JButton 				resetToAddButton;
-	
-	/**  
-	 * Remove button displayed in the {@link DatasetImagesPane}. 
-	 * Remove the selected datasets from the list of datasets to add.
-	 */
-	private JButton 				removeToAddButton;
-	
-	/** textArea displayed in the {@link DatasetGeneralPane}. */
-	private JTextArea				descriptionArea;
-	
-	/** text field displayed in the {@link DatasetGeneralPane}. */
-	private JTextArea				nameField;
-	
 	private boolean					nameChange, isName;
 	
 	private DatasetImagesDiffPane	dialog;
+    
 	DatasetEditorManager(DatasetEditor view, DataManagerCtrl control,
 						DatasetData model)
 	{
@@ -152,26 +123,19 @@ class DatasetEditorManager
 	void initListeners()
 	{
 		//buttons
-		saveButton = view.getSaveButton();
-        attachButtonListener(saveButton, SAVE);
-		addButton = view.getAddButton();
-		attachButtonListener(addButton, ADD);
-		cancelButton = view.getCancelButton();
-        attachButtonListener(cancelButton, CANCEL);
-		removeButton = view.getRemoveButton();
-        attachButtonListener(removeButton, REMOVE);
-		resetButton = view.getResetButton();
-        attachButtonListener(resetButton, RESET);
-		removeToAddButton = view.getRemoveToAddButton();
-        attachButtonListener(removeToAddButton, REMOVE_ADDED);
-		resetToAddButton = view.getResetToAddButton();
-        attachButtonListener(resetToAddButton, RESET_ADDED);
+        attachButtonListener(view.getSaveButton(), SAVE);
+		attachButtonListener(view.getAddButton(), ADD);
+        attachButtonListener(view.getCancelButton(), CANCEL);
+        attachButtonListener(view.getRemoveButton(), REMOVE);
+        attachButtonListener(view.getResetButton(), RESET);
+        attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
+        attachButtonListener(view.getResetToAddButton(), RESET_ADDED);
 		
 		//textfields
-		nameField = view.getNameField();
+		JTextArea nameField = view.getNameArea();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
-		descriptionArea = view.getDescriptionArea();
+		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
@@ -219,7 +183,7 @@ class DatasetEditorManager
 		}
 		UIUtilities.centerAndShow(dialog);
 		view.setSelectedPane(DatasetEditor.POS_IMAGE);
-		saveButton.setEnabled(true);	
+		view.getSaveButton().setEnabled(true);	
 	}
 	
 	
@@ -268,7 +232,7 @@ class DatasetEditorManager
 			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
 		}
 		else 	imagesToRemove.remove(is);
-		saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(true);
 	}
 
 	/** Close the widget, doesn't save changes. */
@@ -281,8 +245,8 @@ class DatasetEditorManager
 	/** Save changes in DB. */
 	private void save()
 	{
-		model.setDescription(descriptionArea.getText());
-		model.setName(nameField.getText());
+		model.setDescription(view.getDescriptionArea().getText());
+		model.setName(view.getNameArea().getText());
 		control.updateDataset(model, imagesToRemove, imagesToAdd, nameChange);
 		view.dispose();
 	}
@@ -291,14 +255,14 @@ class DatasetEditorManager
 	private void remove()
 	{
 		view.getImagesPane().setSelection(new Boolean(true));
-		removeButton.setEnabled(false);
+		view.getRemoveButton().setEnabled(false);
 	}
 	
 	/** Cancel selection. */
 	private void resetSelection()
 	{
-		removeButton.setEnabled(true);
-		view.getImagesPane().setSelection(new Boolean(false));
+        view.getRemoveButton().setEnabled(true);
+		view.getImagesPane().setSelection(Boolean.FALSE);
 	}
 
 	/** Remove the selected images from the queue of images to add. */
@@ -327,20 +291,21 @@ class DatasetEditorManager
 
 	
 	/** Require by I/F. */
-	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
+	public void changedUpdate(DocumentEvent e)
+    { 
+        view.getSaveButton().setEnabled(true); 
+    }
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Indicates that the name has been modified. */

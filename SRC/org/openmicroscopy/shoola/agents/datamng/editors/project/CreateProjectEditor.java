@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.CreateProjectEditor
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -46,6 +46,7 @@ import javax.swing.JTextArea;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.agents.datamng.editors.controls.CreateBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -71,7 +72,7 @@ public class CreateProjectEditor
 	private Registry 					registry;
 	private CreateProjectPane 			creationPane;
 	private CreateProjectDatasetsPane	datasetsPane;
-	private CreateProjectEditorBar		bar;
+	private CreateBar		            bar;
 	private CreateProjectEditorManager	manager;
 	
 	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
@@ -81,9 +82,9 @@ public class CreateProjectEditor
 		this.registry = registry;
 		manager = new CreateProjectEditorManager(this, control, model,
 												datasets);
-		creationPane = new CreateProjectPane(manager);
+		creationPane = new CreateProjectPane();
 		datasetsPane = new CreateProjectDatasetsPane(manager);
-		bar = new CreateProjectEditorBar();
+		bar = new CreateBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
@@ -95,26 +96,26 @@ public class CreateProjectEditor
 	CreateProjectEditorManager getManager() { return manager; }
 	
 	/** Returns the TextArea displayed in {@link CreateProjectPane}. */
-	JTextArea getDescriptionArea() { return creationPane.getDescriptionArea(); }
+	JTextArea getDescriptionArea() { return creationPane.descriptionArea; }
 
 	/** Returns the textfield displayed in {@link CreateProjectPane}. */
-	JTextArea getNameField() { return creationPane.getNameField(); }
+	JTextArea getNameArea() { return creationPane.nameArea; }
 	
 	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+	JButton getSaveButton() { return bar.getSave(); }
 	
 	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.getCancel(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	JButton getSelectButton() { return datasetsPane.getSelectButton(); }
+	JButton getSelectButton() { return datasetsPane.selectButton; }
 	
 	/** 
 	 * Returns the reset button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	JButton getResetButton() { return datasetsPane.getResetButton(); }
+	JButton getResetButton() { return datasetsPane.resetButton; }
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
 	void selectAll()

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetOwnerPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetOwnerPane
  *
  *------------------------------------------------------------------------------
  *

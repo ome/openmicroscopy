@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageWavesPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageWavesPane
  *
  *------------------------------------------------------------------------------
  *

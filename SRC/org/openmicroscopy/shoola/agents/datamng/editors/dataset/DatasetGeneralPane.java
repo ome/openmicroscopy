@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetGeneralPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetGeneralPane
  *
  *------------------------------------------------------------------------------
  *
@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -67,21 +68,15 @@ class DatasetGeneralPane
 	extends JPanel
 {
 	
-	private DatasetEditorManager	manager;
+	private DatasetEditorManager       manager;
 
-	private MultilineLabel			descriptionArea, nameField;
+	MultilineLabel                     descriptionArea, nameArea;
 	
 	DatasetGeneralPane(DatasetEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
 	}
-
-	/** Returns the TextArea with the project's description. */
-	MultilineLabel getDescriptionArea() { return descriptionArea; }
-
-	/** Returns the textfield with project's name. */
-	MultilineLabel getNameField() { return nameField; }
 
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -122,23 +117,24 @@ class DatasetGeneralPane
 		DatasetData pd = manager.getDatasetData();
 	
 		//textfields
-		nameField = new MultilineLabel(pd.getName());
-		nameField.setForeground(DataManagerUIF.STEELBLUE);
-		nameField.setEditable(true);
-		JScrollPane scrollPaneName = new JScrollPane(nameField);
-		scrollPaneName.setPreferredSize(DataManagerUIF.DIM_SCROLL_NAME);
-		table.setValueAt(scrollPaneName, 0, 1); 
-
+		nameArea = new MultilineLabel(pd.getName());
+		nameArea.setForeground(DataManagerUIF.STEELBLUE);
+		nameArea.setEditable(true);
+		table.setValueAt(buildScrollPane(nameArea), 0, 1); 
 		descriptionArea = new MultilineLabel(pd.getDescription());
 		descriptionArea.setForeground(DataManagerUIF.STEELBLUE);
 		descriptionArea.setEditable(true);
-		JScrollPane scrollPane = new JScrollPane(descriptionArea);
-		scrollPane.setPreferredSize(DataManagerUIF.DIM_SCROLL_TABLE);
-		table.setValueAt(scrollPane, 1, 1);
-				
+		table.setValueAt(buildScrollPane(descriptionArea), 1, 1);	
 		return table;
 	}
 	
+    private JScrollPane buildScrollPane(JTextArea area)
+    {
+        JScrollPane scrollPane  = new JScrollPane(area);
+        scrollPane.setPreferredSize(DataManagerUIF.DIM_SCROLL_TABLE);
+        return scrollPane;
+    }
+    
 	/** Set the table layout. */
 	private void setTableLayout(TableComponent table)
 	{

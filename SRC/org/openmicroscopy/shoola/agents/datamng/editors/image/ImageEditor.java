@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageEditor
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -93,16 +93,16 @@ public class ImageEditor
 	}
 	
 	/** Returns the save button displayed in {@link ImageEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+	JButton getSaveButton() { return bar.saveButton; }
 
 	/** Returns the cancel button displayed in {@link ImageEditorBar}. */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
-	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
+	JTextArea getDescriptionArea() { return generalPane.descriptionArea; }
 
 	/** Returns the textfield displayed in {@link ImageGeneralPane}. */
-	JTextArea getNameField() { return generalPane.getNameField(); }
+	JTextArea getNameField() { return generalPane.nameField; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()

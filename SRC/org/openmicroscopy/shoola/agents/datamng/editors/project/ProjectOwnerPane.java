@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectOwnerTab
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectOwnerPane
  *
  *------------------------------------------------------------------------------
  *

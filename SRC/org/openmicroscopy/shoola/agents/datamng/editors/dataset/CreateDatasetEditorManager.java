@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.CreateDatasetEditorManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditorManager
  *
  *------------------------------------------------------------------------------
  *
@@ -89,30 +89,6 @@ public class CreateDatasetEditorManager
 	/** List of projects to be added to. */
 	private List					projectsToAdd;
 	
-	/** Cancel button displayed in the {@link CreateDatasetEditorBar}. */
-	private JButton 				cancelButton;
-	
-	/** Select button displayed in the {@link CreateDatasetEditorBar}. */
-	private JButton 				saveButton;
-	
-	/** Select button displayed in the {@link CreateDatasetProjectsPane}. */
-	private JButton 				selectButton;
-	
-	/** Reset button displayed in the {@link CreateDatasetProjectsPane}. */
-	private JButton 				resetProjectButton;
-	
-	/** Select button displayed in the {@link CreateDatasetImagesPane}. */
-	private JButton					selectImageButton;
-	
-	/** Reset button displayed in the {@link CreateDatasetImagesPane}. */
-	private JButton					resetImageButton;
-	
-	/** textArea displayed in the {@link CreateDatasetPane}. */
-	private JTextArea				descriptionArea;
-	
-	/** text field displayed in the {@link CreateDatasetPane}. */
-	private JTextArea				nameField;
-		
 	private boolean					isName;
 	
 	public CreateDatasetEditorManager(CreateDatasetEditor view, 
@@ -141,22 +117,18 @@ public class CreateDatasetEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
-		saveButton = view.getSaveButton();
-        attachButtonListener(saveButton, SAVE);
-		cancelButton = view.getCancelButton();
-        attachButtonListener(cancelButton, CANCEL);
-		selectButton = view.getSelectButton();
-        attachButtonListener(selectButton, SELECT_PROJECT);
-		resetProjectButton = view.getResetProjectButton();
-        attachButtonListener(resetProjectButton, RESET_SELECTION_PROJECT);
-		selectImageButton = view.getSelectImageButton();
-        attachButtonListener(selectImageButton, SELECT_IMAGE);
-		resetImageButton = view.getResetImageButton();
-        attachButtonListener(resetImageButton, RESET_SELECTION_IMAGE);
-		nameField = view.getNameField();
+        attachButtonListener(view.getSaveButton(), SAVE);
+        attachButtonListener(view.getCancelButton(), CANCEL);
+        attachButtonListener(view.getSelectButton(), SELECT_PROJECT);
+        attachButtonListener(view.getResetProjectButton(), 
+                            RESET_SELECTION_PROJECT);
+        attachButtonListener(view.getSelectImageButton(), SELECT_IMAGE);
+        attachButtonListener(view.getResetImageButton(), 
+                                RESET_SELECTION_IMAGE);
+		JTextArea nameField = view.getNameArea();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
-		descriptionArea = view.getDescriptionArea();
+		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
@@ -233,8 +205,8 @@ public class CreateDatasetEditorManager
 	 */
 	private void save()
 	{
-		model.setDescription(descriptionArea.getText());
-		model.setName(nameField.getText());
+		model.setDescription(view.getDescriptionArea().getText());
+		model.setName(view.getNameArea().getText());
 		//update tree and forward event to DB.
 		//forward event to DataManager.
 		control.addDataset(projectsToAdd, imagesToAdd, model);
@@ -246,13 +218,13 @@ public class CreateDatasetEditorManager
 	private void selectProject()
 	{
 		view.selectAllProjects();
-		selectButton.setEnabled(false);
+		view.getSelectButton().setEnabled(false);
 	}
 
 	/** Cancel selection of projects. */
 	private void resetSelectionProject()
 	{
-		selectButton.setEnabled(true);
+        view.getSelectButton().setEnabled(true);
 		view.resetSelectionProject();
 	}
 	
@@ -260,32 +232,32 @@ public class CreateDatasetEditorManager
 	private void selectImage()
 	{
 		view.selectAllImages();
-		selectButton.setEnabled(false);
+		view.getSelectButton().setEnabled(false);
 	}
 
 	/** Cancel selection of images. */
 	private void resetSelectionImage()
 	{
-		selectButton.setEnabled(true);
+        view.getSelectButton().setEnabled(true);
 		view.resetSelectionImage();
 	}
 	
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)
 	{ 
-		if (isName) saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(isName);
 	}
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		if (isName) saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (isName) saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Tells that the name has been modified. */

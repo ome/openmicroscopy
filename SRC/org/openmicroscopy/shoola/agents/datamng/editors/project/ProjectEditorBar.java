@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectEditorBar
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditorBar
  *
  *------------------------------------------------------------------------------
  *
@@ -64,7 +64,7 @@ class ProjectEditorBar
 	extends JToolBar	
 {
 
-	private JButton					saveButton, cancelButton, addButton;
+	JButton					saveButton, cancelButton, addButton;
 	
 	ProjectEditorBar()
 	{
@@ -72,15 +72,6 @@ class ProjectEditorBar
 		buildGUI();
 		setFloatable(false);
 	}
-
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
-	
-	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
-	
-	/** Returns the add button. */
-	JButton getAddButton() { return addButton; }
 	
 	/** Initializes the buttons. */
 	private void initButtons()

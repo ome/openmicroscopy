@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectDatasetsDiffPaneManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectDatasetsDiffPaneManager
  *
  *------------------------------------------------------------------------------
  *
@@ -74,8 +74,6 @@ class ProjectDatasetsDiffPaneManager
 	
 	private ProjectEditorManager		control;
 	
-	private JButton						cancelButton, selectButton, saveButton;
-	
 	private List						datasetsDiff;
 	
 	ProjectDatasetsDiffPaneManager(ProjectDatasetsDiffPane view, 
@@ -94,12 +92,9 @@ class ProjectDatasetsDiffPaneManager
 	/** Attach the listeners. */
 	private void attachListeners()
 	{
-		selectButton = view.getSelectButton();
-        attachButtonListener(selectButton, ALL);
-		cancelButton = view.getCancelButton();
-        attachButtonListener(cancelButton, CANCEL);
-		saveButton = view.getSaveButton();
-		attachButtonListener(saveButton, SAVE);
+        attachButtonListener(view.selectButton, ALL);
+        attachButtonListener(view.cancelButton, CANCEL);
+		attachButtonListener(view.saveButton, SAVE);
 	}
 
     private void attachButtonListener(JButton button, int id)
@@ -136,9 +131,9 @@ class ProjectDatasetsDiffPaneManager
 	/** Set the buttons enabled. */
 	void buttonsEnabled(boolean b)
 	{
-		selectButton.setEnabled(b);
-		cancelButton.setEnabled(b);
-		saveButton.setEnabled(b);
+		view.selectButton.setEnabled(b);
+		view.cancelButton.setEnabled(b);
+		view.saveButton.setEnabled(b);
 	}
 	
 	/** 
@@ -173,15 +168,15 @@ class ProjectDatasetsDiffPaneManager
 	/** Select All datasets.*/
 	private void selectAll()
 	{
-		selectButton.setEnabled(false);
-		view.setSelection(new Boolean(true));
+		view.selectButton.setEnabled(false);
+		view.setSelection(Boolean.TRUE);
 	}
 	
 	/** Cancel the selection. */
 	private void cancelSelection()
 	{
-		selectButton.setEnabled(true);
-		view.setSelection(new Boolean(false));
+		view.selectButton.setEnabled(true);
+		view.setSelection(Boolean.FALSE);
 	}
 	
 }

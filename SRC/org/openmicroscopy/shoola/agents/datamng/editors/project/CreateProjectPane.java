@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectCreationPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectCreationPane
  *
  *------------------------------------------------------------------------------
  *
@@ -38,13 +38,13 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
@@ -67,28 +67,13 @@ import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 class CreateProjectPane
 	extends JPanel
 {
-
-	private CreateProjectEditorManager 	manager;
 	
-	private MultilineLabel				nameField, descriptionArea;
+	MultilineLabel                         nameArea, descriptionArea;
 	
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param manager
-	 * @param registry
-	 */
-	CreateProjectPane(CreateProjectEditorManager manager) 
+	CreateProjectPane() 
 	{
-		this.manager = manager;
 		buildGUI();
 	}
-
-	/** Returns the TextArea with the project's description. */
-	MultilineLabel getDescriptionArea() { return descriptionArea; }
-
-	/** Returns the textfield with project's name. */
-	MultilineLabel getNameField() { return nameField; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -125,26 +110,27 @@ class CreateProjectPane
 		table.setValueAt(new JLabel(" Name"), 0, 0);
 		table.setValueAt(new JLabel(" Description"), 1, 0);
 
-		ProjectData pd = manager.getProjectData();
 		//textfields
-		nameField = new MultilineLabel(pd.getName());
-		nameField.setForeground(DataManagerUIF.STEELBLUE);
-		nameField.setEditable(true);
-		JScrollPane scrollPaneName  = new JScrollPane(nameField);
-		scrollPaneName.setPreferredSize(DataManagerUIF.DIM_SCROLL_NAME);
-		table.setValueAt(scrollPaneName, 0, 1); 
+		nameArea = new MultilineLabel("");
+		nameArea.setForeground(DataManagerUIF.STEELBLUE);
+		nameArea.setEditable(true);
+		table.setValueAt(buildScrollPane(nameArea), 0, 1); 
 
-		descriptionArea = new MultilineLabel(pd.getDescription());
+		descriptionArea = new MultilineLabel("");
 		descriptionArea.setForeground(DataManagerUIF.STEELBLUE);
 		descriptionArea.setEditable(true);
-		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
-		scrollPane.setPreferredSize(DataManagerUIF.DIM_SCROLL_TABLE);
-
-		// Scrollbar
-		table.setValueAt(scrollPane, 1, 1);
+		
+		table.setValueAt(buildScrollPane(descriptionArea), 1, 1);
 		return table;
 	}
 
+    private JScrollPane buildScrollPane(JTextArea area)
+    {
+        JScrollPane scrollPane  = new JScrollPane(area);
+        scrollPane.setPreferredSize(DataManagerUIF.DIM_SCROLL_TABLE);
+        return scrollPane;
+    }
+    
 	/** Set the tablelayout. */
 	private void setTableLayout(TableComponent table)
 	{

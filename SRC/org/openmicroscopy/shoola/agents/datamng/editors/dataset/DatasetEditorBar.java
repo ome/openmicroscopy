@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetEditorBar
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditorBar
  *
  *------------------------------------------------------------------------------
  *
@@ -65,7 +65,7 @@ class DatasetEditorBar
 	extends JToolBar
 {
 
-	private JButton					saveButton, cancelButton, addButton;
+	JButton					saveButton, cancelButton, addButton;
 	
 	DatasetEditorBar()
 	{
@@ -73,15 +73,6 @@ class DatasetEditorBar
 		buildGUI();
 		setFloatable(false);
 	}
-
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
-	
-	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
-	
-	/** Returns the add button. */
-	JButton getAddButton() { return addButton; }
 	
 	/** Initializes the buttons. */
 	private void initButtons()

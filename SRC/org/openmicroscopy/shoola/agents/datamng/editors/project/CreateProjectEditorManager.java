@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.CreateProjectEditorManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditorManager
  *
  *------------------------------------------------------------------------------
  *
@@ -85,24 +85,6 @@ public class CreateProjectEditorManager
 	/** List of datasets to be added. */
 	private List					datasetsToAdd;
 	
-	/** Cancel button displayed in the {@link CreateProjectEditorBar}. */
-	private JButton 				cancelButton;
-	
-	/** Select button displayed in the {@link CreateProjectEditorBar}. */
-	private JButton 				saveButton;
-	
-	/** Select button displayed in the {@link CreateProjectDatasetsPane}. */
-	private JButton 				selectButton;
-	
-	/** Reset button displayed in the {@link CreateProjectDatasetsPane}. */
-	private JButton 				resetButton;
-	
-	/** textArea displayed in the {@link CreateProjectPane}. */
-	private JTextArea				descriptionArea;
-	
-	/** text area displayed in the {@link CreateProjectPane}. */
-	private JTextArea				nameField;
-	
 	/** 
 	* <code>true</code> if the textField displaying the name has been 
 	* selected, <code>false</code> toherwise.
@@ -137,19 +119,14 @@ public class CreateProjectEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
-		saveButton = view.getSaveButton();
-        attachButtonListener(saveButton, SAVE);
-		cancelButton = view.getCancelButton();
-        attachButtonListener(cancelButton, CANCEL);
-		
-		selectButton = view.getSelectButton();
-        attachButtonListener(selectButton, SELECT);
-		resetButton = view.getResetButton();
-        attachButtonListener(resetButton, RESET);
-		nameField = view.getNameField();
+        attachButtonListener(view.getSaveButton(), SAVE);
+        attachButtonListener(view.getCancelButton(), CANCEL);
+        attachButtonListener(view.getSelectButton(), SELECT);
+        attachButtonListener(view.getResetButton(), RESET);
+		JTextArea nameField = view.getNameArea();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
-		descriptionArea = view.getDescriptionArea();
+		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
@@ -207,8 +184,8 @@ public class CreateProjectEditorManager
 	 */
 	private void save()
 	{
-		model.setDescription(descriptionArea.getText());
-		model.setName(nameField.getText());
+		model.setDescription(view.getDescriptionArea().getText());
+		model.setName(view.getNameArea().getText());
 		model.setDatasets(datasetsToAdd);
 		//update tree and forward event to DB.
 		//forward event to DataManager.
@@ -221,32 +198,32 @@ public class CreateProjectEditorManager
 	private void select()
 	{
 		view.selectAll();
-		selectButton.setEnabled(false);
+		view.getSelectButton().setEnabled(false);
 	}
 	
 	/** Cancel selection. */
 	private void resetSelection()
 	{
-		selectButton.setEnabled(true);
+        view.getSelectButton().setEnabled(true);
 		view.cancelSelection();
 	}
 	
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e) 
 	{
-		if (isName) saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		if (isName) saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (isName) saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Indicates that the name has been modified. */

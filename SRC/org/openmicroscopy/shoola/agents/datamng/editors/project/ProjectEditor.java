@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.ps.PropertySheet
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -66,10 +66,10 @@ public class ProjectEditor
 {	
 	
 	/** ID to position the components. */
-	static final int		POS_MAIN = 0, POS_DATASET = 1, POS_OWNER = 2;
+	static final int               POS_MAIN = 0, POS_DATASET = 1, POS_OWNER = 2;
 									
 	/** Reference to the manager. */
-	private ProjectEditorManager 	manager;
+	private ProjectEditorManager   manager;
 	
 	/** Reference to the registry. */
 	private Registry				registry;
@@ -101,34 +101,31 @@ public class ProjectEditor
 	ProjectDatasetsPane getDatasetsPane() { return datasetsPane; }
 	
 	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
-	JButton getAddButton() { return bar.getAddButton(); }
+	JButton getAddButton() { return bar.addButton; }
 	
 	/**  Returns the save button displayed {@link ProjectEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+	JButton getSaveButton() { return bar.saveButton; }
 	
 	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the remove button displayed in {@link ProjectDatasetsPane}. */
-	JButton getRemoveButton() { return datasetsPane.getRemoveButton(); }
+	JButton getRemoveButton() { return datasetsPane.removeButton; }
 	
 	/** Returns the cancel button displayed in {@link ProjectDatasetsPane}. */
-	JButton getResetButton() { return datasetsPane.getResetButton(); }
+	JButton getResetButton() { return datasetsPane.resetButton; }
 
 	/** Return the remove button. */
-	JButton getRemoveToAddButton()
-	{ 
-		return datasetsPane.getRemoveToAddButton();
-	}
+	JButton getRemoveToAddButton() { return datasetsPane.removeToAddButton; }
 	
 	/** Return the reset button. */
-	JButton getResetToAddButton() {return datasetsPane.getResetToAddButton(); }
+	JButton getResetToAddButton() {return datasetsPane.resetToAddButton; }
 	
 	/** Returns the TextArea displayed in {@link ProjectGeneralPane}. */
-	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
+	JTextArea getDescriptionArea() { return generalPane.descriptionArea; }
 
 	/** Returns the textfield displayed in {@link ProjectGeneralPane}. */
-	JTextArea getNameField() { return generalPane.getNameField(); }
+	JTextArea getNameField() { return generalPane.nameField; }
 	
 	/** 
 	 * Set the selected tab.

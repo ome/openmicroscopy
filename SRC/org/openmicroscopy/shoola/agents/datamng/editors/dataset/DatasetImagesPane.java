@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetImagesPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetImagesPane
  *
  *------------------------------------------------------------------------------
  *
@@ -75,15 +75,15 @@ class DatasetImagesPane
 {
 						
 	/** Reference to the manager. */
-	private DatasetEditorManager 			manager;
+	private DatasetEditorManager           manager;
 	
-	private JButton							removeButton, resetButton, 
-											removeToAddButton, resetToAddButton;
+	JButton                                removeButton, resetButton, 
+	                                       removeToAddButton, resetToAddButton;
 	
-	private JPanel							tablePanel, buttonsPanel,
-											buttonsToAddPanel;
+	private JPanel                         tablePanel, buttonsPanel,
+                                            buttonsToAddPanel;
 	
-	private ImagesTableModel 				imagesTM;
+	private ImagesTableModel               imagesTM;
 
 	
 	DatasetImagesPane(DatasetEditorManager manager)
@@ -91,18 +91,6 @@ class DatasetImagesPane
 		this.manager = manager;
 		buildGUI();
 	}
-
-	/** Return the removeToAdd button. */
-	JButton getRemoveToAddButton() { return removeToAddButton; }
-
-	/** Return the resetToAdd button. */
-	JButton getResetToAddButton() { return resetToAddButton;}
-	
-	/** Return the remove button. */
-	JButton getRemoveButton() { return removeButton; }
-
-	/** Return the cancel button. */
-	JButton getResetButton() { return resetButton;}
 	
 	/** Select or not all images. */
 	void setSelection(Object val)
@@ -241,7 +229,7 @@ class DatasetImagesPane
 		TableComponent table = new TableComponent(1, 2);
 		setTableLayout(table);
 		//First row.
-		JLabel label = new JLabel(" Images to add");
+		JLabel label = UIUtilities.setTextFont(" Images to add");
 		table.setValueAt(label, 0, 0);
 		label = new JLabel("");
 		table.setValueAt(label, 0, 1);

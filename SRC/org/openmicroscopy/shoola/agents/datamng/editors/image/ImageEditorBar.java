@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageEditorBar
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditorBar
  *
  *------------------------------------------------------------------------------
  *
@@ -64,7 +64,7 @@ class ImageEditorBar
 	extends JToolBar	
 {
 	
-	private JButton					saveButton, cancelButton;
+	JButton					saveButton, cancelButton;
 	
 	ImageEditorBar()
 	{
@@ -72,13 +72,7 @@ class ImageEditorBar
 		buildGUI();
 		setFloatable(false);
 	}
-
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
-	
-	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
-	
+    
 	/** Initializes the buttons. */
 	private void initButtons()
 	{

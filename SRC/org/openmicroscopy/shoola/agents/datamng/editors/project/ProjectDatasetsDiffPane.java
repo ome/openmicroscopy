@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectDatasetsDiffPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectDatasetsDiffPane
  *
  *------------------------------------------------------------------------------
  *
@@ -75,10 +75,9 @@ class ProjectDatasetsDiffPane
 	extends JDialog
 {
 
-	/** Action id. */
-	private static final int				NAME = 0, SELECT = 1;
+	private static final int               NAME = 0, SELECT = 1;
 			
-	protected static final String[]			columnNames;
+	protected static final String[]        columnNames;
 	
 	static {
 		columnNames  = new String[2];
@@ -86,7 +85,7 @@ class ProjectDatasetsDiffPane
 		columnNames[SELECT] = "Select";
 	}
 
-	private JButton							selectButton, cancelButton, 
+	JButton							        selectButton, cancelButton, 
 											saveButton;
 											
 	private DatasetsTableModel 				datasetsTM;
@@ -100,13 +99,10 @@ class ProjectDatasetsDiffPane
 	
 	private JPanel							contents;
 	
-	private IconManager						im;
-	
 	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
 	{
 		super(control.getView(), "List of existing datasets", true);
 		this.control = control;
-		im = IconManager.getInstance(control.getView().getRegistry());
 		initButtons(datasetsDiff);
 		manager = new ProjectDatasetsDiffPaneManager(this, control, 
 													datasetsDiff);
@@ -119,16 +115,7 @@ class ProjectDatasetsDiffPane
 	ProjectDatasetsDiffPaneManager getManager() { return manager; }
 	
 	JPanel getContents() { return contents; }
-	
-	/** Return select button. */
-	JButton getSelectButton() { return selectButton; }
-	
-	/** Return select button. */
-	JButton getCancelButton() { return cancelButton; }
-	
-	/** Return select button. */
-	JButton getSaveButton() { return saveButton; }
-	
+    
 	/** Select or not all datasets. */
 	void setSelection(Object val)
 	{
@@ -170,6 +157,8 @@ class ProjectDatasetsDiffPane
 	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
+        IconManager im = 
+            IconManager.getInstance(control.getView().getRegistry());
 		TitlePanel tp = new TitlePanel(" Add datasets", 
 								"  Select datasets to add to the project.", 
 							im.getIcon(IconManager.DATASET_BIG));

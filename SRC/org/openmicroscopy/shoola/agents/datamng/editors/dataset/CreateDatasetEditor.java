@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.CreateDatasetEditor
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -45,6 +45,7 @@ import javax.swing.JTextArea;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.agents.datamng.editors.controls.CreateBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -68,12 +69,12 @@ public class CreateDatasetEditor
 	extends JDialog
 {	
 
-	private Registry 					registry;
-	private CreateDatasetPane 			creationPane;
-	private CreateDatasetProjectsPane	projectsPane;
-	private CreateDatasetImagesPane		imagesPane;
-	private CreateDatasetEditorBar		bar;
-	private CreateDatasetEditorManager	manager;
+	private Registry                       registry;
+	private CreateDatasetPane              creationPane;
+	private CreateDatasetProjectsPane      projectsPane;
+	private CreateDatasetImagesPane        imagesPane;
+	private CreateBar                      bar;
+	private CreateDatasetEditorManager     manager;
 	
 	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
 								DatasetData model, List projects, List images)
@@ -82,10 +83,10 @@ public class CreateDatasetEditor
 		this.registry = registry;
 		manager = new CreateDatasetEditorManager(this, control, model, projects,
 												images);
-		creationPane = new CreateDatasetPane(manager);
+		creationPane = new CreateDatasetPane();
 		projectsPane = new CreateDatasetProjectsPane(manager);
 		imagesPane = new CreateDatasetImagesPane(manager);
-		bar = new CreateDatasetEditorBar();
+		bar = new CreateBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManagerUIF.EDITOR_WIDTH+100, DataManagerUIF.EDITOR_HEIGHT);
@@ -97,38 +98,38 @@ public class CreateDatasetEditor
 	CreateDatasetEditorManager getManager() { return manager; }
 	
 	/** Returns the TextArea displayed in {@link CreateDatasetPane}. */
-	JTextArea getDescriptionArea() { return creationPane.getDescriptionArea(); }
+	JTextArea getDescriptionArea() { return creationPane.descriptionArea; }
 
 	/** Returns the textArea displayed in {@link CreateDatasetPane}. */
-	JTextArea getNameField() { return creationPane.getNameField(); }
+	JTextArea getNameArea() { return creationPane.nameArea; }
 	
 	/** Returns the save button displayed in {@link CreateDatasetEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+	JButton getSaveButton() { return bar.getSave(); }
 
 	/** 
 	 * Returns the cancel button displayed in 
 	 * {@link CreateDatasetEditorBar}.
 	 */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.getCancel(); }
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetProjectsPane}.
 	 */
-	JButton getSelectButton() { return projectsPane.getSelectButton(); }
+	JButton getSelectButton() { return projectsPane.selectButton; }
 
 	/** 
 	 * Returns the reset button displayed in {@link CreateDatasetProjectsPane}.
 	 */
-	JButton getResetProjectButton() { return projectsPane.getResetButton(); }
+	JButton getResetProjectButton() { return projectsPane.resetButton; }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetImagesPane}.
 	 */
-	JButton getSelectImageButton() { return imagesPane.getSelectButton(); }
+	JButton getSelectImageButton() { return imagesPane.selectButton; }
 
 	/** 
 	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
 	 */
-	JButton getResetImageButton() { return imagesPane.getResetButton(); }
+	JButton getResetImageButton() { return imagesPane.resetButton; }
 	
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
 	void selectAllProjects()

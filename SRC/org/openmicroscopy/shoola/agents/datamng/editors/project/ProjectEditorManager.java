@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectEditorManager
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditorManager
  *
  *------------------------------------------------------------------------------
  *
@@ -95,36 +95,6 @@ class ProjectEditorManager
 	/** List of selected datasets to be added that have to be removed. */
 	private List					datasetsToAddToRemove;
 	
-	/** Cancel button displayed in the {@link ProjectEditorBar}. */
-	private JButton 				cancelButton;
-		
-	/** Save button displayed in the {@link ProjectEditorBar}. */
-	private JButton 				saveButton;
-	
-	/** Remove button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 				removeButton;
-	
-	/** Reset button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 				resetButton;
-	
-	/** Reset button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 				resetToAddButton;
-	
-	/**  
-	 * Remove button displayed in the {@link ProjectDatasetsPane}. 
-	 * Remove the selected datasets from the list of datasets to add.
-	 */
-	private JButton 				removeToAddButton;	
-	
-	/** Add button displayed in the {@link ProjectEditorBar}. */
-	private JButton 				addButton;
-	
-	/** textArea displayed in the {@link ProjectGeneralPane}. */
-	private JTextArea				descriptionArea;
-	
-	/** text field displayed in the {@link ProjectGeneralPane}. */
-	private JTextArea				nameField;
-	
 	private boolean					nameChange, isName;
 	
 	private ProjectDatasetsDiffPane	dialog;
@@ -154,26 +124,19 @@ class ProjectEditorManager
 	void initListeners()
 	{
 		//buttons
-		saveButton = view.getSaveButton();
-        attachButtonListener(saveButton, SAVE);
-		addButton = view.getAddButton();
-        attachButtonListener(addButton, ADD);
-		cancelButton = view.getCancelButton();
-        attachButtonListener(cancelButton, CANCEL);
-		removeButton = view.getRemoveButton();
-        attachButtonListener(removeButton, REMOVE);
-		resetButton = view.getResetButton();
-        attachButtonListener(resetButton, RESET);
-		removeToAddButton = view.getRemoveToAddButton();
-        attachButtonListener(removeToAddButton, REMOVE_ADDED);
-		resetToAddButton = view.getResetToAddButton();
-        attachButtonListener(resetToAddButton, RESET_ADDED);	
+        attachButtonListener(view.getSaveButton(), SAVE);
+        attachButtonListener(view.getAddButton(), ADD);
+        attachButtonListener(view.getCancelButton(), CANCEL);
+        attachButtonListener(view.getRemoveButton(), REMOVE);
+        attachButtonListener(view.getResetButton(), RESET);
+        attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
+        attachButtonListener(view.getResetToAddButton(), RESET_ADDED);	
         
 		//text fields.
-		nameField = view.getNameField();
+        JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
-		descriptionArea = view.getDescriptionArea();
+		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
@@ -222,7 +185,7 @@ class ProjectEditorManager
 		}
 		view.setSelectedPane(ProjectEditor.POS_DATASET);
 		UIUtilities.centerAndShow(dialog);
-		saveButton.setEnabled(true);	
+		view.getSaveButton().setEnabled(true);	
 	}
 	
 	/** Add the list of selected datasets to the {@link ProjectDatasetPane}. */
@@ -268,7 +231,7 @@ class ProjectEditorManager
 		if (value){
 			 if (!datasetsToRemove.contains(ds)) datasetsToRemove.add(ds); 
 		} else 	datasetsToRemove.remove(ds);
-		saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(true);
 	}
 	
 	/** Close the widget, doesn't save changes. */
@@ -281,8 +244,8 @@ class ProjectEditorManager
 	/** Save in DB. */
 	private void save()
 	{
-		model.setDescription(descriptionArea.getText());
-		model.setName(nameField.getText());
+		model.setDescription(view.getDescriptionArea().getText());
+		model.setName(view.getNameField().getText());
 		control.updateProject(model, datasetsToRemove, datasetsToAdd, 
 							nameChange);
 		view.dispose();
@@ -291,15 +254,15 @@ class ProjectEditorManager
 	/** Select All datasets.*/
 	private void remove()
 	{
-		view.getDatasetsPane().setSelection(new Boolean(true));
-		removeButton.setEnabled(false);
+		view.getDatasetsPane().setSelection(Boolean.TRUE);
+		view.getRemoveButton().setEnabled(false);
 	}
 	
 	/** Reset the default i.e. no dataset selected. */
 	private void resetSelection()
 	{
-		removeButton.setEnabled(true);
-		view.getDatasetsPane().setSelection(new Boolean(false));
+        view.getRemoveButton().setEnabled(true);
+		view.getDatasetsPane().setSelection(Boolean.FALSE);
 	}
 
 	/** Remove the selected datasets from the queue of datasets to add. */
@@ -307,7 +270,6 @@ class ProjectEditorManager
 	{
 		Iterator i = datasetsToAddToRemove.iterator();
 		DatasetSummary ds;
-	
 		while (i.hasNext()) {
 			ds = (DatasetSummary) i.next();
 			datasetsToAdd.remove(ds);
@@ -329,21 +291,19 @@ class ProjectEditorManager
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)
 	{
-		saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(true);
 	}
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+		view.getSaveButton().setEnabled(isName);
 	}
 	
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (isName) nameChange = true;
-		saveButton.setEnabled(true);
+        view.getSaveButton().setEnabled(isName);
 	}
 
 	/** Tells that the name has been modified. */

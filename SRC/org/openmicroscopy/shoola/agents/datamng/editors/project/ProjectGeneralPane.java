@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectGeneralTab
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectGeneralPane
  *
  *------------------------------------------------------------------------------
  *
@@ -68,9 +68,9 @@ class ProjectGeneralPane
 {
 	
 	/** Reference to the manager. */
-	private ProjectEditorManager	manager;
+	private ProjectEditorManager   manager;
 	
-	private MultilineLabel			descriptionArea, nameField;
+	MultilineLabel                 descriptionArea, nameField;
 	
 	/** Creates a new instance. */
 	ProjectGeneralPane(ProjectEditorManager manager)
@@ -78,12 +78,6 @@ class ProjectGeneralPane
 		this.manager = manager;
 		buildGUI();
 	}
-	
-	/** Returns the TextArea with the project's description. */
-	MultilineLabel getDescriptionArea() { return descriptionArea; }
-
-	/** Returns the textfield with project's name. */
-	MultilineLabel getNameField() { return nameField; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()

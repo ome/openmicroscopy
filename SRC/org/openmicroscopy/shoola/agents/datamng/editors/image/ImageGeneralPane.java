@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageGeneralPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageGeneralPane
  *
  *------------------------------------------------------------------------------
  *
@@ -67,21 +67,15 @@ class ImageGeneralPane
 	extends JPanel
 {
 
-	private ImageEditorManager 		manager;
+	private ImageEditorManager     manager;
 	
-	private MultilineLabel			descriptionArea, nameField;
+	MultilineLabel                 descriptionArea, nameField;
 	
 	ImageGeneralPane(ImageEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
 	}
-	
-	/** Returns the TextArea with the project's description. */
-	MultilineLabel getDescriptionArea() { return descriptionArea; }
-
-	/** Returns the textfield with project's name. */
-	MultilineLabel getNameField() { return nameField; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()

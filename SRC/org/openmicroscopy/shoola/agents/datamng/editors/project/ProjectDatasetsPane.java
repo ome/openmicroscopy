@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ProjectDatasetsTab
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectDatasetsPane
  *
  *------------------------------------------------------------------------------
  *
@@ -76,35 +76,23 @@ class ProjectDatasetsPane
 {
 	
 	/** Reference to the manager. */
-	private ProjectEditorManager			manager;
+	private ProjectEditorManager       manager;
 
-	private JButton							removeButton, resetButton, 
-											removeToAddButton, resetToAddButton;
+	JButton                            removeButton, resetButton, 
+                                        removeToAddButton, resetToAddButton;
 	
-	private JPanel							buttonsPanel, tablePanel, 
-											buttonsToAddPanel;
+	private JPanel                     buttonsPanel, tablePanel, 
+                                        buttonsToAddPanel;
 	
-	private DatasetsTableModel 				datasetsTM;
+	private DatasetsTableModel         datasetsTM;
 	
-	private List							listDatasets;
+	private List                       listDatasets;
 	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
 	}
-
-	/** Return the remove button. */
-	JButton getRemoveButton() { return removeButton; }
-	
-	/** Return the reset button. */
-	JButton getResetButton() { return resetButton; }
-	
-	/** Return the remove button. */
-	JButton getRemoveToAddButton() { return removeToAddButton; }
-	
-	/** Return the reset button. */
-	JButton getResetToAddButton() { return resetToAddButton; }
 	
 	/** Select or not all datasets. */
 	void setSelection(Object val)
@@ -170,7 +158,7 @@ class ProjectDatasetsPane
 		controls.add(removeButton);
 		controls.setOpaque(false); //make panel transparent
 		
-		if ( listDatasets== null || listDatasets.size() == 0) {
+		if (listDatasets == null || listDatasets.size() == 0) {
 			removeButton.setEnabled(false);
 			resetButton.setEnabled(false);
 		}
@@ -252,7 +240,7 @@ class ProjectDatasetsPane
 		TableComponent table = new TableComponent(1, 2);
 		setTableLayout(table);
 		//First row.
-		JLabel label = new JLabel(" Datasets to add");
+		JLabel label = UIUtilities.setTextFont(" Datasets to add");
 		table.setValueAt(label, 0, 0);
 		label = new JLabel("");
 		table.setValueAt(label, 0, 1);

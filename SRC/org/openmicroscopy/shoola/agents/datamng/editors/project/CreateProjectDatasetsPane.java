@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.CreateProjectDatasetsPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectDatasetsPane
  *
  *------------------------------------------------------------------------------
  *
@@ -76,9 +76,9 @@ class CreateProjectDatasetsPane
 {
 	
 	/** Action id. */
-	private static final int				NAME = 0, SELECT = 1;
+	private static final int               NAME = 0, SELECT = 1;
 		
-	protected static final String[]			columnNames;
+	protected static final String[]        columnNames;
 
 	static {
 		columnNames  = new String[2];
@@ -87,25 +87,19 @@ class CreateProjectDatasetsPane
 	}
 	
 	/** Reference to the manager. */
-	private CreateProjectEditorManager		manager;
+	private CreateProjectEditorManager     manager;
 
-	private JButton							selectButton, resetButton;
+	JButton                                selectButton, resetButton;
 	
-	private DatasetsTableModel 				datasetsTM;
+	private DatasetsTableModel             datasetsTM;
 	
-	private TableSorter 					sorter;
+	private TableSorter                    sorter;
 	
 	CreateProjectDatasetsPane(CreateProjectEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
 	}
-	
-	/** Return the select button. */
-	JButton getSelectButton() { return selectButton; }
-	
-	/** Return the reset button. */
-	JButton getResetButton() { return resetButton; }
 
 	/** Select or not all datasets. */
 	void setSelection(Object val)

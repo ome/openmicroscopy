@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.DatasetEditor
+ * org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 public class DatasetEditor
 	extends JDialog
 {
+    
 	/** ID to identify the tab pane. */
 	static final int				POS_MAIN = 0, POS_IMAGE = 1, POS_OWNER = 2;
 									
@@ -99,31 +100,31 @@ public class DatasetEditor
 	DatasetImagesPane getImagesPane() { return imagesPane; }
 	
 	/**  Returns the save button displayed {@link DatasetEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+	JButton getSaveButton() { return bar.saveButton; }
 	
 	/** Returns the save button displayed {@link DatasetEditorBar}. */
-	JButton getAddButton() { return bar.getAddButton(); }
+	JButton getAddButton() { return bar.addButton; }
 	
 	/** Returns the cancel button displayed in {@link DatasetEditorBar}. */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
-	JButton getRemoveButton() { return imagesPane.getRemoveButton(); }
+	JButton getRemoveButton() { return imagesPane.removeButton; }
 	
 	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
-	JButton getResetButton() { return imagesPane.getResetButton(); }
+	JButton getResetButton() { return imagesPane.resetButton; }
 	
 	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
-	JButton getRemoveToAddButton() { return imagesPane.getRemoveToAddButton(); }
+	JButton getRemoveToAddButton() { return imagesPane.removeToAddButton; }
 	
 	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
-	JButton getResetToAddButton() { return imagesPane.getResetToAddButton(); }
+	JButton getResetToAddButton() { return imagesPane.resetToAddButton; }
 	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
-	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
+	JTextArea getDescriptionArea() { return generalPane.descriptionArea; }
 
 	/** Returns the textfield displayed in {@link DatasetGeneralPane}. */
-	JTextArea getNameField() { return generalPane.getNameField(); }
+	JTextArea getNameArea() { return generalPane.nameArea; }
 
 	/** 
 	 * Set the selected tab.

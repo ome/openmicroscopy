@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.ImageOwnerPane
+ * org.openmicroscopy.shoola.agents.datamng.editors.image.ImageOwnerPane
  *
  *------------------------------------------------------------------------------
  *
