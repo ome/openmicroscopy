@@ -78,7 +78,7 @@ public class UintBEConverter
 			//add LSB[j]*(2^8)^j to r, where j=length-k-1  
 			r |= tmp<<(length-k-1)*8; 
 		}
-		if (length < 4) return new Integer((int) r);
+		if (length < 4) return new Integer((int) r);	
 		return new Long(r);
 	}
     

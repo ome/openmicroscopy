@@ -71,8 +71,7 @@ class XYPlane
 	protected int calculateOffset(int x1, int x2) 
 	{ 
 		return bytesPerPixel *
-				(planeDef.getZ() * (dims.sizeX * dims.sizeY) + 
-				(dims.sizeX * x2 + x1));
+				(planeDef.getZ()*dims.sizeX*dims.sizeY+dims.sizeX*x2+x1);
 	}
 
 }

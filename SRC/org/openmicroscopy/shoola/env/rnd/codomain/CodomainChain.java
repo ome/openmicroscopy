@@ -287,7 +287,7 @@ public class CodomainChain
 	/** Builds the lookup table. */
 	private void buildLUT()
 	{
-		LUT = new int[intervalEnd-intervalStart];
+		LUT = new int[intervalEnd-intervalStart+1];
 		CodomainMap map;
 		CodomainMapContext ctx;
 		int v;

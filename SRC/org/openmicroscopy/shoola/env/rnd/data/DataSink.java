@@ -166,14 +166,15 @@ public class DataSink
     private void fillStack(int t)
 		throws DataSourceException
     {
-    	int stackSize = (dims.sizeX * dims.sizeY * dims.sizeZ);
+    	int stackSize = dims.sizeX * dims.sizeY * 
+    					dims.sizeZ * BYTES_PER_PIXEL[pixelType];
     	stack = new byte[dims.sizeW][];
     	try {
 			for (int w = 0; w < dims.sizeW; ++w) {
 				stack[w] = source.getStack(pixelsID, w, t, BIG_ENDIAN);
 				if (stack[w].length != stackSize)
 					throw new DataSourceException(
-						"Wrong stack size: "+stack[w].length);
+						"Wrong stack size: "+stackSize+"..."+stack[w].length);
 			}	
 		} catch (ImageServerException ise) {
 			throw new DataSourceException("Can't retrieve pixels data.", ise);

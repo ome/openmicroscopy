@@ -67,5 +67,10 @@ public abstract class ResponseEvent
     {
         if (act != null)	act.handleCompletion(this);
     }
-        
+    
+    public RequestEvent getACT()
+    {
+    	return act;    
+    }
+    
 }

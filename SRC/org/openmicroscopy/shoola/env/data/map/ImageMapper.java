@@ -118,6 +118,7 @@ public class ImageMapper
 		criteria.addWantedField("default_pixels", "SizeZ");
 		criteria.addWantedField("default_pixels", "SizeC");
 		criteria.addWantedField("default_pixels", "SizeT");
+		criteria.addWantedField("default_pixels", "PixelType");
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels", "ImageServerID");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
@@ -225,6 +226,7 @@ public class ImageMapper
 		if (px.getSizeZ() != null) pxd.setSizeZ((px.getSizeZ()).intValue());
 		if (px.getSizeC() != null) pxd.setSizeC((px.getSizeC()).intValue());
 		if (px.getSizeT() != null) pxd.setSizeT((px.getSizeT()).intValue());
+		pxd.setPixelType(px.getPixelType());
 		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
 		if (px.getImageServerID() != null)
 			pxd.setImageServerID((px.getImageServerID()).longValue());

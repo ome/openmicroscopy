@@ -102,7 +102,7 @@ public class Quantization_8_16_bit
 		double ys = valueMapper.transform(dStart, k);
 		double ye = valueMapper.transform(dEnd, k);
 		double a0 = qDef.bitResolution/(ye-ys);
-		double a1 = (dEnd-dStart)/qDef.bitResolution;
+		double a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
 		int x = min;
 		double v;
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
@@ -110,7 +110,7 @@ public class Quantization_8_16_bit
 		for(; x < dEnd; ++x) { 
 			v = Approximation.nearestInteger(
 										a0*(valueMapper.transform(x, k)-ys));
-			v = Approximation.nearestInteger(a1*v+dStart);
+			v = Approximation.nearestInteger(a1*v+qDef.cdStart);
 			LUT[x-min] = (byte) v;
 		}
 		
