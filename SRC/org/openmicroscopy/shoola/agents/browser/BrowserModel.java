@@ -87,6 +87,7 @@ public class BrowserModel
     private BrowserModeClass majorUIModeClass;
     private BrowserModeClass selectModeClass;
     private BrowserModeClass zoomModeClass;
+    private BrowserModeClass semanticModeClass;
     
     /**
      * Specifies the name of the browser mode class that governs the current
@@ -111,6 +112,12 @@ public class BrowserModel
      * zoom state of the browser.
      */
     public static final String ZOOM_MODE_NAME = "zoomMode";
+    
+    /**
+     * Specifies the name of the browser mode class that governs what
+     * happens on mouseover (name vs. semantic zoom)
+     */
+    public static final String SEMANTIC_MODE_NAME = "semanticMode";
     
 
     // common initialization routine
@@ -157,11 +164,18 @@ public class BrowserModel
                                                      BrowserMode.ZOOM_ACTUAL_MODE,
                                                      BrowserMode.ZOOM_200_MODE},
                                  BrowserMode.ZOOM_TO_FIT_MODE);
+                                 
+        semanticModeClass =
+            new BrowserModeClass(SEMANTIC_MODE_NAME,
+                                 new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+                                                     BrowserMode.SEMANTIC_ZOOMING_MODE},
+                                 BrowserMode.DEFAULT_MODE);
         
         modeClassMap.put(PAN_MODE_NAME,panActionClass);
         modeClassMap.put(MAJOR_UI_MODE_NAME,majorUIModeClass);
         modeClassMap.put(SELECT_MODE_NAME,selectModeClass);
         modeClassMap.put(ZOOM_MODE_NAME,zoomModeClass);
+        modeClassMap.put(SEMANTIC_MODE_NAME,semanticModeClass);
         
     }
 

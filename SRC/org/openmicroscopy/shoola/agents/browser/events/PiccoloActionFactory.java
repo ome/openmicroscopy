@@ -293,7 +293,35 @@ public class PiccoloActionFactory
             }
         };
         return action;
-    };
+    }
+    
+    public static PiccoloAction getMagnifyOffAction(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                System.err.println("magnify off");
+                model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
+                                     BrowserMode.DEFAULT_MODE);
+            }
+        };
+        return action;
+    }
+    
+    public static PiccoloAction getMagnifyOnAction(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                System.err.println("magnify on");
+                model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
+                                     BrowserMode.SEMANTIC_ZOOMING_MODE);
+            }
+        };
+        return action;
+    }
     
     public static PiccoloAction getImageNameEnterAction(final HoverManager layer)
     {

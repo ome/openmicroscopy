@@ -166,10 +166,30 @@ public class PaletteFactory
         return palette;
     }
     
-    public static BPalette getModePalette(final BrowserModel backingModel,
+    public static BPalette getOptionPalette(final BrowserModel backingModel,
                                           final BrowserTopModel model)
     {
-        return null;
+        BPalette palette = new BPalette(model, "Options");
+        BIcon semanticIcon = new BIcon("Magnifier",true);
+        MouseDownActions activatedActions = new MouseDownActions();
+        MouseDownActions deactivatedActions = new MouseDownActions();
+        
+        PiccoloAction magnifyAction =
+            PiccoloActionFactory.getMagnifyOnAction(backingModel);
+        
+        PiccoloAction magnifyOffAction =
+            PiccoloActionFactory.getMagnifyOffAction(backingModel);
+        
+        deactivatedActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                             magnifyOffAction);
+        
+        activatedActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                             magnifyAction);
+        
+        semanticIcon.setMouseDownStickyActions(activatedActions,
+                                               deactivatedActions);
+        palette.addIcon(semanticIcon);
+        return palette;
     }
     
     public static BPalette getZoomPalette(final BrowserModel backingModel,

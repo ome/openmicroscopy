@@ -224,7 +224,7 @@ public class BrowserView extends PCanvas
 
         semanticLayer = new HoverManager();
         semanticHoverThumbnailAction =
-            PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
+            PiccoloActionFactory.getImageNameEnterAction(semanticLayer);
             
         semanticExitThumbnailAction =
             PiccoloActionFactory.getOverlayExitAction(semanticLayer);
@@ -372,6 +372,27 @@ public class BrowserView extends PCanvas
             else if(mode == BrowserMode.ZOOM_200_MODE)
             {
                 setZoomLevel(2);
+            }
+        }
+        else if(className.equals(BrowserModel.SEMANTIC_MODE_NAME))
+        {
+            if(mode == BrowserMode.DEFAULT_MODE)
+            {
+                System.err.println("default");
+                semanticHoverThumbnailAction =
+                    PiccoloActionFactory.getImageNameEnterAction(semanticLayer);
+                defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
+                                                        semanticHoverThumbnailAction);
+                setThumbnailOverActions(defaultTOverActions);
+            }
+            else if(mode == BrowserMode.SEMANTIC_ZOOMING_MODE)
+            {
+                System.err.println("semantic");
+                semanticHoverThumbnailAction =
+                    PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
+                defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
+                                                        semanticHoverThumbnailAction);
+                setThumbnailOverActions(defaultTOverActions);
             }
         }
         

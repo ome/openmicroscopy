@@ -301,6 +301,7 @@ public class BIcon extends PNode implements MouseOverSensitive,
         {
             mouseDownActions = deactivatedActions;
         }
+        repaint();
         
     }
     

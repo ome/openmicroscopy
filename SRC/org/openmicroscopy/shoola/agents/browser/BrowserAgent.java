@@ -260,16 +260,14 @@ public class BrowserAgent implements Agent, AgentEventListener
         model.setLayoutMethod(new NumColsLayoutMethod(8));
         BrowserTopModel topModel = new BrowserTopModel();
         
-        BPalette modePalette = PaletteFactory.getMainPalette(model,topModel);
-        topModel.addPalette("Modes",modePalette);
-        BPalette paintPalette = PaletteFactory.getPaintModePalette(model,topModel);
-        topModel.addPalette("Overlays",paintPalette);
         BPalette zoomPalette = PaletteFactory.getZoomPalette(model,topModel);
         topModel.addPalette(UIConstants.ZOOM_PALETTE_NAME,zoomPalette);
         
-        modePalette.setOffset(0,0);
-        paintPalette.setOffset(0,75);
-        zoomPalette.setOffset(0,125);
+        BPalette optionPalette = PaletteFactory.getOptionPalette(model,topModel);
+        topModel.addPalette("Options",optionPalette);
+        
+        zoomPalette.setOffset(0,0);
+        optionPalette.setOffset(0,75);
         BrowserView view = new BrowserView(model,topModel);
         BrowserController controller = new BrowserController(model,topModel,view);
         controller.setStatusView(new StatusBar());
