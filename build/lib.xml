@@ -22,7 +22,8 @@
  *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
  *        (http://www.mozilla.org/rhino/).  Version: 1_5R3.
  *        (NOTE: Later versions don't work with BSF 2.3.0.) 
- *  + fop-0.20.5.jar: The FOP jar.  Version: 0.20.5.
+ *  + fop-0.20.5.jar: The Formatting Objects Processor (FOP) from the Apache 
+ *        XML Project (http://xml.apache.org/fop/).  Version: 0.20.5.
  *  + avalon-framework-cvs-20020806.jar: The Apache Avalon Framework, bunlded
  *        with the FOP distribution.  Version: unknown.
  *  + batik.jar: The Apache Batik SVG Toolkit, bundled wiht the FOP 
