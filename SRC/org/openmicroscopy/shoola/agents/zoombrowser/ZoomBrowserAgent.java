@@ -85,12 +85,11 @@ public class ZoomBrowserAgent
 	{			
 		registry = ctx;  //The container built our registry, store a reference.
 		dataManager = new DataManager(ctx);
-	
+		uiManager = new UIManager(dataManager);  //Create the UI.
 	}
 	
 	public void activate() 
 	{
-		uiManager = new UIManager(dataManager);  //Create the UI.
 	}
 	
 	public boolean canTerminate() 
