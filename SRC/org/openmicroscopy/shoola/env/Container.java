@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
 import org.openmicroscopy.shoola.env.ui.AWTExceptionHanlder;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -120,16 +122,11 @@ public final class Container
 				//startService() called by Initializer at end of doInit().
 			} catch (StartupException se) {
 				if (initManager != null)	initManager.rollback();
-				//TODO: Use a dialog to do the following.
-				System.out.println();
-				System.out.println("-----------------------------------------");
-				System.out.println("An error occurred during initialization.");
-				System.out.println("Error message: "+se.getMessage());
-				System.out.println("Originated by: "+se.getOriginator());
-				System.out.println("-----------------------------------------");
-				System.out.println();
-				System.out.println("Details as follows.");
-				se.printStackTrace();
+				StringBuffer buf = new StringBuffer();
+				buf.append("Error message: "+se.getMessage());
+				buf.append("Originated by: "+se.getOriginator());
+				UserNotifier un = UIFactory.makeUserNotifier();
+				un.notifyInitError("Initialization Error", buf.toString(), se);
 				System.exit(1);
 			}
 		}
@@ -162,7 +159,7 @@ public final class Container
 	{
 		//Convert to abstract pathname. 
 		//(empty string leads to empty abstract pathname)
-		File f = new File(home==null ? "" : home);
+		File f = new File(home == null ? "" : home);
 		
 		//Now make it absolute. If the original path wasn't absolute, then
 		//translation is system dependent. 
@@ -182,20 +179,14 @@ public final class Container
 	 * 
 	 * @return	See above.
 	 */
-	public String getHomeDir() 
-	{
-		return homeDir;
-	}
+	public String getHomeDir() { return homeDir; }
 	
 	/**
 	 * Returns the absolute path to the container's configuration file.
 	 * 
 	 * @return	See above.
 	 */
-	public String getConfigFile() 
-	{
-		return resolveConfigFile(CONFIG_FILE);
-	}
+	public String getConfigFile() { return resolveConfigFile(CONFIG_FILE); }
 	
 	/**
 	 * Resolves <code>fileName</code> against the configuration directory.
@@ -218,10 +209,7 @@ public final class Container
 	 * 
 	 * @return	See above.
 	 */
-	public Registry getRegistry() 
-	{
-		return registry;
-	}
+	public Registry getRegistry() { return registry; }
 
 	/**
 	 * Adds the specified agent to the pool of managed agents.
