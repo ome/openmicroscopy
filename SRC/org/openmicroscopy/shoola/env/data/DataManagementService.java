@@ -39,9 +39,9 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-
 
 /** 
  * 
@@ -237,6 +237,19 @@ public interface DataManagementService
 	 * retrieve data from OMEDS service.  
      */
     public List retrieveImages(int datasetID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
+	 * to a pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return An object containing the common pixels metadata.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.  
+	 */
+	public PixelsDescription retrievePixels(int pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 		
 	/**
