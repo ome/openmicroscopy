@@ -47,7 +47,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
-import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
@@ -108,7 +108,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		this.registry = registry;
 		configureDisplayButtons();
 		registry.getEventBus().register(this, 
-				new Class[] {ChainExecutionsLoadedEvent.class,
+				new Class[] {LoadChainExecutionsEvent.class,
 							DatasetEvent.class,
 							AnalysisChainEvent.class,
 							MouseOverDataset.class,
@@ -194,8 +194,8 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		if (e instanceof ChainExecutionsLoadedEvent) {
-			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
+		if (e instanceof LoadChainExecutionsEvent) {
+			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
 			execsModel = new ExecutionsModel(event);
 			buildGUI();
 		}

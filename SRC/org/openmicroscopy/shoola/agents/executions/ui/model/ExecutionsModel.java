@@ -38,7 +38,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
-import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.LongRangeSlider;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 
@@ -74,7 +74,7 @@ public class ExecutionsModel {
 	
 	private ChainExecutions chainExecutions;
 	
-	public ExecutionsModel(ChainExecutionsLoadedEvent event) {
+	public ExecutionsModel(LoadChainExecutionsEvent event) {
 		chainExecutions = event.getChainExecutions();
 		//this.execsByDataset = event.getChainExecutionsByDatasetID();
 		//this.execsByChain = event.getChainExecutionsByChainID();		
