@@ -52,16 +52,25 @@ package org.openmicroscopy.shoola.env.data.model;
 public class ImageSummary
 	implements DataObject
 {
-
+	/** image's id. */
 	private int		id;
+	
+	/** image's name. */
 	private String	name;
+	
+	/** 
+	 * The OMEIS id's of this image's pixels.
+	 * The first element of the array always contains the default pixels.
+	 */
+	private int[]	imageServerPixelsID;
 	
 	public ImageSummary() {}
 	
-	public ImageSummary(int id, String name)
+	public ImageSummary(int id, String name, int[] imageServerPixelsID)
 	{
 		this.id = id;
 		this.name = name;
+		this.imageServerPixelsID = imageServerPixelsID;
 	}
 	
 	/** Required by the DataObject interface. */
@@ -69,6 +78,7 @@ public class ImageSummary
 	{
 		return new ImageSummary();
 	}
+	
 	public String toString()
 	{
 		return name;
@@ -92,6 +102,17 @@ public class ImageSummary
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+
+	public int[] getImageServerPixelsID()
+	{
+		return imageServerPixelsID;
+	}
+
+	public void setImageServerPixelsID(int[] imageServerPixelsID)
+	{
+		this.imageServerPixelsID = imageServerPixelsID;
 	}
 
 }

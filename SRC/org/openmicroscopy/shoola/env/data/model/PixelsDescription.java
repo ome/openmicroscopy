@@ -52,8 +52,9 @@ package org.openmicroscopy.shoola.env.data.model;
 public class PixelsDescription
 	implements DataObject
 {
-
+	/** Attribute_id in DB. */
 	private int		id;
+	private int		imageServerID;
 	private int 	sizeX;
 	private int 	sizeY;
 	private int 	sizeZ;
@@ -64,10 +65,12 @@ public class PixelsDescription
 	
 	public PixelsDescription() {}
 	
-	public PixelsDescription(int id, int sizeX, int sizeY, int sizeZ, int sizeC,
-							int sizeT, int bitsPerPixel, String imageServerURL)
+	public PixelsDescription(int id, int imageServerID, int sizeX, int sizeY, 
+							int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
+							String imageServerURL)
 	{
 		this.id = id;
+		this.imageServerID = imageServerID;
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
@@ -87,6 +90,7 @@ public class PixelsDescription
 	{
 		return bitsPerPixel;
 	}
+	
 	public int getSizeC()
 	{
 		return sizeC;
@@ -160,6 +164,16 @@ public class PixelsDescription
 	public void setID(int id)
 	{
 		this.id = id;
+	}
+
+	public int getImageServerID()
+	{
+		return imageServerID;
+	}
+
+	public void setImageServerID(int imageServerID)
+	{
+		this.imageServerID = imageServerID;
 	}
 
 }

@@ -80,6 +80,9 @@ public class ImageMapper
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		
+		criteria.addWantedField("default_pixels");
+		criteria.addWantedField("default_pixels.Repository", "ImageServerID");
+		
 		criteria.addFilter("owner_id", new Integer(userID));
 		
 		return criteria;
@@ -117,8 +120,8 @@ public class ImageMapper
 		criteria.addWantedField("default_pixels", "SizeT");
 		criteria.addWantedField("default_pixels", "BitsPerPixel");	
 		criteria.addWantedField("default_pixels", "Repository");
+		criteria.addWantedField("default_pixels", "ImageServerID");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
-  		
   		
   		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
@@ -137,7 +140,8 @@ public class ImageMapper
   		return criteria;
 	}
 	
-	/** Fill in the image data object. 
+	/** 
+	 * Fill in the image data object. 
 	 * 
 	 * @param image		OMEDS Image object.
 	 * @param empty		image data to fill in.
@@ -194,14 +198,16 @@ public class ImageMapper
 		Iterator i = images.iterator();
 		ImageSummary is;
 		Image img;
+		Pixels px;
 		//For each d in datasets...
 		while (i.hasNext()) {
 			img = (Image) i.next();
 			//Make a new DataObject and fill it up.
 			is = (ImageSummary) iProto.makeNew();
+			px = (Pixels) img.getDefaultPixels();
 			is.setID(img.getID());
 			is.setName(img.getName());
-		
+			is.setImageServerPixelsID(fillListPixelsID(px));
 			//Add the images to the list of returned images
 			imagesList.add(is);
 		}
@@ -222,8 +228,19 @@ public class ImageMapper
 		if (px.getBitsPerPixel() != null) 
 			pxd.setBitsPerPixel((px.getBitsPerPixel()).intValue());
 		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
+		if (px.getImageServerID() != null)
+			pxd.setImageServerID((px.getImageServerID()).intValue());
 		pixels.add(pxd);
 		return pixels;
 	}
 	
+	//	TODO: will be modified as soon as we have a better approach.
+	private static int[] fillListPixelsID(Pixels px)
+	{
+		int[] ids = new int[1];
+		//to be on the save side
+		if (px.getImageServerID() != null)
+			ids[0] = (px.getImageServerID()).intValue();
+		return ids;
+	}
 }

@@ -42,6 +42,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -95,6 +96,10 @@ public class DatasetMapper
 		criteria.addWantedField("images");
 		criteria.addWantedField("images", "id");
 		criteria.addWantedField("images", "name");
+		criteria.addWantedField("images", "default_pixels");
+		
+		//Specify which fields we want for the pixels.
+		criteria.addWantedField("images.default_pixels", "ImageServerID");
 		
 		return criteria;
 	}
@@ -130,6 +135,10 @@ public class DatasetMapper
 		//Specify which fields we want for the images.
 		criteria.addWantedField("images", "id");
 		criteria.addWantedField("images", "name");
+		criteria.addWantedField("images", "default_pixels");
+		
+		//Specify which fields we want for the pixels.
+		criteria.addWantedField("images.default_pixels", "ImageServerID");
 		
 		criteria.addFilter("id", new Integer(id));
 		
@@ -169,10 +178,13 @@ public class DatasetMapper
 		Image img;
 		while (i.hasNext()) {
 			img = (Image) i.next();
-			images.add(new ImageSummary(img.getID(), img.getName()));
+			images.add(new ImageSummary(img.getID(), img.getName(), 
+						fillListPixelsID(img)));
 		}
 		empty.setImages(images);	
 	}
+	
+	
 	
 	/**
 	 * Creates the image summary list.
@@ -187,7 +199,8 @@ public class DatasetMapper
 		Image image;
 		while (i.hasNext()) {
 			image = (Image) i.next();
-			images.add(new ImageSummary(image.getID(), image.getName()));
+			images.add(new ImageSummary(image.getID(), image.getName(),
+						fillListPixelsID(image)));
 		}
 		return images;
 	}
@@ -210,7 +223,6 @@ public class DatasetMapper
 			ds = (DatasetSummary) dProto.makeNew();
 			ds.setID(d.getID());
 			ds.setName(d.getName());
-		
 			//Add the datasets to the list of returned datasets.
 			datasetsList.add(ds);
 		}
@@ -229,4 +241,16 @@ public class DatasetMapper
 		dProto.setID(d.getID());
 		dProto.setName(d.getName());
 	}
+	
+	//	TODO: will be modified as soon as we have a better approach.
+	private static int[] fillListPixelsID(Image image)
+	{
+		int[] ids = new int[1];
+	  	Pixels px = (Pixels) image.getDefaultPixels();
+		//to be on the save side
+		if (px.getImageServerID() != null)
+			ids[0] = (px.getImageServerID()).intValue();
+	  	return ids;
+	}
+	
 }
