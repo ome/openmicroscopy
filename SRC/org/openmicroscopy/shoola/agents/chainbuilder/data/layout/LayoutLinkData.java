@@ -35,9 +35,12 @@ import java.util.Vector;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
+import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 
 /** 
  * An extension of 
@@ -55,7 +58,14 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
  */
 public class LayoutLinkData  extends AnalysisLinkData
 {
-		
+	
+	public LayoutLinkData(AnalysisChainData chain,AnalysisNodeData 
+			fromNode,FormalOutputData fromOutput,AnalysisNodeData toNode,
+			FormalInputData toInput) 
+	{
+		super(chain,fromNode,fromOutput,toNode,toInput);
+	}
+	
 	public LayoutLinkData() {}
 	/*
 	 * A list of nodes that might include internal CLayoutNodes. This list is 
