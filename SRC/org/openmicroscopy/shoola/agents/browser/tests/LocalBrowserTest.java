@@ -74,9 +74,10 @@ public class LocalBrowserTest
         ThumbnailSourceModel tsm = loader.getModel();
         
         BrowserTopModel model = new BrowserTopModel();
-        model.addPalette("Modes",PaletteFactory.getMainPalette(model));
         
         BrowserModel bm = new BrowserModel();
+
+        model.addPalette("Modes",PaletteFactory.getMainPalette(bm,model));
         bm.setLayoutMethod(new PlateLayoutMethod(8,12));
         BrowserView view = new BrowserView(bm,model);
         

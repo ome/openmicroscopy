@@ -51,6 +51,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -58,6 +60,11 @@ import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
+import edu.umd.cs.piccolo.event.PDragSequenceEventHandler;
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.util.PPickPath;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -95,6 +102,10 @@ public class BrowserView extends PCanvas
     
     // Keeps track of all embedded RegionSensitive objects.
     private Set regionSensitive;
+    
+    // indicates whether or not the view should scale to show the entire
+    // set, or should remain fixed at a certain zoom level.
+    private boolean scaleToShow;
 
     /**
      * Constructs the browser view with the two backing models-- one for the
@@ -154,6 +165,7 @@ public class BrowserView extends PCanvas
         overlayCamera = new BrowserCamera(topModel,getCamera());
         hoverSensitive.add(overlayCamera);
         regionSensitive.add(overlayCamera);
+        scaleToShow = true;
        
         addMouseListener(new MouseAdapter()
         {
@@ -175,6 +187,76 @@ public class BrowserView extends PCanvas
                 }
             }
         });
+        
+        // OK, now, dispatch to the underlying nodes
+        addInputEventListener(new PBasicInputEventHandler()
+        {
+            public void mouseClicked(PInputEvent e)
+            {
+                PPickPath pickPath = e.getPath();
+                PNode node;
+                while((node = pickPath.getPickedNode()) != null &&
+                      !e.isHandled())
+                {
+                    if(node instanceof MouseDownSensitive)
+                    {
+                        ((MouseDownSensitive)node).respondMouseClick(e);
+                        e.setHandled(true);
+                    }
+                    else
+                    {
+                        pickPath.popNode(node);
+                    }
+                }
+            }
+        });
+        
+        addInputEventListener(new PDragSequenceEventHandler()
+        {
+            public void drag(PInputEvent e)
+            {
+                PPickPath pickPath = e.getPath();
+                PNode node;
+                while((node = pickPath.getPickedNode()) != null &&
+                      !e.isHandled())
+                {
+                    if(node instanceof MouseDragSensitive)
+                    {
+                        ((MouseDragSensitive)node).respondDrag(e);
+                        e.setHandled(true);
+                    }
+                    else
+                    {
+                        pickPath.popNode(node);
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Sets the scale/zoom level.  1 is 100%.
+     * @param zoomLevel The magnification of the camera.
+     */
+    public void setZoomLevel(double zoomLevel)
+    {
+        // error condition
+        if(zoomLevel <= 0)
+        {
+            return;
+        }
+        scaleToShow = false;
+        getCamera().setViewScale(zoomLevel);
+        updateConstraints();
+    }
+    
+    /**
+     * Sets the scale level to automatically adjust with window size.
+     */
+    public void setZoomToScale()
+    {
+        scaleToShow = true;
+        updateConstraints();
     }
     
     /**
@@ -249,18 +331,20 @@ public class BrowserView extends PCanvas
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
         
-        /*
-        if((xRatio < 1 || yRatio < 1) &&
-           (xRatio != 0 && yRatio != 0))
+        if(scaleToShow)
+        
         {
-            double min = Math.min(xRatio,yRatio);
-            getCamera().setViewScale(min);
+            if((xRatio < 1 || yRatio < 1) &&
+               (xRatio != 0 && yRatio != 0))
+            {
+                double min = Math.min(xRatio,yRatio);
+                getCamera().setViewScale(min);
+            }
+            else
+            {
+                getCamera().setViewScale(1);
+            }
         }
-        else
-        {
-            getCamera().setViewScale(1);
-        }*/
-        getCamera().setViewScale(0.75);
         
         //      update things
         for(Iterator iter = regionSensitive.iterator(); iter.hasNext();)

@@ -36,10 +36,20 @@
 package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
+
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -53,23 +63,71 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * @version 2.2
  * @since OME2.2
  */
-public class BIcon extends PNode
+public class BIcon extends PNode implements MouseOverSensitive,
+                                            MouseDownSensitive
 {   
     /**
      * The presentation (viewable) node... this is kept separate so an
      * icon can be either text, a glyph, or an image.
      */
     protected PNode presentationNode;
+    protected PNode tooltipNode;
     
     protected int vertBuffer = 2; // border buffer (vertical)
     protected int horizBuffer = 2; // border buffer (horiz)
     protected int minWidth = 16; // minimum icon width
     protected int minHeight = 16; // minimum icon height
     
+    protected MouseDownActions mouseDownActions;
+    protected MouseOverActions mouseOverActions;
+    
+    protected boolean tooltipWaiting;
+    protected String tooltipText = "";
+    
+    protected Color tooltipColor = new Color(255,255,192);
+    protected Font tooltipFont = new Font(null, Font.PLAIN, 10);
+    
     // initialization method
     private void init()
     {
-        // do nothing for now
+        mouseDownActions = new MouseDownActions();
+        mouseOverActions = new MouseOverActions();
+    }
+    
+    private PNode getTooltipNode(double offsetX, double offsetY)
+    {
+        PText tooltipNode = new PText(tooltipText);
+        tooltipNode.setFont(tooltipFont);
+        
+        PNode boxComponent = new PNode()
+        {
+            public void paint(PPaintContext context)
+            {
+                Graphics2D g2 = context.getGraphics();
+                Color oldColor = g2.getColor();
+                Paint oldPaint = g2.getPaint();
+                
+                g2.setPaint(tooltipColor);
+                g2.fill(getBounds().getBounds2D());
+                g2.setColor(Color.black);
+                g2.draw(getBounds().getBounds2D());
+                g2.setColor(oldColor);
+                g2.setPaint(oldPaint);
+            }
+        };
+        
+        double textWidth = tooltipNode.getWidth()+4;
+        double textHeight = tooltipNode.getHeight()+4;
+        
+        boxComponent.setBounds(0,0,textWidth,textHeight);
+        
+        boxComponent.addChild(tooltipNode);
+        tooltipNode.setOffset(2,2);
+        
+        addChild(boxComponent);
+        boxComponent.setOffset(offsetX,offsetY);
+        
+        return boxComponent;
     }
     
     // centers the node inside the icon, especially if it is smaller than
@@ -119,12 +177,13 @@ public class BIcon extends PNode
      * Constructs an icon with the specified image.
      * @param imageIcon The image to show in the icon.
      */
-    public BIcon(Image imageIcon)
+    public BIcon(Image imageIcon, String tooltipText)
     {
         init();
         presentationNode = new PImage(imageIcon,true);
         addChild(presentationNode);
         placeNode(presentationNode);
+        this.tooltipText = tooltipText;
     }
     
     /**
@@ -163,4 +222,101 @@ public class BIcon extends PNode
         g2.setColor(new Color(153,153,153));
         g2.draw(getBounds().getBounds2D());
     }
+    
+    /********************* INHERITED INTERFACE METHODS *********************/
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+     */
+    public MouseDownActions getMouseDownActions()
+    {
+        return mouseDownActions;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#getMouseOverActions()
+     */
+    public MouseOverActions getMouseOverActions()
+    {
+        return mouseOverActions;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseClick(PInputEvent event)
+    {
+        PiccoloAction action =
+            mouseDownActions.getMouseClickAction(PiccoloModifiers.getModifier(event));
+        action.execute(event);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#respondMouseEnter(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseEnter(PInputEvent e)
+    {
+        // negative, good buddy, we're overriding unless explicitly stated
+        if(mouseOverActions.getMouseEnterAction(PiccoloModifiers.getModifier(e)) ==
+           PiccoloAction.PNOOP_ACTION)
+        {
+            // TODO: start tooltip timer, add & show tooltip node
+        }
+        
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#respondMouseExit(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseExit(PInputEvent e)
+    {
+        // that's a negative, good buddy, we're overriding.
+        if(mouseOverActions.getMouseExitAction(PiccoloModifiers.getModifier(e)) ==
+           PiccoloAction.PNOOP_ACTION)
+        {
+            // TODO: kill tooltip timer, clear tooltip node
+        }
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMousePress(PInputEvent event)
+    {
+        PiccoloAction action =
+            mouseDownActions.getMousePressAction(PiccoloModifiers.getModifier(event));
+        action.execute(event);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseRelease(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseRelease(PInputEvent event)
+    {
+        PiccoloAction action =
+            mouseDownActions.getMouseReleaseAction(PiccoloModifiers.getModifier(event));
+        action.execute(event);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+     */
+    public void setMouseDownActions(MouseDownActions actions)
+    {
+        if(actions != null)
+        {
+            mouseDownActions = actions;
+        }
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#setMouseOverActions(org.openmicroscopy.shoola.agents.browser.events.MouseOverActions)
+     */
+    public void setMouseOverActions(MouseOverActions actions)
+    {
+        if(actions != null)
+        {
+            mouseOverActions = actions;
+        }
+    }
+
 }

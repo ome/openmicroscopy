@@ -36,6 +36,7 @@
  
 package org.openmicroscopy.shoola.agents.browser.ui;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
 
 /**
@@ -53,7 +54,8 @@ public class PaletteFactory
      * @param model The BrowserTopModel to use as a callback/reference.
      * @return A main palette tied to the specified model.
      */
-    public static BPalette getMainPalette(BrowserTopModel model)
+    public static BPalette getMainPalette(BrowserModel backingModel,
+                                          BrowserTopModel model)
     {
         if(model == null)
         {
@@ -61,10 +63,6 @@ public class PaletteFactory
         }
         
         BPalette palette = new BPalette(model,"Modes");
-        palette.addIcon(new BIcon("Normal")); // TODO replace w/icon
-        palette.addIcon(new BIcon("Classify")); // TODO replace w/icon
-        palette.addIcon(new BIcon("HeatMap")); // TODO replace w/icon
-        palette.addIcon(new BIcon("Graph")); // TODO replace w/icon
         
         return palette;
     }
