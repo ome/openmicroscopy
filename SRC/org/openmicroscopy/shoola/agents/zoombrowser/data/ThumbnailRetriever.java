@@ -68,25 +68,30 @@ public class ThumbnailRetriever {
 	private Registry registry;
 	
 	/** path to cache */
-	String cachePath;
+	String cachePath=null;
 	
 	public ThumbnailRetriever(Registry registry) {
 		this.registry = registry;
 		Environment env = (Environment) registry.lookup(LookupNames.ENV);
-		URL url = env.getOMEDSAddress();
-		String host = url.getHost();
-		String hostpath = CACHE_DIR+host+IMAGE_DIR;
-		cachePath = env.resolvePathName(hostpath);
-		File cacheFile = new File(cachePath);
-		try {
-			cacheFile.mkdirs();
-		}
-		catch (Exception e) {
-			 
+		if (env != null) {
+			URL url = env.getOMEDSAddress();
+			String host = url.getHost();
+			String hostpath = CACHE_DIR+host+IMAGE_DIR;
+			cachePath = env.resolvePathName(hostpath);
+			File cacheFile = new File(cachePath);
+			try {
+				cacheFile.mkdirs();
+			}
+			catch (Exception e) {
+			} 
 		}
 	}
 	
 	private File getImageFile(BrowserImageSummary image) {
+		// nothing if no cache..
+		if (cachePath == null)
+			return null;
+		
 		long omeisID = image.getDefaultPixels().getImageServerID();
 
 		String imageFileName = new String("thumb-"+omeisID+".jpg");
@@ -111,10 +116,14 @@ public class ThumbnailRetriever {
 	
 	public Image getImage(BrowserImageSummary image) {
 		
+		Image im=null;
+		
 		File imageFile = getImageFile(image);
-		Image im = getCachedImage(imageFile);
-		if (im != null) {
-			return im;
+		if (imageFile != null) {
+			im = getCachedImage(imageFile);
+			if (im != null) {
+				return im;
+			}
 		}
 			
 		// else, not in cache
