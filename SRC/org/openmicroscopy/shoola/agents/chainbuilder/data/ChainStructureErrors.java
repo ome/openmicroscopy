@@ -108,7 +108,8 @@ public class ChainStructureErrors {
 		}
 		UserNotifier un = UIFactory.makeUserNotifier();
 		
-		String msg = "Chain: "+chain.getName()+" has structural errors that may prevent it";
+		String msg = "Chain: "+chain.getName()+
+			" has structural errors that may prevent it ";
 		msg += "from being executed.\n";
 		JTree tree = new JTree(root);
 		tree.setRootVisible(false);
