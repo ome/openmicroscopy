@@ -81,9 +81,11 @@ public class QuantumPaneManager
     /** Reset the rendering defaults.update the GUI*/
     public void resetDefaults()
     {
+
         //DomainPane+Histogram
         DomainPaneManager dpm = view.getDomainPane().getManager();
-        dpm.resetDefaults();
+        dpm.resetDefaults(eventManager.getChannelBindingNR(
+                        QuantumPane.INDEX));
         
         //Codomain
         CodomainPaneManager cpm = view.getCodomainPane().getManager();
@@ -100,6 +102,7 @@ public class QuantumPaneManager
         
         double[] cbStats = eventManager.getChannelBindingStats(
                                             QuantumPane.INDEX);
+        
         gr = new GraphicsRepresentation(this, QuantumFactory.LINEAR, 1.0, 0, 
                                         255, mini, maxi, cbStats);
         gr.setReverseIntensity(false);
@@ -234,14 +237,13 @@ public class QuantumPaneManager
         gr = null;
         int mini = (int) eventManager.getGlobalChannelWindowStart(w);
         int maxi = (int) eventManager.getGlobalChannelWindowEnd(w);
-        int s = 
-            (int) eventManager.getChannelWindowStart(w);
-        int e = 
-            (int) eventManager.getChannelWindowEnd(w);
+        int s = (int) eventManager.getChannelWindowStart(w);
+        int e = (int) eventManager.getChannelWindowEnd(w);
         QuantumDef qDef = getQuantumDef();
         int family = eventManager.getChannelFamily(w);
         double cc = eventManager.getChannelCurveCoefficient(w);
         double[] cbStats = eventManager.getChannelBindingStats(w);
+        boolean noiseReduction = eventManager.getChannelBindingNR(w);
         gr = new GraphicsRepresentation(this, family, cc, qDef.cdStart, 
                                         qDef.cdEnd, mini, maxi, cbStats);
         gr.setReverseIntensity(view.getCodomainPane().getRI().isSelected());
@@ -254,6 +256,8 @@ public class QuantumPaneManager
         dpm.resetDefaultGamma(cc, family);
         dpm.resetDefaultComboBox(view.getDomainPane().getTransformations(), 
                                     family);
+        dpm.resetDefaultCheckBox(view.getDomainPane().getNoise(), 
+                                    noiseReduction);
         eventManager.setMappingPane();
     }
     

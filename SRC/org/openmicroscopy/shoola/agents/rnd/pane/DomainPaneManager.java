@@ -110,24 +110,26 @@ class DomainPaneManager
         attachComboBoxListeners(view.getWavelengths(), WAVELENGTH);
         attachComboBoxListeners(view.getTransformations(), FAMILY);
         //button
-        
         attachButtonListeners(view.getHistogram(), HISTOGRAM);
         //CheckBox
         attachButtonListeners(view.getNoise(), NOISE);
     }
     
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void attachButtonListeners(AbstractButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
     }
     
+    /** Attach an {@link ActionListener} to a {@link JComboBox}. */
     private void attachComboBoxListeners(JComboBox box, int id)
     {
         box.addActionListener(this);
         box.setActionCommand(""+id);
     }
     
+    /** Close the {@link HistogramDialog} is on. */
     void disposeDialogs()
     {
         if (histogramDialog != null) histogramDialog.dispose();
@@ -159,7 +161,7 @@ class DomainPaneManager
     }
     
     /** 
-     * Re-set the curveCoefficient to 1.0. 
+     * Reset the curveCoefficient to 1.0. 
      * Method called when a new family is selected.
      */
     void resetDefaultGamma(double k, int family)
@@ -185,14 +187,22 @@ class DomainPaneManager
         box.addActionListener(this);
     }
     
+    /** Reset the default. */
+    void resetDefaultCheckBox(JCheckBox box, boolean b)
+    {
+        box.removeActionListener(this);
+        box.setSelected(b);
+        box.addActionListener(this);
+    }
+    
     /** Reset the defaults settings. */
-    void resetDefaults()
+    void resetDefaults(boolean noiseReduction)
     {
         resetDefaultGamma(1, QuantumFactory.LINEAR);
         resetDefaultBitResolution();
         resetDefaultComboBox(view.getTransformations(), QuantumFactory.LINEAR);
         resetDefaultComboBox(view.getWavelengths(), 0);
-        resetDefaultCheckBox();
+        resetDefaultCheckBox(view.getNoise(), noiseReduction);
         histogramDialog = null;
     }
     
@@ -320,12 +330,5 @@ class DomainPaneManager
         slider.addChangeListener(this);
     }
 
-    private void resetDefaultCheckBox()
-    {
-        JCheckBox box = view.getNoise();
-        box.removeActionListener(this);
-        box.setSelected(true);
-        box.addActionListener(this);
-    }
 
 }
