@@ -38,9 +38,12 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.dto.Dataset;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -56,9 +59,11 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * @version 2.2
  * @since OME2.2
  */
-public class BrowserAgent implements AgentEventListener
+public class BrowserAgent implements Agent, AgentEventListener
 {
     private List controllers;
+    private Registry registry;
+    private EventBus eventBus;
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -68,9 +73,52 @@ public class BrowserAgent implements AgentEventListener
     {
         /* 
          * TODO: initialize browser agent (initialize controller, initialize data
-         * agent, register with event bus, etc.
+         * agent, register with event bus, etc; figure out if this goes in
+         * activate() instead
          */
         controllers = new ArrayList();
+    }
+    
+    /**
+     * Does activation stuff (incomplete).
+     * 
+     * @see org.openmicroscopy.shoola.env.Agent#activate()
+     */
+    public void activate()
+    {
+        // TODO Auto-generated method stub
+    }
+    
+    /**
+     * Checks if termination is possible (incomplete)
+     * 
+     * @see org.openmicroscopy.shoola.env.Agent#canTerminate()
+     */
+    public boolean canTerminate()
+    {
+        // TODO Auto-generated method stub
+        return true;
+    }
+    
+    /**
+     * Does termination stuff (incomplete)
+     * 
+     * @see org.openmicroscopy.shoola.env.Agent#terminate()
+     */
+    public void terminate()
+    {
+        // TODO Auto-generated method stub
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.Agent#setContext(org.openmicroscopy.shoola.env.config.Registry)
+     */
+    public void setContext(Registry ctx)
+    {
+        this.registry = ctx;
+        // TODO: extract registry settings from context
+        // TODO: when this method goes live from JM/Andrea, uncomment
+        // this.eventBus = ctx.getEventBus();
     }
 
     /**
