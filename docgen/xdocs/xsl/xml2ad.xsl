@@ -24,7 +24,7 @@
 
 <!-- 
 *************************************************************************
-Template for the document meta info.
+This template generates the document-meta-info, information on the document.
 *************************************************************************
 -->
 <xsl:template name="document-meta-info">
@@ -73,7 +73,8 @@ Template for the document meta info.
 
 <!-- 
 *************************************************************************
-Template for the document formatting info.
+This template generates the document-formatting-info tag, containing
+HTML and PDF settings.
 *************************************************************************
 -->
 <xsl:template name="document-formatting-info">
@@ -81,7 +82,19 @@ Template for the document formatting info.
 <!-- HTML settings. -->
 <stylesheet url="style.css"/>
 <!-- PDF settings. -->
+<!-- cover page -->
+<cover-left-margin>40pt</cover-left-margin>
+<cover-right-margin>40pt</cover-right-margin>
+<cover-top-margin>50pt</cover-top-margin>
+<cover-bottom-margin>25pt</cover-bottom-margin>
+
+<!-- table of content -->
 <generate-toc-page>yes</generate-toc-page>
+<toc-left-margin>40pt</toc-left-margin>
+<toc-right-margin>40pt</toc-right-margin>
+<toc-top-margin>50pt</toc-top-margin>
+<toc-bottom-margin>25pt</toc-bottom-margin>
+
 <left-margin>40pt</left-margin>
 <right-margin>40pt</right-margin>
 <top-margin>20pt</top-margin>
@@ -93,7 +106,7 @@ Template for the document formatting info.
 
 <!-- 
 *************************************************************************
-Template for the document header.
+This template generates the document header.
 *************************************************************************
 -->
 <xsl:template name="document-header">
@@ -111,7 +124,7 @@ Template for the document header.
 
 <!-- 
 *************************************************************************
-Template for the document footer.
+This template generates the document footer.
 *************************************************************************
 -->
 <xsl:template name="document-footer">
@@ -134,7 +147,7 @@ All Rights reserved.
 
 <!-- 
 *************************************************************************
-Template for the document body.
+This template generates the document body.
 *************************************************************************
 -->
 <xsl:template name="document-body">
@@ -152,7 +165,7 @@ Template for the document body.
 
 <!-- 
 *************************************************************************
-This template generates the table of contents.
+This template generates the table of content.
 *************************************************************************
 -->
 <xsl:template name="document-toc">
@@ -180,9 +193,10 @@ This template generates the table of contents.
 
 <!-- 
 *************************************************************************
-This template is handles a section element
+This template generates a section element.
 *************************************************************************
 -->
+
 <xsl:template name="section">
 <xsl:param name="href"/>
 <xsl:param name="label"/>
@@ -220,9 +234,10 @@ This template is handles a section element
 
 <!-- 
 *************************************************************************
-This template is handles a reference to a section element in the toc.
+This template handles a reference to a section element in the toc.
 *************************************************************************
 -->
+
 <xsl:template name="section-href">
 <xsl:param name="text"/>
 <xsl:param name="href"/>
@@ -239,9 +254,10 @@ This template is handles a reference to a section element in the toc.
 
 <!-- 
 *************************************************************************
-This template removes the ".html" extension.
+This template removes the ".html" or ".htm" extension.
 *************************************************************************
 -->
+
 <xsl:template name="normalized-href">
 <xsl:param name="href"/>
 <xsl:choose>
@@ -259,9 +275,10 @@ This template removes the ".html" extension.
 
 <!--
 *************************************************************************
-This template retrieves the body of an html file.
+This template retrieves the body of an html or htm file.
 *************************************************************************
 -->
+
 <xsl:template name="html-body">
 <xsl:param name="href"/>
 <xsl:variable name="body">
@@ -292,19 +309,19 @@ This template analyzes the attribute href of an a tag.
 <xsl:with-param name="node" select="."/>
 <xsl:with-param name="href" select="@href"/>
 </xsl:call-template>
-	</xsl:when>
-	<xsl:when test="not(contains(@href, '://')) and contains(@href, '.htm') and substring(@href, string-length(@href)-3) = '.htm'">
-		<xsl:call-template name="format-a">
-			<xsl:with-param name="node" select="."/>
-			<xsl:with-param name="href" select="@href"/>
-		</xsl:call-template>
-	</xsl:when>
-	<xsl:otherwise>
-		<xsl:copy>
-		<xsl:copy-of select="@*"/>
-		<xsl:apply-templates/>
-		</xsl:copy>
-	</xsl:otherwise>
+</xsl:when>
+<xsl:when test="not(contains(@href, '://')) and contains(@href, '.htm') and substring(@href, string-length(@href)-3) = '.htm'">
+<xsl:call-template name="format-a">
+<xsl:with-param name="node" select="."/>
+<xsl:with-param name="href" select="@href"/>
+</xsl:call-template>
+</xsl:when>
+<xsl:otherwise>
+<xsl:copy>
+<xsl:copy-of select="@*"/>
+<xsl:apply-templates/>
+</xsl:copy>
+</xsl:otherwise>
 </xsl:choose>
 </xsl:template>
 
@@ -333,7 +350,7 @@ This template transforms an a tag into a link tag.
 
 <!--
 *************************************************************************
-This template analyses the content of the src attribute an img tag.
+This template analyses the content of the src attribute of an img tag.
 *************************************************************************
 -->
 <xsl:template match="img">
