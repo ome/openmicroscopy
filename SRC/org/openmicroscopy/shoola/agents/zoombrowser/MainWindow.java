@@ -117,7 +117,6 @@ public class MainWindow
 		// else, do something reasonable when no projects
 		getContentPane().add(framePanel);
 		pack();
-		show();		 
 	}
 	
 	/**
