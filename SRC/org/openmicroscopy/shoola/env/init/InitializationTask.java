@@ -72,6 +72,8 @@ abstract class InitializationTask
 	
 	/**
 	 * Returns the name of this task.
+	 * This method is called after {@link #configure()}, but before 
+	 * {@link #execute()}. 
 	 * 
 	 * @return	See above.
 	 */
