@@ -227,21 +227,21 @@ public class TrajSwitch extends Switch implements TrajectoryEventListener {
 	}
 	
 	private void setScaled(boolean v) {
-		System.err.println("set scaled.."+v);
-		float size;
-		if (v == true) 
-			size = 
-				(float) (traj.getLogSize()/tSet.getLogMaxSize())	
-					*TrajPoint.BOX_SIDE;
-		else
-			size = TrajPoint.BOX_SIDE;
-		System.err.println("size is "+size);
+
 		Enumeration enum = getAllChildren();
 		TrajPoint tp;
+		
+		float size = TrajPoint.BOX_SIDE;
 		while (enum.hasMoreElements()) {
 			Object obj = enum.nextElement();
 			if (obj instanceof TrajPoint) {
 				tp = (TrajPoint) obj;
+
+				if (v == true) {
+					SpotsTrajectoryEntry ste = tp.getTrajectoryEntry();
+					size = (float) (ste.getLogSize()/tSet.getLogMaxSize())*
+							TrajPoint.BOX_SIDE;
+				}
 				tp.getGeometry(size);
 			}
 		}
