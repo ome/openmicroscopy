@@ -307,4 +307,24 @@ public interface SemanticTypesService
     public List retrieveFeatureAttributes(String typeName, List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
     
+    /**
+     * Retrieves/fills in a SemanticType with the requisite element and type
+     * information, down to one level.  For attribute/ST children, includes
+     * the id and the name.
+     * 
+     * @param type The SemanticType to fill in.
+     * @return A filled semantic type from the DB.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public SemanticType retrieveSemanticType(SemanticType type)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * @see retrieveSemanticType(org.openmicroscopy.ds.dto.SemanticType)
+     */
+    public SemanticType retrieveSemanticType(String typeName)
+        throws DSOutOfServiceException, DSAccessException;
+    
 }

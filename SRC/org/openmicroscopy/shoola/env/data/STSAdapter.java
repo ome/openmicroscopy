@@ -382,6 +382,44 @@ class STSAdapter
     }
     
     /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveSemanticType(org.openmicroscopy.ds.dto.SemanticType)
+     */
+    public SemanticType retrieveSemanticType(SemanticType type)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveSemanticType(type.getName());
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveSemanticType(java.lang.String)
+     */
+    public SemanticType retrieveSemanticType(String typeName)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria criteria = buildRetrieveSingleTypeCriteria(typeName);
+        try
+        {
+            SemanticType retVal = (SemanticType)proxy.retrieve(SemanticType.class,criteria);
+            return retVal;
+        }
+        catch(RemoteConnectionException rce)
+        {
+            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+        }
+        catch(RemoteAuthenticationException rae)
+        {
+            throw new DSOutOfServiceException("Not logged in", rae);
+        }
+        catch(RemoteServerErrorException rsee)
+        {
+            rsee.printStackTrace();
+            throw new DSAccessException("Can't retrieve ST", rsee);
+        }
+    }
+
+
+    
+    /**
      * Returns a count of the number of objects of the specified type that
      * meet the specified criteria.
      * @param type The attribute type to query.
@@ -688,20 +726,37 @@ class STSAdapter
         return criteria;
     }
     
-    /**
-     * Returns a Criteria object which will extract the appropriate amount
-     * of information to get SemanticTypes.  Passing null will form the
-     * Criteria to get all SemanticTypes.
-     * 
-     * @param granularity The granularity of semantic types to get.
-     * @return An appropriate Criteria object.
-     */
+    private Criteria buildRetrieveSingleTypeCriteria(String typeName)
+    {
+        if(typeName == null)
+        {
+            return new Criteria();
+        }
+        Criteria criteria = buildBasicTypeCriteria();
+        criteria.addFilter("name",typeName);
+        return criteria;
+    }
+    
     private Criteria buildRetrieveTypeCriteria(String granularity)
     {
         if(granularity == null)
         {
             return new Criteria();
-        }
+        } 
+        Criteria criteria = buildBasicTypeCriteria();
+        criteria.addFilter("granularity",granularity);
+        return criteria;
+    }
+    
+    /**
+     * Returns a Criteria object which will extract the appropriate amount
+     * of information to get SemanticTypes.  Passing null will form the
+     * Criteria to get all SemanticTypes.
+     * 
+     * @return An appropriate Criteria object.
+     */
+    private Criteria buildBasicTypeCriteria()
+    {
         Criteria criteria = new Criteria();
         
         criteria.addWantedField("id");
@@ -713,6 +768,7 @@ class STSAdapter
         criteria.addWantedField("semantic_elements","name");
         criteria.addWantedField("semantic_elements","description");
         criteria.addWantedField("semantic_elements","data_column");
+        criteria.addWantedField("semantic_elements","semantic_type");
         
         criteria.addWantedField("semantic_elements.data_column","id");
         criteria.addWantedField("semantic_elements.data_column","column_name");
@@ -723,7 +779,11 @@ class STSAdapter
         criteria.addWantedField("semantic_elements.data_column.data_table","id");
         criteria.addWantedField("semantic_elements.data_column.data_table","table_name");
         
-        criteria.addFilter("granularity",granularity);
+        criteria.addWantedField("semantic_elements.data_column." +
+                                "reference_semantic_type","id");
+        criteria.addWantedField("semantic_elements.data_column." +
+                                "reference_semantic_type","name");
+        
         return criteria;
     }
 }
