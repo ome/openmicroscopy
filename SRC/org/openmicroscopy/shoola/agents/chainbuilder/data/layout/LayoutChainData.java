@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Vector;
 
 //Third-party libraries
@@ -43,6 +44,7 @@ import java.util.Vector;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureError;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureErrors;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.CircularChainError;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.MultiplyBoundInputError;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
@@ -86,9 +88,10 @@ public class LayoutChainData  extends AnalysisChainData
 	public DataObject makeNew() { return new LayoutChainData(); }
 	
 
+	private boolean hasCycles = false;
 
 	public void layout() {
-		//validateChainStructure();
+		validateChainStructure();
 		initNodes();
 		layerNodes();
 		makeProper();
@@ -100,7 +103,8 @@ public class LayoutChainData  extends AnalysisChainData
 	private void validateChainStructure() {
 		// validate links
 		validateLinks();
-		// validate cycles - TBD
+		// validate cycles 
+		validateCycles();
 	}
 	
 	private void validateLinks() {
@@ -152,9 +156,83 @@ public class LayoutChainData  extends AnalysisChainData
 		return inputLinkMap;
 	}
 	
+	/**
+	 * Check to see if the graph has any cycles
+	 * Do this by finding a node with no inlinks, and then removing it  and
+	 * all of its outlinks.
+	 * 
+	 * Any remaining nodes are in a cycle (or multiple cycles)
+	 */ 
+	private void validateCycles() {
+		// set hasCycles
+		Vector nodes = new Vector(getNodes());
+		Vector links = new Vector(getLinks());
+	
+		boolean foundOne = false;
+		ListIterator iter;
+		hasCycles = false;
+		while (nodes.size() > 0 && hasCycles == false) {
+			foundOne = false;
+			iter = nodes.listIterator();
+			while (iter.hasNext()) {
+				LayoutNodeData node = (LayoutNodeData) iter.next();
+				boolean inLinks = hasInLinks(node,links);
+				if (inLinks == false) {
+					iter.remove();	
+					Vector outLinks = getOutLinks(node,links);
+					if (outLinks != null) {
+						links.removeAll(outLinks);
+					}
+				    foundOne = true;
+				    break;
+				}
+			}
+			
+			// made it through list
+			if (foundOne == false) {
+				hasCycles = true;
+				addStructureError(new CircularChainError(nodes));
+				// add an error
+				return;
+			}
+		}
+		hasCycles = false;
+	}
+	
+	private boolean hasInLinks(LayoutNodeData node,Vector links) {
+		Iterator iter = links.iterator();
+		LayoutLinkData link;
+		while (iter.hasNext()) {
+			link = (LayoutLinkData) iter.next();
+			if (link.getToNode().getID() == node.getID()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private Vector getOutLinks(LayoutNodeData node,Vector links) {
+		Iterator iter = links.iterator();
+		LayoutLinkData link;
+		Vector res = null;
+		while (iter.hasNext()) {
+			link = (LayoutLinkData) iter.next();
+			if (link.getFromNode().getID() == node.getID()) {
+				if (res == null)
+					res = new Vector();
+				res.add(link);
+			}
+		}
+		return res;	
+	}
+	
+	public boolean hasCycles() {
+		return hasCycles;
+	}
+	
 	private void addStructureError(ChainStructureError error) {
 		if (errors == null) 
-			errors = new ChainStructureErrors();
+			errors = new ChainStructureErrors(this);
 		errors.addError(error);
 	}
 	
