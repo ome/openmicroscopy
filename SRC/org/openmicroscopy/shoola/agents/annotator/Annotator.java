@@ -48,9 +48,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -68,8 +68,13 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @version 2.2
  * @since OME2.2
  */
-public class Annotator implements Agent, AgentEventListener
+public class Annotator 
+	implements Agent, AgentEventListener
 {
+	
+	private static final String			ANNOT_D = "DatasetAnnotation";
+	private static final String			ANNOT_I = "ImageAnnotation";
+	
     private Registry registry;
     
     private TopFrame topFrame;
@@ -91,9 +96,8 @@ public class Annotator implements Agent, AgentEventListener
      */
     public void eventFired(AgentEvent e)
     {
-        if(e instanceof AnnotateImage)
-        {
-            AnnotateImage event = (AnnotateImage)e;
+        if (e instanceof AnnotateImage) {
+            AnnotateImage event = (AnnotateImage) e;
             showAnnotationDialog(event);
         }
     }
@@ -120,10 +124,10 @@ public class Annotator implements Agent, AgentEventListener
      */
     public boolean canTerminate()
     {
-        for(Iterator iter = activeControls.iterator(); iter.hasNext();)
-        {
-            AnnotationCtrl control = (AnnotationCtrl)iter.next();
-            if(!control.canExit()) return false;
+		AnnotationCtrl control;
+        for (Iterator iter = activeControls.iterator(); iter.hasNext();) {
+            control = (AnnotationCtrl) iter.next();
+            if (!control.canExit()) return false;
         }
         return true;
     }
@@ -141,21 +145,13 @@ public class Annotator implements Agent, AgentEventListener
     /**
      * Sets the registry (and operating context) of the Annotator.
      * 
-     * @see org.openmicroscopy.shoola.env.Agent#setContext(org.openmicroscopy.shoola.env.config.Registry)
-     * @throws IllegalArgumentException If the parameter is null.
+     * @see Agent#setContext(Registry).
      */
     public void setContext(Registry ctx)
-        throws IllegalArgumentException
     {
-        if(ctx == null)
-        {
-            throw new IllegalArgumentException("Annotator cannot operate " +
-                "in null context");
-        }
         this.registry = ctx;
         topFrame = registry.getTopFrame();
-        EventBus bus = registry.getEventBus();
-        bus.register(this,AnnotateImage.class);
+		registry.getEventBus().register(this, AnnotateImage.class);
     }
     
     /**
@@ -165,10 +161,20 @@ public class Annotator implements Agent, AgentEventListener
      */
     DatasetAnnotation createDatasetAnnotation(String content)
     {
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        DatasetAnnotation newAnnotation =
-            (DatasetAnnotation)sts.createAttribute("DatasetAnnotation");
-        newAnnotation.setContent(content);
+		DatasetAnnotation newAnnotation = null;
+		try { 
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			newAnnotation = (DatasetAnnotation) sts.createAttribute(ANNOT_D);
+			newAnnotation.setContent(content);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Creation Failure", 
+				"Unable to the semantic type "+ANNOT_D, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		}
         return newAnnotation;
     }
     
@@ -179,11 +185,21 @@ public class Annotator implements Agent, AgentEventListener
      */
     ImageAnnotation createImageAnnotation(String content)
     {
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        ImageAnnotation newAnnotation =
-            (ImageAnnotation)sts.createAttribute("ImageAnnotation");
-        newAnnotation.setContent(content);
-        return newAnnotation;
+		ImageAnnotation newAnnotation = null;
+		try { 
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I);
+			newAnnotation.setContent(content);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Creation Failure", 
+				"Unable to the semantic type "+ANNOT_I, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		}
+		return newAnnotation;
     }
     
     /**
@@ -193,8 +209,18 @@ public class Annotator implements Agent, AgentEventListener
      */
     void updateImageAnnotations(List annotations)
     {
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        sts.updateUserInputAttributes(annotations);
+		try { 
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			sts.updateUserInputAttributes(annotations);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Creation Failure", 
+				"Unable to update the semantic type ", dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		}
     }
 
     /**
@@ -216,22 +242,19 @@ public class Annotator implements Agent, AgentEventListener
      */
     List getDatasetAttributes(int datasetID)
     {
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        try
-        {
-            return sts.retrieveImageAttributes("DatasetAnnotation",datasetID);
-        }
-        catch(DSAccessException dsa)
-        {
+        List imageAttributes = null;
+        try {
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			imageAttributes =  sts.retrieveImageAttributes(ANNOT_D, datasetID);
+        } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Server Error",dsa.getMessage(),dsa);
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
         }
-        catch(DSOutOfServiceException dso)
-        {
-            UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Communication Error",dso.getMessage(),dso);
-        }
-        return null;
+        return imageAttributes;
     }
     
     /**
@@ -241,22 +264,19 @@ public class Annotator implements Agent, AgentEventListener
      */
     List getImageAnnotations(int imageID)
     {
-        SemanticTypesService sts = registry.getSemanticTypesService();
-        try
-        {
-            return sts.retrieveImageAttributes("ImageAnnotation",imageID);
-        }
-        catch(DSAccessException dsa)
-        {
+    	List imageAnnotations = null;
+        try {
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			imageAnnotations = sts.retrieveImageAttributes(ANNOT_I, imageID);
+        } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Server Error",dsa.getMessage(),dsa);
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
         }
-        catch(DSOutOfServiceException dso)
-        {
-            UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Communication Error",dso.getMessage(),dso);
-        }
-        return null;
+        return imageAnnotations;
     }
     
     /**
@@ -290,8 +310,7 @@ public class Annotator implements Agent, AgentEventListener
      */
     void respondWithEvent(ResponseEvent re)
     {
-        EventBus eventBus = registry.getEventBus();
-        eventBus.post(re);
+		registry.getEventBus().post(re);
     }
     
     /**
@@ -314,5 +333,4 @@ public class Annotator implements Agent, AgentEventListener
         return true;
     }
     
-
 }
