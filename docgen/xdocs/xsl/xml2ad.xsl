@@ -80,7 +80,7 @@ HTML and PDF settings.
 <xsl:template name="document-formatting-info">
 <document-formatting-info>
 <!-- HTML settings. -->
-<stylesheet url="style.css"/>
+<stylesheet url="styles/style.css"/>
 <!-- PDF settings. -->
 <!-- cover page -->
 <cover-left-margin>40pt</cover-left-margin>
@@ -111,14 +111,7 @@ This template generates the document header.
 -->
 <xsl:template name="document-header">
 <document-header>
-<table width="100%">
-<tr>
-<td align="right" valign="middle">
 <b><xsl:value-of select="$title"/></b>
-</td>
-</tr>
-</table>
-<hr size="1" color="steelblue" />
 </document-header>
 </xsl:template>
 
@@ -129,19 +122,9 @@ This template generates the document footer.
 -->
 <xsl:template name="document-footer">
 <document-footer>
-<hr size="1" color="steelblue" />
-<table width="100%">
-<tr>
-<td align="left"><page-number/></td>
-<td align="right">
-<small>
 Copyright &#169; 2002-2005 
 <a href="http://www.openmicroscopy.org/">Open Microscopy Environment</a>.  
 All Rights reserved.
-</small>
-</td>
-</tr>
-</table>
 </document-footer>
 </xsl:template>	
 
