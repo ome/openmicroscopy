@@ -92,6 +92,7 @@ public class DatasetLoader
         }
         catch(DataException de)
         {
+            // notify everyone that a DB read (expensive) is about to go down
             for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
             {
                 ProgressListener listener = (ProgressListener)iter.next();
@@ -100,6 +101,8 @@ public class DatasetLoader
             // TODO: call factory fill methods: this could take some time
             // (and also throw more exceptions which will trigger a
             // processFailure)
+            
+            // OK, we're done; everybody go home
             for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
             {
                 ProgressListener listener = (ProgressListener)iter.next();
@@ -108,19 +111,38 @@ public class DatasetLoader
             }
             imageList = dto.getImages();
         }
+        
+        // now, suck the images into the TSM
         for(Iterator iter = imageList.iterator(); iter.hasNext();)
         {
             tsm.putImageData((Image)iter.next());
         }
-        
-        
+        // OK, now the image data will have a data model backing, but
+        // perhaps no thumbnails.
     }
     
+    /**
+     * Adds a progress listener to receive notifications of time-consuming
+     * activities.
+     * @param listener The listener to receive notifications.
+     */
     public void addListener(ProgressListener listener)
     {
         if(listener != null)
         {
             progressListeners.add(listener);
+        }
+    }
+    
+    /**
+     * Unsubscribes a listener from the DatasetLoader's notifications.
+     * @param listener The listener to remove.
+     */
+    public void removeListener(ProgressListener listener)
+    {
+        if(listener != null)
+        {
+            progressListeners.remove(listener);
         }
     }
 }
