@@ -40,6 +40,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -47,9 +48,8 @@ import java.util.Vector;
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.nodes.PPath;
-import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.util.PNodeFilter;
 import edu.umd.cs.piccolo.PLayer;
 
 //Application-internal dependencies
@@ -83,7 +83,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  * </small>
  */
 public class ChainView extends PNode implements BufferedObject, MouseableNode, 
-	ToolTipNode, Comparable {
+	Comparable, ToolTipNode {
 
 	/**
 	 * The Chain to be rendered
@@ -148,7 +148,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	}
 
 	protected void drawChain() {
-		linkLayer = getLinkLayer();
+		linkLayer = createLinkLayer();
 		addChild(linkLayer);
 		
 		drawNodes();
@@ -162,8 +162,12 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		
 	}
 	
-	protected LinkLayer getLinkLayer() {
+	protected LinkLayer createLinkLayer() {
 		return new LinkLayer();
+	}
+	
+	public LinkLayer getLinkLayer() {
+		return linkLayer;
 	}
 		
 	public PBounds getBufferedBounds() {
@@ -253,6 +257,23 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		}
 		node.setModuleView(mNode);
 		return mNode;
+	}
+	
+	
+	/*
+	 * Get all of the modules 
+	 */
+	public Collection getModuleViews() {
+		PNodeFilter filter = new PNodeFilter() {
+			public boolean accept(PNode aNode) {
+				return ((aNode instanceof ModuleView) &&
+						!(aNode instanceof LayoutModule));
+			}
+			public boolean acceptChildrenOf(PNode aNode) {
+				return true;
+			}
+		};
+		return getAllNodes(filter,null);
 	}
 	
 	protected ModuleView getModuleView(ChainModuleData mod) {
@@ -464,27 +485,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		mouseClicked(handler,e);
 	}
 	
-	public PNode getToolTip() {
-		String name = getChain().getName();
-		//String desc = mod.getDescription();
-		if (name.compareTo("") != 0) {
-			PText pt = new PText(name);
-			pt.setPickable(false);
-			pt.setFont(Constants.TOOLTIP_FONT);
-			PPath node = new PPath();
-			node.addChild(pt);
-			pt.setOffset(0,0);
-			pt.setFont(Constants.TOOLTIP_FONT);
-			
-			node.setBounds(node.getUnionOfChildrenBounds(null));
-			node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
-			node.setPaint(Constants.TOOLTIP_FILL_COLOR);
-			node.setPickable(false);
-			return node;
-		}
-		else 
-			return null;
-	}
+	
 	
 	public double getArea() {
 		double area = getWidth()*getHeight();
@@ -497,6 +498,10 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		double areaDiff;
 		areaDiff = getArea() - ((ChainView) o).getArea();
 		return (int) areaDiff;
+	}
+	
+	public PNode getToolTip() {
+		return null;
 	}
 	
 	/**
