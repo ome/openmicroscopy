@@ -81,10 +81,14 @@ public class LinkTarget extends PPath {
  	
  	public LinkTarget() {
  		super();
- 		setPathToRectangle(0,0,Constants.LINK_TARGET_SIZE,Constants.LINK_TARGET_SIZE);
+ 		setPathToRectangle(0,0,getSize(),getSize());
  		currentColor = LINK_TARGET_COLOR;
  		setPaint(currentColor);
  	}	
+ 	
+ 	public float getSize() {
+ 		return Constants.LINK_TARGET_SIZE;
+ 	}
  	
  	public Point2D getCenter() {
 		PBounds b = getGlobalFullBounds();
