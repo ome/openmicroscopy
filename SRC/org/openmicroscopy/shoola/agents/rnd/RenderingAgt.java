@@ -379,9 +379,9 @@ public class RenderingAgt
      * Set a strategy.
      * @param resolution    bit-resolution.
      */
-    void setQuantumStrategy(int resolution, boolean b)
+    void setQuantumStrategy(int resolution)
     {
-        renderingControl.setQuantumStrategy(resolution, b);
+        renderingControl.setQuantumStrategy(resolution);
         refreshImage();
     }
     
@@ -461,6 +461,11 @@ public class RenderingAgt
         return renderingControl.getChannelStats(w);
     }
     
+    boolean getChannelBindingNR(int w)
+    {
+        return renderingControl.getChannelNoiseReduction(w);
+    }
+    
     int getChannelFamily(int w) 
     {
         return renderingControl.getChannelFamily(w);
@@ -471,9 +476,9 @@ public class RenderingAgt
         return renderingControl.getChannelCurveCoefficient(w);
     }
     
-    void setQuantizationMap(int w, int family, double k)
+    void setQuantizationMap(int w, int family, double k, boolean noiseReduction)
     {
-      renderingControl.setQuantizationMap(w, family, k);  
+      renderingControl.setQuantizationMap(w, family, k, noiseReduction);  
       refreshImage();
     }
 

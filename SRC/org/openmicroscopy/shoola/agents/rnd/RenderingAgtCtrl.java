@@ -181,6 +181,12 @@ public class RenderingAgtCtrl
     }
 
     /** Forward event to {@link RenderingAgt abstraction}. */
+    public boolean getChannelBindingNR(int w)
+    {
+        return abstraction.getChannelBindingNR(w);
+    }
+    
+    /** Forward event to {@link RenderingAgt abstraction}. */
     public int getChannelFamily(int w)
     {
         return abstraction.getChannelFamily(w);
@@ -262,15 +268,16 @@ public class RenderingAgtCtrl
     }
     
     /** Forward event to {@link RenderingAgt abstraction}. */
-    public void setQuantumStrategy(int resolution, boolean b)
+    public void setQuantumStrategy(int resolution)
     {
-        abstraction.setQuantumStrategy(resolution, b);
+        abstraction.setQuantumStrategy(resolution);
     }
 
     /** Forward event to {@link RenderingAgt abstraction}. */
-    public void setQuantizationMap(int w, int family, double k)
+    public void setQuantizationMap(int w, int family, double k, 
+                                    boolean noiseReduction)
     {
-        abstraction.setQuantizationMap(w, family, k);
+        abstraction.setQuantizationMap(w, family, k, noiseReduction);
     }
     
     /** Forward event to {@link RenderingAgt abstraction}. */
