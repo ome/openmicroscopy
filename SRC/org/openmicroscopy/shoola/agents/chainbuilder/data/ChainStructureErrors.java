@@ -49,6 +49,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -65,8 +66,10 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 public class ChainStructureErrors {
 	
 	private Vector errors;
-	public ChainStructureErrors() {
-		super();
+	private AnalysisChainData chain;
+	
+	public ChainStructureErrors(AnalysisChainData chain) {
+		this.chain = chain;
 	}
 	
 	public void addError(ChainStructureError error) {
@@ -105,21 +108,11 @@ public class ChainStructureErrors {
 		}
 		UserNotifier un = UIFactory.makeUserNotifier();
 		
-		String msg = "This chain has structural errors that may prevent it ";
+		String msg = "Chain: "+chain.getName()+" has structural errors that may prevent it";
 		msg += "from being executed.\n";
 		JTree tree = new JTree(root);
 		tree.setRootVisible(false);
 		un.notifyWarning("Improper Chain Structure",msg,tree);
-	}
-	
-	public Vector getErrors() {
-		return errors;
-	}
-	
-	public void union(ChainStructureErrors otherErrors) {
-		if (errors == null) 
-			errors = new Vector();
-		errors.addAll(otherErrors.getErrors());
 	}
 }
 	
