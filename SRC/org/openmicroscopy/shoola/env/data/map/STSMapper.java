@@ -74,6 +74,25 @@ public class STSMapper
 		granularities.put(FEATURE_GRANULARITY, "feature_id");
    	}
    	
+   	/** 
+   	 * Return a criteria containing the information
+   	 * required to call createAttribute(typeName, objectID).
+   	 * 
+   	 * @param granularity	The granularity of the attribute.
+     * @param targetID		The ID of the target.
+   	 */
+   	public static Criteria buildCreateNew(String granularity, int objectID) 
+   	{
+   		Criteria c = new Criteria();
+   		if (granularity.equals(DATASET_GRANULARITY) || 
+   			granularity.equals(FEATURE_GRANULARITY))
+			c.addWantedField("id");
+   		else if (granularity.equals(IMAGE_GRANULARITY))	
+			c.addWantedField(":all:");
+		c.addFilter("id", new Integer(objectID));
+   		return c;
+   	}
+   	
    	/**
    	 * Returns a Criteria object which contains the amount of information
      * required to call <code>count()</code>: that is, the granularity of
