@@ -51,6 +51,7 @@ import java.util.Vector;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
+import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
@@ -537,4 +538,15 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @return canvas bounds with appropriate buffers for centering
+	 */	
+	public PBounds getBufferedBounds() {
+		PBounds b = getLayer().getFullBounds();
+		return new PBounds(b.getX()-Constants.SMALL_BORDER,
+			b.getY()-Constants.SMALL_BORDER,b.getWidth()+2*Constants.SMALL_BORDER,
+			b.getHeight()+2*Constants.SMALL_BORDER); 
+	}	
  } 
