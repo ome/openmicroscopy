@@ -78,7 +78,7 @@ public class DataServicesFactory
 	private RemoteCaller	proxy;
 	private DMSAdapter		dms;
 	private STSAdapter		sts;
-    private ImageServerPixelsService ps;
+    private PixelsServiceAdapter ps;
 	
 	
 	private DataServicesFactory(Container c)
@@ -99,7 +99,7 @@ public class DataServicesFactory
 		sts = new STSAdapter(omeds, registry);
         
         //Create the new IS-based pixels service.
-        ps = new ImageServerPixelsService(proxy.getSessionKey());
+        ps = new PixelsServiceAdapter(omeds, registry);
 	}
 	
 	public DataManagementService getDMS()
