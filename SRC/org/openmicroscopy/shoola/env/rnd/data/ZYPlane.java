@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * 
@@ -63,7 +64,7 @@ class ZYPlane
 	 * @param strategy
 	 */
 	ZYPlane(PlaneDef pDef, PixelsDimensions dims, int bytesPerPixel,
-				byte[] wavelengthStack,	BytesConverter strategy)
+			ReadOnlyByteArray wavelengthStack,	BytesConverter strategy)
 	{
 		super(pDef, dims, bytesPerPixel, wavelengthStack, strategy);
 	}

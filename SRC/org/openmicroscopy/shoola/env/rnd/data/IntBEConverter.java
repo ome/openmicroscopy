@@ -29,11 +29,13 @@
 
 package org.openmicroscopy.shoola.env.rnd.data;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing a signed (2's complement)
@@ -59,13 +61,13 @@ public class IntBEConverter
 {
 	
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(byte[] data, int offset, int length)
+	public Object pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
 			
 			//Get k-byte starting from MSB, that is LSB[length-k-1].
-			tmp = data[offset+k]&0xFF;
+			tmp = data.get(offset+k)&0xFF;
 			
 			//Add LSB[j]*(2^8)^j to r, where j=length-k-1.  
 			r |= tmp<<(length-k-1)*8; 
@@ -84,7 +86,7 @@ public class IntBEConverter
 			//Make room for length bytes.
 			paddingMask <<= 8;  
 		}
-		if (data[offset] < 0)   r |= paddingMask;  //Was negative, pad.
+		if (data.get(offset) < 0)   r |= paddingMask;  //Was negative, pad.
 		return new Integer(r);
 	}
     

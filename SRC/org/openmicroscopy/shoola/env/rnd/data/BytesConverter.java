@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.env.rnd.data;
 
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
+
 //Java imports
 
 //Third-party libraries
@@ -42,17 +44,17 @@ package org.openmicroscopy.shoola.env.rnd.data;
  * defined in {@link DataSink}).
  * When a pixel value is stored as a sequence of bytes, the format of those 
  * bytes depends on the pixel type and on the endianness chosen to encode the
- * bytes. That leads to different algorithms for converting sequence of bytes 
+ * bytes.  That leads to different algorithms for converting sequence of bytes 
  * back into a numeric value, depending on the pixel type and on the 
  * endianness-order of the bytes.</p>
- * <p>Each subclass implements the {@link #pack(byte[],int,int) pack} method to 
- * carry out a specific conversion algorithm, taking into account pixel type 
- * and endianness. The value returned by this method is an object that wraps the
- * actual numeric value. For {@link DataSink#INT8}, {@link DataSink#INT16}, 
- * {@link DataSink#INT32}, {@link DataSink#UINT8} and {@link DataSink#UINT16}
- * types, the returned value is an instance of <code>Integer</code>, 
- * as <code>Long</code> is used for {@link DataSink#UINT32}.
- * </p>
+ * <p>Each subclass implements the {@link #pack(ReadOnlyByteArray,int,int) pack}
+ * method to carry out a specific conversion algorithm, taking into account
+ * pixel type and endianness.  The value returned by this method is an object
+ * that wraps the actual numeric value.  For {@link DataSink#INT8},
+ * {@link DataSink#INT16}, {@link DataSink#INT32}, {@link DataSink#UINT8} and
+ * {@link DataSink#UINT16} types, the returned value is an instance of
+ * <code>Integer</code>, as <code>Long</code> is used for
+ * {@link DataSink#UINT32}.</p>
  * <p>TODO: when we support all other pixel types, explain the mapping here.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -147,6 +149,6 @@ abstract class BytesConverter
  	 * @param length  The number of bytes that make up the pixel value.
  	 * @return An object to wrap the actual numeric value.
  	 */
-	public abstract Object pack(byte[] data, int offset, int length);
+	public abstract Object pack(ReadOnlyByteArray data, int offset, int length);
 
 }

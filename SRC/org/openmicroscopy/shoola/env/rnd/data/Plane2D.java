@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * 
@@ -56,19 +57,19 @@ public abstract class Plane2D
 {  
 	
 	private BytesConverter		strategy;
-	private byte[]				wavelengthStack;
+	private ReadOnlyByteArray	data;
 	protected PlaneDef			planeDef;
 	protected int				bytesPerPixel;
 	protected PixelsDimensions	dims;
 	
 
 	protected Plane2D(PlaneDef pDef, PixelsDimensions dims, int bytesPerPixel, 
-						byte[] wavelengthStack, BytesConverter strategy)
+						ReadOnlyByteArray data, BytesConverter strategy)
 	{
 		this.planeDef = pDef;
 		this.dims = dims;
 		this.bytesPerPixel = bytesPerPixel;
-		this.wavelengthStack = wavelengthStack;
+		this.data = data;
 		this.strategy = strategy;
 	}
 	
@@ -77,7 +78,7 @@ public abstract class Plane2D
 	public Object getPixelValue(int x1, int x2)
 	{
 		int offset = calculateOffset(x1, x2);
-		return strategy.pack(wavelengthStack, offset, bytesPerPixel);
+		return strategy.pack(data, offset, bytesPerPixel);
 	}
 	
 }

@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing an unsigned big-endian integer into 
@@ -61,13 +62,13 @@ public class UintBEConverter
 { 
 	
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(byte[] data, int offset, int length)
+	public Object pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		long r = 0, tmp;
 		for (int k = 0; k < length; ++k) {
 			
 			//Get k-byte starting from MSB, that is LSB[length-k-1].
-			tmp = data[offset+k]&0xFF;
+			tmp = data.get(offset+k)&0xFF;
 			
 			//Add LSB[j]*(2^8)^j to r, where j=length-k-1.  
 			r |= tmp<<(length-k-1)*8;

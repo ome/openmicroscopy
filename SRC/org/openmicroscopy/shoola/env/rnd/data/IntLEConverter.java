@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing a signed (2's complement) 
@@ -59,13 +60,13 @@ public class IntLEConverter
 {
     
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(byte[] data, int offset, int length)
+	public Object pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
 			
 			//Get k-byte starting from LSB.
-			tmp = data[offset+k]&0xFF;
+			tmp = data.get(offset+k)&0xFF;
 			
 			//Add LSB[k]*(2^8)^k to r.  
 			r |= tmp<<k*8;  
@@ -84,7 +85,7 @@ public class IntLEConverter
 			//Make room for length bytes.			
 			paddingMask <<= 8;
 		}
-		if (data[offset+length-1] < 0)   r |= paddingMask;  //Was negative, pad.
+		if (data.get(offset+length-1) < 0)   r |= paddingMask;  //Was negative, pad.
 		return new Integer(r);
 	}
     

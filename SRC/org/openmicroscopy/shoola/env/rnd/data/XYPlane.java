@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * 
@@ -59,19 +60,18 @@ class XYPlane
 	 * @param pDef
 	 * @param dims
 	 * @param bytesPerPixel
-	 * @param wavelengthStack
+	 * @param planeData
 	 * @param strategy
 	 */
 	XYPlane(PlaneDef pDef, PixelsDimensions dims, int bytesPerPixel,
-				byte[] wavelengthStack,	BytesConverter strategy)
+			ReadOnlyByteArray planeData, BytesConverter strategy)
 	{
-		super(pDef, dims, bytesPerPixel, wavelengthStack, strategy);
+		super(pDef, dims, bytesPerPixel, planeData, strategy);
 	}
 
 	protected int calculateOffset(int x1, int x2) 
 	{ 
-		return bytesPerPixel *
-				(planeDef.getZ()*dims.sizeX*dims.sizeY+dims.sizeX*x2+x1);
+		return bytesPerPixel * (dims.sizeX*x2+x1);
 	}
 
 }
