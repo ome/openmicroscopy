@@ -40,6 +40,8 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -48,7 +50,6 @@ import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
-import edu.umd.cs.piccolo.PNode;
 
 
 /** 
@@ -120,15 +121,16 @@ public class PaletteChainView extends ChainView {
 			return null;
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
 		chainHandler.setLastEntered(this);
 		SelectAnalysisChain event = new SelectAnalysisChain(getChain());
 		registry.getEventBus().post(event);
+		chainHandler.zoomIn(e);
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
-	//	ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
-		//chainHandler.zoomOut();
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
+		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
+		chainHandler.zoomOut(e);
 	}	
 }
