@@ -43,13 +43,15 @@
     + launch: Launcher scripts and installation instructions bundled with the 
           default application distribution file.  Its sub-dirs contain further
           resources to build platform-specific distributions.
+    + legal: Terms and conditions under which the various artifacts in this
+    			repository are released.  A README file specifies which license
+    			applies to which artifact.
     + LIB: All library files required by the application.  Its test sub-dir
           contains additional libraries required by the test code.
     + SRC: Contains the application source files.
     + TEST: The test code.
     + CodeTemplate: This file describes the coding style that all source files
           must conform to.
-    + LICENSE: Full license file.
     + README: This file.
 
 
@@ -60,15 +62,15 @@
   The compilation, testing, launch, and delivery of the application are
   automated by means of an Ant (http://ant.apache.org/) build file, located
   under the build directory.  In order to perform a build, all you need is
-  a Java Virtual Machine -- version 1.4 or later.  Move to the build directory
-  and, from the command line, enter:
+  a JDK -- version 1.4 or later.  Move to the build directory and, from the 
+  command line, enter:
   
-      java -jar build
+      java build
   
   This will display the available targets to compile, run, test, and create a
   distribution bundle.  Use the target you wish, for example:
   
-     java -jar build all
+     java build all
   
   Because all the tools needed to build the software are already included in
   the build directory, you don't need to have Ant on your machine.
@@ -81,8 +83,10 @@
   Licensing
   ---------
 
-  This software is licensed under the terms you may find in the file named 
-  "LICENSE" in this directory.
+  This software is licensed under the terms of the GNU Lesser General Public 
+  License (LGPL), a copy of which may be found in the lgpl.txt file under the
+  'legal' directory.  The README file in that directory states which other
+  licenses apply to third-party artifacts used by our software.
   
 
 
