@@ -301,7 +301,7 @@ public class ToolBar
 	{
 		JPanel p = new JPanel();
 		JLabel l = new JLabel(" start ");
-		int x = length/2*txtWidth;
+		int x = length*txtWidth;
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(gridbag);
@@ -343,7 +343,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 1;
 		Insets insets = zField.getInsets();
-		c.ipadx = insets.left+zLength/2*txtWidth+insets.right;
+		c.ipadx = insets.left+zLength*txtWidth+insets.right;
 		gridbag.setConstraints(zField, c);
 		p.add(zField);
 		c.gridx = 2;
@@ -356,7 +356,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 4;
 		insets = tField.getInsets();
-		c.ipadx = insets.left+tLength/2*txtWidth+insets.right;
+		c.ipadx = insets.left+tLength*txtWidth+insets.right;
 		gridbag.setConstraints(tField, c);
 		p.add(tField);
 		c.gridx = 5;
