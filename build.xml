@@ -10,6 +10,8 @@
   <property name="distzip" value="ome.zip"/>
   <property name="jar" value="jar"/>
   <property name="deprecation" value="yes"/>
+  <property name="debug" value="yes"/>
+  <property name="debuglevel" value="lines,vars,source"/>
   
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Additional properties to support testing.
@@ -53,7 +55,9 @@
   <target name="compile" depends="init">
     <javac srcdir="${src}"
 	       destdir="${build}"
-           deprecation="${deprecation}">
+           deprecation="${deprecation}"
+           debug="${debug}"
+           debuglevel="${debuglevel}">
       <classpath>
         <fileset dir="${lib}">
           <include name="**/*.jar"/>
@@ -181,14 +185,18 @@
   <target name="compile_tests" depends="test_init">
     <javac srcdir="${src}"
 	       destdir="${test.out}"
-           deprecation="${deprecation}">
+           deprecation="${deprecation}"
+           debug="${debug}"
+           debuglevel="${debuglevel}">
       <classpath>
         <fileset dir="${lib}" includes="**/*.jar"/>
       </classpath>
     </javac>
     <javac srcdir="${test.src}"
 	       destdir="${test.out}"
-           deprecation="${deprecation}">
+           deprecation="${deprecation}"
+           debug="${debug}"
+           debuglevel="${debuglevel}">
       <classpath>
         <fileset dir="${lib}" includes="**/*.jar"/>
         <!-- Add previously compiled classes to the cp. -->
