@@ -44,6 +44,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.openmicroscopy.shoola.agents.browser.heatmap.SemanticTypeTree;
+
 /**
  * The Swing UI for the heat map controls.
  *
@@ -121,6 +123,18 @@ public final class HeatMapUI extends JInternalFrame
         
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
+        
+        treePanel.addListener(new HeatMapTreeListener()
+        {
+            public void nodeSelected(SemanticTypeTree.TreeNode node)
+            {
+                if(!(node instanceof SemanticTypeTree.ElementNode))
+                {
+                    gradPanel.setEnabled(false);
+                }
+                else gradPanel.setEnabled(true);
+            }
+        });
         
         JScrollPane scrollPane = new JScrollPane(treePanel);
         scrollPane.setPreferredSize(new Dimension(250,200));

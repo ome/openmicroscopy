@@ -86,7 +86,7 @@ public class HeatMapPMFactory
                 Rectangle2D region = t.getBounds().getBounds2D();
                 if(thumbnailColorMap.containsKey(t.getModel()))
                 {
-                    Paint p = (Paint)thumbnailColorMap.get(t);
+                    Paint p = (Paint)thumbnailColorMap.get(t.getModel());
                     if(p != null)
                     {
                         g.setPaint(p);
@@ -125,7 +125,9 @@ public class HeatMapPMFactory
                 
                 double val = mode.computeValue(attrs,elementName);
                 Color color = scale.getColor(val,coldColor,warmColor);
-                thumbnailColorMap.put(tdm,color);
+                Color alphaColor = new Color(color.getRed(),color.getGreen(),
+                                             color.getBlue(),128);
+                thumbnailColorMap.put(tdm,alphaColor);
             }
         };
         return pm;

@@ -136,7 +136,7 @@ public class SemanticTypeTree
                 {
                     fqName = fqName + node.getFQName() + ".";
                 }
-                fqName = fqName + element.getDataColumn().getColumnName();
+                fqName = fqName + element.getName();
                 if(det == DataElementType.ATTRIBUTE)
                 {
                     SemanticType childType = element.getDataColumn().getReferenceType();
