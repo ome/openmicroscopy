@@ -47,6 +47,7 @@ import java.util.Vector;
 //Third-party libraries
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.PLayer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
@@ -102,13 +103,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	/**
 	 * Horizontal and verical gaps between layers and nodes (respectively)
 	 */
-	private static float HGAP=150f;
-	private static float VGAP=100f;
+	private static float HGAP=50f;
+	private static float VGAP=25f;
 	
 	/**
 	 * A vertical offset of curve components, chosen to improve aesthetics
 	 */
-	private static float CURVE_OFFSET=100f;
+	private static float CURVE_OFFSET=25f;
 	
 	/** 
 	 * The width of the current layer
@@ -128,7 +129,15 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	 */
 	private NodeLayers nodeLayers;
 	
-	private PBounds chainBounds= new PBounds();
+
+	
+	/** layers for full view */
+	protected PLayer fullLayer = new PLayer();
+	
+	/* bounds of the chain */
+	private PBounds chainBounds  = new PBounds();
+		
+
 	/**
 	 * 
 	 * @param chain		the chain to be drawn
@@ -136,18 +145,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	 */
 	public ChainView(LayoutChainData chain){
 		
-		
 		this.chain = chain;
 		this.layering = chain.getLayering();
-		//this.x = x;
-		//this.y =y;
-	//	xInit = x;
-		
-	//	top =y;
+
 		
 		LinkLayer linkLayer = new LinkLayer();
-		linkLayer.setPickable(false);
-		addChild(linkLayer);
+		addChild(fullLayer);
+		fullLayer.addChild(linkLayer);
 		
 		drawNodes();
 		layoutNodes();
@@ -158,6 +162,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		setBounds(getUnionOfChildrenBounds(null));
 		
 	}
+	
+	
 		
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
@@ -171,6 +177,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	public LayoutChainData getChain() {
 		return chain;
 	}
+	
 	
 	/**
 	 * To draw the nodes, start at the highest numbered layer and continue 
@@ -238,14 +245,14 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 			ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).getModule();
 			mNode = getModuleView(mod);
 			mod.addModuleNode(mNode);
-			addChild(mNode);
+			fullLayer.addChild(mNode);
 		}
 		node.setModuleView(mNode);
 		return mNode;
 	}
 	
 	protected ModuleView getModuleView(ChainModuleData mod) {
-		return new ModuleView(mod);
+		return new SingleModuleView(mod);
 	}
 	
 	/**
@@ -435,13 +442,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		modLink.insertIntermediatePoint(j,xpos,ypos);
 	}
 	
-	public double getHeight() { 
-		//return chainHeight;
-		return  chainBounds.getHeight()+VGAP;
-	}
 	
 	public void adjustVerticalExtents(PBounds b) {
 		chainBounds.add(b);
+	}
+	
+	public double getHeight() { 
+		return chainBounds.getHeight();
 	}
 	
 	public double getWidth() {
@@ -449,7 +456,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
-		
 		((ModuleNodeEventHandler) handler).animateToNode(this);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
 	}
@@ -467,10 +473,11 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
-		PNode p = getParent();
-		if (p instanceof BufferedObject)  
-			((ModuleNodeEventHandler) handler).animateToNode(p);	
-	}	
+		((ModuleNodeEventHandler) handler).animateToNode(this);
+		((ModuleNodeEventHandler) handler).setLastEntered(this);
+	}
+	
+	
 	
 	/**
 	 * A convenience class that tracks the nodes in each layer,
