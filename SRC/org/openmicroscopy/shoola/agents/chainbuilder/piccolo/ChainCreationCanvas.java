@@ -331,9 +331,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				JOptionPane.INFORMATION_MESSAGE);
 		newChain.layout();
 		frame.updateChainPalette(newChain);
-//		 add this to the library
-		//libraryCanvas.drawChain(chain);
-		//libraryCanvas.scaleToSize();
+
 	}
 	
 	private Collection findModules() {
@@ -403,6 +401,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				// somehow create a link
 				LayoutLinkData linkData = new 
 					LayoutLinkData(chain,fromNode,fromOutput,toNode,toInput);
+				fromNode.addOutputLink(linkData);
+				toNode.addInputLink(linkData);
 				links.add(linkData);
 			}
 		}
