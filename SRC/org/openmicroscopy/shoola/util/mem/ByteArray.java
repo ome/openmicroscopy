@@ -29,10 +29,9 @@
 
 package org.openmicroscopy.shoola.util.mem;
 
+//Java imports
 import java.io.IOException;
 import java.io.InputStream;
-
-//Java imports
 
 //Third-party libraries
 

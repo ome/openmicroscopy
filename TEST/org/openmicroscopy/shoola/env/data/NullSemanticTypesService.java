@@ -29,17 +29,15 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-import java.util.List;
-
-import org.openmicroscopy.ds.dto.Attribute;
-import org.openmicroscopy.ds.dto.SemanticType;
-
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.ds.dto.SemanticType;
 
 /** 
  * 

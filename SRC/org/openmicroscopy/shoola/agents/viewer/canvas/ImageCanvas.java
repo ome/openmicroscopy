@@ -38,6 +38,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.List;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
+import org.openmicroscopy.shoola.util.math.geom2D.RectangleArea;
 
 /** 
  * Canvas to display the selected buffered 2D-image.
@@ -111,13 +114,54 @@ public class ImageCanvas
     
     public ImageCanvasMng getManager() { return manager; }
     
-    public BufferedImage getPinOnSide(boolean painting, Color c)
+    public BufferedImage getPinOnSideTopLeft(boolean painting, Color c)
     {
         if (lensImage == null || displayImage == null) return null;
         int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
         lensImage = itMng.buildDisplayImage(lensImage);
-        return ImageFactory.getImagePinOnSide(displayImage, lensImage, 
-                xTopCorner, yTopCorner, widthNew, widthNew, painting, c);
+        RectangleArea pa = new RectangleArea(xTopCorner, yTopCorner, widthNew, 
+                            widthNew);
+        return ImageFactory.getImagePinTopLeft(displayImage, lensImage, pa,
+                            painting, c);
+    }
+    
+    public BufferedImage getPinOnSideTopRight(boolean painting, Color c)
+    {
+        if (lensImage == null || displayImage == null) return null;
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
+        lensImage = itMng.buildDisplayImage(lensImage);
+        RectangleArea pa = new RectangleArea(xTopCorner, yTopCorner, widthNew, 
+                            widthNew);
+        return ImageFactory.getImagePinTopRight(displayImage, lensImage, pa, 
+                        painting, c);
+    }
+    
+    public BufferedImage getPinOnSideBottomLeft(boolean painting, Color c)
+    {
+        if (lensImage == null || displayImage == null) return null;
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
+        lensImage = itMng.buildDisplayImage(lensImage);
+        RectangleArea pa = new RectangleArea(xTopCorner, yTopCorner, widthNew, 
+                            widthNew);
+        return ImageFactory.getImagePinBottomLeft(displayImage, lensImage, pa,
+                            painting, c);
+    }
+    
+    public BufferedImage getPinOnSideBottomRight(boolean painting, Color c)
+    {
+        if (lensImage == null || displayImage == null) return null;
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
+        lensImage = itMng.buildDisplayImage(lensImage);
+        RectangleArea pa = new RectangleArea(xTopCorner, yTopCorner, widthNew, 
+                        widthNew);
+        return ImageFactory.getImagePinBottomRight(displayImage, lensImage, pa, 
+                        painting, c);
+    }
+    
+    public BufferedImage getImageAndROIs(List rois)
+    {
+        if (displayImage == null) return null;
+        return ImageFactory.getImageAndROIs(displayImage, rois);
     }
     
     /** 
@@ -128,8 +172,9 @@ public class ImageCanvas
     {
         if (displayImage == null) return null;
         int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
-        return ImageFactory.getImageWithPinArea(displayImage, xTopCorner, 
-                        yTopCorner, widthNew, widthNew, painting, c);
+        RectangleArea pa = new RectangleArea(xTopCorner, yTopCorner, widthNew, 
+                                widthNew);
+        return ImageFactory.getImageWithPinArea(displayImage, pa, painting, c);
     }
     
     /** Compose the pin image and the main one. */
