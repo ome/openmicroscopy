@@ -128,7 +128,7 @@ class DataTreeCellRenderer
 			else if (usrObject instanceof DatasetSummary) {
                 if (((DatasetSummary) usrObject).getAnnotation() == null)
                     id = DATASET_ICON;
-                else id = ANNOTATED_IMAGE_ICON;
+                else id = ANNOTATED_DATASET_ICON;
             } else if (usrObject instanceof ImageSummary) {
                if (((ImageSummary) usrObject).getAnnotation() == null)
                    id = IMAGE_ICON;
