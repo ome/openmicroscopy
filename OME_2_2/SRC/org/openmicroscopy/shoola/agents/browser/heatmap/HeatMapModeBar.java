@@ -46,6 +46,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+
 /**
  * Indicates which mode to use in drawing the heat map.
  * 
@@ -56,7 +58,7 @@ import javax.swing.JPanel;
  */
 public class HeatMapModeBar extends JPanel
 {
-    private HeatMapMode currentMode = HeatMapModes.MEAN_MODE;
+    private DisplayValueMode currentMode = HeatMapModes.MEAN_MODE;
     private Set modeListeners;
     private JComboBox box;
     
@@ -80,7 +82,7 @@ public class HeatMapModeBar extends JPanel
             {
                 if(e.getStateChange() == ItemEvent.SELECTED)
                 {
-                    currentMode = (HeatMapMode)e.getItem();
+                    currentMode = (DisplayValueMode)e.getItem();
                     for(Iterator iter = modeListeners.iterator(); iter.hasNext();)
                     {
                         HeatMapModeListener listener =
@@ -100,7 +102,7 @@ public class HeatMapModeBar extends JPanel
      * is simple enough)
      * @return
      */
-    public HeatMapMode getCurrentMode()
+    public DisplayValueMode getCurrentMode()
     {
         return currentMode;
     }

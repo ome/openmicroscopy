@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailStatistics;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -68,7 +69,7 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 public class HeatMapDispatcher implements HeatMapTreeListener,
                                           HeatMapModeListener
 {
-    private HeatMapMode currentMode;
+    private DisplayValueMode currentMode;
     private Scale currentScale;
     private String currentScaleName;
     private HeatMapModel model;
@@ -117,7 +118,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         this.gradient = gradient;
     }
     
-    public void setCurrentMode(HeatMapMode mode)
+    public void setCurrentMode(DisplayValueMode mode)
     {
         currentMode = mode;
         displayInformation(attributeName,elementName);
@@ -183,7 +184,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     /**
      * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModeListener#modeChanged(org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapMode)
      */
-    public void modeChanged(HeatMapMode newMode)
+    public void modeChanged(DisplayValueMode newMode)
     {
         setCurrentMode(newMode);
     }

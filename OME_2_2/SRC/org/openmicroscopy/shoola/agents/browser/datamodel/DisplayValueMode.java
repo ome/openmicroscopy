@@ -33,7 +33,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.heatmap;
+package org.openmicroscopy.shoola.agents.browser.datamodel;
 
 import org.openmicroscopy.ds.dto.Attribute;
 
@@ -45,7 +45,7 @@ import org.openmicroscopy.ds.dto.Attribute;
  * @version 2.2
  * @since OME2.2
  */
-public interface HeatMapMode
+public interface DisplayValueMode
 {
     /**
      * Computes a particular value over the specified elements of the

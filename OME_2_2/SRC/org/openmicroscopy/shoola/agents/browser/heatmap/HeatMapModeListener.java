@@ -35,6 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+
 /**
  * Listener interface for changing heat map modes.
  * 
@@ -49,7 +51,7 @@ public interface HeatMapModeListener
      * Indicates that the mode changed to the specified mode.
      * @param newMode The new mode.
      */
-    public void modeChanged(HeatMapMode newMode);
+    public void modeChanged(DisplayValueMode newMode);
     
     /**
      * Indicates that the scale changed to the specified scale.  The listener

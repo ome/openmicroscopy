@@ -49,6 +49,7 @@ import java.util.Map;
 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
 import org.openmicroscopy.shoola.agents.browser.images.AbstractPaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -122,7 +123,7 @@ public class HeatMapPMFactory
      * @param warmColor
      * @return
      */
-    public static PaintMethod getPaintMethod(final HeatMapMode mode,
+    public static PaintMethod getPaintMethod(final DisplayValueMode mode,
                                              final String attributeName,
                                              final String elementName,
                                              final Scale scale,
@@ -200,7 +201,7 @@ public class HeatMapPMFactory
      * @param textColor The color at which to display the value.
      * @return
      */
-    public static PaintMethod getShowValueMethod(final HeatMapMode mode,
+    public static PaintMethod getShowValueMethod(final DisplayValueMode mode,
                                                  final String attributeName,
                                                  final String elementName,
                                                  final double minZoomLevel,

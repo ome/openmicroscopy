@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
 import java.util.Arrays;
 
 import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
 
 /**
  * Collection of HeatMapModes.
@@ -52,7 +53,7 @@ public class HeatMapModes
     /**
      * The extract-minimum mode.
      */
-    public static final HeatMapMode MINIMUM_MODE = new AbstractHeatMapMode()
+    public static final DisplayValueMode MINIMUM_MODE = new AbstractHeatMapMode()
     {
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
@@ -80,7 +81,7 @@ public class HeatMapModes
     /**
      * The extract-mean mode.
      */
-    public static final HeatMapMode MEAN_MODE = new AbstractHeatMapMode()
+    public static final DisplayValueMode MEAN_MODE = new AbstractHeatMapMode()
     {
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
@@ -104,7 +105,7 @@ public class HeatMapModes
     /**
      * The extract-median mode.
      */
-    public static final HeatMapMode MEDIAN_MODE = new AbstractHeatMapMode()
+    public static final DisplayValueMode MEDIAN_MODE = new AbstractHeatMapMode()
     {
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
@@ -137,7 +138,7 @@ public class HeatMapModes
     /**
      * The extract-maximum mode.
      */
-    public static final HeatMapMode MAXIMUM_MODE = new AbstractHeatMapMode()
+    public static final DisplayValueMode MAXIMUM_MODE = new AbstractHeatMapMode()
     {
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
