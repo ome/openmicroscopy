@@ -121,12 +121,9 @@ public class ExecutionsDataManager extends DataManager {
 				ModuleData mProto = new ModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
 				DataManagementService dms = registry.getDataManagementService();
-				long start = System.currentTimeMillis();
 				Collection execs = 
 					dms.retrieveChainExecutions(ceProto,dsProto,
 							acProto,neProto,mProto,meProto);
-				long end = System.currentTimeMillis()-start;
-				System.err.println("elapsed time for retreviving chexs: "+end);
 				executionsData = new ExecutionsData(execs);
 				LoadChainExecutionsEvent event =
 					new LoadChainExecutionsEvent(executionsData);
