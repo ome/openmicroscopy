@@ -42,7 +42,11 @@ import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
+import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
@@ -61,7 +65,7 @@ public class BPalette extends PNode
      */
     private String paletteName;
     private int maxWidth; // the maximum width of the 
-    private int measuredWidth;
+    private int measuredWidth = 150; // 150 to start
     private int iconSpacing;
     
     private PNode headerNode;
@@ -88,7 +92,7 @@ public class BPalette extends PNode
         this.maxWidth = width;
     }
     
-    class TitleBar extends PNode
+    class TitleBar extends PPath
     {
         private String titleName;
         private Color backgroundColor;
@@ -102,7 +106,10 @@ public class BPalette extends PNode
         
         TitleBar(String name)
         {
-            this.titleName = name;
+            super(new Rectangle2D.Double(0,0,measuredWidth,20));
+            bounds = getPathReference().getBounds2D();
+            titleName = name;
+            
             backgroundColor = new Color(102,102,102,192);
             titleNode = new PText(name);
             titleNode.setPaint(Color.white);
@@ -120,8 +127,31 @@ public class BPalette extends PNode
             g2.fill(bounds);
             g2.setPaint(oldPaint);
         }
+    }
+    
+    class MinimizeIcon extends PNode
+    {
+        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         
-        public boolean setBounds(double x, double y, double width, double height)
+        // TODO: need to pass a Palette reference in here?
+        public MinimizeIcon()
+        {
+            addInputEventListener(new PBasicInputEventHandler()
+            {
+                public void mouseClicked(PInputEvent arg0)
+                {
+                    // figure out how to minimize the sucker
+                }
+            });
+        }
+        
+        public PBounds getBounds()
+        {
+            return new PBounds(bounds);
+        }
+        
+        public boolean setBounds(double x, double y,
+                                 double width, double height)
         {
             if(super.setBounds(x,y,width,height))
             {
@@ -130,6 +160,15 @@ public class BPalette extends PNode
             }
             return false;
         }
+        
+        public void paint(PPaintContext context)
+        {
+            Graphics2D g2 = context.getGraphics();
+            Paint oldPaint = g2.getPaint();
+            g2.setPaint(Color.white);
+            g2.fill(new Rectangle2D.Double(bounds.getX()+3,
+                                           bounds.getY()+7,14,6));
+            g2.setPaint(oldPaint);                     
+        }
     }
-    
 }
