@@ -51,7 +51,7 @@ import java.util.LinkedHashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByModuleID;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByNodeID;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -451,7 +451,7 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	// to be revised
-	public ChainExecutionsByModuleID getChainExecutionsByChainID(int id) {
+	public ChainExecutionsByNodeID getChainExecutionsByChainID(int id) {
 		if (chainExecutions != null)
 			return chainExecutions.getChainExecutionsByChainID(id);
 		return null;

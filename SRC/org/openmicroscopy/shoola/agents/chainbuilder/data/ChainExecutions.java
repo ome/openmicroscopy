@@ -175,10 +175,10 @@ public class ChainExecutions {
 	}
 	
 	// to be revised.
-	public ChainExecutionsByModuleID getChainExecutionsByChainID(int id) {
+	public ChainExecutionsByNodeID getChainExecutionsByChainID(int id) {
 		Integer ID = new Integer(id);
 		Collection execs = (Collection) byChainId.get(ID);
-		return new ChainExecutionsByModuleID((Collection) byChainId.get(ID));
+		return new ChainExecutionsByNodeID((Collection) byChainId.get(ID));
 	}
 	
 	public Collection getChainExecutionsByDatasetID(int id) {
