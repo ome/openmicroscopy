@@ -37,6 +37,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
@@ -59,19 +60,97 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public interface DataManagementService
 {
     //TODO: put in SemanticTypesService
-    public int getUserID();
+    //public int getUserID();
     
-    /**Retrieve all the projects of the current User. */
+	/**
+	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Project objects.
+	 * Each project proto object is linked to a list of dataset proto 
+	 * objects.
+	 * 
+	 * @param pProto	project proto.
+	 * @param dProto	dataset proto.
+	 * @return
+	 */
     public List retrieveUserProjects(ProjectSummary pProto, 
     								DatasetSummary dProto);
     								
-	/**Retrieve all the projects of the current User. */
+	/**
+	 * Retrieve all user's projects.
+	 * Create a list of project summary DataObjects filled up with 
+	 * data retrieved from an OMEDS project objects.
+	 * Each project summary object is linked to a list of dataset summary 
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
     public List retrieveUserProjects();
     
-	/**Retrieve a given project. */								
-    public ProjectData retrieveProject(int id, ProjectData retVal);
+	/**
+	 * Create, if none provided, a DataObject and fill it up with
+	 * data retrieved from an OMEDS Project object.
+	 * 
+	 * @param projectID		projectID
+	 * @param retVal		DataObject to fill up.
+	 * @return
+	 */								
+    public ProjectData retrieveProject(int projectID, ProjectData retVal);
     
-	/**Retrieve a given project. */
-    public DatasetData retrieveDataset(int id, DatasetData retVal);
-    //public Image retrieveImage(int id);
+	/**
+	 * Create a DataObject and fill it up with
+	 * data retrieved from an OMEDS Project object.
+	 * 
+	 * @param projectID		projectID
+	 * @return
+	 */
+	public ProjectData retrieveProject(int projectID);
+	
+	/**
+	 * Create, if none provided, a DataObject and fill it up with
+	 * data retrieved from an OMEDS Dataset object.
+	 * 
+	 * @param datasetID		datasetID
+	 * @param retVal	DataObject to fill up.
+	 * @return
+	 */
+    public DatasetData retrieveDataset(int datasetID, DatasetData retVal);
+    
+	/**
+	 * Create a DataObject and fill it up with
+	 * data retrieved from an OMEDS Dataset object.
+	 * 
+	 * @param datasetID		datasetID
+	 * @return
+	 */
+	public DatasetData retrieveDataset(int datasetID);
+	
+	/**
+	 * Create, if none provided, a DataObject and fill it up with
+	 * data retrieved from an OMEDS Image object.
+	 * 
+	 * @param id		imageID
+	 * @param retVal	DataObject to fill up.
+	 * @return
+	 */
+    public ImageData retrieveImage(int id, ImageData retVal);
+    
+	/**
+	* Create a DataObject and fill it up with
+	* data retrieved from an OMEDS Image object.
+	* 
+	* @param id		imageID
+	* @return
+	*/
+	public ImageData retrieveImage(int id);
+	
+    /**
+     * Retrieve all images linked to a given dataset.
+     * Creates a list of image summary objects, object filled up with
+     * data retrieved from an OMEDS Image object.
+     * 
+     * @param datasetID		
+     * @return list of image summary objects.
+     */
+    public List retrieveImages(int datasetID);
+    
 }

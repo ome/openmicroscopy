@@ -38,12 +38,15 @@ import java.util.List;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
+import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
@@ -159,13 +162,22 @@ class DMSAdapter
 		  //(broken connection, expired session) or ServiceUnavailableExc
 		  //(temp server failure, temp middleware failure).
 		}
+		
+		if (project == null) { // to be on the save side
+			// pop up a dialog
+		}
 		//Put the server data into the corresponding client object.
 		ProjectMapper.fillProject(project, retVal);
 		
     	return retVal;
     }
     
-	/** Retrieve a dataset. */
+	public ProjectData retrieveProject(int id)
+	{
+		return retrieveProject(id, null);
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
     public DatasetData retrieveDataset(int id, DatasetData retVal)
     {
 		//Make a new retVal if none was provided.
@@ -185,10 +197,91 @@ class DMSAdapter
 		  //(temp server failure, temp middleware failure).
 		}
 	
+		if (dataset == null) { // to be on the save side
+			// pop up a dialog
+		}
 		//Put the server data into the corresponding client object.
 		DatasetMapper.fillDataset(dataset, retVal);
     	return retVal;
     }
+    
+	public DatasetData retrieveDataset(int id)
+	{
+		return retrieveDataset(id, null);
+	}
+	
+    /**
+     * Retrieves the images linked to a given dataset.
+     * 
+     * @param datasetID	dataset id.
+     * @return list of image summary objects.
+     */
+    public List retrieveImages(int datasetID)
+    {
+    	Criteria criteria = DatasetMapper.buildImagesCriteria();
+    	
+    	Dataset dataset = null;
+		//Load the graph defined by criteria.
+		try {
+			dataset = (Dataset) proxy.load(Dataset.class, datasetID, criteria);
+	  	} catch (Exception e) {
+	 	 // TODO: handle exception by throwing either NotLoggedInException
+	  	//(broken connection, expired session) or ServiceUnavailableExc
+	  	//(temp server failure, temp middleware failure).
+	  	}
+
+	  	if (dataset == null) {	// to be on the save side
+	  		// pop up a dialog
+	  	}
+	  	return DatasetMapper.fillListImages(dataset);
+    }
+    
+    /** 
+     * 
+     * Retrieves the data of a selected image.
+     * Create an image data object if none is provided.
+     * 
+     * @param id		image id.
+     * @param retVal	image data object.
+     * @return	an image data object.
+     */
+    public ImageData retrieveImage(int id, ImageData retVal) 
+    {
+		//Make a new retVal if none was provided.
+    	if (retVal == null) retVal = new ImageData();
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = ImageMapper.buildImageCriteria();
+				
+		Image image = null;
+		//Load the graph defined by criteria.
+		try {
+	  		image = (Image) proxy.load(Image.class, id, criteria);
+  		} catch (Exception e) {
+		// TODO: handle exception by throwing either NotLoggedInException
+		//(broken connection, expired session) or ServiceUnavailableExc
+		//(temp server failure, temp middleware failure).
+  		}
+
+  		if (image == null) {	// to be on the save side
+	  	// pop up a dialog
+  		}
+  		//Put the server data into the corresponding client object.
+  		ImageMapper.fillImage(image, retVal);
+  		
+  		return retVal;	  
+    }
+    
+	/**  
+	 * Retrieves the data of a selected image.
+	 * 
+	 * @param id		image id.
+	 * @return	an image data object.
+	 */
+	public ImageData retrieveImage(int id) 
+	{
+		return retrieveImage(id, null);
+	}
     
 
 }
