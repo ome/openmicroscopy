@@ -42,12 +42,12 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.roi.AddROICanvas;
+import org.openmicroscopy.shoola.agents.events.roi.AnnotateROI;
+import org.openmicroscopy.shoola.agents.events.roi.DisplayROI;
+import org.openmicroscopy.shoola.agents.events.viewer.DisplayViewerRelatedAgent;
+import org.openmicroscopy.shoola.agents.events.viewer.IATChanged;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
-import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
-import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
-import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
-import org.openmicroscopy.shoola.agents.viewer.events.DisplayViewerRelatedAgent;
-import org.openmicroscopy.shoola.agents.viewer.events.IATChanged;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;

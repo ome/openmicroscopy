@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
-import org.openmicroscopy.shoola.agents.viewer.events.DisplayViewerRelatedAgent;
+import org.openmicroscopy.shoola.agents.events.viewer.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
