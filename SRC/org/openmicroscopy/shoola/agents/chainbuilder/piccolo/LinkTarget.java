@@ -67,14 +67,15 @@ public class LinkTarget extends PPath {
 	/**
 	 * The color the target will have by default
 	 */
-	private static final Color LINK_TARGET_COLOR = new Color(0,225,0);
+	private static final Color LINK_TARGET_COLOR = new Color(0,105,0);
 	
 	/**
 	 * A darker shade of green is used once there is something linked 
 	 * to this target
 	 * 
 	 */
-	private static final Color LINK_TARGET_LINKED_COLOR = new Color(0,105,0);
+	private static final Color LINK_TARGET_LINKED_COLOR = new Color(0,55,0);
+	
 	
 	
  	private Color currentColor;
@@ -124,6 +125,14 @@ public class LinkTarget extends PPath {
  		else
  			currentColor = LINK_TARGET_COLOR;
  		setPaint(currentColor);
+ 	}
+ 	
+ 	public void setHighlighted(boolean v) {
+ 		if (v== true)
+ 			setPaint(Constants.HIGHLIGHT_COLOR);
+ 		else
+ 			setPaint(currentColor);
+ 		repaint();
  	}
 }
 
