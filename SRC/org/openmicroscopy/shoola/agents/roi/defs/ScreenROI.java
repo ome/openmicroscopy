@@ -136,7 +136,7 @@ public class ScreenROI
         ROI3D roi3D = logicalROI.getStack(from);
         for (int z = 0; z < sizeZ; z++) {
             pa = roi3D.getPlaneArea(z);
-            for (int t = from+1; t <= to; t++) {
+            for (int t = from; t <= to; t++) { 
               if (pa != null)
                   logicalROI.setPlaneArea(
                           (PlaneArea) (pa.copy()), z, t);
@@ -154,4 +154,5 @@ public class ScreenROI
             }
         }
     }
+    
 }
