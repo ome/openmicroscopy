@@ -156,9 +156,9 @@ public class IconManager
 	
     public static final int     SEND_TO_DB = 31;
     
-    public static final int     CREATE_CG = 32;
+    public static final int     CREATE_GROUP = 32;
     
-    public static final int     CREATE_CG_BIG = 33;
+    public static final int     CREATE_GROUP_BIG = 33;
     
     public static final int     CATEGORY = 34;
     
@@ -168,11 +168,19 @@ public class IconManager
     
     public static final int     CATEGORY_GROUP_BIG = 37;
     
+    public static final int     ANNOTATED_DATASET = 38;
+    
+    public static final int     ANNOTATED_IMAGE = 39;
+    
+    public static final int     CREATE_CATEGORY = 40;
+    
+    public static final int     CREATE_CATEGORY_BIG = 41;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 37;
+	private static int          MAX_ID = 41;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -209,12 +217,16 @@ public class IconManager
 		relPaths[ORDER_BY_SELECTED_DOWN] = "endturn_with_arrow_down.png";
 		relPaths[FILTER] = "eclipse_filter_ps16.png";		
         relPaths[SEND_TO_DB] = "nuvola_package_games_board32.png";
-        relPaths[CREATE_CG] = "create_cg16.png";
-        relPaths[CREATE_CG_BIG] = "create_cg48.png";  
+        relPaths[CREATE_GROUP] = "create_cg16.png";
+        relPaths[CREATE_GROUP_BIG] = "create_cg48.png";  
         relPaths[CATEGORY_GROUP] = "category_group16.png";
         relPaths[CATEGORY_GROUP_BIG] = "category_group48.png";
         relPaths[CATEGORY] = "category16.png"; 
         relPaths[CATEGORY_BIG] = "category48.png";
+        relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
+        relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
+        relPaths[CREATE_CATEGORY] = "eclipse_newclass_wiz16.png";
+        relPaths[CREATE_CATEGORY_BIG] = "category48.png"; 
 	}
 	
 	/** The sole instance. */
