@@ -614,8 +614,6 @@ This template is responsible for creating an anchor/link.
 
 
 <!-- HTML tags -->
-
-
 <!-- 
 *************************************************************************
 This template renders div tag.  
@@ -651,20 +649,30 @@ class = noteFrame
 	<xsl:variable name="note-label">
 		<xsl:value-of select="$div/div[@class = 'noteLabel']/text()"/>
 	</xsl:variable>
-	<fo:block font-family="Verdana, Arial, Helvetica" font-size="8pt" background-color="#F0F0FF" line-height ="5mm" 
-	margin-top="20pt" margin-bottom="20pt" margin-left="30pt" margin-right="30pt" color="#000000" border-color="gray" border-style="solid" 
-	border-width="0.1mm" keep-with-next.within-page="always">
-		<xsl:call-template name="get-alignment">
-			<xsl:with-param name="align" select="@align"/>
-		</xsl:call-template>
-		<fo:block background-color="#7099C5">
-			<fo:inline font-weight="bold"><xsl:value-of select="$note-label"/></fo:inline>
-		</fo:block>
-		<fo:block space-before.optimum="5pt"/>
-		<fo:block margin-left="30pt" margin-right="30pt" margin-top="20pt" margin-bottom="20pt">
-			<xsl:apply-templates/>
-		</fo:block>
-	</fo:block>
+	<fo:table table-layout="fixed">
+	<!-- Need to nest the block in a table b/c the "keep-together" attribute is only implemented for table-row --> 
+	<fo:table-column column-width="170mm"/>
+		<fo:table-body>
+			<fo:table-row keep-together="always">
+				<fo:table-cell>
+						<fo:block font-family="Verdana, Arial, Helvetica" font-size="8pt" background-color="#F0F0FF" margin-top="20pt" 
+						margin-bottom="20pt" margin-left="30pt" margin-right="30pt" color="#000000" border-color="gray" border-style="solid" 
+						border-width="0.1mm" keep-with-next.within-page="always">
+							<xsl:call-template name="get-alignment">
+								<xsl:with-param name="align" select="@align"/>
+							</xsl:call-template>
+							<fo:block background-color="#7099C5">
+								<fo:inline font-weight="bold"><xsl:value-of select="$note-label"/></fo:inline>
+							</fo:block>
+							<fo:block space-before.optimum="5pt"/>
+							<fo:block margin-left="30pt" margin-right="30pt" margin-top="20pt" margin-bottom="20pt" padding-left="3mm" padding-right="3mm">
+								<xsl:apply-templates/>
+							</fo:block>
+						</fo:block>
+				</fo:table-cell>
+			</fo:table-row>
+		</fo:table-body>
+	</fo:table>
 </xsl:template>
 
 <!-- 
@@ -1178,36 +1186,50 @@ This template renders a table.
 -->
 <xsl:template match="table">
 	<fo:table table-layout="fixed">
-		<!-- bgcolor -->
-		<xsl:if test="@bgcolor">
-			<xsl:attribute name="background-color"><xsl:value-of select="@bgcolor"/></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@border">
-			<xsl:attribute name="border-width"><xsl:value-of select="@border"/>pt</xsl:attribute>
-			<xsl:attribute name="border-style">solid</xsl:attribute>
-		</xsl:if>
-		<!-- table columns -->
-		<xsl:for-each select="tr[1]/td">
-			<xsl:variable name="col-width">
-				<xsl:choose>
-					<xsl:when test="@width">
-						<xsl:choose>
-							<xsl:when test="contains(@width, '%')">
-								<xsl:value-of select="170 * substring-before(@width, '%') div 100"/>mm</xsl:when>
-							<xsl:otherwise>
-								<xsl:value-of select="concat(@width, 'pt')"/>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:value-of select="170 div count(../td)"/>mm</xsl:otherwise>
-				</xsl:choose>
-			</xsl:variable>
-			<fo:table-column column-width="{$col-width}"/>
-		</xsl:for-each>
+	<!-- Need to nest the block in a table b/c the "keep-together" attribute is only implemented for table-row --> 
 		<fo:table-body>
-			<xsl:apply-templates select="tr"/>
+			<fo:table-row keep-together="always">
+				<fo:table-cell>
+				<!-- start nested table-->
+					<fo:table table-layout="fixed">
+						<!-- bgcolor -->
+						<xsl:if test="@bgcolor">
+							<xsl:attribute name="background-color"><xsl:value-of select="@bgcolor"/></xsl:attribute>
+						</xsl:if>
+						<xsl:if test="@border">
+							<xsl:attribute name="border-width"><xsl:value-of select="@border"/>pt</xsl:attribute>
+							<xsl:attribute name="border-style">solid</xsl:attribute>
+						</xsl:if>
+						<!-- table columns -->
+						<xsl:for-each select="tr[1]/td">
+							<!-- determine the column width -->
+							<xsl:variable name="col-width">
+								<xsl:choose>
+									<xsl:when test="@width">
+										<xsl:choose>
+											<xsl:when test="contains(@width, '%')">
+												<xsl:value-of select="170 * substring-before(@width, '%') div 100"/>mm
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:value-of select="concat(@width, 'pt')"/>
+											</xsl:otherwise>
+										</xsl:choose>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:value-of select="170 div count(../td)"/>mm</xsl:otherwise>
+								</xsl:choose>
+							</xsl:variable>
+							<fo:table-column column-width="{$col-width}"/>
+						</xsl:for-each>
+						<fo:table-body>
+								<xsl:apply-templates select="tr"/> 
+						</fo:table-body>
+				</fo:table>
+				<!-- end nested table -->
+				</fo:table-cell>
+			</fo:table-row>
 		</fo:table-body>
+		<fo:table-column column-width="170mm"/>
 	</fo:table>
 </xsl:template>
 
@@ -1217,7 +1239,7 @@ This template renders a tr - table row.
 *************************************************************************
 -->
 <xsl:template match="tr">
-	<fo:table-row keep-together.within-page="always">
+	<fo:table-row  keep-together="always">
 		<!-- bgcolor -->
 		<xsl:if test="@bgcolor">
 			<xsl:attribute name="background-color"><xsl:value-of select="@bgcolor"/></xsl:attribute>
