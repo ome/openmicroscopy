@@ -540,7 +540,7 @@ class DMSAdapter
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		// Define the criteria by which the object graph is pulled out
-		Criteria c = AnalysisChainMapper.buildChainsCriteria(uc.getUserID());
+		Criteria c = AnalysisChainMapper.buildChainsCriteria();
 	
 		// Load the graph defined by the criteria
 		List chains = (List) gateway.retrieveListData(AnalysisChain.class, c);
