@@ -82,7 +82,7 @@ class SelectionDialog
 	{
 		parentDialog.isDisplay(false);
 		new SaveImage(parentDialog.getController().getRegistry(), format, 
-				parentDialog.getBufferedImage(), fileName, message);
+				parentDialog.getImageToSave(), fileName, message);
 		parentDialog.setVisible(false);
 		parentDialog.dispose();
 	}

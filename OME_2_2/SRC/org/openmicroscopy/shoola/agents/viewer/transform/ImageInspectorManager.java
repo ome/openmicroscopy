@@ -39,6 +39,7 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
@@ -81,9 +82,12 @@ public class ImageInspectorManager
 	/** Current zooming level. */
 	private double					curZoomLevel;
 	
-	public ImageInspectorManager(ImageInspector view)
+	private ViewerCtrl 				control;
+	
+	public ImageInspectorManager(ImageInspector view, ViewerCtrl control)
 	{
 		this.view = view;
+		this.control = control;
 		curZoomLevel = ZOOM_DEFAULT;
 		attachListener();
 	}
@@ -113,6 +117,11 @@ public class ImageInspectorManager
 	
 	public JScrollPane getScrollPane() { return view.scroll; }
 	
+	/** Save the zoom Image. */
+	public void saveAs()
+	{ 
+		control.showImageSaver(zoomPanel.getZoomImage());
+	}
 	
 	void setZoomPanel(ZoomPanel zoomPanel)
 	{
@@ -128,8 +137,7 @@ public class ImageInspectorManager
 	{
 		this.image = image;	
 		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
-		
+		imageHeight = image.getHeight();	
 	}
 
 	/** Zoom in or out accoding to the current level. */

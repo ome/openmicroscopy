@@ -37,10 +37,18 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
 import javax.swing.JPanel;
 
@@ -90,6 +98,8 @@ public class ZoomPanel
 	/** Buffered image to filter. */
 	private BufferedImage 			bimg;
 	
+	private BufferedImage			zoomImage;
+	
 	public ZoomPanel(ImageInspectorManager manager)
 	{
 		this.manager = manager;
@@ -98,6 +108,37 @@ public class ZoomPanel
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
 	}
  
+ 	/** 
+ 	 * Create a bufferedImage with dataBufferByte as dataBuffer, 
+ 	 * b/c of the implementation of the version of the TIFFEncoder.
+ 	 */
+ 	public BufferedImage getZoomImage()
+ 	{ 
+		//Now we only need to tell Java2D how to handle the RGB buffer. 
+		int sizeX = zoomImage.getWidth();
+		int sizeY = zoomImage.getHeight();
+		DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
+		DataBuffer dataBuf = zoomImage.getRaster().getDataBuffer();
+		ColorModel cm = zoomImage.getColorModel();
+		int v;
+		for (int y = 0; y < sizeY; ++y) {
+			for (int x = 0; x < sizeX; ++x) {
+				v = dataBuf.getElem(0, sizeX*y+x);
+				buffer.setElem(0, sizeX*y+x, cm.getRed(v));
+				buffer.setElem(1, sizeX*y+x, cm.getGreen(v));
+				buffer.setElem(2, sizeX*y+x, cm.getBlue(v));
+			} 
+		}  
+		ComponentColorModel ccm = new ComponentColorModel(
+									ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+									null, false, false, Transparency.OPAQUE, 
+									DataBuffer.TYPE_BYTE);
+		BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+									sizeX, sizeY, 3);
+		return new BufferedImage(ccm, 
+				Raster.createWritableRaster(csm, buffer, null), false, null);
+ 	}
+ 	
  	/** 
  	 * Paint the zoomed image. 
  	 * 
@@ -121,6 +162,11 @@ public class ZoomPanel
 		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
 		rop.filter(image, bimg);
 		biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		zoomImage =  new BufferedImage((int) (image.getWidth()*magFactor), 
+									(int) (image.getHeight()*magFactor),
+							BufferedImage.TYPE_INT_RGB);
+		Graphics2D big = zoomImage.createGraphics();
+		big.drawImage(bimg, biop, 0, 0);
 		repaint();
 	} 
 
@@ -136,7 +182,7 @@ public class ZoomPanel
 							RenderingHints.VALUE_RENDER_QUALITY);
 
 		g2D.setColor(Color.black);			
-		g2D.drawImage(bimg, biop, x, y);
+		g2D.drawImage(zoomImage, null, x, y);
 	}
 
 	/** Set the location of the zoomImage. */

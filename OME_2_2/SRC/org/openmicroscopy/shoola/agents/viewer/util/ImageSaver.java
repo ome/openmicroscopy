@@ -42,6 +42,7 @@ import javax.swing.UIManager;
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Save the current image.
@@ -76,20 +77,23 @@ public class ImageSaver
 
 	private ImageChooser	chooser;
 	
-	public ImageSaver(ViewerCtrl controller)
+	private BufferedImage	imageToSave;
+	
+	public ImageSaver(ViewerCtrl controller, BufferedImage imageToSave)
 	{
 		super(controller.getReferenceFrame(), "Save image As", true);
 		this.controller = controller;
+		this.imageToSave = imageToSave;
 		buildGUI();
 		pack();
-		setVisible(true);
+		UIUtilities.centerAndShow(this);
 	}
 
 	void isDisplay(boolean b) { chooser.isDisplay(b); }
 	
 	ViewerCtrl getController() { return controller; }
 	
-	BufferedImage getBufferedImage() { return controller.getBufferedImage(); }
+	BufferedImage getImageToSave() { return imageToSave; }
 	
 	/** Build and layout the GUI. */
 	private void buildGUI()

@@ -69,6 +69,7 @@ public class ZoomBarManager
 	private static final int		ZOOM_IN_CMD = 1;
 	private static final int		ZOOM_OUT_CMD = 2;
 	private static final int		ZOOM_FIT_CMD = 3;
+	private static final int		SAVEAS_CMD = 4;
 	
 	/** current zooming level. */
 	private double 					zoomLevel;
@@ -99,13 +100,15 @@ public class ZoomBarManager
 		
 		//button
 		JButton	zoomIn = view.getZoomIn(), zoomOut = view.getZoomOut(), 
-				zoomFit = view.getZoomFit();
+				zoomFit = view.getZoomFit(), saveAs = view.getSaveAs();
 		zoomIn.addActionListener(this);
 		zoomIn.setActionCommand(""+ZOOM_IN_CMD);
 		zoomOut.addActionListener(this);
 		zoomOut.setActionCommand(""+ZOOM_OUT_CMD); 
 		zoomFit.addActionListener(this);
 		zoomFit.setActionCommand(""+ZOOM_FIT_CMD);
+		saveAs.addActionListener(this);
+		saveAs.setActionCommand(""+SAVEAS_CMD);
 	}
 
 	/** Handle event fired by button. */
@@ -122,6 +125,8 @@ public class ZoomBarManager
 					zoomOut(); break;
 				case ZOOM_FIT_CMD:
 					zoomFit(); break;
+				case SAVEAS_CMD:
+					control.saveAs(); break;
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe);

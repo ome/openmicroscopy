@@ -163,7 +163,8 @@ class ImageChooser
 		} else {
 			display = false;
 			new SaveImage(parent.getController().getRegistry(), format, 
-				parent.getController().getBufferedImage(), fileName, message);
+				parent.getImageToSave(), fileName, message);
+				cancelSelection();
 		}				
 	}
 	

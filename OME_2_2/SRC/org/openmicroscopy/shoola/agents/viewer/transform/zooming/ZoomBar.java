@@ -73,7 +73,7 @@ public class ZoomBar
 	private int 					txtWidth;
 	
 	/** zoom buttons. */																																				
-	private JButton					zoomIn, zoomOut, zoomFit;
+	private JButton					zoomIn, zoomOut, zoomFit, saveAs;
 	
 	/** Field displaying the zooming factor. */
 	private JTextField				zoomField;
@@ -97,6 +97,8 @@ public class ZoomBar
 	}
 	
 	Registry getRegistry() { return registry; }
+	
+	JButton getSaveAs() { return saveAs; }
 	
 	JButton getZoomIn() { return zoomIn; }
 	
@@ -128,6 +130,9 @@ public class ZoomBar
 		zoomField.setToolTipText(
 			UIUtilities.formatToolTipText("zooming percentage."));
 		
+		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
+		saveAs.setToolTipText(
+					UIUtilities.formatToolTipText("Save zoomed image."));	
 		//Set the separator of tbContainer.
 		tbContainer.setSeparator(
 				UIUtilities.toolBarSeparator(zoomIn, zoomInIcon));
@@ -138,6 +143,7 @@ public class ZoomBar
 	{
 		setFloatable(false);
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
+		add(saveAs);
 		add(zoomOut);
 		add(zoomIn);
 		add(zoomFit);

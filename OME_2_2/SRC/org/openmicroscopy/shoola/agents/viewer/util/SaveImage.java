@@ -102,7 +102,7 @@ class SaveImage
 			ios.close();
 			un.notifyInfo("Image saved", message);
 			//TODO: forward event to server.
-		} catch (Exception ex){
+		} catch (Exception ex) {
 			f.delete();
 			un.notifyError("Save image failure", "Unable to save the image",
 								ex);
@@ -131,7 +131,8 @@ class SaveImage
 			dos.close();
 			un.notifyInfo("Image saved", message);
 		} catch (Exception ex) {
-			f.delete();
+			ex.printStackTrace();
+			System.out.println(f.delete());
 			un.notifyError("Save image failure", "Unable to save the image", 
 							ex);					
 		}

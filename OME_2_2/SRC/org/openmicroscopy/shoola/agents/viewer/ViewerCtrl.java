@@ -346,15 +346,24 @@ public class ViewerCtrl
 		UIUtilities.centerAndShow(dialog);
 	}
 	
-	/** Bring up the file chooser. */
-	public void showImageSaver()
+	/**
+	 * Bring up the file chooser, 
+	 * @param image	BufferedImage to save. 
+	 */
+	public void showImageSaver(BufferedImage image)
 	{
-		if (abstraction.getCurImage() == null) {
+		if (image == null) {
 			UserNotifier un = getRegistry().getUserNotifier();
 			un.notifyError("Save image", "No current image displayed");
-		} else	new ImageSaver(this);
+		} else	new ImageSaver(this, image);
 	}
 
+	/** Save the current bufferedImage displayed in the viewer. */
+	public void showImageSaver()
+	{
+		showImageSaver(getBufferedImage());
+	}
+	
 	/** Select the checkBox in menu. */
 	public void internalFrameOpened(InternalFrameEvent e)
 	{

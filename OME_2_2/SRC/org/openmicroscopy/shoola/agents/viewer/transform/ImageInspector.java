@@ -91,7 +91,7 @@ public class ImageInspector
 		//register for the ImageRendered event.
 		Registry reg = control.getRegistry();
 		reg.getEventBus().register(this, ImageRendered.class);
-		manager = new ImageInspectorManager(this);
+		manager = new ImageInspectorManager(this, control);
 		BufferedImage img = control.getBufferedImage();
 		manager.setBufferedImage(img);
 		zoomPanel = new ZoomPanel(manager);
