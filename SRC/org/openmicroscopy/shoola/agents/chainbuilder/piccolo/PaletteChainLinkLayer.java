@@ -62,7 +62,7 @@ public class PaletteChainLinkLayer extends LinkLayer {
 	
 	public PaletteChainLinkLayer() {
 		super();
-		params.setVisible(true);
+		showParamLinks();
 	}
 	
 	protected void paint(PPaintContext aPaintContext) {	
