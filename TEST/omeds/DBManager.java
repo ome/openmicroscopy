@@ -45,7 +45,7 @@ import java.util.Properties;
 /** 
  * Manages the connection to the test DB.
  * <p>The connection is configured by means of a properties file
- * (<i>db_connection.cfg</i>) which is placed in the same directory where
+ * (<i>connections.cfg</i>) which is placed in the same directory where
  * the <i>.class</i> file of this class lives.  The user name and password
  * that are specified in the configuration file must correspond to those of
  * an existing <i>OME</i> experimenter &#151; normally the test user.</p>
@@ -74,7 +74,7 @@ public class DBManager
 	 * SQL we use to see if the connection is still alive.
 	 * We also use this to retrieve the user ID of the test user.
 	 */
-	private static String   PING_STATEMENT = 
+	private static String   	PING_STATEMENT = 
 					"SELECT attribute_id FROM experimenters WHERE ome_name = ?";
 	
 	/**
@@ -95,9 +95,9 @@ public class DBManager
 			try {
 				Properties config = new Properties();
 				config.load(DBManager.class.
-									getResourceAsStream("db_connection.cfg"));
-				singleton = new DBManager(config.getProperty("DRIVER"),
-											config.getProperty("URL"),
+									getResourceAsStream("connections.cfg"));
+				singleton = new DBManager(config.getProperty("JDBC_DRIVER"),
+											config.getProperty("JDBC_URL"),
 											config.getProperty("USER"),
 											config.getProperty("PASS"));	
 			} catch (Exception e) {
@@ -106,8 +106,6 @@ public class DBManager
 		}
 		return singleton;
 	}
-	
-	
 	
 	
 	/**
@@ -181,7 +179,7 @@ public class DBManager
 			try {
 				Class.forName(driver);
 				connection = DriverManager.getConnection(dbURL, user, password);
-				connection.setAutoCommit(true);
+				connection.setAutoCommit(false);
 				ping = connection.prepareStatement(PING_STATEMENT);
 				ping.setString(1, user);
 				ResultSet rs = ping.executeQuery();
@@ -223,7 +221,7 @@ public class DBManager
     
     /**
      * Returns the user name that was used to establish the connection.
-     * This is specified in the configuration file (<i>db_connection.cfg</i>)
+     * This is specified in the configuration file (<i>connections.cfg</i>)
      * and must correspond to an <code>ome_name</code> field within the 
      * <code>experimenters</code> table in the test DB &#151;
      * normally the test user.
