@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 
 /** 
- * 
+ * Manager of the {@link ContextPane view}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -80,11 +80,13 @@ class ContextPaneMng
         attachListeners();
     }
     
+    /** Attach listeners to the GUI components. */
     private void attachListeners()
     {
         buttonListener(view.show, SHOW);
     }
     
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void buttonListener(AbstractButton button, int id)
     {
         button.addActionListener(this);
@@ -105,7 +107,7 @@ class ContextPaneMng
         }   
     }
     
-    /** Prepare the drawing context. */
+    /** Display the graphic. */
     private void show()
     {
         int i = view.statObject.getSelectedIndex()+StatsResultsPane.MINUS;
@@ -118,6 +120,7 @@ class ContextPaneMng
         closeWidget();
     }
     
+    /** Prepare the drawing context. */
     private void prepareSelection(TableComponent table, Map map)
     {
         boolean selected;
@@ -138,6 +141,7 @@ class ContextPaneMng
         }
     }
     
+    /** Close the selection widget. */
     private void closeWidget()
     {
         view.dispose();
