@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -64,6 +65,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class ToolBar
 	extends JToolBar
 {
+	
+	private static final Color		STEELBLUE = new Color(0x4682B4);
 	/** Dimension of the separator between the toolBars. */
 	private static final Dimension	SEPARATOR_END = new Dimension(180, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
@@ -146,10 +149,10 @@ public class ToolBar
 		tField = new JTextField();
 		tField = new JTextField(""+t, (""+maxT).length());
 		if (maxT == 0) tField.setEditable(false);
-		tField.setForeground(NavigationPalette.STEELBLUE);
+		tField.setForeground(STEELBLUE);
 		tField.setToolTipText("Enter a timepoint.");
 		zField = new JTextField(""+z, (""+maxZ).length());
-		zField.setForeground(NavigationPalette.STEELBLUE);
+		zField.setForeground(STEELBLUE);
 		zField.setToolTipText("Enter a Z point");
 		if (maxZ == 0) zField.setEditable(false);
 	}
