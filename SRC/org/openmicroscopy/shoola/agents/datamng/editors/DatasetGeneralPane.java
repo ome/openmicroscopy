@@ -37,7 +37,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -46,6 +45,7 @@ import javax.swing.border.Border;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -72,9 +72,7 @@ class DatasetGeneralPane
 	
 	private Registry				registry;
 	
-	private JTextArea				nameField;
-	
-	private JTextArea				descriptionArea;
+	private MultilineLabel			descriptionArea, nameField;
 	
 	DatasetGeneralPane(DatasetEditorManager manager, Registry registry)
 	{
@@ -84,10 +82,10 @@ class DatasetGeneralPane
 	}
 
 	/** Returns the TextArea with the project's description. */
-	JTextArea getDescriptionArea() { return descriptionArea; }
+	MultilineLabel getDescriptionArea() { return descriptionArea; }
 
 	/** Returns the textfield with project's name. */
-	JTextArea getNameField() { return nameField; }
+	MultilineLabel getNameField() { return nameField; }
 
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -119,9 +117,7 @@ class DatasetGeneralPane
 	private TableComponent buildTable()
 	{
 		TableComponent table = new TableComponent(3, 2);
-		table.setTableHeader(null);
-		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
-		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		setTableLayout(table);
 		
 		// Labels
 		table.setValueAt(new JLabel(" ID"), 0, 0);
@@ -132,30 +128,33 @@ class DatasetGeneralPane
 		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);
 		
 		//textfields
-		nameField = new JTextArea(pd.getName());
+		nameField = new MultilineLabel(pd.getName());
 		nameField.setForeground(DataManager.STEELBLUE);
 		nameField.setEditable(true);
-		nameField.setLineWrap(true);
-		nameField.setWrapStyleWord(true);
-		JScrollPane scrollPaneName  = new JScrollPane(nameField);
+		JScrollPane scrollPaneName = new JScrollPane(nameField);
 		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
 		table.setValueAt(scrollPaneName, 1, 1); 
 
-		descriptionArea = new JTextArea(pd.getDescription());
+		descriptionArea = new MultilineLabel(pd.getDescription());
 		descriptionArea.setForeground(DataManager.STEELBLUE);
 		descriptionArea.setEditable(true);
-		descriptionArea.setLineWrap(true);
-		descriptionArea.setWrapStyleWord(true);
 		JScrollPane scrollPane = new JScrollPane(descriptionArea);
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 2, 1);
-
+				
+		return table;
+	}
+	
+	/** Set the table layout. */
+	private void setTableLayout(TableComponent table)
+	{
+		table.setTableHeader(null);
+		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());
-								
-		return table;
+								new TableComponentCellEditor());			
 	}
 	
 }

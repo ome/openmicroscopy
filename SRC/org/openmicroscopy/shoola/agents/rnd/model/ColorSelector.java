@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class ColorSelector
 	extends JDialog
 {	
+	
 	/** table constants. */
 	private static final int			ROW_HEIGHT = 25;
 	private static final int			WIDTH_ONE = 80;

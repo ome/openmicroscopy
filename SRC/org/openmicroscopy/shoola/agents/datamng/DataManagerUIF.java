@@ -35,7 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -119,16 +118,10 @@ class DataManagerUIF
 	}
 
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void updateProjectInTree()
-	{
-		explPane.getManager().updateProjectInTree();
-	}
+	void updateProjectInTree() { explPane.getManager().updateProjectInTree(); }
 
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void updateDatasetInTree()
-	{
-		explPane.getManager().updateDatasetInTree();
-	}
+	void updateDatasetInTree() { explPane.getManager().updateDatasetInTree(); }
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateImageInTree(ImageData id)
@@ -159,8 +152,7 @@ class DataManagerUIF
 	 */
 	void showProjectPS(ProjectData p)
 	{
-		ProjectEditor ps = new ProjectEditor(registry, control, p);
-		showPS((JDialog) ps);
+		UIUtilities.centerAndShow(new ProjectEditor(registry, control, p));
 	}
     
 	/** 
@@ -171,8 +163,7 @@ class DataManagerUIF
 	 */
 	void showDatasetPS(DatasetData d)
 	{
-		DatasetEditor ps = new DatasetEditor(registry, control, d);
-		showPS((JDialog) ps);
+		UIUtilities.centerAndShow(new DatasetEditor(registry, control, d));
 	}
     
 	/** 
@@ -183,8 +174,7 @@ class DataManagerUIF
 	 */
 	void showImagePS(ImageData i) 
 	{
-		ImageEditor ps = new ImageEditor(registry, control, i);
-		showPS((JDialog) ps);
+		UIUtilities.centerAndShow(new ImageEditor(registry, control, i));
 	}	
 	
 	/** 
@@ -196,9 +186,8 @@ class DataManagerUIF
 	 */
 	void showCreateProject(ProjectData p, List d)
 	{
-		CreateProjectEditor cpe = new CreateProjectEditor(registry, control,
-														  p, d);
-		showPS((JDialog) cpe);
+		UIUtilities.centerAndShow(new CreateProjectEditor(registry, control, p, 
+									d));
 	}
 	
 	/** 
@@ -209,9 +198,8 @@ class DataManagerUIF
 	 */
 	void showCreateDataset(DatasetData d, List p, List i)
 	{
-		CreateDatasetEditor cde = new CreateDatasetEditor(registry, control,
-														 d, p, i);
-		showPS((JDialog) cde);
+		UIUtilities.centerAndShow(new CreateDatasetEditor(registry, control, 
+									d, p, i));
 	}
 	
 	/** 
@@ -226,16 +214,6 @@ class DataManagerUIF
 		//showPS((JDialog) cpe);
 	}
 	
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param   editor	The editor dialog.
-	 */
-	void showPS(JDialog editor)
-	{
-		UIUtilities.centerAndShow(editor);
-	}
-
 	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
 	{

@@ -30,15 +30,19 @@
 package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JToolBar;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -56,13 +60,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ProjectEditorBar
-	extends JToolBar	
+	extends JPanel	
 {
-	
-	/** Dimension of the separator between the toolBars. */
-	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
-	private static final Dimension	SEPARATOR = new Dimension(15, 0);
-	
+
 	private ProjectEditorManager 	manager;
 	private JButton					saveButton, cancelButton, addButton;
 	
@@ -83,44 +83,60 @@ class ProjectEditorBar
 	JButton getAddButton() { return addButton; }
 	
 	/** Initializes the buttons. */
-	void initButtons()
+	private void initButtons()
 	{
 		saveButton = new JButton("OK");
-		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		saveButton.setOpaque(false);
-		//suppress button press decoration
-		//saveButton.setContentAreaFilled(false); 
+		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
-		
 		cancelButton = new JButton("Cancel");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//suppress button press decoration
-		cancelButton.setContentAreaFilled(false); 
+		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Close without saving."));
-		
 		addButton = new JButton("Add datasets");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//suppress button press decoration
-		addButton.setContentAreaFilled(false); 
 		addButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add datasets to the project."));	
 	}
 	
 	/** Build and lay out the GUI. */
-	void buildGUI()
+	private void buildGUI()
 	{
-		setFloatable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		addSeparator(SEPARATOR_END);
-		add(saveButton);
-		addSeparator(SEPARATOR);
-		add(cancelButton);
-		addSeparator(SEPARATOR);
-		add(addButton);
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
+		JPanel controls = buildButtonPanel();
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.EAST;
+		Component cp = Box.createRigidArea(DataManager.VBOX);
+		gridbag.setConstraints(cp, c);
+		add(cp);
+		c.gridy = 1;
+		gridbag.setConstraints(controls, c); 
+		add(controls);
+		c.gridy = 2;
+		cp = Box.createRigidArea(DataManager.VBOX);
+		gridbag.setConstraints(cp, c);
+		add(cp);
+		setOpaque(false); //make panel transparent
+	}
+	
+	/** Build panel with buttons. */
+	private JPanel buildButtonPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(saveButton);
+		p.add(Box.createRigidArea(DataManager.HBOX));
+		p.add(cancelButton);
+		p.add(Box.createRigidArea(DataManager.HBOX));
+		p.add(addButton);
+		p.add(Box.createRigidArea(DataManager.HBOX));
+		p.setOpaque(false); //make panel transparent
+		return p;
 	}
 	
 }

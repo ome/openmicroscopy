@@ -158,13 +158,11 @@ class DatasetImagesPane
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		removeButton.setToolTipText(
 			UIUtilities.formatToolTipText("Remove all datasets."));
-	
 		//cancel button
 		resetButton = new JButton("Reset");
 		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		resetButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
-	
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(resetButton);
 		controls.add(Box.createRigidArea(DataManager.HBOX));
@@ -181,7 +179,7 @@ class DatasetImagesPane
 	/** Build panel with table containing the images to add. */
 	private JPanel buildTableToAddPanel()
 	{
-		JPanel  p = new JPanel();
+		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		if (imagesToAdd.size() != 0) {
 			p.add(buildLabelTable());
@@ -204,7 +202,7 @@ class DatasetImagesPane
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		//images table
 		imagesTM = new ImagesTableModel();
-		JTable  t = new JTable(imagesTM);
+		JTable t = new JTable(imagesTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -280,7 +278,6 @@ class DatasetImagesPane
 		
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 		
-		//cells may not be edited
 		public boolean isCellEditable(int row, int col) 
 		{ 
 			boolean isEditable = false;
@@ -292,10 +289,9 @@ class DatasetImagesPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			ImageSummary is = (ImageSummary) 
 								imageSummaries.get((String) data[row][0]);
-			manager.selectImage(b, is);
+			manager.selectImage(((Boolean) value).booleanValue(), is);
 		}
 	}
 	
@@ -349,10 +345,9 @@ class DatasetImagesPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			ImageSummary is = (ImageSummary) 
 								imageSummaries.get((String) data[row][0]);
-			manager.updateAddSelection(b, is);
+			manager.updateAddSelection(((Boolean) value).booleanValue(), is);
 		}
 	}
 	

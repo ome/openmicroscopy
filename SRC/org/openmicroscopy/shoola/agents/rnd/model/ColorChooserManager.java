@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -45,6 +44,8 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -140,8 +141,8 @@ class ColorChooserManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case APPLY:
 					applySettings();
@@ -160,7 +161,7 @@ class ColorChooserManager
 					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	   
@@ -221,7 +222,10 @@ class ColorChooserManager
 		if (valid)	updateColor(val, k);  // will notify the controller
 		else {
 			field.selectAll();
-			Toolkit.getDefaultToolkit().beep();
+			Registry registry = hsbManager.getEventManager().getRegistry();
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyInfo("Invalid value", 
+				"Please enter a value between 0 and "+MAX_VALUE);
 		}
 	}
 	

@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class ProjectEditor
 	extends JDialog
 {	
+	
 	/** ID to position the components. */
 	static final int		POS_MAIN = 0, POS_DATASET = 1, POS_OWNER = 2;
 									
@@ -117,16 +118,10 @@ public class ProjectEditor
 	JTextArea getNameField() { return generalPane.getNameField(); }
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
-	void selectAll()
-	{
-		datasetsPane.setSelection(new Boolean(true));
-	}
+	void selectAll() { datasetsPane.setSelection(new Boolean(true)); }
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
-	void resetSelection()
-	{
-		datasetsPane.setSelection(new Boolean(false));
-	}
+	void resetSelection() { datasetsPane.setSelection(new Boolean(false)); }
 	
 	/** 
 	 * Set the selected tab.
@@ -156,7 +151,6 @@ public class ProjectEditor
 										  JTabbedPane.WRAP_TAB_LAYOUT);
   		tabs.setAlignmentX(LEFT_ALIGNMENT);
   		IconManager im = IconManager.getInstance(registry);
-		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.insertTab("General", im.getIcon(IconManager.PROJECT), generalPane,
 						null, POS_MAIN);

@@ -70,7 +70,7 @@ class DatasetOwnerPane
 		buildGUI();
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
@@ -84,7 +84,7 @@ class DatasetOwnerPane
 		JPanel  p = new JPanel();
 		//summary table
 		OwnerTableModel ownerTM = new OwnerTableModel();
-		JTable  t = new JTable(ownerTM);
+		JTable t = new JTable(ownerTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -121,7 +121,7 @@ class DatasetOwnerPane
 	
 		public Object getValueAt(int row, int col) 
 		{
-			Object  val = null;
+			Object val = null;
 			if (col == 0)  val = fieldNames[row];
 			else val = data[row];
 			return val;

@@ -86,7 +86,7 @@ class ImageOwnerPane
 		JPanel  p = new JPanel();
 		//summary table
 		OwnerTableModel ownerTM = new OwnerTableModel();
-		JTable  t = new JTable(ownerTM);
+		JTable t = new JTable(ownerTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -122,13 +122,12 @@ class ImageOwnerPane
 	
 		public Object getValueAt(int row, int col) 
 		{
-			Object  val = null;
+			Object val = null;
 			if (col == 0)  val = fieldNames[row];
 			else val = data[row];
 			return val;
 		}
-	
-		//entries in the value column can be edited
+
 		public boolean isCellEditable(int row, int col) { return false; }
 	}
 	

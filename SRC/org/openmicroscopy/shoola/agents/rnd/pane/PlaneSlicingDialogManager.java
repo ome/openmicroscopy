@@ -182,8 +182,8 @@ class PlaneSlicingDialogManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 			switch(index) { 
 				case RANGE:
 					JComboBox cbx = (JComboBox) e.getSource();
@@ -196,7 +196,7 @@ class PlaneSlicingDialogManager
 					activateDynamic();
 			}
 		} catch(NumberFormatException nfe) {
-				throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

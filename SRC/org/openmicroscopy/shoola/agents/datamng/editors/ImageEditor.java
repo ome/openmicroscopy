@@ -110,9 +110,7 @@ public class ImageEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		//TODO: specify lookup name.
 		IconManager im = IconManager.getInstance(registry);
-		
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		
 		tabs.addTab("General", im.getIcon(IconManager.IMAGE), generalPane);
@@ -127,5 +125,4 @@ public class ImageEditor
 		getContentPane().add(bar, BorderLayout.SOUTH);		
 	}
 
-	
 }

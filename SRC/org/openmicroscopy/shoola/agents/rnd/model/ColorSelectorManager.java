@@ -60,6 +60,7 @@ import javax.swing.event.ChangeListener;
 class ColorSelectorManager
 	implements ActionListener, ChangeListener
 {
+	
 	/** ID to handle events. */
 	private static final int	COLOR = 100;
 	private static final int	APPLY = 101;
@@ -119,8 +120,8 @@ class ColorSelectorManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 	   		switch (index) {
 				case COLOR:
 					JComboBox cb = (JComboBox) e.getSource();
@@ -134,7 +135,7 @@ class ColorSelectorManager
 			   		break;
 	   		}// end switch  
 		} catch(NumberFormatException nfe) {  
-	   		throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
    		}        
 	}
 
@@ -156,27 +157,31 @@ class ColorSelectorManager
 	 * @param index		one of the color constants defined above. */
 	private void modifyPeview(int index)
 	{	
-		switch(index) {
-			case RED:
-				setColorPreview(Color.RED); break; 
-		   	case GREEN:
-				setColorPreview(Color.GREEN); break;
-		   	case BLUE:
-				setColorPreview(Color.BLUE); break;
-		   	case CYAN:
-				setColorPreview(Color.CYAN); break;
-		   	case MAGENTA:
-				setColorPreview(Color.MAGENTA); break;
-		   	case ORANGE:
-				setColorPreview(Color.ORANGE); break;
-		   	case PINK:
-				setColorPreview(Color.PINK); break;
-		   	case YELLOW:
-				setColorPreview(Color.YELLOW); break;
-		   	case BLACK:
-				setColorPreview(Color.BLACK); break;
-		   	case WHITE:
-				setColorPreview(Color.WHITE); break;   
+		try {
+			switch(index) {
+				case RED:
+					setColorPreview(Color.RED); break; 
+		   		case GREEN:
+					setColorPreview(Color.GREEN); break;
+		   		case BLUE:
+					setColorPreview(Color.BLUE); break;
+		   		case CYAN:
+					setColorPreview(Color.CYAN); break;
+		   		case MAGENTA:
+					setColorPreview(Color.MAGENTA); break;
+		   		case ORANGE:
+					setColorPreview(Color.ORANGE); break;
+		   		case PINK:
+					setColorPreview(Color.PINK); break;
+		   		case YELLOW:
+					setColorPreview(Color.YELLOW); break;
+		   		case BLACK:
+					setColorPreview(Color.BLACK); break;
+		   		case WHITE:
+					setColorPreview(Color.WHITE); break;   
+			}
+		} catch(NumberFormatException nfe) {  
+			throw new Error("Invalid Action ID "+index, nfe);
 		}
 	}
 	
@@ -191,7 +196,7 @@ class ColorSelectorManager
 	/** 
 	 * Modify the alpha component.
 	 * 
-	 * @param value		value in the range 0 100.
+	 * @param value		value in the range 0-100.
 	 */
 	private void modifyAlpha(int value)
 	{

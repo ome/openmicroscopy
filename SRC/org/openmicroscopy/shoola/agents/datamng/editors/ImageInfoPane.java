@@ -85,7 +85,7 @@ class ImageInfoPane
 		JPanel  p = new JPanel();
 		//summary table
 		InfoTableModel infoTM = new InfoTableModel();
-		JTable  t = new JTable(infoTM);
+		JTable t = new JTable(infoTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -135,13 +135,7 @@ class ImageInfoPane
 			return val;
 		}
 
-		//entries in the value column can be edited
-		public boolean isCellEditable(int row, int col)
-		{
-			boolean isEditable = false;
-			//TODO: some cells editable.
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return false; }
 	}
 	
 }

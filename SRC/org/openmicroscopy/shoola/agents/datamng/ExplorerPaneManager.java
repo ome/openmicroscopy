@@ -392,12 +392,6 @@ class ExplorerPaneManager
 		if (selRow != -1) {
 	   		view.tree.setSelectionRow(selRow);
 	   		DataObject target = view.getCurrentOMEObject();
-			// remove tree expansion listener
-			//otherwise a tree expansion event is fired when we
-			//double-click
-			//for (int i = 0; i < listeners.length; i++) 
-			//	view.tree.removeTreeExpansionListener(listeners[i]);
-				
 	   		if (target != null) {
 				if (e.isPopupTrigger()) {
 					DataManagerUIF presentation = 
@@ -406,11 +400,8 @@ class ExplorerPaneManager
 					popup.setTarget(target);  
 					popup.show(view.tree, e.getX(), e.getY());
 				} else {
-					if (e.getClickCount() == 2) {
+					if (e.getClickCount() == 2)
 						agentCtrl.showProperties(target);
-						//for (int i = 0; i < listeners.length; i++) 
-						//	view.tree.addTreeExpansionListener(listeners[i]);
-					}	
 				}
 	   		}// else { //Test click on the root node.
 				//if (e.isPopupTrigger()) rebuildTree();
@@ -450,7 +441,7 @@ class ExplorerPaneManager
 		TreePath path = e.getPath();
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
 										path.getLastPathComponent();
-		Object  usrObject = node.getUserObject();
+		Object usrObject = node.getUserObject();
 		//dataset summary node
 		if (usrObject instanceof DatasetSummary) {
 			DatasetSummary ds = (DatasetSummary) usrObject;
@@ -551,7 +542,6 @@ class ExplorerPaneManager
 				onNodeNavigation(e, true);	
 			}	
 		});
-		
 		listeners = view.tree.getTreeExpansionListeners();
 	}
 	

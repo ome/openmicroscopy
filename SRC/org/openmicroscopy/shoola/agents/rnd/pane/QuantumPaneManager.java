@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -245,9 +244,6 @@ class QuantumPaneManager
 		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
 		setInputWindowEnd(value, w);
 	}
-	
-	/** Forward event to the {@link RenderingAgtCtrl eventManager}. */
-	void showDialog(JDialog dialog) { eventManager.showDialog(dialog); }
 	
 	/** Retrieve the main Frame. */
 	JFrame getReferenceFrame()

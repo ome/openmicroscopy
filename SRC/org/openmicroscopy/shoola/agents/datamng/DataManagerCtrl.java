@@ -35,7 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.AbstractButton;
-import javax.swing.JDialog;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -79,12 +78,6 @@ public class DataManagerCtrl
 	DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
-	}
-	
-	/** Bring up a suitable dialog. */
-	public void showDialog(JDialog dialog)
-	{
-		abstraction.getPresentation().showPS(dialog);
 	}
 	
 	/** 
@@ -162,9 +155,8 @@ public class DataManagerCtrl
 	/**Handles event fired by menu. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case DM_VISIBLE:
 					showPresentation();
@@ -177,7 +169,7 @@ public class DataManagerCtrl
 					break;	   	
 			}
 		} catch(NumberFormatException nfe) {  
-			   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

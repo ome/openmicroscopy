@@ -26,15 +26,11 @@
  *
  *------------------------------------------------------------------------------
  */
-
+ 
 package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.BorderFactory;
@@ -67,22 +63,6 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
 class TreePopupMenu
 	extends JPopupMenu
 {
-
-	//colors used by drawRow1()
-	private static final Color    	ROW1_0_20 = new Color(255, 250, 255);
-	private static final Color    	ROW1_21 = new Color(251, 249, 252);
-	private static final Color    	ROW1_22 = new Color(245, 243, 246);
-	private static final Color    	ROW1_23_26 = new Color(244, 242, 245);
-	private static final Color    	ROW1_27_END = new Color(244, 244, 244);
-	//colors used by drawRow2()
-	private static final Color    	ROW2 = new Color(255, 250, 250);
-	//colors used by drawRow3()
-	private static final Color    	ROW3_0_31 = new Color(195, 220, 214);
-	private static final Color    	ROW3_32_35 = new Color(209, 215, 215);
-	private static final Color    	ROW3_36 = new Color(224, 225, 227);
-	private static final Color    	ROW3_37 = new Color(242, 243, 245);
-	private static final Color    	ROW3_38_END = new Color(255, 255, 255);
-    
     
 	/** This UI component's controller and model. */
 	private TreePopupMenuManager	manager;
@@ -137,83 +117,12 @@ class TreePopupMenu
 	 */
 	void setTarget(DataObject t) { manager.setTarget(t); }
     
-	/**  Overrides parent to paint the backgroud motif. */
-	public void paintComponent(Graphics g)
-	{
-		Dimension d = getSize();
-		for (int y = 0; y < d.height; y += 3) {
-			drawRow1(g, y, d.width);
-			drawRow2(g, y+1, d.width);
-			drawRow3(g, y+2, d.width);
-		} 
-	}
-    
-	/** 
-	 * Draws line 1 of background pattern.
-	 *
-	 * @param g		The graphics context.
-	 * @param y		The row to draw.
-	 * @param width	The component's width.   
-	 */
-	private void drawRow1(Graphics g, int y, int width) 
-	{
-		g.setColor(ROW1_0_20);
-		g.drawLine(0, y, 20, y);
-		g.setColor(ROW1_21);
-		g.drawLine(21, y, 21, y);
-		g.setColor(ROW1_22);
-		g.drawLine(22, y, 22, y);
-		g.setColor(ROW1_23_26);
-		g.drawLine(23, y, 26, y);
-		if (26 < width) {
-			g.setColor(ROW1_27_END);
-			g.drawLine(27, y, width, y);
-		}
-	}
-    
-	/** 
-	 * Draws line 2 of background pattern.
-	 *
-	 * @param g		The graphics context.
-	 * @param y		The row to draw.
-	 * @param width	The component's width.   
-	 */
-	private void drawRow2(Graphics g, int y, int width)
-	{
-		g.setColor(ROW2);
-		g.drawLine(0, y, width, y);
-	}
-    
-	/** 
-	 * Draws line 3 of background pattern.
-	 *
-	 * @param g		The graphics context.
-	 * @param y		The row to draw.
-	 * @param width	The component's width.   
-	 */
-	private void drawRow3(Graphics g, int y, int width)
-	{
-		g.setColor(ROW3_0_31);
-		g.drawLine(0, y, 31, y);
-		g.setColor(ROW3_32_35);
-		g.drawLine(32, y, 35, y);
-		g.setColor(ROW3_36);
-		g.drawLine(36, y, 36, y);
-		g.setColor(ROW3_37);
-		g.drawLine(37, y, 37, y);
-		if (37 < width) {
-			g.setColor(ROW3_38_END);
-			g.drawLine(38, y, width, y);
-		}
-	}
-	
 	/** Creates and initializes the properties button. */
 	private void initProperties() 
 	{
 		IconManager icons = IconManager.getInstance(config);
 		properties = new JMenuItem("Properties", 
 									icons.getIcon(IconManager.PROPERTIES));
-		//properties.setOpaque(false);
 		properties.setBorder(null);
 		properties.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		properties.setForeground(DataManager.STEELBLUE);  
@@ -224,7 +133,6 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		view = new JMenuItem("View", icons.getIcon(IconManager.VIEWER));
-		//view.setOpaque(false);
 		view.setBorder(null);
 		view.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		view.setForeground(DataManager.STEELBLUE); 
@@ -236,7 +144,6 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		browse = new JMenuItem("Browse", icons.getIcon(IconManager.BROWSER));
-		//browse.setOpaque(false);
 		browse.setBorder(null);
 		browse.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		browse.setForeground(DataManager.STEELBLUE); 
@@ -248,7 +155,6 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		refresh = new JMenuItem("Refresh", icons.getIcon(IconManager.REFRESH));
-		//refresh.setOpaque(false);
 		refresh.setBorder(null);
 		refresh.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		refresh.setForeground(DataManager.STEELBLUE); 
@@ -260,7 +166,6 @@ class TreePopupMenu
 		IconManager icons = IconManager.getInstance(config);
 		annotate = new JMenuItem("Annotate", 
 								icons.getIcon(IconManager.ANNOTATE));
-		//annotate.setOpaque(false);
 		annotate.setBorder(null);
 		annotate.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		annotate.setForeground(DataManager.STEELBLUE);

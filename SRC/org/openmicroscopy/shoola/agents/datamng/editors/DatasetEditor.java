@@ -116,10 +116,7 @@ public class DatasetEditor
 	JTextArea getNameField() { return generalPane.getNameField(); }
 	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
-	void selectAll()
-	{
-		imagesPane.setSelection(new Boolean(true));
-	}
+	void selectAll() { imagesPane.setSelection(new Boolean(true)); }
 
 	/** 
 	 * Set the selected tab.
@@ -131,10 +128,7 @@ public class DatasetEditor
 	void setSelectedPane(int index) { tabs.setSelectedIndex(index); }
 	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
-	void resetSelection()
-	{
-		imagesPane.setSelection(new Boolean(false));
-	}
+	void resetSelection() { imagesPane.setSelection(new Boolean(false)); }
 
 	/** Reset the imagesPane. */
 	void setImagesPane(List l)

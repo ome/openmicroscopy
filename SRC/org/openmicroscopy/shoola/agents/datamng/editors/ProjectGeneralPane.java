@@ -37,7 +37,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -46,6 +45,7 @@ import javax.swing.border.Border;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -74,9 +74,7 @@ class ProjectGeneralPane
 	/** Reference to the registry. */
 	private Registry				registry;
 	
-	private JTextArea				nameField;
-	
-	private JTextArea				descriptionArea;
+	private MultilineLabel			descriptionArea, nameField;
 	
 	/** Creates a new instance. */
 	ProjectGeneralPane(ProjectEditorManager manager, Registry registry)
@@ -87,10 +85,10 @@ class ProjectGeneralPane
 	}
 	
 	/** Returns the TextArea with the project's description. */
-	JTextArea getDescriptionArea() { return descriptionArea; }
+	MultilineLabel getDescriptionArea() { return descriptionArea; }
 
 	/** Returns the textfield with project's name. */
-	JTextArea getNameField() { return nameField; }
+	MultilineLabel getNameField() { return nameField; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -134,26 +132,20 @@ class ProjectGeneralPane
 		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);
 		
 		//textfields
-		nameField = new JTextArea(pd.getName());
+		nameField = new MultilineLabel(pd.getName());
 		nameField.setForeground(DataManager.STEELBLUE);
 		nameField.setEditable(true);
-		nameField.setLineWrap(true);
-		nameField.setWrapStyleWord(true);
 		JScrollPane scrollPaneName  = new JScrollPane(nameField);
 		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
 		table.setValueAt(scrollPaneName, 1, 1); 
 		
-		descriptionArea = new JTextArea(pd.getDescription());
+		descriptionArea = new MultilineLabel(pd.getDescription());
 		descriptionArea.setForeground(DataManager.STEELBLUE);
 		descriptionArea.setEditable(true);
-		descriptionArea.setLineWrap(true);
-		descriptionArea.setWrapStyleWord(true);
 		JScrollPane scrollPane = new JScrollPane(descriptionArea);
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 2, 1);
-
-		
-								
+					
 		return table;
 	}
 	

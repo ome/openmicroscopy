@@ -115,6 +115,7 @@ class ColorBar
 	/** Overrides the paintComponent method. */
 	public void paintComponent(Graphics g)
 	{
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setPaint(Color.black);
 		g2D.drawString(type, 0, h);

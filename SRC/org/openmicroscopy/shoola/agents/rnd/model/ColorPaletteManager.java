@@ -143,6 +143,7 @@ class ColorPaletteManager
 		}
 	}
 	
+	/** Update the hue. */
 	void updateHue(int x)
 	{
 		setHue(x-leftBorder);
@@ -150,6 +151,7 @@ class ColorPaletteManager
 		view.repaint();
 	}
 	
+	/** Update the saturation. */
 	void updateSaturation(int x)
 	{
 		setSaturation(x-leftBorder);
@@ -157,6 +159,7 @@ class ColorPaletteManager
 		view.repaint();
 	}
 	
+	/** Update the brightness. */
 	void updateBrightness(int x)
 	{
 		setBrightness(x-leftBorder);
@@ -205,9 +208,7 @@ class ColorPaletteManager
 		ccManager.setColorPanel(cD);
 	}
 	
-	/** 
-	 * Release the mouse and set the dragging control to false.
-	 */
+	/**  Release the mouse and set the dragging control to false. */
 	public void mouseReleased(MouseEvent e) { dragging = false; }
 		
 	/** 

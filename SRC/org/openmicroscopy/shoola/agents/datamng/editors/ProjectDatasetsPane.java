@@ -80,8 +80,6 @@ class ProjectDatasetsPane
 	private static final int		POS_ONE = 0, POS_TWO = 1, POS_THREE = 2,
 									POS_FOUR = 3;
 	
-	private static final int		ROW_HEIGHT = 25;
-	
 	/** Reference to the manager. */
 	private ProjectEditorManager	manager;
 
@@ -232,7 +230,7 @@ class ProjectDatasetsPane
 		table.setTableHeader(null);
 		table.setOpaque(false);
 		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
+		table.setRowHeight(DataManager.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
@@ -291,10 +289,9 @@ class ProjectDatasetsPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			DatasetSummary ds = (DatasetSummary) 
 								datasetSummaries.get((String) data[row][0]);
-			manager.selectDataset(b, ds);
+			manager.selectDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
 	
@@ -350,10 +347,9 @@ class ProjectDatasetsPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			DatasetSummary ds = (DatasetSummary) 
 								datasetSummaries.get((String) data[row][0]);
-			manager.updateAddSelection(b, ds);
+			manager.updateAddSelection(((Boolean) value).booleanValue(), ds);
 		}
 	}
 

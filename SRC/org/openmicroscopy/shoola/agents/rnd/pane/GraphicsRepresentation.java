@@ -342,7 +342,6 @@ class GraphicsRepresentation
 		xStart = 0;
 		if (type == QuantumFactory.EXPONENTIAL) {
 			xControl = lS2;
-			//range = lS2;
 			range = square/2;
 			binMin = (int) ((square-40)/(2*rangeMinExpo)); 
 			binMax = (int) ((square-40)/(2*rangeMaxExpo));

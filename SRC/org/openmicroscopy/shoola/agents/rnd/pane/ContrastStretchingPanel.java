@@ -199,7 +199,7 @@ class ContrastStretchingPanel
 		xStart2 = x-triangleW;
 		xStart3 = x+triangleW;
 		startPt.setLocation((double) x, startPt.getY());
-		super.repaint();
+		repaint();
 	}
 	
 	/**
@@ -213,7 +213,7 @@ class ContrastStretchingPanel
 		xEnd2 = x-triangleW;
 		xEnd3 = x+triangleW;
 		endPt.setLocation((double) x, endPt.getY());
-		super.repaint();
+		repaint();
 	}
 	
 	/**
@@ -227,7 +227,7 @@ class ContrastStretchingPanel
 		yStartOutput2 = y-triangleW;
 		yStartOutput3 = y+triangleW;
 		startPt.setLocation(startPt.getX(), (double) y);
-		super.repaint();
+		repaint();
 	}
 	
 	/**
@@ -241,7 +241,7 @@ class ContrastStretchingPanel
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;
 		endPt.setLocation(endPt.getX(), (double) y);
-		super.repaint();
+		repaint();
 	}
 	
 	/** Overrides the paintComponent() method. */

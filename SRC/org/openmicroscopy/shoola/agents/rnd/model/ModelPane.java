@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
 import java.awt.Dimension;
-
 import javax.swing.JPanel;
 
 //Third-party libraries

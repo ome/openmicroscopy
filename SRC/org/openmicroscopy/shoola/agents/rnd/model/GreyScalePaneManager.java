@@ -42,7 +42,7 @@ import javax.swing.JRadioButton;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.agents.rnd.editor.ChannelEditor;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -91,28 +91,18 @@ class GreyScalePaneManager
 	/** Handle events. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
 		Object obj = (Object) e.getSource();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int w = Integer.parseInt(s);
 			if (obj instanceof JRadioButton) {
 				view.repaint();
-				eventManager.setActive(w); 
-			} else showChannelInfo(w);
-		} catch(NumberFormatException nfe) {
-				throw nfe;  //just to be on the safe side...
+				eventManager.setActive(index); 
+			} else 
+				UIUtilities.centerAndShow(new ChannelEditor(eventManager, 
+									eventManager.getChannelData(index)));
+		} catch(NumberFormatException nfe) {  
+			throw new Error("Invalid Action ID "+index, nfe);
 		}    
-	}
-	
-	/**
-	 * Pop up the wavelength info editor.
-	 * 
-	 * @param w		wavelength index.
-	 */
-	private void showChannelInfo(int w) 
-	{
-		ChannelData[] cd = eventManager.getChannelData();
-		eventManager.showDialog(new ChannelEditor(eventManager, cd[w]));
 	}
 	
 }

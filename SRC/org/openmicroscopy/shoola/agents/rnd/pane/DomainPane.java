@@ -48,8 +48,8 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
@@ -289,7 +289,6 @@ class DomainPane
 	 */
 	private JPanel buildSliderPanel(JSlider slider)	
 	{
-		//JPanel which contains a slider.
 		JPanel sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
 		sliderPanel.setOpaque(false);

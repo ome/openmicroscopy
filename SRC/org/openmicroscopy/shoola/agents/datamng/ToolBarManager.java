@@ -57,6 +57,7 @@ import javax.swing.JButton;
 class ToolBarManager
 	implements ActionListener
 {
+	
 	/** Action command ID. */
 	private static final int		CREATE_P = 0, CREATE_D = 1, CREATE_I = 2;
 	
@@ -87,9 +88,9 @@ class ToolBarManager
 	/** Handle event fired by buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-			switch (cmd) {
+			switch (index) {
 				case CREATE_P:
 					control.createProject(); break;
 				case CREATE_D:
@@ -97,6 +98,9 @@ class ToolBarManager
 				case CREATE_I:
 					break;
 			}
-		} catch(NumberFormatException nfe) { throw nfe; }
+		} catch(NumberFormatException nfe) { 
+			throw new Error("Invalid Action ID "+index, nfe);
+		}
 	}
+	
 }

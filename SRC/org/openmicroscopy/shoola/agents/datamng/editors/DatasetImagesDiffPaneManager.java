@@ -104,22 +104,18 @@ class DatasetImagesDiffPaneManager
 	/** Handle events fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
-					saveSelection();
-					break;
+					saveSelection(); break;
 				case ALL:
-					selectAll();
-					break;
+					selectAll(); break;
 				case CANCEL:
 					cancelSelection();
-					break;
-			}// end switch  
+			}
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
@@ -174,6 +170,7 @@ class DatasetImagesDiffPaneManager
 		view.setSelection(new Boolean(true));
 	}
 	
+	/** Cancel the selection. */
 	private void cancelSelection()
 	{
 		selectButton.setEnabled(true);

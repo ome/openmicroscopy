@@ -62,7 +62,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -87,11 +86,17 @@ public class DataManager
 	public static final Color   	STEELBLUE = new Color(0x4682B4);
 
 	/** Width of the editor dialog window. */
-	public static final int			EDITOR_WIDTH = 300;
+	public static final int			EDITOR_WIDTH = 500;
 	
 	/** Height of the editor dialog window. */
-	public static final int			EDITOR_HEIGHT = 300;
+	public static final int			EDITOR_HEIGHT = 500;
 	
+	/** Width of the "add" window. */
+	public static final int			ADD_WIN_WIDTH = 400;
+	
+	/** Height of the "add" window. */
+	public static final int			ADD_WIN_HEIGHT = 400;
+		
 	public static final Dimension	DIM_SCROLL_TABLE = new Dimension(40, 60);
 	
 	public static final Dimension	DIM_SCROLL_NAME = new Dimension(40, 25);
@@ -242,12 +247,14 @@ public class DataManager
 				DataManagementService dms = registry.getDataManagementService();
 				projectSummaries = dms.retrieveUserProjects();
 			} catch(DSAccessException dsae) {
-				UserNotifier un = registry.getUserNotifier();
-				un.notifyError("Data Retrieval Failure", 
-					"Unable to retrieve user's projects", dsae);
+				String s = "Can't retrieve user's projects.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);	
 			} catch(DSOutOfServiceException dsose) {
-				ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
+				ServiceActivationRequest 
+				request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
 				registry.getEventBus().post(request);
 			} 
 		}
@@ -269,9 +276,10 @@ public class DataManager
 				DataManagementService dms = registry.getDataManagementService();
 				datasetSummaries = dms.retrieveUserDatasets();
 			} catch(DSAccessException dsae) {
-				UserNotifier un = registry.getUserNotifier();
-				un.notifyError("Data Retrieval Failure", 
-					"Unable to retrieve user's datasets", dsae);
+				String s = "Can't retrieve user's datasets.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);
 			} catch(DSOutOfServiceException dsose) {	
 				ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -296,9 +304,10 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			images = dms.retrieveUserImages();
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve user's images", dsae);
+			String s = "Can't retrieve user's images.";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -320,9 +329,11 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			images = dms.retrieveImages(datasetID);
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve images for the dataset "+datasetID, dsae);
+			String s = "Can't retrieve images in the dataset " +
+						"with ID: "+datasetID+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -344,9 +355,10 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.retrieveProject(projectID);
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve the project "+projectID, dsae);
+			String s = "Can't retrieve the project with ID: "+projectID+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s, 
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -368,9 +380,10 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			dataset = dms.retrieveDataset(datasetID);
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve the dataset "+datasetID, dsae);
+			String s = "Can't retrieve the dataset with ID: "+datasetID+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -392,9 +405,10 @@ public class DataManager
 			DataManagementService dms = registry.getDataManagementService();
 			image = dms.retrieveImage(imageID);
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve the image "+imageID, dsae);
+			String s = "Unable to retrieve the image with ID: "+imageID+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -419,9 +433,10 @@ public class DataManager
 			// forward event to the presentation.
 			presentation.addNewProjectToTree(project);	
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to create a project: "+pd.getName(), dsae);
+			String s = "Can't create the project: "+pd.getName()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -454,9 +469,10 @@ public class DataManager
 			if (projects != null) 
 				presentation.addNewDatasetToTree(projects);		
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to create a dataset: "+dd.getName(), dsae);
+			String s = "Can't create the dataset: "+dd.getName()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -482,9 +498,10 @@ public class DataManager
 			updatePSList(pd);
 			if (nameChange) presentation.updateProjectInTree();
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified project: "+pd.getID(), dsae);
+			String s = "Can't update the project: "+pd.getID()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -533,9 +550,10 @@ public class DataManager
 			updateDatasetInPS(dd);
 			if (nameChange) presentation.updateDatasetInTree();
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified dataset: "+dd.getID(), dsae);
+			String s = "Can't update the dataset: "+dd.getID()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -599,9 +617,10 @@ public class DataManager
 			dms.updateImage(id);
 			if (nameChange) presentation.updateImageInTree(id);
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified image: "+id.getID(), dsae);
+			String s = "Can't update the image: "+id.getID()+".";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);

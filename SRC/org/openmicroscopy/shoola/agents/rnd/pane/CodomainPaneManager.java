@@ -43,6 +43,7 @@ import javax.swing.JCheckBox;
 import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.env.rnd.codomain.ReverseIntensityContext;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -114,8 +115,8 @@ class CodomainPaneManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case STRETCHING:
 					popUpContrastStretchingDialog();
@@ -124,7 +125,7 @@ class CodomainPaneManager
 					popUpPlaneSlicingDialog();
 			}  
 		} catch(NumberFormatException nfe) {
-			throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 
@@ -133,7 +134,7 @@ class CodomainPaneManager
 	{
 		JCheckBox box = (JCheckBox) e.getItemSelectable();
 		boolean b = false;
-		if (e.getStateChange()== ItemEvent.SELECTED) b = true;
+		if (e.getStateChange() == ItemEvent.SELECTED) b = true;
 		if (box == view.getRI()) reverseIntensity(b);
 		if (box == view.getPS()) planeSlicing(b);	
 		if (box == view.getCS()) contrastStretching(b);	
@@ -162,7 +163,7 @@ class CodomainPaneManager
 	/** Forward event to @see QuantumPaneManager#setCodomainMap. */
 	private void reverseIntensity(boolean b)
 	{
-		rCtx = null;	//if was already defined
+		rCtx = null;
 		rCtx = new ReverseIntensityContext();	
 		rCtx.setCodomain(control.getCodomainStart(), control.getCodomainEnd());
 		control.setCodomainMap(rCtx, b, RI);
@@ -171,13 +172,13 @@ class CodomainPaneManager
 	/** Initialize and display the dialog window. */
 	private void popUpContrastStretchingDialog()
 	{
-		control.showDialog(new ContrastStretchingDialog(control, csCtx));
+		UIUtilities.centerAndShow(new ContrastStretchingDialog(control, csCtx));
 	}
 	
 	/** Initialize and display the dialog window. */
 	private void popUpPlaneSlicingDialog()
 	{
-		control.showDialog(new PlaneSlicingDialog(control, psCtx));
+		UIUtilities.centerAndShow(new PlaneSlicingDialog(control, psCtx));
 	}
 	
 	/** Set the planeSlicingCtx if not retrieved from DB. */

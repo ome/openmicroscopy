@@ -64,6 +64,7 @@ import javax.swing.JPanel;
 class PlaneSlicingPanel
 	extends JPanel
 {
+	
 	/** Graphics constants. */
 	static final int    			WIDTH = 220, HEIGHT = 200;
 	static final int				topBorder = 20, leftBorder = 40,

@@ -129,7 +129,7 @@ class CreateDatasetImagesPane
 	  
 		//datasets table
 		imagesTM = new ImagesTableModel();
-		JTable  t = new JTable(imagesTM);
+		JTable t = new JTable(imagesTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -141,7 +141,8 @@ class CreateDatasetImagesPane
 		return p;
 	}
 	
-	/** A <code>3</code>-column table model to view the summary of 
+	/** 
+	 * A <code>3</code>-column table model to view the summary of 
 	 * image to add to a new dataset.
 	 * The first column contains the images ID and the 
 	 * second column the names, the third one a check box.
@@ -193,10 +194,9 @@ class CreateDatasetImagesPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			ImageSummary is = (ImageSummary) 
 								imageSummaries.get((String) data[row][0]);
-			manager.addImage(b, is);
+			manager.addImage(((Boolean) value).booleanValue(), is);
 		}
 	}
 	

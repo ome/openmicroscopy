@@ -168,9 +168,8 @@ public class CreateDatasetEditorManager
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save(); break;
@@ -184,9 +183,9 @@ public class CreateDatasetEditorManager
 					selectImage(); break;
 				case RESET_SELECTION_IMAGE:
 					resetSelectionImage();
-			}// end switch  
+			}
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
@@ -272,7 +271,7 @@ public class CreateDatasetEditorManager
 	
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)
-	{
+	{ 
 		if (isName) saveButton.setEnabled(true);
 	}
 

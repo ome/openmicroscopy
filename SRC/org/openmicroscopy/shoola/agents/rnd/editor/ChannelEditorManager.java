@@ -43,7 +43,7 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 
 /** 
  * 
@@ -117,17 +117,16 @@ class ChannelEditorManager
 
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save(); break;
 				case CANCEL:
 					cancel(); break;
-			}// end switch  
+			}  
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

@@ -145,30 +145,35 @@ class ExplorerPane
 		{
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
 													row, hasFocus);
-			IconManager im = IconManager.getInstance(registry);									
-			switch (getIconID(value)) {
-				case ROOT_ICON:
-					setIcon(im.getIcon(IconManager.OME));
-					break;
-				case PROJECT_ICON:
-					setIcon(im.getIcon(IconManager.PROJECT));
-					break;
-				case DATASET_ICON:
-					setIcon(im.getIcon(IconManager.DATASET));
-					break;
-				case IMAGE_ICON:
-					setIcon(im.getIcon(IconManager.IMAGE));
-					break;
-				case NO_ICON:
-					setIcon(null);
-			}
+			IconManager im = IconManager.getInstance(registry);
+			int index = getIconID(value);
+			try {
+				switch (index) {
+					case ROOT_ICON:
+						setIcon(im.getIcon(IconManager.OME));
+						break;
+					case PROJECT_ICON:
+						setIcon(im.getIcon(IconManager.PROJECT));
+						break;
+					case DATASET_ICON:
+						setIcon(im.getIcon(IconManager.DATASET));
+						break;
+					case IMAGE_ICON:
+						setIcon(im.getIcon(IconManager.IMAGE));
+						break;
+					case NO_ICON:
+						setIcon(null);
+				}									
+			} catch(NumberFormatException nfe) {   
+				throw new Error("Invalid Action ID "+index, nfe);
+			} 
 			return this;
 		}
 		
 		private int getIconID(Object value)
 		{
 			DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
-			Object  usrObject = node.getUserObject();
+			Object usrObject = node.getUserObject();
 			int id = ROOT_ICON;
 			if (node.getLevel() != 0) {
 				if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;

@@ -69,8 +69,6 @@ class ProjectDatasetsDiffPane
 	extends JDialog
 {
 	
-	private static final int				WIN_W = 300, WIN_H = 200;
-
 	private JButton							selectButton, cancelButton, 
 											saveButton;
 											
@@ -128,13 +126,11 @@ class ProjectDatasetsDiffPane
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		selectButton.setToolTipText(
 			UIUtilities.formatToolTipText("Select all datasets."));
-		
 		//cancel button
 		cancelButton = new JButton("Reset");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
-		
 		//cancel button
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -153,9 +149,9 @@ class ProjectDatasetsDiffPane
 	void buildGUI()
 	{
 		contents = buildDatasetsPanel();
-		contents.setSize(WIN_W, WIN_H);
+		contents.setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
 		getContentPane().add(contents);
-		setSize(WIN_W, WIN_H);
+		setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
 	}
 	
 	/** Build panel with table. */
@@ -182,7 +178,7 @@ class ProjectDatasetsDiffPane
 		p.add(sp);
 		p.add(Box.createRigidArea(DataManager.VBOX));
 		p.add(controls);
-		
+		p.add(Box.createRigidArea(DataManager.VBOX));
 		return p;
 	}
 	
@@ -238,10 +234,9 @@ class ProjectDatasetsDiffPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			DatasetSummary ds = (DatasetSummary) 
 								datasetSummaries.get((String) data[row][0]);
-			manager.addDataset(b, ds);
+			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
 	

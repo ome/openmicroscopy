@@ -46,7 +46,7 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
@@ -196,7 +196,6 @@ public class RGBPane
 		column = columns.getColumn(POS_COLOR);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
-		
 		
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());

@@ -45,6 +45,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -63,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class DomainPaneManager
 	implements ActionListener, ChangeListener
 {
+	
 	/** Action command ID used to control components' changes. */ 
 	static final int        		FAMILY = 0;  
 	static final int        		BR = 1;
@@ -144,8 +146,8 @@ class DomainPaneManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case FAMILY:
 					JComboBox cbx = (JComboBox) e.getSource();
@@ -159,7 +161,7 @@ class DomainPaneManager
 					popUpHistogram();
 			}
 		} catch(NumberFormatException nfe) {  
-				throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
@@ -225,7 +227,7 @@ class DomainPaneManager
 	
 	/**
 	 * Select a wavelength.
-	 * @param w	wavelength indexd.
+	 * @param w	wavelength index.
 	 */
 	private void setWavelength(int w)
 	{
@@ -244,12 +246,10 @@ class DomainPaneManager
 			min = control.getGlobalChannelWindowStart(w);
 			max = control.getGlobalChannelWindowEnd(w);
 			PixelsStatsEntry[] channelStats = control.getChannelStats(w);
-			if (channelStats == null) // this shouln't happen
-				throw new IllegalArgumentException("Cannot retrieve the stats");
 			histogramDialog = new HistogramDialog(control, min, max, start, end,
 												channelStats);
 		}
-		control.showDialog(histogramDialog);
+		UIUtilities.centerAndShow(histogramDialog);
 	}
 	
 	/** 

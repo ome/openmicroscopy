@@ -193,10 +193,9 @@ class CreateDatasetProjectsPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			boolean b = ((Boolean) value).booleanValue();
 			ProjectSummary is = (ProjectSummary) 
 								projectSummaries.get((String) data[row][0]);
-			manager.addProject(b, is);
+			manager.addProject(((Boolean) value).booleanValue(), is);
 		}
 	}
 	

@@ -61,6 +61,7 @@ import javax.swing.JPanel;
 class PlaneSlicingStaticPanel
 	extends JPanel
 {
+	
 	private static final int		WIDTH = PlaneSlicingPanel.WIDTH,
 									HEIGHT = PlaneSlicingPanel.HEIGHT,
 									topBorder = PlaneSlicingPanel.topBorder, 
@@ -79,7 +80,7 @@ class PlaneSlicingStaticPanel
 	private boolean					isSelected;
 
 	/** 
-	 * Sets the selecttion control, <code>true</code> if the panel is selected 
+	 * Sets the selection control, <code>true</code> if the panel is selected 
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param b		true/false.

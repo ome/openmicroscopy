@@ -158,9 +158,8 @@ public class CreateProjectEditorManager
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save(); break;
@@ -169,11 +168,10 @@ public class CreateProjectEditorManager
 				case SELECT:
 					select(); break;
 				case RESET:
-					resetSelection();
-				
-			}// end switch  
+					resetSelection();	
+			} 
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

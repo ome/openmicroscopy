@@ -48,6 +48,7 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -158,9 +159,8 @@ class DatasetEditorManager
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) {
 				case SAVE:
 					save(); break;
@@ -172,9 +172,9 @@ class DatasetEditorManager
 					remove(); break;
 				case RESET:
 					resetSelection();
-			}// end switch  
+			}  
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
@@ -230,7 +230,7 @@ class DatasetEditorManager
 			dialog.remove(dialog.getContents());
 			dialog.buildGUI();
 		}
-		control.showDialog(dialog);
+		UIUtilities.centerAndShow(dialog);
 		view.setSelectedPane(DatasetEditor.POS_IMAGE);
 		saveButton.setEnabled(true);	
 	}

@@ -30,26 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
-/** 
- * 
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
- * @since OME2.2
- */
-//Java imports
 import java.awt.Color;
 import javax.swing.JLayeredPane;
 

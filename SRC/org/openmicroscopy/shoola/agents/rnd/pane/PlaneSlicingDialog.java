@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 class PlaneSlicingDialog
 	extends JDialog
 {
+	
 	/** Width of the widget. */
 	private static final int			WIDTH_WIN = 440;
 	

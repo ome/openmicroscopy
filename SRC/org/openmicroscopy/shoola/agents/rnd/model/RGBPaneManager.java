@@ -40,7 +40,6 @@ import java.util.HashMap;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -48,8 +47,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.agents.rnd.editor.ChannelEditor;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -68,6 +67,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredButton;
 class RGBPaneManager
 	implements ActionListener, ItemListener
 {
+	
 	private RGBPane 			view;
 	
 	private RenderingAgtCtrl 	eventManager;
@@ -114,14 +114,17 @@ class RGBPaneManager
 	/** Handle events fired by button. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
 		Object component = (Object) e.getSource();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int index = Integer.parseInt(s);
-			if (component instanceof ColoredButton) showColorChooser(index);
-			else showChannelInfo(index);
+			if (component instanceof ColoredButton) 
+				UIUtilities.centerAndShow(new ColorSelector(this, 
+										eventManager.getRGBA(index), index));
+			else 
+				UIUtilities.centerAndShow(new ChannelEditor(eventManager, 
+										eventManager.getChannelData(index)));
 		} catch(NumberFormatException nfe) {
-				throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		}    
 	}
 
@@ -141,33 +144,6 @@ class RGBPaneManager
 		view.repaint();
 		eventManager.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
 							c.getAlpha());
-	}
-	
-	/**
-	 * Pop up the colorChooserDialog widget.
-	 * 
-	 * @param w		wavelength index.
-	 */
-	private void showColorChooser(int w)
-	{
-		showDialog(new ColorSelector(this, eventManager.getRGBA(w), w));
-	}
-
-	/**
-	 * Pop up the wavelength info editor.
-	 * 
-	 * @param w		wavelength index.
-	 */
-	private void showChannelInfo(int w) 
-	{
-		ChannelData[] cd = eventManager.getChannelData();
-		showDialog(new ChannelEditor(eventManager, cd[w]));
-	}
-	
-	/** Forward event to {@link RenderingAgtUIF}. */
-	private void showDialog(JDialog dialog)
-	{
-		eventManager.showDialog(dialog);
 	}
 	
 }

@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.rnd.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
@@ -43,7 +44,7 @@ import javax.swing.WindowConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 
 /** 
  * 
@@ -63,8 +64,16 @@ public class ChannelEditor
 	extends JDialog
 {
 	
+	/** Bacckground color. */
 	static final Color   			STEELBLUE = new Color(0x4682B4);
-
+	
+	static final Dimension			HBOX = new Dimension(10, 0),
+									VBOX = new Dimension(0, 10);
+	
+	static final int				ROW_HEIGHT = 25;
+	static final Dimension			DIM_SCROLL_TABLE = 
+												new Dimension(40, 60);
+									
 	/** Width of the editor dialog window. */
 	private static final int		EDITOR_WIDTH = 300;
 	

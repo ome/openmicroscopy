@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd.editor;
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -38,14 +37,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -68,12 +67,8 @@ class ChannelPane
 	extends JPanel
 {
 	
-	private static final int				ROW_HEIGHT = 25;
-	private static final Dimension			DIM_SCROLL_TABLE = 
-													new Dimension(40, 60);
-	
 	private ChannelEditorManager			manager;
-	private JTextArea						interpretationArea;
+	private MultilineLabel					interpretationArea;
 	private JTextField						excitation, fluor;
 	
 	ChannelPane(ChannelEditorManager manager)
@@ -84,7 +79,7 @@ class ChannelPane
 
 	JTextField getFluor() { return fluor; }
 	
-	JTextArea getInterpretationArea() { return interpretationArea; }
+	MultilineLabel getInterpretationArea() { return interpretationArea; }
 	
 	JTextField getExcitation() { return excitation; }
 	
@@ -137,13 +132,11 @@ class ChannelPane
 	  	
 		//Second row
 		label = new JLabel(" Interpretation");
-		interpretationArea = new JTextArea(wd.getInterpretation());
+		interpretationArea = new MultilineLabel(wd.getInterpretation());
 		interpretationArea.setForeground(ChannelEditor.STEELBLUE);
 		interpretationArea.setEditable(true);
-		interpretationArea.setLineWrap(true);
-		interpretationArea.setWrapStyleWord(true);
 		JScrollPane scrollPane = new JScrollPane(interpretationArea);
-		scrollPane.setPreferredSize(DIM_SCROLL_TABLE);
+		scrollPane.setPreferredSize(ChannelEditor.DIM_SCROLL_TABLE);
 		table.setValueAt(label, 2, 0);
 		table.setValueAt(scrollPane, 2, 1);
 		
@@ -161,7 +154,7 @@ class ChannelPane
 	private void setTableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
-		table.setRowHeight(ROW_HEIGHT);
+		table.setRowHeight(ChannelEditor.ROW_HEIGHT);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
