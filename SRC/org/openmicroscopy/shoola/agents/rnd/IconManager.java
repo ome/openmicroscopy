@@ -82,6 +82,8 @@ public class IconManager
 	static {
 		relPaths[INFO] = "information16.png";
 		relPaths[HISTOGRAM] = "information16.png";
+		relPaths[STRETCHING] = "information16.png";
+		relPaths[SLICING] = "information16.png";
 	}
 	
 	/**
