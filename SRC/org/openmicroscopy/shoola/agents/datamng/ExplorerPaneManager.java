@@ -86,7 +86,7 @@ class ExplorerPaneManager
 	 * Boolean value used to control if the project-dataset hierarchy has 
 	 * been loaded. 
 	 */
-	private boolean					isTreeLoaded;
+	private boolean					treeLoaded;
 	
 	/** 
 	 * Map of expanded dataset nodes.
@@ -111,20 +111,21 @@ class ExplorerPaneManager
 		this.agentCtrl = agentCtrl;
 		pNodes = new TreeMap();
 		initListeners();
-		isTreeLoaded = false;
+		treeLoaded = false;
 	}
 	
-	boolean isTreeLoaded() { return isTreeLoaded; }
+	boolean isTreeLoaded() { return treeLoaded; }
 	
 	/** 
 	 * Builds the tree model to represent the project-dataset
 	 * hierarchy.
 	 *
+     * @param name      user's last name.
 	 * @return  A tree model containing the project-dataset hierarchy.
 	 */
-	DefaultMutableTreeNode getUserTreeModel()
+	DefaultMutableTreeNode getUserTreeModel(String name)
 	{
-		root = new DefaultMutableTreeNode("My OME");
+		root = new DefaultMutableTreeNode(name+"'s OME");
 		DefaultMutableTreeNode childNode = 
 								new DefaultMutableTreeNode("");
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
@@ -162,7 +163,7 @@ class ExplorerPaneManager
 	{
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		DefaultMutableTreeNode pNode;
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();										
+		List pSummaries = agentCtrl.getUserProjects();										
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
 			ProjectSummary ps;
@@ -183,7 +184,7 @@ class ExplorerPaneManager
 	{	
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		DefaultMutableTreeNode pNode;										
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		List pSummaries = agentCtrl.getUserProjects();
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
 			ProjectSummary ps;
@@ -318,13 +319,14 @@ class ExplorerPaneManager
 	{
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		DefaultMutableTreeNode pNode;													
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		List pSummaries = agentCtrl.getUserProjects();
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
 			ProjectSummary ps;
+            Integer projectID;
 			while (j.hasNext()) {
 				ps = (ProjectSummary) j.next();
-				Integer projectID = new Integer(ps.getID());
+				projectID = new Integer(ps.getID());
 				pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
 				pNode.removeAllChildren();
 				if (projects.indexOf(ps) != -1)
@@ -393,8 +395,8 @@ class ExplorerPaneManager
 						agentCtrl.showProperties(target);
 				}
 	   		} else { //click on the root node.
-				if (e.getClickCount() == 2 && !isTreeLoaded) rebuildTree();
-				else if (isTreeLoaded && e.isPopupTrigger())
+				if (e.getClickCount() == 2 && !treeLoaded) rebuildTree();
+				else if (treeLoaded && e.isPopupTrigger())
 				{
 					DataManagerUIF presentation = 
 					agentCtrl.getAbstraction().getPresentation();
@@ -424,14 +426,14 @@ class ExplorerPaneManager
 			DatasetSummary ds = (DatasetSummary) usrObject;
 			datasetNodeNavigation(ds, node, isExpanding);
 		} else {
-			if (node.equals(root) && !isTreeLoaded && isExpanding) rebuildTree();
+			if (node.equals(root) && !treeLoaded && isExpanding) rebuildTree();
 		}
 	}
 
 	/** Build the tree model to represent the project-dataset hierarchy. */
 	void rebuildTree()
 	{
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		List pSummaries = agentCtrl.getUserProjects();
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		root.removeAllChildren();
 		if (pSummaries != null) {
@@ -446,7 +448,7 @@ class ExplorerPaneManager
 				addDatasetsToProject(ps, pNode, treeModel);	
 			}
 			treeModel.reload(root);
-			isTreeLoaded = true;	
+			treeLoaded = true;	
 		} else {
 			DefaultMutableTreeNode childNode = 
 										new DefaultMutableTreeNode("");

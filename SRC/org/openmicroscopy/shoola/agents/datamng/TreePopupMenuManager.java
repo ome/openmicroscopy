@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
- * The UI manager of the {@link PopupMenu}.
+ * The UI manager of the {@link TreePopupMenu}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
  * Provides buttons for accessing the properties of an object (a project, 
  * dataset or image), viewing an image, browsing a dataset, and reloading
  * data from the DB.
- * The background motif is a repeated pattern made of three lines.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -86,7 +86,8 @@ class ExplorerPane
 		this.registry = registry;
 		tree = new JTree();
 		manager = new ExplorerPaneManager(this, agentCtrl);
-		DefaultMutableTreeNode r = manager.getUserTreeModel();
+		DefaultMutableTreeNode r = manager.getUserTreeModel(
+                agentCtrl.getUserLastName());
 		DefaultTreeModel dtm = new DefaultTreeModel(r);
 		tree.setModel(dtm);
 		tree.setShowsRootHandles(true);
