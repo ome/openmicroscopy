@@ -32,15 +32,12 @@ package org.openmicroscopy.shoola.agents.roi.results.controls;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
-
-import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 /** 
  * 
  *
@@ -61,9 +58,6 @@ class ControlsBarMng
     
     /** Action ID to close the window. */
     private static final int    CLOSE = 0;
-    
-    /** Action ID to save the data. */
-    private static final int    SAVE = 1;
 
     private ControlsBar         view;
     
@@ -80,7 +74,6 @@ class ControlsBarMng
     private void attachListeners()
     {
         attachButtonListener(view.cancel, CLOSE);
-        attachButtonListener(view.save, SAVE);
     }
  
     /** Attach a listener to the specified button. */
@@ -98,18 +91,10 @@ class ControlsBarMng
             switch (index) {
                 case CLOSE:
                     mng.handleClose(); break;
-                case SAVE:
-                    handleSave(); break;
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }   
     }
-    
-    /** Handle the save event. */
-    private void handleSave()
-    {
-        //UIUtilities.centerAndShow(new ROIStatsSaver(this, control));
-    }
-    
+
 }

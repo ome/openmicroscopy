@@ -30,10 +30,8 @@
 package org.openmicroscopy.shoola.agents.roi.results.controls;
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -63,9 +61,9 @@ public class ControlsBar
     extends JPanel
 {
     
-    private static final Dimension  HBOX = new Dimension(10, 0);
+    //private static final Dimension  HBOX = new Dimension(10, 0);
     
-    JButton         save, cancel;
+    JButton         cancel;
     
     public ControlsBar(ROIResultsMng mng, IconManager im)
     {
@@ -78,12 +76,8 @@ public class ControlsBar
     private void initComponents(IconManager im)
     {
         cancel = new JButton(im.getIcon(IconManager.CLOSE));
-        save = new JButton(im.getIcon(IconManager.SAVE));
         cancel.setToolTipText(
                 UIUtilities.formatToolTipText("Close the window."));
-        save.setToolTipText(
-                UIUtilities.formatToolTipText("Save the result as a " +
-                                            "text or XML file."));
     }
     
     /** Build and lay out the GUI. */
@@ -106,8 +100,6 @@ public class ControlsBar
         bar.setBorder(BorderFactory.createEtchedBorder());
         bar.setFloatable(true);
         bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        bar.add(save);
-        bar.add(Box.createRigidArea(HBOX));
         bar.add(cancel);
         return bar;
     }
