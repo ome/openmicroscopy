@@ -243,6 +243,8 @@ public class ChainBox extends GenericBox implements MouseableNode
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
 			((ModuleNodeEventHandler) handler).animateToNode(p);	
+		else
+			((ModuleNodeEventHandler) handler).animateToCanvasBounds();
 	}	
 		
 }
