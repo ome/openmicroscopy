@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ * Child build file to test the application.
+ * This file is only meant to be used as an imported file within the Shoola
+ * master build file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project name="test" default="usage">
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Fail at import time if the external properties this child depends upon
+   * have not been defined. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <checkdef prop="build.dir"/> 
+  <checkdef prop="base.test.dir"/>
+  <checkdef prop="base.test.lib.dir"/>
+  <!-- 
+    NOTE: The last dependency is app.run.classpath, which is a path ref.
+    This can only be checked after the path elements have been created,
+    which happens when the app-init target is invoked.  So we're forced
+    to defer this check until the compile target has been executed.
+  -->
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Settings to compile and run the tests:
+   *   + test.dir: The destination dir where we compile and run the tests.
+   *   + test.compiled.dir: The sub-dir of ${test.dir} in which we store all
+   *           the compiled test classes and resources.
+   *   + test.lib.dir: The sub-dir of ${test.dir} in which we store all the
+   *           additional library files required for the tests to compile and
+   *           run.
+   *   + test.reports.dir: The sub-dir of ${test.dir} where the results of
+   *           the latest tests run are collected.
+   *   + test.reports.xml.dir: The sub-dir of ${test.reports.dir} which
+   *           contains the results of the latest tests run in xml format.
+   *   + test.reports.html.dir: The sub-dir of ${test.reports.dir} which
+   *           contains the results of the latest tests run in html format.
+   *   + test.sources: All test files to compile.  Currently these are
+   *           all the .java files within ${base.test.dir}.
+   *           The omeds package is excluded altogether as it will be soon
+   *           moved out of Shoola.
+   *   + test.suite: All test case files that make up the test suite.
+   *           These are all .java files under ${base.test.dir} that start with 
+   *           'Test'.  The omeds package is excluded altogether as it will
+   *           be soon moved out of Shoola.
+   *   + test.libs: All libraries required by the tests.  Currently all jar
+   *           files within ${base.test.lib.dir}.  Note that jar files in 
+   *           sub-dirs are not included.
+   *   + test.resources: All other resources needed by the tests.  We 
+   *           consider a resource any non-java file in ${base.test.dir}.  
+   *           Obviously CVS dirs and files are excluded.
+   *   + test.compile.classpath: The classpath used to compile the tests. 
+   *           Set to include all libraries required by the app, the app
+   *           compiled classes, and finally all libraries required for
+   *           testing.
+   *   + test.classpath: The classpath used to run the test.  Set to 
+   *           include the test compile-classpath as well as all compiled 
+   *           test classes.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property name="test.dir" location="${build.dir}/test"/>
+  <property name="test.compiled.dir" location="${test.dir}/compiled"/> 
+  <property name="test.lib.dir" location="${test.dir}/lib"/>
+  <property name="test.reports.dir" location="${test.dir}/reports"/>
+  <property name="test.reports.xml.dir" location="${test.reports.dir}/xml"/>
+  <property name="test.reports.html.dir" location="${test.reports.dir}/html"/> 
+  <patternset id="test.sources">
+    <include name="**/*.java"/>
+    <exclude name="**/omeds/**/*.java"/> 
+  </patternset> 
+  <fileset id="test.suite" dir="${base.test.dir}"> 
+    <include name="**/Test*.java"/>
+    <exclude name="**/omeds/**/*.java"/> 
+  </fileset> 
+  <fileset id="test.libs" dir="${base.test.lib.dir}" includes="*.jar"/>
+  <fileset id="test.resources" dir="${base.test.dir}">
+    <exclude name="**/*.java"/>
+    <exclude name="**/omeds/**/*"/> 
+  </fileset>
+  <path id="test.compile.classpath">
+    <path refid="app.run.classpath"/> 
+    <fileset dir="${test.lib.dir}" includes="*.jar"/> 
+  </path> 
+  <path id="test.classpath">
+    <path refid="test.compile.classpath"/>
+    <pathelement location="${test.compiled.dir}"/>
+  </path>
+ 
+ 
+ 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Verify integrity of ${base.test.dir}, create and set up ${test.dir}.
+   * A pre-requisite to running the tests is that no file in ${base.test.dir}
+   * has the same name and relative path as existing files in ${base.src.dir}.
+   * As an example consider the files ${base.test.dir}/some/path/foo.bar and
+   * ${base.src.dir}/some/path/foo.bar.  In such cases, depending on how 
+   * classpaths are scanned by classloaders, either file could become part of
+   * the runtime.  This could obviously cause insidious side-effects which may
+   * fake test results.  For this reason if the above pre-requisite is not met,
+   * the build will be failed.  Otherwise this target goes on by creating the
+   * test root dir and its sub-dirs.  Then all files needed to compile and run
+   * the tests are copied over from their original dirs.
+   * Note that if ${test.reports.dir} exists, it is first deleted and then
+   * replaced with a new dir.  This ensures the results of previous tests runs
+   * won't show up. (The test-reporting tasks generate reports by adding a 
+   * report file for each test case output; so if a test case is removed, the
+   * report of any previous run wouldn't be deleted.)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="test-init" depends="init">
+    <checkdup dir="${base.test.dir}" targetdir="${base.src.dir}"/> 
+    <mkdir dir="${test.dir}"/>
+    <mkdir dir="${test.compiled.dir}"/>
+    <mkdir dir="${test.lib.dir}"/> 
+    <delete dir="${test.reports.dir}"/>
+    <mkdir dir="${test.reports.dir}"/> 
+    <mkdir dir="${test.reports.xml.dir}"/> 
+    <mkdir dir="${test.reports.html.dir}"/> 
+    <copy todir="${test.compiled.dir}">
+      <fileset refid="test.resources"/>
+    </copy> 
+    <copy todir="${test.lib.dir}">
+      <fileset refid="test.libs"/>
+    </copy> 
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Compile the test sources into ${test.compiled.dir}.
+   * The test sources is the set of all files within ${base.test.dir} that 
+   * match the test.sources pattern.  The classpath is set to 
+   * ${test.compile.classpath}.
+   *
+   * NOTE: We also verify that app.run.classpath has been defined.
+   * Because we turn this path ref into a string, we can only check for
+   * existence after all its path elements have been created (otherwise
+   * we get the empty string).  This happens in app-init; because compile
+   * depends on app-init, we defer this check until compile has been called.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="test-compile" depends="test-init,compile">
+    <checkdef ref="app.run.classpath"/> 
+    <javac srcdir="${base.test.dir}" 
+           destdir="${test.compiled.dir}"
+           includeantruntime="no" 
+           deprecation="yes"
+           debug="yes"
+           debuglevel="lines,vars,source">
+      <classpath refid="test.compile.classpath"/>
+      <patternset refid="test.sources"/> 
+    </javac> 
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Run all tests, produce a report, and halt the build upon test failure. 
+   * The test suite is specifed by the test.suite fileset.  Every test case
+   * is run in its own JVM so that a higher level of insulation is ensured by
+   * avoiding statics to propagate from the current JVM to the test case or
+   * among test cases.  The classpath of the forked JVM is set to the Ant's
+   * classpath and to ${test.classpath}.  (Ant's classpath is required because
+   * the forked JVM needs to load the junit and junitreport tasks.)
+   * After the tests run, an xml report is produced into 
+   * ${test.reports.xml.dir}.  In turn, an html report is generated from 
+   * those xml files and placed under ${test.reports.html.dir}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="test" 
+          depends="test-compile"
+          description="Run all tests.">
+    <junit printsummary="yes" 
+           errorproperty="test.didnt.pass" 
+           failureproperty="test.didnt.pass"
+           fork="yes">
+      <classpath refid="test.classpath"/> 
+      <batchtest todir="${test.reports.xml.dir}">
+        <fileset refid="test.suite"/>
+        <formatter type="brief" usefile="no"/>
+        <formatter type="xml"/> 
+      </batchtest> 
+    </junit>
+    <junitreport todir="${test.reports.xml.dir}">
+      <fileset dir="${test.reports.xml.dir}" includes="TEST-*.xml"/>
+      <report todir="${test.reports.html.dir}" format="frames"/> 
+    </junitreport>
+    <fail if="test.didnt.pass">
+      Tests didn't pass.  See report details in ${test.reports.html.dir}.
+    </fail> 
+  </target>
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Remove all output generated by the targets within this file. 
+   * This target simply deletes the ${test.dir}, relying on the fact that all
+   * other targets output under this dir.  As long as dir mapping props stick
+   * to this rule, new targets can be added without modifying this one.
+   * Should a target output dir need to be mapped to a dir outside of
+   * ${test.dir}, then an explicit delete has to be added here.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="clean"
+          description="Remove all output generated by test targets.">
+    <delete dir="${test.dir}"/>
+  </target>
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Outputs a list of available targets.
+   * This is the list of all public targets exported by this file.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="usage"
+          description="List available test targets.">
+    <echo level="info">
+Test targets:
+------------- 
+  test: Run all the tests and output a report under ${test.reports.html.dir}.
+  test.clean: Remove ${test.dir}. 
+    </echo> 
+  </target> 
+  
+</project> 

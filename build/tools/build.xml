@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ * Build file for the OME Java Client (Shoola) Builder tool.
+ * Use this file to build and deploy the Builder tool.
+ * This is an Ant build file and requires Ant 1.6 or later to run the build.
+ *
+ * The Builer tool is a trivial Java program that invokes Ant to process the
+ * OME-Shoola build file.  The Builder tool is packaged in a jar file which
+ * is linked to all Ant and third-party libraries required to process the 
+ * OME-Shoola build file.  Because all those libraries ship with Shoola's 
+ * source, all is needed to compile, run, test, and package the application
+ * for distribution is a JDK (1.4 or later).  This way, people won't have to
+ * install/upgrade and tweak Ant to run Shoola's build file.  In fact, after
+ * deploying the Builder jar ('build') in the same directory as the Shoola's
+ * build file, it is possible to run a build without Ant:
+ *
+ *      java -jar build [target]
+ *
+ * Where target is one of the targets in the Shoola's build file.  Of course,
+ * the Builder itself is deployed before hand and ships with Shoola's source.
+ * (This is obviously because Ant is required to build the Builder.)
+ *
+ * ______
+ * NOTES:
+ * 1. Ant requires some XML libs to run.  The reason why those libs are not 
+ *    incuded with the Builder tool is easy: JDK 1.4 and later already ship
+ *    with implemetations of those libs and Ant 1.6.2 (the version we use)
+ *    can work just fine with those JDK default libs.  (At least the tasks
+ *    we use Ant for.)
+ * 2. The way we invoke Ant is kinda lame, but works fine with all the tasks 
+ *    currently in Shoola's build.  The potential problem is that we don't
+ *    set ant.home and invoke org.apache.tools.ant.Main rather than the new
+ *    Ant launcher.  Dunno if some tasks (among those we don't use yet) rely
+ *    on that stuff.  (Ant launcher also does some classpath 'magic'.)
+ *    Re-factoring this is not difficult, so we might wanna do it when we have
+ *    more time.  Here's the plan:
+ *    
+ *      + Move all Ant and third-party jars in a 'lib' dir under 'tools'.
+ *      + Make a build class which uses a custom class loader (or at least an
+ *        URLClassLoader) to load org.apache.tools.ant.launch.Launcher with
+ *        whatever args are passed from the command line.  This class loader
+ *        will have its classpath set to ant-launcher.jar and tools.jar. 
+ *        Given these settings and the above dir structure, the Launcher is
+ *        smart enough to configure itself and Ant correctly.  (See code).
+ *      + Nuke the current 'build' jar and replace it with the compiled build
+ *        class file ('build.class').  Now a Shoola build can be run by typing:
+ *          java build [target]
+ *        from the dir containing Shoola's build.xml file.  Again, no previous
+ *        classpath settings are required or extra command line args!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project name="OME-Shoola/Builder" default="deploy" basedir=".">
+ 
+  <!--
+    Temporary dir to write and compile the Builder class.
+    NOTE: The deploy target will delete this dir. 
+  -->  
+  <property name="tmp.dir" location="tmp"/>
+  <available file="${tmp.dir}" property="tmp.dir.present"/>
+  <fail message="Can't override existing dir: ${tmp.dir}." 
+        if="tmp.dir.present"/> 
+  
+  <!-- Dir containing all Ant and third-party libs. --> 
+  <property name="lib.dir" location="."/>
+  
+  <!-- The set of all Ant and third-party libs. --> 
+  <path id="libs">
+    <fileset dir="${lib.dir}" includes="*.jar"/>
+  </path>
+     
+ 
+ 
+  
+  <!-- Private target to write the Builder class source in ${tmp.dir}. -->
+  <target name="write-source">
+    <mkdir dir="${tmp.dir}"/>
+    <echo file="${tmp.dir}/Builder.java">
+      public class Builder
+      {
+          public static void main(String[] args)
+          {
+              org.apache.tools.ant.Main.main(args);
+          }
+      } 
+    </echo> 
+  </target>
+   
+  <!-- Private target to compile the Builder class in ${tmp.dir}. -->
+  <target name="compile" depends="write-source">
+    <javac srcdir="${tmp.dir}"
+           destdir="${tmp.dir}"
+           includeantruntime="no"  
+           deprecation="yes"
+           debug="yes"
+           debuglevel="lines,vars,source">
+      <classpath refid="libs"/>
+    </javac> 
+  </target>
+
+  <!-- 
+    Private target to jar the Builder class in 'build'.  
+    The path of each library file is specified in the Class-Path header to be
+    relative to the ${lib.dir}.  This means the 'build' jar has to be deployed
+    in ${lib.dir} parent directory.
+  -->
+  <target name="jar" depends="compile">
+    <basename file="${lib.dir}" property="lib.dir.name"/> 
+    <pathconvert property="jar.manifest.cp" 
+                 pathsep=" " 
+                 dirsep="/"
+                 refid="libs">
+      <map from="${lib.dir}" to="${lib.dir.name}"/>                
+    </pathconvert>
+    <jar destfile="${tmp.dir}/build" basedir="${tmp.dir}" includes="**/*.class">
+      <manifest>
+        <attribute name="Created-By" value="OME Development Team"/>
+        <attribute name="Class-Path" value="${jar.manifest.cp}"/>
+        <attribute name="Main-Class" value="Builder"/>
+      </manifest> 
+    </jar>
+  </target>  
+ 
+  <!-- Public target to deploy 'build' in in ${lib.dir} parent directory. --> 
+  <target name="deploy" depends="jar">
+    <dirname file="${lib.dir}" property="lib.dir.parentdir"/>
+    <copy todir="${lib.dir.parentdir}">
+      <fileset file="${tmp.dir}/build"/>
+    </copy>
+    <delete dir="${tmp.dir}"/>
+  </target>  
+
+</project>

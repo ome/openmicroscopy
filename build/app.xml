@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ * Child build file to compile and run the application.
+ * This file is only meant to be used as an imported file within the Shoola
+ * master build file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project name="app" default="usage">
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Fail at import time if the external properties this child depends upon
+   * have not been defined. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <checkdef prop="build.dir"/> 
+  <checkdef prop="base.lib.dir"/>
+  <checkdef prop="base.src.dir"/>
+  <checkdef prop="base.config.dir"/>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Settings to compile and run the app:
+   *   + app.dir: The destination dir where we compile and run the app.
+   *   + app.compiled.dir: The sub-dir of app.dir in which we store all the
+   *           compiled classes and resources.
+   *   + app.config.dir: The sub-dir of app.dir in which we store all the 
+   *           configuration files required for the app to run.
+   *   + app.lib.dir: The sub-dir of app.dir in which we store all the library
+   *           files required for the app to compile and run.
+   *   + app.sources: All java files to compile.  Currently these are all the
+   *           .java files within ${base.src.dir} with the exception of the 
+   *           spot package if Java 3D is not available to the current JVM.
+   *   + app.libs: All libraries required by the app.  Currently all jar files
+   *           within ${base.lib.dir}.  Note that jar files in sub-dirs are not
+   *           included.
+   *   + app.resources: All other resources needed by the app.  We consider a
+   *           resource any non-java file in ${base.src.dir}.  Obviously CVS 
+   *           dirs and files are excluded.
+   *   + app.config: All the configuration files required for the app to run.
+   *           These are the contents of ${base.config.dir}.  Obviously CVS 
+   *           dirs and files are excluded.
+   *   + app.compile.classpath: The classpath used to compile the app.  Set to
+   *           include all required libraries.
+   *   + app.run.classpath: The classpath used to run the app.  Set to include
+   *           all required libraries as well as all compiled classes.
+   *   + app.mainclass: The fqn for the app entry point.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property name="app.dir" location="${build.dir}/app"/>
+  <property name="app.compiled.dir" location="${app.dir}/compiled"/> 
+  <property name="app.config.dir" location="${app.dir}/config"/> 
+  <property name="app.lib.dir" location="${app.dir}/lib"/> 
+  <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>  
+  <patternset id="app.sources">
+    <include name="**/*.java"/>
+    <exclude name="**/spots/**/*.java" unless="app.j3d"/> 
+    <exclude name="**/TMP.java"/> 
+  </patternset>
+  <fileset id="app.libs" dir="${base.lib.dir}" includes="*.jar"/>
+  <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
+  <fileset id="app.config" dir="${base.config.dir}"/> 
+  <path id="app.compile.classpath">
+    <fileset dir="${app.lib.dir}" includes="*.jar"/> 
+  </path> 
+  <path id="app.run.classpath">
+    <path refid="app.compile.classpath"/>
+    <pathelement location="${app.compiled.dir}"/>
+  </path>
+  <property name="app.mainclass" value="org.openmicroscopy.shoola.Main"/>
+ 
+
+ 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Create and set up ${app.dir}.
+   * The application root dir and its sub-dirs are created and then all files
+   * needed to compile and run the app are copied over from the original dirs.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="app-init" depends="init">
+    <mkdir dir="${app.dir}"/>
+    <mkdir dir="${app.compiled.dir}"/>
+    <mkdir dir="${app.config.dir}"/>
+    <mkdir dir="${app.lib.dir}"/> 
+    <copy todir="${app.compiled.dir}">
+      <fileset refid="app.resources"/>
+    </copy> 
+    <copy todir="${app.config.dir}">
+      <fileset refid="app.config"/>
+    </copy> 
+    <copy todir="${app.lib.dir}">
+      <fileset refid="app.libs"/>
+    </copy> 
+  </target>
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Compile the app sources into ${app.compiled.dir}.
+   * The app sources is the set of all files within ${base.src.dir} matching
+   * app.sources pattern.  The classpath is set to ${app.compile.classpath}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="compile" 
+          depends="app-init" 
+          description="Compile the whole app.">
+    <javac srcdir="${base.src.dir}"
+           destdir="${app.compiled.dir}"
+           includeantruntime="no"  
+           deprecation="yes"
+           debug="yes"
+           debuglevel="lines,vars,source">
+      <classpath refid="app.compile.classpath"/>
+      <patternset refid="app.sources"/>
+    </javac> 
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Run the app in its own JVM. 
+   * The location of the home directory is passed to the app via the command
+   * line.  The JVM minumum memory size is set to 256M and the maximum to
+   * 512M.  Note that JVM memory size is specified via -X options, which make
+   * it (in theory) non-portable.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="run"
+          depends="compile" 
+          description="Run the app in its own JVM."> 
+    <echo message="Launching Shoola..."/>
+    <java classname="${app.mainclass}"
+          classpathref="app.run.classpath" 
+          fork="yes"
+          failonerror="yes">
+      <jvmarg line="-Xms256M -Xmx512M"/> 
+      <arg value="${app.dir}"/> 
+    </java>  
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Remove all output generated by the targets within this file. 
+   * This target simply deletes the ${app.dir}, relying on the fact that all
+   * other targets output under this dir.  As long as dir mapping props stick
+   * to this rule, new targets can be added without modifying this one.
+   * Should a target output dir need to be mapped to a dir outside of
+   * ${app.dir}, then an explicit delete has to be added here.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="clean"
+          description="Remove all output generated by app targets.">
+    <delete dir="${app.dir}"/>
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Outputs a list of available targets.
+   * This is the list of all public targets exported by this file.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="usage"
+          description="List available app targets.">
+    <echo level="info">
+Application targets:
+-------------------- 
+  compile: Compile the app sources into ${app.compiled.dir}.
+  run: Run the app in its own JVM.
+  app.clean: Remove ${app.dir}. 
+    </echo> 
+  </target>  
+
+</project>

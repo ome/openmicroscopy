@@ -1,0 +1,26 @@
+<xdoc>
+
+<!-- START EDIT: Enter title and authors. -->
+  <title>Template</title>
+  <author name="Jean-Marie Burel" email="xxx@xxx.com" />
+<!-- END EDIT -->
+
+  <revision number="$Revision$" />
+  <last-modified date="$Date$" />
+  <toc name="Table of Contents" href="index.htm">
+
+<!-- START EDIT: Link your sections.  Each section is an HTML page.  
+     Nesting is supported. -->
+    <section href="intro" name="Introdution">
+      <section href="intro1.html" name="Purpose"/>
+      <section href="intro2.html" name="Readership"/>
+      <section href="intro3.html" name="Document Overview"/>
+    </section>
+    <section href="repos.html" name="Project Repository">
+      <section href="repos1.html" name="Repository Organization"/>
+      <section href="repos2.html" name="Downloading from CVS"/>
+    </section> 
+<!-- END EDIT -->
+
+  </toc>
+</xdoc>
