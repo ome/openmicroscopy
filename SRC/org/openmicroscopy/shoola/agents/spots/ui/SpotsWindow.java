@@ -49,7 +49,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.ToolTipManager;
 import java.util.Iterator;
-import java.util.Vector;
 import javax.swing.JFrame;
 
 
@@ -95,7 +94,6 @@ public class SpotsWindow extends JFrame implements ActionListener, ItemListener 
 
 	private TrajectoriesPanel proj;
 	
-	private Vector paths;
 	
 	private Spots3DCanvas canvas;
 	
@@ -258,7 +256,7 @@ public class SpotsWindow extends JFrame implements ActionListener, ItemListener 
 	}
 	
 	private void setScaled(boolean v) {
-		Iterator iter = paths.iterator();
+		Iterator iter = tSet.iterator();
 		SpotsTrajectory t;
 		while (iter.hasNext()) {
 			t = (SpotsTrajectory) iter.next();
