@@ -204,10 +204,11 @@ public class ChainDataManager extends DataManager {
 		Integer ID = new Integer(id);
 		if (chainHash == null)
 			getChains();
-		return (LayoutChainData) chainHash.get(ID);
+		LayoutChainData res = (LayoutChainData) chainHash.get(ID);
+		return res;
 	}
 	
-	private void addChain(LayoutChainData chain) {
+	public void addChain(LayoutChainData chain) {
 		Integer ID = new Integer(chain.getID());
 		chainHash.put(ID,chain);
 	}
