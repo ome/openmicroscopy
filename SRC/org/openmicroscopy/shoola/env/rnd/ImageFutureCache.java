@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.util.concur.tasks.Future;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
 /** 
  * Caches XY images, within a given pixels set, that have been rendered or
@@ -139,10 +139,10 @@ class ImageFutureCache
     final int   MAX_ENTRIES;
     
     /**
-     * Maps {@link Point}s onto {@link BufferedImage}s or {@link Future}s.
+     * Maps {@link PlanePoint}s onto {@link BufferedImage}s or {@link Future}s.
      * The <code>add</code> methods identify a {@link PlaneDef} object with
      * a point in the <i>zOt</i> cartesian plane, hence with an instance of
-     * {@link Point}. 
+     * {@link PlanePoint}. 
      */
     private Map                 cache;
     
@@ -163,7 +163,7 @@ class ImageFutureCache
      * @param key   Identifies the entry.  It's assumed the caller will never
      *              pass <code>null</code>.
      */
-    private void removeEntry(Point key)
+    private void removeEntry(PlanePoint key)
     {
         Object entry = cache.remove(key);
         if (entry != null && entry instanceof Future) {
@@ -182,13 +182,13 @@ class ImageFutureCache
      * @param p The key to the new entry that has to be added.
      *          It's assumed the caller will never pass <code>null</code>.
      */
-    private void ensureCapacity(final Point p)
+    private void ensureCapacity(final PlanePoint p)
     {
         //First off, build the C' sequence.
-        Point[] orderedCache = (Point[]) cache.keySet().toArray(new Point[0]);
+        PlanePoint[] orderedCache = (PlanePoint[]) cache.keySet().toArray(new PlanePoint[0]);
         Arrays.sort(orderedCache, new Comparator() {
             public int compare(Object o1, Object o2) {
-                Point c1 = (Point) o1, c2 = (Point) o2;
+                PlanePoint c1 = (PlanePoint) o1, c2 = (PlanePoint) o2;
                 return -Double.compare(c1.distance(p), c2.distance(p));
                 //Note the minus above: we want descending order.
             }
@@ -197,7 +197,7 @@ class ImageFutureCache
         //Now get the current navigation direction and set the default
         //candidate for removal: the farthest point away from p. 
         Line curDir = navigHistory.currentDirection();
-        Point candidate = orderedCache[0];  //We assume cache size > 0.
+        PlanePoint candidate = orderedCache[0];  //We assume cache size > 0.
         
         //Start the removal algorithm if the navigation direction is defined.
         if (curDir != null) {
@@ -221,7 +221,7 @@ class ImageFutureCache
             if (i == orderedCache.length  //All cached points lie on curDir. 
                     && !negativeHalf.isEmpty())  //But some in neg half.
                 //Get farthest point away from p that sits behind current move.
-                candidate = (Point) negativeHalf.get(0);
+                candidate = (PlanePoint) negativeHalf.get(0);
         }
         
         //Finally remove.
@@ -235,7 +235,7 @@ class ImageFutureCache
      * @param img   Either an instance of {@link BufferedImage} or 
      *              {@link Future}.  Assumed to be not <code>null</code>.
      */
-    private void addEntry(Point key, Object img)
+    private void addEntry(PlanePoint key, Object img)
     {
         if (MAX_ENTRIES == 0) return;  //Caching disabled.
         
@@ -297,7 +297,7 @@ class ImageFutureCache
                     "Can only accept XY planes: "+pd.getSlice()+".");
         if (img == null)
             throw new NullPointerException("No image future.");
-        addEntry(new Point(pd.getZ(), pd.getT()), img);
+        addEntry(new PlanePoint(pd.getZ(), pd.getT()), img);
     }
     
     /**
@@ -316,7 +316,7 @@ class ImageFutureCache
                     "Can only accept XY planes: "+pd.getSlice()+".");
         if (img == null)
             throw new NullPointerException("No image.");
-        addEntry(new Point(pd.getZ(), pd.getT()), img);
+        addEntry(new PlanePoint(pd.getZ(), pd.getT()), img);
     }
     
     /**
@@ -343,7 +343,7 @@ class ImageFutureCache
         if (pd == null)
             throw new NullPointerException("No plane def.");
         BufferedImage img = null;
-        Point key = new Point(pd.getZ(), pd.getT());
+        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
         Object entry = cache.get(key);
         if (entry != null) {
             if (entry instanceof BufferedImage)
@@ -374,7 +374,7 @@ class ImageFutureCache
     boolean contains(PlaneDef pd)
     {
         if (pd == null) return false;
-        Point key = new Point(pd.getZ(), pd.getT());
+        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
         return (cache.get(key) != null);
     }
     
@@ -384,7 +384,7 @@ class ImageFutureCache
     void clear()
     {
         int oldSize = cache.size();
-        Point[] keys = (Point[]) cache.keySet().toArray(new Point[0]);
+        PlanePoint[] keys = (PlanePoint[]) cache.keySet().toArray(new PlanePoint[0]);
         for (int i = 0; i < keys.length; ++i) removeEntry(keys[i]);
         cache = new HashMap(oldSize);
     }

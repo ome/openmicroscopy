@@ -39,7 +39,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
 /** 
  * Keeps track of the XY planes, within a given pixels set, that have been 
@@ -236,8 +236,8 @@ class NavigationHistory
         //addMove doesn't add the same move twice in a row.  So we can build
         //a line.
         PlaneDef curMove = curMove(), lastMove = lastMove();
-        Point L = new Point(lastMove.getZ(), lastMove.getT()),
-                C = new Point(curMove.getZ(), curMove.getT());
+        PlanePoint L = new PlanePoint(lastMove.getZ(), lastMove.getT()),
+                C = new PlanePoint(curMove.getZ(), curMove.getT());
         return new Line(L, C, C);  //Direction LC and origin C.
     }
     
@@ -267,7 +267,7 @@ class NavigationHistory
             return new PlaneDef[0];  //Never return null.
         
         List nextMoves = new ArrayList(maxMoves);
-        Point p;
+        PlanePoint p;
         PlaneDef pd;
         for (int k = 1; k <= maxMoves; ++k) {  //Iterate maxMoves at most.
             //Get next point in the current direction.

@@ -61,13 +61,13 @@ public class Line
      * All other points of the line are said to have (strictly) negative 
      * orientation.
      */
-    public final Point  origin;
+    public final PlanePoint  origin;
     
     /**
      * The unit vector that, given the {@link #origin} point, identifies this
      * line.
      */
-    public final Point  direction;
+    public final PlanePoint  direction;
     
     
     /**
@@ -80,7 +80,7 @@ public class Line
      * @param p A point of the line.  Mustn't be <code>null</code> nor the same
      *          as <code>o</code>.
      */
-    public Line(Point o, Point p)
+    public Line(PlanePoint o, PlanePoint p)
     {
         if (o == null) throw new NullPointerException("No origin.");
         if (p == null) throw new NullPointerException("No point p.");
@@ -102,7 +102,7 @@ public class Line
      *          as <code>q</code>.
      * @param o The origin of the line.  Mustn't be <code>null</code>.
      */
-    public Line(Point p, Point q, Point o)
+    public Line(PlanePoint p, PlanePoint q, PlanePoint o)
     {
         if (p == null) throw new NullPointerException("No point p.");
         if (q == null) throw new NullPointerException("No point q.");
@@ -121,9 +121,9 @@ public class Line
      * @param k The coefficient to select the point.
      * @return  See above.
      */
-    public Point getPoint(double k)
+    public PlanePoint getPoint(double k)
     {
-        return new Point(
+        return new PlanePoint(
                 origin.x1 + k*direction.x1,
                 origin.x2 + k*direction.x2
                 );
@@ -136,7 +136,7 @@ public class Line
      * @return  <code>true</code> if <code>p</code> lies on this line,
      *          <code>false</code> otherwise.
      */
-    public boolean lies(Point p)
+    public boolean lies(PlanePoint p)
     {
         if (p == null) throw new NullPointerException("No point.");
         if (direction.x1 == 0) return (p.x1 == origin.x1);
@@ -164,7 +164,7 @@ public class Line
      * @return  <code>true</code> if <code>p</code> lies on this line,
      *          <code>false</code> otherwise.
      */
-    public boolean lies(Point p, boolean positiveOrientation)
+    public boolean lies(PlanePoint p, boolean positiveOrientation)
     {
         if (!lies(p)) return false;
         double k;
