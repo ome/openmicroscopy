@@ -127,8 +127,7 @@ public class PConstants {
 	public static final Color HIGHLIGHT_COLOR = new Color(154,51,155); 
 	
 	/** 
-	 * The color that can be used to identify items that are the same type 
-	 * (ie., {@link ModuleView}s corresponding to the same module) as the current
+	 * The color that can be used to link thumbnails based on being the same color
 	 * selection 
 	 */
 	public static final Color SELECTED_HIGHLIGHT_COLOR = new Color(51,204,255);
