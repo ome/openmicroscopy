@@ -77,10 +77,6 @@ public class PaletteFormalParameterMouseDelegate extends
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
-		super.mouseExited(handler);
-		ChainBox cb = getChainBoxParent();
-		if (cb != null)
-			cb.mouseExited(handler);
 	}
 
 	
