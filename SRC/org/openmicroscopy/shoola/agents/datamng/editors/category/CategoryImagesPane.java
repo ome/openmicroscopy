@@ -135,7 +135,7 @@ class CategoryImagesPane
 	 */
 	private void buildButtonsToAddPanel()
 	{
-		JPanel buttonsToAddPanel = new JPanel();
+		buttonsToAddPanel = new JPanel();
 		//remove button
 		removeToAddButton = new JButton("Remove added");
 		removeToAddButton.setCursor(
@@ -161,7 +161,7 @@ class CategoryImagesPane
 	/** Initializes and build panel containing the buttons. */
 	private void buildButtonsPanel()
 	{
-		JPanel buttonsPanel = new JPanel();
+		buttonsPanel = new JPanel();
 		//remove button
 		removeButton = new JButton("Select All");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -204,7 +204,7 @@ class CategoryImagesPane
 	/** Build panel with table containing existing datasets. */
 	private void buildTablePanel()
 	{
-  		JPanel tablePanel = new JPanel();
+  		tablePanel = new JPanel();
         tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
 		//images table
 		imagesTM = new ImagesTableModel();

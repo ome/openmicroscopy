@@ -124,9 +124,9 @@ class ProjectDatasetsPane
 	private void buildGUI()
 	{
 		listDatasets = manager.getProjectData().getDatasets();
-		tablePanel = buildTablePanel();
-		buttonsPanel = buildButtonsPanel();
-		buttonsToAddPanel = buildButtonsToAddPanel();
+		buildTablePanel();
+		buildButtonsPanel();
+		buildButtonsToAddPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel);
 		add(Box.createRigidArea(DataManagerUIF.VBOX));
@@ -137,9 +137,9 @@ class ProjectDatasetsPane
 	}
 
 	/** Initializes and build panel containing the buttons. */
-	private JPanel buildButtonsPanel()
+	private void buildButtonsPanel()
 	{
-		JPanel controls = new JPanel();
+        buttonsPanel = new JPanel();
 		//remove button
 		removeButton = new JButton("Remove All");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -152,26 +152,25 @@ class ProjectDatasetsPane
 		resetButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
 
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(resetButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(removeButton);
-		controls.setOpaque(false); //make panel transparent
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
+		buttonsPanel.add(resetButton);
+		buttonsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+		buttonsPanel.add(removeButton);
+		buttonsPanel.setOpaque(false); //make panel transparent
 		
 		if (listDatasets == null || listDatasets.size() == 0) {
 			removeButton.setEnabled(false);
 			resetButton.setEnabled(false);
 		}
-		return controls;
 	}
 	
 	/** 
 	 * Build a panel with buttons used to remove or not 
 	 * the selected datatsets.
 	 */
-	private JPanel buildButtonsToAddPanel()
+	private void buildButtonsToAddPanel()
 	{
-		JPanel controls = new JPanel();
+        buttonsToAddPanel = new JPanel();
 		//remove button
 		removeToAddButton = new JButton("Remove added");
 		removeToAddButton.setCursor(
@@ -187,12 +186,12 @@ class ProjectDatasetsPane
 		resetToAddButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
 
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(resetToAddButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(removeToAddButton);
-		controls.setOpaque(false); //make panel transparent
-		return controls;
+		buttonsToAddPanel.setLayout(new BoxLayout(buttonsToAddPanel, 
+                                    BoxLayout.X_AXIS));
+		buttonsToAddPanel.add(resetToAddButton);
+		buttonsToAddPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+		buttonsToAddPanel.add(removeToAddButton);
+		buttonsToAddPanel.setOpaque(false); //make panel transparent
 	}
 	
 	/** Build panel with table containing the datasets to add. */
@@ -214,10 +213,10 @@ class ProjectDatasetsPane
 	}
 	
 	/** Build panel with table containing existing datasets. */
-	private JPanel buildTablePanel()
+	private void buildTablePanel()
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        tablePanel = new JPanel();
+        tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
@@ -231,8 +230,7 @@ class ProjectDatasetsPane
 		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
-		p.add(sp);
-		return p;
+		tablePanel.add(sp);
 	}
 	
 	private TableComponent buildLabelTable()

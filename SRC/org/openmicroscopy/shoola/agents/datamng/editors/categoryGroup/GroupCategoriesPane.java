@@ -43,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
@@ -130,7 +129,7 @@ class GroupCategoriesPane
 	 */
 	private void buildButtonsToAddPanel()
 	{
-		JPanel buttonsToAddPanel = new JPanel();
+		buttonsToAddPanel = new JPanel();
 		//remove button
 		removeToAddButton = new JButton("Remove added");
 		removeToAddButton.setCursor(
