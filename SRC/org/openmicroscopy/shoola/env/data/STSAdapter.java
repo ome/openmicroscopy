@@ -35,10 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.ds.DataFactory;
-import org.openmicroscopy.ds.RemoteAuthenticationException;
-import org.openmicroscopy.ds.RemoteConnectionException;
-import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.DataFactory; 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -68,7 +65,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 class STSAdapter
 	implements SemanticTypesService
 {
-    private DataFactory proxy;
+    private OMEDSGateway gateway;
     private Registry context;
     
     private final String GLOBAL_GRANULARITY = "G";
@@ -81,15 +78,15 @@ class STSAdapter
     private final String IMAGE_KEY = "image_id";
     private final String FEATURE_KEY = "feature_id";
     
-    public STSAdapter(DataFactory proxy, Registry context)
+    public STSAdapter(OMEDSGateway gateway, Registry context)
     {
-        if(proxy == null || context == null)
+        if(gateway == null || context == null)
         {
             throw new IllegalArgumentException("INTERNAL ERROR: parameters" +
                 "cannot be null in STSAdapter constructor.");
         }
         
-        this.proxy = proxy;
+        this.gateway = gateway;
         this.context = context;
     }
     
@@ -190,6 +187,7 @@ class STSAdapter
         imageIDList.toArray(ints);
         Criteria criteria =
             buildDefaultCountCriteria(typeName,ints);
+        DataFactory proxy = gateway.getDataFactory();
         return proxy.count(typeName,criteria);
     }
     
@@ -371,6 +369,7 @@ class STSAdapter
             criteria = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,
                                                     childAttribute,ints);
         }
+        DataFactory proxy = gateway.getDataFactory();
         return (List)proxy.retrieveList(typeName,criteria);
     }
     
@@ -481,6 +480,7 @@ class STSAdapter
             criteria = buildDefaultRetrieveCriteria(FEATURE_GRANULARITY,
                                                     childAttribute,ints);
         }
+        DataFactory proxy = gateway.getDataFactory();
         return (List)proxy.retrieveList(typeName,criteria);
     }
 
@@ -524,27 +524,10 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria criteria = buildRetrieveSingleTypeCriteria(typeName);
-        try
-        {
-            SemanticType retVal = (SemanticType)proxy.retrieve(SemanticType.class,criteria);
-            return retVal;
-        }
-        catch(RemoteConnectionException rce)
-        {
-            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-        }
-        catch(RemoteAuthenticationException rae)
-        {
-            throw new DSOutOfServiceException("Not logged in", rae);
-        }
-        catch(RemoteServerErrorException rsee)
-        {
-            rsee.printStackTrace();
-            throw new DSAccessException("Can't retrieve ST", rsee);
-        }
+        
+        DataFactory proxy = gateway.getDataFactory();
+        return (SemanticType)proxy.retrieve(SemanticType.class,criteria);
     }
-
-
     
     /**
      * Returns a count of the number of objects of the specified type that
@@ -559,22 +542,8 @@ class STSAdapter
     private int count(String typeName, Criteria criteria)
         throws DSOutOfServiceException, DSAccessException
     {
-        try
-        {
-            return proxy.count(typeName,criteria);
-        }
-        catch(RemoteConnectionException rce)
-        {
-            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-        }
-        catch(RemoteAuthenticationException rae)
-        {
-            throw new DSOutOfServiceException("Not logged in", rae);
-        }
-        catch(RemoteServerErrorException rsee)
-        {
-            throw new DSAccessException("Can't count attributes", rsee);
-        }
+        DataFactory proxy = gateway.getDataFactory();
+        return proxy.count(typeName,criteria);
     }
     
     /**
@@ -590,25 +559,8 @@ class STSAdapter
     private Object retrieveData(String typeName, Criteria criteria)
         throws DSOutOfServiceException, DSAccessException
     {
-        Object retVal = null;
-        
-        try
-        {
-            retVal = proxy.retrieve(typeName,criteria);
-        }
-        catch(RemoteConnectionException rce)
-        {
-            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-        }
-        catch(RemoteAuthenticationException rae)
-        {
-            throw new DSOutOfServiceException("Not logged in", rae);
-        }
-        catch(RemoteServerErrorException rsee)
-        {
-            throw new DSAccessException("Can't load data", rsee);
-        }
-        return retVal;
+        DataFactory proxy = gateway.getDataFactory();
+        return proxy.retrieve(typeName,criteria);
     }
     
     /**
@@ -624,27 +576,8 @@ class STSAdapter
     private Object retrieveListData(String typeName, Criteria criteria)
         throws DSOutOfServiceException, DSAccessException
     {
-        Object retVal = null;
-        
-        try
-        {
-            retVal = proxy.retrieveList(typeName,criteria);
-        }
-        catch(RemoteConnectionException rce)
-        {
-            throw new DSOutOfServiceException("Can't connect to OMEDS",rce);
-        }
-        catch(RemoteAuthenticationException rae)
-        {
-            throw new DSOutOfServiceException("Not logged in",rae);
-        }
-        catch(RemoteServerErrorException rsee)
-        {
-            rsee.printStackTrace();
-            throw new DSAccessException("Can't retrieve data",rsee);
-        }
-        
-        return retVal;
+        DataFactory proxy = gateway.getDataFactory();
+        return proxy.retrieveList(typeName,criteria);
     }
     
     /**
@@ -662,26 +595,8 @@ class STSAdapter
     private Object retrieveListData(Class typeClass, Criteria criteria)
         throws DSOutOfServiceException, DSAccessException
     {
-        Object retVal = null;
-        
-        try
-        {
-            retVal = proxy.retrieveList(typeClass, criteria);
-        }
-        catch(RemoteConnectionException rce)
-        {
-            throw new DSOutOfServiceException("Can't connect to OMEDS",rce);
-        }
-        catch(RemoteAuthenticationException rae)
-        {
-            throw new DSOutOfServiceException("Not logged in",rae);
-        }
-        catch(RemoteServerErrorException rsee)
-        {
-            throw new DSAccessException("Can't retrieve data",rsee);
-        }
-        
-        return retVal;
+        DataFactory proxy = gateway.getDataFactory();
+        return proxy.retrieveList(typeClass, criteria);
     }
     
     /**
