@@ -8,8 +8,6 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.ome.interfaces.ImageService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.model.LSID;
@@ -21,7 +19,7 @@ import org.ome.srv.logic.ServiceFactoryImpl;
 /**
  * @author josh
  */
-public class ImageServiceTest extends TestCase {
+public class ImageServiceTest extends BaseServiceTestCase {
 
 	ImageService is;
 	

@@ -52,7 +52,8 @@ public class JenaGenericStore implements GenericService, GenericStore {
 
 		for (Iterator iter = nq.getBindingMap().keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
-			map.put(key,m.getResource(((LSID)nq.getBindingMap().get(key)).getURI()));//FIXME Assumption also need literals! (Values!) 
+			map.put(key,m.getResource(((LSID)nq.getBindingMap().get(key)).getURI()));//FIXME Assumption also need literals! (Values!)
+			//TODO file:///home/josh/lib/jena/doc/ontology/examples/describe-class/DescribeClass.java.html
 		}
 		return map;
 	}
@@ -91,10 +92,10 @@ public class JenaGenericStore implements GenericService, GenericStore {
 		}
 		
 		for (StmtIterator iter = subj.listProperties(); iter.hasNext();) {
-			Property pred = (Property) iter.nextStatement().getPredicate();
+			Property pred = iter.nextStatement().getPredicate();
 			List values = new ArrayList();
 			for (StmtIterator iter2 = subj.listProperties(pred); iter2.hasNext();) {
-				RDFNode obj = (RDFNode) iter2.nextStatement().getObject();
+				RDFNode obj = iter2.nextStatement().getObject();
 				//FIXME needs to be well-defined if List or functional or null accepted!
 				//This code needs to be kept insync with ome3-gen! (perhaps utilities somewhere!)
 				//undefined what happens if there are multilple values for a functional property

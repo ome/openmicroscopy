@@ -6,8 +6,6 @@ package org.ome.tests.srv;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
-import junit.framework.TestCase;
-
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.interfaces.GenericService;
@@ -18,7 +16,7 @@ import org.ome.srv.logic.ServiceFactoryImpl;
 /**
  * @author josh
  */
-public class GenericServiceTest extends TestCase {
+public class GenericServiceTest extends BaseServiceTestCase {
 
 	GenericService g;
 	

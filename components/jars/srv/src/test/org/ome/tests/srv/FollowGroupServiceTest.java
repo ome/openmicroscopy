@@ -6,8 +6,6 @@ package org.ome.tests.srv;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
-import junit.framework.TestCase;
-
 import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.model.IFollowGroup;
@@ -19,7 +17,7 @@ import org.ome.srv.logic.ServiceFactoryImpl;
 /**
  * @author josh
  */
-public class FollowGroupServiceTest extends TestCase {
+public class FollowGroupServiceTest extends BaseServiceTestCase {
 
 	FollowGroupService fgs;
 	

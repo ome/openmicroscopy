@@ -8,8 +8,6 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.ome.model.IProject;
 import org.ome.model.LSID;
 import org.ome.interfaces.ContainerService;
@@ -21,7 +19,7 @@ import org.ome.model.Vocabulary;
 /**
  * @author josh
  */
-public class ContainerServiceTest extends TestCase {
+public class ContainerServiceTest extends BaseServiceTestCase {
 
 	ContainerService cs;
 	
