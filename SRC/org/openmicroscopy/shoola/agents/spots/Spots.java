@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 
 public class Spots  implements Agent, AgentEventListener
 {
-	
 	/** 
 	 * Holds the agent's configuration and lets the agent access all services.
 	 */
@@ -75,7 +74,6 @@ public class Spots  implements Agent, AgentEventListener
 	
 	public void setContext(Registry ctx)
 	{			
-		System.err.println("setting context for spots..");
 		registry = ctx;  //The container built our registry, store a reference.
 		EventBus bus  = registry.getEventBus();
 	    bus.register(this,ViewTrackSpotsEvent.class);
@@ -102,9 +100,9 @@ public class Spots  implements Agent, AgentEventListener
 		
 	private void handleViewSpots(ViewTrackSpotsEvent event) {
 		ChainExecutionData exec = event.getChainExecution();
-		System.err.println("viewing spots for execution..."+exec.getID());
-		SpotsTrajectorySet trajectories = new SpotsTrajectorySet(registry,exec);
 		
+		SpotsTrajectorySet trajectories = new SpotsTrajectorySet(registry,exec);
+			
 		if (trajectories.isEmpty()) {
 			JOptionPane.showMessageDialog(null,
 					"There are no results from this execution that can be displayed",
