@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
+import javax.swing.JRootPane;
+import javax.swing.UIManager;
 
 //Third-party libraries
 
@@ -101,6 +103,13 @@ public class ImageSaver
 		chooser = new ImageChooser(this);			
 		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(chooser, BorderLayout.CENTER);
+		if (JDialog.isDefaultLookAndFeelDecorated()) {
+			boolean supportsWindowDecorations = 
+			UIManager.getLookAndFeel().getSupportsWindowDecorations();
+			if (supportsWindowDecorations)
+				getRootPane().setWindowDecorationStyle(
+							JRootPane.FILE_CHOOSER_DIALOG);
+		}
 	}
 		
 }
