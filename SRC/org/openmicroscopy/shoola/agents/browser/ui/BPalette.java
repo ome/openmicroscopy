@@ -39,6 +39,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
 import edu.umd.cs.piccolo.PNode;
@@ -132,6 +135,7 @@ public class BPalette extends PNode
     class MinimizeIcon extends PNode
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
+        private Rectangle2D visibleIcon = new Rectangle2D.Double(3,7,14,6);
         
         // TODO: need to pass a Palette reference in here?
         public MinimizeIcon()
@@ -156,6 +160,7 @@ public class BPalette extends PNode
             if(super.setBounds(x,y,width,height))
             {
                 bounds.setFrame(x,y,width,height);
+                visibleIcon = new Rectangle2D.Double(x+3,y+7,14,6);
                 return true;
             }
             return false;
@@ -166,9 +171,115 @@ public class BPalette extends PNode
             Graphics2D g2 = context.getGraphics();
             Paint oldPaint = g2.getPaint();
             g2.setPaint(Color.white);
-            g2.fill(new Rectangle2D.Double(bounds.getX()+3,
-                                           bounds.getY()+7,14,6));
+            g2.fill(visibleIcon);
             g2.setPaint(oldPaint);                     
+        }
+    }
+    
+    class HideIcon extends PNode
+    {
+        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
+        private Ellipse2D visibleIcon = new Ellipse2D.Double(5,5,10,10);
+        
+        // TODO: pass a Palette reference in here?
+        public HideIcon()
+        {
+            addInputEventListener(new PBasicInputEventHandler()
+            {
+                public void mouseClicked(PInputEvent arg0)
+                {
+                    // TODO: figure out how to hide
+                }
+            });
+        }
+        
+        public PBounds getBounds()
+        {
+            return new PBounds(bounds);
+        }
+        
+        public boolean setBounds(double x, double y,
+                                 double width, double height)
+        {
+            if(super.setBounds(x,y,width,height))
+            {
+                bounds.setFrame(x,y,width,height);
+                visibleIcon = new Ellipse2D.Double(x+5,y+5,10,10);
+                return true;
+            }
+            return false;
+        }
+        
+        public void paint(PPaintContext context)
+        {
+            Graphics2D g2 = context.getGraphics();
+            Paint oldPaint = g2.getPaint();
+            g2.setPaint(Color.white);
+            g2.fill(visibleIcon);
+            g2.setPaint(oldPaint);
+        }
+    }
+    
+    class CloseIcon extends PNode
+    {
+        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
+        private Shape xPath;
+        
+        private GeneralPath generatePath(float xAnchor, float yAnchor)
+        {
+            GeneralPath path = new GeneralPath();
+            path.moveTo(xAnchor+7,yAnchor+4);
+            path.lineTo(xAnchor+10,yAnchor+7);
+            path.lineTo(xAnchor+13,yAnchor+4);
+            path.lineTo(xAnchor+16,yAnchor+7);
+            path.lineTo(xAnchor+13,yAnchor+10);
+            path.lineTo(xAnchor+16,yAnchor+13);
+            path.lineTo(xAnchor+13,yAnchor+16);
+            path.lineTo(xAnchor+10,yAnchor+13);
+            path.lineTo(xAnchor+7,yAnchor+16);
+            path.lineTo(xAnchor+4,yAnchor+13);
+            path.lineTo(xAnchor+7,yAnchor+10);
+            path.lineTo(xAnchor+4,yAnchor+7);
+            path.closePath();
+            return path;
+        }
+        
+        public CloseIcon()
+        {
+            xPath = generatePath(0,0);
+            addInputEventListener(new PBasicInputEventHandler()
+            {
+                public void mouseClicked(PInputEvent arg0)
+                {
+                    // TODO figure out how to close palette
+                }
+            });
+        }
+        
+        public PBounds getBounds()
+        {
+            return new PBounds(bounds);
+        }
+        
+        public boolean setBounds(double x, double y,
+                                 double width, double height)
+        {
+            if(super.setBounds(x,y,width,height))
+            {
+                bounds.setFrame(x,y,width,height);
+                xPath = generatePath((float)x,(float)y);
+                return true;
+            }
+            return false;
+        }
+        
+        public void paint(PPaintContext context)
+        {
+            Graphics2D g2 = context.getGraphics();
+            Paint oldPaint = g2.getPaint();
+            g2.setPaint(Color.white);
+            g2.fill(xPath);
+            g2.setPaint(oldPaint);
         }
     }
 }
