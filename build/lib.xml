@@ -202,7 +202,7 @@
         <param name="css-file" expression="@{pdfstyle}" />  
       </xslt> 
       <fop format="application/pdf" 
-           basedir="@{destir}" 
+           basedir="@{destdir}" 
            fofile="@{destdir}/doc.fo"
            outfile="@{destdir}/doc.pdf"
            messagelevel="warn" /> 
@@ -226,13 +226,7 @@
    * TASK NAME: xdocimg
    * 
    * DESCRIPTION: 
-   * Handles all images linked to an XML doc.
-   * This task first copies all non-'.sVg' images from srcdir/images to 
-   * destdir/images.  Image files having the special '.sVg' extension are
-   * assumed to be SVG imges that have to be rasterized for web publishing.
-   * PNG images are created from those SVG files and then dropped into
-   * destdir/images.  (The file extension is changed into '.png' under
-   * destdir/images.)
+   * Copies the contents of srcdir/images to destdir/images.
    * 
    * NOTE: The srcdir should be an xdoc dir (that is, one that contains a
    * 'doc.xml' file) and is *assumed* to have an 'images' sub-directory.
@@ -243,21 +237,15 @@
    *  destdir   The destination directory where the xdoc will       Yes
    *            be output.                          
    *
-   * EXTERNAL DEPENDENCIES:
-   *  + batik??? 
+   * EXTERNAL DEPENDENCIES: None.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <macrodef name="xdocimg">
 	  <attribute name="srcdir" />
 	  <attribute name="destdir" />
 	  <sequential>   
       <copy todir="@{destdir}/images" includeemptydirs="no">
-        <fileset dir="@{srcdir}/images">
-          <exclude name="*.sVg" />
-          <!-- exclude name="*.wmf"/--> <!-- We can do this if batik works. -->
-          <!-- exclude name="*.WMF"/--> 
-        </fileset>
-      </copy>
-      <!-- TODO: rasterize for web publishing -->  
+        <fileset dir="@{srcdir}/images" />
+      </copy> 
 	  </sequential>
 	</macrodef> 
  
@@ -454,7 +442,7 @@
         this.resTask.perform();  
         
         //If there's an images dir, then run the xdocimg task to copy all
-        //images in destdir and rasterize SVG graphics for web publishing. 
+        //images in destdir. 
         var imagesDir = new java.io.File(this.srcDir, "images");
         if (imagesDir.exists() && imagesDir.isDirectory())
           this.imgTask.perform(); 
