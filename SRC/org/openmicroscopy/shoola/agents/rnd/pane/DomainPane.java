@@ -30,11 +30,12 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
 import java.util.HashMap;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -45,7 +46,6 @@ import javax.swing.JSlider;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -107,6 +107,10 @@ class DomainPane
 	private JSlider					bitResolution;
 	private JSlider					gamma;
 	
+	private JLabel					label_1, label_2, label_3, label_4;
+	
+	private JPanel					panel_1, panel_2, panel_3, panel_4, panel_5;
+
 	private QuantumDef				qDef;
 	
 	/** Reference to the {@link DomainPaneManager manager}. */
@@ -188,65 +192,33 @@ class DomainPane
 		IconManager IM = IconManager.getInstance(registry);
 		histogram = new JButton(IM.getIcon(IconManager.HISTOGRAM));
 		histogram.setToolTipText(
-			UIUtilities.formatToolTipText("Bring the histogram dialog."));
+			UIUtilities.formatToolTipText("Bring up the histogram dialog."));
 		histogram.setBorder(null);
 	}
 
 	/**Build and layout the GUI */
 	private void buildGUI()
 	{
-		setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-		GridBagLayout gridbag = new GridBagLayout();
-		setLayout(gridbag);
-		GridBagConstraints c = new GridBagConstraints();
-	
-		JLabel label = new JLabel(" Wavelength");
-		c.ipadx = RenderingAgt.H_SPACE;
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.EAST;
-		//c.insets = TOP_PADDING;
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 1;
-		label = new JLabel(" Map");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 2;
-		gridbag.setConstraints(gammaLabel, c);
+		setLayout(new DomainPaneLM());
+		label_1 = new JLabel(" Wavelength");
+		label_2 = new JLabel(" Map");
+		label_3 = new JLabel(" Resolution");
+		label_4 = new JLabel(" Histogram");
+		panel_1 = buildComboBoxPanel(wavelengths);
+		panel_2 = buildComboBoxPanel(transformations);
+		panel_3 = buildSliderPanel(gamma);
+		panel_4 = buildSliderPanel(bitResolution);
+		panel_5 = buildButtonPanel(histogram);
+		add(label_1);
+		add(label_2);
 		add(gammaLabel);
-		c.gridy = 3;
-		
-		label = new JLabel(" Resolution");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 4;
-		label = new JLabel(" Histogram");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridx = 1;
-		c.gridy = 0;
-		JPanel wp = buildComboBoxPanel(wavelengths);
-		gridbag.setConstraints(wp, c);
-		add(wp);
-		c.gridy = 1;
-		wp = buildComboBoxPanel(transformations);
-		gridbag.setConstraints(wp, c);
-		add(wp);
-		c.gridy = 2;
-		JPanel gp = buildSliderPanel(gamma);
-		gridbag.setConstraints(gp, c);
-		add(gp);
-		c.gridy = 3;
-		JPanel brp = buildSliderPanel(bitResolution);
-		gridbag.setConstraints(brp, c);
-		add(brp);
-		c.gridy = 4;
-		JPanel hp = buildButtonPanel(histogram);
-		gridbag.setConstraints(hp, c);
-		add(hp);
+		add(label_3);
+		add(label_4);
+		add(panel_1);
+		add(panel_2);
+		add(panel_3);
+		add(panel_4);
+		add(panel_5);
 	}
 
 	/**
@@ -279,4 +251,130 @@ class DomainPane
 		return p;
 	}
 	
+	/** 
+	 * Custom manager that takes care of the layout of {@link DomainPane}.
+	 * This layout manager is tightly coupled to the specific structure of 
+	 * {@link DomainPane} and its constituent components.
+	 */
+	private class DomainPaneLM 
+		implements LayoutManager
+	{
+    	int V_SPACE = 5, H_SPACE = 5;
+    	
+		/** 
+		 * Lays out the components of the domain Pane.
+		 *
+		 * @param domainPane     The domainPane. 
+		 */
+		public void layoutContainer(Container domainPane)
+		{
+			DomainPane c = (DomainPane) domainPane;
+			Dimension dLabel = getLabelSize(c);
+			Dimension dPanel = getPanelSize(c);
+			int h = getHeightMax(dLabel, dPanel);
+			int vMax = h+V_SPACE;
+			int hMax = dLabel.width+H_SPACE;
+			c.label_1.setBounds(0, 0, dLabel.width, h);
+			c.label_2.setBounds(0, vMax, dLabel.width, h);
+			c.gammaLabel.setBounds(0, 2*vMax, dLabel.width, h);
+			c.label_3.setBounds(0, 3*vMax, dLabel.width, h);
+			c.label_4.setBounds(0, 4*vMax, dLabel.width, h);
+			c.panel_1.setBounds(hMax, 0, dPanel.width, h);
+			c.panel_2.setBounds(hMax, vMax, dPanel.width, h);
+			c.panel_3.setBounds(hMax, 2*vMax, dPanel.width, h);
+			c.panel_4.setBounds(hMax, 3*vMax, dPanel.width, h);
+			c.panel_5.setBounds(hMax, 4*vMax, dPanel.width, h);
+		}
+	
+		private Dimension getLabelSize(DomainPane c)
+		{
+			Dimension d = c.label_1.getPreferredSize();
+			int w = d.width;
+			int h = d.height;
+			d = c.label_2.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = c.gammaLabel.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = c.label_3.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = c.label_3.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			return new Dimension(w, h);
+		}
+		
+		private Dimension getPanelSize(DomainPane c)
+		{
+			Dimension d = c.panel_1.getPreferredSize();
+			int w = d.width;
+			int h = d.height;
+			d = d = c.panel_2.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = d = c.panel_3.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = d = c.panel_4.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			d = d = c.panel_5.getPreferredSize();
+			if (d.width>w) w = d.width;
+			if (d.height>h) h = d.height;
+			return new Dimension(w, h);
+		}
+		
+		private int getHeightMax(Dimension d1, Dimension d2)
+		{
+			int h = d1.height;
+			if (d2.height>d1.height) h = d2.height;
+			return h; 
+		}
+		
+		/** 
+		 * Returns the preferred amount of space for the layout.
+		 *
+		 * @param domainPane     The domain Pane. 
+		 * @return The above mentioned dimensions.
+		 */
+		public Dimension preferredLayoutSize(Container domainPane)
+		{
+			DomainPane c = (DomainPane) domainPane;
+			int w = 0, h = 0, hTotal = 0;
+			
+			Dimension dLabel = getLabelSize(c);
+			Dimension dPanel = getPanelSize(c);
+			w = dLabel.width+H_SPACE+dPanel.width;
+			h = getHeightMax(dLabel, dPanel);
+			hTotal = 4*V_SPACE+5*h;
+			return new Dimension(w, hTotal);
+		}
+    
+		/** 
+		 * Returns the minimum amount of space the layout needs.
+		 * This is the same as the preferred dimensions of the image canvas.
+		 *
+		 * @param domainPane     The domain Pane. 
+		 * @return The above mentioned dimensions.
+		 */ 
+		public Dimension minimumLayoutSize(Container domainPane)
+		{
+			return preferredLayoutSize(domainPane);
+		}
+
+		/** 
+		 * Required by I/F but not actually needed in our case, 
+		 * no op implementation.
+		 */
+		public void addLayoutComponent(String name, Component comp) {}
+	
+		/** 
+		 * Required by I/F but not actually needed in our case, 
+		 * no op implementation.
+		 */
+		public void removeLayoutComponent(Component comp) {}
+	}
+
 }
