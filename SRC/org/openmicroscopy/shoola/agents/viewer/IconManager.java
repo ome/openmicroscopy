@@ -92,7 +92,7 @@ public class IconManager
 	/** ID of the player pause icon. */
 	public static final int		PLAYER_PAUSE = 9;
 	
-	/** ID of the save image as icon. */
+	/** ID of the save_image_as icon. */
 	public static final int		SAVEAS = 10;	
 	
 	/** ID of the player fwd icon. */
@@ -100,12 +100,15 @@ public class IconManager
 	
 	/** ID of the question icon. */
 	public static final int		QUESTION = 12;
+	
+	/** ID of the save_image_as big icon. */
+	public static final int		SAVEAS_BIG = 13;
 
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 12;
+	private static int          MAX_ID = 13;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -124,6 +127,7 @@ public class IconManager
 		relPaths[SAVEAS] = "nuvola_filesaveas16.png";
 		relPaths[FORWARD] = "nuvola_player_fwd16.png";
 		relPaths[QUESTION] = "nuvola_filetypes32.png";
+		relPaths[SAVEAS_BIG] = "nuvola_filesaveas48.png";
 	}
 	
 	/** The sole instance. */
