@@ -118,10 +118,10 @@ public class RenderingEngine
 												LookupNames.RE_STACK_BLOCK_SZ);
 		int sz = size.intValue(), block = blockSize.intValue();
 		block = (0 < block ? block : 4096);
-		if (0 < sz) 
-			stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
-                                                    cmdProcessor);
-		else 
+		//if (0 < sz) 
+		//	stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
+        //                                            cmdProcessor);
+		//else 
 			stackBuffer = new AsyncByteBuffer(1, 1);  
             //Won't be used b/c we first check if we can cache a stack.
 	}

@@ -77,7 +77,11 @@ class RenderingManager
             rnd = renderer.makeShallowCopy(planeDef);
         }
         public Object call() throws Exception {
-            return rnd.render();  //Uses plane def set in constuctor.
+long start = System.currentTimeMillis();
+Object ret = rnd.render();
+System.err.println("Plane "+rnd.getPlaneDef().getZ()+" rendered in: "+(System.currentTimeMillis()-start));
+return ret;
+            //return rnd.render();  //Uses plane def set in constuctor.
         }
     }
     
@@ -108,7 +112,7 @@ class RenderingManager
     
     private BufferedImage extractXYImage(int z)
         throws DataSourceException, QuantizationException
-    { //We assume z is in the right range.  This is checked by renderXYPlane.
+    { //We assume z is in the right range.  This is checked by renderXYPlane.              
         BufferedImage plane = null;
         try {
             plane = (BufferedImage) stackCache[z].getResult();
@@ -144,21 +148,28 @@ class RenderingManager
         throws DataSourceException, QuantizationException
     {
         updatePlaneDef(pd);
-        if (pd == null) return renderer.render();
-        return renderer.render(pd);
-        /*
-        int minZ = Math.max(curPlaneDef.getZ()-5, 0),
-            maxZ = Math.min(curPlaneDef.getZ()+5, stackCache.length-1);
+        //if (pd == null) return renderer.render();
+        //return renderer.render(pd);
+        
+        int minZ = Math.max(curPlaneDef.getZ()-0, 0),
+            maxZ = Math.min(curPlaneDef.getZ()+0, stackCache.length-1);
+//long start = System.currentTimeMillis();
         for (int z = minZ; z <= maxZ; ++z) 
             if (stackCache[z] == null) 
                 stackCache[z] = cmdProcessor.exec(new RenderXYPlane(z));
+//System.out.println("Threads spwaned in: "+(System.currentTimeMillis()-start));
+//start = System.currentTimeMillis();
+//BufferedImage ret = extractXYImage(curPlaneDef.getZ());
+//System.out.println("Image extracted in: "+(System.currentTimeMillis()-start));
+//return ret;
         return extractXYImage(curPlaneDef.getZ());
-        */
     }
     
     void onRenderingPropChange()
     {
+//long start = System.currentTimeMillis();
         clearCache();
+//System.out.println("Stack cleared in: "+(System.currentTimeMillis()-start));
     }
     
 }
