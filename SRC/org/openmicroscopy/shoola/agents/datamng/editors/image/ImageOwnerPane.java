@@ -105,20 +105,19 @@ class ImageOwnerPane
 		extends AbstractTableModel 
 	{
 		private final String[]    
-		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
-						" Institution", " Group ID", " Group Name"};
+		fieldNames = {" First Name", " Last Name", " E-mail", 
+						" Institution", " Group Name"};
 		ImageData id = manager.getImageData();
-		private Object[] data = {""+id.getOwnerID(), id.getOwnerFirstName(),
+		private Object[] data = {id.getOwnerFirstName(),
 								id.getOwnerLastName(), id.getOwnerEmail(),
-								id.getOwnerInstitution(),
-								""+id.getOwnerGroupID(), id.getOwnerGroupName()
+								id.getOwnerInstitution(), id.getOwnerGroupName()
 								};
 								
 		private OwnerTableModel() {}
 	
 		public int getColumnCount() { return 2; }
 	
-		public int getRowCount() { return 7; }
+		public int getRowCount() { return 5; }
 	
 		public Object getValueAt(int row, int col) 
 		{
