@@ -62,6 +62,8 @@ class StatsTable
     extends JTable
 {
     
+    int                     height;
+    
     /**Icon displayed in the table header. */
     private Icon            up, down;
     
@@ -122,6 +124,7 @@ class StatsTable
         StatsTableModel(Number[][] data)
         { 
             this.data = data;
+            height = data.length*getRowHeight();
         }
         
         public String getColumnName(int col) { return fieldNames[col]; }

@@ -439,12 +439,12 @@ public class AssistantDialogMng
     */
    private void copyStackAllTimepoints(int from, int to)
    {
-       int rows = numRows-1;
+       //int rows = numRows;
        control.copyStackAcrossT(from, to);
        PlaneArea pa;
        int z;
-       for (int i = 0; i < rows; i++) {
-           z = rows-i;
+       for (int i = 0; i < numRows; i++) {
+           z = numRows-i-1;
            for (int j = from; j <= to; j++) {
                pa = control.getPlaneArea(z, j);
                setSelectedCell(pa, i, j);
@@ -458,16 +458,17 @@ public class AssistantDialogMng
    private void copyStackEndsTimepoints(int from, int to)
    {
        control.copyStack(from, to);
-       int rows = numRows-1;
+       int rows = numRows;
        PlaneArea pa;
        int z;
        for (int i = 0; i < rows; i++) {
-           z = rows-i;
+           z = rows-i-1;
            pa = control.getPlaneArea(z, from);
            setSelectedCell(pa, i, from);
            setSelectedCell(pa, i, to);
        }
-       view.table.repaint(from*numColumns, 0, to*cellWidth, numRows*cellHeight);
+       view.table.repaint(from*numColumns, 0, (to-from+1)*cellWidth, 
+                           numRows*cellHeight);
    }
    
    /** Paint the table according to the selected cell. */
@@ -561,11 +562,6 @@ public class AssistantDialogMng
        cancel();
        UserNotifier un = control.getRegistry().getUserNotifier();
        un.notifyInfo("Invalid selection", msg); 
-       //remove the two selected planes.
-       //setSelectedCell(oldRow, oldColumn, false);
-       //setSelectedCell(curRow, curColumn, false);
-       //view.table.repaint();
-       //setDefaultLocation();
    }
    
    /** Handle start text changed event. */
@@ -616,8 +612,8 @@ public class AssistantDialogMng
    }
     
     /** 
-     * Required by I/F but not actually needed in our case, no op 
-     * implementation.
+     * Required by {@link FocusListener} I/F but not actually needed in 
+     * our case, no op implementation.
      */ 
     public void focusGained(FocusEvent e) {}
     

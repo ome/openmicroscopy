@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.roi.pane;
 
 
 //Java imports
-import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -46,6 +45,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
+
 /** 
  * 
  *
@@ -64,8 +64,7 @@ public class ColoredCellTable
     extends TableComponent
 {
     
-    /** MAX portable view size. */
-    private static final int    MAX_WIDTH = 300, MAX_HEIGHT = 200;
+    int                         height, width;
 
     private int                 numRows, numColumns;
     
@@ -105,22 +104,19 @@ public class ColoredCellTable
     /** Set the layout. */
     private void setTableLayout()
     {
-        int width = AnalysisControls.WIDTH_MIN;
+        int w = AnalysisControls.WIDTH_MIN;
         if (numColumns > AnalysisControls.MAX) 
-            width = AnalysisControls.WIDTH_MAX; 
-        
-        setRowHeight(width);
+            w = AnalysisControls.WIDTH_MAX; 
+        setRowHeight(w);
         TableColumn col;
         for (int i = 0; i < numColumns; i++) {
           col = getColumnModel().getColumn(i);
-          col.setMinWidth(width);
-          col.setMaxWidth(width);
-          col.setPreferredWidth(width);
+          col.setMinWidth(w);
+          col.setMaxWidth(w);
+          col.setPreferredWidth(w);
         }
-        int w = width*numColumns, h = width*numRows;
-        if (w > MAX_WIDTH) w = MAX_WIDTH;
-        if (h > MAX_HEIGHT) h = MAX_HEIGHT;
-        setPreferredScrollableViewportSize(new Dimension(w, h)); 
+        height = AnalysisControls.HEADER+w*(numRows+1);
+        width = AnalysisControls.HEADER+w*(numColumns+1);  
         setDefaultRenderer(JComponent.class, new TableComponentCellRenderer());
     }
        

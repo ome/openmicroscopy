@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextPane
+ * org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -70,7 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-public class ContextPane
+public class ContextDialog
     extends JDialog
 {
     
@@ -96,11 +96,11 @@ public class ContextPane
         list[StatsResultsPane.SUM-StatsResultsPane.MINUS] = "Sum";
     }
     
-    public ContextPane(StatsResultsPaneMng mng, List zSelected, List tSelected)
+    public ContextDialog(StatsResultsPaneMng mng, List zSelected, List tSelected)
     {
-        super(mng.getReferenceFrame(), "Plot Results", true);
+        super(mng.getParent(), "Plot Results");
         initComponents(zSelected, tSelected, mng);
-        new ContextPaneMng(this, mng);
+        new ContextDialogMng(this, mng);
         buildGUI(IconManager.getInstance(mng.getRegistry()));
         pack();
     }

@@ -71,7 +71,7 @@ import org.openmicroscopy.shoola.util.ui.table.RowHeaderRenderer;
 
 
 /** 
- * 
+ * ROI Assistant widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -88,8 +88,8 @@ public class AssistantDialog
     extends JDialog
 {
     
-    private static final String     MSG = "Click on cell, drag, release and " +
-            "copy the selection if any drawn on the corresponding plane";
+    private static final String     MSG = "Click on cell, drag it, release and " +
+            "copy the selection.";
     
     private static final String     TITLE = "ROI Assistant, ROI #";
     
@@ -146,7 +146,7 @@ public class AssistantDialog
     private void initComponents(IconManager im, int numRows, int numColumns, 
                                 ScreenROI roi)
     {
-        moveResizeBox = new JCheckBox("Apply op to the stack");
+        moveResizeBox = new JCheckBox("Apply move/resize to the stack");
         moveResizeBox.setToolTipText(
                 UIUtilities.formatToolTipText("Apply the Move/Resize action " +
                         "to all 2D-selections drawn on planes " +
@@ -176,6 +176,7 @@ public class AssistantDialog
         scrollPane = new JScrollPane(table);
         scrollPane.setRowHeaderView(rowHeader);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        setScrollPaneSize();
     }
     
     /** Build and lay out the GUI. */
@@ -190,7 +191,7 @@ public class AssistantDialog
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.add(tp);
         container.add(Box.createRigidArea(VBOX));
-        container.add(scrollPane);
+        container.add(setScrollPaneSize());
         container.add(Box.createRigidArea(VBOX));
         container.add(buildMain(l));
     }
@@ -286,6 +287,24 @@ public class AssistantDialog
     {
         FontMetrics metrics = getFontMetrics(c.getFont());
         txtWidth = metrics.charWidth('m');
+    }
+    
+    /** Set the size of the scrollPane. */
+    private JComponent setScrollPaneSize()
+    {
+        boolean inPanel = true;
+        int h = table.height;
+        int w = table.width;
+        if (h > AnalysisControls.MAX_HEIGHT) 
+            h = AnalysisControls.MAX_HEIGHT;
+        if (w > AnalysisControls.MAX_WIDTH) {
+            inPanel = false;
+            w = AnalysisControls.MAX_WIDTH;
+        }
+        scrollPane.setPreferredSize(new Dimension(w, h));
+        if (inPanel) 
+            return UIUtilities.buildComponentPanel(scrollPane);
+        return scrollPane;
     }
     
 }

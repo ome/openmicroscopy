@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.agents.roi.results;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -73,6 +76,8 @@ public class ROIResultsMng
     
     public ROIAgtUIF getReferenceFrame() { return control.getReferenceFrame(); }
     
+    public ROIResults getParent() { return view; }
+    
     public int getAnalyzedChannel(int index)
     {
         return control.getAnalyzedChannel(index);
@@ -83,6 +88,7 @@ public class ROIResultsMng
     /** Handle the close event. */
     public void handleClose()
     {
+        //close allDialog
         view.setVisible(false);
         view.dispose();
     }
@@ -112,9 +118,22 @@ public class ROIResultsMng
                 control.getAnalyzedChannel(channelIndex));
     }
     
+    private void handleTabPaneSelection()
+    {
+        int tabIndex = view.tabs.getSelectedIndex();
+        StatsResultsPane 
+            pane = (StatsResultsPane) view.paneMap.get(new Integer(tabIndex));
+        pane.getManager().synchDialog();
+    }
+    
     /** Attach listeners. */
     private void attachListeners()
     {
+        view.tabs.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e)
+            {
+                handleTabPaneSelection();
+            }});
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) { handleClose(); }
         });

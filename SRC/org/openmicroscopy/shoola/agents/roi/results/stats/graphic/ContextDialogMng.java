@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextPaneMng
+ * org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextDialogMng
  *
  *------------------------------------------------------------------------------
  *
@@ -35,11 +35,12 @@ package org.openmicroscopy.shoola.agents.roi.results.stats.graphic;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
-
 
 //Third-party libraries
 
@@ -50,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 
 /** 
- * Manager of the {@link ContextPane view}.
+ * Manager of the {@link ContextDialog view}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,17 +64,17 @@ import org.openmicroscopy.shoola.util.ui.table.TableComponent;
  * </small>
  * @since OME2.2
  */
-class ContextPaneMng
+class ContextDialogMng
     implements ActionListener
 {
     
     private static final int    SHOW = 0;
     
-    private ContextPane         view;
+    private ContextDialog         view;
     
     private StatsResultsPaneMng mng;
     
-    ContextPaneMng(ContextPane view, StatsResultsPaneMng mng)
+    ContextDialogMng(ContextDialog view, StatsResultsPaneMng mng)
     {
         this.view = view;
         this.mng = mng;
@@ -84,6 +85,9 @@ class ContextPaneMng
     private void attachListeners()
     {
         buttonListener(view.show, SHOW);
+        view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { mng.synchDialog(); }
+        });
     }
     
     /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
@@ -117,7 +121,6 @@ class ContextPaneMng
         int axis = StatsResultsPaneMng.T_AXIS;
         if (view.zAsAxis.isSelected()) axis = StatsResultsPaneMng.Z_AXIS;
         mng.showGraphic(i, axis, zSelected, tSelected);
-        closeWidget();
     }
     
     /** Prepare the drawing context. */
@@ -129,23 +132,16 @@ class ContextPaneMng
         ColoredButton b;
         for (int i = 0; i < table.getRowCount(); i++) {
             selected = ((Boolean) 
-                    (table.getValueAt(i, ContextPane.BOOLEAN))).booleanValue();
+                    (table.getValueAt(i, ContextDialog.BOOLEAN))).booleanValue();
             if (selected) {
                v =  ((Integer) (
-                       table.getValueAt(i, ContextPane.NAME))).intValue();
+                       table.getValueAt(i, ContextDialog.NAME))).intValue();
                p =  ((JPanel) (
-                       table.getValueAt(i, ContextPane.BUTTON)));
+                       table.getValueAt(i, ContextDialog.BUTTON)));
                b = (ColoredButton) p.getComponent(0);
                map.put(new Integer(v), b.getBackground());
             }
         }
-    }
-    
-    /** Close the selection widget. */
-    private void closeWidget()
-    {
-        view.dispose();
-        view.setVisible(false);
     }
     
 }

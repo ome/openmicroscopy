@@ -77,17 +77,26 @@ public class ROIResults
     
     String[]                            listROIs;
 
+    JTabbedPane                         tabs;
+    
     private ROIResultsMng               manager;
     
     public ROIResults(ROIAgtCtrl control, int sizeT, int sizeZ)
     {
-        super(control.getReferenceFrame(), "ROI Results", true);
-        paneMap = new HashMap();
+        super(control.getReferenceFrame(), "ROI Results");
+        init();
         manager = new ROIResultsMng(this, control);
         IconManager im = IconManager.getInstance(control.getRegistry());
         JPanel p = buildTabbedPanel(control, im, sizeT, sizeZ);
         buildGUI(im, p);
         setSize(WIDTH, HEIGHT);
+    }
+    
+    private void init()
+    {
+        paneMap = new HashMap();
+        tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+        tabs.setAlignmentX(LEFT_ALIGNMENT);
     }
     
     /** Build and lay out the GUI. */
@@ -108,9 +117,6 @@ public class ROIResults
     private JPanel buildTabbedPanel(ROIAgtCtrl control, IconManager im, 
                                     int sizeT, int sizeZ)
     {
-        JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
-                                    JTabbedPane.WRAP_TAB_LAYOUT);
-        tabs.setAlignmentX(LEFT_ALIGNMENT);
         ResultsPerROIPane roiPane;
         StatsResultsPane pane;
         int c = 0;
@@ -124,17 +130,21 @@ public class ROIResults
         String[] channels = control.getAnalyzedChannels();
         int channel = control.getAnalyzedChannel(0);
         listROIs = new String[analysedROI.size()];
+        int roiIndex;
+        int length = analysedROI.size();
         while (i.hasNext()) {
             roi = (ScreenROI) i.next();
+            roiIndex = roi.getIndex();
             roiStats = (ROIStats) results.get(roi.getActualROI());
             roiPane = new ResultsPerROIPane(c, manager, channels, 
                                 roi.getName(), roi.getAnnotation());
             pane =  new StatsResultsPane(manager, roiStats, sizeT, sizeZ, 
-                                        channel, channels.length, up, down);
+                                        channel, channels.length, up, down, 
+                                        roiIndex, length);
             roiPane.addToContainer(pane);
             paneMap.put(new Integer(c), pane);
-            tabs.insertTab("ROI #"+roi.getIndex(), null, roiPane, null, c);
-            listROIs[c] = "ROI #"+roi.getIndex();
+            tabs.insertTab("ROI #"+roiIndex, null, roiPane, null, c);
+            listROIs[c] = "ROI #"+roiIndex;
             c++;
         }
         JPanel p = new JPanel();

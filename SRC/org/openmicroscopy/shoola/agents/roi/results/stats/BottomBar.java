@@ -63,12 +63,11 @@ class BottomBar
     extends JPanel
 {
     
-    JButton         save, graphic, back, forward, background, ratio, 
-                    initial;
+    JButton         save, graphic, back, forward, background, ratio, initial;
     
-    BottomBar(StatsResultsPaneMng mng, Registry reg)
+    BottomBar(StatsResultsPaneMng mng, Registry reg, int length)
     {
-        initComponents(IconManager.getInstance(reg));
+        initComponents(IconManager.getInstance(reg), length);
         new BottomBarMng(this, mng);
         buildGUI();
     }
@@ -87,7 +86,7 @@ class BottomBar
     }
     
     /** Initializes the components. */
-    void initComponents(IconManager im)
+    void initComponents(IconManager im, int length)
     {
         save = new JButton(im.getIcon(IconManager.SAVE));
         save.setToolTipText(
@@ -115,6 +114,12 @@ class BottomBar
         initial = new JButton(im.getIcon(IconManager.INITIAL));
         initial.setToolTipText(
                 UIUtilities.formatToolTipText("Display the original results."));
+        
+        if (length <= 1) {
+            ratio.setEnabled(false);
+            background.setEnabled(false);
+            initial.setEnabled(false);
+        }
     }
     
     /** Build and lay out the GUI. */

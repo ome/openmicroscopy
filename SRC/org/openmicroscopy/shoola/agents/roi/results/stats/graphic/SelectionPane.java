@@ -35,7 +35,6 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -148,13 +147,13 @@ class SelectionPane
         Integer l;
         while (i.hasNext()) {
             l = (Integer) i.next();
-            table.setValueAt(l, k, ContextPane.NAME);
-            table.setValueAt(Boolean.FALSE, k, ContextPane.BOOLEAN);
+            table.setValueAt(l, k, ContextDialog.NAME);
+            table.setValueAt(Boolean.FALSE, k, ContextDialog.BOOLEAN);
             j = k%MODULO;
             button = getButton(defaultColors[j]);
             manager.attachButtonListener(button, k);
             p = buildComponentPanel(button, d);
-            table.setValueAt(p, k, ContextPane.BUTTON);
+            table.setValueAt(p, k, ContextDialog.BUTTON);
             k++;
         }
         TableSorter sorter = new TableSorter(table.getModel());
@@ -182,10 +181,10 @@ class SelectionPane
         TableColumnModel tcm = table.getTableHeader().getColumnModel();
         Icon up = im.getIcon(IconManager.UP), 
             down = im.getIcon(IconManager.DOWN);
-        setTableColumnHeader(tcm.getColumn(ContextPane.NAME), rnd, up, down, s);
-        setTableColumnHeader(tcm.getColumn(ContextPane.BOOLEAN), rnd, up, down,
+        setTableColumnHeader(tcm.getColumn(ContextDialog.NAME), rnd, up, down, s);
+        setTableColumnHeader(tcm.getColumn(ContextDialog.BOOLEAN), rnd, up, down,
                                 "");
-        setTableColumnHeader(tcm.getColumn(ContextPane.BUTTON), rnd, null, null,
+        setTableColumnHeader(tcm.getColumn(ContextDialog.BUTTON), rnd, null, null,
                                 "");
         table.setDefaultRenderer(JComponent.class, 
                                 new TableComponentCellRenderer());

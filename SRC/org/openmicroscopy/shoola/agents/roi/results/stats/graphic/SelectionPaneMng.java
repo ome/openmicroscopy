@@ -118,7 +118,7 @@ class SelectionPaneMng
         Boolean obj = Boolean.FALSE;
         if (b) obj = Boolean.TRUE;
         for (int i = 0; i < table.getRowCount(); i++)
-            table.setValueAt(obj, i, ContextPane.BOOLEAN);
+            table.setValueAt(obj, i, ContextDialog.BOOLEAN);
     }
     
 }

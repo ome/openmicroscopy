@@ -75,14 +75,21 @@ public class AnalysisControls
     extends JPanel
 {
     
+    
+    /** Maximum portable view size. */
+    static final int                MAX_WIDTH = 300, MAX_HEIGHT = 200;
+    
+    static final int                HEADER = 40;
+    
     static final int                WIDTH_MIN = 20, WIDTH_MAX = 25, MAX = 100;
     
     static final Color              DEFAULT_COLOR = Color.WHITE, 
                                     SELECTED_COLOR =  Color.BLUE;
     static final Color              POSITION_COLOR = Color.GRAY;
     
-    private static final Dimension  MAX_SCROLL = new Dimension(80, 40), 
-                                    MIN_SCROLL = new Dimension(60, 20),
+    private static final Dimension  MAX_SCROLL = new Dimension(60, 40), 
+                                    MIN_SCROLL = new Dimension(60, 30),
+                                    SCROLL_ROI = new Dimension(60, 40),
                                     VBOX = new Dimension(0, 5);
     
     private Dimension               dimScroll;
@@ -181,7 +188,7 @@ public class AnalysisControls
         gridbag.setConstraints(label, c);
         p.add(label);
         scrollPane = new JScrollPane(listROI);
-        scrollPane.setPreferredSize(MIN_SCROLL);
+        scrollPane.setPreferredSize(SCROLL_ROI);
         c.gridx = 1;
         gridbag.setConstraints(scrollPane, c);
         p.add(scrollPane);

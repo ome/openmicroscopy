@@ -44,7 +44,9 @@ import javax.swing.table.AbstractTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
+import org.openmicroscopy.shoola.agents.roi.results.ROIResults;
 import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
+import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextDialog;
 import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.GraphicCanvas;
 import org.openmicroscopy.shoola.agents.roi.results.stats.saver.ROISaver;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -86,6 +88,8 @@ public class StatsResultsPaneMng
     
     private GraphicCanvas           graphicCanvas;
     
+    private ContextDialog           contextDialog;
+    
     private int                     sizeT, sizeZ, lengthStats;
     
     private int                     selectedChannel, statsIndex, resultIndex,
@@ -118,6 +122,8 @@ public class StatsResultsPaneMng
     
     public ROIAgtUIF getReferenceFrame() { return mng.getReferenceFrame(); }
     
+    public ROIResults getParent() { return mng.getParent(); }
+    
     public BufferedImage getGraphicImage()
     { 
         return graphicCanvas.getGraphicImage();
@@ -144,7 +150,7 @@ public class StatsResultsPaneMng
                     ((Double) result[3]).doubleValue(), (Map) result[4]);
         } else if (axis == Z_AXIS) {
             result = getGraphicDataZ(zSelected, tSelected);
-            graphicCanvas.acrossT(tSelected, ((Integer) result[0]).intValue(), 
+            graphicCanvas.acrossZ(tSelected, ((Integer) result[0]).intValue(), 
                     ((Integer) result[1]).intValue(), 
                     ((Double) result[2]).doubleValue(), 
                     ((Double) result[3]).doubleValue(), (Map) result[4]);
@@ -162,6 +168,24 @@ public class StatsResultsPaneMng
     {
         setTableIndex(StatsResultsPaneMng.TABLE_INITIAL);
         view.table.setTableData(getData(channelIndex, true));
+    }
+    
+    public void synchDialog()
+    {
+        if (contextDialog != null) {
+            contextDialog.dispose();
+            contextDialog.setVisible(false);
+        }
+        contextDialog = null;
+    }
+    
+    void showGraphicSelection()
+    {
+        if (contextDialog == null) {
+            contextDialog = new ContextDialog(this, getZSelected(), 
+                    getTSelected());
+        }
+        UIUtilities.centerAndShow(contextDialog);
     }
     
     void setTableIndex(int index) { tableIndex = index; }
@@ -478,7 +502,7 @@ public class StatsResultsPaneMng
                     maxX = Math.max(maxX, x);
                 }
                 c++;
-                point = new PlanePoint(x, v);
+                point = new PlanePoint(x, v); 
                 list.add(point);
             }
             values.put(key, list);
@@ -521,5 +545,4 @@ public class StatsResultsPaneMng
         return value.doubleValue();
     }
     
-
 }

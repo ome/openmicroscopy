@@ -37,7 +37,6 @@ import javax.swing.JButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -102,7 +101,7 @@ class BottomBarMng
                 case SAVE:
                     mng.saveResult(); break;
                 case GRAPHIC:
-                    showGraphicSelection(); break;
+                    mng.showGraphicSelection(); break;
                 case BACK_TO_TABLE:
                     mng.backToTable(); break;
                 case BACK_TO_GRAPHIC:
@@ -130,11 +129,5 @@ class BottomBarMng
         mng.setTableIndex(tableIndex);
         UIUtilities.centerAndShow(new ROISelector(mng, s));
     }
-    
-    private void showGraphicSelection()
-    {  
-        UIUtilities.centerAndShow(new ContextPane(mng, mng.getZSelected(), 
-                                mng.getTSelected()));
-    }
-    
+
 }

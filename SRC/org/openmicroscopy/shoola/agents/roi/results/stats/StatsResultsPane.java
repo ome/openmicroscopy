@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -44,6 +45,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
 import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.GraphicCanvas;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIStats;
@@ -99,15 +101,19 @@ public class StatsResultsPane
     
     JScrollPane                     scrollPane;
     
+    int                             roiIndex;
+    
     private StatsResultsPaneMng     manager;
 
     public StatsResultsPane(ROIResultsMng mng, ROIStats stats, int sizeT, 
-                            int sizeZ, int channel, int l, Icon up, Icon down)
+                            int sizeZ, int channel, int l, Icon up, Icon down,
+                            int roiIndex, int length)
     {
+        this.roiIndex = roiIndex;
         manager = new StatsResultsPaneMng(this, mng, sizeT, sizeZ, stats, l);
         table = new StatsTable(up, down);
         table.initTable(manager.getDataToDisplay(channel));
-        bar = new BottomBar(manager, mng.getRegistry());
+        bar = new BottomBar(manager, mng.getRegistry(), length);
         buildGUI();
     }
     
@@ -139,6 +145,7 @@ public class StatsResultsPane
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         scrollPane = new JScrollPane(table);
         scrollPane.setBackground(GraphicCanvas.BACKGROUND);
+        setScrollPaneSize();
         addComponents(scrollPane);
     }
     
@@ -148,4 +155,13 @@ public class StatsResultsPane
         add(bar, BorderLayout.SOUTH);
     }
     
+    /** Set the size of the scrollPane. */
+    private void setScrollPaneSize()
+    {
+        Dimension d = table.getPreferredScrollableViewportSize();
+        int h = table.height;
+        if (h > ROIAgtUIF.MAX_SCROLLPANE_HEIGHT) 
+            h = ROIAgtUIF.MAX_SCROLLPANE_HEIGHT;
+        scrollPane.setPreferredSize(new Dimension(d.width, h));
+    }
 }
