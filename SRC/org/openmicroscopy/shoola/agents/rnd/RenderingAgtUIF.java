@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Font;
-import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -77,10 +75,6 @@ class RenderingAgtUIF
 	
 	/** Location y-coordinate. */
 	private static final int		Y_LOCATION = 0;
-	
-	private static final int		ROW_ZERO = 250, ROW_ONE = 150;
-	
-	private static final int		DEFAULT_WIDTH = 220;
 	
 	/** index to position the mapping component in the tabbedPane. */
 	static final int				POS_MAPPING = 0;
@@ -157,11 +151,7 @@ class RenderingAgtUIF
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
-	{
-		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		IconManager im = IconManager.getInstance(registry);
-		Icon icon = im.getIcon(IconManager.OME);
-  		
+	{	
 		//create and initialize the tabs
 		tabs = new JTabbedPane(JTabbedPane.TOP, 
 												JTabbedPane.WRAP_TAB_LAYOUT);
@@ -176,7 +166,7 @@ class RenderingAgtUIF
 		getContentPane().add(new ToolBar(control, registry), 
 							BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(icon);		
+		setFrameIcon(IconManager.getOMEIcon());		
 	}
 	
 	/** Build a panel with graphics and control. */
