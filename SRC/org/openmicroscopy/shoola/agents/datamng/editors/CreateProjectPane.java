@@ -31,13 +31,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 
 //Java imports
-import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -76,8 +72,6 @@ class CreateProjectPane
 	private CreateProjectEditorManager 	manager;
 	private Registry 					registry;
 	
-	private JButton						saveButton;
-	
 	private JTextArea					nameField;
 	
 	private JTextArea					descriptionArea;
@@ -96,9 +90,6 @@ class CreateProjectPane
 		buildGUI();
 	}
 
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
-	
 	/** Returns the TextArea with the project's description. */
 	JTextArea getDescriptionArea() { return descriptionArea; }
 
@@ -117,34 +108,8 @@ class CreateProjectPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		//save button
-		saveButton = new JButton("OK");
-		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		saveButton.setOpaque(false);
-		//suppress button press decoration
-		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data in the DB.");
-		saveButton.setEnabled(false);
-
-		JPanel controls = new JPanel(), all = new JPanel();
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		all.setLayout(gridbag);  
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(saveButton);
-		controls.setOpaque(false); //make panel transparent
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls, c); 
-		all.add(controls);
-		all.setOpaque(false); //make panel transparent
-   	
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildTable());
-		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
 		

@@ -123,9 +123,7 @@ class ProjectGeneralPane
 	private TableComponent buildTable()
 	{
 		TableComponent table = new TableComponent(3, 2);
-		table.setTableHeader(null);
-		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
-		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		setTableLayout(table);
 		
 		// Labels
 		table.setValueAt(new JLabel(" ID"), 0, 0);
@@ -154,12 +152,21 @@ class ProjectGeneralPane
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 2, 1);
 
+		
+								
+		return table;
+	}
+	
+	/** Set the layout of the table. */
+	private void setTableLayout(TableComponent table)
+	{
+		table.setTableHeader(null);
+		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
-								
-		return table;
 	}
 	
 }

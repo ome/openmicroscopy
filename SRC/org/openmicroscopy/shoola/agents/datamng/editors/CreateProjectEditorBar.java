@@ -39,6 +39,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -87,13 +88,15 @@ class CreateProjectEditorBar
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data in the DB.");
+		saveButton.setToolTipText(
+			UIFactory.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//suppress button press decoration
 		cancelButton.setContentAreaFilled(false); 
-		cancelButton.setToolTipText("Close without saving.");
+		cancelButton.setToolTipText(
+			UIFactory.formatToolTipText("Close without saving."));
 
 	}
 	
