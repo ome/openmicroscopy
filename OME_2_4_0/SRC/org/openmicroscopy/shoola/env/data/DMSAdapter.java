@@ -246,6 +246,11 @@ class DMSAdapter
                                                             c);
                 ProjectMapper.fillListAnnotatedDatasets(projects, pProto, 
                                 dProto, l, projectsDS);
+            }  else {  
+                //Projects contain no datasets, this is the case for the
+                //initial project for example.
+                projectsDS = 
+                    ProjectMapper.fillUserProjects(projects, pProto, dProto);
             }
         }
         return projectsDS;
