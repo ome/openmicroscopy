@@ -35,9 +35,6 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.dto.Dataset;
@@ -81,7 +78,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void activate()
     {
-        // TODO Auto-generated method stub
+        BrowserManager manager = env.getBrowserManager();
+        // TODO: check registry settings, load, but for now, create
+        
     }
     
     /**
@@ -114,6 +113,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         // TODO: extract registry settings from context
         // TODO: when this method goes live from JM/Andrea, uncomment
         // this.eventBus = ctx.getEventBus();
+        // TODO: register event listening here (this,type.class)
+        
     }
 
     /**
