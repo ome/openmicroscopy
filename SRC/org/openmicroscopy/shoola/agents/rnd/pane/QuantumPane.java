@@ -59,93 +59,96 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  */
 public class QuantumPane
 {
-	
-	static final String				NOTE = 
-				"[Note] The output interval selected in \"Mapping\" defines " +
-				"the input and output intervals for this transformation.";
-			
-	/** set the background color of the layered pane. */
-	static final Color				BACKGROUND = Color.WHITE;
+    
+    static final String             NOTE = 
+                "[Note] The output interval selected in \"Mapping\" defines " +
+                "the input and output intervals for this transformation.";
+            
+    /** set the background color of the layered pane. */
+    static final Color              BACKGROUND = Color.WHITE;
 
-	private static final Dimension	GR_DIM = new Dimension(
-												GraphicsRepresentation.width, 
-												GraphicsRepresentation.height);
-	/** Default index. */
-	static final int				INDEX = 0;
-	
-	private CodomainPane			codomainPane;
-	private DomainPane				domainPane;
-	private GraphicsRepresentation  gRepresentation;
-	
-	private JPanel					grPane;
-	
-	/** Reference to the {@link QuantumPaneManager manager}. */
-	private QuantumPaneManager		manager;
-	
-	public QuantumPane(RenderingAgtCtrl eventManager)
-	{
-		QuantumDef qDef = eventManager.getQuantumDef();
-		manager = new QuantumPaneManager(eventManager, this);
-		eventManager.setQPManager(manager);
-		int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
-		int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
-		int s = 
-			(int) eventManager.getChannelWindowStart(INDEX);
-		int e = 
-			(int) eventManager.getChannelWindowEnd(INDEX);
-		codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
-		domainPane = new DomainPane(eventManager.getRegistry(), manager, 
-									eventManager.getChannelData(), qDef, INDEX);
-		gRepresentation = new GraphicsRepresentation(manager, qDef.family,
-						qDef.curveCoefficient, qDef.cdStart, qDef.cdEnd,
-						mini, maxi);
-		
-		if (qDef.family == QuantumFactory.EXPONENTIAL)
-			 gRepresentation.setDefaultExponential(s, e);
-		else gRepresentation.setDefaultLinear(s, e);
-		buildGRPane();
-	}
-	
-	 
-	/** Set enabled the wavelenghts combobox. */
-	public void setSelectionWavelengthsEnable(boolean b)
-	{
-		domainPane.getWavelengths().setEnabled(b);
-	}
-	
-	/** 
-	 * Set the selected wavelength
-	 * 
-	 * @param index		wavelength index.
-	 */
-	public void setSelectedWavelength(int index)
-	{
-		domainPane.getWavelengths().setSelectedIndex(index);
-	}
-	
-	public CodomainPane getCodomainPane() { return codomainPane; }
+    private static final Dimension  GR_DIM = new Dimension(
+                                                GraphicsRepresentation.width, 
+                                                GraphicsRepresentation.height);
+    /** Default index. */
+    static final int                INDEX = 0;
+    
+    private CodomainPane            codomainPane;
+    private DomainPane              domainPane;
+    private GraphicsRepresentation  gRepresentation;
+    
+    private JPanel                  grPane;
+    
+    /** Reference to the {@link QuantumPaneManager manager}. */
+    private QuantumPaneManager      manager;
+    
+    public QuantumPane(RenderingAgtCtrl eventManager)
+    {
+        QuantumDef qDef = eventManager.getQuantumDef();
+        manager = new QuantumPaneManager(eventManager, this);
+        eventManager.setQPManager(manager);
+        int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
+        int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
+        int s = 
+            (int) eventManager.getChannelWindowStart(INDEX);
+        int e = 
+            (int) eventManager.getChannelWindowEnd(INDEX);
+        int family = eventManager.getChannelFamily(INDEX);
+        double cc = eventManager.getChannelCurveCoefficient(INDEX);
+        double[] cbStats = eventManager.getChannelBindingStats(INDEX);
+        codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
+        domainPane = new DomainPane(eventManager.getRegistry(), manager, family,
+                                    cc, eventManager.getChannelData(), qDef, 
+                                    INDEX);
+        gRepresentation = new GraphicsRepresentation(manager, family, cc, 
+                                qDef.cdStart, qDef.cdEnd, mini, maxi, cbStats);
+        
+        if (family == QuantumFactory.EXPONENTIAL)
+             gRepresentation.setDefaultExponential(s, e);
+        else gRepresentation.setDefaultLinear(s, e);
+        buildGRPane();
+    }
+    
+     
+    /** Set enabled the wavelenghts combobox. */
+    public void setSelectionWavelengthsEnable(boolean b)
+    {
+        domainPane.getWavelengths().setEnabled(b);
+    }
+    
+    /** 
+     * Set the selected wavelength
+     * 
+     * @param index     wavelength index.
+     */
+    public void setSelectedWavelength(int index)
+    {
+        domainPane.getWavelengths().setSelectedIndex(index);
+    }
+    
+    public CodomainPane getCodomainPane() { return codomainPane; }
 
-	public DomainPane getDomainPane() { return domainPane; }
-	
-	public JPanel getGRPane() { return grPane; }
-	
-	public QuantumPaneManager getManager() { return manager; }
-	
-	GraphicsRepresentation getGRepresentation() { return gRepresentation; }
+    public DomainPane getDomainPane() { return domainPane; }
+    
+    public JPanel getGRPane() { return grPane; }
+    
+    public QuantumPaneManager getManager() { return manager; }
+    
+    GraphicsRepresentation getGRepresentation() { return gRepresentation; }
 
-	void setGRepresentation(GraphicsRepresentation gr)
-	{ 
-		gRepresentation = null;
-		gRepresentation = gr;
-	}
+    void setGRepresentation(GraphicsRepresentation gr)
+    { 
+        gRepresentation = null;
+        gRepresentation = gr;
+    }
 
-	void buildGRPane()
-	{
-		grPane = new JPanel();
-		gRepresentation.setPreferredSize(GR_DIM);
-		gRepresentation.setSize(GR_DIM);
-		gRepresentation.setBackground(BACKGROUND);
-		grPane.add(gRepresentation);
-	}
-	
+    void buildGRPane()
+    {
+        grPane = new JPanel();
+        gRepresentation.setPreferredSize(GR_DIM);
+        gRepresentation.setSize(GR_DIM);
+        gRepresentation.setBackground(BACKGROUND);
+        grPane.add(gRepresentation);
+    }
+    
 }

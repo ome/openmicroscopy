@@ -30,15 +30,14 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -70,216 +69,218 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 
 class DomainPane
-	extends JPanel
+    extends JPanel
 {
 
-	static final int        		DEPTH_START = 1, DEPTH_END = 8;
-
-	private static final int		MAX = GraphicsRepresentation.MAX;
-	private static final int		MIN = GraphicsRepresentation.MIN;
-	
-	private static final String[]   algorithms;
+    static final int                DEPTH_START = 1, DEPTH_END = 8;
     
-	//the Families
-	static {
-		algorithms = new String[4];
-		algorithms[QuantumFactory.LINEAR] = "Linear";
-		algorithms[QuantumFactory.EXPONENTIAL] ="Exponential";
-		algorithms[QuantumFactory.LOGARITHMIC] = "Logarithmic";
-		algorithms[QuantumFactory.POLYNOMIAL] ="Polynomial";      
-	}
-	private static final HashMap	uiBR;
-   	
-	static {
-		uiBR = new HashMap();
-		uiBR.put(new Integer(QuantumFactory.DEPTH_1BIT), new Integer(1));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_2BIT), new Integer(2));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_3BIT), new Integer(3));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_4BIT), new Integer(4));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_5BIT), new Integer(5));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_6BIT), new Integer(6));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_7BIT), new Integer(7));
-		uiBR.put(new Integer(QuantumFactory.DEPTH_8BIT), new Integer(8));
-	}
-	
-	private JButton					histogram;
-	private JLabel					gammaLabel;
-	private JComboBox				transformations;
-	private JComboBox				wavelengths;
-	private JSlider					bitResolution;
-	private JSlider					gamma;
-	
-	private QuantumDef				qDef;
-	
-	/** Reference to the {@link DomainPaneManager manager}. */
-	private DomainPaneManager		manager;
-	
-	DomainPane(Registry registry, QuantumPaneManager control, 
-				ChannelData[] data, QuantumDef qDef, int index)
-	{
-		this.qDef = qDef;
-		manager = new DomainPaneManager(this, control);
-		initComboBoxes(data, index);
-		initSliders();
-		initLabel();
-		initButton(registry);
-		manager.attachListeners();
-		buildGUI();
-	}
-	
-	/** Getters. */
-	DomainPaneManager getManager() { return manager; }
-	
-	JSlider getGamma() { return gamma; }
+    private static final int        MAX = GraphicsRepresentation.MAX;
+    private static final int        MIN = GraphicsRepresentation.MIN;
+    
+    private static final String[]   algorithms;
 
-	JSlider getBitResolution() { return bitResolution; }
-	
-	JLabel getGammaLabel() { return gammaLabel; }
+    //the Families
+    static {
+        algorithms = new String[4];
+        algorithms[QuantumFactory.LINEAR] = "Linear";
+        algorithms[QuantumFactory.EXPONENTIAL] = "Exponential";
+        algorithms[QuantumFactory.LOGARITHMIC] = "Logarithmic";
+        algorithms[QuantumFactory.POLYNOMIAL] = "Polynomial";      
+    }
+    
+    private static final HashMap    uiBR;
+        
+    static {
+        uiBR = new HashMap();
+        uiBR.put(new Integer(QuantumFactory.DEPTH_1BIT), new Integer(1));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_2BIT), new Integer(2));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_3BIT), new Integer(3));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_4BIT), new Integer(4));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_5BIT), new Integer(5));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_6BIT), new Integer(6));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_7BIT), new Integer(7));
+        uiBR.put(new Integer(QuantumFactory.DEPTH_8BIT), new Integer(8));
+    }
 
-	JComboBox getTransformations() { return transformations; }
+    private JButton                histogram;
+    private JLabel                 gammaLabel;
+    private JComboBox              transformations;
+    private JComboBox              wavelengths;
+    private JSlider                bitResolution;
+    private JSlider                gamma;
+    private JCheckBox              noise;
+    
+    private QuantumDef             qDef;
 
-	JComboBox getWavelengths() { return wavelengths; }
-	
-	JButton getHistogram() { return histogram; }
-	
-	void setGammaText(double v)
-	{
-		String txt = " Gamma: "+v;
-		gammaLabel.setText(txt);
-	}
+    /** Reference to the {@link DomainPaneManager manager}. */
+    private DomainPaneManager      manager;
+    
+    DomainPane(Registry registry, QuantumPaneManager control, int family,
+                double curveCoefficient, ChannelData[] data, QuantumDef qDef, 
+                int index)
+    {
+        this.qDef = qDef;
+        manager = new DomainPaneManager(this, control);
+        initBoxes(family, data, index);
+        initSliders(family, curveCoefficient);
+        initLabel(curveCoefficient);
+        initButton(registry);
+        manager.attachListeners();
+        buildGUI();
+    }
 
-	/** Initializes the comboBoxes: wavelengths and transformations. */  
-	private void initComboBoxes(ChannelData[] data, int index)
-	{
-		transformations = new JComboBox(algorithms);
-		transformations.setSelectedIndex(qDef.family);
-		String[] waves = new String[data.length];
-		for (int i = 0; i < data.length; i++)
-			waves[i] = ""+data[i].getNanometer();
-		wavelengths = new JComboBox(waves);
-		wavelengths.setSelectedIndex(index);  
-		//When the color model is gray, the user cannot select the wavelength.
-		wavelengths.setEnabled(false);
-	}
-	
-	/** Initializes the sliders: gamma and bitResolution. */    
-	private void initSliders()
-	{
-		int k = (int) (qDef.curveCoefficient*10);
-		gamma = new JSlider(JSlider.HORIZONTAL, MIN, MAX, k);
-		if (qDef.family == QuantumFactory.LINEAR || 
-			qDef.family == QuantumFactory.LOGARITHMIC) 
-			gamma.setEnabled(false);
-		else gamma.setEnabled(true);
-		Integer br = ((Integer) uiBR.get(new Integer(qDef.bitResolution)));
-		int resolution = DEPTH_END;
-		if (br != null) resolution = br.intValue();
-		bitResolution = new JSlider(JSlider.HORIZONTAL, DEPTH_START, DEPTH_END,
-									resolution);
-	}
-	
-	/** Initializes the gamma label. */
-	private void initLabel()
-	{
-		gammaLabel = new JLabel(" Gamma: "+qDef.curveCoefficient);
-	}
-	
-	/** Initializes the histogram Button. */
-	private void initButton(Registry registry)
-	{
-		IconManager IM = IconManager.getInstance(registry);
-		histogram = new JButton(IM.getIcon(IconManager.HISTOGRAM));
-		histogram.setToolTipText(
-			UIUtilities.formatToolTipText("Bring the histogram dialog."));
-		histogram.setBorder(null);
-	}
+    /** Getters. */
+    DomainPaneManager getManager() { return manager; }
+    
+    JCheckBox getNoise() { return noise; }
+    
+    JSlider getGamma() { return gamma; }
+    
+    JSlider getBitResolution() { return bitResolution; }
+    
+    JLabel getGammaLabel() { return gammaLabel; }
 
-	/**Build and layout the GUI */
-	private void buildGUI()
-	{
-		setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-		GridBagLayout gridbag = new GridBagLayout();
-		setLayout(gridbag);
-		GridBagConstraints c = new GridBagConstraints();
-	
-		JLabel label = new JLabel(" Wavelength");
-		c.ipadx = RenderingAgt.H_SPACE;
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 1;
-		label = new JLabel(" Map");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 2;
-		gridbag.setConstraints(gammaLabel, c);
-		add(gammaLabel);
-		c.gridy = 3;
-		
-		label = new JLabel(" Resolution");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridy = 4;
-		label = new JLabel(" Histogram");
-		gridbag.setConstraints(label, c);
-		add(label);
-		c.gridx = 1;
-		c.gridy = 0;
-		JPanel wp = buildComponentPanel(wavelengths);
-		gridbag.setConstraints(wp, c);
-		add(wp);
-		c.gridy = 1;
-		wp = buildComponentPanel(transformations);
-		gridbag.setConstraints(wp, c);
-		add(wp);
-		c.gridy = 2;
-		c.weightx = 1.0;
-		c.ipadx = 5; 
-		JPanel gp = buildSliderPanel(gamma);
-		gridbag.setConstraints(gp, c);
-		add(gp);
-		c.gridy = 3;
-		JPanel brp = buildSliderPanel(bitResolution);
-		gridbag.setConstraints(brp, c);
-		add(brp);
-		c.gridy = 4;
-		c.weightx = 0.0;
-		c.ipadx = 0; 
-		JPanel hp = buildComponentPanel(histogram);
-		gridbag.setConstraints(hp, c);
-		add(hp);
-	}
-	
-	/**
-	 * Build a JPanel which contains a JSlider.
-	 * 
-	 * @param slider	slider to add.
-	 * @return See above.
-	 */
-	private JPanel buildSliderPanel(JSlider slider)	
-	{
-		JPanel p = new JPanel();
-		//p.setLayout(null);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		//slider.setPreferredSize(DIM_SLIDER);
-		//slider.setSize(DIM_SLIDER);
-		//p.setPreferredSize(DIM_SLIDER);
-		//p.setSize(DIM_SLIDER);
-		p.add(slider);
+    JComboBox getTransformations() { return transformations; }
+    
+    JComboBox getWavelengths() { return wavelengths; }
+    
+    JButton getHistogram() { return histogram; }
+    
+    void setGammaText(double v)
+    {
+        String txt = " Gamma: "+v;
+        gammaLabel.setText(txt);
+    }
 
-		return p;
-	}
+    /** Initializes the comboBoxes: wavelengths and transformations. */  
+    private void initBoxes(int family, ChannelData[] data, int index)
+    {
+        transformations = new JComboBox(algorithms);
+        transformations.setSelectedIndex(family);
+        String[] waves = new String[data.length];
+        for (int i = 0; i < data.length; i++)
+           waves[i] = ""+data[i].getNanometer();
+        wavelengths = new JComboBox(waves);
+        wavelengths.setSelectedIndex(index);  
+        //When the color model is gray, the user cannot select the wavelength.
+        wavelengths.setEnabled(false);
+        
+        noise = new JCheckBox();
+        noise.setSelected(qDef.noiseReduction);
+    }
 
-    /** Wrap a JComponent in a panel. */
-	private JPanel buildComponentPanel(JComponent component)
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		p.add(component);
-		return p;
-	}	
+    /** Initializes the sliders: gamma and bitResolution. */    
+    private void initSliders(int family, double curveCoefficient)
+    {
+        int k = (int) (curveCoefficient*10);
+        gamma = new JSlider(JSlider.HORIZONTAL, MIN, MAX, k);
+        if (family == QuantumFactory.LINEAR || 
+            family == QuantumFactory.LOGARITHMIC) 
+            gamma.setEnabled(false);
+        else gamma.setEnabled(true);
+        Integer br = ((Integer) uiBR.get(new Integer(qDef.bitResolution)));
+        int resolution = DEPTH_END;
+        if (br != null) resolution = br.intValue();
+        bitResolution = new JSlider(JSlider.HORIZONTAL, DEPTH_START, DEPTH_END,
+                                    resolution);
+    }
+    
+    /** Initializes the gamma label. */
+    private void initLabel(double curveCoefficient)
+    {
+        gammaLabel = new JLabel(" Gamma: "+curveCoefficient);
+    }
+
+    /** Initializes the histogram Button. */
+    private void initButton(Registry registry)
+    {
+        IconManager IM = IconManager.getInstance(registry);
+        histogram = new JButton(IM.getIcon(IconManager.HISTOGRAM));
+        histogram.setToolTipText(
+            UIUtilities.formatToolTipText("Bring the histogram dialog."));
+        histogram.setBorder(null);
+    }
+
+    /**Build and layout the GUI */
+    private void buildGUI()
+    {
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagLayout gridbag = new GridBagLayout();
+        setLayout(gridbag);
+        GridBagConstraints c = new GridBagConstraints();
+    
+        JLabel label = new JLabel(" Wavelength");
+        c.ipadx = RenderingAgt.H_SPACE;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        gridbag.setConstraints(label, c);
+        add(label);
+        c.gridy = 1;
+        label = new JLabel(" Map");
+        gridbag.setConstraints(label, c);
+        add(label);
+        c.gridy = 2;
+        gridbag.setConstraints(gammaLabel, c);
+        add(gammaLabel);
+        c.gridy = 3;
+        
+        label = new JLabel(" Resolution");
+        gridbag.setConstraints(label, c);
+        add(label);
+        c.gridy = 4;
+        label = new JLabel(" Histogram");
+        gridbag.setConstraints(label, c);
+        add(label);
+        c.gridy = 5;
+        label = new JLabel(" Noise reduction");
+        gridbag.setConstraints(label, c);
+        add(label);
+        c.gridx = 1;
+        c.gridy = 0;
+        JPanel wp = UIUtilities.buildComponentPanel(wavelengths);
+        gridbag.setConstraints(wp, c);
+        add(wp);
+        c.gridy = 1;
+        wp = UIUtilities.buildComponentPanel(transformations);
+        gridbag.setConstraints(wp, c);
+        add(wp);
+        c.gridy = 2;
+        c.weightx = 1.0;
+        c.ipadx = 5; 
+        JPanel gp = buildSliderPanel(gamma);
+        gridbag.setConstraints(gp, c);
+        add(gp);
+        c.gridy = 3;
+        JPanel brp = buildSliderPanel(bitResolution);
+        gridbag.setConstraints(brp, c);
+        add(brp);
+        c.gridy = 4;
+        c.weightx = 0.0;
+        c.ipadx = 0; 
+        JPanel hp = UIUtilities.buildComponentPanel(histogram);
+        gridbag.setConstraints(hp, c);
+        add(hp);
+        c.gridy = 5;
+        JPanel np = UIUtilities.buildComponentPanel(noise);
+        gridbag.setConstraints(np, c);
+        add(np);
+    }
+
+    /**
+     * Build a JPanel which contains a JSlider.
+     * 
+     * @param slider    slider to add.
+     * @return See above.
+     */
+    private JPanel buildSliderPanel(JSlider slider) 
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(slider);
+        return p;
+    }
+
 
 }

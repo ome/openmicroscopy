@@ -58,207 +58,206 @@ import java.awt.event.WindowEvent;
  * @since OME2.2
  */
 class HistogramDialogManager
-	implements MouseListener, MouseMotionListener
+    implements MouseListener, MouseMotionListener
 {
-	
-	/** Graphics constants. */
-	private static final int		heightStat = HistogramPanel.heightStat,
-									topBorder = HistogramPanel.topBorder,
-									rightBorder = HistogramPanel.rightBorder,
-									tS = topBorder+heightStat,
-									triangleW = HistogramPanel.triangleW,
-									length = 2*triangleW, 
-									window = HistogramPanel.window,
-									rangeGraphics = heightStat-2*window;
-   	private static final int    	absEnd = topBorder+window, 
-   									absStart = tS-window;
-   	
-   	private final int				tW = topBorder+window;
-   	
-    private final int               extraControl = 4;
+
+    /** Graphics constants. */
+    private static final int        heightStat = HistogramPanel.heightStat,
+                                    topBorder = HistogramPanel.topBorder,
+                                    rightBorder = HistogramPanel.rightBorder,
+                                    tS = topBorder+heightStat,
+                                    triangleW = HistogramPanel.triangleW,
+                                    length = 2*triangleW, 
+                                    window = HistogramPanel.window,
+                                    rangeGraphics = heightStat-2*window;
+    private static final int        absEnd = topBorder+window, 
+                                    absStart = tS-window;
     
-   	private int						lS;
-   	private int                     maxStartInputY, minEndInputY;
-   	
-   	/** Rectangle used to listen to the knobs. */
-   	private Rectangle               boxInputStart, boxInputEnd;
-   	
-   	/** Control mouse pressed and dragged events. */
-	private boolean					dragging;
-	
-	private int						curRealValue;
-	
-	/** Controls to determine which knob has been selected. */
-	private boolean					inputStartKnob, inputEndKnob;
-	
-	/** Reference to the view. */
-	private HistogramDialog			view;
-	
-	/** Reference to the main manager {@link QuantumPaneManager}. */
-	private QuantumPaneManager 		control;
-	
-	HistogramDialogManager(HistogramDialog view, QuantumPaneManager control)
-	{
-		this.view = view;
-		this.control = control;
-		inputStartKnob = false;
-		inputEndKnob = false;
+    private final int               tW = topBorder+window;
+    
+    private final int               extraControl = 4;
+
+    private int                     lS;
+    private int                     maxStartInputY, minEndInputY;
+    
+    /** Rectangle used to listen to the knobs. */
+    private Rectangle               boxInputStart, boxInputEnd;
+    
+    /** Control mouse pressed and dragged events. */
+    private boolean                 dragging;
+    
+    private int                     curRealValue;
+    
+    /** Controls to determine which knob has been selected. */
+    private boolean                 inputStartKnob, inputEndKnob;
+    
+    /** Reference to the view. */
+    private HistogramDialog         view;
+
+    /** Reference to the main manager {@link QuantumPaneManager}. */
+    private QuantumPaneManager      control;
+    
+    HistogramDialogManager(HistogramDialog view, QuantumPaneManager control)
+    {
+        this.view = view;
+        this.control = control;
+        inputStartKnob = false;
+        inputEndKnob = false;
         boxInputStart = new Rectangle();
         boxInputEnd = new Rectangle();
-	}
-	
-	/** 
-	 * Initialize the rectangles which control the cursors.
-	 * 
-	 * @param yStart	graphical input start value.
-	 * @param yEnd		graphical input end value.
-	 */
-	void initRectangles(int yStart, int yEnd)
-	{
-		lS = HistogramPanel.leftBorder+view.getHistogramPanel().getWidthStat();
+    }
+    
+    /** 
+     * Initialize the rectangles which control the cursors.
+     * 
+     * @param yStart    graphical input start value.
+     * @param yEnd      graphical input end value.
+     */
+    void initRectangles(int yStart, int yEnd)
+    {
+        lS = HistogramPanel.leftBorder+view.getHistogramPanel().getWidthStat();
         setInputStartBox(yStart);
         setInputEndBox(yEnd);
-	}
-	
-	/** Attach the listeners. */
-	void attachListeners()
-	{
-		view.getHistogramPanel().addMouseListener(this);
-		view.getHistogramPanel().addMouseMotionListener(this);
-		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { view.dispose(); }
-		});
-	}
-	
-	/**
-	 * Convert a real value into a graphical one.
-	 * 
-	 * @param x	real value
-	 * @return graphics coordinate.
-	 */
-	int convertRealIntoGraphics(int x) 
-	{
-		int b = control.getGlobalMinimum();
-		int c = control.getGlobalMaximum();
-		double a = (double) rangeGraphics/(b-c);
-		return (int) (a*(x-c)+tW);
-	}
-	
-	/** 
-	 * Converts a graphics value into a real value. 
-	 *
-	 * @param x     graphics coordinate.
-	 */    
-	int convertGraphicsIntoReal(int x)
-	{
-		int b = control.getGlobalMaximum(); 
-		int c = control.getGlobalMinimum();
-		int y = x-tW;
-		double a =  (c-b)/ (double) rangeGraphics;
-		//b/c of the way values are computed.
-		int r = (int) (a*y+b);
-		if (r < c) r = c;
-		if (r > b) r = b;
-		return r;
-	}
-	
-	/**
-	 * Resize the input window.
-	 * 
-	 * @param v		real input window value
-	 */
-	void setInputWindowStart(int v)
-	{
-		int gv = convertRealIntoGraphics(v);
-		setInputStartBox(gv);
-		view.getHistogramPanel().updateInputStart(gv, v);
-	}
-	
-	/**
-	 * Resize the input window.
-	 * 
-	 * @param v		real input window value
-	 */
-	void setInputWindowEnd(int v)
-	{
-		int gv = convertRealIntoGraphics(v);
-		setInputEndBox(gv);
-		view.getHistogramPanel().updateInputEnd(gv, v);
-	} 
-	
-	/** Handles events fired the graphics knobs. */
-	public void mousePressed(MouseEvent e)
-	{
-		Point p = e.getPoint();
-		if (!dragging) {
-			dragging = true;
-			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-				p.y <= absStart) {
-				inputStartKnob = true;
-                inputEndKnob = false;
-				curRealValue = convertGraphicsIntoReal(p.y);
-				control.setInputWindowStart(curRealValue);
-			} 
-			if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-				p.y >= absEnd) {
-				inputEndKnob = true;
-                inputStartKnob = false;
-				curRealValue = convertGraphicsIntoReal(p.y);
-				control.setInputWindowEnd(curRealValue);	
-			}
-			 
-		 }  //else dragging already in progress 
-	}
-	
-	/** Handles events fired the graphics knobs. */    
-	public void mouseDragged(MouseEvent e)
-	{
-		Point p = e.getPoint();
-	   	if (dragging) {  
-			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-				p.y <= absStart) {
+    }
+    
+    /** Attach the listeners. */
+    void attachListeners()
+    {
+        view.getHistogramPanel().addMouseListener(this);
+        view.getHistogramPanel().addMouseMotionListener(this);
+        view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { view.dispose(); }
+        });
+    }
+
+    /**
+     * Convert a real value into a graphical one.
+     * 
+     * @param x real value
+     * @return graphics coordinate.
+     */
+    int convertRealIntoGraphics(int x) 
+    {
+        int b = control.getGlobalMinimum();
+        int c = control.getGlobalMaximum();
+        double a = (double) rangeGraphics/(b-c);
+        return (int) (a*(x-c)+tW);
+    }
+
+    /** 
+     * Converts a graphics value into a real value. 
+     *
+     * @param x     graphics coordinate.
+     */    
+    int convertGraphicsIntoReal(int x)
+    {
+        int b = control.getGlobalMaximum(); 
+        int c = control.getGlobalMinimum();
+        int y = x-tW;
+        double a =  (c-b)/ (double) rangeGraphics;
+        //b/c of the way values are computed.
+        int r = (int) (a*y+b);
+        if (r < c) r = c;
+        if (r > b) r = b;
+        return r;
+    }
+
+    /**
+     * Resize the input window.
+     * 
+     * @param v     real input window value
+     */
+    void setInputWindowStart(int v)
+    {
+        int gv = convertRealIntoGraphics(v);
+        setInputStartBox(gv);
+        view.getHistogramPanel().updateInputStart(gv, v);
+    }
+    
+    /**
+     * Resize the input window.
+     * 
+     * @param v     real input window value
+     */
+    void setInputWindowEnd(int v)
+    {
+        int gv = convertRealIntoGraphics(v);
+        setInputEndBox(gv);
+        view.getHistogramPanel().updateInputEnd(gv, v);
+    } 
+    
+    /** Handles events fired the graphics knobs. */
+    public void mousePressed(MouseEvent e)
+    {
+        Point p = e.getPoint();
+        if (!dragging) {
+            dragging = true;
+            if (boxInputStart.contains(p) && p.y >= minEndInputY &&
+                p.y <= absStart) {
                 inputStartKnob = true;
                 inputEndKnob = false;
-				curRealValue = convertGraphicsIntoReal(p.y);
-				control.setInputWindowStart(curRealValue);	
-			}
-		   	if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-			   	p.y >= absEnd) {
-		   	    inputEndKnob = true;
-		   	    inputStartKnob = false;
-				curRealValue = convertGraphicsIntoReal(p.y);
-				control.setInputWindowEnd(curRealValue);
-			}
-		}
-	}
-	
-	/** Resets the dragging control to false. */      
-	public void mouseReleased(MouseEvent e)
-	{ 
-		if (inputStartKnob) control.setChannelWindowStart(curRealValue);
-		else if (inputEndKnob) control.setChannelWindowEnd(curRealValue);
-		dragging = false; 
-		inputStartKnob = false;
-		inputEndKnob = false;
-	}
+                curRealValue = convertGraphicsIntoReal(p.y);
+                control.setInputWindowStart(curRealValue);
+            } 
+            if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
+                p.y >= absEnd) {
+                inputEndKnob = true;
+                inputStartKnob = false;
+                curRealValue = convertGraphicsIntoReal(p.y);
+                control.setInputWindowEnd(curRealValue);    
+            } 
+         }  //else dragging already in progress 
+    }
 
-	/** 
-	 * Resizes the outputStart rectangle.
-	 *
-	 * @param y     y-coordinate.
-	 */    
+    /** Handles events fired the graphics knobs. */    
+    public void mouseDragged(MouseEvent e)
+    {
+        Point p = e.getPoint();
+        if (dragging) {  
+            if (boxInputStart.contains(p) && p.y >= minEndInputY &&
+                p.y <= absStart) {
+                inputStartKnob = true;
+                inputEndKnob = false;
+                curRealValue = convertGraphicsIntoReal(p.y);
+                control.setInputWindowStart(curRealValue);  
+            }
+            if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
+                p.y >= absEnd) {
+                inputEndKnob = true;
+                inputStartKnob = false;
+                curRealValue = convertGraphicsIntoReal(p.y);
+                control.setInputWindowEnd(curRealValue);
+            }
+        }
+    }
+
+    /** Resets the dragging control to false. */      
+    public void mouseReleased(MouseEvent e)
+    { 
+        if (inputStartKnob) control.setChannelWindowStart(curRealValue);
+        else if (inputEndKnob) control.setChannelWindowEnd(curRealValue);
+        dragging = false; 
+        inputStartKnob = false;
+        inputEndKnob = false;
+    }
+
+    /** 
+     * Resizes the outputStart rectangle.
+     *
+     * @param y     y-coordinate.
+     */    
     void setInputStartBox(int y)
     {
         //maxStartInputY = y-2*triangleW;
         maxStartInputY = y-extraControl;
         boxInputStart.setBounds(lS, y-2*triangleW, rightBorder, 2*length);
     }  
-      
-	/** 
-	 * Resize the inputEnd rectangle.
-	 *
-	 * @param y     y-coordinate.
-	 */ 
+  
+    /** 
+     * Resize the inputEnd rectangle.
+     *
+     * @param y     y-coordinate.
+     */ 
     void setInputEndBox(int y)
     {
         //minEndInputY = y+2*triangleW;
@@ -267,29 +266,29 @@ class HistogramDialogManager
         boxInputEnd.setBounds(HistogramPanel.leftBorder-2*triangleW, 
                                 y-2*triangleW, rightBorder, 2*length);
     }
+    
+    /**
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */ 
+    public void mouseClicked(MouseEvent e) {}
 
-	/**
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */	
-	public void mouseClicked(MouseEvent e) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */
-	public void mouseEntered(MouseEvent e) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */ 
-	public void mouseExited(MouseEvent e) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */
-	public void mouseMoved(MouseEvent e) {}
+    /**
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */
+    public void mouseEntered(MouseEvent e) {}
+    
+    /**
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */ 
+    public void mouseExited(MouseEvent e) {}
+    
+    /**
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */
+    public void mouseMoved(MouseEvent e) {}
 
 }
