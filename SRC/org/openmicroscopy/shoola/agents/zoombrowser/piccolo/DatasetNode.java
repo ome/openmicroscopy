@@ -129,12 +129,13 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	 * The main procedure for laying out the images thumbnails
 	 *
 	 */
-	public void layoutImages() {
+	public void layoutImages(double width,double height) {
+		
 		
 		removeAllChildren();
 		// initial starting point
 		double x=Constants.DATASET_IMAGE_GAP;
-		double y= Constants.DATASET_IMAGE_GAP;
+		double y= 0;
 		
 		// add the name label and move down.
 		nameLabel = new ScalableDatasetLabel(dataset,width);
@@ -143,21 +144,13 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		y+= nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP;
 		
 		
-		
 		Collection imageCollection = dataset.getImages();
 		double totalArea = buildImages(imageCollection,x,y);
 	
 		// calculate remaining height
 		double effectiveHeight = height -y;
 		double effectiveWidth = width;
-		
-		// account for chain exections..	
-/*		Collection chains = dataset.getChains(connection);
-		if (chains.size() > 0) {
-			double h = buildChainLabels(chains);
-			effectiveHeight -= h+2*Constants.DATASET_IMAGE_GAP;
-		} */
-			
+		double imageTop = y;
 		// find the scaled area
 		double scaledArea = effectiveWidth*effectiveHeight;
 		double scalefactor = Math.sqrt(totalArea/scaledArea);
@@ -170,43 +163,27 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		if (imageCollection.size() > 0) {
 			y = arrangeImages(scaledWidth,scaledHeight);
 		}
+		double imagesHeight = y-imageTop;
 	
 		// update height
 		if (y > scaledHeight) 
 			scaledHeight = y;
 		
-		// calculate effective scale factor - compare available height
-		// to what was used, and this gives us the effective scale factor.
 		double scaleEffective = scaledHeight/effectiveHeight;
+	
 		
 		// turn that scale into a scale ratio
 		if (scaleEffective == 0 || imageCollection.size() == 0)
 			scaleEffective = 1; 
 		double scaleRatio = 1/scaleEffective;
-		
 		// adjust the max width
 		maxWidth /=scaleEffective;
 	
 		
 		// scale the node holding the thumbnail to by  that ratio
-		if (images != null)
+		if (images != null  && imagesHeight > effectiveHeight)
 			images.setScale(scaleRatio);
-			
-		// if I have any chain executions, position the label
-		/*if (chains.size() > 0)  {
-			if (imageCollection.size() > 0) { 
-				PBounds b= images.getGlobalFullBounds();
-				y = b.getY()+b.getHeight()+Constants.DATASET_IMAGE_GAP;
-			}
-			else {
-				y = Constants.DATASET_IMAGE_GAP+nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP;
-			}
-			chainLabels.setOffset(Constants.DATASET_IMAGE_GAP,y);
-			// update the width if need be.
-			if (maxWidth < chainLabels.getGlobalFullBounds().getWidth())
-				maxWidth = chainLabels.getGlobalFullBounds().getWidth();
-		}*/
-		
+					
 		// if necessary, adjust width to hold the dataset's name label
 		if (imageCollection.size() == 0 && 
 			maxWidth < nameLabel.getBounds().getWidth())
@@ -215,8 +192,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		// adjust the name label to fit.
 		nameLabel.resetWidth(maxWidth);
 				
-		setExtent(maxWidth+Constants.SMALL_BORDER,
-				height+Constants.SMALL_BORDER);
+		setExtent(width,height);
 	}
 	
 	/**
@@ -256,21 +232,6 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		return totalArea;
 	}
 	
-	/**
-	 * Create chain labels, adjusting max widths and returning the heigh of 
-	 * the label
-	 * @param chains set of chains that have executions for this dataset.
-	 * @return height of the label
-	 */
-	/*private double buildChainLabels(Collection chains) {
-		chainLabels = new ChainLabels(chains);
-		addChild(chainLabels);
-			
-		chainLabels.layout(width);
-		PBounds b =chainLabels.getGlobalFullBounds();
-		maxWidth = b.getWidth();
-		return b.getHeight();
-	} */
 	
 	/**
 	 * Place the images in rows according to the provided constraints
@@ -279,7 +240,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	 * @param scaledHeight
 	 * @return
 	 */
-	private double arrangeImages(double scaledWidth,double scaledHeight) {
+	 private double arrangeImages(double scaledWidth,double scaledHeight) {
 		double x=0;
 		double y=0;
 		double maxHeight = 0;
@@ -289,6 +250,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		int rowSz = 0;
 		Iterator iter = images.getImageIterator();
 		while (iter.hasNext()) {
+			
 			thumb = (Thumbnail) iter.next();
 			b =  thumb.getGlobalFullBounds();
 			double thumbWidth = b.getWidth();
@@ -323,8 +285,9 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		images.completeImages();
 		y+= maxHeight;
 		return y;
-	}
+	} 
 
+	
 	/**
 	 * The "area" of the dataset is pseudo-logarithmic. For datasets with <=20
 	 * items, the area is simply the number of items in the dataset. For larger

@@ -40,6 +40,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Collection;
@@ -54,6 +55,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.browser.layout.QuantumTreemap;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
@@ -190,75 +192,36 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	
 	public void setContents(Object allDatasets) {
 		this.allDatasets = (Collection) allDatasets;
+		// build nodes
+		Iterator iter = this.allDatasets.iterator();
+		BrowserDatasetData d; 
+		while (iter.hasNext()) {
+			d = (BrowserDatasetData) iter.next();
+			d.setNode(new DatasetNode(d,this));
+			
+		}
 	}
-	
-	
-	/**
-	 * Return the area for the dataset's node, creating the node and adding it 
-	 * to the layer if needed
-	 * @param d the dataset in question. This "area" is really a proxy for the
-	 * size of the dataset.
-	 * @return "area" on screen that the dataset will occur. 
-	 */
-	private  double getArea(BrowserDatasetData d) {
-		if (d == null) 
-			return 0;
-		DatasetNode node;
-		node = d.getNode();
-		if (node == null)
-			node = new DatasetNode(d,this);
-		if (node == null)
-			return 0;
-		node.clearWidths();
-		return node.getContentsArea();
-	}
-		
+			
 	
 	/**
 	 * Display a subset of the datasets. 
 	 * @param datasets The subset of the dataset that should be displayed
 	 */	
 	private void displayDatasets(Collection datasets) {
-			
-		doLayout(datasets);
+		// reconcile this list of datasets against datasets in allDatasets
+		Vector ds = new Vector();
+		Iterator iter = datasets.iterator();
+		while (iter.hasNext()) {
+			BrowserDatasetData data = (BrowserDatasetData) iter.next();
+			BrowserDatasetData old = findDatasetData(data.getID());
+			if (old != null)
+				ds.add(old);
+		}
+		doLayout(ds);
 		eventHandler.animateToBounds(getBufferedBounds());
 	
 	}
-	
-	/**
-	 * Calculate the treemap layout for some datasets
-	 * @param datasets the collection of datasets to be laid out.
-	 * 
-	 */
-	private void arrangeDisplay(Collection datasets) {
-		// initialize and find clear out the layer
-		layer.removeAllChildren();
-		if (datasets == null) {
-			return;
-		}
-		// calculate the total area, adding nodes to the layer
-		// as we go.		
-		totalArea = 0;
-		Iterator iter = datasets.iterator();
-		
-		while (iter.hasNext()) {
-			BrowserDatasetData d = (BrowserDatasetData) iter.next();
-			double area = getArea(d);
-			totalArea += area;
-		}
-		
-		
-		screenHeight = Constants.BROWSER_SIDE;
-		screenWidth = Constants.BROWSER_SIDE;
-		screenArea = screenHeight*screenWidth;
 
-		// scale the width and height by the total area		
-		scaleFactor = Math.sqrt(screenArea/totalArea);
-		screenHeight /= scaleFactor;
-		screenWidth /= scaleFactor;
-		// build the treemap.
-		strips = doTreeMap(datasets);
-	}
 
 	/**
 	 * Given a layout that has been calculated, position the datasets 
@@ -271,191 +234,78 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * @param datasets the collection of datasets to be laid out.
 	 * @param layoutDatasets
 	 */
+	
 	private void doLayout(Collection datasets) {
 		if (datasets == null)
 			return;
 		layer.setScale(1.0);
 		x = HGAP;
 		y = 0;
+		// calculate aspect ratio
+		double iar = getWidth()/getHeight();
 
-		// strips is a vector of vectors. Each element in strips is a vector
-		// that contains items from a given strip, as calculated by 
-		//arrangeDisplay()
+		layer.removeAllChildren();
+		// get stuff for layout
+		int[] sizes = getSizes(datasets);
+		Rectangle bounds = new Rectangle(0,0,getWidth(),getHeight());
+		QuantumTreemap qt = new QuantumTreemap(sizes,iar,bounds);
+		Rectangle[] rects = qt.quantumLayout();
+		double xExtent = 0;
+		double yExtent = 0;
 		
-
-		Iterator iter = strips.iterator();
-		double maxHeight = 0;
-		while (iter.hasNext()) {
-			// For each strip...
-			
-			Vector strip = (Vector)iter.next();
-			Iterator iter2 = strip.iterator();
-			maxHeight = 0;
-			// iterate over items in the strip
-			while (iter2.hasNext()) {
-				
-				// for each dataset
-				DatasetNode node = (DatasetNode) iter2.next();
-				
-				if (containsDataset(datasets,node.getDataset())) {
-					// position it if it's being displayed
-					if (node.getParent() != layer) {
-						layer.addChild(node);
-					}
-					node.setOffset(x,y);
-					
-					//move to next horizontal position. Adjust height of row.
-					x+= node.getGlobalFullBounds().getWidth();
-					double height = node.getGlobalFullBounds().getHeight();
-					if (height > maxHeight)
-						maxHeight = height;
-				}
-				else {
-					// not showing this node. remove it.
-					// this way, it's not included in bounds.
-					if (node.getParent() == layer)
-						layer.removeChild(node);
-				}	 
-			}
-			x =HGAP;
-			y +=maxHeight;
+		for (int i = 0; i < sizes.length; i++) {
+			double rightExtent = rects[i].getX()+rects[i].getWidth();
+			if (rightExtent > xExtent) 
+				xExtent  = rightExtent;
+			double bottom = rects[i].getY()+rects[i].getHeight();
+			if (bottom > yExtent)
+				yExtent = bottom;
 		}
+		
+		// go through datasets and layout them out as such.
+		Iterator iter = datasets.iterator();
+		int i = 0;
+		BrowserDatasetData data;
+		DatasetNode node;
+		Rectangle rect;
+		while (iter.hasNext()) {
+			data = (BrowserDatasetData) iter.next();
+			node = data.getNode();
+			layer.addChild(node);
+			rect = rects[i++];
+			double xOffset = (rect.getX()/xExtent)*bounds.getWidth();
+			double yOffset = (rect.getY()/yExtent)*bounds.getHeight();
+			node.setOffset(xOffset,yOffset);
+			double xPortion = (rect.getWidth()/xExtent)*bounds.getWidth();
+			double yPortion = (rect.getHeight()/yExtent)*bounds.getHeight();
+			node.layoutImages(xPortion,yPortion);
+			node.setHandler(eventHandler);
+		}
+	
+	
 	}
 	
-	private boolean containsDataset(Collection datasets,
-		BrowserDatasetData dataset) {
-	
-		int id= dataset.getID();
-		Iterator iter = datasets.iterator();
+	private int[] getSizes(Collection datasets) {
+		int[] szs = new int[datasets.size()];
+		Iterator iter =datasets.iterator();
 		BrowserDatasetData d;
-		
+		DatasetNode node;
+		int i = 0;
 		while (iter.hasNext()) {
-			d = (BrowserDatasetData) iter.next();
-			if (d.getID()==id)
-				return true;			
-		}
-		return false;
-	}
-	// some private vars used to compute the treemap.
-	private double oldAspectRatio =0;
-	private double newAspectRatio = 0;
-	private double stripHeight = 0;
-	private double oldHeight = 0;
-
-	/**
-	 * build the treemap of the datasets
-	 * @param datasets the datasets to be included
-	 * @return a vector of vectors, each containing datasets to be put
-	 * in a given row
-	 */
-	private Vector doTreeMap(Collection datasets) {
-	
-		oldAspectRatio = 0;
-		newAspectRatio = 0;
-		Vector strips = new Vector();
-		Vector strip = new Vector();
-		
-		Iterator iter = datasets.iterator();
-		BrowserDatasetData d = null;
-		
-		DatasetNode node=null;
-		
-		while (iter.hasNext())  {
 			d = (BrowserDatasetData) iter.next();
 			node = d.getNode();
 			
-			// place node in the current strip
-			strip.add(node);
-		
-			// calc,update stats.
-			getTreemapStripHeight(strip);
-			
-			// if it doesn't fit
-			if (strip.size()>1 &&  newAspectRatio > oldAspectRatio) {
-				// back it out of the row
-				strip.remove(node);
-				Iterator iter2 = strip.iterator();
-				
-				// revert width,height of items in that row
-				while (iter2.hasNext()) {
-					DatasetNode ds = (DatasetNode) iter2.next();
-					ds.revertWidth();
-					ds.setHeight(oldHeight);
-				}
-				//add strip to strips vector
-				strips.add(strip);
-				// move on to next.
-				strip = new Vector();
-				newAspectRatio = oldAspectRatio = 0;
-				strip.add(node);
-				oldHeight = 0;
-				getTreemapStripHeight(strip);
-			}
-			// otherwise, keep what I've calculated.
-			oldAspectRatio = newAspectRatio;
-		}
-		// set height of nodes in last strip
-		iter = strip.iterator();
-		while (iter.hasNext()) {
-			DatasetNode ds  =(DatasetNode) iter.next();
-			ds.setHeight(stripHeight);
-		}
-		strips.add(strip);
-		// rescale
-		
-		
-		// Now that the widths and heights are all set,
-		// layout the datasets and set the handlers.
-		iter = strips.iterator();
-		while (iter.hasNext()) {
-			Vector v = (Vector) iter.next();
-			Iterator iter2= v.iterator();
-			while (iter2.hasNext()) {
-				DatasetNode p = (DatasetNode) iter2.next();
-				p.scaleArea(scaleFactor);
-				p.layoutImages();
-				p.setHandler(eventHandler);
-			}
-		}
-		return strips;
-	}
-	
-	/**
-	 * Calculate the height of a treemap strip
-	 * @param strip
-	 */
-	private void  getTreemapStripHeight(Vector strip) {
-		
-		double stripArea =0;
-		Iterator iter = strip.iterator();
-		// get total area of strip
-		while (iter.hasNext()) {
-			DatasetNode node = (DatasetNode) iter.next();
-			double area = node.getContentsArea();
-			stripArea += area;
-		}
-		
-		// save previous height
-		oldHeight = stripHeight;
-		
-		stripHeight = stripArea/screenWidth;
-		// get width of each and update ratios;
-		double width;
-		int i =0;
-		newAspectRatio = 0;
-		iter = strip.iterator();
-		while (iter.hasNext()) {
-			DatasetNode node = (DatasetNode) iter.next();
-			width = node.getContentsArea()/stripHeight;
-			node.setWidth(width);
-			if (width > stripHeight) 
-				newAspectRatio += width/stripHeight;
-			else 
-				newAspectRatio += stripHeight/width;
+			szs[i] = (int) node.getContentsArea();
 			i++;
 		}
-		newAspectRatio = newAspectRatio/i;
+		int[] res = new int[i];
+		//		convert to array
+		System.arraycopy(szs,0,res,0,i);
+		return res;
 	}
+	
+	
+	
 	
 	/**
 	 * Calculate the bounds necessary for appropriate zooming for this canvas
@@ -477,7 +327,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		
 		eventHandler = new DatasetBrowserEventHandler(this,registry);
 		// layout treemaps
-		arrangeDisplay(allDatasets);
+	//	arrangeDisplay(allDatasets);
 		doLayout(allDatasets);
 	}
 	
@@ -607,9 +457,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		// if a dataset is clicked on to be selected, it has already
 		// told the canvas to draw to it.
 		if (selectedDataset == null) {
-			// selected is not null display it
-			Collection datasetsToDisplay = allDatasets;
-			displayDatasets(datasetsToDisplay);
+			// selected is null display all
+			displayDatasets(allDatasets);
 		}
 		mainWindow.setSelectedDataset(dataset);
 	}
