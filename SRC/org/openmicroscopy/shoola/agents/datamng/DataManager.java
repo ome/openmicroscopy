@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
