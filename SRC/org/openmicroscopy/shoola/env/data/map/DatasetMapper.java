@@ -107,7 +107,7 @@ public class DatasetMapper
 	 * 
 	 * @return 
 	 */
-	public static Criteria buildImagesCriteria(int datasetID)
+	public static Criteria buildImagesCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 		
@@ -123,7 +123,7 @@ public class DatasetMapper
         criteria.addWantedField("images.default_pixels", "Repository");
         criteria.addWantedField("images.default_pixels.Repository",
 								"ImageServerURL");
-		criteria.addFilter("id", new Integer(datasetID));
+		criteria.addFilter("id", new Integer(id));
         criteria.addOrderBy("id");
 		
 		return criteria;

@@ -72,8 +72,34 @@ public class AnnotationMapper
     {
         Criteria c = new Criteria();
         fillAnnotationCriteria(c);
+        c.addWantedField("TheZ");
+        c.addWantedField("TheT");
         c.addFilter("image_id", new Integer(imageID));
         return c;
+    }
+    
+    public static Criteria buildBasicCriteria(String g, int id)
+    {
+        Criteria c = new Criteria();
+        fillBasic(c, g, id);
+        return c;
+    }
+    
+    public static Criteria buildBasicImageCriteria(String g, int id)
+    {
+        Criteria c = new Criteria();
+        fillBasic(c, g, id);
+        c.addWantedField("TheZ");
+        c.addWantedField("TheT");
+        return c;
+    }
+    
+    private static void fillBasic(Criteria c, String g, int id)
+    {
+        c.addWantedField("Valid");
+        c.addWantedField("Content");
+        String column = (String) STSMapper.granularities.get(g);
+        if (column != null) c.addFilter(column, new Integer(id));
     }
     
     public static Criteria buildDatasetAnnotationCriteria(int datasetID)
@@ -89,19 +115,16 @@ public class AnnotationMapper
         //c.addWantedField("id");
         c.addWantedField("Content");
         c.addWantedField("Timestamp");
-        c.addWantedField("Valid");
         c.addWantedField("Experimenter");
-        c.addWantedField("TheZ");
-        c.addWantedField("TheT");
         //Specify which fields we want for the owner.
         c.addWantedField("Experimenter", "id");
         c.addWantedField("Experimenter", "FirstName");
         c.addWantedField("Experimenter", "LastName");
+        c.addFilter("Valid", Boolean.TRUE);
     }
     
-    public static Map fillImageAnnotations(List l)
+    public static Map fillImageAnnotations(List l, TreeMap map)
     {
-        TreeMap map = new TreeMap();
         Iterator i = l.iterator();
         ImageAnnotation imgA;
         AnnotationData data;
@@ -111,24 +134,22 @@ public class AnnotationMapper
         Experimenter experimenter;
         while (i.hasNext()) {
             imgA = (ImageAnnotation) i.next();
-            if (imgA.isValid() != null && imgA.isValid().booleanValue()) {
-                list = new ArrayList();
-                if (imgA.getTimestamp() != null)
-                    time = new Timestamp(imgA.getTimestamp().longValue());
-                else time = getTimestamp();
-                experimenter = imgA.getExperimenter();
-                ownerID = experimenter.getID();
-                data = new AnnotationData(imgA.getID(), ownerID, time);
-                data.setAnnotation(imgA.getContent());
-                data.setOwnerFirstName(experimenter.getFirstName());
-                data.setOwnerLastName(experimenter.getLastName());
-                if (imgA.getTheZ() != null)
-                    data.setTheZ(imgA.getTheZ().intValue());
-                if (imgA.getTheT() != null)
-                    data.setTheT(imgA.getTheT().intValue());
-                list.add(data);
-                map.put(new Integer(ownerID), list);
-            }
+            list = new ArrayList();
+            if (imgA.getTimestamp() != null)
+                time = new Timestamp(imgA.getTimestamp().longValue());
+            else time = getTimestamp();
+            experimenter = imgA.getExperimenter();
+            ownerID = experimenter.getID();
+            data = new AnnotationData(imgA.getID(), ownerID, time);
+            data.setAnnotation(imgA.getContent());
+            data.setOwnerFirstName(experimenter.getFirstName());
+            data.setOwnerLastName(experimenter.getLastName());
+            if (imgA.getTheZ() != null)
+                data.setTheZ(imgA.getTheZ().intValue());
+            if (imgA.getTheT() != null)
+                data.setTheT(imgA.getTheT().intValue());
+            list.add(data);
+            map.put(new Integer(ownerID), list);
         }
         return map;
     }
@@ -143,20 +164,18 @@ public class AnnotationMapper
         Timestamp time = null;
         while (i.hasNext()) {
             imgA = (DatasetAnnotation) i.next();
-            if (imgA.isValid() != null && imgA.isValid().booleanValue()) {
-                list = new ArrayList();
-                if (imgA.getTimestamp() != null)
-                    time = new Timestamp(imgA.getTimestamp().longValue());
-                else time = getTimestamp();
-                Experimenter experimenter = imgA.getExperimenter();
-                ownerID = experimenter.getID();
-                data = new AnnotationData(imgA.getID(), ownerID, time);
-                data.setAnnotation(imgA.getContent());
-                data.setOwnerFirstName(experimenter.getFirstName());
-                data.setOwnerLastName(experimenter.getLastName());
-                list.add(data);
-                map.put(new Integer(ownerID), list);
-            }
+            list = new ArrayList();
+            if (imgA.getTimestamp() != null)
+                time = new Timestamp(imgA.getTimestamp().longValue());
+            else time = getTimestamp();
+            Experimenter experimenter = imgA.getExperimenter();
+            ownerID = experimenter.getID();
+            data = new AnnotationData(imgA.getID(), ownerID, time);
+            data.setAnnotation(imgA.getContent());
+            data.setOwnerFirstName(experimenter.getFirstName());
+            data.setOwnerLastName(experimenter.getLastName());
+            list.add(data);
+            map.put(new Integer(ownerID), list);
         }
     }
     

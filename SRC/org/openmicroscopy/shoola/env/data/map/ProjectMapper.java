@@ -208,6 +208,7 @@ public class ProjectMapper
 		Dataset d;
 		Iterator j;
 		List datasets;
+        Integer id;
 		//For each p in projects...
 		while (i.hasNext()) {
 			p = (Project) i.next();
@@ -221,14 +222,14 @@ public class ProjectMapper
 			datasets = new ArrayList();
 			while (j.hasNext()) {
 				d = (Dataset) j.next();
-				int id = d.getID();
-				ds = (DatasetSummary) datasetsMap.get(new Integer(id));
+				id = new Integer(d.getID());
+				ds = (DatasetSummary) datasetsMap.get(id);
 				if (ds == null) {
 					//Make a new DataObject and fill it up.
 					ds = (DatasetSummary) dProto.makeNew();		
-					ds.setID(id);
+					ds.setID(id.intValue());
 					ds.setName(d.getName());
-					datasetsMap.put(new Integer(id), ds);
+					datasetsMap.put(id, ds);
 				}  //else we have already created this object.
 				
 				//Add the dataset to this project's list.
@@ -265,6 +266,7 @@ public class ProjectMapper
 		Dataset d;
 		Iterator j;
 		List datasets;
+        Integer id;
 		//For each p in projects...
 		while (i.hasNext()) {
 			p = (Project) i.next();
@@ -278,14 +280,14 @@ public class ProjectMapper
 			datasets = new ArrayList();
 			while (j.hasNext()) {
 				d = (Dataset) j.next();
-				int id = d.getID();
-				ds = (DatasetData) datasetsMap.get(new Integer(id));
+				id = new Integer(d.getID());
+				ds = (DatasetData) datasetsMap.get(id);
 				if (ds == null) {
 					//Make a new DataObject and fill it up.
 					ds = (DatasetData) dProto.makeNew();		
-					ds.setID(id);
+					ds.setID(id.intValue());
 					ds.setName(d.getName());
-					datasetsMap.put(new Integer(id), ds);
+					datasetsMap.put(id, ds);
 				}  //else we have already created this object.
 				
 				//Add the dataset to this project's list.

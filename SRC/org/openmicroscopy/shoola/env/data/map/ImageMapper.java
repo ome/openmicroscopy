@@ -99,21 +99,25 @@ public class ImageMapper
 	 */
 	public static Criteria buildUserImagesCriteria(int userID)
 	{
-		Criteria criteria = new Criteria();
-		
-		//Specify which fields we want for the image.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		criteria.addWantedField("created");
-		
-		//Specify which fields we want for the pixels.
-		criteria.addWantedField("default_pixels");
-		criteria.addWantedField("default_pixels", "id");
+		Criteria criteria = buildBasisImagesCriteria();
 		criteria.addFilter("owner_id", new Integer(userID));
-		
 		return criteria;
 	}
 	
+    public static Criteria buildBasisImagesCriteria()
+    {
+        Criteria criteria = new Criteria();
+        
+        //Specify which fields we want for the image.
+        criteria.addWantedField("id");
+        criteria.addWantedField("name");
+        criteria.addWantedField("created");
+        //Specify which fields we want for the pixels.
+        criteria.addWantedField("default_pixels");
+        criteria.addWantedField("default_pixels", "id");
+        return criteria;
+    }
+    
 	/** 
 	 * Define the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieveImage.
@@ -168,6 +172,31 @@ public class ImageMapper
   		return criteria;
 	}
 	
+    public static Criteria buildRenderingSettingsCriteria(String g, int id)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("Active");
+        c.addWantedField("Alpha");
+        c.addWantedField("Blue");
+        c.addWantedField("Green");
+        c.addWantedField("Red");
+        c.addWantedField("InputEnd");
+        c.addWantedField("InputStart");
+        c.addWantedField("TheC");
+        c.addWantedField("BitResolution");
+        c.addWantedField("CdEnd");
+        c.addWantedField("CdStart");
+        c.addWantedField("Coefficient");
+        c.addWantedField("Family");
+        c.addWantedField("Model");
+        c.addWantedField("TheT");
+        c.addWantedField("TheZ");
+        c.addWantedField("Experimenter");
+        String column = (String) STSMapper.granularities.get(g);
+        if (column != null) c.addFilter(column, new Integer(id));
+        return c;
+    }
+    
 	/** 
 	 * Fill in the image data object. 
 	 * 
@@ -221,24 +250,16 @@ public class ImageMapper
 	 * @param iProto
 	 * @return
 	 */
-	public static List fillUserImages(List images, ImageSummary iProto)
+	public static List fillListImages(List images, ImageSummary iProto)
 	{
 		List imagesList = new ArrayList();  //The returned summary list.
 		Iterator i = images.iterator();
 		ImageSummary is;
-		Image img;
-		Pixels px;
 		//For each d in datasets...
 		while (i.hasNext()) {
-			img = (Image) i.next();
 			//Make a new DataObject and fill it up.
-			is = (ImageSummary) iProto.makeNew();
-			px = img.getDefaultPixels();
-			is.setID(img.getID());
-			is.setName(img.getName());
-			is.setPixelsIDs(fillListPixelsID(px));
-			is.setDate(Timestamp.valueOf(img.getCreated()));
-			//is.setImageServerPixelsID(fillListPixelsID(px));
+			is = buildImageSummary((Image) i.next(), 
+                                    (ImageSummary) iProto.makeNew());
 			//Add the images to the list of returned images
 			imagesList.add(is);
 		}
@@ -346,12 +367,11 @@ public class ImageMapper
 		}
         QuantumDef  qDef = new QuantumDef(pixelType, cdStart, cdEnd, 
                                 bitResolution);
+        
 		return new RenderingDef(z, t, model, qDef, channelBindings);	
 	}
 	
-	/**
-	 * Fill in the renderingSettings ST.
-	 */
+	/** Fill in the renderingSettings SemanticType. */
 	public static void fillInRenderingSettings(int z, int t, int model, 
 									int cdStart, int cdEnd, int bitResolution, 
 									ChannelBindings cb, RenderingSettings rs)
@@ -375,7 +395,7 @@ public class ImageMapper
         rs.setCoefficient(new Double(cb.getCurveCoefficient()));
 	}
 
-    /** Filter a list of ST. */
+    /** Filter a list of SemanticTypes. */
     public static List filterList(List l, int userID)
     {
         //First filter the list.
@@ -413,6 +433,19 @@ public class ImageMapper
 		return pixels;
 	}
 	
+    /** Build an image summary object. */
+    static ImageSummary buildImageSummary(Image img, ImageSummary is)
+    {
+        Pixels px;
+        px = img.getDefaultPixels();
+        is.setID(img.getID());
+        is.setName(img.getName());
+        is.setPixelsIDs(fillListPixelsID(px));
+        is.setDate(Timestamp.valueOf(img.getCreated()));
+        //is.setImageServerPixelsID(fillListPixelsID(px));
+        return is;
+    }
+    
 	private static int[] fillListPixelsID(Pixels px)
 	{
 		int[] ids = new int[1];

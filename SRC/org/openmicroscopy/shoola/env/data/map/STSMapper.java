@@ -61,7 +61,7 @@ public class STSMapper
 	public static final String IMAGE_GRANULARITY = "I";
 	public static final String FEATURE_GRANULARITY = "F";
 	
-   	private static final HashMap granularities;
+   	public static final HashMap granularities;
    	
    	static {
 		granularities = new HashMap();
@@ -71,6 +71,21 @@ public class STSMapper
 		granularities.put(FEATURE_GRANULARITY, "feature_id");
    	}
    	
+    /** 
+     * Return a criteria containing the information
+     * required to call createAttribute(typeName, objectID).
+     * 
+     * @param granularity   The granularity of the attribute.
+     * @param targetID      The ID of the target.
+     */
+    public static Criteria buildBasicCriteria(int objectID) 
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("id");
+        c.addFilter("id", new Integer(objectID));
+        return c;
+    }
+    
    	/** 
    	 * Return a criteria containing the information
    	 * required to call createAttribute(typeName, objectID).
@@ -78,6 +93,7 @@ public class STSMapper
    	 * @param granularity	The granularity of the attribute.
      * @param targetID		The ID of the target.
    	 */
+    /*
    	public static Criteria buildCreateNew(String granularity, int objectID) 
    	{
    		Criteria c = new Criteria();
@@ -89,25 +105,7 @@ public class STSMapper
 		c.addFilter("id", new Integer(objectID));
    		return c;
    	}
-   	
-   	/**
-   	 * Returns a Criteria object which contains the amount of information
-     * required to call <code>count()</code>: that is, the granularity of
-     * the attribute desired and the target ID.
-     * 
-     * @param granularity	The granularity of the attribute to count.
-     * @param targetID		The ID of the target to count.
-     * @return A criteria conforming to the above parameters.
-   	 */
-	public static Criteria buildCountCriteria(String granularity, int targetID)	
-	{
-		Criteria c = new Criteria();
-	   	// TODO fix to actually count
-	   	String column = (String) granularities.get(granularity);
-	   	if (column != null) c.addFilter(column, new Integer(targetID));
-	   	return c;
-	}
-	
+    */
 	/** 
 	 *
 	 * @param granularity
@@ -160,7 +158,7 @@ public class STSMapper
 		if (column != null) c.addFilter(column, new Integer(targetID));
 	   	return c;
 	}
-
+    
 	/**
 	 * Retrieves and fills in children.
 	 * @param granularity	The granularity of the ST to query.
@@ -168,6 +166,7 @@ public class STSMapper
 	 * @param targetIDs		The IDs to target.
 	 * @return The desired criteria.
 	 */
+    
 	public static Criteria buildDefaultRetrieveCriteria(String granularity,
 												 String childString,
 												 Number[] targetIDs)
@@ -216,7 +215,7 @@ public class STSMapper
     
 		// all non-references; has-ones with just ID's; no has-manys
    		c.addWantedField(":all:");
-        c.addWantedField("semantic_type",":all:");
+        c.addWantedField("semantic_type", ":all:");
 		String column = (String) granularities.get(granularity);
 		if (column != null) c.addFilter(column, "IN", Arrays.asList(targetIDs));
 		return c;
@@ -231,14 +230,16 @@ public class STSMapper
      * @param datasetID The ID of the dataset of the images.
      * @return A criteria to retrieve image classification STs from the database.
      */
-    public static Criteria buildClassificationRetrieveCriteria(Number[] targetIDs,
-                                                               int datasetID)
+    /*
+    public static Criteria buildClassificationRetrieveCriteria(
+                            Number[] targetIDs, int datasetID)
     {
-        if(targetIDs == null || targetIDs.length == 0) return null;
-        Criteria c = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,targetIDs);
-        c.addFilter("Category.dataset",new Integer(datasetID));
+        if (targetIDs == null || targetIDs.length == 0) return null;
+        Criteria c = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY, targetIDs);
+        c.addFilter("Category.dataset", new Integer(datasetID));
         return c;
     }
+    */
 
 	/**
 	 * 

@@ -76,12 +76,49 @@ public class PixelsMapper
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels", "ImageServerID");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
-  		
+        
 		criteria.addFilter("id", new Integer(imageID));
 		
 		return criteria;
 	}
 	
+    public static Criteria buildPixelsDimensionCriteria(int imageID)
+    {
+        Criteria c = new Criteria();
+
+        //Specify which fields we want for the image.
+        c.addWantedField("PixelSizeT");
+        c.addWantedField("PixelSizeC");
+        c.addWantedField("PixelSizeX");
+        c.addWantedField("PixelSizeY");
+        c.addWantedField("PixelSizeZ");
+        c.addFilter("image_id", new Integer(imageID));
+        
+        return c;
+    }
+    
+    public static Criteria buildPixelChannelComponentCriteria(int imageID)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("LogicalChannel");
+        c.addWantedField("Index");
+        c.addWantedField("ColorDomain");        //later used for RGTIFF
+        c.addFilter("image_id", new Integer(imageID));
+        return c;
+    }
+    
+    public static Criteria buildLogicalChannelCriteria(String g, int id)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("EmissionWavelength");
+        c.addWantedField("ExcitationWavelength");
+        c.addWantedField("PhotometricInterpretation"); 
+        c.addWantedField("Fluor"); 
+        String column = (String) STSMapper.granularities.get(g);
+        if (column != null) c.addFilter(column, new Integer(id));
+        return c;
+    }
+    
 	/** Put the server data into the corresponding client object. */
 	public static void fillPixelsDescription(Pixels px, 
 											PixelsDescription pdProto)
