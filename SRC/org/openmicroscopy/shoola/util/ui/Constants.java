@@ -67,7 +67,7 @@ public class Constants {
     public static final Color DEFAULT_COLOR = Color.BLACK;
 	public static final Color DEFAULT_TEXT_COLOR = DEFAULT_COLOR;
 	public static final Color EXECUTION_SELECTED_FILL = new Color(255,124,124);
-	public static final Color SELECTED_FILL = new Color(145,174,255);
+	public static final Color SELECTED_FILL = new Color(120,154,255);
 
 
     public static final Color DEFAULT_FILL = new Color(182,209,255);
@@ -168,7 +168,7 @@ public class Constants {
 	/** stroke for thumbnail highlight */
 	public static final BasicStroke THUMBNAIL_HIGHLIGHT_STROKE=new BasicStroke(2);
 	/** and for module nodes */
-	public static final BasicStroke MODULE_STROKE = new BasicStroke(7);
+	public static final BasicStroke MODULE_STROKE = new BasicStroke(12);
 		
 	/** gap between images in dataset browser */
 	public static final int DATASET_IMAGE_GAP=2;
@@ -219,4 +219,9 @@ public class Constants {
 	
 	/** how much to move in or out when scaling chain creation */
 	public static final double SCALE_FACTOR=1.2;
+	
+	
+	/** parameter label transparency */
+	public static final float MODULE_TRANSPARENT=0.5f;
+	public static final float MODULE_OPAQUE=1.0f;
 }
