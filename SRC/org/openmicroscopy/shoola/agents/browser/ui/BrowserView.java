@@ -166,6 +166,7 @@ public class BrowserView extends PCanvas
     private PiccoloAction semanticExitThumbnailAction;
     private PiccoloAction exitThumbnailAction;
     private PiccoloAction hoverThumbnailAction;
+    private PiccoloAction popupMenuAction;
     
     /** CURRENT THUMBNAIL ACTIONS (FOR THUMBNAILS TO BE ADDED) **/
     private MouseDownActions defaultTDownActions;
@@ -226,13 +227,16 @@ public class BrowserView extends PCanvas
         
         selectThumbnailAction =
             PiccoloActionFactory.getSelectThumbnailAction(targetModel);
+            
+        popupMenuAction =
+            PiccoloActionFactory.getPopupMenuAction(targetModel);
         
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                                 selectThumbnailAction);
         defaultTDownActions.setMouseDoubleClickAction(PiccoloModifiers.NORMAL,
                                                 PiccoloActions.OPEN_IMAGE_ACTION);
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.POPUP,
-                                                PiccoloActions.POPUP_MENU_ACTION);
+                                                popupMenuAction);
         
 
         semanticLayer = new HoverManager(this);
@@ -1008,7 +1012,7 @@ public class BrowserView extends PCanvas
                 }
                 else if(modifiers == PiccoloModifiers.POPUP)
                 {
-                    // TODO: write popup (multi-selected) code
+                    System.err.println("multiple mouse click occurred.");
                 }
             }
             else
@@ -1016,7 +1020,7 @@ public class BrowserView extends PCanvas
                 int modifiers = PiccoloModifiers.getModifier(event);
                 if(modifiers == PiccoloModifiers.POPUP)
                 {
-                    JPopupMenu menu = PopupMenuFactory.getMenu(this);
+                    JPopupMenu menu = PopupMenuFactory.getMenu(browserModel);
                     Point2D position = event.getPosition();
                     event.getCamera().viewToLocal(position);
                     int offsetX = (int)Math.round(position.getX());

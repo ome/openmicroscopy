@@ -80,7 +80,7 @@ public class CategoryMenuFactory
         this.backingModel = backingModel;
     }
     
-    public JMenu createMenu(Thumbnail selected)
+    public JMenu createMenu()
     {
         CategoryTree tree = backingModel.getCategoryTree();
         JMenu menu = new JMenu("Categorize");

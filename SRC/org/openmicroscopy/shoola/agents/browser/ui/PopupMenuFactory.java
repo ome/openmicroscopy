@@ -40,10 +40,12 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -66,27 +68,27 @@ public class PopupMenuFactory
      * @param o The source of the popup.
      * @return A popup menu if the object is a proper source, null otherwise.
      */
-    public static JPopupMenu getMenu(Object o)
+    public static JPopupMenu getMenu(BrowserModel model)
     {
-        if(o instanceof Thumbnail)
+        Set selectedSet = model.getSelectedImages();
+        if(selectedSet == null || selectedSet.size() == 0)
         {
-            return getThumbnailMenu((Thumbnail)o);
+            return getBackgroundMenu(model);
         }
-        else if(o instanceof BrowserView.BackgroundNode)
+        else
         {
-            return getBackgroundMenu((BrowserView.BackgroundNode)o);
+            return getThumbnailMenu(model);
         }
-        else return null;
     }
     
     /**
-     * Returns a popup menu showing options for a single thumbnail.  Should
-     * be selected when a *single* thumbnail is right-clicked.
-     * @param t The thumbnail to base the actions upon.
+     * Returns a popup menu showing options for selected thumbnails.
+     * 
+     * @param model The thumbnail to base the actions upon.
      * @return A JPopupMenu with triggerable actions, to be shown over that
      *         particular thumbnail.
      */
-    public static JPopupMenu getThumbnailMenu(final Thumbnail t)
+    public static JPopupMenu getThumbnailMenu(final BrowserModel model)
     {
         final JMenuItem annotateItem = new JMenuItem("Annotate");
         final JPopupMenu menu = new JPopupMenu()
@@ -95,43 +97,68 @@ public class PopupMenuFactory
             {
                 super.show(arg0, arg1, arg2);
                 Point p = arg0.getLocationOnScreen();
-                final Point displayPoint = new Point(p.x+arg1,p.y+arg2);
-                
-                annotateItem.addActionListener(new ActionListener()
+                Set selectedSet = model.getSelectedImages();
+                if(selectedSet.size() != 1)
                 {
-                    public void actionPerformed(ActionEvent e)
+                    annotateItem.setEnabled(false);
+                }
+                else
+                {
+                    final Thumbnail t = (Thumbnail)selectedSet.iterator().next();
+                    final Point displayPoint = new Point(p.x+arg1,p.y+arg2);
+                    
+                    annotateItem.addActionListener(new ActionListener()
                     {
-                        PiccoloAction action =
-                            PiccoloActionFactory.getAnnotateImageAction(t,displayPoint);
-                        action.execute();
-                    }
-                });
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            PiccoloAction action =
+                                PiccoloActionFactory.getAnnotateImageAction(t,displayPoint);
+                            action.execute();
+                        }
+                    });
+                }
             }
         };
+        
         JMenuItem openItem = new JMenuItem("Open");
-        openItem.addActionListener(new ActionListener()
+        JMenuItem infoItem = new JMenuItem("View Info");
+        Set selectedSet = model.getSelectedImages();
+        
+        if(selectedSet.size() == 1)
         {
-            public void actionPerformed(ActionEvent arg0)
+            final Thumbnail t = (Thumbnail)selectedSet.iterator().next();
+            openItem.addActionListener(new ActionListener()
             {
-                PiccoloAction action =
-                    PiccoloActionFactory.getOpenInViewerAction(t);
-                action.execute();
-            }
-        });
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    PiccoloAction action =
+                        PiccoloActionFactory.getOpenInViewerAction(t);
+                    action.execute();
+                }
+            });
+        
+            infoItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    PiccoloAction action =
+                        PiccoloActionFactory.getInfoFromDMAction(t);
+                    action.execute();     
+                }
+            });
+        }
+        else
+        {
+            openItem.setEnabled(false);
+            infoItem.setEnabled(false);
+        }
+        
         menu.add(openItem);
         menu.addSeparator();
-        JMenuItem infoItem = new JMenuItem("View Info");
-        infoItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                PiccoloAction action =
-                    PiccoloActionFactory.getInfoFromDMAction(t);
-                action.execute();     
-            }
-        });
         menu.add(infoItem);
         menu.add(annotateItem);
+        CategoryMenuFactory factory = new CategoryMenuFactory(model);
+        menu.add(factory.createMenu());
         
         return menu;
     }
@@ -145,7 +172,7 @@ public class PopupMenuFactory
      * @return A JPopupMenu with triggerable actions, to be shown over that
      *         point in the browser background.
      */
-    public static JPopupMenu getBackgroundMenu(final BrowserView.BackgroundNode bn)
+    public static JPopupMenu getBackgroundMenu(final BrowserModel model)
     {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem sampleItem = new JMenuItem("Nothing!");

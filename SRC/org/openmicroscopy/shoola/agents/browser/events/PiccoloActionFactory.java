@@ -42,6 +42,8 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.JPopupMenu;
+
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
@@ -50,9 +52,11 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverManager;
+import org.openmicroscopy.shoola.agents.browser.ui.PopupMenuFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
 import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -174,14 +178,13 @@ public class PiccoloActionFactory
                 Thumbnail t = (Thumbnail)node;
                 
                 // checks if command key is down
-                if(PiccoloModifiers.getModifier(e) !=
-                   PiccoloModifiers.MOUSE_INDIV_SELECT)
+                int modifier = PiccoloModifiers.getModifier(e);
+                if(modifier != PiccoloModifiers.MOUSE_INDIV_SELECT &&
+                   modifier != PiccoloModifiers.POPUP)
                 {
                     target.deselectAllThumbnails();                
                 }
                 target.selectThumbnail(t);
-
-                Rectangle2D bounds = t.getBounds().getBounds2D();
             }
         };
         return action;
@@ -538,6 +541,31 @@ public class PiccoloActionFactory
                     }
                 }
                 layer.nodeExited();
+            }
+        };
+        return action;
+    }
+    
+    public static PiccoloAction getPopupMenuAction(final BrowserModel model)
+    {
+        PiccoloAction selectAction = getSelectThumbnailAction(model);
+        PiccoloAction action = new CompositePiccoloAction(selectAction)
+        {
+            public void execute(PInputEvent e)
+            {
+                super.execute(e);
+                JPopupMenu menu = PopupMenuFactory.getMenu(model);
+                if(menu != null)
+                {
+                    Point2D position = e.getPosition();
+                    e.getCamera().viewToLocal(position);
+                    int offsetX = (int)Math.round(position.getX());
+                    int offsetY = (int)Math.round(position.getY());
+    
+                    // this could be error prone, but hopefully not in context
+                    PCanvas canvas = (PCanvas)e.getComponent();
+                    menu.show(canvas,offsetX,offsetY);
+                }
             }
         };
         return action;
