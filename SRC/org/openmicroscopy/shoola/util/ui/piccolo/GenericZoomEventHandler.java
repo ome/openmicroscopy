@@ -73,7 +73,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	/**
 	 * The Canvas for which we are handling events
 	 */
-	protected BufferedObject canvas;
+	protected BufferedCanvas canvas;
 	
 	/**
 	 * A Mask to select for left button events
@@ -83,7 +83,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	private PBounds lastBounds;
 	
 	
-	public GenericZoomEventHandler(BufferedObject canvas) {
+	public GenericZoomEventHandler(BufferedCanvas canvas) {
 		super();
 		PInputEventFilter filter = new PInputEventFilter();
 		filter.acceptEverything();
@@ -106,15 +106,13 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		
 	//	if (isPostPopup(e))
 	//		return;
-			
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
 			
 			if (node instanceof MouseableNode) {
 				((MouseableNode) node).mouseClicked(this);
 			}
 			else if (node instanceof BufferedObject) {
-				animateToNode(node);
-				
+				animateToNode(node);		
 			}
 			else if (isBackgroundClick(node)) {
 				handleBackgroundClick();

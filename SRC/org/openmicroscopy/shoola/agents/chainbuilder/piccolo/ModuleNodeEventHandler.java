@@ -49,7 +49,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
 
 
@@ -70,7 +70,7 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	
 	protected ModuleView lastEntered;
 	
-	public ModuleNodeEventHandler(BufferedObject canvas) {
+	public ModuleNodeEventHandler(BufferedCanvas canvas) {
 		super(canvas);
 	}	
 	
