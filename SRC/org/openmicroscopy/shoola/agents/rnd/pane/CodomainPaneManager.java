@@ -40,8 +40,6 @@ import javax.swing.JCheckBox;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 
 /** 
  * 
@@ -71,19 +69,14 @@ class CodomainPaneManager
 	
 	private QuantumMappingManager		control;
 	private CodomainPane				view;
-	private ContrastStretchingContext		csDef;
-	private PlaneSlicingContext				psDef;
 	private ContrastStretchingDialog	csDialog;
 	private PlaneSlicingDialog			psDialog;
 	
-	
-	CodomainPaneManager(CodomainPane view, QuantumMappingManager control,
-						ContrastStretchingContext csDef, PlaneSlicingContext psDef)
+	//TODO: cf note in CodomainPane
+	CodomainPaneManager(CodomainPane view, QuantumMappingManager control)
 	{
 		this.view = view;
 		this.control = control;
-		this.csDef = csDef;
-		this.psDef = psDef;
 	}
 
 	void attachListeners()
@@ -138,7 +131,7 @@ class CodomainPaneManager
 	private void popUpContrastStretchingDialog()
 	{
 		if (csDialog == null)
-			csDialog = new ContrastStretchingDialog(control, csDef);
+			csDialog = new ContrastStretchingDialog(control);
 		csDialog.setVisible(true);
 	}
 	
@@ -146,7 +139,7 @@ class CodomainPaneManager
 	private void popUpPlaneSlicingDialog()
 	{
 		if(psDialog == null)
-			psDialog = new PlaneSlicingDialog(control, psDef);
+			psDialog = new PlaneSlicingDialog(control);
 		psDialog.setVisible(true);
 	}
 	

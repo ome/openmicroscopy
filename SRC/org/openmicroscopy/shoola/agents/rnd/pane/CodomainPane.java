@@ -47,8 +47,6 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -96,10 +94,12 @@ class CodomainPane
 	private JCheckBox				ps;
 	
 	private CodomainPaneManager		manager;
-	public CodomainPane(Registry registry, QuantumMappingManager control,
-						ContrastStretchingContext csDef, PlaneSlicingContext psDef)
+	
+	//TODO: retrieve contrastStretchingContext and PlaneSlicingContext
+	//data via CodomainMapContext object
+	public CodomainPane(Registry registry, QuantumMappingManager control)
 	{
-		manager = new CodomainPaneManager(this, control, csDef, psDef);
+		manager = new CodomainPaneManager(this, control);
 		initButton(registry);
 		initCheckBox();
 		manager.attachListeners();

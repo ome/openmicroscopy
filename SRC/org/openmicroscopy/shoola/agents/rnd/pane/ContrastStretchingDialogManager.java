@@ -40,7 +40,6 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 
 /** 
  * 
@@ -59,15 +58,18 @@ import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 class ContrastStretchingDialogManager
 	implements MouseListener, MouseMotionListener
 {
-	private static final int	topBorder = ContrastStretchingPanel.topBorder, 
-								leftBorder = ContrastStretchingPanel.leftBorder,
-								square = ContrastStretchingPanel.square, 
-								bottomBorder = 
-									ContrastStretchingPanel.bottomBorder, 
-								lS = leftBorder+square, 
-								tS = topBorder+square;
-	private static final int 	triangleW = ContrastStretchingPanel.triangleW, 
-								length = 2*triangleW;
+	private static final int			topBorder = 
+										ContrastStretchingPanel.topBorder, 
+										leftBorder = 
+										ContrastStretchingPanel.leftBorder,
+										square = ContrastStretchingPanel.square, 
+										bottomBorder = 
+										ContrastStretchingPanel.bottomBorder, 
+										lS = leftBorder+square, 
+										tS = topBorder+square;
+	private static final int 			triangleW = 	
+										ContrastStretchingPanel.triangleW, 
+										length = 2*triangleW;
 								
 	private boolean   					dragging;
 	
@@ -77,17 +79,15 @@ class ContrastStretchingDialogManager
 										
 	private int 						maxStartX, minEndX, maxStartOutputY,
 										minEndOutputY;
+	/** Reference to the view. */
 	private ContrastStretchingDialog	view;
 	private QuantumMappingManager		control;
-	private ContrastStretchingContext 		csDef;
 	
 	ContrastStretchingDialogManager(ContrastStretchingDialog view,
-									QuantumMappingManager control,
-									ContrastStretchingContext csDef)
+									QuantumMappingManager control)
 	{
 		this.view = view;
 		this.control = control;
-		this.csDef = csDef;
 	}
 	
 	/** Attach listeners. */

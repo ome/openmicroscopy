@@ -38,8 +38,6 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
@@ -65,12 +63,12 @@ class QuantumMapping
 	
 	private QuantumMappingManager	manager;
 	
-	QuantumMapping(Registry registry, QuantumDef qDef, 
-					ContrastStretchingContext csDef, PlaneSlicingContext psDef, 
-					String[] waves, int mini, int maxi)
+	//TODO: retrive codomain settings.
+	QuantumMapping(Registry registry, QuantumDef qDef, String[] waves, int mini,
+				 	int maxi)
 	{
 		manager = new QuantumMappingManager(this);
-		codomainPane = new CodomainPane(registry, manager, csDef, psDef);
+		codomainPane = new CodomainPane(registry, manager);
 		domainPane = new DomainPane(registry, manager, waves, qDef);
 		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
 		manager.setMinimum(mini);
