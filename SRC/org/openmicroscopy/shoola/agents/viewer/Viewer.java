@@ -161,8 +161,7 @@ public class Viewer
 			PixelsDimensions pxsDims = control.getPixelsDims();
 			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									  pxsDims.sizeT, pxsDims.sizeZ);
-			if (presentation.isClosed()) showPresentation();
-			else if (presentation.isIcon()) deiconifyPresentation();
+			setPresentation();
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
 			RenderImage event = new RenderImage(curPixelsID);
@@ -171,9 +170,7 @@ public class Viewer
 			PixelsDimensions pxsDims = control.getPixelsDims();
 			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									  pxsDims.sizeT, pxsDims.sizeZ);
-			if (presentation.isClosed()) showPresentation();
-			else if (presentation.isIcon()) deiconifyPresentation();
-			
+			setPresentation();
 		}
 	}
 	
@@ -188,6 +185,20 @@ public class Viewer
 	
 	/** Select the menuItem. */
 	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
+	
+	/** Bring up or not the window. */
+	void setPresentation()
+	{
+		if (presentation != null) {
+			if (presentation.isClosed()) showPresentation();  
+			if (presentation.isIcon()) deiconifyPresentation();
+			setMenuSelection(true);
+			//Activate the Frame.
+			try {
+				presentation.setSelected(true);
+			} catch (Exception e) {}	
+		}			
+	}
 	
 	/** Display the presentation. */
 	void showPresentation()

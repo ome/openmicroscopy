@@ -95,20 +95,20 @@ public class ViewerUIF
 	
 	private boolean					active;
 	
+	
 	ViewerUIF(ViewerCtrl control, Registry registry, String imageName)
 	{
-		//name, resizable, closable, maximizable, iconifiable.
 		super(imageName, true, true, true, true);
 		this.control = control;
 		this.registry = registry;
 		setJMenuBar(createMenuBar());
 		PixelsDimensions pxsDims = control.getPixelsDims();
-		int sizeT = pxsDims.sizeT;
-		int sizeZ = pxsDims.sizeZ;
+		int maxT = pxsDims.sizeT-1;
+		int maxZ = pxsDims.sizeZ-1;
 		int t = control.getDefaultT();
 		int z = control.getDefaultZ();
-		initSliders(sizeT-1, t, sizeZ-1, z);
-		initToolBar(sizeT-1, t, sizeZ-1, z);
+		toolBar = new ToolBar(control, registry, maxT, t, maxZ, z);
+		initSliders(maxT, t, maxZ, z);
 		buildGUI();
 	}
 	
@@ -158,13 +158,6 @@ public class ViewerUIF
 		s = "Move the slider to navigate across Z stack.";
 		zSlider.setToolTipText(UIFactory.formatToolTipText(s));
 		zSlider.setEnabled(maxZ != 0);
-	}
-	
-	/** Initiliazes the toolBar. */
-	private void initToolBar(int maxT, int t, int maxZ, int z)
-	{
-		PixelsDimensions pxsDims = control.getPixelsDims();
-		toolBar = new ToolBar(control, registry, maxT, maxZ, t, z);
 	}
 	
 	/** 
@@ -231,6 +224,9 @@ public class ViewerUIF
 		JMenu menu = new JMenu("Controls");
 		JMenuItem menuItem = new JMenuItem("Rendering");
 		control.attachItemListener(menuItem, ViewerCtrl.RENDERING);
+		menu.add(menuItem);
+		menuItem = new JMenuItem("Inspector");
+		control.attachItemListener(menuItem, ViewerCtrl.INSPECTOR);
 		menu.add(menuItem);
 		menuItem = new JMenuItem("SAVE AS...");
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);

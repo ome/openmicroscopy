@@ -72,6 +72,9 @@ public class ToolBar
 	/** Dimension of the separator between the toolBars. */
 	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
+	
+	/** Bring up the  image inspector widget. */
+	private JButton					inspector;
 																																							
 	/** Control to post an event to bring up the rendering widget. */
 	private JButton					render;
@@ -103,6 +106,8 @@ public class ToolBar
 		buildToolBar();
 	}
 	
+	
+	
 	public JLabel getZLabel() { return zLabel; }
 	
 	public JLabel getTLabel() { return tLabel; }
@@ -111,6 +116,8 @@ public class ToolBar
 	
 	public JTextField getEditor() { return editor; }
 
+	public JButton getInspector() { return inspector; } 
+	
 	public JButton getPlay() { return play; }
 
 	public JButton getRender() { return render; }
@@ -130,6 +137,9 @@ public class ToolBar
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
+		inspector  =  new JButton(im.getIcon(IconManager.INSPECTOR));
+		inspector.setToolTipText(
+			UIFactory.formatToolTipText("Bring up the inspector panel."));
 		render =  new JButton(im.getIcon(IconManager.RENDER));
 		render.setToolTipText(
 			UIFactory.formatToolTipText("Bring up the rendering panel."));	
@@ -194,14 +204,12 @@ public class ToolBar
 		label.setForeground(STEELBLUE);
 		tb.add(label);
 		tb.add(zField);
-		addSeparator();
 		tb.add(zLabel);
-		addSeparator();
+		tb.addSeparator();
 		label = new JLabel(" T ");
 		label.setForeground(STEELBLUE);
 		tb.add(label);
 		tb.add(tField);
-		addSeparator();
 		tb.add(tLabel);
 		return tb;
 	}
@@ -212,6 +220,8 @@ public class ToolBar
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 		tb.add(render);
+		tb.addSeparator();
+		tb.add(inspector);
 		return tb;
 	}
 	
@@ -223,7 +233,7 @@ public class ToolBar
 		tb.add(play);
 		tb.add(stop);
 		tb.add(rewind);
-		addSeparator();
+		tb.addSeparator();
 		JLabel label = new JLabel(" Rate ");
 		tb.add(label);
 		tb.add(fps);

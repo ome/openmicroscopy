@@ -79,14 +79,17 @@ public class ToolBarManager
 	/** Action command ID to be used with the rewind button. */
 	private static final int   					RENDER_CMD = 4;
 	
+	/** Action command ID to be used with the inspector button. */
+	private static final int   					INSPECTOR_CMD = 5;
+	
 	/** 
 	 * Action command ID to be used to sync JSpinner 
 	 * and the text field editor.
 	 */
-	private static final int   					EDITOR_CMD = 5;
+	private static final int   					EDITOR_CMD = 6;
 	
 	/** Action command ID to be used with the timepoint text field. */
-	private static final int					Z_FIELD_CMD = 6;
+	private static final int					Z_FIELD_CMD = 7;
 	
 	private int									curT, maxT, curR;
 	private int									curZ, maxZ;
@@ -123,7 +126,8 @@ public class ToolBarManager
 		
 		//button
 		JButton	play = view.getPlay(), stop = view.getStop(), 
-				rewind = view.getRewind(), render = view.getRender();
+				rewind = view.getRewind(), render = view.getRender(), 
+				inspector = view.getInspector();
 		play.setActionCommand(""+PLAY_CMD);
 		play.addActionListener(this);
 		stop.setActionCommand(""+STOP_CMD); 
@@ -132,6 +136,8 @@ public class ToolBarManager
 		rewind.addActionListener(this);
 		render.setActionCommand(""+RENDER_CMD);
 		render.addActionListener(this);
+		inspector.setActionCommand(""+INSPECTOR_CMD);
+		inspector.addActionListener(this);
 		//spinner
 		view.getFPS().addChangeListener(this);
 	}
@@ -253,6 +259,10 @@ public class ToolBarManager
 					break;
 				case RENDER_CMD:
 					control.showRendering();
+					break;
+				case INSPECTOR_CMD:
+					control.showInspector();
+					break;
 			   	case PLAY_CMD:  //not implemented yet
 			   	case STOP_CMD:  //not implemented yet
 			   	case REWIND_CMD:  //not implemented yet

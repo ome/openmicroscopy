@@ -47,9 +47,11 @@ import javax.swing.event.InternalFrameListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
+import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -77,6 +79,7 @@ public class ViewerCtrl
 	static final int			MOVIE_PLAY = 3;
 	static final int			MOVIE_STOP = 4;
 	static final int			MOVIE_REWIND = 5;
+	static final int			INSPECTOR = 6;
 	
 	private JSlider				tSlider, zSlider;
 	
@@ -84,7 +87,7 @@ public class ViewerCtrl
 	
 	private ViewerUIF			presentation;
 	
-	ViewerCtrl(Viewer abstraction)
+	public ViewerCtrl(Viewer abstraction)
 	{
 		this.abstraction = abstraction;
 	}
@@ -179,12 +182,6 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	/** Bring up the rendering widget. */
-	public void showRendering()
-	{
-		abstraction.showRendering();
-	}
-	
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -193,13 +190,16 @@ public class ViewerCtrl
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case V_VISIBLE:
-					showPresentation();
+					abstraction.setPresentation();
 					break;
 				case RENDERING:
 					showRendering();
 					break; 	
 				case SAVE_AS:
 					showImageSaver();
+					break;
+				case INSPECTOR:
+					showInspector();
 					break;
 				/*
 				case MOVIE_PLAY:
@@ -226,19 +226,17 @@ public class ViewerCtrl
 		else  tbm.onZChange(valZ);
 		abstraction.onPlaneSelected(valZ, valT);
 	}
-	
-	/** Display or not the presentation. */
-	private void showPresentation()
+
+	/** Bring up the image inspector widget. */
+	public void showInspector()
 	{
-		if (presentation != null) {
-			if (presentation.isClosed()) abstraction.showPresentation();  
-			if (presentation.isIcon()) abstraction.deiconifyPresentation();
-			abstraction.setMenuSelection(true);
-			//Activate the Frame.
-			try {
-				presentation.setSelected(true);
-			} catch (Exception e) {}	
-		}			
+		UIFactory.showEditor(new ImageInspector(this));
+	}
+	
+	/** Bring up the rendering widget. */
+	public void showRendering()
+	{
+		abstraction.showRendering();
 	}
 	
 	/** Forward event to {@link ViewerUIF presentation}. */
