@@ -81,7 +81,7 @@ public class ImageMapper
 		criteria.addWantedField("name");
 		
 		criteria.addWantedField("default_pixels");
-		criteria.addWantedField("default_pixels.Repository", "ImageServerID");
+		criteria.addWantedField("default_pixels", "ImageServerID");
 		
 		criteria.addFilter("owner_id", new Integer(userID));
 		
