@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -173,21 +174,29 @@ public class DataManager
 	void refresh()
 	{
 		projectSummaries.removeAll(projectSummaries);
+        datasetSummaries.removeAll(datasetSummaries);
 		if (presentation != null) presentation.rebuildTree();
 	}
-	
+    
+    /** Refresh the all tree. */
+    void refresh(DatasetSummary ds)
+    {
+        if (presentation != null) presentation.refreshDataset(ds);
+    }
+    
 	/**
-	 * Return the list of all image summaries that belong to the user
-	 * but which are not in the specified dataset.
+	 * Return a list of {@link ImageSummary} objects imported by the current
+     * user but not contained in the specified dataset.
 	 * 
-	 * @param projectID		id of the dataset.
-	 * @return
+	 * @param data    {@link DatasetData} object.
+     * 
+	 * @return See above.
 	 */
 	List getImagesDiff(DatasetData data)
 	{
 		List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getUserImages();
+            imagesDiff = getImportedImages();   // may be modified
             List images = data.getImages();
             ImageSummary is, isg;
             for (int j = 0; j < imagesDiff.size(); j++) {
@@ -208,7 +217,7 @@ public class DataManager
 	}
 	
 	/**
-	 * Return the list of all dataset summaries that belong to the user
+	 * Return the list of {@link DatasetSummary} objects that belong to the user
 	 * but which are not linked to the specified project.
 	 * 
 	 * @param projectID		if of the project.
@@ -251,7 +260,7 @@ public class DataManager
 	 * OMEDS, the user gets notified and this method returns <code>null</code>.
 	 * </p>
 	 *
-	 * @return  A list of project summary objects. 
+	 * @return  A list of {@link ProjectSummary} objects. 
 	 */
 	List getUserProjects()
         throws DSAccessException
@@ -277,7 +286,7 @@ public class DataManager
 	 * OMEDS, the user gets notified and this method returns <code>null</code>.
 	 * </p>
 	 *
-	 * @return  A list of dataset summary objects. 
+	 * @return  A list of {@link DatasetSummary} objects. 
 	 */
 	List getUserDatasets()
         throws DSAccessException
@@ -296,28 +305,117 @@ public class DataManager
 	}
 	
 	/**
-	 * Returns all images which belong to the current user.
+	 * Returns the images imported by the current user..
 	 * <p>If an error occurs while trying to retrieve the user's data from 
 	 * OMEDS, the user gets notified and this method returns <code>null</code>.
 	 * </p>
 	 *
-	 * @return  A list of image summary objects. 
+	 * @return  A list of {@link ImageSummary} objects. 
 	 */
-	List getUserImages()
+	List getImportedImages()
         throws DSAccessException
 	{
-        List userImages = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			userImages = dms.retrieveUserImages();
-		}catch(DSOutOfServiceException dsose) {	
+			return dms.retrieveUserImages();
+		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		return userImages;
+		return new ArrayList();
 	}
 
+    /**
+     * Returns the images used by the current user.
+     * <p>If an error occurs while trying to retrieve the user's data from 
+     * OMEDS, the user gets notified and this method returns <code>null</code>.
+     * </p>
+     *
+     * @return  A list of {@link ImageSummary} objects. 
+     */
+    List getUsedImages()
+        throws DSAccessException
+    {
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            //we didn't previously retrieve the Hierarchy data
+            if (projectSummaries.size() == 0)  
+                return dms.retrieveImagesInUserDatasets();
+        
+            Iterator i = projectSummaries.iterator();
+            List datasets;
+            Iterator j;
+            HashMap ids = new HashMap();
+            Integer id;
+            while (i.hasNext()) {
+                datasets = ((ProjectSummary) i.next()).getDatasets();
+                j = datasets.iterator();
+                while (j.hasNext()) {
+                    id = new Integer(((DatasetSummary) j.next()).getID());
+                    ids.put(id, id);
+                }
+            }
+            Iterator key = ids.keySet().iterator();
+            List datasetIDs = new ArrayList();
+            while (key.hasNext())
+                datasetIDs.add(key.next());
+            return dms.retrieveImagesInUserDatasets(datasetIDs);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return new ArrayList();
+    }
+    
+    /**
+     * Returns the images imported by the users who belong to the same group
+     * as the current user.
+     * <p>If an error occurs while trying to retrieve the user's data from 
+     * OMEDS, the user gets notified and this method returns <code>null</code>.
+     * </p>
+     *
+     * @return  A list of {@link ImageSummary} objects. 
+     */
+    List getGroupImages()
+        throws DSAccessException
+    {
+        List userImages = new ArrayList();
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            userImages = dms.retrieveUserGroupImages();
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return userImages;
+    }
+    
+    /**
+     * Returns the images currently in the system.
+     * <p>If an error occurs while trying to retrieve the user's data from 
+     * OMEDS, the user gets notified and this method returns <code>null</code>.
+     * </p>
+     *
+     * @return  A list of {@link ImageSummary} objects. 
+     */
+    List getSystemImages()
+        throws DSAccessException
+    {
+        List userImages = new ArrayList();
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            userImages = dms.retrieveImagesInSystem();
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return userImages;
+    }
+    
 	/**
 	 * Retrieve a list of images in the specified dataset.
 	 * 
@@ -325,18 +423,13 @@ public class DataManager
 	 * @return list of image summary objects.
 	 */
 	List getImages(int datasetID) 
+        throws DSAccessException
 	{
 		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			//images = dms.retrieveImages(datasetID);
             images = dms.retrieveImagesWithAnnotations(datasetID);
-		} catch(DSAccessException dsae) {
-			String s = "Can't retrieve images in the dataset " +
-						"with ID: "+datasetID+".";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -692,7 +785,8 @@ public class DataManager
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveImagesNotInGroup(group);
+            //return sts.retrieveImagesNotInGroup(group);
+            return sts.retrieveImagesNotInGroup(group.getID());
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(

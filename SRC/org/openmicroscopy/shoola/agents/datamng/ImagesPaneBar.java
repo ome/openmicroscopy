@@ -31,7 +31,11 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
+import java.awt.FlowLayout;
+
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -55,50 +59,67 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ImagesPaneBar
-	extends JToolBar
+	extends JPanel
 {
 
 	/** Reference to the registry. */
-	private Registry	registry;
-	
-	/** Order by button. */
-	private JButton		filter;
+	private Registry       registry;
 	
 	/** Load all tree. */
-	private JButton		load;
+	JButton                load;
 	
+    JComboBox              selections;
+    
+    static final String[]  listOfItems;
+    
+    static final int            IMAGES_IMPORTED = 0;
+    static final int            IMAGES_USED = 1;
+    static final int            IMAGES_GROUP = 2;
+    static final int            IMAGES_SYSTEM = 3;
+    private static final int    MAX_ID = 3;
+    
+    static {
+        listOfItems = new String[MAX_ID+1];
+        listOfItems[IMAGES_IMPORTED] = "Images I have imported";
+        listOfItems[IMAGES_USED] = "Images I use";
+        listOfItems[IMAGES_GROUP] = "Images in my group";
+        listOfItems[IMAGES_SYSTEM] = "Images in the system";
+    }
+    
 	ImagesPaneBar(Registry registry)
 	{
 		this.registry = registry;
-		initZoomComponents();
+		initComponents();
 		buildGUI();
 	}
-
-	public JButton getFilter() { return filter; }
-	
-	public JButton getLoad() { return load; }
 	
 	/** Initialize the components. */
-	private void initZoomComponents()
+	private void initComponents()
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
 		load = new JButton(im.getIcon(IconManager.IMAGE));
 		load.setToolTipText(
-			UIUtilities.formatToolTipText("Retrieve user's images."));
-		filter = new JButton(im.getIcon(IconManager.FILTER));
-		filter.setToolTipText(
-			UIUtilities.formatToolTipText("Filter."));	
-		filter.setEnabled(false);
+			UIUtilities.formatToolTipText("Retrieve images."));
+        selections = new JComboBox(listOfItems);
 	}	
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		setFloatable(false);
-		putClientProperty("JToolBar.isRollover", new Boolean(true));
-		add(load);
-		//add(filter);
+        setLayout(new FlowLayout(FlowLayout.LEFT));
+        add(UIUtilities.buildComponentPanel(selections));
+        add(buildBar());
 	}
 	
+    /** Display the buttons in a JToolBar. */
+    private JToolBar buildBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.putClientProperty("JToolBar.isRollover", new Boolean(true));
+        bar.add(load);
+        return bar;
+    }
+    
 }

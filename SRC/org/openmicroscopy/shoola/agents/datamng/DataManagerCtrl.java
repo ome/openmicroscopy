@@ -127,8 +127,7 @@ public class DataManagerCtrl
                 case CREATE_GROUP:
                     createGroup(); break;
                 case CREATE_CATEGORY:
-                    createCategory();
-                    
+                    createCategory();       
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
@@ -185,6 +184,78 @@ public class DataManagerCtrl
 		abstraction.updateImage(id, nameChange);
 	}
     
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public List getImportedImages()
+    { 
+        try {
+            return abstraction.getImportedImages();
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);
+        }
+        return new ArrayList();
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public List getUsedImages()
+    { 
+        try {
+            return abstraction.getUsedImages();
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);
+        }
+        return new ArrayList();
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public List getGroupImages()
+    { 
+        try {
+            return abstraction.getGroupImages();
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);
+        }
+        return new ArrayList();
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public List getSystemImages()
+    { 
+        try {
+            return abstraction.getSystemImages();
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);
+        }
+        return new ArrayList();
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public List getImages(int datasetID)
+    {
+        try {
+            return abstraction.getImages(datasetID);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the images within " +
+                    "the specified dataset: "+datasetID;
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);
+        }
+        return new ArrayList();
+    }
+    
     /** Return the abstraction. */
     DataManager getAbstraction() {return abstraction; }
     
@@ -233,6 +304,15 @@ public class DataManagerCtrl
         } 
     }
     
+    void refresh(DataObject target)
+    {
+        if (target == null)    return;  //shouldn't happen
+        if (target instanceof ProjectSummary) 
+            abstraction.refresh();
+        else if (target instanceof DatasetSummary) 
+            abstraction.refresh((DatasetSummary) target);
+    }
+    
     /** Forward the call to the {@link DataManager abstraction}. */
     void updateImage(ImageSummary is)
     {
@@ -246,20 +326,6 @@ public class DataManagerCtrl
         //TODO: select pixels if more than one!
         abstraction.viewImage(is.getID(), pxSets[0], is.getName());
     }
-    
-    /** Forward the call to the {@link DataManager abstraction}. */
-    public List getUserImages()
-    { 
-        try {
-            return abstraction.getUserImages();
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve user's images.";
-            getRegistry().getLogger().error(this, s+" Error: "+dsae);
-            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae);
-        }
-        return null;
-     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
     List getUserProjects()
@@ -308,17 +374,14 @@ public class DataManagerCtrl
         abstraction.annotateImage(is.getID(), is.getName(), pixelsID[0]);
     }
     
-    /** Refresh the Tree. */
-    void refresh() { abstraction.refresh(); }
-    
     /** Bring up the corresponding editor. */
     void createProject()
     {
         try {
-            List datasets = abstraction.getUserDatasets();
             UIUtilities.centerAndShow(new CreateProjectEditor(
                                         abstraction.getRegistry(), this,
-                                        new ProjectData(), datasets));
+                                        new ProjectData(), 
+                                        abstraction.getUserDatasets()));
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's datasets.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -331,11 +394,10 @@ public class DataManagerCtrl
     void createDataset()
     {   
         try {
-            List projects = abstraction.getUserProjects();
-            //List images = abstraction.getUserImages();
             UIUtilities.centerAndShow(new CreateDatasetEditor(
                                         abstraction.getRegistry(), this,
-                                        new DatasetData(), projects));
+                                        new DatasetData(), 
+                                        abstraction.getUserProjects()));
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's datasets.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -381,7 +443,6 @@ public class DataManagerCtrl
     /** Forward to the {@link DataManager abstraction}. */
     String getUserName() { return abstraction.getUserName(); }
 
-    
     //Category manager
     /** Forward to the {@link DataManager abstraction}. */
     void viewCategoryGroup(CategoryGroupData data)
@@ -431,7 +492,7 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
-        return null;
+        return new ArrayList();
     }
 
     /** Retrieve all the images contained in the specified category. */
@@ -465,18 +526,6 @@ public class DataManagerCtrl
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
-        /*
-        List categories = new ArrayList();
-        try {
-            
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the categories.";
-            getRegistry().getLogger().error(this, s+" Error: "+dsae);
-            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae); 
-        } 
-        return categories;
-        */
     }
 
     /** 
@@ -532,6 +581,5 @@ public class DataManagerCtrl
         cd.setCategoryGroup(group);
         abstraction.createCategory(cd, images);
     }
-
 
 }

@@ -196,7 +196,7 @@ class TreePopupMenu
 		add(view);
 		add(browse);
 		add(annotate);
-		add(importImg);
+		//add(importImg);
 		add(refresh);
 	}
 

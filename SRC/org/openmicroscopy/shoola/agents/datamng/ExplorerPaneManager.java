@@ -188,11 +188,10 @@ class ExplorerPaneManager
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
 			ProjectSummary ps;
-			Integer projectID;
 			while (j.hasNext()) {
 				ps = (ProjectSummary) j.next();
-				projectID = new Integer(ps.getID());
-				pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
+				pNode = (DefaultMutableTreeNode) 
+                        pNodes.get(new Integer(ps.getID()));
 				pNode.removeAllChildren();
 				addDatasets(ps.getDatasets(), pNode, false);
 				treeModel.reload(pNode);
@@ -200,6 +199,60 @@ class ExplorerPaneManager
 		}	
 	}
 	
+    void refreshDatasetInTree(DatasetSummary ds)
+    {
+        List nodes = (List) cDNodes.get(new Integer(ds.getID()));
+        Iterator i = nodes.iterator();
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode node, childNode;   
+        List images = agentCtrl.getImages(ds.getID());
+        while (i.hasNext()) {
+            node = (DefaultMutableTreeNode) i.next();
+            node.removeAllChildren();
+            if (images.size() != 0)
+                addImagesToDataset(images, node);    
+            else {
+                childNode = new DefaultMutableTreeNode(EMPTY);
+                treeModel.insertNodeInto(childNode, node, 
+                    node.getChildCount());            
+            } 
+            treeModel.reload(node);
+        }       
+    }
+
+    /** 
+     * Update image data in the Tree.
+     * If the image is displayed in several expanded datasets, the image data
+     * node will also be updated.
+     * 
+     * @param is ImageSummary object.
+     */
+    void updateImageInTree(ImageSummary is)
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        if (cDNodes != null) {
+            Iterator i = cDNodes.keySet().iterator();
+            Iterator j;
+            DefaultMutableTreeNode dNode;
+            List dNodes, images;
+            Integer datasetID;
+            //First update the images in list of expanded datasets.
+            updateImagesInDataset(is);
+            //Then update the tree.
+            while (i.hasNext()) {
+                datasetID = (Integer) i.next();
+                images = (List) imagesInDataset.get(datasetID);
+                dNodes = (List) cDNodes.get(datasetID);
+                j = dNodes.iterator();
+                while (j.hasNext()) {
+                    dNode = (DefaultMutableTreeNode) j.next();
+                    dNode.removeAllChildren();
+                    addImagesToDataset(images, dNode); 
+                    treeModel.reload(dNode);
+                }
+            }
+        }
+    }
 	/** 
 	 * Called when a <code>project</code> node is modified. 
 	 * 
@@ -225,40 +278,7 @@ class ExplorerPaneManager
 			if (isVisible) setNodeVisible(dNode, pNode);
 		}	
 	}
-	
-	/** 
-	 * Update image data in the Tree.
-	 * If the image is displayed in several expanded datasets, the image data
-	 * node will also be updated.
-	 * 
-	 * @param is ImageSummary object.
-	 */
-	void updateImageInTree(ImageSummary is)
-	{
-		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		if (cDNodes != null) {
-			Iterator i = cDNodes.keySet().iterator();
-			Iterator j;
-			DefaultMutableTreeNode dNode;
-			List dNodes, images;
-			Integer datasetID;
-			//First update the images in list of expanded datasets.
-			updateImagesInDataset(is);
-			//Then update the tree.
-			while (i.hasNext()) {
-				datasetID = (Integer) i.next();
-				images = (List) imagesInDataset.get(datasetID);
-				dNodes = (List) cDNodes.get(datasetID);
-				j = dNodes.iterator();
-				while (j.hasNext()) {
-					dNode = (DefaultMutableTreeNode) j.next();
-					dNode.removeAllChildren();
-					addImagesToDataset(images, dNode); 
-					treeModel.reload(dNode);
-				}
-			}
-		}
-	}
+
 	
 	/** 
 	 * Update the map of expanded datasets.
@@ -474,7 +494,7 @@ class ExplorerPaneManager
 		Integer datasetID = new Integer(ds.getID());
 		node.removeAllChildren();
 		if (isExpanding) {
-			List list = agentCtrl.getAbstraction().getImages(ds.getID());
+			List list = agentCtrl.getImages(ds.getID());
 			//TODO: loading will never be displayed b/c we are in the
 			// same thread.
 			if (list.size() != 0) {

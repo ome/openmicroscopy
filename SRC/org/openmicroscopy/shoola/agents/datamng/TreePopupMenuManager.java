@@ -104,6 +104,7 @@ class TreePopupMenuManager
 			view.view.setEnabled((target instanceof ImageSummary));
 			view.annotate.setEnabled(!(target instanceof ProjectSummary));
 			view.importImg.setEnabled((target instanceof DatasetSummary));
+            view.refresh.setEnabled(!(target instanceof ImageSummary));
 		} else view.properties.setEnabled(false);
 	}
     
@@ -128,8 +129,9 @@ class TreePopupMenuManager
 				agentCtrl.annotateImage(((ImageSummary) target));
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
+            else if (src == view.refresh) agentCtrl.refresh(target);
 		} else {
-			if (src == view.refresh) agentCtrl.refresh();
+			//if (src == view.refresh) agentCtrl.refresh();
 		}
 		view.setVisible(false);
 	}
