@@ -42,7 +42,7 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -308,7 +308,7 @@ public class ImageServerPixelsService
         return is.getStackStatistics(pixels.getImageServerID().longValue());
     }
 
-    public Image getComposite(Pixels pixels,
+    public BufferedImage getComposite(Pixels pixels,
                               CompositingSettings settings)
         throws ImageServerException
     {
@@ -324,7 +324,7 @@ public class ImageServerPixelsService
         is.setThumbnail(pixels.getImageServerID().longValue(),settings);
     }
 
-    public Image getThumbnail(Pixels pixels)
+    public BufferedImage getThumbnail(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
@@ -334,7 +334,7 @@ public class ImageServerPixelsService
     /**
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getThumbnail(org.openmicroscopy.ds.st.Pixels, int, int)
      */
-    public Image getThumbnail(Pixels pixels, int width, int height)
+    public BufferedImage getThumbnail(Pixels pixels, int width, int height)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);

@@ -38,8 +38,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //AF - needed for tmp hack, to be removed.
 import java.io.InputStream;
-
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -90,7 +89,7 @@ public class PixelsServiceAdapter
     /**
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getComposite(org.openmicroscopy.ds.st.Pixels, org.openmicroscopy.is.CompositingSettings)
      */
-    public Image getComposite(Pixels pixels, CompositingSettings settings)
+    public BufferedImage getComposite(Pixels pixels, CompositingSettings settings)
         throws ImageServerException
     {
         return pixelsFactory.getComposite(pixels,settings);
@@ -212,12 +211,12 @@ public class PixelsServiceAdapter
     /**
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getThumbnail(org.openmicroscopy.ds.st.Pixels)
      */
-    public Image getThumbnail(Pixels pixels) throws ImageServerException
+    public BufferedImage getThumbnail(Pixels pixels) throws ImageServerException
     {
         return pixelsFactory.getThumbnail(pixels);
     }
     
-    public Image getThumbnail(Pixels pixels, int sizeX, int sizeY) throws ImageServerException
+    public BufferedImage getThumbnail(Pixels pixels, int sizeX, int sizeY) throws ImageServerException
     {
         return pixelsFactory.getThumbnail(pixels,sizeX,sizeY);
     }

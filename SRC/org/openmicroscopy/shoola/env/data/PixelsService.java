@@ -44,8 +44,7 @@ package org.openmicroscopy.shoola.env.data;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.is.PixelsFileFormat;
@@ -558,9 +557,9 @@ public interface PixelsService
      * file
      * @param settings a {@link CompositingSettings} object describing
      * the compositing which should be performed
-     * @return an AWT {@link Image} suitable for display
+     * @return an AWT {@link BufferedImage} suitable for display
      */
-    public abstract Image getComposite(Pixels pixels,
+    public abstract BufferedImage getComposite(Pixels pixels,
                                        CompositingSettings settings)
         throws ImageServerException;
 
@@ -586,7 +585,7 @@ public interface PixelsService
      * @param pixelsID the pixels ID of a previously created pixels
      * file
      */
-    public abstract Image getThumbnail(Pixels pixels)
+    public abstract BufferedImage getThumbnail(Pixels pixels)
         throws ImageServerException;
         
     /**
@@ -599,6 +598,6 @@ public interface PixelsService
      * @param width The maximum width of the thumbnail to retrieve.
      * @param height The maximum height of the thumbnail to retrieve.
      */
-    public abstract Image getThumbnail(Pixels pixels, int width, int height)
+    public abstract BufferedImage getThumbnail(Pixels pixels, int width, int height)
         throws ImageServerException;
 }
