@@ -340,6 +340,7 @@ public class Annotator
             // TODO center on screen.
         }
         tif.show();
+        tif.toFront();
     }
     
     /**
