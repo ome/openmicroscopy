@@ -22,6 +22,8 @@
   <checkdef ref="app.config"/>
   <checkdef ref="app.libs"/>
   <checkdef prop="docs.dir"/> 
+  <checkdef prop="docs.userdocs.dir"/>
+  
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Settings to create the deliverables:
@@ -52,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="shoola.jar"/>
   <property name="dist.bundle.name" value="ome-shoola"/> 
-  <property name="dist.bundle.version" value="2.2.1-rc3"/>
+  <property name="dist.bundle.version" value="2.4.0-rc2"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -187,29 +189,27 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist-docs"
           depends="docs"
-          description="Create the documentation bundle."> 
+          description="Create the full documentation bundle."> 
     <mkdir dir="${dist.dir}"/> 
     <zip 
       destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-doc.zip">
       <fileset dir="${docs.dir}"/>
     </zip> 
   </target>
-
-
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the user documentation bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
-   * ${dist.bundle.name}-${dist.bundle.version}-doc.zip 
-   * and whose contents are the javadoc and all other project documentation.
+   * ${dist.bundle.name}-${dist.bundle.version}-userdoc.zip 
+   * and whose contents are just those of the ${docs.userdocs.dir}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist-user-docs"
           depends="xdocs"
-          description="Create the documentation bundle."> 
+          description="Create the user documentation bundle."> 
     <mkdir dir="${dist.dir}"/> 
     <zip 
       destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-userdoc.zip">
-      <fileset dir="${userdocs.dir}"/>
+      <fileset dir="${docs.userdocs.dir}"/>
     </zip> 
   </target>
   
