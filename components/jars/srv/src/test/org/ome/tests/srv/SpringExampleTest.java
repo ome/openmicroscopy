@@ -3,19 +3,17 @@
 */
 package org.ome.tests.srv;
 
-import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.ome.interfaces.ContainerService;
 import org.ome.model.LSObject;
 
-import junit.framework.TestCase;
 
 /**
  * @author josh
  */
-public class SpringExampleTest extends TestCase {
+public class SpringExampleTest extends BaseServiceTestCase {
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SpringExampleTest.class);
@@ -29,7 +27,7 @@ public class SpringExampleTest extends TestCase {
         System.out.println(SpringTestHarness.ctx.getBeanDefinitionNames());
     }
 
-    public void testSimple() throws RemoteException{
+    public void testSimple() {
         ContainerService cs = (ContainerService) SpringTestHarness.ctx.getBean("containerService");
         List l = cs.retrieveProjectsByExperimenter(null);
         for (Iterator iter = l.iterator(); iter.hasNext();) {

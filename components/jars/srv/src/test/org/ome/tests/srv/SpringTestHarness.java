@@ -45,6 +45,7 @@ public class SpringTestHarness {
     static {
         setAdminAuth();
     }
+    
     public static void setUserAuth(){
         Authentication auth = 
             new UsernamePasswordAuthenticationToken(

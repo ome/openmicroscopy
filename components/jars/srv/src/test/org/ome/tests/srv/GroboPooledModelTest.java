@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 /**
  * @author josh
  */
-public class GroboPooledModelTest extends TestCase {
+public class GroboPooledModelTest extends BaseServiceTestCase {
 
     static Cache cache = (Cache) SpringTestHarness.ctx.getBean("cache");
     static KeyedObjectPool pool = (KeyedObjectPool) SpringTestHarness.ctx.getBean("modelPool");
@@ -35,6 +35,9 @@ public class GroboPooledModelTest extends TestCase {
         }
 
         public void runTest() throws Throwable {
+            /* Needed for new threads */
+            SpringTestHarness.setAdminAuth();
+            
             for (int i = 0; i < this.count; ++i) {
                 Thread.sleep(this.sleepTime);
                 LSID lsid = new LSID(lsidBase+i);

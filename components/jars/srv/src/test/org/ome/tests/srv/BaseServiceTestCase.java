@@ -25,6 +25,7 @@ public class BaseServiceTestCase extends TestCase {
     getBean("modelFactory");
 
     static {
+        
         if (true) {
                 try {
                     jenaInit();

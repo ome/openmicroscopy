@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 /**
  * @author josh
  */
-public class GroboMultiThreadTest extends TestCase {
+public class GroboMultiThreadTest extends BaseServiceTestCase {
 
     static class Worker extends TestRunnable {
         int count;
