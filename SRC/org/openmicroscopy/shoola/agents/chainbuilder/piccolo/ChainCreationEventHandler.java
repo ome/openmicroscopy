@@ -48,6 +48,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.Iterator;
 import java.util.Collection;
+import java.util.ListIterator;
 import java.util.Vector;
 import javax.swing.Timer;
 
@@ -120,6 +121,20 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private static final int LINK_CHANGING_POINT=5;
 
+	/**
+	 * An error message for multiple links 
+	 */
+	private static final String MULT_LINKS =
+		"A Formal Input can only be connected to one Formal Output";
+	
+	private static final String NO_CYCLES = 
+		"Chains cannot contain cycles";
+	
+	private static final String NO_INPUT_INPUT_LINKS =
+		"Module inputs cannot be linked to each other";
+	
+	private static final String NO_OUTPUT_OUTPUT_LINKS =
+		"Module outputs cannot be linked to each other";
 	
 	/**
 	 * The distance between links when multiple links between two modules
@@ -711,6 +726,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			//System.err.println("starting a link from .."+param.getParameter().getName());
 			if (param.canBeLinkOrigin())
 				startParamLink(param);
+			else
+				canvas.setStatusLabel(MULT_LINKS);
 		}
 		else if (node instanceof LinkSelectionTarget) {
 		//	System.err.println("pressiing on target..");
@@ -762,16 +779,26 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 *
 	 */
 	private void finishParamLink() {
-		if (lastParameterEntered.isLinkable() == true) {
+		if (lastParameterEntered.getClass() == linkOrigin.getClass()) {
+			showParameterInputOutputConflictError(linkOrigin);
+			cancelParamLink();
+		}
+		else if (lastParameterEntered.isLinkable() == true) {
 			//System.err.println("finishing link");
 			link.setEndParam(lastParameterEntered);
-			link.setPickable(true);
-			// add the {@link ModuleViewLink} between the modules
-			linkLayer.completeLink(link);
-			cleanUParamLink();
+			if (foundCycle() ==false) {
+				link.setPickable(true);
+				// add the {@link ModuleViewLink} between the modules
+				linkLayer.completeLink(link);
+				cleanUParamLink();
+			}
+			else {
+				canvas.setStatusLabel(NO_CYCLES);
+				cancelParamLink();
+			}
 		}
 		else {
-			//////System.err.println("trying to finish link, but end point is not linkable");
+			canvas.setStatusLabel(MULT_LINKS);
 			cancelParamLink();
 		}
 		//System.err.println("finishParamLink. state is NOT_LINKING");
@@ -779,12 +806,83 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	}
 	
 	/**
+	 * Check for a cycle and let us know if we've found it.
+	 *
+	 * Do this by checking modules views and param links 
+	 * and progressively removing modules that have no inputs,
+	 * and all corresponding outputs,
+	 * until nothing left (ok) or we have none with no inputs - cycles
+	 */
+	
+	private boolean foundCycle() {
+		Vector modules = new Vector(canvas.findModules());
+		Vector links = new Vector(canvas.findLinks());
+		
+		ListIterator iter;
+	    boolean foundOne = false;
+	    while (modules.size() > 0) {
+	    		foundOne = false;
+		    iter = modules.listIterator();
+		    	while (iter.hasNext()) {
+		    		ModuleView module = (ModuleView) iter.next();
+		    		boolean inLinks = hasInLinks(module,links);
+		    		if (inLinks == false) {
+		    			iter.remove();	
+		    			Vector outLinks = getOutLinks(module,links);
+		    			if (outLinks != null) {
+		    				links.removeAll(outLinks);
+		    			}
+		    			foundOne = true;
+		    			break;
+		    		}
+		    	}
+		
+			// made it through list
+			if (foundOne == false) {
+				return true;
+			}
+	    } 
+	    	return false;
+	}
+			    	
+	
+
+	private boolean hasInLinks(ModuleView module,Vector links) {
+		Iterator iter = links.iterator();
+		ParamLink link;
+		while (iter.hasNext()) {
+			link = (ParamLink) iter.next();
+			if ( link.getInput() != null &&
+					link.getInput().getModuleView() == module)
+				return true;
+		}
+		return false;
+	}
+	
+	private Vector getOutLinks(ModuleView module,Vector links) {
+		Iterator iter = links.iterator();
+		ParamLink link;
+		Vector res = null;
+		while (iter.hasNext()) {
+			link = (ParamLink) iter.next();
+			if (link.getOutput() != null &&
+				link.getOutput().getModuleView() == module) {
+				if (res == null)
+					res = new Vector();
+				res.add(link);
+			}
+		}
+		return res;	
+	}
+
+	
+	/**
 	 * Cancel a lnk between parameters
 	 *
 	 */
 	private void cancelParamLink() {
 		//System.err.println("canceling link");
-		link.removeFromParent();
+		link.remove();
 		link =null;
 		cleanUParamLink();
 	}
@@ -886,6 +984,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			ParamLink lnk = (ParamLink) iter.next();
 			finishAModuleLink(lnk,targets);
 		}
+		// ok, check cycle
+		if (foundCycle()== true) {
+			canvas.setStatusLabel(NO_CYCLES);
+			cancelModuleLinks();
+		}
 	}	
 	
 	/**
@@ -915,7 +1018,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		// no matches. remove it.
 		start.setParamsHighlighted(false);
-		link.removeFromParent();
+		link.remove();
 	}
 	
 	/**
@@ -928,7 +1031,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		Iterator iter = links.iterator();
 		while (iter.hasNext()) {
 			ParamLink link = (ParamLink) iter.next();
-			link.removeFromParent();
+			link.remove();
 		}
 		//System.err.println("cancelling modules links. link state is NOT_LINKING");
 		linkState = NOT_LINKING;
@@ -1007,5 +1110,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		canvas.updateSaveStatus();
 	}
+	
+	private void showParameterInputOutputConflictError(FormalParameter param) {
+		if (param instanceof FormalInput) {
+			canvas.setStatusLabel(NO_INPUT_INPUT_LINKS);
+		}
+		else
+			canvas.setStatusLabel(NO_OUTPUT_OUTPUT_LINKS);
+	}
+
 	
 }
