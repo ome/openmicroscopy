@@ -315,9 +315,14 @@ public class ViewerCtrl
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
+        int model = getModel();
 		Viewer3D v3D = new Viewer3D(this, abstraction.getPixelsDims().sizeZ,
-                            abstraction.getModel());
+                            model);
 		if (v3D.isVisible()) UIUtilities.centerAndShow(v3D);
+        else { //TODO: tempo around before fix bug #321
+            abstraction.setModel(model);
+            v3D.dispose();
+        }
 	}
 	
 	/** Bring up the image inspector widget. */
