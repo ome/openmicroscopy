@@ -177,7 +177,7 @@ public class QuantumFactory
 	private static void verifyPixelType(int pixelType)
 	{
 		boolean     b = false;
-		switch(pixelType) {
+		switch (pixelType) {
 			case DataSink.BIT:    b = true; break;
 			case DataSink.INT8:   b = true; break;
 			case DataSink.INT16:  b = true; break;
