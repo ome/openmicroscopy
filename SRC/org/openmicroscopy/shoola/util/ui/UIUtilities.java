@@ -32,8 +32,14 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -56,6 +62,9 @@ import java.awt.Toolkit;
 public class UIUtilities
 {
 
+	/** Width of the separator. */
+	public static final int SEPARATOR_WIDTH = 2;
+	
 	/**
 	 * Centers the specified component on the screen.
 	 * The location of the specified component is set so that it will appear
@@ -105,5 +114,26 @@ public class UIUtilities
 		buf.append("</font></body></html>");
 		return buf.toString();
 	} 
+	
+	/** 
+	 * Create a separator to add to a toolbar. The separator needs to be 
+	 * set when the layout of the toolbar is reset.
+	 * 
+	 * @param button	button to add to the toolBar. The height of the 
+	 * 					separator depends of the insets of the button.
+	 * @param icon		icon to add to the button. The height of the 
+	 * 					separator depends of the height of the icon.
+	 * @return
+	 */
+	public static JSeparator toolBarSeparator(JButton button, Icon icon)
+	{
+		JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+		Insets i = button.getInsets();
+		int h = icon.getIconHeight();
+		Dimension d = new Dimension(SEPARATOR_WIDTH, i.top+h+i.bottom);
+		separator.setPreferredSize(d);
+		separator.setSize(d);
+		return separator;
+	}
 	
 }
