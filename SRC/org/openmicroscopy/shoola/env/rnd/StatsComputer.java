@@ -153,7 +153,7 @@ class StatsComputer
     private static double accumulateMin(int[] totals, double[] bins, 
                                         double total, double epsilon)
     {
-        double e  = 0, sum = 0;
+        double e  = bins[NB_BIN], sum = 0;
         for (int i = 1; i < totals.length-1; i++) {
             sum += totals[i];
             if (sum/total > THRESHOLD) {
@@ -168,7 +168,7 @@ class StatsComputer
     private static double accumulateMax(int[] totals, double[] bins, 
                                     double total, double epsilon)
     {
-        double s  = 0, sum = 0;
+        double s  = bins[1], sum = 0;
         for (int i = totals.length-2; i > 0; i--) {
             sum += totals[i];
             if (sum/total > THRESHOLD) {
