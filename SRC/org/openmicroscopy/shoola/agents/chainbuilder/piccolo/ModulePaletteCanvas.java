@@ -215,10 +215,6 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	public void completeInitialization() {
 	}
 	
-	public void scaleToSize() {
-		handler.animateToCanvasBounds();
-	}
-	
 	public void scaleToResize() {
 		handler.animateToLastBounds();
 	}
@@ -280,6 +276,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 			PText nameText = new PText(name);
 			nameText.setFont(Constants.LARGE_NAME_FONT);
 			nameText.setPickable(false);
+			nameText.setGreekThreshold(0);
 			box.addLabel(nameText);
 			nameText.setScale(2);
 			nameText.moveToFront();
@@ -336,7 +333,6 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		PBounds b;
 		double childrenCountRoot = Math.sqrt(node.getChildrenCount());
 	
-		//System.err.println("arranging children of "+node);
 		// if the node is a categorybox, skip over the label	
 		if (node instanceof CategoryBox) {
 			CategoryBox catBox = (CategoryBox) node;
@@ -434,7 +430,6 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	}	
 	
 	public void setSelectedForDrag(ModuleView module) {
-		//System.err.println("setting selected for drag .."+module);
 		selected = module;
 	}
 	
@@ -463,6 +458,9 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		handler.unhighlightModules();
 	}
 	
+	public void unhighlightModules(ChainModuleData mod) {
+		handler.unhighlightModules(mod);
+	}
 	public void highlightCategory(String name) {
 		Collection result = layer.getAllNodes();
 		Iterator iter = result.iterator();
@@ -496,14 +494,10 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		if (selected != null) {
 			selected.setModulesHighlighted(false);
 			int id = selected.getModule().getID();
-			//System.err.println("dragging node .."+id+", for module.."+
-			//		selected.getModule().getName());
 			ModuleSelection text = new ModuleSelection(id);
 			dragSource.startDrag(event,DragSource.DefaultMoveDrop,
 					text,dragListener);
 		}
-		/*else 
-			System.err.println("drag started, but no selected module..");*/
 	}
 	 
  }
