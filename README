@@ -1,0 +1,97 @@
+
+
+
+                                   README
+
+                      OPEN MICROSCOPY ENVIRONMENT (OME)
+                              
+                                 S H O O L A
+
+
+
+
+
+
+
+  OME-Shoola Project
+  ------------------
+  
+  The OME-Shoola Project is a sub-project of the Open Microscopy Environment
+  Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
+  client for the visualization and manipulation of both image data and metadata
+  maintained at an OME server site.  Shoola is completely written in Java.
+  
+
+
+  Directory Contents
+  ------------------
+  
+  This directory is the repository of the software artifacts of the OME-Shoola
+  Project.  Its contents are as follows:
+  
+    + build: This directory contains the tools to compile, run, test, and 
+          deliver the application.
+    + config: Various configuration files required by the application to run.
+    + docgen: Documentation artifacts that are used to build actual documents.
+          These are organized in two sub-directories: javadoc and xdocs.  The 
+          former only contains resources (like CSS files)to generate 
+          programmer's documentation (JavaDoc) -- the actual documentation 
+          contents are obtained from the source code.  The latter contains both
+          resources (like stylesheets and DHTML code) to generate all other 
+          kinds of documentation (like design and users documents) and the 
+          actual documentation contents in the form of XML/HTML files.
+    + launch: Launcher scripts and installation instructions bundled with the 
+          default application distribution file.  Its sub-dirs contain further
+          resources to build platform-specific distributions.
+    + LIB: All library files required by the application.  Its test sub-dir
+          contains additional libraries required by the test code.
+    + SRC: Contains the application source files.
+    + TEST: The test code.
+    + CodeTemplate: This file describes the coding style that all source files
+          must conform to.
+    + LICENSE: Full license file.
+    + README: This file.
+
+
+
+  Building Shoola
+  ---------------
+  
+  The compilation, testing, launch, and delivery of the application are
+  automated by means of an Ant (http://ant.apache.org/) build file, located
+  under the build directory.  In order to perform a build, all you need is
+  a Java Virtual Machine -- version 1.4 or later.  Move to the build directory
+  and, from the command line, enter:
+  
+      java -jar build
+  
+  This will display the available targets to compile, run, test, and create a
+  distribution bundle.  Use the target you wish, for example:
+  
+     java -jar build all
+  
+  Because all the tools needed to build the software are already included in
+  the build directory, you don't need to have Ant on your machine.
+  If you wish to use Ant instead, you can still do it by using the build.xml
+  file under the build directory.  However, there are some dependencies to
+  satisfy before; these are clearly documented in the build.xml file itself.  
+
+
+
+  Licensing
+  ---------
+
+  This software is licensed under the terms you may find in the file named 
+  "LICENSE" in this directory.
+  
+
+
+  Copyright
+  ---------
+  
+  Copyright (C) 2003-2005 Open Microscopy Environment
+      Massachusetts Institute of Technology,
+      National Institutes of Health,
+      University of Dundee
+
+
