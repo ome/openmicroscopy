@@ -42,6 +42,7 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -159,6 +160,12 @@ public class TopFrameImpl
     public JFrame getFrame()
     {
     	return this;
+    }
+    
+	/** Implemented as specified by {@link TopFrame}. */ 
+    public void deiconifyFrame(JInternalFrame frame)
+    {
+		desktop.getDesktopManager().deiconifyFrame(frame);
     }
     
 	/** 

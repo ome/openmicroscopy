@@ -31,8 +31,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
 import java.awt.Component;
-
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -130,4 +130,6 @@ public interface TopFrame
     /** Returns the presentation. */
     public JFrame getFrame();
     
+	public void deiconifyFrame(JInternalFrame frame);
+	
 }
