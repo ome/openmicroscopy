@@ -95,6 +95,8 @@ class ProjectDatasetsPane
 	
 	private List					datasetsToAdd;
 	
+	private List					listDatasets;
+	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
 		this.manager = manager;
@@ -143,6 +145,7 @@ class ProjectDatasetsPane
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
+		listDatasets = manager.getProjectData().getDatasets();
 		tablePanel = buildTablePanel();
 		buttonsPanel = buildButtonsPanel();
 		tableToAddPanel = buildTableToAddPanel();
@@ -182,6 +185,11 @@ class ProjectDatasetsPane
 		controls.add(addButton);
 		controls.setOpaque(false); //make panel transparent
 		
+		if (listDatasets == null || listDatasets.size() == 0) {
+			removeButton.setEnabled(false);
+			cancelButton.setEnabled(false);
+			addButton.setEnabled(false);
+		}
 		return controls;
 	}
 	
@@ -250,10 +258,9 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]    columnNames = {"ID", "Name", "Remove"};
-		private final Object[]    
-			datasets = manager.getProjectData().getDatasets().toArray();
-		private Object[][] data = new Object[datasets.length][3];
+		private final String[]	columnNames = {"ID", "Name", "Remove"};
+		private final Object[]	datasets = listDatasets.toArray();
+		private Object[][] 		data = new Object[datasets.length][3];
 		private Map datasetSummaries;
 
 		private DatasetsTableModel()

@@ -172,8 +172,8 @@ class ExplorerPaneManager
 	void updateProjectInTree()
 	{
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		DefaultMutableTreeNode pNode;										
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		DefaultMutableTreeNode pNode;
+		List pSummaries = agentCtrl.getAbstraction().getUserProjects();										
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
 			ProjectSummary ps;
@@ -183,7 +183,7 @@ class ExplorerPaneManager
 				projectID = new Integer(ps.getID());
 				pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
 				pNode.removeAllChildren();
-				addDatasets(ps.getDatasets(), pNode, true);
+				addDatasets(ps.getDatasets(), pNode, false);
 				treeModel.reload(pNode);
 			}
 		}
@@ -204,7 +204,7 @@ class ExplorerPaneManager
 				projectID = new Integer(ps.getID());
 				pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
 				pNode.removeAllChildren();
-				addDatasets(ps.getDatasets(), pNode, true);
+				addDatasets(ps.getDatasets(), pNode, false);
 				treeModel.reload(pNode);
 			}
 		}	

@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -163,7 +162,7 @@ class DatasetEditorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save();
@@ -192,7 +191,7 @@ class DatasetEditorManager
 	}
 	
 	/** 
-	 * Add (resp. remove) the imaget summary of (resp. from) the list of
+	 * Add (resp. remove) the image summary of (resp. from) the list of
 	 * image summary to be added (resp. removed).
 	 * 
 	 * @param value		boolean value true if the checkBox is selected
@@ -224,19 +223,21 @@ class DatasetEditorManager
 			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
 		}
 		else 	imagesToRemove.remove(is);
+		saveButton.setEnabled(true);
 	}
 	
 	/** */
 	private void showImagesSelection()
 	{
 		if (dialog == null) {
-			List imagesDiff = control.getImagesDiff(model.getID());
+			List imagesDiff = control.getImagesDiff(model);
 			dialog = new DatasetImagesDiffPane(this, imagesDiff);
 		} else {
 			dialog.remove(dialog.getContents());
 			dialog.buildGUI();
 		}
-		control.showDialog(dialog);	
+		control.showDialog(dialog);
+		saveButton.setEnabled(true);	
 	}
 	
 	
@@ -245,20 +246,8 @@ class DatasetEditorManager
 	{
 		model.setDescription(descriptionArea.getText());
 		model.setName(nameField.getText());
-		if (imagesToRemove != null) setModelImages();
-		control.updateDataset(model, nameChange);
+		control.updateDataset(model, imagesToRemove, imagesToAdd, nameChange);
 		view.dispose();
-	}
-	
-	/** Remove the selected images from the images list of the model. */
-	private void setModelImages()
-	{
-		//TODO: modified b/c of the remote framework status.
-		Iterator i = imagesToRemove.iterator();
-		List images = model.getImages();
-		while (i.hasNext())
-			images.remove((ImageSummary) i.next());
-		model.setImages(images);
 	}
 	
 	/** Select All images.*/

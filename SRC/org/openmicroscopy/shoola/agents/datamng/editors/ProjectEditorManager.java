@@ -35,7 +35,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -195,13 +194,15 @@ class ProjectEditorManager
 	void showDatasetsSelection()
 	{
 		if (dialog == null) {
-			List datasetsDiff = control.getDatasetsDiff(model.getID());
+			//tempo solution
+			List datasetsDiff = control.getDatasetsDiff(model);
 			dialog = new ProjectDatasetsDiffPane(this, datasetsDiff);
 		} else {
 			dialog.remove(dialog.getContents());
 			dialog.buildGUI();
 		}
-		control.showDialog(dialog);	
+		control.showDialog(dialog);
+		saveButton.setEnabled(true);	
 	}
 	
 	/** Add the list of selected datasets to the {@link ProjectDatasetPane}. */
@@ -243,6 +244,7 @@ class ProjectEditorManager
 		if (value){
 			 if (!datasetsToRemove.contains(ds)) datasetsToRemove.add(ds); 
 		} else 	datasetsToRemove.remove(ds);
+		saveButton.setEnabled(true);
 	}
 	
 	/** Save in DB. */
@@ -250,22 +252,11 @@ class ProjectEditorManager
 	{
 		model.setDescription(descriptionArea.getText());
 		model.setName(nameField.getText());
-		if (datasetsToRemove != null) setModelDatasets();
-		control.updateProject(model, nameChange);
+		control.updateProject(model, datasetsToRemove, datasetsToAdd, 
+							nameChange);
 		view.dispose();
 	}
-	
-	/** Remove the selected datasets from the datasets list of the model. */
-	private void setModelDatasets()
-	{
-		//TODO: TO BE MODIFIED b/c of the pseudo remote framework
-		Iterator i = datasetsToRemove.iterator();
-		List datasets = model.getDatasets();
-		while (i.hasNext())
-			datasets.remove((DatasetSummary) i.next());
-		model.setDatasets(datasets);
-	}
-	
+
 	/** Select All datasets.*/
 	private void remove()
 	{

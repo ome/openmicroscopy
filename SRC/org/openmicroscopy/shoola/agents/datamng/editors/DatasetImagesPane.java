@@ -97,6 +97,8 @@ class DatasetImagesPane
 	
 	private List					imagesToAdd;
 	
+	private List					listImages;
+	
 	DatasetImagesPane(DatasetEditorManager manager)
 	{
 		this.manager = manager;
@@ -145,6 +147,7 @@ class DatasetImagesPane
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
+		listImages = manager.getDatasetData().getImages();
 		tablePanel = buildTablePanel();
 		buttonsPanel = buildButtonsPanel();
 		tableToAddPanel = buildTableToAddPanel();
@@ -184,6 +187,11 @@ class DatasetImagesPane
 		controls.add(addButton);
 		controls.setOpaque(false); //make panel transparent
 	
+		if (listImages == null || listImages.size() == 0) {
+			removeButton.setEnabled(false);
+			cancelButton.setEnabled(false);
+			addButton.setEnabled(false);
+		}
 		return controls;
 	}
 
@@ -251,11 +259,11 @@ class DatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		private final String[]    columnNames = {"ID", "Name", "Select"};
-		private final Object[]    
-			images = manager.getDatasetData().getImages().toArray();
-		private Object[][]	data = new Object[images.length][3];
-		private Map 		imageSummaries;
+		private final String[]	columnNames = {"ID", "Name", "Select"};
+		private final Object[]	images = listImages.toArray();
+		private Object[][]		data = new Object[images.length][3];
+		private Map 			imageSummaries;
+		
 		private ImagesTableModel()
 		{
 			imageSummaries = new HashMap();

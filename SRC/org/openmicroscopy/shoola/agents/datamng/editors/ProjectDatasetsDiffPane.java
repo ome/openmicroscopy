@@ -89,7 +89,7 @@ class ProjectDatasetsDiffPane
 	
 	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
 	{
-		super(control.getView(), "List of datasets",true);
+		super(control.getView(), "List of existing datasets",true);
 		this.datasetsDiff = datasetsDiff;
 		this.control = control;
 		initButtons();
@@ -148,6 +148,12 @@ class ProjectDatasetsDiffPane
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText("Add the selection");
+		
+		if (datasetsDiff == null || datasetsDiff.size() == 0) {
+			selectButton.setEnabled(false);
+			cancelButton.setEnabled(false);
+			saveButton.setEnabled(false);
+		}
 		
 	}
 	

@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -164,14 +165,22 @@ public class DataManager
 	 * @param projectID		id of the dataset.
 	 * @return
 	 */
-	List getImagesDiff(int projectID)
+	List getImagesDiff(DatasetData data)
 	{
 		//TODO: remove test, have to figure out how to retrieve data via ds
-		List imagesDiff = new ArrayList();
-		ImageSummary d = new ImageSummary(101, "image 101", null);
-		imagesDiff.add(d);
-		d = d = new ImageSummary(102, "image 102", null);
-		imagesDiff.add(d);
+		List imagesDiff = getUserImages();
+		List images = data.getImages();
+		ImageSummary is, isg;
+		for (int j = 0; j < imagesDiff.size(); j++) {
+			isg = (ImageSummary) imagesDiff.get(j);
+			Iterator i = images.iterator();
+			while (i.hasNext()) {
+				is = (ImageSummary) i.next();
+				if (is.getID() == isg.getID()) {
+					 imagesDiff.remove(isg); 
+				} 
+			}
+		}
 		return imagesDiff;
 	}
 	
@@ -183,14 +192,27 @@ public class DataManager
 	 * @param projectID		if of the project.
 	 * @return
 	 */
-	List getDatasetsDiff(int projectID)
+	List getDatasetsDiff(ProjectData data)
 	{
 		//TODO: remove test, have to figure out how to retrieve data via ds
 		List datasetsDiff = new ArrayList();
-		DatasetSummary d = new DatasetSummary(101, "test 101");
-		datasetsDiff.add(d);
-		d = new DatasetSummary(102, "test 102");
-		datasetsDiff.add(d);
+		if (datasetSummaries == null) getUserDatasets();
+		List datasets = data.getDatasets();
+		DatasetSummary ds, dsg;
+		Iterator j = datasetSummaries.iterator();
+		while (j.hasNext()) {
+			dsg = (DatasetSummary) j.next();
+			Iterator i = datasets.iterator();
+			datasetsDiff.add(dsg);
+			while (i.hasNext()) {
+				ds = (DatasetSummary) i.next();
+				if (ds.getID() == dsg.getID()) {
+					datasetsDiff.remove(dsg);
+					break;
+				} 
+			}
+			
+		}
 		return datasetsDiff;
 	}
 	
@@ -214,8 +236,9 @@ public class DataManager
 				un.notifyError("Data Retrieval Failure", 
 					"Unable to retrieve user's projects", dsae);
 			} catch(DSOutOfServiceException dsose) {
-				// pop up login window
-				throw new RuntimeException(dsose);
+				ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
 			} 
 		}
 		
@@ -241,8 +264,9 @@ public class DataManager
 				un.notifyError("Data Retrieval Failure", 
 					"Unable to retrieve user's datasets", dsae);
 			} catch(DSOutOfServiceException dsose) {	
-				// pop up login window
-				throw new RuntimeException(dsose);
+				ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
 			} 
 		}
 		
@@ -268,8 +292,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve user's images", dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 		
 		return images;
@@ -292,8 +317,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve images for the dataset "+datasetID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		}
 		
 		return images;	
@@ -316,8 +342,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve the project "+projectID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 		
 		return project;
@@ -340,8 +367,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve the dataset "+datasetID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 		
 		return dataset;
@@ -364,8 +392,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve the image "+imageID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 		
 		return image;
@@ -379,20 +408,22 @@ public class DataManager
 	void createProject(ProjectData pd)
 	{
 		ProjectSummary project;
+		
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.createProject(pd);
 			if (projectSummaries == null) projectSummaries = new ArrayList();
 			projectSummaries.add(project);
 			// forward event to the presentation.
-			presentation.addNewProjectToTree(project);
+			presentation.addNewProjectToTree(project);	
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to create a project: "+pd.getName(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 	}
 	
@@ -426,8 +457,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to create a dataset: "+dd.getName(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 		
 	}
@@ -435,13 +467,16 @@ public class DataManager
 	/**
 	 * Update a specified project.
 	 * 
-	 * @param pd	Project data object.
+	 * @param pd			data object to update.
+	 * @param dsToRemove	List of datasetIds to remove from the project.
+	 * @param dsToAdd		List of datasetIds to add to the project.
 	 */
-	void updateProject(ProjectData pd, boolean nameChange)
+	void updateProject(ProjectData pd, List dsToRemove, List dsToAdd,
+						boolean nameChange)
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			dms.updateProject(pd);
+			dms.updateProject(pd, dsToRemove, dsToAdd);
 			//update the presentation and the project summary contained in the 
 			//projectSummaries list accordingly.
 			updatePSList(pd);
@@ -451,8 +486,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to update the specified project: "+pd.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 	
 	}
 	
@@ -465,6 +501,7 @@ public class DataManager
 	 */
 	private void updatePSList(ProjectData pd)
 	{
+		//TODO need to be modified.
 		Iterator i = projectSummaries.iterator();
 		ProjectSummary ps;
 		while (i.hasNext()) {
@@ -480,13 +517,16 @@ public class DataManager
 	/**
 	 * Update a specified dataset.
 	 * 
-	 * @param dd	Dataset data object.
+	 * @param dd			data object to update.
+	 * @param isToRemove	List of imageIds to remove from the dataset.
+	 * @param isToAdd		List of imageIds to add to the dataset.
 	 */
-	void updateDataset(DatasetData dd, boolean nameChange)
+	void updateDataset(DatasetData dd, List isToRemove, List isToAdd,
+					 boolean nameChange)
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			dms.updateDataset(dd);
+			dms.updateDataset(dd, isToRemove, isToAdd);
 			//update the presentation and the dataset summary contained in the 
 			//datasetSummaries list accordingly.
 			if (datasetSummaries != null) updateDSList(dd);
@@ -497,8 +537,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to update the specified dataset: "+dd.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 
 	}
 	
@@ -564,8 +605,9 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to update the specified image: "+id.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			// pop up login window
-			throw new RuntimeException(dsose);
+			ServiceActivationRequest request = new ServiceActivationRequest(
+										ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
 		} 	
 	}
 

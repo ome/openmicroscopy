@@ -89,7 +89,7 @@ class DatasetImagesDiffPane
 	
 	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
 	{
-		super(control.getView(), "List of images", true);
+		super(control.getView(), "List of exiting images", true);
 		this.imagesDiff = imagesDiff;
 		this.control = control;
 		initButtons();
@@ -159,6 +159,12 @@ class DatasetImagesDiffPane
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText("Add the selection");
+		
+		if (imagesDiff == null || imagesDiff.size() == 0) {
+			selectButton.setEnabled(false);
+			cancelButton.setEnabled(false);
+			saveButton.setEnabled(false);
+		}
 	}
 	
 	/** Build and layout the GUI. */

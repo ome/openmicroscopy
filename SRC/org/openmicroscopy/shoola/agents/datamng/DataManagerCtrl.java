@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.event.InternalFrameEvent;
@@ -164,7 +163,7 @@ public class DataManagerCtrl
 	{
 		String s = (String) e.getActionCommand();
 		try {
-		   int     index = Integer.parseInt(s);
+		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case DM_VISIBLE:
 					showPresentation();
@@ -211,15 +210,15 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public List getDatasetsDiff(int projectID)
+	public List getDatasetsDiff(ProjectData data)
 	{
-		return abstraction.getDatasetsDiff(projectID);
+		return abstraction.getDatasetsDiff(data);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public List getImagesDiff(int imageID)
+	public List getImagesDiff(DatasetData data)
 	{
-		return abstraction.getImagesDiff(imageID);
+		return abstraction.getImagesDiff(data);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
@@ -235,15 +234,17 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public void updateProject(ProjectData pd, boolean nameChange)
+	public void updateProject(ProjectData pd, List toRemove, List toAdd,
+							 boolean nameChange)
 	{
-		abstraction.updateProject(pd, nameChange);
+		abstraction.updateProject(pd, toRemove, toAdd, nameChange);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
-	public void updateDataset(DatasetData dd, boolean nameChange)
+	public void updateDataset(DatasetData dd, List toRemove, List toAdd, 
+								boolean nameChange)
 	{
-		abstraction.updateDataset(dd, nameChange);
+		abstraction.updateDataset(dd, toRemove, toAdd, nameChange);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
