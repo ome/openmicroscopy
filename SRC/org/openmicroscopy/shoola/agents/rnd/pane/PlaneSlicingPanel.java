@@ -109,8 +109,6 @@ class PlaneSlicingPanel
 	/** Color of the endKnob (input & output). */
 	private static final Color		oendColor = Color.GRAY;
 	
-	
-	
 	/** Control points. */
 	private Point2D 				startPt, endPt;
 	

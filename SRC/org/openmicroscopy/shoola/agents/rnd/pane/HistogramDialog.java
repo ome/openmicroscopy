@@ -81,12 +81,13 @@ class HistogramDialog
 	
 	HistogramDialogManager getManager() { return manager; }
 
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
-		super.getContentPane().add(histogramPanel);
+		getContentPane().add(histogramPanel);
 		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
 		setResizable(false);
+		super.repaint();
 	}
 	
 }
