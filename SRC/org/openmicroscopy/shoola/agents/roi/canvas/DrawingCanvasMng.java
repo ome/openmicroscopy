@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.roi.canvas;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -72,6 +73,10 @@ public class DrawingCanvasMng
     
     /** Default line color. */
     public static final Color   LINE_COLOR = Color.RED;
+    
+    private static final int    DEFAULT_CURSOR = 0, HAND_CURSOR = 1;
+    
+    private Cursor              handCursor, defaultCursor;
     
     /** Reference to the {@link DrawingCanvas view}. */
     private DrawingCanvas       view;
@@ -117,6 +122,8 @@ public class DrawingCanvasMng
     {
         this.view = view;
         drawingArea = new Rectangle();
+        defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        handCursor = new Cursor(Cursor.HAND_CURSOR);
         attachListeners();
         setDefault(); 
     }
@@ -285,12 +292,14 @@ public class DrawingCanvasMng
     {
         dragging = false;
         moving = false;
+        setCursor(DEFAULT_CURSOR); 
         switch (state) {
             case ROIAgt.CONSTRUCTING: 
                 if (!pressed) saveROI();
                 break;
             case ROIAgt.MOVING: 
-            case ROIAgt.RESIZING:    
+            case ROIAgt.RESIZING: 
+                
                 if (currentShape != null) saveShape();   
         } 
         pressed = false;
@@ -375,6 +384,8 @@ public class DrawingCanvasMng
         Iterator i = listROI.iterator();
         ROIShape roi;
         Shape s;
+        if (state == ROIAgt.MOVING) setCursor(HAND_CURSOR);
+        else setCursor(DEFAULT_CURSOR);
         while (i.hasNext()) {
             roi = (ROIShape) (i.next());
             s = roi.getShape();
@@ -385,7 +396,10 @@ public class DrawingCanvasMng
                 xControl = r.x;
                 yControl = r.y;
                 view.setIndexSelected(roi.getIndex());
-                if (clickCount == 2) control.annotateROI(roi);
+                if (clickCount == 2) {
+                    dragging = false;
+                    control.annotateROI(roi);
+                }
             }
         }
     }
@@ -394,7 +408,7 @@ public class DrawingCanvasMng
     private void handleMouseDrag(Point p)
     {
         switch (state) {
-            case ROIAgt.CONSTRUCTING: 
+            case ROIAgt.CONSTRUCTING:
                 currentShape = ROIFactory.makeShape(anchor, p, shapeType);
                 view.draw(currentShape);
                 break;
@@ -462,6 +476,15 @@ public class DrawingCanvasMng
                                  r.x, r.y, width, height);
         moving = true;
         view.draw(currentShape); 
+    }
+    
+    /** Set the cursor type according to event. */
+    private void setCursor(int type)
+    {
+        Cursor c = null;
+        if (type == DEFAULT_CURSOR) c = defaultCursor;
+        else if (type == HAND_CURSOR) c = handCursor;
+        if (c != null) view.setCursor(c);
     }
     
     /** 
