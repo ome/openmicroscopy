@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.mem.ByteArray
+ * org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray
  *
  *------------------------------------------------------------------------------
  *
@@ -105,7 +105,7 @@ public class ReadOnlyByteArray
 		if (base == null) throw new NullPointerException("No base.");
 		if (offset < 0 || length < 0 || base.length < offset+length)
 			throw new IllegalArgumentException(
-				"[offset="+offset+", length="+length+
+				"[offset="+offset+", offset+length="+(offset+length)+
 				"] not in [0, base.length="+base.length+"].");
 		this.base = base;
 		this.offset = offset;
