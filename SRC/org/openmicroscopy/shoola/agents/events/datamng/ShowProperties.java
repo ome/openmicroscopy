@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo
+ * org.openmicroscopy.shoola.agents.events.datamng.ShowProperties
  *
  *------------------------------------------------------------------------------
  *
@@ -29,47 +29,41 @@
 
 package org.openmicroscopy.shoola.agents.events.datamng;
 
+import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
-/**
- * Event that instructs the DM to open up the image information dialog
- * for this particular image.
+/** 
+ * 
  *
- * @author Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp; 
- * 			<a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">
+ * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public class ViewImageInfo
-	extends RequestEvent
+public class ShowProperties
+    extends RequestEvent
 {
-    private ImageSummary summary;
+
+    private DataObject userObject;
     
-    /**
-     * Creates a new view image info event.
-     * @param summary The image summary of the image to open.
-     */
-    public ViewImageInfo(ImageSummary summary)
+    public ShowProperties(DataObject userObject) 
     {
-        this.summary = summary;
+        this.userObject = userObject;
     }
     
-    /**
-     * Returns the object encased in this event.
-     * @return See above.
-     */
-    public ImageSummary getImageInfo()
-    {
-        return summary;
-    }
+    public DataObject getUserObject() { return userObject; }
     
 }
