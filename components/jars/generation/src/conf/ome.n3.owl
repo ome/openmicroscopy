@@ -33,6 +33,11 @@ default:Email
       rdfs:domain default:Experimenter ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
 
+default:nodeIn
+      a       owl:ObjectProperty , owl:FunctionalProperty ;
+      rdfs:domain default:Link ;
+      rdfs:range default:Node .
+
 default:Follow
       a       owl:Class ;
       rdfs:subClassOf default:DevelopmentComponent .
@@ -52,6 +57,19 @@ default:sizeC
       rdfs:domain default:Pixels ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#int> ;
       rdfs:subPropertyOf default:size .
+
+default:moduleExecution
+      a       owl:ObjectProperty , owl:FunctionalProperty ;
+      rdfs:domain default:NodeExecution ;
+      rdfs:range default:ModuleExecution .
+
+default:feature
+      a       owl:ObjectProperty ;
+      rdfs:domain
+              [ a       owl:Class ;
+                owl:unionOf (default:Image default:Feature)
+              ] ;
+      rdfs:range default:Feature .
 
 default:img3
       a       default:Image ;
@@ -93,21 +111,25 @@ default:Cellline
       a       default:CategoryGroup ;
       default:contains default:M2348 , default:M2188 , default:M2348z .
 
+default:AnalysisComponent
+      a       owl:Class ;
+      rdfs:subClassOf default:OMEObject .
+
 default:Analyzing
       a       owl:Class ;
       rdfs:comment "Represents the act -- by human or machine agent -- of computing results from the existing data."^^<http://www.w3.org/2001/XMLSchema#string> ;
       rdfs:subClassOf default:Interaction .
+
+default:group
+      a       owl:ObjectProperty ;
+      rdfs:domain default:Experimenter ;
+      rdfs:range default:Group .
 
 default:img2
       a       default:Image ;
       default:defaultPixels
               default:pix1 ;
       default:owner default:Josh .
-
-default:group
-      a       owl:ObjectProperty ;
-      rdfs:domain default:Experimenter ;
-      rdfs:range default:Group .
 
 default:produced
       a       owl:ObjectProperty ;
@@ -123,18 +145,28 @@ default:max
       rdfs:domain default:PlaneStats ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#float> .
 
+default:ImageAtrribute
+      a       owl:Class ;
+      rdfs:subClassOf default:Analysis ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Image ;
+                owl:onProperty default:on
+              ] .
+
 default:model
       a       owl:ObjectProperty ;
       rdfs:domain default:Experimenter ;
       rdfs:range default:Model .
 
-default:ImageAtrribute
-      a       owl:Class ;
-      rdfs:subClassOf default:Analysis .
-
 default:FeatureAttribute
       a       owl:Class ;
-      rdfs:subClassOf default:Analysis .
+      rdfs:subClassOf default:Analysis ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Feature ;
+                owl:onProperty default:on
+              ] .
 
 default:Annotating
       a       owl:Class ;
@@ -154,6 +186,15 @@ default:Experimenter
       a       owl:Class ;
       rdfs:subClassOf default:Leaf .
 
+default:ContainerService
+      a       owl:Class ;
+      rdfs:subClassOf default:Service ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Container ;
+                owl:onProperty default:governs
+              ] .
+
 default:AnnotationService
       a       owl:Class ;
       rdfs:subClassOf default:Service ;
@@ -163,15 +204,6 @@ default:AnnotationService
                         [ a       owl:Class ;
                           owl:unionOf (default:Annotation default:Annotating)
                         ] ;
-                owl:onProperty default:governs
-              ] .
-
-default:ContainerService
-      a       owl:Class ;
-      rdfs:subClassOf default:Service ;
-      rdfs:subClassOf
-              [ a       owl:Restriction ;
-                owl:allValuesFrom default:Container ;
                 owl:onProperty default:governs
               ] .
 
@@ -284,9 +316,19 @@ default:Plate
                 owl:onProperty default:contains
               ] .
 
+default:nodeExecution
+      a       owl:ObjectProperty ;
+      rdfs:domain default:ChainExecution ;
+      rdfs:range default:Attribute .
+
 default:Analysis
       a       owl:Class ;
       rdfs:subClassOf default:Attribute .
+
+default:link
+      a       owl:ObjectProperty ;
+      rdfs:domain default:Chain ;
+      rdfs:range default:Link .
 
 default:immutable_Proj2
       a       default:Project ;
@@ -295,6 +337,11 @@ default:immutable_Proj2
       default:inactive "false"^^<http://www.w3.org/2001/XMLSchema#boolean> ;
       default:owner default:Josh ;
       default:version "1"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+default:module
+      a       owl:ObjectProperty , owl:FunctionalProperty ;
+      rdfs:domain default:Node ;
+      rdfs:range default:Module .
 
 default:inactive
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
@@ -349,10 +396,6 @@ default:description
       rdfs:domain default:OMEObject ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
 
-default:GOCellularComponentAnnotation
-      a       owl:Class ;
-      rdfs:subClassOf default:GOAnnotation .
-
 default:Category
       a       owl:Class ;
       rdfs:subClassOf default:Container ;
@@ -361,6 +404,10 @@ default:Category
                 owl:allValuesFrom default:Image ;
                 owl:onProperty default:contains
               ] .
+
+default:GOCellularComponentAnnotation
+      a       owl:Class ;
+      rdfs:subClassOf default:GOAnnotation .
 
 default:sizeY
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
@@ -416,7 +463,7 @@ default:sizeX
 
 default:Module
       a       owl:Class ;
-      rdfs:subClassOf default:Leaf .
+      rdfs:subClassOf default:AnalysisComponent .
 
 default:Model
       a       owl:Class ;
@@ -439,7 +486,7 @@ default:Importing
 
 default:Feature
       a       owl:Class ;
-      rdfs:subClassOf default:Analysis .
+      rdfs:subClassOf default:Leaf .
 
 default:Pixels
       a       owl:Class ;
@@ -467,6 +514,10 @@ default:runBy
       rdfs:domain default:Module ;
       rdfs:range default:Experimenter .
 
+default:Link
+      a       owl:Class ;
+      rdfs:subClassOf default:AnalysisComponent .
+
 default:min
       a       owl:DatatypeProperty , owl:FunctionalProperty ;
       rdfs:domain default:PlaneStats ;
@@ -479,6 +530,11 @@ default:ChainExecution
 default:Execution
       a       owl:Class ;
       rdfs:subClassOf default:Analyzing .
+
+default:nodeOut
+      a       owl:ObjectProperty , owl:FunctionalProperty ;
+      rdfs:domain default:Link ;
+      rdfs:range default:Node .
 
 default:Group
       a       owl:Class ;
@@ -574,7 +630,7 @@ default:firstContainerFollow
 
 default:Chain
       a       owl:Class ;
-      rdfs:subClassOf default:Container ;
+      rdfs:subClassOf default:AnalysisComponent ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:allValuesFrom default:Module ;
@@ -604,12 +660,21 @@ default:PlaneStats
 
 default:ContainerAttribute
       a       owl:Class ;
-      rdfs:subClassOf default:Analysis .
+      rdfs:subClassOf default:Analysis ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Container ;
+                owl:onProperty default:on
+              ] .
 
 default:Institution
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Experimenter ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#string> .
+
+default:Node
+      a       owl:Class ;
+      rdfs:subClassOf default:AnalysisComponent .
 
 default:allFollow
       a       default:Follow ;
@@ -626,6 +691,11 @@ default:input
       rdfs:domain default:Module ;
       rdfs:range default:OMEObject .
 
+default:on
+      a       owl:ObjectProperty ;
+      rdfs:domain default:Attribute ;
+      rdfs:range default:OMEObject .
+
 default:Service
       a       owl:Class ;
       rdfs:comment "This is an attempt to also generate the service definitions from OWL. NOT FUNCTIONAL."^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -640,6 +710,11 @@ default:pixelDimension
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
       rdfs:domain default:Image ;
       rdfs:range <http://www.w3.org/2001/XMLSchema#float> .
+
+default:region
+      a       owl:ObjectProperty ;
+      rdfs:domain default:Feature ;
+      rdfs:range default:ROI .
 
 default:ds1
       a       default:Dataset ;
@@ -659,12 +734,6 @@ default:Container
                 owl:onProperty default:owner
               ] .
 
-default:dev_team
-      a       default:Group ;
-      default:contains default:Josh , default:Jason ;
-      default:label "Development Team"^^<http://www.w3.org/2001/XMLSchema#string> ;
-      default:owner default:Jason .
-
 default:pix1
       a       default:Pixels ;
       default:pixelType "???"^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -674,6 +743,12 @@ default:pix1
       default:sizeX "121"^^<http://www.w3.org/2001/XMLSchema#int> ;
       default:sizeY "121"^^<http://www.w3.org/2001/XMLSchema#int> ;
       default:sizeZ "13"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+default:dev_team
+      a       default:Group ;
+      default:contains default:Josh , default:Jason ;
+      default:label "Development Team"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      default:owner default:Jason .
 
 default:LastName
       a       owl:DatatypeProperty , owl:FunctionalProperty ;

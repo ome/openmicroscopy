@@ -1,4 +1,4 @@
-; Wed Mar 02 17:35:35 CET 2005
+; Wed Mar 02 21:48:52 CET 2005
 ; 
 ;+ (version "3.0")
 ;+ (build "Build 131")
@@ -6,11 +6,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[ome_ProjectKB_Instance_30131]
-		[ome_ProjectKB_Instance_30132]
-		[ome_ProjectKB_Instance_30133]
-		[ome_ProjectKB_Instance_30134]
-		[ome_ProjectKB_Instance_30135]))
+		[ome_ProjectKB_Instance_40007]
+		[ome_ProjectKB_Instance_40008]
+		[ome_ProjectKB_Instance_40009]
+		[ome_ProjectKB_Instance_40010]
+		[ome_ProjectKB_Instance_40011]))
 
 ([CLSES_TAB] of  Widget
 
@@ -1704,8 +1704,8 @@
 
 ([ome_ProjectKB_Instance_10209] of  Map
 
-	(entries [ome_ProjectKB_Instance_30137])
-	(referenced_maps [ome_ProjectKB_Instance_30136]))
+	(entries [ome_ProjectKB_Instance_40013])
+	(referenced_maps [ome_ProjectKB_Instance_40012]))
 
 ([ome_ProjectKB_Instance_11] of  Property_List
 )
@@ -2202,41 +2202,6 @@
 
 ([ome_ProjectKB_Instance_30006] of  Property_List
 )
-
-([ome_ProjectKB_Instance_30131] of  String
-
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_30132] of  String
-
-	(name "owl:Class")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_30133] of  String
-
-	(name ":INSTANCE-ANNOTATION")
-	(string_value "%3AANNOTATION-TEXT"))
-
-([ome_ProjectKB_Instance_30134] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([ome_ProjectKB_Instance_30135] of  String
-
-	(name "owl:Thing")
-	(string_value "%3ANAME"))
-
-([ome_ProjectKB_Instance_30136] of  Map
-)
-
-([ome_ProjectKB_Instance_30137] of  Map_Entry
-
-	(key "InstanceDisplay.yellow_stickies")
-	(key_class "java.lang.String")
-	(value "ome_ProjectKB_Instance_30136")
-	(value_class "java.util.Map"))
 
 ([ome_ProjectKB_Instance_30428] of  Widget
 
@@ -5129,6 +5094,41 @@
 	(property_list [ome_ProjectKB_Instance_41])
 	(widget_class_name "edu.stanford.smi.RemoteKBTab.UMLSTab"))
 
+([ome_ProjectKB_Instance_40007] of  String
+
+	(name "owl:Class")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_40008] of  String
+
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_40009] of  String
+
+	(name ":INSTANCE-ANNOTATION")
+	(string_value "%3AANNOTATION-TEXT"))
+
+([ome_ProjectKB_Instance_40010] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([ome_ProjectKB_Instance_40011] of  String
+
+	(name "owl:Thing")
+	(string_value "%3ANAME"))
+
+([ome_ProjectKB_Instance_40012] of  Map
+)
+
+([ome_ProjectKB_Instance_40013] of  Map_Entry
+
+	(key "InstanceDisplay.yellow_stickies")
+	(key_class "java.lang.String")
+	(value "ome_ProjectKB_Instance_40012")
+	(value_class "java.util.Map"))
+
 ([ome_ProjectKB_Instance_41] of  Property_List
 )
 
@@ -5183,37 +5183,37 @@
 	(browser_slot_names [BROWSER_SLOT_NAMES])
 	(customized_instance_widgets
 		[KB_420361_Instance_54]
-		[ome_ProjectKB_Instance_20248]
+		[ome_ProjectKB_Instance_30428]
 		[INSTANCE_ANNOTATION_FORM_WIDGET]
 		[KB_313796_Instance_852]
-		[Instance_581]
-		[KB_764103_Instance_545]
-		[ome_ProjectKB_Instance_20090]
-		[ome_ProjectKB_Instance_10000]
 		[ome_ProjectKB_Instance_20045]
+		[Instance_581]
+		[ome_ProjectKB_Instance_20248]
+		[ome_ProjectKB_Instance_20338]
+		[KB_764103_Instance_545]
 		[KB_553917_Instance_637]
 		[KB_868747_Instance_76]
-		[ome_ProjectKB_Instance_30428]
+		[ome_ProjectKB_Instance_10000]
 		[KB_691299_Instance_537]
 		[Instance_1005]
 		[KB_379625_Instance_617]
 		[STANDARD_FACET_FORM_WIDGET]
-		[ome_ProjectKB_Instance_30518]
-		[KB_691299_Instance_398]
-		[KB_313796_Instance_943]
-		[STANDARD_SLOT_FORM_WIDGET]
-		[KB_303942_Instance_68]
 		[ome_ProjectKB_Instance_20293]
 		[ome_ProjectKB_Instance_30473]
-		[ome_ProjectKB_Instance_20383]
-		[Instance_443]
+		[KB_691299_Instance_398]
+		[ome_ProjectKB_Instance_30518]
+		[KB_313796_Instance_943]
+		[ome_ProjectKB_Instance_20090]
+		[STANDARD_SLOT_FORM_WIDGET]
+		[KB_303942_Instance_68]
 		[KB_465546_Instance_567]
+		[Instance_443]
 		[PAL_FORM_WIDGET]
-		[KB_301165_Instance_856]
 		[KB_301165_Instance_1013]
+		[KB_301165_Instance_856]
+		[ome_ProjectKB_Instance_20383]
 		[KB_379625_Instance_777]
-		[STANDARD_CLASS_FORM_WIDGET]
-		[ome_ProjectKB_Instance_20338])
+		[STANDARD_CLASS_FORM_WIDGET])
 	(default_cls_metaclass "owl:Class")
 	(default_facet_metaclass ":STANDARD-FACET")
 	(default_instance_widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLFormWidget")
@@ -5221,14 +5221,14 @@
 	(hidden_classes
 		"owl:maxCardinality"
 		":OWL-INFERRED-SUPERCLASSES"
-		"rdf:value"
 		"owl:versionInfo"
-		"rdfs:Container"
+		"rdf:value"
 		"rdf:type"
-		"owl:someValuesFrom"
+		"rdfs:Container"
 		"owl:cardinality"
-		"rdf:predicate"
+		"owl:someValuesFrom"
 		"rdf:Property"
+		"rdf:predicate"
 		"rdf:object"
 		"rdfs:isDefinedBy"
 		"owl:onProperty"
@@ -5247,25 +5247,25 @@
 		"owl:DatatypeProperty"
 		":OWL-ANONYMOUS-ROOT"
 		"rdf:rest"
-		":FROM"
-		"rdf:Statement"
 		"rdfs:seeAlso"
+		"rdf:Statement"
+		":FROM"
 		"rdf:first"
 		"rdfs:Bag"
-		"rdfs:Alt"
 		"rdfs:Literal"
+		"rdfs:Alt"
 		"rdfs:comment"
-		"ExternalResource"
 		"owl:hasValue"
+		"ExternalResource"
 		"owl:incompatibleWith"
 		"rdfs:Seq"
 		":OWL-INFERRED-SUBCLASSES"
-		"owl:Nothing"
-		":DIRECTED-BINARY-RELATION"
 		"owl:allValuesFrom"
+		":DIRECTED-BINARY-RELATION"
+		"owl:Nothing"
 		"rdf:subject"
-		"owl:oneOf"
-		"owl:backwardCompatibleWith")
+		"owl:backwardCompatibleWith"
+		"owl:oneOf")
 	(next_frame_number 0)
 	(options [Instance_48])
 	(property_map [ome_ProjectKB_Instance_10209])
