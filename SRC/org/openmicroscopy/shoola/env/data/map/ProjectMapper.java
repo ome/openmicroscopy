@@ -44,6 +44,7 @@ import java.util.Map;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -148,6 +149,29 @@ public class ProjectMapper
 		return criteria;
 	}
 	
+    /** Return of Object ID corresponding to the dataset ID. */
+    public static List prepareListDatasetsID(List projects)
+    {
+        Map map = new HashMap();
+        Iterator i = projects.iterator(), k;
+        List datasets;
+        Integer id;
+        while (i.hasNext()) {
+            datasets = ((Project) i.next()).getDatasets();
+            k = datasets.iterator();
+            while (k.hasNext()) {
+                id = new Integer(((Dataset) k.next()).getID());
+                map.put(id, id);
+            }
+        }
+        i = map.keySet().iterator();
+        List ids = new ArrayList();
+        while (i.hasNext()) 
+            ids.add(i.next());
+
+        return ids;
+    }
+    
 	/** 
 	 * Fill in the project data object. 
 	 * 
@@ -245,6 +269,69 @@ public class ProjectMapper
 		
 		return projectsList;
 	}
+
+    /**
+     * Create a list of {@link ProjectSummary}s.
+     * @param projects
+     * @param pProto
+     * @param dProto
+     * @param annotations
+     * @param userID
+     * @return
+     */
+    public static List fillListAnnotatedDatasets(List projects, ProjectSummary 
+                    pProto, DatasetSummary dProto, List annotations, int userID)
+    {
+        Map ids = AnnotationMapper.reverseListDatasetAnnotations(annotations, 
+                                                                userID);
+        Map datasetsMap = new HashMap();
+        List projectsList = new ArrayList();  //The returned summary list.
+        Iterator i = projects.iterator();
+        //DataObject.
+        ProjectSummary ps;
+        DatasetSummary ds;
+        Project p;
+        Dataset d;
+        Iterator j;
+        List datasets;
+        Integer id;
+        //For each p in projects...
+        while (i.hasNext()) {
+            p = (Project) i.next();
+            
+            //Make a new DataObject and fill it up.
+            ps = (ProjectSummary) pProto.makeNew();
+            ps.setID(p.getID());
+            ps.setName(p.getName());
+
+            j = p.getDatasets().iterator();
+            datasets = new ArrayList();
+            while (j.hasNext()) {
+                d = (Dataset) j.next();
+                id = new Integer(d.getID());
+                ds = (DatasetSummary) datasetsMap.get(id);
+                if (ds == null) {
+                    //Make a new DataObject and fill it up.
+                    ds = (DatasetSummary) dProto.makeNew();     
+                    ds.setID(id.intValue());
+                    ds.setName(d.getName());
+                    ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
+                            (DatasetAnnotation) ids.get(id)));
+                    datasetsMap.put(id, ds);
+                }  //object already created this object.
+                //Add the dataset to this project's list.
+                datasets.add(ds);   
+            }
+            
+            //Link the datasets to this project.
+            ps.setDatasets(datasets);
+            
+            //Add the project to the list of returned projects.
+            projectsList.add(ps);
+        }
+        
+        return projectsList;
+    }
 
 	/**
 	 * Create list of project summary objects.

@@ -373,7 +373,8 @@ public class DatasetMapper
         Image image;
         ImageSummary is;
         int id;
-        Map ids = AnnotationMapper.reverseListAnnotations(annotations, userID);
+        Map ids = AnnotationMapper.reverseListImageAnnotations(annotations, 
+                                                                userID);
         while (i.hasNext()) {
             image = (Image) i.next();
             //Make a new DataObject and fill it up.
