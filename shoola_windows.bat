@@ -1,3 +1,5 @@
+@echo off
+
 rem OME Shoola startup script for Windows
 rem -------------------------------------------------------------------------------
 rem 
