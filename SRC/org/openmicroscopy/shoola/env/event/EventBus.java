@@ -17,9 +17,32 @@ public interface EventBus {
  * of occuremces of the specified event types
  *
  *@param subscriber     AgentListener objet to add
- *@param events          list of classes
+ *@param events          list of classes that the subscriber registers for
  */     
     public void register(AgentEventListener  subscriber, Class[] events);
+
+/** Add the subscriber to the List
+ * An agent uses the register method in order to be notified  
+ * of occuremces of the specified event types
+ *
+ *@param subscriber    AgentListener objet to add
+ *@param event          a class 
+ */     
+    public void register(AgentEventListener  subscriber, Class event);
+
+/** Remove the subscriber to the List
+ *
+ *@param subscriber     AgentListener objet to remove
+ *@param events          list of classes 
+ */    
+    public void remove(AgentEventListener  subscriber);
+    
+/** Remove the subscriber to the List
+ *
+ *@param subscriber     AgentListener objet to remove
+ *@param event          a class
+ */     
+    public void remove(AgentEventListener  subscriber, Class event);
     
 /** Remove the subscriber to the List
  *
