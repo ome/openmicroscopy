@@ -33,25 +33,25 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.agents.rnd.model.GreyScalePane;
 import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
+import org.openmicroscopy.shoola.env.InternalError;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /** 
  * 
  *
@@ -120,12 +120,6 @@ public class RenderingAgtCtrl
 	public void setMappingPane()
 	{
 		presentation.setMappingPane();
-	}
-	
-	/** Forward event to {@link RenderingAgtUIF presentation}. */
-	public void showDialog(JDialog dialog)
-	{
-		UIUtilities.centerAndShow(dialog);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}.  */
@@ -261,12 +255,17 @@ public class RenderingAgtCtrl
 		return abstraction.getChannelData();
 	}
 	
+	/** Forward event to {@link RenderingAgt abstraction}. */
+	public ChannelData getChannelData(int w)
+	{
+		return abstraction.getChannelData(w);
+	}
+	
 	/** Handle events. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case SAVE:
 					saveDisplayOptions();
@@ -278,7 +277,7 @@ public class RenderingAgtCtrl
 					break;	   	
 		   }
 		} catch(NumberFormatException nfe) {   
-			   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
@@ -342,28 +341,35 @@ public class RenderingAgtCtrl
 		ModelPane model = null;
 		try {
 			model = (ModelPane) c.newInstance();
-		} catch(Exception e) { throw new RuntimeException(e); }
-		//TODO: do we have to handle this exception?
+		} catch(Exception e) { 
+			String msg = "Can't create an instance of "+c.getName();
+			throw new InternalError(msg, e);
+		}
 		return model;
 	}
 	
 	/** Return class associated to the constant. */
-	private Class getRendererClass(int i)
+	private Class getRendererClass(int index)
 	{
 		Class result = null;
-		switch (i) {
-			case GREY:
-				result = GreyScalePane.class;
-				modelType = "Grey";
-				break;
-			case HSB:
-				result = HSBPane.class;
-				modelType = "HSB";
-				break;
-			case RGB:
-				result = RGBPane.class;
-				modelType = "RGB";
+		try {
+			switch (index) {
+				case GREY:
+					result = GreyScalePane.class;
+					modelType = "Grey";
+					break;
+				case HSB:
+					result = HSBPane.class;
+					modelType = "HSB";
+					break;
+				case RGB:
+					result = RGBPane.class;
+					modelType = "RGB";
+			}
+		}catch(NumberFormatException nfe) {   
+			throw new Error("Invalid Action ID "+index, nfe);
 		}
+		
 		return result;
 	}
 	

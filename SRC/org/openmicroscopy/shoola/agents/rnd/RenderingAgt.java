@@ -31,25 +31,19 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.LogicalChannel;
-import org.openmicroscopy.ds.st.PixelChannelComponent;
 import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
-import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -63,7 +57,6 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -107,6 +100,8 @@ public class RenderingAgt
 	
 	private boolean				displayed;
 	
+	private boolean				canUpdate;
+	
 	/** Creates a new instance. */
 	public RenderingAgt() {}
 	
@@ -120,6 +115,7 @@ public class RenderingAgt
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
+		canUpdate = true;
 		EventBus bus = registry.getEventBus();
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, DisplayRendering.class);
@@ -238,63 +234,37 @@ public class RenderingAgt
 			if (displayed) {
 				if (presentation.isClosed()) displayPresentation();
 				if (presentation.isIcon()) deiconifyPresentation();
-			} else
+			} else {
 				showPresentation();	
-				//abstraction.setMenuSelection(true);
-				//Activate the Frame.
-				//try {
-				//	presentation.setSelected(true);
-				//} catch (Exception e) {}
 				displayed = true;	
 			}
+		}
+	}
+	
+	/** 
+	 * The method is called when we can't retrieve the data from DB. 
+	 * In this case, the user can't update the channel data.
+	 */
+	private void defaultInitChannelData()
+	{
+		for (int i = 0; i < pxsDims.sizeW; i++)
+			channelData[i] = new ChannelData(i, i, i, "Wavelenth "+i,  i, null);
+	  	canUpdate = false;
 	}
 	
 	/** Initializes the channel data. */
 	void initChannelData()
 	{
-		//TODO: modify the way we retrieve data. We do it this way b/c of the 
-		// actual implementation of the remoteFramework
-		channelData = new ChannelData[pxsDims.sizeW];
 		try {
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			//channel components.
-			List ciList = sts.retrieveImageAttributes("PixelChannelComponent", 
-												curImageID);
-			List lcList = sts.retrieveImageAttributes("LogicalChannel", 
-											curImageID);
-			Iterator k = ciList.iterator();
-			PixelChannelComponent pcc;
-			HashMap lcIndexes = new HashMap();
-			while (k.hasNext()) {
-				pcc = (PixelChannelComponent) k.next();
-				lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
-								new Integer(pcc.getIndex().intValue()));
-			}
-			LogicalChannel lc;
-			int index;
-			Iterator i = lcList.iterator();
-			int nanometer, excitation;
-			while (i.hasNext()) {
-				lc = (LogicalChannel) i.next();
-				index = 
-				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
-				
-				nanometer = lc.getEmissionWavelength().intValue();
-				if (lc.getExcitationWavelength() == null) 
-					excitation = nanometer;
-				else 
-					excitation = lc.getExcitationWavelength().intValue();
-					
-				channelData[index] = new ChannelData(lc.getID(), index, 
-									lc.getEmissionWavelength().intValue(),
-									lc.getPhotometricInterpretation(), 
-									excitation, lc.getFluor());
-			}
-			
+			DataManagementService ds = registry.getDataManagementService();
+			channelData = ds.getChannelData(curImageID); 
+			if (channelData.length != pxsDims.sizeW) defaultInitChannelData();
 		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-			"Unable to retrieve the LogicalChannel data for "+curImageID, dsae);
+			String s = "Can't retrieve the channel data for "+curImageID+".";
+			registry.getLogger().error(this, s+" Error: "+dsae); 
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+				 									dsae);
+			defaultInitChannelData();
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
@@ -305,26 +275,21 @@ public class RenderingAgt
 	/** Update the channel. */
 	void updateChannelData(ChannelData cd)
 	{
-		//TODO: modify the way we update data. We do it this way b/c of the 
-		// actual implementation of the remoteFramework
 		try {
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			LogicalChannel lc =  (LogicalChannel) 
-				(LogicalChannel) sts.retrieveAttribute("LogicalChannel", 
-														cd.getID());
-			//update the LogicalChannel object
-			lc.setExcitationWavelength(new Integer(cd.getExcitation()));
-			lc.setFluor(cd.getFluor());
-			lc.setPhotometricInterpretation(cd.getInterpretation());
-			List l = new ArrayList();
-			l.add(lc);
-			sts.updateAttributes(l);
-			// update the local copy.
-			channelData[cd.getIndex()] = cd;
+			if (canUpdate) {
+				DataManagementService ds = registry.getDataManagementService();
+				ds.updateChannelData(cd);
+				channelData[cd.getIndex()] = cd;
+			} else {
+				String msg = "The channel data can't be updated b/c of a data" +
+						" Retrieveal failure at initialization time.";
+				registry.getUserNotifier().notifyInfo("Update channel", msg);
+			}
 		}  catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Retrieval Failure", 
-			"Unable to update the channel info", dsae);
+			String s = "Can't update the channel data.";
+			registry.getLogger().error(this, s+" Error: "+dsae); 
+			registry.getUserNotifier().notifyError("Data Retrieval Failure", s, 
+													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 								ServiceActivationRequest.DATA_SERVICES);
@@ -332,8 +297,22 @@ public class RenderingAgt
 		} 
 	}
 	
+	/** Return the channelData array of the currentImage. */
 	ChannelData[] getChannelData() { return channelData; }
-
+	
+	/** 
+	 * Return the channelData of the specified wavelength.
+	 * 
+	 * @param w		OME index of the wavelength.
+	 */
+	ChannelData getChannelData(int w)
+	{ 
+		ChannelData data = null;
+		if (w >= 0 && w < channelData.length-1)
+			data = channelData[w];
+		return data; 
+	}
+	
 	/** Return the current rendering model. */
 	int getModel() { return renderingControl.getModel(); }
 	
@@ -347,7 +326,7 @@ public class RenderingAgt
 	/** 
 	 * Retrieve the stats of a specified channel across time.
 	 * 
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavelength.
 	 */
 	PixelsStatsEntry[] getChannelStats(int w)
 	{
@@ -362,10 +341,7 @@ public class RenderingAgt
 	 * Return the lower bound of the codomain interval. 
 	 * Value in the range [0, 255].
 	 */
-	int getCodomainStart()
-	{
-		return renderingControl.getQuantumDef().cdStart;
-	}
+	int getCodomainStart() { return renderingControl.getQuantumDef().cdStart; }
 	
 	/** 
 	 * Set the lower bound of the codomain interval.
@@ -383,10 +359,7 @@ public class RenderingAgt
 	 * Return the upper bound of the codomain interval. 
 	 * Value in the range [0, 255].
 	 */
-	int getCodomainEnd()
-	{
-		return renderingControl.getQuantumDef().cdEnd;
-	}
+	int getCodomainEnd() { return renderingControl.getQuantumDef().cdEnd; }
 	
 	/** 
 	 * Set the upper bound of the codomain interval.
@@ -403,7 +376,7 @@ public class RenderingAgt
 	/**
 	 * Return the minimum pixel intensities of a specified channel
 	 * across time.
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 * @return
 	 */
 	double getGlobalChannelWindowStart(int w)
@@ -414,7 +387,7 @@ public class RenderingAgt
 	/**
 	 * Return the maximum pixel intensities of a specified channel
 	 * across time.
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 * @return
 	 */
 	double getGlobalChannelWindowEnd(int w)
@@ -426,7 +399,7 @@ public class RenderingAgt
 	 * Get the lower bound of the pixel intensity interval 
 	 * of a specified channel.
 	 * 
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 */
 	Comparable getChannelWindowStart(int w)
 	{
@@ -436,7 +409,7 @@ public class RenderingAgt
 	/** 
 	 * Set the lower bound of the input interval of a specified channel. 
 	 * 
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 * @param x		lower bound.
 	 */
 	void setChannelWindowStart(int w, Comparable x)
@@ -450,7 +423,7 @@ public class RenderingAgt
 	 * Set the upper bound of the pixel intensity interval 
 	 * of a specified channel.
 	 * 
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 */
 	Comparable getChannelWindowEnd(int w)
 	{
@@ -460,7 +433,7 @@ public class RenderingAgt
 	/** 
 	 * Set the upper bound of the input interval of a specified channel. 
 	 * 
-	 * @param w		specified wavelength index.
+	 * @param w		OME index of the specified wavlength.
 	 * @param x		upper bound.
 	 */
 	void setChannelWindowEnd(int w, Comparable x)
@@ -510,7 +483,7 @@ public class RenderingAgt
 	/** 
 	 * Retrieve the color's component of a specified channel
 	 * 
-	 * @param w		specified wavlength index.
+	 * @param w		OME index of the specified wavlength.
 	 * @return	array of values in the range 0-255.
 	 */
 	int[] getRGBA(int w) { return renderingControl.getRGBA(w); }
@@ -533,7 +506,7 @@ public class RenderingAgt
 	/**
 	 * Map or not a specified channel.
 	 * 
-	 * @param w			specified wavelength index.
+	 * @param w			OME index of the specified wavlength.
 	 * @param active	<code>true</code> if the wavelength has to be mapped
 	 * 					<code>false</code> otherwise.
 	 */
@@ -546,7 +519,7 @@ public class RenderingAgt
 	/**
 	 * Map the specified channel and set the active to false for the other 
 	 * channels.
-	 * @param w	specified wavelength index.
+	 * @param OME index of the specified wavlength.
 	 */
 	void setActive(int w)
 	{
