@@ -101,12 +101,15 @@ public class IconManager
 	
 	/** ID of the datamanager icon. */
 	public static final int		ROOT = 12;
+	
+	/** ID of the import image icon. */
+	public static final int		IMPORT_IMAGE = 13;
 		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 12;
+	private static int          MAX_ID = 13;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -123,7 +126,8 @@ public class IconManager
 		relPaths[REFRESH] = "refresh16.png";
 		relPaths[ANNOTATE] = "annotate16.png";
 		relPaths[DMANAGER] = "annotate16.png";
-		relPaths[ROOT] = "project16.png";		
+		relPaths[ROOT] = "project16.png";
+		relPaths[IMPORT_IMAGE] = "project16.png";		
 	}
 	
 	/** The sole instance. */

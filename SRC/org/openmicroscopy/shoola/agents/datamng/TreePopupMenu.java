@@ -88,6 +88,9 @@ class TreePopupMenu
 	/** Button to annotate a dataset or an image. */
 	JMenuItem						annotate;
 	
+	/** Button to import images. */
+	JMenuItem						importImg;
+		
 	/** 
 	 * Creates a new instance.
 	 *
@@ -101,6 +104,7 @@ class TreePopupMenu
 		initBrowse();
 		initRefresh();
 		initAnnotate();
+		initImportImage();
 		manager = new TreePopupMenuManager(this, agentCtrl);
 		buildGUI() ;
 	}
@@ -172,6 +176,18 @@ class TreePopupMenu
 		annotate.setEnabled(false);  
 	}
 	
+	/** Creates and initializes the importImage button. */
+	private void initImportImage()
+	{
+		IconManager icons = IconManager.getInstance(config);
+		importImg = new JMenuItem("Import", 
+								icons.getIcon(IconManager.IMPORT_IMAGE));
+		importImg.setBorder(null);
+		importImg.setFont((Font) config.lookup("/resources/fonts/Labels"));
+		importImg.setForeground(DataManager.STEELBLUE);
+		importImg.setEnabled(false);  
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI() 
 	{
@@ -180,6 +196,7 @@ class TreePopupMenu
 		add(view);
 		add(browse);
 		add(annotate);
+		add(importImg);
 		add(refresh);
 	}
 

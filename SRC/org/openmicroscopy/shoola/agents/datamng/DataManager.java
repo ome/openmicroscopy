@@ -184,6 +184,19 @@ public class DataManager
 	Registry getRegistry() { return registry; }
 	
 	/**
+	 * Import a list of images in the specified dataset.
+	 * 
+	 * @param imagesToImport	list of files to import.
+	 * @param datasetID			id of the dataset to import into.
+	 */
+	void importImages(List imagesToImport, int datasetID)
+	{
+		registry.getUserNotifier().notifyInfo("Importer", 
+									"Not yet implemented. Complaints should be " +
+									"sent to Don Falconi. ;-))))");
+	}
+	
+	/**
 	 * Return the list of all image summaries that belong to the user
 	 * but which are not in the specified dataset.
 	 * 
@@ -705,6 +718,7 @@ public class DataManager
 		return menuItem;
 	}
 	
+	/** Create the view button. */
 	private JButton getViewButton()
 	{
 		IconManager im = IconManager.getInstance(registry);

@@ -181,7 +181,7 @@ class DataManagerUIF
 		JMenu menu = new JMenu("Import");
 		JMenuItem menuItem = new JMenuItem("Image");
 		control.attachItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
-		menuItem.setEnabled(false); //tempo
+		//menuItem.setEnabled(false); //tempo
 		menu.add(menuItem);
 		return menu;
 	}

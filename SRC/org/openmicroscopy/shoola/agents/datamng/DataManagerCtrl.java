@@ -33,8 +33,10 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractButton;
+import javax.swing.JFrame;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -44,7 +46,7 @@ import javax.swing.event.InternalFrameListener;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageChooser;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -88,6 +91,17 @@ public class DataManagerCtrl
 		this.abstraction = abstraction;
 	}
 	
+	/** Forward event to {@link Viewer abstraction}. */
+	public JFrame getReferenceFrame()
+	{
+		return abstraction.getRegistry().getTopFrame().getFrame();
+	}
+	
+	public Registry getRegistry() { return abstraction.getRegistry(); }
+	
+	/** Return the abstraction. */
+	DataManager getAbstraction() {return abstraction; }
+		
 	/** 
 	 * Attach an InternalFrameListener to the 
 	 * {@link ViewerUIF presentaion}.
@@ -96,9 +110,6 @@ public class DataManagerCtrl
 	{
 		abstraction.getPresentation().addInternalFrameListener(this);
 	}
-	
-	/** Return the abstraction. */
-	DataManager getAbstraction() {return abstraction; }
 	
 	/** Attach listener to a menuItem or a button. */
 	void attachItemListener(AbstractButton item, int id)
@@ -170,16 +181,13 @@ public class DataManagerCtrl
 		try {
 			switch (index) { 
 				case DM_VISIBLE:
-					showPresentation();
-					break;
+					showPresentation(); break;
 				case PROJECT_ITEM:
-					createProject();
-					break;
+					createProject(); break;
 				case DATASET_ITEM:
-					createDataset();
-					break;	
+					createDataset(); break;	
 				case IMAGE_ITEM:
-					importImage();   	
+					showImagesImporter();   	
 			}
 		} catch(NumberFormatException nfe) {  
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -216,12 +224,28 @@ public class DataManagerCtrl
 									new DatasetData(), projects, images));
 	}
 	
-	/** Bring up the corresponding editor. */
-	void importImage()
+	/** Bring up the Images Importer file chooser */
+	void showImagesImporter(DatasetSummary ds)
 	{
-		//List datasets = abstraction.getUserDatasets();
-		//UIUtilities.centerAndShow(new ImportImageEditor(
-		//						abstraction.getRegistry(), this, datasets));
+		List datasets = new ArrayList();
+		datasets.add(ds);
+		new ImportImageChooser(this, datasets);
+	}
+	
+	/** Bring up the Images Importer file chooser */
+	void showImagesImporter()
+	{
+		List datasets = abstraction.getUserDatasets();
+		if (datasets.size() == 0) {
+			UserNotifier un = abstraction.getRegistry().getUserNotifier();
+			un.notifyInfo("Import images", "Please create a dataset first.");
+		} else new ImportImageChooser(this, datasets);
+	}
+	
+	/** Forward event to the {@link DataManager abstraction}. */
+	public void importImages(List imagesToImport, int datasetID)
+	{
+		abstraction.importImages(imagesToImport, datasetID);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
