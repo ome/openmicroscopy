@@ -149,6 +149,8 @@ public class LinkLayer extends PLayer {
 	 */
 	protected void paint(PPaintContext aPaintContext) {
 		PCamera camera = aPaintContext.getCamera();
+		if (camera == null)
+			return;
 		double scale = camera.getViewScale();
 		if (scale < Constants.SCALE_THRESHOLD) {
 			if (params != null)
