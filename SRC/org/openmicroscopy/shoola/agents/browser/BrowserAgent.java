@@ -474,7 +474,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             }
             
             writeStatusImmediately(status,"Filling in relevant ST info from DB...");
-            loadRelevantTypes(model);
+            loadRelevantTypes(imageList,model);
             
             // going to assume that all image plates in dataset belong to
             // same plate (could be very wrong)
@@ -834,34 +834,21 @@ public class BrowserAgent implements Agent, AgentEventListener
      * Fills the model with a list of pertinent image-granular attributes.
      * @param model The model to load.
      */
-    private void loadRelevantTypes(BrowserModel model)
+    private void loadRelevantTypes(List imageList, BrowserModel targetModel)
     {
-        if(model == null) return;
+        if(imageList == null || targetModel == null) return;
         List relevantTypes = new ArrayList();
         SemanticTypesService sts = registry.getSemanticTypesService();
         
         List integerList = new ArrayList();
-        List thumbnailList = model.getThumbnails();
         
-        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        for(Iterator iter = imageList.iterator(); iter.hasNext();)
         {
-            Thumbnail t = (Thumbnail)iter.next();
-            if(!t.isMultipleThumbnail())
-            {
-                ThumbnailDataModel tdm = t.getModel();
-                integerList.add(new Integer(tdm.getID()));
-            }
-            else
-            {
-                ThumbnailDataModel[] tdms = t.getMultipleModels();
-                for(int i=0;i<tdms.length;i++)
-                {
-                    integerList.add(new Integer(tdms[i].getID()));
-                }
-            }
+            ImageSummary is = (ImageSummary)iter.next();
+            integerList.add(new Integer(is.getID()));
         }
         
-        System.err.println(integerList.size());
+        System.err.println("listsize="+integerList.size());
         for(Iterator iter = imageTypeList.iterator(); iter.hasNext();)
         {
             SemanticType st = (SemanticType)iter.next();
@@ -869,6 +856,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             {
                 System.err.println("checking "+st.getName());
                 int count = sts.countImageAttributes(st,integerList);
+                System.err.println("got count");
                 if(count > 0) relevantTypes.add(st);
             }
             catch(DSAccessException dsa)
@@ -882,16 +870,10 @@ public class BrowserAgent implements Agent, AgentEventListener
                 un.notifyError("Communication Error","Could not retrieve count",dso);
             }
         }
-        try
-        {
-            int count = sts.countImageAttributes("Pixels",integerList);
-            System.err.println(count);
-        }
-        catch(Exception e) {System.err.println("uh oh");}
         
         SemanticType[] types = new SemanticType[relevantTypes.size()];
         relevantTypes.toArray(types);
-        model.setRelevantTypes(types);
+        targetModel.setRelevantTypes(types);
     }
     
     // keeps track of the time-consuming loader threads.
