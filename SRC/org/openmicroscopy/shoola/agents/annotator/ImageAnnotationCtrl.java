@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.util.Filter;
 import org.openmicroscopy.shoola.agents.browser.util.MapOperator;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /**
  * Control for the image annotator.
@@ -55,26 +54,28 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  */
 public class ImageAnnotationCtrl extends AnnotationCtrl
 {
-    private ImageSummary imageInfo;
+    private int imageID;
+    private String imageName;
     private AnnotateImage requestEvent;
     /**
      * Creates an image annotation controller using the specified image
      * as a basis.
      * @param imageID The ID of the image to annotate.
      */
-    public ImageAnnotationCtrl(Annotator annotator, ImageSummary imageInfo,
+    public ImageAnnotationCtrl(Annotator annotator,
                                AnnotateImage triggeringEvent)
     {
-        if(annotator == null || imageInfo == null)
+        if(annotator == null || triggeringEvent == null)
         {
             throw new IllegalArgumentException("Cannot construct an" +
                 " ImageAnnotationCtrl with null parameters");
         }
         
         this.annotator = annotator;
-        this.imageInfo = imageInfo;
+        this.imageID = triggeringEvent.getID();
+        this.imageName = triggeringEvent.getName();
         
-        annotationList = annotator.getImageAnnotations(imageInfo.getID());
+        annotationList = annotator.getImageAnnotations(imageID);
         attributeList = null; // do not use this for attributes yet (if ever)
     }
     
@@ -83,16 +84,16 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
      */
     public String getTargetDescription()
     {
-        return "Image " + imageInfo.getName();
+        return "Image " + imageName;
     }
     
     /**
-     * Returns all the data about the specified image.
+     * Returns the image ID.
      * @return
      */
-    public ImageSummary getInfo()
+    public int getImageID()
     {
-        return imageInfo;
+        return imageID;
     }
     
     /**

@@ -39,9 +39,9 @@ package org.openmicroscopy.shoola.agents.annotator;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.DatasetAnnotation;
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.browser.util.Filter;
 import org.openmicroscopy.shoola.agents.browser.util.MapOperator;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 
 /**
  * Controls the dataset annotation/attribute editor GUI.
@@ -53,25 +53,28 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
  */
 public class DatasetAnnotationCtrl extends AnnotationCtrl
 {
-    private DatasetSummary datasetInfo;
+    private int datasetID;
+    private String datasetName;
     
     /**
      * Creates an image annotation controller using the specified image
      * as a basis.
      * @param imageID The ID of the image to annotate.
      */
-    public DatasetAnnotationCtrl(Annotator annotator, DatasetSummary datasetInfo)
+    public DatasetAnnotationCtrl(Annotator annotator,
+                                 AnnotateDataset triggeringEvent)
     {
-        if(annotator == null || datasetInfo == null)
+        if(annotator == null || triggeringEvent == null)
         {
             throw new IllegalArgumentException("Cannot construct an" +
                 " ImageAnnotationCtrl with a null Annotator");
         }
         
         this.annotator = annotator;
-        this.datasetInfo = datasetInfo;
+        this.datasetID = triggeringEvent.getID();
+        this.datasetName = triggeringEvent.getName();
         
-        annotationList = annotator.getDatasetAnnotations(datasetInfo.getID());
+        annotationList = annotator.getDatasetAnnotations(datasetID);
         attributeList = null; // ignore for now
     }
     
@@ -80,7 +83,12 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
      */
     public String getTargetDescription()
     {
-        return "Dataset " + datasetInfo.getName();
+        return "Dataset " + datasetName;
+    }
+    
+    public int getID()
+    {
+        return datasetID;
     }
     
     /**
@@ -103,13 +111,5 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
         // TODO implement
         return true;
     }
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#save()
-	 */
-	public void save() 
-	{
-		//TODO Auto-generated method stub	
-	}
 	
 }

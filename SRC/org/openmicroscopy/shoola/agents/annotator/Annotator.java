@@ -237,8 +237,7 @@ public class Annotator implements Agent, AgentEventListener
     void showAnnotationDialog(AnnotateImage requestEvent)
     {
         ImageAnnotationCtrl iac =
-            new ImageAnnotationCtrl(this,requestEvent.getImageInfo(),
-                                    requestEvent);
+            new ImageAnnotationCtrl(this,requestEvent);
         activeControls.add(iac);
         TextAnnotationUIF tif = new TextAnnotationUIF(iac,registry);
         tif.show();
