@@ -41,17 +41,22 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.events.AnalyzeROIs;
 import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
 import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.rnd.events.ROIAnalysisResults;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyzer;
 import org.openmicroscopy.shoola.util.concur.tasks.AsyncProcessor;
 import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
 
@@ -188,6 +193,25 @@ public class RenderingEngine
                             +qee.getWavelength(), qee);
         }
 	}
+    
+    private void handleAnalyzeROIs(AnalyzeROIs request)
+    {
+        if (rndManager == null) return;  //TODO: if null, log?
+        try {
+            //PlaneDef pd = request.getPlaneDef();
+            //BufferedImage img = rndManager.renderPlane(pd);
+            //ImageRendered response = new ImageRendered(request, img);
+            DataSink ds = rndManager.getDataSink();
+            PixelsDimensions dims = rndManager.getPixelsDimensions();
+            ROIAnalyzer analyzer = new ROIAnalyzer(request.getRois(), ds, dims);
+            ROIAnalysisResults response = new ROIAnalysisResults(request, 
+                                                            analyzer.analyze());
+            EventBus eventBus = registry.getEventBus();
+            eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
+        } catch (DataSourceException dse) {
+            handleException("Can't load pixels data.", dse);
+        }
+    }
 	
 	private void handleRenderingPropChange(RenderingPropChange event)
 	{
@@ -204,6 +228,7 @@ public class RenderingEngine
 		eventBus.register(this, RenderImage.class);
 		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
+        eventBus.register(this, AnalyzeROIs.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -221,6 +246,8 @@ public class RenderingEngine
 			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
+        else if (e instanceof AnalyzeROIs)
+            handleAnalyzeROIs((AnalyzeROIs) e);
 	}
 
 }
