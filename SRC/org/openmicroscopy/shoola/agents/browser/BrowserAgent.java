@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.dto.Dataset;
+import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
