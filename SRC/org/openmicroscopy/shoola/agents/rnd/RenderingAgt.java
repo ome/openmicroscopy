@@ -30,6 +30,8 @@
 package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 
 //Third-party libraries
@@ -74,32 +76,39 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
 public class RenderingAgt
 	implements Agent, AgentEventListener
 {
+	/** horizontal space between the cells in the grid. */
+	public static final int			H_SPACE = 10;
 	
-	private PixelsStats			pxsStats;
+	/** Dimension of the colored button, same size as the icon. */
+	public static final Dimension	COLORBUTTON_DIM = new Dimension(16, 16);
 	
-	private PixelsDimensions	pxsDims;
+	public static final Color		COLORBUTTON_BORDER = Color.BLACK;
 	
-	private ChannelData[]		channelData;
+	private PixelsStats				pxsStats;
+	
+	private PixelsDimensions		pxsDims;
+	
+	private ChannelData[]			channelData;
 	
 	/** Reference to the registry. */
-	private Registry			registry;
+	private Registry				registry;
 	
 	/** Reference to the GUI. */
-	private RenderingAgtUIF		presentation;
+	private RenderingAgtUIF			presentation;
 	
 	/** Reference to the control component. */
-	private RenderingAgtCtrl	control;
+	private RenderingAgtCtrl		control;
 	
-	private RenderingControl	renderingControl;
+	private RenderingControl		renderingControl;
 	
 	/** Reference to the topFrame. */
-	private TopFrame			topFrame;
+	private TopFrame				topFrame;
 	
-	private int					curImageID, curPixelsID;
+	private int						curImageID, curPixelsID;
 	
-	private boolean				displayed;
+	private boolean					displayed;
 	
-	private boolean				canUpdate;
+	private boolean					canUpdate;
 	
 	/** Creates a new instance. */
 	public RenderingAgt() {}

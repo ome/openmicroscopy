@@ -49,7 +49,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -231,7 +230,6 @@ public class LoginOMEDS
 		Font font = label.getFont();
 		Font newFont = font.deriveFont(Font.BOLD);
 		label.setFont(newFont);
-		label.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		return label;
 	}

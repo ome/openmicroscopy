@@ -64,18 +64,6 @@ class RenderingAgtUIF
 	extends JInternalFrame
 {
 	
-	/** Width of the widget. */
-	private static final int 		WIN_WIDTH = 300;
-	
-	/** Height of the widget. */
-	private static final int 		WIN_HEIGHT = 600;
-	
-	/** Location x-coordinate. */
-	private static final int		X_LOCATION = 0;
-	
-	/** Location y-coordinate. */
-	private static final int		Y_LOCATION = 0;
-	
 	/** index to position the mapping component in the tabbedPane. */
 	static final int				POS_MAPPING = 0;
 	
@@ -113,7 +101,8 @@ class RenderingAgtUIF
 		buildMappingPanel();
 		buildGUI();
 		//set the size and position the window.
-		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
+		//setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
+		pack();
 	}
 	
 	QuantumPane getQuantumPane() { return quantumPane; }
