@@ -35,7 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -102,14 +101,16 @@ public class TopFrameImpl
         super("Open Microscopy Environment");
         this.container = container;
         manager = new TopFrameImplManager(this, container);
-        //make sure we have nice window decorations
-        JFrame.setDefaultLookAndFeelDecorated(true);  
+        
+        //Make sure we have nice window decorations.
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        
+        //TODO: remove this when we implement the exit procedure.  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        
         //ome icon.
-		IconManager im = IconManager.getInstance(container.getRegistry());
-		ImageIcon omeIcon = (ImageIcon) im.getIcon(IconManager.OME);
-		setIconImage(omeIcon.getImage());
+		setIconImage(IconManager.getOMEImageIcon());
+		
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
 		getContentPane().add(createToolBar(), BorderLayout.NORTH);
