@@ -96,6 +96,7 @@ public class ChainExecutionMapper
 		
 		// stuff for chains
 		criteria.addWantedField("analysis_chain","id");
+		criteria.addWantedField("analysis_chain","name");
 		
 		// stuff for node executions
 		criteria.addWantedField("node_executions","id");
@@ -158,6 +159,7 @@ public class ChainExecutionMapper
 			c = e.getChain();
 			chain = (AnalysisChainData) acProto.makeNew();
 			chain.setID(c.getID());
+			chain.setName(c.getName());
 			exec.setChain(chain);
 			
 			//node executions
