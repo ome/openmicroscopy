@@ -106,9 +106,7 @@ class AbnormalExitHandler
 	 * @param t		The exception that went unhandled.
 	 */
 	private synchronized void doTermination(Throwable t)
-	{
-		String diagnostic = makeDiagnosticMessage(t);
-		
+	{	
 		//Disable exception relay to avoid possible infinite loops if another
 		//exception is thrown by the user notifier dialog.
 		AWTExceptionHanlder.unregister();
@@ -117,42 +115,22 @@ class AbnormalExitHandler
 		//if the exception was thrown at start up.		
 		LogMessage msg = new LogMessage();
 		msg.println("Abnormal termination due to an uncaught exception.");
-		msg.print(diagnostic);
+		msg.print(t);
 		Container c = Container.getInstance();
 		Logger logger = null;
 		if (c != null)	logger = c.getRegistry().getLogger();
-		if (logger != null)		logger.fatal(this, msg.toString());
-		else	System.err.println(msg.toString());
+		if (logger != null)		logger.fatal(this, msg);
+		else	System.err.println(msg);
 		
 		//Finally tell the user.  
 		//(Notification service may not be up yet, so we create a temp one.)
 		UserNotifier un = UIFactory.makeUserNotifier();
 		un.notifyError("Abnormal Termination", 
 					"An unforeseen error occurred, the application will exit.",
-					diagnostic);
+					msg.toString());
 					
 		//Quit the app. 
 		System.exit(1);
-	}
-	
-	/**
-	 * Formats the information from the exception context into a diagnostic
-	 * message.
-	 * This information includes the exception class name, the exception
-	 * message, a snapshot of the current stack, and the name of the current
-	 * thread.
-	 * 
-	 * @param t	The exception.
-	 * @return	A formatted string containing the exception information.
-	 */
-	private String makeDiagnosticMessage(Throwable t)
-	{
-		LogMessage buf = new LogMessage();
-		t.printStackTrace(buf);
-		buf.print("Exception in thread \"");
-		buf.print(Thread.currentThread().getName());	
-		buf.println("\"");
-		return buf.toString();
 	}
 
 }
