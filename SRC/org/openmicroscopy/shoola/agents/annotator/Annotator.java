@@ -29,7 +29,6 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
-
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,9 +39,9 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -203,7 +202,7 @@ public class Annotator
     
     /**
      * Posts a request to view all images in the specified dataset.
-     */
+     */   
     void viewDataset()
     {
         LoadDataset request = new LoadDataset(annotatedDatasetID);
@@ -230,7 +229,6 @@ public class Annotator
                     title = "Update image annotation";
                     setDataToSave(data, saveIndex);
                     sts.updateImageAnnotation(data, annotatedImageID);
-                    //Eventually post a ImageAnnotation event.
                     break;
             }
             UserNotifier un = registry.getUserNotifier();
@@ -275,8 +273,7 @@ public class Annotator
                         renderingControl.saveCurrentSettings();
                     }
                     sts.createImageAnnotation(annotatedImageID, annotation, 
-                                                theZ, theT);
-                    //Eventually post a ImageAnnotation event.
+                                                theZ, theT);;
                     break;
             }
             UserNotifier un = registry.getUserNotifier();
