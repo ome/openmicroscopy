@@ -54,14 +54,14 @@ public class ChainExecutionData implements DataObject
 
 	private int id;
 	private AnalysisChainData chain;
-	private DatasetSummary dataset;
+	private DatasetData dataset;
 	private List nodeExecutions;
 	private String timestamp;
 	
 	public ChainExecutionData() {}
 	
 	public ChainExecutionData(int id,AnalysisChainData chain,
-			DatasetSummary dataset,List nodeExecutions,String timestamp) 
+			DatasetData dataset,List nodeExecutions,String timestamp) 
 	{	
 		this.id = id;
 		this.chain = chain;
@@ -76,7 +76,7 @@ public class ChainExecutionData implements DataObject
 	public AnalysisChainData getChain() {
 		return chain;
 	}
-	public DatasetSummary getDataset() {
+	public DatasetData getDataset() {
 		return dataset;
 	}
 	
@@ -96,7 +96,7 @@ public class ChainExecutionData implements DataObject
 		chain = data;
 	}
 
-	public void setDataset(DatasetSummary dataset) {
+	public void setDataset(DatasetData dataset) {
 		this.dataset = dataset;
 	}
 	
