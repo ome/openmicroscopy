@@ -13,6 +13,8 @@
  *
  *  + junit-3.8.1.jar: The JUnit Testing Framework 
  *        (http://www.junit.org/).  Version: 3.8.1.
+ *  + xalan-2.6.0.jar: The Xalan-J XSLT library from Apache
+ *        (http://xml.apache.org/xalan-j/).  Version: 2_6_0.
  *  + jarbundler-1.4.jar: The Jar Bunlder utility to make Mac OS X application
  *        bundles (http://www.loomcom.com/jarbundler/).  Version: 1.4. 
  *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
