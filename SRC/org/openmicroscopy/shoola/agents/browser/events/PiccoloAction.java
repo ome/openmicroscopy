@@ -35,6 +35,10 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import edu.umd.cs.piccolo.event.PInputEvent;
 
 /**
@@ -47,6 +51,34 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  */
 public abstract class PiccoloAction implements BrowserAction
 {
+    /**
+     * Method of tacking on parameters to a specific action.
+     */
+    protected Map parameterMap;
+    
+    /**
+     * A no-args action constructor.
+     */
+    protected PiccoloAction()
+    {
+        parameterMap = new HashMap();
+    }
+    
+    /**
+     * An action constructor with arguments.
+     * 
+     * @param parameterMap The argument names mapped to argument values.
+     */
+    protected PiccoloAction(Map parameterMap)
+    {
+        this.parameterMap = new HashMap();
+        for(Iterator iter = parameterMap.keySet().iterator(); iter.hasNext();)
+        {
+            Object o = iter.next();
+            this.parameterMap.put(o,parameterMap.get(o));
+        }
+    }
+    
     /**
      * Specifies that no action should be taken.
      */

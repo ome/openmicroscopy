@@ -39,22 +39,26 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BoundedEdgePanHandler;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserCamera;
+import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -70,11 +74,13 @@ public class BrowserView extends PCanvas
 {
     private BrowserModel browserModel;
     private BrowserTopModel overlayModel;
+    private BrowserCamera overlayCamera;
     private BrowserEnvironment env;
     private Map layoutMap;
     private Rectangle2D footprint;
     
-    private PBasicInputEventHandler panHandler;
+    private Set hoverSensitive;
+    private Set regionSensitive;
 
     private void init()
     {
@@ -82,13 +88,38 @@ public class BrowserView extends PCanvas
         setBackground(new Color(192,192,192));
         layoutMap = new HashMap();
         footprint = new Rectangle2D.Double(0,0,0,0);
+        hoverSensitive = new HashSet();
+        regionSensitive = new HashSet();
         
         // here we disable zoom/pan (TODO: save for later, reinstate on mode)
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
         
-        panHandler = new BoundedEdgePanHandler();
-        addInputEventListener(panHandler);
+        // default panning mode (may replace this, but probably not)
+        overlayCamera = new BrowserCamera(getCamera(),footprint);
+        hoverSensitive.add(overlayCamera);
+        regionSensitive.add(overlayCamera);
+        
+        addMouseListener(new MouseAdapter()
+        {
+            public void mouseEntered(MouseEvent me)
+            {
+                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
+                {
+                    HoverSensitive hover = (HoverSensitive)iter.next();
+                    hover.contextEntered();
+                }
+            }
+            
+            public void mouseExited(MouseEvent me)
+            {
+                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
+                {
+                    HoverSensitive hover = (HoverSensitive)iter.next();
+                    hover.contextExited();
+                }
+            }
+        });
     }
 
     /**
@@ -172,18 +203,14 @@ public class BrowserView extends PCanvas
         double width = dimension.getWidth();
         double height = dimension.getHeight();
         
+        
         double xRatio = width / footprint.getWidth();
         double yRatio = height / footprint.getHeight();
         
+        
+        
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
-        
-        getCamera().setViewScale(0.5);
-        
-        if(panHandler instanceof RegionSensitive)
-        {
-            ((RegionSensitive)panHandler).setActiveRegion(footprint);
-        }
         
         /*
         if((xRatio < 1 || yRatio < 1) &&
@@ -195,8 +222,17 @@ public class BrowserView extends PCanvas
         else
         {
             getCamera().setViewScale(1);
+        }*/
+        getCamera().setViewScale(0.75);
+        
+        //      update things
+        for(Iterator iter = regionSensitive.iterator(); iter.hasNext();)
+        {
+            RegionSensitive rs = (RegionSensitive)iter.next();
+            rs.setActiveRegion(footprint);
         }
-        */
+    
+        overlayCamera.cameraResized(new Rectangle2D.Double(0,0,width,height));
     }
 
     /**
