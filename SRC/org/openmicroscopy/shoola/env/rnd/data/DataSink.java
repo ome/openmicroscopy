@@ -155,7 +155,7 @@ public class DataSink
 	 */
 	private int         		pixelType;
     
-    private PixelsDimensions 	dims;
+    private PixelsDimensions 	pixDims;
     private PlaneDef			curPlaneDef;
     private PixelsService 		source;
     
@@ -166,11 +166,11 @@ public class DataSink
     private void fillStack(int t)
 		throws DataSourceException
     {
-    	int stackSize = dims.sizeX * dims.sizeY * 
-    					dims.sizeZ * BYTES_PER_PIXEL[pixelType];
-    	stack = new byte[dims.sizeW][];
+    	int stackSize = pixDims.sizeX * pixDims.sizeY * 
+    					pixDims.sizeZ * BYTES_PER_PIXEL[pixelType];
+    	stack = new byte[pixDims.sizeW][];
     	try {
-			for (int w = 0; w < dims.sizeW; ++w) {
+			for (int w = 0; w < pixDims.sizeW; ++w) {
 				stack[w] = source.getStack(pixelsID, w, t, BIG_ENDIAN);
 				if (stack[w].length != stackSize)
 					throw new DataSourceException(
@@ -179,6 +179,56 @@ public class DataSink
 		} catch (ImageServerException ise) {
 			throw new DataSourceException("Can't retrieve pixels data.", ise);
 		}
+    }
+    
+	private Plane2D createPlane(byte[] wavelengthStack, BytesConverter strategy)
+	{
+		Plane2D plane = null;
+		switch (curPlaneDef.getSlice()) {
+			case PlaneDef.XY:
+				plane = new XYPlane(curPlaneDef, pixDims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+				break;
+			case PlaneDef.XZ:
+				plane = new XZPlane(curPlaneDef, pixDims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+				break;
+			case PlaneDef.YZ:
+				plane = new YZPlane(curPlaneDef, pixDims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+		}
+		return plane;
+	}
+    
+    //TMP method, to be removed.
+    private Plane2D makeXYPlane(int z, int w, int t, BytesConverter strategy)
+		throws DataSourceException
+    {
+		int planeSize = pixDims.sizeX * pixDims.sizeY * 
+						BYTES_PER_PIXEL[pixelType];
+		byte[] data = null;
+		try {
+			data = source.getPlane(pixelsID, z, w, t, BIG_ENDIAN);
+			if (data.length != planeSize)
+				throw new DataSourceException(
+						"Wrong plane size: "+data.length+
+						" (expected: "+planeSize);
+		} catch (ImageServerException ise) {
+			throw new DataSourceException("Can't retrieve pixels data.", ise);
+		}
+		Plane2D pXY = new Plane2D(curPlaneDef, pixDims, 
+									BYTES_PER_PIXEL[pixelType],
+									data, strategy)
+		{
+			protected int calculateOffset(int x1, int x2) 
+			{ 
+				return bytesPerPixel * (dims.sizeX*x2+x1);
+			}	
+		};
+		return pXY;
     }
     
 	/**
@@ -199,7 +249,7 @@ public class DataSink
 		if (source == null)	throw new NullPointerException("No source.");
 		this.pixelsID = pixelsID;
 		this.pixelType = pixelType;
-		this.dims = dims;
+		this.pixDims = dims;
 		this.curPlaneDef = null;
 		this.source = source;
 		stack = new byte[dims.sizeW][];
@@ -215,38 +265,16 @@ public class DataSink
 	public Plane2D getPlane2D(PlaneDef pDef, int w)
 		throws DataSourceException
 	{
-		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT()) {
-			long time = System.currentTimeMillis();
-			fillStack(pDef.getT());
-			System.out.print(System.currentTimeMillis()-time);
-		}
+		//if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
+		//	fillStack(pDef.getT());
+		//To be restored.
 			
 		curPlaneDef = pDef;
 		BytesConverter strategy = 
 							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-		return createPlane(stack[w], strategy);
-	}
-	
-	private Plane2D createPlane(byte[] wavelengthStack, BytesConverter strategy)
-	{
-		Plane2D plane = null;
-		switch (curPlaneDef.getSlice()) {
-			case PlaneDef.XY:
-				plane = new XYPlane(curPlaneDef, dims, 
-									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
-				break;
-			case PlaneDef.XZ:
-				plane = new XZPlane(curPlaneDef, dims, 
-									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
-				break;
-			case PlaneDef.YZ:
-				plane = new YZPlane(curPlaneDef, dims, 
-									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
-		}
-		return plane;
+		//return createPlane(stack[w], strategy);
+		//Replaced by this *temporary* hack:
+		return makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 
 	}
 
 }
