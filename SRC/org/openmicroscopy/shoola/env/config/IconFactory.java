@@ -29,8 +29,6 @@
 
 package org.openmicroscopy.shoola.env.config;
 
-
-
 //Java imports
 import java.net.URL;
 import javax.swing.Icon;
@@ -58,12 +56,12 @@ public class IconFactory
 {
 
 	private String location;
-	
+
 	public IconFactory(String location)
 	{
-		this.location = location.replace('.', '/');		
+		this.location = "/"+location.replace('.', '/');
 	}
-	
+
 	/** 
 	 * Creates an icon.
 	 * 
@@ -72,18 +70,20 @@ public class IconFactory
 	 */
 	public Icon getIcon(String name)
 	{
-		Icon icon = null;
+		ImageIcon icon = null;
 		if (location != null) {
 			try {
-				URL url = new URL(location+"/"+name);			
+				//NOTE: check if it's going to work in a jar file.
+				String path = location + "/" + name;
+				URL url = IconFactory.class.getResource(path);
 				icon = new ImageIcon(url);
 			} catch (Exception e) {
-				// TODO: handle exception
-			}
+				throw new RuntimeException(e);
+			} 
 		} else {
-		   //TODO: errorMsg via logService
-		} 
+			//TODO: errorMsg via logService
+		}
 		return icon;
 	}
-	
+
 }
