@@ -280,7 +280,6 @@ public final class Container
 			a = agentInfo.getAgent();
 			r = agentInfo.getRegistry();
 			r.bind(LookupNames.ENV, env);
-			System.err.println("setting env for "+agentInfo.getName()+" to "+ env);
 			a.setContext(r);
 		}
 		
