@@ -44,8 +44,8 @@ import org.w3c.dom.Node;
  * It represents a name-value pair, where the name is the content of the 
  * <i>name</i> attribute of a configuration entry (which is stored by the
  * <code>name</code> field) and the value is the object representing the
- * entry’s content.
- * <p>As the logic for building an object from the entry’s content depends on
+ * entry's content.
+ * <p>As the logic for building an object from the entry's content depends on
  * what is specified by the <i>type</i> attribute, this class declares an
  * abstract {@link #getValue() getValue} method which subclasses implement to
  * return the desired object.  So we have subclasses ({@link StringEntry}, 
@@ -55,9 +55,9 @@ import org.w3c.dom.Node;
  * (<i>"string"</i>, <i>"integer"</i>, <i>"icons"</i>, and so on).</p> 
  * <p>Given an entry tag, the {@link #createEntryFor(Node) createEntryFor}
  * static method (which can be considered a Factory Method) creates a concrete
- * <code>Entry</code> object to handle the conversion of that tag’s content
+ * <code>Entry</code> object to handle the conversion of that tag's content
  * into an object.  Subclasses implement the
- * {@link #setContent(Node) setContent} method to grab the tag’s content, which
+ * {@link #setContent(Node) setContent} method to grab the tag's content, which
  * is then used for building the object returned by the implementation of 
  * {@link #getValue()}.</p>
  *
@@ -130,7 +130,7 @@ abstract class Entry
     
 	/** 
 	 * Creates a concrete <code>Entry</code> object to handle the conversion of
-	 * the passed tag’s content into an object. 
+	 * the passed tag's content into an object. 
 	 *
 	 * @param tag	DOM node representing either an <i>entry</i> or 
 	 * 				<i>structuredEntry</i> tag.
@@ -178,8 +178,8 @@ abstract class Entry
 	 * Wraps the original exception into a {@link ConfigException}, which is
 	 * then re-thrown with an error message.
 	 * 
-	 * @param ntp The name and type of the tag.
-	 * @param e	The original exception
+	 * @param ntp 	The name and type of the tag.
+	 * @param e		The original exception.
 	 * @throws ConfigException	Wraps the original exception and contains an
 	 * 							error message.
 	 */
@@ -270,7 +270,7 @@ abstract class Entry
 	}
 	
     /**
-     * Subclasses implement this method to grab the tag’s content, which is
+     * Subclasses implement this method to grab the tag's content, which is
      * then used for building the object returned by the implementation of 
      * {@link #getValue()}.
      * 

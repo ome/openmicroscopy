@@ -48,10 +48,10 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * container's services.
  * <p>The objects corresponding to configuration entries are accessed through
  * the {@link #lookup(String) lookup)} method, passing in the content of the 
- * <i>name</i> attribute of the entry tag.  Container’s services are accessed
+ * <i>name</i> attribute of the entry tag.  Container's services are accessed
  * through the <code>getXXX</code> methods (with the exception of the rendering
  * service, which is accessed by means of the event bus).</p>
- * <p>A registry can also be used as a map for in-memory objects.  The 
+ * <p>A registry can also be used as a map for in-memory objects. The 
  * {@link #bind(String, Object) bind} method maps a name onto an arbitrary
  * object, which can then be retrieved by passing that name to the
  * {@link #lookup(String) lookup} method.</p>
@@ -69,12 +69,13 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  */
 public interface Registry
 {  
+	
 	/** 
 	 * Maps <code>name</code> onto <code>value<code>.
 	 * The object can then be retrieved by passing <code>name</code> to the
 	 * {@link #lookup(String) lookup} method.  
 	 * 
-	 * @param name	This entry's name.  If <code>null</code>, this method
+	 * @param name	This entry's name. If <code>null</code>, this method
 	 * 				does nothing.		
 	 * @param value	The object to map onto <code>name</code>.
 	 */
