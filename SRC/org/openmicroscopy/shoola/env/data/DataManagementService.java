@@ -59,9 +59,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 public interface DataManagementService
 {
-    //TODO: put in SemanticTypesService
-    //public int getUserID();
-    
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
