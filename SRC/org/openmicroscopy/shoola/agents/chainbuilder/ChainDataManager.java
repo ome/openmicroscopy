@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
-import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -253,8 +253,8 @@ public class ChainDataManager extends DataManager {
 				chainExecutions = new ChainExecutions(execs);
 	
 				
-				ChainExecutionsLoadedEvent event = new
-					ChainExecutionsLoadedEvent(chainExecutions);
+				LoadChainExecutionsEvent event = new
+					LoadChainExecutionsEvent(chainExecutions);
 				registry.getEventBus().post(event);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
