@@ -39,10 +39,16 @@
 
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import javax.swing.Timer;
+
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.event.PInputEventFilter;
 import edu.umd.cs.piccolo.event.PPanEventHandler;
 
 //Application-internal dependencies
@@ -60,34 +66,109 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small> 
  */
-public class ChainPalettePanHandler extends PPanEventHandler {
+public class ChainPalettePanHandler extends PPanEventHandler 
+	implements ActionListener{
 	
 	/* need to track a corresponding event handler for the palette,
 	 * because it has related state.
 	 */
 	private ChainPaletteEventHandler eventHandler;
 	
+	private int leftButtonMask = MouseEvent.BUTTON1_MASK;
+	private final Timer timer =new Timer(300,this);
+	private PInputEvent cachedEvent;
+	
+	/** is this event right after a popup */
+	protected boolean postPopup = false;
+
+	
 
 	public ChainPalettePanHandler(ChainPaletteEventHandler eventHandler) {
 		super();
 		this.eventHandler = eventHandler;
+		PInputEventFilter filter = new PInputEventFilter();
+		filter.acceptAllEventTypes();
+		setEventFilter(filter);
 	}
 	
 	public void mouseEntered(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
 			((MouseableNode) n).mouseEntered(eventHandler,e);
-		super.mouseEntered(e);
-	}
-	
-	public void defaultMouseEntered(PInputEvent e) {
-		
+		e.setHandled(true);
 	}
 	
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
 			((MouseableNode) n).mouseExited(eventHandler,e);
-		super.mouseExited(e);
+		e.setHandled(true);
 	}	
+	
+	public void mouseClicked(PInputEvent e) {
+		
+		if (isPostPopup(e)== true)
+			return;
+			
+		if ((e.getModifiers() & leftButtonMask) !=
+				leftButtonMask)
+			return;
+		if (timer.isRunning()) {
+			timer.stop();
+			doMouseDoubleClicked(e);
+		}
+		else {
+			timer.restart();
+			cachedEvent = e;
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if (cachedEvent != null)
+			doMouseClicked(cachedEvent);
+		cachedEvent = null;
+		timer.stop();
+	}
+	
+	public void doMouseClicked(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof MouseableNode) {
+			((MouseableNode) n).mouseClicked(eventHandler,e); 
+		}
+	}
+	
+	protected boolean isPostPopup(PInputEvent e) {
+		if (postPopup == true) {
+			postPopup = false;		
+			e.setHandled(true);
+			return true;
+		}
+		else 
+			return false;
+	}
+	
+	public void doMouseDoubleClicked(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof MouseableNode) 
+			((MouseableNode) n).mouseDoubleClicked(eventHandler,e);
+		e.setHandled(true);
+	}
+    
+	public void mouseReleased(PInputEvent e) {
+		if (e.isPopupTrigger()) {
+			e.setHandled(true);
+			handlePopup(e);
+		}
+	}
+	
+	public void mousePressed(PInputEvent e) {
+		mouseReleased(e);
+	}
+	
+	public void handlePopup(PInputEvent e) {
+		postPopup = true;
+		PNode n = e.getPickedNode();
+		if (n instanceof MouseableNode) 
+			((MouseableNode) n).mousePopup(eventHandler,e);
+	}
 }
