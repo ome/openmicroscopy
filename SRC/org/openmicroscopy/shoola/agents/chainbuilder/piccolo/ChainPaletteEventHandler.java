@@ -41,13 +41,17 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import java.awt.geom.Point2D;
+
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PInputEvent;
 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
-
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the
@@ -63,7 +67,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 
 public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
-
+	
 	/** the registry */
 	private Registry registry;
 	
@@ -75,6 +79,40 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		super(canvas);
 		this.registry = registry;
 	}	
+	
+	public void doMouseClicked(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof PaletteChainView) {
+			System.err.println("zooming in on palette chain view..");
+			zoomIn(e);
+		}
+		super.doMouseClicked(e);	
+	}
+	
+	public void handlePopup(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof PaletteChainView) {
+			System.err.println("zooming out of palette chain view...");
+			zoomOut(e);
+		}
+		super.handlePopup(e);
+	}
+	
+	private void zoomIn(PInputEvent e) {
+		zoom(e,Constants.SCALE_FACTOR);
+	}
+	
+	private void zoomOut(PInputEvent e) {
+		zoom(e,1/Constants.SCALE_FACTOR);
+	}
+	
+	private void zoom(PInputEvent e,double scale) {
+		PCamera camera=canvas.getCamera();
+		double curScale = camera.getScale();
+		curScale *= scale;
+		Point2D pos = e.getPosition();
+		camera.scaleViewAboutPoint(curScale,pos.getX(),pos.getY());
+	}
 	
 	
 	protected void unhighlightModules() {
