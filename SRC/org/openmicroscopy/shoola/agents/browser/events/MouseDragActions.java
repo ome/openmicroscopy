@@ -115,7 +115,7 @@ public class MouseDragActions
      * 
      * @param action See above.
      */
-    public void setDragAction(PiccoloAction action, int modifier)
+    public void setDragAction(int modifier, PiccoloAction action)
     {
         setAction(action,dragModifierMap,modifier);
     }
@@ -127,7 +127,7 @@ public class MouseDragActions
      * 
      * @param action See above.
      */
-    public void setStartDragAction(PiccoloAction action, int modifier)
+    public void setStartDragAction(int modifier, PiccoloAction action)
     {
         setAction(action,startDragModifierMap,modifier);
     }
@@ -139,7 +139,7 @@ public class MouseDragActions
      * 
      * @param action See above.
      */
-    public void setEndDragAction(PiccoloAction action, int modifier)
+    public void setEndDragAction(int modifier, PiccoloAction action)
     {
         setAction(action,endDragModifierMap,modifier);
     }

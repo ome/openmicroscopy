@@ -100,7 +100,7 @@ public class MouseOverActions
      * 
      * @param action See above.
      */
-    public void setMouseExitAction(PiccoloAction action, int modifier)
+    public void setMouseExitAction(int modifier, PiccoloAction action)
     {
         setAction(action,mouseExitModifierMap,modifier);
     }
@@ -112,7 +112,7 @@ public class MouseOverActions
      * 
      * @param action See above.
      */
-    public void setMouseEnterAction(PiccoloAction action, int modifier)
+    public void setMouseEnterAction(int modifier, PiccoloAction action)
     {
         setAction(action,mouseEnterModifierMap,modifier);
     }
