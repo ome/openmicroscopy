@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -71,8 +72,11 @@ public class ImageCanvas
 	/** Location of the image. */
 	private int					x, y;
 	
-	public ImageCanvas()
+	private ViewerUIF view;
+	
+	public ImageCanvas(ViewerUIF view)
 	{
+		this.view = view;
 		setBackground(Viewer.BACKGROUND_COLOR); 
 		setDoubleBuffered(true);
 	}
@@ -83,13 +87,11 @@ public class ImageCanvas
 	 * @param image		buffered image to display.
 	 * 	
 	 */	
-	public void paintImage(BufferedImage image, int x, int y)
+	public void paintImage(BufferedImage image)
 	{
 		this.image = image;
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		this.x = x;
-		this.y = y;
 		repaint();
 	} 
 	
@@ -98,7 +100,7 @@ public class ImageCanvas
 	{
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
-		//setLocation();
+		setLocation();
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight()/4;
 		paintXYFrame(g2D, hFont);
@@ -131,6 +133,16 @@ public class ImageCanvas
 		g2D.drawString("o", x1-hFont, y1-hFont);
 		g2D.drawString("x", x1+ViewerUIF.LENGTH/2, y1-hFont);
 		g2D.drawString("y", x1-2*hFont, y1+ViewerUIF.LENGTH-hFont);	
+	}
+	
+	private void setLocation()
+	{
+		//Set the location of the image.
+		Rectangle r = view.getScrollPane().getViewportBorderBounds();
+		x = (int) (r.width-imageWidth)/2;
+		y = (int) (r.height-imageHeight)/2;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
 	}
 	
 }
