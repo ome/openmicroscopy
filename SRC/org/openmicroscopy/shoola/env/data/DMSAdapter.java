@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
 import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -489,15 +490,43 @@ class DMSAdapter
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
-	public void updateImage(ImageData retVal)
+	public void updateImage(DataObject retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (retVal instanceof ImageSummary) 
+			updateImage((ImageSummary) retVal);
+		if (retVal instanceof ImageData) 
+			updateImage((ImageData) retVal);
+	}
+
+	/** Implemented as specified in {@link DataManagementService}. */
+	private void updateImage(ImageData retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
+		Image i = (Image) gateway.retrieveData(Image.class, c);
+		
+		if (i != null) {
+			gateway.markForUpdate(i);
+			i.setName(retVal.getName());
+			i.setDescription(retVal.getDescription());
+			gateway.updateMarkedData();
+		}
+	}
+	
+	/** Update the image using an image summary object. */
+	private void updateImage(ImageSummary retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
-  		Image i = (Image) gateway.retrieveData(Image.class, c);
-  		if (i != null) {
+		Image i = (Image) gateway.retrieveData(Image.class, c);
+  		
+		if (i != null)	{
+			gateway.markForUpdate(i);
 			i.setName(retVal.getName());
-			i.setDescription(retVal.getDescription());
-  		}
+			gateway.updateMarkedData();
+		} 
 	}
 
 	/** Implemented as specified in {@link DataManagementService}. */

@@ -36,6 +36,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -335,16 +336,18 @@ public interface DataManagementService
 		throws DSOutOfServiceException, DSAccessException;
 			
 	/**
-	 * Update a specified image.
+	 * Update a specified image. 
+	 * The DataObject must be an instance of {@link ImageSummary} or 
+	 * {@link ImageData}.
 	 * 
 	 * @param retVal		DataObject to update.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
 	 */
-	public void updateImage(ImageData retVal)
+	public void updateImage(DataObject retVal)
 		throws DSOutOfServiceException, DSAccessException;
-	
+		
 	/**
 	 * Retrieve the data associated to the channels of a specified image.
 	 * 
