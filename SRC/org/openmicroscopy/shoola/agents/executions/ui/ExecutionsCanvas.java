@@ -91,6 +91,7 @@ public class ExecutionsCanvas extends JPanel implements
 	private ExecutionView currentExecution;
 	
 	private AxisHash currentHash;
+	private AxisRowDecoration currentRowDecoration;
 	/**
 	 * Creates a new instance.
 	 */
@@ -140,6 +141,8 @@ public class ExecutionsCanvas extends JPanel implements
 		}
 		if (currentHash != null)
 			currentHash.drawHashTip(g2,xLoc,yLoc);
+		if (currentRowDecoration != null)
+			currentRowDecoration.drawFull(g2);
 	}
 	
 	public void drawExecutions(Graphics2D g) {
@@ -197,6 +200,8 @@ public class ExecutionsCanvas extends JPanel implements
 		currentHash = null;
 		if (currentExecution == null) {
 			currentHash = gridModel.getHashAt(xLoc,yLoc);
+			if (currentHash == null) 
+				currentRowDecoration = gridModel.getRowDecorationAt(xLoc,yLoc);
 		}
 		repaint();
 	}
