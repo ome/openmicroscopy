@@ -40,10 +40,8 @@ import javax.swing.WindowConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteCanvas;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
+
 
 /** 
  * An example of a top-level window that inherits from {@link TopWindow}.
@@ -57,7 +55,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
  * </smalbl>
  * @since OME2.2
  */
-public class ChainPaletteWindow extends JFrame implements ContentGroupSubscriber {
+public class ChainPaletteWindow extends JFrame  {
 
 	private static final String TITLE="Chain Palette";
 	
@@ -72,23 +70,22 @@ public class ChainPaletteWindow extends JFrame implements ContentGroupSubscriber
 		this.dataManager = dataManager;
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		buildGUI();
+
 	}
 	
-	private void buildGUI() {
+	public void buildGUI() {
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		
-		// create datasets, etc here.
-		ContentGroup group = new ContentGroup(this);
-				
 		chainCanvas = new ChainPaletteCanvas();
-		final ChainLoader cl = new ChainLoader(dataManager,chainCanvas,group);
-		group.setAllLoadersAdded();
+		chainCanvas.setContents(dataManager.getChains());
+		chainCanvas.layoutContents();
+		chainCanvas.completeInitialization();
 		setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
 		content.add(chainCanvas); 	
 	}
 	
-	public void contentComplete() {
+	public void focusOnPalette() {
+		chainCanvas.scaleToSize();
 	}
 }

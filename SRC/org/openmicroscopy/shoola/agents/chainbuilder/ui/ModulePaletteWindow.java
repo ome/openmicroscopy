@@ -56,12 +56,9 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
 import 
 	org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModulePaletteCanvas;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -81,8 +78,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
  * @since OME2.2
  */
 public class ModulePaletteWindow 
-	extends TopWindow implements TreeSelectionListener, ContentGroupSubscriber,
-			ComponentListener
+	extends TopWindow implements TreeSelectionListener, ComponentListener
 {
 	
 	public static int SIDE=100;
@@ -131,15 +127,7 @@ public class ModulePaletteWindow
 		
 		configureDisplayButtons();
 	//	enableButtons(false);
-		buildGUI();
-		addComponentListener(this);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				uiManager.closeWindows();
-				setVisible(false);
-			}
-		});
+		
 	}
 	
 	/**
@@ -154,7 +142,7 @@ public class ModulePaletteWindow
 	}
 	
 	/** Builds and lays out this window. */
-	private void buildGUI()
+	public void buildGUI(ModulesData modData)
 	{
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -168,24 +156,26 @@ public class ModulePaletteWindow
 		tb.add(newChain);
 		content.add(tb,BorderLayout.NORTH);
 		moduleCanvas = new ModulePaletteCanvas(this);
-		
-		
-		// create datasets, etc here.
-		ContentGroup group = new ContentGroup(this);
-		
-		final ModuleLoader ml = new ModuleLoader(dataManager,moduleCanvas,group);
-		final ChainExecutionLoader cl = new ChainExecutionLoader(dataManager,group);
-		group.setAllLoadersAdded();
-		
+		moduleCanvas.setContents(modData);
+		moduleCanvas.layoutContents();
+		moduleCanvas.completeInitialization();
 		
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,null,moduleCanvas);
 		split.setPreferredSize(new Dimension(2*SIDE,SIDE));
+		configureTreeNode();
 		content.add(split,BorderLayout.CENTER); 
+		
+		addComponentListener(this);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				uiManager.closeWindows();
+				setVisible(false);
+			}
+		});
+		enableButtons(true);
 	}
 	
-	public void contentComplete() {
-	//	enableButtons(true);
-	}
 	
 	public void setDividerLocation(int h) {
 		if (split != null)
@@ -283,5 +273,9 @@ public class ModulePaletteWindow
 	public void componentShown(ComponentEvent e) {
 		System.err.println("showing module palette..");
 		uiManager.showWindows();
+	}
+	
+	public void focusOnPalette() {
+		moduleCanvas.scaleToSize();
 	}
 }

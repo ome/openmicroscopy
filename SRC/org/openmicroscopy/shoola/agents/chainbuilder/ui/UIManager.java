@@ -36,6 +36,12 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindowGroup;
@@ -59,7 +65,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindowGroup;
  * </small>
  * @since OME2.2
  */
-public class UIManager
+public class UIManager implements ContentGroupSubscriber
 {
 
 	/** Strore the data manager */
@@ -81,12 +87,16 @@ public class UIManager
 	/** registry */
 	private Registry config;
 		
+	/* loader */
+	private ModuleLoader modLoader;
 	/** 
 	 * Manages all the {@link ChainFrame}s that we've created and not
 	 * destroyed yet.
 	 */
 	private TopWindowGroup		chainGroup;
 	
+	/** is this the first time the windows are being shown?*/
+	private boolean firstShowing = true;
 	
 	/**
 	 * Creates a new instance.
@@ -102,6 +112,12 @@ public class UIManager
 		config = manager.getRegistry();
 		IconFactory icons = (IconFactory) config.lookup("/resources/icons/MyFactory");
 		chainGroup = new TopWindowGroup("chains",icons.getIcon("chains.png"), config.getTaskBar());
+		
+		ContentGroup group = new ContentGroup(this);
+		modLoader = new ModuleLoader(manager,group);
+		ChainExecutionLoader execLoader = new ChainExecutionLoader(manager,group);
+		group.setAllLoadersAdded();
+		ChainLoader chainLoader = new ChainLoader(manager,group);
 	}
 	
 
@@ -121,6 +137,13 @@ public class UIManager
 	
 	public void showWindows() {
 		setWindowsVisibility(true);
+		// the first time the windows come up, 
+		// have the center contents.
+		if (firstShowing == true) {
+			chainWindow.focusOnPalette();
+			mainWindow.focusOnPalette();
+			firstShowing = false;
+		}
 	}
 	
 	public void closeWindows() {
@@ -130,5 +153,11 @@ public class UIManager
 	private void setWindowsVisibility(boolean v) {
 		if (chainWindow != null)
 			chainWindow.setVisible(v);
+	}
+	
+	public void contentComplete() {
+		ModulesData modData = (ModulesData) modLoader.getContents();
+		mainWindow.buildGUI(modData);
+		chainWindow.buildGUI();
 	}
 }
