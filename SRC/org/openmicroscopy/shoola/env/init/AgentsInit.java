@@ -30,14 +30,19 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
 
 /** 
  * For all Agents
@@ -72,7 +77,7 @@ final class AgentsInit
 	 */
 	String getName()
 	{
-		return "Loading Agents configuration";
+		return "Loading Agents";
 	}
 
 	/** 
@@ -89,10 +94,13 @@ final class AgentsInit
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
-		List listAgents = (List) reg.lookup("/agents");
-		Iterator i;
-		// TODO: finish
-
+		List agents = (List) reg.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			createAgent(agentInfo);
+		}
 	}
 
 	/** 
@@ -100,5 +108,39 @@ final class AgentsInit
 	 * @see InitializationTask#rollback()
 	 */
 	void rollback() {}
+	
+	private void createAgent(AgentInfo info)
+		throws StartupException
+	{
+		Class agentClass;
+		Object agentInstance;
+		URL configFile;
+		Registry reg;
+		try {
+			//Load agent's class.
+			agentClass = Class.forName(info.getAgentClass());
+			
+			//Make sure it implements the Agent I/F.
+			if (!Agent.class.isAssignableFrom(agentClass))
+				throw new Exception(agentClass+"'s type is not Agent.");
+			
+			//Create a new instance.
+			agentInstance = agentClass.newInstance();
+			
+			//Resolve cfg file path against agent's class location.
+			configFile = agentClass.getResource(info.getConfigPath());
+			
+			//Create the agent's registry.
+			reg = RegistryFactory.makeNew(configFile.getPath());
+			
+			//Fill up info. (Recall that this object is already in the
+			//agents list within the container's registry.)
+			info.setAgent((Agent) agentInstance);
+			info.setRegistry(reg);
+		} catch (Exception e) {
+			throw new StartupException("Couldn't create agent: "+
+										info.getName(), e);
+		}
+	}
 
 }
