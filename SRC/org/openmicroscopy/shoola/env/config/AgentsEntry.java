@@ -59,6 +59,7 @@ class AgentsEntry
     private List    listAgents;
     AgentsEntry()
     {
+		listAgents = new ArrayList();
     }
 
 	/** Implemented as specified by {@link Entry}. */  
@@ -67,7 +68,6 @@ class AgentsEntry
         try {
             //the node is supposed to have tags as children, 
             //add control b/c we don't use yet a XMLSchema config
-            listAgents = new ArrayList();
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 for (int i = 0; i < childList.getLength(); i++) {
