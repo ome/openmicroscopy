@@ -52,10 +52,10 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 
 /** 
  * A {@link PCanvas} for viewing images in datasets, with datasets laid out
@@ -586,5 +586,21 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			displayDatasets(datasetsToDisplay);
 		}
 		mainWindow.setSelectedDataset(dataset);
+	}
+	
+	public void selectAnalysisChain(AnalysisChainData chain) {
+		System.err.println("dataset browser. selected chain...");
+		if (chain != null)
+			System.err.println("..."+chain.getID());
+		else
+			System.err.println("...null");
+	}
+	
+	public void mouseOverAnalysisChain(AnalysisChainData chain) {
+		System.err.println("dataset browser. moused over chain...");
+		if (chain != null)
+			System.err.println("..."+chain.getID());
+		else
+			System.err.println("...null");
 	}
  } 
