@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
  * </small>
  * @since OME2.2
  */
-public class LayoutLinkData  extends AnalysisLinkData
+public class LayoutLinkData  extends AnalysisLinkData implements GraphLayoutLink
 {
 	
 	public LayoutLinkData(AnalysisChainData chain,AnalysisNodeData 
@@ -96,12 +96,21 @@ public class LayoutLinkData  extends AnalysisLinkData
 		return (GraphLayoutNode) nodes.elementAt(i);
 	}
 	
+	public void setFromNode(GraphLayoutNode node) {
+		if (node instanceof AnalysisNodeData)
+			setFromNode((AnalysisNodeData) node);
+	}
 	public void setFromNode(AnalysisNodeData node) {
 		super.setFromNode(node);
 		if (nodes.size() == 0)
 			nodes.add(node);
 		else
 			nodes.setElementAt( node,0);
+	}
+	
+	public void setToNode(GraphLayoutNode node) {
+		if (node instanceof AnalysisNodeData)
+			setToNode((AnalysisNodeData) node);
 	}
 	
 	public void setToNode(AnalysisNodeData node) {
@@ -113,5 +122,13 @@ public class LayoutLinkData  extends AnalysisLinkData
 	
 	public Iterator getNodeIterator() {
 		return nodes.iterator();
+	}
+	
+	public GraphLayoutNode getLayoutFromNode() {
+		return (GraphLayoutNode) getFromNode();
+	}
+	
+	public GraphLayoutNode getLayoutToNode() {
+		return (GraphLayoutNode) getToNode();
 	}
 }

@@ -463,15 +463,15 @@ public class LayoutChainData  extends AnalysisChainData
 		boolean ok= true;
 		int nodeCount = nodes.size();
 
-		LayoutNodeData node  = null;
+		GraphLayoutNode node  = null;
 
-		LayoutNodeData succ;
+		GraphLayoutNode succ;
 		
 		do {
 			Iterator iter = nodes.iterator();
 			while (iter.hasNext()) {
 				ok = true;
-				node = (LayoutNodeData) iter.next();
+				node = (GraphLayoutNode) iter.next();
 					
 				if (node.hasLayer())
 					continue;
@@ -481,7 +481,7 @@ public class LayoutChainData  extends AnalysisChainData
 					
 				Iterator succIter = succs.iterator();	
 				while (succIter.hasNext()) {
-					succ = (LayoutNodeData) succIter.next();
+					succ = (GraphLayoutNode) succIter.next();
 
 					if (!succ.hasLayer() || succ.getLayer() == currentLayer) {
 						// this is not ok.
@@ -583,13 +583,14 @@ public class LayoutChainData  extends AnalysisChainData
 		else {
 			// create new dummy node
 			DummyNode dummy = new DummyNode();
-			LayoutLinkData semanticLayoutLinkData = link.getSemanticLink();
+			GraphLayoutLink semanticLayoutLink = link.getSemanticLink(); 
+				//was LayoutLinkData
 			// make this node point to "to"
-			LayoutLink dummyOutLink = new LayoutLink(semanticLayoutLinkData,dummy,to);
+			LayoutLink dummyOutLink = new LayoutLink(semanticLayoutLink,dummy,to);
 			dummy.addSuccLink(dummyOutLink);
 			
 			// make node point to new node
-			LayoutLink newOutLink = new LayoutLink(semanticLayoutLinkData,node,dummy);
+			LayoutLink newOutLink = new LayoutLink(semanticLayoutLink,node,dummy);
 			
 			dummy.addPredLink(newOutLink);
 			
@@ -612,7 +613,7 @@ public class LayoutChainData  extends AnalysisChainData
 			// adjust the semantic link to put dummy in between "from" and "to".
 			// invariant is that "from" is directly before "to", so just put it
 			//after "from"
-			semanticLayoutLinkData.addIntermediate(node,dummy);
+			semanticLayoutLink.addIntermediate(node,dummy);
 		}
 	}
 	

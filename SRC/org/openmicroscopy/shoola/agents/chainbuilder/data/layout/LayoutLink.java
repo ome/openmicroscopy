@@ -42,9 +42,9 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 
 /** 
  * A placeholder class that is used during GraphLayout as the direct node-node 
- * components that get combined to build a {@link  LayoutLinkData} object that can be 
+ * components that get combined to build a {@link  GraphLayoutLink} object that can be 
  * stored directly in the database. During layout, these links connect either 
- * {@link GraphLayoutNode} objects or {@link DummyNode} dummy nodes. Unlike {@link LayoutLinkData} 
+ * {@link GraphLayoutNode} objects or {@link DummyNode} dummy nodes. Unlike {@link GraphLayoutLink} 
  * objects, these objects can only connect adjacent layers in the graph. Once 
  * the graph is laid out, LayoutLink objects are no longer needed.
  * 
@@ -65,25 +65,25 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 	/**
 	 * the actual graph link that this dummy link is really part of.
 	 */ 
-	private LayoutLinkData semanticLink;
+	private GraphLayoutLink semanticLink;
 	
 	public LayoutLink() {
 		super();
 	}
 	
-	public LayoutLink(LayoutLinkData semanticLink,GraphLayoutNode fromNode,GraphLayoutNode toNode) {
+	public LayoutLink(GraphLayoutLink semanticLink,GraphLayoutNode fromNode,GraphLayoutNode toNode) {
 		this.semanticLink = semanticLink;
 		this.fromNode = fromNode;
 		this.toNode = toNode;
 	}
 	
-	public LayoutLink(LayoutLinkData link) {
-		this.fromNode = (GraphLayoutNode) link.getFromNode();
-		this.toNode = (GraphLayoutNode) link.getToNode();
+	public LayoutLink(GraphLayoutLink link) {
+		this.fromNode = (GraphLayoutNode) link.getLayoutFromNode();
+		this.toNode = (GraphLayoutNode) link.getLayoutToNode();
 		this.semanticLink = link;
 	}
  	
- 	public LayoutLinkData getSemanticLink() {
+ 	public GraphLayoutLink getSemanticLink() {
  		return semanticLink;
  	}
  	
