@@ -27,15 +27,13 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
- *
- *------------------------------------------------------------------------------
- */
- 
 package org.openmicroscopy.shoola.agents.datamng.events;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
@@ -43,12 +41,16 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * Event that instructs the DM to open up the image information dialog
  * for this particular image.
  *
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
- * <b>Internal version:</b> $Revision$ $Date$
+ * @author Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp; 
+ * 			<a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
-public class ViewImageInfo extends RequestEvent
+public class ViewImageInfo
+	extends RequestEvent
 {
     private ImageSummary summary;
     
@@ -69,4 +71,5 @@ public class ViewImageInfo extends RequestEvent
     {
         return summary;
     }
+    
 }
