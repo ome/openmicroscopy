@@ -38,6 +38,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.browser.events.ModularEventHandler;
+
 /**
  * The controller of the browser component MVC architecture.
  * 
@@ -48,8 +50,7 @@ package org.openmicroscopy.shoola.agents.browser;
  */
 public class BrowserController
 {
-  // TODO: write handler class
-  // ModularEventHandler commonEventHandler;
+  private ModularEventHandler commonEventHandler;
   private BrowserModel browserModel;
   private BrowserTopModel overlayModel;
   
@@ -57,7 +58,7 @@ public class BrowserController
   
   public BrowserController()
   {
-    // TODO: initialize browser models, view
+    browserModel = new BrowserModel();
   }
   
   /**

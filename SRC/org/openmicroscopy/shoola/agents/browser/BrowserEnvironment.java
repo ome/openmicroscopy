@@ -39,7 +39,6 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import org.openmicroscopy.shoola.agents.browser.events.EventModeMap;
-import org.openmicroscopy.shoola.agents.browser.ome.OMEBrowserAgent;
 
 /**
  * Singleton class which contains references to all universally referencable
@@ -55,7 +54,9 @@ public final class BrowserEnvironment
   private static boolean initialized = false;
   private static BrowserEnvironment environment = null;
   
-  private OMEBrowserAgent browserAgent;
+  private BrowserAgent browserAgent;
+  
+  private BrowserManager browserManager;
   // private static OMEDataAgent dataAgent;
   private MessageHandler messageHandler;
   
@@ -72,7 +73,7 @@ public final class BrowserEnvironment
    * 
    * @return The OME browser agent of the environment.
    */
-  public OMEBrowserAgent getBrowserAgent()
+  public BrowserAgent getBrowserAgent()
   {
     return browserAgent;
   }
@@ -82,9 +83,28 @@ public final class BrowserEnvironment
    * 
    * @param agent The OME browser agent of the environment.
    */
-  public void setBrowserAgent(OMEBrowserAgent agent)
+  public void setBrowserAgent(BrowserAgent agent)
   {
     this.browserAgent = agent;
+  }
+  
+  /**
+   * Gets the environment's browser manager.
+   * @return See above.
+   */
+  public BrowserManager getBrowserManager()
+  {
+    return browserManager;
+  }
+  
+  /**
+   * Sets the environment's browser manager.
+   * 
+   * @param manager The new manager for this environment.
+   */
+  public void setBrowserManager(BrowserManager manager)
+  {
+    this.browserManager = manager;
   }
   
   /**

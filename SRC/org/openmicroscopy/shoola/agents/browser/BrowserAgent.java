@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.ome.OMEBrowserAgent
+ * org.openmicroscopy.shoola.agents.browser.BrowserAgent
  *
  *------------------------------------------------------------------------------
  *
@@ -36,10 +36,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.ome;
+package org.openmicroscopy.shoola.agents.browser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.dto.Dataset;
-import org.openmicroscopy.shoola.agents.browser.BrowserController;
 
 /* 
  * TODO: Get AgentEventListener/EventBus architecture into main CVS tree;
@@ -60,44 +62,67 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
  * @version 2.2
  * @since 2.2
  */
-public class OMEBrowserAgent // implements AgentEventListener
+public class BrowserAgent // implements AgentEventListener
 {
-  private Dataset currentDataset;
-  // private BrowserSettings browserSettings; (haven't figured this out yet)
-  // TODO: Figure out if BrowserSettings class needed here
-  private BrowserController controller;
+  private List controllers;
   
   /**
    * Initialize the browser controller and register the OMEBrowerAgent with
    * the EventBus.
    */
-  public OMEBrowserAgent()
+  public BrowserAgent()
   {
     /* 
      * TODO: initialize browser agent (initialize controller, initialize data
      * agent, register with event bus, etc.
      */
+     controllers = new ArrayList();
   }
   
   /**
-   * Instructs the agent to load the Dataset with the given ID.
+   * Returns a reference to the browser controller at the specified index.
    * 
-   * @param ID The ID of the dataset to load.
+   * @param index The index of the browser to access.
+   * @return The browser controller.
+   */
+  public BrowserController getBrowser(int index)
+  {
+    return (BrowserController)controllers.get(index);
+  }
+  
+  /**
+   * Returns the number of active browser windows.
+   * @return See above.
+   */
+  public int getBrowserCount()
+  {
+    return controllers.size();
+  }
+  
+  /**
+   * Instructs the agent to load the Dataset with the given ID into the
+   * specified browser.
+   * 
+   * @param browserIndex The index of the browser window to load.
+   * @param datasetID The ID of the dataset to load.
    * @return true If the load was successful, false if not.
    */
-  public boolean loadDataset(int ID)
+  public boolean loadDataset(int browserIndex, int datasetID)
   {
     // TODO: fill in loadDataset(int)
     return true;
   }
   
   /**
-   * Instructs the agent to load the specified Dataset.
+   * Instructs the agent to load the specified Dataset into the specified
+   * browser window.
+   * 
+   * @param browserIndex The index of the browser to load.
    * @param dataset The dataset to load.
    * @return true If the load was successful, false if not or if dataset was
    *         null.
    */
-  public boolean loadDataset(Dataset dataset)
+  public boolean loadDataset(int browserIndex, Dataset dataset)
   {
     if(dataset == null)
     {
@@ -120,18 +145,18 @@ public class OMEBrowserAgent // implements AgentEventListener
   }
   
   /**
-   * Instruct the OMEBrowserAgent to fire a LoadImage event, to be handled
+   * Instruct the BrowserAgent to fire a LoadImage event, to be handled
    * by another part of the client.
    * 
-   * @param ID The ID of the image to load (in a viewer, for example)
+   * @param imageID The ID of the image to load (in a viewer, for example)
    */
-  public void loadImage(int ID) // make this boolean (for async response?)
+  public void loadImage(int imageID)
   {
     // TODO: fill in loadImage(int)
   }
   
   /**
-   * Instruct the OMEBrowserAgent to fire a LoadImages event, to be handled
+   * Instruct the BrowserAgent to fire a LoadImages event, to be handled
    * by another part of the client.
    * 
    * @param IDs The IDs of the image to load (in a viewer, for example)
@@ -146,17 +171,19 @@ public class OMEBrowserAgent // implements AgentEventListener
   }
   
   /**
-   * Instruct the OMEBrowserAgent to make the browser components visible.
+   * Instruct the BrowserAgent to make the browser components visible.
+   * @param browserIndex The index of the browser to show.
    */
-  public void showBrowser()
+  public void showBrowser(int browserIndex)
   {
     // TODO: fill in showBrowser()
   }
   
   /**
    * Instruct the OMEBrowserAgent to make the browser components hidden.
+   * @param browserIndex The index of the browser to hide.
    */
-  public void hideBrowser()
+  public void hideBrowser(int browserIndex)
   {
     // TODO: fill in hideBrowser()
   }
