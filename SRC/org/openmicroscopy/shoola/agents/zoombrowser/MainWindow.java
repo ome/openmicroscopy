@@ -40,6 +40,7 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.
@@ -63,8 +64,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
  * </smalbl>
  * @since OME2.2
  */
-public class MainWindow 
-	extends TopWindow
+public class MainWindow extends TopWindow implements ContentGroupSubscriber
 {
 	
 	/** horizontal extent */
@@ -101,7 +101,7 @@ public class MainWindow
 		// create datasets, etc here.
 		DatasetBrowserCanvas browser = new DatasetBrowserCanvas();		
 		ProjectSelectionCanvas v = new ProjectSelectionCanvas(this);
-		ContentGroup group = new ContentGroup();
+		ContentGroup group = new ContentGroup(this);
 		
 		final DatasetLoader dl = new DatasetLoader(dataManager,browser,group);
 		final ProjectLoader pl = new ProjectLoader(dataManager,v,group);
@@ -116,7 +116,10 @@ public class MainWindow
 		
 		// else, do something reasonable when no projects
 		getContentPane().add(framePanel);
-		pack();
+	}
+	
+	public void contentComplete() {
+		//enableButtons(true);
 	}
 	
 	/**
@@ -135,6 +138,7 @@ public class MainWindow
 		icons = dataManager.getIconFactory();
 		
 		configureDisplayButtons();
+		//enableButtons(false);
 		buildGUI();
 	}
 	
