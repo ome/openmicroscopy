@@ -12,9 +12,9 @@ public class ${class.LocalName}
 #set ($super = $class.SuperClass)
    extends ${super.LocalName} 
 #else
-   extends LSObject
+   extends AbstractLSObject
 #end
-   implements I${class.LocalName},ILSObject
+   implements I${class.LocalName},LSObject
 {
 
 	public static final double ontologyVersion = $version ;
@@ -27,7 +27,20 @@ public class ${class.LocalName}
 
 	public $class.LocalName (LSID lsid){
 		super(lsid);
-		this.lsid=lsid;
+	}
+	
+	/** copy constructor FIXME now must have get an set logic matching!!! */
+	public $class.LocalName (LSObject lsObj){
+		super(lsObj.getLSID());
+		this.map=lsObj.getMap();
+
+		#foreach( $p in $class.Predicates )
+	 	//-----------------------------------
+		// $p
+		#set ( $t = $p.Type )
+		#set ( $n = $p.LocalName )
+		this.set${util.uc(${p.LocalName})}(($t)lsObj.get("${p.URI}")); 
+#end
 	}
 
 #foreach( $p in $class.Predicates )

@@ -1,5 +1,5 @@
 #set ($file = "wrapper.vm") 
-
+## FIXME DEPRECATED
 #if( $package )
   package ${package}.model;
 #end
@@ -16,11 +16,12 @@ public class ${class.LocalName}Wrapper
 	public static List wrap(List lsObjects){
 		List results = new ArrayList();
 		for (Iterator iter = lsObjects.iterator();iter.hasNext();){
-			results.add(wrap((LSObject)iter.next()));
+			results.add(new ${class.LocalName}( (LSObject)iter.next() ));
 		}
 		return results;
 	}
-	
+
+/** FIXME temporarily disabled	
 	public static ${class.LocalName} wrap(LSObject lsObject){
 		$class.LocalName obj = new ${class.LocalName}(lsObject.getLSID());
 #foreach( $p in $class.Predicates )
@@ -32,4 +33,5 @@ public class ${class.LocalName}Wrapper
 #end
 		return obj;
 	}
+	*/
 }

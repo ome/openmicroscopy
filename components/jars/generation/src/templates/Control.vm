@@ -7,6 +7,8 @@ Generating Vocabulary >>>>>>>>>>>>>>>>>>>>>>>.
 #set ($outputFile = "model/Vocabulary.java" )
 $generator.parse("vocab.vm", $outputFile, "[Vocab]", $predicates)
 Generating Classes>>>>>>>>>>>>>>>>>>>>>>>.
+#set ($outputFile = "model/Factory.java")
+$generator.parse("factory.vm",$outputFile,"[Factory]",$classes)
 #set ($outputFile = "xsd/Base.xsd")
 $generator.parse("base.vm",$outputFile,"[Base]",$classes)
 #foreach ($class in $classes)
