@@ -72,28 +72,28 @@ public class PlaneDef
 	private static final int	Y_NORMAL = 2;
 	
 	/** Tells which kind of plane. One of the constant defined above.  */
-	private int slice;
+	private int	slice;
 	
 	/** 
 	 * Normal direction (i.e. X-axis) of the YZ-plane. 
 	 * Only relevant in the context of this plane.
 	 */
-	private int x;
+	private int	x;
 	
 	/** 
 	 * Normal direction (i.e. Y-axis) of the XZ-plane. 
 	 * Only relevant in the context of this plane.
 	 */
-	private int y;
+	private int	y;
 	
 	/** 
 	 * Normal direction (i.e. Z-axis) of the XY-plane. 
 	 * Only relevant in the context of this plane.
 	 */
-	private int z;
+	private int	z;
 	
 	/** t the Timepoint. */
-	private int t;
+	private int	t;
 	
 	/**
 	 * Creates a new instance.
@@ -130,34 +130,20 @@ public class PlaneDef
 		this.z = z;
 	}
 
-	public int getSlice()
-	{
-		return slice;
-	}
+	public int getSlice() { return slice; }
 
-	public int getT()
-	{
-		return t;
-	}
+	public int getT() { return t; }
 
-	public int getX()
-	{
-		return x;
-	}
+	public int getX() { return x; }
 
-	public int getY()
-	{
-		return y;
-	}
+	public int getY() { return y; }
 
-	public int getZ()
-	{
-		return z;
-	}
+	public int getZ() { return z; }
 
 	private void verifyNormal(int normal)
 	{
 		if (normal != slice)
 			throw new IllegalArgumentException("Cannot set the normal");
 	}
+	
 }

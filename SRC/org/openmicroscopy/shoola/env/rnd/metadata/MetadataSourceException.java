@@ -54,33 +54,22 @@ public class MetadataSourceException
 	extends Exception
 {
 
-	/**
-	 * Creates a new exception.
-	 */
-	public MetadataSourceException() 
-	{
-		super();
-	}
+	/** Creates a new exception. */
+	public MetadataSourceException() { super(); }
 
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public MetadataSourceException(String message) 
-	{
-		super(message);
-	}
+	public MetadataSourceException(String message) { super(message); }
 
 	/**
 	 * Constructs a new exception with the specified cause.
 	 * 
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public MetadataSourceException(Throwable cause)
-	{
-		super(cause);
-	}
+	public MetadataSourceException(Throwable cause) { super(cause); }
 
 	/**
 	 * Constructs a new exception with the specified detail message and cause.

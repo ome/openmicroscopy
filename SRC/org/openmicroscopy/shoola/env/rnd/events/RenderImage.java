@@ -68,7 +68,6 @@ public class RenderImage
 	 */
 	private PlaneDef	planeDef;
 	
-	
 	/**
 	 * Creates a request to render the current plane within the given
 	 * pixels set.
@@ -98,15 +97,8 @@ public class RenderImage
 		this.pixelsID = pixelsID;
 	}
 
-	/**
-	 * Return the ID of the pixels set.
-	 * 
-	 * @return	See above.
-	 */
-	public int getPixelsID()
-	{
-		return pixelsID;
-	}
+	/** Return the ID of the pixels set. */
+	public int getPixelsID() { return pixelsID; }
 
 	/**
 	 * Returns the definition of what data, within the pixels set, to render.
@@ -115,9 +107,6 @@ public class RenderImage
 	 * 
 	 * @return	See above.
 	 */
-	public PlaneDef getPlaneDef() 
-	{
-		return planeDef;
-	}
+	public PlaneDef getPlaneDef() { return planeDef; }
 
 }

@@ -74,14 +74,7 @@ public class ImageLoaded
 		this.proxy = proxy;
 	}
 
-	/**
-	 * Returns a proxy to the rendering context of the loaded image.
-	 * 
-	 * @return	See above.
-	 */
-	public RenderingControl getProxy()
-	{
-		return proxy;
-	}
+	/** Returns a proxy to the rendering context of the loaded image. */
+	public RenderingControl getProxy() { return proxy; }
 	
 }

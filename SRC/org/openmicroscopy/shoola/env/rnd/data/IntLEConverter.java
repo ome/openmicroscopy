@@ -73,7 +73,7 @@ public class IntLEConverter
 	*/
 	public Object pack(byte[] data, int offset, int length)
 	{
-		int    r = 0, tmp, paddingMask = -1;
+		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
 			tmp = data[offset+k]&0xFF;  //get k-byte starting from LSB
 			r |= tmp<<k*8;  //add LSB[k]*(2^8)^k to r

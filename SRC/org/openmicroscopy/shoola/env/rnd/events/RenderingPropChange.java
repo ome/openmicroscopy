@@ -63,9 +63,6 @@ public class RenderingPropChange
 		this.mCall = mCall; 
 	}
 	
-	public void doUpdate() 
-	{
-		mCall.doCall();
-	}
+	public void doUpdate() { mCall.doCall(); }
 	
 }

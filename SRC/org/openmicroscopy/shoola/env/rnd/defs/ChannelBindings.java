@@ -69,9 +69,9 @@ public class ChannelBindings
 	private int[] 				rgba;
 	
 	/** 
-	*<code>true</code> if the wavelength has to mapped, 
-	*<code>false</code> otherwise.
-	*/
+	 *<code>true</code> if the wavelength has to mapped, 
+	 *<code>false</code> otherwise.
+	 */
 	private boolean				active;
 	
 	public ChannelBindings(int index, 
@@ -89,25 +89,13 @@ public class ChannelBindings
 	/** Private empty constructor. */
 	private ChannelBindings() {}
 	
-	public boolean isActive()
-	{
-		return active;
-	}
+	public boolean isActive() { return active; }
 
-	public int getIndex()
-	{
-		return index;
-	}
+	public int getIndex() { return index; }
 
-	public Comparable getInputEnd()
-	{
-		return inputEnd;
-	}
+	public Comparable getInputEnd() { return inputEnd; }
 
-	public Comparable getInputStart()
-	{
-		return inputStart;
-	}
+	public Comparable getInputStart() { return inputStart; }
 
 	public int[] getRGBA() 
 	{
@@ -117,10 +105,7 @@ public class ChannelBindings
 		return colors;
 	}
 
-	public void setActive(boolean active)
-	{
-		this.active = active;
-	}
+	public void setActive(boolean active) { this.active = active; }
 
 	//TODO: checks done in QuantumStrategy, where do they belong to?
 	public void setInputWindow(Comparable start, Comparable end)
@@ -168,7 +153,6 @@ public class ChannelBindings
 		cb.rgba = getRGBA();
 		return cb;
 	}
-	
 	
 	/** Verify the color components. */
 	private void verifyColorComponent(int c)

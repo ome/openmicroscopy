@@ -84,9 +84,6 @@ public class CodomainChain
 	 */
 	private static CodomainMapContext	identityCtx;
 	
-	
-	
-	
 	/** Codomain lookup table.*/
 	private int[]				LUT;
 	
@@ -102,7 +99,6 @@ public class CodomainChain
 	/** The upper bound of the codomain interval. */
 	private int					intervalEnd;
 	
-		
 	/**
 	 * Creates a new chain.
 	 * The chain will contain the identity context.  So if no transformation
@@ -180,25 +176,11 @@ public class CodomainChain
 		buildLUT();
 	}
 	
-	/**
-	 * Returns the upper bound of the codomain interval.
-	 * 
-	 * @return See above.
-	 */
-	public int getIntervalEnd()
-	{
-		return intervalEnd;
-	}
+	/** Returns the upper bound of the codomain interval. */
+	public int getIntervalEnd() { return intervalEnd; }
 
-	/**
-	 * The lower bound of the codomain interval.
-	 * 
-	 * @return See above.
-	 */
-	public int getIntervalStart()
-	{
-		return intervalStart;
-	}
+	/** The lower bound of the codomain interval. */
+	public int getIntervalStart() { return intervalStart; }
 	
 	/** 
 	 * Adds a map context to the chain.

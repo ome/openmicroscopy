@@ -52,6 +52,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 class PolynomialMap 
 	implements QuantumMap
 {
+	
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(int x, double k)
 	{

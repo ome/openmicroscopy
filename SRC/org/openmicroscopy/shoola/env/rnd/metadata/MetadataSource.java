@@ -62,19 +62,19 @@ public class MetadataSource
 {
 	
 	//TODO: to be removed, when PixelsService supports int pixelsID.
-	private Pixels	pixels;
+	private Pixels				pixels;
 	
 	/** The id of the image this object is dealing with. */
-	private int		imageID;
+	private int					imageID;
 	
 	/** The id of the pixels set within the image. */
-	private int		pixelsID;
+	private int					pixelsID;
 	
 	/** The id of the pixels set under <i>OMEIS</i>.*/
-	private long	omeisPixelsID;
+	private long				omeisPixelsID;
 	
 	/** The pixel type identifier, as defined by {@link DataSink}. */
-	private int		pixelType;
+	private int					pixelType;
 	
 	/** 
 	 * The dimensions of the pixels set. 
@@ -148,35 +148,17 @@ public class MetadataSource
 	}
 
 	//TODO: to be removed.
-	public Pixels getPixels()
-	{
-		return pixels;
-	}
+	public Pixels getPixels() { return pixels; }
 	
-	public RenderingDef getDisplayOptions()
-	{
-		return displayOptions;
-	}
+	public RenderingDef getDisplayOptions() { return displayOptions; }
 
-	public long getOmeisPixelsID()
-	{
-		return omeisPixelsID;
-	}
+	public long getOmeisPixelsID() { return omeisPixelsID; }
 
-	public PixelsDimensions getPixelsDims()
-	{
-		return pixelsDims;
-	}
+	public PixelsDimensions getPixelsDims() { return pixelsDims; }
 
-	public PixelsStats getPixelsStats()
-	{
-		return pixelsStats;
-	}
+	public PixelsStats getPixelsStats() { return pixelsStats; }
 
-	public int getPixelType() 
-	{
-		return pixelType;
-	}
+	public int getPixelType() { return pixelType; }
 	
 	private PixelsStats makeStats(StackStatistics s, PixelsDimensions d)
 	{

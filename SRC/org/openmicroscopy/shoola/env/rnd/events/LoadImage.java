@@ -69,7 +69,6 @@ public class LoadImage
 	/** The ID of the pixels set. */
 	private int		pixelsID;
 	
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -82,25 +81,11 @@ public class LoadImage
 		this.pixelsID = pixelsID;
 	}
 	
-	/**
-	 * Returns the ID of the image to load.
-	 * 
-	 * @return	See above.
-	 */
-	public int getImageID()
-	{
-		return imageID;
-	}
+	/** Returns the ID of the image to load. */
+	public int getImageID() { return imageID; }
 
-	/**
-	 * Return the ID of the pixels set.
-	 * 
-	 * @return	See above.
-	 */
-	public int getPixelsID()
-	{
-		return pixelsID;
-	}
+	/** Return the ID of the pixels set. */
+	public int getPixelsID() { return pixelsID; }
 
 }
 

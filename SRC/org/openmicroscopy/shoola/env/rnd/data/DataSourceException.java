@@ -54,33 +54,22 @@ public class DataSourceException
 	extends Exception
 {
 
-	/**
-	 * Creates a new exception.
-	 */
-	public DataSourceException() 
-	{
-		super();
-	}
+	/** Creates a new exception. */
+	public DataSourceException() { super(); }
 
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public DataSourceException(String message) 
-	{
-		super(message);
-	}
+	public DataSourceException(String message) { super(message); }
 
 	/**
 	 * Constructs a new exception with the specified cause.
 	 * 
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public DataSourceException(Throwable cause)
-	{
-		super(cause);
-	}
+	public DataSourceException(Throwable cause) { super(cause); }
 
 	/**
 	 * Constructs a new exception with the specified detail message and cause.

@@ -70,7 +70,7 @@ public class IntBEConverter
 	 */
 	public Object pack(byte[] data, int offset, int length)
 	{
-		int    r = 0, tmp, paddingMask = -1;
+		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
 			//get k-byte starting from MSB, that is LSB[length-k-1]
 			tmp = data[offset+k]&0xFF;

@@ -55,11 +55,11 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 public abstract class Plane2D
 {  
 	
-	private BytesConverter strategy;
-	private byte[]		wavelengthStack;
-	protected PlaneDef	planeDef;
-	protected int		bytesPerPixel;
-	protected PixelsDimensions dims;
+	private BytesConverter		strategy;
+	private byte[]				wavelengthStack;
+	protected PlaneDef			planeDef;
+	protected int				bytesPerPixel;
+	protected PixelsDimensions	dims;
 	
 
 	protected Plane2D(PlaneDef pDef, PixelsDimensions dims, int bytesPerPixel, 

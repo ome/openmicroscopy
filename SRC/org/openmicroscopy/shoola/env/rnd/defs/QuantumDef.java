@@ -56,7 +56,8 @@ public class QuantumDef
      * Identifies a family of maps. 
      * One of the constants defined by 
      * {@link org.openmicroscopy.shoola.env.rnd.domain.QuantumFactory 
-     * QuantumFactory}. */
+     * QuantumFactory}.
+     */
 	public final int       family;
 	
 	/** 

@@ -146,7 +146,7 @@ public class DataSink
 	
 
 	/** The id of the pixels set. */
-	private Pixels      			pixelsID;
+	private Pixels      		pixelsID;
 	//TODO: this should be turned into int!
 	
 	/**
@@ -255,11 +255,8 @@ public class DataSink
 		stack = new byte[dims.sizeW][];
 	}
 
-	/** Retrieves the Pixels type */
-	public int getType()
-	{
-		return pixelType;
-	}
+	/** Retrieves the Pixels type. */
+	public int getType() { return pixelType; }
 	
 	/** Builds a plane2D. */
 	public Plane2D getPlane2D(PlaneDef pDef, int w)

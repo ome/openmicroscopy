@@ -61,7 +61,6 @@ public class ImageRendered
 	/** The rendered pixels set. */
 	private BufferedImage	renderedImage;
 	
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -74,14 +73,7 @@ public class ImageRendered
 		this.renderedImage = renderedImage;
 	}
 
-	/**
-	 * Returns the rendered pixels set.
-	 * 
-	 * @return	See above.
-	 */
-	public BufferedImage getRenderedImage() 
-	{
-		return renderedImage;
-	}
+	/** Returns the rendered pixels set. */
+	public BufferedImage getRenderedImage() { return renderedImage; }
 
 }

@@ -70,42 +70,27 @@ class RenderingControlImpl
 	}
 	
 	/** Implemented as specified by {@link RenderingControl}. */
-	public PixelsDimensions getPixelsDims() 
-	{
-		return renderer.getPixelsDims();
-	}
+	public PixelsDimensions getPixelsDims() { return renderer.getPixelsDims(); }
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public PixelsStats getPixelsStats()
-	{
-		return renderer.getPixelsStats();
-	}
+	public PixelsStats getPixelsStats() { return renderer.getPixelsStats(); }
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public void setModel(int model) 
-	{
-		renderer.setModel(model);
-	}
+	public void setModel(int model) { renderer.setModel(model); }
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public int getModel()
-	{
-		RenderingDef rd = renderer.getRenderingDef();
-		return rd.getModel();
-	}
+	public int getModel() { return renderer.getRenderingDef().getModel(); }
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public int getDefaultZ() 
-	{
-		RenderingDef rd = renderer.getRenderingDef();
-		return rd.getDefaultZ();
+	public int getDefaultZ()
+	{ 
+		return renderer.getRenderingDef().getDefaultZ(); 
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public int getDefaultT() 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		return rd.getDefaultT();
+		return renderer.getRenderingDef().getDefaultT();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
@@ -141,88 +126,76 @@ class RenderingControlImpl
 	/** Implemented as specified by {@link RenderingControl}. */
 	public QuantumDef getQuantumDef()
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		return rd.getQuantumDef();
+		return renderer.getRenderingDef().getQuantumDef();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void setChannelWindow(int w, Comparable start, Comparable end) 
 	{
-		QuantumManager qm = renderer.getQuantumManager();
-		QuantumStrategy qs = qm.getStrategyFor(w);
+		QuantumStrategy qs = renderer.getQuantumManager().getStrategyFor(w);
 		qs.setWindow(start, end);
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		cb[w].setInputWindow(start, end);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public Comparable getChannelWindowStart(int w) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].getInputStart();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public Comparable getChannelWindowEnd(int w) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].getInputEnd();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void setRGBA(int w, int red, int green, int blue, int alpha) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		cb[w].setRGBA(red, green, blue, alpha);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public int[] getRGBA(int w) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].getRGBA();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void setActive(int w, boolean active)
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		cb[w].setActive(active);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public boolean isActive(int w) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		ChannelBindings[] cb = rd.getChannelBindings();
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].isActive();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void addCodomainMap(CodomainMapContext mapCtx) 
 	{	
-		CodomainChain chain = renderer.getCodomainChain();
-		chain.add(mapCtx);
+		renderer.getCodomainChain().add(mapCtx);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void updateCodomainMap(CodomainMapContext mapCtx)
 	{
-		CodomainChain chain = renderer.getCodomainChain();
-		chain.update(mapCtx);
+		renderer.getCodomainChain().update(mapCtx);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void removeCodomainMap(CodomainMapContext mapCtx)
 	{
-		CodomainChain chain = renderer.getCodomainChain();
-		chain.remove(mapCtx);
+		renderer.getCodomainChain().remove(mapCtx);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */

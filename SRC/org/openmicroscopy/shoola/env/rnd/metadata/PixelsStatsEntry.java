@@ -52,18 +52,19 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 public class PixelsStatsEntry
 {
 	/** Minimum pixel intensity of the stack. */
-	public final double  min;
+	public final double		min;
 	
 	/** Maximum pixel intensity of the stack.*/
-	public final double  max;
+	public final double  	max;
     
     /** Geometric mean of the pixel intensities computed for the all stack. */
-    public final double geoMean;
+    public final double 	geoMean;
     
     /** 
      * Geometric sigma. i.e. distance between points and geometric mean.
      */
-    public final double geoSigma;
+    public final double 	geoSigma;
+    
 	/** 
 	 * Creates a new object to store the passed stats entry.
 	 *

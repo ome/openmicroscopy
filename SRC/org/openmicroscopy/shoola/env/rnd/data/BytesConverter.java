@@ -106,12 +106,12 @@ abstract class BytesConverter
 
 
 	/** 
-	* Creates the suitable Uint converter.
- 	*
- 	* @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
- 	* 					ordered, <code>false</code> otherwise.   
- 	* @return the suitable converter.
- 	*/
+	 * Creates the suitable Uint converter.
+ 	 *
+ 	 * @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
+ 	 * 					ordered, <code>false</code> otherwise.   
+ 	 * @return the suitable converter.
+ 	 */
 	private static BytesConverter createUintConverter(boolean bigEndian)
 	{
 		if (bigEndian) return new UintBEConverter();
@@ -119,36 +119,34 @@ abstract class BytesConverter
 	}
  
 	/** 
-	* Creates the suitable Int converter.
- 	*
- 	* @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
- 	* 					ordered, <code>false</code> otherwise.   
- 	* @return the suitable converter.
- 	*/
+	 * Creates the suitable Int converter.
+ 	 *
+ 	 * @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
+ 	 * 					ordered, <code>false</code> otherwise.   
+ 	 * @return the suitable converter.
+ 	 */
 	private static BytesConverter createIntConverter(boolean bigEndian)
 	{
 		if (bigEndian) return new IntBEConverter();
 		return new IntLEConverter();  
 	}    
 
-
-
 	/**
-	* Converts a sequence of bytes, representing a pixel value, into a numeric 
-	* value of appropriate type, taking endianness into account. 
-	* The value returned by this method is an object that wraps the actual 
-	* numeric value. For {DataSink#INT8}, {DataSink#INT16}, {DataSink#INT32}, 
-	* {DataSink#UINT8} and {DataSink#UINT16} types, the returned value is an 
-	* instance of <code>Integer</code>, as <code>Long</code> is used for 
-	* {DataSink#UINT32}.
- 	* <p>TODO: when we support all other pixel types, explain the mapping 
- 	* here.</p>
- 	*
- 	* @param data    The byte array containing the bytes to convert.
- 	* @param offset  The position of the first byte making up the pixel value.
- 	* @param length  The number of bytes that make up the pixel value.
- 	* @return An object to wrap the actual numeric value.
- 	*/
+	 * Converts a sequence of bytes, representing a pixel value, into a numeric 
+	 * value of appropriate type, taking endianness into account. 
+	 * The value returned by this method is an object that wraps the actual 
+	 * numeric value. For {DataSink#INT8}, {DataSink#INT16}, {DataSink#INT32}, 
+	 * {DataSink#UINT8} and {DataSink#UINT16} types, the returned value is an 
+	 * instance of <code>Integer</code>, as <code>Long</code> is used for 
+	 * {DataSink#UINT32}.
+ 	 * <p>TODO: when we support all other pixel types, explain the mapping 
+ 	 * here.</p>
+ 	 *
+ 	 * @param data    The byte array containing the bytes to convert.
+ 	 * @param offset  The position of the first byte making up the pixel value.
+ 	 * @param length  The number of bytes that make up the pixel value.
+ 	 * @return An object to wrap the actual numeric value.
+ 	 */
 	public abstract Object pack(byte[] data, int offset, int length);
 
 }

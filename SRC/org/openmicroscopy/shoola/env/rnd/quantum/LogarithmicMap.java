@@ -52,6 +52,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 class LogarithmicMap
 	implements QuantumMap
 {
+	
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(int x, double k)
 	{
@@ -81,5 +82,6 @@ class LogarithmicMap
 			throw new IllegalArgumentException("Value not consistent. " +
 						"The value must be > 0.");
 	}
+	
 }
 

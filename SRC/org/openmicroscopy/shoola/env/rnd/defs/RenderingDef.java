@@ -151,10 +151,7 @@ public class RenderingDef
 		this.model = model;
 	}
 	
-	public int getModel() 
-	{
-		return model;
-	}
+	public int getModel() { return model; }
 
 	public void setQuantumDef(QuantumDef qDef)
 	{
@@ -163,10 +160,7 @@ public class RenderingDef
 		this.qDef = qDef;
 	}
 	
-	public QuantumDef getQuantumDef()
-	{
-		return qDef;
-	}
+	public QuantumDef getQuantumDef() { return qDef; }
 
 	//returned array cb is such that cb[i].getIndex() == i
 	public ChannelBindings[] getChannelBindings()
@@ -177,20 +171,11 @@ public class RenderingDef
 		return copy;	
 	}
 
-	public List getCodomainChainDef()
-	{
-		return cdChainDef;
-	}
+	public List getCodomainChainDef() { return cdChainDef; }
 	
-	public int getDefaultZ()
-	{
-		return defaultZ;
-	}
+	public int getDefaultZ() { return defaultZ; }
 	
-	public int getDefaultT()
-	{
-		return defaultT;
-	}
+	public int getDefaultT() { return defaultT; }
 	
 	public RenderingDef copy()
 	{
