@@ -36,7 +36,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.image.BufferedImage;
-
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -64,8 +63,6 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 public class ImageCanvas
 	extends JPanel
 {
-	/** default space size between images i.e. top-centre left-centre*/
-	static final int wSpace = 20, hSpace = 20; 
 	 
 	private static final Color	BACKGROUND_COLOR = new Color(204, 204, 255); 
 	
@@ -78,6 +75,7 @@ public class ImageCanvas
 	/** Glass pane laid on top of the image. */
 	private Component       	imgGlassPane;
 	
+	private int					iconHeight, iconWidth;
 	/** 
 	* A reference to the content pane of the viewer's internal frame. 
 	* Needed to do better layout.
@@ -133,11 +131,23 @@ public class ImageCanvas
 	{
 		//TODO: check that double-buffering is performed under the hood
 		ImageIcon icon = new ImageIcon(img); 
+		iconHeight = icon.getIconHeight();
+		iconWidth = icon.getIconWidth();
 		if (picture != null) imgLayers.remove(picture);
 		picture = new JLabel(icon);
 		imgLayers.add(picture, new Integer(0));
 	}
 
+	public int getIconHeight()
+	{
+		return iconHeight;
+	}
+	
+	public int getIconWidth()
+	{
+		return iconWidth;
+	}
+	
 	/** 
 	 * Custom manager that takes care of the layout of {@link ImageCanvas}.
 	 * This layout manager is tightly coupled to the specific structure of 
@@ -161,7 +171,7 @@ public class ImageCanvas
 				if (imgW < d.width) x = (d.width-imgW)/2;
 				if (imgH < d.height) y = (d.height-imgH)/2; 
 				c.imgLayers.setBounds(x, y, imgW, imgH);
-				c.picture.setBounds(wSpace, hSpace, imgW, imgH);	
+				c.picture.setBounds(0, 0, imgW, imgH);	
 				//if (c.imgGlassPane != null) 
 				//	c.imgGlassPane.setBounds(wSpace, hSpace, imgW, imgH);
 			}
@@ -179,8 +189,8 @@ public class ImageCanvas
 			ImageCanvas c = (ImageCanvas)canvas;
 			int w = 0, h = 0;
 			if (c.picture != null) {
-				w = c.picture.getIcon().getIconWidth()+wSpace;
-				h = c.picture.getIcon().getIconHeight()+hSpace;
+				w = c.picture.getIcon().getIconWidth();
+				h = c.picture.getIcon().getIconHeight();
 			}
 			return new Dimension(w, h);
 		}
