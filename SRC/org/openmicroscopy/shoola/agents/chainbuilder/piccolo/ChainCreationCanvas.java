@@ -65,6 +65,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureErrors;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
@@ -214,9 +215,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				e.getDropTargetContext().dropComplete(true);
 				int id = i.intValue(); 
 				Point2D loc = e.getLocation();
-				System.err.println("trying to drop chain.."+id);
 				LayoutChainData chain = manager.getChain(id);
-				System.err.println("dropping chain retrieved by manager is "+chain);
 				createDroppedChain(chain,loc);
 				addInputEventListener(handler);			
 			} 
@@ -272,6 +271,11 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 * @param location
 	 */
 	public void createDroppedChain(LayoutChainData chain,Point2D location) {
+		
+		ChainStructureErrors  errors = chain.getStructureErrors();
+		if (errors != null) 
+			errors.display();
+		
 		getCamera().localToGlobal(location);
 		float x = (float) location.getX();
 		float y = (float) location.getY();
@@ -332,6 +336,9 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		JOptionPane.showMessageDialog(this,msg,"Save Complete",
 				JOptionPane.INFORMATION_MESSAGE);
 		newChain.layout();
+		ChainStructureErrors  errors = newChain.getStructureErrors();
+		if (errors != null) 
+			errors.display();
 		frame.updateChainPalette(newChain);
 		manager.addChain(newChain);
 
@@ -366,11 +373,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		chain.setNodes(nodes);
 	}
 	
-	private void buildLinks(LayoutChainData chain) {
-		Vector links = new Vector();
-		PNode node;
-		ParamLink link;
-
+	private Collection findLinks() {
 		PNodeFilter filter = new PNodeFilter() {
 			public boolean accept(PNode node) {
 				return (node instanceof ParamLink);
@@ -381,6 +384,17 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		};
 		
 		Collection linkNodes = layer.getAllNodes(filter,null);
+		// plus add in whatever is in linkLayer;
+		linkNodes.addAll(linkLayer.links());
+		return linkNodes;
+	}
+	
+	private void buildLinks(LayoutChainData chain) {
+		Vector links = new Vector();
+		PNode node;
+		ParamLink link;
+		
+		Collection linkNodes = findLinks();
 		// plus add in whatever is in linkLayer;
 		linkNodes.addAll(linkLayer.links());
 		Iterator iter = linkNodes.iterator();
