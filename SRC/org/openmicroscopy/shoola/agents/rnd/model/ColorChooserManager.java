@@ -75,6 +75,7 @@ class ColorChooserManager
 	private static final int			widthBar = ColorPalette.WIDTH_BAR;
 	
 	private ColorChooser				view;
+	private HSBPaneManager				hsbManager;
 	private Color						colorSelected;
 	private int[]						rgba;
 	private int							alpha;
@@ -82,13 +83,16 @@ class ColorChooserManager
 	/**
 	 * Creates the manager.
 	 * 
-	 * @param view		reference to the view {@link ColorChooser}.
-	 * @param c			color saved in user settings.
-	 * @param alpha		alpha component.
+	 * @param view			reference to the view {@link ColorChooser}.
+	 * @param hsbManager	referenve to {@link HSBPaneManager}.
+	 * @param c				color saved in user settings.
+	 * @param alpha			alpha component (GUI version).
 	 */
-	ColorChooserManager(ColorChooser view, int[] rgba, int alpha)
+	ColorChooserManager(ColorChooser view, HSBPaneManager hsbManager,
+						int[] rgba, int alpha)
 	{
 		this.view = view;
+		this.hsbManager = hsbManager;
 		this.alpha = alpha;
 		this.rgba = rgba;
 		buildColor();
@@ -146,9 +150,6 @@ class ColorChooserManager
 					applySettings();
 					break;
 				case CANCEL:
-					saveSettings();
-					break;
-				case SAVE:
 					cancel();
 					break;
 				case R_AREA:
@@ -180,12 +181,12 @@ class ColorChooserManager
 	 */
 	public void focusLost(FocusEvent e)
 	{
-		String      valRed = view.getRArea().getText(), 
-					red = ""+colorSelected.getRed();
-		String      valGreen = view.getGArea().getText(), 
-					green = ""+colorSelected.getGreen();
-		String      valBlue = view.getBArea().getText(), 
-					blue = ""+colorSelected.getBlue();													
+		String valRed = view.getRArea().getText(), 
+				red = ""+colorSelected.getRed();
+		String valGreen = view.getGArea().getText(), 
+				green = ""+colorSelected.getGreen();
+		String	valBlue = view.getBArea().getText(), 
+				blue = ""+colorSelected.getBlue();													
 		if (valRed == null || !valRed.equals(red)) 
 			view.getRArea().setText(red);
 		if (valGreen == null || !valGreen.equals(green))
@@ -200,29 +201,22 @@ class ColorChooserManager
 	 */
 	public void focusGained(FocusEvent e) {} 
 	
-	/** Applies the color settings to the wavelength. 
-	 * Note: the apply button is active if and only if the wavelength
-	 * is selected*/
+	/** 
+	 * Applies the color settings to the wavelength. 
+	 * */
 	void applySettings()
 	{
 		//TODO: save and close the dialog
 	}
 	
-	/** */
-	void saveSettings()
-	{
-		//TODO: save the color setting for later use. Don't modify the wavelength
-		// color
-	}
-	
-	/** */
+	/** Close the widget. */
 	void cancel()
 	{
 		//TODO: setVisible(false);
 	}
 	
 	/** 
-	 * Checks the value entered is valid, if yes forward i to updateColor 
+	 * Checks the value entered is valid, if yes forward it to updateColor() 
 	 * method.
 	 * 
 	 * @param k		color component index.
@@ -314,7 +308,7 @@ class ColorChooserManager
 	}
 	
 	/**
-	 * Updates the textFields with the new color components values.
+	 * Updates the textFields with the new color component values.
 	 * 
 	 * @param c		color selected.
 	 */

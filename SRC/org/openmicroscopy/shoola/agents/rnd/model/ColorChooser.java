@@ -45,7 +45,6 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.util.ui.ColorPanel;
 
 /** 
@@ -84,25 +83,30 @@ public class ColorChooser
 	private static final int			WBUTTON = 70;
 	
 	private static final int			MAX_SLIDER = 100;
-	/** Slider controlling the Alpha component. */
+	
+	/** Slider to select the alpha component of the color. */
 	private JSlider						alphaSlider;
 	
+	/** Textfield which displays the value of the alpha component. */
 	private JTextField					alphaTextField;
 	
-	/** Textfield displaying the value of the red component of the color.*/
+	/** Textfield which displays of the red component. */
 	private JTextField					rArea;
 	
-	/** Textfield displaying the value of the green component of the color.*/
+	/** Textfield which displays the value of the green component. */
 	private JTextField					gArea;
 	
-	/** Textfield displaying the value of the blue component of the color.*/
+	/** Textfield which displays the value of the blue component. */
 	private JTextField					bArea;
 	
 	private JButton						applyButton;
-	private JButton						saveButton;
 	private JButton 					cancelButton;
+	
+	/** Color preview panel. */
 	private ColorPanel					colorPanel;
+	
 	private ColorChooserManager 		ccManager;
+	
 	private ColorPalette				cp;
 	
 	private JPanel						contents;
@@ -110,14 +114,14 @@ public class ColorChooser
 	/**
 	 * Creates a new ColorChooser instance.
 	 * 
-	 * @param wcd		colorData.
+	 * @param cb		reference to the {@link channelBindings} object.
 	 */
-	public ColorChooser(ChannelBindings cb)
+	public ColorChooser(HSBPaneManager hsbManager, int[] rgba)
 	{
-		int[] rgba = cb.getRGBA();
+		super(hsbManager.getReferenceFrame(), "ColorChooser", true);
 		int v = (int) (rgba[ALPHA]*100/255);
 		Color c = new Color(rgba[RED], rgba[GREEN], rgba[BLUE], rgba[ALPHA]);
-		ccManager = new ColorChooserManager(this, rgba, v);
+		ccManager = new ColorChooserManager(this, hsbManager, rgba, v);
 		cp = new ColorPalette(ccManager);
 		Container contentPane = super.getContentPane(); 
 		initButtons();
@@ -127,9 +131,8 @@ public class ColorChooser
 		buildGUI();
 		contents.setSize(WIN_W, WIN_H);
 		contentPane.add(contents);
-		
 		ccManager.attachListeners();
-		setResizable(false);
+		//setResizable(false);
 		setSize(WIN_W+W_EXTRA, WIN_H+H_EXTRA);
 	}
 	
@@ -143,12 +146,6 @@ public class ColorChooser
 	ColorPanel getColorPanel()
 	{
 		return colorPanel;
-	}
-	
-	/** Returns the Save button. */
-	JButton getSaveButton()
-	{
-		return saveButton;
 	}
 	
 	/** Returns the Apply button. */
@@ -207,9 +204,7 @@ public class ColorChooser
 	/** Initializes the buttons. */
 	private void initButtons()
 	{
-		saveButton = new JButton("Save");
 		applyButton = new JButton("Apply");
-		applyButton.setEnabled(false);
 		cancelButton = new JButton("Cancel");
 	}
 	
@@ -307,7 +302,7 @@ public class ColorChooser
 		p.add(label);
 		p.add(alphaTextField);
 		p.add(alphaSlider);
-		p.setBounds(3*BORDER, ColorPalette.HEIGHT_LP+HEIGHT_BOX+VSPACE, 
+		p.setBounds(4*BORDER, ColorPalette.HEIGHT_LP+HEIGHT_BOX+VSPACE, 
 					ColorPalette.WIDTH_PANEL+2*HSPACE, HEIGHT_BOX);
 					
 		return p;
@@ -323,10 +318,8 @@ public class ColorChooser
 		JPanel p = new JPanel();
 		p.setLayout(null);
 		applyButton.setBounds(0, 0, WBUTTON, 20);
-		saveButton.setBounds(WBUTTON+3, 0, WBUTTON, 20);
-		cancelButton.setBounds(2*(WBUTTON+3), 0, WBUTTON, 20);
+		cancelButton.setBounds(WBUTTON+3, 0, WBUTTON, 20);
 		p.add(applyButton);
-		p.add(saveButton);
 		p.add(cancelButton);
 		p.setBounds(BORDER, ColorPalette.HEIGHT_LP+2*(HEIGHT_BOX+VSPACE),
 					220, HEIGHT_BOX);
