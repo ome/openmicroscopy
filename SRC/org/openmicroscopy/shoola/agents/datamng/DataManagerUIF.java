@@ -32,9 +32,9 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
  * 
@@ -75,25 +76,24 @@ class DataManagerUIF
 	extends JInternalFrame
 {
 
-	private static final Color   	STEELBLUE = new Color(0x4682B4);
-	private static final int 		WIN_WIDTH = 350;
-	private static final int 		WIN_HEIGHT = 350;
-	private static final int		X_LOCATION = 0;
-	private static final int		Y_LOCATION = 0;
+	private static final int 				WIN_WIDTH = 350;
+	private static final int 				WIN_HEIGHT = 350;
+	private static final int				X_LOCATION = 0;
+	private static final int				Y_LOCATION = 0;
 	
 	/** 
 	 * UI component to view a summary of the user's data
 	 * and to mark the currently viewed image. 
 	 */
-	private ExplorerPane			explPane;
+	private ExplorerPane					explPane;
 	
 	/** Reference to the regisry. */
-	private Registry				registry;
+	private Registry						registry;
 	
 	/** Reference to the regisry. */
-	private DataManagerCtrl			control;
+	private DataManagerCtrl					control;
 	
-	private JMenu					newMenu;
+	private JMenu							newMenu;
 			
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
@@ -104,11 +104,33 @@ class DataManagerUIF
 		explPane = new ExplorerPane(control, registry);
 		setJMenuBar(createMenuBar());
 		buildGUI();
+		//set the size and position the window.
+		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
+	}
+
+	/**
+	 * Forward event to {@link ExplorerPaneManager}.
+	 */
+	void addNewProjectToTree(ProjectSummary ps)
+	{
+		explPane.getManager().addNewProjectToTree(ps);
 	}
 	
+	/**
+	 * Forward event to {@link ExplorerPaneManager}.
+	 */
+	void addNewDatasetToTree()
+	{
+		explPane.getManager().addNewDatasetToTree();
+	}
+	
+	/** 
+	 * Menu item to add into the 
+	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
 	JMenuItem getViewMenuItem()
 	{
 		JMenuItem menuItem = new JMenuItem("DataManager");
+		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
 	}
     
@@ -151,24 +173,27 @@ class DataManagerUIF
 	/** 
 	 * Brings up the createProject dialog for the specified image.
 	 *
-	 * @param   i   The image whose properties will be displayed by the 
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
+	 * @param p   	The project to create.
+	 * 				Mustn't be <code>null</code>.
+	 * @param d		List of available datasets.
 	 */
-	void showCreateProject(ProjectData p)
+	void showCreateProject(ProjectData p, List d)
 	{
-		CreateProjectEditor cpe = new CreateProjectEditor(registry, p);
+		CreateProjectEditor cpe = new CreateProjectEditor(registry, control,
+														  p, d);
 		showPS((JDialog) cpe);
 	}
 	
 	/** 
 	 * Brings up the createDataset dialog for the specified image.
 	 *
-	 * @param   i   The image whose properties will be displayed by the 
+	 * @param   d   The image whose properties will be displayed by the 
 	 * 				property sheet dialog. Mustn't be <code>null</code>.
 	 */
-	void showCreateDataset(DatasetData d)
+	void showCreateDataset(DatasetData d, List p, List i)
 	{
-		CreateDatasetEditor cde = new CreateDatasetEditor(registry, d);
+		CreateDatasetEditor cde = new CreateDatasetEditor(registry, control,
+														 d, p, i);
 		showPS((JDialog) cde);
 	}
 	
@@ -183,7 +208,6 @@ class DataManagerUIF
 		//CreateDatasetEditor cde = new CreateDatasetEditor(registry, d);
 		//showPS((JDialog) cpe);
 	}
-	
 	
 	/** 
 	 * Sizes, centers and brings up the specified editor dialog.
@@ -221,7 +245,7 @@ class DataManagerUIF
 		//TODO: image not loaded						
 		tabs.addTab("Explorer", icon, explPane);
 		tabs.setFont(font);
-		tabs.setForeground(STEELBLUE);
+		tabs.setForeground(DataManager.STEELBLUE);
 		tabs.setSelectedComponent(explPane);
 		
 		//set layout and add components
@@ -229,8 +253,7 @@ class DataManagerUIF
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		
 		setFrameIcon(icon);
-		//set the size and position the window.
-		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
+		
 	} 	
 	
 	/**Creates an internal menu. */
@@ -247,13 +270,13 @@ class DataManagerUIF
 	{
 		newMenu = new JMenu("New...");
 		JMenuItem menuItem = new JMenuItem("Project");
-		control.menuItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
+		control.setMenuItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
 		newMenu.add(menuItem);
 		menuItem = new JMenuItem("Dataset");
-		control.menuItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
+		control.setMenuItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
 		newMenu.add(menuItem);
 		menuItem = new JMenuItem("Image");
-		control.menuItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
+		control.setMenuItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
 		newMenu.add(menuItem);
 	}
 	

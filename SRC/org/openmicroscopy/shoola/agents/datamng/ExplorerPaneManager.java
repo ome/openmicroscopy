@@ -39,7 +39,7 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -66,15 +66,21 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class ExplorerPaneManager
 {
 
-	private static final String	LOADING = "Loading...";
+	private static final String		LOADING = "Loading...";
 	
-	private static final String	EMPTY = "Empty";
+	private static final String		EMPTY = "Empty";
 	
 	/** This UI component's view. */
-	private ExplorerPane        view; 
+	private ExplorerPane        	view; 
 	
 	/** The agent's control component. */
-	private DataManagerCtrl     agentCtrl;
+	private DataManagerCtrl     	agentCtrl;
+	
+	/** Root of the tree. */
+	private DefaultMutableTreeNode  root;
+	
+	/** store all the treeExpansion listeners in an array. */
+	private TreeExpansionListener[] listeners;
 	
 	ExplorerPaneManager(ExplorerPane view, DataManagerCtrl agentCtrl)
 	{
@@ -91,9 +97,10 @@ class ExplorerPaneManager
 	 */
 	DefaultMutableTreeNode getUserTreeModel()
 	{
-		DefaultMutableTreeNode  root = new DefaultMutableTreeNode("My OME"),
-								pNode; 	
+		root = new DefaultMutableTreeNode("My OME");
+		DefaultMutableTreeNode pNode; 	
 		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		if (pSummaries != null) {
 			Iterator i = pSummaries.iterator();
 			ProjectSummary ps;
@@ -101,10 +108,64 @@ class ExplorerPaneManager
 				ps = (ProjectSummary) i.next();
 				pNode = new DefaultMutableTreeNode(ps);
 				root.add(pNode);
-				addDatasetsToProject(ps, pNode);
+				addDatasetsToProject(ps, pNode, treeModel);
 			}
 		}
 		return root;
+	}
+	
+	/** 
+	 * Add a project node to the Tree. 
+	 * 
+	 * @param ps	Project summary to display.
+	 */
+	void addNewProjectToTree(ProjectSummary ps)
+	{
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		
+		DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(ps);
+		treeModel.insertNodeInto(pNode, root, pNode.getChildCount());
+		
+		List datasets = ps.getDatasets();
+		if (datasets != null) {
+			Iterator i = datasets.iterator();
+			DefaultMutableTreeNode dNode;
+			DatasetSummary ds;
+			while (i.hasNext()) {
+				ds = (DatasetSummary) i.next();
+				dNode = new DefaultMutableTreeNode(ds);
+				dNode.add(new DefaultMutableTreeNode(LOADING));
+				pNode.add(dNode);
+			}
+		}
+		setNodeVisible(pNode, root);							
+	}
+	
+	/**
+	 * 
+	 * @param projectSummaries	List of project summaries the new dataset has 
+	 * 							to be added.
+	 * @param ds		Dataset summary object to add.
+	 */
+	void addNewDatasetToTree() 
+	{
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		DefaultMutableTreeNode pNode;
+		root.removeAllChildren();
+																
+		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		if (pSummaries != null) {
+			Iterator j = pSummaries.iterator();
+			ProjectSummary ps;
+			while (j.hasNext()) {
+				ps = (ProjectSummary) j.next();
+				pNode = new DefaultMutableTreeNode(ps);
+				treeModel.insertNodeInto(pNode, root, root.getChildCount());
+				setNodeVisible(pNode, root);
+				addDatasetsToProject(ps, pNode, treeModel);
+			}
+		}
+		treeModel.reload();
 	}
 	
 	/** 
@@ -117,7 +178,8 @@ class ExplorerPaneManager
 	 * @param   pNode   The node for project <code>p</code>.
 	 */
 	private void addDatasetsToProject(ProjectSummary p, 
-									DefaultMutableTreeNode pNode)
+									DefaultMutableTreeNode pNode, 
+									DefaultTreeModel treeModel)
 	{
 		List datasets = p.getDatasets();
 		Iterator dIter = datasets.iterator();
@@ -126,8 +188,9 @@ class ExplorerPaneManager
 		while (dIter.hasNext()) {
 			ds = (DatasetSummary) dIter.next();
 			dNode = new DefaultMutableTreeNode(ds);
-			dNode.add(new DefaultMutableTreeNode(LOADING));
-			pNode.add(dNode);
+			treeModel.insertNodeInto(dNode, pNode, pNode.getChildCount());
+			treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
+									dNode, dNode.getChildCount());
 		}
 	}
 	
@@ -143,16 +206,11 @@ class ExplorerPaneManager
 		ImageSummary is;
 		DefaultMutableTreeNode iNode;
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		int nb = dNode.getChildCount();
 		while (i.hasNext()) {
 			is = (ImageSummary) i.next();
 			iNode = new DefaultMutableTreeNode(is);
 			treeModel.insertNodeInto(iNode, dNode, dNode.getChildCount());
 			setNodeVisible(iNode, dNode);
-		}
-		for (int j = 0; j < nb; j++) {
-			treeModel.removeNodeFromParent((MutableTreeNode) 
-											dNode.getChildAt(j));
 		}
 	}
 	
@@ -183,12 +241,19 @@ class ExplorerPaneManager
 		if (selRow != -1) {
 	   		view.tree.setSelectionRow(selRow);
 	   		Object  target = view.getCurrentOMEObject();
+			// remove tree expansion listener
+			for (int i = 0; i < listeners.length; i++) 
+				view.tree.removeTreeExpansionListener(listeners[i]);
 	   		if (target != null) {
 				if (e.isPopupTrigger()) {
 				//TODO: pop up menu
 				} else {
-					if (e.getClickCount() == 2)    
+					if (e.getClickCount() == 2)    {
 						agentCtrl.showProperties(target);
+						for (int i = 0; i < listeners.length; i++) 
+							view.tree.addTreeExpansionListener(listeners[i]);
+						
+					}	
 				}
 	   		}
 		}
@@ -202,11 +267,13 @@ class ExplorerPaneManager
 	private void onNodeNavigation(TreeExpansionEvent e, boolean isExpanding)
 	{
 		TreePath path = e.getPath();
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
 										path.getLastPathComponent();
 		Object  usrObject = node.getUserObject();
 		if (usrObject instanceof DatasetSummary) {
 			DatasetSummary ds = (DatasetSummary) usrObject;
+			node.removeAllChildren();
 			if (isExpanding) {
 				List list = agentCtrl.getAbstraction().getImages(ds.getID());
 				//TODO: loading will never be displayed b/c we are in the
@@ -216,40 +283,17 @@ class ExplorerPaneManager
 				} else {
 					DefaultMutableTreeNode childNode = 
 											new DefaultMutableTreeNode(EMPTY);
-					removeChildren(childNode, node, true);
+					treeModel.insertNodeInto(childNode, node, 
+											node.getChildCount());						
 				}
 			} else {
-				//Remove the children.
 				DefaultMutableTreeNode childNode = 
 						new DefaultMutableTreeNode(LOADING);
-				removeChildren(childNode, node, false);
+				treeModel.insertNodeInto(childNode, node, node.getChildCount());		
 			}
+			treeModel.reload((TreeNode) node);
 		} 
 	}
-	
-	/**
-	 * Remove a node.
-	 * 
-	 * @param childNode		Node to remove.
-	 * @param parentNode	Parent's node of the child.
-	 * @param isVisible		If <code>true</code> make the node visible
-	 * 						otherwise reload the tree.
-	 */
-	private void removeChildren(DefaultMutableTreeNode childNode, 
-								DefaultMutableTreeNode parentNode, 
-								boolean isVisible) 
-	{
-		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		int nb = parentNode.getChildCount();
-		treeModel.insertNodeInto(childNode, parentNode, 
-									parentNode.getChildCount());
-		for (int j = 0; j < nb; j++) {
-			treeModel.removeNodeFromParent((MutableTreeNode)
-											parentNode.getChildAt(j));
-		}
-		if (isVisible) setNodeVisible(childNode, parentNode);
-		else view.tree.collapsePath(new TreePath(parentNode.getPath()))	;			
-	}			
 	
 	/** 
 	 * Attach a mouse adapter to the tree in the view to get notified 
@@ -273,6 +317,8 @@ class ExplorerPaneManager
 				onNodeNavigation(e, true);	
 			}	
 		});
+		
+		listeners = view.tree.getTreeExpansionListeners();
 	}
 	
 }

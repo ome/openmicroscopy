@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -62,12 +63,12 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class DataManagerCtrl
 	implements ActionListener
 {
-
-	static final int		PROJECT_ITEM = 0;
-	static final int		DATASET_ITEM = 1;
-	static final int		IMAGE_ITEM = 2;
+	static final int			DM_VISIBLE = 0;
+	static final int			PROJECT_ITEM = 1;
+	static final int			DATASET_ITEM = 2;
+	static final int			IMAGE_ITEM = 3;
 	
-	private DataManager		abstraction;
+	private DataManager			abstraction;
 	
 	public DataManagerCtrl(DataManager	abstraction)
 	{
@@ -85,7 +86,7 @@ public class DataManagerCtrl
 	}
 	
 	/** Attach listener to a menu Item. */
-	void menuItemListener(JMenuItem item, int id)
+	void setMenuItemListener(JMenuItem item, int id)
 	{
 		item.setActionCommand(""+id);
 		item.addActionListener(this);
@@ -122,15 +123,17 @@ public class DataManagerCtrl
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
-		DataManagerUIF presentation = abstraction.getPresentation();
 		try {
 		   int     index = Integer.parseInt(s);
 		   switch (index) { 
+		   		case DM_VISIBLE:
+					abstraction.activate();
+					break;
 				case PROJECT_ITEM:
-					presentation.showCreateProject(new ProjectData());
+					createProject();
 				   	break;
 				case DATASET_ITEM:
-					presentation.showCreateDataset(new DatasetData());
+					createDataset();
 					break;	
 				   	
 		   }// end switch  
@@ -139,5 +142,32 @@ public class DataManagerCtrl
 		} 
 	}
 	
-		
+	/**Forward event to the presentation {@link DataManagerUIF}. */
+	private void createProject()
+	{
+		DataManagerUIF presentation = abstraction.getPresentation();
+		List datasets = abstraction.getUserDatasets();
+		presentation.showCreateProject(new ProjectData(), datasets);
+	}
+	
+	/**Forward event to the presentation {@link DataManagerUIF}. */
+	private void createDataset()
+	{	
+		DataManagerUIF presentation = abstraction.getPresentation();
+		List projects = abstraction.getUserProjects();
+		List images = abstraction.getUserImages();
+		presentation.showCreateDataset(new DatasetData(), projects, images);
+	}
+	
+	/**Forward event to the abstraction {@link DataManager}. */
+	public void addProject(ProjectData pd)
+	{
+		abstraction.createProject(pd);
+	}
+	
+	/**Forward event to the abstraction {@link DataManager}. */
+	public void addDataset(List projects, List images, DatasetData dd)
+	{
+		abstraction.createDataset(projects, images, dd);
+	}
 }

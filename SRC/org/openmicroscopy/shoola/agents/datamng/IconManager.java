@@ -29,16 +29,15 @@
 
 package org.openmicroscopy.shoola.agents.datamng;
 
-import javax.swing.Icon;
-
-import org.openmicroscopy.shoola.env.config.IconFactory;
-import org.openmicroscopy.shoola.env.config.Registry;
 
 //Java imports
+import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * 
@@ -141,9 +140,7 @@ public class IconManager
 	 */    
 	public Icon getIcon(int ID)
 	{
-		if (icons[ID] == null) {
-			icons[ID] = factory.getIcon(relPaths[ID]);
-		}
+		if (icons[ID] == null) icons[ID] = factory.getIcon(relPaths[ID]);
 		return icons[ID];
 	}
 	

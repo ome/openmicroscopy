@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -42,8 +44,10 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -65,24 +69,36 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 public class DataManager
 	implements Agent
 {
+	public static final Color   	STEELBLUE = new Color(0x4682B4);
+
+	/** Width of the editor dialog window. */
+	public static final int			EDITOR_WIDTH = 300;
+	
+	/** Height of the editor dialog window. */
+	public static final int			EDITOR_HEIGHT = 300;
+	
 	/** Reference to the registry. */
-	private Registry		registry;
+	private Registry				registry;
 	
 	/** Reference to the GUI. */
-	private DataManagerUIF	presentation;
+	private DataManagerUIF			presentation;
 	
 	/** Reference to the control component. */
-	private DataManagerCtrl     control;
+	private DataManagerCtrl     	control;
 	
-	private TopFrame			topFrame;
+	/** Reference to the topFrame. */
+	private TopFrame				topFrame;
 	
 	/** 
 	 * All user's projects. 
 	 * That represents all user's data rooted by project objects. 
-	 * That is, the whole project-dataset-image hierarchy for the current user.
+	 * That is, the whole project-dataset hierarchy for the current user.
 	 */
-	private List           		projectSummaries;
+	private List           			projectSummaries;
 
+	/** All user's datasets. */
+	private List					datasetSummaries;
+	
 	/** 
 	 * Creates a new instance.
 	 */
@@ -120,15 +136,15 @@ public class DataManager
     {
     	return presentation;
     }
-    
+
 	/**
-	 * Returns all projects belonging to the current user.
-	 * Each project is linked to all datasets contained in that project.
+	 * Returns all projects which belong to the current user.
+	 * Each project is linked to its datasets.
 	 * <p>If an error occurs while trying to retrieve the user's data from 
 	 * OMEDS, the user gets notified and this method returns <code>null</code>.
 	 * </p>
 	 *
-	 * @return  A list of project summary. 
+	 * @return  A list of project summary objects. 
 	 */
 	List getUserProjects()
 	{
@@ -140,13 +156,64 @@ public class DataManager
 			} catch(DSAccessException dsae) {
 				UserNotifier un = registry.getUserNotifier();
 				un.notifyError("Data Retrieval Failure", 
-					"Unable to retrieve available projects", dsae);
-			} catch(DSOutOfServiceException dsose) {	
-				//TODO: pop up login window.
+					"Unable to retrieve user's projects", dsae);
+			} catch(DSOutOfServiceException dsose) {
+				// pop up login window	
 				throw new RuntimeException(dsose);
 			} 
 		}
 		return projectSummaries;
+	}
+	
+	/**
+	 * Returns all datasets which belong to the current user.
+	 * <p>If an error occurs while trying to retrieve the user's data from 
+	 * OMEDS, the user gets notified and this method returns <code>null</code>.
+	 * </p>
+	 *
+	 * @return  A list of dataset summary objects. 
+	 */
+	List getUserDatasets()
+	{
+		if (datasetSummaries == null) {
+			try { 
+				DataManagementService dms = registry.getDataManagementService();
+				datasetSummaries = dms.retrieveUserDatasets();
+			} catch(DSAccessException dsae) {
+				UserNotifier un = registry.getUserNotifier();
+				un.notifyError("Data Retrieval Failure", 
+					"Unable to retrieve user's datasets", dsae);
+			} catch(DSOutOfServiceException dsose) {	
+				// pop up login window
+				throw new RuntimeException(dsose);
+			} 
+		}
+		return datasetSummaries;
+	}
+	
+	/**
+	 * Returns all images which belong to the current user.
+	 * <p>If an error occurs while trying to retrieve the user's data from 
+	 * OMEDS, the user gets notified and this method returns <code>null</code>.
+	 * </p>
+	 *
+	 * @return  A list of image summary objects. 
+	 */
+	List getUserImages()
+	{
+		List images = null;
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			images = dms.retrieveUserImages();
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to retrieve user's images", dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		return images;
 	}
 
 	/**
@@ -164,9 +231,9 @@ public class DataManager
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrieve images for dataset "+datasetID, dsae);
+				"Unable to retrieve images for the dataset "+datasetID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			//TODO: pop up login window.
+			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
 		return images;
@@ -177,7 +244,7 @@ public class DataManager
 	 * Retrieve a specified project.
 	 * 
 	 * @param projectID	Specified project id.
-	 * @return	projectData object.
+	 * @return projectData object.
 	 */
 	ProjectData getProject(int projectID)
 	{
@@ -190,7 +257,7 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve the project "+projectID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			//TODO: pop up login window.
+			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
 		return project;
@@ -213,7 +280,7 @@ public class DataManager
 			un.notifyError("Data Retrieval Failure", 
 				"Unable to retrieve the dataset "+datasetID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			//TODO: pop up login window.
+			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
 		return dataset;
@@ -234,11 +301,71 @@ public class DataManager
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to retrievethe image "+imageID, dsae);
+				"Unable to retrieve the image "+imageID, dsae);
 		} catch(DSOutOfServiceException dsose) {	
-			//TODO: pop up login window.
+			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
 		return image;
 	}
+	
+	/**
+	 * Create a new project.
+	 * 
+	 * @param pd		project data object.
+	 */
+	void createProject(ProjectData pd)
+	{
+		ProjectSummary project = null;
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			project = dms.createProject(pd);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to create a new Project "+pd, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		if (projectSummaries == null) projectSummaries = new ArrayList();
+		projectSummaries.add(project);
+		
+		// forward event to the presentation.
+		presentation.addNewProjectToTree(project);
+	}
+	
+	/**
+	 * Create a new dataset.
+	 * 
+	 * @param projects	list of project summaries.
+	 * @param images	list of image summaries.
+	 * @param dd		dataset data object.
+	 */
+	void createDataset(List projects, List images, DatasetData dd)
+	{
+		DatasetSummary dataset = null;
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			dataset = dms.createDataset(projects, images, dd);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to create a new dataset "+dd, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		if (datasetSummaries == null) datasetSummaries = new ArrayList();
+		datasetSummaries.add(dataset);
+		
+		for (int i = 0; i < projects.size(); i++) {
+			ProjectSummary ps = (ProjectSummary) projects.get(i);
+			ps.getDatasets().add(dataset);	
+		}
+		// forward event to the presentation.
+		if (projects != null) 
+			presentation.addNewDatasetToTree();
+	}
+	
 }
