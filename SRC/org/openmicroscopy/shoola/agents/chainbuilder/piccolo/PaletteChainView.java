@@ -42,12 +42,15 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PInterpolatingActivity;
+import edu.umd.cs.piccolo.util.PUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 import edu.umd.cs.piccolo.PNode;
@@ -182,11 +185,22 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void showFullView(boolean b) {
-		fullLayer.setVisible(b);
-		fullLayer.setPickable(b);
-		boolean compStatus = !b;
-		compoundView.setVisible(compStatus);
-		compoundView.setPickable(compStatus);
+		// compound becomes transparent,
+		// layer becomes opaque
+		float layerTransparency = 1f;
+		float compoundTransparency=0f;
+		// if it's false, switch 
+		if (b == false) {
+			layerTransparency=0f;
+			compoundTransparency=1f;
+		}
+		TransparencyActivity a1 = new TransparencyActivity(fullLayer,
+				layerTransparency);
+		TransparencyActivity a2 = new TransparencyActivity(compoundView,
+				compoundTransparency);
+		addActivity(a1);
+		addActivity(a2);
+
 	}
 	
 	public void hide() {
@@ -201,5 +215,37 @@ public class PaletteChainView extends ChainView {
 		return compoundView.getWidth();
 	}
 	
+	private class TransparencyActivity extends PInterpolatingActivity {
+		
+		private PNode p;
+		private float trans;
+		private float source;
+		
+		TransparencyActivity(PNode p,float trans) {
+			super(Constants.TRANSPARENCY_DELAY,PUtil.DEFAULT_ACTIVITY_STEP_RATE);
+			this.p = p;
+			this.trans = trans;
+		}
+		
+		protected void activityStarted() {
+			source = p.getTransparency();
+			p.setVisible(true);
+			super.activityStarted();
+		}
+		
+		public void setRelativeTargetValue(float zeroToOne) {
+			float newTrans = source + (zeroToOne * (trans - source));
+			p.setTransparency(newTrans);
+		}
+		
+		public void activityFinished() {
+			if (trans == 0.0f) {
+				p.setVisible(false);
+				p.setPickable(false);
+			}
+			else 
+				p.setPickable(true);
+		}
+	}
 	
 }
