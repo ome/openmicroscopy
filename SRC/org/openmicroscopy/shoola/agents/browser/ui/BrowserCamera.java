@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.BrowserCamera
+ * org.openmicroscopy.shoola.agents.browser.ui.BrowserCamera
  *
  *------------------------------------------------------------------------------
  *
@@ -34,7 +34,7 @@
  *------------------------------------------------------------------------------
  */
  
-package org.openmicroscopy.shoola.agents.browser;
+package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -55,9 +55,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
-import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
-import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
+import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserTopModelListener;
 
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;

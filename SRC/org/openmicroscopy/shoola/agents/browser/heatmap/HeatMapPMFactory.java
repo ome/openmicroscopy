@@ -42,6 +42,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.NumberFormat;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +157,11 @@ public class HeatMapPMFactory
                                                  final double minZoomLevel,
                                                  final Color textColor)
     {
-        final Font displayFont = new Font("null",Font.BOLD,12);
+        final Font displayFont = new Font("null",Font.BOLD,11);
+        final NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+        doubleFormat.setMaximumFractionDigits(3);
+        final NumberFormat intFormat = NumberFormat.getIntegerInstance();
+        final double epsilon = .001;
         
         PaintMethod pm = new AbstractPaintMethod()
         {
@@ -202,14 +207,22 @@ public class HeatMapPMFactory
                 Attribute[] attrs = new Attribute[attributes.size()];
                 attributes.toArray(attrs);
                 double val = mode.computeValue(attrs,elementName);
-                String valueString = String.valueOf(val);
+                String valueString;
+                if(Math.abs(Math.round(val)-val) < epsilon)
+                {
+                    valueString = intFormat.format(val);
+                }
+                else
+                {
+                    valueString = doubleFormat.format(val);
+                }
                 
                 FontMetrics fm = context.getFontMetrics(displayFont);
                 Rectangle2D rect = fm.getStringBounds(valueString,context);
                 
                 Point2D anchorPoint =
                     new Point2D.Double((thumbBounds.getWidth()-rect.getWidth())/2,
-                                       (thumbBounds.getHeight()-10));
+                                       (thumbBounds.getHeight()-4));
                 
                 valueStringMap.put(model,valueString);
                 stringLocationMap.put(model,anchorPoint);

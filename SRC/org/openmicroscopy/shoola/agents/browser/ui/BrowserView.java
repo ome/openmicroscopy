@@ -56,7 +56,6 @@ import java.util.Set;
 
 import javax.swing.JPopupMenu;
 
-import org.openmicroscopy.shoola.agents.browser.BrowserCamera;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
@@ -283,6 +282,15 @@ public class BrowserView extends PCanvas
         // OK, now, dispatch to the underlying nodes
         addInputEventListener(BrowserViewEventDispatcher.getDefaultMouseHandler());
         addInputEventListener(BrowserViewEventDispatcher.getDefaultDragHandler());
+    }
+    
+    /**
+     * Returns a reference to the browser camera.
+     * @return
+     */
+    public BrowserCamera getViewCamera()
+    {
+        return overlayCamera;
     }
     
     /**
