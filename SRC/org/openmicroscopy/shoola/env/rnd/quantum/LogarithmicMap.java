@@ -56,31 +56,25 @@ class LogarithmicMap
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(int x, double k)
 	{
-		double y = (double) x;
-		verifyInput(y);
-		return Math.log(y);
+		return Math.log(verifyInput((double) x));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(double x, double k)
 	{
-		verifyInput(x);
-		return Math.log(x);
+		return Math.log(verifyInput(x));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(float x, double k)
 	{
-		double y = (double) x;
-		verifyInput(y);
-		return Math.log(y);
+		return Math.log(verifyInput((double) x));
 	}
 	
-	private void verifyInput(double x)
+	private double verifyInput(double x)
 	{
-		if (x <= 0) 
-			throw new IllegalArgumentException("Value not consistent. " +
-						"The value must be > 0.");
+		if (x <= 0) x = 1.0;
+		return x;
 	}
 	
 }
