@@ -30,6 +30,9 @@ This template generates the document-meta-info, information on the document.
 <xsl:template name="document-meta-info">
 <document-meta-info>
 <title><xsl:value-of select="$title"/></title>
+<!-- tempo solution, need to fix path bug -->
+<images-location><xsl:value-of select="/xdoc/xdoc-info/images-location"/></images-location>
+
 <attribute name="Project">
 <a href="http://www.openmicroscopy.org/">Open Microscopy Environment</a>
 </attribute>
@@ -82,25 +85,34 @@ HTML and PDF settings.
 <!-- HTML settings. -->
 <stylesheet url="styles/style.css"/>
 <!-- PDF settings. -->
+<page-height>8in</page-height>
+<page-width>11in</page-width>
 <!-- cover page -->
-<cover-left-margin>40pt</cover-left-margin>
-<cover-right-margin>40pt</cover-right-margin>
-<cover-top-margin>50pt</cover-top-margin>
-<cover-bottom-margin>25pt</cover-bottom-margin>
+<cover-left-margin>25mm</cover-left-margin>
+<cover-right-margin>25mm</cover-right-margin>
+<cover-top-margin>25mm</cover-top-margin>
+<cover-bottom-margin>25mm</cover-bottom-margin>
 
 <!-- table of content -->
 <generate-toc-page>yes</generate-toc-page>
-<toc-left-margin>40pt</toc-left-margin>
-<toc-right-margin>40pt</toc-right-margin>
-<toc-top-margin>50pt</toc-top-margin>
-<toc-bottom-margin>25pt</toc-bottom-margin>
+<toc-left-margin>25mm</toc-left-margin>
+<toc-right-margin>25mm</toc-right-margin>
+<toc-top-margin>25mm</toc-top-margin>
+<toc-bottom-margin>25mm</toc-bottom-margin>
 
+<!-- body -->
 <left-margin>40pt</left-margin>
 <right-margin>40pt</right-margin>
 <top-margin>20pt</top-margin>
 <bottom-margin>25pt</bottom-margin>
+
+
 <header-height>80pt</header-height>
 <footer-height>50pt</footer-height>
+
+<!-- section number -->
+<generate-section-numbers>yes</generate-section-numbers>
+
 </document-formatting-info>
 </xsl:template>
 
@@ -240,7 +252,6 @@ This template handles a reference to a section element in the toc.
 This template removes the ".html" or ".htm" extension.
 *************************************************************************
 -->
-
 <xsl:template name="normalized-href">
 <xsl:param name="href"/>
 <xsl:choose>
@@ -284,7 +295,6 @@ This template retrieves the body of an html or htm file.
 This template analyzes the attribute href of an a tag.
 *************************************************************************
 -->
-
 <xsl:template match="a">
 <xsl:choose>
 <xsl:when test="not(contains(@href, '://')) and contains(@href, '.html') and substring(@href, string-length(@href)-4) = '.html'">
@@ -313,7 +323,6 @@ This template analyzes the attribute href of an a tag.
 This template transforms an a tag into a link tag.
 *************************************************************************
 -->
-
 <xsl:template name="format-a">
 <xsl:param name="node"/>
 <xsl:param name="href"/>	
@@ -336,6 +345,7 @@ This template transforms an a tag into a link tag.
 This template analyses the content of the src attribute of an img tag.
 *************************************************************************
 -->
+<!--
 <xsl:template match="img">
 <xsl:copy>
 <xsl:attribute name="src">
@@ -351,13 +361,13 @@ This template analyses the content of the src attribute of an img tag.
 <xsl:copy-of select="@*[not(name() = 'src')]"/>
 </xsl:copy>
 </xsl:template>
+-->
 
 <!--
 *************************************************************************
 This template processes all others tags and attibutes.
 *************************************************************************
 -->
-
 <xsl:template match="@*|node()">
 <xsl:copy>
 <xsl:apply-templates select="@*"/>
