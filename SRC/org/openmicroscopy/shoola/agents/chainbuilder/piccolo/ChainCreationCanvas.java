@@ -49,6 +49,9 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
+import javax.swing.JOptionPane;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PCamera;
@@ -63,10 +66,15 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ChainFrame;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainFlavor;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleFlavor;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
+import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+
 
 
 /** 
@@ -121,10 +129,6 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 */
 	private ChainFrame frame;
 	
-	/**
-	 * A pointer to the canvas with the chain library
-	 */
-	private ChainPaletteCanvas libraryCanvas;
 	
 	public ChainCreationCanvas(ChainFrame frame,ChainDataManager manager) {
 		super();
@@ -139,6 +143,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
 		
+		setMinimumSize(new Dimension(SIDE,SIDE));
 		setPreferredSize(new Dimension(SIDE,SIDE));
 		// remove handlers
 		removeInputEventListener(getZoomEventHandler());
@@ -308,28 +313,28 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 * @param name
 	 * @param desc
 	 */
-	/*public void save(String name,String desc) {	
-		ChainManager manager = connection.getChainManager();
-		LayoutChainData chain  =  (LayoutChainData)manager.createChain(name,desc);
+	public void save(String name,String desc) {	
 		
-		//populate chains
-		addNodes(manager,chain);
 		
-		// links
-		addLinks(manager,chain);
-		// commit chain
+		LayoutChainData newChain = new LayoutChainData();
 		
-		connection.commitTransaction();
+		newChain.setName(name);
+		newChain.setDescription(desc);
 		
-		// for now, layout this chain. eventually, save layout in database
-		chain.layout(); 
+		buildNodes(newChain);
+		buildLinks(newChain);
+		manager.saveChain(newChain);
+			
 		
-		connection.addChain(chain);
-		
-		// add this to the library
-		libraryCanvas.drawChain(chain);
-		libraryCanvas.scaleToSize();
-	}*/
+		String msg = new String("The new Chain \""+name+"\" was saved correctly.");
+		JOptionPane.showMessageDialog(this,msg,"Save Complete",
+				JOptionPane.INFORMATION_MESSAGE);
+		newChain.layout();
+		frame.updateChainPalette(newChain);
+//		 add this to the library
+		//libraryCanvas.drawChain(chain);
+		//libraryCanvas.scaleToSize();
+	}
 	
 	private Collection findModules() {
 		PNodeFilter filter = new PNodeFilter() {
@@ -343,77 +348,65 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		return  layer.getAllNodes(filter,null);
 		
 	}
-
-	/**
-	 * Add the modules currently on the canvas to the chain being created.
-	 * @param manager
-	 * @param chain
-	 */
-	/*private void addNodes(ChainManager manager,LayoutChainData chain) {
-		PNode node;
-		ModuleView mod;
-		CNode chainNode;
-				
-		
-		Collection modNodes = findModules();
-		
-		Iterator iter = modNodes.iterator();
-		while (iter.hasNext()) {
-			
-			node = (PNode) iter.next();
-			if (node instanceof ModuleView) {
-				mod = (ModuleView) node;
-				chainNode =  (CNode) manager.addNode(chain,mod.getModule());
-			 	mod.setNode(chainNode);
-			}
-		}
-	}*/
 	
-	/**
-	 * Add the links to the chain by iterating over the links in the {@link 
-	 * linkLayer}
-	 * @param manager
-	 * @param chain
-	 */
-	/*private void addLinks(ChainManager manager,LayoutChainData chain) {
+	private void buildNodes(LayoutChainData chain) {
+		// ok. let's go over the nodes.
+		Collection mods = findModules();
+		Iterator iter = mods.iterator();
+		Vector nodes = new Vector();
+		while (iter.hasNext()) {
+			ModuleView m = (ModuleView) iter.next();
+			LayoutNodeData n = new LayoutNodeData();
+			n.setModule(m.getModule());
+			m.setNode(n);
+			n.setChain(chain);
+			nodes.add(n);
+		}
+		chain.setNodes(nodes);
+	}
+	
+	private void buildLinks(LayoutChainData chain) {
+		Vector links = new Vector();
 		PNode node;
-		PParamLink link;
+		ParamLink link;
 
 		PNodeFilter filter = new PNodeFilter() {
 			public boolean accept(PNode node) {
-				return (node instanceof PParamLink);
+				return (node instanceof ParamLink);
 			}
 			public boolean acceptChildrenOf(PNode node) {
 				return  true;
 			}
 		};
+		
 		Collection linkNodes = layer.getAllNodes(filter,null);
 		// plus add in whatever is in linkLayer;
 		linkNodes.addAll(linkLayer.links());
 		Iterator iter = linkNodes.iterator();
 		while (iter.hasNext()) {
 			node = (PNode) iter.next();
-			if (node instanceof PParamLink) {
-				link = (PParamLink) node; // add it somehow.
+			if (node instanceof ParamLink) {
+				link = (ParamLink) node; // add it somehow.
 				// get from output
-				PFormalOutput output = link.getOutput();
-				FormalOutput fromOutput = (FormalOutput) output.getParameter();
+				FormalOutput output = link.getOutput();
+				FormalOutputData fromOutput = (FormalOutputData) 
+					output.getParameter();
 				
 				// to input
-				PFormalInput input = link.getInput();
-				FormalInput toInput = (FormalInput) input.getParameter();
+				FormalInput input = link.getInput();
+				FormalInputData toInput = (FormalInputData) 
+					input.getParameter();
 				
-				// from node
-				Node fromNode = output.getModuleView().getNode();
-				//to node
-				Node toNode = input.getModuleView().getNode();
-				// add it.
-				manager.addLink(chain,fromNode,fromOutput,toNode,toInput);
+				// what are these nodes?
+				LayoutNodeData fromNode =  output.getModuleView().getNode();
+				LayoutNodeData toNode = input.getModuleView().getNode();
+				// somehow create a link
+				LayoutLinkData linkData = new 
+					LayoutLinkData(chain,fromNode,fromOutput,toNode,toInput);
+				links.add(linkData);
 			}
 		}
-	}*/
-	
-	/*public void setLibraryCanvas(ChainPaletteCanvas libraryCanvas) {
-		this.libraryCanvas = libraryCanvas;
-	}*/
+		chain.setLinks(links);
+	}
+
  }
