@@ -41,11 +41,8 @@
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
-import java.awt.event.MouseEvent;
 
 //Third-party libraries
-import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
@@ -67,13 +64,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	
-	
-	/**
-	 * A flag indicating that the previous event was a popup
-	 * 
-	 */
-	private static boolean postPopup = false;
-	
+
 	/**
 	 * The canvas to which this is attached
 	 */
@@ -94,149 +85,20 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	}
 
 	/**
-	 * Handler for entering a node
+	 * What happens when I enter a node that is not a MouseableNode?
 	 */	
-	public void mouseEntered(PInputEvent e) {
-		PNode n = e.getPickedNode();
+	protected void defaultMouseEntered() {
+		SelectionState.getState().setRolloverDataset(null);
+		zoomLevel = 0;
+	}
 
-		/*if (n instanceof PSelectableText) {
-			((PSelectableText) n).setHighlighted(true);
-			if (n instanceof PChainLabelText) {
-				// if I enter the chain labels, show the associated 
-				// execution list
-				PChainLabelText clt = (PChainLabelText) n;
-				canvas.showExecutionList(clt);
-			}
-		} */
-		//else {
-			// otherwise ,clear the list
-		//	canvas.clearExecutionList();
-			if (n instanceof Thumbnail)  {
-				// show the halo if I enter a thumbnail
-				Thumbnail pt = (Thumbnail) n;
-				pt.setHighlightedWithHalo(true);
-			}
-			else if (n instanceof DatasetNode) {
-				// if I entered a dataset, rollover
-				DatasetNode dn = (DatasetNode) n;
-				dn.rollover();	
-			}
-			else if (!(n instanceof ThumbnailSelectionHalo))  {
-				// entering anything else means setting selected datset is null
-				SelectionState.getState().setRolloverDataset(null);
-				zoomLevel = 0;	 
-			}
-	//	}
-		e.setHandled(true);
-	}
 	
-	/**
-	 * Mouse exited handler
-	 */
-	public void mouseExited(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		if (n instanceof Thumbnail) {
-			// if I exit a thumbnail, turn off the halo
-			Thumbnail pt = (Thumbnail) n;
-			pt.setHighlightedWithHalo(false);
-		}
-		/*else if (n instanceof PSelectableText) {
-			// otherwise, if it's selectable text (like the chain label)
-			// turn off the highlight
-			((PSelectableText)n).setHighlighted(false);
-		} */
-		e.setHandled(true);
-	}	
-	
-	/**
-	 * Mouse release event can lead to a popup
-	 */
-	public void mouseReleased(PInputEvent e) {
-		if (e.isPopupTrigger()) {
-			handlePopup(e);
-			e.setHandled(true);
-		}
-	}
-	
-	/**
-	 * Mouse press event can lead to a popup
-	 */
-	public void mousePressed(PInputEvent e) {
-		mouseReleased(e);
-	}
-	
-	/** 
-	 * Right button click
-	 */
-	public void handlePopup(PInputEvent e) {
-		postPopup = true;
-		PNode node = e.getPickedNode();
-		if (node instanceof DatasetNode) {
-			// right click on a dataset deslects
-			SelectionState selectionState = SelectionState.getState();	
-			selectionState.setSelectedDataset(null);
-			zoomLevel = 0;
-		}
-		else if (node instanceof Thumbnail) {
-			// on a thumbnail, we zoom out
-			Thumbnail pt = (Thumbnail) node;
-			pt.zoomOutOfHalo();
-			
-		}
-		else {
-			// otherwise, default behavior.
-			super.handlePopup(e);
-		}
-		e.setHandled(true);
-	}
-	
-	/**
-	 * left-mouse click
-	 */
-	public void mouseClicked(PInputEvent e) {
-		// left button.
-		
-		// ignore if this is right after a popup
-		if (postPopup == true ) {
-			postPopup = false;
-			e.setHandled(true);
-			return; 
-		}
-		PNode node = e.getPickedNode();
+	/** What happens when I click on the background?
+	protected void handleBackgroundClick() {
+		// click on background clears selected dataset
 		SelectionState selectionState = SelectionState.getState();
-		if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) 
-			== MouseEvent.BUTTON1_MASK) {
-			if (node instanceof DatasetNode) {
-				if (zoomLevel ==0) {
-					// if it's a dataset and we're zoomed out,
-					//  select it and animate to it.
-					DatasetNode d = (DatasetNode) node;
-					selectionState.setSelectedDataset(d.getDataset());
-					animateToNode(d);
-				} 
-				// else, ignore the event.
-			}
-
-		//	else if (node instanceof PExecutionText) {
-				//placeholder
-		//	}
-			else if (isBackgroundClick(node)) {
-				// click on background clears selected dataset
-				selectionState.setSelectedDataset(null);
-				zoomLevel =0;
-			} else if (node instanceof Thumbnail) {
-				// click on thumbnail, we zomo in to it and 
-				// adjust zoomLevel
-				Thumbnail thumb = (Thumbnail)node;
-				thumb.zoomInToHalo();
-			}
-			else  // default behavior.
-				super.mouseClicked(e);	
-		}
-		else if (e.isControlDown())
-			handlePopup(e);
-		
-		e.setHandled(true);
+		selectionState.setSelectedDataset(null);
+		zoomLevel =0;	
 	}
 	
 	/**
@@ -251,6 +113,10 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	 */
 	public void setZoomLevel(int i) {
 		zoomLevel = i;
+	}
+	
+	public void resetZoomLevel() {
+		setZoomLevel(0);
 	}
 
 }

@@ -92,8 +92,39 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 		this.canvas = canvas;		
 	}
 	
-	
+	/**
+	 * Handler for entering a node
+	 */	
+	public void mouseEntered(PInputEvent e) {
+		PNode n = e.getPickedNode();
 
+	
+		if (n instanceof MouseableNode) 
+			((MouseableNode) n).mouseEntered();
+		else 
+			defaultMouseEntered();
+		e.setHandled(true);
+	}
+	
+	/***
+	 * mouse entered for non-mouseable nodes 
+	 */
+	protected void defaultMouseEntered() {
+		
+	}
+	
+	/**
+	 * Mouse exited handler
+	 */
+	public void mouseExited(PInputEvent e) {
+		PNode n = e.getPickedNode();
+	
+		if (n instanceof MouseableNode) 
+			((MouseableNode ) n).mouseExited();
+		e.setHandled(true);
+	}	
+	
+	
 	/**
 	 * If the mouse is clicked on a buffered node (either a 
 	 * {@link PCategoryBox}, or a {@link PModule}, zoom to center it.
@@ -112,13 +143,16 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 			return;
 		}
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
-		
-			if (node instanceof BufferedObject) {
+			
+			if (node instanceof MouseableNode) {
+				((MouseableNode) node).mouseClicked();
+			}
+			else if (node instanceof BufferedObject) {
 				animateToNode(node);
 				
 			}
 			else if (isBackgroundClick(node)) {
-				animateToCanvasBounds();
+				handleBackgroundClick();
 			}
 		} 
 		else if (e.isControlDown() || (mask & MouseEvent.BUTTON3_MASK)==1) {
@@ -127,17 +161,46 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 		e.setHandled(true); 
 	}
 	
+	/**
+	 * Specific code for handling a background click
+	 */
+	protected void handleBackgroundClick() {
+		animateToCanvasBounds();
+	}
+	
+	/**
+	 * Mouse release event can lead to a popup
+	 */
+	public void mouseReleased(PInputEvent e) {
+		if (e.isPopupTrigger()) {
+			handlePopup(e);
+			e.setHandled(true);
+		}
+	}
+	
+	/**
+	 * Mouse press event can lead to a popup
+	 */
+	public void mousePressed(PInputEvent e) {
+		mouseReleased(e);
+	}
+	
 	/***
-	 * Zoom out to the parent of the current node when we get a popup
+	 * Handle the popup, or zoom to the parent of the current node 
 	 */
 	protected void handlePopup(PInputEvent e) {
 		postPopup = true;
 		PNode node = e.getPickedNode();
-		PNode p = node.getParent();
-		if (p instanceof BufferedObject) {
-			animateToNode(p);		
-		} else if (isBackgroundClick(node) || isBackgroundClick(p)) {
-			animateToCanvasBounds();
+		if (node instanceof MouseableNode) {
+			((MouseableNode) node).mousePopup();
+		}
+		else {
+			PNode p = node.getParent();
+			if (p instanceof BufferedObject) {
+				animateToNode(p);		
+			} else if (isBackgroundClick(node) || isBackgroundClick(p)) {
+				animateToCanvasBounds();
+			}
 		}
 		e.setHandled(true);
 	}
