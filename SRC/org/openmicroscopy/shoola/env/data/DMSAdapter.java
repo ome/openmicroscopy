@@ -40,6 +40,7 @@ import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
@@ -152,6 +154,75 @@ class DMSAdapter
     	return retrieveUserProjects(null, null);
     }
     
+	/**Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserDatasets(DatasetSummary dProto)
+		throws DSOutOfServiceException, DSAccessException								
+	{	
+		//Make a new proto if none was provided.
+		if (dProto == null) dProto = new DatasetSummary();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = DatasetMapper.buildUserDatasetsCriteria(
+															uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List datasets = (List) retrieveListData(Dataset.class, criteria);
+	  	
+		//List of dataset summary objects.
+		List datasetsDS = null;
+		if (datasets != null) 
+			//Put the server data into the corresponding client object.
+			datasetsDS = DatasetMapper.fillUserDatasets(datasets, dProto);
+    
+		//can be null
+		return datasetsDS;
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserDatasets()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return retrieveUserDatasets(null);
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserImages(ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException								
+	{	
+		//Make a new proto if none was provided.
+		if (iProto == null) iProto = new ImageSummary();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = ImageMapper.buildUserImagesCriteria(
+															uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List images = (List) retrieveListData(Image.class, criteria);
+	  	
+		//List of image summary objects.
+		List imagesDS = null;
+		if (images != null) 
+			//Put the server data into the corresponding client object.
+			imagesDS = ImageMapper.fillUserImages(images, iProto);
+    
+		//can be null
+		return imagesDS;
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserImages()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return retrieveUserImages(null);
+	}
     /**Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
@@ -264,22 +335,139 @@ class DMSAdapter
 		return retrieveImage(id, null);
 	}
 	
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public ProjectSummary createProject(ProjectData retVal, 
+										ProjectSummary pProto)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Make a new proto if none was provided.
+		if (pProto == null) pProto = new ProjectSummary();
+		/*
+		Project p = (Project) createNewData(Project.class);
+		p.setName(retVal.getName());
+		p.setDescription(retVal.getDescription());
+		updateData(p);
+		ProjectMapper.fillNewProject(p, pProto);
+		*/
+		pProto.setID(104);
+		pProto.setName(retVal.getName());
+		pProto.setDatasets(retVal.getDatasets());
+		return pProto;
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public DatasetSummary createDataset(List projectSummaries,
+										List imageSummaries,
+										DatasetData retVal, 
+										DatasetSummary dProto)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Make a new proto if none was provided.
+		if (dProto == null) dProto = new DatasetSummary();
+		/*
+		Dataset d = (Dataset) createNewData(Dataset.class);
+		d.setName(retVal.getName());
+		d.setDescription(retVal.getDescription());
+		updateData(d);
+		DatasetMapper.fillNewDataset(d, dProto);
+		*/
+		dProto.setID(104);
+		dProto.setName(retVal.getName());
+		return dProto;
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public ProjectSummary createProject(ProjectData retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return createProject(retVal, null);
+	}
+	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public DatasetSummary createDataset(List projectSummaries,
+										List imageSummaries, 
+										DatasetData retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return createDataset(projectSummaries, imageSummaries, retVal, null);
+	}
+
 	/**Implemented as specified in {@link DataManagementService}. */
     public void updateProject(ProjectData retVal)
+		throws DSOutOfServiceException, DSAccessException
     {
-    	
+		Project p = (Project) createNewData(Project.class);
+		p.setID(retVal.getID());
+		p.setName(retVal.getName());
+		p.setDescription(retVal.getDescription());
+		updateData(p);
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateDataset(DatasetData retVal)
+		throws DSOutOfServiceException, DSAccessException
 	{
-	
+		Dataset d = (Dataset) createNewData(Dataset.class);
+		d.setID(retVal.getID());
+		d.setName(retVal.getName());
+		d.setDescription(retVal.getDescription());
+		updateData(d);
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateImage(ImageData retVal)
 	{
 	
+	}
+	
+	/**
+	 * Create a new Data Interface object
+	 * Wrap the call to the {@link DataFactory#createNew(Class) create}
+     * method.
+	 * @param dto 	targetClass, the core data type to count.
+	 * @return DataInterface.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * create a DataInterface from OMEDS service. 
+	 */
+	private DataInterface createNewData(Class dto)
+			throws DSOutOfServiceException, DSAccessException 
+	{
+		DataInterface retVal = null;
+		try {
+			retVal = proxy.createNew(dto);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal; 
+	}
+	
+	/**
+	 * Wrap the call to the {@link DataFactory#update(DataInterface) update}
+     * method.
+     * 
+	 * @param di		dataInterface.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * update data from OMEDS service. 
+	 */
+	private void updateData(DataInterface di)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			proxy.update(di);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		}
 	}
 	
     /**
@@ -289,7 +477,10 @@ class DMSAdapter
      * 
      * @param dto		targetClass, the core data type to count.
      * @param id		filter by id .
-     * @param c			criteria by which the object graph is pulled out. 
+     * @param c			criteria by which the object graph is pulled out.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.  
      */
 	private Object loadData(Class dto, int id, Criteria c) 
 		throws DSOutOfServiceException, DSAccessException 
@@ -314,6 +505,9 @@ class DMSAdapter
 	* 
 	* @param dto		targetClass, the core data type to count.
 	* @param c			criteria by which the object graph is pulled out. 
+	* @throws DSOutOfServiceException If the connection is broken, or logged in
+	* @throws DSAccessException If an error occured while trying to 
+	* retrieve data from OMEDS service. 
 	*/
    private Object retrieveData(Class dto, Criteria c) 
 	   throws DSOutOfServiceException, DSAccessException 
@@ -331,10 +525,6 @@ class DMSAdapter
 	   return retVal;
    }
 
-	
-	
-	
-	
 	/**
      * Retrieve the graph defined by the criteria.
      * Wrap the call to the 
@@ -344,6 +534,9 @@ class DMSAdapter
 	 * @param dto		targetClass, the core data type to count.
 	 * @param c			criteria by which the object graph is pulled out.
 	 * @return
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
 	 */
 	private Object retrieveListData(Class dto, Criteria c) 
 		throws DSOutOfServiceException, DSAccessException
