@@ -254,7 +254,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		getCamera().localToView(location);
 		
 		//create the layer
-		ModuleView mNode = new ModuleView(mod,
+		ModuleView mNode = new SingleModuleView(mod,
 			(float) location.getX(), (float) location.getY());
 		mod.addModuleNode(mNode);
 		
@@ -362,7 +362,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		Iterator iter = mods.iterator();
 		Vector nodes = new Vector();
 		while (iter.hasNext()) {
-			ModuleView m = (ModuleView) iter.next();
+			SingleModuleView m = (SingleModuleView) iter.next();
 			LayoutNodeData n = new LayoutNodeData();
 			n.setModule(m.getModule());
 			m.setNode(n);
