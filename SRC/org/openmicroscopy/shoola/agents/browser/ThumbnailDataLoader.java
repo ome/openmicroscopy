@@ -35,8 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
-import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.shoola.agents.browser.images.*;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
  * Loads individual image data from the data server, including any
@@ -76,9 +76,11 @@ public class ThumbnailDataLoader
      * @param image
      * @param tdm
      */
-    public ThumbnailDataModel loadDataFrom(Image image)
+    public ThumbnailDataModel loadDataFrom(ImageData imageData)
     {
         // TODO: wait until STS is done to fill in information
-        return null;
+        // establish what TDM should have in terms if image fields
+        // (just use ImageData object, wrap semantic types in TDM?)
+        return new ThumbnailDataModel(imageData.getID());
     }
 }

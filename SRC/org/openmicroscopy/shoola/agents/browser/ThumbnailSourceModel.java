@@ -37,7 +37,6 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.*;
 
-import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
@@ -83,9 +82,9 @@ public class ThumbnailSourceModel
      * @param imageID The Image to access.
      * @return See above.
      */
-    public Image getImageData(int imageID)
+    public ImageData getImageData(int imageID)
     {
-        return (Image)sourceMap.get(new Integer(imageID));
+        return (ImageData)sourceMap.get(new Integer(imageID));
     }
     
     /**

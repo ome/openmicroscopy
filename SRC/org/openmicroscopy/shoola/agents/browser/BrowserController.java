@@ -35,6 +35,14 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.awt.Image;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
+
 /**
  * The controller of the browser component MVC architecture.
  * 
@@ -91,5 +99,82 @@ public class BrowserController
             browserView = view;
         }
         view.repaint();
+    }
+    
+    /**
+     * Gets the backing image ID-to-image data map, belonging to the
+     * browser model.
+     * @return See above.
+     */
+    public ThumbnailSourceModel getDataModel()
+    {
+        if(browserModel != null)
+        {
+            return browserModel.getDataModel();
+        }
+        else return null;
+    }
+    
+    /**
+     * Sets the backing image ID-to-image data map in the browser model,
+     * but does not yet create an active thumbnail set.  To update the display
+     * (i.e., to load & display all thumbnails), call
+     * <code>displayCurrentDataModel()</code>.
+     * 
+     * @param model The ID-to-ImageData mapping.
+     */
+    public void setDataModel(ThumbnailSourceModel model)
+    {
+        if(browserModel != null && model != null)
+        {
+            browserModel.setDataModel(model);
+        }
+    }
+    
+    /**
+     * Generates thumbnails from the server and triggers the model to lay
+     * them out, based on the contents of the current thumbnail source model.
+     */
+    public void displayCurrentDataModel()
+    {
+        if(browserModel == null || browserView == null)
+        {
+            // absolutely nothing to do, something is wrong
+            return;
+        }
+        
+        ThumbnailSourceModel tsm = browserModel.getDataModel();
+        if(tsm == null)
+        {
+            // something wrong again
+            return;
+        }
+        
+        // it's not null
+        List keyList = tsm.getImageKeys();
+        if(keyList == null || keyList.size() == 0)
+        {
+            // nothing to do here
+            return;
+        }
+        
+        // setup view listener
+        browserView.processStarted(keyList.size());
+        ThumbnailDataLoader dataLoader = ThumbnailDataLoader.getInstance();
+        ThumbnailImageLoader imageLoader = ThumbnailImageLoader.getInstance();
+
+        for(Iterator iter = keyList.iterator(); iter.hasNext();)
+        {
+            int ID = ((Integer)iter.next()).intValue();
+            ImageData data = tsm.getImageData(ID);
+            ThumbnailDataModel tdm = dataLoader.loadDataFrom(data);
+            
+            // TODO: fix composite settings
+            Image image = imageLoader.getImage(data,null);
+            Thumbnail t = new Thumbnail(image,tdm);
+            browserModel.addThumbnail(t);
+            browserView.processAdvanced("Loaded image "+String.valueOf(ID));
+        }
+        browserView.processFailed("I dunno... did you break it?");
     }
 }

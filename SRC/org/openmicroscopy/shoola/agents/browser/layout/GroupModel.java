@@ -95,6 +95,14 @@ public class GroupModel
             thumbnails.remove(t);
         }
     }
+    
+    /**
+     * Removes all thumbnails from this group (effectively resets it)
+     */
+    public void clearThumbnails()
+    {
+        thumbnails.clear();
+    }
 
     /**
      * Gets the name of the group.

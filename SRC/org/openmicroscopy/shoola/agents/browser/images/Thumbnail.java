@@ -36,6 +36,7 @@
 package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.util.Iterator;
 import java.util.List;
 
@@ -93,8 +94,23 @@ public class Thumbnail extends PImage
      */
     public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
     {
+        super();
+        setAccelerated(true);
         this.model = tdm;
         defaultZOrder = new PaintMethodZOrder(); // not established yet
+    }
+    
+    /**
+     * Constructs a thumbnail with the corresponding backing model and the
+     * specified image.
+     * @param thumbImage The image of the thumbnail.
+     * @param tdm The data model behind the thumbnail.
+     */
+    public Thumbnail(Image thumbImage, ThumbnailDataModel tdm)
+    {
+        super(thumbImage,true);
+        this.model = tdm;
+        defaultZOrder = new PaintMethodZOrder();
     }
 
     /**

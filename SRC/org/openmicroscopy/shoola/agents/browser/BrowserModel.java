@@ -39,6 +39,7 @@ import java.util.*;
 
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -59,6 +60,9 @@ public class BrowserModel
 
     private ThumbnailSourceModel sourceModel;
     private Set thumbnailSet;
+    
+    private Set progressListeners;
+    private Set modelListeners;
 
     private LayoutMethod layoutMethod;
     private List groupModels;
@@ -76,6 +80,8 @@ public class BrowserModel
     private void init()
     {
         env = BrowserEnvironment.getInstance();
+        progressListeners = new HashSet();
+        modelListeners = new HashSet();
         selectedImages = new HashSet();
         hiddenImages = new HashSet();
         groupModels = new ArrayList();
@@ -149,7 +155,54 @@ public class BrowserModel
         else
         {
             this.sourceModel = dataModel;
+            updateModelListeners();
         }
+    }
+    
+    /**
+     * Adds a thumbnail to the browser.  This thumbnail *should* also be in
+     * the source browser.  Will do nothing if thumb is null.
+     * 
+     * @param thumb The thumbnail to add.
+     */
+    public void addThumbnail(Thumbnail thumb)
+    {
+        if(thumb != null)
+        {
+            thumbnailSet.add(thumb);
+            GroupModel group = groupingMethod.getGroup(thumb);
+            group.addThumbnail(thumb);
+            updateModelListeners();
+        }
+    }
+    
+    /**
+     * Removes a visible thumbnail from the browser model.
+     * @param thumb The thumbnail to remove.
+     */
+    public void removeThumbnail(Thumbnail thumb)
+    {
+        if(thumb != null)
+        {
+            thumbnailSet.remove(thumb);
+            GroupModel group = groupingMethod.getGroup(thumb);
+            group.removeThumbnail(thumb);
+            updateModelListeners();
+        }
+    }
+    
+    /**
+     * Clears all thumbnails from the browser model.
+     */
+    public void clearThumbnails()
+    {
+        thumbnailSet.clear();
+        for(Iterator iter = groupModels.iterator(); iter.hasNext();)
+        {
+            GroupModel group = (GroupModel)iter.next();
+            group.clearThumbnails();
+        }
+        updateModelListeners();
     }
 
     /**
@@ -203,6 +256,26 @@ public class BrowserModel
     public Set getHiddenImages()
     {
         return Collections.unmodifiableSet(hiddenImages);
+    }
+    
+    /**
+     * Explicitly notify all listeners that the model has been updated.
+     */
+    public void fireModelUpdated()
+    {
+        updateModelListeners();
+    }
+    
+    // notifies all classes listening to the status of this model that
+    // there has been a change.
+    private void updateModelListeners()
+    {
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener listener =
+                (BrowserModelListener)iter.next();
+            listener.modelUpdated();
+        }
     }
 
     // send a message through the BrowserEnvironment/MessageHandler framework.

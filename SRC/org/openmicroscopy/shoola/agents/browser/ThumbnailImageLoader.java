@@ -36,9 +36,13 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 
-import org.openmicroscopy.ds.dto.Image;
+import javax.imageio.ImageIO;
+
 import org.openmicroscopy.is.CompositingSettings;
+import org.openmicroscopy.shoola.agents.browser.tests.LocalImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
  * For each Image, returns a BufferedImage from the ImageServer with the
@@ -80,12 +84,27 @@ public class ThumbnailImageLoader
      * getThumb() method, which will return the default thumbnail for the
      * specified Image.  If the DTO is null, this method will return null.
      * 
-     * @param imageDTO The image from which to grab the pixels.
+     * @param imageData The image from which to grab the pixels.
      * @param settings The compositing/size settings for the desired thumbnail.
      * @return See above.
      */
-    public BufferedImage getImage(Image imageDTO, CompositingSettings settings)
+    public BufferedImage getImage(ImageData imageData, CompositingSettings settings)
     {
+        /* NOTE: TESTING HACK, REMOVE ON INTEGRATION */
+        if(imageData instanceof LocalImageData)
+        {
+            LocalImageData lid = (LocalImageData)imageData;
+            try
+            {
+                return ImageIO.read(new File(lid.getLocalPath()));
+            }
+            catch(Exception e)
+            {
+                System.err.println(e);
+                return null;
+            }
+        }
+
         // using objects initialized in the constructor regarding the STS,
         // get the BufferedImage using PixelsService or PixelsFactory or
         // whatever the hell we're supposed to use
