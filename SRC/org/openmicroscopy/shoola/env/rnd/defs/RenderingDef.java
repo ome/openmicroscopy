@@ -38,6 +38,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 
 /** 
  * Aggregates all information needed to render an image.
@@ -78,7 +79,7 @@ public class RenderingDef
 	
 	private ChannelBindings[]	channelBindings;
 	
-	private List				codomainMapDefs;
+	private List				cdChainDef;
 	
 	private QuantumDef			qDef;
 
@@ -108,22 +109,24 @@ public class RenderingDef
 		setModel(model);
 		setQuantumDef(qDef);
 		setChannelBindings(channelBindings);
-		codomainMapDefs = new ArrayList();
+		cdChainDef = new ArrayList();
 	}
 	
 	/** empty constructor.*/
 	private RenderingDef() {}
 	
 	/** only one codomain transformation of the same type. */
-	public void addCodomainMapDef(CodomainMapDef cmd)
+	public void addCodomainMapCtx(CodomainMapContext mapCtx)
 	{
-		if (!codomainMapDefs.contains(cmd))
-			codomainMapDefs.add(cmd);
+		if (mapCtx == null)	throw new NullPointerException("No context.");
+		if (cdChainDef.contains(mapCtx))  //Recall equals() is overridden.
+			throw new IllegalArgumentException("Context already defined.");
+		cdChainDef.add(mapCtx);
 	}
 	
-	public void removeCodomainMapDef(CodomainMapDef cmd)
+	public void removeCodomainMapCtx(CodomainMapContext mapCtx)
 	{
-		codomainMapDefs.remove(cmd);
+		cdChainDef.remove(mapCtx);
 	}
 	
 	/**
@@ -131,10 +134,13 @@ public class RenderingDef
 	 * 
 	 * @param cmd CodomainMapDef to be updated.
 	 */
-	public void updateCodomainMapDef(CodomainMapDef cmd)
+	public void updateCodomainMapCtx(CodomainMapContext mapCtx)
 	{
-		int index = codomainMapDefs.indexOf(cmd);
-		if (index != -1) codomainMapDefs.set(index, cmd);
+		if (mapCtx == null)	throw new NullPointerException("No context.");
+		int i = cdChainDef.indexOf(mapCtx);  //Recall equals() is overridden.
+		if (i == -1)
+			throw new IllegalArgumentException("No such a context.");
+		cdChainDef.set(i, mapCtx);
 	}
 	
 	/** Set the model. One of the constant defined above.*/
@@ -171,9 +177,9 @@ public class RenderingDef
 		return copy;	
 	}
 
-	public List getCodomainMapDefs()
+	public List getCodomainChainDef()
 	{
-		return codomainMapDefs;
+		return cdChainDef;
 	}
 	
 	public int getDefaultZ()
@@ -197,15 +203,14 @@ public class RenderingDef
 			cb[i] = channelBindings[i].copy();
 		copy.channelBindings = cb;
 		List list = new ArrayList();
-		Iterator j = codomainMapDefs.iterator();
-		CodomainMapDef cmdCopy;
+		Iterator j = cdChainDef.iterator();
+		CodomainMapContext ctxCopy;
 		while (j.hasNext()) {
-			cmdCopy = ((CodomainMapDef) j.next()).copy();
-			list.add(cmdCopy);
+			ctxCopy = ((CodomainMapContext) j.next()).copy();
+			list.add(ctxCopy);
 		}
-		copy.codomainMapDefs = list;
+		copy.cdChainDef = list;
 		return copy;
 	}
-
 
 }
