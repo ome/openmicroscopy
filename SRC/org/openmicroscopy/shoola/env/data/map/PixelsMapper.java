@@ -76,12 +76,16 @@ public class PixelsMapper
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels", "ImageServerID");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
-        
 		criteria.addFilter("id", new Integer(imageID));
-		
 		return criteria;
 	}
 	
+    /** 
+     * Build criteria to retrieve the real pixel dimensions
+     * 
+     * @param imageID
+     * @return See above
+     */
     public static Criteria buildPixelsDimensionCriteria(int imageID)
     {
         Criteria c = new Criteria();
@@ -93,10 +97,15 @@ public class PixelsMapper
         c.addWantedField("PixelSizeY");
         c.addWantedField("PixelSizeZ");
         c.addFilter("image_id", new Integer(imageID));
-        
         return c;
     }
     
+    /** 
+     * Build criteria for the PixelChannelComponent semantic type.
+     * 
+     * @param imageID       id of the image.
+     * @return See above.
+     */
     public static Criteria buildPixelChannelComponentCriteria(int imageID)
     {
         Criteria c = new Criteria();
@@ -107,18 +116,42 @@ public class PixelsMapper
         return c;
     }
     
+    /** 
+     * Build the criteria to retrieve the logical channels associated to an
+     * image.
+     * @param g     granularity
+     * @param id    image's id.
+     * @return
+     */
     public static Criteria buildLogicalChannelCriteria(String g, int id)
     {
-        Criteria c = new Criteria();
-        c.addWantedField("EmissionWavelength");
+        
+        Criteria c = buildBasicLogicalChannelCriteria(g, id);
         c.addWantedField("ExcitationWavelength");
         c.addWantedField("PhotometricInterpretation"); 
         c.addWantedField("Fluor"); 
-        String column = (String) STSMapper.granularities.get(g);
-        if (column != null) c.addFilter(column, new Integer(id));
+        c.addWantedField("NDFilter");
+        c.addWantedField("AuxTechnique");
+        c.addWantedField("AuxLightWavelength");
+        c.addWantedField("AuxLightAttenuation");
+        c.addWantedField("AuxLightSource");
+        c.addWantedField("ContrastMethod");
+        c.addWantedField("Mode");
+        c.addWantedField("PinholeSize");
+        c.addWantedField("DetectorGain");
+        c.addWantedField("DetectorOffset");
+        c.addWantedField("LightWavelength");
+        c.addWantedField("LightAttenuation");
+        c.addWantedField("SamplesPerPixel");
+        c.addWantedField("IlluminationType");
         return c;
     }
-    
+    /**
+     * Only retrieve the EmissionWavelength field 
+     * @param g
+     * @param id
+     * @return
+     */
     public static Criteria buildBasicLogicalChannelCriteria(String g, int id)
     {
         Criteria c = new Criteria();
@@ -148,6 +181,7 @@ public class PixelsMapper
 		pdProto.setPixels(px);
 	}
 	
+    /** Put the server data into the corresponding client object. */
     public static void fillPixelsDimensions(Dimensions pixelDim, 
                                     PixelsDescription pdProto)
     {

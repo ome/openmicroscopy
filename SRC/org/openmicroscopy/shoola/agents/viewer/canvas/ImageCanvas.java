@@ -73,6 +73,8 @@ public class ImageCanvas
     extends JPanel
 {
 
+    private static final String         NANOMETER = " \u00B5m";
+    
     private static final int            LENGTH2 = 2*ViewerUIF.LENGTH;
     
     private BufferedImage               displayImage, zoomForLens;
@@ -226,12 +228,11 @@ public class ImageCanvas
     {
         this.image = image;
         resetLens();
-        if (image != null) {
-            displayImage = image;
-            double f = itMng.getMagFactor();
-            paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
-                        (int) (image.getHeight()*f)+2*ViewerUIF.START);
-        }
+        if (image == null) return;
+        displayImage = image;
+        double f = itMng.getMagFactor();
+        paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
+                    (int) (image.getHeight()*f)+2*ViewerUIF.START);
     } 
     
     /** 
@@ -260,6 +261,7 @@ public class ImageCanvas
         repaint();
     } 
 
+    /** Apply filter to the image displayed. */
     public void filterImage(float[] filter)
     {
         resetLens();
@@ -268,14 +270,14 @@ public class ImageCanvas
         repaint();
     }
     
+    /** Roll back to the original image. */
     public void undoFiltering()
     {
-        if (image != null) {
-            itMng.removeAllFilters();
-            double f = itMng.getMagFactor();
-            paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
-                    (int) (image.getHeight()*f)+2*ViewerUIF.START);
-        }
+        if (image == null) return;
+        itMng.removeAllFilters();
+        double f = itMng.getMagFactor();
+        paintImage(f, (int) (image.getWidth()*f)+2*ViewerUIF.START, 
+                (int) (image.getHeight()*f)+2*ViewerUIF.START);
     }
     
     public void resetLens() { lensCanvas.resetLens(); }
@@ -309,6 +311,11 @@ public class ImageCanvas
     /** Return the lens image. */
     BufferedImage getLens() { return lensCanvas.lensImage; }
     
+    /** 
+     * Return an Object array of length 2, first element contained a
+     * bufferedImage, the second one the planeArea corresponding to the lens'
+     * area.
+     */
     private Object[] prepareLensImage()
     {
         Object[] results = new Object[2];
@@ -346,12 +353,10 @@ public class ImageCanvas
         paintXYFrame(g2D);
         if (realValue > 0)
               paintScaleBar(g2D, ViewerUIF.START, 3*ViewerUIF.START/2+height, 
-                        LENGTH2, ""+(int) (realValue*LENGTH2)+" \u00B5m", 
+                        LENGTH2, ""+(int) (realValue*LENGTH2)+ NANOMETER, 
                         Color.GRAY);
         if (displayImage != null)
             g2D.drawImage(displayImage, null, ViewerUIF.START, ViewerUIF.START);
-        //if (lensCanvas.lensImage != null)
-        //   g2D.drawImage(lensCanvas.lensImage, null, lensCanvas.xLens, lensCanvas.yLens);     
     }
 
     /** Paint the XY-frame. */

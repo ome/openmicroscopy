@@ -280,48 +280,79 @@ public class ImageMapper
 	}
 	
 	/**
-	 * 
-	 * @param pccList		PixelChannelComponent list.
-	 * @param lcList		LogicalChannel List.
-	 * @return
-	 */
-	public static ChannelData[] fillImageChannelData(List pccList, List lcList)
-	{
-		PixelChannelComponent pcc;
-		Iterator k = pccList.iterator();
-		HashMap lcIndexes = new HashMap();
+     * Build the logical channel object
+     * @param pccList       PixelChannelComponent list.
+     * @param lcList        LogicalChannel List.
+     * @return
+     */
+    public static ChannelData[] fillImageChannelData(List pccList, List lcList)
+    {
+        PixelChannelComponent pcc;
+        Iterator k = pccList.iterator();
+        HashMap lcIndexes = new HashMap();
         ChannelData[] channelData = new ChannelData[lcList.size()];
-		while (k.hasNext()) {
-			pcc = (PixelChannelComponent) k.next();
-			lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
-								new Integer(pcc.getIndex().intValue()));
-		}
-		LogicalChannel lc;
-		int index;
-		Iterator i = lcList.iterator();
-		int nanometer, excitation;
-		while (i.hasNext()) {
-			lc = (LogicalChannel) i.next();
-			index = 
-				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
-			if (lc.getEmissionWavelength() == null)	
-				nanometer = index;
-			else
-				nanometer = lc.getEmissionWavelength().intValue();
-			
-			if (lc.getExcitationWavelength() == null) 
-				excitation = nanometer;
-			else 
-				excitation = lc.getExcitationWavelength().intValue();
+        while (k.hasNext()) {
+            pcc = (PixelChannelComponent) k.next();
+            lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
+                                new Integer(pcc.getIndex().intValue()));
+        }
+        LogicalChannel lc;
+        int index;
+        Iterator i = lcList.iterator();
+        int nanometer, excitation = -1;
+        ChannelData data;
+        while (i.hasNext()) {
+            lc = (LogicalChannel) i.next();
+            index = 
+                ((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
+            if (lc.getEmissionWavelength() == null) 
+                nanometer = index;
+            else
+                nanometer = lc.getEmissionWavelength().intValue();
+            
+            if (lc.getExcitationWavelength() != null) 
+                excitation = lc.getExcitationWavelength().intValue();
+            
             if (channelData[index] == null) {
-                channelData[index] = new ChannelData(lc.getID(), index, 
+                data = new ChannelData(lc.getID(), index, 
                         nanometer, lc.getPhotometricInterpretation(), 
                         excitation, lc.getFluor());
+                if (lc.getAuxLightAttenuation() != null)
+                    data.setAuxLightAttenuation(
+                            lc.getAuxLightAttenuation().floatValue()); 
+                 if (lc.getAuxLightWavelength() != null)  
+                     data.setAuxLightWavelength(
+                             lc.getAuxLightWavelength().intValue());
+                 if (lc.getDetectorGain() != null)
+                     data.setDetectorGain(lc.getDetectorGain().floatValue());
+                 if (lc.getDetectorOffset() != null)
+                     data.setDetectorOffset(
+                             lc.getDetectorOffset().floatValue());
+                 if (lc.getLightAttenuation() != null)
+                     data.setLightAttenuation(
+                         lc.getLightAttenuation().floatValue());
+                 if (lc.getLightWavelength() != null)
+                     data.setLightWavelength(
+                             lc.getLightWavelength().intValue());
+                 if (lc.getNDFilter() != null)
+                     data.setNDFilter(lc.getNDFilter().floatValue());
+                 if (lc.getPinholeSize() != null)
+                     data.setPinholeSize(lc.getPinholeSize().intValue());
+                 if (lc.getSamplesPerPixel() != null)
+                     data.setSamplesPerPixel(
+                             lc.getSamplesPerPixel().intValue());
+                 
+                 data.setMode(lc.getMode());
+                 data.setAuxTechnique(lc.getAuxTechnique());
+                 data.setContrastMethod(lc.getContrastMethod());
+                 data.setIlluminationType(lc.getIlluminationType());  
+                 channelData[index] = data;       
             }
-		}
-		return channelData;
-	}
+        }
+        return channelData;
+    }
 
+    /** Create an array with the emissionWavelength. */
     public static int[] fillImageChannels(List lcList)
     {
         int[] channels = new int[lcList.size()];
@@ -341,7 +372,7 @@ public class ImageMapper
         return channels;
     }
 
-    /** Create a default channels arry if no logical channel. */
+    /** Create a default channels array if no logical channel. */
     public static int[] fillDefaultImageChannels(int sizeC)
     {
         int[] channels = new int[sizeC];

@@ -34,10 +34,9 @@ package org.openmicroscopy.shoola.agents.rnd.editor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -64,24 +63,12 @@ class ChannelEditorManager
 {
 	
 	/** Action command ID, handle events. */
-	private static final int	SAVE = 100;
-	private static final int	CANCEL = 101;
+	private static final int	SAVE = 0;
+	private static final int	CANCEL = 1;
 	
 	/** Save Button displayed in {@link ChannelEditorBar}. */
 	private JButton				saveButton;
-	
-	/** Cancel Button displayed in {@link ChannelEditorBar}. */
-	private JButton				cancelButton;
-	
-	/** textArea displayed in the {@link ChannelPane}. */
-	private JTextArea			interpretationArea;
-	
-	/** textField displayed in the {@link ChannelPane}. */	
-	private JTextField			excitation;
-	
-	/** textField displayed in the {@link ChannelPane}. */	
-	private JTextField			fluor;
-	
+    
 	private RenderingAgtCtrl 	eventManager;
 	
 	private ChannelData 		model;
@@ -92,7 +79,7 @@ class ChannelEditorManager
 	{
 		this.eventManager = eventManager;
 		this.view = view;
-		this.model =model;
+		this.model = model;
 	}
 	
 	ChannelData getChannelData() { return model; }
@@ -101,25 +88,31 @@ class ChannelEditorManager
 	void attachListeners()
 	{
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
-		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
+        attachButtonListener(saveButton, SAVE);
+        attachButtonListener(view.getCancelButton(), CANCEL);
 		//text area.
-		interpretationArea = view.getInterpretationArea();
-		interpretationArea.getDocument().addDocumentListener(this);
-		excitation = view.getExcitation();
-		excitation.getDocument().addDocumentListener(this);
-		fluor = view.getFluor();
-		fluor.getDocument().addDocumentListener(this);
+        attachDocumentListener(view.getInterpretationArea());
+        attachDocumentListener(view.getExcitation());
+        attachDocumentListener(view.getFluor());
+        attachDocumentListener(view.getNDFilter());
+        attachDocumentListener(view.getAuxLightAttenuation());
+        attachDocumentListener(view.getDetectorGain());
+        attachDocumentListener(view.getDetectorOffset());
+        attachDocumentListener(view.getLightAttenuation());
+        attachDocumentListener(view.getAuxLightWavelength());
+        attachDocumentListener(view.getPinholeSize());
+        attachDocumentListener(view.getLightWavelength());
+        attachDocumentListener(view.getSamplesPerPixel());
+        attachDocumentListener(view.getAuxTechnique());
+        attachDocumentListener(view.getContrastMethod());
+        attachDocumentListener(view.getMode());
+        attachDocumentListener(view.getIlluminationType());
 	}
-
+    
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = -1;
 		try {
-            index = Integer.parseInt(e.getActionCommand());
+            int index = Integer.parseInt(e.getActionCommand());
 			switch (index) { 
 				case SAVE:
 					save(); break;
@@ -127,26 +120,8 @@ class ChannelEditorManager
 					cancel(); break;
 			}  
 		} catch(NumberFormatException nfe) {
-			throw new Error("Invalid Action ID "+index, nfe);
+			throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
 		} 
-	}
-	
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
-
-	/** Save in DB. */
-	private void save()
-	{
-		model.setInterpretation(interpretationArea.getText());
-		model.setFluor(fluor.getText());
-		int value = Integer.parseInt(excitation.getText());
-		model.setExcitation(value);
-		eventManager.updateChannelData(model);
-		view.dispose();
 	}
 
 	/** Require by {@link DocumentListener} I/F. */
@@ -158,4 +133,84 @@ class ChannelEditorManager
 	/** Require by {@link DocumentListener} I/F. */
 	public void removeUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
 	
+	/** Attach a DocumentListener to the specified component. */
+    private void attachDocumentListener(JTextComponent component)
+    {
+        component.getDocument().addDocumentListener(this);
+    }
+    
+    /** Attach an actionListener to the specified JButton. */
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    /** Close the widget, doesn't save changes. */
+    private void cancel()
+    {
+        view.setVisible(false);
+        view.dispose();
+    }
+
+    /** Save in DB. */
+    private void save()
+    {
+        //string
+        model.setInterpretation(view.getInterpretationArea().getText());
+        model.setFluor(view.getFluor().getText());
+        model.setMode(view.getMode().getText());
+        model.setAuxTechnique(view.getAuxTechnique().getText());
+        model.setContrastMethod(view.getContrastMethod().getText());
+        model.setIlluminationType(view.getIlluminationType().getText());
+        
+        //int
+        try {
+            model.setExcitation(
+                    Integer.parseInt(view.getExcitation().getText()));
+        } catch (Exception e) {}// Do nothing
+        try {
+            model.setAuxLightWavelength(
+                    Integer.parseInt(view.getAuxLightWavelength().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setLightWavelength(
+                    Integer.parseInt(view.getLightWavelength().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setPinholeSize(
+                    Integer.parseInt(view.getPinholeSize().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setSamplesPerPixel(
+                    Integer.parseInt(view.getSamplesPerPixel().getText()));
+        } catch (Exception e) {}
+       
+        
+        
+        //float
+        try {
+            model.setLightAttenuation(
+                    Float.parseFloat(view.getLightAttenuation().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setNDFilter(
+                    Float.parseFloat(view.getNDFilter().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setAuxLightAttenuation(
+                    Float.parseFloat(view.getAuxLightAttenuation().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setDetectorGain(
+                    Float.parseFloat(view.getDetectorGain().getText()));
+        } catch (Exception e) {}
+        try {
+            model.setDetectorOffset(
+                    Float.parseFloat(view.getDetectorOffset().getText()));
+        } catch (Exception e) {}
+        eventManager.updateChannelData(model);
+        view.dispose();
+    }
+    
 }

@@ -66,10 +66,17 @@ public class ChannelData
 
 	/** Photometric interpretation. */
 	private String         interpretation;
-
-	/** */
-	private String         fluor;
-
+    
+   
+    private float          ndFilter, auxLightAttenuation, detectorGain, 
+                           detectorOffset, lightAttenuation;
+    
+    private int            auxLightWavelength, pinholeSize, lightWavelength, 
+                           SamplesPerPixel;
+    
+    private String         fluor, auxTechnique, contrastMethod, mode, 
+                           illuminationType;
+    
 	public ChannelData(int id, int index, int nanometer, String interpretation,
 						int excitation, String fluor)
 	{
@@ -98,5 +105,90 @@ public class ChannelData
 	public void setExcitation(int excitation) { this.excitation = excitation; }
 
 	public void setFluor(String fluor) { this.fluor = fluor; }
+    
+	public float getAuxLightAttenuation() { return auxLightAttenuation; }
+    
+    public void setAuxLightAttenuation(float auxLightAttenuation)
+    {
+        this.auxLightAttenuation = auxLightAttenuation;
+    }
+    
+    public int getAuxLightWavelength() { return auxLightWavelength; }
+    
+    public void setAuxLightWavelength(int auxLightWavelength)
+    {
+        this.auxLightWavelength = auxLightWavelength;
+    }
+    
+    public String getAuxTechnique() { return auxTechnique; }
+    
+    public void setAuxTechnique(String auxTechnique)
+    {
+        this.auxTechnique = auxTechnique;
+    }
+    
+    public String getContrastMethod() { return contrastMethod; }
+    
+    public void setContrastMethod(String contrastMethod)
+    {
+        this.contrastMethod = contrastMethod;
+    }
+    
+    public float getDetectorGain() { return detectorGain; }
+    
+    public void setDetectorGain(float detectorGain)
+    {
+        this.detectorGain = detectorGain;
+    }
+    
+    public float getDetectorOffset() { return detectorOffset; }
+    
+    public void setDetectorOffset(float detectorOffset)
+    {
+        this.detectorOffset = detectorOffset;
+    }
+    
+    public String getIlluminationType() { return illuminationType; }
+    
+    public void setIlluminationType(String illuminationType)
+    {
+        this.illuminationType = illuminationType;
+    }
+    
+    public float getLightAttenuation() { return lightAttenuation; }
+    
+    public void setLightAttenuation(float lightAttenuation)
+    {
+        this.lightAttenuation = lightAttenuation;
+    }
+    
+    public int getLightWavelength() { return lightWavelength; }
+    
+    public void setLightWavelength(int lightWavelength)
+    {
+        this.lightWavelength = lightWavelength;
+    }
+    
+    public String getMode() { return mode; }
+    
+    public void setMode(String mode) { this.mode = mode; }
+    
+    public float getNDFilter() { return ndFilter; }
+    
+    public void setNDFilter(float ndFilter) { this.ndFilter = ndFilter; }
+    
+    public int getPinholeSize() { return pinholeSize; }
+    
+    public void setPinholeSize(int pinholeSize)
+    { 
+        this.pinholeSize = pinholeSize;
+    }
+    
+    public int getSamplesPerPixel() { return SamplesPerPixel; }
+    
+    public void setSamplesPerPixel(int samplesPerPixel)
+    {
+        SamplesPerPixel = samplesPerPixel;
+    }
     
 }
