@@ -38,13 +38,12 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Custom renderer for the navigation tree in the {@link NavMenuUI}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,71 +60,44 @@ class NavMenuCellRenderer
     extends DefaultTreeCellRenderer
 {
     
-    /** ID used to select the appropriated icon. */
-    private static final int    TOC_OPEN = 0;
-    private static final int    TOC_CLOSED = 1;
-    private static final int    SECTION_OPEN = 2;
-    private static final int    SECTION_CLOSED = 3;
-    private static final int    SUB_SECTION = 4;
-    private static final int    NO_ICON = 5; 
-    
-    private static final int    LEVEL_ROOT = 0;
-    private static final int    LEVEL_SECTION = 1;
-    private static final int    LEVEL_SUB_SECTION = 2;
-    
-    private Font                font;
+    /**
+     * Overrides parent to configures the renderer based on the passed in 
+     * components.
+     */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
                         int row, boolean hasFocus)
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
-        if (font == null) font = getFont();
-        int index = getIconID(value, expanded);
-        try {
-            switch (index) {
-                case TOC_OPEN:
-                    setIcon(IconFactory.getIcon(IconFactory.TOC_OPEN)); break;
-                case TOC_CLOSED:
-                    setIcon(IconFactory.getIcon(IconFactory.TOC_CLOSED)); break;
-                case SECTION_OPEN:
-                    setIcon(IconFactory.getIcon(IconFactory.SECTION_OPEN)); 
-                    break;
-                case SECTION_CLOSED:
-                    setIcon(IconFactory.getIcon(IconFactory.SECTION_CLOSED));
-                    break;
-                case SUB_SECTION:
+        
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        switch (node.getLevel()) {  //Returns the distance from the root.
+            case 0:  //Root node, that is the toc node.
+                setFont(getFont().deriveFont(Font.BOLD));
+                if (expanded) 
+                    setIcon(IconFactory.getIcon(IconFactory.TOC_OPEN));
+                break;
+            case 1:  //A root child, that is a section node.
+                setFont(getFont().deriveFont(Font.PLAIN));
+                if (node.isLeaf())
                     setIcon(IconFactory.getIcon(IconFactory.SUB_SECTION));
-                    break;
-                case NO_ICON:
-                    setIcon(null);
-            }                                   
-        } catch(NumberFormatException nfe) {   
-            throw new Error("Invalid Action ID "+index, nfe);
+                else {
+                    if (expanded)
+                        setIcon(IconFactory.getIcon(IconFactory.SECTION_OPEN));
+                    else 
+                        setIcon(IconFactory.getIcon(
+                                    IconFactory.SECTION_CLOSED));
+                }
+                break;
+            case 2:  //A root grandchild, that is a sub-section node.
+                setFont(getFont().deriveFont(Font.ITALIC));
+                setIcon(IconFactory.getIcon(IconFactory.SUB_SECTION));
+                break;
+            default:
+                setIcon(null);
         } 
         return this;
     }
-    
-   
-    private int getIconID(Object value, boolean expanded)
-    {
-        DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
-        int id = TOC_CLOSED;
-        switch (node.getLevel()) {
-            case LEVEL_ROOT:
-                setFont(font.deriveFont(Font.BOLD));
-                if (expanded) id = TOC_OPEN;
-                break;
-            case LEVEL_SECTION:
-                setFont(font);
-                if (expanded) id = SECTION_OPEN;
-                else id = SECTION_CLOSED;
-                break;
-            case LEVEL_SUB_SECTION:
-                setFont(font.deriveFont(Font.ITALIC));
-                id = SUB_SECTION;
-                break;
-        }
-        return id;
-    }
+
 }

@@ -29,20 +29,18 @@
 
 package org.openmicroscopy.xdoc.navig;
 
-import java.net.URL;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
 
 //Java imports
+import java.net.URL;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Helper class to make the icons for the applet UI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,25 +55,37 @@ import javax.swing.ImageIcon;
  */
 class IconFactory
 {
-
-    static final int    TOC_OPEN = 0;
-    static final int    TOC_CLOSED = 1;
-    static final int    SECTION_OPEN = 2;
-    static final int    SECTION_CLOSED = 3;
-    static final int    SUB_SECTION = 4;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 4;
+    private static int      MAX_ID = 4;
     
     /** Paths of the icon files. */
-    private static String[]     relPaths = new String[MAX_ID+1];
+    private static String[] relPaths = new String[MAX_ID+1];
     
-    /** hard coded location. */
-    private static String       location = 
-                                "/org/openmicroscopy/xdoc/navig/graphx";
+    /** Location of the directory containing the icons. */
+    private static String   location = "/org/openmicroscopy/xdoc/navig/graphx";
+    
+    /** Identifies the open icon of the toc node. */
+    static final int    TOC_OPEN = 0;
+    
+    /** Identifies the closed icon of the toc node. */
+    static final int    TOC_CLOSED = 1;
+    
+    /** Identifies the open icon of a section node. */
+    static final int    SECTION_OPEN = 2;
+    
+    /** Identifies the closed icon of a section node. */
+    static final int    SECTION_CLOSED = 3;
+    
+    /** 
+     * Identifies the icon of a sub-section node.
+     * This is the icon that associated to any leaf node.  In particular, if
+     * a section has no sub-sections, this is the icon that is going to get. 
+     */
+    static final int    SUB_SECTION = 4;
     
     static {
         relPaths[TOC_OPEN] = "eclipse_toc_open.png";
@@ -87,8 +97,8 @@ class IconFactory
     
     /** 
      * Retrieves the icon specified by <code>id</code>.
-     * If the icon can't be retrieved, then this method will log the error and
-     * return <code>null</code>.
+     * If the icon can't be retrieved, then this method will return 
+     * <code>null</code>.
      *
      * @param id    The index of the file name in the array of file names 
      *              specified to this class' constructor.
@@ -98,14 +108,14 @@ class IconFactory
      */ 
     static Icon getIcon(int id)
     {
-        if (id < 0 || relPaths.length <= id)    return null;
+        if (id < 0 || relPaths.length <= id) return null;
         return getIcon(relPaths[id]);
     }
     
     /** 
      * Retrieves the icon specified by <code>name</code>.
-     * If the icon can't be retrieved, then this method will log the error and
-     * return <code>null</code>.
+     * If the icon can't be retrieved, then this method will return 
+     * <code>null</code>.
      *
      * @param name    Must be one a valid icon file name within the directory
      *                  used by the {@link IconFactory} instance specified via
