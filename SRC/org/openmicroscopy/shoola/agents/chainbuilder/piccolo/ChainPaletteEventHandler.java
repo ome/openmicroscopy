@@ -41,8 +41,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
-import edu.umd.cs.piccolo.activities.PActivity;
-import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
 import edu.umd.cs.piccolo.PNode;
 
 
@@ -50,7 +48,6 @@ import edu.umd.cs.piccolo.PNode;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the
@@ -73,8 +70,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	/** the last highlighted box..*/
 	private ChainBox lastHighlighted = null;
 	
-	/** the last chain view that was expanded */
-	private PaletteChainView lastChainView;
 	
 	public ChainPaletteEventHandler(ChainPaletteCanvas canvas,Registry registry) {
 		super(canvas);
@@ -86,43 +81,17 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		clearHighlights();
 		lastEntered = null;
 	}	
-	
-	protected void setLastEntered(PNode node) {
-		if (node != null && shouldHideLastChainView(node)) {
-			hideLastChainView();
-		}
-		if (node instanceof ChainBox) {
-			ChainBox cb = (ChainBox)node;
-			if (cb.getChainView() instanceof PaletteChainView)
-				lastChainView = (PaletteChainView) cb.getChainView();
-		}
-		if (node instanceof ChainView && lastEntered != null) {
-			unhighlightModules();
-		}
-		super.setLastEntered(node);
-	}
-	
-	/**
-	 * should we hide the last chain view when we enter this node?
-	 */
-	private boolean shouldHideLastChainView(PNode node) {
-		boolean res = lastChainView != null
-				&& lastChainView != node 
-		        && !lastChainView.isAncestorOf(node) 
-		        && !lastChainView.isDescendentOf(node);
-		return res;
-	}
-	
+		
 	public void setSelectedForDrag(PNode node) {
 		if (node instanceof ChainView) {
 			ChainView chain = (ChainView) node;
 			setSelectedChain(chain);
 		}
-		else if (node instanceof ModuleView) {
-			ModuleView mod = (ModuleView) node;
-			BufferedObject buf = mod.getEnclosingBufferedNode();
-			if (buf instanceof ChainView)
-				setSelectedChain((ChainView) buf);
+		else if (node instanceof PaletteModuleView) {
+			PaletteModuleView mod = (PaletteModuleView) node;
+			PaletteChainView chainView = mod.getChainViewParent();
+			if (chainView != null);
+				setSelectedChain(chainView);
 		}
 	}
 	
@@ -134,7 +103,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void handleBackgroundClick() {
-		hideLastChainView();
 		super.handleBackgroundClick();
 		SelectAnalysisChain event = new SelectAnalysisChain(null);
 		registry.getEventBus().post(event);
@@ -150,42 +118,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			chain = box.getChainView();
 		setLastEntered(chain);
 		lastHighlighted = box;
-	}
-	
-	/**
-	 * The lastChainView that I clicked on
-	 * called when I click on a compound...
-	 * @param lastChainView 
-	 */
-	public void setLastChainView(PaletteChainView lastChainView) {
-		// if I get this twice, show the full view.
-		if (this.lastChainView == lastChainView) {
-			PActivity a = lastChainView.showFullView(true);
-			if (a != null) {
-				a.setDelegate(new PActivityDelegate() {
-					public void activityStarted(PActivity activity) {
-					}
-					public void activityStepped(PActivity activity) {
-					}
-					public void activityFinished(PActivity activity) {
-						animateToLastChainView();				
-					}
-				});
-			}
-		}
-		this.lastChainView = lastChainView;
-	}
-	
-	private void animateToLastChainView() {
-		if (lastChainView != null) {
-			animateToBounds(lastChainView.getChainDetailBounds());
-		}
-	}
-	
-	public void hideLastChainView() {
-		if (lastChainView != null) {
-			lastChainView.hide(); 
-		}
 	}
 }
 
