@@ -114,7 +114,7 @@ class DataManagerUIF
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
 		setJMenuBar(createMenuBar());
-		buildGUI();
+		buildGUI(new ToolBar(control, registry));
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
 	}
@@ -248,7 +248,7 @@ class DataManagerUIF
 	/** 
 	 * Build and lay out the GUI.
 	 */
-	private void buildGUI()
+	private void buildGUI(ToolBar bar)
 	{
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
 											JTabbedPane.WRAP_TAB_LAYOUT);
@@ -266,8 +266,8 @@ class DataManagerUIF
 		
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(bar, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		
 		setFrameIcon(icon);	
 	} 	
 	

@@ -193,15 +193,15 @@ public class DataManagerCtrl
 	}	
 	
 	/** Forward event to the {@link DataManagerUIF presentation}. */
-	private void createProject()
+	void createProject()
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
 		List datasets = abstraction.getUserDatasets();
 		presentation.showCreateProject(new ProjectData(), datasets);
 	}
-	
+
 	/** Forward event to the {@link DataManagerUIF presentation}. */
-	private void createDataset()
+	void createDataset()
 	{	
 		DataManagerUIF presentation = abstraction.getPresentation();
 		List projects = abstraction.getUserProjects();
