@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserViewEventDispatcher;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
@@ -241,91 +242,8 @@ public class BrowserView extends PCanvas
         });
         
         // OK, now, dispatch to the underlying nodes
-        addInputEventListener(new PBasicInputEventHandler()
-        {
-            public void mouseClicked(PInputEvent e)
-            {
-                PPickPath pickPath = e.getPath();
-                PNode node;
-                while((node = pickPath.getPickedNode()) != null &&
-                      !e.isHandled())
-                {
-                    if(node instanceof MouseDownSensitive)
-                    {
-                        ((MouseDownSensitive)node).respondMouseClick(e);
-                        e.setHandled(true);
-                    }
-                    else
-                    {
-                        pickPath.popNode(node);
-                    }
-                }
-            }
-            
-            public void mouseMoved(PInputEvent e)
-            {
-                PPickPath pickPath = e.getPath();
-                PNode node;
-                while((node = pickPath.getPickedNode()) != null &&
-                    !e.isHandled())
-                {
-                    if(node instanceof MouseOverSensitive)
-                    {
-                        ((MouseOverSensitive)node).respondMouseEnter(e);
-                        e.setHandled(true);
-                    }
-                    else
-                    {
-                        pickPath.popNode(node);
-                    }
-                }
-            }
-        });
-        
-        addInputEventListener(new PDragSequenceEventHandler()
-        {
-            // OK, rant: this is stupid that this isn't the default behavior.
-            // Jesse Grosjean, fix this thing, man, come on man.
-            public void startDrag(PInputEvent e)
-            {
-                
-                setIsDragging(true);
-            }
-            
-            public void drag(PInputEvent e)
-            {
-                PPickPath pickPath = e.getPath();
-                PNode node;
-                while((node = pickPath.getPickedNode()) != null &&
-                      !e.isHandled())
-                {
-                    if(node instanceof MouseDragSensitive)
-                    {
-                        ((MouseDragSensitive)node).respondDrag(e);
-                        e.setHandled(true);
-                    }
-                    else
-                    {
-                        pickPath.popNode(node);
-                    }
-                }
-            }
-            
-            public void endDrag(PInputEvent e)
-            {
-                PPickPath pickPath = e.getPath();
-                PNode node;
-                while((node = pickPath.getPickedNode()) != null &&
-                      !e.isHandled())
-                {
-                    if(node instanceof MouseDragSensitive)
-                    {
-                        ((MouseDragSensitive)node).respondEndDrag(e);
-                        e.setHandled(true);
-                    }
-                }
-            }
-        });
+        addInputEventListener(BrowserViewEventDispatcher.getDefaultMouseHandler());
+        addInputEventListener(BrowserViewEventDispatcher.getDefaultDragHandler());
     }
     
     /**

@@ -193,6 +193,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             backgroundPaintMethods.add(p);
+            repaint();
         }
     }
     
@@ -206,6 +207,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             backgroundPaintMethods.remove(p);
+            repaint();
         }
     }
     
@@ -224,6 +226,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             middlePaintMethods.add(p);
+            repaint();
         }
     }
     
@@ -237,6 +240,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             middlePaintMethods.remove(p);
+            repaint();
         }
     }
     
@@ -255,6 +259,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             foregroundPaintMethods.add(p);
+            repaint();
         }
     }
     
@@ -268,6 +273,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         if(p != null)
         {
             foregroundPaintMethods.remove(p);
+            repaint();
         }
     }
     
