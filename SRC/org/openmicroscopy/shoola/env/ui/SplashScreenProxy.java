@@ -85,10 +85,13 @@ import javax.swing.SwingUtilities;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
+
 class SplashScreenProxy
 	implements SplashScreen
 {
@@ -123,7 +126,6 @@ class SplashScreenProxy
 	 * these will be entered by the user.
 	 */
 	private UserCredentials			future;
-	
 	
 	/**
 	 * Creates the proxy, the servant and configures the servant with a
@@ -223,6 +225,7 @@ class SplashScreenProxy
 		//Schedule execution within Swing dispatching thread.
 		SwingUtilities.invokeLater(doUpdateProgress);
 	}
+	
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#getUserCredentials()

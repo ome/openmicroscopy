@@ -46,8 +46,10 @@ package org.openmicroscopy.shoola.env.event;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *               a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -66,6 +68,5 @@ public abstract class ResponseEvent
     {
         act.handleCompletion(this);
     }
-    
-    
+        
 }

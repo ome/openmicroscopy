@@ -51,8 +51,10 @@ import java.util.ListIterator;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -74,6 +76,7 @@ public class EventBusImpl
         deMultiplexTable = new HashMap();
         state = IDLE;
     }    
+    
 	/** Implemented as specified by {@link EventBus}. */    
     public void register(AgentEventListener  subscriber, Class[] events)
     {
@@ -114,7 +117,8 @@ public class EventBusImpl
             }
             deMultiplexTable.put(event, list);
         }     
-    }    
+    } 
+       
 	/** Implemented as specified by {@link EventBus}. */    
     public void remove(AgentEventListener  subscriber, Class[] events)
     {
@@ -132,6 +136,7 @@ public class EventBusImpl
             }     
         }   
     }
+    
 	/** Implemented as specified by {@link EventBus}. */ 
     public void remove(AgentEventListener  subscriber, Class event)
     {
@@ -164,7 +169,8 @@ public class EventBusImpl
                 else deMultiplexTable.remove(event);
             } 
         }
-    }    
+    }
+        
 	/** Implemented as specified by {@link EventBus}. */  
     public void post(AgentEvent e)
     {
@@ -217,6 +223,5 @@ public class EventBusImpl
         } 
         return b;
     }
-    
-    
+        
 }

@@ -53,8 +53,10 @@ import org.w3c.dom.Node;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -94,7 +96,6 @@ abstract class Entry
 	 * @param node             DOM node representing the tag.
 	 * @return Entry                    
 	 */  
-    
     static Entry createEntryFor(Node node)
     {
         Entry entry = null;

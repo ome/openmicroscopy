@@ -44,8 +44,10 @@ package org.openmicroscopy.shoola.env.event;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -62,6 +64,7 @@ public interface EventBus
 	 * @param events		list of classes that the subscriber registers for.
 	 */     
     public void register(AgentEventListener  subscriber, Class[] events);
+    
 	/** 
 	 * Add the subscriber to the List.
 	 * An agent uses the register method in order to be notified  
@@ -71,6 +74,7 @@ public interface EventBus
 	 * @param event			a class. 
 	 */     
     public void register(AgentEventListener  subscriber, Class event);
+    
 	/** 
 	 * Remove the subscriber to the List.
 	 *
@@ -78,6 +82,7 @@ public interface EventBus
 	 * @param events		list of classes. 
 	 */    
     public void remove(AgentEventListener  subscriber);
+    
 	/** 
 	 * Remove the subscriber to the List.
 	 *
@@ -85,6 +90,7 @@ public interface EventBus
 	 * @param event          a class.
 	 */     
     public void remove(AgentEventListener  subscriber, Class event);
+    
 	/** 
 	 * Remove the subscriber to the List.
 	 *
@@ -102,6 +108,5 @@ public interface EventBus
 	 *
 	 */ 
     public void post(AgentEvent e);
-    
-    
+      
 }

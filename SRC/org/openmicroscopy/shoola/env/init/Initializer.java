@@ -62,10 +62,13 @@ import org.openmicroscopy.shoola.env.Container;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
+
 public class Initializer
 {
 	/** Queue to order the tasks to be executed. */
@@ -82,7 +85,6 @@ public class Initializer
 	
 	/** A reference to the singleton {@link Container}. */
 	private Container			container;
-	
 	
 	/**
 	 * Creates a new instance.
@@ -254,4 +256,5 @@ public class Initializer
 			subscriber.onEnd();
 		}
 	}
+	
 }

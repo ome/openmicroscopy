@@ -48,8 +48,10 @@ package org.openmicroscopy.shoola.env.log;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -62,6 +64,7 @@ public interface Logger
 	 * @param logMsg	Message to display.
 	 */
     public void debug(Object c, String logMsg);
+    
 	/**
 	 * error call.
 	 * 
@@ -69,6 +72,7 @@ public interface Logger
 	 * @param logMsg	Message to display.
 	 */
     public void error(Object c, String logMsg);
+    
 	/**
 	 * fatal call.
 	 * 
@@ -76,6 +80,7 @@ public interface Logger
 	 * @param logMsg	Message to display.
 	 */
     public void fatal(Object c, String logMsg);
+    
 	/**
 	* info call.
 	* 
@@ -83,6 +88,7 @@ public interface Logger
 	* @param logMsg		Message to display.
 	*/
     public void info(Object c, String logMsg);
+    
 	/**
 	 * debug warn.
 	 * 
@@ -90,6 +96,5 @@ public interface Logger
 	 * @param logMsg	Message to display.
 	 */
     public void warn(Object c, String logMsg);
-    
     
 }

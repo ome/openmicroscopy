@@ -44,8 +44,10 @@ import org.w3c.dom.Node;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -57,6 +59,7 @@ class FloatEntry
     FloatEntry()
     {
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
@@ -65,6 +68,7 @@ class FloatEntry
             value = new Float(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {

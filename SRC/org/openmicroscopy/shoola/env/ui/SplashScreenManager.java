@@ -57,10 +57,13 @@ import javax.swing.JOptionPane;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
+
 class SplashScreenManager
 	implements ActionListener
 {
@@ -76,6 +79,7 @@ class SplashScreenManager
 
 	/** The current number of tasks to be executed. */
 	private int				totalTasks;
+	
 	/** The current number of tasks that have been executed. */
 	private int				doneTasks;
 	
@@ -148,6 +152,7 @@ class SplashScreenManager
 		view.progressBar.setValue(doneTasks++);
 		if (doneTasks == totalTasks) view.progressBar.setVisible(false);
 	}
+	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and

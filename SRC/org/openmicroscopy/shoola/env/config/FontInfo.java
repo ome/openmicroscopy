@@ -45,8 +45,10 @@ package org.openmicroscopy.shoola.env.config;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -72,6 +74,7 @@ class FontInfo
             else if (tag.equals(STYLE)) style = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+    
 	/** 
 	 * Return the value of the <code>family</code> tag.
 	 *
@@ -81,6 +84,7 @@ class FontInfo
     {
         return family;
     }
+    
 	/** 
 	 * Return the value of the <code>size</code> tag.
 	 *
@@ -90,6 +94,7 @@ class FontInfo
     {
         return size;
     }
+    
 	/** 
 	 * Return the value of the <code>style</code> tag.
 	 *
@@ -100,5 +105,4 @@ class FontInfo
         return style;
     }
   
-    
 }

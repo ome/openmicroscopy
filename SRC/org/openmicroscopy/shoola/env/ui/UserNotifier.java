@@ -43,8 +43,10 @@ package org.openmicroscopy.shoola.env.ui;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -58,6 +60,7 @@ public interface UserNotifier
  	 * @param detail	error's details.
  	 */
     public void notifyError(String title, String summary, Exception detail);
+    
 	/**
 	 * error notification.
 	 * 
@@ -65,12 +68,14 @@ public interface UserNotifier
 	 * @param summary	error's summary.* @param detail	error's details.
 	 */
     public void notifyError(String title, String message);
+    
 	/**
 	 * 
 	 * @param title		title of the Dialog window.
 	 * @param message	info's message.
 	 */
     public void notifyInfo(String title, String message);
+    
     /**
      * 
      * @param title		title of the Dialog window.
@@ -78,5 +83,4 @@ public interface UserNotifier
      */
     public void notifyWarning(String title, String message);
 
-    
 }

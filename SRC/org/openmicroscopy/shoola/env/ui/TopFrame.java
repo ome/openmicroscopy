@@ -44,8 +44,10 @@ import javax.swing.JMenuItem;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -67,8 +69,6 @@ public interface TopFrame
 	 */
 	public static int       PALETTE_LAYER = 1;
 	
-
-
 	/** 
 	* Positions a component on the layer of the application internal desktop.
 	* 

@@ -26,6 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
+ 
 package org.openmicroscopy.shoola.env.config;
 
 //Java imports 
@@ -56,10 +57,13 @@ import org.w3c.dom.NodeList;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
+
 class Parser
 {
 
@@ -75,6 +79,7 @@ class Parser
         "entry",
         "structuredEntry",
     };
+    
 	/** 
 	 * Creates an instance of Parser with one parameter.
 	 *
@@ -148,12 +153,12 @@ class Parser
             }
         }
     }
+    
 	/**
 	 * Validate against the config schema not yet implemented.
 	 */
     private void validate()
     {
     }
-    
-    
+       
 }

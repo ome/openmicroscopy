@@ -55,8 +55,10 @@ import org.openmicroscopy.shoola.env.Container;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -66,6 +68,7 @@ public class TopFrameImpl
 {
 	/** Constant used to size and positions the topFrame. */
 	static final int		INSET = 100;
+	
 	/** Action command ID. */    
     static final int        FILE = 0;
     static final int        VIEW = 1;
@@ -74,8 +77,10 @@ public class TopFrameImpl
     
 	/** the 3 available menus. */    
     private JMenu           fileMenu, viewMenu, helpMenu;
+    
 	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
+    
     /** Reference to the singleton {@link Container}. */ 
     private Container       container;
     

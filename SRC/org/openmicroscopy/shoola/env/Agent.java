@@ -47,8 +47,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$  $Date$
- * @version 2.2
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 
@@ -57,14 +59,17 @@ public interface Agent
 
 	/** Container tells agent to get ready for service. */
     public void activate();
+    
 	/** Container tells agent to release acquired resources and stop service. */
     public void terminate();
+    
 	/** 
 	 * Container create a Registry  from entries in agent's configuration 
 	 * file and add entries for services that can be accessed by agent. 
 	 * It then passes  this to setContext
 	 */
     public void setContext(Registry ctx);
+    
 	/** Container tells agent to release acquired resources and stop service. */
     public boolean canTerminate();
     
