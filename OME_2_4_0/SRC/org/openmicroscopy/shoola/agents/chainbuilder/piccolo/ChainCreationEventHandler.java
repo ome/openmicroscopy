@@ -439,6 +439,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	}
 	
 	public void mouseClicked(PInputEvent e) {
+		if (ChainBuilderAgent.DEBUG >3)
+			System.err.println("got a mouse click");
 		if (timer.isRunning()) {
 			if (ChainBuilderAgent.DEBUG > 3)
 				System.err.println("mouse double click");
@@ -826,21 +828,21 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			if (node instanceof ModuleLink)
 				System.err.println("module link");
 			System.err.println("caling mouse pressed linking modules..");
+			System.err.println("click count is "+count);
 		}
+		
 		if (count ==2) {
 			if (ChainBuilderAgent.DEBUG >3)
 				System.err.println("2 presses. node is "+node);
-			if (node instanceof FormalParameter) {
-				FormalParameter p = (FormalParameter) node;
-				ModuleView mod = p.getModuleView();
-				finishModuleLinks(mod);
-			}
-			else if (node instanceof ModuleView) {
-				finishModuleLinks((ModuleView) node);
-			}
-			else
-				cancelModuleLinks();
-			wasDoubleClick = true;
+			cancelModuleLinks();
+		}
+		else	 if (node instanceof FormalParameter) {
+			FormalParameter p = (FormalParameter) node;
+			ModuleView mod = p.getModuleView();
+			finishModuleLinks(mod);
+		}
+		else if (node instanceof ModuleView) {
+			finishModuleLinks((ModuleView) node);
 		}
 		else if (node instanceof PCamera){ // single click on camera
 			if (ChainBuilderAgent.DEBUG > 3) {
@@ -859,8 +861,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				y += SPACING;
 			}
 		}
-		else  // single click ont on camera.
-			cancelModuleLinks();
 		postLinkCompletion = true;
 		e.setHandled(true);
 	}
