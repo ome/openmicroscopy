@@ -149,6 +149,7 @@ public class ModulePaletteWindow
 		JToolBar  tb = new JToolBar();
 		Icon smallChain = icons.getIcon("chains-small.png");
 		JButton newChain = new JButton(smallChain);
+		newChain.setToolTipText("Create a new chain");
 		newChain.addActionListener(cmdTable.lookupActionListener("new chain"));
 		tb.setFloatable(false);
 		tb.add(newChain);
@@ -265,6 +266,8 @@ public class ModulePaletteWindow
 	}
 	
 	public void componentResized(ComponentEvent e) {
+		if (moduleCanvas != null)
+			moduleCanvas.scaleToSize();
 	}
 	
 	public void componentShown(ComponentEvent e) {
@@ -272,6 +275,6 @@ public class ModulePaletteWindow
 	}
 	
 	public void focusOnPalette() {
-		moduleCanvas.scaleToSize();
+		//moduleCanvas.scaleToSize();
 	}
 }
