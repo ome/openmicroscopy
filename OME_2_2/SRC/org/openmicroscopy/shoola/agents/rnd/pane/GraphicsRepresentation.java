@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
@@ -149,26 +148,31 @@ class GraphicsRepresentation
 								yStartOutput1, yStartOutput2, yStartOutput3,
 								xEndOutput1, xEndOutput2, xEndOutput3,
 								yEndOutput1, yEndOutput2, yEndOutput3;
-
-   
-	/** Reference to the quantumDef object. */
-   	private QuantumDef          qDef;
    	
    	/** family type. */
    	private int					type;
    	
    	/** graphics controls. */
    	private int					xStartMax, xControl, range;
+   	
    	private int					minimum, maximum;
+   	
+   	private int					family, cdStart, cdEnd;
+   	
+   	private double				curveCoefficient;
    	
    	/** Reference to the manager. */
 	private GraphicsRepresentationManager       manager;
 	
-	GraphicsRepresentation(QuantumPaneManager control, QuantumDef qDef, 
+	GraphicsRepresentation(QuantumPaneManager control, int family, 
+							double curveCoefficient, int cdStart, int cdEnd,
 							int min, int max)
 	{
-		this.qDef = qDef;
-		type = qDef.family;
+		this.family = family;
+		this.curveCoefficient = curveCoefficient;
+		this.cdStart = cdStart;
+		this.cdEnd = cdEnd;
+		type = family;
 		reverseIntensity = false; //TODO: retrieve user settings
 		manager = new GraphicsRepresentationManager(this, control, type);
 		setInputWindow(min, max);
@@ -192,6 +196,12 @@ class GraphicsRepresentation
 	/**  Returns the input range. */
 	int getInputGraphicsRange() { return range;}
 	
+	/** Set the reverse Intensity control. */
+	void setReverseIntensity(boolean reverseIntensity)
+	{ 
+		this.reverseIntensity = reverseIntensity;
+	}
+	
 	/** 
 	 * Sets the defaults for the <code>LINEAR</code> type 
 	 * (i.e. linear, polynomial, logarithmic).
@@ -209,8 +219,8 @@ class GraphicsRepresentation
 		binMin = (int) (square/rangeMin);
 		binMax = (int) (square/rangeMax);
 		double yStart, yEnd, xStart, xEnd;
-		yStart = setOuputGraphics(qDef.cdStart);
-		yEnd = setOuputGraphics(qDef.cdEnd);
+		yStart = setOuputGraphics(cdStart);
+		yEnd = setOuputGraphics(cdEnd);
 		xStart = setInputGraphics(inputStart, square); 
 		xEnd = setInputGraphics(inputEnd, square);
 		//Size the rectangles used to control knobs.
@@ -238,9 +248,9 @@ class GraphicsRepresentation
 		}
 		//draw curve
 		int k;
-		if (qDef.family == QuantumFactory.LINEAR) k = INIT;
-		else if (qDef.family == QuantumFactory.LOGARITHMIC) k = MIN;
-		else k = (int) (qDef.curveCoefficient*10);
+		if (family == QuantumFactory.LINEAR) k = INIT;
+		else if (family == QuantumFactory.LOGARITHMIC) k = MIN;
+		else k = (int) (curveCoefficient*10);
 		setControlLocation(k); 
 	}
 	
@@ -255,14 +265,14 @@ class GraphicsRepresentation
 	void setDefaultExponential(int inputStart, int inputEnd)
 	{
 		setCurrentInputs(inputStart, inputEnd);
-		int k = (int) (qDef.curveCoefficient*10);
+		int k = (int) (curveCoefficient*10);
 		binMin = (int) ((square-40)/(2*rangeMinExpo)); 
 		binMax = (int) ((square-40)/(2*rangeMaxExpo));
 		double yStart, yEnd, xStart, xEnd, xStaticStart, xStaticEnd;
 		xStaticStart = 0;
 		xStaticEnd = 0;
-		yStart = setOuputGraphics(qDef.cdStart);
-		yEnd = setOuputGraphics(qDef.cdEnd);
+		yStart = setOuputGraphics(cdStart);
+		yEnd = setOuputGraphics(cdEnd);
 
 		//output knob
 		setKnobOutputStart(leftBorder-10,(int) yStart);
