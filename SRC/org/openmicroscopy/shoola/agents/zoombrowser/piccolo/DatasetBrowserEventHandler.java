@@ -95,6 +95,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		// click on background clears selected dataset
 		canvas.setSelectedDataset(null);
 		zoomLevel =0;	
+		super.handleBackgroundClick();
 	}
 	
 	/**
