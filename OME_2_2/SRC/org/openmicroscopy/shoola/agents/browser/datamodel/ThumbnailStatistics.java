@@ -154,6 +154,7 @@ public class ThumbnailStatistics
      * @throws IllegalArgumentException If any of the parameters are null.
      */
     public static Thumbnail[] sortByValue(Thumbnail[] thumbnails,
+                                          DisplayValueMode multiValue,
                                           String attributeName,
                                           String elementName)
         throws IllegalArgumentException
