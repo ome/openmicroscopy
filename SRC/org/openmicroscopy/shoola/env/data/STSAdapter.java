@@ -29,6 +29,7 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -243,6 +244,28 @@ class STSAdapter
     }
     
     /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(java.lang.String, java.lang.String, int)
+     */
+    public List retrieveDatasetAttributes(String typeName,
+                                        String childAttribute,
+                                        int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if(typeName == null)
+        {
+            return null;
+        }
+        
+        Number[] dummyArray = new Number[] {new Integer(datasetID)};
+        
+        Criteria criteria =
+            buildDefaultRetrieveCriteria(DATASET_GRANULARITY,childAttribute,
+                                         dummyArray);
+        
+        return (List)retrieveListData(typeName,criteria);
+    }
+    
+    /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveImageAttributes(String typeName, int imageID)
@@ -260,6 +283,19 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         return retrieveImageAttributes(type.getName(),imageID);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(java.lang.String, java.lang.String, int)
+     */
+    public List retrieveImageAttributes(String typeName,
+                                        String childAttribute,
+                                        int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        List dummyList = new ArrayList();
+        dummyList.add(new Integer(imageID));
+        return retrieveImageAttributes(typeName,childAttribute,dummyList);
     }
     
     /**
@@ -301,6 +337,44 @@ class STSAdapter
     }
     
     /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.lang.String, java.util.List)
+     */
+    public List retrieveImageAttributes(String typeName,
+                                        String childAttribute,
+                                        List imageIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if(typeName == null || imageIDs == null || imageIDs.size() == 0)
+        {
+            return null;
+        }
+        
+        // test to see if the List is all Integers here
+        for(Iterator iter = imageIDs.iterator(); iter.hasNext();)
+        {
+            if(!(iter.next() instanceof Number))
+            {
+                throw new IllegalArgumentException("Illegal ID type.");
+            }
+        }
+        
+        Integer[] ints = new Integer[imageIDs.size()];
+        imageIDs.toArray(ints);
+        
+        Criteria criteria = new Criteria();
+        if(childAttribute == null)
+        {
+            criteria = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,ints);
+        }
+        else
+        {
+            criteria = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,
+                                                    childAttribute,ints);
+        }
+        return (List)proxy.retrieveList(typeName,criteria);
+    }
+    
+    /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveFeatureAttributes(String typeName, int featureID)
@@ -319,6 +393,20 @@ class STSAdapter
     {
         return retrieveFeatureAttributes(type.getName(),featureID);
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.lang.String, int)
+     */
+    public List retrieveFeatureAttributes(String typeName,
+                                          String childAttribute,
+                                          int featureID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        List dummyList = new ArrayList();
+        dummyList.add(new Integer(featureID));
+        return retrieveFeatureAttributes(typeName,childAttribute,dummyList);
+    }
+
     
     /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, java.util.List)
@@ -344,7 +432,7 @@ class STSAdapter
         featureIDs.toArray(ints);
         
         Criteria criteria =
-            buildDefaultRetrieveCriteria(IMAGE_GRANULARITY,ints);
+            buildDefaultRetrieveCriteria(FEATURE_GRANULARITY,ints);
         
         return (List)retrieveListData(typeName,criteria);
     }
@@ -357,6 +445,45 @@ class STSAdapter
     {
         return retrieveFeatureAttributes(type.getName(),featureIDs);
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.lang.String, java.util.List)
+     */
+    public List retrieveFeatureAttributes(String typeName,
+                                          String childAttribute,
+                                          List featureIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if(typeName == null || featureIDs == null || featureIDs.size() == 0)
+        {
+            return null;
+        }
+        
+        // test to see if the List is all Integers here
+        for(Iterator iter = featureIDs.iterator(); iter.hasNext();)
+        {
+            if(!(iter.next() instanceof Number))
+            {
+                throw new IllegalArgumentException("Illegal ID type.");
+            }
+        }
+        
+        Integer[] ints = new Integer[featureIDs.size()];
+        featureIDs.toArray(ints);
+        
+        Criteria criteria = new Criteria();
+        if(childAttribute == null)
+        {
+            criteria = buildDefaultRetrieveCriteria(FEATURE_GRANULARITY,ints);
+        }
+        else
+        {
+            criteria = buildDefaultRetrieveCriteria(FEATURE_GRANULARITY,
+                                                    childAttribute,ints);
+        }
+        return (List)proxy.retrieveList(typeName,criteria);
+    }
+
 
     /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAttribute(org.openmicroscopy.ds.dto.SemanticType, int)
@@ -665,6 +792,53 @@ class STSAdapter
         else if(granularity.equals(GLOBAL_GRANULARITY))
         {
             criteria.addFilter(GLOBAL_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        return criteria;
+    }
+    
+    /**
+     * Retrieves & fills in children.
+     * @param granularity The granularity of the ST to query.
+     * @param childString The tree of attributes to retrieve (OTF.instrument)
+     * @param targetIDs The IDs to target.
+     * @return The desired criteria.
+     * @throws IllegalArgumentException If something sucks here.
+     */
+    private Criteria buildDefaultRetrieveCriteria(String granularity,
+                                                  String childString,
+                                                  Number[] targetIDs)
+        throws IllegalArgumentException
+    {
+        if(targetIDs == null || targetIDs.length == 0)
+        {
+            return null;
+        }
+        Criteria criteria = new Criteria();
+        
+        boolean found = false;
+        if(childString.indexOf(".") == -1)
+        {
+            return buildDefaultRetrieveCriteria(granularity,targetIDs);
+        }
+        
+        childString = childString.substring(childString.indexOf(".")+1);
+        
+        criteria = buildDefaultRetrieveCriteria(granularity,targetIDs);
+        int nextIndex = 0;
+        while(!found)
+        {
+            nextIndex = childString.indexOf(".",nextIndex);
+            if(nextIndex == -1)
+            {
+                criteria.addWantedField(childString,":all:");
+                found = true;
+            }
+            else
+            {
+                String substr = childString.substring(0,nextIndex);
+                criteria.addWantedField(substr,":all:");
+            }
+            nextIndex++;
         }
         return criteria;
     }

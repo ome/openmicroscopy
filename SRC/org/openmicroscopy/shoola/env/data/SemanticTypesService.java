@@ -227,6 +227,29 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
+     * Returns all the Attributes with the given SemanticType that belong to a
+     * dataset with the specified ID, and include (in the DB call) the attribute
+     * with the specified name.  For example, if childAttribute is
+     * <code>OTF.Instrument</code>, the retrieval will include both the
+     * fully-spec'd embedded OTF and Instrument.  names must be specified by
+     * their names in the semantic type, not their semantic type names.
+     * Calling an invalid name will generate a <code>DSAccessException</code>.
+     * 
+     * @param typeName The type of attribute to retrieve.
+     * @param childAttribute The child attribute tree to retrieve (by name)
+     * @param datasetID The ID of the dataset to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified dataset.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there is a communication error or the
+     *                           childAttribute name is invalid.
+     */
+    public List retrieveDatasetAttributes(String typeName, String childAttribute,
+                                          int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to an image with the specified ID.
      * @param type The type of attribute to retrieve.
@@ -244,6 +267,29 @@ public interface SemanticTypesService
      * @see retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
      */
     public List retrieveImageAttributes(String typeName, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Returns all the Attributes with the given SemanticType that belong to an
+     * image with the specified ID, and include (in the DB call) the attribute
+     * with the specified name.  For example, if childAttribute is
+     * <code>OTF.Instrument</code>, the retrieval will include both the
+     * fully-spec'd embedded OTF and Instrument.  names must be specified by
+     * their names in the semantic type, not their semantic type names.
+     * Calling an invalid name will generate a <code>DSAccessException</code>.
+     * 
+     * @param typeName The type of attribute to retrieve.
+     * @param childAttribute The child attribute tree to retrieve (by name)
+     * @param imageID The ID of the image to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified image.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there is a communication error or the
+     *                           childAttribute name is invalid.
+     */
+    public List retrieveImageAttributes(String typeName, String childAttribute,
+                                        int imageID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -267,6 +313,29 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
+     * Returns all the Attributes with the given SemanticType that belong to
+     * images with the specified IDs, and include (in the DB call) the attribute
+     * with the specified name.  For example, if childAttribute is
+     * <code>OTF.Instrument</code>, the retrieval will include both the
+     * fully-spec'd embedded OTF and Instrument.  names must be specified by
+     * their names in the semantic type, not their semantic type names.
+     * Calling an invalid name will generate a <code>DSAccessException</code>.
+     * 
+     * @param typeName The type of attribute to retrieve.
+     * @param childAttribute The child attribute tree to retrieve (by name)
+     * @param imageIDs A list of image IDs to query.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified images.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there is a communication error or the
+     *                           childAttribute name is invalid.
+     */
+    public List retrieveImageAttributes(String typeName, String childAttribute,
+                                        List imageIDs)
+        throws DSOutOfServiceException, DSAccessException;    
+        
+    /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to a feature with the specified ID.
      * @param type The type of attribute to retrieve.
@@ -284,7 +353,30 @@ public interface SemanticTypesService
      * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
      */
     public List retrieveFeatureAttributes(String typeName, int featureID)
-        throws DSOutOfServiceException, DSAccessException;    
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Returns all the Attributes with the given SemanticType that belong to a
+     * feature with the specified ID, and include (in the DB call) the attribute
+     * with the specified name.  For example, if childAttribute is
+     * <code>OTF.Instrument</code>, the retrieval will include both the
+     * fully-spec'd embedded OTF and Instrument.  names must be specified by
+     * their names in the semantic type, not their semantic type names.
+     * Calling an invalid name will generate a <code>DSAccessException</code>.
+     * 
+     * @param typeName The type of attribute to retrieve.
+     * @param childAttribute The child attribute tree to retrieve (by name)
+     * @param imageID The ID of the feature to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified feature.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there is a communication error or the
+     *                           childAttribute name is invalid.
+     */
+    public List retrieveFeatureAttributes(String typeName, String childAttribute,
+                                          int featureID)
+        throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Retrieves all the Attributes with the given SemanticType that belong
@@ -305,6 +397,29 @@ public interface SemanticTypesService
      * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,java.util.List)
      */
     public List retrieveFeatureAttributes(String typeName, List featureIDs)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Returns all the Attributes with the given SemanticType that belong to
+     * features with the specified IDs, and include (in the DB call) the attribute
+     * with the specified name.  For example, if childAttribute is
+     * <code>OTF.Instrument</code>, the retrieval will include both the
+     * fully-spec'd embedded OTF and Instrument.  names must be specified by
+     * their names in the semantic type, not their semantic type names.
+     * Calling an invalid name will generate a <code>DSAccessException</code>.
+     * 
+     * @param typeName The type of attribute to retrieve.
+     * @param childAttribute The child attribute tree to retrieve (by name)
+     * @param featureIDs The IDs of the features to query.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified features.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there is a communication error or the
+     *                           childAttribute name is invalid.
+     */
+    public List retrieveFeatureAttributes(String typeName, String childAttribute,
+                                          List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
