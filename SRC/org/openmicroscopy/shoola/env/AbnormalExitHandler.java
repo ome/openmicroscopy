@@ -58,9 +58,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  */
 class AbnormalExitHandler
 {
-
-	/** Maximum number of stack frames to print in the diagnostic message. */
-	private static final int			MAX_STACK_TRACE = 10;
 	
 	/** The sole instance. */
 	private static AbnormalExitHandler	singleton;
@@ -90,6 +87,9 @@ class AbnormalExitHandler
 	static void terminate(Throwable t)
 	{
 		singleton.doTermination(t);
+		//TODO: use another policy for InternalError.  This is thrown in the
+		//case of a bug which doesn't compromise normal functioning "too much".
+		//So in this case we can just notify the user and log the error. 
 	}
 	
 	/** Only used for the singleton. */
@@ -112,25 +112,25 @@ class AbnormalExitHandler
 		//Disable exception relay to avoid possible infinite loops if another
 		//exception is thrown by the user notifier dialog.
 		AWTExceptionHanlder.unregister();
-		
-		//Tell the user.  
-		//(Notification service may not be up yet, so we create a temp one.)
-		UserNotifier un = UIFactory.makeUserNotifier();
-		un.notifyError("Abnormal Termination", 
-					"An unforeseen error occurred, the application will exit.",
-					diagnostic);
 				
 		//Now try to log.  There may be no logger yet (or even no container)
 		//if the exception was thrown at start up.		
 		LogMessage msg = new LogMessage();
-		msg.writeln("Abnormal termination due to an uncaught exception.");
-		msg.write(diagnostic);
+		msg.println("Abnormal termination due to an uncaught exception.");
+		msg.print(diagnostic);
 		Container c = Container.getInstance();
 		Logger logger = null;
 		if (c != null)	logger = c.getRegistry().getLogger();
 		if (logger != null)		logger.fatal(this, msg.toString());
 		else	System.err.println(msg.toString());
 		
+		//Finally tell the user.  
+		//(Notification service may not be up yet, so we create a temp one.)
+		UserNotifier un = UIFactory.makeUserNotifier();
+		un.notifyError("Abnormal Termination", 
+					"An unforeseen error occurred, the application will exit.",
+					diagnostic);
+					
 		//Quit the app. 
 		System.exit(1);
 	}
@@ -147,29 +147,11 @@ class AbnormalExitHandler
 	 */
 	private String makeDiagnosticMessage(Throwable t)
 	{
-		StackTraceElement[] trace = t.getStackTrace();
-		int framesToPrint = (trace.length < MAX_STACK_TRACE ? 
-						trace.length : MAX_STACK_TRACE),
-				framesLeft = (trace.length - framesToPrint); 
-		
 		LogMessage buf = new LogMessage();
-		buf.write(t.getClass().getName());
-		buf.write(": ");
-		buf.writeln(t.getMessage());
-		for (int i = 0; i < framesToPrint; ++i) {
-			buf.writetab();
-			buf.write("at ");
-			buf.writeln(trace[i].toString());
-		}
-		if (0 < framesLeft) {
-			buf.writetab(2);
-			buf.write("(... ");
-			buf.write(""+framesLeft);
-			buf.writeln(" more)");
-		}
-		buf.write("Exception in thread \"");
-		buf.write(Thread.currentThread().getName());	
-		buf.writeln("\"");
+		t.printStackTrace(buf);
+		buf.print("Exception in thread \"");
+		buf.print(Thread.currentThread().getName());	
+		buf.println("\"");
 		return buf.toString();
 	}
 
