@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BrowserCamera;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
@@ -82,7 +81,7 @@ public class BrowserView extends PCanvas
     private Set hoverSensitive;
     private Set regionSensitive;
 
-    private void init()
+    private void init(BrowserTopModel topModel)
     {
         env = BrowserEnvironment.getInstance();
         setBackground(new Color(192,192,192));
@@ -96,7 +95,7 @@ public class BrowserView extends PCanvas
         removeInputEventListener(getPanEventHandler());
         
         // default panning mode (may replace this, but probably not)
-        overlayCamera = new BrowserCamera(getCamera(),footprint);
+        overlayCamera = new BrowserCamera(topModel,getCamera());
         hoverSensitive.add(overlayCamera);
         regionSensitive.add(overlayCamera);
         
@@ -131,8 +130,6 @@ public class BrowserView extends PCanvas
      */
     public BrowserView(BrowserModel browserModel, BrowserTopModel overlayModel)
     {
-        init();
-
         if (browserModel == null || overlayModel == null)
         {
             sendInternalError("Null parameters in BrowserView constructor");
@@ -141,6 +138,7 @@ public class BrowserView extends PCanvas
         {
             this.browserModel = browserModel;
             this.overlayModel = overlayModel;
+            init(overlayModel);
             
             List thumbnailList = browserModel.getThumbnails();
             for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
