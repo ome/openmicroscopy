@@ -57,7 +57,7 @@ public class HeatMapModes
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
         {
-            double[] values = extractValues(attributes,elementName);
+            double[] values = HeatMapUtils.extractValues(attributes,elementName);
             double currentVal = Double.POSITIVE_INFINITY;
             for(int i=0;i<values.length;i++)
             {
@@ -83,7 +83,7 @@ public class HeatMapModes
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
         {
-            double[] values = extractValues(attributes,elementName);
+            double[] values = HeatMapUtils.extractValues(attributes,elementName);
             double currentVal = 0;
             for(int i=0;i<values.length;i++)
             {
@@ -106,7 +106,7 @@ public class HeatMapModes
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
         {
-            double[] values = extractValues(attributes,elementName);
+            double[] values = HeatMapUtils.extractValues(attributes,elementName);
             Arrays.sort(values);
             
             if(values.length % 2 != 0)
@@ -135,7 +135,7 @@ public class HeatMapModes
         public double computeValue(Attribute[] attributes, String elementName)
             throws IllegalArgumentException
         {
-            double[] values = extractValues(attributes,elementName);
+            double[] values = HeatMapUtils.extractValues(attributes,elementName);
             double currentVal = Double.NEGATIVE_INFINITY;
             for(int i=0;i<values.length;i++)
             {

@@ -60,6 +60,7 @@ public final class HeatMapUI extends JInternalFrame
     private HeatMapTreeUI treePanel;
     private HeatMapGradientUI gradPanel;
     private HeatMapModeBar modeBar;
+    private HeatMapScaleBar scaleBar;
     private HeatMapDispatcher dispatcher;
     
     /**
@@ -72,6 +73,7 @@ public final class HeatMapUI extends JInternalFrame
         gradPanel = new HeatMapGradientUI();
         statusPanel = new HeatMapStatusUI();
         modeBar = new HeatMapModeBar();
+        scaleBar = new HeatMapScaleBar();
         buildUI();
     }
     
@@ -91,9 +93,12 @@ public final class HeatMapUI extends JInternalFrame
         
         statusPanel = new HeatMapStatusUI();
         treePanel = new HeatMapTreeUI(model.getModel());
-        dispatcher = new HeatMapDispatcher(model,statusPanel);
+        dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
+        dispatcher.setCurrentMode(modeBar.getCurrentMode());
+        dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
+        scaleBar.addListener(dispatcher);
         gradPanel = new HeatMapGradientUI();
         buildUI();
     }
@@ -133,7 +138,12 @@ public final class HeatMapUI extends JInternalFrame
         
         JPanel barPanel = new JPanel();
         barPanel.add(modeBar,BorderLayout.CENTER);
+        
+        JPanel scalePanel = new JPanel();
+        scalePanel.add(scaleBar,BorderLayout.CENTER);
+        
         controlPanel.add(barPanel,BorderLayout.NORTH);
+        controlPanel.add(scalePanel,BorderLayout.SOUTH);
         
         mainPanel.add(controlPanel,BorderLayout.SOUTH);
         
@@ -166,9 +176,12 @@ public final class HeatMapUI extends JInternalFrame
         treePanel.setModel(model.getModel());
         treePanel.removeListener(dispatcher);
         modeBar.removeListener(dispatcher);
-        dispatcher = new HeatMapDispatcher(model,statusPanel);
+        dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
+        dispatcher.setCurrentMode(modeBar.getCurrentMode());
+        dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
+        scaleBar.addListener(dispatcher);
         gradPanel.setEnabled(false);
         revalidate();
         repaint();

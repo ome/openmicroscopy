@@ -35,10 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
-import org.openmicroscopy.ds.dto.Attribute;
-
 /**
- * Abstract heat map mode with some common utilities.
+ * Abstract heat map mode with a string-based equals() constraint.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -47,70 +45,6 @@ import org.openmicroscopy.ds.dto.Attribute;
  */
 public abstract class AbstractHeatMapMode implements HeatMapMode
 {
-    /**
-     * Gets the double from an element name, supporting nested attributes.
-     * @param attribute The attribute to parse.
-     * @param elementName The name of the element to extract.
-     * @return The double value of the element.
-     */
-    public double parseElement(Attribute attribute, String elementName)
-        throws IllegalArgumentException
-    {
-        if(attribute == null || elementName == null)
-        {
-            throw new IllegalArgumentException("Null parameters at " +
-                "AbstractHeatMapMode.parseElement(Attribute,String)");
-        }
-        
-        int index = 0;
-        while((index = elementName.indexOf(".")) != -1)
-        {
-            String child = elementName.substring(0,index);
-            attribute = attribute.getAttributeElement(child);
-            elementName = elementName.substring(index+1);
-        }
-        try
-        {
-            return attribute.getDoubleElement(elementName).doubleValue();
-        }
-        catch(NullPointerException npe)
-        {
-            throw new IllegalArgumentException("Invalid element parsed.");
-        }
-        catch(ClassCastException cce)
-        {
-            throw new IllegalArgumentException("Non-numeric element parsed.");
-        }
-    }
-    
-    /**
-     * Extracts the numeric values from the attributes, given the specified
-     * element name.
-     * 
-     * @param attributes The attributes to analyze.
-     * @param elementName The elementName to index by.
-     * @return The numeric values of the elements.
-     * @throws IllegalArgumentException If elementName is invalid, non-numeric
-     *                                  (for any attribute in the list), or
-     *                                  if any/all attributes or the specified
-     *                                  element name is null.
-     */
-    public double[] extractValues(Attribute[] attributes, String elementName)
-        throws IllegalArgumentException
-    {
-        if(attributes == null || elementName == null)
-        {
-            throw new IllegalArgumentException("Null parameters at " +
-                "AbstractHeatMapMode.extractValues(Attribute[],String)");
-        }
-        double[] values = new double[attributes.length];
-        for(int i=0;i<attributes.length;i++)
-        {
-            values[i] = parseElement(attributes[i],elementName);
-        }
-        return values;
-    }
-    
     /**
      * Compares based on mode name & type.
      */

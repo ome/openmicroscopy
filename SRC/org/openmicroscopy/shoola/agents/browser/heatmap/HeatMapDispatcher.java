@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -63,8 +64,12 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 public class HeatMapDispatcher implements HeatMapTreeListener,
                                           HeatMapModeListener
 {
+    private HeatMapMode currentMode;
+    private Scale currentScale;
+    private String currentScaleName;
     private HeatMapModel model;
     private HeatMapStatus status;
+    private HeatMapGradient gradient;
     private String attributeName = "";
     private String elementName = "";
     
@@ -76,10 +81,12 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         this.model = model;    
     }
     
-    public HeatMapDispatcher(HeatMapModel model, HeatMapStatus status)
+    public HeatMapDispatcher(HeatMapModel model, HeatMapStatus status,
+                             HeatMapGradient gradient)
     {
         this.model = model;
         this.status = status;
+        this.gradient = gradient;
     }
     
     public HeatMapStatus getStatus()
@@ -92,12 +99,39 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         this.status = status;
     }
     
+    public HeatMapGradient getGradient()
+    {
+        return gradient;
+    }
+    
+    public void setHeatMapGradient(HeatMapGradient gradient)
+    {
+        this.gradient = gradient;
+    }
+    
+    public void setCurrentMode(HeatMapMode mode)
+    {
+        currentMode = mode;
+        displayInformation(attributeName,elementName);
+    }
+    
+    public void setCurrentScale(String scaleName)
+    {
+        currentScaleName = scaleName;
+        recalibrateScale();
+        displayInformation(attributeName,elementName);
+    }
+    
     /**
      * Fills in stuff in the browser model accordingly.
      * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapTreeListener#nodeSelected(org.openmicroscopy.shoola.agents.browser.heatmap.SemanticTypeTree.TreeNode)
      */
     public void nodeSelected(SemanticTypeTree.TreeNode node)
     {
+        if(model == null || node == null)
+        {
+            return;
+        }
         LoaderThread thread = new LoaderThread(node);
         thread.start();
     }
@@ -107,23 +141,67 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
      */
     public void modeChanged(HeatMapMode newMode)
     {
-        System.err.println("mode change: "+newMode.toString());
+        setCurrentMode(newMode);
     }
     
     /**
      * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModeListener#scaleChanged(org.openmicroscopy.shoola.agents.browser.heatmap.Scale)
      */
-    public void scaleChanged(Scale newScale)
+    public void scaleChanged(String newScale)
     {
-        // TODO Auto-generated method stub
-
+        setCurrentScale(newScale);
+    }
+    
+    private void recalibrateScale()
+    {
+        if(currentScaleName.equals(Scale.LINEAR_SCALE))
+        {
+            currentScale = new LinearScale(gradient.getMin(),gradient.getMax());
+        }
+        else if(currentScaleName.equals(Scale.LOGARITHMIC_SCALE))
+        {
+            currentScale = new LogarithmicScale(gradient.getMin(),gradient.getMax());
+        }
+    }
+    
+    private void analyzeInformation(String attribute, String elementName)
+    {
+        BrowserModel browserModel = model.getInfoSource();
+        List thumbnails = browserModel.getThumbnails();
+        Thumbnail[] ts = new Thumbnail[thumbnails.size()];
+        thumbnails.toArray(ts);
+        System.err.println("Attribute: "+attribute+", Element: "+elementName);
+        double[] stats = RangeChecker.getGlobalMinMax(ts,attribute,elementName);
+        gradient.setMin(stats[0]);
+        gradient.setMax(stats[1]);
+        recalibrateScale();
     }
 
 
-    
-    private void displayInformation(SemanticTypeTree.TreeNode node)
+    // add all overlays to browser.
+    private void displayInformation(String attribute, String elementName)
     {
-        System.err.println("display instead.");
+        if(model == null || attribute == null || elementName == null)
+        {
+            return;
+        }
+        BrowserModel browserModel = model.getInfoSource();
+        PaintMethod pm =
+            HeatMapPMFactory.getPaintMethod(currentMode,attribute,elementName,
+                                            currentScale,gradient.getMinColor(),
+                                            gradient.getMaxColor());
+        for(Iterator iter = browserModel.getThumbnails().iterator();
+            iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            if(currentMethod != null)
+            {
+                t.removeMiddlePaintMethod(currentMethod);
+            }
+            t.addMiddlePaintMethod(pm);
+        }
+        currentMethod = pm;
+        browserModel.fireModelUpdated();
     }
     
     private class LoaderThread extends Thread
@@ -137,13 +215,27 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         
         public void run()
         {
+            if(model == null) return;
             if(selectedNode == null) return;
             if(selectedNode.getFQName() == null) return;
             if(!(selectedNode instanceof SemanticTypeTree.ElementNode)) return;
             if(selectedNode.isLazilyInitialized())
             {
-                displayInformation(selectedNode);
-                return;
+                // get attribute
+                elementName = selectedNode.getFQName();
+                SemanticTypeTree.TreeNode pathNode = selectedNode;
+                SemanticTypeTree.TypeNode parentNode = null;
+                while(pathNode.getParent() instanceof SemanticTypeTree.TypeNode &&
+                      pathNode.getParent() != null)
+                {
+                    parentNode = (SemanticTypeTree.TypeNode)pathNode.getParent();
+                    pathNode = parentNode;
+                }
+                SemanticType type = 
+                    ((SemanticTypeTree.TypeNode)pathNode).getType();
+                attributeName = type.getName();
+                analyzeInformation(attributeName,elementName);
+                displayInformation(attributeName,elementName);
             }
             else
             {
@@ -196,8 +288,6 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                     List attributeList =
                         sts.retrieveImageAttributes(name,selectedNode.getFQName(),
                                                     imageIDList);
-                    System.err.println("got " + attributeList.size() +
-                                       " records.");
                     
                     for(Iterator iter = attributeList.iterator(); iter.hasNext();)
                     {
@@ -216,6 +306,8 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                     {
                         status.showMessage("Loaded "+name+" attributes.");
                     }
+                    analyzeInformation(attributeName,elementName);
+                    displayInformation(attributeName,elementName);
                 }
                 catch(DSOutOfServiceException dso)
                 {

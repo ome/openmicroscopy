@@ -55,6 +55,7 @@ import javax.swing.JPanel;
  * @since OME2.2
  */
 public final class HeatMapGradientUI extends JPanel
+                                     implements HeatMapGradient
 {
     private Font numberFont = new Font(null,Font.PLAIN,10);
     private Font axisFont = new Font(null,Font.BOLD,12);
@@ -62,22 +63,22 @@ public final class HeatMapGradientUI extends JPanel
     /**
      * The predefined cold color of the UI.
      */
-    public static Color coldColor = new Color(0,0,192);
+    public Color coldColor = new Color(0,0,192);
     
     /**
      * The predefined warm color of the UI.
      */
-    public static Color hotColor = new Color(255,0,0);
+    public Color hotColor = new Color(255,0,0);
     
     /**
      * The predefined inactive cold color of the UI.
      */
-    public static Color inactiveColdColor = new Color(192,192,192);
+    public static final Color inactiveColdColor = new Color(192,192,192);
     
     /**
      * The predefined inactive warm color of the UI.
      */
-    public static Color inactiveHotColor = new Color(102,102,102);
+    public static final Color inactiveHotColor = new Color(102,102,102);
     
     private double min, max;
     private double minRange, maxRange;
@@ -191,30 +192,75 @@ public final class HeatMapGradientUI extends JPanel
         return axisName;
     }
     
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#getMinColor()
+     */
+    public Color getMinColor()
+    {
+        return coldColor;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#getMaxColor()
+     */
+    public Color getMaxColor()
+    {
+        return hotColor;
+    }
+    
     public void setMin(double d)
     {
         this.min = d;
         this.minRange = d;
+        repaint();
     }
     
     public void setMax(double d)
     {
         this.max = d;
         this.maxRange = d;
+        repaint();
     }
     
     public void setRangeMin(double d)
     {
         this.minRange = d;
+        repaint();
     }
     
     public void setRangeMax(double d)
     {
         this.maxRange = d;
+        repaint();
     }
     
     public void setAxisName(String name)
     {
         this.axisName = name;
+        repaint();
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#setMinColor(java.awt.Color)
+     */
+    public void setMinColor(Color c)
+    {
+        if(c != null)
+        {
+            this.coldColor = c;
+            repaint();
+        }
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#setMaxColor(java.awt.Color)
+     */
+    public void setMaxColor(Color c)
+    {
+        if(c != null)
+        {
+            this.hotColor = c;
+            repaint();
+        }
     }
 }

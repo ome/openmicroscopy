@@ -52,8 +52,9 @@ public interface HeatMapModeListener
     public void modeChanged(HeatMapMode newMode);
     
     /**
-     * Indicates that the scale changed to the specified scale.
+     * Indicates that the scale changed to the specified scale.  The listener
+     * would be responsible for creating a new scale based on the name.
      * @param newScale The new scale.
      */
-    public void scaleChanged(Scale newScale);
+    public void scaleChanged(String scaleName);
 }

@@ -49,6 +49,16 @@ import java.awt.geom.Point2D;
 public interface Scale
 {
     /**
+     * Indicator of a linear scale.
+     */
+    public static final String LINEAR_SCALE = "Linear";
+    
+    /**
+     * Indicator of a logarithmic scale.
+     */
+    public static final String LOGARITHMIC_SCALE = "Logarithmic";
+    
+    /**
      * Returns the minimum of the scale.
      * @return See above.
      */
