@@ -253,11 +253,13 @@ public class ModulePaletteWindow
 		else if (node.getObject() instanceof ModuleCategoryData) {
 			lastModule = null;
 			ModuleCategoryData mc = (ModuleCategoryData) node.getObject();
-			moduleCanvas.highlightCategory(mc.getName());
+			moduleCanvas.highlightCategory(mc);
 		
 		}
-		else if (node.getName() != null)
-			moduleCanvas.highlightCategory(node.getName());
+		// clicked on uncategorized
+		else if (node.getName() != null && 
+				node.getName().compareTo(ModuleTreeNode.UNCAT_NAME) ==0)
+			moduleCanvas.highlightCategory(null);
 		else
 			moduleCanvas.unhighlightModules();
 	}

@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.env.data.model.OMEDataObject;
  */ 
 
 public class ModuleTreeNode extends DefaultMutableTreeNode {
+	
+	public static final String UNCAT_NAME="Uncategorized";
 	/** the name of the node */
 	private String name;
 
