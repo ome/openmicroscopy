@@ -243,7 +243,7 @@ public class NullSemanticTypesService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void updateImageAnnotation(AnnotationData data)
+    public void updateImageAnnotation(AnnotationData data, int imgID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -253,7 +253,7 @@ public class NullSemanticTypesService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void updateDatasetAnnotation(AnnotationData data)
+    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
