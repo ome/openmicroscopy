@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 public class CreateDatasetEditor
 	extends JDialog
 {	
+	
 	private Registry 					registry;
 	private CreateDatasetPane 			creationPane;
 	private CreateDatasetProjectsPane	projectsPane;
@@ -87,20 +88,20 @@ public class CreateDatasetEditor
 		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);
 	}
 	
-	public CreateDatasetEditorManager getManager()
+	CreateDatasetEditorManager getManager()
 	{ 
 		return manager;
 	}
 	
 	
 	/** Returns the TextArea displayed in {@link CreateDatasetPane}. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return creationPane.getDescriptionArea();
 	}
 
 	/** Returns the textarea displayed in {@link CreateDatasetPane}. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return creationPane.getNameField();
 	}
@@ -108,7 +109,7 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the save button displayed in {@link CreateDatasetPane}.
 	 */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{
 		return creationPane.getSaveButton();
 	}
@@ -116,7 +117,7 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetProjectsPane}.
 	 */
-	public JButton getSelectButton()
+	JButton getSelectButton()
 	{
 		return projectsPane.getSelectButton();
 	}
@@ -124,7 +125,7 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the cancel button displayed in {@link CreateDatasetProjectsPane}.
 	 */
-	public JButton getCancelButton()
+	JButton getCancelButton()
 	{
 		return projectsPane.getCancelButton();
 	}
@@ -132,7 +133,7 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetImagesPane}.
 	 */
-	public JButton getSelectImageButton()
+	JButton getSelectImageButton()
 	{
 		return imagesPane.getSelectButton();
 	}
@@ -140,31 +141,31 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
 	 */
-	public JButton getCancelImageButton()
+	JButton getCancelImageButton()
 	{
 		return imagesPane.getCancelButton();
 	}
 	
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
-	public void	selectAllProjects()
+	void selectAllProjects()
 	{
 		projectsPane.setSelection(new Boolean(true));
 	}
 
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
-	public void	cancelSelectionProject()
+	void cancelSelectionProject()
 	{
 		projectsPane.setSelection(new Boolean(false));
 	}
 	
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-	public void	selectAllImages()
+	void selectAllImages()
 	{
 		imagesPane.setSelection(new Boolean(true));
 	}
 
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-	public void	cancelSelectionImage()
+	void cancelSelectionImage()
 	{
 		imagesPane.setSelection(new Boolean(false));
 	}

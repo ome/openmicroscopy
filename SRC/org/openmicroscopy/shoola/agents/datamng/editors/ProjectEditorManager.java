@@ -66,43 +66,53 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 class ProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	
 	/** ID used to handle events. */
-	private static final int	SAVE = 0;	
-	private static final int	RELOAD = 1;
-	private static final int	REMOVE = 2;
-	private static final int	CANCEL_SELECTION = 3;
+	private static final int		SAVE = 0;	
+	private static final int		RELOAD = 1;
+	private static final int		REMOVE = 2;
+	private static final int		CANCEL_SELECTION = 3;
+	private static final int		ADD = 4;
 	
 	/** Reference to the model. */
-	private ProjectData			model;
+	private ProjectData				model;
 	
 	/** Reference to the view. */
-	private ProjectEditor		view;
+	private ProjectEditor			view;
 	
 	/** Reference to the control. */
-	private DataManagerCtrl 	control;
+	private DataManagerCtrl 		control;
 	
 	/** List of datasets to be removed. */
-	private List				datasetsToRemove;
+	private List					datasetsToRemove;
+	
+	/** List of datasets to be added. */
+	private List					datasetsToAdd;
 	
 	/** Save button displayed in the {@link ProjectGeneralPane}. */
-	private JButton 			saveButton;
+	private JButton 				saveButton;
 	
 	/** Reload button displayed in the {@link ProjectGeneralPane}. */
-	private JButton 			reloadButton;
+	private JButton 				reloadButton;
 	
 	/** Remove button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 			removeButton;
+	private JButton 				removeButton;
 	
 	/** Cancel button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 			cancelButton;
+	private JButton 				cancelButton;
+	
+	/** Add button displayed in the {@link ProjectDatasetsPane}. */
+	private JButton 				addButton;
 	
 	/** textArea displayed in the {@link ProjectGeneralPane}. */
-	private JTextArea			descriptionArea;
+	private JTextArea				descriptionArea;
 	
 	/** text field displayed in the {@link ProjectGeneralPane}. */
-	private JTextArea			nameField;
+	private JTextArea				nameField;
 	
-	private boolean				nameChange, isName;
+	private boolean					nameChange, isName;
+	
+	private ProjectDatasetsDiffPane	dialog;
 	
 	ProjectEditorManager(ProjectEditor view, DataManagerCtrl control,
 						ProjectData model)
@@ -112,6 +122,13 @@ class ProjectEditorManager
 		this.model = model;
 		nameChange = false;
 		isName = false;
+		datasetsToRemove = new ArrayList();
+		datasetsToAdd = new ArrayList();
+	}
+	
+	ProjectEditor getView()
+	{
+		return view;
 	}
 	
 	ProjectData getProjectData()
@@ -122,6 +139,7 @@ class ProjectEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
+		//buttons
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
 		saveButton.addActionListener(this);
@@ -134,6 +152,11 @@ class ProjectEditorManager
 		cancelButton = view.getCancelButton();
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL_SELECTION);
+		addButton = view.getAddButton();
+		addButton.addActionListener(this);
+		addButton.setActionCommand(""+ADD);
+		
+		//text fields.
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -146,7 +169,7 @@ class ProjectEditorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save();
@@ -160,25 +183,66 @@ class ProjectEditorManager
 				case CANCEL_SELECTION:
 					cancelSelection();
 					break;
+				case ADD:
+					showDatasetsSelection();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
 		} 
 	}
 	
+	/** Pop up the datasets selection dialog. */
+	void showDatasetsSelection()
+	{
+		if (dialog == null) {
+			List datasetsDiff = control.getDatasetsDiff(model.getID());
+			dialog = new ProjectDatasetsDiffPane(this, datasetsDiff);
+		} else {
+			dialog.remove(dialog.getContents());
+			dialog.buildGUI();
+		}
+		control.showDialog(dialog);	
+	}
+	
+	/** Add the list of selected datasets to the {@link ProjectDatasetPane}. */
+	void addDatasetsSelection(List l)
+	{
+		datasetsToAdd = l;
+		view.setDatasetsPane(l);
+	}
+	
 	/** 
-	 * Add (resp. remove) the dataset summary to (resp. from) the list of
-	 * dataset summary objects to add to the new project.
+	 * Add (resp. remove) the dataset summary of (resp. from) the list of
+	 * dataset summary to be added.
 	 * 
 	 * @param value		boolean value true if the checkBox is selected
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void addDataset(boolean value, DatasetSummary ds) 
+	void updateAddSelection(boolean value, DatasetSummary ds) 
 	{
-		if (datasetsToRemove == null) datasetsToRemove = new ArrayList();
-		if (value == true) datasetsToRemove.add(ds);
-		else 	datasetsToRemove.remove(ds);
+		if (value)	datasetsToAdd.remove(ds);
+		else {
+			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
+		} 
+		//To be on the save side.
+		if (dialog != null) dialog.getManager().setSelected(value, ds);
+		addDatasetsSelection(datasetsToAdd);
+	}
+
+	/** 
+	 * Add (resp. remove) the dataset summary of (resp. from) the list of
+	 * dataset summary objects to be removed.
+	 * 
+	 * @param value		boolean value true if the checkBox is selected
+	 * 					false otherwise.
+	 * @param ds		dataset summary to add or remove
+	 */
+	void selectDataset(boolean value, DatasetSummary ds) 
+	{
+		if (value){
+			 if (!datasetsToRemove.contains(ds)) datasetsToRemove.add(ds); 
+		} else 	datasetsToRemove.remove(ds);
 	}
 	
 	/** Save in DB. */
@@ -194,6 +258,7 @@ class ProjectEditorManager
 	/** Remove the selected datasets from the datasets list of the model. */
 	private void setModelDatasets()
 	{
+		//TODO: TO BE MODIFIED b/c of the pseudo remote framework
 		Iterator i = datasetsToRemove.iterator();
 		List datasets = model.getDatasets();
 		while (i.hasNext())
@@ -204,15 +269,13 @@ class ProjectEditorManager
 	/** Select All datasets.*/
 	private void remove()
 	{
-		datasetsToRemove = model.getDatasets();
-		view.removeAll();
+		view.selectAll();
 		removeButton.setEnabled(false);
 	}
 	
 	/** Cancel selection. */
 	private void cancelSelection()
 	{
-		datasetsToRemove = null;
 		removeButton.setEnabled(true);
 		view.cancelSelection();
 	}

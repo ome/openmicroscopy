@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 public class ImageEditor
 	extends JDialog
 {
+	
 	/** Reference to the manager. */
 	private ImageEditorManager 		manager;
 	
@@ -115,7 +116,7 @@ public class ImageEditor
 	 * Returns the save button displayed in the generalPane.
 	 * Forward event to generalPane.
 	 */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{
 		return generalPane.getSaveButton();
 	}
@@ -124,19 +125,19 @@ public class ImageEditor
 	 * Returns the reload button displayed in the generalPane.
 	 * Forward event to generalPane.
 	 */
-	public JButton getReloadButton()
+	JButton getReloadButton()
 	{
 		return generalPane.getReloadButton();
 	}
 	
 	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return generalPane.getDescriptionArea();
 	}
 
 	/** Returns the textfield displayed in {@link ImageGeneralPane}. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return generalPane.getNameField();
 	}

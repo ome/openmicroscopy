@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class CreateProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT = 1;
@@ -119,6 +120,7 @@ public class CreateProjectEditorManager
 		this.view = view;
 		this.model = model;
 		this.datasets = datasets;
+		datasetsToAdd = new ArrayList();
 		isName = false;
 	}
 	
@@ -156,7 +158,7 @@ public class CreateProjectEditorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save();
@@ -183,8 +185,8 @@ public class CreateProjectEditorManager
 	 */
 	void addDataset(boolean value, DatasetSummary ds) 
 	{
-		if (datasetsToAdd == null) datasetsToAdd = new ArrayList();
-		if (value == true) datasetsToAdd.add(ds);
+		if (value) {
+			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);} 
 		else 	datasetsToAdd.remove(ds);
 	}
 
@@ -207,7 +209,6 @@ public class CreateProjectEditorManager
 	/** Select all datasets and add them to the model. */
 	private void select()
 	{
-		datasetsToAdd = datasets;
 		view.selectAll();
 		selectButton.setEnabled(false);
 	}
@@ -215,7 +216,6 @@ public class CreateProjectEditorManager
 	/** Cancel selection. */
 	private void cancelSelection()
 	{
-		datasetsToAdd = null;
 		selectButton.setEnabled(true);
 		view.cancelSelection();
 	}

@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -63,6 +65,10 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class ProjectEditor
 	extends JDialog
 {	
+	
+	private static final int		POS_MAIN = 0, POS_DATASET = 1, 
+									POS_OWNER = 2;
+									
 	/** Reference to the manager. */
 	private ProjectEditorManager 	manager;
 	
@@ -72,6 +78,8 @@ public class ProjectEditor
 	private ProjectGeneralPane		generalPane;
 	private ProjectDatasetsPane		datasetsPane;
 	private ProjectOwnerPane		ownerPane;
+	
+	private JTabbedPane				tabs;
 	
 	public ProjectEditor(Registry registry, DataManagerCtrl control,
 						 ProjectData model)
@@ -90,7 +98,7 @@ public class ProjectEditor
 	/** 
 	 * Returns the save button displayed {@link ProjectGeneralPane}.
 	 */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{
 		return generalPane.getSaveButton();
 	}
@@ -98,7 +106,7 @@ public class ProjectEditor
 	/** 
 	 * Returns the reload button displayed in {@link ProjectGeneralPane}.
 	 */
-	public JButton getReloadButton()
+	JButton getReloadButton()
 	{
 		return generalPane.getReloadButton();
 	}
@@ -106,7 +114,7 @@ public class ProjectEditor
 	/** 
 	 * Returns the remove button displayed in {@link ProjectDatasetsPane}.
 	 */
-	public JButton getRemoveButton()
+	JButton getRemoveButton()
 	{
 		return datasetsPane.getRemoveButton();
 	}
@@ -114,48 +122,71 @@ public class ProjectEditor
 	/** 
 	 * Returns the cancel button displayed in {@link ProjectDatasetsPane}.
 	 */
-	public JButton getCancelButton()
+	JButton getCancelButton()
 	{
 		return datasetsPane.getCancelButton();
 	}
 	
+	/** 
+	 * Returns the cancel button displayed in {@link ProjectDatasetsPane}.
+	 */
+	JButton getAddButton()
+	{
+		return datasetsPane.getAddButton();
+	}
+	
 	/** Returns the TextArea displayed in {@link ProjectGeneralPane}. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return generalPane.getDescriptionArea();
 	}
 
 	/** Returns the textfield displayed in {@link ProjectGeneralPane}. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return generalPane.getNameField();
 	}
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
-	public void	removeAll()
+	void selectAll()
 	{
 		datasetsPane.setSelection(new Boolean(true));
 	}
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
-	public void	cancelSelection()
+	void cancelSelection()
 	{
 		datasetsPane.setSelection(new Boolean(false));
+	}
+	
+	/** Reset the datasetsPane. */
+	void setDatasetsPane(List l)
+	{
+		tabs.remove(POS_DATASET);
+		datasetsPane.buildComponent(l);
+		//manager.initListeners();
+		IconManager im = IconManager.getInstance(registry);
+		tabs.insertTab("Datasets", im.getIcon(IconManager.DATASET), 
+						datasetsPane, null, POS_DATASET);
+		tabs.setSelectedIndex(POS_DATASET);	
 	}
 	
 	/** Build and layout the GUI. */
 	void buildGUI()
 	{
 		//create and initialize the tabs
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+		tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
   		tabs.setAlignmentX(LEFT_ALIGNMENT);
   		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-  		tabs.addTab("General", im.getIcon(IconManager.PROJECT), generalPane);
-  		tabs.addTab("Datasets", im.getIcon(IconManager.DATASET), datasetsPane);
-		tabs.addTab("Owner", im.getIcon(IconManager.OME), ownerPane);
+		tabs.insertTab("General", im.getIcon(IconManager.PROJECT), generalPane,
+						null, POS_MAIN);
+		tabs.insertTab("Datasets", im.getIcon(IconManager.DATASET), 
+						datasetsPane, null, POS_DATASET);
+		tabs.insertTab("Owner", im.getIcon(IconManager.OME), ownerPane, null, 
+						POS_OWNER);
   		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);

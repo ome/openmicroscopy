@@ -98,19 +98,19 @@ class CreateProjectPane
 	}
 
 	/** Returns the save button. */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{ 
 		return saveButton;
 	}
 	
 	/** Returns the TextArea with the project's description. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return descriptionArea;
 	}
 
 	/** Returns the textfield with project's name. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return nameField;
 	}
@@ -179,7 +179,6 @@ class CreateProjectPane
 		table.setValueAt(new JLabel(" Description"), 1, 0);
 
 		ProjectData pd = manager.getProjectData();
-		
 		//textfields
 		nameField = new JTextArea(pd.getName());
 		nameField.setForeground(DataManager.STEELBLUE);

@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class CreateProjectEditor
 	extends JDialog
 {
+	
 	private Registry 					registry;
 	private CreateProjectPane 			creationPane;
 	private CreateProjectDatasetsPane	datasetsPane;
@@ -86,19 +87,19 @@ public class CreateProjectEditor
 	}
 	
 	/** Returns the widget manager. */
-	public CreateProjectEditorManager getManager()
+	CreateProjectEditorManager getManager()
 	{
 		return manager;
 	}
 	
 	/** Returns the TextArea displayed in {@link CreateProjectPane}. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return creationPane.getDescriptionArea();
 	}
 
 	/** Returns the textfield displayed in {@link CreateProjectPane}. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return creationPane.getNameField();
 	}
@@ -106,7 +107,7 @@ public class CreateProjectEditor
 	/** 
 	 * Returns the save button displayed in {@link CreateProjectPane}.
 	 */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{
 		return creationPane.getSaveButton();
 	}
@@ -114,7 +115,7 @@ public class CreateProjectEditor
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	public JButton getSelectButton()
+	JButton getSelectButton()
 	{
 		return datasetsPane.getSelectButton();
 	}
@@ -122,19 +123,19 @@ public class CreateProjectEditor
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	public JButton getCancelButton()
+	JButton getCancelButton()
 	{
 		return datasetsPane.getCancelButton();
 	}
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
-	public void	selectAll()
+	void selectAll()
 	{
 		datasetsPane.setSelection(new Boolean(true));
 	}
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
-	public void	cancelSelection()
+	void cancelSelection()
 	{
 		datasetsPane.setSelection(new Boolean(false));
 	}

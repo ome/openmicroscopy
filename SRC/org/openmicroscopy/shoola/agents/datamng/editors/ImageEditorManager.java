@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 class ImageEditorManager
 	implements ActionListener, DocumentListener,  MouseListener
 {
+	
 	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;

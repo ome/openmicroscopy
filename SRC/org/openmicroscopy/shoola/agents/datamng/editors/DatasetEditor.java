@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -63,6 +64,9 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 public class DatasetEditor
 	extends JDialog
 {
+	private static final int		POS_MAIN = 0, POS_IMAGE = 1, 
+									POS_OWNER = 2;
+									
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
 	
@@ -72,6 +76,8 @@ public class DatasetEditor
 	private DatasetGeneralPane		generalPane;
 	private DatasetImagesPane		imagesPane;
 	private DatasetOwnerPane		ownerPane;
+	
+	private JTabbedPane				tabs;
 	
 	public DatasetEditor(Registry registry, DataManagerCtrl control,
 						 DatasetData model)
@@ -90,7 +96,7 @@ public class DatasetEditor
 	/** 
 	 * Returns the save button displayed {@link DatasetGeneralPane}.
 	 */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{
 		return generalPane.getSaveButton();
 	}
@@ -98,15 +104,22 @@ public class DatasetEditor
 	/** 
 	 * Returns the reload button displayed in {@link DatasetGeneralPane}.
 	 */
-	public JButton getReloadButton()
+	JButton getReloadButton()
 	{
 		return generalPane.getReloadButton();
 	}
 	
 	/** 
+	 * Returns the save button displayed {@link DatasetImagesPane}.
+	 */
+	JButton getAddButton()
+	{
+		return imagesPane.getAddButton();
+	}
+	/** 
 	 * Returns the remove button displayed in {@link DatasetImagesPane}.
 	 */
-	public JButton getRemoveButton()
+	JButton getRemoveButton()
 	{
 		return imagesPane.getRemoveButton();
 	}
@@ -114,48 +127,63 @@ public class DatasetEditor
 	/** 
 	 * Returns the cancel button displayed in {@link DatasetImagesPane}.
 	 */
-	public JButton getCancelButton()
+	JButton getCancelButton()
 	{
 		return imagesPane.getCancelButton();
 	}
 	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return generalPane.getDescriptionArea();
 	}
 
 	/** Returns the textfield displayed in {@link DatasetGeneralPane}. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return generalPane.getNameField();
 	}
 	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
-	public void	removeAll()
+	void selectAll()
 	{
 		imagesPane.setSelection(new Boolean(true));
 	}
 
 	/** Forward event to the pane {@link DatasetImagesPane}. */
-	public void	cancelSelection()
+	void cancelSelection()
 	{
 		imagesPane.setSelection(new Boolean(false));
 	}
 
+	/** Reset the imagesPane. */
+	void setImagesPane(List l)
+	{
+		tabs.remove(POS_IMAGE);
+		imagesPane.buildComponent(l);
+		IconManager im = IconManager.getInstance(registry);
+		tabs.insertTab("Datasets", im.getIcon(IconManager.IMAGE), 
+						imagesPane, null, POS_IMAGE);
+		tabs.setSelectedIndex(POS_IMAGE);	
+	}
+	
 	/** Build and layout the GUI. */
-	void buildGUI()
+	private void buildGUI()
 	{
 		//create and initialize the tabs
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+		tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		IconManager im = IconManager.getInstance(registry);
-		tabs.addTab("General", im.getIcon(IconManager.DATASET), generalPane);
-		tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imagesPane);
-		tabs.addTab("Owner", im.getIcon(IconManager.OME), ownerPane);
+		tabs.insertTab("General", im.getIcon(IconManager.DATASET), generalPane,
+					null, POS_MAIN);
+		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), 
+						imagesPane, null, POS_IMAGE);
+		tabs.insertTab("Owner", im.getIcon(IconManager.OME), ownerPane, null, 
+						POS_OWNER);
+
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);

@@ -129,12 +129,7 @@ class ProjectOwnerPane
 		}
 	
 		//entries in the value column can be edited
-		public boolean isCellEditable(int row, int col)
-		{
-			boolean isEditable = false;
-			//TODO: some cells editable.
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return false; }
 	}
 
 }

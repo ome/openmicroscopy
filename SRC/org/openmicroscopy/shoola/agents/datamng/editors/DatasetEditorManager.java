@@ -35,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
@@ -66,39 +67,48 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 class DatasetEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	
 	/** ID used to handle events. */
-	private static final int	SAVE = 0;	
-	private static final int	RELOAD = 1;	
-	private static final int	REMOVE = 2;
-	private static final int	CANCEL_SELECTION = 3;
+	private static final int		SAVE = 0;	
+	private static final int		RELOAD = 1;	
+	private static final int		REMOVE = 2;
+	private static final int		CANCEL_SELECTION = 3;
+	private static final int		ADD = 4;
 	
-	private DatasetData			model;
-	private DatasetEditor		view;
+	private DatasetData				model;
+	private DatasetEditor			view;
 	
-	/** List of images to be removed. */
-	private List				imagesToRemove;
+	/** List of images to remove. */
+	private List					imagesToRemove;
 	
-	private DataManagerCtrl 	control;
+	/**List of images to add. */
+	private List					imagesToAdd;
+	
+	private DataManagerCtrl 		control;
 	/** Save button displayed in the {@link DatasetGeneralPane}. */
-	private JButton 			saveButton;
+	private JButton 				saveButton;
 
 	/** Reload button displayed in the {@link DatasetGeneralPane}. */
-	private JButton 			reloadButton;
+	private JButton 				reloadButton;
 
 	/** Remove button displayed in the {@link DatasetImagesPane}. */
-	private JButton 			removeButton;
+	private JButton 				removeButton;
 
 	/** Cancel button displayed in the {@link DatasetImagesPane}. */
-	private JButton 			cancelButton;
+	private JButton 				cancelButton;
+	
+	/** Cancel button displayed in the {@link DatasetImagesPane}. */
+	private JButton 				addButton;
 	
 	/** textArea displayed in the {@link DatasetGeneralPane}. */
-	private JTextArea			descriptionArea;
+	private JTextArea				descriptionArea;
 	
 	/** text field displayed in the {@link DatasetGeneralPane}. */
-	private JTextArea			nameField;
+	private JTextArea				nameField;
 	
-	private boolean				nameChange, isName;
+	private boolean					nameChange, isName;
 	
+	private DatasetImagesDiffPane	dialog;
 	DatasetEditorManager(DatasetEditor view, DataManagerCtrl control,
 						DatasetData model)
 	{
@@ -107,6 +117,13 @@ class DatasetEditorManager
 		this.model = model;
 		nameChange = false;
 		isName = false;
+		imagesToRemove = new ArrayList();
+		imagesToAdd = new ArrayList();
+	}
+	
+	DatasetEditor getView()
+	{
+		return view;
 	}
 	
 	DatasetData getDatasetData()
@@ -117,6 +134,7 @@ class DatasetEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
+		//buttons
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
 		saveButton.addActionListener(this);
@@ -129,6 +147,10 @@ class DatasetEditorManager
 		cancelButton = view.getCancelButton();
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL_SELECTION);	
+		addButton = view.getAddButton();
+		addButton.addActionListener(this);
+		addButton.setActionCommand(""+ADD);	
+		//textfields
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -155,11 +177,68 @@ class DatasetEditorManager
 				case CANCEL_SELECTION:
 					cancelSelection();
 					break;
+				case ADD:
+					showImagesSelection();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
 		} 
 	}
+	
+	void addImagesSelection(List l)
+	{
+		imagesToAdd = l;
+		view.setImagesPane(l);
+	}
+	
+	/** 
+	 * Add (resp. remove) the imaget summary of (resp. from) the list of
+	 * image summary to be added (resp. removed).
+	 * 
+	 * @param value		boolean value true if the checkBox is selected
+	 * 					false otherwise.
+	 * @param is		image summary to add or remove.
+	 */
+	void updateAddSelection(boolean value, ImageSummary is) 
+	{
+		if (value)	imagesToAdd.remove(is);
+		else {
+			 if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
+		} 
+		//To be on the save side.
+		if (dialog != null) dialog.getManager().setSelected(value, is);
+		addImagesSelection(imagesToAdd);
+	}
+	
+	/** 
+	 * Add (resp. remove) the image summary of (resp. from) the list of
+	 * image summary objects to be removed.
+	 * 
+	 * @param value		boolean value true if the checkBox is selected
+	 * 					false otherwise.
+	 * @param is		image summary to add or remove.
+	 */
+	void selectImage(boolean value, ImageSummary is) 
+	{
+		if (value) {
+			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
+		}
+		else 	imagesToRemove.remove(is);
+	}
+	
+	/** */
+	private void showImagesSelection()
+	{
+		if (dialog == null) {
+			List imagesDiff = control.getImagesDiff(model.getID());
+			dialog = new DatasetImagesDiffPane(this, imagesDiff);
+		} else {
+			dialog.remove(dialog.getContents());
+			dialog.buildGUI();
+		}
+		control.showDialog(dialog);	
+	}
+	
 	
 	/** Save changes in DB. */
 	private void save()
@@ -174,6 +253,7 @@ class DatasetEditorManager
 	/** Remove the selected images from the images list of the model. */
 	private void setModelImages()
 	{
+		//TODO: modified b/c of the remote framework status.
 		Iterator i = imagesToRemove.iterator();
 		List images = model.getImages();
 		while (i.hasNext())
@@ -184,14 +264,13 @@ class DatasetEditorManager
 	/** Select All images.*/
 	private void remove()
 	{
-		imagesToRemove = model.getImages();
-		view.removeAll();
+		view.selectAll();
 		removeButton.setEnabled(false);
 	}
+	
 	/** Cancel selection. */
 	private void cancelSelection()
 	{
-		imagesToRemove = null;
 		removeButton.setEnabled(true);
 		view.cancelSelection();
 	}

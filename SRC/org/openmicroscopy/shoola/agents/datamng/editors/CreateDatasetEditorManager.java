@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class CreateDatasetEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
@@ -120,6 +121,8 @@ public class CreateDatasetEditorManager
 		this.model = model;
 		this.projects = projects;
 		this.images = images;
+		imagesToAdd = new ArrayList();
+		projectsToAdd = new ArrayList();
 		isName = false;
 	}
 	
@@ -168,7 +171,7 @@ public class CreateDatasetEditorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
 					save();
@@ -201,9 +204,9 @@ public class CreateDatasetEditorManager
 	 */
 	void addImage(boolean value, ImageSummary is) 
 	{
-		if (imagesToAdd == null) imagesToAdd = new ArrayList();
-		if (value == true) imagesToAdd.add(is);
-		else 	imagesToAdd.remove(is);
+		if (value) {
+			if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
+		} else 	imagesToAdd.remove(is);
 	}
 	
 	/** 
@@ -216,9 +219,9 @@ public class CreateDatasetEditorManager
 	 */
 	void addProject(boolean value, ProjectSummary ps) 
 	{
-		if (projectsToAdd == null) projectsToAdd = new ArrayList();
-		if (value == true) projectsToAdd.add(ps);
-		else 	projectsToAdd.remove(ps);
+		if (value) {
+			if (!projectsToAdd.contains(ps)) projectsToAdd.add(ps);
+		} else 	projectsToAdd.remove(ps);
 	}
 
 	 /** 
@@ -239,7 +242,6 @@ public class CreateDatasetEditorManager
 	/** Select projects. */
 	private void selectProject()
 	{
-		projectsToAdd = projects;
 		view.selectAllProjects();
 		selectButton.setEnabled(false);
 	}
@@ -247,7 +249,6 @@ public class CreateDatasetEditorManager
 	/** Cancel selection of projects. */
 	private void cancelSelectionProject()
 	{
-		projectsToAdd = null;
 		selectButton.setEnabled(true);
 		view.cancelSelectionProject();
 	}
@@ -255,7 +256,6 @@ public class CreateDatasetEditorManager
 	/** Select images. */
 	private void selectImage()
 	{
-		imagesToAdd = images;
 		view.selectAllImages();
 		selectButton.setEnabled(false);
 	}
@@ -263,7 +263,6 @@ public class CreateDatasetEditorManager
 	/** Cancel selection of images. */
 	private void cancelSelectionImage()
 	{
-		imagesToAdd = null;
 		selectButton.setEnabled(true);
 		view.cancelSelectionImage();
 	}

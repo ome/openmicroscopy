@@ -93,30 +93,29 @@ class DatasetGeneralPane
 	}
 	
 	/** Returns the save button. */
-	public JButton getSaveButton()
+	JButton getSaveButton()
 	{ 
 		return saveButton;
 	}
 
 	/** Returns the reload button. */
-	public JButton getReloadButton()
+	JButton getReloadButton()
 	{ 
 		return reloadButton;
 	}
 	
 	/** Returns the TextArea with the project's description. */
-	public JTextArea getDescriptionArea()
+	JTextArea getDescriptionArea()
 	{
 		return descriptionArea;
 	}
 
 	/** Returns the textfield with project's name. */
-	public JTextArea getNameField()
+	JTextArea getNameField()
 	{
 		return nameField;
 	}
-	
-	
+
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
