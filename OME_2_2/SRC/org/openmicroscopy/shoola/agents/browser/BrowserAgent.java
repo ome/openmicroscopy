@@ -612,6 +612,12 @@ public class BrowserAgent implements Agent, AgentEventListener
                         String col = refInfo.getColumnName(j);
                         String well = row+col;
                         List sampleList = (List)plate.get(well);
+                        
+                        // allows for plate skips (in malformed datasets)
+                        if(sampleList == null)
+                        {
+                            continue;
+                        }
                         if(sampleList.size() == 1)
                         {
                             Integer intVal = (Integer)sampleList.get(0);
