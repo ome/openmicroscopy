@@ -153,7 +153,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 	private ModuleView selected;
 	
 	/** The event handler */
-	private ModuleNodeEventHandler handler;
+	private ModulePaletteEventHandler handler;
 
     /** support for dragging of modules off of the canvas */
     private DragSourceAdapter dragListener;
@@ -466,6 +466,8 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 			if (node instanceof ModuleView) {
 				ModuleView mod = (ModuleView) node;
 				if (mod.getModule() == module) {
+					mod.moveToFront();
+					mod.showDetails();
 					//	zoom in to it. 
 					BufferedObject cBox = (BufferedObject) node;				
 					PBounds b = cBox.getBufferedBounds();
@@ -493,6 +495,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 				CategoryBox cb = (CategoryBox)node;
 				if (cb.isSameCategory(category) == true) {
 						//	zoom in to it. 
+					handler.setLastCategoryBox(cb);
 					BufferedObject cBox = (BufferedObject) node;				
 					PBounds b = cBox.getBufferedBounds();
 					PCamera camera = getCamera();
