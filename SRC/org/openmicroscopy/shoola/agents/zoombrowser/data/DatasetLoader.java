@@ -37,6 +37,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentLoader;
 
 
 

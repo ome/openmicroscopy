@@ -42,6 +42,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+
 //Third-party libraries
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.PNode;

@@ -35,10 +35,10 @@ package org.openmicroscopy.shoola.agents.zoombrowser;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
 
 /** 
  * Creates and controls the {@link MainWindow}.

@@ -42,6 +42,11 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 //Java imports
 import java.awt.BasicStroke;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+
 //Third-party libraries
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;

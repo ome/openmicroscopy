@@ -40,6 +40,7 @@ import java.util.Vector;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.Thumbnail;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.data.MatchMapper;
 
 /** 
  * An extension of 

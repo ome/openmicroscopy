@@ -44,6 +44,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.util.ui.piccolo.ToolTipHandler;
+
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.event.PInputEvent;

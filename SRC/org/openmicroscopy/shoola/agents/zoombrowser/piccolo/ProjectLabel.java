@@ -46,6 +46,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * Project labels, as found on a {@link ProjctSelectionCanvas}

@@ -56,6 +56,9 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A {@link PCanvas} for viewing images in datasets, with datasets laid out

@@ -54,6 +54,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
+import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A Piccolo canvas for selecting projects.

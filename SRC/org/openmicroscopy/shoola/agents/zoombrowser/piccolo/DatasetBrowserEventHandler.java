@@ -40,9 +40,15 @@
 
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
+
 //Java imports
+import java.awt.geom.Point2D;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 
@@ -89,6 +95,26 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		zoomLevel = 0;
 	}
 
+	
+	/** 
+	 * for mouse exit calls, do not pass the exit along if the node
+	 * being exited is a datasetnode, but I am still within the bounds of the
+	 * node. In this case, i am still inside of the node, but I've entered
+	 * one of its children, so i don't want to say I've left.
+	 */
+	
+	public void mouseExited(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof DatasetNode) {
+			PBounds b = n.getBounds();
+			Point2D pickedPos = e.getPositionRelativeTo(n);
+			if (!b.contains(pickedPos))
+				super.mouseExited(e);
+		}
+		else 
+			super.mouseExited(e);
+		e.setHandled(true);
+	}
 	
 	/** What happens when I click on the background? */
 	public  void handleBackgroundClick() {
