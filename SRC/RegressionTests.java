@@ -39,70 +39,100 @@ import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
 
 
-/** The entry point to the regression test suite.
+/** 
+ * The entry point to the regression test suite.
  * To run the tests:<br>
  * <code>java RegressionTests</code>
- * <p>Your classpath must contain all Shoola's required libraries for the above to work (you can also 
- * specify the libraries via the <code>-cp</code> option).</p>
- * <p>If you want to run the above command in a directory another than the root directory where
- * the compiled tree sits, you can do so by specifying the path (either absolute or relative) to the
- * compiled tree on the command line (<code>... RegressionTests path/to/compiled/tree</code>). The 
- * suite is run in console-mode by default. You can change this through a command line option:
+ * <p>Your classpath must contain all Shoola's required libraries for the above 
+ * to work (you can also specify the libraries via the <code>-cp</code>
+ * option).</p>
+ * <p>If you want to run the above command in a directory another than the root 
+ * directory where the compiled tree sits, you can do so by specifying the path 
+ * (either absolute or relative) to the compiled tree on the command line 
+ * (<code>... RegressionTests path/to/compiled/tree</code>).<br>
+ * <small>
+ * <b>NOTE</b>: This tool uses the path argument on the command line (or the
+ * user directory if no path is specified) to locate the compiled tree.  This
+ * is a system-dependent operation if the path is not absolute -- in many cases,
+ * the path is resolved against the user directory (typically the directory in
+ * which the JVM was invoked).  If you experience problems, then use an absolute
+ * path.</small>  
+ * </p>
+ * <p>The suite is run in console-mode by default.  You can change this through
+ * a command line option:
  * <br>
  * <code>java RegressionTests -ui</code>
  * </p>
- * <p>The test suite is automatically built by composition of all (recognized) test cases within the
- *  compiled tree. A recognized test case is a class that extends <code>TestCase</code> and whose
- * name starts with <code>test__</code> (two underscore characters).
+ * <p>The test suite is automatically built by composition of all (recognized)
+ * test cases within the compiled tree.  A recognized test case is a class that
+ * extends <code>TestCase</code> and whose name starts with 
+ * <code>test__</code> (two underscore characters).
  * </p>
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ * 					a.falconi@dundee.ac.uk</a>
  * <b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
-
-public class RegressionTests {
+public class RegressionTests
+{
   
-/** The name of this regression test suite. */
+	/** The name of this regression test suite. */
     private static String   RTS_NAME = "Shoola Regression Test Suite";
-/** The base directory from which we start looking for test suites. 
- * This is a path relative to the base directory containing the compiled tree.
- */
-    private static String   START_DIR = "org/openmicroscopy/shoola";
-/** The regex to recognize a test case class' name. */
+    
+	/** 
+	 * The base directory from which we start looking for test suites. 
+	 * This path is relative to the base directory containing the compiled tree.
+	 */
+    private static String   START_DIR = "org"+File.separator+"openmicroscopy"+
+    									File.separator+"shoola";
+    
+	/** The regex to recognize a test case class' name. */
     private static String   FILE_PATTERN = "^test__.*\\.class$";
-/** Extension of compiled java classes. */
+    
+	/** Extension of compiled java classes. */
     private static String   FILE_EXT = ".class";
 
     
    
-/** The test suite that we build by composition of all (recognized) test cases within the
- *  compiled tree. 
- */
-    private TestSuite       suite; 
-/** This stack is used for navigation through the compiled directory tree. */
+	/** 
+	 * The test suite that we build by composition of all (recognized) test 
+	 * cases within the compiled tree. 
+	 */
+    private TestSuite       suite;
+     
+	/** Stack used for navigation through the compiled directory tree. */
     private Stack           dirs;
-/** The filter to select the compiled files that follows the pattern of a test suite file name. */
+    
+	/** 
+	 * The filter to select the compiled files that follows the pattern of a 
+	 * test suite file name. 
+	 */
     private FileFilter      fileFilter;
-/** Path to the directory containing the compiled tree. If realtive, then it has to be expressed in 
- * terms of the current working directory. 
- */
+    
+	/** 
+	 * Path to the directory containing the compiled tree. If realtive, then it
+	 * has to be expressed in terms of the current working directory. 
+	 */
     private String          basePath;
-/** Tells whether or not to run the suite in the Swing ui. */
+    
+	/** Tells whether or not to run the suite in the Swing ui. */
     private boolean         swingMode;
     
    
     
-/** Locates the compiled tree and initializes fields.
- *
- * @param   opt     The command line arguments.
- */
-    private RegressionTests(String[] opt) {
+	/** 
+	 * Locates the compiled tree and initializes fields.
+	 *
+	 * @param   opt     The command line arguments.
+	 */
+    private RegressionTests(String[] opt)
+    {
         processOptions(opt);
         File    baseDir = new File(basePath, START_DIR);
         if (!baseDir.isDirectory())
@@ -117,11 +147,13 @@ public class RegressionTests {
         };
     }
     
-/** Helper method to process the command line argumets.
- *
- * @param   opt     The command line arguments.
- */
-    private void processOptions(String[] opt) {
+	/** 
+	 * Helper method to process the command line arguments.
+	 *
+	 * @param   opt     The command line arguments.
+	 */
+    private void processOptions(String[] opt) 
+    {
         int k = opt.length;
         while (0<=--k) {
             if (opt[k].equals("-ui")) swingMode = true;
@@ -129,12 +161,15 @@ public class RegressionTests {
         }
     }
     
-/** Helper method to convert a path into a fully qualified class name.
- *
- * @param   f   Path and name of the class file.
- * @return  The fully qualified name that corresponds to the class file specified by <code>f</code>. 
- */
-    private String fileToFQN(File f) {
+	/** 
+	 * Helper method to convert a path into a fully qualified class name.
+	 *
+	 * @param   f   Path and name of the class file.
+	 * @return  The fully qualified name that corresponds to the class file 
+	 * 			specified by <code>f</code>. 
+	 */
+    private String fileToFQN(File f) 
+    {
         StringBuffer  buf = new StringBuffer(f.getPath());  //avoids errors if basePath was relative
         if (basePath!= null)  //can either be null or hold a path (can't be "", see constructor)
             buf.delete(0, basePath.length());  //strip base path out
@@ -145,13 +180,16 @@ public class RegressionTests {
         return fqn.replace(File.separatorChar, '.');  //turn it into fqn
     }
     
-/** Adds the test case compiled in the specified class file to the regression suite.
- * All tests within the test case are extracted, composed into a suite and the suite is added
- * to the regression suite.
- *
- * @param   classFile  A file containing the bytecode of a test case class.
- */
-    private void addSuite(File classFile) {
+	/** 
+	 * Adds the test case compiled in the specified class file to the regression 
+	 * suite.
+	 * All tests within the test case are extracted, composed into a suite and 
+	 * the suite is added to the regression suite.
+	 *
+	 * @param   classFile  A file containing the bytecode of a test case class.
+	 */
+    private void addSuite(File classFile) 
+    {
         String  fqn = fileToFQN(classFile);
         Class   c = null;
         try {
@@ -160,19 +198,23 @@ public class RegressionTests {
                 suite.addTestSuite(c);
             else
                 throw new Exception("Class "+c+" is not a TestCase. ");
-        } catch(Exception e) {
-            throw new RuntimeException("Can't add "+classFile+" to the suite. ", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Can't add "+classFile+
+										" to the suite. ", e);
         }
     }
     
-/** Builds the regression suite by composition of all (recognized) test suites within the base
- * directory of the  compiled tree.
- * Searches all sub-directories of the base directory for files that match the pattern that a test
- * case class' file is expected to follow. For each matching class file, its corresponding fully 
- * qualified name is used to add the tests within that class to a suite which is then added to
- * the regression suite.
- */
-    private void buildSuite() {
+	/** 
+	 * Builds the regression suite by composition of all (recognized) test 
+	 * suites within the base directory of the  compiled tree.
+	 * Searches all sub-directories of the base directory for files that match 
+	 * the pattern that a test case class' file is expected to follow.  For each 
+	 * matching class file, its corresponding fully qualified name is used to 
+	 * add the tests within that class to a suite which is then added to the 
+	 * regression suite.
+	 */
+    private void buildSuite() 
+    {
         int     k;
         File    f;
         File[]  dirContents;
@@ -188,11 +230,13 @@ public class RegressionTests {
         }
     }
     
-/** Runs the tests.
- * Depending on the specified command line option, the tests will be run either in console mode 
- * (default) or in GUI mode.
- */
-    private void run() {
+	/** 
+	 * Runs the tests.
+	 * Depending on the specified command line option, the tests will be run 
+	 * either in console mode (default) or in GUI mode.
+	 */
+    private void run() 
+    {
         if (swingMode) {
             junit.swingui.TestRunner runner = new junit.swingui.TestRunner() {
                 public Test getTest(String suiteClassName) {
@@ -206,10 +250,12 @@ public class RegressionTests {
     
     
     
-/** Entry point.
- * Args as described in the class docs.
- */
-    public static void main(String[] args) {
+	/** 
+	 * Entry point.
+	 * Args as described in the class docs.
+	 */
+    public static void main(String[] args) 
+    {
         RegressionTests rs = new RegressionTests(args);
         rs.buildSuite();
         rs.run();
