@@ -104,8 +104,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	 */
 	private void configureDisplayButtons()
 	{
+		
 		configureQuickLaunchBtn(icons.getIcon("zoom.png"), 
-												"Display the main window.");
+						"Zoomable project/dataset browser.");
 		configureWinMenuEntry("Zoomable Browser", icons.getIcon("zoom.png"));
 	}
 	
@@ -230,6 +231,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	}
 	
 	public void componentResized(ComponentEvent e) {
+		
 	}
 	
 	public void componentShown(ComponentEvent e) {
