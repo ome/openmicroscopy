@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -71,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ToolBar
-	extends JToolBar
+	extends JPanel
 {
 
 	/** 
@@ -227,24 +228,39 @@ public class ToolBar
 	/** Build the main tool bar. */
 	private void buildToolBar() 
 	{
-		setFloatable(false);
-		putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-		add(render);
-		add(inspector);
-		add(saveAs);
-		add(new JSeparator(SwingConstants.VERTICAL));
-		//movie controls.
-		add(play);
-		add(pause);
-		add(stop);
-		add(rewind);
-		add(forward);
-		JLabel label = new JLabel(" Rate ");
-		add(label);
-		add(fps);
-		add(Box.createRigidArea(H_SPACER_SIZE));
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(buildBar());
+		add(moviePanel());
 		add(new JSeparator(SwingConstants.VERTICAL));
 		add(ztPanel);
+	}
+	
+	private JToolBar buildBar()
+	{
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.add(render);
+		bar.add(inspector);
+		bar.add(saveAs);
+		bar.add(new JSeparator(SwingConstants.VERTICAL));
+		//movie controls.
+		bar.add(play);
+		bar.add(pause);
+		bar.add(stop);
+		bar.add(rewind);
+		bar.add(forward);
+		return bar;
+	}
+	
+	private JPanel moviePanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JLabel label = new JLabel(" Rate ");
+		p.add(label);
+		p.add(fps);
+		p.add(Box.createRigidArea(H_SPACER_SIZE));
+		return p;
 	}
 	
 	/** Build panel with labels and text fields. */
