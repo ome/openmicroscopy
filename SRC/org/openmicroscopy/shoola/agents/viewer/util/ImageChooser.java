@@ -103,7 +103,14 @@ class ImageChooser
 		setApproveButtonText("Save as");
 	}
 	
-	/** Override the approveSelection method. */
+	/** Override the {@link #cancelSelection} method. */
+	public void cancelSelection()
+	{
+		parent.setVisible(false);
+		parent.dispose();
+	}
+	
+	/** Override the {@link #approveSelection} method. */
 	public void approveSelection()
 	{
 		File file = getSelectedFile();
