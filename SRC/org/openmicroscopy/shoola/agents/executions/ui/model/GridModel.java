@@ -235,6 +235,8 @@ public class GridModel implements ChangeListener {
 	
 	private void buildRowDecorations() {
 		int stripeCount = model.getMajorRowCount();
+		if (stripeCount ==0)
+			return;
 		// remember, y increases as we go down the screen,
 		// so yStartAxis is larger value.
 		rowDecorations = new Vector();
@@ -266,7 +268,7 @@ public class GridModel implements ChangeListener {
 			else
 				color = Constants.ALT_BACKGROUND_COLOR;
 			count++;
-		}		
+		}
 	}
 
 	private void drawRowDecorations(Graphics2D g) {
@@ -314,7 +316,6 @@ public class GridModel implements ChangeListener {
 		h.setDrawLabel(true);
 		axisHashes.add(h);
 		// last label
-		
 	}
 	
 	private void drawHorizHashes(Graphics2D g ) {
