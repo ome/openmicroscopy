@@ -49,6 +49,7 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
+import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
@@ -207,6 +208,30 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         tf.addToMenu(TopFrame.VIEW,testItem);
         testItem.setEnabled(true);
+        
+        // test code to check for image STs
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        try
+        {
+            List typeList = sts.getAvailableImageTypes();
+            for(Iterator iter = typeList.iterator(); iter.hasNext();)
+            {
+                SemanticType st = (SemanticType)iter.next();
+                System.err.println(st.getName());
+            }
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            dso.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Connection Error",dso.getMessage(),dso);
+        }
+        catch(DSAccessException dsa)
+        {
+            dsa.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
     }
     
     /**
