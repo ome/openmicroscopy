@@ -6,8 +6,8 @@
   <author name="XXX" email="xxx@xxx.com" />
 <!-- END EDIT -->
 
-  <revision number="$Revision $" />
-  <last-modified date="$Date $" />
+  <revision number="$Revision$" />
+  <last-modified date="$Date$" />
   <toc name="Table of Contents" href="index.htm">
 
 <!-- START EDIT: Link your sections.  Each section is an HTML page.  
