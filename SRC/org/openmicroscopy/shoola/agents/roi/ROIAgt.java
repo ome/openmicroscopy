@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -557,8 +557,8 @@ public class ROIAgt
         for (int i = 0; i < pxsDims.sizeW; i++)
             channels[i] = ""+i;
         try {
-            DataManagementService ds = registry.getDataManagementService();
-            ChannelData[] channelData = ds.getChannelData(curImageID); 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            ChannelData[] channelData = sts.getChannelData(curImageID); 
             if (channelData != null && channelData.length == pxsDims.sizeW) {
                 for (int i = 0; i < channelData.length; i++)
                     channels[i] = ""+channelData[i].getNanometer();

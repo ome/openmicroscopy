@@ -252,7 +252,7 @@ class RenderingControlImpl
         int pixelsID = renderer.getPixelsID();
         Registry context = RenderingEngine.getRegistry();
         try {
-            context.getDataManagementService().saveRenderingSettings(pixelsID, 
+            context.getSemanticTypesService().saveRenderingSettings(pixelsID, 
                     imageID, renderer.getRenderingDef());
         } catch (Exception e) {
             MetadataSourceException mse = new MetadataSourceException(

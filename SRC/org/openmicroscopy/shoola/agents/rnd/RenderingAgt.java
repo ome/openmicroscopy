@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -209,8 +209,8 @@ public class RenderingAgt
     void initChannelData()
     {
         try {
-            DataManagementService ds = registry.getDataManagementService();
-            channelData = ds.getChannelData(curImageID); 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            channelData = sts.getChannelData(curImageID); 
             if (channelData.length != pxsDims.sizeW || channelData == null)
                 defaultInitChannelData();           
         } catch(DSAccessException dsae) {
@@ -231,8 +231,8 @@ public class RenderingAgt
     {
         try {
             if (canUpdate) {
-                DataManagementService ds = registry.getDataManagementService();
-                ds.updateChannelData(cd);
+                SemanticTypesService sts = registry.getSemanticTypesService();
+                sts.updateChannelData(cd);
                 channelData[cd.getIndex()] = cd;
             } else {
                 String msg = "The channel data can't be updated b/c of a data" +

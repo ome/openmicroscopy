@@ -36,8 +36,8 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
@@ -178,13 +178,13 @@ public class MetadataSource
 	private void load(Registry context)
 		throws MetadataSourceException
 	{
-		DataManagementService dms = context.getDataManagementService();
+		SemanticTypesService sts = context.getSemanticTypesService();
 		PixelsService ps = context.getPixelsService();
 		StackStatistics stackStats;
 		PixelsDescription desc;
 		try {
 			//Retrieve pixels information.
-            desc = dms.retrievePixels(pixelsID, imageID);
+            desc = sts.retrievePixels(pixelsID, imageID);
 			pixelType = DataSink.getPixelTypeID(desc.getPixelType());
 			pixelsDims = new PixelsDimensions(desc.getSizeX(), desc.getSizeY(),
 											desc.getSizeZ(), desc.getSizeC(), 
@@ -200,7 +200,7 @@ public class MetadataSource
 			
 			//Retrieve user settings (null if no settings available).
             //TODO: SHOULD PASS THE PIXELS STATS TO BE ON THE SAVE SIDE.
-			displayOptions = dms.retrieveRenderingSettings(pixelsID, imageID, 
+			displayOptions = sts.retrieveRenderingSettings(pixelsID, imageID, 
 										pixelType);
             
             //Get parameters to locate pixels data.
