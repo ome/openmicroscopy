@@ -71,7 +71,7 @@ public class ChainFrame extends JFrame implements ActionListener {
 	
 
 	/** the lifetime of a status label */
-	private static final int MSG_LIFETIME =3000;
+	private static final int MSG_LIFETIME =5000;
 	
 	/*** status label should take width of whole screen.*/
 	private static final int MAX_WIDTH=1000;
@@ -104,6 +104,7 @@ public class ChainFrame extends JFrame implements ActionListener {
 		this.manager = manager;
 		this.uiManager = uiManager;
 		
+		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		Container container = getContentPane();
 		canvas  = new ChainCreationCanvas(this,manager);
 		
@@ -135,6 +136,7 @@ public class ChainFrame extends JFrame implements ActionListener {
 		statusLabel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		statusLabel.setFont(Constants.SMALL_TOOLTIP_FONT);
+		statusLabel.setText("      ");
 		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		panel.add(statusLabel);
 		
