@@ -109,6 +109,14 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	
 	// the top window manager for this window
 	private TopWindowManager topWindowManager;
+	
+	
+	/* has the data been loaded ?*/
+	private int dataState=0;
+	
+	private final static int NOT_LOADED=0;
+	private final static int LOADING=1;
+	private final static int LOADED=2;
 	/**
 	 * Specifies names, icons, and tooltips for the quick-launch button and the
 	 * window menu entry in the task bar.
@@ -268,18 +276,23 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	}
 	
 	public void preHandleDisplay(TopWindowManager manager) {
-		System.err.println("button clicked for zoomable browser. eventually move loading code here..");
-		topWindowManager = manager;
-		ContentGroup group = new ContentGroup(this);
-		
-		final DatasetLoader dl = new DatasetLoader(dataManager,group);
-		final ProjectLoader pl = new ProjectLoader(dataManager,group);
-		group.setAllLoadersAdded();
+		if (dataState == NOT_LOADED) {
+			topWindowManager = manager;
+			ContentGroup group = new ContentGroup(this);
+			
+			final DatasetLoader dl = new DatasetLoader(dataManager,group);
+			final ProjectLoader pl = new ProjectLoader(dataManager,group);
+			group.setAllLoadersAdded();
+			dataState = LOADING;
+		}
+		else if (dataState == LOADED) { // already done just go ahead and show the window
+			topWindowManager.continueHandleDisplay();
+		}
+		// otherwise, we're loading. disregard.
 	}
 	
 	public void contentComplete() {
 		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
-			
 			Registry registry = dataManager.getRegistry();
 			registry.getEventBus().register(this,
 				new Class[] { 
@@ -291,7 +304,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 					LoadDataset.class});
 			buildGUI();
 			topWindowManager.continueHandleDisplay();
-			topWindowManager = null;
+			dataState = LOADED;
 		}
 	}
 	

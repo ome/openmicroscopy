@@ -129,6 +129,14 @@ public class ModulePaletteWindow
 	/** the top window manager */
 	private TopWindowManager topWindowManager;
 	
+	/* has the data been loaded ?*/
+	private int dataState=0;
+	
+	private final static int NOT_LOADED=0;
+	private final static int LOADING=1;
+	private final static int LOADED=2;
+	
+	
 	/**
 	 * Creates a new instance.
 	 */
@@ -322,13 +330,18 @@ public class ModulePaletteWindow
 	}
 	
 	public void preHandleDisplay(TopWindowManager manager) {
-		topWindowManager = manager;
-		ContentGroup group = new ContentGroup(this);
-		modLoader = new ModuleLoader(dataManager,group);
-		ChainExecutionLoader execLoader = new ChainExecutionLoader(dataManager,group);
-		ChainLoader chainLoader = new ChainLoader(dataManager,group);
-		
-		group.setAllLoadersAdded();
+		if (dataState == NOT_LOADED) {
+			topWindowManager = manager;
+			ContentGroup group = new ContentGroup(this);
+			modLoader = new ModuleLoader(dataManager,group);
+			ChainExecutionLoader execLoader = new ChainExecutionLoader(dataManager,group);
+			ChainLoader chainLoader = new ChainLoader(dataManager,group);
+			
+			group.setAllLoadersAdded();
+			dataState = LOADING;
+		}
+		else if (dataState == LOADED)
+			topWindowManager.continueHandleDisplay();
 	}
 	
 	public void contentComplete() {
@@ -336,7 +349,7 @@ public class ModulePaletteWindow
 			buildGUI((ModulesData) modLoader.getContents());
 			uiManager.contentComplete();
 			topWindowManager.continueHandleDisplay();
-			topWindowManager = null;
+			dataState = LOADED;
 		}
 	}
 	
