@@ -59,22 +59,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	
 	private static long paintTime;
 	private static long dragTime=0;
-	/**
-	 * Constructs a new range slider.
-	 * 
-	 * @param minimum -
-	 *            the minimum value of the range.
-	 * @param maximum -
-	 *            the maximum value of the range.
-	 * @param lowValue -
-	 *            the current low value shown by the range slider's bar.
-	 * @param highValue -
-	 *            the current high value shown by the range slider's bar.
-	 */
-	public LongRangeSlider(long minimum, long maximum, long lowValue, long highValue) {
-		this(new BoundedLongRangeModel(lowValue, highValue - lowValue,
-				minimum, maximum));
-	}
+
+	
 	/**
 	 * Creates a new LongRangeSlider object.
 	 * 
@@ -155,7 +141,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 			high = getHighValue();
 		}
 		long extent = high - lowValue;
-		model.setRangeProperties(lowValue, extent, getMinimum(), getMaximum(),
+		model.setProperties(lowValue, extent, getMinimum(), getMaximum(),
 				true);
 	}
 	/**

@@ -71,17 +71,9 @@ public class BoundedLongRangeModel {
 	}	
 	
 	public BoundedLongRangeModel(long min,long max) {
-		this(min,max-min,min,max);
-	}
-	
-    public BoundedLongRangeModel(long value, long extent, long min, long max)
-    {
-        if ((max >= min) && 
-	    (value >= min) && 
-	    ((value + extent) >= value) &&   
-	    ((value + extent) <= max)) {
-            this.value = value;
-            this.extent = extent;
+        if (max >= min) {
+            this.value = min;
+            this.extent = max-min;
             this.min = min;
             this.max = max;
         }
@@ -122,7 +114,7 @@ public class BoundedLongRangeModel {
         if(newValue + extent > max) {
             newValue = max - extent; 
         }
-        setRangeProperties(newValue, extent, min, max, isAdjusting);
+        setProperties(newValue, extent, min, max, isAdjusting);
     }
     
     public void setExtent(long n) {
@@ -130,36 +122,36 @@ public class BoundedLongRangeModel {
         if(value + newExtent > max) {
             newExtent = max - value;
         }
-        setRangeProperties(value, newExtent, min, max, isAdjusting);
+        setProperties(value, newExtent, min, max, isAdjusting);
     }
 
     public void setMinimum(long n) {
         long newMax = Math.max(n, max);
         long newValue = Math.max(n, value);
         long newExtent = Math.min(newMax - newValue, extent);
-        setRangeProperties(newValue, newExtent, n, newMax, isAdjusting);
+        setProperties(newValue, newExtent, n, newMax, isAdjusting);
     }
     
     public void setMaximum(long n) {
         long newMin = Math.min(n, min);
         long newExtent = Math.min(n - newMin, extent);
         long newValue = Math.min(n - newExtent, value);
-        setRangeProperties(newValue, newExtent, newMin, n, isAdjusting);
+        setProperties(newValue, newExtent, newMin, n, isAdjusting);
     }
 
     public void setValueIsAdjusting(boolean b) {
-        setRangeProperties(value, extent, min, max, b);
+        setProperties(value, extent, min, max, b);
     }
 
     public boolean getValueIsAdjusting() {
         return isAdjusting; 
     }
 
-    public void setRangeProperties(long newValue,long newEnd) {
-    		setRangeProperties(newValue,newEnd-newValue,min,max,false);
+    public void setProperties(long newValue,long newEnd) {
+    		setProperties(newValue,newEnd-newValue,min,max,false);
     }
     
-    public void setRangeProperties(long newValue, 
+    public void setProperties(long newValue, 
     		long newExtent, long newMin, long newMax, boolean adjusting)
     {
         if (newMin > newMax) {
@@ -220,7 +212,7 @@ public class BoundedLongRangeModel {
     /** 
      * Runs each <code>ChangeListener</code>'s <code>stateChanged</code> method.
      * 
-     * @see #setRangeProperties
+     * @see #setProperties
      * @see EventListenerList
      */
     protected void fireStateChanged() 
