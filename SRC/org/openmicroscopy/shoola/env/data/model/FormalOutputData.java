@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.data.model;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.dto.FormalOutput;
 
 /** 
  * Module Formal outputs
@@ -55,6 +56,7 @@ public class FormalOutputData
 	
 	private String featureTag;
 						
+	private FormalOutput formalOutputDTO;
 	
 	public FormalOutputData() {};
 	
@@ -74,7 +76,15 @@ public class FormalOutputData
 		return featureTag;
 	}
 
+	public FormalOutput getFormalOutputDTO() {
+		return formalOutputDTO;
+	}
+	
 	public void setFeatureTag(String featureTag) {
 		this.featureTag = featureTag;
+	}
+	
+	public void setFormalOutputDTO(FormalOutput formalOutputDTO) {
+		this.formalOutputDTO = formalOutputDTO;
 	}
 }
