@@ -34,6 +34,12 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * A collection of factory methods to create a {@link Registry} and helper
@@ -97,11 +103,83 @@ public class RegistryFactory
 		Parser p = new Parser(file, (RegistryImpl) reg);
 		p.parse();
 	}
+	/**
+	 * Links the {@link Registry} and the {@link EventBus}.
+	 * 
+	 * @param eb	Reference to the {@link EventBus}.
+	 * @param reg	The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkEventBus(EventBus eb, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setEventBus(eb);
+	}
+	/**
+	 * Links the {@link Registry} and the {@link DataManagementService}.
+	 * 
+	 * @param dms	Reference to the {@link DataManagementService}.
+	 * @param reg	The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkDMS(DataManagementService dms, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setDMS(dms);
+	}
+	
+	/**
+	 * Links the {@link Registry} and the {@link SemanticTypeService}.
+	 * 
+	 * @param sts	Reference to the {@link SemanticTypeService}.
+	 * @param reg	The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkSTS(SemanticTypesService sts, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setSTS(sts);
+	}
+	/**
+	 * Links the {@link Registry} and the {@link TopFrame}.
+	 * 
+	 * @param tf	Reference to the {@link TopFrame}.
+	 * @param reg	The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkTopFrame(TopFrame tf, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setTopFrame(tf);
+	}
+	/**
+	 * Links the {@link Registry} and the {@link Logger}.
+	 * 
+	 * @param logger	Reference to the {@link Logger}.
+	 * @param reg		The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkLogger(Logger logger, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setLogger(logger);
+	}
+	/**
+	 * Links the {@link Registry} and the {@link UserNotifier}.
+	 * 
+	 * @param un		Reference to the {@link UserNotifier}.
+	 * @param reg		The {@link Registry} to link.
+	 * @throws ConfigException
+	 */
+	public static void linkUserNotifier(UserNotifier un, Registry reg)
+		throws ConfigException
+	{
+		((RegistryImpl) reg).setUserNotifier(un);
+	}
+	
 	
 	/* TODO: helper methods to link a service to the registry
-	 * linkDataMngService(dms, reg)
 	 * linkSemTypesService(sts, reg)
-	 * linkEventBus(eb, reg)
 	 * etc.
 	 */
 }

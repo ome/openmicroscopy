@@ -32,6 +32,16 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 import java.util.HashMap;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 /** 
  * Implements the <code>Registry</code> interface. 
  * It maintains a map of
@@ -54,29 +64,21 @@ class RegistryImpl
     implements Registry
 {
     
-    private HashMap             entriesMap;
-    //private EventBus                eb;
-    //private DataManagementService   dms;
-    //private SemanticTypesService    sts;
+    private HashMap             	entriesMap;
+    private EventBus                eb;
+    private DataManagementService   dms;
+    private SemanticTypesService    	sts;
     //private PixelsService           ps;
-    //private LogService              ls;
-    //private TopFrame                tf;
-    //private UserNotifier            un;
+    //private ImageService			is;
+    private Logger             		logger;
+    private TopFrame                tf;
+    private UserNotifier            un;
     
     RegistryImpl()
     {
         entriesMap = new HashMap();
     }
-	/** 
-	 * Add a new entry in the map.
-	 * 
-	 * @param e new Entry.
-	 */
-    void addEntry(Entry e)
-    {
-        entriesMap.put(e.getName(), e);
-    }
-    
+	
 	/** Implemented as specified by {@link Registry}. */
     public Object lookup(String name)
     {
@@ -84,19 +86,105 @@ class RegistryImpl
         return entry.getValue();
     }
 	/** Implemented as specified by {@link Registry}. */
-    //public EventBus getEventBus();
+    public EventBus getEventBus()
+    {
+    	return eb;
+
+    }
 	/** Implemented as specified by {@link Registry}. */
-   //public DataManagementService getDataManagementService();
+	public DataManagementService getDataManagementService()
+	{
+		return dms;
+	}
 	/** Implemented as specified by {@link Registry}. */
-   //public SemanticTypesService getSemanticTypesServices();
+	public SemanticTypesService getSemanticTypesService()
+	{
+		return sts;
+	}
 	/** Implemented as specified by {@link Registry}. */
-   //public PixelsService getPixelsServices();
+	//public PixelsService getPixelsServices();
 	/** Implemented as specified by {@link Registry}. */
-   //public LogService getLogService();
+	public Logger getLogService()
+	{
+		return logger;
+	}
 	/** Implemented as specified by {@link Registry}. */
-   //public TopFrame getTopFrame();
+	public TopFrame getTopFrame()
+	{
+		return tf;
+	}
 	/** Implemented as specified by {@link Registry}. */
-   //public UserNotifier getUserNotifier();
-    
-    
+	public UserNotifier getUserNotifier() 
+	{
+   		return un;
+   	}
+   
+	/** 
+	* Add a new entry in the map.
+	* 
+	* @param e new Entry.
+	*/
+	void addEntry(Entry e)
+	{
+		entriesMap.put(e.getName(), e);
+   	}
+
+	/**
+	* Set the {@link EventBus}.
+	* 
+	* @param eb	{@link EventBus}.
+	*/
+	void setEventBus(EventBus eb)
+	{
+		this.eb = eb;
+	}
+   	/**
+	* Set the {@link DataManagementService}.
+	* 
+	* @param dms	{@link DataManagementService}.
+	*/
+	void setDMS(DataManagementService dms)
+	{
+		this.dms = dms;
+	}
+	/**
+	* Set the {@link SemanticTypeService}.
+	* 
+	* @param sts {@link SemanticTypeService}.
+	*/
+	void setSTS(SemanticTypesService sts)
+   	{
+		this.sts = sts;
+   	}
+   	/**
+	* Set the {@link TopFrame}.
+	* 
+	* @param tf {@link TopFrame}.
+	*/
+   	void setTopFrame(TopFrame tf)
+   	{
+		this.tf = tf;
+   	}
+
+	/**
+	* Set the {@link Logger}.
+	* 
+	* @param logger {@link Logger}.
+	*/
+	void setLogger(Logger logger)
+	{
+		this.logger = logger;
+	}
+	/**
+	* Set the {@link UserNotifier}.
+	* 
+	* @param un {@link UserNotifier}.
+	*/
+	void setUserNotifier(UserNotifier un)
+	{
+		this.un = un;
+	}
+
+		
+		
 }

@@ -29,6 +29,13 @@
 
 package org.openmicroscopy.shoola.env.config;
 
+import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 /** Declares the operations to be used to access configuration entries and 
  * container's services.
  *
@@ -43,15 +50,51 @@ package org.openmicroscopy.shoola.env.config;
  * @since OME2.2
  */
 public interface Registry
-{    
-   public Object lookup(String name);
-   //public EventBus getEventBus();
-   //public DataManagementService getDataManagementService();
-   //public SemanticTypesService getSemanticTypesService();
-    //public PixelsService getPixelsServce();
-   //public LogService getLogService();
-   //public TopFrame getTopFrame();
-   //public UserNotifier getUserNotifier();
+{  
+	/**
+	 * Retrieve an {@link Entry} from the map maintained by the Registry.
+	 * 
+	 * @param name	{@link Entry}'s name.
+	 * @return See above.
+	 */  
+	public Object lookup(String name);
+   	/**
+    * Return the {@link EventBus} registered.
+    * 
+    * @return See above.
+    */
+	public EventBus getEventBus();
+   	/**
+    * Return the {@link DataManagementService} registered.
+    * 
+    * @return See above.
+    */
+   	public DataManagementService getDataManagementService();
+   	/**
+   	* Return the {@link SemanticTypesService} registered.
+   	* 
+   	* @return See above.
+   	*/
+   	public SemanticTypesService getSemanticTypesService();
+   	//public PixelsService getPixelsServce();
+   	/**
+   	* Return the {@link Logger} registered.
+   	* 
+   	* @return See above.
+   	*/
+	public Logger getLogService();
+   	/**
+   	* Return the {@link TopFrame} registered.
+   	* 
+   	* @return See above.
+   	*/
+	public TopFrame getTopFrame();
+   	/**
+   	* Return the {@link UserNotifier} registered.
+   	* 
+   	* @return See above.
+   	*/
+   	public UserNotifier getUserNotifier();
    
    
 }
