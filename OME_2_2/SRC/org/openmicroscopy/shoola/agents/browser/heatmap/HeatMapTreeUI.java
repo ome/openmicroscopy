@@ -37,6 +37,7 @@
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,6 +67,10 @@ public class HeatMapTreeUI extends JPanel implements HeatMapLoadListener
     private SemanticTypeTree tree;
     
     private Set nodeSelectionListeners;
+    
+    // [BUG 135] fix
+    private static Cursor DEFAULT_CURSOR = new Cursor(Cursor.DEFAULT_CURSOR);
+    private static Cursor WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
     
     /**
      * The default tree selection handler for the entire heat map tree.
@@ -241,11 +246,15 @@ public class HeatMapTreeUI extends JPanel implements HeatMapLoadListener
     public void loadStarted()
     {
         treeView.setEnabled(false);
+        // [BUG 135] fix
+        setCursor(WAIT_CURSOR);
     }
     
     public void loadFinished()
     {
         treeView.setEnabled(true);
+        // [BUG 135] fix
+        setCursor(DEFAULT_CURSOR);
     }
 
 }
