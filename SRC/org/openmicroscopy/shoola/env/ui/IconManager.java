@@ -30,16 +30,38 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.Image;
+import java.net.URL;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
- * 
+ * Provides the icons used by the container.
+ * <p>This is an utility primarily meant to serve the other classes in this
+ * package.  The icons are normally retrieved by first calling the 
+ * {@link #getInstance(Registry) getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class &#151; icons will be retrieved
+ * from the container's graphics bundle, which implies that the container
+ * configuration has been read in (this happens during the initialization
+ * procedure).</p>
+ * <p>However, some components (the user notifier and the splash screen) need
+ * be independent from the container's initialization (we need to display the
+ * splash screen concurrently to the initialization sequence and the user
+ * notifier may be needed to tell the user about an error occurred at an
+ * arbitrary time during initialization).  For this reason, some class methods
+ * are available to retrieve the icons needed by those components in a way that
+ * is independent from the container's initialization procedure.</p>
+ * <p>Finally, as the <i>OME</i> icon is virtually needed for every title-bar,
+ * a public class method is exposed to retrieve it &#151; so agents needn't
+ * include that icon in their graphics bundle.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,77 +76,199 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 public class IconManager
 {
-	/** Contains icon objects to be retrieved through the icon IDs. */
-	private Icon[]				icons;
-
-	/** ID of the OME logo icon. */
-	public static final int     OME = 0;   
-  
-	/** ID of the information icon. */
-	public static final int     INFO = 1;
 	
-	/** ID of the error icon. */
-	public static final int     ERROR = 2;
+	/** 
+	 * The <i>OME</i> logo to be used for title-bars.
+	 * We cache it as this icon is used in basically every top-level UI.
+	 */
+	private static final Icon		OME_ICON = createIcon("graphx/OME16.png");
 	
-	/** ID of the warning icon. */
-	public static final int     WARNING = 3;
+	/** The pathname, relative to this class, of the splash screen. */
+	private static final String		SPLASH_SCREEN = "graphx/splash.jpg";
 
+	/** 
+	 * The pathname, relative to this class, of the splash screen login button
+	 * image. 
+	 */
+	private static final String		SPLASH_SCREEN_LOGIN = 
+														"graphx/login_out.jpg";
+
+	/** 
+	 * The pathname, relative to this class, of the splash screen login button
+	 * image displayed when the mouse is over the button. 
+	 */
+	private static final String		SPLASH_SCREEN_LOGIN_OVER = 
+														"graphx/login_over.jpg";
+														
+	/** 
+	 * The pathname, relative to this class, of the default error icon to
+	 * use for notification dialogs. 
+	 */
+	private static final String		DEFAULT_ERROR_ICON_PATH = 
+													"graphx/stock_stop-32.png";
+	
+	/** 
+	 * The pathname, relative to this class, of the default warning icon to
+	 * use for notification dialogs.
+	 */
+	private static final String		DEFAULT_WARN_ICON_PATH = 
+										"graphx/stock_dialog-warning-32.png";
+													
+	/** 
+	 * The pathname, relative to this class, of the default info icon to
+	 * use for notification dialogs.
+	 */													
+	private static final String		DEFAULT_INFO_ICON_PATH = 
+											"graphx/stock_dialog-info-32.png";
+	
 	/** ID of the help icon. */
-	public static final int		HELP = 4;
+	static final int		HELP = 0;
 	
 	/** ID of the connect to DS icon. */
-	public static final int		CONNECT_DS = 5;
+	static final int		CONNECT_DS = 1;
 	
 	/** ID of the connect to IS icon. */
-	public static final int		CONNECT_IS = 6;
+	static final int		CONNECT_IS = 2;
 	
 	/** ID of the exit icon. */
-	public static final int		EXIT = 7;
+	static final int		EXIT = 3;
 				
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 7;
+	private static int      MAX_ID = 3;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
-	
-	//TODO: modified when icons are ready.
-	static {
-		relPaths[OME] = "OME16.png";
-		relPaths[INFO] = "information16.png";
-		relPaths[ERROR] = "information16.png"; 
-		relPaths[WARNING] = "information16.png";
+	static {  //TODO: modify when icons are ready.
 		relPaths[HELP] = "information16.png";
 		relPaths[CONNECT_DS] = "information16.png";
 		relPaths[CONNECT_IS] = "information16.png";
 		relPaths[EXIT] = "information16.png";
 	}
 	
-	/**
-	 * The sole instance that provides.
-	 */
+	/** The sole instance. */
 	private static IconManager	singleton;
+	
+	
+	/**
+	 * Returns the <i>OME</i> logo to be used for title-bars.
+	 * 
+	 * @return See above.
+	 */
+	public static Image getOMEImageIcon()
+	{
+		//This type cast is OK, see implementation of createIcon.
+		return ((ImageIcon) OME_ICON).getImage();
+	}
+	
+	/**
+	 * Returns the <i>OME</i> logo.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getOMEIcon()
+	{
+		return OME_ICON;
+	}
+	
+	/**
+	 * Returns the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getSplashScreen()
+	{
+		return createIcon(SPLASH_SCREEN);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getLoginButton()
+	{
+		return createIcon(SPLASH_SCREEN_LOGIN);
+	}
+	
+	/**
+	 * Returns the rollover image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getLoginButtonOver()
+	{
+		return createIcon(SPLASH_SCREEN_LOGIN_OVER);
+	}
+
+	/**
+	 * Returns the default error icon to use for notification dialogs.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getDefaultErrorIcon()
+	{
+		return createIcon(DEFAULT_ERROR_ICON_PATH);
+	}
+	
+	/**
+	 * Returns the default warning icon to use for notification dialogs.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getDefaultWarnIcon()
+	{
+		return createIcon(DEFAULT_WARN_ICON_PATH);
+	}
+	
+	/**
+	 * Returns the default info icon to use for notification dialogs.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getDefaultInfoIcon()
+	{
+		return createIcon(DEFAULT_INFO_ICON_PATH);
+	}
+	
+	/** 
+	 * Utility factory method to create an icon from a file.
+	 *
+	 * @param path    The path of the icon file relative to this class.
+	 * @return  An instance of {@link javax.swing.Icon Icon} or
+	 * 			<code>null</code> if the path was invalid.
+	 */
+	private static Icon createIcon(String path)
+	{
+		URL location = IconManager.class.getResource(path);
+		ImageIcon icon = null;
+		if (location != null)	icon = new ImageIcon(location);
+		return icon;
+	}
 	
 	/**
 	 * Returns the <code>IconManager</code> object. 
 	 * 
 	 * @return	See above.
 	 */
-	public static IconManager getInstance(Registry registry)
+	static IconManager getInstance(Registry registry)
 	{
-		if (singleton == null) {
-			try {	
-				singleton = new IconManager(registry);
-			} catch (Exception e) {
-			throw new RuntimeException("Can't create the IconManager", e);
-			}
-		}
+		if (singleton == null)	singleton = new IconManager(registry);
 		return singleton;
 	}
 	
+	
+	
+	
+	/**
+	 * The factory retrieved from the container's configuration.
+	 * It can instantiate any icon whose file is contaied in the container's
+	 * graphics bundle.
+	 */
 	private IconFactory 	factory;
+	
 	
 	/**
 	 * Creates a new instance and configures the parameters.
@@ -133,21 +277,33 @@ public class IconManager
 	 */
 	private IconManager(Registry registry)
 	{
-		factory = (IconFactory) 
-					registry.lookup("/resources/icons/DefaultFactory");
-		icons = new Icon[MAX_ID+1];
+		factory = (IconFactory) registry.lookup(LookupNames.ICONS_FACTORY);
+		if (factory == null) {
+			String summary = "Can't retrieve container's icons. ";
+			StringBuffer buf = new StringBuffer();
+			buf.append("The container's configuration file is probably ");
+			buf.append("corrupted.  Please make sure that it contains an ");
+			buf.append("entry for the icon factory: ");
+			buf.append(LookupNames.ICONS_FACTORY);
+			buf.append(".");			
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyWarning(null, summary, buf.toString());
+			registry.getLogger().warn(this, summary + buf.toString());
+		}
 	}
 
 	/** 
-	 * Retrieves the icon specified by the icon <code>ID</code>.
+	 * Retrieves the icon specified by the icon <code>id</code>.
 	 *
-	 * @param   ID    Must be one of the IDs defined by this class.
-	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.
+	 * @param   id    Must be one of the ID's defined by this class.
+	 * @return  The specified icon or <code>null</code> if the icon couldn't
+	 * 			be retrieved or if <code>id</code> is not one of the ID's
+	 * 			defined by this class.
 	 */    
-	public Icon getIcon(int ID)
+	Icon getIcon(int id)
 	{
-		if (icons[ID] == null) icons[ID] = factory.getIcon(relPaths[ID]);
-		return icons[ID];
+		if (factory == null || id < 0 || MAX_ID < id)	return null;
+		return factory.getIcon(relPaths[id]);
 	}
 	
 }
