@@ -50,6 +50,7 @@ import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.ToolTipHandler;
 public class ModulePaletteToolTipHandler extends ToolTipHandler {
 	
 	protected Font font = Constants.TOOLTIP_FONT;
+	protected Font descFont = Constants.SMALL_TOOLTIP_FONT;
 	
 	public ModulePaletteToolTipHandler(PCamera camera) {
 		super(camera);
@@ -81,24 +83,45 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 	 * @param event the input event that leads to the change.
 	 */
 	public PNode setToolTipNode(PInputEvent event) {
-		PNode p = (PNode) null;
+		PPath node = null;
 		PNode n = event.getInputManager().getMouseOver().getPickedNode();
 		double scale = camera.getViewScale();
+		double y = 0;
 		if (scale < ToolTipHandler.SCALE_THRESHOLD) {
 			if (n instanceof ModuleView)  {
-				String s = ((ModuleView) n).getModule().getName();
-				if (s.compareTo("") != 0) {
-					PText pt = new PText(s);
+				ModuleView modView = (ModuleView) n;
+				ChainModuleData mod = modView.getModule();
+				String name = mod.getName();
+				String desc = mod.getDescription();
+				if (name.compareTo("") != 0) {
+					PText pt = new PText(name);
 					pt.setFont(font);
-					p = pt;
+					node = new PPath();
+					node.addChild(pt);
+					pt.setOffset(0,y);
+					pt.setFont(font);
+					y += pt.getHeight();
+					
+					if (desc != null && desc.compareTo("") != 0 ) {
+						PText p = new PText(desc.trim());
+						node.addChild(p);
+						p.setFont(descFont);
+						p.setOffset(0,y);
+						y+=p.getHeight();				
+					}
 				}
 			}
-			return p;
+			if (node != null) {
+				node.setBounds(node.getUnionOfChildrenBounds(null));
+				node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+				node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+			}
+			return node;
 		}
 		else if (n instanceof FormalParameter)
 			return getParameterToolTip((FormalParameter) n);
 		else 
-			return p;
+			return node;
 	}
 	
 	private PNode getParameterToolTip(FormalParameter param) {
