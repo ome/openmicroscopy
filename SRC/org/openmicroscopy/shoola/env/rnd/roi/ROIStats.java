@@ -66,19 +66,19 @@ public class ROIStats
      * The returned value <code>L</code> is calculated as follows: 
      * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
      * 
-     * @param   z   The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-     * @param   w   The w coord.  Must be in the range <code>[0, sizeW)</code>.
-     * @param   t   The t coord.  Must be in the range <code>[0, sizeT)</code>.
-     * @return  The linearized value corresponding to <code>(z, w, t)</code>.
+     * @param z   The z coord.  Must be in the range <code>[0, sizeZ)</code>.
+     * @param w   The w coord.  Must be in the range <code>[0, sizeW)</code>.
+     * @param t   The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @return The linearized value corresponding to <code>(z, w, t)</code>.
      */
     private Integer linearize(int z, int w, int t) {
         if (z < 0 || dims.sizeZ <= z) 
             throw new IllegalArgumentException(
                     "z out of range [0, "+dims.sizeZ+"): "+z+".");
-        if(w < 0 || dims.sizeW <= w) 
+        if (w < 0 || dims.sizeW <= w) 
             throw new IllegalArgumentException(
                     "w out of range [0, "+dims.sizeW+"): "+w+".");
-        if(t < 0 || dims.sizeT <= t) 
+        if (t < 0 || dims.sizeT <= t) 
             throw new IllegalArgumentException(
                     "t out of range [0, "+dims.sizeT+"): "+t+".");
         return new Integer(dims.sizeZ*dims.sizeW*t + dims.sizeZ*w + z);
@@ -86,7 +86,8 @@ public class ROIStats
     
     public ROIStats(PixelsDimensions dims)
     {
-        if (dims == null) throw new NullPointerException("No dims.");      
+        if (dims == null) throw new NullPointerException("No dims.");
+        this.dims = dims;
     }
     
     /**
