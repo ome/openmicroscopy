@@ -67,7 +67,7 @@ public class BrowserFrame extends StandaloneFrame
      */
     public BrowserFrame(BrowserController theController)
     {
-        if(controller != null)
+        if(theController != null)
         {
             this.controller = theController;
         }
