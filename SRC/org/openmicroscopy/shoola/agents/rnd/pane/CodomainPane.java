@@ -47,8 +47,8 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
-import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;

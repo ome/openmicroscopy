@@ -40,7 +40,7 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
 
 /** 
  * 
@@ -174,7 +174,6 @@ class ContrastStretchingDialogManager
 		int s  = control.getCurOutputStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder, 
 											control.getCurEnd()-s, s);
-		csDef.setXStart(xReal);
 		//Forward event to control
 	}
 	
@@ -185,7 +184,6 @@ class ContrastStretchingDialogManager
 		int s  = control.getCurOutputStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder,
 											control.getCurOutputEnd()-s, s);
-		csDef.setXEnd(xReal);
 		//Forward event to control
 	}
 	
@@ -196,7 +194,7 @@ class ContrastStretchingDialogManager
 		int e = control.getCurOutputEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
 										e-control.getCurOutputStart(), e);
-		csDef.setYStart(yReal);
+		
 		//Forward event to control
 	}
 	
@@ -207,7 +205,6 @@ class ContrastStretchingDialogManager
 		int e = control.getCurOutputEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
 										e-control.getCurOutputStart(), e);
-		csDef.setYEnd(yReal);
 		//Forward event to control
 	}
 	

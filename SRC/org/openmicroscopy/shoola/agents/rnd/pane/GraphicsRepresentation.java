@@ -48,8 +48,8 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * Builds a JPanel with the curve associated to the specified family.

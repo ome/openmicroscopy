@@ -44,7 +44,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
 
 /** 
  * 

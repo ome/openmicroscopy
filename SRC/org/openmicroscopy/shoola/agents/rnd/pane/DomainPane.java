@@ -48,8 +48,8 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;

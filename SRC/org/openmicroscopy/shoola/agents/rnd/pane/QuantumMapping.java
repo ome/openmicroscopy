@@ -38,9 +38,9 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
-import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
-import org.openmicroscopy.shoola.env.rnd.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumDef;
 
 /** 
  * 

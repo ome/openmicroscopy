@@ -39,7 +39,7 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * Handles events fired the graphical cursors drawn in

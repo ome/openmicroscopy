@@ -40,8 +40,8 @@ import javax.swing.JCheckBox;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
-import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
 
 /** 
  * 

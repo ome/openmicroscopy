@@ -37,7 +37,7 @@ import javax.swing.JDialog;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
 
 /** 
  * 
@@ -70,17 +70,7 @@ class ContrastStretchingDialog
 							ContrastStretchingDef csDef)
 	{
 		manager = new ContrastStretchingDialogManager(this, control, csDef);
-		int xStart, xEnd, yStart, yEnd;
-		int lb = ContrastStretchingPanel.leftBorder;
-		int tb = ContrastStretchingPanel.topBorder;
-		int s = control.getCurOutputStart();
-		int e = control.getCurOutputEnd();
-		xStart = lb+manager.convertRealIntoGraphics(csDef.getXStart(), e-s, s);
-		xEnd = lb+manager.convertRealIntoGraphics(csDef.getXEnd(), e-s, s);
-		yStart = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
-		yEnd = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
-		manager.setRectangles(xStart, xEnd, yStart, yEnd);
-		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
+		initPanel(control, csDef);
 		manager.attachListeners();
 		buildGUI();	
 	}
@@ -94,7 +84,25 @@ class ContrastStretchingDialog
 	{
 		return manager;
 	}
-
+	
+	/** Inialize the {@link ContrastStretchingPanel}. */
+	private void initPanel(QuantumMappingManager control,
+							ContrastStretchingDef csDef)
+	{
+		int xStart, xEnd, yStart, yEnd;
+		int lb = ContrastStretchingPanel.leftBorder;
+		int tb = ContrastStretchingPanel.topBorder;
+		int s = control.getCurOutputStart();
+		int e = control.getCurOutputEnd();
+		xStart = lb+manager.convertRealIntoGraphics(csDef.getXStart(), e-s, s);
+		xEnd = lb+manager.convertRealIntoGraphics(csDef.getXEnd(), e-s, s);
+		yStart = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
+		yEnd = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
+		manager.setRectangles(xStart, xEnd, yStart, yEnd);
+		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
+	}
+	
+	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
 		Container contentPane = super.getContentPane();
@@ -102,4 +110,5 @@ class ContrastStretchingDialog
 		setSize(ContrastStretchingPanel.WIDTH, HEIGHT_WIN);
 		setResizable(false);
 	}
+	
 }
