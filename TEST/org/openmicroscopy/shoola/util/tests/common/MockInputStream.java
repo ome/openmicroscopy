@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.MockInputStream
+ * org.openmicroscopy.shoola.util.tests.common.MockInputStream
  *
  *------------------------------------------------------------------------------
  *

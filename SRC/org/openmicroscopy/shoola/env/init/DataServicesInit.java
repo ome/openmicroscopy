@@ -42,7 +42,6 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -60,19 +59,14 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
  * @since OME2.2
  */
 
-final class DataServicesInit
+public final class DataServicesInit
 	extends InitializationTask
 {
 
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	DataServicesInit(Container c)
-	{
-		super(c);
-	}
+	public DataServicesInit() {}
 
 	/**
 	 * Returns the name of this task.

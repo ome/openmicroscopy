@@ -44,7 +44,10 @@ import org.openmicroscopy.shoola.env.Container;
  * </p>
  * <p>This class factors out a reference to the {@link Container} singleton, as
  * this object is needed by all initialization tasks to perform their activity.
- * </p>
+ * It also factors out a reference to the {@link Initializer} which is needed
+ * by some tasks.</p>
+ * <p>Because task objects are created through reflection, every subclass will
+ * have to provide a public no-parms constructor.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,18 +63,37 @@ import org.openmicroscopy.shoola.env.Container;
 
 abstract class InitializationTask
 {
+    
 	/** Reference to the singleton {@link Container}. */
 	protected Container		container;
+    
+    /** Reference to the command processor. */
+    protected Initializer   initializer;
 	
+    
 	/**
-	 * Forces every subclass to have this constructor.
+     * Links this object to the {@link Container}.
+	 * Called by the reflection code in the {@link Initializer} to set
+     * the reference to the {@link Container} when the object is created.
 	 * 
 	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	protected InitializationTask(Container c)
+	void linkContainer(Container c)
 	{
 		container = c;
 	}
+    
+    /**
+     * Links this object to the {@link Initializer}.
+     * Called by the reflection code in the {@link Initializer} to set
+     * the reference to the {@link Initializer} when the object is created.
+     * 
+     * @param i Reference to the {@link Initializer}.
+     */
+    void linkInitializer(Initializer i)
+    {
+        initializer = i;
+    }
 	
 	/**
 	 * Returns the name of this task.
@@ -101,10 +123,10 @@ abstract class InitializationTask
 	/**
 	 * Rolls back the initialization task.
 	 * This method is typically implemented by those tasks that require
-	 * to be undone if an error occurs during the initialization procedure --
-	 * this allows for the container to exit gracefully.  For example, the
-	 * data management service has to release any acquired network resources
-	 * before the program exits.
+	 * to be undone if an error occurs during the initialization procedure
+     * &#151; this allows for the container to exit gracefully.  For example,
+     * the data management service has to release any acquired network 
+     * resources before the program exits.
 	 */
 	abstract void rollback();
 	

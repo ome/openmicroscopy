@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.LoggerInit
+ * org.openmicroscopy.shoola.env.ui.MockTaskBar
  *
  *------------------------------------------------------------------------------
  *
@@ -27,8 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.init;
-
+package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
@@ -36,67 +35,66 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.log.LoggerFactory;
+import util.mocks.IMock;
+import util.mocks.MethodSignature;
+import util.mocks.MockSupport;
+import util.mocks.MockedCall;
 
 /** 
- * Creates the {@link Logger} and links it to the container's
- * {@link Registry}.
- * 
- * @see	InitializationTask
+ * Mock object.
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public final class LoggerInit
-	extends InitializationTask
+public class MockTaskBar
+    extends NullTaskBar
+    implements IMock
 {
-
-	/**
-	 * Constructor required by superclass.
-	 */
-	public LoggerInit() {}
-
-	/**
-	 * Returns the name of this task.
-	 * @see InitializationTask#getName()
-	 */
-	String getName()
-	{
-		return "Starting Log Service";
-	}
-	
-	/** 
-	 * Does nothing, as this task requires no set up.
-	 * @see InitializationTask#configure()
-	 */
-	void configure() {}
-
-	/** 
-	 * Carries out this task.
-	 * @see InitializationTask#execute()
-	 */
-	void execute() 
-		throws StartupException
-	{		
-		Registry reg = container.getRegistry();
-		Logger logger = LoggerFactory.makeNew(container);
-		RegistryFactory.linkLogger(logger, reg);
-	}
-	
-	/** 
-	 * Does nothing.
-	 * @see InitializationTask#rollback()
-	 */
-	void rollback() {}
-
+    
+    private static final MethodSignature open = 
+        new MethodSignature(MethodSignature.PUBLIC, void.class, "open");
+    
+    
+    private MockSupport     mockSupport;
+    
+    
+    public MockTaskBar()
+    {
+        mockSupport = new MockSupport();
+    }
+    
+    //Used both in set up and verification mode.
+    public synchronized void open()
+    {
+        MockedCall mc = new MockedCall(open);
+        if (mockSupport.isSetUpMode())
+            mockSupport.add(mc);
+        else //verification mode.
+            mockSupport.verifyCall(mc);
+    }
+    
+    /**
+     * @see util.mocks.IMock#activate()
+     */
+    public synchronized void activate()
+    {
+        mockSupport.activate(); 
+    }
+    
+    /**
+     * @see util.mocks.IMock#verify()
+     */
+    public synchronized void verify()
+    {
+        mockSupport.verifyCallSequence();
+    }
+    
 }

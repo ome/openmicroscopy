@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -57,19 +56,14 @@ import org.openmicroscopy.shoola.env.event.EventBusFactory;
  * @since OME2.2
  */
 
-final class EventBusInit 
+public final class EventBusInit 
 	extends InitializationTask
 {
 
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	EventBusInit(Container c)
-	{
-		super(c);
-	}
+	public EventBusInit() {}
 
 	/**
 	 * Returns the name of this task.

@@ -56,19 +56,14 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
  * @since OME2.2
  */
 
-final class ContainerConfigInit
+public final class ContainerConfigInit
 	extends InitializationTask 
 {
 	
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	ContainerConfigInit(Container c)
-	{
-		super(c);
-	}
+	public ContainerConfigInit() {}
 	
 	/**
 	 * Returns the name of this task.

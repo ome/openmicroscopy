@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.tests.common.FakeBufferedImage
+ * org.openmicroscopy.shoola.env.ui.NullTaskBar
  *
  *------------------------------------------------------------------------------
  *
@@ -27,20 +27,21 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.util.tests.common;
+package org.openmicroscopy.shoola.env.ui;
+
+import javax.swing.AbstractButton;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 
 
 //Java imports
-import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Fake object.
- * A {@link BufferedImage} of <code>2x2</code> pixels of 
- * <code>TYPE_BYTE_GRAY</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,14 +54,62 @@ import java.awt.image.BufferedImage;
  * </small>
  * @since OME2.2
  */
-public class FakeBufferedImage
-    extends BufferedImage
+public class NullTaskBar
+        implements TaskBar
 {
 
-    
-    public FakeBufferedImage()
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#addToMenu(int, javax.swing.JMenuItem)
+     */
+    public void addToMenu(int menuID, JMenuItem entry)
     {
-        super(2, 2, TYPE_BYTE_GRAY);
+        // TODO Auto-generated method stub
+
     }
-    
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#removeFromMenu(int, javax.swing.JMenuItem)
+     */
+    public void removeFromMenu(int menuID, JMenuItem entry)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#addToToolBar(int, javax.swing.AbstractButton)
+     */
+    public void addToToolBar(int toolBarID, AbstractButton entry)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#removeFromToolBar(int, javax.swing.AbstractButton)
+     */
+    public void removeFromToolBar(int toolBarID, AbstractButton entry)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#open()
+     */
+    public void open()
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#getFrame()
+     */
+    public JFrame getFrame()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.LoggerInit
+ * org.openmicroscopy.shoola.env.init.FakeInitializer
  *
  *------------------------------------------------------------------------------
  *
@@ -30,73 +30,60 @@
 package org.openmicroscopy.shoola.env.init;
 
 
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.log.LoggerFactory;
 
 /** 
- * Creates the {@link Logger} and links it to the container's
- * {@link Registry}.
- * 
- * @see	InitializationTask
+ * Allows to replace container's initialization tasks before the container
+ * is started.
+ * This is key in testing environments because intialization tasks can be 
+ * replaced with tasks that provide service stubs to remove problematic 
+ * dependencies on external resources.
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public final class LoggerInit
-	extends InitializationTask
+public class FakeInitializer
+    extends Initializer
 {
-
-	/**
-	 * Constructor required by superclass.
-	 */
-	public LoggerInit() {}
-
-	/**
-	 * Returns the name of this task.
-	 * @see InitializationTask#getName()
-	 */
-	String getName()
-	{
-		return "Starting Log Service";
-	}
-	
-	/** 
-	 * Does nothing, as this task requires no set up.
-	 * @see InitializationTask#configure()
-	 */
-	void configure() {}
-
-	/** 
-	 * Carries out this task.
-	 * @see InitializationTask#execute()
-	 */
-	void execute() 
-		throws StartupException
-	{		
-		Registry reg = container.getRegistry();
-		Logger logger = LoggerFactory.makeNew(container);
-		RegistryFactory.linkLogger(logger, reg);
-	}
-	
-	/** 
-	 * Does nothing.
-	 * @see InitializationTask#rollback()
-	 */
-	void rollback() {}
-
+    
+    /**
+     * Replaces the specified container's intialization tasks
+     * with a new one.
+     * To be effective, this method has to be called before the 
+     * <code>startupInTestMode</code> method of the container is
+     * invoked.
+     * 
+     * @param oldTaskType One of the classes defined in <code>env.init</code>.
+     * @param newTaskType The class that will replace the above task during
+     *                      the initialization sequence.
+     * @return <code>true</code> if the old task can be replaced by the new
+     *          one, <code>false</code> otherwise.
+     */
+    public static boolean replaceInitTask(Class oldTaskType, Class newTaskType)
+    {
+        if (oldTaskType == null) throw new NullPointerException();
+        if (newTaskType == null) throw new NullPointerException();
+        boolean replaced = false;
+        for (int i = 0; i < initList.size(); ++i) {
+            if (oldTaskType.equals(initList.get(i))) {
+                initList.set(i, newTaskType);
+                replaced = true;
+                break;
+            }
+        }
+        return replaced;
+    }
+    
 }

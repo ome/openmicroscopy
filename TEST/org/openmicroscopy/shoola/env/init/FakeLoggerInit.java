@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.LoggerInit
+ * org.openmicroscopy.shoola.env.init.FakeLoggerInit
  *
  *------------------------------------------------------------------------------
  *
@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 
-
 //Java imports
 
 //Third-party libraries
@@ -39,64 +38,71 @@ package org.openmicroscopy.shoola.env.init;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.log.LoggerFactory;
+import org.openmicroscopy.shoola.env.log.NullLogger;
 
 /** 
- * Creates the {@link Logger} and links it to the container's
- * {@link Registry}.
- * 
- * @see	InitializationTask
+ * Fake initialization task.
+ * Binds the container's registry to the {@link Logger} specified by its
+ * static field.
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public final class LoggerInit
-	extends InitializationTask
+public class FakeLoggerInit
+    extends InitializationTask
 {
 
-	/**
-	 * Constructor required by superclass.
-	 */
-	public LoggerInit() {}
+    /**
+     * Default Null service.
+     * Change it to whatever implementation is required by your tests.
+     */
+    public static Logger  logger = new NullLogger();
+    
+    
+    /**
+     * Constructor required by superclass.
+     */
+    public FakeLoggerInit() {}
 
-	/**
-	 * Returns the name of this task.
-	 * @see InitializationTask#getName()
-	 */
-	String getName()
-	{
-		return "Starting Log Service";
-	}
-	
-	/** 
-	 * Does nothing, as this task requires no set up.
-	 * @see InitializationTask#configure()
-	 */
-	void configure() {}
+    /**
+     * Returns the name of this task.
+     * @see InitializationTask#getName()
+     */
+    String getName() 
+    {
+        return "Creating Task Bar";
+    }
 
-	/** 
-	 * Carries out this task.
-	 * @see InitializationTask#execute()
-	 */
-	void execute() 
-		throws StartupException
-	{		
-		Registry reg = container.getRegistry();
-		Logger logger = LoggerFactory.makeNew(container);
-		RegistryFactory.linkLogger(logger, reg);
-	}
-	
-	/** 
-	 * Does nothing.
-	 * @see InitializationTask#rollback()
-	 */
-	void rollback() {}
+    /** 
+     * Does nothing, as this task requires no set up.
+     * @see InitializationTask#configure()
+     */
+    void configure() {}
+
+    /** 
+     * Carries out this task.
+     * 
+     * @see InitializationTask#execute()
+     */
+    void execute() 
+        throws StartupException
+    {
+        Registry reg = container.getRegistry();
+        RegistryFactory.linkLogger(logger, reg);
+    }
+    
+    /** 
+     * Does nothing.
+     * @see InitializationTask#rollback()
+     */
+    void rollback() {}
 
 }

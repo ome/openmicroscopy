@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -56,20 +55,14 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
  * </small>
  * @since OME2.2
  */
-
-final class UserNotifierInit 
+public final class UserNotifierInit 
 	extends InitializationTask
 {
 
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	UserNotifierInit(Container c)
-	{
-		super(c);
-	}
+	public UserNotifierInit() {}
 
 	/**
 	 * Returns the name of this task.

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.LoggerInit
+ * org.openmicroscopy.shoola.env.init.FakeAgentsInit
  *
  *------------------------------------------------------------------------------
  *
@@ -30,73 +30,81 @@
 package org.openmicroscopy.shoola.env.init;
 
 
-
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.log.LoggerFactory;
 
 /** 
- * Creates the {@link Logger} and links it to the container's
- * {@link Registry}.
- * 
- * @see	InitializationTask
+ * Fake intialization task.
+ * Binds the container's registry to the agents list specified by its
+ * static field.
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public final class LoggerInit
-	extends InitializationTask
+public class FakeAgentsInit
+    extends InitializationTask
 {
+    
+    /**
+     * Default an empty list, so no agent will show up.
+     * Change it to whatever implementation is required by your tests &#151;
+     * the list must contain an 
+     * {@link org.openmicroscopy.shoola.env.config.AgentInfo} object for
+     * each agent you want to create.
+     */
+    public static List     agentsList = new ArrayList();
 
-	/**
-	 * Constructor required by superclass.
-	 */
-	public LoggerInit() {}
+    
+    /**
+     * Constructor required by superclass.
+     */
+    public FakeAgentsInit() {}
 
-	/**
-	 * Returns the name of this task.
-	 * @see InitializationTask#getName()
-	 */
-	String getName()
-	{
-		return "Starting Log Service";
-	}
-	
-	/** 
-	 * Does nothing, as this task requires no set up.
-	 * @see InitializationTask#configure()
-	 */
-	void configure() {}
+    /**
+     * Returns the name of this task.
+     * @see InitializationTask#getName()
+     */
+    String getName()
+    {
+        return "Loading Agents";
+    }
 
-	/** 
-	 * Carries out this task.
-	 * @see InitializationTask#execute()
-	 */
-	void execute() 
-		throws StartupException
-	{		
-		Registry reg = container.getRegistry();
-		Logger logger = LoggerFactory.makeNew(container);
-		RegistryFactory.linkLogger(logger, reg);
-	}
-	
-	/** 
-	 * Does nothing.
-	 * @see InitializationTask#rollback()
-	 */
-	void rollback() {}
+    /** 
+     * Does nothing, as this task requires no set up.
+     * @see InitializationTask#configure()
+     */
+    void configure() {}
+
+    /** 
+     * Carries out this task.
+     * @see InitializationTask#execute()
+     */
+    void execute() 
+        throws StartupException
+    {
+        Registry reg = container.getRegistry();
+        reg.bind(LookupNames.AGENTS, agentsList);
+    }
+
+    /** 
+     * Does nothing.
+     * @see InitializationTask#rollback()
+     */
+    void rollback() {}
 
 }

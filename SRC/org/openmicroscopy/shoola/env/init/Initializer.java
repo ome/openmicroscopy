@@ -71,6 +71,76 @@ import org.openmicroscopy.shoola.env.Container;
 
 public class Initializer
 {
+    
+    /**
+     * Lists the tasks that will make up the initialization sequence.
+     * Note that this list can be accessed by subclasses.  This is key in
+     * testing environments because intialization tasks can be replaced
+     * with tasks that provide service stubs to remove problematic 
+     * dependencies on external resources.
+     */
+    protected static final List     initList = new ArrayList();
+    static {
+        //This must be the first task to run b/c it will bring up
+        //the splash screen.
+        initList.add(SplashScreenInit.class);
+        
+        //NB: All tasks require this one to be run first 
+        //(b/c it creates and fills up the container's config).
+        initList.add(ContainerConfigInit.class);
+        
+        initList.add(LoggerInit.class);
+        initList.add(EventBusInit.class);
+        initList.add(DataServicesInit.class);
+        initList.add(TaskBarInit.class);
+        initList.add(UserNotifierInit.class);
+        initList.add(AgentsInit.class);
+    }
+    
+    /**
+     * Instantiates the specified initialization task and links it to the
+     * passed {@link Container} and {@link Initializer}.
+     * 
+     * @param taskType  The class of the task.  Mustn't be <code>null</code>.
+     * @param c         Reference to the {@link Container}.
+     *                  Mustn't be <code>null</code>.
+     * @param i         Reference to the {@link Initializer}.
+     *                  Mustn't be <code>null</code>.
+     * @return An instance of the requested task type.
+     * @throws StartupException If the task couldn't be created.
+     */
+    private static InitializationTask createInitTask(Object taskType, 
+                                                    Container c, Initializer i) 
+        throws StartupException
+    {
+        //Sanity checks.
+        if (taskType == null) throw new NullPointerException("No task type.");
+        if (c == null) throw new NullPointerException("No container.");
+        if (i == null) throw new NullPointerException("No initializer.");
+        
+        //Instantiate through reflection, then link to c and i.
+        InitializationTask task = null;
+        try {
+            Class taskClass = (Class) taskType;
+            task = (InitializationTask) taskClass.newInstance();
+            task.linkContainer(c);
+            task.linkInitializer(i);
+        } catch (InstantiationException ie) {
+            throw new StartupException(
+                    "Couldn't instantiate initialization task.", ie);
+        } catch (IllegalAccessException iae) {
+            throw new StartupException(
+                    "Couldn't instantiate initialization task.", iae);
+        } catch (ClassCastException cce) {
+            throw new StartupException(
+                    "Invalid initialization task: "+
+                    taskType+" doesn't extends InitializationTask.");
+        }
+        return task;
+    }
+
+    
+    
 	/** Queue to order the tasks to be executed. */
 	private List				processingQueue;
 	
@@ -86,6 +156,14 @@ public class Initializer
 	/** A reference to the singleton {@link Container}. */
 	private Container			container;
 	
+    
+    /**
+     * Only for the benefit of subclasses that want to modifiy the
+     * {@link #initList}.
+     * This should only be done for the purpose of testing.
+     */
+    protected Initializer() {}
+    
 	/**
 	 * Creates a new instance.
 	 * The {@link Container} is the only class that can possibly create this
@@ -96,7 +174,7 @@ public class Initializer
 	 */
 	public Initializer(Container c)
 	{
-		if (c == null)	throw new NullPointerException();
+		if (c == null) throw new NullPointerException();
 		processingQueue = new ArrayList();
 		doneTasks = new Stack(); 
 		initListeners = new HashSet();
@@ -107,48 +185,20 @@ public class Initializer
 	 * Creates all needed initialization tasks, configures them, and queues
 	 * them up for execution.
 	 * This method has to be called before {@link #doInit()}.
-	 *
+     * 
+     * @throws StartupException If an error occurs while configuring an
+     *                          initialization task.
 	 */
 	public void configure()
+        throws StartupException
 	{
-		InitializationTask task = null;
-		
-		task = new SplashScreenInit(container, this);
-		task.configure();
-		processingQueue.add(task);
-		
-		//NB: All tasks require this one to be run first 
-		//(b/c it creates and fills up the container's config).
-		task = new ContainerConfigInit(container);
-		task.configure();
-		processingQueue.add(task);
-		
-		task = new LoggerInit(container);
-		task.configure();
-		processingQueue.add(task);
-				
-		task = new EventBusInit(container);
-		task.configure();
-		processingQueue.add(task);
-		
-		task = new DataServicesInit(container);
-		task.configure();
-		processingQueue.add(task);
-		
-		//TODO: Image Service
-		
-		task = new TaskBarInit(container);
-		task.configure();
-		processingQueue.add(task);
-		
-		//NB: This task requires TopFrameInit to be run first.
-		task = new UserNotifierInit(container);  
-		task.configure();
-		processingQueue.add(task);
-		
-		task = new AgentsInit(container);  
-		task.configure();
-		processingQueue.add(task);
+		InitializationTask task;
+        Iterator type = initList.iterator();
+        while (type.hasNext()) {
+            task = createInitTask(type.next(), container,this); 
+            task.configure();
+            processingQueue.add(task);
+        }
 	}
 	
 	/**

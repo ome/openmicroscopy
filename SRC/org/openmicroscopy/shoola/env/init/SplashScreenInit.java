@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -63,31 +62,19 @@ import org.openmicroscopy.shoola.env.ui.UserCredentials;
  * @since OME2.2
  */
 
-final class SplashScreenInit
+public final class SplashScreenInit
 	extends InitializationTask
 	implements InitializationListener
 {
-
-	/** 
-	 * Reference to the command processor so that we can register for 
-	 * initialization progress notification.
-	 */
-	private Initializer		initManager;
 	
 	/** The splash screen component. */
 	private SplashScreen	splashScreen;
 	
+    
 	/**
-	 * Creates a new instance.
-	 * 
-	 * @param c	The singleton {@link Container}.
-	 * @param initManager	The command processor.
-	 */
-	SplashScreenInit(Container c, Initializer initManager)
-	{
-		super(c);
-		this.initManager = initManager;
-	}
+     * Constructor required by superclass.
+     */
+	SplashScreenInit() {}
 
 	/** 
 	 * Returns an empty string, as this task does nothing but configuration
@@ -108,7 +95,7 @@ final class SplashScreenInit
 	 */
 	void configure()
 	{
-		initManager.register(this);
+        initializer.register(this);
 		splashScreen = UIFactory.makeSplashScreen();
 		splashScreen.open();
 	}

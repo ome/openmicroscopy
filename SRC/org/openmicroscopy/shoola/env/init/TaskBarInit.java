@@ -36,7 +36,6 @@ import javax.swing.UIManager;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
@@ -59,7 +58,7 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
  * </small>
  * @since OME2.2
  */
-final class TaskBarInit
+public final class TaskBarInit
 	extends InitializationTask
 {
 
@@ -69,13 +68,8 @@ final class TaskBarInit
 
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	TaskBarInit(Container c)
-	{
-		super(c);
-	}
+	public TaskBarInit() {}
 
 	/**
 	 * Returns the name of this task.

@@ -37,7 +37,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -59,19 +58,14 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
  * </small>
  * @since OME2.2
  */
-final class AgentsInit
+public final class AgentsInit
 	extends InitializationTask
 {
 
 	/**
 	 * Constructor required by superclass.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	AgentsInit(Container c)
-	{
-		super(c);
-	}
+	public AgentsInit() {}
 
 	/**
 	 * Returns the name of this task.
