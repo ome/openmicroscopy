@@ -93,4 +93,11 @@ public class ChainFormalOutputData  extends FormalOutputData
 		else 
 			return null;		
 	}
+	
+	public int compareTo(Object o) {
+		if (!(o instanceof ChainFormalOutputData))
+			return -1;
+		ChainFormalOutputData d = (ChainFormalOutputData) o;
+		return getID()-d.getID();
+	}
 }

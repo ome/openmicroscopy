@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.util.data.MatchMapper;
  * </small>
  * @since OME2.2
  */
-public class ChainFormalInputData  extends FormalInputData
+public class ChainFormalInputData  extends FormalInputData implements Comparable
 {
 	/** 
 	 * A hash for associating instances of this class with  
@@ -91,6 +91,13 @@ public class ChainFormalInputData  extends FormalInputData
 			return inputMatches.getMatches(st.getID());
 		else 
 			return null;
+	}
+	
+	public int compareTo(Object o) {
+		if (!(o instanceof ChainFormalInputData))
+			return -1;
+		ChainFormalInputData d = (ChainFormalInputData) o;
+		return getID()-d.getID();
 	}
 	
 }
