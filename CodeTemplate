@@ -102,9 +102,9 @@ public abstract class Template
 	{	
 		int k = 0;	//a space between each symbol pair, no space before semicolon
 					//optional line after vars declaration
-		while (k<10)	//a space between keywords and parentheses
+		while (k < 10)	//a space between keywords and parentheses
 		{				//curly bracket may be on above line:	k<10) {
-			if (k==3 || k==-1)	//a space between condition and operator
+			if (k == 3 || k == -1)	//a space between condition and operator
 			{	//curly bracket may be on above line
 				byte x = (byte) k++;	//a space between cast and symbols
 				break;
