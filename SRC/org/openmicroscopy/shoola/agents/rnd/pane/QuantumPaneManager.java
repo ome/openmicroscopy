@@ -194,6 +194,7 @@ class QuantumPaneManager
 		if (qDef.family == QuantumFactory.EXPONENTIAL)
 			gr.setDefaultExponential(s, e);
 		else gr.setDefaultLinear(s, e);
+		view.setGRepresentation(gr);
 		view.buildLayeredPane(gr);
 		eventManager.setMappingPane();
 	}

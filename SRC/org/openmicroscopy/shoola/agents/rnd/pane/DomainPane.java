@@ -79,7 +79,7 @@ class DomainPane
 	private static final int 		ROW_HEIGHT = 30;
 	
 	/** row's width. */
-	private static final int		COLUMN_WIDTH = 90, COLUMN_TWO = 110;
+	private static final int		COLUMN_WIDTH = 110, COLUMN_TWO = 110;
 	
 	/** Dimension of the JPanel which contains the slider. */
 	private static final int		PANEL_HEIGHT = 25;
@@ -178,7 +178,9 @@ class DomainPane
 		for (int i = 0; i < data.length; i++)
 			waves[i] = ""+data[i].getNanometer();
 		wavelengths = new JComboBox(waves);
-		wavelengths.setSelectedIndex(index); 
+		wavelengths.setSelectedIndex(index);  
+		//When the color model is gray, the user cannot select the wavelength.
+		wavelengths.setEnabled(false);
 	}
 	
 	/** Initializes the sliders: gamma and bitResolution. */    

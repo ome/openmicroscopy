@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class GraphicsRepresentation
 	extends JPanel
 {
+	
 	/** Graphical constants. */
 	static final int			width = 220, height = 250;
 	
@@ -211,7 +212,6 @@ class GraphicsRepresentation
 		yEnd = setOuputGraphics(qDef.cdEnd);
 		xStart = setInputGraphics(inputStart, square); 
 		xEnd = setInputGraphics(inputEnd, square);
-		
 		//Size the rectangles used to control knobs.
 		//Input knob.
 		setKnobStart((int) xStart);

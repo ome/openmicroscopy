@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 public class QuantumPane
 	extends JPanel
 {
+	
 	/** set the background color of the layered pane. */
 	private static final Color		BACKGROUND = Color.WHITE;
 	
@@ -96,7 +97,23 @@ public class QuantumPane
 		layeredPane = new JLayeredPane();
 		buildLayeredPane(gRepresentation);
 	}
-
+	
+	/** Set enabled the wavelenghts combobox. */
+	public void setSelectionWavelengthsEnable(boolean b)
+	{
+		domainPane.getWavelengths().setEnabled(b);
+	}
+	
+	/** 
+	 * Set the selected wavelength
+	 * 
+	 * @param index		wavelength index.
+	 */
+	public void setSelectedWavelength(int index)
+	{
+		domainPane.getWavelengths().setSelectedIndex(index);
+	}
+	
 	public CodomainPane getCodomainPane() { return codomainPane; }
 
 	public DomainPane getDomainPane() { return domainPane; }
@@ -107,6 +124,7 @@ public class QuantumPane
 	
 	QuantumPaneManager getManager() { return manager; }
 	
+	void setGRepresentation(GraphicsRepresentation gr) { gRepresentation = gr;}
 	
 	/** 
 	 * Builds a layeredPane containing the GraphicsRepresentation.
