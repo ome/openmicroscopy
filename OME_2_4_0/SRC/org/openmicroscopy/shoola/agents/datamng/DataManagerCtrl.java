@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageSelector;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
@@ -100,6 +101,10 @@ public class DataManagerCtrl
     static final int            EXPLORER = 100;
     
     static final int            CLASSIFIER = 101;
+    
+    public static final int     IMAGES_FOR_PDI = 102;
+    
+    public static final int     IMAGES_FOR_CGI = 103;
     
 	private DataManager			abstraction;
 	
@@ -159,9 +164,9 @@ public class DataManagerCtrl
 	}
 	
     /** Forward event to the {@link DataManager abstraction}. */
-    public List getImagesInUserDatasetsDiff(DatasetData data)
+    public List getImagesInUserDatasetsDiff(DatasetData data, List datasets)
     {
-        return abstraction.getImagesInUserDatasetsDiff(data);
+        return abstraction.getImagesInUserDatasetsDiff(data, datasets);
     }
     
     /** Forward event to the {@link DataManager abstraction}. */
@@ -224,10 +229,10 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getUsedImages()
+    public List getImagesInDatasets(List datasets)
     { 
         try {
-            return abstraction.getUsedImages();
+            return abstraction.getImagesInDatasets(datasets);
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's images.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -235,6 +240,37 @@ public class DataManagerCtrl
                     "Failure", s, dsae);
         }
         return new ArrayList();
+    }
+    
+    /** 
+     * Retrieve the list of images contained the specified datasets,
+     * then forward to the specified widget manager.  
+     * @param datasets
+     * @param mng
+     */
+    public void loadImagesInDatasets(List datasets, IDatasetsSelectorMng mng, 
+            int index, DataObject data)
+    {
+        switch(index) {
+            case IMAGES_FOR_PDI:
+                if (data != null && data instanceof DatasetData)
+                    mng.displayListImages(getImagesInUserDatasetsDiff(
+                                        (DatasetData) data, datasets)); 
+                else 
+                    mng.displayListImages(getImagesInDatasets(datasets)); 
+                break;
+            case IMAGES_FOR_CGI:
+                if (data != null && data instanceof CategoryData) {
+                    List l =  getImagesDiffInUserDatasetsNotInCategoryGroup(
+                                (CategoryData) data, datasets);
+                    mng.displayListImages(l);
+                } else if (data != null && data instanceof CategoryGroupData) {
+                    List l =  getImagesInUserDatasetsNotInCategoryGroup(
+                            (CategoryGroupData) data, datasets);
+                    mng.displayListImages(l);
+                } 
+                break;
+        }
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
@@ -377,7 +413,7 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    List getUserDatasets()
+    public List getUserDatasets()
     { 
         try {
             return abstraction.getUserDatasets(); 
@@ -591,11 +627,11 @@ public class DataManagerCtrl
     
    /** Forward request to the {@link DataManager abstraction}. */
     public List getImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData 
-            group)
+            group, List datasets)
     {
         try {
             return abstraction.retrieveImagesInUserDatasetsNotInCategoryGroup(
-                    group);
+                    group, datasets);
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve the images.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -644,10 +680,10 @@ public class DataManagerCtrl
     
     /** Forward request to the {@link DataManager abstraction}. */
     public List getImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData 
-            data)
+            data, List datasets)
     {
         return abstraction.retrieveImagesDiffInUserDatasetsNotInCategoryGroup(
-                                            data);
+                                            data, datasets);
     }
     
     /** Forward request to the {@link DataManager abstraction}. */

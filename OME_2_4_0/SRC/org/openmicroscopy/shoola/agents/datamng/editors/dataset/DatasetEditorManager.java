@@ -109,22 +109,28 @@ class DatasetEditorManager
 		imagesToAddToRemove = new ArrayList();
 	}
 	
+    DataManagerCtrl getAgentControl() { return control; }
+    
+    DatasetEditor getView() { return view; }
+    
+    DatasetData getDatasetData() { return model; }
+    
 	List getImages() { return getDatasetData().getImages(); }
 	
 	List getImagesToAdd() { return imagesToAdd; }
 	
 	List getImagesToAddToRemove() { return imagesToAddToRemove; }
-	
-	DatasetEditor getView() { return view; }
-	
-	DatasetData getDatasetData() { return model; }
 
     List getImagesDiff() { return control.getImagesDiff(model); }
     
-    List getImagesInUserDatasetsDiff()
+    List getUserDatasets() { return control.getUserDatasets(); }
+    
+    /*
+    List getImagesInUserDatasetsDiff(List datasets)
     { 
-        return control.getImagesInUserDatasetsDiff(model);
+        return control.getImagesInUserDatasetsDiff(model, datasets);
     }
+    */
     
     List getImagesInUserGroupDiff()
     {

@@ -40,7 +40,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
-import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
@@ -238,11 +237,12 @@ public class DataManager
      * 
      * @return See above.
      */
-    List getImagesInUserDatasetsDiff(DatasetData data)
+    List getImagesInUserDatasetsDiff(DatasetData data, List datasets)
     {
         List imagesDiff = new ArrayList();
+        if (datasets == null || datasets.size() == 0) return imagesDiff;
         try {
-            imagesDiff = getUsedImages();   
+            imagesDiff = getImagesInDatasets(datasets);//getUsedImages();   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -472,6 +472,31 @@ public class DataManager
             List datasetIDs = new ArrayList();
             while (key.hasNext())
                 datasetIDs.add(key.next());
+            return dms.retrieveImagesInUserDatasets(datasetIDs);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return new ArrayList();
+    }
+    
+    /** 
+     * Retrieve the images contained in the list of datasets
+     * 
+     * @param datasets    list of datasetSummary.
+     * @return list of {@link ImageSummary} objects contained in the datasets.
+     */
+    List getImagesInDatasets(List datasets)
+        throws DSAccessException
+    {
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            Iterator i = datasets.iterator();
+            List datasetIDs = new ArrayList();
+            while (i.hasNext()) 
+                datasetIDs.add(
+                        new Integer(((DatasetSummary) i.next()).getID()));  
             return dms.retrieveImagesInUserDatasets(datasetIDs);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
@@ -906,13 +931,26 @@ public class DataManager
         return new ArrayList();
     }
     
-    /** Retrieve all images not classified in the specified group. */
-    List retrieveImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData group)
+    /** 
+     * Retrieve all images not classified in the specified group. 
+     * and contained in the specified datasets.
+     * 
+     * @param CategoryGroupData the specified group.
+     * @param List  List of {@link DatasetSummary} objects.
+     */
+    List retrieveImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData group,
+            List datasets)
         throws DSAccessException
     {
+        if (datasets == null || datasets.size() == 0) return new ArrayList();
         try { 
+            List ids = new ArrayList();
+            Iterator i = datasets.iterator();
+            while (i.hasNext())
+                ids.add(new Integer(((DatasetSummary) i.next()).getID()));
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveImagesInUserDatasetsNotInCategoryGroup(group);
+            return sts.retrieveImagesInUserDatasetsNotInCategoryGroup(group, 
+                    ids);
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -993,12 +1031,13 @@ public class DataManager
      * @param data  specified category.
      * @return See above.
      */
-    List retrieveImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData data)
+    List retrieveImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData data, 
+            List datasets)
     {
         List imagesDiff = new ArrayList();
         try {
             imagesDiff = retrieveImagesInUserDatasetsNotInCategoryGroup(
-                        data.getCategoryGroup());   
+                        data.getCategoryGroup(), datasets);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;

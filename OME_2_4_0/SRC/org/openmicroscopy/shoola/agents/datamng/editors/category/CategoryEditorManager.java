@@ -108,7 +108,9 @@ class CategoryEditorManager
 		imagesToAdd = new ArrayList();
 		imagesToAddToRemove = new ArrayList();
 	}
-	
+    
+    DataManagerCtrl getAgentControl() { return control; }
+    
 	List getImages() { return model.getImages(); }
 	
 	List getImagesToAdd() { return imagesToAdd; }
@@ -119,14 +121,17 @@ class CategoryEditorManager
 	
 	CategoryData getCategoryData() { return model; }
 
+    List getUserDatasets() {return control.getUserDatasets(); }
+    
     List getImagesDiff()
     {
         return control.getImagesDiffNotInCategoryGroup(model);
     }
     
-    List getImagesDiffInUserDatasets()
+    List getImagesDiffInUserDatasets(List datasets)
     {
-        return control.getImagesDiffInUserDatasetsNotInCategoryGroup(model);
+        return control.getImagesDiffInUserDatasetsNotInCategoryGroup(model, 
+                datasets);
     }
     
     List getImagesDiffInUserGroup()
