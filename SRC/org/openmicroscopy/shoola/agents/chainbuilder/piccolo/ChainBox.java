@@ -121,10 +121,10 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		
 	
 		// add name
-		name = new PText(chain.getName());
+		name = new ClickableName(chain.getName());
 		name.setGreekThreshold(0);
 		name.setFont(Constants.LABEL_FONT);
-		name.setPickable(false);
+		name.setPickable(true);
 		name.setScale(MAX_NAME_SCALE);
 		chainLayer.addChild(name);
 		name.setOffset(HGAP,VGAP*3);
@@ -259,20 +259,6 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
-		if (!e.isControlDown())
-			return;
-		
-		try {
-			PBounds b = chainView.getFullBounds();
-			BufferedImage image = (BufferedImage) chainView.toImage((int) (b.getWidth()*7),
-					(int) (b.getHeight()*7),Constants.CANVAS_BACKGROUND_COLOR);
-		 
-			ImageIO.write(image,"png",new File("foo.png"));
-			System.err.println("Saved chain snapshot");
-		} catch (Exception ex) {
-			System.err.println("Failed to save chain snapshot");
-			
-		}
 	}
 
 
@@ -308,6 +294,44 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 			return chainView.getToolTip();
 		else
 			return null;
+	}
+	
+	private class ClickableName extends PText implements MouseableNode {
+		
+		ClickableName(String s) {
+			super(s);
+		}
+		
+		public void mouseDoubleClicked(GenericEventHandler handler,
+				PInputEvent event) {
+			
+			try {
+				System.err.println("Saving chain snapshot...");
+				PBounds b = chainView.getFullBounds();
+				BufferedImage image = (BufferedImage) 
+						chainView.toImage((int) (b.getWidth()*2),
+						(int) (b.getHeight()*2),Constants.CANVAS_BACKGROUND_COLOR);
+			 
+				ImageIO.write(image,"png",new File("foo.png"));
+				System.err.println("...done");
+			} catch (Exception ex) {
+				System.err.println("Failed to save chain snapshot");
+				
+			}
+		}
+	 
+		
+		public void mouseClicked(GenericEventHandler handler,PInputEvent event) {
+		}
+		
+		public void mouseEntered(GenericEventHandler handler,PInputEvent event) {
+		}
+		
+		public void mouseExited(GenericEventHandler handler,PInputEvent event) {
+		}
+		
+		public void mousePopup(GenericEventHandler handler,PInputEvent event) {
+		}
 	}
 		
 }
