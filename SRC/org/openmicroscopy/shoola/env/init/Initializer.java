@@ -41,6 +41,7 @@ import java.util.Stack;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * Manages the initialization procedure -- creates all needed initialization 
@@ -158,7 +159,7 @@ public class Initializer
 	 * 							initialization task.
 	 */
 	public void doInit()
-		throws StartupException
+		throws StartupException, DSOutOfServiceException
 	{
 		Iterator i = processingQueue.iterator();
 		

@@ -75,9 +75,20 @@ class OMEDSGateway
 	 */
 	private DataServices	proxiesFactory;
 	
+	/**
+	 * 
+	 * @param omedsAddress
+	 * @throws DSOutOfServiceException	if the URL is not valid.
+	 */
 	OMEDSGateway(URL omedsAddress) 
+		throws DSOutOfServiceException
 	{
-		proxiesFactory = DataServer.getDefaultServices(omedsAddress);
+		try {
+			proxiesFactory = DataServer.getDefaultServices(omedsAddress);
+		} catch (Exception e) {
+			String s = "Can't connect to OMEDS. URL not valid.";
+			throw new DSOutOfServiceException(s, e);
+		}
 	}
 	
 	/**
@@ -92,8 +103,16 @@ class OMEDSGateway
 	void login(String userName, String password)
 		throws DSOutOfServiceException
 	{
-		RemoteCaller proxy = proxiesFactory.getRemoteCaller();
-		proxy.login(userName, password);
+		try {
+			RemoteCaller proxy = proxiesFactory.getRemoteCaller();
+			proxy.login(userName, password);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (IllegalStateException ise) {
+			throw new DSOutOfServiceException("An internal error occured", ise);
+		} 
 		
 		//TODO: The proxy should throw a checked exception if login fails!
 		//Catch that exception when the connection lib will be modified.
@@ -172,7 +191,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't create new DataInterface", rsee);
 		} 
 		return retVal; 
 	}
@@ -198,7 +217,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't create new Attribute", rsee);
 		} 
 		return retVal; 
 	}
@@ -227,7 +246,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve data", rsee);
+			throw new DSAccessException("Can't retrieve listData", rsee);
 		} 
 		return retVal;
 	}
@@ -254,7 +273,7 @@ class OMEDSGateway
 	   	} catch (RemoteAuthenticationException rae) {
 		   	throw new DSOutOfServiceException("Not logged in", rae);
 	   	} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't retrieve data", rsee);
 	   	} 
 		return retVal;
 	}
@@ -282,7 +301,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't retrieve ListSTS data", rsee);
 		} 
 		return retVal;
 	}
@@ -309,7 +328,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't retrieve STS data", rsee);
 		} 
 		return retVal;
 	}
@@ -336,12 +355,12 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve data", rsee);
+			throw new DSAccessException("Can't count data", rsee);
 		} 
 		return val;
 	}
 	
-	/** Mark the specified for update. */
+	/** Mark the specified dataInterface for update. */
 	void markForUpdate(DataInterface object) 
 	{
 		getDataFactory().markForUpdate(object);
@@ -358,7 +377,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't update the marked data", rsee);
 		} 
 	}
 	
@@ -373,7 +392,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't add datasets to project", rsee);
 		} 
 	}
 	
@@ -388,7 +407,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't add datasets to project", rsee);
 		} 
 	}
 	
@@ -404,7 +423,8 @@ class OMEDSGateway
   		} catch (RemoteAuthenticationException rae) {
 	  		throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-	  		throw new DSAccessException("Can't load data", rsee);
+	  		throw new DSAccessException("Can't remove datasets from project", 
+	  									rsee);
   		} 
 	}
 	
@@ -419,7 +439,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't add images to dataset", rsee);
 		} 
 	}
 	
@@ -434,13 +454,16 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't remove images from dataset",
+										rsee);
 		} 
 	}
 	
-	/** Annotate. Each attribute in the list must be a newly-created
+	/** 
+	 * Annotate. Each attribute in the list must be a newly-created
      * attribute; otherwise, call updateAttributes() with that attribute
-     * as a member. */
+     * as a member.
+     */
 	void annotateAttributesData(List attributes)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -451,8 +474,7 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-            rsee.printStackTrace();
-			throw new DSAccessException("Can't load data", rsee);
+			throw new DSAccessException("Can't annotate attributes", rsee);
 		} 
 	}
     
@@ -467,8 +489,7 @@ class OMEDSGateway
         } catch (RemoteAuthenticationException rae) {
             throw new DSOutOfServiceException("Not logged in", rae);
         } catch (RemoteServerErrorException rsee) {
-            rsee.printStackTrace();
-            throw new DSAccessException("Can't load data", rsee);
+            throw new DSAccessException("Can't update atttibutes", rsee);
         }
     }
 	

@@ -31,20 +31,20 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
-import java.awt.Rectangle;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.LoginOMEDS;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.ui.LoginOMEDS;
 public class LoginManager
 	implements AgentEventListener
 {
+	
 	private static LoginManager		singleton;
 	
 	//NB: this can't be called outside of container b/c agents have no refs
@@ -76,29 +77,36 @@ public class LoginManager
 		return singleton;
 	}
 
-	private Registry			registry;
-	private DataServicesFactory	dsf;
+	private Container			c;
 	
 	private LoginManager(Container c)
 	{
-		registry = c.getRegistry();
-		dsf = DataServicesFactory.getInstance(c);
+		this.c = c;
 	}
 	
 	private void handleSARequest(ServiceActivationRequest request) 
 	{
 		//We can pop up the dialog without problems b/c run within 
 		//the Swing thread
-		LoginOMEDS editor = new LoginOMEDS(registry, dsf);
-		showDialog(editor);
-		boolean result = editor.getManager().isActivationSuccessful();
-		ServiceActivationResponse 
-		response = new ServiceActivationResponse(request, result);
-		registry.getEventBus().post(response);
+		Registry registry = c.getRegistry();
+		try {
+			DataServicesFactory dsf = DataServicesFactory.getInstance(c);
+			LoginOMEDS editor = new LoginOMEDS(registry, dsf);
+			UIUtilities.centerAndShow(editor);
+			boolean result = editor.getManager().isActivationSuccessful();
+			ServiceActivationResponse 
+			response = new ServiceActivationResponse(request, result);
+			registry.getEventBus().post(response);
+		} catch (DSOutOfServiceException e) {
+			String s = "Can't connect to OMEDS. Try later.";
+			registry.getUserNotifier().notifyError("Connexion failure", s, e);
+			registry.getLogger().error(this, s+" Error: "+e);
+		}
 	}
 	
 	public void activate()
 	{
+		Registry registry = c.getRegistry();
 		registry.getEventBus().register(this, ServiceActivationRequest.class);
 	}
 	
@@ -111,23 +119,6 @@ public class LoginManager
 	{
 		//We have only registered for this event.
 		handleSARequest((ServiceActivationRequest) e);
-	}
-	
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param   editor	The editor dialog.
-	 */
-	private void showDialog(JDialog editor)
-	{
-		Rectangle tfB = registry.getTopFrame().getFrame().getBounds(), 
-					psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)   offsetX = 0;
-		if (offsetY < 0)   offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
 	}
 	
 }

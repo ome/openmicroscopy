@@ -45,6 +45,7 @@ package org.openmicroscopy.shoola.env.init;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
@@ -95,20 +96,22 @@ final class DataServicesInit
 	void execute()
 		throws StartupException
 	{
-		//Create services.
-		DataServicesFactory factory = 
-								DataServicesFactory.getInstance(container);
-		
-		//Retrieve them.
-		DataManagementService dms = factory.getDMS();
-		SemanticTypesService sts = factory.getSTS();
-        PixelsService ps = factory.getPS();
-		
-		//Link them to the container's registry.
-		Registry reg = container.getRegistry();
-		RegistryFactory.linkDMS(dms, reg);
-		RegistryFactory.linkSTS(sts, reg);
-        RegistryFactory.linkPS(ps, reg);
+		try {
+			//Create services.
+			DataServicesFactory 
+				factory = DataServicesFactory.getInstance(container);
+			//Retrieve them.
+			DataManagementService dms = factory.getDMS();
+			SemanticTypesService sts = factory.getSTS();
+			PixelsService ps = factory.getPS();
+			//Link them to the container's registry.
+			Registry reg = container.getRegistry();
+			RegistryFactory.linkDMS(dms, reg);
+			RegistryFactory.linkSTS(sts, reg);
+			RegistryFactory.linkPS(ps, reg);
+		} catch (DSOutOfServiceException e) {
+			throw new StartupException("Can't connect to OMEDS", e);
+		} 
 	}
 	
 	/** 
@@ -117,8 +120,11 @@ final class DataServicesInit
 	 */
 	void rollback()
 	{
-		DataServicesFactory factory = 
+		try {
+			DataServicesFactory factory = 
 								DataServicesFactory.getInstance(container);
-		factory.shutdown();
+			factory.shutdown();	
+		} catch (DSOutOfServiceException e) {}	
 	}
+	
 }

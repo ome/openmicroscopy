@@ -64,6 +64,7 @@ public class DataServicesFactory
 	//to the singleton container. So we can be sure this method is going to
 	//create services just once.
 	public static DataServicesFactory getInstance(Container c)
+		throws DSOutOfServiceException
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
@@ -82,8 +83,14 @@ public class DataServicesFactory
 	private STSAdapter		sts;
     private PixelsServiceAdapter ps;
 	
-	
+	/**
+	 * Try to create a new instance.
+	 * @param c		container.
+	 * @throws DSOutOfServiceException If the connection can't be established
+	 * 									or the credentials are invalid.	
+	 */
 	private DataServicesFactory(Container c)
+		throws DSOutOfServiceException
 	{
 		registry = c.getRegistry();
 		
@@ -91,6 +98,7 @@ public class DataServicesFactory
 		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
 		if (info == null)  //TODO: get rid of this when we have an XML schema.
 			throw new NullPointerException("No data server host provided!");
+
 		gateway = new OMEDSGateway(info.getServerAddress());
 		
 		//Create the adapters.
@@ -99,20 +107,11 @@ public class DataServicesFactory
         ps = new PixelsServiceAdapter(gateway.getDataFactory(), registry);
 	}
 	
-	public DataManagementService getDMS()
-	{
-		return dms;
-	}
+	public DataManagementService getDMS() { return dms; }
 
-	public SemanticTypesService getSTS()
-	{
-		return sts;
-	}
+	public SemanticTypesService getSTS() { return sts; }
     
-    public PixelsService getPS()
-    {
-        return ps;
-    }
+    public PixelsService getPS() { return ps; }
 
 	/**
 	 * Tries to connect to <i>OMEDS</i>.
@@ -133,9 +132,6 @@ public class DataServicesFactory
 		uc.setUserID(dms.getUserID());
 	}
 	
-	public void shutdown()
-	{
-		gateway.logout();	
-	}
+	public void shutdown() { gateway.logout(); }
 	
 }
