@@ -31,17 +31,18 @@ package org.openmicroscopy.shoola.env.log;
 
 
 //Java imports
-
-//Third-party libraries
 import java.util.Properties;
 
+//Third-party libraries
 import org.apache.log4j.PropertyConfigurator;
 
 //Application-internal dependencies
 
+
 /** 
- * Implements the {@link logger} interface. 
- * 
+ * Provides the log service.
+ * This is just a simple adapter that forwards calls to <i>log4j</i>.
+ * Thread-safety is already enforced by <i>log4j</i>, so we don't deal with it. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,7 +56,7 @@ import org.apache.log4j.PropertyConfigurator;
  * @since OME2.2
  */
 
-public class LoggerImpl
+class LoggerImpl
     implements Logger
 {
     
@@ -77,35 +78,13 @@ public class LoggerImpl
     /**
      * Initializes Log4j.
      * 
+     * @param config	A property object built from the configuration file.
      * @param absFile	The absolute pathname of the log file.
      */
-    public LoggerImpl(String absFile)
+    LoggerImpl(Properties config, String absFile)
     {
-    	//TODO: this should eventually go into a Log4j cfg file into config.
-    	Properties config = new Properties();
-    	
-    	//Define the base appender.
-		config.put("log4j.appender.BASE", 
-					"org.apache.log4j.RollingFileAppender");
 		config.put("log4j.appender.BASE.File", 
 					absFile);
-		config.put("log4j.appender.BASE.MaxFileSize", 
-					"100KB");  //Maximum size that the output file is allowed
-							//to reach before being rolled over to backup files.
-		config.put("log4j.appender.BASE.MaxBackupIndex", 
-					"100");  //Maximum number of backup files to keep around.	
-					
-    	//Define its output layout.
-		config.put("log4j.appender.BASE.layout", 
-					"org.apache.log4j.PatternLayout");
-    	config.put("log4j.appender.BASE.layout.ConversionPattern", 
-					"%r %p [thread: %t][class: %c] - %m%n%n");
-		
-		//Set the the root logger level and appender.
-		config.put("log4j.rootLogger", 
-					"debug, BASE");
-		
-		//Do configuration.
 		PropertyConfigurator.configure(config);
     }
     
