@@ -30,18 +30,11 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import java.net.URL;
-import java.net.MalformedURLException;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.RemoteException;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.config.HostInfo;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
+
 
 /** 
  * A factory for the {@link DataManagementService} and the
@@ -64,6 +57,7 @@ public class DataServicesFactory
 	 * 
 	 * @param reg	Reference to the {@link Registry}.
 	 */
+    /*
 	public static void createDataServices(Registry reg)
         throws NotLoggedInException
 	{
@@ -100,6 +94,24 @@ public class DataServicesFactory
             throw new NotLoggedInException("Could not log into data server"+
                                            e.getMessage());
         }
+	}
+	*/
+	
+	public static void createDataServices()
+	{
+		//TODO: Implement.
+	}
+	
+	public static DataManagementService getDMS()
+	{
+		//TODO: implement.
+		return null;
+	}
+	
+	public static SemanticTypesService getSTS()
+	{
+		//TODO: implement.
+		return null;
 	}
 	
 }
