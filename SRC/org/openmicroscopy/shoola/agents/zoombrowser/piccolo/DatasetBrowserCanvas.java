@@ -159,10 +159,12 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
-				if (selectedDataset != null)
+				/*if (selectedDataset != null)
 					eventHandler.animateToNode(selectedDataset.getNode());
 				else
-					scaleToSize();
+					scaleToSize();*/
+				if (eventHandler != null)
+					eventHandler.animateToLastBounds();
 			}
 		});
 		
