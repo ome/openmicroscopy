@@ -102,6 +102,9 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	
 	public void mouseClicked(PInputEvent e) {
 		
+		if (isPostPopup(e)== true)
+			return;
+			
 		if ((e.getModifiers() & leftButtonMask) !=
 				leftButtonMask)
 			return;
@@ -158,9 +161,11 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	}
 	
 	public void handlePopup(PInputEvent e) {
+		postPopup = true;
 		PNode n = e.getPickedNode();
 		if (n instanceof MouseableNode) 
 			((MouseableNode) n).mousePopup();
+		e.setHandled(true);
 	}
  
 }
