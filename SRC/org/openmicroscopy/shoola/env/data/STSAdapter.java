@@ -42,6 +42,7 @@ import org.openmicroscopy.ds.dto.DataColumn;
 import org.openmicroscopy.ds.dto.SemanticElement;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 //Java imports
 
@@ -123,6 +124,14 @@ class STSAdapter
     {
         Criteria criteria = buildRetrieveTypeCriteria(IMAGE_GRANULARITY);
         return (List)retrieveListData(SemanticType.class,criteria);
+    }
+    
+    public List getRelevantImageTypes(DatasetData dataset)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Criteria criteria = buildRelevantImageTypeCriteria(dataset);
+        //return (List)retrieveListData(SemanticType.class,criteria);
+        return null;
     }
     
     /**
