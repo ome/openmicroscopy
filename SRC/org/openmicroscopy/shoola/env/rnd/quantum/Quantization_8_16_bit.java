@@ -59,16 +59,14 @@ public class Quantization_8_16_bit
 	private byte[]      LUT;
 	private int         min;
 	private int         max;
-	private QuantumMap	qMap;
 	
 	/**
 	 * @param qd 	Quantum definition object, contained mapping data.
 	 * @param qMap	QuantumMap object.	
 	 */
-	public Quantization_8_16_bit(QuantumDef qd, QuantumMap qMap)
+	public Quantization_8_16_bit(QuantumDef qd)
 	{
 		super(qd);
-		this.qMap = qMap;
 	}
 	
 	/**
@@ -101,8 +99,8 @@ public class Quantization_8_16_bit
 		int dStart = ((Integer) getWindowStart()).intValue(),
 			dEnd = ((Integer) getWindowEnd()).intValue(); 
 		double k = qDef.curveCoefficient;
-		double ys = qMap.transform(dStart, k);
-		double ye = qMap.transform(dEnd, k);
+		double ys = valueMapper.transform(dStart, k);
+		double ye = valueMapper.transform(dEnd, k);
 		double a0 = qDef.bitResolution/(ye-ys);
 		double a1 = (dEnd-dStart)/qDef.bitResolution;
 		int x = min;
@@ -110,7 +108,8 @@ public class Quantization_8_16_bit
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 
-			v = Approximation.nearestInteger(a0*(qMap.transform(x, k)-ys));
+			v = Approximation.nearestInteger(
+										a0*(valueMapper.transform(x, k)-ys));
 			v = Approximation.nearestInteger(a1*v+dStart);
 			LUT[x-min] = (byte) v;
 		}
