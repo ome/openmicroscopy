@@ -37,7 +37,6 @@ package org.openmicroscopy.shoola.env.init;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 
@@ -78,7 +77,7 @@ final class UserNotifierInit
 	 */
 	String getName() 
 	{
-		return "Starting UserNotifier";
+		return "Starting User Notification Service";
 	}
 
 	/** 
@@ -95,8 +94,7 @@ final class UserNotifierInit
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
-		TopFrame tf = reg.getTopFrame();
-		UserNotifier un = UIFactory.makeUserNotifier(tf, reg);
+		UserNotifier un = UIFactory.makeUserNotifier();
 		RegistryFactory.linkUserNotifier(un, reg);
 	}
 	
