@@ -41,6 +41,7 @@ import javax.swing.JCheckBoxMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -54,6 +55,8 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -75,7 +78,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @since OME2.2
  */
 public class DataManager
-	implements Agent
+	implements Agent, AgentEventListener
 {
 	
 	public static final Color   	STEELBLUE = new Color(0x4682B4);
@@ -139,6 +142,7 @@ public class DataManager
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
+        registry.getEventBus().register(this,ViewImageInfo.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
 		control.attachListener();
@@ -157,6 +161,21 @@ public class DataManager
     {
     	return presentation;
     }
+    
+    /**
+     * Responds to an event fired trigger on the bus.
+     * Listens to ViewDatasetInfo, ViewImageInfo events.
+     * @see org.openmicroscopy.shoola.env.event.AgentEventListener#eventFired(org.openmicroscopy.shoola.env.event.AgentEvent)
+     */
+    public void eventFired(AgentEvent e)
+    {
+        if(e instanceof ViewImageInfo)
+        {
+            ViewImageInfo info = (ViewImageInfo)e;
+            control.showProperties(info.getImageInfo());
+        }
+    }
+
 	
 	/**
 	 * Return the list of all image summaries that belong to the user
