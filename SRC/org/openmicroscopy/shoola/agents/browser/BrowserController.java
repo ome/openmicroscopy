@@ -104,7 +104,21 @@ public class BrowserController
      */
     public String getName()
     {
-        return browserModel.getDataset().getName();
+        if(browserModel != null &&
+           browserModel.getDataset() != null)
+        {
+            return browserModel.getDataset().getName();
+        }
+        else return "";
+    }
+    
+    public void setName(String name)
+    {
+        if(browserModel != null &&
+           browserModel.getDataset() != null)
+        {
+            browserModel.getDataset().setName(name);
+        }
     }
     
     /**
@@ -114,6 +128,17 @@ public class BrowserController
     public ThumbnailSourceModel getDataModel()
     {
     	return sourceModel;
+    }
+    
+    /**
+     * TEMPORARY-- reroute all through methods eventually.  Changes to the
+     * model done through accessing the model directly may not appear in
+     * the view, unless a model-view listener relationship is established.
+     * @return
+     */
+    public BrowserModel getBrowserModel()
+    {
+        return browserModel;
     }
     
     /**

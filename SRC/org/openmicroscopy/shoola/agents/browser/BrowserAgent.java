@@ -38,10 +38,12 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
@@ -62,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -204,50 +207,25 @@ public class BrowserAgent implements Agent, AgentEventListener
      * @param browserIndex The ID (primary key) of the dataset to load.
      * @return Whether or not the dataset was succesfully loaded.
      */
-    public boolean loadDataset(int datasetID)
+    public void loadDataset(int datasetID)
     {
         DataManagementService dms = registry.getDataManagementService();
         DatasetData dataset;
-        try
-        {
-            dataset = dms.retrieveDataset(datasetID);
-            return loadDataset(dataset);
-        }
-        catch(DSAccessException dsae)
-        {
-            UserNotifier notifier = registry.getUserNotifier();
-            notifier.notifyError("Data retrieval failure",
-                "Unable to retrieve dataset (id = " + datasetID + ")", dsae);
-            return false;
-        }
-        catch(DSOutOfServiceException dsoe)
-        {
-            // pop up new login window (eventually caught)
-            throw new RuntimeException(dsoe);
-        }
-    }
-    
-    // loads the information from the Dataset into a BrowserModel, and the
-    // also is responsible for triggering the mechanism that loads all the
-    // images.
-    private boolean loadDataset(DatasetData datasetModel)
-    {
-        // get that s**t out of here; call a proper parameter, man!
-        if(datasetModel == null)
-        {
-            return false; // REEEEE-JECTED.
-        }
         
-        final BrowserModel model = new BrowserModel(datasetModel);
+        final BrowserModel model = new BrowserModel();
         model.setLayoutMethod(new NumColsLayoutMethod(8));
-        final BrowserTopModel topModel = new BrowserTopModel();
-        final BrowserView view = new BrowserView(model,topModel);
-        final BrowserController controller = new BrowserController(model,view);
+        BrowserTopModel topModel = new BrowserTopModel();
+        BrowserView view = new BrowserView(model,topModel);
+        BrowserController controller = new BrowserController(model,view);
         controller.setStatusView(new StatusBar());
-        
+
+        int count = env.getBrowserManager().getBrowserCount();
         env.getBrowserManager().addBrowser(controller);
-        BrowserInternalFrame bif = new BrowserInternalFrame(controller);
-        
+        final int browserIndex = count;
+        final BrowserInternalFrame bif = new BrowserInternalFrame(controller);
+
+        StatusBar status = controller.getStatusView();
+
         tf.addToDesktop(bif,TopFrame.PALETTE_LAYER);
         bif.setClosable(true);
         bif.setIconifiable(true);
@@ -255,8 +233,63 @@ public class BrowserAgent implements Agent, AgentEventListener
         bif.setResizable(true);
         bif.show();
         
+        final int theDataset = datasetID;
+        Thread retrieveThread = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    DataManagementService dms =
+                        registry.getDataManagementService();
+                    DatasetData dataset = dms.retrieveDataset(theDataset);
+                    model.setDataset(dataset);
+                    bif.setTitle("Image Browser: "+dataset.getName());
+                    loadDataset(browserIndex,dataset);
+                }
+                catch(DSAccessException dsae)
+                {
+                    UserNotifier notifier = registry.getUserNotifier();
+                    notifier.notifyError("Data retrieval failure",
+                    "Unable to retrieve dataset (id = " + theDataset + ")", dsae);
+                    return;
+                }
+                catch(DSOutOfServiceException dsoe)
+                {
+                    // pop up new login window (eventually caught)
+                    throw new RuntimeException(dsoe);
+                }
+            }
+        };
+        
+        retrieveThread.start();
+        writeStatusImmediately(status,"Loading dataset from DB...");
+            
+    }
+    
+    // loads the information from the Dataset into a BrowserModel, and the
+    // also is responsible for triggering the mechanism that loads all the
+    // images.
+    private boolean loadDataset(int whichBrowser, DatasetData datasetModel)
+    {
+        // get that s**t out of here; call a proper parameter, man!
+        if(datasetModel == null)
+        {
+            return false; // REEEEE-JECTED.
+        }
+        
+        final BrowserController controller =
+            env.getBrowserManager().getBrowser(whichBrowser);
+        
+        final BrowserModel model = controller.getBrowserModel();
+        final BrowserView view = controller.getView();
+        final StatusBar status = controller.getStatusView();
+        
         final DataManagementService dms =
             registry.getDataManagementService();
+        
+        final SemanticTypesService sts =
+            registry.getSemanticTypesService();
             
         final PixelsService ps =
             registry.getPixelsService();
@@ -266,6 +299,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         // always initialized as long as catch blocks return false
         List imageList;
+        Map plateMap;
+        
         Comparator idComparator = new Comparator()
         {
             public int compare(Object arg0, Object arg1)
@@ -308,14 +343,30 @@ public class BrowserAgent implements Agent, AgentEventListener
         {
             // will this order by image ID?
             // should I explicitly order by another parameter?
+            writeStatusImmediately(status,"Retrieving image records from DB...");
             imageList = dms.retrieveImages(datasetModel.getID());
-            Collections.sort(imageList,idComparator);
             if(imageList == null)
             {
                 UserNotifier un = registry.getUserNotifier();
                 un.notifyError("Database Error","Invalid Dataset ID specified.");
                 return false;
             }
+
+            Collections.sort(imageList,idComparator);
+            List idList = new ArrayList();
+            
+            // get plate information (if any) so that we can properly add
+            // images
+            writeStatusImmediately(status,"Retrieving plate information from DB...");
+            for(int i=0;i<imageList.size();i++)
+            {
+                ImageSummary summary = (ImageSummary)imageList.get(i);
+                idList.add(new Integer(summary.getID()));
+            }
+            
+            List plateList = sts.retrieveImageAttributes("ImagePlate",idList);
+            System.err.println(plateList.size());
+            
         }
         catch(DSOutOfServiceException dso)
         {
@@ -328,11 +379,9 @@ public class BrowserAgent implements Agent, AgentEventListener
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error",dsa.getMessage(),dsa);
             return false;
-        }
+        }    
         
-        final StatusBar status = controller.getStatusView();
-        status.processStarted(imageList.size());    
-        
+        status.processStarted(imageList.size());
         // see imageList initialization note above
         final List refList = Collections.unmodifiableList(imageList);
         
@@ -348,7 +397,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                     try
                     {
                         Pixels pix = summary.getDefaultPixels().getPixels();
-                        Image image = ps.getThumbnail(pix,thumbnailWidth,thumbnailHeight);
+                        Image image = ps.getThumbnail(pix);
                         ImageData data = new ImageData();
                         data.setID(pix.getID());
                         ThumbnailDataModel tdm = new ThumbnailDataModel(data);
@@ -393,6 +442,20 @@ public class BrowserAgent implements Agent, AgentEventListener
         };
         loader.start();
         return true;
+    }
+    
+    // display content information immediately.
+    private void writeStatusImmediately(final StatusBar status,
+                                        final String message)
+    {
+        Runnable writeTask = new Runnable()
+        {
+            public void run()
+            {
+                status.setLeftText(message);
+            }
+        };
+        SwingUtilities.invokeLater(writeTask);
     }
         
     
