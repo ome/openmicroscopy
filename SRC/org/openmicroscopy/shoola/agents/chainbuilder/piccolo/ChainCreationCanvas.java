@@ -272,6 +272,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 */
 	public void createDroppedChain(LayoutChainData chain,Point2D location) {
 		
+		
 		ChainStructureErrors  errors = chain.getStructureErrors();
 		if (errors != null) 
 			errors.display();
@@ -336,15 +337,13 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		JOptionPane.showMessageDialog(this,msg,"Save Complete",
 				JOptionPane.INFORMATION_MESSAGE);
 		newChain.layout();
-		ChainStructureErrors  errors = newChain.getStructureErrors();
-		if (errors != null) 
-			errors.display();
+
 		frame.updateChainPalette(newChain);
 		manager.addChain(newChain);
 
 	}
 	
-	private Collection findModules() {
+	public Collection findModules() {
 		PNodeFilter filter = new PNodeFilter() {
 			public boolean accept(PNode node) {
 				return (node instanceof ModuleView);
@@ -373,7 +372,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		chain.setNodes(nodes);
 	}
 	
-	private Collection findLinks() {
+	public  Collection findLinks() {
 		PNodeFilter filter = new PNodeFilter() {
 			public boolean accept(PNode node) {
 				return (node instanceof ParamLink);
@@ -395,13 +394,12 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		ParamLink link;
 		
 		Collection linkNodes = findLinks();
-		// plus add in whatever is in linkLayer;
-		linkNodes.addAll(linkLayer.links());
 		Iterator iter = linkNodes.iterator();
 		while (iter.hasNext()) {
 			node = (PNode) iter.next();
 			if (node instanceof ParamLink) {
 				link = (ParamLink) node; // add it somehow.
+				System.err.println("found a link to save");
 				// get from output
 				FormalOutput output = link.getOutput();
 				FormalOutputData fromOutput = (FormalOutputData) 
@@ -415,6 +413,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				// what are these nodes?
 				LayoutNodeData fromNode =  output.getModuleView().getNode();
 				LayoutNodeData toNode = input.getModuleView().getNode();
+				System.err.println("from..."+output.getModule().getName());
+				System.err.println("to..."+input.getModule().getName());
 				// somehow create a link
 				LayoutLinkData linkData = new 
 					LayoutLinkData(chain,fromNode,fromOutput,toNode,toInput);
@@ -424,6 +424,10 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 			}
 		}
 		chain.setLinks(links);
+	}
+	
+	public void setStatusLabel(String label) {
+		frame.setStatusLabel(label);
 	}
 
  }
