@@ -176,7 +176,8 @@ public class ModuleLoader extends ContentLoader
 		
 		System.err.println("uncategorized modules....");
 		System.err.println("=========================");
-		Iterator iter = modData.uncategorizedModulesIterator();
+		Collection uncats = modData.uncategorizedModules();
+		Iterator iter = uncats.iterator();
 		ChainModuleData mod;
 		while (iter.hasNext()) {
 			mod = (ChainModuleData) iter.next();
@@ -186,7 +187,7 @@ public class ModuleLoader extends ContentLoader
 		System.err.println("Root Categories...");
 		System.err.println("==================");
 		
-		iter = modData.rootCategoriesIterator();
+		iter = modData.rootCategories().iterator();
 		while (iter.hasNext()) {
 			ModuleCategoryData m = (ModuleCategoryData) iter.next();
 			dumpCategory(m);

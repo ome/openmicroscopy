@@ -30,8 +30,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -58,8 +57,8 @@ import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
  */
 public class ModulesData
 {
-	private Collection uncategorizedModules = new Vector();
-	private Collection rootModuleCategories = new Vector();
+	private List uncategorizedModules = new Vector();
+	private List rootModuleCategories = new Vector();
 	
 	public ModulesData() {
 	}
@@ -72,12 +71,12 @@ public class ModulesData
 		rootModuleCategories.add(category);
 	}
 	
-	public Iterator uncategorizedModulesIterator() {
-		return uncategorizedModules.iterator();
+	public List uncategorizedModules() {
+		return uncategorizedModules;
 	}
 	
-	public Iterator rootCategoriesIterator() {
-		return rootModuleCategories.iterator();
+	public List rootCategories() {
+		return rootModuleCategories;
 	}
 	
 	public int getUncategorizedCount() {
