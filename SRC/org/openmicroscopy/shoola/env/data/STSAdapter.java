@@ -171,6 +171,39 @@ class STSAdapter
     }
     
     /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(org.openmicroscopy.ds.dto.SemanticType, java.util.List)
+     */
+    public int countImageAttributes(String typeName, List imageIDList)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // test to see if the List is all Integers here
+        for(Iterator iter = imageIDList.iterator(); iter.hasNext();)
+        {
+            if(!(iter.next() instanceof Number))
+            {
+                throw new IllegalArgumentException("Illegal ID type.");
+            }
+        }
+        
+        Integer[] ints = new Integer[imageIDList.size()];
+        imageIDList.toArray(ints);
+        Criteria criteria =
+            buildDefaultCountCriteria(typeName,ints);
+        return proxy.count(typeName,criteria);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(java.lang.String, java.util.List)
+     */
+    public int countImageAttributes(SemanticType type, List imageIDList)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return countImageAttributes(type,imageIDList);
+    }
+
+
+    
+    /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public int countFeatureAttributes(String typeName, int featureID)
@@ -498,6 +531,7 @@ class STSAdapter
     private Criteria buildCountCriteria(String granularity, int targetID)
     {
         Criteria criteria = new Criteria();
+        // TODO fix to actually count
         if(granularity.equals(GLOBAL_GRANULARITY))
         {
             criteria.addFilter(GLOBAL_KEY,new Integer(targetID));
@@ -564,6 +598,35 @@ class STSAdapter
         else if(granularity.equals(GLOBAL_GRANULARITY))
         {
             criteria.addFilter(GLOBAL_KEY, new Integer(targetID));
+        }
+        return criteria;
+    }
+    
+    private Criteria buildDefaultCountCriteria(String granularity,
+                                               Number[] targetIDs)
+        throws IllegalArgumentException
+    {
+        if(targetIDs == null || targetIDs.length == 0)
+        {
+            return null;
+        }
+        Criteria criteria = new Criteria();
+        if(granularity.equals(DATASET_GRANULARITY))
+        {
+            criteria.addFilter(DATASET_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        else if(granularity.equals(IMAGE_GRANULARITY))
+        {
+            criteria.addFilter(IMAGE_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        else if(granularity.equals(FEATURE_GRANULARITY))
+        {
+            criteria.addFilter(FEATURE_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        // the attribute is itself the target in the global case
+        else if(granularity.equals(GLOBAL_GRANULARITY))
+        {
+            criteria.addFilter(GLOBAL_KEY, "IN", Arrays.asList(targetIDs));
         }
         return criteria;
     }

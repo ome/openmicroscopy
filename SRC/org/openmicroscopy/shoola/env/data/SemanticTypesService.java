@@ -146,6 +146,28 @@ public interface SemanticTypesService
         
     /**
      * Counts the number of attributes of the given semantic type that
+     * correspond to the images with IDs in the specified list.  If the
+     * answer is 0, the client should not attempt to retrieve a list
+     * of attributes.
+     * @param type The type of attribute to count.
+     * @param imageIDList Which images to query.
+     * @return The number of attributes of the given type associated with
+     *         the specified image.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error. 
+     */
+    public int countImageAttributes(SemanticType type, List imageIDList)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see countImageAttributes(org.openmicroscopy.ds.dto.SemanticType,java.util.List)
+     */
+    public int countImageAttributes(String typeName, List imageIDList)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Counts the number of attributes of the given semantic type that
      * correspond to the feature with the specified ID.  If the answer is 0,
      * the client should not attempt to retrieve a list of attributes.
      * 
