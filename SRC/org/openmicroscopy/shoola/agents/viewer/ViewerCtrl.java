@@ -38,6 +38,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.List;
+
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JSlider;
@@ -232,9 +234,38 @@ public class ViewerCtrl
         return presentation.getCanvas().getPinOnImage();
     }
 
-    public BufferedImage getPinOnSide(boolean painting, Color c)
+    public BufferedImage getPinOnSideTopLeft(boolean painting, Color c)
     {
-        return presentation.getCanvas().getPinOnSide(painting, c);
+        return presentation.getCanvas().getPinOnSideTopLeft(painting, c);
+    }
+    
+    public BufferedImage getPinOnSideTopRight(boolean painting, Color c)
+    {
+        return presentation.getCanvas().getPinOnSideTopRight(painting, c);
+    }
+    
+    public BufferedImage getPinOnSideBottomLeft(boolean painting, Color c)
+    {
+        return presentation.getCanvas().getPinOnSideBottomLeft(painting, c);
+    }
+    
+    public BufferedImage getPinOnSideBottomRight(boolean painting, Color c)
+    {
+        return presentation.getCanvas().getPinOnSideBottomRight(painting, c);
+    }
+    
+    public BufferedImage getImageAndROIs()
+    {
+        List spa = presentation.getDrawingCanvas().getScreenPlaneAreas();
+        BufferedImage img = null;
+        if (spa.size() == 0) {
+            UserNotifier un = getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", "No roi selected " +
+                            "on the current image."); 
+        } else {
+            img = presentation.getCanvas().getImageAndROIs(spa);
+        }
+        return img;
     }
     
     /** Forward event to {@link Viewer abstraction}. */

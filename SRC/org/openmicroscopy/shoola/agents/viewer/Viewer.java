@@ -112,6 +112,23 @@ implements Agent, AgentEventListener
     
     /** Implemented as specified by {@link Agent}. */
     public boolean canTerminate() { return true; }
+
+    /** Implement as specified by {@link AgentEventListener}. */
+    public void eventFired(AgentEvent e) 
+    {
+        if (e instanceof ImageLoaded)
+            handleImageLoaded((ImageLoaded) e);
+        else if (e instanceof ImageRendered)
+            handleImageRendered((ImageRendered) e);
+        else if (e instanceof LoadImage)
+            handleLoadImage((LoadImage) e);
+        else if (e instanceof AddROICanvas)
+            handleAddROI((AddROICanvas) e);
+        else if (e instanceof AnnotateROI)
+            handleAnnotateROI((AnnotateROI) e);
+        //else if (e instanceof DisplayViewer3D)
+        //    handleDisplayViewer3D((DisplayViewer3D) e);
+    }
     
     ViewerUIF getPresentation() { return presentation; }
     
@@ -199,24 +216,6 @@ implements Agent, AgentEventListener
     void addRoiCanvas(boolean b)
     {
         registry.getEventBus().post(new AddROICanvas(b));
-    }
-    
-    
-    /** Implement as specified by {@link AgentEventListener}. */
-    public void eventFired(AgentEvent e) 
-    {
-        if (e instanceof ImageLoaded)
-            handleImageLoaded((ImageLoaded) e);
-        else if (e instanceof ImageRendered)
-            handleImageRendered((ImageRendered) e);
-        else if (e instanceof LoadImage)
-            handleLoadImage((LoadImage) e);
-        else if (e instanceof AddROICanvas)
-            handleAddROI((AddROICanvas) e);
-        else if (e instanceof AnnotateROI)
-            handleAnnotateROI((AnnotateROI) e);
-        //else if (e instanceof DisplayViewer3D)
-        //    handleDisplayViewer3D((DisplayViewer3D) e);
     }
     
     /** Handle event @see DisplayViewer3D. */

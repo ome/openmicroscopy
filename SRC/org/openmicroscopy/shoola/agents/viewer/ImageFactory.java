@@ -41,6 +41,11 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 //Third-party libraries
 
@@ -63,101 +68,44 @@ import java.awt.image.Raster;
 public class ImageFactory
 {
 
+    private static final int    TOP_LEFT = 0, TOP_RIGHT = 1, BOTTOM_LEFT = 2,
+                                BOTTOM_RIGHT = 3;
     
     /** Default color components. */
-    private static final int RED = 255, GREEN = 0, BLUE = 0; 
+    private static final int    RED = 255, GREEN = 0, BLUE = 0; 
     
-    /** 
-     * Compose two bufferedImages: the main image displayed and the pin one.
-     * In this case, the pin one is located on the right side of the displayed 
-     * one. 
-     * @param img       main image displayed.
-     * @param lens      pin image.
-     * @param xLoc      x-coordinate of the pin image ref frame: main one.
-     * @param yLoc      y-coordinate of the pin image ref frame: main one.
-     * @param wLoc      width of the pin image.
-     * @param hLoc      height of the pin image.
-     * @param x1        x-coordinate of the lens image ref frame: magnified 
-     *                  image.
-     * @param y1        y-coordinate of the lens image ref frame: magnified 
-     *                  image.
-     * @param wRealPin  width of the lens w.r.t. to the main image.
-     * @param hRealPin  height of the lens w.r.t. to the main image.
-     * @param painting  <code>true<code> if we pain the original lens area,
-     * @param c         Color of the pin area. Default Color: Color.RED
-     * @return          A bufferedImage with dataBufferByte as dataBuffer, 
-     *                  b/c of the implementation of the TIFFEncoder.
-     */
-    public static BufferedImage getImagePinOnSide(BufferedImage img, 
-            BufferedImage lens, int xLoc, int yLoc, int wRealPin, int hRealPin,
-                boolean painting, Color c)
+    /** Main image and the lens image in the top-left corner. */
+    public static BufferedImage getImagePinTopLeft(BufferedImage img, 
+            BufferedImage lens, PlaneArea pa, boolean painting, Color c)
     {
-        if (painting && c == null) c = new Color(RED, GREEN, BLUE);
-        int sizeX = img.getWidth();
-        int sizeY = img.getHeight();
-        int sizeX1 = lens.getWidth();
-        int sizeY1 = lens.getHeight();
-        int wPinEnd = wRealPin+xLoc;
-        int hPinEnd = hRealPin+yLoc;
-        int sizeXTra = sizeX+sizeX1;
-        DataBufferByte buffer = new DataBufferByte(sizeXTra*sizeY, 3);
-        //DataBuffer and ColorModel of the main image
-        DataBuffer dataBuf = img.getRaster().getDataBuffer();
-        ColorModel cm = img.getColorModel();
-        
-        //DataBuffer of the pin image
-        DataBuffer dataBufLens = lens.getRaster().getDataBuffer();
-        //Read pixels from buffer.
-        int v, pos;
-        int diff = sizeY-sizeY1;
-        //Store the lens pixels in the Big buffer
-        for (int y = 0; y < sizeY1; ++y) {
-            for (int x = 0; x < sizeX1; ++x) {
-                v = dataBufLens.getElem(0, sizeX1*y+x);
-                pos = sizeXTra*(y+diff)+x+sizeX;
-                buffer.setElem(0, pos, cm.getRed(v));
-                buffer.setElem(1, pos, cm.getGreen(v));
-                buffer.setElem(2, pos, cm.getBlue(v));
-            }
-        } 
-        int red = 0, green = 0, blue = 0;
-        for (int y = 0; y < sizeY; ++y) {
-            for (int x = 0; x < sizeX; ++x) {
-                //draw the border of the lens on the original image.
-                if (painting && ((x == xLoc  && y >= yLoc && y <= hPinEnd) ||
-                    (y == yLoc && x >= xLoc && x <= wPinEnd) ||
-                    (x == wPinEnd  && y >= yLoc && y <= hPinEnd) ||
-                    (y == hPinEnd && x >= xLoc && x <= wPinEnd))) {
-                    red = c.getRed();
-                    green = c.getGreen();
-                    blue = c.getBlue();       
-                } else {
-                    v = dataBuf.getElem(0, sizeX*y+x);
-                    red = cm.getRed(v);
-                    green = cm.getGreen(v);
-                    blue = cm.getBlue(v);
-                }
-                pos = sizeXTra*y+x;
-                buffer.setElem(0, pos, red);
-                buffer.setElem(1, pos, green);
-                buffer.setElem(2, pos, blue);
-            } 
-        } 
-        
-        //Create the image.
-        ComponentColorModel ccm = new ComponentColorModel(
-                                  ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-                                  null, false, false, Transparency.OPAQUE, 
-                                  DataBuffer.TYPE_BYTE);
-        BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-                                  sizeXTra, sizeY, 3);
-        return new BufferedImage(ccm, 
-              Raster.createWritableRaster(csm, buffer, null), false, null);
+        return getImagePinOnSide(img, lens, pa, painting, c, TOP_LEFT);
+    }
+
+    /** Main image and the lens image in the bottom-left corner. */
+    public static BufferedImage getImagePinBottomLeft(BufferedImage img, 
+            BufferedImage lens, PlaneArea pa, boolean painting, Color c)
+    {
+        return getImagePinOnSide(img, lens, pa, painting, c, BOTTOM_LEFT);
     }
     
+    /** Main image and the lens image in the top-right corner. */
+    public static BufferedImage getImagePinTopRight(BufferedImage img, 
+            BufferedImage lens, PlaneArea pa, boolean painting, Color c)
+    {
+        return getImagePinOnSide(img, lens, pa, painting, c, TOP_RIGHT);
+    }
+    
+    /** Main image and the lens image in the bottom-right corner. */
+    public static BufferedImage getImagePinBottomRight(BufferedImage img, 
+            BufferedImage lens, PlaneArea pa, boolean painting, Color c)
+    {
+        return getImagePinOnSide(img, lens, pa, painting, c, BOTTOM_RIGHT);
+    }
+
     /** 
-     * Compose two bufferedImages: the main one, and the pin one.
-     * The pin one is located on top of the main image.
+     * Compose two bufferedImages: the main one and the pin one.
+     * The pin one is positionned on top of the main image.
+     * 
      * @param img   main displayed image.
      * @param lens  pin image
      * @param xLoc  x-coordinate of the pin image ref frame: main one.
@@ -195,21 +143,56 @@ public class ImageFactory
                 buffer.setElem(2, pos, cm.getBlue(v));
             } 
         } 
-        
-        //Create the image.
-        ComponentColorModel ccm = new ComponentColorModel(
-                                    ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-                                    null, false, false, Transparency.OPAQUE, 
-                                    DataBuffer.TYPE_BYTE);
-        BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-                                    sizeX, sizeY, 3);
-        return new BufferedImage(ccm, 
-                Raster.createWritableRaster(csm, buffer, null), false, null);
+        return createImage(sizeX, sizeY, buffer); 
+    }
+    
+    public static BufferedImage getImageAndROIs(BufferedImage img, List rois)
+    {
+        int sizeX = img.getWidth();
+        int sizeY = img.getHeight();
+        DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
+        DataBuffer dataBuf = img.getRaster().getDataBuffer();
+        ColorModel cm = img.getColorModel();
+        int v, pos;
+        int red = 0, green = 0, blue = 0;  
+        Iterator i = rois.iterator();
+        ScreenPlaneArea roi;
+        Color c;
+        boolean onBorder = false;
+        for (int y = 0; y < sizeY; ++y) {
+            for (int x = 0; x < sizeX; ++x) {
+                pos = sizeX*y+x;
+                i = rois.iterator();
+                while (i.hasNext()) {
+                    roi = (ScreenPlaneArea) i.next();
+                    if (roi.getPlaneArea().onBoundaries(x, y)) {
+                        c = roi.getAreaColor();
+                        red = c.getRed();
+                        green = c.getGreen();
+                        blue = c.getBlue();
+                        onBorder = true;
+                        break;
+                    } 
+                }
+                if (!onBorder) {
+                    v = dataBuf.getElem(0, pos);
+                    red = cm.getRed(v);
+                    green = cm.getGreen(v);
+                    blue = cm.getBlue(v);
+                }
+                buffer.setElem(0, pos, red);
+                buffer.setElem(1, pos, green);
+                buffer.setElem(2, pos, blue);
+                onBorder = false;
+            } 
+        }  
+        return createImage(sizeX, sizeY, buffer); 
     }
     
     /**
      * 
      * Create a sub-BufferedImage from an original bufferedImage.
+     * 
      * @param img       original buffered image.
      * @param x1        x-coordinate of the subImage, default <code>0</code>.
      * @param y1        y-coordinate of the subImage, default <code>0</code>.
@@ -252,14 +235,7 @@ public class ImageFactory
                 buffer.setElem(2, pos, blue);
             } 
         }  
-        ComponentColorModel ccm = new ComponentColorModel(
-                        ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-                        null, false, false, Transparency.OPAQUE, 
-                        DataBuffer.TYPE_BYTE);
-        BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-                        sizeX, sizeY, 3);
-        return new BufferedImage(ccm, 
-        Raster.createWritableRaster(csm, buffer, null), false, null);
+        return createImage(sizeX, sizeY, buffer); 
     }
     
     public static BufferedImage getImage(BufferedImage img)
@@ -269,13 +245,10 @@ public class ImageFactory
     }
     
     /**
-     * Create a buffered image with the pin area drawn on top.
+     * Create a buffered image with the pin area on top.
      * 
      * @param img       original buffered image
-     * @param xLoc      x-coordinate of the pin image, ref. frame: main image.
-     * @param yLoc      y-coordinate of the pin image, ref. frame: main image.
-     * @param wPin      width of the pin image, ref. frame: main image.    
-     * @param hPin      height of the pin image, ref. frame: main image.
+     * @param pa        rectangle representing the lens.
      * @param painting  <code>true<code> if we pain the original lens area, 
      * @param c         Color of the pin area.
      * 
@@ -283,14 +256,11 @@ public class ImageFactory
      *              b/c of the implementation of the TIFFEncoder.
      */
     public static BufferedImage getImageWithPinArea(BufferedImage img, 
-                                        int xLoc, int yLoc, int wPin, int hPin, 
-                                        boolean painting, Color c)
+                                        PlaneArea pa, boolean painting, Color c)
     {
         if (painting && c == null) c = new Color(RED, GREEN, BLUE);
         int sizeX = img.getWidth();
         int sizeY = img.getHeight();
-        int wPinEnd = wPin+xLoc;
-        int hPinEnd = hPin+yLoc;
         DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
         DataBuffer dataBuf = img.getRaster().getDataBuffer();
         ColorModel cm = img.getColorModel();
@@ -299,11 +269,7 @@ public class ImageFactory
         for (int y = 0; y < sizeY; ++y) {
             for (int x = 0; x < sizeX; ++x) {
                 pos = sizeX*y+x;
-                if (painting && ((x == xLoc && y <= hPinEnd && y >= yLoc) ||
-                    (y == yLoc && x >= xLoc && x <= wPinEnd) ||
-                    (x == wPinEnd && y <= hPinEnd && y >= yLoc) ||
-                    (y == hPinEnd && x >= xLoc && x <= wPinEnd)))
-                {
+                if (painting && pa.onBoundaries(x, y)) {
                     red = c.getRed();
                     green = c.getGreen();
                     blue = c.getBlue();
@@ -318,15 +284,117 @@ public class ImageFactory
                 buffer.setElem(2, pos, blue);
             } 
         }  
+        return createImage(sizeX, sizeY, buffer); 
+    }
+
+    /** 
+     * Compose two bufferedImages: the main image displayed and the pin one
+     * on side.
+     * 
+     * @param img       main image displayed.
+     * @param lens      pin image.
+     * @param pa        rectangle representing the lens positionned.
+     * @param x1        x-coordinate of the lens image ref frame: magnified 
+     *                  image.
+     * @param y1        y-coordinate of the lens image ref frame: magnified 
+     *                  image.
+     * @param wRealPin  width of the lens w.r.t. to the main image.
+     * @param hRealPin  height of the lens w.r.t. to the main image.
+     * @param painting  <code>true<code> if we pain the original lens area,
+     * @param c         Color of the pin area. Default Color: Color.RED.
+     * 
+     * @return          A bufferedImage with dataBufferByte as dataBuffer, 
+     *                  b/c of the implementation of the TIFFEncoder.
+     */
+    private static BufferedImage getImagePinOnSide(BufferedImage img, 
+                BufferedImage lens, PlaneArea pa, boolean painting, Color c, 
+            int index)
+    {
+        if (painting && c == null) c = new Color(RED, GREEN, BLUE);
+        int sizeX = img.getWidth();
+        int sizeY = img.getHeight();
+        int sizeX1 = lens.getWidth();
+        int sizeY1 = lens.getHeight();
+        int diffY = 0, extraXPin = 0, extraXMain = 0;
+        switch (index) {
+            case TOP_LEFT:
+                diffY = 0;
+                extraXMain = 0;
+                extraXPin = sizeX1;
+                break;
+            case TOP_RIGHT:
+                diffY = 0;
+                extraXMain = sizeX;
+                extraXPin = 0;
+                break;
+            case BOTTOM_RIGHT:
+                extraXMain = sizeX;
+                extraXPin = 0;
+                diffY = sizeY-sizeY1;
+                break;
+            case BOTTOM_LEFT:
+                extraXMain = 0;
+                extraXPin = sizeX1;
+                diffY = sizeY-sizeY1;
+                break;
+        }
+        int sizeXTra = sizeX+sizeX1;
+        DataBufferByte buffer = new DataBufferByte(sizeXTra*sizeY, 3);
+        //DataBuffer and ColorModel of the main image
+        DataBuffer dataBuf = img.getRaster().getDataBuffer();
+        ColorModel cm = img.getColorModel();
+        
+        //DataBuffer of the pin image
+        DataBuffer dataBufLens = lens.getRaster().getDataBuffer();
+        //Read pixels from buffer.
+        int v, pos;
+        //Store the lens pixels in the Big buffer
+        for (int y = 0; y < sizeY1; ++y) {
+            for (int x = 0; x < sizeX1; ++x) {
+                v = dataBufLens.getElem(0, sizeX1*y+x);
+                pos = sizeXTra*(y+diffY)+x+extraXMain;
+                buffer.setElem(0, pos, cm.getRed(v));
+                buffer.setElem(1, pos, cm.getGreen(v));
+                buffer.setElem(2, pos, cm.getBlue(v));
+            }
+        } 
+        int red = 0, green = 0, blue = 0;
+        for (int y = 0; y < sizeY; ++y) {
+            for (int x = 0; x < sizeX; ++x) {
+                //draw the border of the lens on the original image.
+                if (painting && pa.onBoundaries(x, y)) {
+                    red = c.getRed();
+                    green = c.getGreen();
+                    blue = c.getBlue();       
+                } else {
+                    v = dataBuf.getElem(0, sizeX*y+x);
+                    red = cm.getRed(v);
+                    green = cm.getGreen(v);
+                    blue = cm.getBlue(v);
+                }
+                pos = sizeXTra*y+x+extraXPin;
+                buffer.setElem(0, pos, red);
+                buffer.setElem(1, pos, green);
+                buffer.setElem(2, pos, blue);
+            } 
+        } 
+        
+        return createImage(sizeXTra, sizeY, buffer); 
+    }
+    
+    /** Create the Bufferedimage. */
+    private static BufferedImage createImage(int sizeX, int sizeY, 
+                                DataBufferByte buffer)
+    {
         ComponentColorModel ccm = new ComponentColorModel(
-                                    ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-                                    null, false, false, Transparency.OPAQUE, 
-                                    DataBuffer.TYPE_BYTE);
+                                ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+                                null, false, false, Transparency.OPAQUE, 
+                                DataBuffer.TYPE_BYTE);
         BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-                                    sizeX, sizeY, 3);
+                                sizeX, sizeY, 3);
         return new BufferedImage(ccm, 
                 Raster.createWritableRaster(csm, buffer, null), false, null);
     }
-
+    
 }
 
