@@ -185,5 +185,37 @@ public interface DataManagementService
      */
     public List retrieveImages(int datasetID)
 		throws DSOutOfServiceException, DSAccessException;
-    
+		
+    /**
+     * Update a specified project.
+     * 
+     * @param retVal	DataObject 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+     */
+    public void updateProject(ProjectData retVal)
+		throws DSOutOfServiceException, DSAccessException;
+		
+	/**
+	 * Update a specified dataset.
+	 * 
+	 * @param projectID
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public void updateDataset(DatasetData retVal)
+			throws DSOutOfServiceException, DSAccessException;
+			
+	/**
+	 * Update a specified image.
+	 * 
+	 * @param projectID
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public void updateImage(ImageData retVal)
+			throws DSOutOfServiceException, DSAccessException;
 }

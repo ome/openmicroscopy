@@ -116,10 +116,10 @@ public class DataServicesFactory
 		try {
 			proxy.login(uc.getUserName(), uc.getPassword());
 			//retrieve the user's ID and store it in the UserCredentials.
-			// must be modified
 			uc.setUserID(dms.getUserID());
 		} catch (Exception e) {
-			//TODO: handle exception by throwing upper-level exception.
+			//TODO: handle exceptions
+			throw new RuntimeException(e);
 		}
 	}
 	
