@@ -224,6 +224,7 @@ public class BrowserController
         if(statusView != null)
         {
             browserModel.removeModelListener(statusView);
+            browserView.removeBrowserViewListener(statusView);
         }
         if(bar != null)
         {
@@ -231,6 +232,7 @@ public class BrowserController
             // TODO: change to name of dataset.
             statusView.setLeftText("Dataset loaded.");
             browserModel.addModelListener(statusView);
+            browserView.addBrowserViewListener(statusView);
         }
     }
     
@@ -252,11 +254,19 @@ public class BrowserController
     	if(browserView != null)
     	{
     		browserModel.removeModelListener(browserView);
+            if(statusView != null)
+            {
+                browserView.removeBrowserViewListener(statusView);
+            }
     	}
         if(view != null)
         {
             browserView = view;
             browserModel.addModelListener(browserView);
+            if(statusView != null)
+            {
+                browserView.addBrowserViewListener(statusView);
+            }
         }
         view.repaint();
     }

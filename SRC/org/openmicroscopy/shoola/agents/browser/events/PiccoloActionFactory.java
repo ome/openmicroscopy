@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
-import org.openmicroscopy.shoola.agents.browser.ui.ImageNameNode;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverManager;
 import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
@@ -403,72 +403,44 @@ public class PiccoloActionFactory
         return action;
     }
     
-    public static PiccoloAction getImageNameEnterAction(final HoverManager layer)
+    public static PiccoloAction getImageEnterAction(final BrowserView view)
     {
         PiccoloAction action = new PiccoloAction()
         {
             public void execute(PInputEvent e)
             {
                 Thumbnail t = (Thumbnail)e.getPickedNode();
-                
-                ImageNameNode nameNode = new ImageNameNode(t);
-                
-                double width = t.getWidth()*e.getCamera().getViewScale();
-                double height = t.getHeight()*e.getCamera().getViewScale();
-                
-                Point2D centerPoint = new Point2D.Double(t.getOffset().getX()+
-                                                         t.getBounds().getCenter2D().getX(),
-                                                         t.getOffset().getY()+
-                                                         t.getBounds().getCenter2D().getY());
-                Point2D viewPoint = e.getCamera().viewToLocal(centerPoint);
-                
-                nameNode.setOffset(viewPoint.getX(),viewPoint.getY());
-                
-                double offRight = nameNode.getOffset().getX()+
-                                  nameNode.getBounds().getWidth()-
-                                  e.getCamera().getBounds().getWidth();
-                
-                double offBottom = nameNode.getOffset().getY()+
-                                   nameNode.getBounds().getHeight()-
-                                   e.getCamera().getBounds().getHeight();
-                
-                double offLeft = nameNode.getOffset().getX();
-                double offTop = nameNode.getOffset().getY();
-                
-                if(offRight > 0)
-                {
-                    offLeft = offLeft-offRight-4;
-                    nameNode.setOffset(offLeft,offTop);
-                }
-                if(offBottom > 0)
-                {
-                    offTop = offBottom-offTop-4;
-                    nameNode.setOffset(offLeft,offTop);
-                }
-                if(offLeft < 4)
-                {
-                    offLeft = 4;
-                    nameNode.setOffset(offLeft,offTop);
-                }
-                if(offTop < 4)
-                {
-                    offTop = 4;
-                    nameNode.setOffset(offLeft,offTop);
-                }
-                
-                layer.nodeExited();
-                layer.nodeEntered(e.getCamera(),nameNode,200);
+                view.generateMessage(t.getModel().getName());
             }
         };
         return action;
     }
     
-    public static PiccoloAction getSemanticEnterAction(final HoverManager layer)
+    public static PiccoloAction getImageExitAction(final BrowserView view)
     {
         PiccoloAction action = new PiccoloAction()
         {
+            public void execute()
+            {
+                view.clearMessages();
+            }
             public void execute(PInputEvent e)
             {
+                execute();   
+            }
+        };
+        return action;
+    }
+    
+    public static PiccoloAction getSemanticEnterAction(final BrowserView view,
+                                                       final HoverManager layer)
+    {
+        PiccoloAction enterAction = getImageEnterAction(view);
+        PiccoloAction action = new CompositePiccoloAction(enterAction)
+        {
+            public void execute(PInputEvent e)
+            {
+                super.execute(e);
                 Thumbnail t = (Thumbnail)e.getPickedNode();
                 
                 double width = t.getWidth()*e.getCamera().getViewScale();
@@ -531,12 +503,15 @@ public class PiccoloActionFactory
         return action;
     }
     
-    public static PiccoloAction getOverlayExitAction(final HoverManager layer)
+    public static PiccoloAction getOverlayExitAction(final BrowserView view,
+                                                     final HoverManager layer)
     {
-        PiccoloAction action = new PiccoloAction()
+        PiccoloAction exitAction = getImageExitAction(view);
+        PiccoloAction action = new CompositePiccoloAction(exitAction)
         {
             public void execute(PInputEvent e)
             {
+                super.execute(e);
                 if(layer.getDisplayedNode() != null)
                 {
                     PNode node = layer.getDisplayedNode();

@@ -39,7 +39,6 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,21 +64,17 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public final class StatusBar extends JPanel
                              implements BrowserModelListener,
+                                        BrowserViewListener,
                                         ProgressListener
 {
     private JLabel leftLabel;
-    private JLabel rightLabel;
     
     private Timer temporaryTimer;
     private TimerTask currentTask;
     
-    private String persistentLeftString;
-    private Font persistentLeftFont;
-    private Color persistentLeftColor;
-    
-    private String persistentRightString;
-    private Font persistentRightFont;
-    private Color persistentRightColor;
+    private String persistentString;
+    private Font persistentFont;
+    private Color persistentColor;
     
     private final Font defaultFont = new Font(null,Font.PLAIN,12);
     private final Color defaultColor = Color.black;
@@ -96,27 +91,14 @@ public final class StatusBar extends JPanel
     public StatusBar()
     {
         leftLabel = new JLabel();
-        rightLabel = new JLabel();
         
-        persistentLeftFont = defaultFont;
-        persistentRightFont = defaultFont;
-        persistentLeftColor = defaultColor;
-        persistentRightColor = defaultColor;
+        persistentFont = defaultFont;
+        persistentColor = defaultColor;
         
-        setLayout(new GridLayout(1,2,4,4));
+        setLayout(new FlowLayout(FlowLayout.LEFT));
         
-        JPanel leftPanel = new JPanel();
-        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        
-        leftPanel.add(leftLabel);
-        rightPanel.add(rightLabel);
-        
+        add(leftLabel);
         revertToFontDefaults();
-        
-        add(leftPanel);
-        add(rightPanel);
         
         temporaryTimer = new Timer();
     }
@@ -132,46 +114,19 @@ public final class StatusBar extends JPanel
             text = "";
         }
         leftLabel.setText(text);
-        persistentLeftString = text;
-    }
-    
-    /**
-     * Sets the (persistent) text on the right side to the specified value.
-     * @param text
-     */
-    public void setRightText(String text)
-    {
-        if(text == null)
-        {
-            text = "";
-        }
-        rightLabel.setText(text);
-        persistentRightString = text;   
+        persistentString = text;
     }
     
     /**
      * Sets the (persistent) font on the left side to the specified value.
      * @param font
      */
-    public void setLeftFont(Font font)
+    public void setStatusFont(Font font)
     {
         if(font != null)
         {
-            persistentLeftFont = font;
-            leftLabel.setFont(persistentLeftFont);
-        }
-    }
-    
-    /**
-     * Sets the (persistent) font on the right side to the specified value.
-     * @param font
-     */
-    public void setRightFont(Font font)
-    {
-        if(font != null)
-        {
-            persistentRightFont = font;
-            rightLabel.setFont(persistentRightFont);
+            persistentFont = font;
+            leftLabel.setFont(persistentFont);
         }
     }
     
@@ -179,25 +134,12 @@ public final class StatusBar extends JPanel
      * Sets the left (persistent) color to the specified hue.
      * @param color The color to set.
      */
-    public void setLeftColor(Color color)
+    public void setStatusColor(Color color)
     {
         if(color != null)
         {
-            persistentLeftColor = color;
-            leftLabel.setForeground(persistentLeftColor);
-        }
-    }
-    
-    /**
-     * Sets the right (persistent) color to the specified hue.
-     * @param color The color to set.
-     */
-    public void setRightColor(Color color)
-    {
-        if(color != null)
-        {
-            persistentRightColor = color;
-            rightLabel.setForeground(persistentRightColor);
+            persistentColor = color;
+            leftLabel.setForeground(persistentColor);
         }
     }
     
@@ -206,10 +148,8 @@ public final class StatusBar extends JPanel
      */
     public void revertToFontDefaults()
     {
-        setLeftFont(defaultFont);
-        setRightFont(defaultFont);
-        setLeftColor(defaultColor);
-        setRightColor(defaultColor);
+        setStatusFont(defaultFont);
+        setStatusColor(defaultColor);
     }
     
     /**
@@ -221,7 +161,7 @@ public final class StatusBar extends JPanel
      */
     public void modeChanged(String className, BrowserMode mode)
     {
-        TimerTask revertTask = getLeftRevertTask();
+        TimerTask revertTask = getRevertTask();
         
         if(className.equals(BrowserModel.MAJOR_UI_MODE_NAME))
         {
@@ -318,7 +258,7 @@ public final class StatusBar extends JPanel
         leftLabel.setText(String.valueOf(thumbnails.length) +
                           " images selected.");
                           
-        TimerTask revertTask = getLeftRevertTask();
+        TimerTask revertTask = getRevertTask();
         temporaryTimer.cancel();
         temporaryTimer = new Timer();
         temporaryTimer.schedule(revertTask,3000);
@@ -340,7 +280,7 @@ public final class StatusBar extends JPanel
         }
         else
         {
-            setLeftColor(Color.black);
+            setStatusColor(Color.black);
             piecesCompleted = 0;
             totalPieces = piecesOfData;
         }
@@ -370,7 +310,7 @@ public final class StatusBar extends JPanel
     public void processFailed(String reason)
     {
         // TODO: launch User notifier?
-        setLeftColor(Color.red);
+        setStatusColor(Color.red);
         setLeftText("FAIL: "+reason);
     }
     
@@ -385,7 +325,7 @@ public final class StatusBar extends JPanel
 
     
     // returns a revert task, commonly used to replace temporary messages.
-    private TimerTask getLeftRevertTask()
+    private TimerTask getRevertTask()
     {
         TimerTask task = new TimerTask() {
             /* (non-Javadoc)
@@ -393,9 +333,9 @@ public final class StatusBar extends JPanel
              */
             public void run()
             {
-                leftLabel.setForeground(persistentLeftColor);
-                leftLabel.setFont(persistentLeftFont);
-                leftLabel.setText(persistentLeftString);
+                leftLabel.setForeground(persistentColor);
+                leftLabel.setFont(persistentFont);
+                leftLabel.setText(persistentString);
             }
 
         };
@@ -403,23 +343,20 @@ public final class StatusBar extends JPanel
         return task;
     }
     
-    // returns a revert task for the right label.
-    private TimerTask getRightRevertTask()
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.BrowserViewListener#messageGenerated(java.lang.String)
+     */
+    public void messageGenerated(String message)
     {
-        TimerTask task = new TimerTask()
-        {
-            /* (non-Javadoc)
-             * @see java.util.TimerTask#run()
-             */
-            public void run()
-            {
-                rightLabel.setForeground(persistentRightColor);
-                rightLabel.setFont(persistentRightFont);
-                rightLabel.setText(persistentRightString);
-            }
-
-        };
-        return task;
+        persistentString = leftLabel.getText();
+        leftLabel.setText(message);
     }
-
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.BrowserViewListener#clearMessages()
+     */
+    public void clearMessages()
+    {
+        leftLabel.setText(persistentString);
+    }
 }
