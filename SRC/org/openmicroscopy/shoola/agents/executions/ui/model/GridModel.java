@@ -105,7 +105,6 @@ public class GridModel implements ChangeListener {
 	public void setExtent(long min,long max) {
 		this.min = min;
 		this.max = max;
-		System.err.println("setting grid extent to..."+min+"-"+max);
 	}
 	
 	public void setDimensions(int canvasWidth,int canvasHeight) {
@@ -140,16 +139,10 @@ public class GridModel implements ChangeListener {
 	}
 	
 	public float getHorizCoord(long x) {
-		System.err.println("getting x coord of "+x);
 		float offset = x-min;
-		System.err.println("offset..."+offset);
 		float range = max-min;
-		System.err.println("range.."+range);
-		
 		float ratio = offset/range;
-		System.err.println("ratio "+ratio);
 		float res = xStart+ratio*gridWidth;
-		System.err.println("res is "+res);
 		return res;
 	}
 	
@@ -191,12 +184,7 @@ public class GridModel implements ChangeListener {
 	public void setCanvas(ExecutionsCanvas canvas) {
 		this.canvas = canvas;
 	}
-	
-	public void updateExtent(long min,long max) {
-		setExtent(min,max);
-		if (canvas != null) 
-			canvas.repaint();
-	}
+
 	
 	public void stateChanged(ChangeEvent e) {
 		Object o = e.getSource();
