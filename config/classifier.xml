@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <agent name="Classifier">
-   <resources>
-     <iconFactories>
+   <resources>     
+<iconFactories>
+	<!-- This entry is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/Factory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.agents.classifier.graphx</location>
+       </structuredEntry>
      </iconFactories>
      <fonts>
        <!-- This entry is turned into an instance of java.awt.Font. --> 
