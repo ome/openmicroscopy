@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
  * The UI manager of the {@link PopupMenu}.
@@ -101,6 +102,7 @@ class TreePopupMenuManager
 		if (target != null) {
 			view.browse.setEnabled((target instanceof DatasetSummary));
 			view.view.setEnabled((target instanceof ImageSummary));
+			view.annotate.setEnabled(!(target instanceof ProjectSummary));
 		}
 	}
     
@@ -113,13 +115,16 @@ class TreePopupMenuManager
 	{
 		if (target != null) {
 			Object src = e.getSource();
-			if (src == view.properties)	agentCtrl.showProperties(target);
-			else {
-				if (src == view.view && target instanceof ImageSummary)       
-					agentCtrl.viewImage(((ImageSummary) target));
-				else if (src == view.browse && target instanceof DatasetSummary)
-					agentCtrl.viewDataset(((DatasetSummary) target));
-			}
+			if (src == view.properties)	
+				agentCtrl.showProperties(target);
+			else if (src == view.view && target instanceof ImageSummary)       
+				agentCtrl.viewImage(((ImageSummary) target));
+			else if (src == view.browse && target instanceof DatasetSummary)
+				agentCtrl.viewDataset(((DatasetSummary) target));
+			else if (src == view.annotate && target instanceof DatasetSummary)
+				agentCtrl.annotateDataset(((DatasetSummary) target));
+			else if (src == view.annotate && target instanceof ImageSummary)
+				agentCtrl.annotateImage(((ImageSummary) target));
 		}
 		view.setVisible(false);
 	}
@@ -131,6 +136,7 @@ class TreePopupMenuManager
 		view.view.addActionListener(this);
 		view.browse.addActionListener(this);
 		view.refresh.addActionListener(this);
+		view.annotate.addActionListener(this);
 	}
 
 }

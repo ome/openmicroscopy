@@ -104,10 +104,13 @@ class TreePopupMenu
 	/** Button to reload data from the DB. */
 	JMenuItem   					refresh;
 
+	/** Button to annotate a dataset or an image. */
+	JMenuItem						annotate;
+	
 	/** 
 	 * Creates a new instance.
 	 *
-	 *@param    agentCtrl   The agent's control component.
+	 * @param agentCtrl   The agent's control component.
 	 */
 	TreePopupMenu(DataManagerCtrl agentCtrl, Registry r) 
 	{
@@ -116,6 +119,7 @@ class TreePopupMenu
 		initView();
 		initBrowse();
 		initRefresh();
+		initAnnotate();
 		manager = new TreePopupMenuManager(this, agentCtrl);
 		buildGUI() ;
 	}
@@ -249,6 +253,19 @@ class TreePopupMenu
 		refresh.setForeground(DataManager.STEELBLUE); 
 	}
 
+	/** Creates and initializes the annotate button. */
+	private void initAnnotate()
+	{
+		IconManager icons = IconManager.getInstance(config);
+		annotate = new JMenuItem("Annotate", 
+								icons.getIcon(IconManager.ANNOTATE));
+		annotate.setOpaque(false);
+		annotate.setBorder(null);
+		annotate.setFont((Font) config.lookup("/resources/fonts/Labels"));
+		annotate.setForeground(DataManager.STEELBLUE);
+		annotate.setEnabled(false);  
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI() 
 	{
@@ -256,6 +273,7 @@ class TreePopupMenu
 		add(properties);
 		add(view);
 		add(browse);
+		add(annotate);
 		add(refresh);
 	}
 
