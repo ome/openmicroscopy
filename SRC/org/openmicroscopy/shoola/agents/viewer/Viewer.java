@@ -37,6 +37,7 @@ import javax.swing.JCheckBoxMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -112,19 +113,28 @@ public class Viewer
 		return renderingControl.getPixelsDims();
 	}
 	
+	/** Default timepoint. */
 	int getDefaultT() { return renderingControl.getDefaultT(); }
 	
+	/** Default z-section in the stack. */
 	int getDefaultZ() { return renderingControl.getDefaultZ(); }
 	
 	/** Return the current buffered image. */
 	BufferedImage getCurImage() { return curImage; }
 	
+	/** 2D-plane selected. */
 	void onPlaneSelected(int z, int t)
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
 		def.setZ(z);
 		RenderImage event = new RenderImage(curPixelsID, def);
 		registry.getEventBus().post(event);	
+	}
+	
+	/** Post an event to bring up the rendering agt. */
+	void showRendering()
+	{
+		registry.getEventBus().post(new DisplayRendering());
 	}
 	
 	/** Implement as specified by {@link AgentEventListener}. */
@@ -142,15 +152,16 @@ public class Viewer
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
 		if (curImageID != request.getImageID()) {
-			if (presentation == null) buildPresentation();
-			else {
-				if (presentation.isClosed()) showPresentation();
-				else if (presentation.isIcon()) deiconifyPresentation();
-			}
+			if (presentation == null) buildPresentation(request.getImageName());
+			if (presentation.isClosed()) showPresentation();
+			else if (presentation.isIcon()) deiconifyPresentation();
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
 			RenderImage event = new RenderImage(curPixelsID);
 			registry.getEventBus().post(event);
+		} else {
+			if (presentation.isClosed()) showPresentation();
+			else if (presentation.isIcon()) deiconifyPresentation();
 		}
 	}
 	
@@ -187,10 +198,11 @@ public class Viewer
 	}
 	
 	/** Build the GUI. */
-	private void buildPresentation()
+	private void buildPresentation(String imageName)
 	{
 		control = new ViewerCtrl(this);
-		presentation = new ViewerUIF(control, registry);
+		presentation = new ViewerUIF(control, registry, imageName);
+		control.setPresentation(presentation);
 		control.attachListener();
 		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
 		viewItem.setEnabled(true);

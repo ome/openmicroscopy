@@ -36,13 +36,17 @@ import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.controls.NavigationPalette;
+import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
@@ -63,18 +67,31 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @since OME2.2
  */
 public class ViewerCtrl
-	implements ActionListener, InternalFrameListener
+	implements ActionListener, InternalFrameListener, ChangeListener
 {
+	
 	/** Action Command ID. */
 	static final int			V_VISIBLE = 0;
-	static final int			CONTROL = 1;
+	static final int			RENDERING = 1;
 	static final int			SAVE_AS = 2;
+	static final int			MOVIE_PLAY = 3;
+	static final int			MOVIE_STOP = 4;
+	static final int			MOVIE_REWIND = 5;
+	
+	private JSlider				tSlider, zSlider;
 	
 	private Viewer				abstraction;
+	
+	private ViewerUIF			presentation;
 	
 	ViewerCtrl(Viewer abstraction)
 	{
 		this.abstraction = abstraction;
+	}
+	
+	void setPresentation(ViewerUIF presentation)
+	{
+		this.presentation = presentation;
 	}
 	
 	/** 
@@ -83,7 +100,11 @@ public class ViewerCtrl
 	 */
 	void attachListener() 
 	{
-		abstraction.getPresentation().addInternalFrameListener(this);
+		tSlider = presentation.getTSlider(); 
+		zSlider = presentation.getZSlider();
+		tSlider.addChangeListener(this);
+		zSlider.addChangeListener(this);
+		presentation.addInternalFrameListener(this);
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
@@ -138,6 +159,32 @@ public class ViewerCtrl
 		item.addActionListener(this);
 	}
 	
+	/** Update t-slider. */
+	public void onTChange(int z, int t)
+	{
+		//remove listener otherwise an event is fired.
+		tSlider.removeChangeListener(this);
+		tSlider.setValue(t);
+		tSlider.addChangeListener(this);
+		abstraction.onPlaneSelected(z, t);
+	}
+	
+	/** Update z-slider. */
+	public void onZChange(int z, int t)
+	{
+		//remove listener otherwise an event is fired.
+		zSlider.removeChangeListener(this);
+		zSlider.setValue(z);
+		zSlider.addChangeListener(this);
+		abstraction.onPlaneSelected(z, t);
+	}
+	
+	/** Bring up the rendering widget. */
+	public void showRendering()
+	{
+		abstraction.showRendering();
+	}
+	
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -148,22 +195,41 @@ public class ViewerCtrl
 				case V_VISIBLE:
 					showPresentation();
 					break;
-				case CONTROL:
-					showControls();
+				case RENDERING:
+					showRendering();
 					break; 	
 				case SAVE_AS:
 					showImageSaver();
 					break;
+				/*
+				case MOVIE_PLAY:
+				case MOVIE_STOP:
+				case MOVIE_REWIND:
+					break;
+				*/
 		   }
 		} catch(NumberFormatException nfe) {   
 			   throw nfe;  //just to be on the safe side...
 		} 
 	}
 	
+	/** Handle events fired by the Slider. */
+	public void stateChanged(ChangeEvent e)
+	{
+		Object src = e.getSource();
+		int valT, valZ;
+		JTextField field;
+		valT = tSlider.getValue();
+		valZ = zSlider.getValue();
+		ToolBarManager tbm = presentation.getToolBar().getManager();
+		if (src == tSlider) tbm.onTChange(valT);
+		else  tbm.onZChange(valZ);
+		abstraction.onPlaneSelected(valZ, valT);
+	}
+	
 	/** Display or not the presentation. */
 	private void showPresentation()
 	{
-		ViewerUIF presentation = abstraction.getPresentation();
 		if (presentation != null) {
 			if (presentation.isClosed()) abstraction.showPresentation();  
 			if (presentation.isIcon()) abstraction.deiconifyPresentation();
@@ -178,13 +244,7 @@ public class ViewerCtrl
 	/** Forward event to {@link ViewerUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
-		abstraction.getPresentation().showDialog(dialog);
-	}
-	
-	/** Bring up the navigation palette. */
-	private void showControls()
-	{
-		showDialog(new NavigationPalette(this));		
+		presentation.showDialog(dialog);
 	}
 	
 	/** Bring the file chooser. */
