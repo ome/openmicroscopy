@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -38,6 +39,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -77,23 +79,22 @@ public class ViewerUIF
 	/** Constants usd to draw the XY-axis. */
 	public static final int			START = 25, ORIGIN = 5, LENGTH = 20, 
 									ARROW = 3;
-	
-	private static final Dimension  HBOX = new Dimension(20, 0);
-	
+
 	/** Canvas to display the currently selected 2D image. */
 	private ImageCanvas             canvas;
 	
+    private JLayeredPane            layer;
+    
 	/** z-slider and t-slider. */
 	private JSlider					tSlider, zSlider;
 	
 	/** Tool bar of the Agent. */
 	private ToolBar					toolBar;
 	
-	/** Items of the movie submenu. */
-	private JMenuItem				movieItemZ, movieItemT;
-	
 	private JMenuItem				viewer3DItem;
 	
+    private JMenuItem               movieItem;
+    
 	private ViewerCtrl 				control;
 	
 	private IconManager				im;
@@ -111,13 +112,15 @@ public class ViewerUIF
 		im = IconManager.getInstance(registry);
 		int maxT = pxsDims.sizeT-1;
 		int maxZ = pxsDims.sizeZ-1;
-		setJMenuBar(createMenuBar(maxT, maxZ));
+		setJMenuBar(createMenuBar(maxZ, maxT));
 		toolBar = new ToolBar(control, registry, maxT, defaultT, maxZ, 
 								defaultZ);
 		initSliders(maxT, defaultT, maxZ, defaultZ);
 		buildGUI();
 	}
 
+    public ImageCanvas getCanvas() { return canvas; }
+    
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
 	public JSlider getTSlider() { return tSlider; }
@@ -126,8 +129,17 @@ public class ViewerUIF
 	
 	public ToolBar getToolBar() { return toolBar; } 
 	
+    /** 
+     * Return the bufferedImage displayed. 
+     * Note that we save the zoomed image, not the original bufferedImage. 
+     */
+    BufferedImage getDisplayedImage() { return canvas.getZoomImage(); }
+    
 	void setActive(boolean b) { active = b; }
 	
+    /** Reset the zoomLevel to 1. */
+    void resetMagFactor() { canvas.resetMagFactor(); }
+    
 	/** Display the name of the image in the title. */
 	void setImageName(String imageName) { setTitle(imageName); }
 	
@@ -153,10 +165,7 @@ public class ViewerUIF
 		toolBar.getZField().setEditable(bZ);
 		toolBar.getViewer3D().setEnabled(bZ);
 		viewer3DItem.setEnabled(bZ);
-		toolBar.getMovieZ().setEnabled(bZ);
-        toolBar.getMovieT().setEnabled(bT);
-		movieItemT.setEnabled(bT);
-        movieItemZ.setEnabled(bZ);
+        if (bZ && bT) movieItem.setEnabled(true);
 	}
 	
 	/** Reset the sliders' values when a new image is selected. */
@@ -177,7 +186,7 @@ public class ViewerUIF
 	/** Initiliazes the z-slider and t-slider. */
 	private void initSliders(int maxT, int t, int maxZ, int z)
 	{
-		tSlider = new JSlider(JSlider.HORIZONTAL, 0, maxT, t);
+		tSlider = new JSlider(JSlider.VERTICAL, 0, maxT, t);
 		String s = "Move the slider to navigate across time.";
 		tSlider.setToolTipText(UIUtilities.formatToolTipText(s));
 		tSlider.setEnabled(maxT != 0);
@@ -188,26 +197,33 @@ public class ViewerUIF
 	}
 	
 	/**
-	 * Display the image in the viewer.
-	 * 
-	 * @param img	Buffered image to display.
-	 */
-	 void setImage(BufferedImage img)
-	 {
-		if (!active) {
-			int imageWidth = img.getWidth()+2*START, 
-			imageHeight  = img.getHeight()+2*START;
-			Dimension d = new Dimension(imageWidth, imageHeight);
-			canvas.setPreferredSize(d);
-			canvas.setSize(d);
-			setWindowSize(imageWidth+4*START, imageHeight+6*START);
-		} 
-		canvas.paintImage(img);
-		active = true; 
-	}
+     * Display the image in the viewer.
+     * 
+     * @param img   Buffered image to display.
+     */
+     void setImage(BufferedImage img)
+     {
+        if (!active) {
+            int w = img.getWidth()+2*START; 
+            int h  = img.getHeight()+2*START;
+            setSizePaintedComponents(new Dimension(w, h));
+            setWindowSize(img.getWidth()+4*START, img.getHeight()+4*START);
+        } 
+        canvas.paintImage(img);
+        active = true; 
+    }
+    
+    /** Set the size of the components used to display the image. */
+    void setSizePaintedComponents(Dimension d)
+    {
+        canvas.setPreferredSize(d);
+        canvas.setSize(d);
+        layer.setPreferredSize(d);
+        layer.setSize(d);
+    }
 	
 	/** Create a menu. */
-	private JMenuBar createMenuBar(int maxT, int maxZ)
+	private JMenuBar createMenuBar(int maxZ, int maxT)
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createControlsMenu(maxZ, maxT));
@@ -231,21 +247,14 @@ public class ViewerUIF
 		control.attachItemListener(viewer3DItem, ViewerCtrl.VIEWER3D);
 		viewer3DItem.setEnabled(maxZ != 0);
 		menu.add(viewer3DItem);
-        //TO be mofied
-        JMenu movie = new JMenu("Movie");
-        movie.setIcon(im.getIcon(IconManager.MOVIE));
-		movieItemZ = new JMenuItem("z movie", im.getIcon(IconManager.MOVIE));
-		control.attachItemListener(movieItemZ, ViewerCtrl.MOVIE_Z);
-		movieItemZ.setEnabled(maxZ != 0);
-        movie.add(movieItemZ);
-        movieItemT = new JMenuItem("t movie", im.getIcon(IconManager.MOVIE));
-        control.attachItemListener(movieItemT, ViewerCtrl.MOVIE_T);
-        movieItemT.setEnabled(maxT != 0);
-        movie.add(movieItemT);
-		menu.add(movie);
+        movieItem = new JMenuItem("Movie", im.getIcon(IconManager.MOVIE));
+        control.attachItemListener(menuItem, ViewerCtrl.MOVIE);
+		menu.add(movieItem);
 		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);
+        
+        if (maxT == 0 && maxZ == 0) movieItem.setEnabled(false);
 		return menu;
 	}
 		
@@ -266,16 +275,16 @@ public class ViewerUIF
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		Container container = getContentPane();
-		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-		container.add(toolBar);
-		canvas = new ImageCanvas(this);
-		scrollPane = new JScrollPane(canvas);
-		container.add(buildMain());
-		container.add(buildTPanel());
-		
-		//Configure the display buttons in the TaskBar.
-		configureDisplayButtons();
+        Container container = getContentPane();
+        layer = new JLayeredPane();
+        canvas = new ImageCanvas(this);        
+        layer.add(canvas, new Integer(0));
+        scrollPane = new JScrollPane(layer);
+        container.add(toolBar, BorderLayout.NORTH);
+        container.add(buildMain(), BorderLayout.WEST);
+        container.add(scrollPane, BorderLayout.CENTER);
+        //Configure the display buttons in the TaskBar.
+        configureDisplayButtons();
 	}
 	
 	/** Build and layout panel with slider and scrollpane. */
@@ -289,22 +298,17 @@ public class ViewerUIF
 		pz.setLayout(new BoxLayout(pz, BoxLayout.Y_AXIS));
 		pz.add(label);
 		pz.add(zSlider);
-		p.add(pz);
-		p.add(scrollPane);
+		
+        //t-slider
+        label = new JLabel("T ");
+        JPanel pt = new JPanel();
+        pt.setLayout(new BoxLayout(pt, BoxLayout.Y_AXIS));
+        pt.add(label);
+        pt.add(tSlider);
+        p.add(pz);
+        p.add(pt);
 		return p;
 		
-	}
-	
-	/** Build panel with the tSlider. */
-	private JPanel buildTPanel()
-	{
-		JPanel p = new JPanel();
-		JLabel label = new JLabel("T ");
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(Box.createRigidArea(HBOX));
-		p.add(label);
-		p.add(tSlider);
-		return p;
 	}
 	
 	/** Set the size of the window w.r.t the size of the screen. */

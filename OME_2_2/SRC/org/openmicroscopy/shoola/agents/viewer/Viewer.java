@@ -150,7 +150,6 @@ public class Viewer
 		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
 		def.setZ(z);
 		RenderImage renderImage = new RenderImage(curPixelsID, def);
-		renderImage.setMovie(false);
 		registry.getEventBus().post(renderImage);	
 	}
 	
@@ -206,12 +205,9 @@ public class Viewer
 	/** Handle event @see ImageRendered. */
 	private void handleImageRendered(ImageRendered response)
 	{
-		RenderImage request = (RenderImage) response.getACT();
-		if (!request.isMovie()) {
-			curImage = null;
-			curImage = response.getRenderedImage();
-			presentation.setImage(curImage);
-		}
+	    curImage = null;
+	    curImage = response.getRenderedImage();
+	    presentation.setImage(curImage);
 	}
 	
 	/** Set the default. */
@@ -223,6 +219,7 @@ public class Viewer
 									pxsDims.sizeT, pxsDims.sizeZ);
 		presentation.setImageName(imageName);
 		presentation.setActive(active);
+        presentation.resetMagFactor();
 		showPresentation();
 	}
 

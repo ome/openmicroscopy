@@ -59,17 +59,17 @@ public class ZoomMenu
 
 	private ZoomMenuManager			manager;
 	
-	public ZoomMenu(ImageInspectorManager mng)
+	public ZoomMenu(ImageInspectorManager mng, double magFactor)
 	{
 		setText("Zooming");
 		manager = new ZoomMenuManager(mng);
-		buildGUI();
+		buildGUI(magFactor);
 	} 
 	
 	public ZoomMenuManager getManager() { return manager; }
 
 	/** Build the menu. */
-	private void buildGUI()
+	private void buildGUI(double magFactor)
 	{
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("25%");
 		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_25);
@@ -82,7 +82,6 @@ public class ZoomMenu
 		add(menuItem);
 		menuItem = new JCheckBoxMenuItem("100%");
 		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_100);
-		menuItem.setSelected(true);
 		add(menuItem);
 		menuItem = new JCheckBoxMenuItem("125%");
 		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_125);
@@ -108,6 +107,8 @@ public class ZoomMenu
 		menuItem = new JCheckBoxMenuItem("300%");
 		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_300);
 		add(menuItem);
+        
+        manager.setItemSelected(magFactor);
 	}
 	
 }

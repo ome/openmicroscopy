@@ -73,7 +73,7 @@ public class ZoomBar
 	private int 					txtWidth;
 	
 	/** zoom buttons. */																																				
-	private JButton					zoomIn, zoomOut, zoomFit, saveAs;
+	private JButton					zoomIn, zoomOut, zoomFit;
 	
 	/** Field displaying the zooming factor. */
 	private JTextField				zoomField;
@@ -84,21 +84,19 @@ public class ZoomBar
 	
 	private ToolBar					tbContainer;
 	
-	public ZoomBar(Registry registry, ImageInspectorManager mng, 
-					ToolBar tbContainer)
+	public ZoomBar(ToolBar tbContainer, Registry registry, 
+                    ImageInspectorManager mng, double magFactor)
 	{
 		this.registry = registry;
 		this.tbContainer = tbContainer;
 		initTxtWidth();
-		initZoomComponents();
-		manager = new ZoomBarManager(this, mng);
+		initZoomComponents(magFactor);
+		manager = new ZoomBarManager(this, mng, magFactor);
 		manager.attachListeners();
 		buildToolBar();
 	}
 	
 	Registry getRegistry() { return registry; }
-	
-	JButton getSaveAs() { return saveAs; }
 	
 	JButton getZoomIn() { return zoomIn; }
 	
@@ -111,9 +109,10 @@ public class ZoomBar
 	public ZoomBarManager getManager() { return manager; }
 	
 	/** Initialize the zoom components. */
-	private void initZoomComponents()
+	private void initZoomComponents(double magFactor)
 	{
 		//buttons
+        String s = ""+(int)(magFactor*100)+"%";
 		IconManager im = IconManager.getInstance(registry);
 		Icon zoomInIcon = im.getIcon(IconManager.ZOOMIN);
 		zoomIn = new JButton(zoomInIcon);
@@ -125,14 +124,10 @@ public class ZoomBar
 		zoomFit = new JButton(im.getIcon(IconManager.ZOOMFIT));
 		zoomFit.setToolTipText(
 			UIUtilities.formatToolTipText("Reset."));
-		zoomField = new JTextField("100%", MAX_LETTER.length());
+		zoomField = new JTextField(s, MAX_LETTER.length());
 		zoomField.setForeground(Viewer.STEELBLUE);
 		zoomField.setToolTipText(
-			UIUtilities.formatToolTipText("zooming percentage."));
-		
-		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
-		saveAs.setToolTipText(
-					UIUtilities.formatToolTipText("Save zoomed image."));	
+			UIUtilities.formatToolTipText("zooming percentage."));	
 		//Set the separator of tbContainer.
 		tbContainer.setSeparator(
 				UIUtilities.toolBarSeparator(zoomIn, zoomInIcon));
@@ -142,8 +137,7 @@ public class ZoomBar
 	private void buildToolBar() 
 	{
 		setFloatable(false);
-		putClientProperty("JToolBar.isRollover", new Boolean(true));
-		add(saveAs);
+		putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 		add(zoomOut);
 		add(zoomIn);
 		add(zoomFit);

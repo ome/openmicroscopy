@@ -73,8 +73,9 @@ public class ZoomMenuManager
 	static final int				ZOOM_250 = 9;
 	static final int				ZOOM_275 = 10;
 	static final int				ZOOM_300 = 11;
-	
+	              
 	private static final HashMap	values, inverseValues;
+    
 	static {
 		values = new HashMap();
 		values.put(new Double(0.25), new Integer(ZOOM_25));

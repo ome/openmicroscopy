@@ -43,6 +43,7 @@ import javax.swing.JTextField;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -69,21 +70,20 @@ public class ZoomBarManager
 	private static final int		ZOOM_IN_CMD = 1;
 	private static final int		ZOOM_OUT_CMD = 2;
 	private static final int		ZOOM_FIT_CMD = 3;
-	private static final int		SAVEAS_CMD = 4;
 	
 	/** current zooming level. */
 	private double 					zoomLevel;
 
-	
 	private NumberFormat 			percentFormat;
 	private JTextField 				zoomField;
 	private ZoomBar					view;
 	
 	private ImageInspectorManager 	control;
 	
-	public ZoomBarManager(ZoomBar view, ImageInspectorManager control)
+	public ZoomBarManager(ZoomBar view, ImageInspectorManager control, 
+                            double magFactor)
 	{
-		zoomLevel = ImageInspectorManager.ZOOM_DEFAULT;
+		zoomLevel = magFactor;
 		percentFormat = NumberFormat.getPercentInstance();
 		this.view = view;
 		this.control = control;
@@ -100,15 +100,13 @@ public class ZoomBarManager
 		
 		//button
 		JButton	zoomIn = view.getZoomIn(), zoomOut = view.getZoomOut(), 
-				zoomFit = view.getZoomFit(), saveAs = view.getSaveAs();
+				zoomFit = view.getZoomFit();
 		zoomIn.addActionListener(this);
 		zoomIn.setActionCommand(""+ZOOM_IN_CMD);
 		zoomOut.addActionListener(this);
 		zoomOut.setActionCommand(""+ZOOM_OUT_CMD); 
 		zoomFit.addActionListener(this);
 		zoomFit.setActionCommand(""+ZOOM_FIT_CMD);
-		saveAs.addActionListener(this);
-		saveAs.setActionCommand(""+SAVEAS_CMD);
 	}
 
 	/** Handle event fired by button. */
@@ -125,8 +123,6 @@ public class ZoomBarManager
 					zoomOut(); break;
 				case ZOOM_FIT_CMD:
 					zoomFit(); break;
-				case SAVEAS_CMD:
-					control.saveAs(); break;
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -142,23 +138,23 @@ public class ZoomBarManager
 	/** Make image bigger. */
 	private void zoomIn()
 	{
-		if (zoomLevel < ImageInspectorManager.MAX_ZOOM_LEVEL) 
-			zoomLevel += ImageInspectorManager.ZOOM_INCREMENT;
+		if (zoomLevel < ImageInspector.MAX_ZOOM_LEVEL) 
+            zoomLevel += ImageInspector.ZOOM_INCREMENT;
 		control.setZoomLevel(zoomLevel);
 	}
 	
 	/** Make image smaller.*/
 	private void zoomOut()
 	{
-		if (zoomLevel > ImageInspectorManager.MIN_ZOOM_LEVEL) 
-			zoomLevel -= ImageInspectorManager.ZOOM_INCREMENT;
+		if (zoomLevel > ImageInspector.MIN_ZOOM_LEVEL) 
+			zoomLevel -= ImageInspector.ZOOM_INCREMENT;
 		control.setZoomLevel(zoomLevel);
 	}
 	
 	/** Reset the image. */
 	private void zoomFit()
 	{
-		zoomLevel = ImageInspectorManager.ZOOM_DEFAULT;
+		zoomLevel = ImageInspector.ZOOM_DEFAULT;
 		control.setZoomLevel(zoomLevel);
 	}
 	
@@ -173,14 +169,14 @@ public class ZoomBarManager
 		double val = 0;
 		try {
 			val = percentFormat.parse(zoomField.getText()).doubleValue();
-			if (ImageInspectorManager.MIN_ZOOM_LEVEL <= val && 
-				val <= ImageInspectorManager.MAX_ZOOM_LEVEL) {
+			if (ImageInspector.MIN_ZOOM_LEVEL <= val && 
+				val <= ImageInspector.MAX_ZOOM_LEVEL) {
 				valid = true;
-			} else if (val < ImageInspectorManager.MIN_ZOOM_LEVEL) {
-				val = ImageInspectorManager.MIN_ZOOM_LEVEL;
+			} else if (val < ImageInspector.MIN_ZOOM_LEVEL) {
+				val = ImageInspector.MIN_ZOOM_LEVEL;
 				valid = true;
-			} else if (val > ImageInspectorManager.MAX_ZOOM_LEVEL) {
-				val = ImageInspectorManager.MAX_ZOOM_LEVEL;
+			} else if (val > ImageInspector.MAX_ZOOM_LEVEL) {
+				val = ImageInspector.MAX_ZOOM_LEVEL;
 				valid = true;
 			}
 		} catch(NumberFormatException nfe) {}

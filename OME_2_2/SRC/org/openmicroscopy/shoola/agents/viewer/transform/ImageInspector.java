@@ -31,19 +31,16 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import javax.swing.Box;
+
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
-import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
+import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -63,66 +60,46 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class ImageInspector
 	extends JDialog
 {
-		
+	
+    /** Default zoom level. */
+    public static final double      MIN_ZOOM_LEVEL = 0.25 , 
+                                    MAX_ZOOM_LEVEL = 3.0,
+                                    ZOOM_DEFAULT = 1.0,
+                                    ZOOM_INCREMENT = 0.25;
+    
 	ToolBar 						toolBar;
 	MenuBar							menuBar;
 
 	private ImageInspectorManager	manager;
-	
-	private ZoomPanel				zoomPanel;
-	
+    
 	JScrollPane 					scroll;
 	
-	public ImageInspector(ViewerCtrl control)
+	public ImageInspector(ViewerCtrl control, ImageCanvas canvas, double magFactor)
 	{
-		super(control.getReferenceFrame(), "Image Inspector");
-		init(control);
+		super(control.getReferenceFrame(), "Image inspector");
+		init(control, canvas, magFactor);
 		setJMenuBar(menuBar);
 		buildGUI();
-		manager.zoom();
+        pack();
 	}
 	
 	/** Initializes the components. */
-	private void init(ViewerCtrl control)
+	private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor)
 	{
 		Registry reg = control.getRegistry();
-		manager = new ImageInspectorManager(this, control);
-		BufferedImage img = control.getBufferedImage();
-		manager.setBufferedImage(img);
-		zoomPanel = new ZoomPanel(manager);
-		manager.setZoomPanel(zoomPanel);
-		menuBar = new MenuBar(manager);
-		toolBar = new ToolBar(reg, manager);
-		setWindowSize(img.getWidth(), img.getHeight());
+		manager = new ImageInspectorManager(this, control, magFactor);
+        BufferedImage img = control.getBufferedImage();
+		manager.setImageDimension(img.getWidth(), img.getHeight());
+        manager.setCanvas(canvas);
+		menuBar = new MenuBar(manager, magFactor);
+		toolBar = new ToolBar(reg, manager, magFactor);
 	}
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		scroll = new JScrollPane(zoomPanel);
-		scroll.setBackground(Viewer.BACKGROUND_COLOR);
+        setResizable(false);
 		getContentPane().add(toolBar, BorderLayout.NORTH);
-		getContentPane().add(scroll, BorderLayout.CENTER);
 	}
-	
-	/** Set the size of the window w.r.t the size of the screen. */
-	private void setWindowSize(int w, int h)
-	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = 8*(screenSize.width/10);
-		int height = 8*(screenSize.height/10);
-		if (w > width) w = width;
-		if (h > height) h = height;
-		setTBSize(w);
-		setSize(w, h);		
-	}
-	
-	/** Add a rigid area to the toolBar. */
-	private void setTBSize(int w)
-	{
-		int diff = w-toolBar.getSize().width;
-		if (diff > 0)
-			toolBar.add(Box.createRigidArea(new Dimension(diff, 1)));		
-	}
-	
+    
 }

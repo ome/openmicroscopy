@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
 import javax.swing.JTextField;
 
 //Third-party libraries
@@ -81,9 +80,7 @@ public class ToolBarManager
 	/** Action command ID to be used with the viewer3D button. */
 	private static final int   					VIEWER3D_CMD = 5;
 	
-	private static final int					MOVIE_CMD_T = 6;
-	
-    private static final int                    MOVIE_CMD_Z = 7;
+	private static final int					MOVIE_CMD = 6;
     
 	private int									curT, maxT, curZ, maxZ;
 	
@@ -116,13 +113,11 @@ public class ToolBarManager
 	
 		//button
 		JButton	render = view.getRender(), inspector = view.getInspector(),
-				saveAs = view.getSaveAs(), viewer3D = view.getViewer3D();
-        JMenuItem  movieZ = view.getMovieZ(), movieT = view.getMovieT();
+				saveAs = view.getSaveAs(), viewer3D = view.getViewer3D(),
+                movie = view.getMovie();
         
-		movieZ.setActionCommand(""+MOVIE_CMD_Z);
-		movieZ.addActionListener(this);	
-        movieT.setActionCommand(""+MOVIE_CMD_T);
-        movieT.addActionListener(this); 
+		movie.setActionCommand(""+MOVIE_CMD);
+		movie.addActionListener(this);	
 		render.setActionCommand(""+RENDER_CMD);
 		render.addActionListener(this);
 		inspector.setActionCommand(""+INSPECTOR_CMD);
@@ -219,10 +214,8 @@ public class ToolBarManager
 					control.showImageSaver(); break;
 				case VIEWER3D_CMD:
 					control.showImage3DViewer(); break;	
-				case MOVIE_CMD_T:
-					control.showMovie(ViewerCtrl.MOVIE_T); break;
-                case MOVIE_CMD_Z:
-                    control.showMovie(ViewerCtrl.MOVIE_Z); break;    
+                case MOVIE_CMD:
+                    control.showMovie(); break;    
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe); 

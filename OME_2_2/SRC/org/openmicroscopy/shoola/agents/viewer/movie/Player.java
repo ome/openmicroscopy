@@ -32,20 +32,16 @@ package org.openmicroscopy.shoola.agents.viewer.movie;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import javax.swing.Box;
+import java.awt.Container;
+import javax.swing.BoxLayout;
 import javax.swing.JDialog;
-import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
-import org.openmicroscopy.shoola.agents.viewer.movie.canvas.Canvas;
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.agents.viewer.movie.defs.MovieSettings;
+import org.openmicroscopy.shoola.agents.viewer.movie.pane.PlayerUI;
 
 /** 
  * 
@@ -64,83 +60,60 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class Player
 	extends JDialog
 {
+    
 
-	private PlayerManager			manager;
-	
-	private ToolBar 				toolBar;
-	
-	private Canvas					canvas;
-	
-	private JScrollPane 			scrollPane;
-
+    /** Movie type constants. */
+    public static final int         LOOP = 0, BACKWARD = 1, FORWARD = 2, 
+                                    PINGPONG = 3;
+    
+    /** Action command ID to bring up the movie widget. */
+    public static final int         MOVIE_T = 100;
+    
+    /** Action command ID to bring up the movie widget. */
+    public static final int         MOVIE_Z = 101;
+    
+    /** Rate constants. */
+    public static final int         FPS_INIT = 12, FPS_MIN = 1;
+    
+    private PlayerUI                player;
+    
 	/**
 	 * 
 	 * @param control	reference to the {@link ViewerCtrl control}.
 	 * @param maxValue	timepoint-1 b/c OME values start at 0 or section s-1.
 	 */
-	public Player(ViewerCtrl control, int maxValue, int index, String movie)
+	public Player(ViewerCtrl control, int maxT, int maxZ, 
+                MovieSettings settings)
 	{
-		super(control.getReferenceFrame(), movie);
-        setModal(true);
-		init(control, maxValue, index);
+		super(control.getReferenceFrame(), "Movie player");
+		init(control, maxT, maxZ, settings);
 		buildGUI();
 	}
 	
-	public ToolBar getToolBar() { return toolBar; }
-	
-	public Canvas getCanvas() { return canvas; }
-	
-	public JScrollPane getScrollPane() { return scrollPane; }
-	
 	/** Initializes the components. */
-	private void init(ViewerCtrl control, int max, int index)
+	private void init(ViewerCtrl control, int maxT, int maxZ, 
+                    MovieSettings settings)
 	{
-		//register for the ImageRendered event.
-		Registry reg = control.getRegistry();
-		manager = new PlayerManager(this, control, max, index);// to check
-		canvas = new Canvas(this);
-		BufferedImage img = control.getBufferedImage();
-		int w = img.getWidth();
-		int h = img.getHeight();
-		Dimension d = new Dimension(w, h);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
-		canvas.paintImage(img);
-        if (index == ViewerCtrl.MOVIE_T)
-            toolBar = new ToolBar(manager, reg, max, control.getDefaultT());
-        else if (index == ViewerCtrl.MOVIE_Z)
-            toolBar = new ToolBar(manager, reg, max, control.getDefaultZ());
-		setWindowSize(w, h);
+        int max = maxT;
+        int s = settings.getStartT(), e = settings.getEndT();
+        if (maxT == 0) {
+            s = settings.getStartZ();
+            e = settings.getEndZ();
+            max = maxZ;
+        }
+        PlayerManager manager = new PlayerManager(this, control, max, 
+                                settings.getMovieIndex(), s, e);
+        player = new PlayerUI(manager, control.getRegistry(), maxT, maxZ, 
+                            settings); 
 	}
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		scrollPane = new JScrollPane(canvas);
-		scrollPane.setBackground(Viewer.BACKGROUND_COLOR);
-		getContentPane().add(toolBar, BorderLayout.NORTH);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		
+        Container c = getContentPane();
+        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
+        getContentPane().add(player, BorderLayout.CENTER);
+		pack();
 	}	
-	
-	/** Set the size of the window w.r.t the size of the screen. */
-	private void setWindowSize(int w, int h)
-	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = 8*(screenSize.width/10);
-		int height = 8*(screenSize.height/10);
-		if (w > width) w = width;
-		if (h > height) h = height;
-		setTBSize(w);
-		setSize(w, h);		
-	}
-	
-	/** Add a rigid area to the toolBar. */
-	private void setTBSize(int w)
-	{
-		Dimension d = toolBar.getSize();
-		if (w-d.width>0)
-			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));		
-	}
-
+    
 }

@@ -35,22 +35,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import javax.swing.AbstractButton;
 import javax.swing.Timer;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.agents.viewer.movie.pane.PlayerUIMng;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
-import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -67,250 +61,258 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @since OME2.2
  */
 public class PlayerManager
-	implements ActionListener, AgentEventListener
+	implements ActionListener
 {
-
-	static final int			FPS_INIT = 12, FPS_MIN = 1;
-			
+	
+    private static final int    DELAY = 1000;
+    
 	private Player				view;
     
 	private ViewerCtrl			control;
 	
-	private Registry			registry;
-				
-	private BufferedImage[]		frames;		
+	private Registry			registry;	
 	
 	private int					delay;
-	private boolean				frozen, rewind;
+    
+	private boolean				playing, pause, up;
+    
 	private Timer 				timer;
+    
+    /** current image dispayed. */
 	private int 				frameNumber;
 
-	private int					sizeValue;
-    
-	private ToolBarManager		tbm;
+	private int					max;
 	
 	private int					curValue;
 	
 	private int					startMovie, endMovie;
-	
+    
+    /** One the constants defined above. */
+    private int                 movieType;
+    
     private int                 index;
+    
+    private int                 pixelsID;
+    
+    private PlayerUIMng         playerUIMng;
     
 	/**
 	 * 
 	 * @param view		reference to the view.
 	 * @param control	reference to the {@link ViewerCtrl control}.
-	 * @param maxValue	timepoint-1 b/c OME values start at 0 or z-1.
-     * @param index     one of the movie defined in {@link ViewerCtrl control}.
+     * @param index     one the contants {@link #MOVIE_T} or {@link #MOVIE_Z}.
 	 */
-	public PlayerManager(Player view, ViewerCtrl control, int maxValue, 
-                        int index)
+	public PlayerManager(Player view, ViewerCtrl control, int max, int index, 
+                        int s, int e)
 	{
 		this.view = view;
-        this.index = index;
 		this.control = control;
+        setIndex(index, max, s, e);
+        movieType = Player.LOOP;
 		registry = control.getRegistry();
-		sizeValue = maxValue;
-		if (index == ViewerCtrl.MOVIE_T)
-            curValue = control.getDefaultZ();
-        else if (index == ViewerCtrl.MOVIE_Z)
-            curValue = control.getDefaultT();
-		frames = new BufferedImage[maxValue+1];
-		frozen = true;
-		rewind = false;
-		delay = 1000/FPS_INIT;
+        pixelsID = control.getCurPixelsID();
+		playing = false;
+        pause = false;
+        up = true;
+		delay = DELAY/Player.FPS_INIT;
 		//Set up a timer that calls this object's action handler.
 		timer = new Timer(delay, this);
-		timer.setInitialDelay(delay*10);
+		timer.setInitialDelay(delay);//*10??
 		timer.setCoalesce(true);
         attachListener();
-		EventBus bus = registry.getEventBus();
-		bus.register(this, ImageRendered.class);
 	}
 	
+    public void setPlayerUIMng(PlayerUIMng mng)
+    {
+        playerUIMng = mng;
+    }
+    
+    public void setIndex(int index, int max, int s, int e)
+    { 
+        this.index = index;
+        this.max = max; 
+        setStartMovie(s);
+        setEndMovie(e);
+        if (index == Player.MOVIE_Z) curValue = control.getDefaultT();
+        else  curValue = control.getDefaultZ();   
+    }
+    
     /** Attach a window listener. */
     private void attachListener()
     {
         view.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) { timer.stop(); }
+            public void windowClosing(WindowEvent we) { onClosing(); }
         });
     }
+
+	public boolean isPlaying() { return playing; }
+	
+    /** One of the constants defined above. */
+    public void setMovieType(int type)
+    { 
+        movieType = type;
+        up = true;
+     }
     
-	/** Attach listener to a menu Item. */
-	void attachItemListener(AbstractButton item, int id)
-	{
-		item.setActionCommand(""+id);
-		item.addActionListener(this);
-	}
+	public void setStartMovie(int startMovie) { this.startMovie = startMovie; }
 	
-	boolean isFrozen() { return frozen; }
-	
-	void setToolBarManager(ToolBarManager tbm)
-	{
-		this.tbm = tbm;
-		startMovie = tbm.getCurMovieStart();
-		endMovie = tbm.getCurMovieEnd();
-		frameNumber = startMovie;
-	}
-	
-	void setStartMovie(int startMovie)
-    { 
-        this.startMovie = startMovie;
-        setFrameNumber(startMovie);
-    }
-	
-	void setEndMovie(int endMovie)
-    { 
-        this.endMovie = endMovie;
-        setFrameNumber(endMovie);
-    }
+	public void setEndMovie(int endMovie) { this.endMovie = endMovie; }
 	
 	/** Reset the timer delay. */
-	void setTimerDelay(int v)
+	public void setTimerDelay(int v)
 	{
-		delay = 1000/v;
+		delay = DELAY/v;
 		timer.setDelay(delay);
-		timer.setInitialDelay(delay*10);
+        timer.setInitialDelay(delay*10); //have to check if we keep it
 	}
 	
 	/** Play the movie. */
-	void play() { play(false); }
+	public void play()
+    { 
+       if (!pause) setStartFrameNumber();
+       pause = false;
+       playing = true;
+       timer.start();
+    }
 	
-	/** Pause. */
-	void pause()
-	{
-		if (!frozen) timer.stop();
-		frozen = true;
-	}
-	
+    /** 
+     * Stop playing the movie. In the case we don't reset the
+     *  <code>frameNumber<code> to <code>startMovie</code> or 
+     * <code>endMovie</code>.
+     */
+    public void pause()
+    {
+        playing = false;
+        pause = true;
+        syncSlider();
+    }
+    
 	/** Stop the movie. */
-	void stop()
-	{
-		stopTimer();
-		frameNumber = startMovie;
-		updateImage(frameNumber);
-	}
-	
-	/** Go to the first selected timepoint, and start the movie from there. */
-	void rewind()
-	{
-		//first stop the timer;
-		if (!frozen) timer.stop();
-        if (frameNumber != startMovie || frameNumber != endMovie) frameNumber--;
-		play(true);
-	}
-	
-    /** Go to the first time point. */
-    void playStart()
+	public void stop()
     {
-        setFrameNumber(startMovie);
+        timer.stop();
+        playing = false;
+        pause = false;
+        up = true;
+        syncSlider();     
     }
-    
-    /** Go to the last time point. */
-    void playEnd()
-    {
-        setFrameNumber(endMovie);
-    }
-    
-    private void setFrameNumber(int nb)
-    {
-        //first stop the timer;
-        if (!frozen) timer.stop();
-        frozen = true;
-        frameNumber = nb;
-        updateImage(frameNumber);    
-    }
-    
-    private void play(boolean b) 
-    {
-        rewind = b;
-        frozen = false;
-        timer.start(); 
-    }
-    
-	/** Save the movie. */
-	void saveAs()
-	{
-		UserNotifier un = registry.getUserNotifier();
-		un.notifyInfo("Save movie", "Sorry not yet implemented.");
-	}
-	
-    /** Stop the animation. */
-    void stopTimer()
-    {
-        timer.stop();       
-        frozen = true;
-        rewind = false;
-    }
-	
+    	
 	/** Handle event fired by timer. Advance the animation frame. */
-    /** For now, we play the movie from startMovie. */
 	public void actionPerformed(ActionEvent e)
 	{
-		if (frameNumber <= sizeValue && !frozen &&
-            frameNumber >= startMovie && frameNumber <= endMovie) {
-            updateImage(frameNumber);
-            if (rewind) {
-                if (frameNumber == startMovie) stopTimer();
-                else frameNumber--;
-            } else {
-                if (frameNumber == endMovie) stopTimer();
-                else frameNumber++;  
+        
+        if (frameNumber <= max && frameNumber >= startMovie && 
+            frameNumber <= endMovie && playing)
+        {
+            
+            renderImage(frameNumber);
+            switch (movieType) {
+                case Player.LOOP:
+                    handleLoop();
+                    break;
+                case Player.BACKWARD:
+                    handleBackward();
+                    break;
+                case Player.FORWARD:
+                    handleForward();
+                    break;
+                case Player.PINGPONG:
+                    handlePingPong();
+                    break;
             }
-		} //else resetTimer(true);
-	}
-
-	/** Update the image, if not already created an event is posted. */
-	private void updateImage(int v)
-	{
-		BufferedImage img = frames[v];
-		if (img == null)	renderImage(v);
-		else paintImage(img, v);
-	}
-	
-	/** Post a renderImageEvent. */
-	void renderImage(int v)
-	{
-		PlaneDef def = null;
-        if (index == ViewerCtrl.MOVIE_T) {
-            def = new PlaneDef(PlaneDef.XY, v);
-            def.setZ(curValue); 
-        } else {
-            def = new PlaneDef(PlaneDef.XY, curValue);
-            def.setZ(v);
         }
-		RenderImage render = new RenderImage(control.getCurPixelsID(), def);
-		render.setMovie(true);
+	}
+    
+    /** Handle <code>ping-pong selection</code> selection. */
+    private void handlePingPong()
+    {
+       if (frameNumber < endMovie && up) frameNumber++;
+       else if (frameNumber > startMovie && !up) frameNumber--;
+       else if (frameNumber == endMovie && up) {
+           frameNumber--;
+           up = false;
+       } else if (frameNumber == startMovie && !up) {
+           frameNumber++;
+           up = true;
+       }   
+    }
+    
+    /** Handle <code>loop</code> selection. */
+    private void handleLoop()
+    {
+        if (frameNumber == endMovie) frameNumber = startMovie;
+        else frameNumber++;
+    }
+    
+    /** Handle <code>forward</code> selection. */
+    private void handleForward()
+    {
+        if (frameNumber == endMovie) {
+            playing = false;
+            timer.stop();
+            frameNumber = startMovie;      
+            setBorderPlay(false);
+            
+        } else frameNumber++;
+    }
+    
+    /** Handle <code>backward</code> selection. */
+    private void handleBackward()
+    {
+        if (frameNumber == startMovie) {
+            frameNumber = endMovie;
+            playing = false;
+            timer.stop();
+            setBorderPlay(false);
+        } else frameNumber--;
+    }
+    
+    /** Synchronizes the tSlider or zSlider according to the index selected. */
+    private void syncSlider()
+    {
+        if (index == Player.MOVIE_T) control.resetTSlider(frameNumber);
+        else control.resetZSlider(frameNumber); 
+    }
+    
+    private void setBorderPlay(boolean b)
+    {
+        playerUIMng.setBorderPlay(b);
+    }
+    
+    /** Set the starting point of the movie. */
+    private void setStartFrameNumber()
+    {
+        frameNumber = startMovie;
+        if (movieType == Player.BACKWARD) frameNumber = endMovie;
+    }
+    
+	/** 
+     * Post a {@link RenderImage} event and update the textField according to 
+     * the index.
+     */
+	private void renderImage(int v)
+	{
+        int t = v, z = curValue;
+        if (index == Player.MOVIE_Z) {
+            t = curValue;
+            z = v;
+            control.resetZField(v);
+        } else control.resetTField(v);
+        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
+        def.setZ(z);
+		RenderImage render = new RenderImage(pixelsID, def);
 		registry.getEventBus().post(render);	
 	}
 
-	/** Synchronize the different components. */
-	private void paintImage(BufferedImage img, int v)
-	{
-		tbm.setLabel(v);
-		view.getCanvas().paintImage(img);
-	}
-	
-	/** Handle events fired. */
-	private void handleImageRendered(ImageRendered e)
-	{
-		RenderImage request = (RenderImage) e.getACT();
-		if (request.isMovie()) {
-			BufferedImage img = e.getRenderedImage();
-            int v = 0; 
-            if (index == ViewerCtrl.MOVIE_T)
-                v = request.getPlaneDef().getT();
-            else if (index == ViewerCtrl.MOVIE_Z)
-                v = request.getPlaneDef().getZ();
-			frames[v] = img;
-			paintImage(img, v);
-		}
-	}
-	
-	/** Implement as specified by {@link AgentEventListener}. */
-	public void eventFired(AgentEvent e) 
-	{
-		if (e instanceof ImageRendered)
-			handleImageRendered((ImageRendered) e);
-	}
-	
+    /** Window closed. */
+    private void onClosing()
+    {
+        timer.stop();
+        //Save the settings if they want to play the movie again.
+        control.setMovieSettings(playerUIMng.getStartZ(), playerUIMng.getEndZ(),
+                                playerUIMng.getStartT(), playerUIMng.getEndT(), 
+                                movieType, index, (DELAY/delay));
+        view.dispose();
+    }
+    
 }
