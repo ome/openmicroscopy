@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
+import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPaneManager;
 import org.openmicroscopy.shoola.env.InternalError;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
@@ -83,6 +84,9 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int				SAVE = 4;
 	
+	/** Action command ID. */
+	static final int				RESET_DEFAULTS = 5;
+	
 	private boolean 				displayed;
 	
 	/** String corresponding to the specified model. */
@@ -93,6 +97,8 @@ public class RenderingAgtCtrl
 	private RenderingAgt			abstraction;
 	
 	private RenderingAgtUIF			presentation;
+	
+	private QuantumPaneManager		qpManager;
 	
 	private Icon					modelIcon;
 	
@@ -106,6 +112,11 @@ public class RenderingAgtCtrl
 		im = IconManager.getInstance(abstraction.getRegistry());
 	}
 
+	public void setQPManager(QuantumPaneManager qpManager)
+	{
+		this.qpManager = qpManager;
+	}
+	
 	void setDisplayed(boolean b) { displayed = b; }
 	
 	void setPresentation(RenderingAgtUIF presentation)
@@ -274,8 +285,9 @@ public class RenderingAgtCtrl
 		try {
 		   switch (index) { 
 				case SAVE:
-					saveDisplayOptions();
-					break;
+					saveDisplayOptions(); break;
+				case RESET_DEFAULTS:
+					resetDefaults(); break;
 				case GREY:
 				case RGB:
 				case HSB:
@@ -287,6 +299,22 @@ public class RenderingAgtCtrl
 		} 
 	}
 	
+	/** Reset the default rendering settings. */
+	public void resetDefaults()
+	{
+		//update the rendering control.
+		abstraction.resetDefaults();
+		
+		//update the view.
+		qpManager.resetDefaults();
+		
+		//reset the model pane
+		QuantumPane qp = presentation.getQuantumPane();
+		qp.setSelectionWavelengthsEnable(false);
+		presentation.resetGUI(activate(getRendererClass(GREY)));
+	}
+	
+	
 	/** Save the image settings. */
 	public void saveDisplayOptions()
 	{
@@ -297,7 +325,7 @@ public class RenderingAgtCtrl
 	public void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
-		presentation.setModelPane(activate(c));
+		presentation.setModelPane(activate(c), true);
 		QuantumPane qp = presentation.getQuantumPane();
 		if (i == GREY) {
 			qp.setSelectionWavelengthsEnable(false);

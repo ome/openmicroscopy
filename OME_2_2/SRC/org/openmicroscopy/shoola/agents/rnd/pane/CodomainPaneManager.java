@@ -203,4 +203,20 @@ class CodomainPaneManager
 		return ctx;
 	}
 	
+	/** Reset the defaults. */
+	void resetDefaults()
+	{
+		JCheckBox ri = view.getRI(), cs = view.getCS(), ps = view.getPS();
+		setCheckBoxDefault(ri);
+		setCheckBoxDefault(cs);
+		setCheckBoxDefault(ps);
+	}
+	
+	private void setCheckBoxDefault(JCheckBox box)
+	{
+		box.removeActionListener(this);
+		box.setSelected(false);
+		box.addActionListener(this);
+	}
+	
 }

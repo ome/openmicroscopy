@@ -111,11 +111,13 @@ public class IconManager
 	/** ID of the plane slicing icon. */
 	public static final int     SLICING_BIG = 15;
 	
+	public static final int		RESET_DEFAULTS = 16;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 15;
+	private static int          MAX_ID = 16;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -137,6 +139,7 @@ public class IconManager
 		relPaths[HISTOGRAM_BIG] = "nuvola_kchart_chrt48.png";
 		relPaths[STRETCHING_BIG] = "openOffice_stock_new-drawing-48.png";
 		relPaths[SLICING_BIG] = "openOffice_stock_new-labels-48.png";
+		relPaths[RESET_DEFAULTS] = "nuvola_undo16.png";
 	}
 	
 	/** The sole instance that provides. */

@@ -374,7 +374,7 @@ public class RenderingAgt
 	/**
 	 * Return the minimum pixel intensities of a specified channel
 	 * across time.
-	 * @param w		OME index of the specified wavlength.
+	 * @param w		OME index of the specified wavelength.
 	 * @return
 	 */
 	double getGlobalChannelWindowStart(int w)
@@ -528,4 +528,11 @@ public class RenderingAgt
 	
 	boolean isActive(int w) { return renderingControl.isActive(w); }
 
+	/** Reset the rendering engine defaults. */
+	void resetDefaults()
+	{
+		renderingControl.resetDefaults();
+		refreshImage();
+	}
+	
 }

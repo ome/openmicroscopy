@@ -72,7 +72,7 @@ class DomainPane
 	extends JPanel
 {
 
-	private static final int        DEPTH_START = 1, DEPTH_END = 8;
+	static final int        		DEPTH_START = 1, DEPTH_END = 8;
 
 	private static final int		MAX = GraphicsRepresentation.MAX;
 	private static final int		MIN = GraphicsRepresentation.MIN;
