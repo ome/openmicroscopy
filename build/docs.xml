@@ -65,6 +65,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="docs-init" depends="init">
     <mkdir dir="${docs.dir}" /> 
+    <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
   </target> 
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -131,7 +132,6 @@
   <target name="docs"
           depends="javadocs,xdocs" 
           description="Outputs all project documentation.">
-    <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
