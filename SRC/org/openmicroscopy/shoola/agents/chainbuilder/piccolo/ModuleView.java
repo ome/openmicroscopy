@@ -63,7 +63,6 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.util.PBoundsLocator;
 import edu.umd.cs.piccolo.util.PNodeFilter;
-import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
 
@@ -98,7 +97,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
 
-public class ModuleView extends PPath implements SortableBufferedObject,
+public class ModuleView extends PNode implements SortableBufferedObject,
 	MouseableNode {
 	
 	/*
@@ -111,20 +110,24 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	private static final float DEFAULT_ARC_WIDTH=10.0f;
 	private static final float DEFAULT_ARC_HEIGHT=10.0f;
 	private static final float NAME_LABEL_OFFSET=5.0f;
-	private static final float NAME_SPACING=15.0f;
+	private static final float NAME_SPACING=10.0f;
 	public static final float PARAMETER_SPACING=3.0f;
-	private static final float HORIZONTAL_GAP =50.0f;
+	private static final float HORIZONTAL_GAP =5.0f;
+	private static final float ALIGNMENT_BUFFER=30;
     private static final float NAME_MAG=1;
 	private static final float ZOOM_MAG=2;
+	private static final float LAST_ST_BUFFER=5f;
+	private static final float BOTTOM_GAP=30;
 	
-		
+	private static float maxParamWidth = 0f;
+	private static float maxNameHeight = 0f;
 	/**
 	 *  The Rectangle with the bounds of the enclosing border
 	 */
-	private RoundRectangle2D rect;
 	
-	/*** and the rect when no labels */
-	private RoundRectangle2D noLabelRect;
+	protected PPath overview = new PPath();
+	
+	protected PPath detail = new PPath();
 	
 	/**
 	 * The node contiaining the module name
@@ -164,8 +167,8 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	/**
 	 * The {@Plink LinkTarget}s for the modules as a whole
 	 */
-	private LinkTarget inputLinkTarget;
-	private LinkTarget outputLinkTarget;
+	private ModuleLinkTarget inputLinkTarget;
+	private ModuleLinkTarget outputLinkTarget;
 	
 	/**
 	 * Each {@link ModuleView} corresponds to a node in a chain, if it is part of
@@ -201,68 +204,6 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		
 		// create the container node for the formal parameters
 		labelNodes = new ParameterNode();
-		addChild(labelNodes);
-	}
-	
-	protected void init() {
-		
-		// create the name and position it.
-		name = new PText(getName());
-		name.setGreekThreshold(0);
-		name.setFont(Constants.NAME_FONT);
-		name.setPickable(false);
-		name.setScale(NAME_MAG);
-		addChild(name);
-		
-		name.setOffset(NAME_LABEL_OFFSET,NAME_LABEL_OFFSET);
-		PBounds nameBounds = name.getGlobalFullBounds();
-		
-		// calculate starting height for parameters.
-		height = NAME_LABEL_OFFSET+((float) nameBounds.getHeight());
-	
-		// build the node for the link targets
-		linkTargets = new PNode();
-		addChild(linkTargets);	
-		
-		float linkTargetHeight = height;
-		
-		// add the input link target
-		inputLinkTarget = getLinkTarget();
-		linkTargets.addChild(inputLinkTarget);
-		inputLinkTarget.setOffset(-Constants.LINK_TARGET_HALF_SIZE,height);
-		height+=NAME_SPACING;	
-		nameWidth = (float) nameBounds.getWidth();
-
-		// set width of the whole bounding rectangle
-	    width = NAME_LABEL_OFFSET*2+nameWidth-Constants.LINK_TARGET_HALF_SIZE;
-
-	    	noLabelHeight = height;
-	 	// do the individual parameter labels.
-		addParameterLabels();  
-		
-		
-		// create bounding rectangle, set it to be this node's path,
-		// and finish other parameters.
-		//width = NAME_LABEL_OFFSET*2+width-Constants.LINK_TARGET_HALF_SIZE;
-		rect = 
-			new RoundRectangle2D.Float(0f,0f,width,height,
-					DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
-					
-		setPathTo(rect);
-		setPaint(Constants.DEFAULT_FILL);
-		setStrokePaint(Constants.DEFAULT_COLOR);
-		setStroke(Constants.MODULE_STROKE);
-		
-		// add the other target
-		outputLinkTarget = getLinkTarget();
-		linkTargets.addChild(outputLinkTarget);
-		outputLinkTarget.setOffset(width-Constants.LINK_TARGET_HALF_SIZE,
-			linkTargetHeight);
-	
-		buildMagnifiedLabel(); 
-		noLabelRect = new RoundRectangle2D.Float(0f,0f, width,
-				(float) (noLabelHeight+zoomName.getHeight()),
-				DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
 	}
 	
 	/** 
@@ -274,7 +215,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		return null;
 	}
 	
-	protected LinkTarget getLinkTarget() {
+	protected ModuleLinkTarget getLinkTarget() {
 		return new ModuleLinkTarget();
 	}
 	
@@ -288,37 +229,13 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		
 		double zwidth;
 		double zheight;
-		float scale = ZOOM_MAG;
-		zoomName.setScale(scale);
-		addChild(zoomName);	
-		
-		zwidth = (width-2*NAME_LABEL_OFFSET)/ZOOM_MAG;
-		zheight = (height-2*NAME_LABEL_OFFSET)/ZOOM_MAG;
-		
-		
-	
+		//float scale = ZOOM_MAG;
+		//zoomName.setScale(scale);
+		overview.addChild(zoomName);	
 		zoomName.setBounds(new PBounds(NAME_LABEL_OFFSET,NAME_LABEL_OFFSET,
-				zwidth,zheight));
-		float zoomHeight = (float) zoomName.getHeight();
-		float zoomWidth = (float) zoomName.getWidth();
-		
-		// scale the text to fit in the box.
-		
-		float heightScale=1.0f;
-		float widthScale=1.0f;
-		if (zoomHeight >= zheight) 
-			heightScale = (float)(zheight/zoomHeight);
-		if (zoomWidth >= zwidth) 
-			widthScale = (float)(zwidth/zoomWidth);
-		if (widthScale < heightScale)
-			scale = widthScale;
-		else
-			scale = heightScale;
-		zoomName.scale(scale);
-		
-		
+				width-2*NAME_LABEL_OFFSET,height));
 	
-		zoomName.setVisible(false);
+		zoomName.setVisible(true);
 	}
 	
 	/** 
@@ -359,9 +276,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		Vector inSet  = new Vector();
 		Vector outSet= new Vector();
 		
-		// get input nodes and find max input width
-		float maxInputWidth =0;
-		float maxOutputWidth =0;
+	
 		
 		// for each row.
 		for (int i = 0; i < rows; i++) {
@@ -373,64 +288,81 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 				inp = getFormalInput(paramIn);
 				labelNodes.addChild(inp);
 				inSet.add(inp);
-				if (inp.getLabelWidth() > maxInputWidth)
-					maxInputWidth = inp.getLabelWidth();
 			}
 			if (i < outSize) {
 				paramOut = (ChainFormalOutputData) outputs.get(i);
 				outp = getFormalOutput(paramOut);
 				labelNodes.addChild(outp);
 				outSet.add(outp);
-				if (outp.getLabelWidth() > maxOutputWidth)
-					maxOutputWidth = outp.getLabelWidth();
 			}
 		}
 		
-		// find maximum width of the whole thing.
-		width = maxInputWidth+maxOutputWidth+HORIZONTAL_GAP;
-		if (nameWidth > width)
-			width = nameWidth;
+		
 		
 		// find horizontal starting point of the output parameters.
-		//float outputColumnX=NAME_LABEL_OFFSET+maxInputWidth+HORIZONTAL_GAP;
-		float outputColumnX = width-maxOutputWidth;
-		
+		// we want that to be the width -  the largest output,
+		// with space for a margin left over.
+		float outputColumnX = NAME_LABEL_OFFSET+ALIGNMENT_BUFFER;
 		
 		//height of first one
 
-		float inHeight = 0;
-		float outHeight=0;
+		
 			 		
 		Collections.sort(inSet);
 		Collections.sort(outSet);
 	 	Object[] ins = inSet.toArray();
 	 	Object[] outs = outSet.toArray();
-	
+
+	 	float paramHeight;
+	 	if (inSet.size() > 0) 
+	 		paramHeight = ((FormalInput) ins[0]).getLabelHeight();
+	 	else 
+	 		paramHeight = ((FormalOutput) outs[0]).getLabelHeight();
+	 	
+	 	// add a bit of a buffer
+	 	paramHeight += PARAMETER_SPACING;
+		
 		// place things at appropriate x,y.
 		for (int i =0; i < rows; i++) {
-			inHeight = outHeight =0;
+
 			// get ith input 
 			if (i <inSize) {
 				inp = (FormalInput) ins[i];
 				inp.setOffset(NAME_LABEL_OFFSET,height);
-				inHeight = (float) inp.getFullBoundsReference().getHeight();	
 			}
+			height += paramHeight;
 			// get ith output
 			if (i < outSize) {
 				// we want to right-justify these. So, 
 				// find difference bwtween the maximum output width
 				// and the width of this one.
 				outp = (FormalOutput) outs[i];
-				float rightJustifyGap = maxOutputWidth-
+				float rightJustifyGap = maxParamWidth-
 					outp.getLabelWidth();
 				// and then move right by that amount.
-				outp.setOffset(outputColumnX+rightJustifyGap,height);
-				outHeight = (float) outp.getFullBoundsReference().getHeight();
+				float left = outputColumnX+rightJustifyGap;
+				outp.setOffset(left,height);
 			}
-			if (inHeight > outHeight )
-				height +=inHeight;
+			height+=paramHeight;
+		}
+		// add a tiny bit to height to acconut for semantic type name of last
+		// parameter
+		height += LAST_ST_BUFFER;
+		detail.addChild(labelNodes);
+	}
+	
+	private void getParamWidth() {
+		if (maxParamWidth == 0f) {
+			ChainFormalInputData input = ChainFormalInputData.getLongestInput();
+			ChainFormalOutputData output = ChainFormalOutputData.getLongestOutput();
+			FormalInput inp = new FormalInput(this,input);
+			FormalOutput outp = new FormalOutput(this,output);
+			float inWidth = inp.getLabelWidth();
+			float outWidth = outp.getLabelWidth();
+			if (inWidth > outWidth)
+				maxParamWidth = inWidth;
 			else
-				height+=outHeight; 
+				maxParamWidth = outWidth;
 		}
 	}
 	
@@ -450,35 +382,47 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		return new FormalOutput(this,paramOut);
 	}
 	
-	/**
-	 * Paint the node in the given context. This method does some 
-	 * simple semantic zooming. If the scale factor is below the threshold - 
-	 * the user has zoomed out - don't show the individual parameters and the 
-	 * link targets - just show the larger module name. Otherwise, 
-	 * show all of the details.
-	 * 
-	 */
-	public void paint(PPaintContext aPaintContext) {
-		double s = aPaintContext.getScale();
 	
-		if (s <= Constants.SCALE_THRESHOLD) {
-			labelNodes.setVisible(false);
-			labelNodes.setPickable(false);
-			name.setVisible(false);
-			zoomName.setVisible(true);
-			linkTargets.setVisible(true);
-			setPathTo(noLabelRect);
+	public void showDetails() {
+		if (detail.getVisible()  != true) {
+			if (detail.getParent() != this)
+				addChild(detail);
+			detail.setVisible(true);
+			detail.setChildrenPickable(true);
+			invalidateFullBounds();
+			setBounds(detail.getBounds());
 		}
-		else {
-			linkTargets.setVisible(false);
-			name.setVisible(true);
-			labelNodes.setVisible(true);
-			labelNodes.setPickable(true);
-			zoomName.setVisible(false);
-			setPathTo(rect);
-		} 
-		super.paint(aPaintContext);
-	} 
+		if (overview.getVisible()==true)
+			overview.setVisible(false);
+	}
+	
+	public void showOverview() {
+		if (!overview.getVisible()) {
+			overview.setVisible(true);
+			overview.setChildrenPickable(true);
+			setBounds(overview.getBounds());
+		}
+		overview.setVisible(true);
+		if (detail.getParent() == this && detail.getVisible() == true)
+			detail.setVisible(false);
+	}
+	
+		
+	
+	/** 
+	 * Move module view to fron so it will get rendered on top of everything.
+	 * To guarantee this, go all the way up the stack 
+	 *
+	 */
+	protected void moveUp() {
+		moveToFront();
+		PNode n = getParent();
+		while (n != null) {
+			n.moveToFront();
+			n = n.getParent();
+		}
+	}
+
 	
 	// can only link modules if the parameters are visible
 	public boolean isLinkable() {
@@ -490,10 +434,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 * @param v true if the module is highlighted, else false
 	 */
 	public void setHighlighted(boolean v) {
-		if (v == true)
-			setStrokePaint(Constants.SINGLE_HIGHLIGHT_COLOR);
-		else
-			setStrokePaint(Constants.DEFAULT_COLOR);
+		if (v == true) {
+			overview.setStrokePaint(Constants.SINGLE_HIGHLIGHT_COLOR);
+			detail.setStrokePaint(Constants.SINGLE_HIGHLIGHT_COLOR);
+		}
+		else {
+			detail.setStrokePaint(null);
+			overview.setStrokePaint(null); 
+		}
 		repaint();
 	}
 	
@@ -504,11 +452,13 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 * 
 	 */
 	public void setLinkableHighlighted(boolean v) {
-		if (v == true)  {
-			setPaint(Constants.SELECTED_FILL);
+		if (v == true) {
+			overview.setPaint(Constants.SELECTED_FILL);
+			detail.setPaint(Constants.SELECTED_FILL);
 		}
 		else {
-			setPaint(Constants.DEFAULT_FILL);
+			overview.setPaint(Constants.DEFAULT_FILL);
+			detail.setPaint(Constants.DEFAULT_FILL);
 		}
 		inputLinkTarget.setHighlighted(v);
 		outputLinkTarget.setHighlighted(v);
@@ -597,6 +547,11 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			b.getWidth()+2*Constants.BORDER,
 			b.getHeight()+2*Constants.BORDER);
 	}
+	
+	
+	//public double getWidth() {
+	//	return noLabelRect.getBounds().getWidth();
+	//}
 	
 	// handles
 	public void addHandles() {
@@ -740,6 +695,99 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		};
 		return new TreeSet(labelNodes.getAllNodes(inputFilter,null));
 	}
+
+	protected void init() {
+		
+		//edu.umd.cs.piccolo.util.PDebug.debugFullBounds = true; 
+		addChild(overview);
+		detail.setVisible(false);
+		overview.setPickable(false);
+		detail.setPickable(false);
+		
+		//		 ok. so maxParamWidth is the max widht. 
+		// width of whole thing will be maxParamWidth
+		// + 2 namelabel offsets
+		// + alignment buffer (so outputs go to right)
+		getParamWidth();
+		width = maxParamWidth+2*NAME_LABEL_OFFSET+ALIGNMENT_BUFFER;
+		
+		// create the name and position it.
+		name = new PText(getName());
+		name.setGreekThreshold(0);
+		name.setFont(Constants.NAME_FONT);
+		name.setPickable(false);
+		name.setScale(NAME_MAG);
+		name.setTransparency(Constants.MODULE_TRANSPARENT);
+		detail.addChild(name);
+		
+		// get height for largest name 
+		height = getLargestNameHeight();
+		name.setConstrainWidthToTextWidth(false);
+		name.setBounds(new PBounds(NAME_LABEL_OFFSET,NAME_LABEL_OFFSET,
+				width-2*NAME_LABEL_OFFSET,height));
+		
+		// calculate starting height for parameters.
+		height = NAME_LABEL_OFFSET+ (float)name.getHeight();
+	
+		// build the node for the link targets
+		linkTargets = new PNode();
+		overview.addChild(linkTargets);	
+		
+		float linkTargetHeight = height;
+		
+		// add the input link target
+		inputLinkTarget = getLinkTarget();
+		linkTargets.addChild(inputLinkTarget);
+		inputLinkTarget.setOffset(-inputLinkTarget.getHalfSize(),height);
+		height+=NAME_SPACING;	
+		
+		buildMagnifiedLabel();
+	
+		// set width of the whole bounding rectangle
+
+	    	noLabelHeight = height;
+	 	// do the individual parameter labels.
+		addParameterLabels();  
+		
+
+		RoundRectangle2D rect = 
+			new RoundRectangle2D.Float(0f,0f,width,height,
+					DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
+		detail.setPathTo(rect);
+					
+		overview.setPaint(Constants.DEFAULT_FILL);
+		detail.setPaint(Constants.DEFAULT_FILL);
+		overview.setStrokePaint(null);
+		overview.setStroke(Constants.MODULE_STROKE);
+		detail.setStrokePaint(null);
+		detail.setStroke(Constants.MODULE_STROKE);
+		
+		// add the other target
+		outputLinkTarget = getLinkTarget();
+		linkTargets.addChild(outputLinkTarget);
+		outputLinkTarget.setOffset(width-outputLinkTarget.getHalfSize(),
+			linkTargetHeight);
+	
+		RoundRectangle2D noLabelRect = new RoundRectangle2D.Float(0f,0f, width,
+				(float) (noLabelHeight+BOTTOM_GAP),
+				DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
+		overview.setPathTo(noLabelRect);
+		setBounds(overview.getBounds());
+		invalidateFullBounds();
+	}
+	
+	private float getLargestNameHeight() {
+		if (maxNameHeight == 0f) {
+			String longest = ChainModuleData.getLongestName();
+			name = new PText(getName());
+			name.setFont(Constants.NAME_FONT);
+			name.setScale(NAME_MAG);
+			name.setConstrainWidthToTextWidth(false);
+			name.setWidth(width-2*NAME_LABEL_OFFSET);
+			maxNameHeight = (float) name.getHeight();
+		}
+		return maxNameHeight;
+	}
 	/**
 	 * 
 	 * @return a sorted list of all of the output parameters. These parameters 
@@ -774,13 +822,6 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		return new TreeSet(labelNodes.getAllNodes(inputFilter,null));
 	}
 	
-	/*public void setNode(Node node) {
-		this.node = node;
-	}
-	
-	public Node getNode() {
-		return node;
-	}*/
 	
 	public double getX() {
 		return getFullBounds().getX();
@@ -814,6 +855,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		return null;
 	}
 	
+	public CategoryBox getCategoryBox() {
+		BufferedObject b = getEnclosingBufferedNode();
+		if (b instanceof CategoryBox)
+			return (CategoryBox) b;
+		else
+			return null;
+	}
+	
 	public void mouseClicked(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
@@ -825,11 +874,19 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	public void mouseEntered(GenericEventHandler handler) {
 		setAllHighlights(true);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
+		// make sure that the category box gets highlighted when
+		// we enter the module
+		// not necessary when we leave, because we might still be
+		// in the same category box.
+		CategoryBox cb = getCategoryBox();
+		if (cb !=null)
+			cb.mouseEntered(handler);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
 		setAllHighlights(false);
 		((ModuleNodeEventHandler) handler).setLastEntered(null);
+		CategoryBox cb = getCategoryBox();
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
@@ -840,7 +897,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	
 	public void setPickable(boolean b) {
 		super.setPickable(b);
-		labelNodes.setPickable(b);
+		super.setChildrenPickable(b);
 	}
 	
 	/** 
@@ -853,5 +910,4 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	public void remove() {
 		
 	}
-	
 }
