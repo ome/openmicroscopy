@@ -35,6 +35,8 @@ import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -189,7 +191,8 @@ class MoviePane
     {
         JPanel p = new JPanel();
         JLabel l = new JLabel(" Start ");
-        int x = length*txtWidth;
+        Insets insets = end.getInsets();
+        int x = insets.left+length*txtWidth+insets.left;
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(gridbag);
