@@ -90,6 +90,8 @@ public class BrowserManagerIFImpl extends BrowserManager
         
         TopFrame tf = registry.getTopFrame();
         tf.addToDesktop(bif,TopFrame.PALETTE_LAYER);
+        Icon windowIcon = iconManager.getSmallIcon(IconManager.BROWSER);
+        bif.setFrameIcon(windowIcon);
         bif.setClosable(true);
         bif.setMaximizable(true);
         bif.setResizable(true);
@@ -131,6 +133,8 @@ public class BrowserManagerIFImpl extends BrowserManager
         
         // apply internal frame parameters/settings
         InternalFrame iFrame = (InternalFrame)window;
+        Icon windowIcon = iconManager.getSmallIcon(IconManager.BROWSER);
+        iFrame.setFrameIcon(windowIcon);
         iFrame.setMaximizable(false);
         iFrame.setResizable(false);
         iFrame.setClosable(true);
@@ -159,6 +163,7 @@ public class BrowserManagerIFImpl extends BrowserManager
         }
         
         InternalFrame iFrame = (InternalFrame)window;
+        iFrame.setFrameIcon(windowIcon);
         iFrame.setMaximizable(false);
         iFrame.setResizable(false);
         iFrame.setClosable(true);

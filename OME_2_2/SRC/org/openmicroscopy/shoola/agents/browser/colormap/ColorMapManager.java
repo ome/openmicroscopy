@@ -92,7 +92,8 @@ public class ColorMapManager implements ActiveWindowListener
         if(uiManager.managesInternalFrames())
         {
             embeddedUI = new ColorMapInternalFrame();
-            uiManager.addStaticWindow(BrowserManager.COLORMAP_KEY,embeddedUI);
+            uiManager.addStaticWindow(BrowserManager.COLORMAP_KEY,embeddedUI,
+                                      iconManager.getSmallIcon(IconManager.COLOR_MAP_ICON));
             
         }
         else

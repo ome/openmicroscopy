@@ -90,7 +90,8 @@ public final class HeatMapManager implements ActiveWindowListener
         if(uiManager.managesInternalFrames())
         {
             embeddedUI = new HeatMapInternalFrame();
-            uiManager.addStaticWindow(BrowserManager.HEATMAP_KEY,embeddedUI);
+            uiManager.addStaticWindow(BrowserManager.HEATMAP_KEY,embeddedUI,
+                                      iconManager.getSmallIcon(IconManager.HEAT_MAP_ICON));
         }
         else
         {
