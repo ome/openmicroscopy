@@ -31,12 +31,12 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -296,9 +296,9 @@ public class QuantumPaneManager
 	}
 	
 	/** Retrieve the main Frame. */
-	JFrame getReferenceFrame()
+	RenderingAgtUIF getReferenceFrame()
 	{
-		return eventManager.getRegistry().getTopFrame().getFrame();
+		return eventManager.getReferenceFrame();
 	}
 
 	RenderingAgtCtrl getEventManager() { return eventManager; }

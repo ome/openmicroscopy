@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
  * </small>
  * @since OME2.2
  */
-class RenderingAgtUIF 
+public class RenderingAgtUIF 
 	extends TopWindow
 {
 	
