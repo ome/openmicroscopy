@@ -102,25 +102,18 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 					pt.setFont(font);
 					y += pt.getHeight();
 					
-					/*if (desc != null && desc.compareTo("") != 0 ) {
-						PText p = new PText(desc.trim());
-						node.addChild(p);
-						p.setFont(descFont);
-						p.setOffset(0,y);
-						y+=p.getHeight();				
-					}*/
+					node.setBounds(node.getUnionOfChildrenBounds(null));
+					node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+					node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+					node.setPickable(false);
 				}
+				return node;
 			}
-			if (node != null) {
-				node.setBounds(node.getUnionOfChildrenBounds(null));
-				node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
-				node.setPaint(Constants.TOOLTIP_FILL_COLOR);
-				node.setPickable(false);
-			}
-			return node;
+			else if (n instanceof FormalParameter)  
+				return getParameterToolTip((FormalParameter) n);
+			else
+				return node;
 		}
-		else if (n instanceof FormalParameter)
-			return getParameterToolTip((FormalParameter) n);
 		else 
 			return node;
 	}
