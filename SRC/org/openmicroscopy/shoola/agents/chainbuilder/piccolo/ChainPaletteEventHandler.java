@@ -102,11 +102,7 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	 */
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
-		if (n instanceof ChainBox) {
-			if (!checkEventInNodeInterior(n,e))
-				super.mouseExited(e);
-		}
-		else 
+		if (!checkEventInNodeInterior(n,e))
 			super.mouseExited(e);
 		e.setHandled(true);
 	}
