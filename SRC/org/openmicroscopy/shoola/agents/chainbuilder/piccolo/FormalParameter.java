@@ -251,6 +251,7 @@ public abstract class FormalParameter extends PNode implements
 			textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 		}
 		getModuleView().setLinkableHighlighted(v);
+		target.setHighlighted(v);
 		repaint();
 	}
 	
