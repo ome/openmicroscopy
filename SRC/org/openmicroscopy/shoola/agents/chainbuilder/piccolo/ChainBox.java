@@ -84,7 +84,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	 */
 	public static final int SIZE_LENGTH=50;
 	
-	public static final double MAX_NAME_SCALE=6;
+	public static final double MAX_NAME_SCALE=3;
 	
 
 	
@@ -114,6 +114,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		
 		chainLayer = new PLayer();
 		addChild(chainLayer);
+		chainLayer.setPickable(false);
 		
 	
 		// add name
@@ -127,8 +128,9 @@ public class ChainBox extends GenericBox implements MouseableNode
 		
 		double width = name.getGlobalFullBounds().getWidth();
 		//		 one VGAP below + 3 above
-		y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*3); 
+		y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*2); 
 		
+		addLockedIndicator();
 		
 		// add ower name
 		PText owner = new PText(chain.getOwner());
@@ -137,8 +139,8 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 		
 		chainLayer.addChild(owner);
-		owner.setOffset(x+HGAP,y+VGAP*3);
-		y += owner.getHeight()+VGAP*4;
+		owner.setOffset(x+HGAP,y+VGAP);
+		y += owner.getHeight()+VGAP*5;
 		
 		// build the chain..
 		chainView = new PaletteChainView(chain,registry);
@@ -151,6 +153,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		if (chainView.getWidth() > width)
 			width = chainView.getWidth();	
 		setExtent(width+HGAP*2,y);
+		invalidateFullBounds();
 	}
 	
 	/**
@@ -173,14 +176,14 @@ public class ChainBox extends GenericBox implements MouseableNode
 		return chainView;
 	}
 	
-	public void setExtent(double width,double height) {
+	/*public void setExtent(double width,double height) {
 		super.setExtent(width,height);
 		// add a triangle in the corner.
 		if (chain.getIsLocked()) {
 			addLockedIndicator();
 		}
-	}
-	
+	}*/
+		
 	public void centerChain() {
 		// get my extent
 		PBounds b = getBounds();
@@ -193,7 +196,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		// set offset of chain to be in center.
 		
 		// topmost part of where chain goes
-		float y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*3);
+		float y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*2);
 		
 		double boxVertRange = boxHeight -y;
 		
@@ -208,16 +211,17 @@ public class ChainBox extends GenericBox implements MouseableNode
 	}
 	
 	private void addLockedIndicator() {
-		PBounds b = getFullBoundsReference();
+		//PBounds b = getFullBoundsReference();
 		PText locked = new PText("Locked");
 		locked.setGreekThreshold(0);
 		locked.setFont(Constants.LABEL_FONT);
 		locked.setTextPaint(Constants.LOCKED_COLOR);
-		locked.setScale(2);
+		locked.setScale(1.5);
 		chainLayer.addChild(locked);
-		PBounds lockedBounds = locked.getGlobalFullBounds();
-		float x = (float) (b.getX()+b.getWidth()-lockedBounds.getWidth()-HGAP);
-		locked.setOffset(x,b.getY()+VGAP);
+		//PBounds lockedBounds = locked.getGlobalFullBounds();
+		//float x = (float) (b.getX()+b.getWidth()-lockedBounds.getWidth()-HGAP);
+		locked.setOffset(HGAP,y);
+		y += locked.getHeight();
 	}
 			
 	
@@ -228,6 +232,17 @@ public class ChainBox extends GenericBox implements MouseableNode
 		((ChainPaletteEventHandler) handler).hideLastChainView();
 		SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
 		registry.getEventBus().post(event); 
+	}
+	
+	public PBounds getBufferedBounds() {
+		PBounds b = getGlobalBounds();
+		
+		PBounds p=  new PBounds(b.getX()-2*Constants.BORDER,
+				b.getY()-2*Constants.BORDER,
+				b.getWidth()+4*Constants.BORDER,
+				b.getHeight()+4*Constants.BORDER);
+		
+		return p;
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
@@ -262,6 +277,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
+		System.err.println("right click on chain box");
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
 			((ChainPaletteEventHandler) handler).animateToNode(p);	
