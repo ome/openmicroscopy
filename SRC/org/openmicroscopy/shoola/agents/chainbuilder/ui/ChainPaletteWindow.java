@@ -33,15 +33,10 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
@@ -50,8 +45,7 @@ import javax.swing.WindowConstants;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteCanvas;
-import org.openmicroscopy.shoola.env.config.IconFactory;
-import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 
 
@@ -67,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * </smalbl>
  * @since OME2.2
  */
-public class ChainPaletteWindow extends JFrame implements ActionListener {
+public class ChainPaletteWindow extends JFrame  {
 
 	private static final String TITLE="Chain Palette";
 	
@@ -93,50 +87,14 @@ public class ChainPaletteWindow extends JFrame implements ActionListener {
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
-		ButtonGroup group = new ButtonGroup();
-		IconFactory icons = dataManager.getIconFactory();
-		Icon zoomIcon = icons.getIcon("zoomMode.png");
-		Icon panIcon = icons.getIcon("pan.png");
-		
 
-		if (panIcon != null)
-			pan= new JButton(panIcon);
-		else 
-			pan = new JButton("pan");
-		pan.addActionListener(this);
-		group.add(pan);
-		tb.add(pan);
-		
-		if (zoomIcon != null)
-			zoom= new JButton(zoomIcon);
-		else 
-			zoom = new JButton("zoom");
-		zoom.addActionListener(this);
-		group.add(zoom);
-		tb.add(zoom);
-		
-		
-		pan.setEnabled(true);
-		zoom.setEnabled(false);
-		tb.setFloatable(false);
-		
-		content.add(tb,BorderLayout.NORTH);
-		
-		
 		chainCanvas = new ChainPaletteCanvas(dataManager);
 		chainCanvas.setContents(dataManager.getChains());
 		chainCanvas.layoutContents();
-		chainCanvas.completeInitialization();
-		
-		content.add(chainCanvas,BorderLayout.CENTER);
-		
-		chainCanvas.setPreferredSize(
-				new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
-		//setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
-		pack();
+		chainCanvas.completeInitialization();		
+	
+		setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
+		content.add(chainCanvas);
 	
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
@@ -144,7 +102,6 @@ public class ChainPaletteWindow extends JFrame implements ActionListener {
 					chainCanvas.scaleToResize();
 			}
 		});
-		//tb.setMaximumSize(tb.getSize());
 	}
 	
 	public void focusOnPalette() {
@@ -153,20 +110,5 @@ public class ChainPaletteWindow extends JFrame implements ActionListener {
 	
 	public void displayNewChain(LayoutChainData chain) {
 		chainCanvas.displayNewChain(chain);
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == zoom) {
-			System.err.println("switching to zoom");
-			pan.setEnabled(true);
-			zoom.setEnabled(false);
-			chainCanvas.setToZoom();
-		}
-		else {
-			System.err.println("switching to pan..");
-			pan.setEnabled(false);
-			zoom.setEnabled(true);
-			chainCanvas.setToPan();
-		}
 	}
 }
