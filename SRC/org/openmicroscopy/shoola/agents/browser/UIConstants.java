@@ -73,4 +73,9 @@ public interface UIConstants
      * ThumbnailDataModels.
      */
     public static final String WELL_KEY_STRING = "Well";
+    
+    /**
+     * The name of the zoom palette.
+     */
+    public static final String ZOOM_PALETTE_NAME = "Zoom";
 }

@@ -52,6 +52,8 @@ public final class BrowserEnvironment
     private BrowserAgent browserAgent;
 
     private BrowserManager browserManager;
+    
+    private IconManager iconManager;
     // private static OMEDataAgent dataAgent;
     private MessageHandler messageHandler;
 
@@ -113,11 +115,30 @@ public final class BrowserEnvironment
     /**
      * Sets the message handler for the environment.
      * 
-     * @param handler The message hander to use.
+     * @param handler The message handler to use.
      */
     public void setMessageHandler(MessageHandler handler)
     {
         this.messageHandler = handler;
+    }
+    
+    /**
+     * Gets the icon manager for the environment.
+     * @return The icon manager of the environment.
+     */
+    public IconManager getIconManager()
+    {
+        return iconManager;
+    }
+    
+    /**
+     * Sets the icon manager for the environment.
+     * 
+     * @param manager The icon manager to use.
+     */
+    public void setIconManager(IconManager manager)
+    {
+        this.iconManager = manager;
     }
 
     /**

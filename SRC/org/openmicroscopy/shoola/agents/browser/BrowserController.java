@@ -98,6 +98,15 @@ public class BrowserController
     	model.addModelListener(view);
     }
     
+    public BrowserController(BrowserModel model, BrowserTopModel topModel,
+                             BrowserView view)
+    {
+        this.browserModel = model;
+        this.overlayModel = topModel;
+        this.browserView = view;
+        model.addModelListener(view);
+    }
+    
     /**
      * Returns the name of the dataset.
      * @return The name of the enclosed dataset.
@@ -134,11 +143,25 @@ public class BrowserController
      * TEMPORARY-- reroute all through methods eventually.  Changes to the
      * model done through accessing the model directly may not appear in
      * the view, unless a model-view listener relationship is established.
-     * @return
+     * 
+     * @return The controller's browser model.
      */
     public BrowserModel getBrowserModel()
     {
         return browserModel;
+    }
+    
+    /**
+     * TEMPORARY -- reroute all through methods eventually.  Changes to the
+     * top model done through accessing the model directly may not appear in
+     * the view, unless a model-view listener relationship is established
+     * (which it kinda is)
+     * 
+     * @return The controller's top model.
+     */
+    public BrowserTopModel getOverlayModel()
+    {
+        return overlayModel;
     }
     
     /**

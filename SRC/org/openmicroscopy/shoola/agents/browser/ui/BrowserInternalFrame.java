@@ -37,11 +37,18 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.IconManager;
+import org.openmicroscopy.shoola.agents.browser.UIConstants;
 
 /**
  * Wraps a BrowserView in a JInternalFrame for use in MDI applications.
@@ -65,23 +72,39 @@ public class BrowserInternalFrame extends JInternalFrame
      * 
      * @param controller The controller to wrap.
      */
-    public BrowserInternalFrame(BrowserController controller)
+    public BrowserInternalFrame(BrowserController theController)
     {
         setSize(600,600);
-        String title = controller.getName();
-        setTitle("Image Browser: "+title);
         setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
         
-        if(controller != null)
+        if(theController != null)
         {
-            this.controller = controller;
+            this.controller = theController;
+            String title = controller.getName();
+            setTitle("Image Browser: "+title);
             this.embeddedView = controller.getView();
             this.env = BrowserEnvironment.getInstance();
         }
         
+        JPanel toolbarPanel = new JPanel();
+        toolbarPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        
+        IconManager manager = env.getIconManager();
+        JButton zoomButton = new JButton(manager.getSmallIcon(IconManager.ZOOM_BAR));
+        zoomButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                controller.getOverlayModel().showPalette(UIConstants.ZOOM_PALETTE_NAME);
+            }
+        });
+        
+        toolbarPanel.add(zoomButton);
+        
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
         container.add(embeddedView,BorderLayout.CENTER);
+        container.add(toolbarPanel,BorderLayout.NORTH);
         if(controller.getStatusView() != null)
         {
             container.add(controller.getStatusView(),BorderLayout.SOUTH);

@@ -72,9 +72,14 @@ public class IconManager
     public static final int BROWSER = 0;
     
     /**
+     * The trigger zoom-toolbar icon.
+     */
+    public static final int ZOOM_BAR = 1;
+    
+    /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 0;
+    public static final int MAX_ID = 1;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -89,11 +94,13 @@ public class IconManager
     static
     {
         smallPaths[BROWSER] = "browser16.png";
+        smallPaths[ZOOM_BAR] = "zoombar.png";
     }
     
     static
     {
         largePaths[BROWSER] = "browser24.png";
+        largePaths[ZOOM_BAR] = "zoombar.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";
@@ -132,11 +139,21 @@ public class IconManager
             }
             catch(Exception e)
             {
+                System.err.println("problem");
                 throw new RuntimeException("Couldn't create the browser icon" +
                     " manager.");
             }
         }
         return singleton;
+    }
+    
+    /**
+     * Different semantics for getInstance().
+     * @param registry The registry to set.
+     */
+    public static void setRegistry(Registry registry)
+    {
+        getInstance(registry);
     }
     
     /**

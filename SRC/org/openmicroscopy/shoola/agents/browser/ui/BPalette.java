@@ -95,7 +95,7 @@ public class BPalette extends PNode
         
         final BPalette refCopy = this;
         this.paletteName = name;
-        titleBar = new TitleBar(name);
+        titleBar = new TitleBar(name,this,parent);
         iconBar = new IconBar(measuredWidth);
         addChild(titleBar);
         titleBar.addChild(iconBar); // cheap way to get the whole thing to move
@@ -300,14 +300,19 @@ public class BPalette extends PNode
         
         private Font titleFont = new Font(null,Font.BOLD,14);
         
+        private BPalette parent;
+        private BrowserTopModel model;
+        
         /**
          * Make a title bar with the specified name.
          * @param name The name of the title bar.
          */
-        TitleBar(String name)
+        TitleBar(String name, BPalette bp, BrowserTopModel topModel)
         {
             setBounds(bounds);
             titleName = name;
+            model = topModel;
+            this.parent = bp;
             
             backgroundColor = new Color(0,51,153);
             titleNode = new PText(name);
@@ -320,35 +325,21 @@ public class BPalette extends PNode
             
             addChild(titleNode);
             titleNode.setOffset(4,4);
+                       
+            closeNode = new CloseIcon();
             
-            minimizeNode = new MinimizeIcon();
-            addChild(minimizeNode);
-            minimizeNode.setOffset(measuredWidth-60,0);
-            
-            // we assign the minimize icon's behavior here because it's
-            // always going to be applicable here.
-            MouseDownActions mouseActions = minimizeNode.getMouseDownActions();
-            mouseActions.setMouseClickAction(PiccoloModifiers.NORMAL,
-                                             new PiccoloAction()
+            PiccoloAction closeAction = new PiccoloAction()
             {
-                public void execute()
-                {
-                    // TODO: actually do something useful
-                    System.err.println("Minimize clicked");
-                }
-                
                 public void execute(PInputEvent e)
                 {
-                    execute();
+                    model.hidePalette(parent);
                 }
-            });
-            minimizeNode.setMouseDownActions(mouseActions);
+            };
             
-            hideNode = new HideIcon();
-            addChild(hideNode);
-            hideNode.setOffset(measuredWidth-40,0);
-            
-            closeNode = new CloseIcon();
+            MouseDownActions actions = new MouseDownActions();
+            actions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                        closeAction);
+            closeNode.setMouseDownActions(actions);
             addChild(closeNode);
             closeNode.setOffset(measuredWidth-20,0);
         }
@@ -522,10 +513,11 @@ public class BPalette extends PNode
     /**
      * The icon that triggers a palette close.
      */
-    class CloseIcon extends PNode
+    class CloseIcon extends PNode implements MouseDownSensitive
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Shape xPath;
+        private MouseDownActions actions;
         
         private GeneralPath generatePath(float xAnchor, float yAnchor)
         {
@@ -550,6 +542,7 @@ public class BPalette extends PNode
         {
             setBounds(bounds);
             xPath = generatePath(0,0);
+            actions = new MouseDownActions();
         }
         
         public void paint(PPaintContext context)
@@ -560,5 +553,62 @@ public class BPalette extends PNode
             g2.fill(xPath);
             g2.setPaint(oldPaint);
         }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+         */
+        public MouseDownActions getMouseDownActions()
+        {
+            return actions;
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseClick(PInputEvent event)
+        {
+            PiccoloAction action =
+                actions.getMouseClickAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseDoubleClick(PInputEvent event)
+        {
+            PiccoloAction action =
+                actions.getMouseClickAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMousePress(PInputEvent event)
+        {
+            PiccoloAction action =
+                actions.getMousePressAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseRelease(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseRelease(PInputEvent event)
+        {
+            PiccoloAction action =
+                actions.getMouseReleaseAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+         */
+        public void setMouseDownActions(MouseDownActions actions)
+        {
+            this.actions = actions;
+        }
+
     }
 }

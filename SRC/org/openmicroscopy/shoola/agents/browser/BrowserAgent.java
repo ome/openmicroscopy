@@ -192,6 +192,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         this.eventBus = ctx.getEventBus();
         this.tf = ctx.getTopFrame();
         
+        env.setIconManager(IconManager.getInstance(ctx));
+        
         Boolean extractionMode = (Boolean)registry.lookup(THUMBNAIL_MODE_KEY);
         this.useServerThumbs = extractionMode.booleanValue();
         
@@ -261,13 +263,13 @@ public class BrowserAgent implements Agent, AgentEventListener
         BPalette paintPalette = PaletteFactory.getPaintModePalette(model,topModel);
         topModel.addPalette("Overlays",paintPalette);
         BPalette zoomPalette = PaletteFactory.getZoomPalette(model,topModel);
-        topModel.addPalette("Zoom",zoomPalette);
+        topModel.addPalette(UIConstants.ZOOM_PALETTE_NAME,zoomPalette);
         
         modePalette.setOffset(0,0);
         paintPalette.setOffset(0,75);
         zoomPalette.setOffset(0,125);
         BrowserView view = new BrowserView(model,topModel);
-        BrowserController controller = new BrowserController(model,view);
+        BrowserController controller = new BrowserController(model,topModel,view);
         controller.setStatusView(new StatusBar());
 
         int count = env.getBrowserManager().getBrowserCount();

@@ -41,8 +41,10 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -96,6 +98,8 @@ public class BrowserCamera implements RegionSensitive,
     
     private BrowserTopModel model;
     
+    private Map lastLocations;
+    
     /**
      * Constructs a browser overlay camera using the camera from the
      * specified view.
@@ -113,10 +117,9 @@ public class BrowserCamera implements RegionSensitive,
         
         this.model = model;
         this.camera = camera;
+        model.addModelListener(this);
         
         init();
-        
-
         
         cameraResized(cameraBounds);
     }
@@ -130,6 +133,7 @@ public class BrowserCamera implements RegionSensitive,
         paletteLayer = new PLayer();
         panNodeList = new ArrayList();
         palettes = new HashSet();
+        lastLocations = new HashMap();
         
         Map paletteMap = model.getPalettes();
         
@@ -405,8 +409,15 @@ public class BrowserCamera implements RegionSensitive,
         {
             if(camera.indexOfChild(palette) == -1)
             {
+                if(lastLocations.containsKey(palette.getName()))
+                {
+                    Point2D offset = (Point2D)lastLocations.get(palette.getName());
+                    palette.setOffset(offset.getX(),offset.getY());
+                    lastLocations.remove(palette.getName());
+                }
                 camera.addChild(palette);
             }
+            camera.repaint();
         }
     }
     
@@ -435,14 +446,11 @@ public class BrowserCamera implements RegionSensitive,
     {
         if(palette != null)
         {
+            lastLocations.put(palette.getName(),palette.getOffset());
             camera.removeChild(palette);
+            camera.repaint();
         }
     }
-
-
-
-
-
     
     /**
      * A node that causes the camera to pan.
