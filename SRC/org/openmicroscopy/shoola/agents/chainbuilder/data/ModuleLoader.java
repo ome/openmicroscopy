@@ -82,6 +82,14 @@ public class ModuleLoader extends ContentLoader
 		if (modData == null) {
 			modData = new ModulesData();
 			long loadStart = System.currentTimeMillis();
+			// IT'S tempting to think here that one can grab the modules and work
+			// back to infer the category tree, but that doesn't work. Since 
+			// categories need not contain modules, this approach might miss 
+			// thoese categories that only contain other categories.
+			// It might be possible to just get the categories and work from their
+			// down to the individual modules, but that would require painful
+			// and ugly rewrite of the module category mapper, so I'll punt on
+			// it for now, and hope a more robust solution is developed.
 			Collection mods = chainDataManager.getModules();
 			Collection cats = chainDataManager.getModuleCategories();
 			long loadEnd;
