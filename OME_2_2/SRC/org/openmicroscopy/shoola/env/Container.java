@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 
@@ -264,9 +263,7 @@ public final class Container
 	 * user. 
 	 */
 	public void startService()
-	{
-		DataSink.initialize();  //TODO: move this into an init task.
-		
+	{	
 		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
 		AgentInfo agentInfo;

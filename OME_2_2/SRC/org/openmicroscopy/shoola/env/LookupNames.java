@@ -73,4 +73,7 @@ public class LookupNames
 	public static final String LOG_DIR = "/services/LOG/dir";
 	public static final String LOG_FILE = "/services/LOG/file";
 	
+	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
+	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
+	
 }
