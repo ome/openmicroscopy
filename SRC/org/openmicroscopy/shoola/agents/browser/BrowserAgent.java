@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal Version:</b> $Revision$ $Date$
  * @version 2.2
- * @since 2.2
+ * @since OME2.2
  */
 public class BrowserAgent implements AgentEventListener
 {

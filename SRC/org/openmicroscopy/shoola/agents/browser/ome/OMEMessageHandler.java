@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.agents.browser.MessageHandler;
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
- * @since 2.2
+ * @since OME2.2
  */
 public class OMEMessageHandler implements MessageHandler
 {

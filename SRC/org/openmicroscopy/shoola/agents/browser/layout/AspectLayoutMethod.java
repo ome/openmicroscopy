@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -55,5 +52,5 @@ public interface AspectLayoutMethod
      * 
      * @param widthToHeightRatio The desired ratio.
      */
-    public void setAspect(double widthToHeightRatio);
+    public void setAspectRatio(double widthToHeightRatio);
 }
