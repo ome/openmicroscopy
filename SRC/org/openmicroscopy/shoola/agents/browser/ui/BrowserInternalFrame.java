@@ -42,7 +42,6 @@ import javax.swing.JInternalFrame;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
-import org.openmicroscopy.shoola.agents.browser.BrowserView;
 
 /**
  * Wraps a BrowserView in a JInternalFrame for use in MDI applications.

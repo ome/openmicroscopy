@@ -39,10 +39,14 @@ import java.awt.Image;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
+import javax.swing.JPopupMenu;
+
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.ui.PopupMenuFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
 import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -109,6 +113,26 @@ public interface PiccoloActions
                 }
                 
                 camera.addChild(0,semanticNode);
+            }
+        }
+    };
+    
+    public static final PiccoloAction POPUP_MENU_ACTION = new PiccoloAction()
+    {
+        public void execute(PInputEvent e)
+        {
+            PNode node = e.getPickedNode();
+            JPopupMenu menu = PopupMenuFactory.getMenu(node);
+            if(menu != null)
+            {
+                Point2D position = e.getPosition();
+                e.getCamera().viewToLocal(position);
+                int offsetX = (int)Math.round(position.getX());
+                int offsetY = (int)Math.round(position.getY());
+                
+                // this could be error prone, but hopefully not in context
+                PCanvas canvas = (PCanvas)e.getComponent();
+                menu.show(canvas,offsetX,offsetY);
             }
         }
     };

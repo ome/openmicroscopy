@@ -44,10 +44,10 @@ import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
-import org.openmicroscopy.shoola.agents.browser.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 

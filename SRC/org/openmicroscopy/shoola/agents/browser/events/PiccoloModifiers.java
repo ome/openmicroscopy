@@ -125,7 +125,9 @@ public class PiccoloModifiers
                 modifier = modifier | MOUSE_INDIV_SELECT;
             }
             // which cannot be used in conjunction w/popup trigger
-            else if(e.isPopupTrigger())
+            // a little worried about this, but it has to be a mouse event
+            // ctrl-click not a paradigm on windows, so it's cool (I think)
+            else if(e.isPopupTrigger() || e.isControlDown())
             {
                 modifier = modifier | POPUP;
             }

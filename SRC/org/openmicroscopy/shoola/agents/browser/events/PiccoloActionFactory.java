@@ -172,4 +172,23 @@ public class PiccoloActionFactory
         };
         return action;
     }
+    
+    /**
+     * Creates an action, that, when executed, will trigger an opening of
+     * this particular thumbnail.
+     * @param t The thumbnail to open in the viewer.
+     * @return A PiccoloAction that wraps the appropriate viewer trigger code
+     *         in an execute() statement.
+     */
+    public static PiccoloAction getOpenInViewerAction(final Thumbnail t)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                // TODO write the open trigger code for this thumbnail.
+            }
+        };
+        return action;
+    }
 }

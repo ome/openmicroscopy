@@ -33,7 +33,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser;
+package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -54,6 +54,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JPopupMenu;
+
+import org.openmicroscopy.shoola.agents.browser.BrowserCamera;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserMode;
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserModelListener;
+import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
+import org.openmicroscopy.shoola.agents.browser.MessageHandler;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
@@ -68,9 +77,6 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BrowserViewEventDispatcher;
-import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
-import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
@@ -205,6 +211,8 @@ public class BrowserView extends PCanvas
         
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                                 selectThumbnailAction);
+        defaultTDownActions.setMouseClickAction(PiccoloModifiers.POPUP,
+                                                PiccoloActions.POPUP_MENU_ACTION);
         defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
                                                 PiccoloActions.SEMANTIC_ZOOM_ACTION);
         
@@ -748,6 +756,26 @@ public class BrowserView extends PCanvas
                     browserModel.deselectAllThumbnails();
                     browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
                                                 BrowserMode.UNSELECTED_MODE);
+                }
+                else if(modifiers == PiccoloModifiers.POPUP)
+                {
+                    // TODO: write popup (multi-selected) code
+                }
+            }
+            else
+            {
+                int modifiers = PiccoloModifiers.getModifier(event);
+                if(modifiers == PiccoloModifiers.POPUP)
+                {
+                    JPopupMenu menu = PopupMenuFactory.getMenu(this);
+                    Point2D position = event.getPosition();
+                    event.getCamera().viewToLocal(position);
+                    int offsetX = (int)Math.round(position.getX());
+                    int offsetY = (int)Math.round(position.getY());
+                
+                    // this could be error prone, but hopefully not in context
+                    PCanvas canvas = (PCanvas)event.getComponent();
+                    menu.show(canvas,offsetX,offsetY);
                 }
             }
         }

@@ -41,6 +41,7 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 

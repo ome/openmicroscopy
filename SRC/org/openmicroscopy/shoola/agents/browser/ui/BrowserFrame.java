@@ -42,7 +42,6 @@ import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
-import org.openmicroscopy.shoola.agents.browser.BrowserView;
 
 import edu.umd.cs.piccolo.PCanvas;
 
