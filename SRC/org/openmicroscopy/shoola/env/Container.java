@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 
 /** 
@@ -100,7 +101,10 @@ public final class Container
 	{
 		if (singleton == null) {
 			singleton = new Container(home);
-			//TODO: delegate initialization.
+			Initializer initManager = new Initializer(singleton);
+			initManager.configure();
+			initManager.doInit();
+			//startService() called by Initializer at end of doInit().
 		}
 	}
 	
@@ -148,6 +152,7 @@ public final class Container
 			throw new StartupException("Can't locate home dir: "+homeDir);
 		
 		agentsPool = new HashSet();
+		registry = RegistryFactory.makeNew();
 	}
 	 
 	/**
