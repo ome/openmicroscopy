@@ -117,12 +117,12 @@ class ChannelPane
 		ChannelData wd = manager.getChannelData();
 		
 		//First row 
-		JLabel label = new JLabel(" Emission (in µm)");
+		JLabel label = new JLabel(" Emission (in nm)");
 		table.setValueAt(label, 0, 0);
 		table.setValueAt(new JLabel(""+wd.getNanometer()), 0, 1);
 		
 		//Third row.
-		label = new JLabel(" Excitation (in µm)");
+		label = new JLabel(" Excitation (in nm)");
 	  	excitation = new JTextField(""+wd.getExcitation());
 	  	excitation.setForeground(ChannelEditor.STEELBLUE);
 	  	excitation.setEnabled(true);

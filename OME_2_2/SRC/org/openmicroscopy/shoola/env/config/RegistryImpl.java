@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * by their <code>name</code> attribute and represent entries in a 
  * configuration file.  The map also contains all name-value pairs that are
  * added to the registry by means of the {@link #bind(String, Object) bind}
- * method.  References to the container’s services are stored into member
+ * method.  References to the container's services are stored into member
  * fields &#151; as services are accessed frequently, this ensures <i>o(1)</i>
  * access time.
  *
