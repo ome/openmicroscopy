@@ -75,11 +75,13 @@ public class IconManager
 	/** ID of the xyz icon. */
 	public static final int     XYZ = 5;
 	
+	/** ID of the question mark. */
+	public static final int		QUESTION = 6;
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 6;
+	private static int          MAX_ID = 7;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -91,11 +93,10 @@ public class IconManager
 		relPaths[REWIND] = "rewind16.png";
 		relPaths[CLOCK] = "navigation16.png";
 		relPaths[XYZ] = "nav_pal_icon16.png";
+		relPaths[QUESTION] = "question16.png";	
 	}
 	
-	/**
-	 * The sole instance that provides.
-	 */
+	/** The sole instance that provides. */
 	private static IconManager	singleton;
 	
 	/**
@@ -128,9 +129,10 @@ public class IconManager
 		icons = new Icon[MAX_ID+1];
 	}
 
-	/** Retrieves the icon specified by the icon <code>ID</code>.
+	/** 
+	 * Retrieves the icon specified by the icon <code>ID</code>.
 	 *
-	 * @param   ID    Must be one of the IDs defined by this class.
+	 * @param ID    Must be one of the IDs defined by this class.
 	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.
 	 */    
 	public Icon getIcon(int ID)

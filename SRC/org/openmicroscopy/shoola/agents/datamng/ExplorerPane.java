@@ -122,14 +122,10 @@ class ExplorerPane
 		return target;
 	}	
 	
-	ExplorerPaneManager getManager()
-	{
-		return manager;
-	}
+	/** Return the manager of this component. */
+	ExplorerPaneManager getManager() { return manager; }
 	
-	/** 
-	 * Builds and lays out the GUI.
-	 */
+	/** Builds and lay out the GUI. */
 	private void buildGUI() {
 		tree.putClientProperty("JTree.lineStyle", "Angled");
 		tree.setCellRenderer(new DataTreeCellRenderer());
@@ -180,7 +176,6 @@ class ExplorerPane
 				else if (usrObject instanceof ImageSummary) id = IMAGE_ICON;
 				else if (usrObject instanceof String) id = NO_ICON;
 			}
-			
 			return id;
 		}
 	}

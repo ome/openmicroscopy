@@ -77,15 +77,9 @@ class HistogramDialog
 		buildGUI();	
 	}
 
-	public HistogramPanel getHistogramPanel()
-	{
-		return histogramPanel;
-	}
+	HistogramPanel getHistogramPanel() { return histogramPanel; }
 	
-	public HistogramDialogManager getManager()
-	{
-		return manager;
-	}
+	HistogramDialogManager getManager() { return manager; }
 
 	/** Build and layout the GUI. */
 	void buildGUI()

@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +49,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 
 /** 
@@ -69,8 +69,6 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 class CreateProjectDatasetsPane
 	extends JPanel
 {
-
-	private static final Dimension		VP_DIM = new Dimension(200, 70);
 	
 	/** Reference to the manager. */
 	private CreateProjectEditorManager	manager;
@@ -117,15 +115,15 @@ class CreateProjectDatasetsPane
 		//select button
 		selectButton = new JButton("Select All");
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		selectButton.setToolTipText("Select all datasets");
+		selectButton.setToolTipText("Select all datasets.");
 		//cancel button
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Reset");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection");
+		cancelButton.setToolTipText("Cancel selection.");
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(cancelButton);
-		controls.add(Box.createRigidArea(new Dimension(10, 0)));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 	  	controls.add(selectButton);
 	  	controls.setOpaque(false); //make panel transparent
 	  	
@@ -135,11 +133,11 @@ class CreateProjectDatasetsPane
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);
-		p.add(Box.createRigidArea(new Dimension(0, 10)));
+		p.add(Box.createRigidArea(DataManager.VBOX));
 		p.add(controls);
 		
 		return p;

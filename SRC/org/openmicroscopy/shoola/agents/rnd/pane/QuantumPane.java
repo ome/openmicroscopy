@@ -97,30 +97,16 @@ public class QuantumPane
 		buildLayeredPane(gRepresentation);
 	}
 
-	public QuantumPaneManager getManager()
-	{
-		return manager;
-	}
+	public CodomainPane getCodomainPane() { return codomainPane; }
 
-	public CodomainPane getCodomainPane()
-	{
-		return codomainPane;
-	}
+	public DomainPane getDomainPane() { return domainPane; }
 
-	public DomainPane getDomainPane()
-	{
-		return domainPane;
-	}
-
-	public GraphicsRepresentation getGRepresentation()
-	{
-		return gRepresentation;
-	}
-
-	public JLayeredPane getLayeredPane()
-	{
-		return layeredPane;
-	}
+	public JLayeredPane getLayeredPane() { return layeredPane; }
+	
+	GraphicsRepresentation getGRepresentation() { return gRepresentation; }
+	
+	QuantumPaneManager getManager() { return manager; }
+	
 	
 	/** 
 	 * Builds a layeredPane containing the GraphicsRepresentation.

@@ -115,7 +115,7 @@ class ImageInfoPane
 		{
 			if (px != null) {
 				data[0] = ""+px.getSizeX();
-				data[1] =  ""+px.getSizeY();
+				data[1] = ""+px.getSizeY();
 				data[2] = ""+px.getSizeZ();
 				data[3] = ""+px.getSizeT();
 				data[4] = ""+px.getSizeC();

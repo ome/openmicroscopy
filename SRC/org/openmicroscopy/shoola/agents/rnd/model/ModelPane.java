@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 
 
 //Java imports
+import java.awt.Dimension;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -55,6 +57,26 @@ import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 public abstract class ModelPane
 	extends JPanel
 {
+	
+	/** Height of a cell in the table. */
+	protected static final int			ROW_HEIGHT = 25;
+	
+	/** Default width of a cell. */
+	protected static final int			DEFAULT_WIDTH = 30;
+	
+	/** Width of the label cell. */
+	protected static final int			WIDTH_LABEL = 100;
+	
+	/** Default Height of the JButton. */
+	protected static final int			BUTTON_HEIGHT = 15;
+	
+	/** Default width of the JButton. */
+	protected static final int			BUTTON_WIDTH = 15;
+	
+	protected static final Dimension	DIM_BUTTON = 
+											new Dimension(BUTTON_WIDTH, 
+														BUTTON_HEIGHT);
+		
 	protected RenderingAgtCtrl 	eventManager;
 		
 	public void setEventManager(RenderingAgtCtrl eventManager)

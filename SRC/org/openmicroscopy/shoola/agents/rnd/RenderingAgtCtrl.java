@@ -106,156 +106,146 @@ public class RenderingAgtCtrl
 		abstraction.getPresentation().addInternalFrameListener(this);
 	}
 	
-	void setDisplayed(boolean b)
-	{
-		displayed = b;
-	}
+	void setDisplayed(boolean b) { displayed = b; }
 	
-	/** 
-	 * Returns the abstraction component of this agent.
-	 *
-	 * @return  See above.
-	 */
-	RenderingAgt getAbstraction()
-	{
-		return abstraction;
-	}
+	/** Returns the {@link RenderingAgt abstraction}. */
+	RenderingAgt getAbstraction() { return abstraction; }
 	
-	/** Forward event to {@link RenderingAgtUIF}. */
+	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
 		abstraction.getPresentation().showDialog(dialog);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public int getCodomainStart()
 	{
 		return abstraction.getCodomainStart();
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public int getCodomainEnd()
 	{
 		return abstraction.getCodomainEnd();
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public PixelsStatsEntry[] getChannelStats(int w)
 	{
 		return abstraction.getChannelStats(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public double getGlobalChannelWindowStart(int w)
 	{
 		return abstraction.getGlobalChannelWindowStart(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public double getGlobalChannelWindowEnd(int w)
 	{
 		return abstraction.getGlobalChannelWindowEnd(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public Comparable getChannelWindowStart(int w)
 	{
 		return abstraction.getChannelWindowStart(w);
 	}
 
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public Comparable getChannelWindowEnd(int w)
 	{
 		return abstraction.getChannelWindowEnd(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public QuantumDef getQuantumDef()
 	{
 		return abstraction.getQuantumDef();
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setActive(int w, boolean active)
 	{
 		abstraction.setActive(w, active);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public boolean isActive(int w)
 	{
 		return abstraction.isActive(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public int[] getRGBA(int w)
 	{
 		return abstraction.getRGBA(w);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setRGBA(int w, int red, int green, int blue, int alpha)
 	{
 		abstraction.setRGBA(w, red, green, blue, alpha);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowStart(int w, int x)
 	{
 		//TODO: support other formats
 		abstraction.setChannelWindowStart(w, new Integer(x));
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
 		//TODO: support other formats
 		abstraction.setChannelWindowEnd(w, new Integer(x));
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setCodomainLowerBound(int x)
 	{
 		abstraction.setCodomainLowerBound(x);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setCodomainUpperBound(int x)
 	{
 		abstraction.setCodomainUpperBound(x);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setQuantumStrategy(double k, int family, int resolution)
 	{
 		abstraction.setQuantumStrategy(k, family, resolution);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void addCodomainMap(CodomainMapContext ctx)
 	{
 		abstraction.addCodomainMap(ctx);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void removeCodomainMap(CodomainMapContext ctx)
 	{
 		abstraction.removeCodomainMap(ctx);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void updateCodomainMap(CodomainMapContext ctx)
 	{
 		abstraction.updateCodomainMap(ctx);
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public Registry getRegistry()
 	{
 		return abstraction.getRegistry();
 	}
 	
-	/** Forward event to {@link RenderingAgt}. */
+	/** Forward event to {@link RenderingAgt abstraction}. */
 	public ChannelData[] getChannelData()
 	{
 		return abstraction.getChannelData();
@@ -295,8 +285,7 @@ public class RenderingAgtCtrl
 	/** Return the current RenderingModel. */
 	ModelPane getModelPane()
 	{
-		Class c = getRendererClass(abstraction.getModel());
-		return activate(c);
+		return activate(getRendererClass(abstraction.getModel()));
 	}
 
 	private void activateRenderingModel(int i)
@@ -325,6 +314,7 @@ public class RenderingAgtCtrl
 		try {
 			model = (ModelPane) c.newInstance();
 		} catch(Exception e) { throw new RuntimeException(e); }
+		//TODO: do we have to handle this exception?
 		return model;
 	}
 	
@@ -342,7 +332,6 @@ public class RenderingAgtCtrl
 			case RGB:
 				result = RGBPane.class;
 		}
-		
 		return result;
 	}
 	
@@ -360,9 +349,8 @@ public class RenderingAgtCtrl
 			if (displayed) {
 				if (presentation.isClosed()) abstraction.displayPresentation();
 				if (presentation.isIcon()) abstraction.deiconifyPresentation();
-			} else {
+			} else
 				abstraction.showPresentation();	
-			}
 			abstraction.setMenuSelection(true);
 			//Activate the Frame.
   			try {

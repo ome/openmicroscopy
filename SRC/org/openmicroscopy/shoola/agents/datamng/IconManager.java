@@ -114,16 +114,10 @@ public class IconManager
 		relPaths[REFRESH] = "refresh16.png";
 	}
 	
-	/**
-	 * The sole instance that provides.
-	 */
+	/** The sole instance that provides. */
 	private static IconManager	singleton;
 	
-	/**
-	 * Returns the <code>IconManager</code> object. 
-	 * 
-	 * @return	See above.
-	 */
+	/** Returns the <code>IconManager</code> object. */
 	public static IconManager getInstance(Registry registry)
 	{
 		if (singleton == null) {
@@ -150,7 +144,8 @@ public class IconManager
 		icons = new Icon[MAX_ID+1];
 	}
 
-	/** Retrieves the icon specified by the icon <code>ID</code>.
+	/** 
+	 * Retrieves the icon specified by the icon <code>ID</code>.
 	 *
 	 * @param   ID    Must be one of the IDs defined by this class.
 	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.

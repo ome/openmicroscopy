@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +47,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 
 /** 
@@ -69,10 +69,7 @@ class ProjectDatasetsDiffPane
 {
 	
 	private static final int				WIN_W = 300, WIN_H = 200;
-	private static final Dimension			VP_DIM = new Dimension(200, 70);
-	private static final Dimension			BOX_DIM = new Dimension(10, 0);
-	
-	
+
 	private JButton							selectButton, cancelButton, 
 											saveButton;
 											
@@ -137,12 +134,12 @@ class ProjectDatasetsDiffPane
 		//remove button
 		selectButton = new JButton("Select All");
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		selectButton.setToolTipText("Select all datasets");
+		selectButton.setToolTipText("Select all datasets.");
 		
 		//cancel button
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Reset");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection");
+		cancelButton.setToolTipText("Cancel selection.");
 		
 		//cancel button
 		saveButton = new JButton("OK");
@@ -172,9 +169,9 @@ class ProjectDatasetsDiffPane
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(cancelButton);
-		controls.add(Box.createRigidArea(BOX_DIM));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(selectButton);
-		controls.add(Box.createRigidArea(BOX_DIM));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(saveButton);
 		controls.setOpaque(false); //make panel transparent
 		
@@ -184,12 +181,11 @@ class ProjectDatasetsDiffPane
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
-		
 		p.add(sp);
-		p.add(Box.createRigidArea(new Dimension(0, 10)));
+		p.add(Box.createRigidArea(DataManager.VBOX));
 		p.add(controls);
 		
 		return p;

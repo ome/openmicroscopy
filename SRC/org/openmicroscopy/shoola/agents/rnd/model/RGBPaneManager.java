@@ -80,10 +80,7 @@ class RGBPaneManager
 		coloredButtons = new HashMap();
 	}
 	
-	RGBPane getView()
-	{
-		return view;
-	}
+	RGBPane getView(){ return view; }
 	
 	JFrame getReferenceFrame()
 	{
@@ -95,7 +92,7 @@ class RGBPaneManager
 		this.eventManager = eventManager;
 	}
 	
-	/** Attach listener. */
+	/** Attach the listeners. */
 	void attachObjectListener(Object component, int index)
 	{
 		AbstractButton ab = null;

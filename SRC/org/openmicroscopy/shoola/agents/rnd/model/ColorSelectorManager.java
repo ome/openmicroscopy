@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
@@ -61,12 +60,12 @@ import javax.swing.event.ChangeListener;
 class ColorSelectorManager
 	implements ActionListener, ChangeListener
 {
-	
+	/** ID to handle events. */
 	private static final int	COLOR = 100;
 	private static final int	APPLY = 101;
 	private static final int	CANCEL = 102;
 	
-	/** ID of the colors available.  */
+	/** ID of the availabel colors.  */
 	static final int 			RED = 0;
 	static final int 			GREEN = 1;
 	static final int 			BLUE = 2;
@@ -100,6 +99,7 @@ class ColorSelectorManager
 		curAlpha = c.getAlpha();
 	}
 	
+	/** Attach the listeners. */
 	void attachListeners()
 	{
 		JComboBox list = view.getColorsList();
@@ -120,8 +120,8 @@ class ColorSelectorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-	   		int index = Integer.parseInt(s);
-	   		switch(index) {
+			int index = Integer.parseInt(s);
+	   		switch (index) {
 				case COLOR:
 					JComboBox cb = (JComboBox) e.getSource();
 					modifyPeview(cb.getSelectedIndex());
@@ -158,25 +158,25 @@ class ColorSelectorManager
 	{	
 		switch(index) {
 			case RED:
-			setColorPreview(Color.RED); break; 
+				setColorPreview(Color.RED); break; 
 		   	case GREEN:
-			setColorPreview(Color.GREEN); break;
+				setColorPreview(Color.GREEN); break;
 		   	case BLUE:
-			setColorPreview(Color.BLUE); break;
+				setColorPreview(Color.BLUE); break;
 		   	case CYAN:
-			setColorPreview(Color.CYAN); break;
+				setColorPreview(Color.CYAN); break;
 		   	case MAGENTA:
-			setColorPreview(Color.MAGENTA); break;
+				setColorPreview(Color.MAGENTA); break;
 		   	case ORANGE:
-			setColorPreview(Color.ORANGE); break;
+				setColorPreview(Color.ORANGE); break;
 		   	case PINK:
-			setColorPreview(Color.PINK); break;
+				setColorPreview(Color.PINK); break;
 		   	case YELLOW:
-			setColorPreview(Color.YELLOW); break;
+				setColorPreview(Color.YELLOW); break;
 		   	case BLACK:
-			setColorPreview(Color.BLACK); break;
+				setColorPreview(Color.BLACK); break;
 		   	case WHITE:
-			setColorPreview(Color.WHITE); break;   
+				setColorPreview(Color.WHITE); break;   
 		}
 	}
 	

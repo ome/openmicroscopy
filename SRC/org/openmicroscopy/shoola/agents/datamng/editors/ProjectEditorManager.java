@@ -298,10 +298,7 @@ class ProjectEditorManager
 	}
 
 	/** Tells that the name has been modified. */
-	public void mousePressed(MouseEvent e)
-	{ 
-		isName = true;
-	}
+	public void mousePressed(MouseEvent e) { isName = true; }
 	
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

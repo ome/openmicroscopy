@@ -74,7 +74,7 @@ class ColorPaletteBar
 	private static final String	type = "H";
     
 	/** knobs' coordinate. */
-	private int 		xKnob, yKnob;
+	private int 				xKnob, yKnob;
     
 	/**
 	 * Creates a new intance.
@@ -92,10 +92,7 @@ class ColorPaletteBar
 	 * 
 	 * @param x		x-coordinate.
 	 */
-	void setLineLocation(int x)
-	{
-		xKnob = x;
-	}
+	void setLineLocation(int x) { xKnob = x; }
     
 	/** Overrides the paintComponent method. */
 	public void paintComponent(Graphics g)
@@ -111,7 +108,7 @@ class ColorPaletteBar
 		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
 		GradientPaint yellowToGreen = new GradientPaint(border+k*p, yKnob, 
-											Color.yellow, border+(k+1)*p, 
+										  	Color.yellow, border+(k+1)*p, 
 											yKnob, Color.green);
 		g2D.setPaint(yellowToGreen);
 		g2D.fillRect(border+k*p, yKnob, p, h);

@@ -161,7 +161,7 @@ class ContrastStretchingDialogManager
 	/** Handles events fired the cursors. */
 	public void mouseDragged(MouseEvent e)
 	{
-		Point   p = e.getPoint();
+		Point p = e.getPoint();
 		if (dragging) {  
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
 				&& p.x <= minEndX)
@@ -179,16 +179,13 @@ class ContrastStretchingDialogManager
 	}
 	
 	/** Resets the dragging control to false. */
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-	}
+	public void mouseReleased(MouseEvent e) { dragging = false; }
 	
 	/** Modify the x-coordinate of the control startPoint. */
 	private void setInputStart(int x)
 	{
 		setInputStartBox(x);
-		view.getCSPanel().updateStartCursor(x);
+		view.getCSPanel().updateStartKnob(x);
 		int s  = control.getCodomainStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder, 
 										control.getCodomainEnd()-s, s);
@@ -201,7 +198,7 @@ class ContrastStretchingDialogManager
 	private void setInputEnd(int x)
 	{
 		setInputEndBox(x);
-		view.getCSPanel().updateEndCursor(x);
+		view.getCSPanel().updateEndKnob(x);
 		int s  = control.getCodomainStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder,
 										control.getCodomainEnd()-s, s);
@@ -213,7 +210,7 @@ class ContrastStretchingDialogManager
 	private void setOutputStart(int y)
 	{
 		setOutputStartBox(y);
-		view.getCSPanel().updateStartOutputCursor(y);
+		view.getCSPanel().updateStartOutputKnob(y);
 		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
 										control.getCodomainStart()-e, e);
@@ -225,7 +222,7 @@ class ContrastStretchingDialogManager
 	private void setOutputEnd(int y)
 	{
 		setOutputEndBox(y);
-		view.getCSPanel().updateEndOutputCursor(y);
+		view.getCSPanel().updateEndOutputKnob(y);
 		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
 										control.getCodomainStart()-e, e);

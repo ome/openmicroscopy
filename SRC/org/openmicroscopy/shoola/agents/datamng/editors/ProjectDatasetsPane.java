@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,13 +75,10 @@ class ProjectDatasetsPane
 	extends JPanel
 {
 	
+	/** ID to position the components. */
 	private static final int		POS_ONE = 0, POS_TWO = 1, POS_THREE = 2,
 									POS_FOUR = 3;
 	
-	private static final Dimension	VP_DIM = new Dimension(200, 70);
-	
-	private static final Dimension	BOX_H = new Dimension(10, 0),
-									BOX_V = new Dimension(0, 10);
 	
 	/** Reference to the manager. */
 	private ProjectEditorManager	manager;
@@ -136,7 +132,7 @@ class ProjectDatasetsPane
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel, POS_ONE);
 		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(BOX_V), POS_THREE);
+		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
 		add(buttonsPanel, POS_FOUR);
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
@@ -153,7 +149,7 @@ class ProjectDatasetsPane
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel, POS_ONE);
 		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(BOX_V), POS_THREE);
+		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
 		add(buttonsPanel, POS_FOUR);
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
@@ -166,29 +162,28 @@ class ProjectDatasetsPane
 		//remove button
 		removeButton = new JButton("Remove All");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		removeButton.setToolTipText("Remove all datasets");
+		removeButton.setToolTipText("Remove all datasets.");
 		
 		//cancel button
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Reset");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection");
+		cancelButton.setToolTipText("Cancel selection.");
 		
 		addButton = new JButton("Add");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		addButton.setToolTipText("Add datasets to the project");
+		addButton.setToolTipText("Add datasets to the project.");
 		
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(cancelButton);
-		controls.add(Box.createRigidArea(BOX_H));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(removeButton);
-		controls.add(Box.createRigidArea(BOX_H));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(addButton);
 		controls.setOpaque(false); //make panel transparent
 		
 		if (listDatasets == null || listDatasets.size() == 0) {
 			removeButton.setEnabled(false);
 			cancelButton.setEnabled(false);
-			addButton.setEnabled(false);
 		}
 		return controls;
 	}
@@ -204,7 +199,7 @@ class ProjectDatasetsPane
 			JTable table = new JTable(datasetsAddTM);
 			table.setBackground(DataManager.STEELBLUE);
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			table.setPreferredScrollableViewportSize(VP_DIM);
+			table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 			//wrap table in a scroll pane and add it to the panel
 			JScrollPane spAdd = new JScrollPane(table);
 			p.add(spAdd);
@@ -221,7 +216,7 @@ class ProjectDatasetsPane
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);

@@ -71,22 +71,13 @@ class QuantumPaneManager
 		this.view = view;
 	}
 	
-	QuantumDef getQuantumDef()
-	{
-		return eventManager.getQuantumDef();
-	}
+	QuantumDef getQuantumDef() { return eventManager.getQuantumDef(); }
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
-	int getCodomainStart()
-	{
-		return eventManager.getCodomainStart();
-	}
+	int getCodomainStart() { return eventManager.getCodomainStart(); }
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
-	int getCodomainEnd()
-	{
-		return eventManager.getCodomainEnd();
-	}
+	int getCodomainEnd() { return eventManager.getCodomainEnd(); }
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getGlobalMinimum()
@@ -254,10 +245,7 @@ class QuantumPaneManager
 	}
 	
 	/** Forward event to the {@link RenderingAgtCtrl eventManager}. */
-	void showDialog(JDialog dialog)
-	{
-		eventManager.showDialog(dialog);
-	}
+	void showDialog(JDialog dialog) { eventManager.showDialog(dialog); }
 	
 	/** Retrieve the main Frame. */
 	JFrame getReferenceFrame()
@@ -265,10 +253,7 @@ class QuantumPaneManager
 		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
 	}
 
-	RenderingAgtCtrl getEventManager()
-	{
-		return eventManager;
-	}
+	RenderingAgtCtrl getEventManager() { return eventManager; }
 	
 	/** Update the graphic. */
 	private void updateGraphic(int coefficient, int family)

@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -70,24 +69,7 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 public class GreyScalePane
 	extends ModelPane
 {
-	/** Height of a cell in the table. */
-	private static final int		ROW_HEIGHT = 25;
-	
-	/** Default width of a cell. */
-	private static final int		DEFAULT_WIDTH = 30;
-	
-	/** Width of the label cell. */
-	private static final int		WIDTH_LABEL = 100;
-	
-	/** Default Height of the JButton. */
-	private static final int		BUTTON_HEIGHT = 15;
-	
-	/** Default width of the JButton. */
-	private static final int		BUTTON_WIDTH = 15;
-			
-	private static final Dimension	DIM_BUTTON = 
-									new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
-									
+								
 	/** Number of columns of the JTable. */
 	private static final int		NUM_COLUMNS = 3;
 	
@@ -101,8 +83,8 @@ public class GreyScalePane
 	private GreyScalePaneManager	manager;
 	
 	public GreyScalePane()
-	{
-		manager = new GreyScalePaneManager(this);	
+	{ 
+		manager = new GreyScalePaneManager(this);
 	}
 	
 	public void buildComponent()
@@ -111,7 +93,7 @@ public class GreyScalePane
 		im = IconManager.getInstance(eventManager.getRegistry());
 		buildGUI();
 	}
-	
+
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
@@ -139,7 +121,6 @@ public class GreyScalePane
 			} 
 			addRow(table, group, i, channelData[i], active);
 		}
-			
 		p.add(table);
 		p.setOpaque(false);
 		return p;
@@ -182,7 +163,6 @@ public class GreyScalePane
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);
 		p.add(button);
-	
 		return p;
 	}
 	
@@ -203,7 +183,6 @@ public class GreyScalePane
 		column = columns.getColumn(POS_RADIO);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
-		
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 

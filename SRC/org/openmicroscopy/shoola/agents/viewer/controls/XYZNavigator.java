@@ -116,15 +116,9 @@ class XYZNavigator
 		buildGUI(sizeX, sizeY, sizeZ);
 	}
 	
-	public JTextField getZField()
-	{
-		return zField;
-	}
+	JTextField getZField() { return zField; }
 
-	public JSlider getZSlider()
-	{
-		return zSlider;
-	}
+	JSlider getZSlider() { return zSlider; }
 
 	/** 
 	 * Instantiates and initializes to <code>curZ</code> the Z slider.
@@ -134,7 +128,7 @@ class XYZNavigator
 	private void initSlider(int maxZ, int z)
 	{
 		zSlider = new JSlider(JSlider.HORIZONTAL, 0, maxZ, z);
-		zSlider.setToolTipText("Move the slider to navigate across Z stack");
+		zSlider.setToolTipText("Move the slider to navigate across Z stack.");
 		zSlider.setMinorTickSpacing(1);
 		zSlider.setMajorTickSpacing(10);
 		zSlider.setPaintTicks(true);
@@ -144,7 +138,6 @@ class XYZNavigator
 		labelTable.put(new Integer(maxZ), new JLabel(""+maxZ));
 		zSlider.setLabelTable(labelTable);
 		zSlider.setPaintLabels(true);
-
 	}
     
 	/** 
@@ -160,13 +153,10 @@ class XYZNavigator
 		zField.setToolTipText("Enter a Z point");
 	}
     
-
 	/** Build and layout the GUI. */
 	private void buildGUI(int sizeX, int sizeY, int sizeZ)
 	{
-		//add(buildDimsPanel(sizeX, sizeY, sizeZ), BorderLayout.WEST);
 		add(buildTable(sizeX, sizeY, sizeZ));
-		//add(buildSliderPanel());
 	}
 	
 	private JPanel buildTable(int sizeX, int sizeY, int sizeZ)
@@ -196,7 +186,6 @@ class XYZNavigator
 	
 	/**
 	 * Build a panel containing the a text field along with current selection.
-	 * @return	See above.
 	 */
 	private JPanel buildFieldPanel()
 	{
@@ -211,11 +200,7 @@ class XYZNavigator
 		return p;
 	}
 	
-	/**
-	 * Build a panel containing a slider along with current selection
-	 * 
-	 * @return See above.
-	 */
+	/** Build a panel containing a slider along with current selection. */
 	private JPanel buildSliderPanel()	
 	{
 		JPanel slider = new JPanel();

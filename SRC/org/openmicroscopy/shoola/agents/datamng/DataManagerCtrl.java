@@ -96,15 +96,8 @@ public class DataManagerCtrl
 		abstraction.getPresentation().addInternalFrameListener(this);
 	}
 	
-	/** 
-	 * Returns the abstraction component of this agent.
-	 *
-	 * @return  See above.
-	 */
-	DataManager getAbstraction()
-	{
-		return abstraction;
-	}
+	/** Return the abstraction. */
+	DataManager getAbstraction() {return abstraction; }
 	
 	/** Attach listener to a menu Item. */
 	void setMenuItemListener(JMenuItem item, int id)
@@ -140,9 +133,7 @@ public class DataManagerCtrl
 		}
 	}
 	
-	/**
-	 * Forwards the call to the abstraction.
-	 */
+	/** Forward the call to the {@link DataManager abstraction}. */
 	void viewImage(ImageSummary is)
 	{
 		int[] pxSets = is.getPixelsIDs();
@@ -150,21 +141,16 @@ public class DataManagerCtrl
 		abstraction.viewImage(is.getID(), pxSets[0]);
 	}
 	
-	/**
-	 * Forwards the call to the abstraction.
-	 */
-	void viewDataset(DatasetSummary ds)
-	{
-		abstraction.viewDataset(ds.getID());
-	}
+	/** Forward the call to the {@link DataManager abstraction}. */
+	void viewDataset(DatasetSummary ds) { abstraction.viewDataset(ds.getID()); }
 
 	/**Handles event fired by menu. */
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
 		try {
-		   int index = Integer.parseInt(s);
-		   switch (index) { 
+			int index = Integer.parseInt(s);
+			switch (index) { 
 				case DM_VISIBLE:
 					showPresentation();
 					break;
@@ -173,15 +159,14 @@ public class DataManagerCtrl
 					break;
 				case DATASET_ITEM:
 					createDataset();
-					break;	
-				   	
-		   }// end switch  
-		} catch(NumberFormatException nfe) {  //impossible if IDs are set correctly 
+					break;	   	
+			}
+		} catch(NumberFormatException nfe) {  
 			   throw nfe;  //just to be on the safe side...
 		} 
 	}
 	
-	/** Display or not the presentation. */
+	/** Display or not the {@link DataManagerUIF presentation}. */
 	private void showPresentation()
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
@@ -192,7 +177,7 @@ public class DataManagerCtrl
 		}  		
 	}	
 	
-	/** Forward event to the presentation {@link DataManagerUIF}. */
+	/** Forward event to the {@link DataManagerUIF presentation}. */
 	private void createProject()
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
@@ -200,7 +185,7 @@ public class DataManagerCtrl
 		presentation.showCreateProject(new ProjectData(), datasets);
 	}
 	
-	/** Forward event to the presentation {@link DataManagerUIF}. */
+	/** Forward event to the {@link DataManagerUIF presentation}. */
 	private void createDataset()
 	{	
 		DataManagerUIF presentation = abstraction.getPresentation();
@@ -209,57 +194,57 @@ public class DataManagerCtrl
 		presentation.showCreateDataset(new DatasetData(), projects, images);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void annotateDataset(int id, String name)
 	{
 		abstraction.annotateDataset(id, name);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void annotateImage(int imageID, String name)
 	{
 		abstraction.annotateImage(imageID, name);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public List getDatasetsDiff(ProjectData data)
 	{
 		return abstraction.getDatasetsDiff(data);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public List getImagesDiff(DatasetData data)
 	{
 		return abstraction.getImagesDiff(data);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void addProject(ProjectData pd)
 	{
 		abstraction.createProject(pd);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void addDataset(List projects, List images, DatasetData dd)
 	{
 		abstraction.createDataset(projects, images, dd);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void updateProject(ProjectData pd, List toRemove, List toAdd,
 							 boolean nameChange)
 	{
 		abstraction.updateProject(pd, toRemove, toAdd, nameChange);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void updateDataset(DatasetData dd, List toRemove, List toAdd, 
 								boolean nameChange)
 	{
 		abstraction.updateDataset(dd, toRemove, toAdd, nameChange);
 	}
 	
-	/** Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the {@link DataManager abstraction}. */
 	public void updateImage(ImageData id, boolean nameChange)
 	{
 		abstraction.updateImage(id, nameChange);
@@ -307,4 +292,5 @@ public class DataManagerCtrl
 	 * implementation.
 	 */
 	public void internalFrameActivated(InternalFrameEvent e) {}
+	
 }

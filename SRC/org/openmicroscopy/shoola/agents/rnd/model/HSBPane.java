@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -71,24 +70,7 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 public class HSBPane
 	extends ModelPane
 {
-	/** Height of a cell in the table. */
-	private static final int		ROW_HEIGHT = 25;
-	
-	/** Default width of a cell. */
-	private static final int		DEFAULT_WIDTH = 25;
-	
-	/** Width of the label cell. */
-	private static final int		WIDTH_LABEL = 100;
-	
-	/** Default Height of the JButton. */
-	private static final int		BUTTON_HEIGHT = 15;
-	
-	/** Default width of the JButton. */
-	private static final int		BUTTON_WIDTH = 15;
-			
-	private static final Dimension	DIM_BUTTON = 
-									new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
-									
+
 	/** Number of columns of the JTable. */
 	private static final int		NUM_COLUMNS = 4;
 	
@@ -188,7 +170,6 @@ public class HSBPane
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);
 		p.add(button);
-	
 		return p;
 	}
 	
@@ -212,7 +193,6 @@ public class HSBPane
 		column = columns.getColumn(POS_COLOR);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
-		
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 

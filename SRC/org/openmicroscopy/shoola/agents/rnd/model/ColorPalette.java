@@ -99,14 +99,10 @@ class ColorPalette
 		cpm = new ColorPaletteManager(this, ccManager);
 		buildGUI();
 		cpm.attachListeners();
-		
 	}
 	
 	/** Returns the manager. */
-	ColorPaletteManager getManager()
-	{
-		return cpm;
-	}
+	ColorPaletteManager getManager(){ return cpm; }
 	
 	/** Builds the palette containing the three color bars. */
 	private void buildGUI()
@@ -131,33 +127,20 @@ class ColorPalette
 		HEIGHT_PANEL);
 		add(cbH);
 		add(cbS);
-		add(cbB);
-		
+		add(cbB);	
 	}
 	
 	/** Converts a value to a coordinate. */
-	int realToBar(float v)
-	{
-		return (int) (v*WIDTH_BAR);
-	}
+	int realToBar(float v) { return (int) (v*WIDTH_BAR); }
 	
 	/** Returns the <i>Hue</i> graphical slider. */
-	ColorPaletteBar getBarH() 
-	{
-		return cbH;
-	}
+	ColorPaletteBar getBarH() { return cbH; }
 	
 	/** Returns the <i>Saturation</i> graphical slider. */
-	ColorBar getBarS()
-	{
-		return cbS;
-	}
+	ColorBar getBarS() { return cbS; }
 	
 	/** Returns the <i>Brightness</i> graphical slider. */
-	ColorBar getBarB()
-	{
-		return cbB;
-	}
+	ColorBar getBarB() { return cbB; }
 	
 }
 

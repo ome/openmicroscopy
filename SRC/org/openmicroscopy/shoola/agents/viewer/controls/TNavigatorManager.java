@@ -95,7 +95,7 @@ class TNavigatorManager
 		curT = t;
 	}
 	
-	/** Attach listeners. */
+	/** Attach the listeners. */
 	void attachListeners()
 	{	//slider
 		JSlider tSlider = view.getTSlider();
@@ -151,7 +151,6 @@ class TNavigatorManager
 		view.getFps().setValue(new Integer(val));  
 		view.getEditor().setText(""+val); 
 	} 
-
 
 	/** 
 	 * Handles the action event fired by the editor text field when the 

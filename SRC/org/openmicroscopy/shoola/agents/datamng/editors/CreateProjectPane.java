@@ -134,7 +134,7 @@ class CreateProjectPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data to the DB");
+		saveButton.setToolTipText("Save data in the DB.");
 		saveButton.setEnabled(false);
 
 		JPanel controls = new JPanel(), all = new JPanel();
@@ -148,7 +148,7 @@ class CreateProjectPane
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls,c); 
+		gridbag.setConstraints(controls, c); 
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
    	
@@ -198,7 +198,7 @@ class CreateProjectPane
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 
 		// Scrollbar
-		table.setValueAt(scrollPane,1, 1);
+		table.setValueAt(scrollPane, 1, 1);
 
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());

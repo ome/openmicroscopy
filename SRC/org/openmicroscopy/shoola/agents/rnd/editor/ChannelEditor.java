@@ -91,12 +91,9 @@ public class ChannelEditor
 	}
 
 	/** 
- 	* Returns the save button displayed in {@link CreateDatasetPane}.
- 	*/
-	JButton getSaveButton()
-	{
-		return channelPane.getSaveButton();
-	}
+ 	 * Returns the save button displayed in {@link CreateDatasetPane}.
+ 	 */
+	JButton getSaveButton() { return channelPane.getSaveButton();}
 	
 	/** Build and layout the GUI. */
 	private void buildGUI()

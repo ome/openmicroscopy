@@ -202,10 +202,7 @@ class HistogramDialogManager
 	}
 	
 	/** Resets the dragging control to false. */      
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-	}
+	public void mouseReleased(MouseEvent e) { dragging = false; }
 
 	/** 
 	 * Resizes the outputStart rectangle.

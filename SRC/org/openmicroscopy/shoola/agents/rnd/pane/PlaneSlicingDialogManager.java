@@ -218,7 +218,7 @@ class PlaneSlicingDialogManager
 	/** Handles events fired the cursors. */    
 	public void mouseDragged(MouseEvent e)
 	{
-		Point   p = e.getPoint();
+		Point p = e.getPoint();
 		if (dragging) { 
 			if (boxOutputStart.contains(p) && p.y <= tS && p.y >= topBorder 
 				&& isSelected) 
@@ -230,10 +230,7 @@ class PlaneSlicingDialogManager
 	}
 	
 	/** Resets the dragging control to false. */     
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-	}
+	public void mouseReleased(MouseEvent e) { dragging = false; }
 	
 	/**
 	 * Set the plane slice index.
@@ -249,7 +246,7 @@ class PlaneSlicingDialogManager
 		int s = control.getCodomainStart();
 		if (planeSelected > e || planeSelected < s) {
 			String message = "The level of the plane selected is not a value" +
-				"contained int the output interval. Please resize the output " +
+				"contained in the output interval. Please resize the output " +
 				"window or select a new plane.";
 			UserNotifier un = 
 					control.getEventManager().getRegistry().getUserNotifier();
@@ -311,10 +308,7 @@ class PlaneSlicingDialogManager
 		boxOutputEnd.setBounds(lS, y-triangleW, 3*rightBorder, tS);
 	}
 	
-	/**
-	 * Sets the selection control.
-	 *
-	 */
+	/** Sets the selection control. */
 	private void activateDynamic()
 	{
 		isSelected = true;
@@ -324,10 +318,7 @@ class PlaneSlicingDialogManager
 		control.updateCodomainMap(ctx);
 	}
 	
-	/**
-	 * Sets the selection control.
-	 *
-	 */
+	/** Sets the selection control. */
 	private void activateStatic()
 	{
 		isSelected = false;

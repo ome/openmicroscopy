@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 class DatasetImagesDiffPaneManager
 	implements ActionListener
 {
-	
+	/** ID to handle event fired by the buttons. */
 	private static final int			ALL = 100;
 	private static final int			CANCEL = 101;
 	private static final int			SAVE = 102;
@@ -127,15 +127,15 @@ class DatasetImagesDiffPaneManager
 	{
 		if (value) imagesDiff.add(is);
 		else imagesDiff.remove(is);
-		if (imagesDiff.size() == 0) {
-			selectButton.setEnabled(false);
-			cancelButton.setEnabled(false);
-			saveButton.setEnabled(false);
-		} else {
-			selectButton.setEnabled(true);
-			cancelButton.setEnabled(true);
-			saveButton.setEnabled(true);
-		}
+		buttonsEnabled(imagesDiff.size() != 0);
+	}
+	
+	/** Set the buttons enabled. */
+	void buttonsEnabled(boolean b)
+	{
+		selectButton.setEnabled(b);
+		cancelButton.setEnabled(b);
+		saveButton.setEnabled(b);
 	}
 	
 	/** 
@@ -160,15 +160,8 @@ class DatasetImagesDiffPaneManager
 			Iterator i = imagesToAdd.iterator();
 			while (i.hasNext())
 				imagesDiff.remove((ImageSummary) i.next());
-			if (imagesDiff.size() == 0) {
-				selectButton.setEnabled(false);
-				cancelButton.setEnabled(false);
-				saveButton.setEnabled(false);
-			} else {
-				selectButton.setEnabled(true);
-				cancelButton.setEnabled(true);
-				saveButton.setEnabled(true);
-			}
+				
+			buttonsEnabled(imagesDiff.size() != 0);
 			control.addImagesSelection(imagesToAdd);
 		}
 		view.setVisible(false);

@@ -61,6 +61,7 @@ class ProjectDatasetsDiffPaneManager
 	implements ActionListener
 {
 	
+	/** ID to handle event fired by buttons. */
 	private static final int			ALL = 100;
 	private static final int			CANCEL = 101;
 	private static final int			SAVE = 102;
@@ -128,15 +129,15 @@ class ProjectDatasetsDiffPaneManager
 	{
 		if (value) datasetsDiff.add(ds);
 		else datasetsDiff.remove(ds);
-		if (datasetsDiff.size() == 0) {
-			selectButton.setEnabled(false);
-			cancelButton.setEnabled(false);
-			saveButton.setEnabled(false);
-		} else {
-			selectButton.setEnabled(true);
-			cancelButton.setEnabled(true);
-			saveButton.setEnabled(true);
-		}
+		buttonsEnabled(datasetsDiff.size() != 0);
+	}
+	
+	/** Set the buttons enabled. */
+	void buttonsEnabled(boolean b)
+	{
+		selectButton.setEnabled(b);
+		cancelButton.setEnabled(b);
+		saveButton.setEnabled(b);
 	}
 	
 	/** 
@@ -161,16 +162,7 @@ class ProjectDatasetsDiffPaneManager
 			Iterator i = datasetsToAdd.iterator();
 			while (i.hasNext())
 				datasetsDiff.remove((DatasetSummary) i.next());
-		
-			if (datasetsDiff.size() == 0) {
-				selectButton.setEnabled(false);
-				cancelButton.setEnabled(false);
-				saveButton.setEnabled(false);
-			} else {
-				selectButton.setEnabled(true);
-				cancelButton.setEnabled(true);
-				saveButton.setEnabled(true);
-			}
+			buttonsEnabled(datasetsDiff.size() != 0);
 			control.addDatasetsSelection(datasetsToAdd);
 		}
 		view.setVisible(false);

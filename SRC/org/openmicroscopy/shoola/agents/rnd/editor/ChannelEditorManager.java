@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 class ChannelEditorManager
 	implements ActionListener
 {
+	/** ID to handle events. */
 	private static final int	SAVE = 0;
 	private ChannelData 		data;
 	private ChannelEditor 		view;
@@ -76,11 +77,9 @@ class ChannelEditorManager
 		this.index = index;
 	}
 	
-	ChannelData getChannelData()
-	{
-		return data;
-	}
+	ChannelData getChannelData() { return data; }
 	
+	/** Attach the listeners. */
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();

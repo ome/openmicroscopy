@@ -114,7 +114,7 @@ class ChannelPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data to the DB");
+		saveButton.setToolTipText("Save data in the DB.");
 		saveButton.setEnabled(false);
 
 		JPanel controls = new JPanel(), all = new JPanel();
@@ -128,7 +128,7 @@ class ChannelPane
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls,c); 
+		gridbag.setConstraints(controls, c); 
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -167,7 +167,7 @@ class ChannelPane
 		//interpretationArea.setEditable(true);
 		interpretationArea.setLineWrap(true);
 		interpretationArea.setWrapStyleWord(true);
-		JScrollPane scrollPane  = new JScrollPane(interpretationArea);
+		JScrollPane scrollPane = new JScrollPane(interpretationArea);
 		scrollPane.setPreferredSize(DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 1, 1);
 

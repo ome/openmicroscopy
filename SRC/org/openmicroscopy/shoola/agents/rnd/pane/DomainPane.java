@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -150,53 +149,31 @@ class DomainPane
 	}
 	
 	/** Getters. */
-	public DomainPaneManager getManager()
-	{
-		return manager;
-	}
+	DomainPaneManager getManager() { return manager; }
 	
-	public JSlider getGamma()
-	{
-		return gamma;
-	}
+	JSlider getGamma() { return gamma; }
 
-	public JSlider getBitResolution()
-	{
-		return bitResolution;
-	}
+	JSlider getBitResolution() { return bitResolution; }
 	
-	public JLabel getGammaLabel()
-	{
-		return gammaLabel;
-	}
+	JLabel getGammaLabel() { return gammaLabel; }
 
-	public JComboBox getTransformations()
-	{
-		return transformations;
-	}
+	JComboBox getTransformations() { return transformations; }
 
-	public JComboBox getWavelengths()
-	{
-		return wavelengths;
-	}
-
-	public void setGammaText(double v)
+	JComboBox getWavelengths() { return wavelengths; }
+	
+	JButton getHistogram() { return histogram; }
+	
+	void setGammaText(double v)
 	{
 		String txt = " Gamma: "+v;
 		gammaLabel.setText(txt);
 	}
 
-	public JButton getHistogram()
-	{
-		return histogram;
-	}
-	
 	/** Initializes the comboBoxes: wavelengths and transformations. */  
 	private void initComboBoxes(ChannelData[] data, int index)
 	{
 		transformations = new JComboBox(algorithms);
 		transformations.setSelectedIndex(qDef.family);
-
 		String[] waves = new String[data.length];
 		for (int i = 0; i < data.length; i++)
 			waves[i] = ""+data[i].nanometer;
@@ -292,8 +269,7 @@ class DomainPane
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());
-								
+								new TableComponentCellEditor());						
 		return table;
 	}
 	
@@ -315,7 +291,6 @@ class DomainPane
 		slider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		slider.setOpaque(false);
 		sliderPanel.add(slider);
-		
 		return sliderPanel;
 	}
 	
@@ -335,7 +310,6 @@ class DomainPane
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);
 		p.add(button);
-		
 		return p;
 	}
 

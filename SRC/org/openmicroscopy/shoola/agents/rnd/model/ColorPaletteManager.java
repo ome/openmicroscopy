@@ -113,7 +113,7 @@ class ColorPaletteManager
 					heightBar+triangleH);	
 	}
 	
-	/** Attach listeners. */
+	/** Attach the listeners. */
 	void attachListeners()
 	{
 		view.addMouseListener(this);
@@ -135,7 +135,7 @@ class ColorPaletteManager
 	/** Handles event fired by the mouse dragged. */
 	public void mouseDragged(MouseEvent e)
 	{
-		Point   p = e.getPoint();
+		Point p = e.getPoint();
 		if (dragging) {
 			if (boxH.contains(p)) updateHue(p.x);
 		    else if (boxS.contains(p)) updateSaturation(p.x);
@@ -163,7 +163,6 @@ class ColorPaletteManager
 		view.getBarB().setLineLocation(x);
 		view.repaint();
 	}
-	
 	
 	/**
 	 * Compute the hue value, create the colors and update the color bars
@@ -209,10 +208,7 @@ class ColorPaletteManager
 	/** 
 	 * Release the mouse and set the dragging control to false.
 	 */
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-	}
+	public void mouseReleased(MouseEvent e) { dragging = false; }
 		
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

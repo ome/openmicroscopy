@@ -102,35 +102,17 @@ class CodomainPane
 	}
 
 	/** Getters. */
-	public CodomainPaneManager getManager()
-	{
-		return manager;
-	}
+	CodomainPaneManager getManager() { return manager;}
 	
-	public JCheckBox getCS()
-	{
-		return cs;
-	}
+	JCheckBox getCS(){ return cs; }
 
-	public JButton getCStretching()
-	{
-		return cStretching;
-	}
+	JButton getCStretching() { return cStretching; }
 
-	public JCheckBox getPS()
-	{
-		return ps;
-	}
+	JCheckBox getPS() { return ps; }
 
-	public JButton getPSlicing()
-	{
-		return pSlicing;
-	}
+	JButton getPSlicing() { return pSlicing; }
 
-	public JCheckBox getRI()
-	{
-		return ri;
-	}
+	JCheckBox getRI() { return ri; }
 	
 	/** Initialize the checkboxes and buttons. */
 	private void initComponents(Registry registry)
@@ -156,7 +138,6 @@ class CodomainPane
 		p.setOpaque(false);
 		p.add(buildTable());
 		add(p);
-		//add(buildTable());
 	}
 	
 	/** Build the JTable. */
@@ -207,7 +188,6 @@ class CodomainPane
 	 * Build a JPanel which contains a JButton.
 	 * 
 	 * @param button
-	 * @return See above.
 	 */
 	private JPanel buildButtonPanel(JButton button)
 	{
@@ -219,7 +199,6 @@ class CodomainPane
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);
 		p.add(button);
-		
 		return p;
 	}
 

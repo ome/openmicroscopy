@@ -91,17 +91,11 @@ public class NavigationPalette
 		setSize(EDITOR_WIDTH, EDITOR_HEIGHT);
 	}
 
-	public TNavigator getTNavigator()
-	{
-		return tNavigator;
-	}
+	TNavigator getTNavigator() { return tNavigator; }
 
-	public XYZNavigator getXYZNavigator()
-	{
-		return xyzNavigator;
-	}
+	XYZNavigator getXYZNavigator() { return xyzNavigator; }
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -119,6 +113,4 @@ public class NavigationPalette
 		getContentPane().add(tabs, BorderLayout.CENTER);
 	}
 	
-	
-
 }

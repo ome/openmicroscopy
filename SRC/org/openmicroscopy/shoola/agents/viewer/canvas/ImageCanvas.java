@@ -76,6 +76,7 @@ public class ImageCanvas
 	private Component       	imgGlassPane;
 	
 	private int					iconHeight, iconWidth;
+	
 	/** 
 	* A reference to the content pane of the viewer's internal frame. 
 	* Needed to do better layout.
@@ -107,7 +108,7 @@ public class ImageCanvas
 	* origin and dimensions as the underlying image. 
 	* The glass pane should normally be transparent.
 	*
-	* @param   pane    The glass pane.
+	* @param pane    The glass pane.
 	*/
 	void setImageGlassPane(Component pane)
 	{
@@ -138,15 +139,9 @@ public class ImageCanvas
 		imgLayers.add(picture, new Integer(0));
 	}
 
-	public int getIconHeight()
-	{
-		return iconHeight;
-	}
+	public int getIconHeight() { return iconHeight; }
 	
-	public int getIconWidth()
-	{
-		return iconWidth;
-	}
+	public int getIconWidth() { return iconWidth; }
 	
 	/** 
 	 * Custom manager that takes care of the layout of {@link ImageCanvas}.

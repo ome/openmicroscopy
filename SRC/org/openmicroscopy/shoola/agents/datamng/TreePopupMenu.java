@@ -68,46 +68,44 @@ class TreePopupMenu
 {
 
 	//colors used by drawRow1()
-	private static final Color    ROW1_0_20 = new Color(255, 250, 255);
-	private static final Color    ROW1_21 = new Color(251, 249, 252);
-	private static final Color    ROW1_22 = new Color(245, 243, 246);
-	private static final Color    ROW1_23_26 = new Color(244, 242, 245);
-	private static final Color    ROW1_27_END = new Color(244, 244, 244);
+	private static final Color    	ROW1_0_20 = new Color(255, 250, 255);
+	private static final Color    	ROW1_21 = new Color(251, 249, 252);
+	private static final Color    	ROW1_22 = new Color(245, 243, 246);
+	private static final Color    	ROW1_23_26 = new Color(244, 242, 245);
+	private static final Color    	ROW1_27_END = new Color(244, 244, 244);
 	//colors used by drawRow2()
-	private static final Color    ROW2 = new Color(255, 250, 250);
+	private static final Color    	ROW2 = new Color(255, 250, 250);
 	//colors used by drawRow3()
-	private static final Color    ROW3_0_31 = new Color(195, 220, 214);
-	private static final Color    ROW3_32_35 = new Color(209, 215, 215);
-	private static final Color    ROW3_36 = new Color(224, 225, 227);
-	private static final Color    ROW3_37 = new Color(242, 243, 245);
-	private static final Color    ROW3_38_END = new Color(255, 255, 255);
+	private static final Color    	ROW3_0_31 = new Color(195, 220, 214);
+	private static final Color    	ROW3_32_35 = new Color(209, 215, 215);
+	private static final Color    	ROW3_36 = new Color(224, 225, 227);
+	private static final Color    	ROW3_37 = new Color(242, 243, 245);
+	private static final Color    	ROW3_38_END = new Color(255, 255, 255);
     
     
 	/** This UI component's controller and model. */
-	private TreePopupMenuManager     manager;
+	private TreePopupMenuManager	manager;
 	
 	/** Holds the configuration entries. */
-	private Registry	config;
+	private Registry				config;
 	
 	/** 
 	 * Button to bring up the property sheet of an object (project, dataset 
 	 * or image).
 	 */
-	JMenuItem   properties;
+	JMenuItem   					properties;
 	
 	/** Button to view an image. */
-	JMenuItem   view;
+	JMenuItem   					view;
 	
 	/** Button to browse a dataset. */
-	JMenuItem   browse;
+	JMenuItem   					browse;
 	
+	/** Button to reload data from the DB. */
+	JMenuItem   					refresh;
+
 	/** 
-	 * Button to reload data from the DB.
-	 */
-	JMenuItem   refresh;
-
-
-	/** Creates a new instance.
+	 * Creates a new instance.
 	 *
 	 *@param    agentCtrl   The agent's control component.
 	 */
@@ -132,17 +130,12 @@ class TreePopupMenu
 	 *
 	 * @param   t  The object for which the menu has to be brought up.
 	 */
-	void setTarget(DataObject t)
-	{
-		manager.setTarget(t);
-	}
+	void setTarget(DataObject t) { manager.setTarget(t); }
     
-	/** 
-	 * Overrides parent to paint the backgroud motif.
-	 */
+	/**  Overrides parent to paint the backgroud motif. */
 	public void paintComponent(Graphics g)
 	{
-		Dimension   d = getSize();
+		Dimension d = getSize();
 		for (int y = 0; y < d.height; y += 3) {
 			drawRow1(g, y, d.width);
 			drawRow2(g, y+1, d.width);
@@ -153,9 +146,9 @@ class TreePopupMenu
 	/** 
 	 * Draws line 1 of background pattern.
 	 *
-	 * @param   g           The graphics context.
-	 * @param   y           The row to draw.
-	 * @param   width      The component's width.   
+	 * @param g		The graphics context.
+	 * @param y		The row to draw.
+	 * @param width	The component's width.   
 	 */
 	private void drawRow1(Graphics g, int y, int width) 
 	{
@@ -176,9 +169,9 @@ class TreePopupMenu
 	/** 
 	 * Draws line 2 of background pattern.
 	 *
-	 * @param   g           The graphics context.
-	 * @param   y           The row to draw.
-	 * @param   width      The component's width.   
+	 * @param g		The graphics context.
+	 * @param y		The row to draw.
+	 * @param width	The component's width.   
 	 */
 	private void drawRow2(Graphics g, int y, int width)
 	{
@@ -189,9 +182,9 @@ class TreePopupMenu
 	/** 
 	 * Draws line 3 of background pattern.
 	 *
-	 * @param   g           The graphics context.
-	 * @param   y           The row to draw.
-	 * @param   width      The component's width.   
+	 * @param g		The graphics context.
+	 * @param y		The row to draw.
+	 * @param width	The component's width.   
 	 */
 	private void drawRow3(Graphics g, int y, int width)
 	{
@@ -209,9 +202,7 @@ class TreePopupMenu
 		}
 	}
 	
-	/**
-	 * Creates and initializes the properties button.
-	 */
+	/** Creates and initializes the properties button. */
 	private void initProperties() 
 	{
 		IconManager icons = IconManager.getInstance(config);
@@ -223,9 +214,7 @@ class TreePopupMenu
 		properties.setForeground(DataManager.STEELBLUE);  
 	}
 
-	/**
-	 * Creates and initializes the view button.
-	 */
+	/** Creates and initializes the view button. */
 	private void initView() 
 	{
 		IconManager icons = IconManager.getInstance(config);
@@ -237,9 +226,7 @@ class TreePopupMenu
 		view.setEnabled(false);  
 	}
 	
-	/**
-	 * Creates and initializes the browse button.
-	 */
+	/** Creates and initializes the browse button. */
 	private void initBrowse() 
 	{
 		IconManager icons = IconManager.getInstance(config);
@@ -251,9 +238,7 @@ class TreePopupMenu
 		browse.setEnabled(false);  
 	}
    
-	/**
-	 * Creates and initializes the refresh button.
-	 */
+	/** Creates and initializes the refresh button. */
 	private void initRefresh() 
 	{
 		IconManager icons = IconManager.getInstance(config);
@@ -264,9 +249,7 @@ class TreePopupMenu
 		refresh.setForeground(DataManager.STEELBLUE); 
 	}
 
-	/**
-	 * Builds and lays out the GUI.
-	 */
+	/** Builds and lays out the GUI. */
 	private void buildGUI() 
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));

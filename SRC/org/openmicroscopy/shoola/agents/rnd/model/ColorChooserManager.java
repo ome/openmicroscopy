@@ -101,10 +101,7 @@ class ColorChooserManager
 		initColor();
 	}
 	
-	int[] getRGBA()
-	{
-		return rgba;
-	}
+	int[] getRGBA(){ return rgba; }
 	
 	/** initializes the color to be displayed. */
 	private void initColor()
@@ -214,7 +211,7 @@ class ColorChooserManager
 	{
 		boolean valid = false;
 		int val = 0;
-		JTextField	field = null;
+		JTextField field = null;
 		try {
 			if (k == R_AREA) field = view.getRArea();
 			else if (k == G_AREA) field = view.getGArea();
@@ -255,8 +252,8 @@ class ColorChooserManager
 		Color c = new Color(vals[0], 1f, 1f);
 		view.getColorPalette().getBarH().setLineLocation(
 					(int) (vals[0]*widthBar)+ColorPalette.leftBorder);
-		ColorBar 	cBarS = view.getColorPalette().getBarS(),
-					cBarB = view.getColorPalette().getBarB();	
+		ColorBar cBarS = view.getColorPalette().getBarS(),
+				 cBarB = view.getColorPalette().getBarB();	
 		cBarS.setLineLocation((int) (vals[1]*widthBar)+ColorPalette.leftBorder);
 		cBarS.setColor(c);
 		cBarB.setLineLocation((int) (vals[2]*widthBar)+ColorPalette.leftBorder);																			
@@ -286,7 +283,7 @@ class ColorChooserManager
 	 * Resets the color selected and updates the textfields accordingly.
 	 * 
 	 * @param c		color selected.
-	 *  */
+	 */
 	void setColorPanel(Color c)
 	{
 		Color cD = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);

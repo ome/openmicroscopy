@@ -186,8 +186,8 @@ public class CreateProjectEditorManager
 	void addDataset(boolean value, DatasetSummary ds) 
 	{
 		if (value) {
-			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);} 
-		else 	datasetsToAdd.remove(ds);
+			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
+		} else 	datasetsToAdd.remove(ds);
 	}
 
 	/** 
@@ -221,7 +221,7 @@ public class CreateProjectEditorManager
 	}
 	
 	/** Require by I/F. */
-	public void changedUpdate(DocumentEvent e)
+	public void changedUpdate(DocumentEvent e) 
 	{
 		if (isName) saveButton.setEnabled(true);
 	}
@@ -239,10 +239,7 @@ public class CreateProjectEditorManager
 	}
 	
 	/** Indicates that the name has been modified. */
-	public void mousePressed(MouseEvent e)
-	{ 
-		isName = true;
-	}
+	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

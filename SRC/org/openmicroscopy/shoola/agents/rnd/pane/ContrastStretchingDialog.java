@@ -71,15 +71,9 @@ class ContrastStretchingDialog
 		buildGUI();	
 	}
 	
-	public ContrastStretchingPanel getCSPanel()
-	{
-		return csPanel;	
-	}
+	ContrastStretchingPanel getCSPanel() { return csPanel; }
 
-	public ContrastStretchingDialogManager getManager()
-	{
-		return manager;
-	}
+	ContrastStretchingDialogManager getManager() { return manager; }
 	
 	/** Initialize the {@link ContrastStretchingPanel}. */
 	private void initPanel(QuantumPaneManager control, 
@@ -96,7 +90,7 @@ class ContrastStretchingDialog
 		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		super.getContentPane().add(csPanel);

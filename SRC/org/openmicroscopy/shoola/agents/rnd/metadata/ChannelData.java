@@ -56,10 +56,10 @@ public class ChannelData
 	public final String			info;
     
 	public ChannelData(int index, int nanometer, String info)
-   {
+	{
 	   this.index = index;                               
 	   this.nanometer = nanometer;
 	   this.info = info;
-   }
+	}
    
 }

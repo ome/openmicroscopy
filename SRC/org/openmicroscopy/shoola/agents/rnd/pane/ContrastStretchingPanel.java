@@ -95,7 +95,7 @@ class ContrastStretchingPanel
 	/** Controls points. */
 	private Point2D             startPt, endPt, staticStartPt, staticEndPt;
 
-	/** cursors' coordinates. */
+	/** knobs' coordinates. */
 	private int                 xStart1, xStart2, xStart3, 
 								yStart1, yStart2, yStart3,
 								xEnd1, xEnd2, xEnd3, yEnd1, yEnd2, yEnd3,
@@ -106,11 +106,11 @@ class ContrastStretchingPanel
 								
 	ContrastStretchingPanel(int xStart, int xEnd, int yStart, int yEnd)
 	{
-		setCursorStart(xStart, tS+10);
-		setCursorEnd(xEnd, tS+10);
-		//output cursor
-		setCursorOutputStart(leftBorder-10, yStart);
-		setCursorOutputEnd(leftBorder-10, yEnd);
+		setKnobStart(xStart, tS+10);
+		setKnobEnd(xEnd, tS+10);
+		//output Knob
+		setKnobOutputStart(leftBorder-10, yStart);
+		setKnobOutputEnd(leftBorder-10, yEnd);
 		startPt = new Point2D.Double();
 		endPt = new Point2D.Double();
 		staticStartPt = new Point2D.Double();
@@ -125,13 +125,13 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the inputStart cursor.
+	 * Position the inputStart knob.
 	 * 
 	 * 
 	 * @param x		x-coordinate.
 	 * @param y		y-coordinate.
 	 */
-	void setCursorStart(int x, int y)
+	void setKnobStart(int x, int y)
 	{  
 		xStart1 = x;
 		xStart2 = x-triangleW;
@@ -142,12 +142,12 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the inputEnd cursor.
+	 * Position the inputEnd knob.
 	 * 
 	 * @param x		x-coordinate.
 	 * @param y		y-coordinate.
 	 */
-	void setCursorEnd(int x, int y)
+	void setKnobEnd(int x, int y)
 	{
 		xEnd1 = x;
 		xEnd2 = x-triangleW;
@@ -158,12 +158,12 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the outputStart cursor.
+	 * Position the outputStart knob.
 	 * 
 	 * @param x		x-coordinate.
 	 * @param y		y-coordinate.
 	 */
-	void setCursorOutputStart(int x, int y)
+	void setKnobOutputStart(int x, int y)
 	{  
 		xStartOutput1 = x;
 		xStartOutput2 = x-triangleH;
@@ -174,12 +174,12 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the outputEnd cursor.
+	 * Position the outputEnd knob.
 	 * 
 	 * @param x		x-coordinate.
 	 * @param y		y-coordinate.
 	 */
-	void setCursorOutputEnd(int x, int y)
+	void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
 		xEndOutput2 = x-triangleH;
@@ -190,11 +190,11 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the inputStart cursor and redraw the lines.
+	 * Position the inputStart knob and redraw the lines.
 	 * 
 	 * @param x		x-coordinate.
 	 */
-	void updateStartCursor(int x)
+	void updateStartKnob(int x)
 	{
 		xStart1 = x;
 		xStart2 = x-triangleW;
@@ -204,11 +204,11 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the inputEnd cursor and redraw the lines.
+	 * Position the inputEnd knob and redraw the lines.
 	 * 
 	 * @param x		x-coordinate.
 	 */
-	void updateEndCursor(int x)
+	void updateEndKnob(int x)
 	{
 		xEnd1 = x;
 		xEnd2 = x-triangleW;
@@ -218,11 +218,11 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the outputStart cursor and redraw the lines.
+	 * Position the outputStart knob and redraw the lines.
 	 * 
 	 * @param y		y-coordinate.
 	 */
-	void updateStartOutputCursor(int y)
+	void updateStartOutputKnob(int y)
 	{
 		yStartOutput1 = y;
 		yStartOutput2 = y-triangleW;
@@ -232,11 +232,11 @@ class ContrastStretchingPanel
 	}
 	
 	/**
-	 * Position the outputEnd cursor and redraw the lines.
+	 * Position the outputEnd knob and redraw the lines.
 	 * 
 	 * @param y		y-coordinate.
 	 */
-	void updateEndOutputCursor(int y)
+	void updateEndOutputKnob(int y)
 	{
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
@@ -288,7 +288,7 @@ class ContrastStretchingPanel
 		g2D.drawLine(lS+5, tS+3, lS+8, tS);
 		g2D.drawLine(lS, tS, lS, tS+5);
 		
-		//input cursor start
+		//input knob start
 		int xStartPoints[] = {xStart1, xStart2, xStart3};
 		int yStartPoints[] = {yStart1, yStart2, yStart3};
 		GeneralPath filledPolygonStart = new GeneralPath();
@@ -299,7 +299,7 @@ class ContrastStretchingPanel
 		g2D.setColor(startColor);
 		g2D.fill(filledPolygonStart);
 		
-		//input cursor end 
+		//input knob end 
 		int xEndPoints[] = {xEnd1, xEnd2, xEnd3};
 		int yEndPoints[] = {yEnd1, yEnd2, yEnd3};
 		GeneralPath filledPolygonEnd = new GeneralPath();
@@ -310,7 +310,7 @@ class ContrastStretchingPanel
 		g2D.setColor(endColor);
 		g2D.fill(filledPolygonEnd);
 		
-		// output cursor start 
+		// output knob start 
 		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 
 									xStartOutput3};
 		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, 
@@ -324,7 +324,7 @@ class ContrastStretchingPanel
 		filledPolygonStartOutput.closePath();
 		g2D.setColor(startColor);
 		g2D.fill(filledPolygonStartOutput);
-		//output cursor end
+		//output knob end
 		int xEndOutputPoints[] = {xEndOutput1, xEndOutput2, xEndOutput3};
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();

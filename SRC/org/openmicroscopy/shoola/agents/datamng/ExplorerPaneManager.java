@@ -540,12 +540,8 @@ class ExplorerPaneManager
 	private void initListeners()
 	{
 		view.tree.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				onClick(e);
-			}
-			public void mouseReleased(MouseEvent e) {
-				onClick(e);
-			}
+			public void mousePressed(MouseEvent e) { onClick(e); }
+			public void mouseReleased(MouseEvent e) { onClick(e); }
 		});
 		view.tree.addTreeExpansionListener(new TreeExpansionListener() {
 			public void treeCollapsed(TreeExpansionEvent e) {

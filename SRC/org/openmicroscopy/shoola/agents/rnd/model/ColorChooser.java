@@ -133,58 +133,31 @@ public class ColorChooser
 	}
 	
 	/** Returns the colorPalette containing the three color bars. */
-	ColorPalette getColorPalette()
-	{
-		return cp;
-	}
+	ColorPalette getColorPalette() { return cp; }
 	
 	/** Returns the selected color panel. */
-	ColorPanel getColorPanel()
-	{
-		return colorPanel;
-	}
+	ColorPanel getColorPanel() { return colorPanel; }
 	
 	/** Returns the Apply button. */
-	JButton getApplyButton()
-	{
-		return applyButton;
-	}
+	JButton getApplyButton() { return applyButton; }
 		
 	/** Returns the Cancel button. */
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	JButton getCancelButton() { return cancelButton; }
 	
 	/** Returns the Red textArea. */
-	JTextField getRArea()
-	{
-		return rArea;
-	}
+	JTextField getRArea() { return rArea; }
 	
 	/** Returns the green textArea. */
-	JTextField getGArea()
-	{
-		return gArea;
-	}
+	JTextField getGArea() { return gArea; }
 	
 	/** Returns the blue textArea. */
-	JTextField getBArea()
-	{
-		return bArea;
-	}
+	JTextField getBArea() { return bArea; }
 	
 	/** Returns the alpha slider. */
-	JSlider getAlphaSlider()
-	{
-		return alphaSlider;
-	}
+	JSlider getAlphaSlider() { return alphaSlider; }
 	
 	/** Returns the alpha textField. */
-	JTextField getAlphaTextField()
-	{
-		return alphaTextField;
-	}
+	JTextField getAlphaTextField() { return alphaTextField; }
 	
 	/** Initializes the Color selected panel and positions it. */
 	private void initColorPanel(Color c)
@@ -217,20 +190,21 @@ public class ColorChooser
 		rArea = new JTextField();
 		gArea = new JTextField(); 
 		bArea = new JTextField();
-		rArea.setEditable(true);
-		gArea.setEditable(true);
-		bArea.setEditable(true);
-		rArea.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		gArea.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		bArea.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		rArea.setText(""+rgba[RED]);
-		gArea.setText(""+rgba[GREEN]);
-		bArea.setText(""+rgba[BLUE]);
+		textFielContent(rArea, ""+rgba[RED]);
+		textFielContent(gArea, ""+rgba[GREEN]);
+		textFielContent(bArea, ""+rgba[BLUE]);
 		// init alpha textField
 		alphaTextField = new JTextField(""+v);
 		alphaTextField.setEditable(false);
 		alphaTextField.setOpaque(false);
 		alphaTextField.setBorder(null);
+	}
+	
+	private void textFielContent(JTextField field, String txt)
+	{
+		field.setEditable(true);
+		field.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		field.setText(txt);
 	}
 	
 	/** Builds the widget. */
@@ -257,7 +231,6 @@ public class ColorChooser
 	/** Builds and initializes the ColorPalette. */
 	private JLayeredPane buildLayeredPane()
 	{		
-		
 		cp.setBounds(2*BORDER, 0, ColorPalette.WIDTH_PANEL, 
 					ColorPalette.HEIGHT_LP);
 		return cp;
@@ -282,9 +255,7 @@ public class ColorChooser
 		return p;
 	}
 	
-	/** 
-	 * Builds a JPanel with JLabel, JTextField and JSlider.
-	 */
+	/** Builds a JPanel with JLabel, JTextField and JSlider. */
 	private JPanel buildAlphaPanel()
 	{
 		JPanel p = new JPanel();
@@ -299,16 +270,11 @@ public class ColorChooser
 		p.add(alphaTextField);
 		p.add(alphaSlider);
 		p.setBounds(4*BORDER, ColorPalette.HEIGHT_LP+HEIGHT_BOX+VSPACE, 
-					ColorPalette.WIDTH_PANEL+2*HSPACE, HEIGHT_BOX);
-					
+					ColorPalette.WIDTH_PANEL+2*HSPACE, HEIGHT_BOX);			
 		return p;
 	}
 	
-	/** 
-	 * Builds a panel containing the buttons.
-	 *
-	 * @return	The above mentioned panel.
-	 */
+	/** Builds a panel containing the buttons. */
 	private JPanel builButtonPanel()
 	{
 		JPanel p = new JPanel();
@@ -318,8 +284,7 @@ public class ColorChooser
 		p.add(applyButton);
 		p.add(cancelButton);
 		p.setBounds(BORDER, ColorPalette.HEIGHT_LP+2*(HEIGHT_BOX+VSPACE),
-					220, HEIGHT_BOX);
-					
+					220, HEIGHT_BOX);			
 		return p;
 	} 
 		

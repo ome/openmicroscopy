@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 public class CreateDatasetEditor
 	extends JDialog
 {	
-	
+
 	private Registry 					registry;
 	private CreateDatasetPane 			creationPane;
 	private CreateDatasetProjectsPane	projectsPane;

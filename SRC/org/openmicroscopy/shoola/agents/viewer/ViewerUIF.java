@@ -103,7 +103,7 @@ public class ViewerUIF
 	/** 
 	 * Sizes, centers and brings up the specified editor dialog.
 	 *
-	 * @param   editor	The editor dialog.
+	 * @param editor	The editor dialog.
 	 */
 	void showDialog(JDialog editor)
 	{
@@ -118,7 +118,7 @@ public class ViewerUIF
 	}
 	
 	/**
-	 * Displays the image in the viewer.
+	 * Display the image in the viewer.
 	 * 
 	 * @param img
 	 */
@@ -136,7 +136,7 @@ public class ViewerUIF
 		revalidate();
 	 }
 	   
-	/** Creates an internal menu. */
+	/** Create an internal menu. */
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
@@ -145,7 +145,7 @@ public class ViewerUIF
 		return menuBar;
 	}
 
-	/** Creates the <code>newMenu</code>. */
+	/** Create the <code>newMenu</code>. */
 	private void createNewMenu()
 	{
 		internalMenu = new JMenu("Controls");
@@ -157,7 +157,7 @@ public class ViewerUIF
 		internalMenu.add(menuItem);
 	}	
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		canvas = new ImageCanvas(this, getContentPane());

@@ -62,21 +62,21 @@ class TreePopupMenuManager
 	private TreePopupMenu           view; 
 	
 	/** The agent's control component. */
-	private DataManagerCtrl     agentCtrl;
+	private DataManagerCtrl			agentCtrl;
 	
 	/** 
 	 * The object (project, dataset or image) the menu is currently
 	 * operating on.
 	 */
-	private DataObject			target;
+	private DataObject				target;
     
     
 	/** 
 	 * Creates a new instance which will register itself as appropiate with the
 	 * view's widgets.
 	 *
-	 * @param   view    This UI component's view.
-	 * @param   control     The agent's control component.
+	 * @param view		This UI component's view.
+	 * @param control	The agent's control component.
 	 */
 	TreePopupMenuManager(TreePopupMenu view, DataManagerCtrl control)
 	{
@@ -93,7 +93,7 @@ class TreePopupMenuManager
 	 * The browse button will be enabled only if the passed object is
 	 * a dataset summary.
 	 *
-	 * @param   t  The object for which the menu has to be brought up.
+	 * @param t  The object for which the menu has to be brought up.
 	 */
 	void setTarget(DataObject t) 
 	{
@@ -107,7 +107,7 @@ class TreePopupMenuManager
 	/** 
 	 * Reacts to activation of the menu buttons.
 	 *
-	 * @param   e   Represents an activation of a menu button, as a click.
+	 * @param e   Represents an activation of a menu button, as a click.
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -125,9 +125,7 @@ class TreePopupMenuManager
 		view.setVisible(false);
 	}
 	
-	/** 
-	 * Registers listeners with the view's widgets. 
-	 */
+	/** Registers listeners with the view's widgets. */
 	private void initListeners()
 	{
 		view.properties.addActionListener(this);

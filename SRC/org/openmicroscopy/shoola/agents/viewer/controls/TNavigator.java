@@ -117,47 +117,26 @@ class TNavigator
 		buildGUI();
 	}
 	
-	public JTextField getEditor()
-	{
-		return editor;
-	}
+	JTextField getEditor() { return editor; }
 
-	public JSpinner getFps()
-	{
-		return fps;
-	}
+	JSpinner getFps() { return fps; }
 
-	public JButton getPlay()
-	{
-		return play;
-	}
+	JButton getPlay() { return play; }
 
-	public JButton getRewind()
-	{
-		return rewind;
-	}
+	JButton getRewind() { return rewind;}
 
-	public JButton getStop()
-	{
-		return stop;
-	}
+	JButton getStop() { return stop; }
 
-	public JTextField getTField()
-	{
-		return tField;
-	}
+	JTextField getTField() { return tField; }
 
-	public JSlider getTSlider()
-	{
-		return tSlider;
-	}
+	JSlider getTSlider() { return tSlider; }
 
 	/** Initializes the component. */
 	private void initComponents(int maxT, int t) 
 	{
 		//Slider
 		tSlider = new JSlider(JSlider.HORIZONTAL, 0, maxT, t);
-		tSlider.setToolTipText("Move the slider to navigate across time");
+		tSlider.setToolTipText("Move the slider to navigate across time.");
 		tSlider.setMinorTickSpacing(1);
 		tSlider.setMajorTickSpacing(10);
 		tSlider.setPaintTicks(true);
@@ -170,25 +149,25 @@ class TNavigator
 		//textField
 		tField = new JTextField("0", (""+maxT).length());
 		tField.setForeground(NavigationPalette.STEELBLUE);
-		tField.setToolTipText("Enter a timepoint");
+		tField.setToolTipText("Enter a timepoint.");
 		//buttons
 		play = new JButton(im.getIcon(IconManager.MOVIE));
-		play.setToolTipText("Play movie from current timepoint");
+		play.setToolTipText("Play movie from current timepoint.");
 		stop = new JButton(im.getIcon(IconManager.STOP));
-		stop.setToolTipText("Stop movie");
+		stop.setToolTipText("Stop movie.");
 		rewind = new JButton(im.getIcon(IconManager.REWIND));
-		rewind.setToolTipText("Go to first timepoint");
+		rewind.setToolTipText("Go to first timepoint.");
 		//Spinner timepoint granularity is 1, so must be stepSize
 		//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 		fps = new JSpinner(new SpinnerNumberModel(12, 12, 12, 1));
 		editor = new JTextField("12", (""+maxT).length());
 		String s = "Select or enter the movie playback rate " +
-					"(frames per second)";
+					"(frames per second).";
 		editor.setToolTipText(s);
 		fps.setEditor(editor);
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{ 
 		JPanel topControls = new JPanel();
@@ -199,7 +178,7 @@ class TNavigator
 		add(buildTablePanel());
 	}
 	
-	/** Build a panel containing a (1, 3)-table. */
+	/** Build a panel containing a (1,3)-table. */
 	private JPanel buildTablePanel()
 	{
 		JPanel p = new JPanel();
@@ -219,7 +198,6 @@ class TNavigator
 	
 	/**
 	 * Build a panel containing the a text field along with current selection.
-	 * @return	See above.
 	 */
 	private JPanel buildFieldPanel()
 	{
@@ -234,11 +212,7 @@ class TNavigator
 		return p;
 	}
 	
-	/**
-	 * Build a panel containing a slider along with current selection
-	 * 
-	 * @return See above.
-	 */
+	/** Build a panel containing a slider along with current selection. */
 	private JPanel buildSliderPanel()
 	{
 		JPanel slider = new JPanel();
@@ -249,8 +223,7 @@ class TNavigator
   		tSlider.setPreferredSize(DIM);
   		tSlider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
   		slider.add(tSlider);
-  		
-  		return slider;
+   		return slider;
 	}
     
 	/** 

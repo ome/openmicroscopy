@@ -136,44 +136,25 @@ class PlaneSlicingDialog
 		Integer j = (Integer) rBitPlanes.get(pSelected);
 		int i = PlaneSlicingDialogManager.B_SEVEN;
 		if (j != null) i = j.intValue();
-
 		initialize(i, constant); 
 		manager.attachListeners();
 		buildGUI();
 	}
 
-	JComboBox getRange()
-	{
-		return range;
-	}
+	JComboBox getRange(){ return range; }
 	
-	JRadioButton getRadioStatic()
-	{
-		return radioStatic;
-	}
+	JRadioButton getRadioStatic() { return radioStatic; }
 
-	JRadioButton getRadioDynamic()
-	{
-		return radioDynamic;
-	}
+	JRadioButton getRadioDynamic() { return radioDynamic;}
 	
 	/** Returns the dynamic panel. */
-	PlaneSlicingPanel getPSPanel()
-	{
-		return psPanel;
-	}
+	PlaneSlicingPanel getPSPanel() { return psPanel; }
 	
 	/** Returns the static panel. */
-	PlaneSlicingStaticPanel getPSSPanel()
-	{
-		return pssPanel;
-	}
+	PlaneSlicingStaticPanel getPSSPanel() { return pssPanel; }
 	
 	/** Returns the manager. */
-	PlaneSlicingDialogManager getManager()
-	{
-		return manager;
-	}
+	PlaneSlicingDialogManager getManager(){ return manager; }
 
 	/** Initializes the component. */
 	private void initialize(int index, boolean constant)
@@ -191,7 +172,7 @@ class PlaneSlicingDialog
 		range.setSelectedIndex(index);
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		Container contentPane = super.getContentPane();
@@ -208,11 +189,7 @@ class PlaneSlicingDialog
 		super.repaint();
 	}
 	
-	/** 
-	 * Build a panel containing the radiogroup.
-	 *
-	 * @return the above mentioned.
-	 */    
+	/** Build a panel containing the radiogroup. */    
 	private JPanel buildRadioGroupPanel()
 	{
 		JPanel p = new JPanel();
@@ -227,10 +204,7 @@ class PlaneSlicingDialog
 		return p;
 	}
 	
-	/** 
-	 * Display the combox int a JPanel.
-	 * @return See above.
-	 */
+	/** Build a Panel with a combobox. */
 	private JPanel buildComboBoxPanel()
 	{
 		JPanel p = new JPanel();

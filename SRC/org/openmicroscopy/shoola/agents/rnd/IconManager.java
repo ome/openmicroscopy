@@ -98,16 +98,10 @@ public class IconManager
 		relPaths[MODEL] = "information16.png";
 	}
 	
-	/**
-	 * The sole instance that provides.
-	 */
+	/** The sole instance that provides. */
 	private static IconManager	singleton;
 	
-	/**
-	 * Returns the <code>IconManager</code> object. 
-	 * 
-	 * @return	See above.
-	 */
+	/** Returns the <code>IconManager</code> object. */
 	public static IconManager getInstance(Registry registry)
 	{
 		if (singleton == null) {
@@ -120,7 +114,7 @@ public class IconManager
 		return singleton;
 	}
 	
-	private IconFactory 	factory;
+	private IconFactory 		factory;
 	
 	/**
 	 * Creates a new instance and configures the parameters.
@@ -133,10 +127,11 @@ public class IconManager
 		icons = new Icon[MAX_ID+1];
 	}
 
-	/** Retrieves the icon specified by the icon <code>ID</code>.
+	/** 
+	 * Retrieves the icon specified by the icon <code>ID</code>.
 	 *
-	 * @param   ID    Must be one of the IDs defined by this class.
-	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.
+	 * @param ID    Must be one of the IDs defined by this class.
+	 * @return The specified icon. The retuned value is meant to be READ-ONLY.
 	 */    
 	public Icon getIcon(int ID)
 	{

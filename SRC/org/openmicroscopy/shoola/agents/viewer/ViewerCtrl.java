@@ -86,56 +86,50 @@ public class ViewerCtrl
 		abstraction.getPresentation().addInternalFrameListener(this);
 	}
 	
-	/** Forward event to {@link Viewer}. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public JFrame getReferenceFrame()
 	{
 		return abstraction.getRegistry().getTopFrame().getFrame();
 	}
 	
-	/** Forward event to {@link Viewer}. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public Registry getRegistry()
 	{
 		return abstraction.getRegistry();
 	}
 	
-	/** Return the buffered Image displayed. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public BufferedImage getBufferedImage()
 	{
 		return abstraction.getCurImage();
 	}
 	
-	/** Forward event to {@link Viewer}. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public PixelsDimensions getPixelsDims()
 	{
 		return abstraction.getPixelsDims();
 	}
 	
-	/** Forward event to {@link Viewer}. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public int getDefaultT()
 	{
 		return abstraction.getDefaultT();
 	}
 	
-	/** Forward event to {@link Viewer}. */
+	/** Forward event to {@link Viewer abstraction}. */
 	public int getDefaultZ()
 	{
 		return abstraction.getDefaultZ();
 	}
 	
+	/** Forward event to {@link Viewer abstraction}. */
 	public void onPlaneSelected(int z, int t)
 	{
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	/** 
-	 * Returns the abstraction component of this agent.
-	 *
-	 * @return  See above.
-	 */
-	Viewer getAbstraction()
-	{
-		return abstraction;
-	}
+	/** Return the {@link Viewer abstraction}. */
+	Viewer getAbstraction() { return abstraction; }
 	
 	/** Attach listener to a menu Item. */
 	void setMenuItemListener(JMenuItem item, int id)
@@ -177,31 +171,29 @@ public class ViewerCtrl
 			//Activate the Frame.
 			try {
 				presentation.setSelected(true);
-			} catch (Exception e) {}
-			
-		}
-				
+			} catch (Exception e) {}	
+		}			
 	}
 	
-	/** Forward event to {@link RenderingAgtUIF}. */
+	/** Forward event to {@link ViewerUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
 		abstraction.getPresentation().showDialog(dialog);
 	}
 	
+	/** Bring up the navigation palette. */
 	private void showControls()
 	{
 		showDialog(new NavigationPalette(this));		
 	}
 	
+	/** Bring the file chooser. */
 	private void showImageSaver()
 	{
 		if (abstraction.getCurImage() == null) {
 			UserNotifier un = getRegistry().getUserNotifier();
 			un.notifyError("Save image", "No current image displayed");
-		} else {
-			new ImageSaver(this);
-		}
+		} else	new ImageSaver(this);
 	}
 
 	/** Select the checkBox in menu. */

@@ -131,7 +131,7 @@ class CreateDatasetPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data to the DB");
+		saveButton.setToolTipText("Save data in the DB.");
 		saveButton.setEnabled(false);
 
 		JPanel controls = new JPanel(), all = new JPanel();
@@ -195,7 +195,7 @@ class CreateDatasetPane
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 
 		// Scrollbar
-		table.setValueAt(scrollPane,1, 1);
+		table.setValueAt(scrollPane, 1, 1);
 
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());

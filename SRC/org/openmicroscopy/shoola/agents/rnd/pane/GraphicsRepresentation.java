@@ -184,20 +184,10 @@ class GraphicsRepresentation
 	}
 	
 	/** Returns a reference to the manager. */
-	GraphicsRepresentationManager getManager()
-	{
-		return manager;
-	}
+	GraphicsRepresentationManager getManager() { return manager; }
 	
-	/** 
-	 * Returns the input range. 
-	 * 
-	 * @return See above.
-	 */
-	int getInputGraphicsRange()
-	{
-		return range;
-	}
+	/**  Returns the input range. */
+	int getInputGraphicsRange() { return range;}
 	
 	/** 
 	 * Sets the defaults for the <code>LINEAR</code> type 
@@ -631,9 +621,7 @@ class GraphicsRepresentation
 						controlPt.setLocation((double) x, endPt.getY());
 				else    controlPt.setLocation((double) x, startPt.getY());
 				repaintCurve();
-			} else {
-				setControlLocation(coefficient);
-			} 
+			} else	setControlLocation(coefficient);
 		}
 		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
 	}
@@ -654,9 +642,7 @@ class GraphicsRepresentation
 					controlPt.setLocation(controlPt.getX(), endPt.getY());
 			else    controlPt.setLocation(controlPt.getX(), (double) y);
 			repaintCurve();
-		} else {
-			setControlLocation(coefficient);
-		} 
+		} else	setControlLocation(coefficient); 
 	}
 	
 	/** 
@@ -676,9 +662,7 @@ class GraphicsRepresentation
 														(double) y);
 			else controlPt.setLocation(endPt.getX(), controlPt.getY());
 			repaintCurve();
-		} else {
-			setControlLocation(coefficient);
-		}  
+		} else	setControlLocation(coefficient);
 	}
 	
 	/** 
@@ -728,9 +712,7 @@ class GraphicsRepresentation
 					controlPt.setLocation((double) xEnd, endPt.getY());
 			else    controlPt.setLocation((double) xEnd, startPt.getY());
 			repaintCurve();
-		} else {
-			setControlLocation(coefficient);
-		} 
+		} else	setControlLocation(coefficient);
 	}
 	
 	/**

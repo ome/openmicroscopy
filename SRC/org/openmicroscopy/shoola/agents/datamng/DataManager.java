@@ -99,6 +99,10 @@ public class DataManager
 	
 	public static final int			ROW_NAME_FIELD = 25;
 	
+	public static final Dimension	HBOX = new Dimension(10, 0),
+									VBOX = new Dimension(0, 10);
+	public static final Dimension	VP_DIM = new Dimension(200, 70);
+	
 	/** Reference to the registry. */
 	private Registry				registry;
 	
@@ -154,15 +158,10 @@ public class DataManager
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
-	public boolean canTerminate()
-	{
-		return true;
-	}
+	public boolean canTerminate() { return true; }
     
-    public DataManagerUIF getPresentation()
-    {
-    	return presentation;
-    }
+    /** Return the GUI of this agent. */
+    public DataManagerUIF getPresentation() { return presentation; }
     
     /**
      * Responds to an event fired trigger on the bus.
@@ -644,7 +643,7 @@ public class DataManager
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		try {
 			presentation.setClosed(false);
-		} catch (Exception e) {}	//require by setClosed method
+		} catch (Exception e) {}	
 		presentation.setVisible(true);	
 	}
 	
@@ -654,7 +653,7 @@ public class DataManager
 		topFrame.deiconifyFrame(presentation);
 		try {
 			presentation.setIcon(false);
-		} catch (Exception e) {}	//require by setIcon method
+		} catch (Exception e) {}
 	}
 	
 	/** Select the menuItem. */
@@ -675,10 +674,10 @@ public class DataManager
 		registry.getEventBus().post(new AnnotateImage(id, name));
 	}
 	
-	
 	/** 
 	 * Menu item to add into the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
+	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
+	 */
 	private JCheckBoxMenuItem getViewMenuItem()
 	{
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager");

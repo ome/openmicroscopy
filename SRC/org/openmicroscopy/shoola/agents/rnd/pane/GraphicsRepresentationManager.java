@@ -239,7 +239,7 @@ class GraphicsRepresentationManager
 	/** Handles events fired the knobs. */    
 	public void mouseDragged(MouseEvent e)
 	{
-		Point   p = e.getPoint();
+		Point p = e.getPoint();
 		if (dragging) {
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
 				p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
@@ -276,10 +276,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** Resets the dragging control to false. */    
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-	}
+	public void mouseReleased(MouseEvent e) { dragging = false; }
 	
 	/**
 	 * Resize the output window.
@@ -324,10 +321,7 @@ class GraphicsRepresentationManager
 	 *
 	 * @param x value.
 	 */    
-	void setMaxEndX(int x)
-	{
-		 maxEndX = x ;
-	}
+	void setMaxEndX(int x) { maxEndX = x ; }
 	
 	/** 
 	 * Sizes the rectangle used to listen to the outpuStart knob.

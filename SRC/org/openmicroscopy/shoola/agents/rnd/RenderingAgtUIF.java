@@ -118,9 +118,7 @@ class RenderingAgtUIF
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
 	}
-	
 
-	
 	/** 
 	 * Sizes, centers and brings up the specified editor dialog.
 	 *
@@ -157,7 +155,7 @@ class RenderingAgtUIF
 		modelPane.buildComponent();
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -192,7 +190,6 @@ class RenderingAgtUIF
 		JMenuBar menuBar = new JMenuBar(); 
 		createNewMenu();
 		menuBar.add(internalMenu);
-	
 		return menuBar;
 	}
 

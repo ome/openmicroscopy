@@ -35,7 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -86,6 +85,7 @@ class XYZNavigatorManager
 		//slider
 		view.getZSlider().addChangeListener(this);
 	}
+	
 	/** 
 	 * Synchronizes the slider, the text field and the current Z.
 	 * 
@@ -120,7 +120,6 @@ class XYZNavigatorManager
 			Toolkit.getDefaultToolkit().beep();
 		}
 	}
-	
 	
 	/** Listen event fired by the slider. */
 	public void stateChanged(ChangeEvent e)

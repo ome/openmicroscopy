@@ -119,55 +119,38 @@ class DataManagerUIF
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
 	}
 
-	/**
-	 * Forward event to {@link ExplorerPaneManager}.
-	 */
+	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateProjectInTree()
 	{
 		explPane.getManager().updateProjectInTree();
 	}
 
-	/**
-	 * Forward event to {@link ExplorerPaneManager}.
-	 */
+	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateDatasetInTree()
 	{
 		explPane.getManager().updateDatasetInTree();
 	}
 	
-	/**
-	 * Forward event to {@link ExplorerPaneManager}.
-	 */
+	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateImageInTree(ImageData id)
 	{
 		explPane.getManager().updateImageInTree(id);
 	}
 	
-	/**
-	 * Forward event to {@link ExplorerPaneManager}.
-	 */
+	/** Forward event to {@link ExplorerPaneManager}. */
 	void addNewProjectToTree(ProjectSummary ps)
 	{
 		explPane.getManager().addNewProjectToTree(ps);
 	}
 	
-	/**
-	 * Forward event to {@link ExplorerPaneManager}.
-	 */
+	/** Forward event to {@link ExplorerPaneManager}. */
 	void addNewDatasetToTree(List projects)
 	{
 		explPane.getManager().addNewDatasetToTree(projects);
 	}
 	
-	/**
-	 * Returns the menu displayed for nodes in the tree.
-	 * 
-	 * @return See above.
-	 */
-	TreePopupMenu getPopupMenu()
-	{
-		return popupMenu;
-	}
+	/** Return the menu displayed for nodes in the tree. */
+	TreePopupMenu getPopupMenu() { return popupMenu; }
     
 	/** 
 	 * Brings up the property sheet dialog for the specified project.
@@ -177,7 +160,7 @@ class DataManagerUIF
 	 */
 	void showProjectPS(ProjectData p)
 	{
-		ProjectEditor   ps = new ProjectEditor(registry, control, p);
+		ProjectEditor ps = new ProjectEditor(registry, control, p);
 		showPS((JDialog) ps);
 	}
     
@@ -189,7 +172,7 @@ class DataManagerUIF
 	 */
 	void showDatasetPS(DatasetData d)
 	{
-		DatasetEditor   ps = new DatasetEditor(registry, control, d);
+		DatasetEditor ps = new DatasetEditor(registry, control, d);
 		showPS((JDialog) ps);
 	}
     
@@ -201,7 +184,7 @@ class DataManagerUIF
 	 */
 	void showImagePS(ImageData i) 
 	{
-		ImageEditor   ps = new ImageEditor(registry, control, i);
+		ImageEditor ps = new ImageEditor(registry, control, i);
 		showPS((JDialog) ps);
 	}	
 	
@@ -294,7 +277,6 @@ class DataManagerUIF
 		JMenuBar menuBar = new JMenuBar(); 
 		createNewMenu();
 		menuBar.add(newMenu);
-		
 		return menuBar;
 	}
 	

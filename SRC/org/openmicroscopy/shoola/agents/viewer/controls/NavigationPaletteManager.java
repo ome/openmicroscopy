@@ -54,8 +54,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 public class NavigationPaletteManager
 {
-	private NavigationPalette view;
-	private ViewerCtrl eventManager;
+	private NavigationPalette	view;
+	private ViewerCtrl			eventManager;
 	
 	NavigationPaletteManager(NavigationPalette view, ViewerCtrl eventManager)
 	{
@@ -63,11 +63,8 @@ public class NavigationPaletteManager
 		this.eventManager = eventManager;
 	}
 
-	Registry getRegistry()
-	{
-		return eventManager.getRegistry();
-	}
-	
+	Registry getRegistry() { return eventManager.getRegistry(); }
+	 
 	void onTChange(int t)
 	{
 		XYZNavigator navigator = view.getXYZNavigator();

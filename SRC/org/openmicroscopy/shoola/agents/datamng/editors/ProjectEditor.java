@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -65,7 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class ProjectEditor
 	extends JDialog
 {	
-	
+	/** ID to position the components. */
 	private static final int		POS_MAIN = 0, POS_DATASET = 1, 
 									POS_OWNER = 2;
 									
@@ -164,7 +163,6 @@ public class ProjectEditor
 	{
 		tabs.remove(POS_DATASET);
 		datasetsPane.buildComponent(l);
-		//manager.initListeners();
 		IconManager im = IconManager.getInstance(registry);
 		tabs.insertTab("Datasets", im.getIcon(IconManager.DATASET), 
 						datasetsPane, null, POS_DATASET);

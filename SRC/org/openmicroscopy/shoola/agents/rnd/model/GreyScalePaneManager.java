@@ -62,7 +62,7 @@ class GreyScalePaneManager
 	implements ActionListener
 {
 	
-	private GreyScalePane view;
+	private GreyScalePane 		view;
 	
 	private RenderingAgtCtrl	eventManager;
 	

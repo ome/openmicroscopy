@@ -170,8 +170,8 @@ public class DatasetEditor
 		tabs.remove(POS_IMAGE);
 		imagesPane.buildComponent(l);
 		IconManager im = IconManager.getInstance(registry);
-		tabs.insertTab("Datasets", im.getIcon(IconManager.IMAGE), 
-						imagesPane, null, POS_IMAGE);
+		tabs.insertTab("Datasets", im.getIcon(IconManager.IMAGE), imagesPane, 
+						null, POS_IMAGE);
 		tabs.setSelectedIndex(POS_IMAGE);	
 	}
 	
@@ -187,8 +187,8 @@ public class DatasetEditor
 		IconManager im = IconManager.getInstance(registry);
 		tabs.insertTab("General", im.getIcon(IconManager.DATASET), generalPane,
 					null, POS_MAIN);
-		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), 
-						imagesPane, null, POS_IMAGE);
+		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), imagesPane,
+						null, POS_IMAGE);
 		tabs.insertTab("Owner", im.getIcon(IconManager.OME), ownerPane, null, 
 						POS_OWNER);
 

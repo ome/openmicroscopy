@@ -30,25 +30,20 @@
 package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Iterator;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
-import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 
 /** 
  * Save the current image.
@@ -67,74 +62,36 @@ import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 public class ImageSaver
 	extends JFileChooser
 {
-	
+	/** Default extension format. */
 	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
 	private ViewerCtrl				controller;
+	
+	/** 
+	 * Control to display or not the fileChooser, when we pop up the dialog 
+	 * widget.
+	 */
+	private boolean					display;
 	
 	public ImageSaver(ViewerCtrl controller)
 	{
 		this.controller = controller;
+		display = false;
 		createChooser();
 	}
-	
-	/**
-	 * Save a specified buffered image as a <code>jpeg</code> or 
-	 * <code>png</code>.
-	 * 
-	 * @param format	one the format defined above.
-	 * @param img		buffered image to save.
-	 * @param fileName	image's name.
-	 * @param message	message to display when the image has been saved.
-	 */
-	private void saveImageAs(String format, BufferedImage img, String fileName, 
-							String message)
+
+	void isDisplay(boolean b)
 	{
-		UserNotifier un = controller.getRegistry().getUserNotifier();
-		if (img == null) 
-			un.notifyError("Save image", "No current image displayed");
-		File f = new File(fileName);
-		try {
-			Iterator writers = ImageIO.getImageWritersByFormatName(format);
-			ImageWriter writer = (ImageWriter) writers.next();
-			ImageOutputStream ios = ImageIO.createImageOutputStream(f);
-			writer.setOutput(ios);
-			writer.write(img);
-			ios.close();
-			un.notifyInfo("Image saved", message);
-			//TODO: forward event to server.
-		} catch (Exception ex){
-			f.delete();
-			un.notifyError("Save image failure", "Unable to save the image",
-								ex);
-		}
+		display = b;
 	}
 	
-	/**
-	 * Save a specified buffered image as a <code>tif</code>.
-	 * 
-	 * @param img		buffered image to save.
-	 * @param fileName	image's name.
-	 * @param message	message to display when the image has been saved.
-	 */
-	private void saveImageAsTIFF(BufferedImage img, String fileName, 
-								String message)
+	ViewerCtrl getController()
 	{
-		UserNotifier un = controller.getRegistry().getUserNotifier();
-		if (img == null) 
-			un.notifyError("Save image", "No current image displayed");
-		File f = new File(fileName);	
-		try {
-			DataOutputStream dos = 
-							new DataOutputStream(new FileOutputStream(f));
-			TIFFEncoder encoder = new TIFFEncoder(img, dos);
-			encoder.write();
-			dos.close();
-			un.notifyInfo("Image saved", message);
-		} catch (Exception ex) {
-			f.delete();
-			un.notifyError("Save image failure", "Unable to save the image", 
-							ex);					
-		}
+		return controller;
+	}
+	
+	BufferedImage getBufferedImage()
+	{
+		return controller.getBufferedImage();
 	}
 	
 	/** Build the file chooser. */
@@ -151,11 +108,14 @@ public class ImageSaver
 		setFileFilter(tiffFilter);
 		addChoosableFileFilter(tiffFilter); 
 		setAcceptAllFileFilterUsed(false);
-		int returnVal = showDialog(controller.getReferenceFrame(), 
-									"Save Image");
-		//Process the result
+		showDialog(controller.getReferenceFrame(), "Save Image");
+	}
+	
+	/** Override the approveSelection method. */
+	public void approveSelection()
+	{
 		File file = getSelectedFile();
-		if (file != null && returnVal == JFileChooser.APPROVE_OPTION) {
+		if (file != null) {
 			String format = DEFAULT_FORMAT;
 			if (getFileFilter() instanceof JPEGFilter) 
 				format = JPEGFilter.JPG;
@@ -163,14 +123,18 @@ public class ImageSaver
 				format = TIFFFilter.TIF;
 			else if (getFileFilter() instanceof PNGFilter) 
 				format = PNGFilter.PNG;
+				
 			String  fileName = file.getAbsolutePath()+"."+format, 
-					name = file.getName()+"."+format;;
+					name = file.getName()+"."+format;
 			String message = "The image "+name+", has been saved in \n"
 							+getCurrentDirectory();
 			setSelection(format, fileName, message, 
-						getCurrentDirectory().listFiles());				
-			setSelectedFile(null);	
+								getCurrentDirectory().listFiles());
+			setSelectedFile(null);
+			if (display) return;	
 		}      
+		// No file selected, or file can be written - let OK action continue
+		super.approveSelection();
 	}
 	
 	/** 
@@ -180,7 +144,7 @@ public class ImageSaver
 	 * @param format		format selected <code>jpeg<code>, 
 	 * 						<code>png<code> or <code>tif<code>.
 	 * @param fileName		image's name.
-	 * @param message		message displayed when the image has been created.
+	 * @param message		message displayed after the image has been created.
 	 * @param list			lis of files in the current directory.
 	 */
 	private void setSelection(String format, String fileName, String message,
@@ -189,20 +153,31 @@ public class ImageSaver
 		boolean exist = false;
 		for (int i = 0; i < list.length; i++)
 			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
-		
-		if (exist){
-			UserNotifier un = controller.getRegistry().getUserNotifier();
-			String s = "This file's name already exists, please choose a new" +
-						" one";
-			un.notifyInfo("Image saved", s); 
+			
+		if (exist) {
+			showDialog(new SelectionDialog(this, format, fileName, message));
 		} else {
-			if (format.equals(TIFFFilter.TIF))
-				saveImageAsTIFF(controller.getBufferedImage(), fileName, 
-								message);
-			else
-				saveImageAs(format, controller.getBufferedImage(), fileName, 
-							message);
-		}					
+			display = false;
+			new SaveImage(controller.getRegistry(), format, 
+						controller.getBufferedImage(), fileName, message);
+		}				
+	}
+	
+	/** 
+	 * Sizes, centers and brings up the specified editor dialog.
+	 *
+	 * @param editor	The editor dialog.
+	 */
+	void showDialog(JDialog editor)
+	{
+		JFrame topFrame = (JFrame) controller.getReferenceFrame();
+		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
+		int offsetX = (tfB.width-psB.width)/2, 
+			offsetY = (tfB.height-psB.height)/2;
+		if (offsetX < 0)	offsetX = 0;
+		if (offsetY < 0)	offsetY = 0;
+		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
+		editor.setVisible(true);
 	}
 	
 }

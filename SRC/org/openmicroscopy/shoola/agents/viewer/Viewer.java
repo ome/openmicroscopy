@@ -86,9 +86,7 @@ public class Viewer
 	public void activate() {}
 	
 	/** Implemented as specified by {@link Agent}. */
-	public void terminate()
-	{
-	}
+	public void terminate() {}
 
 	/** Implemented as specified by {@link Agent}. */
 	public void setContext(Registry ctx) 
@@ -103,41 +101,23 @@ public class Viewer
 	}
 
 	/** Implemented as specified by {@link Agent}. */
-	public boolean canTerminate() 
-	{
-		return true;
-	}
+	public boolean canTerminate() { return true; }
 
-	ViewerUIF getPresentation()
-	{
-		return presentation;
-	}
+	ViewerUIF getPresentation() { return presentation; }
 	
-	Registry getRegistry()
-	{
-		return registry;
-	}
+	Registry getRegistry() { return registry; }
 	
 	PixelsDimensions getPixelsDims()
-	{
+	{ 
 		return renderingControl.getPixelsDims();
 	}
 	
-	int getDefaultT()
-	{
-		return renderingControl.getDefaultT();
-	}
+	int getDefaultT() { return renderingControl.getDefaultT(); }
 	
-	int getDefaultZ()
-	{
-		return renderingControl.getDefaultZ();
-	}
+	int getDefaultZ() { return renderingControl.getDefaultZ(); }
 	
 	/** Return the current buffered image. */
-	BufferedImage getCurImage()
-	{
-		return curImage;
-	}
+	BufferedImage getCurImage() { return curImage; }
 	
 	void onPlaneSelected(int z, int t)
 	{
@@ -180,13 +160,11 @@ public class Viewer
 		curImage = null;
 		curImage = response.getRenderedImage();
 		presentation.setImage(curImage);
+		setMenuSelection(true);
 	}
 	
 	/** Select the menuItem. */
-	void setMenuSelection(boolean b)
-	{
-		viewItem.setSelected(b); 
-	}
+	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
 	/** Display the presentation. */
 	void showPresentation()

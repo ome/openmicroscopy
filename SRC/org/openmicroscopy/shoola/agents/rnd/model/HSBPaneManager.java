@@ -69,7 +69,7 @@ class HSBPaneManager
 	implements ActionListener, ItemListener
 {
 	
-	private HSBPane	view;
+	private HSBPane				view;
 	
 	private RenderingAgtCtrl	eventManager;
 	
@@ -81,15 +81,9 @@ class HSBPaneManager
 		coloredButtons = new HashMap();
 	}
 	
-	HSBPane getView()
-	{
-		return view;
-	}
+	HSBPane getView() { return view; }
 	
-	RenderingAgtCtrl getEventManager()
-	{
-		return eventManager;
-	}
+	RenderingAgtCtrl getEventManager() { return eventManager; }
 	
 	/** Reference to the main frame, use to pop-up the dialog widget. */
 	JFrame getReferenceFrame()
@@ -106,8 +100,7 @@ class HSBPaneManager
 	void attachObjectListener(Object component, int index)
 	{
 		AbstractButton ab = null;
-		if (component instanceof ColoredButton) 
-		{
+		if (component instanceof ColoredButton) {
 			ab = (JButton) component;
 			ab.addActionListener(this);
 			coloredButtons.put(new Integer(index), component);

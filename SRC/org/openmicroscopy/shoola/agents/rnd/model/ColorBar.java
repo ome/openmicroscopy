@@ -99,10 +99,7 @@ class ColorBar
 	 * 
 	 * @param x		x-coordinate.
 	 */
-	void setLineLocation(int x)
-	{
-		xKnob = x;
-	}
+	void setLineLocation(int x) { xKnob = x; }
     
 	/** 
 	 * Set the colorEnd. 

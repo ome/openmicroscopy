@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -74,8 +73,6 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class DatasetGeneralPane
 	extends JPanel
 {
-
-	private static final Dimension	H_DIM = new Dimension(10, 0);
 	
 	private DatasetEditorManager	manager;
 	
@@ -143,7 +140,7 @@ class DatasetGeneralPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data to the DB.");
+		saveButton.setToolTipText("Save data in the DB.");
 		saveButton.setEnabled(false);
 		
 		//reload button
@@ -171,16 +168,16 @@ class DatasetGeneralPane
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		
 		controls.add(annotateButton);
-		controls.add(Box.createRigidArea(H_DIM));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(reloadButton);
-		controls.add(Box.createRigidArea(H_DIM));
+		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(saveButton);
 		controls.setOpaque(false); //make panel transparent
 		c.weightx = 0.5;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls,c); 
+		gridbag.setConstraints(controls, c); 
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -229,7 +226,7 @@ class DatasetGeneralPane
 		descriptionArea.setEditable(true);
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
-		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
+		JScrollPane scrollPane = new JScrollPane(descriptionArea);
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 2, 1);
 

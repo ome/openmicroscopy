@@ -146,40 +146,22 @@ class ColorSelector
 		setSize(WIN_W, WIN_H+H_EXTRA);
 	}
 	
-	ColorPanel getColorPanel()
-	{
-		return colorPanel;
-	}
+	ColorPanel getColorPanel() { return colorPanel; }
 
-	JButton getApplyButton()
-	{
-		return applyButton;
-	}
+	JButton getApplyButton() { return applyButton; }
 	
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	JButton getCancelButton() { return cancelButton; }
 	
-	public JComboBox getColorsList()
-	{
-		return colorsList;
-	}
+	JComboBox getColorsList() { return colorsList; }
 	
-	public JLabel getAlphaField()
-	{
-		return alphaField;
-	}
+	JLabel getAlphaField() { return alphaField; }
 	
-	public JSlider getAlphaSlider()
-	{
-		return alphaSlider;
-	}
+	JSlider getAlphaSlider() { return alphaSlider; }
 	
 	/** Initialize the color preview. */
 	private void initColorPanel(Color c)
 	{
-		colorPanel  = new ColorPanel();
+		colorPanel = new ColorPanel();
 		colorPanel.setLayout(null);
 		colorPanel.setBounds(BORDER+WIDTH+HSPACE, 2*TOP, 45, 45);
 		colorPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -199,7 +181,7 @@ class ColorSelector
 		colorsList.setSelectedIndex(DEFAULT_INDEX);
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		contents = new JPanel();
@@ -218,11 +200,7 @@ class ColorSelector
 		return label;	
 	}
 	
-	/** 
-	 * Builds a panel containing the buttons.
-	 *
-	 * @return	The above mentioned panel.
-	 */
+	/** Builds a panel containing the buttons. */
 	private JPanel builButtonsPanel()
 	{
 		JPanel p = new JPanel();
@@ -232,8 +210,7 @@ class ColorSelector
 		p.add(applyButton);
 		p.add(cancelButton);
 		p.setBounds(2*BORDER, HEIGHT+HEIGHT_BOX+2*VSPACE, 2*WIDTH_TWO, 
-					HEIGHT_BOX);
-				
+					HEIGHT_BOX);		
 		return p;
 	} 
 	
@@ -265,14 +242,10 @@ class ColorSelector
 								new TableComponentCellEditor());
 		
 		table.setBounds(BORDER, 2*TOP, WIDTH, HEIGHT);
-		
-		return table;
-		
+		return table;	
 	}
 	
-	/** 
-	 * Builds a JPanel with JSlider.
-	 */
+	/** Builds a JPanel with JSlider. */
 	private JPanel buildSliderPanel()
 	{
 		JPanel p = new JPanel();

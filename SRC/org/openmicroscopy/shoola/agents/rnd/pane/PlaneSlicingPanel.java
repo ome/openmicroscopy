@@ -103,10 +103,10 @@ class PlaneSlicingPanel
 	 */
 	static final Color				layerColor = new Color(192, 192, 192, 80);
 	
-	/** Color of the startCursor (input & output). */
+	/** Color of the startKnob (input & output). */
 	private static final Color		ostartColor = Color.BLACK;
 	
-	/** Color of the endCursor (input & output). */
+	/** Color of the endKnob (input & output). */
 	private static final Color		oendColor = Color.GRAY;
 	
 	
@@ -124,8 +124,8 @@ class PlaneSlicingPanel
 	PlaneSlicingPanel(int yStart, int yEnd)
 	{
 		isSelected = true;
-		setCursorOutputStart(leftBorder-10, yStart);
-		setCursorOutputEnd(lS+10, yEnd);
+		setKnobOutputStart(leftBorder-10, yStart);
+		setKnobOutputEnd(lS+10, yEnd);
 		startPt = new Point2D.Double();
 		endPt = new Point2D.Double();
 		startPt.setLocation((double) leftBorder, (double) yStart);
@@ -146,12 +146,12 @@ class PlaneSlicingPanel
 	}
 
 	/** 
-	 * Position the start cursor.
+	 * Position the start Knob.
 	 * 
 	 * @param x	x-coordinate.
 	 * @param y y-coordinate.
 	 */
-	void setCursorOutputStart(int x, int y)
+	void setKnobOutputStart(int x, int y)
 	{  
 		xStartOutput1 = x;
 		xStartOutput2 = x-triangleH;
@@ -162,12 +162,12 @@ class PlaneSlicingPanel
 	}
 	
 	/** 
-	 * Position the end cursor.
+	 * Position the end Knob.
 	 * 
 	 * @param x	x-coordinate.
 	 * @param y y-coordinate.
 	 */
-	void setCursorOutputEnd(int x, int y)
+	void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
 		xEndOutput2 = x+triangleH;
@@ -178,7 +178,7 @@ class PlaneSlicingPanel
 	}
 	
 	/** 
-	 * Reposition the start cursor and the control point.
+	 * Reposition the start Knob and the control point.
 	 * 
 	 * @param x	x-coordinate.
 	 * @param y y-coordinate.
@@ -193,7 +193,7 @@ class PlaneSlicingPanel
 	} 
 	
 	/** 
-	 * Reposition the end cursor and the control point.
+	 * Reposition the end Knob and the control point.
 	 * 
 	 * @param x	x-coordinate.
 	 * @param y y-coordinate.

@@ -101,14 +101,10 @@ public class RenderingAgt
 	public RenderingAgt() {}
 	
 	/** Implemented as specified by {@link Agent}. */
-	public void activate()
-	{
-	}
+	public void activate() {}
 
 	/** Implemented as specified by {@link Agent}. */
-	public void terminate()
-	{
-	}
+	public void terminate() {}
 
 	/** Implemented as specified by {@link Agent}. */
 	public void setContext(Registry ctx)
@@ -121,10 +117,7 @@ public class RenderingAgt
 	}
 
 	/** Implemented as specified by {@link Agent}. */
-	public boolean canTerminate()
-	{
-		return true;
-	}
+	public boolean canTerminate() { return true; }
 	
 	/** Implement as specified by {@link AgentEventListener}. */
 	public void eventFired(AgentEvent e) 
@@ -155,10 +148,7 @@ public class RenderingAgt
 	}
 	
 	/** Select the menuItem. */
-	void setMenuSelection(boolean b)
-	{
-		viewItem.setSelected(b); 
-	}
+	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
 	/** Menu item to add to the {@link TopFrame} menu bar. */
 	private JCheckBoxMenuItem getViewMenuItem()
@@ -209,17 +199,11 @@ public class RenderingAgt
 		registry.getEventBus().register(subscriber, event);	
 	}
 	
-	/** Return the presentation. */
-	public RenderingAgtUIF getPresentation()
-	{
-		return presentation;
-	}
+	/** Return the {@link RenderingAgtUIF presentation}. */
+	public RenderingAgtUIF getPresentation() { return presentation; }
 
 	/** Return a refence to the {@link Registry}. */
-	Registry getRegistry()
-	{
-		return registry;
-	}
+	Registry getRegistry() { return registry; }
 	
 	/** Pop up the presentation. */
 	void deiconifyPresentation()
@@ -242,7 +226,6 @@ public class RenderingAgt
 	/** Display the widget when it has been closed. */
 	void displayPresentation()
 	{
-		//topFrame.removeFromDesktop(presentation);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
 		try {
@@ -258,16 +241,10 @@ public class RenderingAgt
 			channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
 	}
 
-	ChannelData[] getChannelData()
-	{	
-		return channelData;
-	}
+	ChannelData[] getChannelData() { return channelData; }
 
 	/** Return the current rendering model. */
-	int getModel()
-	{
-		return renderingControl.getModel();
-	}
+	int getModel() { return renderingControl.getModel(); }
 	
 	/** Set the rendering model. */
 	void setModel(int model)
@@ -403,10 +380,7 @@ public class RenderingAgt
 	}
 	
 	/** Return the strategy definition object. */
-	QuantumDef getQuantumDef()
-	{
-		return renderingControl.getQuantumDef();
-	}
+	QuantumDef getQuantumDef() { return renderingControl.getQuantumDef(); }
 	
 	/**
 	 * Set a strategy.
@@ -448,10 +422,7 @@ public class RenderingAgt
 	 * @param w		specified wavlength index.
 	 * @return	array of values in the range 0-255.
 	 */
-	int[] getRGBA(int w)
-	{
-		return renderingControl.getRGBA(w);
-	}
+	int[] getRGBA(int w) { return renderingControl.getRGBA(w); }
 	
 	/**
 	 * Set the color's component of a specified channel.
@@ -481,10 +452,7 @@ public class RenderingAgt
 		refreshImage();
 	}
 
-	boolean isActive(int w)
-	{
-		return renderingControl.isActive(w);
-	}
+	boolean isActive(int w) { return renderingControl.isActive(w); }
 
 	/** 
 	 * Required by I/F but not actually needed in our case, 
