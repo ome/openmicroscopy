@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
@@ -125,13 +124,6 @@ public interface Registry
 	 * @return See above.
 	 */
 	public Logger getLogger();
-   	
-	/**
-	 * Returns a reference to the {@link TopFrame}.
-	 * 
-	 * @return See above.
-	 */
-	public TopFrame getTopFrame();
 	
 	/**
 	 * Returns a reference to the {@link TaskBar}.

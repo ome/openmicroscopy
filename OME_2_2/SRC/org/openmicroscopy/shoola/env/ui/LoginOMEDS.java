@@ -115,7 +115,7 @@ public class LoginOMEDS
 	
 	public LoginOMEDS(Registry registry, DataServicesFactory dsf)
 	{
-		super(registry.getTopFrame().getFrame(), "Login", true);
+		super(registry.getTaskBar().getFrame(), "Login", true);
 		this.registry = registry;
 		manager = new LoginOMEDSManager(registry, dsf, this);
 		initLoginFields();

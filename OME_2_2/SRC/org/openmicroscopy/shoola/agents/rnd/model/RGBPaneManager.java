@@ -84,7 +84,7 @@ class RGBPaneManager
 	
 	JFrame getReferenceFrame()
 	{
-		return eventManager.getRegistry().getTopFrame().getFrame();
+		return eventManager.getRegistry().getTaskBar().getFrame();
 	}
 	
 	void setEventManager(RenderingAgtCtrl eventManager)

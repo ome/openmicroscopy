@@ -86,7 +86,7 @@ class HSBPaneManager
 	/** Reference to the main frame, use to pop-up the dialog widget. */
 	JFrame getReferenceFrame()
 	{
-		return (eventManager.getRegistry().getTopFrame().getFrame());
+		return (eventManager.getRegistry().getTaskBar().getFrame());
 	}
 	
 	void setEventManager(RenderingAgtCtrl eventManager)

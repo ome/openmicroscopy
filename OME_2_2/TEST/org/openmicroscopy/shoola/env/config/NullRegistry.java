@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -68,7 +67,6 @@ public class NullRegistry
     public DataManagementService getDataManagementService() { return null; }
     public SemanticTypesService getSemanticTypesService() { return null; }
     public Logger getLogger() { return null; }
-    public TopFrame getTopFrame() { return null; }
     public TaskBar getTaskBar() { return null; }
     public UserNotifier getUserNotifier() { return null; }
     public PixelsService getPixelsService() { return null; }

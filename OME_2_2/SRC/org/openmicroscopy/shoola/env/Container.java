@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -296,16 +295,8 @@ public final class Container
 		//TODO: RE threads should be spawn during an init task.
 			
 		//Get ready to interact with the user.
-		Boolean useTaskBar = (Boolean) 
-							singleton.registry.lookup("/services/TASKBAR/on");
-		if (useTaskBar != null && useTaskBar.booleanValue()) {
-			TaskBar tb = singleton.registry.getTaskBar();
-			tb.open();	
-		} else {
-			TopFrame tf = singleton.registry.getTopFrame();
-			tf.open();
-		}
-		//NOTE: this switch will be removed after we all transition to TaskBar.
+		TaskBar tb = singleton.registry.getTaskBar();
+		tb.open();	
 	}
 	
 	/**
