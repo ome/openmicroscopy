@@ -26,61 +26,77 @@
  *
  *------------------------------------------------------------------------------
  */
+ 
 package org.openmicroscopy.shoola.env.config;
 
-/** Creates an object containing the Agent informations
- *
+/** 
+ * Holds the configration information for an agent entry in the container's
+ * configuration file.
+ * The content of each tag is stored by a member field.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
-
-
 class AgentInfo 
 {
+	static final String         NAME = "name", 
+									CLASS = "class", 
+									CONFIG = "config";
+	
+	/** The value of the <code>name</code> tag. */																									
+    private String		name; 
     
-    String                      name, path, agtClass;
-    static final String         NAME = "name", 
-                                CLASS = "class", 
-                                CONFIG = "config";
+	/** The value of the <code>class</code> tag. */
+	private String		agentClass;
+	
+	/** The value of the <code>config</code> tag. */
+	private String		configPath;
+	
+    
     void setValue(String value, String tag)
     {
         try {
             if (tag.equals(NAME))           name = value;
-            else if (tag.equals(CLASS))     agtClass = value;
-            else if (tag.equals(CONFIG))    path = value;
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+            else if (tag.equals(CLASS))     agentClass = value;
+            else if (tag.equals(CONFIG))    configPath = value;
+        } catch (Exception ex) { 
+        	throw new RuntimeException(ex);  //TODO: proper exception handling 
+        }
     }
     
-/* return the value of the <code>name</code> tag
- *
- * @return the above mentioned
- */
+	/**
+	 * Returns the value of the <code>name</code> tag.
+	 *
+	 * @return	See above.
+	 */
     String getName()
     {
         return name;
     }
     
-/* return the value of the <code>class</code> tag
- *
- *  @return the above mentioned
- */
+	/**  
+	 * Returns the value of the <code>class</code> tag.
+	 *
+	 * @return	See above.
+	 */
     String getAgentClass()
     {
-        return agtClass;
-    }    
-/* return the value of the <code>config</code> tag
- *
- *  @return the above mentioned
- */
+        return agentClass;
+    }
+        
+	/**
+	 * Returns the value of the <code>config</code> tag. 
+	 *
+	 * @return	See above.
+	 */
     String getConfigPath()
     {
-        return path;
+        return configPath;
     }
 }
