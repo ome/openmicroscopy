@@ -358,4 +358,19 @@ public class STSMapper
 		c.addFilter("module_execution_id", "IN", mexes);
 	    return c;
 	}
+	
+	public static Criteria buildLocationCriteriaWithFeatures(List features) {
+		 
+		if (features == null || features.size() == 0) return null;
+		Criteria c = new Criteria();
+		c.addWantedField("id");
+		c.addWantedField("TheX");
+		c.addWantedField("TheY");
+		c.addWantedField("TheZ");
+		c.addWantedField("feature");
+		
+		
+		c.addFilter("feature_id","IN",features);
+		return c;
+	}
 }
