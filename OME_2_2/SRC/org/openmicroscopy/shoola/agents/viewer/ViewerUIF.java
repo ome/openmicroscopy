@@ -89,8 +89,8 @@ public class ViewerUIF
 	/** Tool bar of the Agent. */
 	private ToolBar					toolBar;
 	
-	/** Controls menu. */
-	private JMenuItem				movieItem;
+	/** Items of the movie submenu. */
+	private JMenuItem				movieItemZ, movieItemT;
 	
 	private JMenuItem				viewer3DItem;
 	
@@ -153,8 +153,10 @@ public class ViewerUIF
 		toolBar.getZField().setEditable(bZ);
 		toolBar.getViewer3D().setEnabled(bZ);
 		viewer3DItem.setEnabled(bZ);
-		toolBar.getMovie().setEnabled(bT);
-		movieItem.setEnabled(bT);
+		toolBar.getMovieZ().setEnabled(bZ);
+        toolBar.getMovieT().setEnabled(bT);
+		movieItemT.setEnabled(bT);
+        movieItemZ.setEnabled(bZ);
 	}
 	
 	/** Reset the sliders' values when a new image is selected. */
@@ -229,10 +231,18 @@ public class ViewerUIF
 		control.attachItemListener(viewer3DItem, ViewerCtrl.VIEWER3D);
 		viewer3DItem.setEnabled(maxZ != 0);
 		menu.add(viewer3DItem);
-		movieItem = new JMenuItem("Movie", im.getIcon(IconManager.MOVIE));
-		control.attachItemListener(movieItem, ViewerCtrl.MOVIE);
-		movieItem.setEnabled(maxT != 0);
-		menu.add(movieItem);
+        //TO be mofied
+        JMenu movie = new JMenu("Movie");
+        movie.setIcon(im.getIcon(IconManager.MOVIE));
+		movieItemZ = new JMenuItem("z movie", im.getIcon(IconManager.MOVIE));
+		control.attachItemListener(movieItemZ, ViewerCtrl.MOVIE_Z);
+		movieItemZ.setEnabled(maxZ != 0);
+        movie.add(movieItemZ);
+        movieItemT = new JMenuItem("t movie", im.getIcon(IconManager.MOVIE));
+        control.attachItemListener(movieItemT, ViewerCtrl.MOVIE_T);
+        movieItemT.setEnabled(maxT != 0);
+        movie.add(movieItemT);
+		menu.add(movie);
 		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);

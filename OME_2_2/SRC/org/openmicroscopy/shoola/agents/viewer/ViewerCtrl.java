@@ -76,15 +76,19 @@ public class ViewerCtrl
 	/** Action command ID to bring up the saving widget. */
 	static final int			SAVE_AS = 2;
 	
-	/** Action command ID to bring up the movie widget. */
-	static final int			MOVIE = 3;
-	
 	/** Action Command ID to bring up the inspector (with zooming) widget. */
-	static final int			INSPECTOR = 4;
+	static final int			INSPECTOR = 3;
 	
 	/** Action command ID to bring up the viewer3D widget. */
-	static final int			VIEWER3D = 5;
+	static final int			VIEWER3D = 4;
 	
+    /** Action command ID to bring up the movie widget. */
+    public static final int     MOVIE_T = 5;
+    
+    /** Action command ID to bring up the movie widget. */
+    public static final int     MOVIE_Z = 6;
+    
+    
 	/** Slider to control z-section selection and timepoint. */
 	private JSlider				tSlider, zSlider;
 	
@@ -238,8 +242,9 @@ public class ViewerCtrl
 					showInspector(); break;
 				case VIEWER3D:
 					showImage3DViewer(); break;
-				case MOVIE:
-					showMovie(); break;
+				case MOVIE_T:
+                case MOVIE_Z:
+					showMovie(index); break;
 		   }
 		} catch(NumberFormatException nfe) {   
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -273,9 +278,18 @@ public class ViewerCtrl
 	}
 	
 	/** Bring up the movie panel. */
-	public void showMovie()
+	public void showMovie(int index)
 	{
-		moviePlayer = new Player(this, abstraction.getPixelsDims().sizeT-1);
+        int max = 0;
+        String s = null;
+        if (index == MOVIE_T) {
+            max = abstraction.getPixelsDims().sizeT-1;
+            s = "t-Movie: "+getCurImageName();
+        } else if (index == MOVIE_Z) {
+            max = abstraction.getPixelsDims().sizeZ-1;
+            s = "z-Movie: "+getCurImageName();
+        }
+        moviePlayer = new Player(this, max, index, s);
 		UIUtilities.centerAndShow(moviePlayer);
 	}
 	

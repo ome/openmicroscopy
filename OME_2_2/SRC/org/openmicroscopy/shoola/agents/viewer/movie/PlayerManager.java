@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.viewer.movie;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.Timer;
@@ -83,27 +85,36 @@ public class PlayerManager
 	private Timer 				timer;
 	private int 				frameNumber;
 
-	private int					sizeT;
+	private int					sizeValue;
+    
 	private ToolBarManager		tbm;
 	
-	private int					curZ;
+	private int					curValue;
 	
 	private int					startMovie, endMovie;
 	
+    private int                 index;
+    
 	/**
 	 * 
 	 * @param view		reference to the view.
 	 * @param control	reference to the {@link ViewerCtrl control}.
-	 * @param maxT		timepoint-1 b/c OME values start at 0.
+	 * @param maxValue	timepoint-1 b/c OME values start at 0 or z-1.
+     * @param index     one of the movie defined in {@link ViewerCtrl control}.
 	 */
-	public PlayerManager(Player view, ViewerCtrl control, int maxT)
+	public PlayerManager(Player view, ViewerCtrl control, int maxValue, 
+                        int index)
 	{
 		this.view = view;
+        this.index = index;
 		this.control = control;
 		registry = control.getRegistry();
-		sizeT = maxT;
-		curZ = control.getDefaultZ();
-		frames = new BufferedImage[maxT+1];
+		sizeValue = maxValue;
+		if (index == ViewerCtrl.MOVIE_T)
+            curValue = control.getDefaultZ();
+        else if (index == ViewerCtrl.MOVIE_Z)
+            curValue = control.getDefaultT();
+		frames = new BufferedImage[maxValue+1];
 		frozen = true;
 		rewind = false;
 		delay = 1000/FPS_INIT;
@@ -111,10 +122,19 @@ public class PlayerManager
 		timer = new Timer(delay, this);
 		timer.setInitialDelay(delay*10);
 		timer.setCoalesce(true);
+        attachListener();
 		EventBus bus = registry.getEventBus();
 		bus.register(this, ImageRendered.class);
 	}
 	
+    /** Attach a window listener. */
+    private void attachListener()
+    {
+        view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { timer.stop(); }
+        });
+    }
+    
 	/** Attach listener to a menu Item. */
 	void attachItemListener(AbstractButton item, int id)
 	{
@@ -226,9 +246,8 @@ public class PlayerManager
     /** For now, we play the movie from startMovie. */
 	public void actionPerformed(ActionEvent e)
 	{
-		if (frameNumber <= sizeT && !frozen &&
+		if (frameNumber <= sizeValue && !frozen &&
             frameNumber >= startMovie && frameNumber <= endMovie) {
-            System.out.println("number: "+frameNumber);
             updateImage(frameNumber);
             if (rewind) {
                 if (frameNumber == startMovie) stopTimer();
@@ -241,27 +260,33 @@ public class PlayerManager
 	}
 
 	/** Update the image, if not already created an event is posted. */
-	private void updateImage(int t)
+	private void updateImage(int v)
 	{
-		BufferedImage img = frames[t];
-		if (img == null)	renderImage(t);
-		else paintImage(img, t);
+		BufferedImage img = frames[v];
+		if (img == null)	renderImage(v);
+		else paintImage(img, v);
 	}
 	
 	/** Post a renderImageEvent. */
-	void renderImage(int t)
+	void renderImage(int v)
 	{
-		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
-		def.setZ(curZ); 
+		PlaneDef def = null;
+        if (index == ViewerCtrl.MOVIE_T) {
+            def = new PlaneDef(PlaneDef.XY, v);
+            def.setZ(curValue); 
+        } else {
+            def = new PlaneDef(PlaneDef.XY, curValue);
+            def.setZ(v);
+        }
 		RenderImage render = new RenderImage(control.getCurPixelsID(), def);
 		render.setMovie(true);
 		registry.getEventBus().post(render);	
 	}
 
 	/** Synchronize the different components. */
-	private void paintImage(BufferedImage img, int t)
+	private void paintImage(BufferedImage img, int v)
 	{
-		tbm.setTLabel(t);
+		tbm.setLabel(v);
 		view.getCanvas().paintImage(img);
 	}
 	
@@ -271,9 +296,13 @@ public class PlayerManager
 		RenderImage request = (RenderImage) e.getACT();
 		if (request.isMovie()) {
 			BufferedImage img = e.getRenderedImage();
-			int t = request.getPlaneDef().getT();
-			frames[t] = img;
-			paintImage(img, t);
+            int v = 0; 
+            if (index == ViewerCtrl.MOVIE_T)
+                v = request.getPlaneDef().getT();
+            else if (index == ViewerCtrl.MOVIE_Z)
+                v = request.getPlaneDef().getZ();
+			frames[v] = img;
+			paintImage(img, v);
 		}
 	}
 	

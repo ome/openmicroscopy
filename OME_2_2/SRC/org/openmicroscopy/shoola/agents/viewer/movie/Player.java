@@ -69,7 +69,6 @@ public class Player
 	
 	private ToolBar 				toolBar;
 	
-	
 	private Canvas					canvas;
 	
 	private JScrollPane 			scrollPane;
@@ -77,12 +76,13 @@ public class Player
 	/**
 	 * 
 	 * @param control	reference to the {@link ViewerCtrl control}.
-	 * @param maxT		timepoint-1 b/c OME values start at 0.
+	 * @param maxValue	timepoint-1 b/c OME values start at 0 or section s-1.
 	 */
-	public Player(ViewerCtrl control, int maxT)
+	public Player(ViewerCtrl control, int maxValue, int index, String movie)
 	{
-		super(control.getReferenceFrame(), "Movie: "+control.getCurImageName());
-		init(control, maxT);
+		super(control.getReferenceFrame(), movie);
+        setModal(true);
+		init(control, maxValue, index);
 		buildGUI();
 	}
 	
@@ -93,11 +93,11 @@ public class Player
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
 	/** Initializes the components. */
-	private void init(ViewerCtrl control, int maxT)
+	private void init(ViewerCtrl control, int max, int index)
 	{
 		//register for the ImageRendered event.
 		Registry reg = control.getRegistry();
-		manager = new PlayerManager(this, control, maxT);
+		manager = new PlayerManager(this, control, max, index);// to check
 		canvas = new Canvas(this);
 		BufferedImage img = control.getBufferedImage();
 		int w = img.getWidth();
@@ -106,7 +106,10 @@ public class Player
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
 		canvas.paintImage(img);
-		toolBar = new ToolBar(manager, reg, maxT, control.getDefaultT());
+        if (index == ViewerCtrl.MOVIE_T)
+            toolBar = new ToolBar(manager, reg, max, control.getDefaultT());
+        else if (index == ViewerCtrl.MOVIE_Z)
+            toolBar = new ToolBar(manager, reg, max, control.getDefaultZ());
 		setWindowSize(w, h);
 	}
 	

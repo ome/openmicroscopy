@@ -89,8 +89,8 @@ class ToolBar
 
 	private JPanel					controlsMoviePanel;
 
-	/** Labels displaying the number of timepoints. */
-	private JLabel					tLabel;
+	/** Labels displaying the number of timepoints of z-section. */
+	private JLabel					label;
 
     /** Border of the pressed button. */
 	private Border                  pressedBorder;
@@ -99,13 +99,14 @@ class ToolBar
 	
 	private ToolBarManager			manager;
 	
-	public ToolBar(PlayerManager control, Registry registry, int sizeT, int t)
+	public ToolBar(PlayerManager control, Registry registry, int sizeValue, 
+                    int v)
 	{
         pressedBorder = BorderFactory.createLoweredBevelBorder();
 		initTxtWidth();
-		initComponents(registry, sizeT);
-		initFields(t, sizeT);
-		manager = new ToolBarManager(control, registry, this, sizeT);
+		initComponents(registry, sizeValue);
+		initFields(v, sizeValue);
+		manager = new ToolBarManager(control, registry, this, sizeValue);
 		manager.attachListeners();
 		control.setToolBarManager(manager);
 		buildToolBar();
@@ -113,7 +114,7 @@ class ToolBar
 	
 	public JButton getSaveAs() { return saveAs; }
 
-	public JLabel getTLabel() { return tLabel; }
+	public JLabel getLabel() { return label; }
 
 	public JSpinner getFPS() { return fps; }
 
@@ -138,7 +139,7 @@ class ToolBar
 	public ToolBarManager getManager() { return manager; }
 	
 	/** Initialize the buttons components. */
-	private void initComponents(Registry registry, int maxT)
+	private void initComponents(Registry registry, int max)
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
@@ -170,8 +171,8 @@ class ToolBar
 		//Spinner timepoint granularity is 1, so must be stepSize
 		//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 		fps = new JSpinner(new SpinnerNumberModel(PlayerManager.FPS_INIT, 
-							PlayerManager.FPS_MIN, maxT, 1));
-		editor = new JTextField(""+PlayerManager.FPS_INIT, (""+maxT).length());
+							PlayerManager.FPS_MIN, max, 1));
+		editor = new JTextField(""+PlayerManager.FPS_INIT, (""+max).length());
 		String s = "Select or enter the movie playback rate " +
 						"(frames per second).";
 		editor.setToolTipText(UIUtilities.formatToolTipText(s));
@@ -196,18 +197,18 @@ class ToolBar
 	 * Initializes the text Fields displaying the current z-section and the
 	 * the current timepoint.
 	 */
-	private void initFields(int t, int maxT)
+	private void initFields(int v, int max)
 	{
-		tLabel = new JLabel("t: "+t+"/"+maxT);
-		movieStart = new JTextField(""+0, (""+maxT).length());
+		label = new JLabel("value: "+v+"/"+max);
+		movieStart = new JTextField(""+0, (""+max).length());
 		movieStart.setForeground(Viewer.STEELBLUE);
 		movieStart.setToolTipText(
 		UIUtilities.formatToolTipText("Enter the starting point of the movie"));
-		movieEnd = new JTextField(""+maxT, (""+maxT).length());
+		movieEnd = new JTextField(""+max, (""+max).length());
 		movieEnd.setForeground(Viewer.STEELBLUE);
 		movieEnd.setToolTipText(
 		UIUtilities.formatToolTipText("Enter the end point of the movie"));
-		controlsMoviePanel = buildControlsMoviePanel((""+maxT).length());
+		controlsMoviePanel = buildControlsMoviePanel((""+max).length());
 	}
 	
 	/** Build the main tool bar. */
@@ -217,7 +218,7 @@ class ToolBar
 		add(buildBar());
 		add(moviePanel());
 		add(controlsMoviePanel);
-		add(tLabel);
+		add(label);
 	}
 
 	/** Build a toolBar with buttons. */

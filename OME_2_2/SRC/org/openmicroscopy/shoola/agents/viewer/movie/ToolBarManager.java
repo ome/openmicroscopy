@@ -102,7 +102,7 @@ public class ToolBarManager
                                                 pause, playStart,
                                                 playEnd;
     
-	private int									maxT, curR;
+	private int									maxValue, curR;
 	
 	private int									curMovieStart, curMovieEnd;
 	
@@ -113,15 +113,15 @@ public class ToolBarManager
 	private Registry							registry;
 
 	public ToolBarManager(PlayerManager control, Registry registry, 
-						ToolBar view, int sizeT)
+						ToolBar view, int max)
 	{
 		this.control = control;
 		this.registry = registry;
 		this.view = view;
-		maxT = sizeT;
+		maxValue = max;
 		curR = PlayerManager.FPS_INIT;
 		curMovieStart = 0;
-		curMovieEnd = sizeT;
+		curMovieEnd = maxValue;
 	}
 	
 	int getCurMovieStart() { return curMovieStart; }
@@ -169,7 +169,10 @@ public class ToolBarManager
 		view.getFPS().addChangeListener(this);
 	}
 	
-	public void setTLabel(int t) { view.getTLabel().setText("t: "+t+"/"+maxT); }
+	public void setLabel(int v)
+    { 
+        view.getLabel().setText("value: "+v+"/"+maxValue);
+    }
 	
 	/** 
 	 * Synchronizes the spinner, and the text editor.
@@ -200,13 +203,13 @@ public class ToolBarManager
 		int val = PlayerManager.FPS_MIN;
 		try {
 			val = Integer.parseInt(view.getEditor().getText());
-			if (PlayerManager.FPS_MIN <= val && val <= maxT) {
+			if (PlayerManager.FPS_MIN <= val && val <= maxValue) {
 				valid = true;
 			} else if (val < PlayerManager.FPS_MIN) {
 				val = PlayerManager.FPS_MIN;
 				valid = true;
-			} else if (val > maxT) {
-				val = maxT;
+			} else if (val > maxValue) {
+				val = maxValue;
 				valid = true;
 			}
 		} catch(NumberFormatException nfe) {}
@@ -214,8 +217,8 @@ public class ToolBarManager
 		else {
 			view.getEditor().selectAll();
 			UserNotifier un = registry.getUserNotifier();
-			un.notifyInfo("Invalid value", 
-			"Please enter a value between "+PlayerManager.FPS_MIN+" and "+maxT);
+			un.notifyInfo("Invalid value", "Please enter a value " +
+                    "between "+PlayerManager.FPS_MIN+" and "+maxValue);
 		}
 	} 
 	
@@ -230,7 +233,7 @@ public class ToolBarManager
 		control.stopTimer();	//freeze
 		boolean valid = false;
 		int val = 0;
-		int valEnd = maxT;
+		int valEnd = maxValue;
 		try {
 			val = Integer.parseInt(view.getMovieStart().getText());
 			valEnd = Integer.parseInt(view.getMovieEnd().getText());
@@ -241,7 +244,7 @@ public class ToolBarManager
 			view.getMovieStart().selectAll();
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyInfo("Invalid start point", 
-				"Please enter a timepoint between 0 and "+v);
+				"Please enter a value between 0 and "+v);
 		} else {
 			curMovieStart = val;
 			control.setStartMovie(curMovieStart);
@@ -263,14 +266,14 @@ public class ToolBarManager
 		try {
 			val = Integer.parseInt(view.getMovieEnd().getText());
 			valStart = Integer.parseInt(view.getMovieStart().getText());
-			if (valStart < val && val <= maxT) valid = true;
+			if (valStart < val && val <= maxValue) valid = true;
 		} catch(NumberFormatException nfe) {}
 		if (!valid) {
 			view.getMovieEnd().selectAll();
 			UserNotifier un = registry.getUserNotifier();
 			int v = valStart+1;
 			un.notifyInfo("Invalid end point", 
-				"Please enter a timepoint between "+ v+" and "+maxT);
+				"Please enter a timepoint between "+ v+" and "+maxValue);
 		} else {
 			curMovieEnd = val;
 			control.setEndMovie(curMovieEnd);

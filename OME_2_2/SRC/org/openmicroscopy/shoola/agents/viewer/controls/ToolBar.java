@@ -38,6 +38,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.ButtonMenu;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -83,7 +85,10 @@ public class ToolBar
 	/** Control to post an event to bring up the rendering widget. */
 	private JButton					render;
 	
-	private JButton					movie;
+    /** Control to post an event to bring up the rendering widget. */
+    private JMenuItem               movieZ, movieT;
+    
+	private ButtonMenu				movie;
 	
 	/** Fields displaying the current z-section and the current timepoint. */
 	private JTextField				zField, tField;
@@ -117,7 +122,9 @@ public class ToolBar
 		buildToolBar();
 	}
 
-	public JButton getMovie() { return movie; }
+	public JMenuItem getMovieZ() { return movieZ; }
+    
+    public JMenuItem getMovieT() { return movieT; }
 	
 	public JButton getViewer3D() { return viewer3D; }
 	
@@ -155,13 +162,28 @@ public class ToolBar
 		render =  new JButton(im.getIcon(IconManager.RENDER));
 		render.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the rendering panel."));
-			
-		movie =  new JButton(im.getIcon(IconManager.MOVIE));
-		movie.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the movie player."));	
-		movie.setEnabled(maxT != 0);	
+		
+        initMovieButtonMenu(im, maxT, maxZ);
 	}
 	
+    private void initMovieButtonMenu(IconManager im, int maxT, int maxZ)
+    {
+        movie = new ButtonMenu(im.getIcon(IconManager.MOVIE));
+        movieZ =  new JMenuItem(im.getIcon(IconManager.MOVIE));
+        movieZ.setText("movie across z");
+        movieZ.setToolTipText(
+         UIUtilities.formatToolTipText("Play movie across z-sections."));   
+        movieZ.setEnabled(maxZ == 0); 
+       
+        movieT =  new JMenuItem(im.getIcon(IconManager.MOVIE));
+        movieT.setText("movie across t");
+        movieT.setToolTipText(
+         UIUtilities.formatToolTipText("Play movie across timepoints."));   
+        movieT.setEnabled(maxT != 0);
+        movie.addToMenu(movieZ);
+        movie.addToMenu(movieT);
+    }
+    
 	/** 
 	 * Initializes the text Fields displaying the current z-section and the
 	 * the current timepoint.
