@@ -74,8 +74,8 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
 	MouseableNode {
 
 	// leave on pixel on either side of border
-	public static final int OFFSET=3;
-	public static final float BASE_STROKE_WIDTH=Constants.DATASET_IMAGE_GAP-
+	public static final int OFFSET=1;
+	public static final float BASE_STROKE_WIDTH=2*Constants.DATASET_IMAGE_GAP-
 		OFFSET;
 	
 
