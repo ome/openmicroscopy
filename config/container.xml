@@ -2,11 +2,11 @@
 <container>
    <services>
      <structuredEntry name="/services/OMEIS" type = "OMEIS">
-       <url>http://somehost/however/not/needed/right/now</url>
+      <url>http://yourhost/cgi-bin/omeis/</url> 
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-       <url>http://runemaster.openmicroscopy.org.uk/shoola</url>
-     </structuredEntry>
+      <url>http://yourhost/shoola/"</url>
+      </structuredEntry>
      
      <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
@@ -102,6 +102,16 @@
          directory. -->
          <config>roi.xml</config>
        </agent>
+       <agent>
+	<name>Zoomable Browser Agent</name>
+	<class>org.openmicroscopy.shoola.agents.zoombrowser.ZoomBrowserAgent</class>  
+        <config>zoombrowser.xml</config>
+       </agent>  
+       <agent>
+	<name>Chain Builder Agent</name>
+	<class>org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent</class>  
+        <config>chainbuilder.xml</config>
+      </agent> 
      </structuredEntry>
    </agents>
    <resources>
