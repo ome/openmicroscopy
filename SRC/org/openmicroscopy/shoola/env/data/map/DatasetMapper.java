@@ -102,7 +102,8 @@ public class DatasetMapper
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
         criteria.addWantedField("images.default_pixels", "Repository");
-        criteria.addWantedField("images.default_pixels.Repository","ImageServerURL");
+        criteria.addWantedField("images.default_pixels.Repository",
+								"ImageServerURL");
         criteria.addOrderBy("id");
 		
 		return criteria;
@@ -144,7 +145,8 @@ public class DatasetMapper
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
         criteria.addWantedField("images.default_pixels", "Repository");
-        criteria.addWantedField("images.default_pixels.Repository","ImageServerURL");
+        criteria.addWantedField("images.default_pixels.Repository",
+								"ImageServerURL");
         criteria.addOrderBy("id");
 		
 		criteria.addFilter("id", new Integer(id));
@@ -252,13 +254,13 @@ public class DatasetMapper
 	}
 	
 	//	TODO: will be modified as soon as we have a better approach.
-	private static int[] fillListPixelsID(Image image)
+	private static long[] fillListPixelsID(Image image)
 	{
-		int[] ids = new int[1];
+		long[] ids = new long[1];
 	  	Pixels px = (Pixels) image.getDefaultPixels();
 		//to be on the save side
 		if (px.getImageServerID() != null)
-			ids[0] = (px.getImageServerID()).intValue();
+			ids[0] = (px.getImageServerID()).longValue();
 	  	return ids;
 	}
     
@@ -266,14 +268,10 @@ public class DatasetMapper
     {
         PixelsDescription pxd = new PixelsDescription();
         pxd.setID(px.getID());
-        if(px.getImageServerID() != null)
-        {
+        if (px.getImageServerID() != null)
             pxd.setImageServerID(px.getImageServerID().longValue());
-        }
-        if(px.getRepository().getImageServerURL() != null)
-        {
+        if (px.getRepository().getImageServerURL() != null)
             pxd.setImageServerUrl(px.getRepository().getImageServerURL());
-        }
         pxd.setPixels(px);
         return pxd;
     }

@@ -118,7 +118,6 @@ public class ImageMapper
 		criteria.addWantedField("default_pixels", "SizeZ");
 		criteria.addWantedField("default_pixels", "SizeC");
 		criteria.addWantedField("default_pixels", "SizeT");
-		criteria.addWantedField("default_pixels", "BitsPerPixel");	
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels", "ImageServerID");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
@@ -225,23 +224,21 @@ public class ImageMapper
 		if (px.getSizeZ() != null) pxd.setSizeZ((px.getSizeZ()).intValue());
 		if (px.getSizeC() != null) pxd.setSizeC((px.getSizeC()).intValue());
 		if (px.getSizeT() != null) pxd.setSizeT((px.getSizeT()).intValue());
-		if (px.getBitsPerPixel() != null) 
-			pxd.setBitsPerPixel((px.getBitsPerPixel()).intValue());
 		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
 		if (px.getImageServerID() != null)
-			pxd.setImageServerID((px.getImageServerID()).intValue());
+			pxd.setImageServerID((px.getImageServerID()).longValue());
         pxd.setPixels(px);
 		pixels.add(pxd);
 		return pixels;
 	}
 	
 	//	TODO: will be modified as soon as we have a better approach.
-	private static int[] fillListPixelsID(Pixels px)
+	private static long[] fillListPixelsID(Pixels px)
 	{
-		int[] ids = new int[1];
+		long[] ids = new long[1];
 		//to be on the save side
 		if (px.getImageServerID() != null)
-			ids[0] = (px.getImageServerID()).intValue();
+			ids[0] = (px.getImageServerID()).longValue();
 		return ids;
 	}
 }
