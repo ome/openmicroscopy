@@ -346,6 +346,49 @@ public class Classifier implements Agent, AgentEventListener
         return classifications;
     }
     
+    public void classifyImageNew(int imageID, Category category)
+    {
+        if(category == null) return;
+        Classification c = createClassification(category,imageID);
+        List newList = new ArrayList();
+        newList.add(c);
+        commitNewAttributes(newList);
+    }
+    
+    public void classifyImageNew(int[] imageIDs, Category category)
+    {
+        if(category == null || imageIDs == null) return;
+        List newList = new ArrayList();
+        for(int i=0;i<imageIDs.length;i++)
+        {
+            newList.add(createClassification(category,imageIDs[i]));
+        }
+        commitNewAttributes(newList);
+    }
+    
+    public void reclassify(Classification updatedClassification)
+    {
+        if(updatedClassification == null) return;
+        List newList = new ArrayList();
+        newList.add(updatedClassification);
+        updateAttributes(newList);
+    }
+    
+    public void reclassify(Classification[] updatedClassifications)
+    {
+        if(updatedClassifications == null ||
+           updatedClassifications.length == 0)
+        {
+            return;
+        }
+        List updatedList = new ArrayList();
+        for(int i=0;i<updatedClassifications.length;i++)
+        {
+            updatedList.add(updatedClassifications[i]);
+        }
+        updateAttributes(updatedList);
+    }
+    
     public void showCategoryDialog(LoadCategories requestEvent)
     {
         CategoryCtrl cc = new CategoryCtrl(this,requestEvent);
