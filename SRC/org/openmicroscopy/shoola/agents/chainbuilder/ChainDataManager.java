@@ -189,6 +189,35 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
+	protected synchronized LayoutChainData retrieveChain(int id) {
+		try {
+			LayoutChainData acProto = new LayoutChainData();
+			LayoutLinkData alProto = new LayoutLinkData();
+			LayoutNodeData anProto = new LayoutNodeData(); 
+			ChainFormalInputData finProto = new ChainFormalInputData();
+			ChainFormalOutputData foutProto = new ChainFormalOutputData();
+			SemanticTypeData stProto = new SemanticTypeData();
+			ChainModuleData cmProto = new ChainModuleData();
+			DataManagementService dms = registry.getDataManagementService();
+			LayoutChainData chain =  (LayoutChainData)
+				dms.retrieveChain(id,acProto,alProto,anProto,cmProto,
+						finProto,foutProto,stProto);
+			return chain;
+		} catch(DSAccessException dsae) {
+			String s = "Can't retrieve user's chains.";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure",
+													s, dsae);
+			return null;
+		} catch(DSOutOfServiceException dsose) {
+			ServiceActivationRequest 
+			request = new ServiceActivationRequest(
+								ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+			return null;
+		}
+	}
+	
 	protected LinkedHashMap buildChainHash(Collection chains) {
 		LinkedHashMap map = new LinkedHashMap();
 		Iterator iter = chains.iterator();
@@ -209,8 +238,26 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	public void addChain(LayoutChainData chain) {
-		Integer ID = new Integer(chain.getID());
-		chainHash.put(ID,chain);
+		if (chain != null) {
+			Integer ID = new Integer(chain.getID());
+			chainHash.put(ID,chain);
+		}
+	}
+	
+	public LayoutChainData loadChain(int id) {
+		LayoutChainData chain = retrieveChain(id);
+		
+		// reconcile the chain
+		Collection nodes = chain.getNodes();
+		Iterator iter = nodes.iterator();
+		while (iter.hasNext()) {
+			LayoutNodeData node = (LayoutNodeData) iter.next();
+			int nodeId = node.getModule().getID();
+			ChainModuleData mod = (ChainModuleData) getModule(nodeId);
+			node.setModule(mod);	
+		}
+		addChain(chain);
+		return chain;
 	}
 	
 	public synchronized Collection getChainExecutions() {
