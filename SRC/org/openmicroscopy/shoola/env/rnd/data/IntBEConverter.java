@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.pix.IntBEConverter
+ * org.openmicroscopy.shoola.env.rnd.data.IntBEConverter
  *
  *------------------------------------------------------------------------------
  *
@@ -58,28 +58,33 @@ public class IntBEConverter
 	extends BytesConverter
 {
 	
-	/**
-	 * The above probably deserves a quick explanation. We consider every byte
-	 * value as a digit in base 2^8 = B. This means that the original value, 
-	 * to be interpreted as 2's complement integer, is given by 
-	 * LSB[0]*B^0 + LSB[1]*B^1 + ... + LSB[n]*B^n.
-	 * So, if we know where the LSB in the input bytes is 
-	 * (that is, the endianness), we can calculate the numeric value regardless 
-	 * of the endianness of the platform we're running on.
-	 * We use a left shift to calculate LSB[k]*B^k because this operator 
-	 * shifts from LSB to MSB, regardless of endianness.
-	 */
+	/** Implemented as specified by {@link BytesConverter}. */
 	public Object pack(byte[] data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
-			//get k-byte starting from MSB, that is LSB[length-k-1]
+			
+			//Get k-byte starting from MSB, that is LSB[length-k-1].
 			tmp = data[offset+k]&0xFF;
-			//add LSB[j]*(2^8)^j to r, where j=length-k-1  
+			
+			//Add LSB[j]*(2^8)^j to r, where j=length-k-1.  
 			r |= tmp<<(length-k-1)*8; 
-			paddingMask <<= 8;  //make room for length bytes
+			/* 
+			 * This probably deserves a quick explanation.
+			 * We consider every byte value as a digit in base 2^8=B. 
+			 * This means that the numeric value is given by 
+			 * LSB[0]*B^0 + LSB[1]*B^1 + ... + LSB[n]*B^n.
+			 * So, if we know where the LSB in the input bytes is (that is, the
+			 * endianness), we can calculate the numeric value regardless of the
+			 * endianness of the platform we're running on.
+			 * We use a left shift to calculate LSB[k]*B^k because this operator
+			 * shifts from LSB to MSB, regardless of endianness.
+			 */
+			 
+			//Make room for length bytes.
+			paddingMask <<= 8;  
 		}
-		if (data[0] < 0)   r |= paddingMask;  //was negative, pad
+		if (data[offset] < 0)   r |= paddingMask;  //Was negative, pad.
 		return new Integer(r);
 	}
     

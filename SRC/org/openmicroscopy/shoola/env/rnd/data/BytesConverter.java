@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.pix.BytesConverter
+ * org.openmicroscopy.shoola.env.rnd.data.BytesConverter
  *
  *------------------------------------------------------------------------------
  *
@@ -48,14 +48,12 @@ package org.openmicroscopy.shoola.env.rnd.data;
  * <p>Each subclass implements the {@link #pack(byte[],int,int) pack} method to 
  * carry out a specific conversion algorithm, taking into account pixel type 
  * and endianness. The value returned by this method is an object that wraps the
- * actual numeric value. For {DataSink#INT8}, {DataSink#INT16}, 
- * {DataSink#INT32}, {DataSink#UINT8} and {DataSink#UINT16} types, 
- * the returned value is an instance of <code>Integer</code>, 
- * as <code>Long</code> is used for {Pixels#UINT32}.
+ * actual numeric value. For {@link DataSink#INT8}, {@link DataSink#INT16}, 
+ * {@link DataSink#INT32}, {@link DataSink#UINT8} and {@link DataSink#UINT16}
+ * types, the returned value is an instance of <code>Integer</code>, 
+ * as <code>Long</code> is used for {@link DataSink#UINT32}.
  * </p>
  * <p>TODO: when we support all other pixel types, explain the mapping here.</p>
- *
- *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,9 +73,9 @@ abstract class BytesConverter
 	 * Factory method to return an appropriate converter, depending on pixel 
 	 * type and endianness.
 	 *
-	 * @param pixelType   	One of the constants defined by {DataSink}.
-	 * @param bigEndian   	Pass <code>true</code> if the bytes are big-endian 
-	 * 						ordered, <code>false</code> otherwise.
+	 * @param pixelType   	One of the constants defined by {@link DataSink}.
+	 * @param bigEndian   	Pass <code>true</code> if the bytes are in
+	 * 						big-endian order, <code>false</code> otherwise.
 	 * @return  A suitable converter.
 	 */
 	static BytesConverter getConverter(int pixelType, boolean bigEndian) 
@@ -107,10 +105,10 @@ abstract class BytesConverter
 
 
 	/** 
-	 * Creates the suitable Uint converter.
+	 * Creates a converter suitable for unsigned integers.
  	 *
- 	 * @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
- 	 * 					ordered, <code>false</code> otherwise.   
+ 	 * @param bigEndian	Pass <code>true</code> if the bytes are in big-endian 
+ 	 * 					order, <code>false</code> otherwise.   
  	 * @return the suitable converter.
  	 */
 	private static BytesConverter createUintConverter(boolean bigEndian)
@@ -120,10 +118,10 @@ abstract class BytesConverter
 	}
  
 	/** 
-	 * Creates the suitable Int converter.
+	 * Creates the suitable converter.
  	 *
- 	 * @param bigEndian	Pass <code>true</code> if the bytes are big-endian 
- 	 * 					ordered, <code>false</code> otherwise.   
+ 	 * @param bigEndian	Pass <code>true</code> if the bytes are in big-endian 
+ 	 * 					order, <code>false</code> otherwise.   
  	 * @return the suitable converter.
  	 */
 	private static BytesConverter createIntConverter(boolean bigEndian)
@@ -136,10 +134,11 @@ abstract class BytesConverter
 	 * Converts a sequence of bytes, representing a pixel value, into a numeric 
 	 * value of appropriate type, taking endianness into account. 
 	 * The value returned by this method is an object that wraps the actual 
-	 * numeric value. For {DataSink#INT8}, {DataSink#INT16}, {DataSink#INT32}, 
-	 * {DataSink#UINT8} and {DataSink#UINT16} types, the returned value is an 
+	 * numeric value. For {@link DataSink#INT8}, {@link DataSink#INT16}, 
+	 * {@link DataSink#INT32}, {@link DataSink#UINT8}, and 
+	 * {@link DataSink#UINT16} types, the returned value is an 
 	 * instance of <code>Integer</code>, as <code>Long</code> is used for 
-	 * {DataSink#UINT32}.
+	 * {@link DataSink#UINT32}.
  	 * <p>TODO: when we support all other pixel types, explain the mapping 
  	 * here.</p>
  	 *

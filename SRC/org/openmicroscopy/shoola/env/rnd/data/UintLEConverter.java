@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.pix.UintLEConverter
+ * org.openmicroscopy.shoola.env.rnd.data.UintLEConverter
  *
  *------------------------------------------------------------------------------
  *
@@ -60,25 +60,28 @@ public class UintLEConverter
 	extends BytesConverter
 {
     
-	/** 
-	* Carries out the job according to the contract specified by 
-	* {@link BytesConverter}.
-	* The above probably deserves a quick explanation. We consider every 
-	* byte value as a digit in base 2^8 = B. This means that the numeric 
-	* value is given by LSB[0]*B^0 + LSB[1]*B^1 + ... + LSB[n]*B^n.
- 	* So, if we know where the LSB in the input bytes is 
- 	* (that is, the endianness), we can calculate the
- 	* numeric value regardless of the endianness of the platform we're 
- 	* running on.
- 	* We use a left shift to calculate LSB[k]*B^k because this operator 
- 	* shifts from LSB to MSB, regardless of endianness.
-	*/
+	/** Implemented as specified by {@link BytesConverter}. */
 	public Object pack(byte[] data, int offset, int length)
 	{
 		long r = 0, tmp;
 		for (int k = 0; k < length; ++k) {
-			tmp = data[offset+k]&0xFF;  //get k-byte starting from LSB
-			r |= tmp<<k*8;  //add LSB[k]*(2^8)^k to r 
+			
+			//Get k-byte starting from LSB.
+			tmp = data[offset+k]&0xFF;  
+			
+			//Add LSB[k]*(2^8)^k to r.
+			r |= tmp<<k*8;   
+			/* 
+			 * This probably deserves a quick explanation.
+			 * We consider every byte value as a digit in base 2^8=B. 
+			 * This means that the numeric value is given by 
+			 * LSB[0]*B^0 + LSB[1]*B^1 + ... + LSB[n]*B^n.
+			 * So, if we know where the LSB in the input bytes is (that is, the
+			 * endianness), we can calculate the numeric value regardless of the
+			 * endianness of the platform we're running on.
+			 * We use a left shift to calculate LSB[k]*B^k because this operator
+			 * shifts from LSB to MSB, regardless of endianness.
+			 */
 		}
 		if (length < 4) return new Integer((int) r);
 		return new Long(r);
