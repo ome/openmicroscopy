@@ -85,28 +85,19 @@ public class ChainBox extends GenericBox implements MouseableNode
 	public static final double MAX_NAME_SCALE=6;
 	
 
-	/**
-	 * 
-	 * The ID of the chain being stored
-	 */
-	private int chainID=0;
 	
 	private LayoutChainData chain;
 	
 	
 	private static final float VGAP=10;
 	private static final float HGAP=20;
-	private static final float FUDGE=3;
 	
 	private PText name;
 	
-	private float height;
-	private float width;
 	float x =0;
 	float y = 0;
 	
 	private PLayer chainLayer;
-	private LinkLayer PLinkLayer;
 	
 	/** the chain being represented */
 	private ChainView chainView;
@@ -118,10 +109,6 @@ public class ChainBox extends GenericBox implements MouseableNode
 		super();
 		this.chain = chain;
 		this.registry = registry;
-		chainID = chain.getID();
-		/*SelectionState selectionState = SelectionState.getState();
-		selectionState.addSelectionEventListener(this); */
-		
 		
 		chainLayer = new PLayer();
 		addChild(chainLayer);
@@ -152,7 +139,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		y += owner.getHeight()+VGAP;
 		
 		// build the chain..
-		chainView = new PaletteChainView(chain);
+		chainView = new PaletteChainView(chain,registry);
 		
 		chainLayer.addChild(chainView);
 		chainView.setOffset(HGAP*2,y);
