@@ -94,6 +94,8 @@ public class TrajPoint extends TrajShape {
 		return pt;
 	}
 	
+	
+	// builds cube centered on 0,0 with appropriate side length.
 	public void getGeometry(float side) {
 		CubeGeometry cube = new CubeGeometry(side);
 		shape.setGeometry(cube);

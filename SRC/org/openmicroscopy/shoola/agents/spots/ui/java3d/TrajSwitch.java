@@ -242,6 +242,10 @@ public class TrajSwitch extends Switch implements TrajectoryEventListener {
 					size = (float) (ste.getLogSize()/tSet.getLogMaxSize())*
 							TrajPoint.BOX_SIDE;
 				}
+				// sets up cube with side length "size". Cube centered around 0,0
+				// so location of trajectory entry is correctly interpreted as 
+				// centroid relative to the trajectory entry size, which
+				// is its volume
 				tp.getGeometry(size);
 			}
 		}
