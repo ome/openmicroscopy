@@ -544,8 +544,12 @@ class DMSAdapter
 		if (mProto == null)     mProto = new ModuleData();
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
+//		Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
 		//Define the criteria by which the object graph is pulled out
-		Criteria c = ChainExecutionMapper.buildChainExecutionCriteria();
+		Criteria c = ChainExecutionMapper.
+			buildChainExecutionCriteria(uc.getUserID());
 	
 		// Load the graph defined by the criteria
 		List execs = (List) gateway.retrieveListData(ChainExecution.class,c);
