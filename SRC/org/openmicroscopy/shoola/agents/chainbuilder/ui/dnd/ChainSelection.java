@@ -90,7 +90,7 @@ import java.io.IOException;
 	{
 	
 		 if (flavor.equals(ChainFlavor.chainFlavor))
-			 return (Object)data;
+			 return data;
 		 else 
 			throw new UnsupportedFlavorException(flavor);
 	}

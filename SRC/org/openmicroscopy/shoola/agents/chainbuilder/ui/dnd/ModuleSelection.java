@@ -87,7 +87,7 @@ import java.io.IOException;
 				 throws UnsupportedFlavorException, IOException
 	{
 		 if (flavor.equals(ModuleFlavor.moduleFlavor))
-			 return (Object)data;
+			 return data;
 		 else 
 			throw new UnsupportedFlavorException(flavor);
 	}
