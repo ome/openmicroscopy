@@ -22,6 +22,7 @@
 	  <agent>
 		<name>Browser</name>
 		<class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class>
+		<config>browser.xml</config>
 	  </agent>
      </structuredEntry>
    </agents>
