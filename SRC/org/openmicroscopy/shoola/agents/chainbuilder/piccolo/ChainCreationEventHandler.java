@@ -318,24 +318,24 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			lastParameterEntered = (FormalParameter) node;
 			//System.err.println("mouse entered last entered.."+
 			if (linkState == NOT_LINKING) {
-				ModuleView mod = lastParameterEntered.getModuleView();
-				mod.setParamsHighlighted(false);
-				// must turn on params for this parameter _after_
-				// we turn off all params for the module, 
-				// or else turnning off params for the module
-				// will undo what had just bee turned on.
+				// turn on params for this parameter 
 				lastParameterEntered.setParamsHighlighted(true);
+				// set all modules of this same type to be highlighted.
+				ModuleView mod = lastParameterEntered.getModuleView();
 				mod.setModulesHighlighted(true);	
 			}
 			e.setHandled(true);
 		}
 		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
-			ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
-			mod.setAllHighlights(true);
+			((ModuleLinkTarget) node).setParametersHighlighted(true);
+			//ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
+		     //mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
 		else if (node instanceof ModuleView && linkState == NOT_LINKING) {
 			ModuleView mod = (ModuleView) node;
+			// highlight all matching params..
+			mod.setModulesHighlighted(true);
 			mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
@@ -365,8 +365,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			e.setHandled(true);
 		}
 		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
-			ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
-			mod.setAllHighlights(false);
+			//ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
+			//mod.setAllHighlights(false);
+			((ModuleLinkTarget) node).setParametersHighlighted(false);
 			e.setHandled(true);
 		}
 
