@@ -1,4 +1,4 @@
-; Sat Feb 19 23:44:42 CET 2005
+; Sun Feb 20 00:26:30 CET 2005
 ; 
 ;+ (version "3.0")
 ;+ (build "Build 131")
@@ -6,11 +6,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[ome_ProjectKB_Instance_20170]
-		[ome_ProjectKB_Instance_20171]
-		[ome_ProjectKB_Instance_20172]
-		[ome_ProjectKB_Instance_20173]
-		[ome_ProjectKB_Instance_20174]))
+		[ome_ProjectKB_Instance_20231]
+		[ome_ProjectKB_Instance_20232]
+		[ome_ProjectKB_Instance_20233]
+		[ome_ProjectKB_Instance_20234]
+		[ome_ProjectKB_Instance_20235]))
 
 ([CLSES_TAB] of  Widget
 
@@ -1697,8 +1697,8 @@
 
 ([ome_ProjectKB_Instance_10209] of  Map
 
-	(entries [ome_ProjectKB_Instance_20176])
-	(referenced_maps [ome_ProjectKB_Instance_20175]))
+	(entries [ome_ProjectKB_Instance_20237])
+	(referenced_maps [ome_ProjectKB_Instance_20236]))
 
 ([ome_ProjectKB_Instance_11] of  Property_List
 )
@@ -1752,39 +1752,67 @@
 	(property_list [ome_ProjectKB_Instance_21])
 	(widget_class_name "edu.stanford.smi.protegex.owl.swrl.ui.tab.SWRLTab"))
 
-([ome_ProjectKB_Instance_20170] of  String
+([ome_ProjectKB_Instance_20206] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_20207])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 300))
+
+([ome_ProjectKB_Instance_20207] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20220] of  Widget
+
+	(height 120)
+	(is_hidden FALSE)
+	(name "createdAt")
+	(property_list [ome_ProjectKB_Instance_20221])
+	(widget_class_name "edu.stanford.smi.protegex.owl.ui.widget.OWLDateTimeWidget")
+	(width 200)
+	(x 0)
+	(y 360))
+
+([ome_ProjectKB_Instance_20221] of  Property_List
+)
+
+([ome_ProjectKB_Instance_20231] of  String
 
 	(name ":META-CLASS")
 	(string_value "%3ANAME"))
 
-([ome_ProjectKB_Instance_20171] of  String
+([ome_ProjectKB_Instance_20232] of  String
 
 	(name "owl:Class")
 	(string_value "%3ANAME"))
 
-([ome_ProjectKB_Instance_20172] of  String
+([ome_ProjectKB_Instance_20233] of  String
 
 	(name ":INSTANCE-ANNOTATION")
 	(string_value "%3AANNOTATION-TEXT"))
 
-([ome_ProjectKB_Instance_20173] of  String
+([ome_ProjectKB_Instance_20234] of  String
 
 	(name ":PAL-CONSTRAINT")
 	(string_value "%3APAL-NAME"))
 
-([ome_ProjectKB_Instance_20174] of  String
+([ome_ProjectKB_Instance_20235] of  String
 
 	(name "owl:Thing")
 	(string_value "%3ANAME"))
 
-([ome_ProjectKB_Instance_20175] of  Map
+([ome_ProjectKB_Instance_20236] of  Map
 )
 
-([ome_ProjectKB_Instance_20176] of  Map_Entry
+([ome_ProjectKB_Instance_20237] of  Map_Entry
 
 	(key "InstanceDisplay.yellow_stickies")
 	(key_class "java.lang.String")
-	(value "ome_ProjectKB_Instance_20175")
+	(value "ome_ProjectKB_Instance_20236")
 	(value_class "java.util.Map"))
 
 ([ome_ProjectKB_Instance_21] of  Property_List

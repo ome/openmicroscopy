@@ -61,12 +61,12 @@ default:Image
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:defaultPixels
+                owl:onProperty default:owner
               ] ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:owner
+                owl:onProperty default:defaultPixels
               ] .
 
 default:defaultPixels
@@ -415,6 +415,15 @@ default:Deletion
       a       owl:Class ;
       rdfs:subClassOf default:Attribute .
 
+default:Well
+      a       owl:Class ;
+      rdfs:subClassOf default:Container ;
+      rdfs:subClassOf
+              [ a       owl:Restriction ;
+                owl:allValuesFrom default:Image ;
+                owl:onProperty default:contains
+              ] .
+
 default:allContainersFollow
       a       default:Follow ;
       default:description "Recursively defined to gather all linked containment relationships"^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -424,15 +433,6 @@ default:allContainersFollow
 default:Result
       a       owl:Class ;
       rdfs:subClassOf default:Attribute .
-
-default:Well
-      a       owl:Class ;
-      rdfs:subClassOf default:Container ;
-      rdfs:subClassOf
-              [ a       owl:Restriction ;
-                owl:allValuesFrom default:Image ;
-                owl:onProperty default:contains
-              ] .
 
 default:owner
       a       owl:ObjectProperty , owl:FunctionalProperty ;

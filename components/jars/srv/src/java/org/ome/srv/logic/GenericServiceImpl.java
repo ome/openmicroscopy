@@ -15,6 +15,15 @@ import org.ome.model.FollowGroup;
  * @author josh
  */
 public class GenericServiceImpl extends AbstractService implements GenericService {
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
+	 */
+	public LSObject getLSObject(LSID lsid) throws RemoteException {
+		return db.getLSObject(lsid);
+	}
+	
+	//TODO =============================
 	
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
@@ -32,14 +41,6 @@ public class GenericServiceImpl extends AbstractService implements GenericServic
 		// TODO Auto-generated method stub
 		throw new RuntimeException("implement me");
 
-	}
-
-	/* (non-Javadoc)
-	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
-	 */
-	public LSObject getLSObject(LSID lsid) {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)

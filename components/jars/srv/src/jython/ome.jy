@@ -1,4 +1,8 @@
 execfile("/home/moore/lib/jython/utils.jy",globals())
-f=org.ome.srv.logic.ServiceFactoryImpl()
-f.getGenericService()
-g.getLSObject(LSID("1"))
+
+from org.ome.model import *
+import org.ome as o
+f=o.srv.logic.ServiceFactoryImpl()
+g=f.getGenericService()
+l=g.getLSObject(LSID(Vocabulary.NS+"Josh"))
+l
