@@ -82,21 +82,20 @@ package org.openmicroscopy.shoola.util.mem;
  * implements the actual functionality.  Clients can only access instances of
  * the Handle which can all share the same Body object whenever appropriate.</p>
  * <p>The way this works in our case is pretty easy.  An Handle class extends
- * this abstract <code>Handle</code> class and provides a reference to an
- * instance of the corresponding Body class.  The concrete Handle class exposes
- * the same interface as its corresponding Body &#151; however, this is not an
- * absolute requirement, it more of an implementation detail.  
- * 
- * The Handle just forwards to
+ * this base <code>Handle</code> class and provides a reference to an instance
+ * of the corresponding Body class.  The concrete Handle class exposes the same
+ * interface as its corresponding Body (this is not an absolute requirement, but
+ * usually an implementation trade-off) and has <i>no state</i> &#151; in fact,
+ * the state is hold by the associated Body object.  The Handle just forwards to
  * the Body any call that only reads the Body's state.  However, it must call
- * the {@link #breakSharing() breakSharing} protected method <i>before</i> 
+ * the {@link #breakSharing() breakSharing} protected method <i>before</i>
  * forwarding any call that modifies the Body's state.  It is crucial that
- * concrete <code>Handle</code> classes stick to this rule.  In fact, the
- * {@link #copy() copy} method simply rebinds a new <code>Handle</code> to
- * the existing Body, so subclasses must notify any incumbent change to the
- * Body's state for the <code>Handle</code> to break state sharing.  Lastly,
- * it's also fundamental that the Body class implements the {@link Copiable}
- * interface correctly for all this to work properly.</p>
+ * concrete <code>Handle</code> classes stick to this rule.  In fact, the 
+ * {@link #copy() copy} method simply rebinds a new <code>Handle</code> to the
+ * existing Body, so subclasses must notify any incumbent change to the Body's
+ * state for the <code>Handle</code> to break state sharing.  Lastly, it's also
+ * fundamental that the Body class implements the {@link Copiable} interface 
+ * correctly for all this to work properly.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -109,8 +108,8 @@ package org.openmicroscopy.shoola.util.mem;
  * </small>
  * @since OME2.2
  */
-public class Handle
-    implements Copiable
+public abstract class Handle
+    implements Copiable, Cloneable
 {
 
     /** Reference to the Body object. */
@@ -122,8 +121,6 @@ public class Handle
      */
     private boolean     shared;
     
-    
-    private Handle() {}
     
     /**
      * Subclasses use this constructor to specify the Body instance this
@@ -145,18 +142,21 @@ public class Handle
      * up with this handle.
      * The type of the returned object is the same as the one of the object
      * that was passed to this class' protected constructor.  However, the
-     * object returned by this method will be different from the one initially
+     * object returned by this method could be different from the one initially
      * passed in at creation time if the {@link #breakSharing() breakSharing}
      * method has been invoked.  For this reason, subclasses mustn't cache a
      * reference to the object returned by this method.
      * Moreover, subclasses must never leak out a reference to the returned
-     * Body object &#151; this constraint can be relaxed if the Body object
-     * can only be accessed by clients through a read-only interface.
+     * Body object.
      * 
      * @return  The Body object.
      */
     protected Object getBody() { return body; }
     
+    /**
+     * Subclasses must call this method <i>before</i> forwarding any call
+     * that modifies the Body's state.
+     */
     protected final void breakSharing()
     {
         if (shared) {
@@ -165,12 +165,35 @@ public class Handle
         }
     }
     
+    /**
+     * Returns a deep copy of this object.
+     * To be precise, this method returns an object that will behave like
+     * a deep copy, but has a negligible memory footprint until an attempt
+     * to change its state is made.  Then the whole original state is restored
+     * in memory so that the state change operation can take place.
+     * 
+     * @return A deep copy of this object.  The class of the returned object 
+     *          is the same as the class of this object.
+     */
     public final Object copy()
     {
-        Handle h = new Handle();
-        h.body = this.body;
+        Handle h;
+        
+        //Make a shallow copy of this object.  This is fine b/c subclasses
+        //are not supposed to hold any state, never mind references to other
+        //objects :)
+        try {
+            h = (Handle) clone();  //Class of h is this instance's class.  
+        } catch (CloneNotSupportedException cnse) {
+            throw new Error("JVM Internal Error: couldn't clone object that "+
+                            "implements Cloneable.", cnse);
+        }
+        h.body = this.body;  //Not actually needed, added for clarity.
+        
+        //Set state sharing flag.
         h.shared = true;
         this.shared = true;
+        
         return h;
     }
     
