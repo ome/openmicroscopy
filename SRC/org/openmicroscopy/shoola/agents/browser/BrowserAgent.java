@@ -51,6 +51,8 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
+import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
@@ -63,6 +65,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.CompletePlate;
 import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfo;
 import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfoParser;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
+import org.openmicroscopy.shoola.agents.browser.events.AnnotateImageHandler;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
@@ -218,6 +221,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         this.thumbnailHeight = 120;//thumbHeight.intValue();
         
         eventBus.register(this,LoadDataset.class);
+        eventBus.register(this,ImageAnnotated.class);
         
         /*
         JMenuItem testItem = new JMenuItem("Browser");
@@ -1021,6 +1025,34 @@ public class BrowserAgent implements Agent, AgentEventListener
         System.err.println("about to post show image info event");
         eventBus.post(imageInfoEvent);
     }
+    
+    /**
+     * Use the Annotator to annotate the image currently selected in the
+     * specified thumbnail.
+     * @param t The thumbnail with the image to annotate.
+     */
+    public void annotateImage(Thumbnail t)
+    {
+        if(t == null) return;
+        ThumbnailDataModel tdm = t.getModel();
+        int imageID = tdm.getID();
+        annotateImage(imageID);
+    }
+    
+    /**
+     * Use the Annotator to annotate the image with the specified ID.
+     * @param imageID The ID of the image to annotate.
+     */
+    public void annotateImage(int imageID)
+    {
+        AnnotateImage event = new AnnotateImage(imageID);
+        
+        // makes sure correct response occurs
+        event.setCompletionHandler(new AnnotateImageHandler());
+        EventBus eventBus = registry.getEventBus();
+        System.err.println("about to post annotate image event");
+        eventBus.post(event);
+    }
 
     /**
      * Instruct the BrowserAgent to fire a LoadImages event, to be handled
@@ -1148,6 +1180,11 @@ public class BrowserAgent implements Agent, AgentEventListener
         {
             LoadDataset event = (LoadDataset)e;
             loadDataset(event.getDatasetID());
+        }
+        else if(e instanceof ImageAnnotated)
+        {
+            ImageAnnotated event = (ImageAnnotated)e;
+            event.complete();
         }
     }
 }
