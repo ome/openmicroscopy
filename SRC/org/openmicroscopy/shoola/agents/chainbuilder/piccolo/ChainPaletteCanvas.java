@@ -64,13 +64,14 @@ import edu.umd.cs.piccolo.util.PNodeFilter;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -149,12 +150,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	/*** my event handler */
 	private ChainPaletteEventHandler handler;
 	
-	/** my OME registry */
-	private Registry registry;
+	/** the data manager */
+	private ChainDataManager dataManager;
 	
-	public ChainPaletteCanvas(Registry registry) {
+	public ChainPaletteCanvas(ChainDataManager dataManager) {
 		super();
-		this.registry = registry;
+		this.dataManager = dataManager;
 		
 		//SelectionState.getState().addSelectionEventListener(this);
 		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
@@ -189,7 +190,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		PCamera camera = getCamera();
 		camera.addInputEventListener(new ModulePaletteToolTipHandler(camera));
 		
-		registry.getEventBus().register(this,new Class[] {
+		dataManager.getRegistry().getEventBus().register(this,new Class[] {
 				MouseOverDataset.class, SelectDataset.class});
 	}
 	
@@ -238,7 +239,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		float height = 0;
 		
-		ChainBox box = new ChainBox(chain,registry);
+		ChainBox box = new ChainBox(chain,dataManager.getRegistry());
 		layer.addChild(box);
 		box.moveToBack();
 		box.setOffset(x,y);
@@ -256,7 +257,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 
 	public void completeInitialization() {
-		handler = new ChainPaletteEventHandler(this,registry); 
+		handler = new ChainPaletteEventHandler(this,dataManager.getRegistry()); 
 		addInputEventListener(handler);
 	}
 	
@@ -357,18 +358,53 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		if (e instanceof DatasetEvent) {
 			DatasetEvent event = (DatasetEvent) e;
 			DatasetData dataset = event.getDataset();
-			if (dataset != null)
-				System.err.println("in chainbuilder.. dataset "+dataset.getID());
-			else 
-				System.err.println("in chainbuilder nulll dataset..");
 			if (event instanceof SelectDataset) 
-				System.err.println("..selected..");
+				selectDataset(dataset);
 			else if (event instanceof MouseOverDataset)
-				System.err.println("..moused over..");
+				mouseOverDataset(dataset);
 		}
 	}
 	
-	private class ChainBoxFilter implements PNodeFilter {
+	private void selectDataset(DatasetData d) {
+		mouseOverDataset(d);
+	}
+	
+	private void mouseOverDataset(DatasetData d) {
+		
+		// for each of them, if they have an execution, set Highlighted, or not.
+		Iterator iter = layer.getChildrenIterator();
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			if (obj instanceof ChainBox) {
+				ChainBox cb = (ChainBox) obj;
+				LayoutChainData chain = cb.getChain();
+				Collection chainExecs = 
+					dataManager.getChainExecutionsByChainID(chain.getID());
+			
+				//do  any of the executions refer to this dataset?
+				if (d != null && chainExecs != null &&
+						hasExecutionsFor(d,chainExecs))
+					cb.setSelected(true);
+				else
+					cb.setSelected(false);
+			}
+		}
+	}
+	
+	private boolean hasExecutionsFor(DatasetData d ,Collection chainExecs) {
+		Iterator iter = chainExecs.iterator();
+		ChainExecutionData exec;
+		while (iter.hasNext()) {
+			exec = (ChainExecutionData) iter.next();
+			DatasetData execDataset = exec.getDataset();
+			if (execDataset != null && execDataset.getID() == d.getID()) {
+				return true;
+			}
+		}
+		return false;
+	}
+		
+    private class ChainBoxFilter implements PNodeFilter {
 		
 		private final LayoutChainData chain;
 		
@@ -386,5 +422,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		}
 	}
 	
-	
+ 
+    
 }
