@@ -198,7 +198,7 @@ class STSAdapter
     public int countImageAttributes(SemanticType type, List imageIDList)
         throws DSOutOfServiceException, DSAccessException
     {
-        return countImageAttributes(type,imageIDList);
+        return countImageAttributes(type.getName(),imageIDList);
     }
 
 
