@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod
+ * org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod
  *
  *------------------------------------------------------------------------------
  *
@@ -33,6 +33,7 @@
  *
  *------------------------------------------------------------------------------
  */
+ 
 package org.openmicroscopy.shoola.agents.browser.layout;
 
 import java.awt.geom.Point2D;
@@ -45,50 +46,44 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
- * Lays out thumbnails in a plate method-- specifiying ahead of time how
- * many rows and columns there are.  Right now, they are ordered by ID--
- * this can change and be a little more sophisticated by analyzing the well
- * number.
- * 
+ * A layout method that places a maximum number of images per row, and does
+ * so in order (from least ID to greatest)
+ *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
+public class NumColsLayoutMethod extends AbstractOrderedLayoutMethod
 {
-    private int numRows; // #rows in the plate
-    private int numCols; // #cols in the plate
+    private int numCols;
     
     public static int DEFAULT_HMARGIN = 10;
     public static int DEFAULT_VMARGIN = 10;
     
-	private int hMargin = DEFAULT_HMARGIN; // horizontal buffer
-	private int vMargin = DEFAULT_VMARGIN; // vertical buffer
+    private int hMargin = DEFAULT_HMARGIN;
+    private int vMargin = DEFAULT_VMARGIN;
     
     /**
-     * Construct a layout method that displays a plate of cols x rows.
-     * @param rows The number of rows in the plate.
-     * @param cols The number of colums on the plate.
-     * @throws IllegalArgumentException If the number of rows or columns is
-     *                                  less than or equal to zero.
+     * Constructs a layout method with the specified number of columns.
+     * @param numCols The number of columns to specify.
+     * @throws IllegalArgumentException If numCols < 1.
      */
-    public PlateLayoutMethod(int rows, int cols)
+    public NumColsLayoutMethod(int numCols)
         throws IllegalArgumentException
     {
         super(new ImageIDComparator());
         
-        if(rows < 1 || cols < 1)
+        if(numCols < 1)
         {
-            throw new IllegalArgumentException("Plate dimensions must both" +
-                " > 0.");
+            throw new IllegalArgumentException("#cols must > 0.");
         }
-        this.numRows = rows;
-        this.numCols = cols;
+        
+        this.numCols = numCols;
     }
     
     /**
-     * Sets the horizontal margin (pixels) between thumbnails at 100%.
+     * Sets the horizontal margin between images, in pixels.
      * @param margin See above.
      */
     public void setHorizontalMargin(int margin)
@@ -97,7 +92,7 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
     }
     
     /**
-     * Sets the vertical margin (pixels) between thumbnails at 100%.
+     * Sets the vertical margin between images, in pixels.
      * @param margin See above.
      */
     public void setVerticalMargin(int margin)
@@ -106,20 +101,22 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
     }
     
     /**
-     * Throws null as the method does not maintain any state-- for now.
-     * TODO: change such that you can get it by well number/name.
+     * Unsupported for now-- use getAnchorPoints(Thumbnail[]) to layout
+     * children.
+     * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoint(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
      */
     public Point2D getAnchorPoint(Thumbnail t)
+        throws UnsupportedOperationException
     {
         // TODO support this method via well lookup
         throw new UnsupportedOperationException("Layout method does not" +
             "retain state; use getAnchorPoints(Thumbnail[]) instead.");
     }
     
-    
     /**
-     * Returns a map mapping all the thumbnails to their anchor points
-     * (offsets) in the group.
+     * Returns the anchor points for all the specified thumbnails.  Will return
+     * null if the length of the array is zero or ts is null.
+     * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoints(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
      */
     public Map getAnchorPoints(Thumbnail[] ts)
     {
@@ -138,26 +135,21 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
         // placement loop
         int vOffset = 0;
         
-        for(int i=0;i<numRows;i++)
+        while(iter.hasNext())
         {
             int maxHeight = 0;
             int hOffset = 0;
-            if(!iter.hasNext())
-            {
-            	break;
-            }
-            
-            for(int j=0;j<numCols;j++)
-            {
-            	if(!iter.hasNext())
-            	{
-            		break;
-            	}
+            for(int i=0;i<numCols;i++)
+            { 
+                if(!iter.hasNext())
+                {
+                    break;
+                }
                 Thumbnail t = (Thumbnail)iter.next();
                 BufferedImage bi = (BufferedImage)t.getImage();
                 pointMap.put(t,new Point2D.Double(hOffset,vOffset));
                 hOffset += (bi.getWidth() + hMargin);
-                
+            
                 if(bi.getHeight() > maxHeight)
                 {
                     maxHeight = bi.getHeight();
@@ -168,4 +160,6 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
         
         return pointMap;
     }
+
+
 }
