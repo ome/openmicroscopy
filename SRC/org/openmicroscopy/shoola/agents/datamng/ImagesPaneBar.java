@@ -80,10 +80,10 @@ class ImagesPaneBar
     
     static {
         listOfItems = new String[MAX_ID+1];
-        listOfItems[IMAGES_IMPORTED] = "Images I have imported";
-        listOfItems[IMAGES_USED] = "Images I use";
-        listOfItems[IMAGES_GROUP] = "Images in my group";
-        listOfItems[IMAGES_SYSTEM] = "Images in the system";
+        listOfItems[IMAGES_IMPORTED] = "All images I own";
+        listOfItems[IMAGES_USED] = "All my images";
+        listOfItems[IMAGES_GROUP] = "All images in my group";
+        listOfItems[IMAGES_SYSTEM] = "All images";
     }
     
 	ImagesPaneBar(Registry registry)

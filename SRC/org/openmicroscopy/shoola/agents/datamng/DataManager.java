@@ -185,8 +185,8 @@ public class DataManager
     }
     
 	/**
-	 * Return a list of {@link ImageSummary} objects imported by the current
-     * user but not contained in the specified dataset.
+	 * Return a list of {@link ImageSummary} objects imported by members of the 
+     * current user's group but not contained in the specified dataset.
 	 * 
 	 * @param data    {@link DatasetData} object.
      * 
@@ -196,15 +196,16 @@ public class DataManager
 	{
 		List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getImportedImages();   // may be modified
+            imagesDiff = getGroupImages();   
             List images = data.getImages();
-            ImageSummary is, isg;
+            ImageSummary isg;
+            Iterator i;
             for (int j = 0; j < imagesDiff.size(); j++) {
                 isg = (ImageSummary) imagesDiff.get(j);
-                Iterator i = images.iterator();
+                i = images.iterator();
                 while (i.hasNext()) {
-                    is = (ImageSummary) i.next();
-                    if (is.getID() == isg.getID())  imagesDiff.remove(isg); 
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
                 }
             }
         } catch(DSAccessException dsae) {
@@ -229,7 +230,7 @@ public class DataManager
         try {
             List datasetsAll = getUserDatasets();
             List datasets = data.getDatasets();
-            DatasetSummary ds, dsg;
+            DatasetSummary dsg;
             Iterator j = datasetsAll.iterator();
             Iterator i;
             while (j.hasNext()) {
@@ -237,8 +238,7 @@ public class DataManager
                 i = datasets.iterator();
                 datasetsDiff.add(dsg);
                 while (i.hasNext()) {
-                    ds = (DatasetSummary) i.next();
-                    if (ds.getID() == dsg.getID()) {
+                    if (((DatasetSummary) i.next()).getID() == dsg.getID()) {
                         datasetsDiff.remove(dsg);
                         break;
                     } 
@@ -381,16 +381,15 @@ public class DataManager
     List getGroupImages()
         throws DSAccessException
     {
-        List userImages = new ArrayList();
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            userImages = dms.retrieveUserGroupImages();
+            return dms.retrieveUserGroupImages();
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
-        return userImages;
+        return new ArrayList();
     }
     
     /**
@@ -404,16 +403,15 @@ public class DataManager
     List getSystemImages()
         throws DSAccessException
     {
-        List userImages = new ArrayList();
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            userImages = dms.retrieveImagesInSystem();
+            return dms.retrieveImagesInSystem();
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
-        return userImages;
+        return new ArrayList();
     }
     
 	/**
@@ -425,17 +423,16 @@ public class DataManager
 	List getImages(int datasetID) 
         throws DSAccessException
 	{
-		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			//images = dms.retrieveImages(datasetID);
-            images = dms.retrieveImagesWithAnnotations(datasetID);
+            return dms.retrieveImagesWithAnnotations(datasetID);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		}
-		return images;	
+		return new ArrayList();	
 	}
 	
 	/**
@@ -447,16 +444,15 @@ public class DataManager
 	ProjectData getProject(int projectID)
 	    throws DSAccessException
     {
-		ProjectData project = new ProjectData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			project = dms.retrieveProject(projectID);
+			return dms.retrieveProject(projectID);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		return project;
+		return new ProjectData();
 	}
 	
 	/**
@@ -468,16 +464,15 @@ public class DataManager
 	DatasetData getDataset(int datasetID)
         throws DSAccessException
 	{
-		DatasetData dataset = new DatasetData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			dataset = dms.retrieveDataset(datasetID);
+			return dms.retrieveDataset(datasetID);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		return dataset;
+		return new DatasetData();
 	}
 	
 	/**
@@ -489,16 +484,15 @@ public class DataManager
 	ImageData getImage(int imageID)
         throws DSAccessException
 	{
-		ImageData image = new ImageData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			image = dms.retrieveImage(imageID);
+			return dms.retrieveImage(imageID);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		return image;
+		return new ImageData();
 	}
 	
 	/**
@@ -508,10 +502,9 @@ public class DataManager
 	 */
 	void createProject(ProjectData pd)
 	{
-		ProjectSummary project;
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			project = dms.createProject(pd);
+			ProjectSummary project = dms.createProject(pd);
 			if (projectSummaries.size() != 0) {
 				projectSummaries.add(project);	//local copy
 				presentation.addNewProjectToTree(project);	//update tree
@@ -546,10 +539,9 @@ public class DataManager
 	 */
 	void createDataset(List projects, List images, DatasetData dd)
 	{
-		DatasetSummary dataset;
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			dataset = dms.createDataset(projects, images, dd);
+			DatasetSummary dataset = dms.createDataset(projects, images, dd);
 			if (datasetSummaries.size() !=0) getUserDatasets();
 			else datasetSummaries.add(dataset); //local copy.
 			ProjectSummary ps;
@@ -644,8 +636,7 @@ public class DataManager
 			registry.getEventBus().post(request);
 		} 
 	}
-	
-	
+		
 	/**
 	 * Update a specified image.
 	 * 
@@ -766,17 +757,16 @@ public class DataManager
     List getCategoryGroups()
         throws DSAccessException
     {
-        List categoryGroups = new ArrayList();
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            categoryGroups = sts.retrieveCategoryGroups();  
+            return sts.retrieveCategoryGroups();  
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
                                 ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
-        return categoryGroups;
+        return new ArrayList();
     }
 
     /** Retrieve all images not classified in the specified group. */
@@ -816,17 +806,16 @@ public class DataManager
     CategoryData getCategoryData(int id)
         throws DSAccessException
     {
-        CategoryData cd = new CategoryData();
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
             //cd = sts.retrieveCategory(id);
-            cd = sts.retrieveCategoryWithIAnnotations(id);
+            return sts.retrieveCategoryWithIAnnotations(id);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
-        return cd;
+        return new CategoryData();
     }
 
     /** Create a new category group. */
@@ -937,11 +926,12 @@ public class DataManager
     private void updateDatasetInPS(DatasetData dd)
     {
         Iterator i = projectSummaries.iterator();
+        Iterator j;
         ProjectSummary ps;
         DatasetSummary ds;
         while (i.hasNext()) {
             ps = (ProjectSummary) i.next();
-            Iterator j = ps.getDatasets().iterator();
+            j = ps.getDatasets().iterator();
             while (j.hasNext()) {
                 ds = (DatasetSummary) j.next();
                 if (ds.getID() == dd.getID()) {
