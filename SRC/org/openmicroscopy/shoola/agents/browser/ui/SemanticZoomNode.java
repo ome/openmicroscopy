@@ -49,6 +49,7 @@ import java.awt.geom.Rectangle2D;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.IconManager;
 import org.openmicroscopy.shoola.agents.browser.UIConstants;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
@@ -90,6 +91,9 @@ public class SemanticZoomNode extends PImage
     private static int compositeHeight = 96; // hardcoded default
     
     protected Image displayImage;
+    
+    protected Image openIconImage;
+    protected Rectangle2D openIconShape;
     
     protected Image[] thumbnailImages;
     
@@ -199,6 +203,16 @@ public class SemanticZoomNode extends PImage
             this.prevImageShape = prevXForm.createTransformedShape(prevShape);
             this.nextImageShape = nextXForm.createTransformedShape(nextShape);
         }
+        
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        IconManager manager = env.getIconManager();
+        openIconImage = manager.getLargeImage(IconManager.OPEN_IMAGE);
+        
+        int iconWidth = openIconImage.getWidth(null);
+        int iconHeight = openIconImage.getHeight(null);
+        
+        openIconShape = new Rectangle2D.Double(width-iconWidth-8,50,
+                                               iconWidth,iconHeight);
     }
     
     private static void loadSizeInfo()
@@ -289,7 +303,6 @@ public class SemanticZoomNode extends PImage
     public void respondMouseClick(PInputEvent event)
     {
         Point2D pos = event.getPositionRelativeTo(this);
-        System.err.println(pos);
         if(prevImageShape != null)
         {
             if(prevImageShape.contains(pos))
@@ -310,6 +323,15 @@ public class SemanticZoomNode extends PImage
                 setBounds(border);
                 repaint();
                 return;
+            }
+        }
+        if(openIconShape != null)
+        {
+            if(openIconShape.contains(pos))
+            {
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.loadImage(parentThumbnail);
             }
         }
     }
@@ -401,6 +423,9 @@ public class SemanticZoomNode extends PImage
         g2.fill(border);
         g2.setPaint(oldPaint);
         g2.drawImage(getImage(),0,0,null);
+        g2.drawImage(openIconImage,
+                     (int)Math.round(openIconShape.getX()),
+                     (int)Math.round(openIconShape.getY()),null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
         

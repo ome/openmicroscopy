@@ -77,9 +77,19 @@ public class IconManager
     public static final int ZOOM_BAR = 1;
     
     /**
+     * The trigger options toolbar icon.
+     */
+    public static final int OPTIONS_BAR = 2;
+    
+    /**
+     * The open image icon.
+     */
+    public static final int OPEN_IMAGE = 3;
+    
+    /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 1;
+    public static final int MAX_ID = 3;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -95,12 +105,16 @@ public class IconManager
     {
         smallPaths[BROWSER] = "browser16.png";
         smallPaths[ZOOM_BAR] = "zoombar.png";
+        smallPaths[OPTIONS_BAR] = "optionsbar.png";
+        smallPaths[OPEN_IMAGE] = "openimage.png";
     }
     
     static
     {
         largePaths[BROWSER] = "browser24.png";
         largePaths[ZOOM_BAR] = "zoombar.png";
+        largePaths[OPTIONS_BAR] = "optionsbar.png";
+        largePaths[OPEN_IMAGE] = "openimage.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";

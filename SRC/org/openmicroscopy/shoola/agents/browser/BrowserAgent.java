@@ -145,7 +145,6 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public BrowserAgent()
     {
-        System.err.println("browser launched");
         env = BrowserEnvironment.getInstance();
         env.setBrowserAgent(this);
     }
@@ -228,7 +227,6 @@ public class BrowserAgent implements Agent, AgentEventListener
             for(Iterator iter = typeList.iterator(); iter.hasNext();)
             {
                 SemanticType st = (SemanticType)iter.next();
-                System.err.println(st.getName());
             }
         }
         catch(DSOutOfServiceException dso)
@@ -264,7 +262,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         topModel.addPalette(UIConstants.ZOOM_PALETTE_NAME,zoomPalette);
         
         BPalette optionPalette = PaletteFactory.getOptionPalette(model,topModel);
-        topModel.addPalette("Options",optionPalette);
+        topModel.addPalette(UIConstants.OPTIONS_PALETTE_NAME,optionPalette);
         
         zoomPalette.setOffset(0,0);
         optionPalette.setOffset(0,75);
@@ -890,7 +888,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         if(e instanceof LoadDataset)
         {
             LoadDataset event = (LoadDataset)e;
-            System.err.println("LoadDataset event received by browser");
             loadDataset(event.getDatasetID());
         }
     }

@@ -378,7 +378,6 @@ public class BrowserView extends PCanvas
         {
             if(mode == BrowserMode.DEFAULT_MODE)
             {
-                System.err.println("default");
                 semanticHoverThumbnailAction =
                     PiccoloActionFactory.getImageNameEnterAction(semanticLayer);
                 defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
@@ -387,7 +386,6 @@ public class BrowserView extends PCanvas
             }
             else if(mode == BrowserMode.SEMANTIC_ZOOMING_MODE)
             {
-                System.err.println("semantic");
                 semanticHoverThumbnailAction =
                     PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
                 defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
@@ -452,7 +450,6 @@ public class BrowserView extends PCanvas
         
         if(method == null) // TODO: fallback to default?
         {
-            System.err.println("null layout method");
             return;
         }
         

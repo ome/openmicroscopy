@@ -78,4 +78,9 @@ public interface UIConstants
      * The name of the zoom palette.
      */
     public static final String ZOOM_PALETTE_NAME = "Zoom";
+    
+    /**
+     * The name of the options palette.
+     */
+    public static final String OPTIONS_PALETTE_NAME = "Options";
 }

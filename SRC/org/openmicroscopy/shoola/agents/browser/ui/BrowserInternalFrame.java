@@ -98,8 +98,21 @@ public class BrowserInternalFrame extends JInternalFrame
                 controller.getOverlayModel().showPalette(UIConstants.ZOOM_PALETTE_NAME);
             }
         });
+        zoomButton.setToolTipText("Show Zoom Menu");
+        
+        JButton optionsButton =
+            new JButton(manager.getSmallIcon(IconManager.OPTIONS_BAR));
+        optionsButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                controller.getOverlayModel().showPalette(UIConstants.OPTIONS_PALETTE_NAME);
+            }
+        });
+        optionsButton.setToolTipText("Show Options Menu");
         
         toolbarPanel.add(zoomButton);
+        toolbarPanel.add(optionsButton);
         
         Container container = getContentPane();
         container.setLayout(new BorderLayout());

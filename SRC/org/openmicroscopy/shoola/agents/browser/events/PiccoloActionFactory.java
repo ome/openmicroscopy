@@ -41,6 +41,8 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
@@ -193,7 +195,9 @@ public class PiccoloActionFactory
         {
             public void execute()
             {
-                // TODO write the open trigger code for this thumbnail.
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.loadImage(t);
             }
         };
         return action;
@@ -270,7 +274,6 @@ public class PiccoloActionFactory
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_75_MODE);
-                System.err.println("75%");
             }
         };
         return action;
@@ -301,7 +304,6 @@ public class PiccoloActionFactory
         {
             public void execute(PInputEvent e)
             {
-                System.err.println("magnify off");
                 model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
                                      BrowserMode.DEFAULT_MODE);
             }
@@ -315,7 +317,6 @@ public class PiccoloActionFactory
         {
             public void execute(PInputEvent e)
             {
-                System.err.println("magnify on");
                 model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
                                      BrowserMode.SEMANTIC_ZOOMING_MODE);
             }
@@ -467,8 +468,6 @@ public class PiccoloActionFactory
                                                node.getOffset().getY(),
                                                node.getWidth(),
                                                node.getHeight());
-                    System.err.println(pos);
-                    System.err.println(bounds);
                     if(!bounds.contains(pos))
                     {
                         layer.hideSemanticNode(e.getCamera());
