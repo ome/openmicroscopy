@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.zoombrowser;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.zoombrowser.ui.UIManager;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 
