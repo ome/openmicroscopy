@@ -29,6 +29,7 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -69,6 +70,7 @@ public class CategoryGroupData
     public CategoryGroupData()
     {
         id = -1;    //default
+        categories = new ArrayList();
     }
     
     public CategoryGroupData(int id, String name, String description, List
