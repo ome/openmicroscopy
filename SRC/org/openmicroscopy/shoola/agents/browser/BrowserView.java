@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
 
 import edu.umd.cs.piccolo.PCanvas;
 
@@ -77,6 +78,10 @@ public class BrowserView extends PCanvas
         setBackground(new Color(192,192,192));
         layoutMap = new HashMap();
         footprint = new Rectangle2D.Double(0,0,0,0);
+        
+        // here we disable zoom/pan (TODO: save for later, reinstate on mode)
+        removeInputEventListener(getZoomEventHandler());
+        removeInputEventListener(getPanEventHandler());
     }
 
     /**

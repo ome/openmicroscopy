@@ -60,8 +60,8 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
     private int numRows; // #rows in the plate
     private int numCols; // #cols in the plate
     
-    public static int DEFAULT_HMARGIN = 4;
-    public static int DEFAULT_VMARGIN = 4;
+    public static int DEFAULT_HMARGIN = 10;
+    public static int DEFAULT_VMARGIN = 10;
     
 	private int hMargin = DEFAULT_HMARGIN; // horizontal buffer
 	private int vMargin = DEFAULT_VMARGIN; // vertical buffer
