@@ -65,6 +65,9 @@ public class WriterText
     private static final String NUMBER = "num";
     private static final String VALUE = "value";
     
+    //TODO: MUST BE ASCII/CRLF= 0x0D 0x0A
+    private static final String RECORD_SEPARATOR = ""; 
+    
     /** Save the content of a table as a text file. */
     public static void writeTableAsText(File f, AbstractTableModel table)
         throws Exception
@@ -76,13 +79,10 @@ public class WriterText
         int col = table.getColumnCount();
         for (int i = 0; i < table.getRowCount(); i++) {
             for (int j = 0; j < col; j++) {
-                //if (table.getColumnName(j) != null)
-                //    s += table.getColumnName(j)+": ";
-                if (j < col-1) tail = ", ";
+                if (j < col-1) tail = ",";
                 s += table.getValueAt(i, j)+tail;
                 tail = "";
             }
-            //s += ";";
             output.write(s);
             output.newLine();
             s = "";
