@@ -395,6 +395,14 @@ class ExplorerPaneManager
 				}
 	   		} else { //click on the root node.
 				if (e.getClickCount() == 2 && !isTreeLoaded) rebuildTree();
+				else if (isTreeLoaded && e.isPopupTrigger())
+				{
+					DataManagerUIF presentation = 
+					agentCtrl.getAbstraction().getPresentation();
+					TreePopupMenu popup = presentation.getPopupMenu();
+					popup.setTarget(null);  
+					popup.show(view.tree, e.getX(), e.getY());
+				}
 	   		}
 		}
 	}
