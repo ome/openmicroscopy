@@ -353,8 +353,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         if(e instanceof LoadDataset)
         {
             LoadDataset event = (LoadDataset)e;
-            // TODO: how to trigger a response
-            
+            System.err.println("LoadDataset event received by browser");
+            loadDataset(event.getDatasetID());
         }
     }
 }

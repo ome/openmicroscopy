@@ -11,5 +11,6 @@
   <entry name="/agents/browser/config/useServerThumbs" type="boolean">false</entry>
   <entry name="/agents/browser/config/thumbnailWidth" type="integer">120</entry>
   <entry name="/agents/browser/config/thumbnailHeight" type="integer">120</entry>
+  <entry name="/agents/browser/config/dummyDataset" type="integer">3</entry>
 
 </agent>
