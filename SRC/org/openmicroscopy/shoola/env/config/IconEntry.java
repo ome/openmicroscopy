@@ -27,19 +27,14 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
 import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
+// Third-party libraries
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,15 +45,19 @@ import org.w3c.dom.NodeList;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
-class IconEntry extends Entry {
+class IconEntry
+    extends Entry {
     
     private String value;
     IconEntry() {
     }
     
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     protected void setContent(Node node) { 
         try {
@@ -67,23 +66,24 @@ class IconEntry extends Entry {
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 String host = null, port = null;
-                for (int i = 0; i<childList.getLength(); i++){
+                for (int i = 0; i<childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType() == child.ELEMENT_NODE) 
+                    if (child.getNodeType()==child.ELEMENT_NODE) 
                         value = child.getFirstChild().getNodeValue();
                 }
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
 /** 
- * Implemented as specified by {@linkEntry}.
+ * Implemented as specified by {@link Entry}.
  * Builds and return an Icon Object
+ *
  * @return  An object implementing {@link javax.swing.Icon Icon} or <code>null</code> if the path 
  *                  was invalid.
  */  
     Object getValue() {
         URL     location = IconEntry.class.getResource(value);
-        if ( location != null ) {
+        if (location != null) {
             return new ImageIcon(location);
         } else {
             //TODO  errorMsg via logService

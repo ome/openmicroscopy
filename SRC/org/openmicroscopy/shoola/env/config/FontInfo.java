@@ -27,14 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
-
 package org.openmicroscopy.shoola.env.config;
 
 /** Creates an Object which contains the informations on the font
@@ -44,13 +36,21 @@ package org.openmicroscopy.shoola.env.config;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
+
 class FontInfo {
     
-    String  family, style;
-    Integer size;
-    
-    static final String FAMILY = "family", SIZE = "size", STYLE = "style";    
+    String              family, style;
+    Integer             size;
+    static final String FAMILY = "family", SIZE = "size", STYLE = "style"; 
+
+/* 
+ * @param value
+ * @ tag
+ */
     void setValue(String value, String tag) {
         try {
             if (tag.equals(FAMILY)) family = value;
@@ -58,12 +58,24 @@ class FontInfo {
             else if (tag.equals(STYLE)) style = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+/* return the value of the <code>family</code>
+ *
+ * @return String
+ */
     String getFamily() {
         return family;
     }
+/*  return the value of the <code>size</code>
+ *
+ * @return Integer
+ */
     Integer getSize() {
         return size;
     }
+/* return the value of the <code>style</code> 
+ *
+ * @return String
+ */
     String getStyle() {
         return style;
     }

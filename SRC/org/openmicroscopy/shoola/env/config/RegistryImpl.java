@@ -27,13 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
 //Java imports
@@ -49,11 +42,14 @@ import java.util.HashMap;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 public class RegistryImpl
     implements Registry {
     
-    private HashMap                 entriesMap;
+    private HashMap             entriesMap;
     //private EventBus                eb;
     //private DataManagementService   dms;
     //private SemanticTypesService    sts;
@@ -65,34 +61,38 @@ public class RegistryImpl
     public RegistryImpl() {
         entriesMap = new HashMap();
     }
+/* add a new entry in the map
+ * 
+ * @param e new Entry
+ */
     void addEntry(Entry e) {
         entriesMap.put(e.getName(), e);
     }
     
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
     public Object lookup(String name) {
         return entriesMap.get(name);
     }
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
     //public EventBus getEventBus();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public DataManagementService getDataManagementService();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public SemanticTypesService getSemanticTypesServices();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public PixelsService getPixelsServices();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public LogService getLogService();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public TopFrame getTopFrame();
-/** Implemented as specified by {@linkRegistry}.
+/** Implemented as specified by {@link Registry}.
  */
    //public UserNotifier getUserNotifier();
     

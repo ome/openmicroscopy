@@ -27,13 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
+
 package org.openmicroscopy.shoola.env.ui;
 
 // Java imports
@@ -53,30 +47,34 @@ import javax.swing.JMenuItem;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
 public class TopFrameImpl 
-    extends JFrame implements TopFrame, ActionListener {
+    extends JFrame 
+    implements TopFrame, ActionListener {
         
 /** To be used with the {@link #addToDesktop(Component, int) addToDesktop} method to position a
  * component on the bottommost layer of the application internal desktop.
 */
-    public static int   DEFAULT_LAYER = 0;
+    public static int       DEFAULT_LAYER = 0;
 /** To be used with the {@link #addToDesktop(Component, int) addToDesktop} method to position a
  * component on the palette layer of the application internal desktop.
  * The palette layer sits over the default layer. Useful for floating toolbars and palettes, so they
  * can be positioned above other components. 
 */
-    public static int   PALETTE_LAYER = 1;
+    public static int       PALETTE_LAYER = 1;
     
 /*Action command ID */    
-    static final int    FILE = 0;
-    static final int    VIEW = 1;
-    static final int    HELP = 2;
-    static final int    EXIT = 3;
+    static final int        FILE = 0;
+    static final int        VIEW = 1;
+    static final int        HELP = 2;
+    static final int        EXIT = 3;
     
 /** the 3 available menus */    
-    private JMenu fileMenu, viewMenu, helpMenu;
+    private JMenu           fileMenu, viewMenu, helpMenu;
 /** The application internal desktop. */ 
     private JDesktopPane    desktop;
     
@@ -89,24 +87,24 @@ public class TopFrameImpl
         desktop = new JDesktopPane();
     }
     
-/** Implemented as specified by {@linkUserNotifier}.
+/** Implemented as specified by {@link UserNotifier}.
  */     
     public void addToDesktop(Component c, int position) {
         desktop.add(c, new Integer(position));
     }
     
-/** Implemented as specified by {@linkUserNotifier}.
+/** Implemented as specified by {@link UserNotifier}.
  */ 
     public void removeFromDesktop(Component c) {
         desktop.remove(c);
         c.setVisible(false);
     }
     
-/** Implemented as specified by {@linkUserNotifier}.
+/** Implemented as specified by {@link UserNotifier}.
  */ 
     public void addToMenu(int menuType, JMenuItem menuItem) {
         JMenu menu = retrieveMenu(menuType);
-        if (menuType == FILE) addToMenuFile(menuItem);
+        if (menuType==FILE) addToMenuFile(menuItem);
         else menu.add(menuItem);
     }
     
@@ -125,7 +123,7 @@ public class TopFrameImpl
         try {
             int     cmd = Integer.parseInt(e.getActionCommand());
             // just in case we need to handle other events
-            switch(cmd){
+            switch (cmd) {
                 case EXIT:
                     // do something
             }        
@@ -137,10 +135,11 @@ public class TopFrameImpl
     // TODO: display desktop
     public void open() {
     }
+    
 /* Add the specified menuItem to the container at the position n-1 
- * 
- * @param menuItem       menuItem to add
- */
+* 
+* @param menuItem       menuItem to add
+*/
     private void addToMenuFile(JMenuItem menuItem) {
         Container popMenu = fileMenu.getPopupMenu();
         Component[] list = popMenu.getComponents();
@@ -148,6 +147,7 @@ public class TopFrameImpl
         fileMenu.add(menuItem);
         fileMenu.add(lastOne);
     }
+    
 /* Initializes the 3 menus and add them to the menuBar */
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar(); 
@@ -170,14 +170,14 @@ public class TopFrameImpl
     }
 
 /* retrieves the specified menu 
- * 
- * @param  int  menuType
- * @return the above mentioned 
- */    
+* 
+* @param  int  menuType
+* @return the above mentioned 
+*/    
     private JMenu retrieveMenu(int menuType) {
         JMenu menu = null;
         try {
-            switch(menuType) {
+            switch (menuType) {
                 case FILE:
                     menu = fileMenu;
                     break;

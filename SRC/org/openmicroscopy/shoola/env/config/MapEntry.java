@@ -26,19 +26,13 @@
  *
  *------------------------------------------------------------------------------
  */
-
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
 import java.util.HashMap;
 import java.util.Map;
+
+// Third-party libraries
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -48,6 +42,9 @@ import org.w3c.dom.NodeList;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
 class MapEntry 
@@ -58,23 +55,24 @@ class MapEntry
     MapEntry() {
     }
     
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */    
     protected void setContent(Node node) { 
         tagsValues = new HashMap();
         try {
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
-                for (int i = 0; i<childList.getLength(); i++){
+                for (int i = 0; i<childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType() == child.ELEMENT_NODE)
-                        tagsValues.put(child.getNodeName(), child.getFirstChild().getNodeValue());
+                    if (child.getNodeType()==child.ELEMENT_NODE)
+                        tagsValues.put(child.getNodeName(), 
+                                        child.getFirstChild().getNodeValue());
                 }
             }  
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     Object getValue() {
         return tagsValues; 

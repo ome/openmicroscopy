@@ -27,17 +27,13 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
+
 package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
 import java.util.HashMap;
+
+// Third-party libraries
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -48,15 +44,19 @@ import org.w3c.dom.NodeList;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
-class FontEntry extends Entry {
+class FontEntry
+    extends Entry {
     
     private HostInfo value;
     FontEntry() {
     }
     
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     protected void setContent(Node node) { 
         try {
@@ -65,15 +65,15 @@ class FontEntry extends Entry {
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 FontInfo fi = new FontInfo();
-                for (int i = 0; i<childList.getLength(); i++){
+                for (int i = 0; i<childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType() == child.ELEMENT_NODE)  
+                    if (child.getNodeType()==child.ELEMENT_NODE)  
                         fi.setValue(child.getFirstChild().getNodeValue(), child.getNodeName()) ;
                 }   
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     Object getValue() {
         return value; 

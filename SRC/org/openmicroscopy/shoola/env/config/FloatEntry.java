@@ -27,16 +27,9 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
-// Java imports 
+//Third-party libraries 
 import org.w3c.dom.Node;
 
 /**
@@ -45,14 +38,18 @@ import org.w3c.dom.Node;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
-class FloatEntry extends Entry {
+class FloatEntry
+    extends Entry {
     
     private Float value;
     FloatEntry() {
     }
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     protected void setContent(Node node) { 
         try {
@@ -60,7 +57,7 @@ class FloatEntry extends Entry {
             value = new Float(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
-/** Implemented as specified by {@linkEntry}.
+/** Implemented as specified by {@link Entry}.
  */  
     Object getValue() {
         return value; 

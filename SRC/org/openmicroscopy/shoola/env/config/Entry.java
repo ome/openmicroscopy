@@ -26,18 +26,12 @@
  *
  *------------------------------------------------------------------------------
  */
-
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
 //Java imports
 import java.util.HashMap;
+
+//Third-party libraries 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -54,14 +48,17 @@ import org.w3c.dom.Node;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
 abstract class Entry {
     
-    static  HashMap     contentHandlers;
-    static  String      NAME = "name", TYPE = "type";
-    static  String      ENTRY = "entry", STRUCT_ENTRY = "structuredEntry";
-    static  String      DEFAULT_ENTRY = "string", DEFAULT_STRUCT_ENTRY ="map";
+    static HashMap     contentHandlers;
+    static String      NAME = "name", TYPE = "type";
+    static String      ENTRY = "entry", STRUCT_ENTRY = "structuredEntry";
+    static String      DEFAULT_ENTRY = "string", DEFAULT_STRUCT_ENTRY ="map";
     static {
         contentHandlers = new HashMap();
         contentHandlers.put("map", MapEntry.class);
@@ -74,6 +71,7 @@ abstract class Entry {
         contentHandlers.put("OMEDS", OMEDSEntry.class);
         contentHandlers.put("font", FontEntry.class);
         contentHandlers.put("icon", IconEntry.class);
+        contentHandlers.put("agents", AgentsEntry.class);
     }
     private String name;
     private static class NameTypePair {
@@ -83,7 +81,8 @@ abstract class Entry {
 /* For a given entry or structuredEntry tag, creates a concrete <code>Entry</code> object to
  * handle the conversion of the tag's content into an object
  *
- * @param   n    DOM node representing the tag
+ * @param n             DOM node representing the tag
+ * @return Entry                    
  */  
     
     static Entry createEntryFor(Node node) {
@@ -91,14 +90,14 @@ abstract class Entry {
         if (node.hasAttributes()) { // to be removed when we have xmlSchema (config)
             NameTypePair ntp = retrieveEntryAttributes(node);
             String key = null;
-            if (node.getNodeName() == ENTRY) // entry tag
+            if (node.getNodeName()==ENTRY) // entry tag
                 key = ntp.type==null? DEFAULT_ENTRY : ntp.type;
-            else if (node.getNodeName() == STRUCT_ENTRY) // structuredEntry tag 
+            else if (node.getNodeName()==STRUCT_ENTRY) // structuredEntry tag 
                 key = ntp.type==null? DEFAULT_STRUCT_ENTRY : ntp.type;
-            Class handler = (Class)contentHandlers.get(key);
+            Class handler = (Class) contentHandlers.get(key);
             try {
                 if (handler == null) handler = Class.forName(key); 
-                entry = (Entry)handler.newInstance();
+                entry = (Entry) handler.newInstance();
             } catch(Exception e) { throw new RuntimeException(e); } 
             entry.name = ntp.name;
             entry.setContent(node);
@@ -108,7 +107,8 @@ abstract class Entry {
     
 /* retrieves the value of the attributes name and type and initializes
  *
- * @param   n    DOM node
+ * @param n    DOM node
+ * @return NameTypePair
  */    
     private static NameTypePair retrieveEntryAttributes(Node n) {
         NameTypePair    ntp = new NameTypePair();
@@ -116,20 +116,23 @@ abstract class Entry {
         try {
             for (int i = 0; i<list.getLength(); ++i) {
                 Node na = list.item(i);
-                if (na.getNodeName() == NAME ) ntp.name = na.getNodeValue();
-                else if (na.getNodeName() == TYPE )  ntp.type = na.getNodeValue();
+                if (na.getNodeName()==NAME) ntp.name = na.getNodeValue();
+                else if (na.getNodeName()==TYPE)  ntp.type = na.getNodeValue();
             }
         } catch (DOMException dex) { throw new RuntimeException(dex); }
-        if( ntp.name == null || ntp.name.length()==0)
+        if (ntp.name==null || ntp.name.length()==0)
             throw new RuntimeException(" Blah..");
         return ntp;
     }
+    
 /* returns the content of the <code>name</code> attribute of a configuration entry
+ *
+ * @return String   the content of the <code>name</code> attribute
  */  
-    public String   getName() {
+    public String getName() {
         return name;
     }
-
+    
     abstract Object getValue();
     protected abstract void setContent(Node node);
     

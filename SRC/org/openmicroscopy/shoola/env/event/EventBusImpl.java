@@ -27,16 +27,9 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.event;
 
-//Java import
+//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -52,15 +45,18 @@ import java.util.ListIterator;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
+
 public class EventBusImpl
     implements EventBus {
     
-    private LinkedList  eventQueue;
-    private HashMap     deMultiplexTable;
-    private int state;
-    private static final int IDLE = 0;
-    private static final int DISPATCHING = 1;   
+    private LinkedList          eventQueue;
+    private HashMap             deMultiplexTable;
+    private int                 state;
+    private static final int    IDLE = 0, DISPATCHING = 1;   
     
 /** Creates a new instance of EventBusImpl */
     public EventBusImpl() {
@@ -68,18 +64,18 @@ public class EventBusImpl
         deMultiplexTable = new HashMap();
         state = IDLE;
     }    
-/** Implemented as specified by {@linkEventBus}.
+/** Implemented as specified by {@link EventBus}.
  */    
     public void register(AgentEventListener  subscriber, Class[] events){
         for (int j=0; j<events.length; ++j) {
             Class eventClass = events[j];
             if (verifyInheritance(eventClass)) { // check inheritance
-                LinkedList list = (LinkedList)deMultiplexTable.get(eventClass);
-                if (list != null) {
+                LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
+                if (list!=null) {
                     ListIterator i = list.listIterator();
                     while (i.hasNext()) {
-                        AgentEventListener listener = (AgentEventListener)i.next();
-                        if (listener != subscriber) list.addLast(subscriber);
+                        AgentEventListener listener = (AgentEventListener) i.next();
+                        if (listener!=subscriber) list.addLast(subscriber);
                     }
                 } else {
                     list = new LinkedList();
@@ -90,16 +86,16 @@ public class EventBusImpl
         }
     }
     
-/** Implemented as specified by {@linkEventBus}.
+/** Implemented as specified by {@link EventBus}.
  */    
     public void register(AgentEventListener  subscriber, Class event){
         if (verifyInheritance(event)) { // check inheritance
-            LinkedList list = (LinkedList)deMultiplexTable.get(event);
-            if (list != null) {
+            LinkedList list = (LinkedList) deMultiplexTable.get(event);
+            if (list!=null) {
                 ListIterator i = list.listIterator();
                 while (i.hasNext()) {
-                    AgentEventListener listener = (AgentEventListener)i.next();
-                    if (listener != subscriber) list.addLast(subscriber);
+                    AgentEventListener listener = (AgentEventListener) i.next();
+                    if (listener!=subscriber) list.addLast(subscriber);
                 }
             } else {
                 list = new LinkedList();
@@ -108,19 +104,19 @@ public class EventBusImpl
             deMultiplexTable.put(event, list);
         }     
     }    
-/** Implemented as specified by {@linkEventBus}.
+/** Implemented as specified by {@link EventBus}.
  */    
     public void remove(AgentEventListener  subscriber, Class[] events) {
         for (int j=0; j<events.length; ++j) {
             Class eventClass = events[j];
             if (verifyInheritance(eventClass)) { // check inheritance
-                LinkedList list = (LinkedList)deMultiplexTable.get(eventClass);
+                LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
                 ListIterator i = list.listIterator();
                 while (i.hasNext()) {
-                    AgentEventListener listener = (AgentEventListener)i.next();
+                    AgentEventListener listener = (AgentEventListener) i.next();
                     if (listener.equals(subscriber)) list.remove(subscriber);
                 }
-                if (list != null) deMultiplexTable.put(eventClass, list);
+                if (list!=null) deMultiplexTable.put(eventClass, list);
                 else deMultiplexTable.remove(eventClass);
             }     
         }   
@@ -129,13 +125,13 @@ public class EventBusImpl
  */ 
     public void remove(AgentEventListener  subscriber, Class event) {
         if (verifyInheritance(event)) { // check inheritance
-            LinkedList list = (LinkedList)deMultiplexTable.get(event);
+            LinkedList list = (LinkedList) deMultiplexTable.get(event);
             ListIterator i = list.listIterator();
             while (i.hasNext()) {
-                AgentEventListener listener = (AgentEventListener)i.next();
+                AgentEventListener listener = (AgentEventListener) i.next();
                 if (listener.equals(subscriber)) list.remove(subscriber);
             }
-            if (list != null) deMultiplexTable.put(event, list);
+            if (list!=null) deMultiplexTable.put(event, list);
             else deMultiplexTable.remove(event);
         }     
     }
@@ -158,10 +154,10 @@ public class EventBusImpl
             } 
         }
     }    
-/** Implemented as specified by {@linkEventBus}.
+/** Implemented as specified by {@link EventBus}.
  */  
     public void post(AgentEvent e) {
-        switch(state){
+        switch (state) {
             case IDLE:
                 state = DISPATCHING;
                 eventQueue.addFirst(e);
@@ -178,25 +174,25 @@ public class EventBusImpl
 /** Dispatch the event */
     private void dispatch() {
         // grab the first event posted
-        AgentEvent e = (AgentEvent)eventQueue.removeLast();
+        AgentEvent e = (AgentEvent) eventQueue.removeLast();
         Class eventClass = e.getClass();
-        LinkedList list = (LinkedList)deMultiplexTable.get(eventClass);
+        LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
         ListIterator i = list.listIterator();
         while (i.hasNext()) {
-            AgentEventListener listener = (AgentEventListener)i.next();
-            if (e.getSource() != listener) listener.eventFired(e);
+            AgentEventListener listener = (AgentEventListener) i.next();
+            if (e.getSource()!=listener) listener.eventFired(e);
         }   
     }
     
-/** verify the inheritance of the class
+/** verify the inheritance of the class i.e. if the class inherits from AgentEvent class
  *
- *@param eventClass      class 
+ * @param eventClass      class 
  */
     private boolean verifyInheritance(Class eventClass) {
         Class agtEvent = AgentEvent.class;
         boolean b = false;
-        while (eventClass != null) {  //find first class, if any, in inheritance hierarchy 
-            if (eventClass == agtEvent) {
+        while (eventClass!=null) {  //find first class, if any, in inheritance hierarchy 
+            if (eventClass==agtEvent) {
                 b = true ;
                 eventClass = null;
             } else {

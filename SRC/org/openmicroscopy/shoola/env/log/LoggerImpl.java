@@ -27,16 +27,9 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.log;
 
-// Java import
+// Third-party libraries
 import org.apache.log4j.Category;
 
 /** It is an adapter that makes use of the Log4j library to implement the operations
@@ -48,6 +41,9 @@ import org.apache.log4j.Category;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
 public class LoggerImpl
@@ -56,47 +52,47 @@ public class LoggerImpl
     // TODO: configure log4j
     public LoggerImpl() {}
     
-/** Implemented as specified by {@linkLogger}.
+/** Implemented as specified by {@link Logger}.
  */     
     public void debug(Object c, String logMsg) {
         Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
+        if (c!=null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.debug(logMsg);
     }
     
-/** Implemented as specified by {@linkLogger}.
+/** Implemented as specified by {@link Logger}.
  */ 
     public void error(Object c, String logMsg) {
         Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
+        if (c!=null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.error(logMsg);
     }
     
-/** Implemented as specified by {@linkLogger}.
+/** Implemented as specified by {@link Logger}.
  */ 
     public void fatal(Object c, String logMsg) {
         Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
+        if (c!=null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.fatal(logMsg);
     }
     
-/** Implemented as specified by {@linkLogger}.
+/** Implemented as specified by {@link Logger}.
  */ 
     public void info(Object c, String logMsg) {
         Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
+        if (c!=null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.info(logMsg);
     }
     
-/** Implemented as specified by {@linkLogger}.
+/** Implemented as specified by {@link Logger}.
  */ 
     public void warn(Object c, String logMsg) {
         Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
+        if (c!=null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.warn(logMsg);
     }

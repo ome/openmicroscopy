@@ -27,24 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi         <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
-
-
 //Java imports
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Stack;
 
 //Third-party libs
-import junit.framework.*;
-import junit.textui.*;
-import junit.swingui.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.swingui.TestRunner;
 
 
 /** The entry point to the regression test suite.
@@ -64,11 +56,16 @@ import junit.swingui.*;
  * name starts with <code>test__</code> (two underscore characters).
  * </p>
  *
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
+
 public class RegressionTests {
   
 /** The name of this regression test suite. */
@@ -87,17 +84,17 @@ public class RegressionTests {
 /** The test suite that we build by composition of all (recognized) test cases within the
  *  compiled tree. 
  */
-    private TestSuite   suite; 
+    private TestSuite       suite; 
 /** This stack is used for navigation through the compiled directory tree. */
-    private Stack       dirs;
+    private Stack           dirs;
 /** The filter to select the compiled files that follows the pattern of a test suite file name. */
-    private FileFilter  fileFilter;
+    private FileFilter      fileFilter;
 /** Path to the directory containing the compiled tree. If realtive, then it has to be expressed in 
  * terms of the current working directory. 
  */
-    private String      basePath;
+    private String          basePath;
 /** Tells whether or not to run the suite in the Swing ui. */
-    private boolean     swingMode;
+    private boolean         swingMode;
     
    
     
@@ -108,7 +105,7 @@ public class RegressionTests {
     private RegressionTests(String[] opt) {
         processOptions(opt);
         File    baseDir = new File(basePath, START_DIR);
-        if( !baseDir.isDirectory() )
+        if (!baseDir.isDirectory())
             throw new RuntimeException("Can't locate compiled tree: "+baseDir);
         suite = new TestSuite(RTS_NAME);
         dirs = new Stack();
@@ -126,8 +123,8 @@ public class RegressionTests {
  */
     private void processOptions(String[] opt) {
         int k = opt.length;
-        while( 0 <= --k ) {
-            if( opt[k].equals("-ui") )      swingMode = true;
+        while (0<=--k) {
+            if (opt[k].equals("-ui")) swingMode = true;
             else        basePath = opt[k];
         }
     }
@@ -139,9 +136,9 @@ public class RegressionTests {
  */
     private String fileToFQN(File f) {
         StringBuffer  buf = new StringBuffer(f.getPath());  //avoids errors if basePath was relative
-        if( basePath != null )  //can either be null or hold a path (can't be "", see constructor)
+        if (basePath!= null)  //can either be null or hold a path (can't be "", see constructor)
             buf.delete(0, basePath.length());  //strip base path out
-        if( buf.charAt(0) == File.separatorChar )  //strip name separator, if any, at start of string
+        if (buf.charAt(0)==File.separatorChar)  //strip name separator, if any, at start of string
             buf.deleteCharAt(0);
         buf.delete(buf.lastIndexOf(FILE_EXT), buf.length());  //strip extension out
         String  fqn = buf.toString();
@@ -159,7 +156,7 @@ public class RegressionTests {
         Class   c = null;
         try {
             c = Class.forName(fqn);
-            if( TestCase.class.isAssignableFrom(c) )
+            if (TestCase.class.isAssignableFrom(c))
                 suite.addTestSuite(c);
             else
                 throw new Exception("Class "+c+" is not a TestCase. ");
@@ -179,13 +176,13 @@ public class RegressionTests {
         int     k;
         File    f;
         File[]  dirContents;
-        while( !dirs.empty() ) {
+        while (!dirs.empty()) {
             f = (File)dirs.pop();
             dirContents = f.listFiles(fileFilter);
             k = dirContents.length-1;
-            while( 0 <= k ) {
+            while (0<= k){
                 f = dirContents[k--];
-                if( f.isDirectory() )   dirs.push(f);
+                if (f.isDirectory())   dirs.push(f);
                 else        addSuite(f);  //f matches the FILE_PATTERN
             }
         }
@@ -196,7 +193,7 @@ public class RegressionTests {
  * (default) or in GUI mode.
  */
     private void run() {
-        if( swingMode ) {
+        if (swingMode) {
             junit.swingui.TestRunner runner = new junit.swingui.TestRunner() {
                 public Test getTest(String suiteClassName) {
                     return suite;  //hack to return the suite that we've already built

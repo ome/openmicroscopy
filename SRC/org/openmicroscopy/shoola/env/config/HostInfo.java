@@ -26,14 +26,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
-/*------------------------------------------------------------------------------
- *
- * Written by:     Jean-Marie Burel     <j.burel@dundee.ac.uk>
- *                      Andrea Falconi          <a.falconi@dundee.ac.uk>
- *
- *------------------------------------------------------------------------------
- */
 package org.openmicroscopy.shoola.env.config;
 
 /** Creates an object containing the Host's informations
@@ -43,12 +35,15 @@ package org.openmicroscopy.shoola.env.config;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * <b>Internal version:</b> $Revision$  $Date$
+ * @version 2.2
+ * @since OME2.2
  */
 
 class HostInfo {
     
-    String  host;
-    Integer port;
+    String              host;
+    Integer             port;
     static final String PORT = "port", HOST = "host";
     
     void setValue(String value, String tag) {
@@ -57,9 +52,19 @@ class HostInfo {
             else if (tag.equals(HOST)) host = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
+    
+/* return the value of the <code>host</code>
+ *
+ *@return String
+ */
     String getHost() {
         return host;
     }
+    
+/* return the value of the <code>port</code> tag
+ *
+ *@return Integer
+ */
     Integer getPort() {
         return port;
     }
