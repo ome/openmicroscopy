@@ -70,7 +70,7 @@ import org.openmicroscopy.pkg.ClassX;
  * automatically handled by CVS, never modify it.
  * 
  * @author Your Name, <a href="mailto:your@email">your@email</a>
- * <b>Internal version:</b> $Revision$ $Date$
+ * <br><b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
