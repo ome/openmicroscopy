@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.roi.pane;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,7 +40,6 @@ import javax.swing.JComboBox;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.ROIAgt;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIFactory;
 
@@ -61,44 +61,36 @@ class ControlsManager
     implements ActionListener
 {
     
-    /** Action command ID for the rectangle button. */
-    private static final int    RECTANGLE = 0;
-    
-    /** Action command ID for the ellipse button. */
-    private static final int    ELLIPSE = 1;
-    
     /** Action command ID for the erase button. */
-    private static final int    ERASE = 2;
+    static final int            ERASE = 0;
     
     /** Action command ID for the eraseALL button. */
-    private static final int    ERASE_ALL = 3;
+    static final int            ERASE_ALL = 1;
     
-    /** Action command ID for the moveROI button. */
-    private static final int    MOVE_ROI = 4;
+    /** Action ID to restore the last erased shapes. */
+    static final int            UNDO_ERASE = 2;
     
-    /** Action command ID for the sizeROI button. */
-    private static final int    SIZE_ROI = 5;
+    /** Action command ID for the rectangle button. */
+    private static final int    RECTANGLE = 3;
+    
+    /** Action command ID for the ellipse button. */
+    private static final int    ELLIPSE = 4;
     
     /** Action command ID for the analyse button. */
-    private static final int    ANALYSE = 6;
+    private static final int    ANALYSE = 5;
     
     /** Action command ID for the checkBox. */
-    private static final int    DRAW_ON_OFF = 7;
+    private static final int    TEXT_ON_OFF = 6;
     
     /** Action command ID for the checkBox. */
-    private static final int    TEXT_ON_OFF = 8;
+    private static final int    ANNOTATION_ON_OFF = 7;
     
     /** Action command ID for the checkBox. */
-    private static final int    ANNOTATION_ON_OFF = 9;
+    private static final int    COLOR = 8;
     
     /** Action command ID for the checkBox. */
-    private static final int    COLOR = 10;
-    
-    /** Action command ID for the checkBox. */
-    private static final int    CHANNEL = 11;
-    
-    private static final int    UNDO_ERASE = 12;
-    
+    private static final int    CHANNEL = 9;
+
     private ROIAgtCtrl          control;
     
     private Controls             view;
@@ -107,32 +99,27 @@ class ControlsManager
     {
         this.view = view;
         this.control = control;
-        attachListeners();
+        //attachListeners();
     }
     
-    private void attachListeners()
+    /** Attach listener to a menu Item. */
+    void attachItemListener(AbstractButton item, int id)
+    {
+        item.setActionCommand(""+id);
+        item.addActionListener(this);
+    }
+    
+    /** Attach listeners to buttons, comboBox and checkbox. */
+    void attachListeners()
     {
         JButton rectangle = view.getRectangle(), ellipse = view.getEllipse(),
-                erase = view.getErase(), analyze = view.getAnalyse(),
-                moveROI = view.getMoveROI(), sizeROI = view.getSizeROI(),
-                eraseAll = view.getEraseAll(), undoErase = view.getUndoErase();
+                analyze = view.getAnalyse();
         rectangle.setActionCommand(""+RECTANGLE);
         rectangle.addActionListener(this);
         ellipse.setActionCommand(""+ELLIPSE);
         ellipse.addActionListener(this); 
-        erase.setActionCommand(""+ERASE);
-        erase.addActionListener(this); 
-        eraseAll.setActionCommand(""+ERASE_ALL);
-        eraseAll.addActionListener(this); 
-        moveROI.setActionCommand(""+MOVE_ROI);
-        moveROI.addActionListener(this); 
-        sizeROI.setActionCommand(""+SIZE_ROI);
-        sizeROI.addActionListener(this);
         analyze.setActionCommand(""+ANALYSE);
         analyze.addActionListener(this);
-        undoErase.setActionCommand(""+UNDO_ERASE);
-        undoErase.addActionListener(this);
-        
         //ComboBox
         JComboBox colorsBox = view.getColors(), 
                 channelsBox = view.getChannels();
@@ -141,11 +128,8 @@ class ControlsManager
         channelsBox.addActionListener(this);
         channelsBox.setActionCommand(""+CHANNEL);
         //Box
-        JCheckBox drawOnOff = view.getDrawOnOff(), 
-                    textOnOff = view.getTextOnOff(), 
+        JCheckBox  textOnOff = view.getTextOnOff(), 
                     annotationOnOff = view.getAnnotationOnOff();
-        drawOnOff.addActionListener(this);
-        drawOnOff.setActionCommand(""+DRAW_ON_OFF);
         textOnOff.addActionListener(this);
         textOnOff.setActionCommand(""+TEXT_ON_OFF);
         annotationOnOff.addActionListener(this);
@@ -166,12 +150,6 @@ class ControlsManager
                     control.erase(); break;
                 case ERASE_ALL:
                     control.eraseAll(); break;
-                case MOVE_ROI:
-                    handleState(ROIAgt.MOVING, true); break;
-                case SIZE_ROI:
-                    handleState(ROIAgt.RESIZING, false); break;
-                case DRAW_ON_OFF:
-                    handleOnOffDrawing(e); break;
                 case TEXT_ON_OFF:
                     handleOnOffText(e); break;
                 case ANNOTATION_ON_OFF:
@@ -190,12 +168,6 @@ class ControlsManager
         }
     }
     
-    private void handleState(int state, boolean b)
-    {
-        paintedStateButtons(b);
-        control.setState(state);
-    }
-    
     private void handleChannel(ActionEvent e)
     {
         JComboBox box = (JComboBox) e.getSource();
@@ -206,12 +178,6 @@ class ControlsManager
     {
         JComboBox box = (JComboBox) e.getSource();
         control.setLineColor(view.getColorSelected(box.getSelectedIndex()));
-    }
-    
-    private void handleOnOffDrawing(ActionEvent e)
-    {
-        JCheckBox box = (JCheckBox) e.getSource();
-        control.onOffDrawing(box.isSelected());
     }
     
     private void handleOnOffText(ActionEvent e)
@@ -230,24 +196,12 @@ class ControlsManager
     {
         paintedDrawingButtons(b);
         control.setType(type);
-        control.setState(ROIAgt.CONSTRUCTING);
-    }
-
-
-    private void paintedStateButtons(boolean b)
-    {
-       view.getRectangle().setBorderPainted(false);
-       view.getEllipse().setBorderPainted(false);
-       view.getMoveROI().setBorderPainted(b);
-       view.getSizeROI().setBorderPainted(!b);
     }
     
     private void paintedDrawingButtons(boolean b)
     {
        view.getRectangle().setBorderPainted(b);
        view.getEllipse().setBorderPainted(!b);
-       view.getMoveROI().setBorderPainted(false);
-       view.getSizeROI().setBorderPainted(false);
     }
     
 }

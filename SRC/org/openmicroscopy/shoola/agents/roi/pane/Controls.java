@@ -44,6 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -55,6 +56,7 @@ import javax.swing.border.Border;
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.ButtonMenu;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -119,9 +121,7 @@ public class Controls
     /** Buttons to select the shape of the ROI. */
     private JButton                     rectangle, ellipse;
     
-    /** Handle the ROI shapes. */
-    private JButton                     erase, eraseAll, moveROI, sizeROI, 
-                                        undoErase;
+    private ButtonMenu                  eraseMenu;
     
     /** Analyse data. */
     private JButton                     analyse;
@@ -132,7 +132,7 @@ public class Controls
     /** Color selection. */
     private JComboBox                   colors;
     
-    private JCheckBox                   drawOnOff, textOnOff, annotationOnOff;
+    private JCheckBox                   textOnOff, annotationOnOff;
     
     /** Border of the pressed button. */
     private Border                      pressedBorder;
@@ -150,14 +150,13 @@ public class Controls
     {
         this.control = control;
         pressedBorder = BorderFactory.createLoweredBevelBorder();
+        manager = new ControlsManager(this, control);
         initButtons(IconManager.getInstance(registry));
         initBoxes();
-        manager = new ControlsManager(this, control);
+        manager.attachListeners();
         buildGUI();
     }
-      
-    public JCheckBox getDrawOnOff() { return drawOnOff; }
-    
+     
     public JCheckBox getTextOnOff() { return textOnOff; }
     
     public JCheckBox getAnnotationOnOff() { return annotationOnOff; }
@@ -168,19 +167,9 @@ public class Controls
     
     JComboBox getChannels() { return channels; }
     
-    JButton getUndoErase() { return undoErase; }
-    
-    JButton getMoveROI() { return moveROI; }
-    
-    JButton getSizeROI() { return sizeROI; }
-    
-    JButton getEraseAll() { return eraseAll; }
-    
     JButton getAnalyse() { return analyse; }
     
     JButton getEllipse() { return ellipse; }
-
-    JButton getErase() { return erase; }
     
     JButton getRectangle() { return rectangle; }
 
@@ -194,11 +183,7 @@ public class Controls
                 UIUtilities.formatToolTipText("Select a wavelength."));
         colors = new JComboBox(selection);
         colors.setToolTipText(
-                UIUtilities.formatToolTipText("Pick a color for this ROI."));
-        drawOnOff = new JCheckBox();
-        drawOnOff.setToolTipText(
-                UIUtilities.formatToolTipText("Display the selections."));
-        drawOnOff.setSelected(true);
+                UIUtilities.formatToolTipText("Pick a color for the shape."));
         textOnOff = new JCheckBox();
         textOnOff.setToolTipText(
                 UIUtilities.formatToolTipText("Display the ROI #."));
@@ -212,6 +197,20 @@ public class Controls
     /** Initialize the buttons. */
     private void initButtons(IconManager im)
     {
+        eraseMenu = new ButtonMenu(im.getIcon(IconManager.ERASE));
+        eraseMenu.setToolTipText(
+                UIUtilities.formatToolTipText("Erase shapes"));
+        //Add items to the menu.
+        JMenuItem item = new JMenuItem("Erase current shape");
+        eraseMenu.addToMenu(item);
+        manager.attachItemListener(item, ControlsManager.ERASE);
+        item = new JMenuItem("Erase all shapes");
+        eraseMenu.addToMenu(item);
+        manager.attachItemListener(item, ControlsManager.ERASE_ALL);
+        item = new JMenuItem("Undo.");
+        eraseMenu.addToMenu(item);
+        manager.attachItemListener(item, ControlsManager.UNDO_ERASE);
+        
         rectangle = new JButton(im.getIcon(IconManager.RECTANGLE));
         rectangle.setToolTipText(
                 UIUtilities.formatToolTipText("Draw a rectangle."));
@@ -220,33 +219,10 @@ public class Controls
         ellipse.setToolTipText(
                 UIUtilities.formatToolTipText("Draw an ellipse."));
         setButtonBorder(ellipse, false);
-        erase = new JButton(im.getIcon(IconManager.ERASE));
-        erase.setToolTipText(
-                UIUtilities.formatToolTipText("Erase the current shape."));
-        setButtonBorder(erase, false);
-        eraseAll = new JButton(im.getIcon(IconManager.ERASE_ALL));
-        eraseAll.setToolTipText(
-                UIUtilities.formatToolTipText("Erase all shapes."));
-        setButtonBorder(eraseAll, false);
         analyse = new JButton(im.getIcon(IconManager.ANALYSE));
         analyse.setToolTipText(
                 UIUtilities.formatToolTipText("Analyse data."));
         setButtonBorder(analyse, false);
-        moveROI = new JButton(im.getIcon(IconManager.MOVE_ROI));
-        moveROI.setToolTipText(
-                UIUtilities.formatToolTipText("Move the selected selection."));
-        setButtonBorder(moveROI, false);
-        sizeROI = new JButton(im.getIcon(IconManager.SIZE_ROI));
-        sizeROI.setToolTipText(
-                UIUtilities.formatToolTipText("Resize the selected " +
-                                                "selection."));
-        setButtonBorder(sizeROI, false);
-        undoErase = new JButton(im.getIcon(IconManager.UNDO_ERASE));
-        undoErase.setToolTipText(
-                UIUtilities.formatToolTipText("Restore the last erased " +
-                                                "selection."));
-        setButtonBorder(undoErase, false);
-        
     }
     
     /** Build and lay out the GUI. */
@@ -312,15 +288,6 @@ public class Controls
         c.gridx = 1;
         gridbag.setConstraints(bp, c);
         p.add(bp);
-        //c.gridx = 0;
-        //c.gridy = 2;
-        //l = new JLabel(" Draw");
-        //bp = UIUtilities.buildComponentPanel(drawOnOff);
-        //gridbag.setConstraints(l, c);
-        //p.add(l);
-        //c.gridx = 1;
-        //gridbag.setConstraints(bp, c);
-        //p.add(bp);
         c.gridx = 0;
         c.gridy = 2;
         l = new JLabel(" Label");
@@ -352,15 +319,7 @@ public class Controls
         bar.add(Box.createRigidArea(HBOX));
         bar.add(ellipse);
         bar.add(Box.createRigidArea(HBOX));
-        bar.add(moveROI);
-        bar.add(Box.createRigidArea(HBOX));
-        bar.add(sizeROI);
-        bar.add(Box.createRigidArea(HBOX));
-        bar.add(erase);
-        bar.add(Box.createRigidArea(HBOX));
-        bar.add(eraseAll);
-        bar.add(Box.createRigidArea(HBOX));
-        bar.add(undoErase);
+        bar.add(eraseMenu);
         bar.add(Box.createRigidArea(HBOX));
         bar.add(analyse);
         return bar;
@@ -372,4 +331,5 @@ public class Controls
         button.setBorder(pressedBorder);
         button.setBorderPainted(painted);
     }
+    
 }
