@@ -115,11 +115,12 @@ public class IconManager
     public static final int ZOOM_OUT = 10;
     public static final int ZOOM_FIT = 11;
     public static final int ANNOTATE = 12;
+    public static final int POPUP_MENU = 13;
     
     /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 12;
+    public static final int MAX_ID = 13;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -146,6 +147,7 @@ public class IconManager
         smallPaths[ZOOM_OUT] = "zoomout16.png";
         smallPaths[ZOOM_FIT] = "zoomfit16.png";
         smallPaths[ANNOTATE] = "annotate.png";
+        smallPaths[POPUP_MENU] = "menu24.png";
     }
     
     static
@@ -163,6 +165,7 @@ public class IconManager
         largePaths[ZOOM_OUT] = "zoomout16.png";
         largePaths[ZOOM_FIT] = "zoomfit16.png";
         largePaths[ANNOTATE] = "annotate.png";
+        largePaths[POPUP_MENU] = "menu24.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";

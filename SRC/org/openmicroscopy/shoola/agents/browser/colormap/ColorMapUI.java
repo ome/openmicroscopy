@@ -67,6 +67,7 @@ public class ColorMapUI extends JInternalFrame
     public ColorMapUI(ColorMapModel model)
     {
         this.model = model;
+        model.addModelListener(this);
         init();
         buildUI();
         groupBar.setCategoryTree(model.getTree());
@@ -89,6 +90,7 @@ public class ColorMapUI extends JInternalFrame
     {
         if(model != null)
         {
+            model.removeListener(this);
             dispatch.categoriesDeselected(); 
             dispatch.groupsDeselected();
             groupBar.removeListener(dispatch);
@@ -104,6 +106,7 @@ public class ColorMapUI extends JInternalFrame
     {
         reset();
         this.model = model;
+        model.addModelListener(this);
         dispatch = new ColorMapDispatcher(model,listUI);
         groupBar.addListener(dispatch);
         groupBar.setCategoryTree(model.getTree());
@@ -119,6 +122,7 @@ public class ColorMapUI extends JInternalFrame
      */
     public void modelUpdated(ColorMapModel model)
     {
+        System.err.println("redraw");
         dispatch.fireRedraw();
     }
 

@@ -43,6 +43,8 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModel;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
@@ -92,6 +94,12 @@ public class CategoryChangeHandler implements CompletionHandler
                 BrowserAgent agent = env.getBrowserAgent();
                 model.setCategoryTree(agent.loadCategoryTree(browserID));
                 model.fireModelUpdated();
+
+                // TODO change to listener on CMM side, I think
+                ColorMapModel cml = new ColorMapModel(model);
+                ColorMapManager cmm = env.getColorMapManager();
+                cmm.putColorMapModel(cml);
+                cmm.updateModel();
             }
         }
     }

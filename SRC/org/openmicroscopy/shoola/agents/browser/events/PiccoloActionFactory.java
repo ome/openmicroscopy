@@ -445,7 +445,10 @@ public class PiccoloActionFactory
         return action;
     }
     
-    public static PiccoloAction getSemanticEnterAction(final BrowserView view,
+    // TODO figure out a better way so I don't have to embed the model here.
+    // Embedding the model here sucks, I think.
+    public static PiccoloAction getSemanticEnterAction(final BrowserModel model,
+                                                       final BrowserView view,
                                                        final HoverManager layer)
     {
         PiccoloAction enterAction = getImageEnterAction(view);
@@ -463,7 +466,7 @@ public class PiccoloActionFactory
                 {
                     Image image = t.getImage();
                     SemanticZoomNode semanticNode =
-                        new SemanticZoomNode(t);
+                        new SemanticZoomNode(t,model);
                     
                     Point2D point = new Point2D.Double(t.getOffset().getX()+
                                                        t.getBounds().getCenter2D().getX(),

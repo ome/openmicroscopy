@@ -37,6 +37,7 @@
 package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -47,9 +48,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.JPopupMenu;
+
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.IconManager;
 import org.openmicroscopy.shoola.agents.browser.UIConstants;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
@@ -63,6 +67,7 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
 
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -102,6 +107,8 @@ public class SemanticZoomNode extends PImage
     protected Rectangle2D closeIconShape;
     protected Image annotateIconImage;
     protected Rectangle2D annotateIconShape;
+    protected Image menuIconImage;
+    protected Rectangle2D menuIconShape;
     
     protected Image[] thumbnailImages;
     
@@ -109,11 +116,13 @@ public class SemanticZoomNode extends PImage
     
     protected Point absoluteLocation = null;
     
+    private BrowserModel backingModel; // ugh, TODO change if possible
+    
     /**
      * Makes the node from the specified thumbnail.
      * @param image
      */
-    public SemanticZoomNode(Thumbnail parent)
+    public SemanticZoomNode(Thumbnail parent, BrowserModel parentInfo)
     {
         super();
         if(!loadedCompositeInfo)
@@ -126,8 +135,14 @@ public class SemanticZoomNode extends PImage
             throw new IllegalArgumentException("null parent to" +
                 "SemanticZoomNode");
         }
+        if(parentInfo == null)
+        {
+            throw new IllegalArgumentException("Null backing model to" +
+                "SemanticZoomNode");
+        }
         
         multipleModeOn = parent.isMultipleThumbnail();
+        backingModel = parentInfo;
         
         if(!multipleModeOn)
         {
@@ -216,6 +231,7 @@ public class SemanticZoomNode extends PImage
         openIconImage = manager.getLargeImage(IconManager.ZOOM_BAR);
         closeIconImage = manager.getLargeImage(IconManager.CLOSE_IMAGE);
         annotateIconImage = manager.getLargeImage(IconManager.ANNOTATE);
+        menuIconImage = manager.getLargeImage(IconManager.POPUP_MENU);
         
         int iconWidth = openIconImage.getWidth(null);
         int iconHeight = openIconImage.getHeight(null);
@@ -234,7 +250,11 @@ public class SemanticZoomNode extends PImage
                                                 
         annotateIconShape = new Rectangle2D.Double(width-iconWidth-8,36,
                                                    iconWidth,iconHeight);
-                                               
+                                                   
+        iconWidth = menuIconImage.getWidth(null);
+        iconHeight = menuIconImage.getHeight(null);
+                                                   
+        menuIconShape = new Rectangle2D.Double(8,36,iconWidth,iconHeight);                
               
     }
     
@@ -407,6 +427,20 @@ public class SemanticZoomNode extends PImage
                 action.execute();
             }
         }
+        if(menuIconShape != null)
+        {
+            if(menuIconShape.contains(pos))
+            {
+                // THIS IS ALL KINDA HACKY
+                backingModel.selectThumbnail(parentThumbnail);
+                JPopupMenu popup =
+                    PopupMenuFactory.getThumbnailMenu(backingModel);
+                Component component = (PCanvas)event.getComponent();
+                int x = (int)Math.round(getOffset().getX())+8;
+                int y = (int)Math.round(getOffset().getY())+36;
+                popup.show(component,x,y);
+            }
+        }
     }
     
     /**
@@ -516,6 +550,10 @@ public class SemanticZoomNode extends PImage
         g2.drawImage(annotateIconImage,
                      (int)Math.round(annotateIconShape.getX()),
                      (int)Math.round(annotateIconShape.getY()),null);
+        g2.fill(menuIconShape);
+        g2.drawImage(menuIconImage,
+                     (int)Math.round(menuIconShape.getX()),
+                     (int)Math.round(menuIconShape.getY()),null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
         

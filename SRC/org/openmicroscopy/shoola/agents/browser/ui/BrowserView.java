@@ -248,7 +248,8 @@ public class BrowserView extends PCanvas
 
         semanticLayer = new HoverManager(this);
         semanticHoverThumbnailAction =
-            PiccoloActionFactory.getSemanticEnterAction(this,semanticLayer);
+            PiccoloActionFactory.getSemanticEnterAction(browserModel,
+                                                        this,semanticLayer);
             
         semanticExitThumbnailAction =
             PiccoloActionFactory.getOverlayExitAction(this,semanticLayer);
@@ -309,6 +310,8 @@ public class BrowserView extends PCanvas
                 {
                      HoverSensitive hover = (HoverSensitive)iter.next();
                      hover.contextExited();
+                     semanticLayer.nodeExited();
+                     semanticLayer.hideSemanticNode(getCamera());
                 }
             }
         });
@@ -528,7 +531,8 @@ public class BrowserView extends PCanvas
             else if(mode == BrowserMode.SEMANTIC_ZOOMING_MODE)
             {
                 semanticHoverThumbnailAction =
-                    PiccoloActionFactory.getSemanticEnterAction(this,semanticLayer);
+                    PiccoloActionFactory.getSemanticEnterAction(browserModel,
+                                                                this,semanticLayer);
                 defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
                                                         semanticHoverThumbnailAction);
                 defaultTOverActions.setMouseExitAction(PiccoloModifiers.NORMAL,
@@ -758,7 +762,6 @@ public class BrowserView extends PCanvas
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         super.paintComponent(g2);
-        System.err.println("repainting...");
     }
     
     /**

@@ -85,6 +85,10 @@ public class ColorMapManager
         BrowserModel browserModel = model.getSource();
         int datasetID = browserModel.getDataset().getID();
         datasetModelMap.put(new Integer(datasetID),model);
+        if(datasetID == datasetShown)
+        {
+            embeddedUI.modelChanged(model);
+        }
     }
     
     public void removeModel(int datasetID)
