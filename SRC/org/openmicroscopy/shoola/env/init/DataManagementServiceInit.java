@@ -37,14 +37,14 @@ package org.openmicroscopy.shoola.env.init;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 
 /** 
- * Register the {@link DataManagementervice} in the Registry.
+ * Creates the {@link DataManagementService} and links it to the 
+ * container's {@link Registry}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,7 +75,7 @@ final class DataManagementServiceInit
 	 */
 	String getName()
 	{
-		return "Loading DataManagementService configuration";
+		return "Starting Data Management Service";
 	}
 
 	/** 
@@ -93,14 +93,9 @@ final class DataManagementServiceInit
 	{
 		Registry reg = container.getRegistry();
 		DataManagementService dms = DataServicesFactory.createDMS(reg);
-		try {
-			RegistryFactory.linkDMS(dms, reg);
-		} catch (ConfigException ce) {
-			throw new StartupException(
-					"Unable to load DataManagementService configuration",
-										ce);
-		}
+		RegistryFactory.linkDMS(dms, reg);
 	}
+	
 	/** 
 	 * Does nothing.
 	 * @see InitializationTask#rollback()

@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.env.init;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -43,7 +42,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
- * Register the {@link UserNotifier} in the Registry
+ * Creates the {@link UserNotifier} and links it to the container's
+ * {@link Registry}.
  * 
  * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -75,7 +75,7 @@ final class UserNotifierInit
 	 */
 	String getName() 
 	{
-		return "Loading UserNotifier configuration";
+		return "Starting UserNotifier";
 	}
 
 	/** 
@@ -93,14 +93,10 @@ final class UserNotifierInit
 	{
 		Registry reg = container.getRegistry();
 		TopFrame tf = reg.getTopFrame();
-		UserNotifier un = UIFactory.makeNewUserNotifier(tf);
-		try {
-			RegistryFactory.linkUserNotifier(un, reg);
-		} catch (ConfigException ce) {
-			throw new StartupException(
-                        "Unable to load UserNotifier configuration", ce);
-		}
+		UserNotifier un = UIFactory.makeUserNotifier(tf);
+		RegistryFactory.linkUserNotifier(un, reg);
 	}
+	
 	/** 
 	 * Does nothing.
 	 * @see InitializationTask#rollback()

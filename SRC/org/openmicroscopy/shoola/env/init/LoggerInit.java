@@ -38,14 +38,14 @@ package org.openmicroscopy.shoola.env.init;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.log.LoggerFactory;
 
 /** 
- * Register the {@link Logger} in the Registry.
+ * Creates the {@link Logger} and links it to the container's
+ * {@link Registry}.
  * 
  * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -57,7 +57,9 @@ import org.openmicroscopy.shoola.env.log.LoggerFactory;
  * @version 2.2
  * @since OME2.2
  */
-final class LoggerInit extends InitializationTask {
+final class LoggerInit
+	extends InitializationTask
+{
 
 	/**
 	 * Constructor required by superclass.
@@ -75,10 +77,11 @@ final class LoggerInit extends InitializationTask {
 	 */
 	String getName()
 	{
-		return "Loading Logger configuration";
+		return "Starting Logger";
 	}
+	
 	/** 
-	 * Configure <code>log4j</code>.
+	 * Configures <code>log4j</code>.
 	 */
 	void configure() {
 		// TODO: configure log4j
@@ -93,13 +96,9 @@ final class LoggerInit extends InitializationTask {
 	{		
 		Registry reg = container.getRegistry();
 		Logger	logger = LoggerFactory.makeNew();
-		try {
-			RegistryFactory.linkLogger(logger, reg);
-		} catch (ConfigException ce) {
-			throw new StartupException("Unable to load Logger configuration",
-										ce);
-		}
+		RegistryFactory.linkLogger(logger, reg);
 	}
+	
 	/** 
 	 * Does nothing.
 	 * @see InitializationTask#rollback()

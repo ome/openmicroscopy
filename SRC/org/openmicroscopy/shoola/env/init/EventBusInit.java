@@ -35,14 +35,14 @@ package org.openmicroscopy.shoola.env.init;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.EventBusFactory;
 
 /** 
- * Register the {@link EventBus} in the Registry
+ * Creates the {@link EventBus} and links it to the container's
+ * {@link Registry}.
  * 
  * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -74,7 +74,7 @@ final class EventBusInit
 	 */
 	String getName() 
 	{
-		return "Loading EventBus configuration";
+		return "Starting Event Bus";
 	}
 
 	/** 
@@ -92,14 +92,9 @@ final class EventBusInit
 	{
 		EventBus eb = EventBusFactory.makeNew();
 		Registry reg = container.getRegistry();
-		try {
-			RegistryFactory.linkEventBus(eb, reg);
-		} catch (ConfigException ce) {
-			throw new StartupException("Unable to load EventBus configuration",
-										ce);
-		}
-
+		RegistryFactory.linkEventBus(eb, reg);
 	}
+	
 	/** 
 	 * Does nothing.
 	 * @see InitializationTask#rollback()
