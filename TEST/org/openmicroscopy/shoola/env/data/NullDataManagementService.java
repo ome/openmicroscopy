@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -39,7 +38,6 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
@@ -508,85 +506,5 @@ public class NullDataManagementService
     {
     		return null;
     }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#getImageAnnotations(int)
-     */
-    public Map getImageAnnotations(int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#getDatasetAnnotations(int)
-     */
-    public Map getDatasetAnnotations(int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#updateImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
-     */
-    public void updateImageAnnotation(AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#updateDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
-     */
-    public void updateDatasetAnnotation(AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#removeImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
-     */
-    public void removeImageAnnotation(AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#removeDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
-     */
-    public void removeDatasetAnnotation(AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#createImageAnnotation(int, java.lang.String, int, int)
-     */
-    public void createImageAnnotation(int imageID, String annotation, int theZ, int theT)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#createDatasetAnnotation(int, java.lang.String)
-     */
-    public void createDatasetAnnotation(int datasetID, String annotation)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
+ 
 }

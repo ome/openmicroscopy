@@ -32,12 +32,15 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 
 /** 
  * 
@@ -58,26 +61,6 @@ public class NullSemanticTypesService
 {
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
-     */
-    public List getAvailableGlobalTypes()
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableDatasetTypes()
-     */
-    public List getAvailableDatasetTypes()
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableImageTypes()
      */
     public List getAvailableImageTypes()
@@ -85,56 +68,6 @@ public class NullSemanticTypesService
     {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableFeatureTypes()
-     */
-    public List getAvailableFeatureTypes()
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public int countDatasetAttributes(SemanticType type, int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(java.lang.String, int)
-     */
-    public int countDatasetAttributes(String typeName, int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public int countImageAttributes(SemanticType type, int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(java.lang.String, int)
-     */
-    public int countImageAttributes(String typeName, int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /* (non-Javadoc)
@@ -158,96 +91,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public int countFeatureAttributes(SemanticType type, int featureID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countFeatureAttributes(java.lang.String, int)
-     */
-    public int countFeatureAttributes(String typeName, int featureID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(org.openmicroscopy.ds.dto.SemanticType)
-     */
-    public Attribute createAttribute(SemanticType type)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public Attribute createAttribute(SemanticType type, int objectID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(java.lang.String)
-     */
-    public Attribute createAttribute(String typeName)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(java.lang.String, int)
-     */
-    public Attribute createAttribute(String typeName, int objectID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAttribute(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public Attribute retrieveAttribute(SemanticType type, int attributeID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAttribute(java.lang.String, int)
-     */
-    public Attribute retrieveAttribute(String typeName, int attributeID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public List retrieveDatasetAttributes(SemanticType type, int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(java.lang.String, int)
      */
     public List retrieveDatasetAttributes(String typeName, int datasetID)
@@ -258,51 +101,9 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(java.lang.String, java.lang.String, int)
-     */
-    public List retrieveDatasetAttributes(String typeName,
-            String childAttribute, int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public List retrieveImageAttributes(SemanticType type, int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageClassifications(java.util.List, int)
      */
     public List retrieveImageClassifications(List imageIDs, int parentDatasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(java.lang.String, int)
-     */
-    public List retrieveImageAttributes(String typeName, int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(java.lang.String, java.lang.String, int)
-     */
-    public List retrieveImageAttributes(String typeName, String childAttribute,
-            int imageID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -332,70 +133,7 @@ public class NullSemanticTypesService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(java.lang.String, java.lang.String, java.util.List)
      */
-    public List retrieveImageAttributes(String typeName, String childAttribute,
-            List imageIDs)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
-     */
-    public List retrieveFeatureAttributes(SemanticType type, int featureID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, int)
-     */
-    public List retrieveFeatureAttributes(String typeName, int featureID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.lang.String, int)
-     */
-    public List retrieveFeatureAttributes(String typeName,
-            String childAttribute, int featureID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, java.util.List)
-     */
-    public List retrieveFeatureAttributes(SemanticType type, List featureIDs)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.util.List)
-     */
-    public List retrieveFeatureAttributes(String typeName, List featureIDs)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(java.lang.String, java.lang.String, java.util.List)
-     */
-    public List retrieveFeatureAttributes(String typeName,
-            String childAttribute, List featureIDs)
+    public List retrieveImageAttributes(String typeName, String childAttribute, List imageIDs)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -423,23 +161,13 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateUserInputAttributes(java.util.List)
-     */
-    public void updateUserInputAttributes(List attributes)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateAttributes(java.util.List)
      */
     public void updateAttributes(List attributes)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -492,4 +220,165 @@ public class NullSemanticTypesService
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getImageAnnotations(int)
+     */
+    public Map getImageAnnotations(int imageID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getDatasetAnnotations(int)
+     */
+    public Map getDatasetAnnotations(int datasetID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
+     */
+    public void updateImageAnnotation(AnnotationData data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
+     */
+    public void updateDatasetAnnotation(AnnotationData data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#removeImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
+     */
+    public void removeImageAnnotation(AnnotationData data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#removeDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
+     */
+    public void removeDatasetAnnotation(AnnotationData data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createImageAnnotation(int, java.lang.String, int, int)
+     */
+    public void createImageAnnotation(int imageID, String annotation, int theZ, int theT)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createDatasetAnnotation(int, java.lang.String)
+     */
+    public void createDatasetAnnotation(int datasetID, String annotation)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroups()
+     */
+    public List retrieveCategoryGroups()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategories()
+     */
+    public List retrieveCategories()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategory(int)
+     */
+    public CategoryData retrieveCategory(int id)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createCategoryGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
+     */
+    public void createCategoryGroup(CategoryGroupData data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createCategory(org.openmicroscopy.shoola.env.data.model.CategoryData, java.util.List)
+     */
+    public void createCategory(CategoryData data, List images)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateCategoryGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData, java.util.List)
+     */
+    public void updateCategoryGroup(CategoryGroupData data, List categoriesToAdd)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateCategory(org.openmicroscopy.shoola.env.data.model.CategoryData, java.util.List, java.util.List)
+     */
+    public void updateCategory(CategoryData data, List imgsToRemove, List imgsToAdd)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageClassifications(java.util.List)
+     */
+    public Object[] retrieveImageClassifications(List imageIDs)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    
 }
