@@ -145,8 +145,8 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		slider  = execsModel.getSlider();
 		slider.setEnabled(true);
 		slider.setBorder(BorderFactory.
-				createEmptyBorder(0,GridModel.GRID_OFFSET+GridModel.LABEL_SIZE,0,
-						2*GridModel.GRID_OFFSET-GridModel.DOT_SIDE));
+				createEmptyBorder(0,GridModel.LEFT_GAP,0,
+						GridModel.RIGHT_GAP));
 		slider.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// reset button
 		IconFactory icons = (IconFactory)  
