@@ -110,6 +110,7 @@ class Renderer
 											wGlobal.getGlobalMax(),
 											rgb[0], rgb[1], rgb[2], 255, false);
 		}
+		
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
 		return new RenderingDef(dims.sizeZ/2+dims.sizeZ%2-1, 0, 
 								RenderingDef.GS, qDef, waves);
