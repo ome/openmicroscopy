@@ -109,8 +109,48 @@ public class Initializer
 	 */
 	public void configure()
 	{
-		//TODO: create tasks, call configure() for each of them and 
-		//		queue them up properly.
+		InitializationTask task = null;
+		
+		task = new SplashScreenInit(container, this);
+		task.configure();
+		processingQueue.add(task);
+		
+		//NB: All tasks require this one to be run first 
+		//(b/c it creates and fills up the container's config).
+		task = new ContainerConfigInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		task = new LoggerInit(container);
+		task.configure();
+		processingQueue.add(task);
+				
+		task = new EventBusInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		task = new DataManagementServiceInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		task = new SemanticTypesServiceInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		//TODO: Image Service
+		
+		task = new TopFrameInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		//NB: This task requires TopFrameInit to be run first.
+		task = new UserNotifierInit(container);  
+		task.configure();
+		processingQueue.add(task);
+		
+		task = new AgentsInit(container);  
+		task.configure();
+		processingQueue.add(task);
 	}
 	
 	/**
