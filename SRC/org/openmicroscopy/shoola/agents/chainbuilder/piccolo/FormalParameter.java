@@ -189,7 +189,7 @@ public abstract class FormalParameter extends PNode implements
 		// this formal parameter will listen to any changes that happen to
 		// the node.
 		node.addNodeEventListener(this);
-		setTransparency(Constants.MODULE_TRANSPARENT);
+		//setTransparency(Constants.MODULE_TRANSPARENT);
 		
 		
 	}
@@ -243,17 +243,24 @@ public abstract class FormalParameter extends PNode implements
 	 */
 	public void setLinkable(boolean v) {
 		linkable = v;
+		setHighlighted(v);
+		getModuleView().setLinkableHighlighted(v);
+		repaint();
+	}
+	
+	public void setHighlighted(boolean v) {
+		
 		if (v == true) {
-			typeNode.setTextPaint(Constants.HIGHLIGHT_COLOR);
+			if (typeNode != null)
+				typeNode.setTextPaint(Constants.HIGHLIGHT_COLOR);
 			textNode.setTextPaint(Constants.HIGHLIGHT_COLOR);
 		}
 		else {
-			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
+			if (typeNode != null)
+				typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 			textNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
 		}
-		getModuleView().setLinkableHighlighted(v);
 		target.setHighlighted(v);
-		repaint();
 	}
 	
 	public boolean isLinkable() {
@@ -374,6 +381,7 @@ public abstract class FormalParameter extends PNode implements
 		
 	public void setParamsHighlighted(boolean v) {
 			
+		setHighlighted(v);
 		List list = getCorresponding();
 	
 		if (list == null)
@@ -500,5 +508,18 @@ public abstract class FormalParameter extends PNode implements
 
 	public void mousePopup(GenericEventHandler handler) {
 		delegate.mousePopup(handler);
+	}
+	
+	public boolean sameTypeAs(FormalParameter p) {
+		SemanticTypeData mySt = getSemanticType();
+		SemanticTypeData otherSt = p.getSemanticType();
+		if (mySt == null && otherSt ==null)
+			return true;
+		// if not both null, it's no good if either is null
+		else if (mySt == null || otherSt == null)
+			return false;
+		int myID = mySt.getID();
+		int otherID = otherSt.getID();
+		return (myID==otherID);
 	}
 }
