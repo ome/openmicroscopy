@@ -112,8 +112,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		PNode node = e.getPickedNode();
 		if (node instanceof Thumbnail) {
 			Thumbnail  thumb = (Thumbnail) node;
-			boolean canZoomOut = (zoomLevel != 0);
-			popup.popup(thumb,canZoomOut,e.getCanvasPosition());
+			popup.popup(thumb,e.getCanvasPosition());
 		}
 		else if (node instanceof MouseableNode) {
 			((MouseableNode) node).mousePopup(this);
