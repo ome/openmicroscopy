@@ -92,9 +92,29 @@ public class IconManager
     public static final int CLOSE_IMAGE = 4;
     
     /**
+     * The ST tree string icon.
+     */
+    public static final int ST_TREE_STRING = 5;
+    
+    /**
+     * The ST tree numerical icon.
+     */
+    public static final int ST_TREE_NUMBER = 6;
+    
+    /**
+     * The ST tree type icon.
+     */
+    public static final int ST_TREE_TYPE = 7;
+    
+    /**
+     * The ST tree boolean icon.
+     */
+    public static final int ST_TREE_BOOLEAN = 8;
+    
+    /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 4;
+    public static final int MAX_ID = 8;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -113,6 +133,10 @@ public class IconManager
         smallPaths[OPTIONS_BAR] = "optionsbar.png";
         smallPaths[OPEN_IMAGE] = "openimage.png";
         smallPaths[CLOSE_IMAGE] = "closeimage.png";
+        smallPaths[ST_TREE_STRING] = "st_string.png";
+        smallPaths[ST_TREE_NUMBER] = "st_number.png";
+        smallPaths[ST_TREE_BOOLEAN] = "st_boolean.png";
+        smallPaths[ST_TREE_TYPE] = "st_type.png";
     }
     
     static
@@ -122,6 +146,10 @@ public class IconManager
         largePaths[OPTIONS_BAR] = "optionsbar.png";
         largePaths[OPEN_IMAGE] = "openimage.png";
         largePaths[CLOSE_IMAGE] = "closeimage.png";
+        largePaths[ST_TREE_STRING] = "st_string.png";
+        largePaths[ST_TREE_NUMBER] = "st_number.png";
+        largePaths[ST_TREE_BOOLEAN] = "st_boolean.png";
+        largePaths[ST_TREE_TYPE] = "st_type.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";
