@@ -76,7 +76,7 @@ public class MockExecMonitor
     private MockSupport     mockSupport;
     
     
-    MockExecMonitor()
+    public MockExecMonitor()
     {
         mockSupport = new MockSupport();
     }
