@@ -60,6 +60,9 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 
 public class Spots  implements Agent, AgentEventListener
 {
+	
+	private static final String JAVA3D_SCENEGRAPH_CLASS
+		="javax.media.j3d.SceneGraphObject";
 	/** 
 	 * Holds the agent's configuration and lets the agent access all services.
 	 */
@@ -74,9 +77,19 @@ public class Spots  implements Agent, AgentEventListener
 	
 	public void setContext(Registry ctx)
 	{			
-		registry = ctx;  //The container built our registry, store a reference.
-		EventBus bus  = registry.getEventBus();
-	    bus.register(this,ViewTrackSpotsEvent.class);
+		try {
+			
+			// see if Java3D is available. If not, throw 
+			// an exception, don't store any data,
+			// 	and don't register for events - i won't exist.
+			Class j3d = Class.forName(JAVA3D_SCENEGRAPH_CLASS);
+			registry = ctx;  //The container built our registry, store a reference.
+			EventBus bus  = registry.getEventBus();
+			bus.register(this,ViewTrackSpotsEvent.class);
+		} 
+		catch(ClassNotFoundException e) {
+			
+		}
 	}
 	
 	public void activate() 
