@@ -1,6 +1,6 @@
 package org.openmicroscopy.shoola.env.data;
 
-import org.openmicroscopy.shoola.env.data.dto.*;
+import org.openmicroscopy.ds.dto.*;
 
 /** 
  *

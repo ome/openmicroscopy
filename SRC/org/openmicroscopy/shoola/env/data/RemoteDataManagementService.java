@@ -42,7 +42,9 @@ package org.openmicroscopy.shoola.env.data;
 
 import java.net.URL;
 import java.util.Map;
-import org.openmicroscopy.shoola.env.data.dto.*;
+import org.openmicroscopy.ds.*;
+import org.openmicroscopy.ds.dto.*;
+import org.openmicroscopy.ds.st.*;
 
 /**
  * @author Douglas Creager (dcreager@alum.mit.edu)

@@ -49,8 +49,8 @@ import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.is.PixelsFileFormat;
 import org.openmicroscopy.is.PlaneStatistics;
 import org.openmicroscopy.is.StackStatistics;
-import org.openmicroscopy.shoola.env.data.st.Pixels;
-import org.openmicroscopy.shoola.env.data.st.Repository;
+import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.ds.st.Repository;
 
 /**
  * Heyo
