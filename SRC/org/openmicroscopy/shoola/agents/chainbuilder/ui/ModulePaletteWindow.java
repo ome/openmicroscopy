@@ -188,10 +188,10 @@ public class ModulePaletteWindow
 		moduleCanvas = new ModulePaletteCanvas(this);
 		moduleCanvas.setContents(modData);
 		long start;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start = System.currentTimeMillis();
 		moduleCanvas.layoutContents();
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			long end = System.currentTimeMillis()-start;
 			System.err.println("time to layout module palette.."+end);
 		}
@@ -359,13 +359,13 @@ public class ModulePaletteWindow
 		if (dataManager.getChains() != null || dataManager.getModules() != null) {
 			long guiStart =System.currentTimeMillis();
 			buildGUI((ModulesData) modLoader.getContents());
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long guiTime =System.currentTimeMillis()-guiStart;
 				System.err.println("time spent on module palette .."+guiTime);
 			}
 			uiManager.contentComplete();
 			topWindowManager.continueHandleDisplay();
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				totalTime = System.currentTimeMillis()-start;
 				System.err.println("time for chainbuilder start..."+totalTime);
 			}

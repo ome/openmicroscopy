@@ -307,7 +307,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 				PInputEvent event) {
 			
 			try {
-				if (ChainBuilderAgent.DEBUG)
+				if (ChainBuilderAgent.DEBUG > 4)
 					System.err.println("Saving chain snapshot...");
 				PBounds b = chainView.getFullBounds();
 				BufferedImage image = (BufferedImage) 
@@ -315,10 +315,10 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 						(int) (b.getHeight()*2),Constants.CANVAS_BACKGROUND_COLOR);
 			 
 				ImageIO.write(image,"png",new File("foo.png"));
-				if (ChainBuilderAgent.DEBUG)
+				if (ChainBuilderAgent.DEBUG>4)
 					System.err.println("...done");
 			} catch (Exception ex) {
-				if (ChainBuilderAgent.DEBUG)
+				if (ChainBuilderAgent.DEBUG >4 )
 					System.err.println("Failed to save chain snapshot");
 				
 			}

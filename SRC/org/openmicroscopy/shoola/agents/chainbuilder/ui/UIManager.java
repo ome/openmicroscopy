@@ -155,14 +155,14 @@ public class UIManager
 	
 	public void contentComplete() {
 		long start;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start= System.currentTimeMillis();
 		chainWindow.buildGUI();
 		long chainBuilt;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			chainBuilt= System.currentTimeMillis()-start;
 		overview.buildGUI();
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			long end = System.currentTimeMillis()-start;
 			System.err.println("time for building chain palette "+chainBuilt);
 			System.err.println("time for building chain palette + overview" +end);

@@ -76,7 +76,7 @@ public class ModuleLoader extends ContentLoader
 	 */
 	public Object getContents() {
 		long modstart = System.currentTimeMillis();
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			modstart = System.currentTimeMillis();
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (modData == null) {
@@ -93,7 +93,7 @@ public class ModuleLoader extends ContentLoader
 			Collection mods = chainDataManager.getModules();
 			Collection cats = chainDataManager.getModuleCategories();
 			long loadEnd;
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				loadEnd= System.currentTimeMillis()-loadStart;
 				System.err.println("time for get modules and get categories.."+loadEnd);
 			}
@@ -118,7 +118,7 @@ public class ModuleLoader extends ContentLoader
 				}
 			}
 		}
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			long modend = System.currentTimeMillis()-modstart;
 			if (modend > 0)
 				System.err.println("total time spent in module get contents.."+modend);

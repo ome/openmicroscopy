@@ -61,7 +61,10 @@ public class ChainBuilderAgent
 	implements Agent
 {
 	
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG_TIMING = false;
+	
+	/* debug level. 0 is no warnings, 5 is most detail.*/
+	public static final int DEBUG=0;
 	/** 
 	 * Holds the agent's configuration and lets the agent access all services.
 	 */

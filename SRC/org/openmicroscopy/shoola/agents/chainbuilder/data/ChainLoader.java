@@ -73,7 +73,7 @@ public class ChainLoader extends ContentLoader
 	 */
 	public Object getContents() {
 		long start;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start= System.currentTimeMillis();
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (chains == null)  {
@@ -86,7 +86,7 @@ public class ChainLoader extends ContentLoader
 			reconcileChain(chain);
 			chain.layout();
 		}
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			long end = System.currentTimeMillis()-start;
 			System.err.println("total time in chain loader"+end);
 		}

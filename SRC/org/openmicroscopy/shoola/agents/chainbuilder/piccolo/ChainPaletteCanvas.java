@@ -239,10 +239,10 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		Collection chains = dataManager.getChains();
 		long start;
 		long end;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start= System.currentTimeMillis();
 		ArrayList views = buildChainViews(chains);
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			end = System.currentTimeMillis()-start;
 			System.err.println("in chain layout contents. time for chain view "+end);
 		}
@@ -253,7 +253,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		rowSize = (int) Math.floor(Math.sqrt(num));
 		
 		count=0;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start = System.currentTimeMillis();
 		// draw each of them.
 		Iterator iter = views.iterator();
@@ -267,7 +267,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		if (x > maxRowWidth) {
 			maxRowWidth = x;
 		}	
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			end = System.currentTimeMillis()-start;
 			System.err.println("time for boxes and placing.."+end);
 		}
@@ -278,7 +278,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		start = System.currentTimeMillis();
 
 		adjustSizes();
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			end = System.currentTimeMillis()-start;
 			System.err.println("time for adjusting size.."+end);
 		}
@@ -337,7 +337,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		}*/
 		//		 get largest area
 		PaletteChainView largest= (PaletteChainView) views.get(views.size()-1);
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG >3) {
 			System.err.println("largest chain is "+largest.getChain().getName()+
 					", area is "+largest.getArea());
 			System.err.println("largest width is "+largest.getWidth()+","+largest.getHeight());
@@ -359,14 +359,14 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 			newArea = largest.getArea()*ratio;
 			scale = newArea/view.getArea();
 			view.setScale(scale);
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG>4) {
 				System.err.println("\nchain..."+view.getChain().getName());
 				System.err.println("original area is "+view.getArea());
 				System.err.println("chain width is "+view.getWidth());
 				System.err.println(" scale is "+scale);
 			}
 			double newWidth = scale*view.getWidth();
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG>4) {
 				System.err.println(" scaled width is "+newWidth);
 				System.err.println("new area is "+newArea);
 			}

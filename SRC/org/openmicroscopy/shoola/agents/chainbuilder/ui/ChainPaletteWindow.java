@@ -96,11 +96,11 @@ public class ChainPaletteWindow extends JFrame  {
 		chainCanvas = new ChainPaletteCanvas(dataManager);
 		chainCanvas.setContents(dataManager.getChains());
 		long start;
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG_TIMING)
 			start = System.currentTimeMillis();
 		chainCanvas.layoutContents();
 		
-		if (ChainBuilderAgent.DEBUG) {
+		if (ChainBuilderAgent.DEBUG_TIMING) {
 			long end;
 			end = System.currentTimeMillis()-start;
 			System.err.println("time to layout chains is "+end);

@@ -359,7 +359,7 @@ public abstract class Link extends  PPath implements NodeEventListener {
  	 * @param v
  	 */
 	public void setSelected(boolean v) {
-		if (ChainBuilderAgent.DEBUG)
+		if (ChainBuilderAgent.DEBUG >3)
 			System.err.println(" setting a link to be selected..");
 		LinkTarget startTarget = getStartLinkTarget();
 		LinkTarget endTarget = getEndLinkTarget();
