@@ -50,7 +50,6 @@ import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
@@ -91,8 +90,7 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 		if (scale < ToolTipHandler.SCALE_THRESHOLD) {
 			if (n instanceof ModuleView)  {
 				ModuleView modView = (ModuleView) n;
-				ChainModuleData mod = modView.getModule();
-				String name = mod.getName();
+				String name = modView.getName();
 				//String desc = mod.getDescription();
 				if (name.compareTo("") != 0) {
 					PText pt = new PText(name);
