@@ -2,6 +2,7 @@ package org.openmicroscopy.shoola.env.event;
 
 /** Defines how client classes access the event bus service
  *
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

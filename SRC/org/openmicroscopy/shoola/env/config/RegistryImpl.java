@@ -3,11 +3,11 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 import java.util.HashMap;
 
-/**
- * Implements the <code>Registry</code> interface. It maintains a map of <code>Entry</code> objects
+/** Implements the <code>Registry</code> interface. It maintains a map of <code>Entry</code> objects
  * which are keyed by their <code>name</code> attribute and represent entries in configuration file.
  * It also maintains references to the container's services into member fields, this ensures <code>
  * o(1)</code> access time.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

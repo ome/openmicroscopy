@@ -1,7 +1,7 @@
 package org.openmicroscopy.shoola.env.config;
 
-/**
- * Declares the operations to be used to access configuration entries and container's services
+/** Declares the operations to be used to access configuration entries and container's services
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

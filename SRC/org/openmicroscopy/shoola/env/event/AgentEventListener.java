@@ -3,6 +3,7 @@ package org.openmicroscopy.shoola.env.event;
 /** The AgentEventListener interface represents a subscriber to the event bus. It has
  * to be implemented by all subscribers in order to register for event notifications
  *
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

@@ -1,7 +1,7 @@
 package org.openmicroscopy.shoola.env.config;
 
-/**
- * Creates an Object which contains the informations on the font
+/** Creates an Object which contains the informations on the font
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

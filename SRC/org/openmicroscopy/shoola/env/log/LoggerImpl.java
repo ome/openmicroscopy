@@ -3,10 +3,10 @@ package org.openmicroscopy.shoola.env.log;
 // Java import
 import org.apache.log4j.Category;
 
-/**
- * It is an adapter that makes use of the Log4j library to implement the operations
+/** It is an adapter that makes use of the Log4j library to implement the operations
  * defined by the interface <code>Logger</code>. Its methods transform the orginal call
  * to a suitable call for Log4j.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -10,6 +10,7 @@ import java.util.ListIterator;
  * or the event propagation system. It maintains a de-multiplex table to keep track of
  * what events have to be dispatched to which subscribers
  *
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

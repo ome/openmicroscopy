@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
  * content which is then used for building the object returned by the implementation of 
  * <code>getValue()<code>
  *
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
