@@ -34,7 +34,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import javax.swing.JButton;
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JSlider;
@@ -86,8 +86,6 @@ class DomainPaneManager
         resolutions.put(new Integer(7), new Integer(QuantumFactory.DEPTH_7BIT));
         resolutions.put(new Integer(8), new Integer(QuantumFactory.DEPTH_8BIT));
     }
-
-    private JCheckBox               box;
     
     private DomainPane              view;
     
@@ -109,22 +107,25 @@ class DomainPaneManager
         view.getGamma().addChangeListener(this);
         view.getBitResolution().addChangeListener(this);
         //comboboxes
-        JComboBox transformations = view.getTransformations(),
-                  wavelengths = view.getWavelengths();
-        wavelengths.addActionListener(this);
-        wavelengths.setActionCommand(""+WAVELENGTH);
-        transformations.addActionListener(this);
-        transformations.setActionCommand(""+FAMILY);
-        
+        attachComboBoxListeners(view.getWavelengths(), WAVELENGTH);
+        attachComboBoxListeners(view.getTransformations(), FAMILY);
         //button
-        JButton button = view.getHistogram();
-        button.addActionListener(this);
-        button.setActionCommand(""+HISTOGRAM);
         
+        attachButtonListeners(view.getHistogram(), HISTOGRAM);
         //CheckBox
-        box = view.getNoise();
+        attachButtonListeners(view.getNoise(), NOISE);
+    }
+    
+    private void attachButtonListeners(AbstractButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    private void attachComboBoxListeners(JComboBox box, int id)
+    {
         box.addActionListener(this);
-        box.setActionCommand(""+NOISE);
+        box.setActionCommand(""+id);
     }
     
     void disposeDialogs()
@@ -243,15 +244,17 @@ class DomainPaneManager
         view.getGammaLabel().setText(" Gamma: "+k);
         int w = view.getWavelengths().getSelectedIndex(); //channel
         int family = view.getTransformations().getSelectedIndex(); //family
-        control.setQuantizationMap(w, family, k, GAMMA);
+        boolean nr = view.getNoise().isSelected();
+        control.setQuantizationMap(w, family, k, GAMMA, nr);
     }
 
     /** Modify the algorithm to map the pixel intensity. */
     private void setNoiseReduction(boolean noise)
     {
-        int b = view.getBitResolution().getValue(); // bitResolution
-        int br = ((Integer) resolutions.get(new Integer(b))).intValue();
-        control.setQuantumStrategy(br, noise);
+        int w = view.getWavelengths().getSelectedIndex(); //channel
+        int family = view.getTransformations().getSelectedIndex(); //family
+        double k = (double) view.getGamma().getValue()/10;  // gamma
+        control.setQuantizationMap(w, family, k, NOISE, noise);
     }
 
     /**
@@ -263,8 +266,7 @@ class DomainPaneManager
     private void setBitResolution(int v)
     {
         int br = ((Integer) resolutions.get(new Integer(v))).intValue(); 
-        
-        control.setQuantumStrategy(br, box.isSelected());
+        control.setQuantumStrategy(br);
     }
 
     /** 
@@ -277,7 +279,8 @@ class DomainPaneManager
     {
         resetDefaultGamma(1, family);
         int w = view.getWavelengths().getSelectedIndex();
-        control.setQuantizationMap(w, family, 1, FAMILY);
+        boolean nr = view.getNoise().isSelected();
+        control.setQuantizationMap(w, family, 1, FAMILY, nr);
     }
 
     /**

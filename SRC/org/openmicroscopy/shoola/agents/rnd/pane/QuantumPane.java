@@ -89,17 +89,16 @@ public class QuantumPane
         eventManager.setQPManager(manager);
         int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
         int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
-        int s = 
-            (int) eventManager.getChannelWindowStart(INDEX);
-        int e = 
-            (int) eventManager.getChannelWindowEnd(INDEX);
+        int s = (int) eventManager.getChannelWindowStart(INDEX);
+        int e = (int) eventManager.getChannelWindowEnd(INDEX);
         int family = eventManager.getChannelFamily(INDEX);
         double cc = eventManager.getChannelCurveCoefficient(INDEX);
         double[] cbStats = eventManager.getChannelBindingStats(INDEX);
+        boolean noiseReduction = eventManager.getChannelBindingNR(INDEX);
         codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
         domainPane = new DomainPane(eventManager.getRegistry(), manager, family,
                                     cc, eventManager.getChannelData(), qDef, 
-                                    INDEX);
+                                    noiseReduction, INDEX);
         gRepresentation = new GraphicsRepresentation(manager, family, cc, 
                                 qDef.cdStart, qDef.cdEnd, mini, maxi, cbStats);
         if (family == QuantumFactory.EXPONENTIAL)

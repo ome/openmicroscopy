@@ -199,11 +199,10 @@ public class QuantumPaneManager
     /** 
      * Forward event to @see RenderingAgtCtrl#setStrategy
      * @param resolution    bitResolution.
-     * @param b             noiseReduction.
      */
-    void setQuantumStrategy(int resolution, boolean b)
+    void setQuantumStrategy(int resolution)
     {
-        eventManager.setQuantumStrategy(resolution, b);
+        eventManager.setQuantumStrategy(resolution);
     }
     
     /**
@@ -214,13 +213,14 @@ public class QuantumPaneManager
      * @param id       Action command id, one the constant defined by 
      *                      {@link DomainPaneManager}. 
      */
-    void setQuantizationMap(int w, int family, double k, int id)
+    void setQuantizationMap(int w, int family, double k, int id, boolean 
+                            noiseReduction)
     {
         if (id == DomainPaneManager.FAMILY) 
             updateGraphic(family);
         else if (id == DomainPaneManager.GAMMA)
             updateGraphic((int) (k*10), family);    //for graphic *10
-        eventManager.setQuantizationMap(w, family, k);
+        eventManager.setQuantizationMap(w, family, k, noiseReduction);
     }
     
     /**

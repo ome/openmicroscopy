@@ -117,11 +117,11 @@ class DomainPane
     
     DomainPane(Registry registry, QuantumPaneManager control, int family,
                 double curveCoefficient, ChannelData[] data, QuantumDef qDef, 
-                int index)
+                boolean noiseReduction, int index)
     {
         this.qDef = qDef;
         manager = new DomainPaneManager(this, control);
-        initBoxes(family, data, index);
+        initBoxes(family, data, index, noiseReduction);
         initSliders(family, curveCoefficient);
         initLabel(curveCoefficient);
         initButton(registry);
@@ -153,7 +153,8 @@ class DomainPane
     }
 
     /** Initializes the comboBoxes: wavelengths and transformations. */  
-    private void initBoxes(int family, ChannelData[] data, int index)
+    private void initBoxes(int family, ChannelData[] data, int index, 
+                            boolean noiseReduction)
     {
         transformations = new JComboBox(algorithms);
         transformations.setSelectedIndex(family);
@@ -166,7 +167,7 @@ class DomainPane
         wavelengths.setEnabled(false);
         
         noise = new JCheckBox();
-        noise.setSelected(qDef.noiseReduction);
+        noise.setSelected(noiseReduction);
     }
 
     /** Initializes the sliders: gamma and bitResolution. */    
