@@ -44,7 +44,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 
 /** 
- * For all Agents
+ * This task creates all agents specified in the container's configuration file
+ * and, for each of them, populates their own registry.
  *
  * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -58,7 +59,6 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
  * </small>
  * @since OME2.2
  */
-
 final class AgentsInit
 	extends InitializationTask
 {
@@ -111,6 +111,17 @@ final class AgentsInit
 	 */
 	void rollback() {}
 	
+	/**
+	 * Instantiates, by reflection, the specified agent and populates its
+	 * registry.
+	 * This method will set the new agent instance and its registry into the
+	 * passed <code>info</code> object.
+	 * 
+	 * @param info	Specifies which class to instantiate and collects the 
+	 * 				agent instance as well as its registry.  
+	 * @throws StartupException If the agent couldn't be instantiated or its
+	 * 							registry couldn't be populated.
+	 */
 	private void createAgent(AgentInfo info)
 		throws StartupException
 	{
@@ -129,7 +140,7 @@ final class AgentsInit
 			agentInstance = agentClass.newInstance();
 			
 			//Create the agent's registry.
-			reg = createAgentsRegistry(info.getConfigPath());
+			reg = createAgentRegistry(info.getConfigPath());
 			
 			//Fill up info. (Recall that this object is already in the
 			//agents list within the container's registry.)
@@ -141,7 +152,19 @@ final class AgentsInit
 		}
 	}
 	
-	private Registry createAgentsRegistry(String configFile)
+	/**
+	 * Creates a new registry from the specified configuration file.
+	 * The new registry is populated with all entries from the configuration
+	 * file plus links to the container's services.
+	 * 
+	 * @param configFile	Relative pathname to the configuration file.  The
+	 * 						pathname is resolved against the configuration
+	 * 						directory. 
+	 * @return A new registry, populated as specified above.
+	 * @throws Exception If the configuration file couldn't be read in and
+	 * 						parsed correclty.
+	 */
+	private Registry createAgentRegistry(String configFile)
 		throws Exception
 	{
 		String absPathName = container.resolveConfigFile(configFile);

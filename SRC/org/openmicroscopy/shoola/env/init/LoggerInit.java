@@ -84,11 +84,10 @@ final class LoggerInit
 	}
 	
 	/** 
-	 * Configures <code>log4j</code>.
+	 * Does nothing, as this task requires no set up.
+	 * @see InitializationTask#configure()
 	 */
-	void configure() {
-		// TODO: configure log4j
-	}
+	void configure() {}
 
 	/** 
 	 * Carries out this task.
