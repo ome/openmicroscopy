@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
 import org.openmicroscopy.shoola.env.config.IconFactory;
@@ -98,6 +99,11 @@ public class UIManager implements ContentGroupSubscriber
 	/** is this the first time the windows are being shown?*/
 	private boolean firstShowing = true;
 	
+	/** icon factory */
+	private IconFactory icons;
+	
+	/** the current chain frame */
+	private ChainFrame currentChainFrame;
 	/**
 	 * Creates a new instance.
 	 * 
@@ -110,7 +116,7 @@ public class UIManager implements ContentGroupSubscriber
 		mainWindow = new ModulePaletteWindow(this,manager,cmdTable);
 		chainWindow = new ChainPaletteWindow(manager);
 		config = manager.getRegistry();
-		IconFactory icons = (IconFactory) config.lookup("/resources/icons/MyFactory");
+		IconFactory icons = manager.getIconFactory();
 		chainGroup = new TopWindowGroup("chains",icons.getIcon("chains.png"), config.getTaskBar());
 		
 		ContentGroup group = new ContentGroup(this);
@@ -120,8 +126,7 @@ public class UIManager implements ContentGroupSubscriber
 		
 		group.setAllLoadersAdded();
 	}
-	
-
+		
 	/**
 	 * Releases all UI resources currently in use and returns them to the OS.
 	 */
@@ -132,7 +137,7 @@ public class UIManager implements ContentGroupSubscriber
 	}
 	
 	public void newChain() {
-		ChainFrame frame = new ChainFrame(++chainFrameCount,manager);
+		ChainFrame frame = new ChainFrame(++chainFrameCount,manager,cmdTable,this);
 		chainGroup.add(frame,frame.getTitle(),null);
 	}
 	
@@ -160,5 +165,21 @@ public class UIManager implements ContentGroupSubscriber
 		ModulesData modData = (ModulesData) modLoader.getContents();
 		mainWindow.buildGUI(modData);
 		chainWindow.buildGUI();
+	}
+	
+	public void setCurrentChainFrame(ChainFrame frame) {
+		currentChainFrame = frame;
+	}
+	
+	public void saveCurrentChainFrame() {
+		if (currentChainFrame == null)
+			return;
+		System.err.println("saving frame..."+currentChainFrame);
+		currentChainFrame.save();
+	}
+	
+	public void updateChainPalette(LayoutChainData chain) {
+		if (chainWindow != null) 
+			chainWindow.displayNewChain(chain);
 	}
 }
