@@ -143,8 +143,12 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
-		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,
+		setMinimumSize(new Dimension(PConstants.BROWSER_SIDE,
 			PConstants.BROWSER_SIDE));
+		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,
+				PConstants.BROWSER_SIDE));
+		setMaximumSize(new Dimension(PConstants.BROWSER_SIDE,
+				PConstants.BROWSER_SIDE));
 		
 		//	remove handlers
 		removeInputEventListener(getZoomEventHandler());
@@ -188,7 +192,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	private void displayDatasets(Collection datasets) {
 			
 		doLayout(datasets);
-		System.err.println("displaying datasets. animating to "+getBufferedBounds());
 		eventHandler.animateToBounds(getBufferedBounds());
 	
 	}
@@ -216,8 +219,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		}
 		
 		
-		screenHeight = getHeight();
-		screenWidth = getWidth();
+		screenHeight = PConstants.BROWSER_SIDE;
+		screenWidth = PConstants.BROWSER_SIDE;
 		screenArea = screenHeight*screenWidth;
 
 		// scale the width and height by the total area		
@@ -267,8 +270,9 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 				
 				if (containsDataset(datasets,node.getDataset())) {
 					// position it if it's being displayed
-					if (node.getParent() != layer)
+					if (node.getParent() != layer) {
 						layer.addChild(node);
+					}
 					node.setOffset(x,y);
 					
 					//move to next horizontal position. Adjust height of row.
@@ -455,11 +459,11 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		addInputEventListener(eventHandler);  
 		final PCamera camera = getCamera();
 		camera.addInputEventListener(new DatasetBrowserToolTipHandler(camera));
-		
-		// center view
-		eventHandler.animateToBounds(getBufferedBounds());
 	}
 	
+	public void scaleToSize() {
+		eventHandler.animateToCanvasBounds();
+	}
 
 
 	/**
@@ -521,7 +525,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void setSelectedProject(BrowserProjectSummary proj) {
-		System.err.println("dataset browser ..set selected project to ..."+proj);
 		if (proj == selectedProject) // no change
 			return;
 		selectedProject = proj;
@@ -570,6 +573,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		// except for if it's null. then we might need to redraw
 		if (dataset == selectedDataset && dataset != null)
 			return;
+		if (selectedDataset != null)
+			selectedDataset.getNode().setSelected(false);
 		selectedDataset  = dataset;
 		
 		// if a dataset is clicked on to be selected, it has already
@@ -581,4 +586,4 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		}
 		mainWindow.setSelectedDataset(dataset);
 	}
- }
+ } 

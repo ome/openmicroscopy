@@ -82,7 +82,6 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	
 	private MainWindow panel;
 	
-	private int lastHeight; // last window height
 	
 	private BrowserProjectSummary selectedProject;
 	
@@ -93,9 +92,8 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		super();
 		this.panel = panel;
 		layer = getLayer();
-		setMinimumSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
-		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
-		setMaximumSize(new Dimension(MAXWIDTH,MAXHEIGHT));
+		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,
+				30));
 		removeInputEventListener(getPanEventHandler());
 		removeInputEventListener(getZoomEventHandler());
 	}
@@ -113,17 +111,12 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	}
 
 	public void completeInitialization() {
-		System.err.println("completing initialization of project selection canvas");
 		addInputEventListener(new GenericEventHandler());
 	}
 		
 	private boolean reentrant = false;
 	
 	public void layoutContents() {
-		System.err.println("laying out contents of project selection canvas");
-		setMinimumSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
-		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
-		setMaximumSize(new Dimension(MAXWIDTH,MAXHEIGHT));
 		doLayout();
 	}
 	
@@ -137,8 +130,9 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		ProjectLabel pl;
 
 		int width = getWidth();
-		System.err.println("displaying project list. width of window is "+width);
-		System.err.println("height is "+getHeight());
+		if (width == 0)
+			width = PConstants.BROWSER_SIDE;
+		
 		Rectangle bounds = getBounds();
 		
 		Vector rows = new Vector();
@@ -169,7 +163,6 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		widths.add(new Double(x));
 		double rowHeight  = 0;
 		double spacing = 0;
-		Iterator iter2;
 		for (int i = 0; i < rows.size(); i++) {
 			row = (Vector) rows.elementAt(i);
 			Double rowW = (Double) widths.elementAt(i);
@@ -196,15 +189,11 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 			}
 			y+= rowHeight;
 		}
-		
 		int height  = (int) (y+VSEP);
-		//if (height > lastHeight) {
-			Dimension d= new Dimension(width,height);
-			setMinimumSize(d);
-			setPreferredSize(d);
-			panel.setDividerLocation(height);
-			lastHeight = height;
-		//}
+		Dimension d= new Dimension(width,height);
+		setPreferredSize(d);
+		setMaximumSize(d);
+		panel.setToPreferredSizes();
 		reentrant = false;
 	}
 	
@@ -216,11 +205,6 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 			
  	public void setRolloverProject(BrowserProjectSummary proj) {
 		
-		System.err.println("\n\n\nsetting rollover project..");
-		if (proj != null)
-			System.err.println("to .."+proj.getName());
-		if (selectedProject != null)
-			System.err.println("selected is ..."+selectedProject.getName());
 		setLabelPainting(null,proj);
 		panel.setRolloverProject(proj);
 		doLayout();
@@ -231,21 +215,18 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		if (selected == selectedProject) // no change
 			return;
 		
-		if (selected != null)
-			System.err.println("\nset selected project to ..."+selected.getName());
-		else
-			System.err.println("\nset selected project to null");
-		selectedProject = selected;
+		// if no datasets, it's equivalent to setting it to null
+		if (selected != null && !selected.hasDatasets())
+			selected = null;
 		if (selected != null && !selected.hasDataset(selectedDataset))
 			selectedDataset = null;
+		selectedProject = selected;
 		setLabelPainting(null,null);
 		panel.setSelectedProject(selected);
 		doLayout();
 	} 
 	
 	public void setSelectedDataset(BrowserDatasetSummary dataset) {
-		System.err.println("project canvas got selection of dataset .."+
-				dataset);
 		if (dataset == selectedDataset) //no change
 			return;
 		selectedDataset = dataset;
