@@ -68,9 +68,9 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleSelection;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModuleTreeNode;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
@@ -142,7 +142,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		setPreferredSize(new Dimension(ModulePaletteWindow.SIDE,
 			ModulePaletteWindow.SIDE));
 		setMinimumSize(new Dimension(ModulePaletteWindow.SIDE,
@@ -227,10 +227,10 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	 */	
 	public PBounds getBufferedBounds() {
 		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-PConstants.SMALL_BORDER,
-			b.getY()-PConstants.SMALL_BORDER,
-			b.getWidth()+2*PConstants.SMALL_BORDER,
-			b.getHeight()+2*PConstants.SMALL_BORDER); 
+		return new PBounds(b.getX()-Constants.SMALL_BORDER,
+			b.getY()-Constants.SMALL_BORDER,
+			b.getWidth()+2*Constants.SMALL_BORDER,
+			b.getHeight()+2*Constants.SMALL_BORDER); 
 	}
 	
 	/*
@@ -278,14 +278,14 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private void displayCategoryName(CategoryBox box,String name) {
 		if (name.compareTo("") !=0) {// if there is a name
 			PText nameText = new PText(name);
-			nameText.setFont(PConstants.LARGE_NAME_FONT);
+			nameText.setFont(Constants.LARGE_NAME_FONT);
 			nameText.setPickable(false);
 			box.addLabel(nameText);
 			nameText.setScale(2);
 			nameText.moveToFront();
 			//System.err.println("translating name label to "+nameX+","+y);
-			nameText.setOffset(PConstants.CATEGORY_LABEL_OFFSET_X,
-				PConstants.CATEGORY_LABEL_OFFSET_Y);
+			nameText.setOffset(Constants.CATEGORY_LABEL_OFFSET_X,
+				Constants.CATEGORY_LABEL_OFFSET_Y);
 		}
 	}
 	
@@ -452,7 +452,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 					BufferedObject cBox = (BufferedObject) node;				
 					PBounds b = cBox.getBufferedBounds();
 					PCamera camera = getCamera();
-					camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY); 
+					camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY); 
 					return;
 				}
 			}
@@ -475,7 +475,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 					BufferedObject cBox = (BufferedObject) node;				
 					PBounds b = cBox.getBufferedBounds();
 					PCamera camera = getCamera();
-					camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY); 
+					camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY); 
 					return;
 				}
 			} 

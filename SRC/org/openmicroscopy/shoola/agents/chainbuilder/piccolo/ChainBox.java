@@ -54,11 +54,11 @@ import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 
@@ -129,7 +129,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 		// add name
 		name = new PText(chain.getName());
-		name.setFont(PConstants.LABEL_FONT);
+		name.setFont(Constants.LABEL_FONT);
 		name.setPickable(false);
 		name.setScale(MAX_NAME_SCALE);
 		chainLayer.addChild(name);
@@ -142,7 +142,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 		
 		// add ower name
 		PText owner = new PText(chain.getOwner());
-		owner.setFont(PConstants.LABEL_FONT);
+		owner.setFont(Constants.LABEL_FONT);
 		owner.setPickable(false);
 	
 		
@@ -194,8 +194,8 @@ public class ChainBox extends GenericBox implements MouseableNode
 	private void addLockedIndicator() {
 		PBounds b = getFullBoundsReference();
 		PText locked = new PText("Locked");
-		locked.setFont(PConstants.LABEL_FONT);
-		locked.setPaint(PConstants.LOCKED_COLOR);
+		locked.setFont(Constants.LABEL_FONT);
+		locked.setPaint(Constants.LOCKED_COLOR);
 		locked.setScale(2);
 		chainLayer.addChild(locked);
 		PBounds lockedBounds = locked.getGlobalFullBounds();
@@ -206,7 +206,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 	public void setSelected(boolean v) {
 		if (v == true)
-			setPaint(PConstants.SELECTED_FILL);
+			setPaint(Constants.SELECTED_FILL);
 		else
 			setPaint(null);
 		repaint();

@@ -55,9 +55,9 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * Nodes for displaying module inputs and outputs. Currently, all
@@ -155,8 +155,8 @@ public abstract class FormalParameter extends PNode implements
 		addChild(labelNode);
 		
 		textNode = new PText(param.getName());
-		textNode.setFont(PConstants.NAME_FONT);
-		textNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
+		textNode.setFont(Constants.NAME_FONT);
+		textNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
 		labelNode.addChild(textNode);
 		
 		
@@ -166,8 +166,8 @@ public abstract class FormalParameter extends PNode implements
 			typeNode = new PText(type.getName());
 			labelNode.addChild(typeNode);
 			typeNode.setScale(TYPE_NODE_DEFAULT_SCALE);
-			typeNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
-			typeNode.setFont(PConstants.NAME_FONT);
+			typeNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
+			typeNode.setFont(Constants.NAME_FONT);
 		}						
 		
 		// this formal parameter will listen to any changes that happen to
@@ -191,7 +191,7 @@ public abstract class FormalParameter extends PNode implements
 	protected void setTargetPosition() {
 		PBounds b = labelNode.getFullBoundsReference();
 		float x = getLinkTargetX();
-		float y = (float) b.getY()+PConstants.LINK_TARGET_BUFFER;
+		float y = (float) b.getY()+Constants.LINK_TARGET_BUFFER;
 		if (target == null)
 			addTarget();
 		target.setOffset(x,y);
@@ -227,12 +227,12 @@ public abstract class FormalParameter extends PNode implements
 	public void setLinkable(boolean v) {
 		linkable = v;
 		if (v == true) {
-			typeNode.setPaint(PConstants.HIGHLIGHT_COLOR);
-			textNode.setPaint(PConstants.HIGHLIGHT_COLOR);
+			typeNode.setPaint(Constants.HIGHLIGHT_COLOR);
+			textNode.setPaint(Constants.HIGHLIGHT_COLOR);
 		}
 		else {
-			typeNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
-			textNode.setPaint(PConstants.DEFAULT_TEXT_COLOR);
+			typeNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
+			textNode.setPaint(Constants.DEFAULT_TEXT_COLOR);
 		}
 		getModuleView().setLinkableHighlighted(v);
 		repaint();

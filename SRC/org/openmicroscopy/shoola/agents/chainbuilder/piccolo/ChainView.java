@@ -59,10 +59,10 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.
 		LayoutChainData.Layering;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 
@@ -161,10 +161,10 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
-		return new PBounds(b.getX()-PConstants.BORDER,
-			b.getY()-PConstants.BORDER,
-			b.getWidth()+2*PConstants.BORDER,
-			b.getHeight()+2*PConstants.BORDER);
+		return new PBounds(b.getX()-Constants.BORDER,
+			b.getY()-Constants.BORDER,
+			b.getWidth()+2*Constants.BORDER,
+			b.getHeight()+2*Constants.BORDER);
 	}
 	
 	

@@ -44,7 +44,7 @@ import java.awt.geom.Point2D;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * A Piccolo widget indicating a control point for a selected {@link Link}
@@ -99,8 +99,8 @@ public class LinkSelectionTarget extends LinkTarget {
 		Point2D pt = getOffset();
 	//	System.err.println("new offset is "+pt.getX()+","+pt.getY());
 		Point2D newPt = new Point2D.Float((float) pt.getX()+
-			PConstants.LINK_TARGET_HALF_SIZE,
-			(float) pt.getY()+PConstants.LINK_TARGET_HALF_SIZE);
+			Constants.LINK_TARGET_HALF_SIZE,
+			(float) pt.getY()+Constants.LINK_TARGET_HALF_SIZE);
 		link.setPoint(index,newPt);
 		link.setLine();
 		link.setSelected(true);

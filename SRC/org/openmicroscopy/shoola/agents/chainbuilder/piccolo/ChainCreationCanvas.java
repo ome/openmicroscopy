@@ -73,7 +73,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainFlavor;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleFlavor;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 
 
@@ -141,7 +141,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		
 		setMinimumSize(new Dimension(SIDE,SIDE));
 		setPreferredSize(new Dimension(SIDE,SIDE));
@@ -173,8 +173,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	
 	public PBounds getBufferedBounds() {
 		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX(),b.getY(),b.getWidth()+4*PConstants.BORDER,
-		b.getHeight()+4*PConstants.BORDER); 
+		return new PBounds(b.getX(),b.getY(),b.getWidth()+4*Constants.BORDER,
+		b.getHeight()+4*Constants.BORDER); 
 	}
 	
 
@@ -277,12 +277,12 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		layer.addChild(p);
 		p.setOffset(x,y);
 		PBounds b = layer.getFullBounds();
-		PBounds newb = new PBounds(b.getX()-PConstants.BORDER,	
-			b.getY()-PConstants.BORDER,
-			b.getWidth()+2*PConstants.BORDER,
-			b.getHeight()+2*PConstants.BORDER);
+		PBounds newb = new PBounds(b.getX()-Constants.BORDER,	
+			b.getY()-Constants.BORDER,
+			b.getWidth()+2*Constants.BORDER,
+			b.getHeight()+2*Constants.BORDER);
 		getCamera().animateViewToCenterBounds(newb,true,
-			PConstants.ANIMATION_DELAY);
+			Constants.ANIMATION_DELAY);
 		setSaveEnabled(true);
 	}
 	

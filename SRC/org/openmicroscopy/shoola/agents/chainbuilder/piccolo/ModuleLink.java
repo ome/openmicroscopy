@@ -46,7 +46,7 @@ import java.awt.geom.Point2D;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
  
 /** 
  * A Piccolo node for links between between {@link ModuleView} objects. These 
@@ -126,7 +126,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 		Point2D point = getEndLinkTarget().getCenter();
 		globalToLocal(point);
 		
-		setEndCoords((float) point.getX()-PConstants.LINK_BULB_RADIUS,
+		setEndCoords((float) point.getX()-Constants.LINK_BULB_RADIUS,
 			(float) point.getY());
 	}
 	

@@ -61,8 +61,8 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 
@@ -428,7 +428,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				//System.err.println("zooming in on node...");
 				PBounds b = mod.getBufferedBounds();
 				camera.animateViewToCenterBounds(b,true,
-					PConstants.ANIMATION_DELAY);
+					Constants.ANIMATION_DELAY);
 			}
 			else if (e.isControlDown() || (mask & MouseEvent.BUTTON3_MASK)==1) {
 				//System.err.println("canvas right click..");
@@ -442,11 +442,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		if (e.isShiftDown()) {
 			PBounds b = canvas.getBufferedBounds();
-			canvas.getCamera().animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
+			canvas.getCamera().animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 			e.setHandled(true);
 		}
 		else {
-			double scaleFactor = PConstants.SCALE_FACTOR;
+			double scaleFactor = Constants.SCALE_FACTOR;
 			if (e.isControlDown() || ((mask & MouseEvent.BUTTON3_MASK)==1)) {
 				scaleFactor = 1/scaleFactor;
 			}
@@ -905,11 +905,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			// I should zoom to view of whole canvas
 			PBounds b = canvas.getBufferedBounds();
 			PCamera camera =canvas.getCamera();
-			camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);	
+			camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);	
 		}
 		else if (p instanceof PCamera || p == canvas.getLayer() ||
 				n instanceof PCamera || n == canvas.getLayer()){
-			double scaleFactor = 1/PConstants.SCALE_FACTOR;
+			double scaleFactor = 1/Constants.SCALE_FACTOR;
 			zoom(scaleFactor,e); 	
 		}
 		e.setHandled(true);

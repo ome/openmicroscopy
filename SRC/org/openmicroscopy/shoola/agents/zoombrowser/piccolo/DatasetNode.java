@@ -49,10 +49,10 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 
@@ -79,8 +79,8 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/** 
 	 * Positional coordinates
 	 */
-	private double x=PConstants.DATASET_IMAGE_GAP;
-	private double y=PConstants.DATASET_IMAGE_GAP;
+	private double x=Constants.DATASET_IMAGE_GAP;
+	private double y=Constants.DATASET_IMAGE_GAP;
 	
 	/** 
 	 * Name and chains for the datasets
@@ -133,14 +133,14 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		
 		removeAllChildren();
 		// initial starting point
-		double x=PConstants.DATASET_IMAGE_GAP;
-		double y= PConstants.DATASET_IMAGE_GAP;
+		double x=Constants.DATASET_IMAGE_GAP;
+		double y= Constants.DATASET_IMAGE_GAP;
 		
 		// add the name label and move down.
 		nameLabel = new ScalableDatasetLabel(dataset,width);
 		addChild(nameLabel);
 		nameLabel.setOffset(x,y);
-		y+= nameLabel.getBounds().getHeight()+PConstants.DATASET_IMAGE_GAP;
+		y+= nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP;
 		
 		
 		
@@ -155,7 +155,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 /*		Collection chains = dataset.getChains(connection);
 		if (chains.size() > 0) {
 			double h = buildChainLabels(chains);
-			effectiveHeight -= h+2*PConstants.DATASET_IMAGE_GAP;
+			effectiveHeight -= h+2*Constants.DATASET_IMAGE_GAP;
 		} */
 			
 		// find the scaled area
@@ -196,12 +196,12 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		/*if (chains.size() > 0)  {
 			if (imageCollection.size() > 0) { 
 				PBounds b= images.getGlobalFullBounds();
-				y = b.getY()+b.getHeight()+PConstants.DATASET_IMAGE_GAP;
+				y = b.getY()+b.getHeight()+Constants.DATASET_IMAGE_GAP;
 			}
 			else {
-				y = PConstants.DATASET_IMAGE_GAP+nameLabel.getBounds().getHeight()+PConstants.DATASET_IMAGE_GAP;
+				y = Constants.DATASET_IMAGE_GAP+nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP;
 			}
-			chainLabels.setOffset(PConstants.DATASET_IMAGE_GAP,y);
+			chainLabels.setOffset(Constants.DATASET_IMAGE_GAP,y);
 			// update the width if need be.
 			if (maxWidth < chainLabels.getGlobalFullBounds().getWidth())
 				maxWidth = chainLabels.getGlobalFullBounds().getWidth();
@@ -215,8 +215,8 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		// adjust the name label to fit.
 		nameLabel.resetWidth(maxWidth);
 				
-		setExtent(maxWidth+PConstants.SMALL_BORDER,
-				height+PConstants.SMALL_BORDER);
+		setExtent(maxWidth+Constants.SMALL_BORDER,
+				height+Constants.SMALL_BORDER);
 	}
 	
 	/**
@@ -298,7 +298,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 			}
 			else {
 				// move to next row
-				y += maxHeight+PConstants.DATASET_IMAGE_GAP;
+				y += maxHeight+Constants.DATASET_IMAGE_GAP;
 				x = 0;
 				if (rowSz > 0) {
 					// finalize row statistics
@@ -316,7 +316,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 			x+= maxThumbWidth;
 			if (x > maxWidth) 
 				maxWidth =  x;
-			x+= PConstants.DATASET_IMAGE_GAP;
+			x+= Constants.DATASET_IMAGE_GAP;
 		}	
 		// finalize last row and then complete the image node.
 		images.setRowCount(row,rowSz);
@@ -361,10 +361,10 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	 */
 	public PBounds getBufferedBounds() {
 		PBounds b = getFullBoundsReference();
-		return new PBounds(b.getX()-PConstants.SMALL_BORDER,
-			b.getY()-PConstants.SMALL_BORDER,
-			b.getWidth()+2*PConstants.SMALL_BORDER,
-			b.getHeight()+2*PConstants.SMALL_BORDER);
+		return new PBounds(b.getX()-Constants.SMALL_BORDER,
+			b.getY()-Constants.SMALL_BORDER,
+			b.getWidth()+2*Constants.SMALL_BORDER,
+			b.getHeight()+2*Constants.SMALL_BORDER);
 	}
 	
 	/**
@@ -427,7 +427,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	 */
 	public void setSelected(boolean v) {
 		if (v == true) 
-			setPaint(PConstants.SELECTED_FILL);
+			setPaint(Constants.SELECTED_FILL);
 		else 
 			setPaint(null);
 		repaint();

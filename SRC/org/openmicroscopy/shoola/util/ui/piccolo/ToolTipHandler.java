@@ -42,6 +42,8 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
 //Java imports
 import java.awt.geom.Point2D;
 
+import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 //Third-party libraries 
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
@@ -91,8 +93,8 @@ public abstract class ToolTipHandler extends PBasicInputEventHandler {
 	public ToolTipHandler(PCamera camera) {
 		this.camera = camera;
 		tooltip = new PPath();
-		tooltip.setPaint(PConstants.TOOLTIP_FILL_COLOR);
-		tooltip.setStrokePaint(PConstants.TOOLTIP_BORDER_COLOR);
+		tooltip.setPaint(Constants.TOOLTIP_FILL_COLOR);
+		tooltip.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 		tooltip.setPickable(false);
 	}
 	

@@ -46,9 +46,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * Project labels, as found on a {@link ProjctSelectionCanvas}
@@ -79,7 +79,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 		this.canvas = canvas;
 		this.project = project;
 		setText(project.getName());
-		setFont(PConstants.PROJECT_LABEL_FONT);
+		setFont(Constants.PROJECT_LABEL_FONT);
 		
 	}
 	
@@ -103,19 +103,19 @@ public class ProjectLabel extends PText implements MouseableNode {
 	//	if (project == SelectionState.getState().getSelectedProject())
 		//	return; 
 		setScale(NORMAL_SCALE);
-		setPaint(PConstants.DEFAULT_COLOR);
+		setPaint(Constants.DEFAULT_COLOR);
 	}
 	
 	public void setActive() {
 		//if (project == SelectionState.getState().getSelectedProject())
 		//			return; 
 		setScale(NORMAL_SCALE);
-		setPaint(PConstants.PROJECT_ACTIVE_COLOR);
+		setPaint(Constants.PROJECT_ACTIVE_COLOR);
 	}
 	
 	public void setSelected() {
 		setScale(SELECTED_SCALE);
-		setPaint(PConstants.PROJECT_SELECTED_COLOR);
+		setPaint(Constants.PROJECT_SELECTED_COLOR);
 		
 	}
 	
@@ -124,7 +124,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 		//	return;
 		if (v == true) {
 			setScale(ROLLOVER_SCALE);
-			setPaint(PConstants.PROJECT_ROLLOVER_COLOR);
+			setPaint(Constants.PROJECT_ROLLOVER_COLOR);
 		}
 		else  {
 			setNormal();

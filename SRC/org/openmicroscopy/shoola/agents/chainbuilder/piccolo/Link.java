@@ -57,7 +57,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * A Piccolo node for links between inputs and outputs. Link extends
@@ -116,8 +116,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	
 	public Link() {		
 		super();
-		setStroke(PConstants.LINK_STROKE);
-		setStrokePaint(PConstants.DEFAULT_COLOR);
+		setStroke(Constants.LINK_STROKE);
+		setStrokePaint(Constants.DEFAULT_COLOR);
 		buildBulb();
 		addChild(targets);
 		targets.setVisible(false);
@@ -130,9 +130,9 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	 */
 	protected void buildBulb() {
 	
-		bulb = PPath.createEllipse(0,0,PConstants.LINK_BULB_SIZE,
-			PConstants.LINK_BULB_SIZE);
-		bulb.setPaint(PConstants.DEFAULT_COLOR);
+		bulb = PPath.createEllipse(0,0,Constants.LINK_BULB_SIZE,
+			Constants.LINK_BULB_SIZE);
+		bulb.setPaint(Constants.DEFAULT_COLOR);
 		addChild(bulb);
 	}
 	
@@ -214,8 +214,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	public void paint(PPaintContext aPaintContext) {
 		Graphics2D g = aPaintContext.getGraphics();
 		
-		g.setStroke(PConstants.LINK_STROKE);
-		g.setPaint(PConstants.DEFAULT_COLOR);
+		g.setStroke(Constants.LINK_STROKE);
+		g.setPaint(Constants.DEFAULT_COLOR);
 		
 		Shape p = getLinkShape();
 		if (p != null)
@@ -300,7 +300,7 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	protected void updateBounds() {
 		Shape s = getLinkShape();
 		if (s != null) {
-			Rectangle2D b = PConstants.LINK_STROKE.createStrokedShape(s).getBounds2D();
+			Rectangle2D b = Constants.LINK_STROKE.createStrokedShape(s).getBounds2D();
 			super.setBounds(b.getX(), b.getY(), b.getWidth(), b.getHeight());
 		}
 	}
@@ -327,8 +327,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
  	 * @param y
  	 */
 	protected void drawLinkEnd(float x,float y) {
-		bulb.setOffset(x-PConstants.LINK_BULB_RADIUS,
-			y-PConstants.LINK_BULB_RADIUS);
+		bulb.setOffset(x-Constants.LINK_BULB_RADIUS,
+			y-Constants.LINK_BULB_RADIUS);
 		invalidateFullBounds(); 
 		
 		repaint(); 
@@ -360,20 +360,20 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		endTarget.setSelected(v);
 		targets.removeAllChildren();
 		if (v == true) { // set up children 
-			bulb.setPaint(PConstants.LINK_HIGHLIGHT_COLOR);
+			bulb.setPaint(Constants.LINK_HIGHLIGHT_COLOR);
 			targets.setVisible(true);
 			int count =  points.size();
 			for (int i = 1; i < count-1; i++) {
 				LinkSelectionTarget t = new LinkSelectionTarget(this,i);
 				targets.addChild(t);
 				Point2D pt = (Point2D) points.get(i);
-				t.setOffset((float)pt.getX()-PConstants.LINK_TARGET_HALF_SIZE,
-					(float)pt.getY()-PConstants.LINK_TARGET_HALF_SIZE);
+				t.setOffset((float)pt.getX()-Constants.LINK_TARGET_HALF_SIZE,
+					(float)pt.getY()-Constants.LINK_TARGET_HALF_SIZE);
 				t.setSelected(v);
 			}
 		}
 		else
-			bulb.setPaint(PConstants.DEFAULT_COLOR);
+			bulb.setPaint(Constants.DEFAULT_COLOR);
 		repaint();
 	}
 	

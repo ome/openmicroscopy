@@ -69,10 +69,10 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
@@ -206,7 +206,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		// create the name and position it.
 		name = new PText(module.getName());
 		
-		name.setFont(PConstants.NAME_FONT);
+		name.setFont(Constants.NAME_FONT);
 		name.setPickable(false);
 		name.setScale(NAME_MAG);
 		addChild(name);
@@ -226,7 +226,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		// add the input link target
 		inputLinkTarget = new LinkTarget();
 		linkTargets.addChild(inputLinkTarget);
-		inputLinkTarget.setOffset(-PConstants.LINK_TARGET_HALF_SIZE,height);
+		inputLinkTarget.setOffset(-Constants.LINK_TARGET_HALF_SIZE,height);
 				
 		nameWidth = (float) nameBounds.getWidth();
 		
@@ -234,7 +234,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		addParameterLabels(module);  
 		
 		// set width of the whole bounding rectangle
-	    width = NAME_LABEL_OFFSET*2+width-PConstants.LINK_TARGET_HALF_SIZE;
+	    width = NAME_LABEL_OFFSET*2+width-Constants.LINK_TARGET_HALF_SIZE;
 		
 		// create bounding rectangle, set it to be this node's path,
 		// and finish other parameters.
@@ -243,14 +243,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 					DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
 					
 		setPathTo(rect);
-		setPaint(PConstants.DEFAULT_FILL);
-		setStrokePaint(PConstants.DEFAULT_COLOR);
-		setStroke(PConstants.MODULE_STROKE);
+		setPaint(Constants.DEFAULT_FILL);
+		setStrokePaint(Constants.DEFAULT_COLOR);
+		setStroke(Constants.MODULE_STROKE);
 		
 		// add the other target
 		outputLinkTarget = new LinkTarget();
 		linkTargets.addChild(outputLinkTarget);
-		outputLinkTarget.setOffset(width-PConstants.LINK_TARGET_HALF_SIZE,
+		outputLinkTarget.setOffset(width-Constants.LINK_TARGET_HALF_SIZE,
 			linkTargetHeight);
 	
 		buildMagnifiedLabel();
@@ -259,7 +259,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	private void buildMagnifiedLabel() {
 		// set up the magnified version of the module name
 		zoomName = new PText(module.getName());
-		zoomName.setFont(PConstants.NAME_FONT);
+		zoomName.setFont(Constants.NAME_FONT);
 		zoomName.setPickable(false);
 		zoomName.setConstrainWidthToTextWidth(false); 
 		
@@ -422,7 +422,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	public void paint(PPaintContext aPaintContext) {
 		double s = aPaintContext.getScale();
 	
-		if (s <= PConstants.SCALE_THRESHOLD) {
+		if (s <= Constants.SCALE_THRESHOLD) {
 			labelNodes.setVisible(false);
 			labelNodes.setPickable(false);
 			name.setVisible(false);
@@ -445,9 +445,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	public void setHighlighted(boolean v) {
 		if (v == true)
-			setStrokePaint(PConstants.SINGLE_HIGHLIGHT_COLOR);
+			setStrokePaint(Constants.SINGLE_HIGHLIGHT_COLOR);
 		else
-			setStrokePaint(PConstants.DEFAULT_COLOR);
+			setStrokePaint(Constants.DEFAULT_COLOR);
 		repaint();
 	}
 	
@@ -459,9 +459,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	public void setLinkableHighlighted(boolean v) {
 		if (v == true)
-			setPaint(PConstants.SELECTED_FILL);
+			setPaint(Constants.SELECTED_FILL);
 		else
-			setPaint(PConstants.DEFAULT_FILL);
+			setPaint(Constants.DEFAULT_FILL);
 		repaint();
 	}
 	
@@ -560,10 +560,10 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
-		return new PBounds(b.getX()-PConstants.BORDER,
-			b.getY()-PConstants.BORDER,
-			b.getWidth()+2*PConstants.BORDER,
-			b.getHeight()+2*PConstants.BORDER);
+		return new PBounds(b.getX()-Constants.BORDER,
+			b.getY()-Constants.BORDER,
+			b.getWidth()+2*Constants.BORDER,
+			b.getHeight()+2*Constants.BORDER);
 	}
 	
 	// handles

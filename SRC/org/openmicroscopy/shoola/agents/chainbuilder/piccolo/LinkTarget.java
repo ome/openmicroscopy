@@ -47,7 +47,7 @@ import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 /** 
  * A Piccolo widget for a linkable target. These targets are found on the 
  * edges of {@llink PormalParameter} nodes, indicating where users should 
@@ -81,7 +81,7 @@ public class LinkTarget extends PPath {
  	
  	public LinkTarget() {
  		super();
- 		setPathToRectangle(0,0,PConstants.LINK_TARGET_SIZE,PConstants.LINK_TARGET_SIZE);
+ 		setPathToRectangle(0,0,Constants.LINK_TARGET_SIZE,Constants.LINK_TARGET_SIZE);
  		currentColor = LINK_TARGET_COLOR;
  		setPaint(currentColor);
  	}	
@@ -102,7 +102,7 @@ public class LinkTarget extends PPath {
  	 */
  	public void setSelected(boolean v) {
  		if (v == true) 
- 			setPaint(PConstants.LINK_HIGHLIGHT_COLOR);
+ 			setPaint(Constants.LINK_HIGHLIGHT_COLOR);
  		else
  			setPaint(currentColor);
  		repaint();

@@ -39,9 +39,6 @@ import javax.swing.border.Border;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-
-
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -63,7 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * A top-level window for a zoomable project browser 
@@ -140,14 +137,14 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		projectsPanel.setBorder(
 				BorderFactory.createTitledBorder(fullBorder,"Projects"));
 		projectsPanel.setLayout(new BorderLayout());
-		projectsPanel.setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		projectsPanel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		projectsPanel.add(projectBrowser,BorderLayout.CENTER);
 		
 		JPanel datasetPanel = new JPanel();
 		datasetPanel.setBorder(
 				BorderFactory.createTitledBorder(fullBorder,"Datasets"));
 		datasetPanel.setLayout(new BorderLayout());
-		datasetPanel.setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		datasetPanel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		datasetPanel.add(datasetBrowser,BorderLayout.CENTER);
 		contents.add(projectsPanel,BorderLayout.NORTH);
 		contents.add(datasetPanel,BorderLayout.CENTER);
@@ -216,7 +213,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		}
 		else if (e instanceof ChainExecutionsLoadedEvent) {
 			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
-			chainExecutions = event.getChainExecutions();
+			chainExecutions = event.getChainExecutionsByDatasetID();
 		}
 	}
 	

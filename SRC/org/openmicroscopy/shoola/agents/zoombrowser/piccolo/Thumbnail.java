@@ -50,10 +50,10 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Appliaction-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 
@@ -101,10 +101,10 @@ public class Thumbnail extends PImage implements BufferedObject,
 	 */	
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
-		return new PBounds(b.getX()-PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getY()-PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getWidth()+2*PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getHeight()+2*PConstants.SMALL_BORDER*getGlobalScale());
+		return new PBounds(b.getX()-Constants.SMALL_BORDER*getGlobalScale(),
+			b.getY()-Constants.SMALL_BORDER*getGlobalScale(),
+			b.getWidth()+2*Constants.SMALL_BORDER*getGlobalScale(),
+			b.getHeight()+2*Constants.SMALL_BORDER*getGlobalScale());
 	}
 	
 	
@@ -135,8 +135,8 @@ public class Thumbnail extends PImage implements BufferedObject,
 	private PPath makeHighlight() {
 		 PBounds b = getBounds();
 		 PPath path = new PPath(b);
-		 path.setStroke(PConstants.BORDER_STROKE);
-		 path.setStrokePaint(PConstants.SELECTED_HIGHLIGHT_COLOR);
+		 path.setStroke(Constants.BORDER_STROKE);
+		 path.setStrokePaint(Constants.SELECTED_HIGHLIGHT_COLOR);
 		 path.setPickable(false);
 		 return path;
  	}
@@ -154,14 +154,14 @@ public class Thumbnail extends PImage implements BufferedObject,
 		n.addChild(imNode);
 		PPath p = new PPath();
 		//PText text  = new PText(image.getName());
-		//text.setFont(PConstants.TOOLTIP_FONT);
+		//text.setFont(Constants.TOOLTIP_FONT);
 		PNode text = getShortToolTip();
 		p.addChild(text);
 		n.addChild(p);
 		p.moveToBack();
 		p.setPathTo(text.getBounds());
-		p.setPaint(PConstants.TOOLTIP_FILL_COLOR);
-		p.setStrokePaint(PConstants.TOOLTIP_BORDER_COLOR);
+		p.setPaint(Constants.TOOLTIP_FILL_COLOR);
+		p.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 		p.setBounds(p.getUnionOfChildrenBounds(null));
 		p.setOffset(0.0,imNode.getHeight());
 		n.setPickable(false);
@@ -173,7 +173,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 	 */
 	public PNode getShortToolTip() {
 		PText text  = new PText(image.getName());
-		text.setFont(PConstants.TOOLTIP_FONT);
+		text.setFont(Constants.TOOLTIP_FONT);
 		text.setPickable(false);
 		return text;
 	}

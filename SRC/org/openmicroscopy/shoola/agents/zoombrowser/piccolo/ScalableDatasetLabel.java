@@ -50,9 +50,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A label that can show the full name of a dataset or an abbreviated name
@@ -135,8 +135,8 @@ public class ScalableDatasetLabel extends PNode
 		count.setOffset(0.0,node.getHeight());
 		
 		p.setPathTo(p.getUnionOfChildrenBounds(null));
-		p.setPaint(PConstants.TOOLTIP_FILL_COLOR);
-		p.setStrokePaint(PConstants.TOOLTIP_BORDER_COLOR);
+		p.setPaint(Constants.TOOLTIP_FILL_COLOR);
+		p.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 		return p;
 	}
 	

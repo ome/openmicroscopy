@@ -42,10 +42,10 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 //Java imports
 import java.awt.BasicStroke;
 
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.nodes.PPath;
@@ -75,7 +75,7 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
 
 	// leave on pixel on either side of border
 	public static final int OFFSET=3;
-	public static final float BASE_STROKE_WIDTH=PConstants.DATASET_IMAGE_GAP-
+	public static final float BASE_STROKE_WIDTH=Constants.DATASET_IMAGE_GAP-
 		OFFSET;
 	
 
@@ -83,7 +83,7 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
 		super();
 		setVisible(false);
 		setPickable(false);
-		setStrokePaint(PConstants.HALO_COLOR);	
+		setStrokePaint(Constants.HALO_COLOR);	
 	}
 	
 	public void hide() {
@@ -115,10 +115,10 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
 	 */	
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
-		return new PBounds(b.getX()-PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getY()-PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getWidth()+2*PConstants.SMALL_BORDER*getGlobalScale(),
-			b.getHeight()+2*PConstants.SMALL_BORDER*getGlobalScale());
+		return new PBounds(b.getX()-Constants.SMALL_BORDER*getGlobalScale(),
+			b.getY()-Constants.SMALL_BORDER*getGlobalScale(),
+			b.getWidth()+2*Constants.SMALL_BORDER*getGlobalScale(),
+			b.getHeight()+2*Constants.SMALL_BORDER*getGlobalScale());
 	}
 	
 	/**

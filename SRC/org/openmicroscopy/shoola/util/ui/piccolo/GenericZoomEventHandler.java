@@ -42,6 +42,8 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
 //Java imports
 import java.awt.event.MouseEvent;
 
+import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -155,7 +157,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 
 	public  void animateToBounds(PBounds b) {
 		PCamera camera = ((PCanvas) canvas).getCamera();
-		camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
+		camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 		lastBounds = b;
 	}
 	

@@ -49,7 +49,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * A {@link PLayer} specifically designed to hold PLink objects - both ParamLinks and 
@@ -145,7 +145,7 @@ public class LinkLayer extends PLayer {
 	 */
 	protected void paint(PPaintContext aPaintContext) {
 		double scale = aPaintContext.getScale();
-		if (scale < PConstants.SCALE_THRESHOLD) {
+		if (scale < Constants.SCALE_THRESHOLD) {
 			params.setVisible(false);
 			modules.setVisible(true);
 		}

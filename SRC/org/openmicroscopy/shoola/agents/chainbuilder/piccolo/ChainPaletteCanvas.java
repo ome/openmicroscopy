@@ -77,9 +77,9 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 
@@ -158,7 +158,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		this.dataManager = dataManager;
 		
 		//SelectionState.getState().addSelectionEventListener(this);
-		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		layer = getLayer();
 		
 		// make sure that rendering is always high quality
@@ -284,9 +284,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public PBounds getBufferedBounds() {
 		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-PConstants.BORDER,
-			b.getY()-PConstants.BORDER,b.getWidth()+2*PConstants.BORDER,
-			b.getHeight()+2*PConstants.BORDER); 
+		return new PBounds(b.getX()-Constants.BORDER,
+			b.getY()-Constants.BORDER,b.getWidth()+2*Constants.BORDER,
+			b.getHeight()+2*Constants.BORDER); 
 	}
 
 	
@@ -362,7 +362,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		BufferedObject cBox = (BufferedObject) cb;				
 		PBounds b = cBox.getBufferedBounds();
 		PCamera camera = getCamera();
-		camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
+		camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 	}
 	
 	public void eventFired(AgentEvent e) {

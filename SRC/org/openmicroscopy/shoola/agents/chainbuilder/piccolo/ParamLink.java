@@ -45,7 +45,7 @@ import java.awt.geom.Point2D;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 /** 
  * A Piccolo node for links between directly between two formal parameter.
  *
@@ -141,7 +141,7 @@ public class ParamLink extends  Link {
 			// For PFormalInputs, the point is actually to the left- 
 			// in the middle of the LinkSelectionTarget
 			Point2D offset = new 
-				Point2D.Double(paramCirclePoint.getX()-PConstants.LINK_BULB_RADIUS,
+				Point2D.Double(paramCirclePoint.getX()-Constants.LINK_BULB_RADIUS,
 								paramCirclePoint.getY());
 				
 			paramCirclePoint.setLocation(offset);

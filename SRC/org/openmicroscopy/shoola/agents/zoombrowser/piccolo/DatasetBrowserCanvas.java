@@ -60,9 +60,9 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A {@link PCanvas} for viewing images in datasets, with datasets laid out
@@ -151,7 +151,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 
 		//	remove handlers
 		removeInputEventListener(getZoomEventHandler());
@@ -174,7 +174,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	public Dimension getPreferredSize() {
 		height = getHeight();
 		if (height == 0)
-			height = PConstants.BROWSER_SIDE;
+			height = Constants.BROWSER_SIDE;
 		return new Dimension(getWidth(),height);
 	}
 	
@@ -243,8 +243,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		}
 		
 		
-		screenHeight = PConstants.BROWSER_SIDE;
-		screenWidth = PConstants.BROWSER_SIDE;
+		screenHeight = Constants.BROWSER_SIDE;
+		screenWidth = Constants.BROWSER_SIDE;
 		screenArea = screenHeight*screenWidth;
 
 		// scale the width and height by the total area		
@@ -457,10 +457,10 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public PBounds getBufferedBounds() {
 		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-PConstants.SMALL_BORDER,
-			b.getY()-PConstants.SMALL_BORDER,
-			b.getWidth()+2*PConstants.SMALL_BORDER,
-			b.getHeight()+2*PConstants.SMALL_BORDER); 
+		return new PBounds(b.getX()-Constants.SMALL_BORDER,
+			b.getY()-Constants.SMALL_BORDER,
+			b.getWidth()+2*Constants.SMALL_BORDER,
+			b.getHeight()+2*Constants.SMALL_BORDER); 
 	}
 	
 	

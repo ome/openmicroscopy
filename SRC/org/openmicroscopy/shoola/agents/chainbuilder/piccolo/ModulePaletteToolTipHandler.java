@@ -52,7 +52,7 @@ import edu.umd.cs.piccolo.PNode;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
-import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.ToolTipHandler;
 
 /** 
@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.ToolTipHandler;
  */
 public class ModulePaletteToolTipHandler extends ToolTipHandler {
 	
-	protected Font font = PConstants.TOOLTIP_FONT;
+	protected Font font = Constants.TOOLTIP_FONT;
 	
 	public ModulePaletteToolTipHandler(PCamera camera) {
 		super(camera);
@@ -120,8 +120,8 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 			y+=p.getHeight();	
 		}
 		node.setBounds(node.getUnionOfChildrenBounds(null));
-		node.setStrokePaint(PConstants.TOOLTIP_BORDER_COLOR);
-		node.setPaint(PConstants.TOOLTIP_FILL_COLOR);
+		node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+		node.setPaint(Constants.TOOLTIP_FILL_COLOR);
 		
 		return node;	
 	}
