@@ -42,6 +42,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 
 //Java imports
 import java.util.Collection;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByNodeI
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainNodeExecutionData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
@@ -70,7 +72,6 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
-import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 
 /**
@@ -90,7 +91,7 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 public class ChainDataManager extends DataManager {
 
 		
-	protected LinkedHashMap chainHash=null;
+	protected Map chainHash=null;
 	
 	
 	/** flags to see if we're getting  chains & executions*/
@@ -100,13 +101,13 @@ public class ChainDataManager extends DataManager {
 	private ChainExecutions chainExecutions; 
 	
 	/** hash map of modules */
-	protected HashMap moduleHash = null;
+	protected Map moduleHash = null;
 
 	/** are we loading modules? */
 	protected boolean loadingModules = false;
 	
 	/** cached hash of module categories */
-	protected HashMap moduleCategoryHash = null;		
+	protected Map moduleCategoryHash = null;		
 
 	/** are we loading modules categories? */
 	protected boolean loadingModuleCategories = false;
@@ -172,7 +173,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected HashMap buildModuleHash(Collection modules) {
+	protected Map buildModuleHash(Collection modules) {
 		HashMap map = new HashMap();
 		Iterator iter = modules.iterator();
 		while (iter.hasNext()) {
@@ -233,7 +234,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected HashMap buildModuleCategoryHash(Collection moduleCategories) {
+	protected Map buildModuleCategoryHash(Collection moduleCategories) {
 		HashMap map = new HashMap();
 		Iterator iter = moduleCategories.iterator();
 		while (iter.hasNext()) {
@@ -334,7 +335,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected LinkedHashMap buildChainHash(Collection chains) {
+	protected Map buildChainHash(Collection chains) {
 		LinkedHashMap map = new LinkedHashMap();
 		Iterator iter = chains.iterator();
 		while (iter.hasNext()) {
@@ -416,7 +417,7 @@ public class ChainDataManager extends DataManager {
 				ChainExecutionData ceProto = new ChainExecutionData();
 				BrowserDatasetData dsProto = new BrowserDatasetData();
 				LayoutChainData acProto = new LayoutChainData();
-				NodeExecutionData neProto = new NodeExecutionData();
+				ChainNodeExecutionData neProto = new ChainNodeExecutionData();
 				LayoutNodeData anProto = new LayoutNodeData(); 
 				ChainModuleData mProto = new ChainModuleData();
 				ModuleExecutionData meProto = new ModuleExecutionData();
@@ -456,6 +457,26 @@ public class ChainDataManager extends DataManager {
 			return chainExecutions.getChainExecutionsByChainID(id);
 		return null;
 	}
+	
+	public int getMaxNodeExecutionCount() {
+		if (chainExecutions == null)
+			return 0;
+		return chainExecutions.getMaxNodeExecutionCount();
+	}
+	
+	public Collection getNexesForMex(int id) {
+		if (chainExecutions == null)
+			return null;
+		return chainExecutions.getNexesForMex(id);
+	}
+
+	public Collection getNexesForModule(int id) {
+		if (chainExecutions == null)
+			return null;
+		return chainExecutions.getNexesForModule(id);
+	}
+	
+
 	public void saveChain(LayoutChainData chain) {
 		if (chain != null) {
 			try {
