@@ -127,12 +127,12 @@ public class IconManager
 	/** ID of the connect to DS icon. */
 	static final int		CONNECT_DS = 1;
 	
-	/** ID of the connect to IS icon. */
-	static final int		CONNECT_IS = 2;
-	
 	/** ID of the exit icon. */
-	static final int		EXIT = 3;
-				
+	static final int		EXIT = 2;
+		
+	/** ID of the login icon. */
+	static final int		LOGIN = 3;	
+		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
@@ -144,8 +144,8 @@ public class IconManager
 	static {  //TODO: modify when icons are ready.
 		relPaths[HELP] = "information16.png";
 		relPaths[CONNECT_DS] = "information16.png";
-		relPaths[CONNECT_IS] = "information16.png";
 		relPaths[EXIT] = "information16.png";
+		relPaths[LOGIN] = "information16.png";
 	}
 	
 	/** The sole instance. */
@@ -259,16 +259,12 @@ public class IconManager
 		return singleton;
 	}
 	
-	
-	
-	
 	/**
 	 * The factory retrieved from the container's configuration.
 	 * It can instantiate any icon whose file is contaied in the container's
 	 * graphics bundle.
 	 */
 	private IconFactory 	factory;
-	
 	
 	/**
 	 * Creates a new instance and configures the parameters.
