@@ -173,7 +173,7 @@ public class IconManager
 		relPaths[VIEWER] = "viewer16.png";
 		relPaths[BROWSER] = "browser-small.png";
 		relPaths[REFRESH] = "nuvola_reload16.png";
-		relPaths[ANNOTATE] = "annotate16.png";
+		relPaths[ANNOTATE] = "nuvola_kwrite16.png";
 		relPaths[DMANAGER] = "nuvola_file-manager16.png";
 		relPaths[ROOT] = "nuvola_trashcan_empty16.png";
 		relPaths[IMPORT_IMAGE] = "nuvola_digikam16.png";
