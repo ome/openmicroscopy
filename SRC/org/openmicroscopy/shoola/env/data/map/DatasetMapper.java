@@ -97,6 +97,7 @@ public class DatasetMapper
 		
 		criteria.addFilter("owner_id", new Integer(userID));
 		criteria.addFilter("name", "NOT LIKE", "ImportSet");
+		criteria.addOrderBy("name");
 		return criteria;
 	}
 	

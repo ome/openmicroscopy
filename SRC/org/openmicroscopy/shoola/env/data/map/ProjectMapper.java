@@ -105,6 +105,8 @@ public class ProjectMapper
 		//Retrieve the user's projects.
 		criteria.addFilter("owner_id", new Integer(userID));
 		
+		criteria.addOrderBy("name");
+		
 		return criteria;
 	}
 	
