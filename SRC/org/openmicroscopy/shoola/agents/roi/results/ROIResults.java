@@ -31,7 +31,8 @@ package org.openmicroscopy.shoola.agents.roi.results;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.util.ArrayList;
+import java.awt.Container;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,19 +71,23 @@ public class ROIResults
     extends JDialog
 {
     
-    List                                roiPaneList;
+    public static final int             WIDTH = 500, HEIGHT = 500;
+    
+    Map                                 paneMap;
+    
+    String[]                            listROIs;
 
     private ROIResultsMng               manager;
     
     public ROIResults(ROIAgtCtrl control, int sizeT, int sizeZ)
     {
         super(control.getReferenceFrame(), "ROI Results", true);
-        roiPaneList = new ArrayList();
+        paneMap = new HashMap();
         manager = new ROIResultsMng(this, control);
         IconManager im = IconManager.getInstance(control.getRegistry());
         JPanel p = buildTabbedPanel(control, im, sizeT, sizeZ);
         buildGUI(im, p);
-        pack();  
+        setSize(WIDTH, HEIGHT);
     }
     
     /** Build and lay out the GUI. */
@@ -92,10 +97,11 @@ public class ROIResults
                                 "Result of the ROI analysis.", 
                                 im.getIcon(IconManager.ROISHEET_BIG));
         //set layout and add components
-        getContentPane().setLayout(new BorderLayout(0, 0));
-        getContentPane().add(tp, BorderLayout.NORTH);
-        getContentPane().add(tablePanel, BorderLayout.CENTER);
-        getContentPane().add(new ControlsBar(manager, im), BorderLayout.SOUTH);
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout(0, 0));
+        c.add(tp, BorderLayout.NORTH);
+        c.add(tablePanel, BorderLayout.CENTER);
+        c.add(new ControlsBar(manager, im), BorderLayout.SOUTH);
     }
 
     /** Build the main component. */
@@ -110,12 +116,14 @@ public class ROIResults
         int c = 0;
         Icon up = im.getIcon(IconManager.UP), 
             down = im.getIcon(IconManager.DOWN);
-        Iterator i = control.getAnalyzedROI().iterator();
+        List analysedROI = control.getAnalyzedROI();
+        Iterator i = analysedROI.iterator();
         ScreenROI roi;
         ROIStats roiStats;
         Map results = control.getROIResults();
         String[] channels = control.getAnalyzedChannels();
         int channel = control.getAnalyzedChannel(0);
+        listROIs = new String[analysedROI.size()];
         while (i.hasNext()) {
             roi = (ScreenROI) i.next();
             roiStats = (ROIStats) results.get(roi.getActualROI());
@@ -124,8 +132,9 @@ public class ROIResults
             pane =  new StatsResultsPane(manager, roiStats, sizeT, sizeZ, 
                                         channel, channels.length, up, down);
             roiPane.addToContainer(pane);
-            roiPaneList.add(roiPane);
+            paneMap.put(new Integer(c), pane);
             tabs.insertTab("ROI #"+roi.getIndex(), null, roiPane, null, c);
+            listROIs[c] = "ROI #"+roi.getIndex();
             c++;
         }
         JPanel p = new JPanel();

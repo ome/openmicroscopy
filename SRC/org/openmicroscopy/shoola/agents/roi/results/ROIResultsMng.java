@@ -33,14 +33,11 @@ package org.openmicroscopy.shoola.agents.roi.results;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JComponent;
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
-import org.openmicroscopy.shoola.agents.roi.results.pane.ResultsPerROIPane;
 import org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPane;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -81,6 +78,8 @@ public class ROIResultsMng
         return control.getAnalyzedChannel(index);
     }
    
+    public String[] getListROIs() { return view.listROIs; }
+    
     /** Handle the close event. */
     public void handleClose()
     {
@@ -88,17 +87,29 @@ public class ROIResultsMng
         view.dispose();
     }
     
-    public void showResultsForROI(int viewIndex, int index)
+    /**
+     * 
+     * @param viewIndex
+     * @param channelIndex
+     */
+    public Number[][] getDataForROI(int viewIndex, int channelIndex)
     {
-        ResultsPerROIPane 
-            roiPane = (ResultsPerROIPane) view.roiPaneList.get(viewIndex);
-        JComponent c = roiPane.getComponent();
-        if (c instanceof StatsResultsPane) {
-            ((StatsResultsPane) c).showResultsForChannel(
-                        control.getAnalyzedChannel(index));
-        }
-        //roiPane.showResultsForChannel(control.getAnalyzedChannel(index));
-        // retrieve data according channelIndex and algoIndex
+        StatsResultsPane 
+        pane = (StatsResultsPane) view.paneMap.get(new Integer(viewIndex));
+        return pane.getManager().getDataToDisplay(channelIndex);
+    }
+    
+    /** 
+     * 
+     * @param viewIndex
+     * @param index         channel index.
+     */
+    public void showResultsForROI(int viewIndex, int channelIndex)
+    {
+        StatsResultsPane 
+        pane = (StatsResultsPane) view.paneMap.get(new Integer(viewIndex));
+        pane.getManager().displayResult(
+                control.getAnalyzedChannel(channelIndex));
     }
     
     /** Attach listeners. */
