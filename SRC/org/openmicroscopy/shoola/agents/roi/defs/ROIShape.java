@@ -71,11 +71,13 @@ public class ROIShape
     /** Channel index. */
     private int                     channelIndex;
     
-    private String                  text;
+    private String                  label;
     
     private int                     shapeType;
     
     private ImageAffineTransform    affineTransform;
+    
+    private String                  annotation;
     
     public ROIShape(Shape shape, int index, Color lineColor, int shapeType,
                     int channelIndex, ImageAffineTransform affineTransform)
@@ -86,7 +88,8 @@ public class ROIShape
         this.channelIndex = channelIndex;
         this.shapeType = shapeType;
         this.affineTransform = affineTransform;
-        text = "#"+index;
+        label = "#"+index;
+        annotation = null;
     }
 
     public ImageAffineTransform getAffineTransform()
@@ -104,13 +107,16 @@ public class ROIShape
     
     public int getChannelIndex() { return channelIndex; }
     
-    public String getText() { return text; }
+    public String getLabel() { return label; }
+    
+    public String getAnnotation() { return annotation; }
     
     public void setShape(Shape shape) { this.shape = shape; }
     
-    public void setText(String txt) { text = txt;}
+    public void setLabel(String txt) { label = txt;}
     
     public void setIndex(int index) { this.index = index; }
     
+    public void setAnnotation(String txt) { annotation = txt;}
     
 }
