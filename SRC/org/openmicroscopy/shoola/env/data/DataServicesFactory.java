@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
@@ -104,7 +105,10 @@ public class DataServicesFactory
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
 		sts = new STSAdapter(gateway);
-         ps = new PixelsServiceAdapter(gateway.getDataFactory());
+        ps = new PixelsServiceAdapter(gateway.getDataFactory());
+        
+        //Initialize the Views Factory.
+        DataViewsFactory.initialize(c);
 	}
 	
 	public DataManagementService getDMS() { return dms; }
