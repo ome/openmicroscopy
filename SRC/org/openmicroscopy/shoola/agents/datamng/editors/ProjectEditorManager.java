@@ -68,10 +68,10 @@ class ProjectEditorManager
 	
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;	
-	private static final int		RELOAD = 1;
-	private static final int		REMOVE = 2;
-	private static final int		CANCEL_SELECTION = 3;
-	private static final int		ADD = 4;
+	private static final int		REMOVE = 1;
+	private static final int		RESET = 2;
+	private static final int		ADD = 3;
+	private static final int		CANCEL = 4;
 	
 	/** Reference to the model. */
 	private ProjectData				model;
@@ -88,19 +88,19 @@ class ProjectEditorManager
 	/** List of datasets to be added. */
 	private List					datasetsToAdd;
 	
-	/** Save button displayed in the {@link ProjectGeneralPane}. */
+	/** Cancel button displayed in the {@link ProjectEditorBar}. */
+	private JButton 				cancelButton;
+		
+	/** Save button displayed in the {@link ProjectEditorBar}. */
 	private JButton 				saveButton;
-	
-	/** Reload button displayed in the {@link ProjectGeneralPane}. */
-	private JButton 				reloadButton;
 	
 	/** Remove button displayed in the {@link ProjectDatasetsPane}. */
 	private JButton 				removeButton;
 	
 	/** Cancel button displayed in the {@link ProjectDatasetsPane}. */
-	private JButton 				cancelButton;
+	private JButton 				resetButton;
 	
-	/** Add button displayed in the {@link ProjectDatasetsPane}. */
+	/** Add button displayed in the {@link ProjectEditorBar}. */
 	private JButton 				addButton;
 	
 	/** textArea displayed in the {@link ProjectGeneralPane}. */
@@ -134,20 +134,22 @@ class ProjectEditorManager
 	{
 		//buttons
 		saveButton = view.getSaveButton();
-		reloadButton = view.getReloadButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
-		reloadButton.addActionListener(this);
-		reloadButton.setActionCommand(""+RELOAD);
-		removeButton = view.getRemoveButton();
-		removeButton.addActionListener(this);
-		removeButton.setActionCommand(""+REMOVE);
-		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_SELECTION);
 		addButton = view.getAddButton();
 		addButton.addActionListener(this);
 		addButton.setActionCommand(""+ADD);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);	
+			
+		removeButton = view.getRemoveButton();
+		removeButton.addActionListener(this);
+		removeButton.setActionCommand(""+REMOVE);
+		resetButton = view.getResetButton();
+		resetButton.addActionListener(this);
+		resetButton.setActionCommand(""+RESET);
+		
 		
 		//text fields.
 		nameField = view.getNameField();
@@ -165,19 +167,15 @@ class ProjectEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
-					save();
-					break;
-				case RELOAD:
-					reload();
-					break;
-				case REMOVE:
-					remove();
-					break;
-				case CANCEL_SELECTION:
-					cancelSelection();
-					break;
+					save(); break;
 				case ADD:
-					showDatasetsSelection();
+					showDatasetsSelection(); break;
+				case CANCEL:
+					cancel(); break;
+				case REMOVE:
+					remove(); break;
+				case RESET:
+					resetSelection(); break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -195,6 +193,7 @@ class ProjectEditorManager
 			dialog.remove(dialog.getContents());
 			dialog.buildGUI();
 		}
+		view.setSelectedPane(ProjectEditor.POS_DATASET);
 		control.showDialog(dialog);
 		saveButton.setEnabled(true);	
 	}
@@ -241,6 +240,13 @@ class ProjectEditorManager
 		saveButton.setEnabled(true);
 	}
 	
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
+	{
+		view.setVisible(false);
+		view.dispose();
+	}
+	
 	/** Save in DB. */
 	private void save()
 	{
@@ -258,17 +264,11 @@ class ProjectEditorManager
 		removeButton.setEnabled(false);
 	}
 	
-	/** Cancel selection. */
-	private void cancelSelection()
+	/** Reset the default i.e. no dataset selected. */
+	private void resetSelection()
 	{
 		removeButton.setEnabled(true);
-		view.cancelSelection();
-	}
-	
-	/** */
-	private void reload()
-	{
-		//TODO: implement method.
+		view.resetSelection();
 	}
 
 	/** Require by I/F. */

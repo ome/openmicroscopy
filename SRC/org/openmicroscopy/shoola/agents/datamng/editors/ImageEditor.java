@@ -74,6 +74,7 @@ public class ImageEditor
 	private ImageGeneralPane		generalPane;
 	private ImageInfoPane			infoPane;
 	private ImageOwnerPane			ownerPane;
+	private ImageEditorBar			bar;
 	
 	public ImageEditor(Registry registry, DataManagerCtrl control,
 					ImageData model)
@@ -84,16 +85,17 @@ public class ImageEditor
 		generalPane = new ImageGeneralPane(manager, registry);
 		infoPane = new ImageInfoPane(manager);
 		ownerPane = new ImageOwnerPane(manager);
+		bar = new ImageEditorBar(manager);
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/** Returns the save button displayed in {@link ImageGeneralPane}. */
-	JButton getSaveButton() { return generalPane.getSaveButton(); }
+	/** Returns the save button displayed in {@link ImageEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
 
-	/** Returns the reload button displayed in {@link ImageGeneralPane}. */
-	JButton getReloadButton() { return generalPane.getReloadButton(); }
+	/** Returns the cancel button displayed in {@link ImageEditorBar}. */
+	JButton getCancelButton() { return bar.getCancelButton(); }
 	
 	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
@@ -121,7 +123,8 @@ public class ImageEditor
 		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(tabs, BorderLayout.CENTER);	
+		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);		
 	}
 
 	

@@ -64,8 +64,8 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 public class DatasetEditor
 	extends JDialog
 {
-	private static final int		POS_MAIN = 0, POS_IMAGE = 1, 
-									POS_OWNER = 2;
+	
+	static final int				POS_MAIN = 0, POS_IMAGE = 1, POS_OWNER = 2;
 									
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
@@ -76,7 +76,7 @@ public class DatasetEditor
 	private DatasetGeneralPane		generalPane;
 	private DatasetImagesPane		imagesPane;
 	private DatasetOwnerPane		ownerPane;
-	
+	private DatasetEditorBar		bar;
 	private JTabbedPane				tabs;
 	
 	public DatasetEditor(Registry registry, DataManagerCtrl control,
@@ -88,25 +88,26 @@ public class DatasetEditor
 		generalPane = new DatasetGeneralPane(manager, registry);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
+		bar = new DatasetEditorBar(manager);
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/**  Returns the save button displayed {@link DatasetGeneralPane}. */
-	JButton getSaveButton() { return generalPane.getSaveButton(); }
-
-	/** Returns the reload button displayed in {@link DatasetGeneralPane}. */
-	JButton getReloadButton() { return generalPane.getReloadButton(); }
+	/**  Returns the save button displayed {@link DatasetEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
 	
-	/** Returns the save button displayed {@link DatasetImagesPane}. */
-	JButton getAddButton() { return imagesPane.getAddButton(); }
+	/** Returns the save button displayed {@link DatasetEditorBar}. */
+	JButton getAddButton() { return bar.getAddButton(); }
+	
+	/** Returns the cancel button displayed in {@link DatasetEditorBar}. */
+	JButton getCancelButton() { return bar.getCancelButton(); }
 	
 	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
 	JButton getRemoveButton() { return imagesPane.getRemoveButton(); }
 	
-	/** Returns the cancel button displayed in {@link DatasetImagesPane}. */
-	JButton getCancelButton() { return imagesPane.getCancelButton(); }
+	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
+	JButton getResetButton() { return imagesPane.getResetButton(); }
 	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
@@ -120,8 +121,17 @@ public class DatasetEditor
 		imagesPane.setSelection(new Boolean(true));
 	}
 
+	/** 
+	 * Set the selected tab.
+	 * 
+	 * @param index	index is one of the following cst 
+	 * 				<code>POS_IMAGE</code>, <code>POS_MAIN</code>, 
+	 * 				<code>POS_OWNER</code>.
+	 */
+	void setSelectedPane(int index) { tabs.setSelectedIndex(index); }
+	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
-	void cancelSelection()
+	void resetSelection()
 	{
 		imagesPane.setSelection(new Boolean(false));
 	}
@@ -159,7 +169,8 @@ public class DatasetEditor
 		tabs.setForeground(DataManager.STEELBLUE);
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(tabs, BorderLayout.CENTER);	
+		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}
 
 }

@@ -73,7 +73,7 @@ class CreateDatasetProjectsPane
 	private CreateDatasetEditorManager	manager;
 
 	private JButton						selectButton;
-	private JButton						cancelButton;
+	private JButton						resetButton;
 	private ProjectsTableModel 			projectsTM;
 	
 	CreateDatasetProjectsPane(CreateDatasetEditorManager manager)
@@ -86,7 +86,7 @@ class CreateDatasetProjectsPane
 	JButton getSelectButton() { return selectButton; }
 	
 	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
+	JButton getResetButton() { return resetButton; }
 
 	/** Select or not all projects. */
 	void setSelection(Object val)
@@ -112,12 +112,12 @@ class CreateDatasetProjectsPane
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		selectButton.setToolTipText("Select all projects.");
 		//cancel button
-		cancelButton = new JButton("Reset");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection.");
+		resetButton = new JButton("Reset");
+		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		resetButton.setToolTipText("Cancel selection.");
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(cancelButton);
+		controls.add(resetButton);
 		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(selectButton);
 		controls.setOpaque(false); //make panel transparent

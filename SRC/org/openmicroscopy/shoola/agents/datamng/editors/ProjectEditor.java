@@ -65,8 +65,7 @@ public class ProjectEditor
 	extends JDialog
 {	
 	/** ID to position the components. */
-	private static final int		POS_MAIN = 0, POS_DATASET = 1, 
-									POS_OWNER = 2;
+	static final int		POS_MAIN = 0, POS_DATASET = 1, POS_OWNER = 2;
 									
 	/** Reference to the manager. */
 	private ProjectEditorManager 	manager;
@@ -78,6 +77,7 @@ public class ProjectEditor
 	private ProjectDatasetsPane		datasetsPane;
 	private ProjectOwnerPane		ownerPane;
 	
+	private ProjectEditorBar		bar;
 	private JTabbedPane				tabs;
 	
 	public ProjectEditor(Registry registry, DataManagerCtrl control,
@@ -89,26 +89,27 @@ public class ProjectEditor
 		generalPane = new ProjectGeneralPane(manager, registry);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
+		bar = new ProjectEditorBar(manager);
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/**  Returns the save button displayed {@link ProjectGeneralPane}. */
-	JButton getSaveButton() { return generalPane.getSaveButton(); }
+	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
+	JButton getAddButton() { return bar.getAddButton(); }
 	
-	/** Returns the reload button displayed in {@link ProjectGeneralPane}. */
-	JButton getReloadButton() { return generalPane.getReloadButton(); }
+	/**  Returns the save button displayed {@link ProjectEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
+	
+	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
+	JButton getCancelButton() { return bar.getCancelButton(); }
 	
 	/** Returns the remove button displayed in {@link ProjectDatasetsPane}. */
 	JButton getRemoveButton() { return datasetsPane.getRemoveButton(); }
 	
 	/** Returns the cancel button displayed in {@link ProjectDatasetsPane}. */
-	JButton getCancelButton() { return datasetsPane.getCancelButton(); }
-	
-	/** Returns the cancel button displayed in {@link ProjectDatasetsPane}. */
-	JButton getAddButton() { return datasetsPane.getAddButton(); }
-	
+	JButton getResetButton() { return datasetsPane.getResetButton(); }
+
 	/** Returns the TextArea displayed in {@link ProjectGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
 
@@ -122,10 +123,19 @@ public class ProjectEditor
 	}
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
-	void cancelSelection()
+	void resetSelection()
 	{
 		datasetsPane.setSelection(new Boolean(false));
 	}
+	
+	/** 
+	 * Set the selected tab.
+	 * 
+	 * @param index	index is one of the following cst 
+	 * 				<code>POS_DATASET</code>, <code>POS_MAIN</code>, 
+	 * 				<code>POS_OWNER</code>.
+	 */
+	void setSelectedPane(int index) { tabs.setSelectedIndex(index); }
 	
 	/** Reset the datasetsPane. */
 	void setDatasetsPane(List l)
@@ -159,7 +169,8 @@ public class ProjectEditor
 		tabs.setForeground(DataManager.STEELBLUE);
   		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(tabs, BorderLayout.CENTER);	
+		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);	
 	}
 
 }

@@ -71,6 +71,7 @@ public class CreateDatasetEditor
 	private CreateDatasetPane 			creationPane;
 	private CreateDatasetProjectsPane	projectsPane;
 	private CreateDatasetImagesPane		imagesPane;
+	private CreateDatasetEditorBar		bar;
 	private CreateDatasetEditorManager	manager;
 	
 	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
@@ -83,6 +84,7 @@ public class CreateDatasetEditor
 		creationPane = new CreateDatasetPane(manager, registry);
 		projectsPane = new CreateDatasetProjectsPane(manager);
 		imagesPane = new CreateDatasetImagesPane(manager);
+		bar = new CreateDatasetEditorBar(manager);
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);
@@ -97,18 +99,23 @@ public class CreateDatasetEditor
 	/** Returns the textArea displayed in {@link CreateDatasetPane}. */
 	JTextArea getNameField() { return creationPane.getNameField(); }
 	
-	/** Returns the save button displayed in {@link CreateDatasetPane}. */
-	JButton getSaveButton() { return creationPane.getSaveButton(); }
+	/** Returns the save button displayed in {@link CreateDatasetEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
 
+	/** 
+	 * Returns the cancel button displayed in 
+	 * {@link CreateDatasetEditorBar}.
+	 */
+	JButton getCancelButton() { return bar.getCancelButton(); }
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetProjectsPane}.
 	 */
 	JButton getSelectButton() { return projectsPane.getSelectButton(); }
 
 	/** 
-	 * Returns the cancel button displayed in {@link CreateDatasetProjectsPane}.
+	 * Returns the reset button displayed in {@link CreateDatasetProjectsPane}.
 	 */
-	JButton getCancelButton() { return projectsPane.getCancelButton(); }
+	JButton getResetProjectButton() { return projectsPane.getResetButton(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateDatasetImagesPane}.
@@ -118,7 +125,7 @@ public class CreateDatasetEditor
 	/** 
 	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
 	 */
-	JButton getCancelImageButton() { return imagesPane.getCancelButton(); }
+	JButton getResetImageButton() { return imagesPane.getResetButton(); }
 	
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
 	void selectAllProjects()
@@ -127,7 +134,7 @@ public class CreateDatasetEditor
 	}
 
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
-	void cancelSelectionProject()
+	void resetSelectionProject()
 	{
 		projectsPane.setSelection(new Boolean(false));
 	}
@@ -139,7 +146,7 @@ public class CreateDatasetEditor
 	}
 
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-	void cancelSelectionImage()
+	void resetSelectionImage()
 	{
 		imagesPane.setSelection(new Boolean(false));
 	}
@@ -166,6 +173,7 @@ public class CreateDatasetEditor
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);
 	}
 
 }

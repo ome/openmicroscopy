@@ -65,17 +65,17 @@ class ImageEditorManager
 	
 	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
-	private static final int	RELOAD = 1;
+	private static final int	CANCEL = 1;
 	
 	private ImageData			model;
 	private ImageEditor			view;
 	private DataManagerCtrl 	control;
 
-	/** Save button displayed in the {@link ImageGeneralPane}. */
+	/** Save button displayed in the {@link ImageEditorBar}. */
 	private JButton 			saveButton;
 	
-	/** Reload button displayed in the {@link ImageGeneralPane}. */
-	private JButton 			reloadButton;
+	/** Reload button displayed in the {@link ImageEditorBar}. */
+	private JButton 			cancelButton;
 	
 	/** textArea displayed in the {@link ImagetGeneralPane}. */
 	private JTextArea			descriptionArea;
@@ -101,11 +101,12 @@ class ImageEditorManager
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();
-		reloadButton = view.getReloadButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
-		reloadButton.addActionListener(this);
-		reloadButton.setActionCommand(""+RELOAD);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -121,11 +122,9 @@ class ImageEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
-					save();
-					break;
-				case RELOAD:
-					reload();
-					break;
+					save(); break;
+				case CANCEL:
+					cancel();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -141,9 +140,11 @@ class ImageEditorManager
 		view.dispose();
 	}
 	
-	void reload() 
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
 	{
-		//TODO
+		view.setVisible(false);
+		view.dispose();
 	}
 	
 	/** Require by I/F. */

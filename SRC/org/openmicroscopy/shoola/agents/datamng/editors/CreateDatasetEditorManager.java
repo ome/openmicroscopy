@@ -70,9 +70,10 @@ public class CreateDatasetEditorManager
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
-	private static final int		CANCEL_SELECTION_PROJECT = 2;
+	private static final int		RESET_SELECTION_PROJECT = 2;
 	private static final int		SELECT_IMAGE = 3;
-	private static final int		CANCEL_SELECTION_IMAGE = 4;
+	private static final int		RESET_SELECTION_IMAGE = 4;
+	private static final int		CANCEL = 5;
 	
 	private CreateDatasetEditor 	view;
 	private DatasetData 			model;
@@ -88,20 +89,23 @@ public class CreateDatasetEditorManager
 	/** List of projects to be added to. */
 	private List					projectsToAdd;
 	
-	/** Select button displayed in the {@link CreateDatasetPane}. */
+	/** Cancel button displayed in the {@link CreateDatasetEditorBar}. */
+	private JButton 				cancelButton;
+	
+	/** Select button displayed in the {@link CreateDatasetEditorBar}. */
 	private JButton 				saveButton;
 	
 	/** Select button displayed in the {@link CreateDatasetProjectsPane}. */
 	private JButton 				selectButton;
 	
-	/** Cancel button displayed in the {@link CreateDatasetProjectsPane}. */
-	private JButton 				cancelButton;
+	/** Reset button displayed in the {@link CreateDatasetProjectsPane}. */
+	private JButton 				resetProjectButton;
 	
 	/** Select button displayed in the {@link CreateDatasetImagesPane}. */
 	private JButton					selectImageButton;
 	
-	/** Cancel button displayed in the {@link CreateDatasetImagesPane}. */
-	private JButton					cancelImageButton;
+	/** Reset button displayed in the {@link CreateDatasetImagesPane}. */
+	private JButton					resetImageButton;
 	
 	/** textArea displayed in the {@link CreateDatasetPane}. */
 	private JTextArea				descriptionArea;
@@ -138,18 +142,22 @@ public class CreateDatasetEditorManager
 		saveButton = view.getSaveButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		
 		selectButton = view.getSelectButton();
 		selectButton.addActionListener(this);
 		selectButton.setActionCommand(""+SELECT_PROJECT);
-		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_SELECTION_PROJECT);
+		resetProjectButton = view.getResetProjectButton();
+		resetProjectButton.addActionListener(this);
+		resetProjectButton.setActionCommand(""+RESET_SELECTION_PROJECT);
 		selectImageButton = view.getSelectImageButton();
 		selectImageButton.addActionListener(this);
 		selectImageButton.setActionCommand(""+SELECT_IMAGE);
-		cancelImageButton = view.getCancelImageButton();
-		cancelImageButton.addActionListener(this);
-		cancelImageButton.setActionCommand(""+CANCEL_SELECTION_IMAGE);
+		resetImageButton = view.getResetImageButton();
+		resetImageButton.addActionListener(this);
+		resetImageButton.setActionCommand(""+RESET_SELECTION_IMAGE);
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -165,20 +173,17 @@ public class CreateDatasetEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
-					save();
-					break;
+					save(); break;
+				case CANCEL:
+					cancel(); break;
 				case SELECT_PROJECT:
-					selectProject();
-					break;
-				case CANCEL_SELECTION_PROJECT:
-					cancelSelectionProject();
-					break;
+					selectProject(); break;
+				case RESET_SELECTION_PROJECT:
+					resetSelectionProject(); break;
 				case SELECT_IMAGE:
-					selectImage();
-					break;
-				case CANCEL_SELECTION_IMAGE:
-					cancelSelectionImage();
-					break;
+					selectImage(); break;
+				case RESET_SELECTION_IMAGE:
+					resetSelectionImage();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -215,7 +220,14 @@ public class CreateDatasetEditorManager
 		} else 	projectsToAdd.remove(ps);
 	}
 
-	 /** 
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
+	{
+		view.setVisible(false);
+		view.dispose();
+	}
+	
+	/** 
 	 * Save the new DatasetData object in DB and forward event to the 
 	 * {@link DataManagerCtrl}.
 	 */
@@ -238,10 +250,10 @@ public class CreateDatasetEditorManager
 	}
 
 	/** Cancel selection of projects. */
-	private void cancelSelectionProject()
+	private void resetSelectionProject()
 	{
 		selectButton.setEnabled(true);
-		view.cancelSelectionProject();
+		view.resetSelectionProject();
 	}
 	
 	/** Select images. */
@@ -252,10 +264,10 @@ public class CreateDatasetEditorManager
 	}
 
 	/** Cancel selection of images. */
-	private void cancelSelectionImage()
+	private void resetSelectionImage()
 	{
 		selectButton.setEnabled(true);
-		view.cancelSelectionImage();
+		view.resetSelectionImage();
 	}
 	
 	/** Require by I/F. */
@@ -277,10 +289,7 @@ public class CreateDatasetEditorManager
 	}
 	
 	/** Tells that the name has been modified. */
-	public void mousePressed(MouseEvent e)
-	{ 
-		isName = true;
-	}
+	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

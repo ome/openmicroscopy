@@ -69,10 +69,10 @@ class DatasetEditorManager
 	
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;	
-	private static final int		RELOAD = 1;	
-	private static final int		REMOVE = 2;
-	private static final int		CANCEL_SELECTION = 3;
-	private static final int		ADD = 4;
+	private static final int		REMOVE = 1;
+	private static final int		CANCEL = 2;
+	private static final int		ADD = 3;
+	private static final int		RESET = 4;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -85,20 +85,20 @@ class DatasetEditorManager
 	
 	private DataManagerCtrl 		control;
 	
-	/** Save button displayed in the {@link DatasetGeneralPane}. */
+	/** Add button displayed in the {@link DatasetEditorBar}. */
+	private JButton 				addButton;
+	
+	/** Cancel button displayed in the {@link DatasetEditorBar}. */
+	private JButton 				cancelButton;
+		
+	/** Save button displayed in the {@link DatasetEditorBar}. */
 	private JButton 				saveButton;
-
-	/** Reload button displayed in the {@link DatasetGeneralPane}. */
-	private JButton 				reloadButton;
 
 	/** Remove button displayed in the {@link DatasetImagesPane}. */
 	private JButton 				removeButton;
 
-	/** Cancel button displayed in the {@link DatasetImagesPane}. */
-	private JButton 				cancelButton;
-	
-	/** Cancel button displayed in the {@link DatasetImagesPane}. */
-	private JButton 				addButton;
+	/** Reset button displayed in the {@link DatasetImagesPane}. */
+	private JButton 				resetButton;
 	
 	/** textArea displayed in the {@link DatasetGeneralPane}. */
 	private JTextArea				descriptionArea;
@@ -121,35 +121,32 @@ class DatasetEditorManager
 		imagesToAdd = new ArrayList();
 	}
 	
-	DatasetEditor getView()
-	{
-		return view;
-	}
+	DatasetEditor getView() { return view; }
 	
-	DatasetData getDatasetData()
-	{
-		return model;
-	}
+	DatasetData getDatasetData() { return model; }
 
 	/** Initializes the listeners. */
 	void initListeners()
 	{
 		//buttons
 		saveButton = view.getSaveButton();
-		reloadButton = view.getReloadButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
-		reloadButton.addActionListener(this);
-		reloadButton.setActionCommand(""+RELOAD);
-		removeButton = view.getRemoveButton();
-		removeButton.addActionListener(this);
-		removeButton.setActionCommand(""+REMOVE);
-		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_SELECTION);	
 		addButton = view.getAddButton();
 		addButton.addActionListener(this);
 		addButton.setActionCommand(""+ADD);	
+		
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);	
+		
+		removeButton = view.getRemoveButton();
+		removeButton.addActionListener(this);
+		removeButton.setActionCommand(""+REMOVE);
+		resetButton = view.getResetButton();
+		resetButton.addActionListener(this);
+		resetButton.setActionCommand(""+RESET);	
+		
 		//textfields
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
@@ -166,19 +163,15 @@ class DatasetEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) {
 				case SAVE:
-					save();
-					break;
-				case RELOAD:
-					reload();
-					break;
-				case REMOVE:
-					remove();
-					break;
-				case CANCEL_SELECTION:
-					cancelSelection();
-					break;
+					save(); break;
+				case CANCEL:
+					cancel(); break;
 				case ADD:
-					showImagesSelection();
+					showImagesSelection(); break;
+				case REMOVE:
+					remove(); break;
+				case RESET:
+					resetSelection();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -238,9 +231,16 @@ class DatasetEditorManager
 			dialog.buildGUI();
 		}
 		control.showDialog(dialog);
+		view.setSelectedPane(DatasetEditor.POS_IMAGE);
 		saveButton.setEnabled(true);	
 	}
 	
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
+	{
+		view.setVisible(false);
+		view.dispose();
+	}
 	
 	/** Save changes in DB. */
 	private void save()
@@ -259,16 +259,10 @@ class DatasetEditorManager
 	}
 	
 	/** Cancel selection. */
-	private void cancelSelection()
+	private void resetSelection()
 	{
 		removeButton.setEnabled(true);
-		view.cancelSelection();
-	}
-
-	/** */
-	private void reload()
-	{
-		//TODO
+		view.resetSelection();
 	}
 
 	/** Require by I/F. */

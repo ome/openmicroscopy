@@ -70,6 +70,7 @@ public class CreateProjectEditor
 	private Registry 					registry;
 	private CreateProjectPane 			creationPane;
 	private CreateProjectDatasetsPane	datasetsPane;
+	private CreateProjectEditorBar		bar;
 	private CreateProjectEditorManager	manager;
 
 	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
@@ -81,6 +82,7 @@ public class CreateProjectEditor
 												datasets);
 		creationPane = new CreateProjectPane(manager, registry);
 		datasetsPane = new CreateProjectDatasetsPane(manager);
+		bar = new CreateProjectEditorBar(manager);
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
@@ -95,8 +97,11 @@ public class CreateProjectEditor
 	/** Returns the textfield displayed in {@link CreateProjectPane}. */
 	JTextArea getNameField() { return creationPane.getNameField(); }
 	
-	/** Returns the save button displayed in {@link CreateProjectPane}. */
-	JButton getSaveButton() { return creationPane.getSaveButton(); }
+	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
+	JButton getSaveButton() { return bar.getSaveButton(); }
+	
+	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
+	JButton getCancelButton() { return bar.getCancelButton(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
@@ -104,9 +109,9 @@ public class CreateProjectEditor
 	JButton getSelectButton() { return datasetsPane.getSelectButton(); }
 	
 	/** 
-	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
+	 * Returns the reset button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	JButton getCancelButton() { return datasetsPane.getCancelButton(); }
+	JButton getResetButton() { return datasetsPane.getResetButton(); }
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
 	void selectAll()
@@ -120,7 +125,7 @@ public class CreateProjectEditor
 		datasetsPane.setSelection(new Boolean(false));
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
@@ -139,6 +144,7 @@ public class CreateProjectEditor
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);
+		getContentPane().add(bar, BorderLayout.SOUTH);
 	}
 
 }

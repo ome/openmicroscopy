@@ -82,7 +82,7 @@ class DatasetImagesPane
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
 	
-	private JButton					removeButton, cancelButton, addButton;
+	private JButton					removeButton, resetButton;
 	
 	private JPanel					tablePanel, tableToAddPanel, buttonsPanel;
 	
@@ -98,15 +98,12 @@ class DatasetImagesPane
 		imagesToAdd = new ArrayList();
 		buildGUI();
 	}
-	
-	/** Return the add button. */
-	JButton getAddButton() { return addButton; }
-	
+
 	/** Return the remove button. */
 	JButton getRemoveButton() { return removeButton; }
 
 	/** Return the cancel button. */
-	JButton getCancelButton() { return cancelButton;}
+	JButton getResetButton() { return resetButton;}
 	
 	/** Select or not all images. */
 	void setSelection(Object val)
@@ -158,25 +155,19 @@ class DatasetImagesPane
 		removeButton.setToolTipText("Remove all datasets.");
 	
 		//cancel button
-		cancelButton = new JButton("Reset");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection.");
-	
-		addButton = new JButton("Add");
-		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		addButton.setToolTipText("Add datasets to the project.");
+		resetButton = new JButton("Reset");
+		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		resetButton.setToolTipText("Cancel selection.");
 	
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(cancelButton);
+		controls.add(resetButton);
 		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(removeButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
-		controls.add(addButton);
 		controls.setOpaque(false); //make panel transparent
 	
 		if (listImages == null || listImages.size() == 0) {
 			removeButton.setEnabled(false);
-			cancelButton.setEnabled(false);
+			resetButton.setEnabled(false);
 		}
 		return controls;
 	}

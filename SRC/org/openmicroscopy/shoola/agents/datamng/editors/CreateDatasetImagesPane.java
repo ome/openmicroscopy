@@ -73,7 +73,7 @@ class CreateDatasetImagesPane
 	private CreateDatasetEditorManager	manager;
 
 	private JButton						selectButton;
-	private JButton						cancelButton;
+	private JButton						resetButton;
 	private ImagesTableModel 			imagesTM;
 	
 	CreateDatasetImagesPane(CreateDatasetEditorManager manager)
@@ -85,8 +85,8 @@ class CreateDatasetImagesPane
 	/** Returns the select button. */
 	JButton getSelectButton() { return selectButton; }
 	
-	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
+	/** Returns the reset button. */
+	JButton getResetButton() { return resetButton; }
 
 	/** Select or not all images. */
 	void setSelection(Object val)
@@ -112,12 +112,12 @@ class CreateDatasetImagesPane
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		selectButton.setToolTipText("Select all images.");
 		//cancel button
-		cancelButton = new JButton("Reset");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		cancelButton.setToolTipText("Cancel selection.");
+		resetButton = new JButton("Reset");
+		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		resetButton.setToolTipText("Cancel selection.");
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(cancelButton);
+		controls.add(resetButton);
 		controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(selectButton);
 		controls.setOpaque(false); //make panel transparent

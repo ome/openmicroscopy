@@ -30,13 +30,9 @@
 package org.openmicroscopy.shoola.agents.datamng.editors;
 
 //Java imports
-import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -76,8 +72,6 @@ class DatasetGeneralPane
 	
 	private Registry				registry;
 	
-	private JButton					saveButton, reloadButton;
-	
 	private JTextArea				nameField;
 	
 	private JTextArea				descriptionArea;
@@ -88,13 +82,7 @@ class DatasetGeneralPane
 		this.registry = registry;
 		buildGUI();
 	}
-	
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
 
-	/** Returns the reload button. */
-	JButton getReloadButton() { return reloadButton; }
-	
 	/** Returns the TextArea with the project's description. */
 	JTextArea getDescriptionArea() { return descriptionArea; }
 
@@ -110,50 +98,14 @@ class DatasetGeneralPane
 		setBorder(b);
 	}
 	
+	/** Build a panel with table. */
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		//save button
-		saveButton = new JButton("OK");
-		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		saveButton.setOpaque(false);
-		//suppress button press decoration
-		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data in the DB.");
-		saveButton.setEnabled(false);
-		
-		//reload button
-		reloadButton = new JButton("Reload");
-		reloadButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		reloadButton.setOpaque(false);
-		//suppress button press decoration
-		reloadButton.setContentAreaFilled(false); 
-		reloadButton.setToolTipText("Reload data from the DB.");
-		
-		JPanel controls = new JPanel(), all = new JPanel();
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		all.setLayout(gridbag);  
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		//controls.add(reloadButton);
-		//controls.add(Box.createRigidArea(DataManager.HBOX));
-		controls.add(saveButton);
-		controls.setOpaque(false); //make panel transparent
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(controls, c); 
-		all.add(controls);
-		all.setOpaque(false); //make panel transparent
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildTable());
-		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
-		
 		return p;
 	}
 	

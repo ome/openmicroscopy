@@ -69,7 +69,8 @@ public class CreateProjectEditorManager
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT = 1;
-	private static final int		CANCEL_SELECTION = 2;
+	private static final int		CANCEL = 2;
+	private static final int		RESET = 3;
 	
 	private CreateProjectEditor 	view;
 	private ProjectData 			model;
@@ -84,14 +85,17 @@ public class CreateProjectEditorManager
 	/** List of datasets to be added. */
 	private List					datasetsToAdd;
 	
-	/** Select button displayed in the {@link CreateProjectPane}. */
+	/** Cancel button displayed in the {@link CreateProjectEditorBar}. */
+	private JButton 				cancelButton;
+	
+	/** Select button displayed in the {@link CreateProjectEditorBar}. */
 	private JButton 				saveButton;
 	
 	/** Select button displayed in the {@link CreateProjectDatasetsPane}. */
 	private JButton 				selectButton;
 	
-	/** cancel button displayed in the {@link CreateProjectDatasetsPane}. */
-	private JButton 				cancelButton;
+	/** Reset button displayed in the {@link CreateProjectDatasetsPane}. */
+	private JButton 				resetButton;
 	
 	/** textArea displayed in the {@link CreateProjectPane}. */
 	private JTextArea				descriptionArea;
@@ -134,12 +138,16 @@ public class CreateProjectEditorManager
 		saveButton = view.getSaveButton();
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
+		cancelButton = view.getCancelButton();
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		
 		selectButton = view.getSelectButton();
 		selectButton.addActionListener(this);
 		selectButton.setActionCommand(""+SELECT);
-		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL_SELECTION);
+		resetButton = view.getResetButton();
+		resetButton.addActionListener(this);
+		resetButton.setActionCommand(""+RESET);
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -155,14 +163,14 @@ public class CreateProjectEditorManager
 			int index = Integer.parseInt(s);
 			switch (index) { 
 				case SAVE:
-					save();
-					break;
+					save(); break;
+				case CANCEL:
+					cancel(); break;
 				case SELECT:
-					select();
-					break;
-				case CANCEL_SELECTION:
-					cancelSelection();
-					break;
+					select(); break;
+				case RESET:
+					resetSelection();
+				
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -184,6 +192,13 @@ public class CreateProjectEditorManager
 		} else 	datasetsToAdd.remove(ds);
 	}
 
+	/** Close the widget, doesn't save changes. */
+	private void cancel()
+	{
+		view.setVisible(false);
+		view.dispose();
+	}
+	
 	/** 
 	 * Save the new ProjectData object and forward event to the 
 	 * {@link DataManagerCtrl}.
@@ -208,7 +223,7 @@ public class CreateProjectEditorManager
 	}
 	
 	/** Cancel selection. */
-	private void cancelSelection()
+	private void resetSelection()
 	{
 		selectButton.setEnabled(true);
 		view.cancelSelection();
