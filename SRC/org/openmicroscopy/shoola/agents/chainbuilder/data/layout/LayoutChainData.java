@@ -84,7 +84,7 @@ public class LayoutChainData  extends AnalysisChainData
 		makeProper();
 		reduceCrossings();
 		cleanupNodes();
-		dumpChain();
+		//dumpChain();
 	}
 	
 	
