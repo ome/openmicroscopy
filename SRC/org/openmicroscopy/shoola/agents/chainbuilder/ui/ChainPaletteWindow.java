@@ -40,6 +40,7 @@ import javax.swing.WindowConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteCanvas;
 
 
@@ -87,5 +88,9 @@ public class ChainPaletteWindow extends JFrame  {
 	
 	public void focusOnPalette() {
 		chainCanvas.scaleToSize();
+	}
+	
+	public void displayNewChain(LayoutChainData chain) {
+		chainCanvas.displayNewChain(chain);
 	}
 }
