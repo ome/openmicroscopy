@@ -80,6 +80,14 @@ class AgentsEntry
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
+    
+    void setContent(Object content)
+    {
+    	//This entry can only be created from cfg file. 
+    	//We don't accept in-memory objects for the time being.
+    	throw new IllegalArgumentException(
+								"This entry can only be created from cfg file");
+    }
    
 	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
@@ -106,6 +114,5 @@ class AgentsEntry
             listAgents.add(agtInfo);
         }
     }
-     
      
 }
