@@ -35,7 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
-
+import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -82,6 +82,17 @@ public class ExecutionsModel {
 		}
 		return model;
 	}
+	
+	public GridModel getGridModel() {
+		if (model == null)
+			model = getRangeModel();
+		GridModel gm = new GridModel(model.getMinimum(),model.getMaximum(),
+				getLastRowIndex());
+		model.addChangeListener(gm);
+		return gm;
+	}
+	
+	
 	
 	public void resetRangeProperties() {
 		ChainExecutionData exec;
@@ -141,6 +152,14 @@ public class ExecutionsModel {
 			index++;
 		}
 		return -1;
+	}
+	
+	public void addChangeListener(ChangeListener listener) {
+		model.addChangeListener(listener);
+	}
+	
+	public boolean isInRange(long time) {
+		return model.isInRange(time);
 	}
 }
 
