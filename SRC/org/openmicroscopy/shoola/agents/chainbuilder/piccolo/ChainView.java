@@ -59,8 +59,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.DummyNode;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.GraphLayoutNode;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.
-		LayoutChainData.Layering;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.Layering;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
