@@ -95,6 +95,7 @@ public final class HeatMapUI extends JInternalFrame
         
         treePanel = new HeatMapTreeUI(model.getModel());
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
+        dispatcher.addLoadListener(treePanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
@@ -219,6 +220,7 @@ public final class HeatMapUI extends JInternalFrame
         treePanel.removeListener(dispatcher);
         modeBar.removeListener(dispatcher);
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
+        dispatcher.addLoadListener(treePanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);

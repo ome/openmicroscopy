@@ -60,7 +60,7 @@ import javax.swing.tree.TreeSelectionModel;
  * @version 2.2
  * @since OME2.2
  */
-public class HeatMapTreeUI extends JPanel
+public class HeatMapTreeUI extends JPanel implements HeatMapLoadListener
 {
     private JTree treeView;
     private SemanticTypeTree tree;
@@ -234,4 +234,18 @@ public class HeatMapTreeUI extends JPanel
         
         return new JTree(root);
     }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapLoadListener#loadStarted()
+     */
+    public void loadStarted()
+    {
+        treeView.setEnabled(false);
+    }
+    
+    public void loadFinished()
+    {
+        treeView.setEnabled(true);
+    }
+
 }

@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,9 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     private HeatMapGradient gradient;
     private String attributeName = "";
     private String elementName = "";
+    
+    private boolean loadInProgress = false;
+    private Set loadListeners = new HashSet();
     
     // current method applied to every thumbnnail.
     private PaintMethod currentMethod = null;
@@ -167,8 +171,12 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         {
             return;
         }
-        LoaderThread thread = new LoaderThread(node);
-        thread.start();
+        
+        if(!loadInProgress)
+        {
+            LoaderThread thread = new LoaderThread(node);
+            thread.start();
+        }
     }
     
     /**
@@ -201,6 +209,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     
     private void analyzeInformation(String attribute, String elementName)
     {
+        System.err.println("analyze: ["+attribute+","+elementName+"]");
         BrowserModel browserModel = model.getInfoSource();
         List thumbnails = browserModel.getThumbnails();
         Thumbnail[] ts = new Thumbnail[thumbnails.size()];
@@ -288,6 +297,9 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 return;
             }
             
+            loadInProgress = true;
+            notifyLoadStart();
+            
             DataElementType dataType =
                 ((SemanticTypeTree.ElementNode)selectedNode).getType();
             
@@ -329,6 +341,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
             }
             else
             {
+                List hierarchyList = new ArrayList();
                 selectedNode.markAsInitialized(true);
                 BrowserEnvironment env = BrowserEnvironment.getInstance();
                 BrowserAgent agent = env.getBrowserAgent();
@@ -355,43 +368,61 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                         }
                     }
                     pathNode = parentNode;
+                    hierarchyList.add(0,pathNode);
                 }
                 
-                SemanticType parentType = parentNode.getType();
-                String name = parentType.getName();
-                attributeName = name;
-                elementName = selectedNode.getFQName();
                 BrowserModel source = model.getInfoSource();
-                
                 Map imageIDMap = source.getImageDataMap();
-                List imageIDList = new ArrayList(imageIDMap.keySet());
-                Collections.sort(imageIDList);
                 
-                if(status != null)
-                {
-                    status.showMessage("Loading "+name+" attributes...");
-                }
                 try
                 {
-                    List attributeList =
-                        sts.retrieveImageAttributes(name,selectedNode.getDBName(),
-                                                    imageIDList);
-                    
-                    for(Iterator iter = attributeList.iterator(); iter.hasNext();)
+                    for(int i=0;i<hierarchyList.size();i++)
                     {
-                        Attribute attribute = (Attribute)iter.next();
-                        int imageID = attribute.getImage().getID();
-                        ThumbnailDataModel tdm =
-                            (ThumbnailDataModel)imageIDMap.get(new Integer(imageID));
-                        AttributeMap attrMap = tdm.getAttributeMap();
-                        attrMap.putAttribute(attribute);
+                        SemanticTypeTree.TypeNode ancestor =
+                            (SemanticTypeTree.TypeNode)hierarchyList.get(i);
+                        SemanticType parentType = ancestor.getType();
+                        String attributeName = parentType.getName();
+                        
+                        List imageIDList = new ArrayList(imageIDMap.keySet());
+                        Collections.sort(imageIDList);
+                        List attributeList =
+                            sts.retrieveImageAttributes(attributeName,
+                                                        ancestor.getDBName(),
+                                                        imageIDList);
+                        if(status != null)
+                        {
+                            status.showMessage("Loading "+attributeName+" attributes...");
+                        }
+                        for(Iterator iter = attributeList.iterator(); iter.hasNext();)
+                        {
+                            Attribute attribute = (Attribute)iter.next();
+                            int imageID = attribute.getImage().getID();
+                            ThumbnailDataModel tdm =
+                                (ThumbnailDataModel)imageIDMap.get(new Integer(imageID));
+                            AttributeMap attrMap = tdm.getAttributeMap();
+                            if(i > 0)
+                            {
+                                SemanticTypeTree.TypeNode prev =
+                                    (SemanticTypeTree.TypeNode)hierarchyList.get(i-1);
+                                SemanticType prevType = prev.getType();
+                                String prevName = prevType.getName();
+                                Attribute parentAtt = attrMap.getAttribute(prevName);
+                                parentAtt.setAttributeElement(attributeName,attribute);
+                            }
+                            else
+                            {
+                                attrMap.putAttribute(attribute);
+                            }
+                        }
+                        if(status != null)
+                        {
+                            status.showMessage("Loaded "+attributeName+" attributes.");
+                        }
                     }
-                    
-                    if(status != null)
-                    {
-                        status.showMessage("Loaded "+name+" attributes.");
-                    }
-                    
+                    SemanticTypeTree.TypeNode topNode =
+                        (SemanticTypeTree.TypeNode)hierarchyList.get(0);
+                    attributeName = topNode.getName();
+                    elementName = selectedNode.getFQName();
                     if(dataType == DataElementType.BOOLEAN)
                     {
                         displayBooleanInformation(attributeName,elementName);
@@ -406,17 +437,55 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 {
                     if(status != null)
                     {
-                        status.showMessage("could not retrieve "+name+" data.");
+                        status.showMessage("could not retrieve data.");
                     }
                 }
                 catch(DSAccessException dsa)
                 {
                     if(status != null)
                     {
-                        status.showMessage("could not retrieve "+name+" data.");
+                        status.showMessage("could not retrieve data.");
                     }
                 }
             }
+            notifyLoadFinished();
+            loadInProgress = false;
+        }
+    }
+    
+    private void notifyLoadStart()
+    {
+        for(Iterator iter = loadListeners.iterator(); iter.hasNext();)
+        {
+            HeatMapLoadListener listener =
+                (HeatMapLoadListener)iter.next();
+            listener.loadStarted();
+        }
+    }
+    
+    private void notifyLoadFinished()
+    {
+        for(Iterator iter = loadListeners.iterator(); iter.hasNext();)
+        {
+            HeatMapLoadListener listener =
+                (HeatMapLoadListener)iter.next();
+            listener.loadFinished();
+        }
+    }
+    
+    public void addLoadListener(HeatMapLoadListener listener)
+    {
+        if(listener != null)
+        {
+            loadListeners.add(listener);
+        }
+    }
+    
+    public void removeLoadListener(HeatMapLoadListener listener)
+    {
+        if(listener != null)
+        {
+            loadListeners.remove(listener);
         }
     }
 }

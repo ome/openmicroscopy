@@ -150,7 +150,7 @@ public class SemanticTypeTree
                     typeNode.setFQName(fqName);
                     node.addChild(typeNode);
                     typeNode.setParent(node);
-                    if(node.depth() < 2)
+                    if(node.depth() < 1) // TODO: fix deeper behavior later; 1 should be OK now
                     {
                         dfsQueue.add(typeNode);
                     }

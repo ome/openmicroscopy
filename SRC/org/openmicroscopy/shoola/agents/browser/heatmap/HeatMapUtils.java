@@ -69,6 +69,7 @@ public class HeatMapUtils
         {
             String child = elementName.substring(0,index);
             attribute = attribute.getAttributeElement(child);
+            System.err.println("getting attribute ("+attribute+")");
             elementName = elementName.substring(index+1);
         }
         try
@@ -113,6 +114,7 @@ public class HeatMapUtils
         for(int i=0;i<attributes.length;i++)
         {
             values[i] = parseElement(attributes[i],elementName);
+            System.err.println("value extracted ok");
         }
         return values;
     }
