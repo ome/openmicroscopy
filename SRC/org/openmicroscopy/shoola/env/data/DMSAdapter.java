@@ -50,7 +50,6 @@ import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.LogicalChannel;
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
