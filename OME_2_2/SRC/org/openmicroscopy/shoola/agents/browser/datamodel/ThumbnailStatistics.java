@@ -166,7 +166,7 @@ public class ThumbnailStatistics
         {
             return new Thumbnail[] {};
         }
-        
+        return null;
         
     }
 }
