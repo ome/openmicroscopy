@@ -81,16 +81,6 @@ public class ContrastStretchingContext
 	/** coefficients of the third line with equation y = a2*x+b2. */
 	private double 					a2, b2;
 	
-	public ContrastStretchingContext(int xStart, int yStart, int xEnd, int yEnd)
-	{
-		verifyInputInterval(xStart, xEnd);
-		verifyInputInterval(yStart, yEnd);
-		this.xStart = xStart;
-		this.xEnd = xEnd;
-		this.yStart = yStart;
-		this.yEnd = yEnd;
-	}
-	
 	/** 
 	 * Verify the bounds of the input interval[s,e]. This interval must be a
 	 * sub-interval of [intervalStart, intervalEnd]. 
@@ -103,9 +93,6 @@ public class ContrastStretchingContext
 		if (start >= end || start < intervalStart || end > intervalEnd)
 			throw new IllegalArgumentException("Interval not consistent.");
 	}
-	
-	/** Contructor used to make a copy of the object. */
-	private ContrastStretchingContext() {}
 	
 	/** Compute the coefficients of the first straight y = a0*x+b0.  */
 	private void setFirstLineCoefficient(int intervalStart)
@@ -175,6 +162,40 @@ public class ContrastStretchingContext
 		copy.b1 = b1;
 		copy.b2 = b2;
 		return copy;
+	}
+	
+	public void setCoordinates(int xStart, int yStart, int xEnd, int yEnd)
+	{
+		verifyInputInterval(xStart, xEnd);
+		verifyInputInterval(yStart, yEnd);
+		this.xStart = xStart;
+		this.xEnd = xEnd;
+		this.yStart = yStart;
+		this.yEnd = yEnd;
+	}
+	
+	public void setXStart(int xs)
+	{
+		verifyInputInterval(xs, xEnd);
+		xStart = xs;
+	}
+	
+	public void setXEnd(int xe)
+	{
+		verifyInputInterval(xStart, xe);
+		xEnd = xe;
+	}
+	
+	public void setYStart(int ys)
+	{
+		verifyInputInterval(ys, yEnd);
+		yStart = ys;
+	}
+	
+	public void setYEnd(int ye)
+	{
+		verifyInputInterval(yStart, ye);
+		yEnd = ye;
 	}
 	
 	public int getXEnd()

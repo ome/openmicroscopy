@@ -125,24 +125,7 @@ public class PlaneSlicingContext
 	/** Contructor used to make a copy of the object. */
 	private PlaneSlicingContext() {}
 	
-	/** 
-	 * Method called if and only if isConstant == false. 
-	 *
-	 * @param lowerLevel		value (in [intervalStart, intervalEnd]) 
-	 * 							used to set the level of the
-	 * 							bit-plane &lt; bit-plane selected.
-	 * @param upperLevel		value (in [intervalStart, intervalEnd]) 
-	 * 							used to set the level of the
-	 * 							bit-plane &gt; bit-plane selected.
-	 */
-	void setLimits(int lowerLimit, int upperLimit)
-	{
-		verifyInput(lowerLimit);
-		verifyInput(upperLimit);
-		this.lowerLimit = lowerLimit;
-		this.upperLimit = upperLimit;	
-	}
-	
+
 	/** 
 	 * Implemented as specified by superclass.
 	 * Sets the lowerLimit and upperLimit.
@@ -204,6 +187,51 @@ public class PlaneSlicingContext
 		return upperLimit;
 	}
 	
+	/** 
+	 * Set the limits.
+	 *
+	 * @param lowerLevel		value (in [intervalStart, intervalEnd]) 
+	 * 							used to set the level of the
+	 * 							bit-plane &lt; bit-plane selected.
+	 * @param upperLevel		value (in [intervalStart, intervalEnd]) 
+	 * 							used to set the level of the
+	 * 							bit-plane &gt; bit-plane selected.
+	 */
+	public void setLimits(int lowerLimit, int upperLimit)
+	{
+		verifyInput(lowerLimit);
+		verifyInput(upperLimit);
+		this.lowerLimit = lowerLimit;
+		this.upperLimit = upperLimit;	
+	}
+	
+	public void setLowerLimit(int ll)
+	{
+		verifyInput(ll);
+		lowerLimit = ll;
+	}
+	
+	public void setUpperLimit(int ul)
+	{
+		verifyInput(ul);
+		upperLimit = ul;
+	}
+	
+	public void setPlanes(int planePrevious, int planeSelected)
+	{
+		if (planePrevious > planeSelected)
+			throw new IllegalArgumentException("Not a valid plane selection");	
+		verifyBitPlanes(planePrevious);
+		verifyBitPlanes(planeSelected);
+		this.planePrevious = planePrevious;
+		this.planeSelected = planeSelected;
+	}
+	
+	public void setConstant(boolean b) 
+	{
+		constant = b;
+	}
+	
 	/** Verify if bitPlane is one the contants defined above. */
 	private void verifyBitPlanes(int bitPlane)
 	{
@@ -227,7 +255,7 @@ public class PlaneSlicingContext
 		if (x < intervalStart || x > intervalEnd)
 			throw new IllegalArgumentException("Value not in the interval.");
 	}
-	
+
 }
 
 
