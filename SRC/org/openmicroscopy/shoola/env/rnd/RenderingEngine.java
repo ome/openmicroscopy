@@ -48,10 +48,12 @@ import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
 import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
+import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
@@ -158,6 +160,35 @@ public class RenderingEngine
 		}
 	}
 	
+	private void handleRenderImage3D(RenderImage3D request)
+	{
+		Renderer rnd = (Renderer) renderers.get(
+											new Integer(request.getPixelsID()));
+		//TODO: if null, log?
+		if (rnd != null) {
+			try {
+				PlaneDef xyPD = request.getXYPlaneDef(), 
+							xzPD = request.getXZPlaneDef(),
+							yzPD = request.getYZPlaneDef();
+				BufferedImage xyPlane = null, xzPlane, yzPlane;
+				if (xyPD != null) xyPlane = rnd.render(xyPD);
+				xzPlane = rnd.render(xzPD);
+				yzPlane = rnd.render(yzPD);
+				Image3DRendered response = new Image3DRendered(request, 
+													xyPlane, xzPlane, yzPlane);
+				EventBus eventBus = registry.getEventBus();
+				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
+			} catch (DataSourceException dse) {
+				hanldeException("Can't load pixels data. Pixels id: "+
+													request.getPixelsID(), dse);
+			} catch (QuantizationException qee) {
+				//TODO: need to post an event to update the GUI.
+				hanldeException("Can't map the wavelength "
+								+qee.getWavelength(), qee);
+			}
+		}
+	}
+	
 	private void handleRenderingPropChange(RenderingPropChange event)
 	{
 		event.doUpdate();
@@ -182,6 +213,7 @@ public class RenderingEngine
 		eventBus.register(this, LoadImage.class);
 		eventBus.register(this, RenderImage.class);
 		eventBus.register(this, RenderingPropChange.class);
+		eventBus.register(this, RenderImage3D.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -197,6 +229,8 @@ public class RenderingEngine
 		else if	(e instanceof RenderImage)	handleRenderImage((RenderImage) e);
 		else if (e instanceof RenderingPropChange)
 			handleRenderingPropChange((RenderingPropChange) e);
+		else if (e instanceof RenderImage3D)
+			handleRenderImage3D((RenderImage3D) e);
 	}
 
 }
