@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 
@@ -99,7 +100,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
  * </small>
  */
 
-public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
+public class ChainPaletteCanvas extends BufferedCanvas implements 
 	   ContentComponent, DragGestureListener, AgentEventListener  {
 	
 	/***
@@ -219,13 +220,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// the current chain
 		
 		LayoutChainData chain;
+		PaletteChainView view;
 		
 		Collection chains = dataManager.getChains();
-		ArrayList sortedChains = new ArrayList(chains);
-		Collections.sort(sortedChains);
-		Iterator iter = sortedChains.iterator();
+		ArrayList views = buildChainViews(chains);
 		
-		int num = chains.size();
+		int num = views.size();
 		
 		// The display should be roughly square, 
 		// in terms of the number of rows vs. # of columns
@@ -233,13 +233,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		count=0;
 		// draw each of them.
+		Iterator iter = views.iterator();
 		while (iter.hasNext()) {
-			chain = (LayoutChainData) iter.next();
-			if (!chain.hasCycles()) {
-				ChainBox box = buildChain(chain);
-				if (box != null)  {
-					placeChain(box);
-				}
+			view = (PaletteChainView) iter.next();
+			ChainBox box = buildChain(view);
+			if (box != null)  {
+				placeChain(box);
 			}
 		}
 		if (x > maxRowWidth) {
@@ -250,6 +249,89 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		rows.add(row);
 		adjustSizes();
+	}
+	
+	private ArrayList buildChainViews(Collection chains) {
+		LayoutChainData chain;
+		PaletteChainView view;
+		
+		ArrayList sortedChains = new ArrayList(chains);
+		Collections.sort(sortedChains);
+		Iterator iter = sortedChains.iterator();
+		
+		//build the chains
+		ArrayList views = new ArrayList();
+		while (iter.hasNext()) {
+			chain = (LayoutChainData) iter.next();
+			if (!chain.hasCycles()) {
+				view = new PaletteChainView(chain,dataManager.getRegistry());
+				views.add(view);
+			}
+		}
+		//scaleAreas(views);
+		// sort by areas.
+		return views;
+	}
+	
+	private void scaleAreas(ArrayList views) {
+		PaletteChainView view;
+		
+		Collections.sort(views);
+		/*
+		// get smallest area
+		PaletteChainView smallest= (PaletteChainView) views.get(0);
+		double logSmallestArea = Math.log(smallest.getArea());
+		double logArea;
+		double ratio;
+		double newArea;
+		double scale;
+		Iterator iter = views.iterator();
+		
+		
+		iter = views.iterator();
+		while (iter.hasNext()) {
+			view = (PaletteChainView) iter.next();
+			logArea = Math.log(view.getArea());
+			ratio = 3*logArea/logSmallestArea;
+			newArea = smallest.getArea()*ratio;
+			scale = newArea/view.getArea();
+			view.setScale(scale);
+			System.err.println("\nchain..."+view.getChain().getName());
+			System.err.println("chain width is "+view.getWidth());
+			System.err.println(" scale is "+scale);
+			double newWidth = scale*view.getWidth();
+			System.err.println(" scaled width is "+newWidth);
+		}*/
+		//		 get largest area
+		PaletteChainView largest= (PaletteChainView) views.get(views.size()-1);
+		System.err.println("largest chain is "+largest.getChain().getName()+
+				", area is "+largest.getArea());
+		System.err.println("largest width is "+largest.getWidth()+","+largest.getHeight());
+		
+		double logLargestArea = Math.log(largest.getArea());
+		double logArea;
+		double ratio;
+		double newArea;
+		double scale;
+		Iterator iter = views.iterator();
+		
+		
+		iter = views.iterator();
+		while (iter.hasNext()) {
+			view = (PaletteChainView) iter.next();
+			logArea = Math.log(view.getArea());
+			ratio = logArea/logLargestArea;
+			newArea = largest.getArea()*ratio;
+			scale = newArea/view.getArea();
+			view.setScale(scale);
+			System.err.println("\nchain..."+view.getChain().getName());
+			System.err.println("original area is "+view.getArea());
+			System.err.println("chain width is "+view.getWidth());
+			System.err.println(" scale is "+scale);
+			double newWidth = scale*view.getWidth();
+			System.err.println(" scaled width is "+newWidth);
+			System.err.println("new area is "+newArea);
+		}
 	}
 	
 	// keep track of what was in row that was just finished.
@@ -291,7 +373,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 	
 	
-	private ChainBox buildChain(LayoutChainData chain) {
+	/*private ChainBox buildChain(LayoutChainData chain) {
 		if (chain.getNodes().size() == 0) 
 			return null;
 		ChainBox box = new ChainBox(chain,dataManager.getRegistry());
@@ -299,12 +381,22 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		box.moveToBack();
 		return box;
 
+	}*/
+	
+	
+	private ChainBox buildChain(ChainView chainView) {
+		if (chainView.getChain().getNodes().size() == 0) 
+			return null;
+		ChainBox box = new ChainBox(chainView,dataManager.getRegistry());
+		layer.addChild(box);
+		box.moveToBack();
+		return box;
 	}
 	
-	
-	
 	public void displayNewChain(LayoutChainData chain) {
-		ChainBox box = buildChain(chain);
+		PaletteChainView chainView = new 
+			PaletteChainView(chain,dataManager.getRegistry());
+		ChainBox box = buildChain(chainView);
 		if (box != null)  {
 			placeChainInNewRow(box);
 			// fix up last row
@@ -357,18 +449,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	public void scaleToResize() {
 		handler.animateToLastBounds();
 	}
-	
-	/**
-	 * 
-	 * @return canvas bounds with appropriate buffers for centering
-	 */	
-	public PBounds getBufferedBounds() {
-		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-Constants.BORDER,
-			b.getY()-Constants.BORDER,b.getWidth()+2*Constants.BORDER,
-			b.getHeight()+2*Constants.BORDER); 
-	}
-
 	
 	public void setDraggingChain(LayoutChainData chain) {
 		draggingChain = chain;
