@@ -51,9 +51,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -107,6 +110,10 @@ public class BrowserView extends PCanvas
     // indicates whether or not the view should scale to show the entire
     // set, or should remain fixed at a certain zoom level.
     private boolean scaleToShow;
+    
+    /** REUSABLE PICCOLO ACTIONS... **/
+    private PiccoloAction selectThumbnailAction;
+    private PiccoloAction deselectThumbnailAction;
 
     /**
      * Constructs the browser view with the two backing models-- one for the
@@ -125,6 +132,7 @@ public class BrowserView extends PCanvas
         {
             this.browserModel = browserModel;
             this.overlayModel = overlayModel;
+            initActions(browserModel);
             init(overlayModel);
             
             List thumbnailList = browserModel.getThumbnails();
@@ -147,6 +155,18 @@ public class BrowserView extends PCanvas
             }
         });
 
+    }
+    
+    private void initActions(BrowserModel targetModel)
+    {
+        // theoretically shouldn't happen
+        if(targetModel == null)
+        {
+            return;
+        }
+        
+        selectThumbnailAction =
+            PiccoloActionFactory.getSelectThumbnailAction(targetModel);
     }
     
     //  initialization code
@@ -301,6 +321,13 @@ public class BrowserView extends PCanvas
                 // TODO: change back.
             }
         }
+        else if(className.equals(BrowserModel.MAJOR_UI_MODE_NAME))
+        {
+            if(mode == BrowserMode.DEFAULT_MODE)
+            {
+                
+            }
+        }
     }
     
     /**
@@ -421,6 +448,18 @@ public class BrowserView extends PCanvas
             getLayer().addChild((Thumbnail)iter.next());
         }
         updateThumbnails();
+    }
+    
+    /*** UI MODE MASS-APPLICATION METHODS ***/
+    
+    private void setUniversalDownAction(MouseDownActions actions)
+    {
+        List thumbnailList = browserModel.getThumbnails();
+        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            // TODO: apply method
+        }
     }
     
     /**

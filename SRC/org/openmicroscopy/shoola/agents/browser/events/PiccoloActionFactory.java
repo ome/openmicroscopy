@@ -155,6 +155,13 @@ public class PiccoloActionFactory
                     return;
                 }
                 Thumbnail t = (Thumbnail)node;
+                
+                // checks if command key is down
+                if(PiccoloModifiers.getModifier(e) !=
+                   PiccoloModifiers.MOUSE_INDIV_SELECT)
+                {
+                    target.deselectAllThumbnails();                
+                }
                 target.selectThumbnail(t);
             }
         };

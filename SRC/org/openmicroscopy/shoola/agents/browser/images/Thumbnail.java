@@ -41,6 +41,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
+
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
@@ -52,7 +60,8 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * @version 2.2
  * @since OME2.2
  */
-public class Thumbnail extends PImage
+public class Thumbnail extends PImage implements MouseDownSensitive,
+                                                 MouseOverSensitive
 {
     /**
      * The base model of the thumbnail.
@@ -88,6 +97,16 @@ public class Thumbnail extends PImage
      * Defines if this thumbnail is mip-mapped.
      */
     protected boolean usesImageSet;
+    
+    /**
+     * Defines the mouse down actions for this thumbnail.
+     */
+    protected MouseDownActions mouseDownActions;
+    
+    /**
+     * Defines the mouse over actions for this thumbnail.
+     */
+    protected MouseOverActions mouseOverActions;
 
 
     protected void init()
@@ -96,6 +115,8 @@ public class Thumbnail extends PImage
         middlePaintMethods = new ArrayList();
         foregroundPaintMethods = new ArrayList();
         defaultZOrder = new PaintMethodZOrder();
+        mouseDownActions = new MouseDownActions();
+        mouseOverActions = new MouseOverActions();
     }
     /**
      * Constructs a thumbnail around this model (no renderer specified yet)
@@ -290,5 +311,104 @@ public class Thumbnail extends PImage
             p.paint(g2,this);
         }
     }
-
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+     */
+    public MouseDownActions getMouseDownActions()
+    {
+        return mouseDownActions;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#getMouseOverActions()
+     */
+    public MouseOverActions getMouseOverActions()
+    {
+        return mouseOverActions;
+    }
+    
+    /**
+     * <b>NOTE:</b> Will do nothing if <code>actions</code> is null.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+     */
+    public void setMouseDownActions(MouseDownActions actions)
+    {
+        if(actions == null)
+        {
+            return;
+        }
+        else
+        {
+            mouseDownActions = actions;
+        }
+    }
+    
+    /**
+     * <b>NOTE:</b> Will do nothign if <code>actions<code> is null.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#setMouseOverActions(org.openmicroscopy.shoola.agents.browser.events.MouseOverActions)
+     */
+    public void setMouseOverActions(MouseOverActions actions)
+    {
+        if(actions == null)
+        {
+            return;
+        }
+        else
+        {
+            mouseOverActions = actions;
+        }
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseClick(PInputEvent e)
+    {
+        PiccoloAction action =
+            mouseDownActions.getMouseClickAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMousePress(PInputEvent e)
+    {
+        PiccoloAction action =
+             mouseDownActions.getMousePressAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseRelease(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseRelease(PInputEvent e)
+    {
+        PiccoloAction action =
+            mouseDownActions.getMouseReleaseAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#respondMouseEnter(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseEnter(PInputEvent e)
+    {
+        PiccoloAction action =
+            mouseOverActions.getMouseEnterAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#respondMouseExit(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseExit(PInputEvent e)
+    {
+        PiccoloAction action =
+            mouseOverActions.getMouseExitAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
 }
