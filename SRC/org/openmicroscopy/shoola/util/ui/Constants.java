@@ -221,6 +221,9 @@ public class Constants {
 	public static final double SCALE_FACTOR=1.2;
 	
 	
+	/** how much to move in or out when scaling chain palette */
+	public static final double LARGE_SCALE_FACTOR=1.6;
+	
 	/** parameter label transparency */
 	public static final float MODULE_TRANSPARENT=0.5f;
 	public static final float MODULE_OPAQUE=1.0f;
