@@ -39,7 +39,7 @@ import java.util.Iterator;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
@@ -83,7 +83,7 @@ public class ChainExecutionLoader extends ContentLoader
 	
 	private void reconcileExecutions() {
 		ChainExecutionData chainExecution;
-		BrowserDatasetSummary dataset;
+		BrowserDatasetData dataset;
 		LayoutChainData  chain;
 		int id;
 		Iterator iter = chainExecutions.iterator();
@@ -94,7 +94,7 @@ public class ChainExecutionLoader extends ContentLoader
 			chain = (LayoutChainData) chainExecution.getChain();
 			id = chain.getID();
 			chainExecution.setChain(chainDataManager.getChain(id));
-			dataset = (BrowserDatasetSummary) chainExecution.getDataset();
+			dataset = (BrowserDatasetData) chainExecution.getDataset();
 			id = dataset.getID();
 			chainExecution.setDataset(chainDataManager.getDataset(id));
 			reconcileNodeExecutions(chainExecution);
@@ -135,7 +135,7 @@ public class ChainExecutionLoader extends ContentLoader
 		LayoutChainData chain = (LayoutChainData) exec.getChain();
 		System.err.println(" .. chain "+chain.getID()+", "+chain.getName());
 		
-		BrowserDatasetSummary ds = (BrowserDatasetSummary) exec.getDataset();
+		BrowserDatasetData ds = (BrowserDatasetData) exec.getDataset();
 		System.err.println(".. dataset "+ds.getID()+", "+ds.getName());
 		System.err.println(".. time: "+exec.getTimestamp());
 		dumpNodeExecutions(exec);

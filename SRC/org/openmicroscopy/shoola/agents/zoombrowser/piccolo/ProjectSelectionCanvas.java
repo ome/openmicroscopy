@@ -51,7 +51,7 @@ import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 
@@ -85,7 +85,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	
 	private BrowserProjectSummary selectedProject;
 	
-	private BrowserDatasetSummary selectedDataset;
+	private BrowserDatasetData selectedDataset;
 	
 	
 	public ProjectSelectionCanvas(MainWindow panel) {
@@ -198,7 +198,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	}
 	
 		
-	public void setRolloverDataset(BrowserDatasetSummary rolled) {
+	public void setRolloverDataset(BrowserDatasetData rolled) {
 		setLabelPainting(rolled,null);
 		doLayout();
 	}
@@ -226,7 +226,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		doLayout();
 	} 
 	
-	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+	public void setSelectedDataset(BrowserDatasetData dataset) {
 		if (dataset == selectedDataset) //no change
 			return;
 		selectedDataset = dataset;
@@ -234,7 +234,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		setLabelPainting(null,null);
 	}
 	
-	public void setLabelPainting(BrowserDatasetSummary rolloverDataset,
+	public void setLabelPainting(BrowserDatasetData rolloverDataset,
 			BrowserProjectSummary rolloverProject) {
 		Iterator iter = layer.getChildrenIterator();
 		ProjectLabel pLabel;

@@ -53,7 +53,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 
@@ -127,7 +127,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	
 	/** the selected project and dataset */
 	private BrowserProjectSummary selectedProject = null;
-	private BrowserDatasetSummary selectedDataset = null;
+	private BrowserDatasetData selectedDataset = null;
 	
 	/**
 	 * The event handler for this canvas
@@ -171,7 +171,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * size of the dataset.
 	 * @return "area" on screen that the dataset will occur. 
 	 */
-	private  double getArea(BrowserDatasetSummary d) {
+	private  double getArea(BrowserDatasetData d) {
 		if (d == null) 
 			return 0;
 		DatasetNode node;
@@ -213,7 +213,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		Iterator iter = datasets.iterator();
 		
 		while (iter.hasNext()) {
-			BrowserDatasetSummary d = (BrowserDatasetSummary) iter.next();
+			BrowserDatasetData d = (BrowserDatasetData) iter.next();
 			double area = getArea(d);
 			totalArea += area;
 		}
@@ -294,14 +294,14 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	private boolean containsDataset(Collection datasets,
-		BrowserDatasetSummary dataset) {
+		BrowserDatasetData dataset) {
 	
 		int id= dataset.getID();
 		Iterator iter = datasets.iterator();
-		BrowserDatasetSummary d;
+		BrowserDatasetData d;
 		
 		while (iter.hasNext()) {
-			d = (BrowserDatasetSummary) iter.next();
+			d = (BrowserDatasetData) iter.next();
 			if (d.getID()==id)
 				return true;			
 		}
@@ -327,12 +327,12 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		Vector strip = new Vector();
 		
 		Iterator iter = datasets.iterator();
-		BrowserDatasetSummary d = null;
+		BrowserDatasetData d = null;
 		
 		DatasetNode node=null;
 		
 		while (iter.hasNext())  {
-			d = (BrowserDatasetSummary) iter.next();
+			d = (BrowserDatasetData) iter.next();
 			node = d.getNode();
 			
 			// place node in the current strip
@@ -451,6 +451,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		// layout treemaps
 		arrangeDisplay(allDatasets);
 		doLayout(allDatasets);
+		System.err.println("dataset layout complete...");
 	}
 	
 	public void completeInitialization() {
@@ -477,7 +478,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			Object obj = iter.next();
 			if (obj instanceof DatasetNode) {
 				DatasetNode dNode = (DatasetNode) obj;
-				BrowserDatasetSummary d = dNode.getDataset();
+				BrowserDatasetData d = dNode.getDataset();
 				if (p != null && p.hasDataset(d))
 					dNode.setHighlighted(true);
 				else
@@ -503,7 +504,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 * 
 	 * @param rolled the dataset to be highlighted.
 	 */	
-	public void setRolloverDataset(BrowserDatasetSummary rolled) {
+	public void setRolloverDataset(BrowserDatasetData rolled) {
 		
 		if (rolled == null && lastRolledOver == null)
 			return;
@@ -568,7 +569,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		displayDatasets(datasetsToDisplay);
 	}
 	
-	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+	public void setSelectedDataset(BrowserDatasetData dataset) {
 		// if they're the same, return
 		// except for if it's null. then we might need to redraw
 		if (dataset == selectedDataset && dataset != null)

@@ -37,7 +37,7 @@ import java.util.Iterator;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 
@@ -72,13 +72,13 @@ public class BrowserProjectSummary  extends ProjectSummary
 		return (getDatasets().size() >0);
 	}
 	
-	public boolean hasDataset(DatasetSummary d) {
+	public boolean hasDataset(DatasetData d) {
 		if (d == null)
 			return false;
 		Iterator iter = getDatasets().iterator();
 		boolean res = false;
 		while (iter.hasNext()) {
-			DatasetSummary ds = (DatasetSummary) iter.next();
+			DatasetData ds = (DatasetData) iter.next();
 			if (ds.getID() == d.getID())
 				return true;
 		}
@@ -98,12 +98,12 @@ public class BrowserProjectSummary  extends ProjectSummary
 		// iterate to identify any matches.	
 		// sorting each and matching would perhaps speed things up. 
 		Iterator iter = myDatasets.iterator();
-		BrowserDatasetSummary d1,d2;
+		BrowserDatasetData d1,d2;
 		while (iter.hasNext()) {
-			d1 = (BrowserDatasetSummary) iter.next();
+			d1 = (BrowserDatasetData) iter.next();
 			Iterator iter2 = otherDatasets.iterator();
 			while (iter2.hasNext()) {
-				d2 = (BrowserDatasetSummary) iter2.next();
+				d2 = (BrowserDatasetData) iter2.next();
 				if (d1.getID() == d2.getID())
 					return true;
 			}

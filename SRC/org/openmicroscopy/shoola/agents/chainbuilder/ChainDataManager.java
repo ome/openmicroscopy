@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -237,7 +237,7 @@ public class ChainDataManager extends DataManager {
 		if (chainExecutionHash == null ||chainExecutionHash.size() == 0) {
 			try {
 				ChainExecutionData ceProto = new ChainExecutionData();
-				BrowserDatasetSummary dsProto = new BrowserDatasetSummary();
+				BrowserDatasetData dsProto = new BrowserDatasetData();
 				LayoutChainData acProto = new LayoutChainData();
 				NodeExecutionData neProto = new NodeExecutionData();
 				LayoutNodeData anProto = new LayoutNodeData(); 

@@ -49,7 +49,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 
 /** 
  * A label that can show the full name of a dataset or an abbreviated name
@@ -68,11 +68,11 @@ public class ScalableDatasetLabel extends PNode
 
 	private static final int NUM_CHARS=20;
 	public static final double FULL_WIDTH=100;
-	private BrowserDatasetSummary dataset;
+	private BrowserDatasetData dataset;
 	
 	private PText shortLabel;
 	
-	public ScalableDatasetLabel(BrowserDatasetSummary dataset,double width) {
+	public ScalableDatasetLabel(BrowserDatasetData dataset,double width) {
 		this.dataset = dataset;
 		
 		shortLabel = getShortLabel(width);

@@ -47,7 +47,7 @@ import java.util.Iterator;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
 
 
@@ -70,7 +70,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/**
 	 * The dataset of interest
 	 */
-	private BrowserDatasetSummary dataset;
+	private BrowserDatasetData dataset;
 		
 	/** 
 	 * Positional coordinates
@@ -114,7 +114,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/** The calculated maximum width of a thumbnail */
 	private double maxThumbWidth = 0;
 	
-	public DatasetNode(BrowserDatasetSummary dataset,DatasetBrowserCanvas canvas) {
+	public DatasetNode(BrowserDatasetData dataset,DatasetBrowserCanvas canvas) {
 		super();
 		this.dataset = dataset;
 		this.canvas = canvas;
@@ -348,7 +348,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	/**
 	 * @return Returns the dataset.
 	 */
-	public BrowserDatasetSummary getDataset() {
+	public BrowserDatasetData getDataset() {
 		return dataset;
 	}
 	

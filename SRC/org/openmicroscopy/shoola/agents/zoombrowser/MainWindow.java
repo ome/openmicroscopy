@@ -40,7 +40,7 @@ import javax.swing.BoxLayout;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.ProjectSelectionCanvas;
@@ -111,7 +111,7 @@ public class MainWindow extends TopWindow implements ComponentListener
 		projectBrowser.layoutContents();
 		datasetBrowser.completeInitialization();
 		projectBrowser.completeInitialization();
-		
+		System.err.println("dataset and browser are initialized...");
 		
 		contents.add(projectBrowser);
 		contents.add(datasetBrowser);
@@ -150,7 +150,7 @@ public class MainWindow extends TopWindow implements ComponentListener
 	 	datasetBrowser.setRolloverProject(proj);
 	}
 	
-	public void setRolloverDataset(BrowserDatasetSummary dataset) {
+	public void setRolloverDataset(BrowserDatasetData dataset) {
 		projectBrowser.setRolloverDataset(dataset);
 	}
 	
@@ -158,7 +158,7 @@ public class MainWindow extends TopWindow implements ComponentListener
 		datasetBrowser.setSelectedProject(proj);
 	}
 	
-	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+	public void setSelectedDataset(BrowserDatasetData dataset) {
 		projectBrowser.setSelectedDataset(dataset);
 	}
 	
