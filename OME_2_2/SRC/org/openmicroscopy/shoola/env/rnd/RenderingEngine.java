@@ -225,6 +225,7 @@ public class RenderingEngine
 		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
 		eventBus.register(this, ResetPlaneDef.class);
+		//eventBus.register(this, RenderImageMovie.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -236,14 +237,16 @@ public class RenderingEngine
 	public void eventFired(AgentEvent e) 
 	{
 		//TODO: put event on the queue and remove the following.
-		if (e instanceof LoadImage)	handleLoadImage((LoadImage) e);
-		else if	(e instanceof RenderImage)	handleRenderImage((RenderImage) e);
+		if (e instanceof LoadImage)	
+			handleLoadImage((LoadImage) e);
+		else if	(e instanceof RenderImage)
+			handleRenderImage((RenderImage) e);
 		else if (e instanceof RenderingPropChange)
 			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
 		else if (e instanceof ResetPlaneDef)
-			handleResetPlaneDef((ResetPlaneDef) e);
+			handleResetPlaneDef((ResetPlaneDef) e);		
 	}
 
 }
