@@ -228,7 +228,7 @@ public class DataManagerCtrl
 	{
 		List datasets = new ArrayList();
 		datasets.add(ds);
-		new ImportImageSelector(this, datasets);
+		UIUtilities.centerAndShow(new ImportImageSelector(this, datasets));
 	}
 	
 	/** Bring up the Images Importer file chooser */
@@ -238,7 +238,8 @@ public class DataManagerCtrl
 		if (datasets.size() == 0) {
 			UserNotifier un = abstraction.getRegistry().getUserNotifier();
 			un.notifyInfo("Import images", "Please create a dataset first.");
-		} else new ImportImageSelector(this, datasets);
+		} else 
+			UIUtilities.centerAndShow(new ImportImageSelector(this, datasets));
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */

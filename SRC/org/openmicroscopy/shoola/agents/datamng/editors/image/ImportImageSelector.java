@@ -91,7 +91,6 @@ public class ImportImageSelector
 		initComponents(datasets);
 		buildGUI(im);
 		pack();
-		setVisible(true);
 	}
 	
 	/** Initialize the components. */

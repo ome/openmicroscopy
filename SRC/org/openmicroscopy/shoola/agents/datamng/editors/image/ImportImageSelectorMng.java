@@ -141,17 +141,14 @@ class ImportImageSelectorMng
 			if (filesToRemove.contains(file)) filesToRemove.remove(file);
 		}
 	}
-	
-	/** Reset the selection. */
-	void resetSelection() 
-	{
-		if (filesToImport.size() != 0) {
-			filesToImport.removeAll(filesToImport);
-			selection.rebuildComponent();
-			validate();
-		}
-	}
 
+	/** Close the widget, doesn't save changes. */
+	void cancel()
+	{ 
+		view.setVisible(false);
+		view.dispose();
+	}
+	
 	/** Handle event fired by buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -161,7 +158,7 @@ class ImportImageSelectorMng
 				case IMPORT:
 					importImages(); break;
 				case CANCEL:
-					cancel(); break;
+					resetSelection(); break;
 				case REMOVE:
 					removeSelectedFiles();
 			} 
@@ -181,12 +178,17 @@ class ImportImageSelectorMng
 		} else control.importImages(filesToImport, datasetID); 
 	}
 	
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{ 
-		view.setVisible(false);
-		view.dispose();
+	/** Reset the selection. */
+	private void resetSelection() 
+	{
+		if (filesToImport.size() != 0) {
+			filesToImport.removeAll(filesToImport);
+			selection.rebuildComponent();
+			validate();
+		}
 	}
+	
+	
 	
 	/** 
 	 * Remove all the pre-selected files from the queue.

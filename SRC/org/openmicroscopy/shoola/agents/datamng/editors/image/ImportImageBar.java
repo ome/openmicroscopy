@@ -87,10 +87,10 @@ class ImportImageBar
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Import images."));
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Cancel Selection");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		cancelButton.setToolTipText(
-			UIUtilities.formatToolTipText("Close without saving."));
+			UIUtilities.formatToolTipText("Cancel the selection."));
 		removeButton = new JButton("Remove");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		removeButton.setToolTipText(

@@ -99,6 +99,6 @@ class ImportImageChooser
 	}
 		
 	/** Override the cancelSelection method. */
-	public void cancelSelection() { manager.resetSelection(); }
+	public void cancelSelection() { manager.cancel(); }
 		
 }
