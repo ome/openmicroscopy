@@ -41,9 +41,8 @@ import javax.swing.JPopupMenu;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.ViewImageModuleExecutions;
-import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
-import 
-   org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
+import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
+import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.Thumbnail;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
@@ -84,7 +83,7 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 			add(viewItem);
 			viewItem.addActionListener(this);
 		}
-		if (registry.getEventBus().hasListenerFor(ViewImageInfo.class)) {			
+		if (registry.getEventBus().hasListenerFor(ShowProperties.class)) {			
 			viewImageInfoItem = new JMenuItem("View Image Info");
 			viewImageInfoItem.addActionListener(this);
 			add(viewImageInfoItem);
