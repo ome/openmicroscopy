@@ -122,6 +122,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	private static final int LINK_CHANGING_POINT=5;
 
 	/**
+	 * A link between two module inputs/outputs is being created.
+	 * Semantically the same as links between all matching parameters 
+	 *  (LINKING_MODULES), but occurs when things are zoomed out to show
+	 * only the beween-module link targets, and not the formal parameter
+	 * link targets
+	 */
+	private static final int LINKING_MODULE_TARGETS=6;
+	/**
 	 * An error message for multiple links 
 	 */
 	private static final String MULT_LINKS =
@@ -135,6 +143,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private static final String NO_OUTPUT_OUTPUT_LINKS =
 		"Module outputs cannot be linked to each other";
+	
+	private static final String NO_SELF_MODULE_LINKS = 
+		"A Module cannot be linked to itself";
 	
 	/**
 	 * The distance between links when multiple links between two modules
@@ -228,6 +239,12 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private boolean wasDoubleClick;
 	
+	private boolean postLinkCompletion = false;
+	
+	private ModuleLinkTarget moduleLinkOriginTarget = null;
+	
+	private ModuleLink moduleLink;
+	
 	public ChainCreationEventHandler(ChainCreationCanvas canvas,LinkLayer linkLayer) {
 		super();
 		
@@ -297,7 +314,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mouseEntered(PInputEvent e) {
 		PNode node = e.getPickedNode();
-		
 		if (node instanceof FormalParameter) {
 			lastParameterEntered = (FormalParameter) node;
 			//System.err.println("mouse entered last entered.."+
@@ -311,6 +327,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				lastParameterEntered.setParamsHighlighted(true);
 				mod.setModulesHighlighted(true);	
 			}
+			e.setHandled(true);
+		}
+		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
+			ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
+			mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
 		else if (node instanceof ModuleView && linkState == NOT_LINKING) {
@@ -331,7 +352,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mouseExited(PInputEvent e) {
 		PNode node = e.getPickedNode();
-	
+		//System.err.println("exiting..."+node);
 		lastParameterEntered = null;
 		//System.err.println("last parameter entered cleared");
 		if (node instanceof FormalParameter) {
@@ -343,6 +364,12 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			}			
 			e.setHandled(true);
 		}
+		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
+			ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
+			mod.setAllHighlights(false);
+			e.setHandled(true);
+		}
+
 		else if (node instanceof ModuleView && linkState == NOT_LINKING) {
 			ModuleView mod = (ModuleView) node;
 			mod.setAllHighlights(false);
@@ -382,6 +409,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				lnk.setEndCoords((float) pos.getX(),(float) pos.getY());
 			}
 		}
+		else if (linkState == LINKING_MODULE_TARGETS) {
+			//System.err.println("setting end of module link..");
+			moduleLink.setEndCoords((float) pos.getX(),(float) pos.getY());
+		}
 
 	}
 	
@@ -406,6 +437,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else {
 			timer.restart();
+			//System.err.println("caching click event .."+e);
 			cachedEvent = e;
 		}
 	}
@@ -423,8 +455,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 *  c) Otherwise zoom in.
 	 */
 	public void doMouseClicked(PInputEvent e) {
+		if (postLinkCompletion == true)
+			return;
 		// we only scale if we're not drawing a link.
-		//System.err.println("mouse clicked..");
+	//	System.err.println("mouse clicked.."+e);
 		//System.err.println("link state is "+linkState);
 		if (linkState != NOT_LINKING) {
 			if (linkState == LINKING_CANCELLATION) {
@@ -532,6 +566,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mousePressed(PInputEvent e) {
 		
+		postLinkCompletion = false;
 		//System.err.println("mouse pressed on "+e.getPickedNode());
 		if (wasDoubleClick == true) {
 			//System.err.println("just came from double click..");
@@ -582,6 +617,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			mousePressedNotLinking(node,e);		
 		else if (linkState == LINK_CHANGING_POINT)
 			mousePressedChangingPoint(node,e);
+		else if (linkState == LINKING_MODULE_TARGETS)
+			mousePressedLinkingModuleTargets(node,e);
 		else {
 			//System.err.println("mouse pressed..setting link state to not linking..");
 			linkState = NOT_LINKING;
@@ -636,20 +673,56 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param e the pressed event
 	 */
 	private void mousePressedLinkingParams(PNode node,PInputEvent e) {
+		//System.err.println("mouse pressed linking params "+e);
+		
 		if (e.getClickCount() ==2) {
 			cancelParamLink();
 			//System.err.println("mouse pressed linking params. setting to linking cancellation");
 			linkState = LINKING_CANCELLATION;
+			postLinkCompletion = true;
 		}
 		else if (lastParameterEntered == null) { // we're on canvas.
 			Point2D pos = e.getPosition();
 			link.setIntermediatePoint((float) pos.getX(),(float) pos.getY());
 		}
-		else if (lastParameterEntered != null)
+		else if (lastParameterEntered != null) {
 			finishParamLink();
+			postLinkCompletion = true;
+		}
 		e.setHandled(true);
 	}
-	
+
+	/** 
+	 * If the mouse was pressed while parameters were being linked, there are 
+	 * three possibilities:
+	 * 	1) if the press was  double click, the link should be cancelled.
+	 *  2) if the mouse press occurred on the canvas, add a point to the link.
+	 *  3) If the mouse is in a formal parameters, finish the link.
+	 * @param node the link that for the pressed event
+	 * @param e the pressed event
+	 */
+	private void mousePressedLinkingModuleTargets(PNode node,PInputEvent e) {
+		//System.err.println("mouse pressed linking module targets "+e);
+		PNode n = e.getPickedNode();
+		//System.err.println("on  node..."+n);
+		if (e.getClickCount() ==2) {
+			cancelModuleTargetLink();
+			//System.err.println("mouse pressed linking params. setting to linking cancellation");
+			linkState = LINKING_CANCELLATION;
+			postLinkCompletion = true;
+		}
+		else if (!(n instanceof ModuleLinkTarget)) { // we're on canvas.
+			Point2D pos = e.getPosition();
+		//	System.err.println("...adding intermediate point to module links..");
+			moduleLink.setIntermediatePoint((float) pos.getX(),(float) pos.getY());
+		}
+		else if (moduleLinkOriginTarget != null) {
+			//System.err.println("... finishing modulelinkorigintarget...");
+			finishModuleTargetLink((ModuleLinkTarget) n);
+			postLinkCompletion = true;
+		}
+		e.setHandled(true);
+	}
 	/**
 	 * If the mouse is presed while modules are being linked,
 	 * Start by checking the number of clicks. If there are two, 
@@ -700,6 +773,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				y += SPACING;
 			}
 		}
+		postLinkCompletion = true;
 		e.setHandled(true);
 	}
 	
@@ -728,6 +802,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				startParamLink(param);
 			else
 				canvas.setStatusLabel(MULT_LINKS);
+		}
+		else if (node instanceof ModuleLinkTarget) {
+			//System.err.println("pressing on module link target...");
+			ModuleLinkTarget modLink = (ModuleLinkTarget) node;
+			startModuleTargetLink(modLink);
 		}
 		else if (node instanceof LinkSelectionTarget) {
 		//	System.err.println("pressiing on target..");
@@ -758,6 +837,111 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		e.setHandled(true);
 	}
 	
+	/**
+	 * Start a link between two modules based on the module link target 
+	 * - the target shown when zoomed out or compact view shown
+	 * 
+	 * @param modLink
+	 */
+	private void startModuleTargetLink(ModuleLinkTarget modLink) {
+		
+		moduleLinkOriginTarget = modLink;
+		//System.err.println("starting mmodule target link..."+modLink);
+		moduleLink = new ModuleLink(linkLayer,moduleLinkOriginTarget);
+		moduleLink.setPickable(false);
+		linkState = LINKING_MODULE_TARGETS;
+	}
+	
+	private void finishModuleTargetLink(ModuleLinkTarget n) {
+		//first, if input and output are the same, barf.
+		if (n.getModuleView() == moduleLinkOriginTarget.getModuleView()) {
+			showSelfLinkError();
+			cancelModuleTargetLink();
+			return;
+		}
+		else if (n.isInputLinkTarget() && 
+					moduleLinkOriginTarget.isInputLinkTarget()) {
+			canvas.setStatusLabel(NO_INPUT_INPUT_LINKS);
+			cancelModuleTargetLink();
+			return;
+		}
+		else if (n.isOutputLinkTarget() && 
+					moduleLinkOriginTarget.isOutputLinkTarget()) {
+		    canvas.setStatusLabel(NO_OUTPUT_OUTPUT_LINKS);
+			cancelModuleTargetLink();
+		    return;
+		}
+	//	System.err.println("finishing module target link");
+		// ok. now, create links and make sure we have no cycles.
+		// get inputs & get outputs
+		Collection  params1 = moduleLinkOriginTarget.getParameters();
+		Collection params2 = n.getParameters();
+
+		// set other end point of link.
+		
+		moduleLink.setTarget(n);
+		if (finishModuleTargetLink(params1,params2) == false) {
+			cancelModuleTargetLink();
+			return;
+		}
+		
+		if (foundCycle() == true) {
+			canvas.setStatusLabel(NO_CYCLES);
+			cancelModuleTargetLink();
+		}
+		else {
+			cleanUpModuleTargetLink();
+		}
+		moduleLinkOriginTarget = null;
+		linkState = NOT_LINKING;
+	
+	}
+	
+	
+	private boolean finishModuleTargetLink(Collection params1,Collection params2) {
+		// foreach thing in params1, do something for everything in params2
+		Iterator iter = params1.iterator();
+		boolean res = false;
+		while (iter.hasNext()) {
+			FormalParameter p = (FormalParameter) iter.next();
+			// if it's an input with something coming in, don't do this link.
+			if (p instanceof FormalInput && !p.isLinkable())
+				continue;
+			if (finishAModuleTargetLink(p,params2) == true)
+				res = true;
+		}
+		return res;
+	}
+	
+	private boolean finishAModuleTargetLink(FormalParameter p,Collection params2) {
+		Iterator iter = params2.iterator();
+		while (iter.hasNext()) {
+			FormalParameter p2 = (FormalParameter) iter.next();
+			if (p2 instanceof FormalInput && ! p2.isLinkable())
+				continue;
+			if (p2.getSemanticType() == p.getSemanticType()) {
+	
+				// create the link
+				ParamLink link = new ParamLink();
+				linkLayer.addChild(link);
+				link.setStartParam(p);
+				link.setEndParam(p2);
+				return true;
+			}
+		}
+		return false;
+	}
+	private void cleanUpModuleTargetLink() {
+		moduleLinkOriginTarget= null;
+	}
+	
+	private void cancelModuleTargetLink() {
+		moduleLink.remove();
+		moduleLink =null;
+		cleanUpModuleTargetLink();
+		linkState = NOT_LINKING;
+	}
+	
 	/***
 	 * Start a new link between parameters
 	 * @param param the origin of the new link
@@ -779,7 +963,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 *
 	 */
 	private void finishParamLink() {
-		if (lastParameterEntered.getClass() == linkOrigin.getClass()) {
+		if (lastParameterEntered.getModuleView() == linkOrigin.getModuleView()) {
+			showSelfLinkError();
+			cancelParamLink();
+		}
+		else if (lastParameterEntered.getClass() == linkOrigin.getClass()) {
 			showParameterInputOutputConflictError(linkOrigin);
 			cancelParamLink();
 		}
@@ -882,7 +1070,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void cancelParamLink() {
 		//System.err.println("canceling link");
-		link.remove();
+		if (link != null)
+			link.remove();
 		link =null;
 		cleanUParamLink();
 	}
@@ -1049,7 +1238,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			origin.setParamsHighlighted(false);
 		}
 		links = new Vector();
-		selectedModule.setAllHighlights(false);
+		if (selectedModule != null)
+			selectedModule.setAllHighlights(false);
 	}
 	
 	/** 
@@ -1117,6 +1307,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else
 			canvas.setStatusLabel(NO_OUTPUT_OUTPUT_LINKS);
+	}
+	
+	private void showSelfLinkError() {
+		canvas.setStatusLabel(NO_SELF_MODULE_LINKS);
 	}
 
 	
