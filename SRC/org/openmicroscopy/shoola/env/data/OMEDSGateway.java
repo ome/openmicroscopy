@@ -127,7 +127,8 @@ class OMEDSGateway
 	
 	AnnotationManager getAnnotationManager()
 	{
-		return (AnnotationManager) proxiesFactory.getService(AnnotationManager.class);
+		return (AnnotationManager) proxiesFactory.getService(
+													AnnotationManager.class);
 	}
 	
 	/** Retrieve the current experimenter. */
@@ -268,7 +269,6 @@ class OMEDSGateway
 	void addDatasetToProjects(int datasetID, List projectIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//TODO: remove comments
 		try {
 			getProjectManager().addDatasetToProjects(projectIDs, datasetID);
 		} catch (RemoteConnectionException rce) {
@@ -285,7 +285,8 @@ class OMEDSGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-	  		getProjectManager().removeDatasetsFromProject(projectID, datasetsIDs);
+	  		getProjectManager().removeDatasetsFromProject(projectID, 
+	  														datasetsIDs);
   		} catch (RemoteConnectionException rce) {
 	  		throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
   		} catch (RemoteAuthenticationException rae) {
