@@ -161,7 +161,7 @@ public class DataSink
     
     private byte[][]			stack;
     
-    
+    private Plane2D				curPlane2D;
     
     private void fillStack(int t)
 		throws DataSourceException
@@ -268,13 +268,16 @@ public class DataSink
 		//if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
 		//	fillStack(pDef.getT());
 		//To be restored.
-			
-		curPlaneDef = pDef;
-		BytesConverter strategy = 
+		if (curPlane2D == null || curPlaneDef.getT() != pDef.getT() ||
+			curPlaneDef.getZ() != pDef.getZ())	{
+			curPlaneDef = pDef;
+			BytesConverter strategy = 
 							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-		//return createPlane(stack[w], strategy);
-		//Replaced by this *temporary* hack:
-		return makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 
+			//return createPlane(stack[w], strategy);
+			//Replaced by this *temporary* hack:
+			curPlane2D = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 	
+		}
+		return curPlane2D;
 	}
 
 }
