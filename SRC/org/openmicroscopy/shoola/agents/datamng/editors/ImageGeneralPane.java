@@ -77,9 +77,11 @@ class ImageGeneralPane
 	extends JPanel
 {
 
+	private static final Dimension	H_DIM = new Dimension(10, 0);
+	
 	private ImageEditorManager 		manager;
 	private Registry				registry;
-	private JButton					saveButton, reloadButton;
+	private JButton					saveButton, reloadButton, annotateButton;
 	
 	private JTextArea				nameField;
 	
@@ -90,6 +92,12 @@ class ImageGeneralPane
 		this.manager = manager;
 		this.registry = registry;
 		buildGUI();
+	}
+	
+	/** Returns the annotate button. */
+	JButton getAnnotateButton()
+	{
+		return annotateButton;
 	}
 	
 	/** Returns the save button. */
@@ -135,7 +143,7 @@ class ImageGeneralPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data to the DB");
+		saveButton.setToolTipText("Save data to the DB.");
 		saveButton.setEnabled(false);
 		
 		//reload button
@@ -145,15 +153,26 @@ class ImageGeneralPane
 		reloadButton.setOpaque(false);
 		//suppress button press decoration
 		reloadButton.setContentAreaFilled(false); 
-		reloadButton.setToolTipText("Reload data from the DB");
+		reloadButton.setToolTipText("Reload data from the DB.");
 		
+		//annotate button
+		annotateButton = new JButton("Annotate");
+		annotateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		//make panel transparent
+		annotateButton.setOpaque(false);
+		//suppress button press decoration
+		annotateButton.setContentAreaFilled(false); 
+		annotateButton.setToolTipText("Annotate the dataset.");
+
 		JPanel controls = new JPanel(), all = new JPanel();
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		all.setLayout(gridbag);  
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(annotateButton);
+		controls.add(Box.createRigidArea(H_DIM));
 		controls.add(reloadButton);
-		controls.add(Box.createRigidArea(new Dimension(10, 0)));
+		controls.add(Box.createRigidArea(H_DIM));
 		controls.add(saveButton);
 		controls.setOpaque(false); //make panel transparent
 		c.weightx = 0.5;

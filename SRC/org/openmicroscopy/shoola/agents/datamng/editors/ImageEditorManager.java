@@ -66,10 +66,14 @@ class ImageEditorManager
 	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;
+	private static final int	ANNOTATE = 2;
 	
 	private ImageData			model;
 	private ImageEditor			view;
 	private DataManagerCtrl 	control;
+	
+	/** Annotate button displayed in the {@link ImageGeneralPane}. */
+	private JButton 			annotateButton;
 	
 	/** Save button displayed in the {@link ImageGeneralPane}. */
 	private JButton 			saveButton;
@@ -105,6 +109,9 @@ class ImageEditorManager
 	{
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
+		annotateButton = view.getAnnotateButton();
+		annotateButton.addActionListener(this);
+		annotateButton.setActionCommand(""+ANNOTATE);
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
@@ -121,8 +128,11 @@ class ImageEditorManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
+				case ANNOTATE:
+					control.annotateImage(model.getID());
+					break;
 				case SAVE:
 					save();
 					break;
@@ -150,10 +160,7 @@ class ImageEditorManager
 	}
 	
 	/** Require by I/F. */
-	public void changedUpdate(DocumentEvent e)
-	{
-		saveButton.setEnabled(true);
-	}
+	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
@@ -170,10 +177,7 @@ class ImageEditorManager
 	}
 	
 	/** Indicates that the name has been modified. */
-	public void mousePressed(MouseEvent e)
-	{ 
-		isName = true;
-	}
+	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

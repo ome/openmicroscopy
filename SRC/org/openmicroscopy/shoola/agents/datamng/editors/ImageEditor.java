@@ -112,19 +112,19 @@ public class ImageEditor
 		getContentPane().add(tabs, BorderLayout.CENTER);	
 	}
 	
-	/** 
-	 * Returns the save button displayed in the generalPane.
-	 * Forward event to generalPane.
-	 */
+	/** Returns the annotate button displayed in {@link ImageGeneralPane}. */
+	JButton getAnnotateButton()
+	{
+		return generalPane.getAnnotateButton();
+	}
+	
+	/** Returns the save button displayed in {@link ImageGeneralPane}. */
 	JButton getSaveButton()
 	{
 		return generalPane.getSaveButton();
 	}
 
-	/** 
-	 * Returns the reload button displayed in the generalPane.
-	 * Forward event to generalPane.
-	 */
+	/** Returns the reload button displayed in {@link ImageGeneralPane}. */
 	JButton getReloadButton()
 	{
 		return generalPane.getReloadButton();

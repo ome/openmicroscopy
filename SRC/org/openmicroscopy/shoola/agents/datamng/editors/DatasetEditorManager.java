@@ -73,6 +73,7 @@ class DatasetEditorManager
 	private static final int		REMOVE = 2;
 	private static final int		CANCEL_SELECTION = 3;
 	private static final int		ADD = 4;
+	private static final int		ANNOTATE = 5;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -84,6 +85,10 @@ class DatasetEditorManager
 	private List					imagesToAdd;
 	
 	private DataManagerCtrl 		control;
+	
+	/** Annotate button displayed in the {@link DatasetGeneralPane}. */
+	private JButton 				annotateButton;
+		
 	/** Save button displayed in the {@link DatasetGeneralPane}. */
 	private JButton 				saveButton;
 
@@ -136,6 +141,9 @@ class DatasetEditorManager
 		//buttons
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
+		annotateButton = view.getAnnotateButton();
+		annotateButton.addActionListener(this);
+		annotateButton.setActionCommand(""+ANNOTATE);
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
@@ -163,7 +171,10 @@ class DatasetEditorManager
 		String s = (String) e.getActionCommand();
 		try {
 			int index = Integer.parseInt(s);
-			switch (index) { 
+			switch (index) {
+				case ANNOTATE:
+					control.annotateDataset(model.getID()); 
+					break;
 				case SAVE:
 					save();
 					break;
@@ -263,7 +274,7 @@ class DatasetEditorManager
 		removeButton.setEnabled(true);
 		view.cancelSelection();
 	}
-	
+
 	/** */
 	private void reload()
 	{
@@ -271,10 +282,7 @@ class DatasetEditorManager
 	}
 
 	/** Require by I/F. */
-	public void changedUpdate(DocumentEvent e)
-	{
-		saveButton.setEnabled(true);
-	}
+	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
@@ -291,10 +299,7 @@ class DatasetEditorManager
 	}
 	
 	/** Indicates that the name has been modified. */
-	public void mousePressed(MouseEvent e)
-	{ 
-		isName = true;
-	}
+	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
 	 * Required by I/F but not actually needed in our case, no op 

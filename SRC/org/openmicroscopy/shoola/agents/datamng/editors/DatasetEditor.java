@@ -92,6 +92,14 @@ public class DatasetEditor
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
+
+	/** 
+	 * Returns the annotate button displayed {@link DatasetGeneralPane}.
+	 */
+	JButton getAnnotateButton()
+	{
+		return generalPane.getAnnotateButton();
+	}
 	
 	/** 
 	 * Returns the save button displayed {@link DatasetGeneralPane}.
