@@ -274,7 +274,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		handler.animateToCanvasBounds();
 	}
 
-
+	public void scaleToResize() {
+		handler.animateToLastBounds();
+	}
 	
 	/**
 	 * 

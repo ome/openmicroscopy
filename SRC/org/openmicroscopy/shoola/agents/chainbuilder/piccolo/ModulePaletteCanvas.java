@@ -219,6 +219,9 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		handler.animateToCanvasBounds();
 	}
 	
+	public void scaleToResize() {
+		handler.animateToLastBounds();
+	}
 	/**
 	 * Calculate the bounds necessary for appropriate zooming for this canvas
 	 */	
