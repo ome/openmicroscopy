@@ -47,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueModes;
 
 /**
  * Indicates which mode to use in drawing the heat map.
@@ -58,14 +59,14 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
  */
 public class HeatMapModeBar extends JPanel
 {
-    private DisplayValueMode currentMode = HeatMapModes.MEAN_MODE;
+    private DisplayValueMode currentMode = DisplayValueModes.MEAN_MODE;
     private Set modeListeners;
     private JComboBox box;
     
-    private final Object[] modes = new Object[]{HeatMapModes.MINIMUM_MODE,
-                                                HeatMapModes.MEAN_MODE,
-                                                HeatMapModes.MEDIAN_MODE,
-                                                HeatMapModes.MAXIMUM_MODE};
+    private final Object[] modes = new Object[]{DisplayValueModes.MINIMUM_MODE,
+                                                DisplayValueModes.MEAN_MODE,
+                                                DisplayValueModes.MEDIAN_MODE,
+                                                DisplayValueModes.MAXIMUM_MODE};
     
     public HeatMapModeBar()
     {

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapMode
+ * org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode
  *
  *------------------------------------------------------------------------------
  *

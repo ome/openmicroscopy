@@ -33,12 +33,13 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.heatmap;
+package org.openmicroscopy.shoola.agents.browser.datamodel;
 
 import java.util.Arrays;
 
 import org.openmicroscopy.ds.dto.Attribute;
-import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+import org.openmicroscopy.shoola.agents.browser.heatmap.AbstractHeatMapMode;
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUtils;
 
 /**
  * Collection of HeatMapModes.
@@ -48,7 +49,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
  * @version 2.2
  * @since OME2.2
  */
-public class HeatMapModes
+public class DisplayValueModes
 {
     /**
      * The extract-minimum mode.
