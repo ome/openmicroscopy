@@ -61,11 +61,8 @@ class HistogramDialogManager
 	
 	/** Graphics constants. */
 	private static final int		heightStat = HistogramPanel.heightStat,
-									widthStat = HistogramPanel.widthStat, 
 									topBorder = HistogramPanel.topBorder,
-									leftBorder = HistogramPanel.leftBorder,
 									rightBorder = HistogramPanel.rightBorder,
-									lS = leftBorder+widthStat, 
 									tS = topBorder+heightStat,
 									triangleW = HistogramPanel.triangleW,
 									length = 2*triangleW, 
@@ -76,6 +73,7 @@ class HistogramDialogManager
    	
    	private final int				tW = topBorder+window;
    	
+   	private int						lS;
    	private int                     maxStartInputY, minEndInputY;
    	
    	/** Rectangle used to listen to the knobs. */
@@ -111,6 +109,8 @@ class HistogramDialogManager
 	 */
 	void initRectangles(int yStart, int yEnd)
 	{
+		lS = HistogramPanel.leftBorder+view.getHistogramPanel().getWidthStat();
+		
 		//Size the rectangle used to control the OutputWindow knobs
 		boxInputStart = new Rectangle(lS, yStart-2*triangleW, rightBorder, 
 										2*length);

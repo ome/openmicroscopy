@@ -64,15 +64,18 @@ class HistogramPanel
 {
 	
 	/** Graphic constant. */
-	static final int            	WIDTH = 420, HEIGHT = 250;
+	static final int            	HEIGHT = 250;
 	static final int				topBorder = 20, leftBorder = 80, 
 									bottomBorder = 30, rightBorder = 40, 
 									window = 10, heightStat = 200, 
-									widthStat = 300,
 									triangleW = 10, triangleH = 11,
-									lS = leftBorder+widthStat,
 									tS = topBorder+heightStat;
-	 
+	
+	static final int 				widthStatDefault = 300, BASIC_WIDTH = 120,
+									sizeBinDefault = 2;
+	
+	int								widthWin, widthStat, lS;
+	
 	/** Color of the Histogram bins. */
 	private static final Color  	binColor = Color.BLUE;
 	
@@ -106,7 +109,9 @@ class HistogramPanel
 	
 	
 	private PixelsStatsEntry[]  	histogramData;
+	
 	private int                 	sizeBin;  
+	
 	private HistogramDialogManager	manager;
 	
 	/**
@@ -126,7 +131,7 @@ class HistogramPanel
 	{
 		this.histogramData = histogramData;
 		this.manager = manager;
-		sizeBin = (int) (widthStat/histogramData.length);
+		initSizeBin();
 		setWindowLimits(mini, maxi);
 		setInputWindow(startReal, endReal);
 		
@@ -139,10 +144,25 @@ class HistogramPanel
 		//output knob
 		setKnobOutputStart(lS+10, yStart);
 		setKnobOutputEnd(lS+10, yEnd);
-		setSize(WIDTH, HEIGHT);
+		setSize(widthWin, HEIGHT);
 		repaint();
 	}
-
+	
+	int getWidthWin() { return widthWin; }
+	
+	int getWidthStat() { return widthStat; }
+	
+	void initSizeBin()
+	{
+		sizeBin = (int) (widthStatDefault/histogramData.length);
+		if (sizeBin < sizeBinDefault) {
+			sizeBin = sizeBinDefault;
+			widthStat = sizeBin*histogramData.length;	
+		} else widthStat = widthStatDefault;	
+		widthWin = BASIC_WIDTH+widthStat;
+		lS = leftBorder+widthStat;
+	}
+	
 	/**
 	 * Resets the current Minimum value and repaint the leftBorder.
 	 *
@@ -280,10 +300,10 @@ class HistogramPanel
 	/** Overrides the paintComponent method. */ 
 	public void paintComponent(Graphics g)
 	{
-		//super.paintComponent(g);
+		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
-		g2D.fillRect(0, 0, WIDTH, HEIGHT); 
+		g2D.fillRect(0, 0, widthWin, HEIGHT); 
 		Font font = g2D.getFont();
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight();
@@ -318,8 +338,10 @@ class HistogramPanel
 						tS+hFont+5);
 						
 		//knob start output
-		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, xStartOutput3};
-		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, yStartOutput3};
+		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 
+									xStartOutput3};
+		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, 
+									yStartOutput3};
 		GeneralPath filledPolygonStartOutput = new GeneralPath();
 		filledPolygonStartOutput.moveTo(xStartOutputPoints[0], 
 										yStartOutputPoints[0]);
@@ -347,7 +369,7 @@ class HistogramPanel
 		g2D.fill(filledPolygonEndOutput);      
 		//paint histogram
 		g2D.setColor(binColor);
-		g2D.drawString("Pixel", 5, topBorder+heightStat/2);
+		g2D.drawString("Pixels", 5, topBorder+heightStat/2);
 		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
 		PixelsStatsEntry entry;
 		int min, max;
