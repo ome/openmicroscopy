@@ -45,7 +45,10 @@ import javax.imageio.stream.ImageOutputStream;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.io.BMPEncoder;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 
 /** 
@@ -71,8 +74,12 @@ class SaveImage
 				String fileName, String message)
 	{
 		this.registry = registry;
-		if (format.equals(TIFFFilter.TIF))
-			saveImageAsTIFF(image, fileName, message);
+		if (format.equals(TIFFFilter.TIF)) 
+			encodeImage((Encoder) (new TIFFEncoder()), image, fileName, 
+						message);
+		else if (format.equals(BMPFilter.BMP))
+			encodeImage((Encoder) (new BMPEncoder()), image, fileName, 
+					message);
 		else
 			saveImageAs(format, image, fileName, message);
 	}
@@ -116,8 +123,8 @@ class SaveImage
 	 * @param fileName	image's name.
 	 * @param message	message to display when the image has been saved.
 	 */
-	private void saveImageAsTIFF(BufferedImage img, String fileName, 
-								String message)
+	private void encodeImage(Encoder encoder, BufferedImage img,
+							String fileName, String message)
 	{
 		UserNotifier un = registry.getUserNotifier();
 		if (img == null) 
@@ -126,13 +133,12 @@ class SaveImage
 		try {
 			DataOutputStream dos = 
 							new DataOutputStream(new FileOutputStream(f));
-			TIFFEncoder encoder = new TIFFEncoder(img, dos);
+			encoder.initialization(img, dos);
 			encoder.write();
 			dos.close();
 			un.notifyInfo("Image saved", message);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println(f.delete());
+			f.delete();
 			un.notifyError("Save image failure", "Unable to save the image", 
 							ex);					
 		}
