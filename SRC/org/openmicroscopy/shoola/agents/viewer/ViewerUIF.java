@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.agents.viewer;
 //Java imports
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -176,14 +174,7 @@ public class ViewerUIF
 	 */
 	void showDialog(JDialog editor)
 	{
-		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0) offsetX = 0;
-		if (offsetY < 0) offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
+		UIFactory.showEditor(editor);
 	}
 	
 	/**
@@ -199,7 +190,7 @@ public class ViewerUIF
 			int h = canvas.getIconHeight();
 			tSlider.setSize(w-EXTRA, EXTRA);
 			zSlider.setSize(EXTRA, h-EXTRA);
-			setWindowSize(w+3*EXTRA, h+2*EXTRA+2*toolBar.getHeight());
+			setWindowSize(w+2*EXTRA, h+2*EXTRA+2*toolBar.getHeight());
 	 	}
 	 	active = true;
 	 	revalidate();
@@ -253,7 +244,7 @@ public class ViewerUIF
 		Container container = getContentPane();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		container.add(toolBar);
-		canvas = new ImageCanvas(this, container);
+		canvas = new ImageCanvas();
 		contents = new JPanel();
 		buildContents();
 		JScrollPane scrollPane = new JScrollPane(contents);

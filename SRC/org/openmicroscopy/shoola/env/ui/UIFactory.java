@@ -32,9 +32,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -62,6 +66,23 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class UIFactory 
 {
 
+	/** Icons only used at initialization time. */
+	public static final int		ERROR = 0;
+	private static final int 	MAX_ID = 0;
+	private static String[]		icons;
+	
+	
+	static {
+		icons = new String[MAX_ID+1];
+		icons[ERROR] = "graphx/ome16.png";	
+	}
+	
+	/** 
+	 * This methos should only be accessed at initialization time if an error
+	 * occurs.
+	 */
+	static Icon getIcon(int id) { return createIcon(icons[id]); }
+	
 	/**
 	 * Creates the splash screen that is used at initialization.
 	 * 
@@ -139,5 +160,19 @@ public class UIFactory
 		buf.append("</font></body></html>");
 		return buf.toString();
 	} 
+	
+	/**
+	 * Utility facroty method to bring up a dialog widget. 
+	 * 
+	 * @param editor	dialog widget to bring up.
+	 */
+	public static void showEditor(JDialog editor)
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle ed = editor.getBounds();
+		editor.setLocation((screenSize.width-ed.width)/2, 
+							(screenSize.height-ed.height)/2);
+		editor.setVisible(true);
+	}
 	
 }

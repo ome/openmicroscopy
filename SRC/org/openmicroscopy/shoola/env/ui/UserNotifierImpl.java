@@ -29,13 +29,8 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-
-
 //Java imports
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import javax.swing.JDialog;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -176,7 +171,7 @@ public class UserNotifierImpl
 	 */
 	private void showMessageDialog(String title, String summary, int iconID)
 	{	
-		showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
+		UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title, summary, 
 								iconID));
 	}
 	
@@ -193,11 +188,11 @@ public class UserNotifierImpl
 									String detail, int iconID)
 	{		
 		if (detail == null) 
-			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
-								iconID));
+			UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title, 
+								summary, iconID));
 		else 	
-			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
-								detail, iconID)); 
+			UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title,
+								summary, detail, iconID)); 
 	}
 	
 	/**
@@ -213,39 +208,11 @@ public class UserNotifierImpl
 									String detail)
 	{
 		if (detail == null)
-			showDialogScreen(new UserNotifierDialog(title, summary));
+			UIFactory.showEditor(new UserNotifierDialog(title, summary, 
+								UIFactory.ERROR));
 		if (detail != null)	
-			showDialogScreen(new UserNotifierDialog(title, summary, detail));		 
-	}
-	
-	
-	/**  
-	 * Display dialog widget if an error occured at initialization time.
-	 * Sizes, centers and brings up the specified editor dialog.
-	 */
-	private void showDialogScreen(JDialog editor)
-	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		editor.setLocation((screenSize.width-UserNotifierDialog.WIN_W)/2, 
-						(screenSize.height-UserNotifierDialog.WIN_H)/2);
-		editor.setVisible(true);
-	}
-	
-	
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param   editor	The editor dialog.
-	 */
-	private void showDialog(JDialog editor)
-	{
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)   offsetX = 0;
-		if (offsetY < 0)   offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
+			UIFactory.showEditor(new UserNotifierDialog(title, summary, detail, 
+								UIFactory.ERROR));		 
 	}
 	
 }

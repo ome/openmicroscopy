@@ -41,6 +41,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -48,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
 //Third-party libraries
 
@@ -99,27 +101,30 @@ public class UserNotifierDialog
 	/** Reference to the registry .*/
 	private Registry				registry;
 	
-	public UserNotifierDialog(String title, String summary, String detail)
+	public UserNotifierDialog(String title, String summary, String detail, 
+							int iconID)
 	{
 		this.detail = detail;
 		setTitle(title);
 		setModal(true);
 		isShown = false;
 		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-		buildGUI(summary, true);
+		buildGUI(summary, getIcon(iconID, true), true);
 		pack();
 	}
 	
-	public UserNotifierDialog(String title, String summary)
+	public UserNotifierDialog(String title, String summary, int iconID)
 	{
 		setTitle(title);
 		setModal(true);
-		//setResizable(false);
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		contentPane = getContentPane();	
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-		buildGUI(summary, false);
+		buildGUI(summary, getIcon(iconID, true), false);
 		pack();	
 	}
 	
@@ -138,9 +143,10 @@ public class UserNotifierDialog
 		super(frame, title, true);
 		this.registry = registry;
 		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
-		buildGUI(summary, iconID, false);
+		buildGUI(summary, getIcon(iconID, false), false);
 		pack();	
 	}
 	
@@ -162,9 +168,10 @@ public class UserNotifierDialog
 		this.detail = detail;
 		isShown = false;
 		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
-		buildGUI(summary, iconID, true);
+		buildGUI(summary, getIcon(iconID, false), true);
 		pack();
 	}
 	
@@ -205,17 +212,28 @@ public class UserNotifierDialog
 		scrollPane.setPreferredSize(D_WIN);
 		contentPane.add(scrollPane);
 		pack(); 
-	 }
+	}
+	
+	private Icon getIcon(int iconID, boolean init)
+	{
+		Icon icon = null;
+		if (init)
+			icon = UIFactory.getIcon(UIFactory.ERROR);
+		else {
+			IconManager im = IconManager.getInstance(registry);
+			icon = im.getIcon(iconID);
+		}
+		return icon;
+	}
 	
 	/**
 	 * Build and lay out the GUI.
 	 * 
 	 * @param summary		summary of information/ warning.
-	 * @param iconID		iconID.
+	 * @param iconID		icon to display.
 	 */
-	private void buildGUI(String summary, int iconID, boolean withButton)
+	private void buildGUI(String summary, Icon icon, boolean withButton)
 	{
-		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
 		JTextArea label = new JTextArea(summary);
 		label.setLineWrap(true);
@@ -223,7 +241,7 @@ public class UserNotifierDialog
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		iconPanel.add(new JLabel(im.getIcon(iconID)));
+		iconPanel.add(new JLabel(icon));
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		content.setLayout(gridbag);
@@ -248,41 +266,5 @@ public class UserNotifierDialog
 		content.setSize(D_WIN);
 		contentPane.add(content);
 	}	
-	
-	/**
-	 * Build and lay out the GUI.
-	 * 
-	 * @param summary		summary of information/ warning.
-	 * @param iconID		iconID.
-	 */
-	private void buildGUI(String summary, boolean withButton)
-	{
-		JPanel content = new JPanel();
-		JTextArea label = new JTextArea(summary);
-		label.setLineWrap(true);
-		label.setWrapStyleWord(true);
-		label.setBorder(null);
-		label.setEditable(false);
-		label.setOpaque(false);
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		content.setLayout(gridbag);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(label, c);
-		content.add(label);
-		if (withButton) {
-			button = new JButton("Details >>");
-			button.addActionListener(this);
-			c.insets = new Insets(10, 0, 0, 0);  //top padding
-			c.gridy = 1;
-			gridbag.setConstraints(button, c); 
-			content.add(button);
-		}
-		content.setPreferredSize(D_WIN);
-		content.setSize(D_WIN);
-		contentPane.add(content);
-	}	
-	
+
 }

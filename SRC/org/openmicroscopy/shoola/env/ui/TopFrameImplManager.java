@@ -34,12 +34,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractButton;
 
-import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 
 /** 
  * 
@@ -108,7 +107,8 @@ class TopFrameImplManager
 				default: break;
 			}        
 		} catch(NumberFormatException nfe) {
-				throw nfe;  //just to be on the safe side...
+			 container.getRegistry().getLogger().warn(this, 
+			 		"Unexpected NumberFormatException: "+nfe.getMessage());
 		}
 	}
 	

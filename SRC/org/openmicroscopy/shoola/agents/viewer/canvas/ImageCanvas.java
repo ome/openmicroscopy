@@ -44,7 +44,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
+
 
 /** 
  * 
@@ -76,26 +76,10 @@ public class ImageCanvas
 	private Component       	imgGlassPane;
 	
 	private int					iconHeight, iconWidth;
-	
-	/** 
-	* A reference to the content pane of the viewer's internal frame. 
-	* Needed to do better layout.
-	*/
-	private Component       	contentPane;
-	
-	/** A reference to viewer . */
-	private ViewerUIF       	viewer; 
 	   
-	/** 
-	* Creates the panel to host the image. 
-	* 
-	* @param contentPane	A reference to the content pane of the viewer's 
-	* 						internal frame. Needed to do better layout.
-	*/
-	public ImageCanvas(ViewerUIF viewer, Component contentPane)
+	/** Creates the panel to host the image. */
+	public ImageCanvas()
 	{
-		this.viewer = viewer;
-		this.contentPane = contentPane;
 		setBackground(BACKGROUND_COLOR);  
 		setLayout(new ImageCanavasLM());
 		imgLayers = new JLayeredPane();
@@ -162,9 +146,9 @@ public class ImageCanvas
 				int imgW = c.picture.getIcon().getIconWidth(),
 					imgH = c.picture.getIcon().getIconHeight(),
 					x = 0, y = 0;
-				//Dimension d = c.contentPane.getSize();
-				//if (imgW < d.width) x = (d.width-imgW)/2;
-				//if (imgH < d.height) y = (d.height-imgH)/2; 
+				Dimension d = c.getSize();
+				if (imgW < d.width) x = (d.width-imgW)/2;
+				if (imgH < d.height) y = (d.height-imgH)/2; 
 				c.imgLayers.setBounds(x, y, imgW, imgH);
 				c.picture.setBounds(0, 0, imgW, imgH);	
 				//if (c.imgGlassPane != null) 
