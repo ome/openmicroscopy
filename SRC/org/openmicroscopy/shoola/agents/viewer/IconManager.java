@@ -75,13 +75,17 @@ public class IconManager
 	/** ID of the xyz icon. */
 	public static final int     XYZ = 5;
 	
-	/** ID of the question mark. */
+	/** ID of the question mark icon. */
 	public static final int		QUESTION = 6;
+	
+	/** ID of the rendering icon. */
+	public static final int		RENDER = 7;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 7;
+	private static int          MAX_ID = 8;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -93,7 +97,8 @@ public class IconManager
 		relPaths[REWIND] = "rewind16.png";
 		relPaths[CLOCK] = "navigation16.png";
 		relPaths[XYZ] = "nav_pal_icon16.png";
-		relPaths[QUESTION] = "question16.png";	
+		relPaths[QUESTION] = "question24.png";	
+		relPaths[RENDER] = "render16.png";
 	}
 	
 	/** The sole instance that provides. */
