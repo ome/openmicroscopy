@@ -39,13 +39,13 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 
 //Java imports
-import java.awt.geom.Point2D;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
+import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.util.PBounds;
 
 
 //Application-internal dependencies
@@ -95,36 +95,11 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			
 	}
 	
-	/**
-	 * If the node that I'm exiting is a chain box, 
-	 * check to see if I've actually gone "outside" of the box (in
-	 * screen terms), as opposed to simply going inside of another node that is
-	 * physically surrounded by the chainbox.
-	 */
-	public void mouseExited(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		if (!checkEventInNodeInterior(n,e)) {
-			super.mouseExited(e);
-		}
-		e.setHandled(true);
-	}
 	
-	private boolean checkEventInNodeInterior(PNode node,PInputEvent e) {
-		PBounds b = node.getBounds();
-		// must do something in case node is not on picked path.
-		try {
-			Point2D pickedPos = e.getPositionRelativeTo(node);
-			if (b.contains(pickedPos))
-				return true;
-			else
-				return false;
-		} catch(Exception exc) {
-			// if this pick did not contain the node,
-			// then then event can't be in the node's interior
-			return false;
-		}
-	}
-	
+	protected void unhighlightModules() {
+		clearHighlights();
+		lastEntered = null;
+	}	
 	
 	protected void setLastEntered(PNode node) {
 		if (node != null && shouldHideLastChainView(node)) {
@@ -148,6 +123,7 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		        && !lastChainView.isDescendentOf(node);
 		return res;
 	}
+	
 	public void setSelectedForDrag(PNode node) {
 		if (node instanceof ChainView) {
 			ChainView chain = (ChainView) node;
@@ -195,9 +171,24 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	public void setLastChainView(PaletteChainView lastChainView) {
 		// if I get this twice, show the full view.
 		if (this.lastChainView == lastChainView) {
-			lastChainView.showFullView(true);
+			PActivity a = lastChainView.showFullView(true);
+			a.setDelegate(new PActivityDelegate() {
+				public void activityStarted(PActivity activity) {
+				}
+				public void activityStepped(PActivity activity) {
+				}
+				public void activityFinished(PActivity activity) {
+					animateToLastChainView();				
+				}
+			});
 		}
 		this.lastChainView = lastChainView;
+	}
+	
+	private void animateToLastChainView() {
+		if (lastChainView != null) {
+			animateToBounds(lastChainView.getChainDetailBounds());
+		}
 	}
 	
 	public void hideLastChainView() {
