@@ -156,14 +156,14 @@ public class RenderingAgt
 		curPixelsID = request.getPixelsID();
 		initChannelData();
 		if (presentation != null) removePresentation();
-		buildPresentation();
+		buildPresentation(request.getImageName());
 	}
 	
 	/** Build the presentation. */
-	private void buildPresentation()
+	private void buildPresentation(String imageName)
 	{
 		control  = new RenderingAgtCtrl(this);
-		presentation = new RenderingAgtUIF(control, registry);
+		presentation = new RenderingAgtUIF(control, registry, imageName);
 		control.setPresentation(presentation);
 	}
 	

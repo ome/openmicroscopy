@@ -89,9 +89,17 @@ class RenderingAgtUIF
 	
 	private IconManager				im;
 	
-	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry)
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param control		Reference to the controller {@link RenderingAgtCtrl}
+	 *  					of this agent.
+	 * @param registry		Reference to the {@link Registry registry}.
+	 * @param name			Name of the current image displayed.
+	 */
+	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry, String name)
 	{
-		super("Rendering");
+		super("Rendering "+name);
 		this.registry = registry;
 		this.control = control;
 		im = IconManager.getInstance(registry); 
