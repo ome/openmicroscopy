@@ -1,5 +1,5 @@
 /*
- * omeds.dbrows.Project
+ * omeds.dbrows.ImageDatasetMapRow
  *
  *------------------------------------------------------------------------------
  *
@@ -38,7 +38,7 @@ import java.sql.PreparedStatement;
 import omeds.DBManager;
 import omeds.DBRow;
 
-/** 
+ /**
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,52 +52,42 @@ import omeds.DBRow;
  * </small>
  * @since OME2.2
  */
-public class ProjectRow
+public class ImageDatasetMapRow
 	extends DBRow
 {
 
-	private static String	INSERT_STM, UPDATE_STM;
+	private static String	INSERT_STM, DELETE_STM;
 
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
-		buf.append("INSERT INTO projects ");
-		buf.append("(project_id, group_id, view, name, owner_id, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
+		buf.append("INSERT INTO image_dataset_map ");
+		buf.append("(image_id, dataset_id)");
+		buf.append(" VALUES (?, ?)");
 		INSERT_STM = buf.toString();
-		
-		//UPDATE_STM
+	
+		//DELETE_STM
 		buf = new StringBuffer();
-		buf.append("UPDATE projects ");
-	  	buf.append("SET group_id = ?, view = ?, name = ?, owner_id = ?, ");
-	  	buf.append("description = ? ");
-	  	buf.append("WHERE project_id = ?");
-	  	UPDATE_STM = buf.toString();
+		buf.append("DELETE FROM image_dataset_map ");
+		buf.append("WHERE image_id = ? AND  dataset_id = ?");
+		DELETE_STM = buf.toString();
 	}
 	
+	private ImageRow 	imageRow;
+	private DatasetRow 	datasetRow;
 	
-	private String			name;
-	private String			description;
-	private String			view;
-	private ExperimenterRow	expRow;
-	private GroupRow		groupRow;
-	
-	public ProjectRow(GroupRow groupRow, String view, String name, 
-						ExperimenterRow expRow, String description)
+	public ImageDatasetMapRow(ImageRow imageRow, DatasetRow datasetRow)
 	{
-		this.groupRow = groupRow;
-		this.view = view;
-		this.name = name;
-		this.expRow = expRow;
-		this.description = description;	
+		this.imageRow = imageRow;
+		this.datasetRow = datasetRow;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see omeds.DBRow#getTableName()
 	 */
 	public String getTableName()
 	{
-		return "projects";
+		return "image_dataset_map";
 	}
 
 	/* (non-Javadoc)
@@ -105,7 +95,8 @@ public class ProjectRow
 	 */
 	public String getIDColumnName()
 	{
-		return "project_id";
+		
+		return "dataset_id";
 	}
 
 	/* (non-Javadoc)
@@ -113,7 +104,7 @@ public class ProjectRow
 	 */
 	public void fillFromDB(int id)
 		throws Exception
-	{
+	{		
 	}
 
 	/* (non-Javadoc)
@@ -124,82 +115,50 @@ public class ProjectRow
 	{
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
-		ps.setInt(1, getID());	
-		ps.setInt(2, groupRow.getID());
-		ps.setString(3, view);
-		ps.setString(4, name);
-		ps.setInt(5, expRow.getID());
-		ps.setString(6, description);
+		ps.setInt(1, imageRow.getID());	
+		ps.setInt(2, datasetRow.getID());
 		ps.execute();
-		ps.close();
+		ps.close();	
 	}
 
 	/* (non-Javadoc)
-	 * @see omeds.DBRow#update(java.sql.Connection)
+	 * @see omeds.DBRow#update()
 	 */
 	public void update()
 		throws Exception
+	{	
+	}
+	
+	/** Overwrites {@link omedsDBRow#delete} method. */
+	public void delete()
+		throws Exception
 	{
 		DBManager dbm = DBManager.getInstance();
-		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
-		ps.setInt(1, groupRow.getID());
-		ps.setString(2, view);
-		ps.setString(3, name);
-		ps.setInt(4, expRow.getID());
-		ps.setString(5, description);
-		ps.setInt(6, getID());
+		PreparedStatement ps = dbm.getPreparedStatement(DELETE_STM);
+		ps.setInt(1, imageRow.getID());
+		ps.setInt(2, datasetRow.getID());
 		ps.execute();
-		ps.close();
+		ps.close();	
 	}
 
-	public String getDescription()
+	public DatasetRow getDatasetRow()
 	{
-		return description;
+		return datasetRow;
 	}
 
-	public GroupRow getGroupRow()
+	public ImageRow getImageRow()
 	{
-		return groupRow;
+		return imageRow;
 	}
 
-	public String getName()
+	public void setDatasetRow(DatasetRow datasetRow)
 	{
-		return name;
+		this.datasetRow = datasetRow;
 	}
 
-	public ExperimenterRow getExperimenterRow()
+	public void setImageRow(ImageRow imageRow)
 	{
-		return expRow;
-	}
-
-	public String getView()
-	{
-		return view;
-	}
-
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-
-	public void setGroupRow(GroupRow groupRow)
-	{
-		this.groupRow = groupRow;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public void setExperimenterRow(ExperimenterRow expRow)
-	{
-		this.expRow = expRow;
-	}
-
-	public void setView(String view)
-	{
-		this.view = view;
+		this.imageRow = imageRow;
 	}
 
 }

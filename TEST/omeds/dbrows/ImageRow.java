@@ -30,6 +30,7 @@ package omeds.dbrows;
 
 //Java imports
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 //Third-party libraries
@@ -56,42 +57,47 @@ public class ImageRow
 	extends DBRow
 {
 
-	private static String	INSERT_STM;
+	private static String	INSERT_STM, UPDATE_STM;
 
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
 		buf.append("INSERT INTO images ");
-		buf.append("(image_id, pixels_id, created, group_id, inserted, name,");
-		buf.append(" experimenter_id, image-guid, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		buf.append("(image_id, created, group_id, inserted, name,");
+		buf.append(" experimenter_id, image_guid, description)");
+		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
+		
+		buf = new StringBuffer();
+		buf.append("UPDATE images ");
+		buf.append("SET created = ?, group_id = ?, inserted = ?, name = ?, ");
+		buf.append("experimenter_id = ?, image_guid = ?, description = ?, ");
+		buf.append("pixels_id = ? ");
+		buf.append("WHERE image_id = ?");
+		UPDATE_STM = buf.toString();	
 	}
 	
 	
-	private Integer		pixelsID;
-	private String		created;
-	private String		inserted;
-	private String		name;
-	private String		description;
-	private String		imageGuid;
-	private	int			ownerID;
-	private Integer		groupID;
+	private Timestamp		created;
+	private Timestamp		inserted;
+	private String			name;
+	private String			description;
+	private String			imageGuid;
+	private ExperimenterRow	expRow;
+	private GroupRow		groupRow;
+	private Integer			pixelID;
 	
-	
-	public ImageRow(Integer pixelsID, String created, Integer groupID,
-					String inserted, String name, int ownerID, 
+	public ImageRow(Timestamp created, GroupRow groupRow,
+					Timestamp inserted, String name, ExperimenterRow expRow, 
 					String imageGuid, String description)
 	{
-		this.pixelsID = pixelsID;
 		this.created = created;
-		this.groupID = groupID;
+		this.groupRow = groupRow;
 		this.inserted = inserted;
 		this.name = name;
-		this.ownerID = ownerID;
+		this.expRow = expRow;
 		this.imageGuid = imageGuid;
-		this.description = description;
-		
+		this.description = description;	
 	}
 	
 	/* (non-Javadoc)
@@ -127,17 +133,17 @@ public class ImageRow
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
-		if (pixelsID == null) ps.setNull(2, Types.INTEGER);
-		else ps.setInt(2, groupID.intValue());
-		ps.setString(3, created);
-		if (groupID == null) ps.setNull(4, Types.INTEGER);
-		else ps.setInt(4, groupID.intValue());
-		ps.setString(5, inserted);
-		ps.setString(6, name);
-		ps.setInt(7, ownerID);
-		ps.setString(8, imageGuid);
-		ps.setString(9, description);
+		ps.setTimestamp(2, created);
+		if (groupRow == null) ps.setNull(3, Types.INTEGER);
+		else ps.setInt(3, groupRow.getID());
+		ps.setTimestamp(4, inserted);
+		ps.setString(5, name);
+		if (expRow == null) ps.setNull(6, Types.INTEGER);
+		else ps.setInt(6, expRow.getID());
+		ps.setString(7, imageGuid);
+		ps.setString(8, description);
 		ps.execute();
+		ps.close();
 	}
 
 	/* (non-Javadoc)
@@ -145,9 +151,112 @@ public class ImageRow
 	 */
 	public void update()
 		throws Exception
+	{	
+		DBManager dbm = DBManager.getInstance();
+		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
+		ps.setTimestamp(1, created);
+		if (groupRow == null) ps.setNull(2, Types.INTEGER);
+		else ps.setInt(2, groupRow.getID());
+		ps.setTimestamp(3, inserted);
+		ps.setString(4, name);
+		if (expRow == null) ps.setNull(5, Types.INTEGER);
+		else ps.setInt(5, expRow.getID());
+		ps.setString(6, imageGuid);
+		ps.setString(7, description);
+		if (pixelID == null) ps.setNull(8, Types.INTEGER);
+		else ps.setInt(8, pixelID.intValue());
+		ps.setInt(9, getID());
+		ps.execute();
+		ps.close();
+	}
+	
+	public String getCreatedtoString()
 	{
-		// TODO Auto-generated method stub
+		return created.toString();
+	}
+	
+	public Timestamp getCreated()
+	{
+		return created;
+	}
+	
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public ExperimenterRow getExperimenterRow()
+	{
+		return expRow;
+	}
+
+	public GroupRow getGroupRow()
+	{
+		return groupRow;
+	}
+
+	public String getImageGuid()
+	{
+		return imageGuid;
+	}
+
+	public String getInsertedtoString()
+	{
+		return inserted.toString();
+	}
+	
+	public Timestamp getInserted()
+	{
+		return inserted;
+	}
 		
+	public String getName() {
+		return name;
+	}
+
+	public void setCreated(Timestamp created)
+	{
+		this.created = created;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public void setExperimenterRow(ExperimenterRow expRow)
+	{
+		this.expRow = expRow;
+	}
+
+	public void setGroupRow(GroupRow groupRow)
+	{
+		this.groupRow = groupRow;
+	}
+
+	public void setImageGuid(String imageGuid)
+	{
+		this.imageGuid = imageGuid;
+	}
+
+	public void setInserted(Timestamp inserted)
+	{
+		this.inserted = inserted;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public Integer getPixelID()
+	{
+		return pixelID;
+	}
+
+	public void setPixelID(Integer pixelID)
+	{
+		this.pixelID = pixelID;
 	}
 
 }

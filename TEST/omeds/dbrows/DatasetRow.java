@@ -31,7 +31,6 @@ package omeds.dbrows;
 
 //Java imports
 import java.sql.PreparedStatement;
-import java.sql.Types;
 
 //Third-party libraries
 
@@ -57,7 +56,7 @@ public class DatasetRow
 	extends DBRow
 {
 
-	private static String	INSERT_STM;
+	private static String	INSERT_STM, UPDATE_STM;
 
 	static {
 		//INSERT_STM
@@ -67,22 +66,31 @@ public class DatasetRow
 		buf.append(" description)");
 		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
+		
+		//UPDATE_STM
+		buf = new StringBuffer();
+		buf.append("UPDATE datasets ");
+		buf.append("SET locked = ?, group_id = ?, name = ?, owner_id = ?, ");
+		buf.append("description = ? ");
+		buf.append("WHERE dataset_id = ?");
+		UPDATE_STM = buf.toString();
+		
 	}
 	
 	
-	private String		name;
-	private String		description;
-	private boolean		locked;
-	private	int			ownerID;
-	private Integer		groupID;
+	private String			name;
+	private String			description;
+	private boolean			locked;
+	private ExperimenterRow expRow;
+	private GroupRow		groupRow;
 	
-	public DatasetRow(boolean locked, Integer groupID, String name, int ownerID,
-					 String description)
+	public DatasetRow(boolean locked, GroupRow groupRow, String name, 
+						ExperimenterRow expRow, String description)
 	{
 		this.locked = locked;
-		this.groupID = groupID;
+		this.groupRow = groupRow;
 		this.name = name;
-		this.ownerID = ownerID;
+		this.expRow = expRow;
 		this.description = description;
 		
 	}
@@ -121,12 +129,12 @@ public class DatasetRow
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
 		ps.setBoolean(2, locked);
-		if (groupID == null) ps.setNull(3, Types.INTEGER);
-		else ps.setInt(3, groupID.intValue());
+		ps.setInt(3, groupRow.getID());
 		ps.setString(4, name);
-		ps.setInt(5, ownerID);
+		ps.setInt(5, expRow.getID());
 		ps.setString(6, description);
 		ps.execute();
+		ps.close();
 	}
 
 	/* (non-Javadoc)
@@ -134,9 +142,67 @@ public class DatasetRow
 	 */
 	public void update()
 		throws Exception
+	{		
+		DBManager dbm = DBManager.getInstance();
+		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
+		ps.setBoolean(1, locked);
+		ps.setInt(2, groupRow.getID());
+		ps.setString(3, name);
+		ps.setInt(4, expRow.getID());
+		ps.setString(5, description);
+		ps.setInt(6, getID());
+		ps.execute();
+		ps.close();
+	}
+
+	public String getDescription()
 	{
-		// TODO Auto-generated method stub
-		
+		return description;
+	}
+
+	public GroupRow getGroupRow()
+	{
+		return groupRow;
+	}
+
+	public boolean isLocked()
+	{
+		return locked;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public ExperimenterRow getExperimenterRow()
+	{
+		return expRow;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public void setGroupRow(GroupRow groupRow)
+	{
+		this.groupRow = groupRow;
+	}
+
+	public void setLocked(boolean locked)
+	{
+		this.locked = locked;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setExperimenterRow(ExperimenterRow expRow)
+	{
+		this.expRow = expRow;
 	}
 
 }

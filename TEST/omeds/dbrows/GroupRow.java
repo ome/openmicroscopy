@@ -57,7 +57,7 @@ public class GroupRow
 	extends DBRow
 {
 
-	private static String	INSERT_STM;
+	private static String	INSERT_STM, UPDATE_STM;
 
 	static {
 		//INSERT_STM
@@ -66,18 +66,26 @@ public class GroupRow
 		buf.append("(attribute_id, leader, name, contact)");
 		buf.append(" VALUES (?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
+		
+		//UPDATE_STM
+		buf = new StringBuffer();
+		buf.append("UPDATE experimenters ");
+		buf.append("SET leader = ?, name = ?, contact = ?, group_id = ? ");
+		buf.append("WHERE attribute_id = ? ");
+		UPDATE_STM = buf.toString();
 	}
 	
 	
-	private String		name;
-	private Integer		leader;
-	private Integer		contact;
+	private String			name;
+	private Integer			leader;
+	private Integer			contact;
+	private ExperimenterRow expRow;
 	
-	public GroupRow(Integer leader, String name, Integer contact)
+	public GroupRow(String name, ExperimenterRow expRow)
 	{
-		this.leader = leader;
 		this.name = name;
-		this.contact = contact;	
+		this.expRow = expRow;
+		
 	}
 	
 	/* (non-Javadoc)
@@ -113,13 +121,20 @@ public class GroupRow
 	{
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
-		ps.setInt(1, getID());	
-		if (leader == null) ps.setNull(2, Types.INTEGER);
-		else ps.setInt(2, leader.intValue());
+		ps.setInt(1, getID());
+		if (expRow != null) {
+			ps.setInt(2, expRow.getID());
+			ps.setInt(4, expRow.getID());
+			Integer i = new Integer(expRow.getID());
+			leader = i;
+			contact = i;
+		} else {
+			ps.setNull(2, Types.INTEGER);
+			ps.setNull(4, Types.INTEGER);
+		} 
 		ps.setString(3, name);
-		if (contact == null) ps.setNull(4, Types.INTEGER);
-		else ps.setInt(4, contact.intValue());
 		ps.execute();
+		ps.close();
 	}
 
 	/* (non-Javadoc)
@@ -128,8 +143,59 @@ public class GroupRow
 	public void update()
 		throws Exception
 	{
-		// TODO Auto-generated method stub
-		
+		DBManager dbm = DBManager.getInstance();
+		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
+		if (expRow != null) {
+			ps.setInt(1, expRow.getID());
+			ps.setInt(3, expRow.getID());
+		} else {
+			ps.setNull(1, Types.INTEGER);
+			ps.setNull(3, Types.INTEGER);
+		} 
+		ps.setString(4, name);
+		ps.setInt(5, getID());
+		ps.execute();
+		ps.close();
+	}
+	
+	public ExperimenterRow getExperimenterRow()
+	{
+		return expRow;
+	}
+	
+	public Integer getContact()
+	{
+		return contact;
+	}
+
+	public Integer getLeader()
+	{
+		return leader;
+	}
+
+	public String getName() 
+	{
+		return name;
+	}
+
+	public void setExperimenterRow(ExperimenterRow expRow)
+	{
+		this.expRow = expRow;
+	}
+	
+	public void setContact(Integer contact)
+	{
+		this.contact = contact;
+	}
+
+	public void setLeader(Integer leader)
+	{
+		this.leader = leader;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 }

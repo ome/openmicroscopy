@@ -57,16 +57,24 @@ public class ExperimenterRow
 	extends DBRow
 {
 
-	private static String	INSERT_STM;
-
+	private static String	INSERT_STM, UPDATE_STM;
+	
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
 		buf.append("INSERT INTO experimenters ");
 		buf.append("(attribute_id, ome_name, firstname, data_dir, lastname,");
-		buf.append(" email, group_id, institution)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		buf.append(" email, institution)");
+		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
+		
+		//UPDATE_STM
+		buf = new StringBuffer();
+		buf.append("UPDATE experimenters ");
+	   	buf.append("SET ome_name = ?, firstname = ?, data_dir = ?, ");
+	   	buf.append("lastname = ?, email = ?, institution = ?, group_id = ?");
+	   	buf.append("WHERE attribute_id = ?");
+		UPDATE_STM = buf.toString();
 	}
 	
 	
@@ -80,14 +88,13 @@ public class ExperimenterRow
 	
 	public ExperimenterRow(String omeName, String firstName, 
 							String dataDirectory, String lastName, String email,
-							Integer groupID, String institution)
+							String institution)
 	{
 		this.omeName = omeName;
 		this.firstName = firstName;
 		this.dataDirectory = dataDirectory;
 		this.lastName = lastName;
 		this.email = email;
-		this.groupID = groupID;
 		this.institution = institution;		
 	}
 	
@@ -129,10 +136,9 @@ public class ExperimenterRow
 		ps.setString(4, dataDirectory);
 		ps.setString(5, lastName);
 		ps.setString(6, email);
-		if (groupID == null) ps.setNull(7, Types.INTEGER);
-		else ps.setInt(7, groupID.intValue());
-		ps.setString(8, institution);
+		ps.setString(7, institution);
 		ps.execute();
+		ps.close();
 	}
 
 	/* (non-Javadoc)
@@ -140,9 +146,91 @@ public class ExperimenterRow
 	 */
 	public void update()
 		throws Exception
+	{	
+		DBManager dbm = DBManager.getInstance();
+		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
+		ps.setString(1, omeName);
+		ps.setString(2, firstName);
+		ps.setString(3, dataDirectory);
+		ps.setString(4, lastName);
+		ps.setString(5, email);
+		ps.setString(6, institution);
+		if (groupID == null) ps.setNull(7, Types.INTEGER);
+		else ps.setInt(7, groupID.intValue());
+		ps.setInt(8, getID());
+		ps.execute();
+		ps.close();	
+	}
+
+	public String getDataDirectory()
 	{
-		// TODO Auto-generated method stub
-		
+		return dataDirectory;
+	}
+
+	public String getEmail()
+	{
+		return email;
+	}
+
+	public String getFirstName()
+	{
+		return firstName;
+	}
+
+	public String getInstitution()
+	{
+		return institution;
+	}
+
+	public String getLastName()
+	{
+		return lastName;
+	}
+
+	public String getOmeName()
+	{
+		return omeName;
+	}
+
+	public void setDataDirectory(String dataDirectory)
+	{
+		this.dataDirectory = dataDirectory;
+	}
+
+	public void setEmail(String email)
+	{
+		this.email = email;
+	}
+
+	public void setFirstName(String firstName)
+	{
+		this.firstName = firstName;
+	}
+	
+	public void setInstitution(String institution)
+	{
+		this.institution = institution;
+	}
+
+	public void setLastName(String lastName)
+	{
+		this.lastName = lastName;
+	}
+
+	public void setOmeName(String omeName)
+	{
+		this.omeName = omeName;
+	}
+
+
+	public Integer getGroupID()
+	{
+		return groupID;
+	}
+
+	public void setGroupID(Integer groupID)
+	{
+		this.groupID = groupID;
 	}
 
 }

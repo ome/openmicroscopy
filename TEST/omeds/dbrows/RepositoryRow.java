@@ -1,5 +1,5 @@
 /*
- * omeds.dbrows.Project
+ * omeds.dbrows.RepositoryRow
  *
  *------------------------------------------------------------------------------
  *
@@ -29,12 +29,15 @@
 
 package omeds.dbrows;
 
+
+
 //Java imports
-import java.sql.PreparedStatement;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.sql.PreparedStatement;
+
 import omeds.DBManager;
 import omeds.DBRow;
 
@@ -52,52 +55,40 @@ import omeds.DBRow;
  * </small>
  * @since OME2.2
  */
-public class ProjectRow
+public class RepositoryRow 
 	extends DBRow
 {
-
 	private static String	INSERT_STM, UPDATE_STM;
 
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
-		buf.append("INSERT INTO projects ");
-		buf.append("(project_id, group_id, view, name, owner_id, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
+		buf.append("INSERT INTO repositories ");
+		buf.append("(attribute_id, image_server_url)");
+		buf.append(" VALUES (?, ?)");
 		INSERT_STM = buf.toString();
 		
 		//UPDATE_STM
 		buf = new StringBuffer();
-		buf.append("UPDATE projects ");
-	  	buf.append("SET group_id = ?, view = ?, name = ?, owner_id = ?, ");
-	  	buf.append("description = ? ");
-	  	buf.append("WHERE project_id = ?");
-	  	UPDATE_STM = buf.toString();
+		buf.append("UPDATE repositories ");
+		buf.append("SET image_server_url = ? ");
+		buf.append("WHERE attribute_id = ?");
+		UPDATE_STM = buf.toString();
 	}
 	
+	private String	imageServerURL;
 	
-	private String			name;
-	private String			description;
-	private String			view;
-	private ExperimenterRow	expRow;
-	private GroupRow		groupRow;
-	
-	public ProjectRow(GroupRow groupRow, String view, String name, 
-						ExperimenterRow expRow, String description)
+	public RepositoryRow(String imageServerURL)
 	{
-		this.groupRow = groupRow;
-		this.view = view;
-		this.name = name;
-		this.expRow = expRow;
-		this.description = description;	
+		this.imageServerURL = imageServerURL;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see omeds.DBRow#getTableName()
 	 */
 	public String getTableName()
 	{
-		return "projects";
+		return "repositories";
 	}
 
 	/* (non-Javadoc)
@@ -105,7 +96,7 @@ public class ProjectRow
 	 */
 	public String getIDColumnName()
 	{
-		return "project_id";
+		return "attribute_id";
 	}
 
 	/* (non-Javadoc)
@@ -113,11 +104,11 @@ public class ProjectRow
 	 */
 	public void fillFromDB(int id)
 		throws Exception
-	{
+	{	
 	}
 
 	/* (non-Javadoc)
-	 * @see omeds.DBRow#insert(java.sql.Connection)
+	 * @see omeds.DBRow#update(java.sql.Connection)
 	 */
 	public void insert()
 		throws Exception
@@ -125,81 +116,33 @@ public class ProjectRow
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
-		ps.setInt(2, groupRow.getID());
-		ps.setString(3, view);
-		ps.setString(4, name);
-		ps.setInt(5, expRow.getID());
-		ps.setString(6, description);
+		ps.setString(2, imageServerURL);
 		ps.execute();
-		ps.close();
+		ps.close();	
 	}
 
 	/* (non-Javadoc)
-	 * @see omeds.DBRow#update(java.sql.Connection)
+	 * @see omeds.DBRow#update()
 	 */
 	public void update()
 		throws Exception
 	{
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(UPDATE_STM);
-		ps.setInt(1, groupRow.getID());
-		ps.setString(2, view);
-		ps.setString(3, name);
-		ps.setInt(4, expRow.getID());
-		ps.setString(5, description);
-		ps.setInt(6, getID());
+		ps.setString(1, imageServerURL);
+		ps.setInt(2, getID());
 		ps.execute();
-		ps.close();
+		ps.close();	
 	}
 
-	public String getDescription()
+	public String getImageServerURL()
 	{
-		return description;
+		return imageServerURL;
 	}
 
-	public GroupRow getGroupRow()
+	public void setImageServerURL(String imageServerURL)
 	{
-		return groupRow;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public ExperimenterRow getExperimenterRow()
-	{
-		return expRow;
-	}
-
-	public String getView()
-	{
-		return view;
-	}
-
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-
-	public void setGroupRow(GroupRow groupRow)
-	{
-		this.groupRow = groupRow;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public void setExperimenterRow(ExperimenterRow expRow)
-	{
-		this.expRow = expRow;
-	}
-
-	public void setView(String view)
-	{
-		this.view = view;
+		this.imageServerURL = imageServerURL;
 	}
 
 }
