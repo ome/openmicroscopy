@@ -30,11 +30,15 @@
 package org.openmicroscopy.shoola.agents.zoombrowser;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import javax.swing.BoxLayout;
 import java.util.HashMap;
+import javax.swing.border.Border;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
 
 
 
@@ -50,16 +54,16 @@ import org.openmicroscopy.shoola.agents.events.SelectDataset;
 
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.ProjectSelectionCanvas;
-import org.openmicroscopy.shoola.agents.zoombrowser.
-	piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A top-level window for a zoomable project browser 
@@ -109,11 +113,18 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	public void buildGUI()
 	{
 		contents = getContentPane();
-		contents.setLayout(new BoxLayout(contents,BoxLayout.Y_AXIS));
+	
+		contents.setLayout(new BorderLayout());
 		
 		
 			
 		// create datasets, etc here.
+		
+		Border empty = BorderFactory.createEmptyBorder(5,5,5,5);
+		Border raised = BorderFactory.createRaisedBevelBorder();
+		Border lowered = BorderFactory.createLoweredBevelBorder();
+		Border compound = BorderFactory.createCompoundBorder(raised,lowered);
+		Border fullBorder = BorderFactory.createCompoundBorder(empty,compound);
 		datasetBrowser = new DatasetBrowserCanvas(this);
 		projectBrowser = new ProjectSelectionCanvas(this);
 		
@@ -124,9 +135,22 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		datasetBrowser.completeInitialization();
 		projectBrowser.completeInitialization();
 		
-		contents.add(projectBrowser);
-		contents.add(datasetBrowser);
+		JPanel projectsPanel = new JPanel();
+		projectsPanel.setBorder(
+				BorderFactory.createTitledBorder(fullBorder,"Projects"));
+		projectsPanel.setLayout(new BorderLayout());
+		projectsPanel.setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		projectsPanel.add(projectBrowser,BorderLayout.CENTER);
 		
+		JPanel datasetPanel = new JPanel();
+		datasetPanel.setBorder(
+				BorderFactory.createTitledBorder(fullBorder,"Datasets"));
+		datasetPanel.setLayout(new BorderLayout());
+		datasetPanel.setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
+		datasetPanel.add(datasetBrowser,BorderLayout.CENTER);
+		contents.add(projectsPanel,BorderLayout.NORTH);
+		contents.add(datasetPanel,BorderLayout.CENTER);
+		pack();
 		addComponentListener(this);
 		enableButtons(true);
 	}
@@ -155,14 +179,10 @@ public class MainWindow extends TopWindow implements ComponentListener,
 					SelectAnalysisChain.class,
 					MouseOverAnalysisChain.class,
 					ChainExecutionsLoadedEvent.class});
-		//enableButtons(false);
-		//buildGUI();
+		enableButtons(false);
 	}
 		
-	public void setToPreferredSizes() {
-		pack();
-		setResizable(false);
-	}
+	
 
 	public void setRolloverProject(BrowserProjectSummary proj) {
 	 	datasetBrowser.setRolloverProject(proj);
