@@ -35,21 +35,16 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.net.URL;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Factory for the various windows and widgets used within the container.
- * Other utility methods (to load images, format tooltips, etc.) are also
- * included.
+ * Other utility methods (to format tooltips, etc.) are also included.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,24 +59,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 
 public class UIFactory 
-{
-
-	/** Icons only used at initialization time. */
-	public static final int		ERROR = 0;
-	private static final int 	MAX_ID = 0;
-	private static String[]		icons;
-	
-	
-	static {
-		icons = new String[MAX_ID+1];
-		icons[ERROR] = "graphx/ome16.png";	
-	}
-	
-	/** 
-	 * This methos should only be accessed at initialization time if an error
-	 * occurs.
-	 */
-	static Icon getIcon(int id) { return createIcon(icons[id]); }
+{	
 	
 	/**
 	 * Creates the splash screen that is used at initialization.
@@ -105,39 +83,13 @@ public class UIFactory
 	}
 	
 	/**
-	 * Creates the {@link UserNotifier}. Should only be used at initialization 
-	 * time.
+	 * Creates the {@link UserNotifier}.
+	 *
+	 * @return	The {@link UserNotifier}.
 	 */
 	public static UserNotifier makeUserNotifier()
 	{
 		return new UserNotifierImpl();
-	}
-	
-	/**
-	 * Creates the {@link UserNotifier}.
-	 * 
-	 * @param tf	Reference to the {@link TopFrame}. 
-	 * @param reg	reference to the {@link Registry}.
-	 * @return	The {@link UserNotifier}.
-	 */
-	public static UserNotifier makeUserNotifier(TopFrame tf, Registry reg)
-	{
-		return new UserNotifierImpl((TopFrameImpl) tf, reg);
-	}
-	
-	/** 
-	 * Utility factory method to create an icon from a file.
-	 *
-	 * @param path    The path of the icon file relative to this class.
-	 * @return  An instance of {@link javax.swing.Icon Icon} or
-	 * 			<code>null</code> if the path was invalid.
-	 */
-	public static Icon createIcon(String path)
-	{
-		URL location = UIFactory.class.getResource(path);
-		ImageIcon icon = null;
-		if (location != null)	icon = new ImageIcon(location);
-		return icon;
 	}
 	
 	/** 
