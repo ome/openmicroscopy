@@ -77,12 +77,6 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	 */
 	protected int allButtonMask = MouseEvent.BUTTON1_MASK;
 	
-	/**
-	 * A flag that is set immediately after a popup event
-	 * 
-	 */
-	protected boolean postPopup = false;
-	
 	
 	public GenericZoomEventHandler(BufferedObject canvas) {
 		super();
@@ -105,8 +99,8 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		PNode node = e.getPickedNode();
 		int mask = e.getModifiers() & allButtonMask;
 		
-		if (isPostPopup(e))
-			return;
+	//	if (isPostPopup(e))
+	//		return;
 			
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
 			
