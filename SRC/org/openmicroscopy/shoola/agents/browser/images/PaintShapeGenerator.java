@@ -143,6 +143,10 @@ public final class PaintShapeGenerator
         path.moveTo(12,0);
         path.lineTo(0,12);
         path.lineTo(12,24);
+        path.lineTo(12,16);
+        path.lineTo(18,16);
+        path.lineTo(18,8);
+        path.lineTo(12,8);
         path.closePath();
         return path;
     }
@@ -150,9 +154,13 @@ public final class PaintShapeGenerator
     public Shape getNextImageShape()
     {
         GeneralPath path = new GeneralPath();
-        path.moveTo(0,0);
-        path.lineTo(12,12);
-        path.lineTo(0,24);
+        path.moveTo(6,0);
+        path.lineTo(18,12);
+        path.lineTo(6,24);
+        path.lineTo(6,16);
+        path.lineTo(0,16);
+        path.lineTo(0,8);
+        path.lineTo(6,8);
         path.closePath();
         return path;
     }

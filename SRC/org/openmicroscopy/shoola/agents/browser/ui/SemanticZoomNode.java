@@ -208,7 +208,7 @@ public class SemanticZoomNode extends PImage
         
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         IconManager manager = env.getIconManager();
-        openIconImage = manager.getLargeImage(IconManager.OPEN_IMAGE);
+        openIconImage = manager.getLargeImage(IconManager.ZOOM_BAR);
         closeIconImage = manager.getLargeImage(IconManager.CLOSE_IMAGE);
         
         int iconWidth = openIconImage.getWidth(null);

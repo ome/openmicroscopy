@@ -620,6 +620,14 @@ public class BrowserView extends PCanvas
         if(Math.min(xRatio,yRatio) != minZoomLevel)
         {
             minZoomLevel = Math.min(xRatio,yRatio);
+            if(minZoomLevel < 0.05)
+            {
+                minZoomLevel = 0.05;
+            }
+            else if(minZoomLevel > 0.75)
+            {
+                minZoomLevel = 0.75;
+            }
             for(Iterator iter = zoomParamListeners.iterator(); iter.hasNext();)
             {
                 ZoomParamListener listener = (ZoomParamListener)iter.next();
