@@ -274,6 +274,8 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		handler.animateToCanvasBounds();
 	}
 
+
+	
 	/**
 	 * 
 	 * @return canvas bounds with appropriate buffers for centering
@@ -365,18 +367,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		if (e instanceof DatasetEvent) {
 			DatasetEvent event = (DatasetEvent) e;
 			DatasetData dataset = event.getDataset();
-			if (event instanceof SelectDataset) 
-				selectDataset(dataset);
-			else if (event instanceof MouseOverDataset)
-				mouseOverDataset(dataset);
+			selectDataset(dataset);
 		}
 	}
 	
-	private void selectDataset(DatasetData d) {
-		mouseOverDataset(d);
-	}
 	
-	private void mouseOverDataset(DatasetData d) {
+	private void selectDataset(DatasetData d) {
 		
 		// for each of them, if they have an execution, set Highlighted, or not.
 		Iterator iter = layer.getChildrenIterator();
