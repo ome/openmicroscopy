@@ -48,6 +48,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
+
 //Application-internal dependencies
 
 /**
@@ -65,6 +66,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * where rendering all of the thumbnails would be cost-prohibitive and 
  * not particularly useful.
  * 
+ * 
  * To support the zooming via the {@link ThumbnailSelectionHalo}, this node also
  * queries the thumbnail nodes to derive the bounds of the halo, and updates 
  * those bounds as the view zooms in and out.
@@ -81,14 +83,15 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 public class DatasetImagesNode extends PNode  {
 
 	/**
-	 *  minimum number of images that a dataset must have before an icon is used
-	 */
-	private static final int MIN_ICON_DATASET_SIZE=100;
-	/**
-	 * Threshold below which we'll show the icon instead of the actual thumbnails.
-	 */
-	private static final double SCALE_THRESHOLD=.75;
-		
+	*  minimum number of images that a dataset must have before an icon is used
+	*/
+ 	private static final int MIN_ICON_DATASET_SIZE=100;
+ 	
+ 	/**
+	* Threshold below which we'll show the icon instead of the actual thumbnails.
+	*/
+ 	private static final double SCALE_THRESHOLD=.75;
+ 		
 	/**
 	 * Parent node for thumbnails
 	 */
@@ -98,7 +101,7 @@ public class DatasetImagesNode extends PNode  {
 	 * An image that will take the place of thumbnails as we zoom out
 	 */
 	private PImage thumbnailNode = null;
-	
+		
 	/**
 	 * flag indicating when we are selected.
 	 */
@@ -174,7 +177,6 @@ public class DatasetImagesNode extends PNode  {
 		return imagesNode.getChildrenIterator();
 	}
 	
-	
 	/**
 	 * When all of the thumbnails for the dataset have been added, 
 	 * create an icon image add add it to this node.
@@ -187,17 +189,17 @@ public class DatasetImagesNode extends PNode  {
 		// only do this if the images have non-zero bounds and there are
 		// more than MIN_ICON_DATSET_SIZE images
 		if (b.getWidth() > 0 && b.getHeight() > 0 &&
-			imagesNode.getChildrenCount() > MIN_ICON_DATASET_SIZE) {
-			
-			// use {@link PNode.toImage} to get a snapshot of the thumbnails.	
+						imagesNode.getChildrenCount() > MIN_ICON_DATASET_SIZE) {
+                  
+			// use {@link PNode.toImage} to get a snapshot of the thumbnails.       
 			thumbnailNode = new PImage(imagesNode.toImage((int)b.getWidth(),
-				(int) b.getHeight(),null),true);
+							(int) b.getHeight(),null),true);
 			addChild(thumbnailNode);
 			moveToBack(thumbnailNode);
 		}
 	}
-	
-	
+        
+        
 	/**
 	 * If there is no icon node, this node is selected, or we're zoomed in
 	 * to a scale greater than SCALE_THRESHOLD, hide the icon image and show 
@@ -207,28 +209,28 @@ public class DatasetImagesNode extends PNode  {
 	 *
 	 */
 	public void paint(PPaintContext aPaintContext) {
-		
+                
 		if (thumbnailNode == null || selected == true || 
-			aPaintContext.getScale() > SCALE_THRESHOLD){
+						aPaintContext.getScale() > SCALE_THRESHOLD){
 			if (thumbnailNode != null) {
-				thumbnailNode.setVisible(false);
-				thumbnailNode.setPickable(false);
+							thumbnailNode.setVisible(false);
+							thumbnailNode.setPickable(false);
 			}
 			imagesNode.setVisible(true);
 			setPickable(true);
 		}
 		else {
-			
+	                
 			// show images node
 			imagesNode.setVisible(false);
 			if (thumbnailNode != null) {
-				thumbnailNode.setVisible(true);
-				thumbnailNode.setPickable(true);	
+							thumbnailNode.setVisible(true);
+							thumbnailNode.setPickable(true);        
 			}
-			setPickable(false);
+				setPickable(false);
 		}
 		super.paint(aPaintContext);
-	}
+	}	
 	
 	public void setSelected(boolean v) {
 		selected = v;
@@ -452,9 +454,6 @@ public class DatasetImagesNode extends PNode  {
 	public void zoomOutOfHalo(Thumbnail thumb) {
 		// get the zoom level
 		int level = handler.getZoomLevel();
-		// if level is zero, do nothing - the view is already zoomed out
-		if (level == 0)
-			return;
 		if (level <= 1) {
 			// go to top level.
 			BufferedObject b = thumb.getBufferedParentNode();
