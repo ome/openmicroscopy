@@ -196,7 +196,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 						ModuleFlavor.moduleFlavor); 
 				e.getDropTargetContext().dropComplete(true);
 				int id = Integer.parseInt(i);
-				ChainModuleData mod = manager.getModule(id);
+				ChainModuleData mod = (ChainModuleData)manager.getModule(id);
 				Point2D loc = e.getLocation();
 				createDroppedModule(mod,loc);
 				addInputEventListener(handler);
