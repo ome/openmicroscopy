@@ -4,7 +4,7 @@
 package org.ome.interfaces;
 
 import org.ome.model.FollowGroup;
-import org.ome.model.ILSObject;
+import org.ome.model.LSObject;
 import org.ome.model.LSID;
 
 
@@ -17,9 +17,9 @@ import java.rmi.Remote;
  */
 public interface GenericService extends Remote {
 
-	public void setLSOjbect(ILSObject obj);
-	public void updateLSObject(ILSObject obj);
-	public ILSObject getLSObject(LSID lsid);
-	public ILSObject getLSObject(LSID lsid, FollowGroup pg);
+	public void setLSOjbect(LSObject obj);
+	public void updateLSObject(LSObject obj);
+	public LSObject getLSObject(LSID lsid);
+	public LSObject getLSObject(LSID lsid, FollowGroup pg);
 	
 }

@@ -8,24 +8,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.ome.exceptions.LSIDObjectException;
-
 /** storage mechanism for an RDF graph of LSID-referenced objects.
  * Currently stores Java Object Primitives and other LSObjects. // FIXME  
  * @author josh
 */
-public abstract class LSObject implements Serializable, ILSObject{
+public abstract class AbstractLSObject implements Serializable, LSObject{
 
 	protected LSID lsid;
 	Map map = new HashMap();
 	
 	/** creates an LSObject with a given lsid. The LSID is immutable. */
-	public LSObject(LSID lsid){
+	public AbstractLSObject(LSID lsid){
 		this.lsid = lsid;
 	}
 	
 	public boolean put(String predicate, Object object){ // FIXME lsid and runtime checks on object 
-		if (object instanceof LSObject ||
+		if (object instanceof AbstractLSObject ||
 				object instanceof Float ||
 				object instanceof Double ||
 				object instanceof String ||
@@ -46,6 +44,11 @@ public abstract class LSObject implements Serializable, ILSObject{
 		return lsid;
 	}
 	
+	public Map getMap(){
+		return map;
+	}
+	
+	//TODO should this show new or old values (will need to reimplement to show new)
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		sb.append(lsid);
@@ -55,8 +58,8 @@ public abstract class LSObject implements Serializable, ILSObject{
 			String value;
 			
 			Object o = map.get(key);
-			if (o instanceof ILSObject){
-				value = ((ILSObject)o).getLSID().getURI();
+			if (o instanceof LSObject){
+				value = ((LSObject)o).getLSID().getURI();
 			} else {
 				value = o.toString();
 			}

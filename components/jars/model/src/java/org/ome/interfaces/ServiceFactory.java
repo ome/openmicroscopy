@@ -13,6 +13,7 @@ package org.ome.interfaces;
  */
 public interface ServiceFactory {
 	public AdministrationService getAdministrationService();
+	public ContainerService getContainerService();
 	public GenericService getGenericService();
 	public FollowGroupService getFollowGroupService();
 }
