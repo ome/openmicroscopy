@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
 
 //Third-party libraries
 
