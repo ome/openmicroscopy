@@ -35,7 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 
 import edu.umd.cs.piccolo.PCanvas;
 
@@ -58,6 +66,7 @@ public class BrowserView extends PCanvas
     private void init()
     {
         env = BrowserEnvironment.getInstance();
+        setBackground(new Color(192,192,192));
     }
 
     /**
@@ -79,12 +88,39 @@ public class BrowserView extends PCanvas
         {
             this.browserModel = browserModel;
             this.overlayModel = overlayModel;
+            
+            List thumbnailList = browserModel.getThumbnails();
+            for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+            {
+                getLayer().addChild((Thumbnail)iter.next());
+            }
+            updateThumbnails();
         }
     }
     
+    // TODO: retrofit to groups
     public void updateThumbnails()
     {
-        // relayout children and all that good stuff
+        List thumbnailList = browserModel.getThumbnails();
+        Thumbnail[] thumbnails = new Thumbnail[thumbnailList.size()];
+        thumbnailList.toArray(thumbnails);
+        
+        LayoutMethod method = browserModel.getLayoutMethod();
+        
+        if(method == null) // TODO: fallback to default?
+        {
+            System.err.println("null layout method");
+            return;
+        }
+        
+        Map layoutMap = method.getAnchorPoints(thumbnails);
+        
+        for(Iterator iter = layoutMap.keySet().iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            Point2D offset = (Point2D)layoutMap.get(t);
+            t.setOffset(offset);
+        }
     }
 
     /**
@@ -107,10 +143,17 @@ public class BrowserView extends PCanvas
      * Responds to a model-triggered update.
      * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#modelUpdated()
      */
-    public void modelUpdated()
+    public void modelUpdated() // TODO: refine this brute-force method
     {
+        getLayer().removeAllChildren();
+        List thumbnailList = browserModel.getThumbnails();
+        
+        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        {
+            getLayer().addChild((Thumbnail)iter.next());
+        }
         // TODO Auto-generated method stub
-
+        updateThumbnails();
     }
     
     /**

@@ -57,7 +57,8 @@ public interface LayoutMethod
      * @param t The thumbnail for which to determine the position.
      * @return The assigned position of the thumbnail.
      */
-    public Point2D getAnchorPoint(Thumbnail t);
+    public Point2D getAnchorPoint(Thumbnail t)
+        throws UnsupportedOperationException;
 
     /**
      * Returns a map with the thumbnail keys mapped to their specified

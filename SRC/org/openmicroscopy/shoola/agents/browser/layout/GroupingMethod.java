@@ -63,4 +63,10 @@ public interface GroupingMethod
      * @return Which group the thumbnail belongs to.
      */
     public GroupModel getGroup(Thumbnail t);
+    
+    /**
+     * Gets all possible groups in the grouping method.
+     * @return See above.
+     */
+    public GroupModel[] getGroups();
 }

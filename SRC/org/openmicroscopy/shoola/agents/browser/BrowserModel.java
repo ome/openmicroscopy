@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
 
@@ -58,7 +59,6 @@ public class BrowserModel
 {
     private BrowserEnvironment env;
 
-    private ThumbnailSourceModel sourceModel;
     private Set thumbnailSet;
     
     private Set progressListeners;
@@ -84,7 +84,8 @@ public class BrowserModel
         modelListeners = new HashSet();
         selectedImages = new HashSet();
         hiddenImages = new HashSet();
-        groupModels = new ArrayList();
+        groupingMethod = new SingleGroupingMethod();
+        groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
         annotationModel = new PaintMethodZOrder();
 
@@ -100,64 +101,10 @@ public class BrowserModel
     public BrowserModel()
     {
         init();
-        GroupModel model = new GroupModel("all");
-        groupModels.add(model);
-        groupingMethod = new SingleGroupingMethod(model);
-    }
-
-    /**
-     * Creates a BrowserModel with the backing ThumbnailSourceModel.  An error
-     * will be thrown to the user if no such map (which contains the Thumbnail
-     * and data source information) is supplied.
-     *
-     * @param dataModel The data model to back the BrowserModel.
-     */
-    public BrowserModel(ThumbnailSourceModel dataModel)
-    {
-        init();
-
-        if (dataModel == null)
-        {
-            sendInternalError("null dataModel passed to BrowserModel constructor");
-            return;
-        }
-        else
-        {
-            this.sourceModel = dataModel;
-        }
     }
     
     // TODO: include constructor which loads settings (so that the grouping
     // model doesn't always revert to the default)
-
-    /**
-     * Gets the backing source/image data model.
-     * @return The thumbnail/data source backing model.
-     */
-    public ThumbnailSourceModel getDataModel()
-    {
-        return sourceModel;
-    }
-
-    /**
-     * Sets the backing model to the specified source mapping.  Will throw an
-     * error if the dataModel is null (but not if it's empty)
-     * 
-     * @param dataModel The desired backing model.
-     */
-    public void setDataModel(ThumbnailSourceModel dataModel)
-    {
-        if (dataModel == null)
-        {
-            sendInternalError("null dataModel passed to BrowserModel.setDataModel");
-            return;
-        }
-        else
-        {
-            this.sourceModel = dataModel;
-            updateModelListeners();
-        }
-    }
     
     /**
      * Adds a thumbnail to the browser.  This thumbnail *should* also be in
@@ -167,6 +114,7 @@ public class BrowserModel
      */
     public void addThumbnail(Thumbnail thumb)
     {
+        System.err.println("thumb: "+thumb.toString());
         if(thumb != null)
         {
             thumbnailSet.add(thumb);
@@ -192,6 +140,17 @@ public class BrowserModel
     }
     
     /**
+     * Returns a list of thumbnails in the model, ordered by ID.
+     * @return See above.
+     */
+    public List getThumbnails()
+    {
+        List thumbnailList = new ArrayList(thumbnailSet);
+        Collections.sort(thumbnailList,new ImageIDComparator());
+        return Collections.unmodifiableList(thumbnailList);
+    }
+    
+    /**
      * Clears all thumbnails from the browser model.
      */
     public void clearThumbnails()
@@ -203,6 +162,54 @@ public class BrowserModel
             group.clearThumbnails();
         }
         updateModelListeners();
+    }
+    
+    /**
+     * Returns the layout method with which the view should place the
+     * thumbnail objects onscreen.
+     * @return The current layout method.
+     */
+    public LayoutMethod getLayoutMethod()
+    {
+        return layoutMethod;
+    }
+    
+    /**
+     * Sets the thumbnail layout method to the specified method.  Will
+     * do nothing if the method is null.
+     * @param lm The layout method for an attached view to use.
+     */
+    public void setLayoutMethod(LayoutMethod lm)
+    {
+        if(lm != null)
+        {
+            this.layoutMethod = lm;
+            updateModelListeners();
+        }
+    }
+    
+    /**
+     * Returns the method by which individual thumbnails are divided into
+     * certain criteria or phenotypes (and look so onscreen)
+     * @return The grouping/dividing method used to distinguish thumbnails.
+     */
+    public GroupingMethod getGroupingMethod()
+    {
+        return groupingMethod;
+    }
+    
+    /**
+     * Sets the grouping method to the specified method.
+     * @param gm The grouping method to use.
+     */
+    public void setGroupingMethod(GroupingMethod gm)
+    {
+        // TODO: reestablish groups, likely
+        if(gm != null)
+        {
+            this.groupingMethod = gm;
+            updateModelListeners();
+        }
     }
 
     /**

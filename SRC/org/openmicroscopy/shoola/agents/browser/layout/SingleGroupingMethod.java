@@ -54,19 +54,10 @@ public class SingleGroupingMethod implements GroupingMethod
      * Constructs the single grouping method with a single backing group.
      * @param model The group to add all thumbnails to.
      */
-    public SingleGroupingMethod(GroupModel model)
+    public SingleGroupingMethod()
         throws IllegalArgumentException
     {
-        if(model != null)
-        {
-            this.singleGroup = model;
-        }
-        else
-        {
-            // TODO: log message
-            throw new IllegalArgumentException("null model at "+
-                                               "SingleGroupingMethod(model)");
-        }
+        singleGroup = new GroupModel("images");
     }
     
     /**
@@ -100,6 +91,15 @@ public class SingleGroupingMethod implements GroupingMethod
     public GroupModel getGroup(Thumbnail t)
     {
         return singleGroup;
+    }
+    
+    /**
+     * Returns an array with just the single available group model.
+     * @return see above.
+     */
+    public GroupModel[] getGroups()
+    {
+        return new GroupModel[] { singleGroup };
     }
 
 }

@@ -183,6 +183,22 @@ public class CriteriaGroupingMethod implements GroupingMethod
         }
         return null;
     }
+    
+    /**
+     * Returns the complete array of groups that a thumbnail can belong to,
+     * according to this grouping method.
+     */
+    public GroupModel[] getGroups()
+    {
+        GroupModel[] groups = new GroupModel[criteria.size()];
+        
+        for(int i=0; i<criteria.size(); i++)
+        {
+            GroupModel model = (GroupModel)criteriaMap.get(criteria.get(i));
+            groups[i] = model;
+        }
+        return groups;
+    }
 
     // TODO: reweight based on order?
 }
