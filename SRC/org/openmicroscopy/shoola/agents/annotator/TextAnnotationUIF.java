@@ -228,11 +228,14 @@ public class TextAnnotationUIF extends JDialog
         {
             isNewAnnotation = true;
             annotationArea.setText("(no annotation)");
+            controller.setSaved(false);
         }
         else
         {
             String annotation = controller.getAnnotation(0);
             annotationArea.setText(annotation);
+            // override change command
+            controller.setSaved(true);
         }
         
         pack();
