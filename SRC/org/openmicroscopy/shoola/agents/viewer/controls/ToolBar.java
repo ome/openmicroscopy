@@ -206,7 +206,7 @@ public class ToolBar
         bar.setFloatable(false);
         bar.add(render);
         bar.add(inspector);
-        bar.add(viewer3D);
+        //bar.add(viewer3D);
         bar.add(movie);
         bar.add(roi);
         bar.add(saveAs);
