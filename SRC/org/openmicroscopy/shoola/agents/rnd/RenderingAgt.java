@@ -202,7 +202,7 @@ public class RenderingAgt
 	{
 		channelData = new ChannelData[pxsDims.sizeW];
 		for (int i = 0; i < pxsDims.sizeW; i++)
-					channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
+			channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
 	}
 
 	ChannelData[] getChannelData()

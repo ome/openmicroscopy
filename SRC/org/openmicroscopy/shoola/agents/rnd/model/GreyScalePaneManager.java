@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 class GreyScalePaneManager
 	implements ActionListener
 {
+	
 	private GreyScalePane view;
 	
 	private RenderingAgtCtrl	eventManager;

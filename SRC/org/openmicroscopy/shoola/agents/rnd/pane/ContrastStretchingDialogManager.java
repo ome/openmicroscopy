@@ -59,6 +59,8 @@ import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 class ContrastStretchingDialogManager
 	implements MouseListener, MouseMotionListener
 {
+	
+	/** Widget's contants. */
 	private static final int			topBorder = 
 										ContrastStretchingPanel.topBorder, 
 										leftBorder = 
@@ -71,7 +73,8 @@ class ContrastStretchingDialogManager
 	private static final int 			triangleW = 	
 										ContrastStretchingPanel.triangleW, 
 										length = 2*triangleW;
-								
+	
+	/** Used to control mouse pressed and dragged events. */				
 	private boolean   					dragging;
 	
 	/** Rectangles controlling the cursors. */
@@ -105,12 +108,14 @@ class ContrastStretchingDialogManager
 		view.getCSPanel().addMouseMotionListener(this);
 	}
 	
+	/** Convert a real value into coordinates. */
 	int convertGraphicsIntoReal(int x, int r, int b)
 	{
 		double a = (double) r/square;
 		return (int) (a*x+b);
 	}
 	
+	/** Convert a coordinate into a real value. */
 	int convertRealIntoGraphics(int x, int r, int b)
 	{
 		double a = (double) square/r;
@@ -136,7 +141,6 @@ class ContrastStretchingDialogManager
 	public void mousePressed(MouseEvent e)
 	{
 		Point p = e.getPoint();
-		
 		if (!dragging) { 
 			dragging = true; 
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
@@ -213,7 +217,6 @@ class ContrastStretchingDialogManager
 		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
 										e-control.getCodomainStart(), e);
-		
 		ctx.setYStart(yReal);
 		control.updateCodomainMap(ctx);
 	}

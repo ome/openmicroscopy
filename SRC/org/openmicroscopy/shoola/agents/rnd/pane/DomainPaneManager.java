@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,7 +63,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class DomainPaneManager
 	implements ActionListener, ChangeListener
 {
-	/** Action command ID. */ 
+	/** Action command ID used to control components' changes. */ 
 	static final int        		FAMILY = 0;  
 	static final int        		BR = 1;
 	static final int        		GAMMA = 2;
@@ -202,7 +201,6 @@ class DomainPaneManager
 		int family = view.getTransformations().getSelectedIndex(); //family
 		//bitResolution
 		int br = ((Integer) resolutions.get(new Integer(v))).intValue(); 
-		
 		control.setQuantumStrategy(k/10, family, br, BR);
 	}
 	
@@ -215,10 +213,8 @@ class DomainPaneManager
 	private void setFamily(int family)
 	{
 		if (family == QuantumFactory.LOGARITHMIC || 
-			family == QuantumFactory.LINEAR) 
-			view.getGamma().setEnabled(false);
-		else
-			view.getGamma().setEnabled(true);
+			family == QuantumFactory.LINEAR) view.getGamma().setEnabled(false);
+		else view.getGamma().setEnabled(true);
 		resetDefaultGamma();
 		view.repaint();
 		int b = view.getBitResolution().getValue();	// bitResolution
@@ -226,7 +222,6 @@ class DomainPaneManager
 		int k = view.getGamma().getValue();	//gamma
 		control.setQuantumStrategy(k/10, family, br, FAMILY);
 	}
-	
 	
 	/**
 	 * Select a wavelength.

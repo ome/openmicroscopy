@@ -59,7 +59,8 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class GraphicsRepresentationManager
 	implements MouseListener, MouseMotionListener
 {
-	/** Graphical constant. */
+	
+	/** Graphic constants. */
 	private static final int		topBorder = 
 										GraphicsRepresentation.topBorder, 
 									leftBorder = 
@@ -73,7 +74,8 @@ class GraphicsRepresentationManager
 	   								tS = topBorder+square,
 									length = 2*triangleW, 
 									absMin = leftBorder+20;
-	/** Dragging control. */					
+									
+	/** Used to control mouse pressed and dragged events. */					
 	private boolean                 dragging;
 	
 	/** Rectangles used to listen the cursors. */
@@ -146,12 +148,14 @@ class GraphicsRepresentationManager
 		view.updateInputEnd(vg, v);
 	}
 	
+	/** Set the sizes and location of the input rectangles. */
 	void setInputRectangles(int start, int end)
 	{
 		setInputStartBox(start);
 		setInputEndBox(end);
 	}
 	
+	/** Set the sizes and location of the output rectangles. */
 	void setOutputRectangles(int start, int end)
 	{
 		setOutputStartBox(start);

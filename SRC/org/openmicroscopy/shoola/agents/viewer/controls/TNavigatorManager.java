@@ -130,6 +130,11 @@ class TNavigatorManager
 	{
 		curT = val;
 		view.getTField().setText(""+val);  //doesn't fire ActionEvent 
+		JSlider tSlider = view.getTSlider();
+		//Remove temporarily the listener otherwise an event is fired.
+		tSlider.removeChangeListener(this);
+		tSlider.setValue(val);
+		tSlider.addChangeListener(this);
 		view.repaint(); 
 		manager.onTChange(curT);
 	}

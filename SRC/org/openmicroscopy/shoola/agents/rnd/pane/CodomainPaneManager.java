@@ -61,7 +61,8 @@ import org.openmicroscopy.shoola.env.rnd.codomain.ReverseIntensityContext;
 class CodomainPaneManager
 	implements ActionListener, ItemListener
 {
-	/** Action command ID. */
+	
+	/** Action command ID used to handle the selection of transformations. */
 	static final int					RI = 0;
 	private static final int			CS = 1; 
 	private static final int			PS = 2; 
@@ -88,6 +89,7 @@ class CodomainPaneManager
 		this.control = control;
 	}
 
+	/** Attach listeners. */
 	void attachListeners()
 	{
 		//CheckBox
@@ -142,10 +144,8 @@ class CodomainPaneManager
 	{
 		view.getCStretching().setEnabled(b);
 		view.repaint();
-		if (b) {
-			csCtx = null;
-			csCtx = getCsCtxDefault();
-		}
+		csCtx = null;
+		csCtx = getCsCtxDefault();
 		control.setCodomainMap(csCtx, b, CS);
 	}
 	
@@ -154,21 +154,16 @@ class CodomainPaneManager
 	{
 		view.getPSlicing().setEnabled(b);
 		view.repaint();
-		//TODO: retrieve user settings
-		if (b) {
-			psCtx = null;
-			psCtx = getPsCtxDefault();
-		}
+		psCtx = null;
+		psCtx = getPsCtxDefault();
 		control.setCodomainMap(psCtx, b, PS);
 	}
 	
 	/** Forward event to @see QuantumPaneManager#setCodomainMap. */
 	private void reverseIntensity(boolean b)
 	{
-		if (b) {
-			rCtx = null;	//if was already defined
-			rCtx = new ReverseIntensityContext();	
-		}
+		rCtx = null;	//if was already defined
+		rCtx = new ReverseIntensityContext();	
 		control.setCodomainMap(rCtx, b, RI);
 	}
 	
@@ -190,10 +185,10 @@ class CodomainPaneManager
 		PlaneSlicingContext ctx = 
 			new PlaneSlicingContext(PlaneSlicingContext.BIT_SIX, 
 				PlaneSlicingContext.BIT_SEVEN, true);
-		int cdStart = control.getCodomainStart();
-		int cdEnd = control.getCodomainEnd();
-		ctx.setCodomain(cdStart, cdEnd);
-		ctx.setLimits(cdStart, cdEnd);
+		int s = control.getCodomainStart();
+		int e = control.getCodomainEnd();
+		ctx.setCodomain(s, e);
+		ctx.setLimits(s, e);
 		return ctx;
 	}
 	

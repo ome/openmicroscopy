@@ -65,7 +65,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 class PlaneSlicingDialogManager
 	implements ActionListener, MouseListener, MouseMotionListener
 {
-	/** ID to map biPlane inex and value. */
+	
+	/** ID to map biPlane index and value. */
 	static final int				B_ONE = 0;
 	static final int				B_TWO = 1;
 	static final int				B_THREE = 2;
@@ -75,8 +76,7 @@ class PlaneSlicingDialogManager
 	static final int				B_SEVEN = 6;
 
 	private static final int 		B_ZERO = -1;
-	
-	 
+
 	/** ID to handle events. */
 	private static final int		STATIC = 0;
 	private static final int		DYNAMIC = 1;
@@ -104,7 +104,7 @@ class PlaneSlicingDialogManager
 							new Integer(PlaneSlicingContext.BIT_SEVEN));
 	}
 	
-	/** Graphical constants. */
+	/** Graphic constants. */
 	private static final int    	topBorder = PlaneSlicingPanel.topBorder,
 									leftBorder = PlaneSlicingPanel.leftBorder,
 									square = PlaneSlicingPanel.square,
@@ -114,7 +114,12 @@ class PlaneSlicingDialogManager
 	private static final int 		triangleW = PlaneSlicingPanel.triangleW;
 				
 	private Rectangle				boxOutputStart, boxOutputEnd;
-	private boolean					dragging, isSelected;
+	
+	/** Used to control mouse pressed and dragged events. */
+	private boolean					dragging;
+	
+	/** Control with graphic view is selected. */
+	private boolean					isSelected;
 	
 	/** Reference to the view. */
 	private PlaneSlicingDialog		view;
@@ -159,12 +164,14 @@ class PlaneSlicingDialogManager
 		view.getPSPanel().addMouseMotionListener(this);
 	}
 
+	/** Convert a real value into a coordinate. */
 	int convertGraphicsIntoReal(int x, int r, int b)
 	{
 		double a = (double) r/square;
 		return (int) (a*x+b);
 	}
 
+	/** Convert  coordinate into a real value. */
 	int convertRealIntoGraphics(int x, int r, int b)
 	{
 		double a = (double) square/r;

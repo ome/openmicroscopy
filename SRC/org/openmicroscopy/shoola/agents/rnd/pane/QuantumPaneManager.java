@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  */
 class QuantumPaneManager
 {	
+	
 	/** Reference to the {@link QuantumPane view}. */
 	private QuantumPane			view;
 	
@@ -87,13 +88,14 @@ class QuantumPaneManager
 		return eventManager.getCodomainEnd();
 	}
 	
-	
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getGlobalMinimum()
 	{
 		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
 		return (int) eventManager.getGlobalChannelWindowStart(w);
 	}
 	
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getGlobalMaximum()
 	{
 		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
@@ -118,41 +120,25 @@ class QuantumPaneManager
 		return eventManager.getChannelStats(w);
 	}
 	
-	/** 
-	 * Return the inputWindowStart of a specified wavelength. 
-	 * 
-	 * @param w		wavelgenth index.
-	 */
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowStart(int w)
 	{
 		return ((Integer) eventManager.getChannelWindowStart(w)).intValue();
 	}
 	
-	/** 
-	 * Return the inputWindowEnd of a specified wavelength. 
-	 * 
-	 * @param w		wavelgenth index.
-	 */
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowEnd(int w)
 	{
 		return ((Integer) eventManager.getChannelWindowEnd(w)).intValue();
 	}
 	
-	/** 
-	 * Set the lower bound of the codomain interval.
-	 * 
-	 * @param x		lower bound of the interval (in the range [0, 255]).
-	 */
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	void setCodomainLowerBound(int x)
 	{
 		eventManager.setCodomainLowerBound(x);
 	}
 	
-	/** 
-	 * Set the lower bound of the codomain interval.
-	 * 
-	 * @param x		lower bound of the interval (in the range [0, 255]).
-	 */
+	/** Forward event to {@link RenderingAgtCtrl}. */
 	void setCodomainUpperBound(int x)
 	{
 		eventManager.setCodomainUpperBound(x);

@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.ColoredButton;
 class HSBPaneManager
 	implements ActionListener, ItemListener
 {
+	
 	private HSBPane	view;
 	
 	private RenderingAgtCtrl	eventManager;
@@ -84,9 +85,7 @@ class HSBPaneManager
 		return eventManager;
 	}
 	
-	
-	
-	/** Reference to the main frame, use to pop-up the Color dialog widget. */
+	/** Reference to the main frame, use to pop-up the dialog widget. */
 	JFrame getReferenceFrame()
 	{
 		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
@@ -97,6 +96,7 @@ class HSBPaneManager
 		this.eventManager = eventManager;
 	}
 	
+	/** Attach listeners. */
 	void attachObjectListener(Object component, int index)
 	{
 		AbstractButton ab = null;
@@ -125,15 +125,15 @@ class HSBPaneManager
 		}    
 	}
 
+	/** Handle event fired by checkbox. */
 	public void itemStateChanged(ItemEvent e)
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
 		int w = Integer.parseInt((String) box.getActionCommand());
-		boolean b = false;
-		if (e.getStateChange()== ItemEvent.SELECTED) b = true;
-		eventManager.setActive(w, b);
+		eventManager.setActive(w, e.getStateChange()== ItemEvent.SELECTED);
 	}
 	
+	/** Set the four components of the selected color. */
 	void setRGBA(int w, int red, int green, int blue, int alpha)
 	{
 		eventManager.setRGBA(w, red, green, blue, alpha);

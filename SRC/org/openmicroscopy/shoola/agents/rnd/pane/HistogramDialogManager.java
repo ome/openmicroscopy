@@ -58,6 +58,7 @@ import java.awt.event.MouseMotionListener;
 class HistogramDialogManager
 	implements MouseListener, MouseMotionListener
 {
+	
 	/** Graphics constants. */
 	private static final int		heightStat = HistogramPanel.heightStat,
 									widthStat = HistogramPanel.widthStat, 
@@ -80,7 +81,7 @@ class HistogramDialogManager
    	/** Rectangle used to listen to the cursors. */
    	private Rectangle               boxInputStart, boxInputEnd;
    	
-   	/** Dragging control. */
+   	/** Used to control mouse pressed and dragged events. */
 	private boolean					dragging;
 	
 	/** Reference to the view. */
@@ -88,7 +89,6 @@ class HistogramDialogManager
 	
 	/** Reference to the main manager {@link QuantumPaneManager}. */
 	private QuantumPaneManager 		control;
-	
 	
 	HistogramDialogManager(HistogramDialog view, QuantumPaneManager control)
 	{
@@ -189,7 +189,7 @@ class HistogramDialogManager
 	/** Handles events fired the graphics cursors. */    
 	public void mouseDragged(MouseEvent e)
 	{
-		Point   p = e.getPoint();
+		Point p = e.getPoint();
 	   	if (dragging) {  
 			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
 				p.y <= absStart) 

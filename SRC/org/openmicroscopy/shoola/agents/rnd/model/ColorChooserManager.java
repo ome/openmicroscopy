@@ -98,7 +98,7 @@ class ColorChooserManager
 		this.alpha = alpha;
 		this.rgba = rgba;
 		this.index = index;
-		buildColor();
+		initColor();
 	}
 	
 	int[] getRGBA()
@@ -106,7 +106,8 @@ class ColorChooserManager
 		return rgba;
 	}
 	
-	private void buildColor()
+	/** initializes the color to be displayed. */
+	private void initColor()
 	{
 		colorSelected = new Color(rgba[ColorChooser.RED], 
 								rgba[ColorChooser.GREEN], 
@@ -114,7 +115,7 @@ class ColorChooserManager
 								rgba[ColorChooser.ALPHA]);
 	}
 	
-	/** Attach the listener. */
+	/** Attach the listeners. */
 	void attachListeners()
 	{
 		view.getAlphaSlider().addChangeListener(this);
@@ -144,7 +145,7 @@ class ColorChooserManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
 				case APPLY:
 					applySettings();
@@ -195,8 +196,6 @@ class ColorChooserManager
 			view.getBArea().setText(blue);
 	}
     
-	
-	
 	/** Applies the color settings to the wavelength. */
 	void applySettings()
 	{
@@ -224,7 +223,7 @@ class ColorChooserManager
 			val =  Integer.parseInt(field.getText());
 			if (0 <= val && val <= MAX_VALUE) valid = true;
 		} catch(NumberFormatException nfe) {}		
-		if (valid)     updateColor(val, k);  // will notify the controller
+		if (valid)	updateColor(val, k);  // will notify the controller
 		else {
 			field.selectAll();
 			Toolkit.getDefaultToolkit().beep();
@@ -311,9 +310,9 @@ class ColorChooserManager
 	}
 	
 	/** 
-	 * Required by the FocusListener interface, 
-	 * but empty as we don't need it. 
-	 */
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation.
+	 */ 
 	public void focusGained(FocusEvent e) {} 
 	
 }

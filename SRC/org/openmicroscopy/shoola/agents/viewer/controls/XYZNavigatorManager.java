@@ -35,6 +35,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -93,7 +95,11 @@ class XYZNavigatorManager
 	private void synch(int v)
 	{
 		curZ = v;
-		view.getZSlider().setValue(v);
+		JSlider zSlider = view.getZSlider(); 
+		//Remove temporarily the listener otherwise an event is fired.
+		zSlider.removeChangeListener(this);
+		zSlider.setValue(v);
+		zSlider.addChangeListener(this);
 		view.getZField().setText(""+v);  
 		view.repaint();         
 		manager.onZChange(curZ);

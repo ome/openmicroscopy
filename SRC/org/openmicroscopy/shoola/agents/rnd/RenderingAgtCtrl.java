@@ -79,7 +79,7 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int		SAVE = 4;
 	
-	/** Action command ID to display the Rendering internalFrame. */
+	/** Action command ID to display the Rendering frame. */
 	static final int		R_VISIBLE = 5;
 	
 	private boolean 		active;
@@ -186,14 +186,14 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgt}. */
 	public void setChannelWindowStart(int w, int x)
 	{
-		//TODO: support others format
+		//TODO: support other formats
 		abstraction.setChannelWindowStart(w, new Integer(x));
 	}
 	
 	/** Forward event to {@link RenderingAgt}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
-		//TODO: support others format
+		//TODO: support other formats
 		abstraction.setChannelWindowEnd(w, new Integer(x));
 	}
 	
