@@ -165,11 +165,13 @@ public class Constants {
 	public static final float STROKE_WIDTH=4.0f;
 	public static final BasicStroke BORDER_STROKE = new BasicStroke(STROKE_WIDTH);
 	
+	/** stroke for thumbnail highlight */
+	public static final BasicStroke THUMBNAIL_HIGHLIGHT_STROKE=new BasicStroke(2);
 	/** and for module nodes */
 	public static final BasicStroke MODULE_STROKE = new BasicStroke(7);
 		
 	/** gap between images in dataset browser */
-	public static final int DATASET_IMAGE_GAP=8;
+	public static final int DATASET_IMAGE_GAP=2;
 	
 	/**
 	 * Animation delay when scaling a node to center in the canvas. 
