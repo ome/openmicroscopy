@@ -333,6 +333,37 @@ public interface DataManagementService
 	public List retrieveImages(int datasetID, ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException;
 		
+    
+    /**
+     * Retrieve all images linked to a given dataset.
+     * Creates a list of image summary objects, object filled up with
+     * data retrieved from an OMEDS Image object.
+     * 
+     * @param datasetID.        
+     * @return list of image summary objects.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service.  
+     */
+    public List retrieveImagesWithAnnotations(int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve all images linked to a given dataset.
+     * Create, if none provided, a DataObject and fill it up with
+     * data retrieved from an OMEDS Image object.
+     * 
+     * @param id        imageID.
+     * @param iProto    DataObject used as a prototype.
+     * @return image data object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service.  
+     */
+    public List retrieveImagesWithAnnotations(int datasetID, ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    
 	/**
 	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
 	 * to a pixels set.
@@ -639,6 +670,20 @@ public interface DataManagementService
 	 */
 	public void updateChannelData(ChannelData retVal)	
 		throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Given a list of {@link ImageSummary} objects, retrieve the hierarchy
+     * Image-Dataset-Project.
+     * 
+     * @param imageSummaries    List of {@link ImageSummary} objects.
+     * 
+     * @return list of {@link ProjectSummary} objects.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List retrieveIDPHierarchy(List imageSummaries)
+        throws DSOutOfServiceException, DSAccessException;
     
 	/**
 	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED

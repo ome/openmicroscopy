@@ -104,7 +104,7 @@ public class DataServicesFactory
 		
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
-		sts = new STSAdapter(gateway);
+		sts = new STSAdapter(gateway, registry);
         ps = new PixelsServiceAdapter(gateway.getDataFactory());
         
         //Initialize the Views Factory.
