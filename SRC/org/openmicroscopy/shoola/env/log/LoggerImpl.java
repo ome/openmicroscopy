@@ -81,6 +81,7 @@ public class LoggerImpl
      */
     public LoggerImpl(String absFile)
     {
+    	//TODO: this should eventually go into a Log4j cfg file into config.
     	Properties config = new Properties();
     	
     	//Define the base appender.
@@ -92,7 +93,7 @@ public class LoggerImpl
 					"100KB");  //Maximum size that the output file is allowed
 							//to reach before being rolled over to backup files.
 		config.put("log4j.appender.BASE.MaxBackupIndex", 
-					"1");  //Maximum number of backup files to keep around.	
+					"100");  //Maximum number of backup files to keep around.	
 					
     	//Define its output layout.
 		config.put("log4j.appender.BASE.layout", 
