@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.image.BufferedImage;
 
@@ -43,8 +41,8 @@ import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
 import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
-import org.openmicroscopy.shoola.agents.roi.events.IATChanged;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+import org.openmicroscopy.shoola.agents.viewer.events.IATChanged;
 //import org.openmicroscopy.shoola.agents.viewer3D.events.DisplayViewer3D;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -74,29 +72,8 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
  * @since OME2.2
  */
 public class Viewer
-    implements Agent, AgentEventListener
+implements Agent, AgentEventListener
 {
-    
-    /** position of the canvas in the layer. */
-    public static final int         IMAGE_LEVEL = 0;
-    
-    public static final int         LENS_LEVEL = 1;
-    
-    public static final int         ROI_LEVEL = 2;
-    
-    public static final int         ANNOTATE_LEVEL = 3;
-    
-    /** Background color. */
-    public static final Color       BACKGROUND_COLOR = new Color(204, 204, 255);
-    
-    public static final Color       STEELBLUE = new Color(0x4682B4);
-    
-    public static final Dimension   TOOLBAR_DIMENSION = new Dimension(20, 300);
-
-    /** Dimension of the separator between the toolBars. */
-    public static final Dimension   SEPARATOR_END = new Dimension(100, 0);
-    
-    public static final Dimension   SEPARATOR = new Dimension(15, 0);
     
     /** Reference to the {@link Registry}. */
     private Registry                registry;
@@ -118,7 +95,7 @@ public class Viewer
     
     /** Implemented as specified by {@link Agent}. */
     public void terminate() {}
-
+    
     /** Implemented as specified by {@link Agent}. */
     public void setContext(Registry ctx) 
     {
@@ -132,7 +109,7 @@ public class Viewer
         //bus.register(this, DisplayViewer3D.class);
         control = new ViewerCtrl(this);
     }
-
+    
     /** Implemented as specified by {@link Agent}. */
     public boolean canTerminate() { return true; }
     
@@ -165,7 +142,7 @@ public class Viewer
     BufferedImage getCurImage() { return curImage; }
     
     String getCurImageName() { return curImageName; }
-
+    
     /** 2D-plane selected. */
     void onPlaneSelected(int z, int t)
     {
@@ -181,7 +158,7 @@ public class Viewer
     {
         onPlaneSelected(z, getDefaultT());
     }
-
+    
     /** 
      * Post an event to bring up the 
      * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}. 
@@ -194,7 +171,7 @@ public class Viewer
         registry.getEventBus().post(event);
         */
     }
-
+    
     /** 
      * Post an event to bring up the 
      * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}. 
@@ -203,7 +180,7 @@ public class Viewer
     {
         registry.getEventBus().post(new DisplayROI(drawingCanvas, iat));
     }
-
+    
     /** 
      * Post an event to bring up the 
      * {@link org.openmicroscopy.shoola.agents.rnd.RenderingAgt RenderingAgt}. 
@@ -213,11 +190,11 @@ public class Viewer
         registry.getEventBus().post(new DisplayRendering());
     }
     
-    void affineTransformChanged(ImageAffineTransform iat)
+    void imageDisplayedUpdated(ImageAffineTransform iat, BufferedImage img)
     {
-        registry.getEventBus().post(new IATChanged(iat));
+        registry.getEventBus().post(new IATChanged(iat, img));
     }
-
+    
     /** Close ROIAgt when the viewer is closed. */
     void addRoiCanvas(boolean b)
     {
@@ -290,7 +267,7 @@ public class Viewer
             control.disposeDialogs();
         } showPresentation();
     }
-
+    
     /** Handle event @see ImageRendered. */
     private void handleImageRendered(ImageRendered response)
     {
@@ -298,7 +275,7 @@ public class Viewer
         curImage = response.getRenderedImage();
         presentation.setImage(curImage);
     }
-
+    
     /** Set the default. */
     private void initPresentation(String imageName, PixelsDimensions pxsDims, 
                             boolean active)
@@ -310,7 +287,7 @@ public class Viewer
         presentation.setActive(active);
         presentation.resetMagFactor();
     }
-
+    
     /** Build the GUI. */
     private void buildPresentation(PixelsDimensions pxsDims)
     {
