@@ -221,15 +221,5 @@ public class NotificationDialog
 		attachListeners();
 		buildGUI(message, messageIcon);
 	}
-	
-	/**
-	 * Brings up by the dialog.
-	 * The dialog is automatically disposed after the user closes it.
-	 */
-	public void open()
-	{
-		pack();
-		setVisible(true);
-	}
 
 }
