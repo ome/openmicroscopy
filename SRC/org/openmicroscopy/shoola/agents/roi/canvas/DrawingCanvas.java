@@ -90,7 +90,7 @@ public class DrawingCanvas
     public DrawingCanvas()
     {
         indexSelected = -1;
-        textOnOff = false;
+        textOnOff = false; 
         listSPA = new ArrayList();
         manager = new DrawingCanvasMng(this);
     }
@@ -158,22 +158,6 @@ public class DrawingCanvas
         return ((ScreenPlaneArea) listSPA.get(index));
     }
     
-    public void magnifyPlaneAreas(double f)
-    {
-        Iterator i = listSPA.iterator();
-        ScreenPlaneArea spa;
-        PlaneArea pa;
-        while (i.hasNext()) {
-            spa = (ScreenPlaneArea) i.next();
-            pa = spa.getPlaneArea();
-            if (pa != null) {
-                pa.scale(f);
-                spa.setPlaneArea(pa);
-            }
-        }
-        repaint();
-    }
-    
     public void setPlaneArea(PlaneArea pa, int index)
     {
         ((ScreenPlaneArea) listSPA.get(index)).setPlaneArea(pa);
@@ -209,13 +193,15 @@ public class DrawingCanvas
     {
         Iterator i = listSPA.iterator();
         ScreenPlaneArea spa;
-        PlaneArea pa;
+        PlaneArea pa, paCopy;
         Rectangle r;
         while (i.hasNext()) {
             spa = (ScreenPlaneArea) i.next();
             pa = spa.getPlaneArea();
             if (pa != null) {
-                r = pa.getBounds();
+                paCopy = (PlaneArea) pa.copy();
+                paCopy.scale(manager.getMagFactor());
+                r = paCopy.getBounds();
                 g2D.setStroke(dashed);
                 g2D.setColor(alphaColor(spa.getAreaColor()));
                 if (spa.getIndex() == indexSelected) {
@@ -224,7 +210,7 @@ public class DrawingCanvas
                     g2D.setStroke(stroke);
                     g2D.setColor(spa.getAreaColor());
                 }
-                g2D.draw(pa);
+                g2D.draw(paCopy);
                 //draw label
                 if (textOnOff)
                     g2D.drawString("#"+spa.getIndex(),  r.x-LENGTH/2, 

@@ -36,6 +36,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -73,7 +74,12 @@ public class DrawingCanvasMng
     
     private static final int    DEFAULT_CURSOR = 0, HAND_CURSOR = 1;
     
-    private static final int    LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
+    private static final int    LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3,
+                                TOP_LEFT = 4, TOP_RIGHT = 5, BOTTOM_LEFT = 6,
+                                BOTTOM_RIGHT = 7;
+    
+    /** Size of the rectangle to handle resizing event. */
+    public static final int     SIZE = 4;
     
     private Cursor              handCursor, defaultCursor;
     
@@ -89,13 +95,13 @@ public class DrawingCanvasMng
     /** Control to handle pressed event. */
     private boolean             pressed;
 
+    private boolean             shiftPressed;
+    
     private Point               anchor;
     
     private Rectangle           rectangleAnchor;
     
-    private int                 state;
-    
-    private int                 shapeType;
+    private int                 state, shapeType;
 
     private Rectangle           drawingArea;
     
@@ -154,6 +160,8 @@ public class DrawingCanvasMng
     
     int getState() { return state; }
     
+    double getMagFactor() { return control.getMagFactor(); }
+    
     /** Mouse pressed event. */
     public void mousePressed(MouseEvent e)
     {
@@ -162,6 +170,7 @@ public class DrawingCanvasMng
             pressed = true;
             dragging = true;
             anchor = p;
+            handleKeyPressed(e.getModifiers() & InputEvent.SHIFT_MASK);
             if (state == ROIAgtUIF.MOVING) setCursor(HAND_CURSOR);
             else setCursor(DEFAULT_CURSOR);
             if (state != ROIAgtUIF.CONSTRUCTING)
@@ -184,6 +193,7 @@ public class DrawingCanvasMng
     {
         dragging = false;
         setCursor(DEFAULT_CURSOR); 
+        if (shiftPressed) handleKeyPressed(0);
         switch (state) {
             case ROIAgtUIF.CONSTRUCTING: 
                 if (!pressed) savePlaneArea();
@@ -191,7 +201,7 @@ public class DrawingCanvasMng
             case ROIAgtUIF.MOVING: 
             case ROIAgtUIF.RESIZING: 
                 state = ROIAgtUIF.CONSTRUCTING;
-                if (planeArea != null) setPlaneArea();   
+                if (planeArea != null) moveResizePlaneArea();   
         } 
         state = ROIAgtUIF.NOT_ACTIVE_STATE;
         pressed = false;
@@ -216,9 +226,22 @@ public class DrawingCanvasMng
         }     
     }
 
+    /** Handle the <code>Shift</code> pressed event. */
+    private void handleKeyPressed(int shift)
+    {
+        if (shift == InputEvent.SHIFT_MASK) {
+            shiftPressed = true;
+            setShiftShapeType();
+        } else {
+            shiftPressed = false;
+            setShiftShapeType();
+        }
+    }
+    
     /** Handle mouse pressed event. */
     private void handleMousePressed(Point p, int clickCount)
     {
+        view.requestFocus();
         planeArea = null;
         Iterator i = view.listSPA.iterator();
         ScreenPlaneArea spa;
@@ -245,7 +268,8 @@ public class DrawingCanvasMng
     /** Handle one-click mouse pressed event. */
     private void clickCountOne(Point p, int index, PlaneArea pa)
     {
-        Rectangle r, vLeft, vRight, hTop, hBottom;
+        Rectangle r, vLeft, vRight, hTop, hBottom, tlCorner, trCorner, blCorner,
+                    brCorner;
         r = pa.getBounds();
         planeArea = pa;
         rectangleAnchor = r;
@@ -253,11 +277,18 @@ public class DrawingCanvasMng
         yControl = r.y;
         control.setSelectedIndex(index);
         state = ROIAgtUIF.RESIZING;
-        vLeft = ROIFactory.getVerticalControlArea(r.x, r.y, r.height);
-        vRight = ROIFactory.getVerticalControlArea(r.x+r.width, r.y, r.height);
-        hTop = ROIFactory.getHorizontalControlArea(r.x, r.y, r.width);
-        hBottom = ROIFactory.getHorizontalControlArea(r.x, r.y+r.height, 
-                                                    r.width);
+        vLeft = new Rectangle(r.x-SIZE, r.y+SIZE, 2*SIZE, r.height-2*SIZE);
+        vRight = new Rectangle(r.x+r.width-SIZE, r.y+SIZE, 2*SIZE, 
+                                r.height-2*SIZE);
+        hTop = new Rectangle(r.x+SIZE, r.y-SIZE, r.width-2*SIZE, 2*SIZE);
+        hBottom = new Rectangle(r.x+SIZE, r.y+r.height-SIZE, r.width-2*SIZE, 
+                                2*SIZE);
+        tlCorner = new Rectangle(r.x-SIZE, r.y-SIZE, 2*SIZE, 2*SIZE);
+        trCorner = new Rectangle(r.x+r.width-SIZE, r.y-SIZE, 2*SIZE, 2*SIZE);
+        blCorner = new Rectangle(r.x-SIZE, r.y+r.height-SIZE, 2*SIZE, 2*SIZE);
+        brCorner = new Rectangle(r.x+r.width-SIZE, r.y+r.height-SIZE, 2*SIZE, 
+                                2*SIZE);
+        
         if (vLeft.contains(p))
             resizeZone = LEFT;
         else if (vRight.contains(p))
@@ -266,6 +297,14 @@ public class DrawingCanvasMng
             resizeZone = TOP;
         else if (hBottom.contains(p))
             resizeZone = BOTTOM;
+        else if (tlCorner.contains(p))
+            resizeZone = TOP_LEFT;
+        else if (trCorner.contains(p))
+            resizeZone = TOP_RIGHT;
+        else if (blCorner.contains(p))
+            resizeZone = BOTTOM_LEFT;
+        else if (brCorner.contains(p))
+            resizeZone = BOTTOM_RIGHT;
         else state = ROIAgtUIF.MOVING;
     }
 
@@ -294,20 +333,17 @@ public class DrawingCanvasMng
     private void savePlaneArea()
     {
         ScreenPlaneArea spa = view.getScreenPlaneArea(view.indexSelected);
-        if (spa == null) {
-            spa = new ScreenPlaneArea(view.indexSelected, planeArea, lineColor);
-            view.addSPAToCanvas(spa);
-        }                   
-        else spa.setPlaneArea(planeArea);
+        PlaneArea pa = (PlaneArea) planeArea.copy();
+        pa.scale(1/control.getMagFactor());
+        spa.setPlaneArea(pa);
         control.setPlaneArea(planeArea);
         planeArea = null;
-        view.repaint();
     }
     
-    private void setPlaneArea()
+    private void moveResizePlaneArea()
     {
         view.setPlaneArea(planeArea);
-        control.setPlaneArea(planeArea);
+        control.moveResizePlaneArea(planeArea);
         planeArea = null;
     }
     
@@ -339,7 +375,34 @@ public class DrawingCanvasMng
                 break;
             case BOTTOM:
                 h += p.y-anchor.y;  
+                break;
+            case TOP_LEFT:
+                x = p.x;
+                y = p.y;
+                w += anchor.x-p.x;
+                h += anchor.y-p.y; 
+                break;
+            case BOTTOM_LEFT:
+                x = p.x;
+                w += anchor.x-p.x;
+                h += p.y-anchor.y;
+                break;
+            case TOP_RIGHT:
+                y = p.y;
+                w -= anchor.x-p.x;
+                h += anchor.y-p.y; 
+                break;
+            case BOTTOM_RIGHT:
+                w -= anchor.x-p.x;
+                h += p.y-anchor.y;
+                break;
         }
+        
+        if (shapeType == ROIFactory.CIRCLE || shapeType == ROIFactory.SQUARE) {
+            int a = Math.min(w, h);
+            w = a;
+            h = a;
+        }  
         if (areaValid(x, y, w, h)) validArea(x, y, w, h);
     }
     
@@ -370,6 +433,21 @@ public class DrawingCanvasMng
         if (c != null) view.setCursor(c);
     }
 
+    private void setShiftShapeType()
+    {
+        if (shiftPressed) {
+            if (shapeType == ROIFactory.RECTANGLE) 
+                shapeType = ROIFactory.SQUARE;
+            else if (shapeType == ROIFactory.ELLIPSE) 
+                shapeType = ROIFactory.CIRCLE;
+        } else {
+            if (shapeType == ROIFactory.SQUARE) 
+                shapeType = ROIFactory.RECTANGLE;
+            else if (shapeType == ROIFactory.CIRCLE) 
+                shapeType = ROIFactory.ELLIPSE;
+        }
+    }
+    
     /** Attach mouse listener. */
     private void attachListeners()
     {
@@ -378,22 +456,22 @@ public class DrawingCanvasMng
     }
     
     /** 
-     * Required by I/F but not actually needed in our case, 
-     * no op implementation.
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
      */   
     public void mouseClicked(MouseEvent e) {}
 
     /** 
-     * Required by I/F but not actually needed in our case, 
-     * no op implementation.
-     */   
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */  
     public void mouseEntered(MouseEvent e) {}
     
     /** 
-     * Required by I/F but not actually needed in our case,
-     * no op implementation.
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
      */   
     public void mouseExited(MouseEvent e) {}
-   
+
 }
 
