@@ -103,83 +103,74 @@ public class RegistryFactory
 		Parser p = new Parser(file, (RegistryImpl) reg);
 		p.parse();
 	}
+	
 	/**
-	 * Links the {@link Registry} and the {@link EventBus}.
+	 * Adds the {@link EventBus} instance to the container's {@link Registry}.
 	 * 
-	 * @param eb	Reference to the {@link EventBus}.
-	 * @param reg	The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param eb	The {@link EventBus} instance.
+	 * @param reg	The container's {@link Registry}.
 	 */
 	public static void linkEventBus(EventBus eb, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setEventBus(eb);
 	}
+	
 	/**
-	 * Links the {@link Registry} and the {@link DataManagementService}.
+	 * Adds the {@link DataManagementService} instance to the container's 
+	 * {@link Registry}.
 	 * 
-	 * @param dms	Reference to the {@link DataManagementService}.
-	 * @param reg	The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param dms	The {@link DataManagementService} instance.
+	 * @param reg	The container's {@link Registry}.
 	 */
 	public static void linkDMS(DataManagementService dms, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setDMS(dms);
 	}
 	
 	/**
-	 * Links the {@link Registry} and the {@link SemanticTypeService}.
+	 * Adds the {@link SemanticTypesService} instance to the container's 
+	 * {@link Registry}.
 	 * 
-	 * @param sts	Reference to the {@link SemanticTypeService}.
-	 * @param reg	The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param sts	The {@link SemanticTypesService} instance.
+	 * @param reg	The container's {@link Registry}.
 	 */
 	public static void linkSTS(SemanticTypesService sts, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setSTS(sts);
 	}
+	
 	/**
-	 * Links the {@link Registry} and the {@link TopFrame}.
+	 * Adds the {@link TopFrame} instance to the container's {@link Registry}.
 	 * 
-	 * @param tf	Reference to the {@link TopFrame}.
-	 * @param reg	The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param tf	The {@link TopFrame} instance.
+	 * @param reg	The container's {@link Registry}.
 	 */
 	public static void linkTopFrame(TopFrame tf, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setTopFrame(tf);
 	}
+	
 	/**
-	 * Links the {@link Registry} and the {@link Logger}.
+	 * Adds the {@link Logger} instance to the container's {@link Registry}.
 	 * 
-	 * @param logger	Reference to the {@link Logger}.
-	 * @param reg		The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param logger	The {@link Logger} instance.
+	 * @param reg		The container's {@link Registry}.
 	 */
 	public static void linkLogger(Logger logger, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setLogger(logger);
 	}
+	
 	/**
-	 * Links the {@link Registry} and the {@link UserNotifier}.
+	 * Adds the {@link UserNotifier} instance to the container's 
+	 * {@link Registry}.
 	 * 
-	 * @param un		Reference to the {@link UserNotifier}.
-	 * @param reg		The {@link Registry} to link.
-	 * @throws ConfigException
+	 * @param un	The {@link UserNotifier} instance.
+	 * @param reg	The container's {@link Registry}.
 	 */
 	public static void linkUserNotifier(UserNotifier un, Registry reg)
-		throws ConfigException
 	{
 		((RegistryImpl) reg).setUserNotifier(un);
 	}
 	
-	
-	/* TODO: helper methods to link a service to the registry
-	 * linkSemTypesService(sts, reg)
-	 * etc.
-	 */
 }
