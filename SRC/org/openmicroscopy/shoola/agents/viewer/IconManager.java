@@ -123,7 +123,7 @@ public class IconManager
 		relPaths[PLAYER_PAUSE] = "nuvola_player_pause16.png";
 		relPaths[SAVEAS] = "nuvola_filesaveas16.png";
 		relPaths[FORWARD] = "nuvola_player_fwd16.png";
-		relPaths[QUESTION] = "question24.png";
+		relPaths[QUESTION] = "nuvola_filetypes32.png";
 	}
 	
 	/** The sole instance. */
