@@ -98,8 +98,6 @@ public class ChainbuilderToolTipHandler extends ToolTipHandler {
 		PPickPath p = event.getInputManager().getMouseOver();
 		
 		PNode n = p.getPickedNode();
-		System.err.println("picked...  "+n);
-		System.err.println("transform scale is "+n.getTransform().getScale());
 		return n;
 	}
 }
