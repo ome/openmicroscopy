@@ -220,10 +220,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 
 	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
-		System.err.println("chain box click");
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
 		if (active == false) {
-			System.err.println("centering..");
 			if (!chainHandler.isZoomedIntoChain())
 				chainHandler.animateToNode(this);
 			else
@@ -286,17 +284,14 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
 		if (chainHandler.isZoomedIntoChain()) {
-			System.err.println("chain box popup. zooming out...");
 			chainHandler.zoomOut(e);
 		}
 		else {
 			PNode p = getParent();
 			if (p instanceof BufferedObject)  {
-				System.err.println("chain box popup. animating to parent");
 				((ChainPaletteEventHandler) handler).animateToNode(p);
 			}
 			else {
-				System.err.println("chain box popup. animating to canvas");
 				((ChainPaletteEventHandler) handler).animateToCanvasBounds();
 			}
 		}
