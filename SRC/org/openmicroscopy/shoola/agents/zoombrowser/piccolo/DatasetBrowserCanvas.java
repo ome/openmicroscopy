@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
@@ -643,5 +644,23 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	public void mouseOverAnalysisChain(AnalysisChainData chain) {
 		selectAnalysisChain(chain);
 		
+	}
+	
+	public void mouseOverChainExecution(ChainExecutionData exec) {
+		Iterator iter = layer.getChildrenIterator();
+		DatasetNode n;
+		DatasetData dataset =null;
+		if (exec != null)
+			dataset = exec.getDataset();
+		
+		
+		while (iter.hasNext()) {
+			n = (DatasetNode) iter.next();
+			int id = n.getDataset().getID();
+			if (dataset != null && dataset.getID() ==id)
+				n.setHighlighted(true);
+			else
+				n.setHighlighted(false);	
+		}
 	}
  } 
