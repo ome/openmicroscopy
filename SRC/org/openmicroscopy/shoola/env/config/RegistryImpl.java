@@ -88,7 +88,9 @@ class RegistryImpl
     public Object lookup(String name)
     {
         Entry entry = (Entry) entriesMap.get(name);
-        return entry.getValue();
+        Object ret = null;
+        if (entry != null)	ret = entry.getValue();
+        return ret;
     }
 	/** Implemented as specified by {@link Registry}. */
     public EventBus getEventBus()
