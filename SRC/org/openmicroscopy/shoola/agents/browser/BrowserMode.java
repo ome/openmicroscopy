@@ -59,6 +59,20 @@ public class BrowserMode
      * for all ranges/classes)
      */
     public static final BrowserMode DEFAULT_MODE = new BrowserMode(0);
+    
+    /**
+     * Indicates that the images should be placed in a structured format,
+     * either by plate/well number (if that's the type of dataset) or by
+     * ascending ID (if it's not)
+     */
+    public static final BrowserMode ORDERED_MODE = DEFAULT_MODE;
+    
+    /**
+     * Indicates that the user is not using a drag to move the viewport
+     * around.  The hand comes from the traditional Apple/Photoshop
+     * notion of a hand moving the image around the viewport.
+     */
+    public static final BrowserMode NO_HAND_MODE = DEFAULT_MODE;
 
     /**
      * Indicates that the browser is in annotation mode (this might not be
@@ -85,28 +99,35 @@ public class BrowserMode
     public static final BrowserMode GRAPH_MODE = new BrowserMode(4);
     
     /**
+     * Indicates that the user can move objects around in the browser as
+     * he/she sees fit, no problems.
+     */
+    public static final BrowserMode PLACE_MODE = new BrowserMode(5);
+    
+    /**
      * Indicates that panning should be conducted by a mouse drag, which
      * essentially nullifies any other mouse down/drag inputs.  Its opposite
-     * is likely DEFAULT_MODE.
+     * is NO_HAND_MODE.  The hand comes from the traditional Apple/Photoshop
+     * notion of a hand moving the image around the viewport.
      */
-    public static final BrowserMode HAND_MODE = new BrowserMode(5);
+    public static final BrowserMode HAND_MODE = new BrowserMode(6);
     
     /**
      * Indicates that semantic expansion of thumbnails should take place on
      * a mouse over.
      */
-    public static final BrowserMode SEMANTIC_ZOOMING_MODE = new BrowserMode(6);
+    public static final BrowserMode SEMANTIC_ZOOMING_MODE = new BrowserMode(7);
     
     /**
      * Indicates that the name of thumbnails should be displayed/painted.
      */
-    public static final BrowserMode NAME_ON_MODE = new BrowserMode(7);
+    public static final BrowserMode NAME_ON_MODE = new BrowserMode(8);
     
     /**
      * Indicates that hints about thumbnail annotations should be
      * displayed/painted.
      */
-    public static final BrowserMode ANNOTATION_ON_MODE = new BrowserMode(8);
+    public static final BrowserMode ANNOTATION_ON_MODE = new BrowserMode(9);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be
