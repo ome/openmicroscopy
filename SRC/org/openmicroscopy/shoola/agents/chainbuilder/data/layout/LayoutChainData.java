@@ -107,51 +107,96 @@ public class LayoutChainData  extends AnalysisChainData
 		validateCycles();
 	}
 	
+	/**
+	 * Verify that no input parameter has multiple links coming in - 
+	 * only one link/input is allowed.
+	 * 
+	 * Since multiple instances of a module are possible, we must
+	 * conduct this check based on both the id of the formal input
+	 * and the id of the node.
+	 * 
+	 *
+	 */
 	private void validateLinks() {
-		// first, get a hash that maps formal inputs to associate links.
+		// first, get a hash that maps formal inputs and their nodes 
+		// to associated links.
 		HashMap inputLinkMap = getInputLinkMap();
 		if (inputLinkMap.size() == 0)
 			return;
 		
 		FormalInputData inp;
-		// then, iterate over keys,
+		// then, iterate over keys by input.
 		// grabbing each key that has more than two links.
 		Iterator iter = inputLinkMap.keySet().iterator();
 		while (iter.hasNext()) {
 			Integer inpID = (Integer) iter.next();
-			Vector inLinks = (Vector) inputLinkMap.get(inpID);
-			int linkCount = inLinks.size();
-			if (inLinks != null && linkCount > 1) {
-				// get a link
-				LayoutLinkData link = (LayoutLinkData) inLinks.elementAt(0);
-				MultiplyBoundInputError error = 
-					new MultiplyBoundInputError(link.getToInput(),
-							link.getToNode(),linkCount);
-				addStructureError(error);
+			HashMap  nodeMap = (HashMap) inputLinkMap.get(inpID);
+			// if there's something for this input, look at all nodes.
+			if (nodeMap != null) {
+				Iterator iter2 = nodeMap.keySet().iterator();
+				while (iter2.hasNext()) {
+					Integer nodeID = (Integer)iter2.next();
+					
+					Vector inLinks = (Vector) nodeMap.get(nodeID);
+					
+					
+					if (inLinks != null && inLinks.size() > 1) {
+						// get a link
+						int linkCount = inLinks.size();
+						LayoutLinkData link = (LayoutLinkData) inLinks.elementAt(0);
+						MultiplyBoundInputError error = 
+							new MultiplyBoundInputError(link.getToInput(),
+									link.getToNode(),linkCount);
+						addStructureError(error);
+					}
+				}
 			}
 		}
 	}
 	
+	/**
+	 * To track the links going to each input do a hash of hashes.
+	 * At the first level, index by input id. At the second level,
+	 * index by nodeID.
+	 * 
+	 * @return
+	 */
 	private HashMap getInputLinkMap() {
 		List links = getLinks();
 		HashMap inputLinkMap = new HashMap();
 		//		 build map of links by endpoint
 		Iterator iter = links.iterator();
+		HashMap nodeMap;
 		LayoutLinkData link;
 		FormalInputData inp;
 		Vector inLinks;
+		Integer nodeId;
+		LayoutNodeData node;
+		
 		
 		while (iter.hasNext()) {
 			link = (LayoutLinkData) iter.next();
 			inp = link.getToInput();
 			Integer inpID = new Integer(inp.getID());
 			Object obj = inputLinkMap.get(inpID);
+			
+			// get the map  of nodes with links to this input.
+			
+			if (obj == null)
+				nodeMap  = new HashMap();
+			else
+				nodeMap = (HashMap) obj;
+			node = (LayoutNodeData) link.getToNode();
+			nodeId = new Integer(node.getID());
+			// Get the list of links for this input & node.
+			obj = nodeMap.get(nodeId);
 			if (obj == null)
 				inLinks = new Vector();
 			else
 				inLinks = (Vector) obj;
 			inLinks.add(link);
-			inputLinkMap.put(inpID,inLinks);
+			nodeMap.put(nodeId,inLinks);
+			inputLinkMap.put(inpID,nodeMap);
 		}
 		return inputLinkMap;
 	}
