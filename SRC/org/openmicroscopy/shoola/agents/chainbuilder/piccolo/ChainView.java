@@ -145,8 +145,9 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		
 		this.chain = chain;
 		this.layering = chain.getLayering();
+	}
 
-		
+	protected void drawChain() {
 		linkLayer = getLinkLayer();
 		addChild(linkLayer);
 		
