@@ -88,7 +88,7 @@ public class ImageCanvas
 		imageHeight = image.getHeight();
 		repaint();
 	} 
-
+	
 	/** Overrides the paintComponent. */
 	public void paint(Graphics g)
 	{
