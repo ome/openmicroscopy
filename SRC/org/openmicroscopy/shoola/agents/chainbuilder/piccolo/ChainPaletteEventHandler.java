@@ -39,10 +39,11 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 
 //Java imports
-
-//Third-party libraries
 import java.awt.geom.Point2D;
 
+//Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
+import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -94,25 +95,38 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			zoom(e,1/Constants.LARGE_SCALE_FACTOR);
 			zoomInSteps--;
 		}
+			
 	}
 	
 	public boolean isZoomedIntoChain() {
 		return (zoomInSteps > 0);
 	}
 	
-	public void animateToNode(PNode node) {
+	public PActivity animateToNode(PNode node) {
 		zoomInSteps = 0;
-		super.animateToNode(node);
+		PActivity act =  super.animateToNode(node);
+		act.setDelegate(getActivityDelegate());
+		return act;
 	}
 	
 	private void zoom(PInputEvent e,double scale) {
 		PCamera camera=canvas.getCamera();
-		//double curScale = camera.getScale();
-		//curScale *= scale;
 		Point2D pos = e.getPosition();
 		camera.scaleViewAboutPoint(scale,pos.getX(),pos.getY());
+		((ChainPaletteCanvas) canvas).updateOverview();
 	}
 	
+	private PActivityDelegate getActivityDelegate() {
+		return new PActivityDelegate() {
+			public void activityStarted(PActivity activity) {
+			}
+			public void activityStepped(PActivity activity) {
+			}
+			public void activityFinished(PActivity activity) {
+				((ChainPaletteCanvas) canvas).hideOverview();
+			}
+		};
+	}
 	
 	protected void unhighlightModules() {
 		clearHighlights();
@@ -139,10 +153,12 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		
 	}
 	
-	public void handleBackgroundClick() {
-		super.handleBackgroundClick();
+	public PActivity handleBackgroundClick() {
+		PActivity act = super.handleBackgroundClick();
+		act.setDelegate(getActivityDelegate());
 		SelectAnalysisChain event = new SelectAnalysisChain(null);
 		registry.getEventBus().post(event);
+		return act;
 	}
 	
 	// called on entering/leaving chain box.
