@@ -39,8 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
-import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
@@ -48,6 +46,8 @@ import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
+import org.openmicroscopy.shoola.agents.events.annotator.ImageAnnotated;
 import org.openmicroscopy.shoola.env.event.CompletionHandler;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
