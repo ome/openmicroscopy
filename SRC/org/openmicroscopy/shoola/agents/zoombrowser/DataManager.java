@@ -57,8 +57,6 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
-import org.openmicroscopy.shoola.env.data.model.ModuleData;
-import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 //import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 //import org.openmicroscopy.ds.st.CategoryGroup;
@@ -80,6 +78,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 public class DataManager {
 
+	
 	/** The OME Registry */
 	protected Registry registry;
 	
@@ -98,17 +97,7 @@ public class DataManager {
 	/** have we loaded datasets and projects*/
 	private boolean datasetsLoaded= false;
 	private boolean projectsLoaded = false;
-	/** hash map of modules */
-	protected HashMap moduleHash = null;
-
-	/** are we loading modules? */
-	protected boolean loadingModules = false;
 	
-	/** cached hash of module categories */
-	protected HashMap moduleCategoryHash = null;		
-
-	/** are we loading modules categories? */
-	protected boolean loadingModuleCategories = false;
 	
 	/** object to grab thumbnails */
 	protected ThumbnailRetriever thumbnailRetriever;
@@ -122,7 +111,7 @@ public class DataManager {
 		return registry;
 	}
 	
-	public synchronized Collection getProjects() {
+	public Collection getProjects() {
 		
 		// if we've done it, .grab it...
 		if (projectsLoaded == true) {
@@ -139,21 +128,10 @@ public class DataManager {
 			Collection res = null;
 			if (projectHash != null)
 				res= projectHash.values();
-			notifyAll();
 			return res;
 		}
-		else {// in progress
-			try{ 
-				wait();
-				if (projectHash != null && projectHash.size() > 0)
-					return projectHash.values();
-				else 
-					return null;
-			}
-			catch (InterruptedException e) {
-				return null;
-			}
-		}
+		
+		return null;
 	}
 	
 	/**
@@ -207,7 +185,7 @@ public class DataManager {
 		return ((IconFactory) registry.lookup("/resources/icons/MyFactory"));
 	}
 	
-	public synchronized Collection getDatasets() {
+	public Collection getDatasets() {
 		
 		// if we're done, go for it.
 		if (datasetsLoaded == true) {
@@ -221,21 +199,10 @@ public class DataManager {
 		if (loadingDatasets == false) {
 			loadingDatasets = true;
 			retrieveDatasets();
-			notifyAll();
 			loadingDatasets = false;
 			return datasetHash.values();
 		}
-		else {// in progress
-			try{ 
-				wait();
-				if (datasetHash != null && datasetHash.size()> 0)
-					return datasetHash.values();
-				return null;
-			}
-			catch (InterruptedException e) {
-				return null;
-			}
-		}	
+		return null;
 	}
 	protected synchronized void retrieveDatasets() {
 		if (datasetHash == null ||datasetHash.size() == 0) {
@@ -323,31 +290,7 @@ public class DataManager {
 		return registry.getTaskBar();
 	}
 	
-	public synchronized Collection getModules() {
-		
-		// if we're done, go for it.
-		
-		if (moduleHash != null && moduleHash.size() > 0)
-			return moduleHash.values();
-		
-		if (loadingModules == false) {
-			loadingModules = true;
-			retrieveModules();
-		//	retrieveCategories();
-			loadingModules = false;
-			notifyAll();
-			return moduleHash.values();
-		}
-		else {// in progress
-			try{ 
-				wait();
-				return moduleHash.values();
-			}
-			catch (InterruptedException e) {
-				return null;
-			}
-		}
-	}
+	
 	
 	/*protected synchronized void retrieveCategories() {
 		try { 
@@ -379,106 +322,4 @@ public class DataManager {
 		}
 	}*/
 	
-	protected synchronized void retrieveModules() {
-		if (moduleHash == null ||moduleHash.size() == 0) {
-			try { 
-				DataManagementService dms = registry.getDataManagementService();
-				Collection modules = 
-					dms.retrieveModules();
-				moduleHash = buildModuleHash(modules);
-			} catch(DSAccessException dsae) {
-				String s = "Can't retrieve user's modules.";
-				registry.getLogger().error(this, s+" Error: "+dsae);
-				registry.getUserNotifier().notifyError("Data Retrieval Failure",
-														s, dsae);	
-			} catch(DSOutOfServiceException dsose) {
-				ServiceActivationRequest 
-				request = new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES);
-				registry.getEventBus().post(request);
-			}
-		}
-	}
-	
-	protected HashMap buildModuleHash(Collection modules) {
-		HashMap map = new HashMap();
-		Iterator iter = modules.iterator();
-		while (iter.hasNext()) {
-			ModuleData p = (ModuleData) iter.next();
-			Integer id = new Integer(p.getID());
-			map.put(id,p);
-		}
-		return map;
-	}
-	
-	public ModuleData getModule(int id) {
-		Integer ID = new Integer(id);
-		if (moduleHash == null)
-			getModules();
-		return (ModuleData) moduleHash.get(ID);
-	}
-	
-	public synchronized Collection getModuleCategories() {
-		
-		// if we're done, go for it.
-		
-		if (moduleCategoryHash != null && moduleCategoryHash.size() > 0)
-			return moduleCategoryHash.values();
-		
-		if (loadingModuleCategories == false) {
-			loadingModuleCategories = true;
-			retrieveModuleCategories();
-			loadingModuleCategories = false;
-			notifyAll();
-			return moduleCategoryHash.values();
-		}
-		else {// in progress
-			try{ 
-				wait();
-				return moduleCategoryHash.values();
-			}
-			catch (InterruptedException e) {
-				return null;
-			}
-		}
-	}
-	
-	public synchronized void retrieveModuleCategories() {
-		if (moduleCategoryHash== null ||moduleCategoryHash.size() == 0) {
-			try { 
-				DataManagementService dms = registry.getDataManagementService();
-				Collection moduleCategories = 
-					dms.retrieveModuleCategories();
-				moduleCategoryHash = buildModuleCategoryHash(moduleCategories); 
-			} catch(DSAccessException dsae) {
-				String s = "Can't retrieve user's modules.";
-				registry.getLogger().error(this, s+" Error: "+dsae);
-				registry.getUserNotifier().notifyError("Data Retrieval Failure",
-														s, dsae);	
-			} catch(DSOutOfServiceException dsose) {
-				ServiceActivationRequest 
-				request = new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES);
-				registry.getEventBus().post(request);
-			}
-		}
-	}
-	
-	protected HashMap buildModuleCategoryHash(Collection moduleCategories) {
-		HashMap map = new HashMap();
-		Iterator iter = moduleCategories.iterator();
-		while (iter.hasNext()) {
-			ModuleCategoryData p = (ModuleCategoryData) iter.next();
-			Integer id = new Integer(p.getID());
-			map.put(id,p);
-		}
-		return map;
-	}
-	
-	public ModuleCategoryData getModuleCategory(int id) {
-		Integer ID = new Integer(id);
-		if (moduleCategoryHash == null)
-			getModuleCategories();
-		return (ModuleCategoryData) moduleHash.get(ID);
-	}
 }

@@ -42,12 +42,14 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 
 //Java imports
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
  
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
@@ -65,6 +67,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
@@ -95,6 +98,18 @@ public class ChainDataManager extends DataManager {
 	
 	private ChainExecutions chainExecutions; 
 	
+	/** hash map of modules */
+	protected HashMap moduleHash = null;
+
+	/** are we loading modules? */
+	protected boolean loadingModules = false;
+	
+	/** cached hash of module categories */
+	protected HashMap moduleCategoryHash = null;		
+
+	/** are we loading modules categories? */
+	protected boolean loadingModuleCategories = false;
+	
 	public ChainDataManager(Registry registry) {
 		super(registry);
 	}
@@ -102,6 +117,32 @@ public class ChainDataManager extends DataManager {
 	public Registry getRegistry() {return registry; }
 	
 	
+	/* Retrieve the modules. As with other similar calls in this file, 
+	 * this may be a bit reckless: a second request coming in while this one is in 
+	 * progress will get null instead of waiting. However, second calls are not 
+	 * frequent, and this approach seems to be faster in general.
+	 */
+	public Collection getModules() {
+		
+		// if we're done, go for it.
+		
+		if (moduleHash != null && moduleHash.size() > 0)
+			return moduleHash.values();
+		
+		if (loadingModules == false) {
+			long start = System.currentTimeMillis();
+			loadingModules = true;
+			retrieveModules();
+		//	retrieveCategories();
+			loadingModules = false;
+			if (ChainBuilderAgent.DEBUG) {
+				long end = System.currentTimeMillis()-start;
+				System.err.println("time spent in getModules is "+end);
+			}
+			return moduleHash.values();
+		}
+		return null;
+	}
 	
 	protected synchronized void retrieveModules() {
 		if (moduleHash == null ||moduleHash.size() == 0) {
@@ -130,7 +171,85 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	public synchronized Collection getChains() {
+	protected HashMap buildModuleHash(Collection modules) {
+		HashMap map = new HashMap();
+		Iterator iter = modules.iterator();
+		while (iter.hasNext()) {
+			ModuleData p = (ModuleData) iter.next();
+			Integer id = new Integer(p.getID());
+			map.put(id,p);
+		}
+		return map;
+	}
+	
+	public ModuleData getModule(int id) {
+		Integer ID = new Integer(id);
+		if (moduleHash == null)
+			getModules();
+		return (ModuleData) moduleHash.get(ID);
+	}
+	
+	public Collection getModuleCategories() {
+		
+		// if we're done, go for it.
+		
+		if (moduleCategoryHash != null && moduleCategoryHash.size() > 0)
+			return moduleCategoryHash.values();
+		
+		if (loadingModuleCategories == false) {
+			long start = System.currentTimeMillis();
+			loadingModuleCategories = true;
+			retrieveModuleCategories();
+			loadingModuleCategories = false;
+			if (ChainBuilderAgent.DEBUG) {
+				long end = System.currentTimeMillis()-start;
+				System.err.println("time spent in getModuleCategories.."+end);
+			}
+			return moduleCategoryHash.values();
+		}
+		/* shouldn't get here */
+		return null;
+	}
+	
+	public synchronized void retrieveModuleCategories() {
+		if (moduleCategoryHash== null ||moduleCategoryHash.size() == 0) {
+			try { 
+				DataManagementService dms = registry.getDataManagementService();
+				Collection moduleCategories = 
+					dms.retrieveModuleCategories();
+				moduleCategoryHash = buildModuleCategoryHash(moduleCategories); 
+			} catch(DSAccessException dsae) {
+				String s = "Can't retrieve user's modules.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);	
+			} catch(DSOutOfServiceException dsose) {
+				ServiceActivationRequest 
+				request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
+			}
+		}
+	}
+	
+	protected HashMap buildModuleCategoryHash(Collection moduleCategories) {
+		HashMap map = new HashMap();
+		Iterator iter = moduleCategories.iterator();
+		while (iter.hasNext()) {
+			ModuleCategoryData p = (ModuleCategoryData) iter.next();
+			Integer id = new Integer(p.getID());
+			map.put(id,p);
+		}
+		return map;
+	}
+	
+	public ModuleCategoryData getModuleCategory(int id) {
+		Integer ID = new Integer(id);
+		if (moduleCategoryHash == null)
+			getModuleCategories();
+		return (ModuleCategoryData) moduleHash.get(ID);
+	}
+	public Collection getChains() {
 		
 		Collection res = null;
 		long start;
@@ -146,21 +265,11 @@ public class ChainDataManager extends DataManager {
 				gettingChains = true;
 				retrieveChains();
 				gettingChains = false;
-				notifyAll();
 				if (ChainBuilderAgent.DEBUG) {
 					long end = System.currentTimeMillis()-start;
 					System.err.println("time for retrieving chains.. "+end);
 				}
 				res = chainHash.values();
-			}
-			else {// in progress
-				try{ 
-					wait();
-					res = chainHash.values();
-				}
-				catch (InterruptedException e) {
-					res = null;
-				}
 			}
 		}
 		return res;
@@ -266,7 +375,7 @@ public class ChainDataManager extends DataManager {
 		return chain;
 	}
 	
-	public synchronized Collection getChainExecutions() {
+	public Collection getChainExecutions() {
 		
 		long start;
 		// if we're done, go for it.
@@ -281,14 +390,14 @@ public class ChainDataManager extends DataManager {
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
-			notifyAll();
+		//	notifyAll();
 			if (ChainBuilderAgent.DEBUG) {
 				long getTime = System.currentTimeMillis()-start;
 				System.err.println("time for executions is "+getTime);
 			}
 			return chainExecutions.getExecutions();
 		}
-		else {// in progress
+		/*else {// in progress
 			try{ 
 				wait();
 				return chainExecutions.getExecutions();
@@ -296,8 +405,10 @@ public class ChainDataManager extends DataManager {
 			catch (InterruptedException e) {
 				return null;
 			}
-		}
+		}*/
+		return null;
 	}
+	
 	public synchronized void retrieveChainExecutions() {
 		if (chainExecutions== null) {
 			try {
