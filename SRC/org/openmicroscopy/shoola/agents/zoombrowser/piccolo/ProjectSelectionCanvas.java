@@ -39,20 +39,12 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //java imports
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.Paint;
 import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
-import javax.swing.Timer;
 
 //Third-party libraries
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 
@@ -124,7 +116,7 @@ public class ProjectSelectionCanvas extends PCanvas implements
 	}
 
 	public void completeInitialization() {
-		addInputEventListener(new ProjectLabelEventHandler());
+		addInputEventListener(new GenericEventHandler());
 		SelectionState.getState().addSelectionEventListener(this);
 	}
 		
@@ -307,174 +299,5 @@ public class ProjectSelectionCanvas extends PCanvas implements
 }
 
 
-class ProjectLabel extends PText  {
-	
-	public static final double NORMAL_SCALE=1;	
-    public static final double ROLLOVER_SCALE=1.25;
-	public static final double SELECTED_SCALE=1.5;
-	public BrowserProjectSummary project;
-	
-	private double previousScale =NORMAL_SCALE;
-	private Paint previousPaint;
-	ProjectSelectionCanvas canvas;
-	
-	
-	
-	ProjectLabel(BrowserProjectSummary project,ProjectSelectionCanvas canvas) {
-		super();
-		this.project = project;
-		this.canvas = canvas;
-		setText(project.getName());
-		setFont(PConstants.PROJECT_LABEL_FONT);
-		
-	}
-	
-	public double getScaledMaxWidth() {
-		PBounds b = getGlobalFullBounds();
-		return b.getWidth()*SELECTED_SCALE/getScale();
-	}
 
-	public double getScaledMaxHeight() {
-		PBounds b = getGlobalFullBounds();
-		return b.getHeight()*SELECTED_SCALE/getScale();
-	}
-	
-	
-	public BrowserProjectSummary getProject() {
-		return project;
-	}
-	
-	
-	public void setNormal() {
-		if (project == SelectionState.getState().getSelectedProject())
-			return; 
-		setScale(NORMAL_SCALE);
-		setPaint(PConstants.DEFAULT_COLOR);
-	}
-	
-	public void setActive() {
-		if (project == SelectionState.getState().getSelectedProject())
-					return; 
-		setScale(NORMAL_SCALE);
-		setPaint(PConstants.PROJECT_ACTIVE_COLOR);
-	}
-	
-	public void setSelected() {
-		setScale(SELECTED_SCALE);
-		setPaint(PConstants.PROJECT_SELECTED_COLOR);
-		
-	}
-	
-	public void setRollover(boolean v) {
-		if (project == SelectionState.getState().getSelectedProject())
-			return;
-		if (v == true) {
-			setScale(ROLLOVER_SCALE);
-			setPaint(PConstants.PROJECT_ROLLOVER_COLOR);
-		}
-		else  {
-			setNormal();
-		}
-	}
-	
-	
-}
 
-class ProjectLabelEventHandler extends PBasicInputEventHandler implements 
-	ActionListener {
-	
-	private int leftButtonMask = MouseEvent.BUTTON1_MASK;
-	private final Timer timer =new Timer(300,this);
-	private PInputEvent cachedEvent;
-	
-	ProjectLabelEventHandler() {
-		super();
-		
-	}
-	
-	public void mouseEntered(PInputEvent e) {
-		if (e.getPickedNode() instanceof ProjectLabel) {
-			ProjectLabel pl = (ProjectLabel) e.getPickedNode();
-			BrowserProjectSummary p = pl.getProject();
-			if (p.hasDatasets())
-				SelectionState.getState().setRolloverProject(p); 
-		}
-	}
-	
-	public void mouseExited(PInputEvent e) {
-		if (e.getPickedNode() instanceof ProjectLabel) {
-			ProjectLabel p = (ProjectLabel) e.getPickedNode();
-			SelectionState.getState().setRolloverProject(null);
-		}
-	}
-	
-	public void mouseClicked(PInputEvent e) {
-		
-		if ((e.getModifiers() & leftButtonMask) !=
-				leftButtonMask)
-			return;
-		if (timer.isRunning()) {
-			timer.stop();
-			doMouseDoubleClicked(e);
-		}
-		else {
-			timer.restart();
-			cachedEvent = e;
-		}
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-		if (cachedEvent != null)
-			doMouseClicked(cachedEvent);
-		cachedEvent = null;
-		timer.stop();
-	}
-	
-	public void doMouseClicked(PInputEvent e) {
-		if (e.getPickedNode() instanceof ProjectLabel) {
-			ProjectLabel pl = (ProjectLabel) e.getPickedNode();
-			BrowserProjectSummary project = pl.getProject();
-			SelectionState state = SelectionState.getState();
-			
-			BrowserProjectSummary selected = state.getSelectedProject();
-			if (selected == project) { 
-				// if i've just clicked on what was selected,
-				// clear dataset selection
-				state.setSelectedDataset(null);
-				
-			}
-			else if (pl.getProject().hasDatasets())
-				state.setSelectedProject(project);
-		}
-	}
-	
-    public void doMouseDoubleClicked(PInputEvent e) {
-    	SelectionState state = SelectionState.getState();
-    	if (state.getSelectedProject() != null) {
-    		SelectionState.getState().setSelectedProject(null);
-    	}
-    }
-    
-	public void mouseReleased(PInputEvent e) {
-		if (e.isPopupTrigger()) {
-			e.setHandled(true);
-			handlePopup(e);
-		}
-	}
-	
-	public void mousePressed(PInputEvent e) {
-		mouseReleased(e);
-	}
-	
-	public void handlePopup(PInputEvent e) {
-		if (e.getPickedNode() instanceof ProjectLabel) {
-			ProjectLabel pl = (ProjectLabel) e.getPickedNode();
-			BrowserProjectSummary picked = pl.getProject();
-			BrowserProjectSummary selected = 
-				SelectionState.getState().getSelectedProject();
-			if (picked == selected) 
-				SelectionState.getState().setSelectedProject(null);			
-		}
-	}
- 
-}
