@@ -67,7 +67,7 @@ public class TitlePanel
 {
 
 	/** Default color for the background. */
-	private Color		BACKGROUND = Color.WHITE;
+	private Color		backgroundColor = Color.WHITE;
 	
 	/** 
 	 * Create an instance.
@@ -102,7 +102,7 @@ public class TitlePanel
 	private JPanel buildPanel(String title, String text, String note, Icon icon)
 	{
 		JPanel p = new JPanel();
-		p.setBackground(BACKGROUND);
+		p.setBackground(backgroundColor);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(buildTextPanel(title, text, note));
 		p.add(Box.createHorizontalGlue());
@@ -115,7 +115,7 @@ public class TitlePanel
 	private JPanel buildTextPanel(String title, String text, String note)
 	{
 		JPanel p = new JPanel(), pAll = new JPanel();
-		p.setBackground(BACKGROUND);
+		p.setBackground(backgroundColor);
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(gridbag);
@@ -138,7 +138,7 @@ public class TitlePanel
 		} 
 		//necessary to align panel on the left.
 		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pAll.setBackground(BACKGROUND);
+		pAll.setBackground(backgroundColor);
 		pAll.add(p);
 		return pAll;
 	}
