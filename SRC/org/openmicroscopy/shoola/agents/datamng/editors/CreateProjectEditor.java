@@ -39,7 +39,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 //Third-party libraries
 
@@ -99,7 +98,7 @@ public class CreateProjectEditor
 	}
 
 	/** Returns the textfield displayed in {@link CreateProjectPane}. */
-	public JTextField getNameField()
+	public JTextArea getNameField()
 	{
 		return creationPane.getNameField();
 	}

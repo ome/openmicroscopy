@@ -44,7 +44,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -80,7 +79,7 @@ class CreateProjectPane
 	
 	private JButton						saveButton;
 	
-	private JTextField					nameField;
+	private JTextArea					nameField;
 	
 	private JTextArea					descriptionArea;
 	
@@ -109,7 +108,7 @@ class CreateProjectPane
 	}
 
 	/** Returns the textfield with project's name. */
-	public JTextField getNameField()
+	public JTextArea getNameField()
 	{
 		return nameField;
 	}
@@ -182,9 +181,14 @@ class CreateProjectPane
 		ProjectData pd = manager.getProjectData();
 		
 		//textfields
-		nameField = new JTextField(pd.getName());
+		nameField = new JTextArea(pd.getName());
 		nameField.setForeground(DataManager.STEELBLUE);
-		table.setValueAt(nameField, 0, 1); 
+		nameField.setEditable(true);
+		nameField.setLineWrap(true);
+		nameField.setWrapStyleWord(true);
+		JScrollPane scrollPaneName  = new JScrollPane(nameField);
+		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
+		table.setValueAt(scrollPaneName, 0, 1); 
 
 		descriptionArea = new JTextArea(pd.getDescription());
 		descriptionArea.setForeground(DataManager.STEELBLUE);

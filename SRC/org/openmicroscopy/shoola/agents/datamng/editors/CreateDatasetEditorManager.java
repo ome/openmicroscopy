@@ -32,11 +32,12 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -63,14 +64,13 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 public class CreateDatasetEditorManager
-	implements ActionListener, DocumentListener
+	implements ActionListener, DocumentListener, MouseListener
 {
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
 	private static final int		CANCEL_SELECTION_PROJECT = 2;
 	private static final int		SELECT_IMAGE = 3;
 	private static final int		CANCEL_SELECTION_IMAGE = 4;
-	private static final int		NAME_FIELD = 5;
 	
 	private CreateDatasetEditor 	view;
 	private DatasetData 			model;
@@ -105,8 +105,10 @@ public class CreateDatasetEditorManager
 	private JTextArea				descriptionArea;
 	
 	/** text field displayed in the {@link CreateDatasetPane}. */
-	private JTextField				nameField;
+	private JTextArea				nameField;
 		
+	private boolean					isName;
+	
 	public CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl control,
 									  DatasetData model, List projects,
@@ -117,6 +119,7 @@ public class CreateDatasetEditorManager
 		this.model = model;
 		this.projects = projects;
 		this.images = images;
+		isName = false;
 	}
 	
 	DatasetData getDatasetData()
@@ -153,8 +156,8 @@ public class CreateDatasetEditorManager
 		cancelImageButton.addActionListener(this);
 		cancelImageButton.setActionCommand(""+CANCEL_SELECTION_IMAGE);
 		nameField = view.getNameField();
-		nameField.addActionListener(this);
-		nameField.setActionCommand(""+NAME_FIELD);
+		nameField.getDocument().addDocumentListener(this);
+		nameField.addMouseListener(this);
 		descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
@@ -183,9 +186,6 @@ public class CreateDatasetEditorManager
 				case CANCEL_SELECTION_IMAGE:
 					cancelSelectionImage();
 					break;
-				case NAME_FIELD:
-					setNameField();
-					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -206,14 +206,6 @@ public class CreateDatasetEditorManager
 		if (value == true) imagesToAdd.add(is);
 		else 	imagesToAdd.remove(is);
 	}
-
-
-	/** Update model when the user modifies project's name. */
-	void setNameField()
-	{
-		model.setName(nameField.getText());
-		saveButton.setEnabled(true);
-	}
 	
 	/** 
 	 * Add (resp. remove) the project summary to (resp. from) the list of
@@ -231,12 +223,13 @@ public class CreateDatasetEditorManager
 	}
 
 	 /** 
-	 * Save the new DatasetData object and forward event to the 
+	 * Save the new DatasetData object in DB and forward event to the 
 	 * {@link DataManagerCtrl}.
 	 */
 	private void save()
 	{
 		model.setDescription(descriptionArea.getText());
+		model.setName(nameField.getText());
 		//update tree and forward event to DB.
 		//forward event to DataManager.
 		control.addDataset(projectsToAdd, imagesToAdd, model);
@@ -279,19 +272,49 @@ public class CreateDatasetEditorManager
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)
 	{
-		saveButton.setEnabled(true);
+		if (isName) saveButton.setEnabled(true);
 	}
 
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		saveButton.setEnabled(true);
+		if (isName) saveButton.setEnabled(true);
 	}
 
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-		saveButton.setEnabled(true);
+		if (isName) saveButton.setEnabled(true);
 	}
+	
+	/** Indicates that the name has been modified. */
+	public void mousePressed(MouseEvent e)
+	{ 
+		isName = true;
+	}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseClicked(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseEntered(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseExited(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseReleased(MouseEvent e){}
 	
 }
