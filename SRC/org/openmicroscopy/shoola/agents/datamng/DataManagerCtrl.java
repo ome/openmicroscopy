@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -101,7 +102,7 @@ public class DataManagerCtrl
 	 * 						If you pass anything different this method does
 	 *						nothing.
 	 */
-	void showProperties(Object target)
+	void showProperties(DataObject target)
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
 		if (target == null)    return;
@@ -118,6 +119,24 @@ public class DataManagerCtrl
 									((ImageSummary) target).getID());
 			presentation.showImagePS(image);
 		}
+	}
+	
+	/**
+	 * Forwards the call to the abstraction.
+	 */
+	void viewImage(ImageSummary is)
+	{
+		int[] pxSets = is.getPixelsIDs();
+		//TODO: select pixels if more than one!
+		abstraction.viewImage(is.getID(), pxSets[0]);
+	}
+	
+	/**
+	 * Forwards the call to the abstraction.
+	 */
+	void viewDataset(DatasetSummary ds)
+	{
+		abstraction.viewDataset(ds.getID());
 	}
 
 	/**Handles event fired by menu. */

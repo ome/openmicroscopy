@@ -44,6 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -105,9 +106,9 @@ class ExplorerPane
 	 *
 	 * @return  See above.
 	 */
-	Object getCurrentOMEObject()
+	DataObject getCurrentOMEObject()
 	{
-		Object  target = null;
+		DataObject target = null;
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 											tree.getLastSelectedPathComponent();
 		if (node != null) {
@@ -115,7 +116,7 @@ class ExplorerPane
 			if( usrObj instanceof ProjectSummary  || 
 				usrObj instanceof DatasetSummary  ||
 				usrObj instanceof ImageSummary )
-				target = usrObj;
+				target = (DataObject) usrObj;
 		}
 		return target;
 	}	

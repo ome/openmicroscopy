@@ -79,11 +79,23 @@ public class IconManager
 	/** ID of the information icon. */
 	public static final int     INFO = 6;
 	
+	/** ID of the properties icon used by the popup menu. */
+	public static final int		PROPERTIES = 7;
+	
+	/** ID of the viewer icon used by the popup menu. */
+	public static final int		VIEWER = 8;
+
+	/** ID of the browser icon used by the popup menu. */
+	public static final int		BROWSER = 9;
+
+	/** ID of the refresh icon used by the popup menu. */
+	public static final int		REFRESH = 10;
+
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 7;
+	private static int          MAX_ID = 10;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -96,6 +108,10 @@ public class IconManager
 		relPaths[SAVE_DB] = "save_DB30.png";
 		relPaths[RELOAD_DB] = "reload_DB30.png";
 		relPaths[INFO] = "information16.png";
+		relPaths[PROPERTIES] = "properties16.png";
+		relPaths[VIEWER] = "viewer16.png";
+		relPaths[BROWSER] = "browser-small.png";
+		relPaths[REFRESH] = "refresh16.png";
 	}
 	
 	/**

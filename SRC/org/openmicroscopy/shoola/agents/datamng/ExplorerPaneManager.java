@@ -48,6 +48,7 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -390,7 +391,7 @@ class ExplorerPaneManager
 		int selRow = view.tree.getRowForLocation(e.getX(), e.getY());
 		if (selRow != -1) {
 	   		view.tree.setSelectionRow(selRow);
-	   		Object  target = view.getCurrentOMEObject();
+	   		DataObject target = view.getCurrentOMEObject();
 			// remove tree expansion listener
 			//otherwise a tree expansion event is fired when we
 			//double-click
@@ -398,13 +399,16 @@ class ExplorerPaneManager
 				view.tree.removeTreeExpansionListener(listeners[i]);
 	   		if (target != null) {
 				if (e.isPopupTrigger()) {
-				//TODO: pop up menu
+					DataManagerUIF presentation = 
+								agentCtrl.getAbstraction().getPresentation();
+					TreePopupMenu popup = presentation.getPopupMenu();
+					popup.setTarget(target);  
+					popup.show(view.tree, e.getX(), e.getY());
 				} else {
-					if (e.getClickCount() == 2)    {
+					if (e.getClickCount() == 2) {
 						agentCtrl.showProperties(target);
 						for (int i = 0; i < listeners.length; i++) 
 							view.tree.addTreeExpansionListener(listeners[i]);
-						
 					}	
 				}
 	   		} else { //Test click on the root node.

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.util.List;
 import javax.swing.Icon;
@@ -100,6 +101,10 @@ class DataManagerUIF
 	private DataManagerCtrl					control;
 	
 	private JMenu							newMenu;
+	
+	/** On-request menu displayed for nodes in the tree. */
+	private TreePopupMenu					popupMenu;
+	
 			
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
@@ -108,6 +113,7 @@ class DataManagerUIF
 		this.registry = registry;
 		this.control = control;
 		explPane = new ExplorerPane(control, registry);
+		popupMenu = new TreePopupMenu(control, registry);
 		setJMenuBar(createMenuBar());
 		buildGUI();
 		//set the size and position the window.
@@ -162,6 +168,16 @@ class DataManagerUIF
 		JMenuItem menuItem = new JMenuItem("DataManager");
 		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
+	}
+	
+	/**
+	 * Returns the menu displayed for nodes in the tree.
+	 * 
+	 * @return See above.
+	 */
+	TreePopupMenu getPopupMenu()
+	{
+		return popupMenu;
 	}
     
 	/** 

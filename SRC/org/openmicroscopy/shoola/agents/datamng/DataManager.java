@@ -40,6 +40,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -50,6 +51,8 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -519,6 +522,31 @@ public class DataManager
 			throw new RuntimeException(dsose);
 		} 
 		if (nameChange) presentation.updateImageInTree(id);
+	}
+
+	/**
+	 * Posts a request to view all images in the specified dataset.
+	 * 
+	 * @param datasetID		The id of the dataset.
+	 */
+	void viewDataset(int datasetID)
+	{
+		LoadDataset request = new LoadDataset(datasetID);
+		EventBus bus = registry.getEventBus();
+		bus.post(request);	
+	}
+
+	/**
+	 * Posts a request to view the given pixels set within the image.
+	 * 
+	 * @param imageID	The id of the image containing the pixels set.
+	 * @param pixelsID	The id of the pixels set.
+	 */
+	void viewImage(int imageID, int pixelsID)
+	{
+		LoadImage request = new LoadImage(imageID, pixelsID);
+		EventBus bus = registry.getEventBus();
+		bus.post(request);	
 	}
 	
 }
