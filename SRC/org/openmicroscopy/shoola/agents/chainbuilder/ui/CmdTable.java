@@ -85,6 +85,12 @@ public class CmdTable {
 				uiManager.newChain(); 
 			}
 		}); 
+		
+		actionMap.put("save chain",new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				uiManager.saveCurrentChainFrame();
+			}
+		}); 
 	}	
 	
 	/**
