@@ -35,8 +35,10 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
@@ -46,7 +48,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -200,6 +205,12 @@ public class BrowserAgent implements Agent, AgentEventListener
     // images.
     private boolean loadDataset(DatasetData datasetModel)
     {
+        // get that s**t out of here; call a proper parameter, man!
+        if(datasetModel == null)
+        {
+            return false; // REEEEE-JECTED.
+        }
+        
         BrowserModel model = new BrowserModel(datasetModel);
         BrowserTopModel topModel = new BrowserTopModel();
         BrowserView view = new BrowserView(model,topModel);
@@ -210,7 +221,49 @@ public class BrowserAgent implements Agent, AgentEventListener
         BrowserInternalFrame bif = new BrowserInternalFrame(controller);
         
         tf.addToDesktop(bif,TopFrame.DEFAULT_LAYER);
-        // TODO: load images
+        bif.show();
+        
+        DataManagementService dms =
+            registry.getDataManagementService();
+            
+        PixelsService ps =
+            registry.getPixelsService();
+        
+        // we're just going to assume that the DatasetData object does not
+        // have the entire image list... might want to refactor this later.
+        
+        // always initialized as long as catch blocks return false
+        List imageList;
+        try
+        {
+            // will this order by image ID?
+            // should I explicitly order by another parameter?
+            imageList = dms.retrieveImages(datasetModel.getID());
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Connection Error",dso.getMessage(),dso);
+            return false;
+        }
+        catch(DSAccessException dsa)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+            return false;
+        }
+        
+        StatusBar status = controller.getStatusView();
+        status.processStarted(imageList.size());
+        
+        // see imageList initialization note above
+        for(Iterator iter = imageList.iterator(); iter.hasNext();)
+        {
+            ImageData data = (ImageData)iter.next();
+            List pixels = data.getPixels();
+            Pixels pix = (Pixels)pixels.get(0); // is this right?
+            // figure out how to get default thumb composite info out
+        }
         
         return true;
     }
