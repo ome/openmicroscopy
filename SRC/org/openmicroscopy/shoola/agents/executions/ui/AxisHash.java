@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.executions.AxisHash
+ * org.openmicroscopy.shoola.agents.executions.ui.AxisHash
  *
  *------------------------------------------------------------------------------
  *
@@ -66,19 +66,28 @@ public class AxisHash extends Rectangle2D.Double {
 	private int xPos;
 	private int yStart;
 	private int yEnd;
+	private int spacing;
+	private boolean drawLabel = false;
 	
 	public AxisHash(GridModel gridModel,int xPos,int yStart,int yEnd,
-			long time) {
+			long time,int spacing) {
 		this.gridModel = gridModel;
 		this.xPos  = xPos;
 		this.yStart = yStart;
 		this.yEnd = yEnd;
 		setFrame(xPos,yStart,0,yEnd-yStart);
 		this.time = time;
+		this.spacing = spacing;
 	}
 	
 	public void paint(Graphics2D g) {
 		g.draw(this);
+		if (drawLabel == true)
+			drawLabel(g);
+	}
+	
+	public void setDrawLabel(boolean v) {
+		drawLabel = v;
 	}
 	
 	// can't do straight intersects call here, as we're dealing with a line
@@ -140,7 +149,7 @@ public class AxisHash extends Rectangle2D.Double {
 		g.drawString(tip,x,yLoc);
 	}
 	
-	public void drawLabel(Graphics2D g,int spacing) {
+	public void drawLabel(Graphics2D g) {
 		int x = xPos;
 		int y = yEnd;
 		FontMetrics metrics = g.getFontMetrics(ExecutionsCanvas.TIPFONT);
