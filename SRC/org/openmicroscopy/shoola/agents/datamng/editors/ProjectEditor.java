@@ -164,5 +164,4 @@ public class ProjectEditor
 		getContentPane().add(tabs, BorderLayout.CENTER);	
 	}
 
-	
 }

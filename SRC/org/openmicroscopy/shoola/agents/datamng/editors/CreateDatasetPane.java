@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class CreateDatasetPane
 	extends JPanel
 {
-
 	private CreateDatasetEditorManager 	manager;
 	private Registry 					registry;
 	
@@ -85,8 +84,7 @@ class CreateDatasetPane
 	 * @param manager
 	 * @param registry
 	 */
-	CreateDatasetPane(CreateDatasetEditorManager manager, 
-								Registry registry) 
+	CreateDatasetPane(CreateDatasetEditorManager manager, Registry registry) 
 	{
 		this.manager = manager;
 		this.registry = registry;
@@ -120,14 +118,13 @@ class CreateDatasetPane
 		setBorder(b);
 	}
 	
+	/** Build panel containing fields to fill in. */
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
 		//save button
 		saveButton = new JButton("Save");
 		//get rid of surrounding border
-		//saveButton.setBorder(null);
-		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -155,8 +152,10 @@ class CreateDatasetPane
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
+		
 		return p;
 	}
+	
 	/** 
 	 * A <code>2x2</code> table model to view dataset summary.
 	 * The first column contains the property names (name, description)

@@ -41,11 +41,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 
-import org.openmicroscopy.shoola.env.data.model.ImageData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /** 
  * 
@@ -94,7 +93,8 @@ class ImageOwnerPane
 		return p;
 	}
 	
-	/** A <code>7x2</code> table model to view owner summary.
+	/** 
+	 * A <code>7x2</code> table model to view owner summary.
 	 * The first column contains the property names 
 	 * (id, first name, last name, e-mail, institution, group id, group name)
 	 * and the second column holds the corresponding values. 
@@ -103,7 +103,6 @@ class ImageOwnerPane
 	private class OwnerTableModel 
 		extends AbstractTableModel 
 	{
-	
 		private final String[]    
 		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
 						" Institution", " Group ID", " Group Name"};

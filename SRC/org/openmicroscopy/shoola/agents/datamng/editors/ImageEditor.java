@@ -140,4 +140,5 @@ public class ImageEditor
 	{
 		return generalPane.getNameField();
 	}
+	
 }

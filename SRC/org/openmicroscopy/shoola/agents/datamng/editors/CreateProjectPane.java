@@ -84,6 +84,8 @@ class CreateProjectPane
 	private JTextArea					descriptionArea;
 	
 	/**
+	 * Create a new instance.
+	 * 
 	 * @param manager
 	 * @param registry
 	 */
@@ -127,9 +129,6 @@ class CreateProjectPane
 		JPanel  p = new JPanel();
 		//save button
 		saveButton = new JButton("Save");
-		//get rid of surrounding border
-		//saveButton.setBorder(null);
-		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -158,6 +157,7 @@ class CreateProjectPane
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
+		
 		return p;
 	}
 
@@ -205,6 +205,7 @@ class CreateProjectPane
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
+								
 		return table;
 	}
 

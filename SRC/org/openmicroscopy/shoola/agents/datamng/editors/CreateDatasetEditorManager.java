@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class CreateDatasetEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
 	private static final int		CANCEL_SELECTION_PROJECT = 2;
@@ -168,8 +169,6 @@ public class CreateDatasetEditorManager
 		String s = (String) e.getActionCommand();
 		try {
 			int     index = Integer.parseInt(s);
-			//fo later
-			
 			switch (index) { 
 				case SAVE:
 					save();
@@ -198,7 +197,7 @@ public class CreateDatasetEditorManager
 	 * 
 	 * @param value		boolean value true if the checkBox is selected
 	 * 					false otherwise.
-	 * @param ds		dataset summary to add or remove
+	 * @param ds		dataset summary to add or remove.
 	 */
 	void addImage(boolean value, ImageSummary is) 
 	{
@@ -213,7 +212,7 @@ public class CreateDatasetEditorManager
 	 * 
 	 * @param value		boolean value true if the checkBox is selected
 	 * 					false otherwise.
-	 * @param ds		dataset summary to add or remove
+	 * @param ds		dataset summary to add or remove.
 	 */
 	void addProject(boolean value, ProjectSummary ps) 
 	{
@@ -287,7 +286,7 @@ public class CreateDatasetEditorManager
 		if (isName) saveButton.setEnabled(true);
 	}
 	
-	/** Indicates that the name has been modified. */
+	/** Tells that the name has been modified. */
 	public void mousePressed(MouseEvent e)
 	{ 
 		isName = true;

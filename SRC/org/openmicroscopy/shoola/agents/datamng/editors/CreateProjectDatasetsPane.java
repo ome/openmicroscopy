@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -86,7 +85,6 @@ class CreateProjectDatasetsPane
 		buildGUI();
 	}
 	
-	
 	public JButton getSelectButton()
 	{
 		return selectButton;
@@ -101,9 +99,8 @@ class CreateProjectDatasetsPane
 	void setSelection(Object val)
 	{
 		int countCol = datasetsTM.getColumnCount()-1;
-		for (int i = 0; i < datasetsTM.getRowCount(); i++) {
-			datasetsTM.setValueAt(val, i, countCol);
-		} 
+		for (int i = 0; i < datasetsTM.getRowCount(); i++)
+			datasetsTM.setValueAt(val, i, countCol); 
 	}
 	
 	/** Build and layout the GUI. */
@@ -136,18 +133,20 @@ class CreateProjectDatasetsPane
 	  
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
-		JTable  t = new JTable(datasetsTM);
+		JTable t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
-		JScrollPane     sp = new JScrollPane(t);
+		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);
 		p.add(Box.createRigidArea(new Dimension(0, 10)));
 		p.add(controls);
+		
 		return p;
 	}
 	
-	/** A <code>3</code>-column table model to view the summary of 
+	/** 
+	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets  to add to a new project.
 	 * The first column contains the datasets ID and the 
 	 * second column the names, the third one a check box.

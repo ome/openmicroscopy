@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 class DatasetEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;	
 	private static final int	REMOVE = 2;
@@ -180,7 +181,7 @@ class DatasetEditorManager
 		model.setImages(images);
 	}
 	
-	/**Select All images.*/
+	/** Select All images.*/
 	private void remove()
 	{
 		imagesToRemove = model.getImages();
@@ -198,6 +199,7 @@ class DatasetEditorManager
 	/** */
 	private void reload()
 	{
+		//TODO
 	}
 
 	/** Require by I/F. */
@@ -249,5 +251,6 @@ class DatasetEditorManager
 	 * implementation.
 	 */ 
 	public void mouseReleased(MouseEvent e){}
+	
 }	
 	

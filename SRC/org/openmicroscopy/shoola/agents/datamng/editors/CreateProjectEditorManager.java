@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class CreateProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	/** ID used to handle events. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT = 1;
 	private static final int		CANCEL_SELECTION = 2;
@@ -97,8 +98,15 @@ public class CreateProjectEditorManager
 	/** text area displayed in the {@link CreateProjectPane}. */
 	private JTextArea				nameField;
 	
+	/** 
+	* <code>true</code> if the textField displaying the name has been 
+	* selected, <code>false</code> toherwise.
+	*/
 	private boolean					isName;	
+	
 	/**
+	 * Creates a new instance.
+	 * 
 	 * @param editor
 	 * @param model
 	 * @param datasets		List of dataset summary object.
@@ -149,7 +157,6 @@ public class CreateProjectEditorManager
 		String s = (String) e.getActionCommand();
 		try {
 			int     index = Integer.parseInt(s);
-			//fo later
 			switch (index) { 
 				case SAVE:
 					save();

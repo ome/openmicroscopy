@@ -35,7 +35,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -133,19 +132,21 @@ class ProjectDatasetsPane
 		
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
-		JTable  t = new JTable(datasetsTM);
+		JTable t = new JTable(datasetsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
-		JScrollPane     sp = new JScrollPane(t);
+		JScrollPane sp = new JScrollPane(t);
 		
 		p.add(sp);
 		p.add(Box.createRigidArea(new Dimension(0, 10)));
 		p.add(controls);
+		
 		return p;
 	}
 	
-	/** A <code>3</code>-column table model to view the summary of 
+	/** 
+	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets contained in the project.
 	 * The first column contains the datasets ID and the 
 	 * second column the names. Cells are not editable. 
@@ -153,7 +154,6 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-	
 		private final String[]    columnNames = {"ID", "Name", "Remove"};
 		private final Object[]    
 		datasets = manager.getProjectData().getDatasets().toArray();
@@ -181,12 +181,6 @@ class ProjectDatasetsPane
 			return columnNames[col];
 		}
 		
-		/*
-		 * JTable uses this method to determine the default renderer/
-		 * editor for each cell.  If we didn't implement this method,
-		 * then the last column would contain text ("true"/"false"),
-		 * rather than a check box.
-		 */
 		public Class getColumnClass(int c)
 		{
 			return getValueAt(0, c).getClass();
@@ -196,8 +190,7 @@ class ProjectDatasetsPane
 		{
 			return data[row][col];
 		}
-		
-		//cells may not be edited
+
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;

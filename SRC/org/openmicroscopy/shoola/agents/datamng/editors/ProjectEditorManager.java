@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 class ProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
+	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;
 	private static final int	REMOVE = 2;
@@ -180,7 +181,7 @@ class ProjectEditorManager
 		else 	datasetsToRemove.remove(ds);
 	}
 	
-	/** Save the modification in DB. */
+	/** Save in DB. */
 	private void save()
 	{
 		model.setDescription(descriptionArea.getText());
@@ -200,7 +201,7 @@ class ProjectEditorManager
 		model.setDatasets(datasets);
 	}
 	
-	/**Select All datasets.*/
+	/** Select All datasets.*/
 	private void remove()
 	{
 		datasetsToRemove = model.getDatasets();
@@ -208,7 +209,7 @@ class ProjectEditorManager
 		removeButton.setEnabled(false);
 	}
 	
-	/**Cancel selection. */
+	/** Cancel selection. */
 	private void cancelSelection()
 	{
 		datasetsToRemove = null;
@@ -242,7 +243,7 @@ class ProjectEditorManager
 		saveButton.setEnabled(true);
 	}
 
-	/** Indicates that the name has been modified. */
+	/** Tells that the name has been modified. */
 	public void mousePressed(MouseEvent e)
 	{ 
 		isName = true;

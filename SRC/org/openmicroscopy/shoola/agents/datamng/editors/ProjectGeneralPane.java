@@ -133,9 +133,6 @@ class ProjectGeneralPane
 		JPanel  p = new JPanel();
 		//save button
 		saveButton = new JButton("Save");
-		//get rid of surrounding border
-		//saveButton.setBorder(null);
-		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -146,9 +143,6 @@ class ProjectGeneralPane
 		
 		//reload button
 		reloadButton = new JButton("Reload");
-		//get rid of surrounding border
-		//reloadButton.setBorder(null);
-		//reloadButton.setMargin(null);
 		reloadButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		reloadButton.setOpaque(false);
@@ -177,6 +171,7 @@ class ProjectGeneralPane
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
+		
 		return p;
 	}
 	
@@ -193,6 +188,7 @@ class ProjectGeneralPane
 		table.setTableHeader(null);
 		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		
 		// Labels
 		table.setValueAt(new JLabel(" ID"), 0, 0);
 		table.setValueAt(new JLabel(" Name"), 1, 0);
@@ -224,6 +220,7 @@ class ProjectGeneralPane
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
+								
 		return table;
 	}
 	

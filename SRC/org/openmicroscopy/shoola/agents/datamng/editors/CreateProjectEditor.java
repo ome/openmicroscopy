@@ -142,7 +142,6 @@ public class CreateProjectEditor
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
-		//create and initialize the tabs
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);

@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class ExplorerPane
 	extends JScrollPane
 {
-
+	/** ID used to select the appropriated icon. */
 	static final int    			ROOT_ICON = 0;   
 	static final int    			PROJECT_ICON = 1;
 	static final int    			DATASET_ICON = 2;
@@ -124,6 +124,7 @@ class ExplorerPane
 	{
 		return manager;
 	}
+	
 	/** 
 	 * Builds and lays out the GUI.
 	 */
@@ -177,6 +178,7 @@ class ExplorerPane
 				else if (usrObject instanceof ImageSummary)id = IMAGE_ICON;
 				else if (usrObject instanceof String)id = NO_ICON;
 			}
+			
 			return id;
 		}
 	}

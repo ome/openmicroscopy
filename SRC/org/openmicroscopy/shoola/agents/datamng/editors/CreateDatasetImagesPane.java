@@ -142,6 +142,7 @@ class CreateDatasetImagesPane
 		p.add(sp);
 		p.add(Box.createRigidArea(new Dimension(0, 10)));
 		p.add(controls);
+		
 		return p;
 	}
 	

@@ -63,6 +63,7 @@ class DatasetOwnerPane
 {
 
 	private DatasetEditorManager 	manager;
+	
 	DatasetOwnerPane(DatasetEditorManager manager)
 	{
 		this.manager = manager;
@@ -91,7 +92,8 @@ class DatasetOwnerPane
 		return p;
 	}
 	
-	/** A <code>7x2</code> table model to view owner summary.
+	/** 
+	 * A <code>7x2</code> table model to view owner summary.
 	 * The first column contains the property names 
 	 * (id, first name, last name, e-mail, institution, group id, group name)
 	 * and the second column holds the corresponding values. 
@@ -100,7 +102,6 @@ class DatasetOwnerPane
 	private class OwnerTableModel 
 		extends AbstractTableModel 
 	{
-	
 		private final String[]    
 		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
 						" Institution", " Group ID", " Group Name"};

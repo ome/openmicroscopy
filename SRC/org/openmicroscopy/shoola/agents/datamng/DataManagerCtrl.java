@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class DataManagerCtrl
 	implements ActionListener
 {
+	/**ID sed to handle events. */
 	static final int			DM_VISIBLE = 0;
 	static final int			PROJECT_ITEM = 1;
 	static final int			DATASET_ITEM = 2;
@@ -142,7 +143,7 @@ public class DataManagerCtrl
 		} 
 	}
 	
-	/**Forward event to the presentation {@link DataManagerUIF}. */
+	/** Forward event to the presentation {@link DataManagerUIF}. */
 	private void createProject()
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
@@ -150,7 +151,7 @@ public class DataManagerCtrl
 		presentation.showCreateProject(new ProjectData(), datasets);
 	}
 	
-	/**Forward event to the presentation {@link DataManagerUIF}. */
+	/** Forward event to the presentation {@link DataManagerUIF}. */
 	private void createDataset()
 	{	
 		DataManagerUIF presentation = abstraction.getPresentation();
@@ -159,31 +160,31 @@ public class DataManagerCtrl
 		presentation.showCreateDataset(new DatasetData(), projects, images);
 	}
 	
-	/**Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the abstraction {@link DataManager}. */
 	public void addProject(ProjectData pd)
 	{
 		abstraction.createProject(pd);
 	}
 	
-	/**Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the abstraction {@link DataManager}. */
 	public void addDataset(List projects, List images, DatasetData dd)
 	{
 		abstraction.createDataset(projects, images, dd);
 	}
 	
-	/**Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the abstraction {@link DataManager}. */
 	public void updateProject(ProjectData pd, boolean nameChange)
 	{
 		abstraction.updateProject(pd, nameChange);
 	}
 	
-	/**Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the abstraction {@link DataManager}. */
 	public void updateDataset(DatasetData dd, boolean nameChange)
 	{
 		abstraction.updateDataset(dd, nameChange);
 	}
 	
-	/**Forward event to the abstraction {@link DataManager}. */
+	/** Forward event to the abstraction {@link DataManager}. */
 	public void updateImage(ImageData id, boolean nameChange)
 	{
 		abstraction.updateImage(id, nameChange);

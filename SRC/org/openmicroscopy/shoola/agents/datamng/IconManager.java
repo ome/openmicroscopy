@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class IconManager
 {
 	/** Contains icon objects to be retrieved through the icon IDs. */
-	private Icon[]                icons;
+	private Icon[]				icons;
 
 	/** ID of the OME logo icon. */
 	public static final int     OME = 0;   
@@ -117,6 +117,7 @@ public class IconManager
 				throw new RuntimeException("Can't create the IconManager", e);
 			}
 		}
+		
 		return singleton;
 	}
 	

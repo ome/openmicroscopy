@@ -35,7 +35,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -135,18 +134,20 @@ class CreateDatasetProjectsPane
 	  
 		//datasets table
 		projectsTM = new ProjectsTableModel();
-		JTable  t = new JTable(projectsTM);
+		JTable t = new JTable(projectsTM);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
-		JScrollPane     sp = new JScrollPane(t);
+		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);
 		p.add(Box.createRigidArea(new Dimension(0, 10)));
 		p.add(controls);
+		
 		return p;
 	}
 	
-	/** A <code>3</code>-column table model to view the summary of 
+	/** 
+	 * A <code>3</code>-column table model to view the summary of 
 	 * project to add to a new dataset.
 	 * The first column contains the projects ID and the 
 	 * second column the names, the third one a check box.

@@ -64,6 +64,7 @@ class ImageInfoPane
 {
 
 	private ImageEditorManager manager;
+	
 	ImageInfoPane(ImageEditorManager manager)
 	{
 		this.manager = manager;
@@ -92,7 +93,8 @@ class ImageInfoPane
 		return p;
 	}
 	
-	/** A <code>6x2</code> table model to view owner summary.
+	/** 
+	 * A <code>6x2</code> table model to view owner summary.
 	 * The first column contains the property names 
 	 * (id, first name, last name, e-mail, institution, group id, group name)
 	 * and the second column holds the corresponding values. 
@@ -101,7 +103,6 @@ class ImageInfoPane
 	private class InfoTableModel 
 		extends AbstractTableModel 
 	{
-		
 		private final String[]    
 		fieldNames = {" Size X", " Size Y", " Sections", " Timepoints",
 					 " Channels", " Bits per pixels"};

@@ -130,6 +130,7 @@ public class DatasetEditor
 	{
 		return generalPane.getNameField();
 	}
+	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
 	public void	removeAll()
 	{

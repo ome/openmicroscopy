@@ -93,13 +93,13 @@ class ImageGeneralPane
 	}
 	
 	
-	/**Returns the save button. */
+	/** Returns the save button. */
 	public JButton getSaveButton()
 	{ 
 		return saveButton;
 	}
 	
-	/**Returns the reload button. */
+	/** Returns the reload button. */
 	public JButton getReloadButton()
 	{ 
 		return reloadButton;
@@ -131,9 +131,6 @@ class ImageGeneralPane
 		JPanel  p = new JPanel();
 		//save button
 		saveButton = new JButton("Save");
-		//get rid of surrounding border
-		//saveButton.setBorder(null);
-		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -144,9 +141,6 @@ class ImageGeneralPane
 		
 		//reload button
 		reloadButton = new JButton("Reload");
-		//get rid of surrounding border
-		//reloadButton.setBorder(null);
-		//reloadButton.setMargin(null);
 		reloadButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		reloadButton.setOpaque(false);
@@ -176,6 +170,7 @@ class ImageGeneralPane
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
+		
 		return p;
 	}
 	
@@ -192,6 +187,7 @@ class ImageGeneralPane
 		table.setTableHeader(null);
 		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		
 		// Labels
 		table.setValueAt(new JLabel(" ID"), 0, 0);
 		table.setValueAt(new JLabel(" Name"), 1, 0);
@@ -199,6 +195,7 @@ class ImageGeneralPane
 
 		ImageData pd = manager.getImageData();
 		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);
+		
 		//textfields
 		nameField = new JTextArea(pd.getName());
 		nameField.setForeground(DataManager.STEELBLUE);
@@ -222,6 +219,7 @@ class ImageGeneralPane
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
+								
 		return table;
 	}
 

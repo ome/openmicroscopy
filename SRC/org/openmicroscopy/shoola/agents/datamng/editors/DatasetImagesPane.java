@@ -140,10 +140,12 @@ class DatasetImagesPane
 		p.add(sp);
 		p.add(Box.createRigidArea(new Dimension(0, 10)));
 		p.add(controls);
+		
 		return p;
 	}
 	
-	/** A <code>3</code>-column table model to view the summary of 
+	/** 
+	 * A <code>3</code>-column table model to view the summary of 
 	 * images contained in the dataset.
 	 * The first column contains the datasets ID and the 
 	 * second column the names. Cells are not editable. 

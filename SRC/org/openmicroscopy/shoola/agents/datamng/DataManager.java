@@ -159,7 +159,6 @@ public class DataManager
 	List getUserProjects()
 	{
 		if (projectSummaries == null) {
-			
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				projectSummaries = dms.retrieveUserProjects();
@@ -172,6 +171,7 @@ public class DataManager
 				throw new RuntimeException(dsose);
 			} 
 		}
+		
 		return projectSummaries;
 	}
 	
@@ -198,6 +198,7 @@ public class DataManager
 				throw new RuntimeException(dsose);
 			} 
 		}
+		
 		return datasetSummaries;
 	}
 	
@@ -223,6 +224,7 @@ public class DataManager
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
+		
 		return images;
 	}
 
@@ -246,8 +248,8 @@ public class DataManager
 			// pop up login window
 			throw new RuntimeException(dsose);
 		}
-		return images;
 		
+		return images;	
 	}
 	
 	/**
@@ -270,6 +272,7 @@ public class DataManager
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
+		
 		return project;
 	}
 	
@@ -293,6 +296,7 @@ public class DataManager
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
+		
 		return dataset;
 	}
 	
@@ -316,6 +320,7 @@ public class DataManager
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
+		
 		return image;
 	}
 	

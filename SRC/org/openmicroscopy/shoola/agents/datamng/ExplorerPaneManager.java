@@ -210,8 +210,7 @@ class ExplorerPaneManager
 	}
 	
 	/** 
-	 * The method is used in the class only. 
-	 * Invoked a a <code>project</code> node is modified. 
+	 * Called when a  <code>project</code> node is modified. 
 	 * 
 	 * @param datasets		list of datasets in the project.
 	 * @param pNode			project node associated to the project 
@@ -361,7 +360,6 @@ class ExplorerPaneManager
 			is = (ImageSummary) i.next();
 			iNode = new DefaultMutableTreeNode(is);
 			treeModel.insertNodeInto(iNode, dNode, dNode.getChildCount());
-			//setNodeVisible(iNode, dNode);
 		}
 	}
 	
@@ -512,7 +510,7 @@ class ExplorerPaneManager
 	}
 	
 	/**
-	 *  Add the specified node to the dataset maps.
+	 * Add the specified node to the dataset maps.
 	 * @param datasetID		maps' key.
 	 * @param node			node to be added.
 	 * @param images		list of images in the specified dataset.

@@ -75,10 +75,16 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class DataManagerUIF
 	extends JInternalFrame
 {
-
+	/** Width of the widget. */
 	private static final int 				WIN_WIDTH = 350;
+	
+	/** Height of the widget. */
 	private static final int 				WIN_HEIGHT = 350;
+	
+	/** Location x-coordinate. */
 	private static final int				X_LOCATION = 0;
+	
+	/** Location y-coordinate. */
 	private static final int				Y_LOCATION = 0;
 	
 	/** 
@@ -131,6 +137,7 @@ class DataManagerUIF
 	{
 		explPane.getManager().updateImageInTree(id);
 	}
+	
 	/**
 	 * Forward event to {@link ExplorerPaneManager}.
 	 */
@@ -252,11 +259,10 @@ class DataManagerUIF
 	}
 
 	/** 
-	 * Builds and lays out the GUI.
+	 * Build and lay out the GUI.
 	 */
 	private void buildGUI()
 	{
-		//create and initialize the tabs
 		JTabbedPane     tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
 												JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -275,16 +281,16 @@ class DataManagerUIF
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);
 		
-		setFrameIcon(icon);
-		
+		setFrameIcon(icon);	
 	} 	
 	
-	/**Creates an internal menu. */
+	/** Creates an internal menu. */
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		createNewMenu();
 		menuBar.add(newMenu);
+		
 		return menuBar;
 	}
 	
