@@ -84,6 +84,7 @@ class ExplorerPaneManager
 	/** Root of the tree. */
 	private DefaultMutableTreeNode  root;
 	
+	private boolean					treeDisplayed;
 	/** 
 	 * Map of expanded dataset nodes.
 	 * Key: datasetSummary id, value: list of expanded nodes.
@@ -114,6 +115,7 @@ class ExplorerPaneManager
 		this.agentCtrl = agentCtrl;
 		pNodes = new TreeMap();
 		initListeners();
+		treeDisplayed = false;
 	}
 	
 	/** 
@@ -125,20 +127,6 @@ class ExplorerPaneManager
 	DefaultMutableTreeNode getUserTreeModel()
 	{
 		root = new DefaultMutableTreeNode("My OME");
-		DefaultMutableTreeNode pNode; 	
-		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
-		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		if (pSummaries != null) {
-			Iterator i = pSummaries.iterator();
-			ProjectSummary ps;
-			while (i.hasNext()) {
-				ps = (ProjectSummary) i.next();
-				pNode = new DefaultMutableTreeNode(ps);
-				treeModel.insertNodeInto(pNode, root, root.getChildCount());
-				pNodes.put(new Integer(ps.getID()), pNode);
-				addDatasetsToProject(ps, pNode, treeModel);
-			}
-		}
 		return root;
 	}
 	
@@ -387,7 +375,6 @@ class ExplorerPaneManager
 	 */
 	private void onClick(MouseEvent e)
 	{
-		
 		int selRow = view.tree.getRowForLocation(e.getX(), e.getY());
 		if (selRow != -1) {
 	   		view.tree.setSelectionRow(selRow);
@@ -403,17 +390,28 @@ class ExplorerPaneManager
 					if (e.getClickCount() == 2)
 						agentCtrl.showProperties(target);
 				}
-	   		}// else { //Test click on the root node.
-				//if (e.isPopupTrigger()) rebuildTree();
-	   		//}
+	   		} else { //click on the root node.
+				if (e.getClickCount() == 2) {
+					if (treeDisplayed) rootExpandOrCollapse();
+					else buildTree(); 
+				} 
+	   		}
 		}
 	}
 	
-	private void rebuildTree()
+	/** Expand or collapse the tree. */
+	private void rootExpandOrCollapse()
+	{
+		TreePath path = new TreePath(root.getPath());
+		if (view.tree.isCollapsed(path)) view.tree.expandPath(path);
+		else view.tree.collapsePath(path);
+	}
+	
+	/** Build the tree model to represent the project-dataset hierarchy. */
+	private void buildTree()
 	{
 		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-		root.removeAllChildren();
 		if (pSummaries != null) {
 			Iterator i = pSummaries.iterator();
 			ProjectSummary ps;
@@ -424,9 +422,9 @@ class ExplorerPaneManager
 				treeModel.insertNodeInto(pNode, root, root.getChildCount());
 				pNodes.put(new Integer(ps.getID()), pNode);
 				addDatasetsToProject(ps, pNode, treeModel);
-			}
+			}	
 		}
-		treeModel.reload();
+		treeDisplayed = true;
 	}
 	
 	/**

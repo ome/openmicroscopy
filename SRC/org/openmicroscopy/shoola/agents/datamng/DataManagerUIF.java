@@ -44,11 +44,11 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.editors.CreateDatasetEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.CreateProjectEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.DatasetEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.ImageEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.ProjectEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;

@@ -151,7 +151,7 @@ public class DataManager
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-        registry.getEventBus().register(this,ViewImageInfo.class);
+        registry.getEventBus().register(this, ViewImageInfo.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
 		control.attachListener();
@@ -256,7 +256,7 @@ public class DataManager
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
 				registry.getEventBus().post(request);
-			} 
+			}
 		}
 		return projectSummaries;
 	}
