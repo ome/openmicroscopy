@@ -37,6 +37,7 @@ import javax.swing.JMenuBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.transform.filter.FilterMenu;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
 
 /** 
@@ -54,17 +55,18 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
  * @since OME2.2
  */
 class MenuBar
-	extends JMenuBar
+    extends JMenuBar
 {
-	
-	private ZoomMenu		zoomMenu;
-	
-	MenuBar(ImageInspectorManager manager, double magFactor)
-	{
-		zoomMenu = new ZoomMenu(manager, magFactor);
-		add(zoomMenu);
-	}
-	
-	public ZoomMenu getZoomMenu() { return zoomMenu; }
+
+    private ZoomMenu        zoomMenu;
+    
+    MenuBar(ImageInspectorManager manager, double magFactor)
+    {
+        zoomMenu = new ZoomMenu(manager, magFactor);
+        add(zoomMenu);
+        add(new FilterMenu(manager));
+    }
+    
+    public ZoomMenu getZoomMenu() { return zoomMenu; }
 
 }

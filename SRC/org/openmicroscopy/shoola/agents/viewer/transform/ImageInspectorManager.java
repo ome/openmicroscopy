@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -60,84 +61,106 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
 public class ImageInspectorManager
 {
 
-	/** Width and height of the current image. */
-	private int						imageWidth, imageHeight;
-	
-	/** Canvas. */
-	private ImageCanvas				canvas;
-	
-	/** Current zooming level. */
-	private double					curZoomLevel;
-	
+    /** Width and height of the current image. */
+    private int                     imageWidth, imageHeight;
+    
+    /** Canvas. */
+    private ImageCanvas             canvas;
+    
+    /** Current zooming level. */
+    private double                  curZoomLevel;
+    
     /** Reference to the view. */
     private ImageInspector          view;
     
     private ViewerCtrl              control;
     
-	public ImageInspectorManager(ImageInspector view, ViewerCtrl control, 
+    public ImageInspectorManager(ImageInspector view, ViewerCtrl control, 
                                 double magFactor)
-	{
-		this.view = view;
+    {
+        this.view = view;
         this.control = control;
-		curZoomLevel = magFactor;
-		attachListener();
-	}
-	
-	/** Attach a window listener to the dialog. */
-	private void attachListener()
-	{
-		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { onClosing(); }
-		});
-	}
-	
-	/** Zoom in or out. */
-	public void setZoomLevel(double level)
-	{
-		if (curZoomLevel != level) {
-			zoom(level);
-			curZoomLevel = level;
-		}
-	}
-	
-	public int getImageWidth() { return imageWidth; }
-	
-	public int getImageHeight() { return imageHeight; }
-	
+        curZoomLevel = magFactor;
+        attachListener();
+    }
+    
+    /** Attach a window listener to the dialog. */
+    private void attachListener()
+    {
+        view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { onClosing(); }
+        });
+    }
+    
+    /** Zoom in or out. */
+    public void setZoomLevel(double level)
+    {
+        if (curZoomLevel != level) {
+            curZoomLevel = level;
+            zoom(level);
+        }
+    }
+    
+    public int getImageWidth() { return imageWidth; }
+    
+    public int getImageHeight() { return imageHeight; }
+    
+    public void setLensMagFactor(double f) { control.setLensMagFactor(f); }
+    
+    public void setLensWidth(int w) { control.setLensWidth(w); }
+    
+    public void setLensOnOff(boolean b) { control.setLensOnOff(b); }
+    
+    public void setPin(boolean b) { control.setPinLens(b); }
+    
+    public void setPainting(boolean b, Color c)
+    { 
+        control.setPaintingLens(b, c); 
+    }
+    
+    public void sharpenImage() { control.sharpenImage(); }
+    
+    public void lowPassImage() { control.lowPassImage(); }
+    
+    public void resetImage() { control.resetImage(); }
+    
     void setCanvas(ImageCanvas canvas) { this.canvas = canvas; }
     
-	/** 
-	 * Get the with and height of the bufferedimage
-	 * 
-	 * @param image	bufferedImage to zoom in or out.
-	 */
-	void setImageDimension(int width, int height)
-	{
-		imageWidth = width;
-		imageHeight = height;	
-	}
+    /** 
+     * Get the with and height of the bufferedimage
+     * 
+     * @param image bufferedImage to zoom in or out.
+     */
+    void setImageDimension(int width, int height)
+    {
+        imageWidth = width;
+        imageHeight = height;   
+    }
 
-	/** 
-	 * Zoom in or out according to the level.
-	 * 
-	 * @param level	value between MIN_ZOOM_LEVEL and MAX_ZOOM_LEVEL.
-	 */
-	private void zoom(double level)
-	{
-		ZoomBar zoomBar = view.toolBar.getZoomBar();
-		zoomBar.getManager().setText(level);
-		ZoomMenu zoomMenu = view.menuBar.getZoomMenu();
-		zoomMenu.getManager().setItemSelected(level);
-		int w = (int) (imageWidth*level)+2*ViewerUIF.START;
+    /** 
+     * Zoom in or out according to the level.
+     * 
+     * @param level value between MIN_ZOOM_LEVEL and MAX_ZOOM_LEVEL.
+     */
+    private void zoom(double level)
+    {
+        ZoomBar zoomBar = view.toolBar.getZoomBar();
+        zoomBar.getManager().setText(level);
+        ZoomMenu zoomMenu = view.menuBar.getZoomMenu();
+        zoomMenu.getManager().setItemSelected(level);
+        int w = (int) (imageWidth*level)+2*ViewerUIF.START;
         int h = (int) (imageHeight*level)+2*ViewerUIF.START;
         control.setSizePaintedComponents(new Dimension(w, h));
-        canvas.paintImage(level, w, h);	
-	}
+        control.setMagFactor(level);
+        canvas.paintImage(level, w, h); 
+    }
  
     /** Handle windowClosing event. */
     private void onClosing()
     {
-        control.setMagFactor(curZoomLevel);
+        //control.setMagFactor(curZoomLevel);
+        canvas.resetLens();
+        canvas.repaint();
         view.dispose();
     }
     

@@ -58,48 +58,48 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 public class ImageInspector
-	extends JDialog
+    extends JDialog
 {
-	
+    
     /** Default zoom level. */
     public static final double      MIN_ZOOM_LEVEL = 0.25 , 
                                     MAX_ZOOM_LEVEL = 3.0,
                                     ZOOM_DEFAULT = 1.0,
                                     ZOOM_INCREMENT = 0.25;
     
-	ToolBar 						toolBar;
-	MenuBar							menuBar;
+    ToolBar                         toolBar;
+    MenuBar                         menuBar;
 
-	private ImageInspectorManager	manager;
+    private ImageInspectorManager   manager;
     
-	JScrollPane 					scroll;
-	
-	public ImageInspector(ViewerCtrl control, ImageCanvas canvas, double magFactor)
-	{
-		super(control.getReferenceFrame(), "Image inspector");
-		init(control, canvas, magFactor);
-		setJMenuBar(menuBar);
-		buildGUI();
+    JScrollPane                     scroll;
+    
+    public ImageInspector(ViewerCtrl control, ImageCanvas canvas, double magFactor)
+    {
+        super(control.getReferenceFrame(), "Image inspector");
+        init(control, canvas, magFactor);
+        setJMenuBar(menuBar);
+        buildGUI();
         pack();
-	}
-	
-	/** Initializes the components. */
-	private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor)
-	{
-		Registry reg = control.getRegistry();
-		manager = new ImageInspectorManager(this, control, magFactor);
+    }
+
+    /** Initializes the components. */
+    private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor)
+    {
+        Registry reg = control.getRegistry();
+        manager = new ImageInspectorManager(this, control, magFactor);
         BufferedImage img = control.getBufferedImage();
-		manager.setImageDimension(img.getWidth(), img.getHeight());
+        manager.setImageDimension(img.getWidth(), img.getHeight());
         manager.setCanvas(canvas);
-		menuBar = new MenuBar(manager, magFactor);
-		toolBar = new ToolBar(reg, manager, magFactor);
-	}
-	
-	/** Build and lay out the GUI. */
-	private void buildGUI()
-	{
-        setResizable(false);
-		getContentPane().add(toolBar, BorderLayout.NORTH);
-	}
+        menuBar = new MenuBar(manager, magFactor);
+        toolBar = new ToolBar(reg, manager, magFactor);
+    }
     
+    /** Build and lay out the GUI. */
+    private void buildGUI()
+    {
+        setResizable(false);
+        getContentPane().add(toolBar, BorderLayout.NORTH);
+    }
+
 }

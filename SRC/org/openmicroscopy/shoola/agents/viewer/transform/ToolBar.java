@@ -31,13 +31,16 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 
 //Java imports
-import java.awt.FlowLayout;
+import java.awt.Dimension;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.transform.lens.LensBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -56,30 +59,33 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 public class ToolBar
-	extends JPanel
+    extends JPanel
 {
-	
-	private ZoomBar			zoomBar;
-	
-	private JSeparator 		separator;
-	
-	public ToolBar(Registry registry, ImageInspectorManager manager, 
+    private static final Dimension  HBOX = new Dimension(10, 0);
+
+    private ZoomBar                 zoomBar;
+    
+    private LensBar                 lensBar;
+    
+    public ToolBar(Registry registry, ImageInspectorManager manager, 
                     double magFactor)
-	{
-		setBorder(null);
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		putClientProperty("JToolBar.isRollover", new Boolean(true));
-		zoomBar = new ZoomBar(this, registry, manager, magFactor);
-		add(zoomBar);
-		add(separator);
-	}
-	
-	/** Set the separator. Needed b/c we reset the Layout. */
-	public void setSeparator(JSeparator separator)
-	{ 
-		this.separator = separator;
-	}
-	
-	ZoomBar getZoomBar() { return zoomBar; }
-	
+    {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        putClientProperty("JToolBar.isRollover", new Boolean(true));
+        zoomBar = new ZoomBar(registry, manager, magFactor);
+        lensBar = new LensBar(registry, manager);
+        add(zoomBar);
+        add(Box.createRigidArea(HBOX));
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(lensBar);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(Box.createRigidArea(HBOX));
+        
+    }
+    
+    ZoomBar getZoomBar() { return zoomBar; }
+    
+    LensBar getLensBar() { return lensBar; }
+
 }
+
