@@ -50,14 +50,41 @@ public class BrowserTopModel
     private Map modalSet;
     private Map orientationMap;
     private Map paletteMap;
+    private Map paletteStatusMap;
     
     private Set modelListeners;
+    
+    /**
+     * The status flag for a palette not being in the collection.
+     */
+    public static final int PALETTE_INVALID = -1;
+    
+    /**
+     * The status flag for a palette being visible.
+     */
+    public static final int PALETTE_VISIBLE = 0;
+    
+    /**
+     * The status flag for a palette being hidden.
+     */
+    public static final int PALETTE_HIDDEN = 1;
+    
+    /**
+     * The status flag for a palette being iconified.
+     */
+    public static final int PALETTE_ICONIFIED = 2;
 
+
+    /**
+     * Constructs the BrowserTopModel.
+     */
     public BrowserTopModel()
     {
+        // TODO: include possible initialization code (read from registry?)
         modalSet = new HashMap();
         orientationMap = new HashMap();
         paletteMap = new HashMap();
+        paletteStatusMap = new HashMap();
         modelListeners = new HashSet();
     }
     
@@ -76,6 +103,41 @@ public class BrowserTopModel
             modelListeners.remove(listener);
         }
     }
+    
+    /**
+     * Returns the set of available palettes in the top model, along with
+     * their names.
+     * @return The map of palette names to palettes.
+     */
+    public Map getPalettes()
+    {
+        return Collections.unmodifiableMap(paletteMap);
+    }
+    
+    /**
+     * Returns the visibility status of the specified palette.
+     * Possible return values:<br>
+     * <ul>
+     * <li>PALETTE_INVALID: If the palette has not been added.</li>
+     * <li>PALETTE_VISIBLE: If the palette is visible.</li>
+     * <li>PALETTE_HIDDEN: If the palette is hidden.</li>
+     * <li>PALETTE_ICONIFIED: If the palette is iconified.</li>
+     * 
+     * @param palette The palette to query.
+     * @return See above.
+     */
+    public int getPaletteStatus(BPalette palette)
+    {
+        if(!paletteStatusMap.containsKey(palette))
+        {
+            return PALETTE_INVALID;
+        }
+        else
+        {
+            Integer value = (Integer)paletteStatusMap.get(palette);
+            return value.intValue();
+        }
+    }
 
     /**
      * Binds a particular palette to a specific name, and adds it to the ones
@@ -91,7 +153,6 @@ public class BrowserTopModel
             return;
         }
         paletteMap.put(paletteName,palette);
-        
     }
     
     /**
@@ -120,6 +181,7 @@ public class BrowserTopModel
                     (BrowserTopModelListener)iter.next();
                 listener.showPalette(palette);
             }
+            paletteStatusMap.put(palette,new Integer(PALETTE_VISIBLE));
         }
     }
     
@@ -149,6 +211,8 @@ public class BrowserTopModel
                     (BrowserTopModelListener)iter.next();
                 listener.hidePalette(palette);
             }
+
+            paletteStatusMap.put(palette,new Integer(PALETTE_HIDDEN));
         }
     }
     
@@ -178,6 +242,7 @@ public class BrowserTopModel
                     (BrowserTopModelListener)iter.next();
                 listener.iconifyPalette(palette);
             }
+            paletteStatusMap.put(palette,new Integer(PALETTE_ICONIFIED));
         }
     }
     
@@ -207,6 +272,7 @@ public class BrowserTopModel
                     (BrowserTopModelListener)iter.next();
                 listener.deiconifyPalette(palette);
             }
+            paletteStatusMap.put(palette,new Integer(PALETTE_VISIBLE));
         }
     }
 

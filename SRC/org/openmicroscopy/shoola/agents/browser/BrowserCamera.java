@@ -47,13 +47,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
-import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCamera;
@@ -132,15 +132,28 @@ public class BrowserCamera implements RegionSensitive,
         panNodeList = new ArrayList();
         palettes = new HashSet();
         
-        BPalette palette = PaletteFactory.getMainPalette(model);
-        addPalette(palette);
-        model.addPalette(palette.getName(),palette);
-        showPalette(palette);
+        Map paletteMap = model.getPalettes();
+        
+        for(Iterator iter = paletteMap.keySet().iterator(); iter.hasNext();)
+        {
+            BPalette palette = (BPalette)paletteMap.get(iter.next());
+            addPalette(palette);
+            if(model.getPaletteStatus(palette) ==
+               BrowserTopModel.PALETTE_VISIBLE)
+            {
+                showPalette(palette);
+            }
+            else if(model.getPaletteStatus(palette) ==
+                    BrowserTopModel.PALETTE_ICONIFIED)
+            {
+                iconifyPalette(palette);
+            }
+        }
     }
     
     /**
      * Adds a palette into the view.
-     * @param palette
+     * @param palette The palette to add.
      */
     public void addPalette(BPalette palette)
     {

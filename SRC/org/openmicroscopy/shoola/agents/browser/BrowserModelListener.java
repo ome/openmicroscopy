@@ -55,4 +55,10 @@ public interface BrowserModelListener
      * should know how to draw a model each time.
      */
     public void modelUpdated();
+    
+    /**
+     * Changes the major UI mode of the browser model.
+     * @param mode The new mode of the model.
+     */
+    public void modeChanged(BrowserMode mode);
 }

@@ -81,46 +81,6 @@ public class BrowserView extends PCanvas
     private Set hoverSensitive;
     private Set regionSensitive;
 
-    private void init(BrowserTopModel topModel)
-    {
-        env = BrowserEnvironment.getInstance();
-        setBackground(new Color(192,192,192));
-        layoutMap = new HashMap();
-        footprint = new Rectangle2D.Double(0,0,0,0);
-        hoverSensitive = new HashSet();
-        regionSensitive = new HashSet();
-        
-        // here we disable zoom/pan (TODO: save for later, reinstate on mode)
-        removeInputEventListener(getZoomEventHandler());
-        removeInputEventListener(getPanEventHandler());
-        
-        // default panning mode (may replace this, but probably not)
-        overlayCamera = new BrowserCamera(topModel,getCamera());
-        hoverSensitive.add(overlayCamera);
-        regionSensitive.add(overlayCamera);
-        
-        addMouseListener(new MouseAdapter()
-        {
-            public void mouseEntered(MouseEvent me)
-            {
-                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
-                {
-                    HoverSensitive hover = (HoverSensitive)iter.next();
-                    hover.contextEntered();
-                }
-            }
-            
-            public void mouseExited(MouseEvent me)
-            {
-                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
-                {
-                    HoverSensitive hover = (HoverSensitive)iter.next();
-                    hover.contextExited();
-                }
-            }
-        });
-    }
-
     /**
      * Constructs the browser view with the two backing models-- one for the
      * thumbnails and the other for any sticky overlays.
@@ -159,6 +119,69 @@ public class BrowserView extends PCanvas
             }
         });
 
+    }
+    
+    //  initialization code
+    private void init(BrowserTopModel topModel)
+    {
+        env = BrowserEnvironment.getInstance();
+        setBackground(new Color(192,192,192));
+        layoutMap = new HashMap();
+        footprint = new Rectangle2D.Double(0,0,0,0);
+        hoverSensitive = new HashSet();
+        regionSensitive = new HashSet();        
+        // here we disable zoom/pan (TODO: save for later, reinstate on mode)
+        removeInputEventListener(getZoomEventHandler());
+        removeInputEventListener(getPanEventHandler());
+       
+        // default panning mode (may replace this, but probably not)
+        overlayCamera = new BrowserCamera(topModel,getCamera());
+        hoverSensitive.add(overlayCamera);
+        regionSensitive.add(overlayCamera);
+       
+        addMouseListener(new MouseAdapter()
+        {
+            public void mouseEntered(MouseEvent me)
+            {
+                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
+                {
+                     HoverSensitive hover = (HoverSensitive)iter.next();
+                     hover.contextEntered();
+                }
+            }
+            
+            public void mouseExited(MouseEvent me)
+            {
+                for(Iterator iter = hoverSensitive.iterator(); iter.hasNext();)
+                {
+                     HoverSensitive hover = (HoverSensitive)iter.next();
+                     hover.contextExited();
+                }
+            }
+        });
+    }
+    
+    /**
+     * Responds to a major UI mode change.
+     */
+    public void modeChanged(BrowserMode mode)
+    {
+        if(mode.equals(BrowserMode.DEFAULT_MODE))
+        {
+            // TODO: fill in what happens in default mode
+        }
+        else if(mode.equals(BrowserMode.ANNOTATE_MODE))
+        {
+            // TODO: fill in what happens in annotate mode
+        }
+        else if(mode.equals(BrowserMode.HEAT_MAP_MODE))
+        {
+            // TODO: fill in what happens in heat map mode
+        }
+        else if(mode.equals(BrowserMode.CLASSIFY_MODE))
+        {
+            // TODO: fill in what happens in classify mode
+        }
     }
     
     // TODO: retrofit to groups
@@ -232,22 +255,6 @@ public class BrowserView extends PCanvas
     
         overlayCamera.cameraResized(new Rectangle2D.Double(0,0,width,height));
     }
-
-    /**
-     * Show the overlay (sticky) nodes.
-     */
-    public void showModalNodes()
-    {
-        // TODO: fill in code
-    }
-
-    /**
-     * Hide the overlay (sticky) nodes.
-     */
-    public void hideModalNodes()
-    {
-        // TODO: fill in code
-    }
     
     /**
      * Responds to a model-triggered update.
@@ -314,6 +321,7 @@ public class BrowserView extends PCanvas
     // send internal error through the BrowserEnvironment pathway
     private void sendInternalError(String message)
     {
+        // TODO change to UserNotifier
         MessageHandler handler = env.getMessageHandler();
         handler.reportInternalError(message);
     }
@@ -321,6 +329,7 @@ public class BrowserView extends PCanvas
     // send general error through the BrowserEnvironment pathway
     private void sendError(String message)
     {
+        // TODO change to UserNotifier
         MessageHandler handler = env.getMessageHandler();
         handler.reportError(message);
     }

@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
+import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
@@ -73,6 +74,8 @@ public class LocalBrowserTest
         ThumbnailSourceModel tsm = loader.getModel();
         
         BrowserTopModel model = new BrowserTopModel();
+        model.addPalette("Modes",PaletteFactory.getMainPalette(model));
+        
         BrowserModel bm = new BrowserModel();
         bm.setLayoutMethod(new PlateLayoutMethod(8,12));
         BrowserView view = new BrowserView(bm,model);
