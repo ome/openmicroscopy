@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.util.Approximation
+ * org.openmicroscopy.shoola.util.math.Approximation
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd.util;
+package org.openmicroscopy.shoola.util.math;
 
 //Java imports
 

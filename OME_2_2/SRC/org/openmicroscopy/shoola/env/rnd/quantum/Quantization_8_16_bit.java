@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.util.Approximation;
+import org.openmicroscopy.shoola.util.math.Approximation;
 
 /** 
  * 

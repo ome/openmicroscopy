@@ -63,8 +63,8 @@ public class RenderImage
 		
 	/** 
 	 * Defines what data, within the pixels set, to render.
-	 * May be <code>null</code>, if this is a request to render the current
-	 * plane. 
+	 * May be <code>null</code>, if this is a request to render the 
+     * default plane. 
 	 */
 	private PlaneDef	planeDef;
 	
