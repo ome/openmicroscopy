@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ImageSummary
+ * org.openmicroscopy.shoola.env.data.model.PixelsDescription
  *
  *------------------------------------------------------------------------------
  *
@@ -49,45 +49,117 @@ package org.openmicroscopy.shoola.env.data.model;
  * </small>
  * @since OME2.2
  */
-public class ImageSummary
+public class PixelsDescription
 	implements DataObject
 {
 
 	private int		id;
-	private String	name;
+	private int 	sizeX;
+	private int 	sizeY;
+	private int 	sizeZ;
+	private int 	sizeC;
+	private int 	sizeT;
+	private int 	bitsPerPixel;
+	private String	imageServerURL;
 	
-	public ImageSummary() {}
+	public PixelsDescription() {}
 	
-	public ImageSummary(int id, String name)
+	public PixelsDescription(int id, int sizeX, int sizeY, int sizeZ, int sizeC,
+							int sizeT, int bitsPerPixel, String imageServerURL)
 	{
 		this.id = id;
-		this.name = name;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
+		this.sizeZ = sizeZ;
+		this.sizeC = sizeC;
+		this.sizeT = sizeT;
+		this.bitsPerPixel = bitsPerPixel;
+		this.imageServerURL = imageServerURL;	
 	}
 	
 	/** Required by the DataObject interface. */
 	public DataObject makeNew()
 	{
-		return new ImageSummary();
+		return new PixelsDescription();
 	}
 	
-	public int getId()
+	public int getBitsPerPixel()
+	{
+		return bitsPerPixel;
+	}
+	public int getSizeC()
+	{
+		return sizeC;
+	}
+
+	public int getSizeT()
+	{
+		return sizeT;
+	}
+
+	public int getSizeX()
+	{
+		return sizeX;
+	}
+
+	public int getSizeY()
+	{
+		return sizeY;
+	}
+
+	public int getSizeZ()
+	{
+		return sizeZ;
+	}
+
+	public void setBitsPerPixel(int bitsPerPixel)
+	{
+		this.bitsPerPixel = bitsPerPixel;
+	}
+
+	public void setSizeC(int sizeC)
+	{
+		this.sizeC = sizeC;
+	}
+
+	public void setSizeT(int sizeT)
+	{
+		this.sizeT = sizeT;
+	}
+
+	public void setSizeX(int sizeX)
+	{
+		this.sizeX = sizeX;
+	}
+
+	public void setSizeY(int sizeY)
+	{
+		this.sizeY = sizeY;
+	}
+
+	public void setSizeZ(int sizeZ)
+	{
+		this.sizeZ = sizeZ;
+	}
+
+	public String getImageServerUrl()
+	{
+		return imageServerURL;
+	}
+
+	public void setImageServerUrl(String imageServerURL)
+	{
+		this.imageServerURL = imageServerURL;
+	}
+
+	public int getID()
 	{
 		return id;
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setId(int id)
+	public void setID(int id)
 	{
 		this.id = id;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 
 }

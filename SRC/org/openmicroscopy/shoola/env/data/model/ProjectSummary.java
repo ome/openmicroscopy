@@ -67,53 +67,37 @@ public class ProjectSummary
 		this.name = name;
 	}
 	
+	/** Required by the DataObject interface. */
 	public DataObject makeNew()
 	{
 		return new ProjectSummary();
 	}
-	/**
-	 * @return
-	 */
+
 	public int getId()
 	{
 		return id;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getName()
 	{
 		return name;
 	}
 
-	/**
-	 * @param i
-	 */
 	public void setId(int id)
 	{
 		this.id = id;
 	}
 
-	/**
-	 * @param string
-	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
 
-	/**
-	 * @return
-	 */
 	public List getDatasets()
 	{
 		return datasets;
 	}
 
-	/**
-	 * @param list
-	 */
 	public void setDatasets(List datasets)
 	{
 		this.datasets = datasets;

@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
@@ -56,49 +55,39 @@ public class DatasetSummary
 
 	private int		id;
 	private String	name;
-	private List	images;
 	
 	public DatasetSummary() {}
+	
 	public DatasetSummary(int id, String name)
 	{
 		this.id = id;
 		this.name = name;
 	}
 	
+	/** Required by the DataObject interface. */
 	public DataObject makeNew()
 	{
 		return new DatasetSummary();
 	}
-	/**
-	 * @return
-	 */
+
 	public int getID()
 	{
 		return id;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getName()
 	{
 		return name;
 	}
 
-	/**
-	 * @param id	
-	 */
 	public void setID(int id)
 	{
 		this.id = id;
 	}
 
-	/**
-	 * @param name	
-	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
-	
+
 }

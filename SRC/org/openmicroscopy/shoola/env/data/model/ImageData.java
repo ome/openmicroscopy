@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DatasetData
+ * org.openmicroscopy.shoola.env.data.model.ImageData
  *
  *------------------------------------------------------------------------------
  *
@@ -29,6 +29,7 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+
 //Java imports
 import java.util.List;
 
@@ -50,13 +51,15 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class DatasetData
+public class ImageData
 	implements DataObject
 {
 
 	private int 		id;
 	private String 		name;
 	private String 		description;
+	private String		inserted;
+	private String		created;
 	private int 		ownerID;
 	private String		ownerFirstName;
 	private String		ownerLastName;
@@ -64,40 +67,44 @@ public class DatasetData
 	private String		ownerInstitution;
 	private int 		ownerGroupID;
 	private String		ownerGroupName;
-	private List		images;
+	private List		pixels;
+	private List		datasets;
 	
-	
-	public DatasetData() {}
-	
-	public DatasetData(int id, String name, String description, int ownerID,
-					String ownerFirstName, String ownerLastName, 
-					String ownerEmail, String ownerInstitution, 
-					int ownerGroupID, String ownerGroupName, List images)
-	{
+	public ImageData() {}
+
+	public ImageData(int id, String name, String description, String inserted,
+					 String created, int ownerID, String ownerFirstName, 
+					 String ownerLastName,  String ownerEmail, 
+					 String ownerInstitution,  int ownerGroupID, 
+					 String ownerGroupName, List pixels, List datasets)
+	{ 
 		this.id = id;
 		this.name = name;
 		this.description = description;
+		this.inserted = inserted;
+		this.created = created;
 		this.ownerID = ownerID;
-		//this.ownerOmeName = ownerOmeName;
 		this.ownerFirstName = ownerFirstName;
 		this.ownerLastName = ownerLastName;
 		this.ownerEmail = ownerEmail;
 		this.ownerInstitution = ownerInstitution;
 		this.ownerGroupID = ownerGroupID;
-		this.ownerGroupName = ownerGroupName;	
-		this.images = images;
+		this.ownerGroupName = ownerGroupName;
+		this.pixels = pixels;
+		this.datasets = datasets;
 	}
+	
 	/** Required by the DataObject interface. */
 	public DataObject makeNew()
 	{
-		return new DatasetData();
+		return new ImageData();
 	}
 	
-	public List getImages()
+	public PixelsDescription getDefaultPixels()
 	{
-		return images;
+		return (PixelsDescription) pixels.get(0);
 	}
-
+	
 	public String getDescription()
 	{
 		return description;
@@ -116,6 +123,11 @@ public class DatasetData
 	public String getOwnerEmail()
 	{
 		return ownerEmail;
+	}
+
+	public String getOwnerFirstName()
+	{
+		return ownerFirstName;
 	}
 
 	public int getOwnerGroupID()
@@ -138,9 +150,9 @@ public class DatasetData
 		return ownerInstitution;
 	}
 
-	public void setDatasets(List images)
+	public String getOwnerLastName() 
 	{
-		this.images = images;
+		return ownerLastName;
 	}
 
 	public void setDescription(String description)
@@ -163,6 +175,11 @@ public class DatasetData
 		this.ownerEmail = ownerEmail;
 	}
 
+	public void setOwnerFirstName(String ownerFirstName)
+	{
+		this.ownerFirstName = ownerFirstName;
+	}
+
 	public void setOwnerGroupID(int ownerGroupID)
 	{
 		this.ownerGroupID = ownerGroupID;
@@ -183,25 +200,49 @@ public class DatasetData
 		this.ownerInstitution = ownerInstitution;
 	}
 
-	public String getOwnerFirstName()
-	{
-		return ownerFirstName;
-	}
-
-	public String getOwnerLastName()
-	{
-		return ownerLastName;
-	}
-
-
-	public void setOwnerFirstName(String ownerFirstName)
-	{
-		this.ownerFirstName = ownerFirstName;
-	}
-
 	public void setOwnerLastName(String ownerLastName)
 	{
 		this.ownerLastName = ownerLastName;
+	}
+
+	public String getCreated()
+	{
+		return created;
+	}
+
+	public String getInserted()
+	{
+		return inserted;
+	}
+
+	public void setCreated(String created)
+	{
+		this.created = created;
+	}
+
+	public void setInserted(String inserted)
+	{
+		this.inserted = inserted;
+	}
+
+	public List getPixels()
+	{
+		return pixels;
+	}
+
+	public void setPixels(List pixels)
+	{
+		this.pixels = pixels;
+	}
+
+	public List getDatasets()
+	{
+		return datasets;
+	}
+
+	public void setDatasets(List datasets)
+	{
+		this.datasets = datasets;
 	}
 
 }

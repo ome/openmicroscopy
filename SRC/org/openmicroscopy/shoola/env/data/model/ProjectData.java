@@ -53,6 +53,7 @@ import java.util.List;
  * @since OME2.2
  */
 public class ProjectData
+	implements DataObject
 {
 	private int 		id;
 	private String 		name;
@@ -87,7 +88,13 @@ public class ProjectData
 		this.ownerGroupName = ownerGroupName;	
 		this.datasets = datasets;
 	}
-
+	
+	/** Required by the DataObject interface. */
+	public DataObject makeNew()
+	{
+		return new ProjectData();
+	}
+	
 	public List getDatasets()
 	{
 		return datasets;
