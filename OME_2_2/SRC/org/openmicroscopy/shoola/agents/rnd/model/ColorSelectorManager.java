@@ -44,7 +44,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * Manager of the {@link ColorSelector} widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,7 +66,7 @@ class ColorSelectorManager
 	private static final int	APPLY = 101;
 	private static final int	CANCEL = 102;
 	
-	/** ID of the availabel colors.  */
+	/** ID of the available colors.  */
 	static final int 			RED = 0;
 	static final int 			GREEN = 1;
 	static final int 			BLUE = 2;
