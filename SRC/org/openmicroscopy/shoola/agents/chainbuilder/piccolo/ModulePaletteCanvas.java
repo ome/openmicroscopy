@@ -297,7 +297,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private void displayModule(CategoryBox box,ChainModuleData mod,
 		ModuleTreeNode catNode) {
 
-		ModuleView mNode = new ModuleView(mod);
+		ModuleView mNode = new SingleModuleView(mod);
 		mod.addModuleNode(mNode);
 		box.addChild(mNode);
 		mNode.setOffset(0,0);
@@ -492,10 +492,13 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	public void dragGestureRecognized(DragGestureEvent event) {
 		if (selected != null) {
 			selected.setModulesHighlighted(false);
-			int id = selected.getModule().getID();
-			ModuleSelection text = new ModuleSelection(id);
-			dragSource.startDrag(event,DragSource.DefaultMoveDrop,
-					text,dragListener);
+			ChainModuleData mod = selected.getModule();
+			if (mod != null) {
+				int id = mod.getID();
+				ModuleSelection text = new ModuleSelection(id);
+				dragSource.startDrag(event,DragSource.DefaultMoveDrop,
+						text,dragListener);
+			}
 		}
 	}
 	 
