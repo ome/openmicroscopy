@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -130,6 +131,12 @@ class RenderingControlImpl
 		newQd = new QuantumDef(qd.family, qd.pixelType, qd.curveCoefficient, 
 												start, end, qd.bitResolution);
 		rd.setQuantumDef(newQd);
+		CodomainMapContext mapCtx;
+		Iterator i = rd.getCodomainChainDef().iterator();
+		while (i.hasNext()) {
+			mapCtx = (CodomainMapContext) i.next();
+			mapCtx.setCodomain(start, end);
+		}
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */

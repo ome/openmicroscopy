@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -136,6 +137,12 @@ class RenderingControlProxy
 		newQd = new QuantumDef(qd.family, qd.pixelType, qd.curveCoefficient, 
 												start, end, qd.bitResolution);
 		rndDefCopy.setQuantumDef(newQd);
+		CodomainMapContext mapCtx;
+		Iterator i = rndDefCopy.getCodomainChainDef().iterator();
+		while (i.hasNext()) {
+			mapCtx = (CodomainMapContext) i.next();
+			mapCtx.setCodomain(start, end);
+		}
 		RenderingPropChange rpc = new RenderingPropChange() {
 			public void doUpdate() { 
 				servant.setCodomainInterval(start, end);
