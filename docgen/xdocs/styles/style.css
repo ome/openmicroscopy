@@ -102,7 +102,9 @@ a:hover {
 .code { 
   border-color: #CFDCED; 
   border-style: solid; 
-  border-width: 1px; 
+  border-width: 1px;
+  padding: 5px 5px 5px 5px;
+  background-color: #FFFFF0;
 }
 
 /* The following three classes are used to render notes.
