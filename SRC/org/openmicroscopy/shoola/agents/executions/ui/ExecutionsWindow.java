@@ -32,9 +32,10 @@ package org.openmicroscopy.shoola.agents.executions.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -144,10 +145,16 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		// slider
 		slider  = execsModel.getSlider();
 		slider.setEnabled(true);
-		slider.setBorder(BorderFactory.
-				createEmptyBorder(0,GridModel.LEFT_GAP,0,
-						GridModel.RIGHT_GAP));
 		slider.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+		
+		// panel for the slider
+		JPanel sliderPanel = new JPanel();
+		sliderPanel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+		sliderPanel.setLayout(new BoxLayout(sliderPanel,BoxLayout.X_AXIS));
+		sliderPanel.add(Box.createRigidArea(new Dimension(GridModel.LEFT_GAP,0)));
+		sliderPanel.add(slider);
+		sliderPanel.add(Box.createRigidArea(new Dimension(GridModel.RIGHT_GAP,0)));
+		
 		// reset button
 		IconFactory icons = (IconFactory)  
 		registry.lookup("/resources/icons/MyFactory");
@@ -168,7 +175,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		// add stuff to content pane
 		content.add(controls,BorderLayout.NORTH);
 		content.add(execCanvas,BorderLayout.CENTER);
-		content.add(slider,BorderLayout.SOUTH);
+		content.add(sliderPanel,BorderLayout.SOUTH);
 		
 		// listen to events
 		pack();
