@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -42,11 +42,11 @@ import java.util.Vector;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
+//import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
-import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
+//import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 
 
 /** 
@@ -74,12 +74,12 @@ public class ChainExecutions {
 	private long firstExecTime = Long.MAX_VALUE;
 	private long lastExecTime = Long.MIN_VALUE;
 
-	private transient Map nodeCounts = new HashMap();
+	/*private transient Map nodeCounts = new HashMap();
 	
 	private transient Map nexesByMex = new HashMap();
 	private transient Map nexesByModule = new HashMap();
 	
-	private int maxNodeExecutionCount = 0;
+	private int maxNodeExecutionCount = 0; */
 	
 	public ChainExecutions(Collection executions) {
 		Iterator iter = executions.iterator();
@@ -120,10 +120,10 @@ public class ChainExecutions {
 		addToMappedList(byDatasetId,exec.getDataset().getID(),exec);
 		
 		// find module with most executions
-		addNodeExecution(exec);
+		//addNodeExecution(exec);
 	}
 	
-	private void addNodeExecution(ChainExecutionData exec) {
+	/*private void addNodeExecution(ChainExecutionData exec) {
 		// look at all of the node executions
 		Collection nodeExecs = exec.getNodeExecutions();
 		Iterator iter = nodeExecs.iterator();
@@ -170,7 +170,7 @@ public class ChainExecutions {
 			maxNodeExecutionCount = count;
 		c = new Integer(count);
 		nodeCounts.put(hashIndex,c);
-	}
+	}*/
 
 	private void addToMap(Map map,int id,Object newObj) {
 		Integer ID = new Integer(id);
@@ -190,9 +190,9 @@ public class ChainExecutions {
 		map.put(ID,items);
 	}
 	
-	public int getMaxNodeExecutionCount() {
+	/*public int getMaxNodeExecutionCount() {
 		return maxNodeExecutionCount;
-	}
+	}*/
 	
 	public Collection getExecutions() {
 		
@@ -222,7 +222,7 @@ public class ChainExecutions {
 		return byDatasetId.keySet().size();
 	}
 	
-	public void getChainNames() {
+	private void getChainNames() {
 		int sz = byChainId.keySet().size();
 		chainNames = new String[sz];
 		Iterator iter = byChainId.keySet().iterator();
@@ -290,6 +290,12 @@ public class ChainExecutions {
 	public boolean chainHasExecutionsForDataset(int chainID,int datasetID) {
 		Collection chainExecs = (Collection) 
 			byChainId.get(new Integer(chainID));
+		 
+		// we might be tempted to get the execs for the dataset id 
+		// and then check to see if the intersection of the two-lists is non-null
+		// but this won't work - we can't just look at object equality,
+		// we have to check ids. so, iterate.
+		
 		if (chainExecs == null)
 			return false;
 		
@@ -300,7 +306,7 @@ public class ChainExecutions {
 			if (exec.getDataset().getID() == datasetID)
 				return true;
 		}
-		return false;
+		return false; 
 	}
 	
 	public long getStartTime() {
@@ -311,7 +317,7 @@ public class ChainExecutions {
 		return lastExecTime;
 	}
 
-	public Collection getNexesForMex(int mexid) {
+	/*public Collection getNexesForMex(int mexid) {
 		Integer ID = new Integer(mexid);
 		return (Collection) nexesByMex.get(ID);
 	}
@@ -319,6 +325,6 @@ public class ChainExecutions {
 	public Collection getNexesForModule(int modid) {
 		Integer ID = new Integer(modid);
 		return (Collection) nexesByModule.get(ID);
-	}
+	}*/
 	
 }
