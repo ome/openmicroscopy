@@ -229,7 +229,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// The display should be roughly square, 
 		// in terms of the number of rows vs. # of columns
 		rowSize = (int) Math.floor(Math.sqrt(num));
-		System.err.println(" # of chains in row is "+rowSize);
 		
 		count=0;
 		// draw each of them.
