@@ -44,6 +44,8 @@ import java.util.Collection;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.nodes.PPath;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
@@ -53,6 +55,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
@@ -100,7 +103,7 @@ public class PaletteChainView extends ChainView {
 	}
 	
 
-	protected LinkLayer getLinkLayer() {
+	protected LinkLayer createLinkLayer() {
 		return new PaletteChainLinkLayer();
 	}
 	
@@ -157,4 +160,26 @@ public class PaletteChainView extends ChainView {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
 		chainHandler.zoomOut(e);
 	}	
+	
+	public PNode getToolTip() {
+		String name = getChain().getName();
+		//String desc = mod.getDescription();
+		if (name.compareTo("") != 0) {
+			PText pt = new PText(name);
+			pt.setPickable(false);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			PPath node = new PPath();
+			node.addChild(pt);
+			pt.setOffset(0,0);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			
+			node.setBounds(node.getUnionOfChildrenBounds(null));
+			node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+			node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+			node.setPickable(false);
+			return node;
+		}
+		else 
+			return null;
+	}
 }
