@@ -167,7 +167,7 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      * Constructs a thumbnail around this model (no renderer specified yet)
      * @param tdm The data model.
      */
-    public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
+    public Thumbnail(ThumbnailDataModel tdm)
     {
         super();
         init();

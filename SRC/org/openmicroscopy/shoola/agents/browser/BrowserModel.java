@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.*;
 
+import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
@@ -80,6 +81,8 @@ public class BrowserModel
     private Set selectedThumbnails;
     
     private AttributeMap attributeMap;
+    
+    private List availableTypesList;
 
     private Map modeClassMap;
 
@@ -134,6 +137,7 @@ public class BrowserModel
         imageIDMap = new HashMap();
         annotationModel = new PaintMethodZOrder();
         modeClassMap = new HashMap();
+        availableTypesList = new ArrayList();
 
         panActionClass =
             new BrowserModeClass(PAN_MODE_NAME,
@@ -484,6 +488,72 @@ public class BrowserModel
                 BrowserModelListener bml = (BrowserModelListener)iter.next();
                 bml.modeChanged(modeClassName,mode);
             }
+        }
+    }
+    
+    /**
+     * Adds a specific relevant semantic type to this browser model, to
+     * watch for in measurements (like heat maps)
+     * @param st The type to add.
+     */
+    public void addRelevantType(SemanticType st)
+    {
+        if(st != null)
+        {
+            availableTypesList.add(st);
+        }
+    }
+    
+    /**
+     * Removes a specific relevant semantic type from this browser model.
+     * @param st The type to remove.
+     */
+    public void removeRelevantType(SemanticType st)
+    {
+        if(st != null)
+        {
+            availableTypesList.remove(st);
+        }
+    }
+    
+    /**
+     * Gets a list of the relevant semantic types for attributes in this
+     * browser model (i.e., which semantic types apply to images within the
+     * dataset)
+     * @return See above.
+     */
+    public List getRelevantTypes()
+    {
+        return Collections.unmodifiableList(availableTypesList);
+    }
+    
+    /**
+     * Sets the relevant semantic types to the specified list.
+     * @param types Which semantic types apply to images within this dataset.
+     */
+    public void setRelevantTypes(SemanticType[] types)
+    {
+        if(types == null || types.length == 0)
+        {
+            return;
+        }
+        availableTypesList = Arrays.asList(types);
+        
+        Comparator typeComp = new Comparator()
+        {
+            public int compare(Object o1, Object o2)
+            {
+                SemanticType st1 = (SemanticType)o1;
+                SemanticType st2 = (SemanticType)o2;
+                
+                return st1.getName().compareTo(st2.getName());
+            }
+        };
+        Collections.sort(availableTypesList,typeComp);
+        for(int i=0;i<availableTypesList.size();i++)
+        {
+            SemanticType type = (SemanticType)availableTypesList.get(i);
+            System.err.println(type.getName());
         }
     }
     
