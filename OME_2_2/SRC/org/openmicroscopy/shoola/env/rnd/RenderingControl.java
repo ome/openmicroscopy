@@ -74,9 +74,9 @@ public interface RenderingControl
 	public QuantumDef getQuantumDef();
 	
 	//ChannelBindings[] elements' fields.
-	public void setChannelWindow(int w, Comparable start, Comparable end);
-	public Comparable getChannelWindowStart(int w);
-	public Comparable getChannelWindowEnd(int w);
+	public void setChannelWindow(int w, double start, double end);
+	public double getChannelWindowStart(int w);
+	public double getChannelWindowEnd(int w);
 	public void setRGBA(int w, int red, int green, int blue, int alpha);
 	public int[] getRGBA(int w);
 	public void setActive(int w, boolean active);

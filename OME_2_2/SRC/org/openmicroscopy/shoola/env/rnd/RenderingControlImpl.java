@@ -35,11 +35,14 @@ import java.util.Iterator;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
@@ -131,7 +134,7 @@ class RenderingControlImpl
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public void setChannelWindow(int w, Comparable start, Comparable end) 
+	public void setChannelWindow(int w, double start, double end) 
 	{
 		QuantumStrategy qs = renderer.getQuantumManager().getStrategyFor(w);
 		qs.setWindow(start, end);
@@ -140,14 +143,14 @@ class RenderingControlImpl
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public Comparable getChannelWindowStart(int w) 
+	public double getChannelWindowStart(int w) 
 	{
 		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].getInputStart();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
-	public Comparable getChannelWindowEnd(int w) 
+	public double getChannelWindowEnd(int w) 
 	{
 		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
 		return cb[w].getInputEnd();
@@ -202,7 +205,17 @@ class RenderingControlImpl
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void saveCurrentSettings() 
 	{
-		//TODO: implement when display options in DB are sorted out.	
+		int imageID = renderer.getImageID();
+		int pixelsID = renderer.getPixelsID();
+		Registry context = renderer.getEngine().getRegistry();
+		try {
+			context.getDataManagementService().saveRenderingSettings(pixelsID, 
+					imageID, renderer.getRenderingDef());
+		} catch (Exception e) {
+			MetadataSourceException mse = new MetadataSourceException(
+				"Can't save settings.", e);
+			hanldeException(context, "can't save settings", mse);
+		}
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */
@@ -228,10 +241,22 @@ class RenderingControlImpl
 	private void resetDefaultsChannel(int w, PixelsStats stats)
 	{
 		setActive(w, w == 0);
-		Integer s = new Integer((int) (stats.getGlobalEntry(w).globalMin));
-		Integer e = new Integer((int) (stats.getGlobalEntry(w).globalMax));
+		double s = stats.getGlobalEntry(w).globalMin, 
+				e = stats.getGlobalEntry(w).globalMax;
 		setChannelWindow(w, s, e);
 		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
+	}
+	
+	private void hanldeException(Registry registry, String message, 
+								Exception cause)
+	{
+		LogMessage msg = new LogMessage();
+		msg.print("Rendering Engine Exception: ");
+		msg.println(message);
+		msg.print(cause);
+		registry.getLogger().error(this, msg);
+		registry.getUserNotifier().notifyError("Rendering Engine Exception", 
+												message, msg.toString());
 	}
 	
 }

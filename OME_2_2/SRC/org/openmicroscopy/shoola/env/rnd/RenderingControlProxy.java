@@ -161,7 +161,7 @@ class RenderingControlProxy
 	}
 
 	public void setChannelWindow(final int w, 
-								final Comparable start, final Comparable end) 
+								final double start, final double end) 
 	{	
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
@@ -177,13 +177,13 @@ class RenderingControlProxy
 		eventBus.post(rpc);	
 	}
 
-	public Comparable getChannelWindowStart(int w) 
+	public double getChannelWindowStart(int w) 
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		return cb[w].getInputStart();
 	}
 
-	public Comparable getChannelWindowEnd(int w) 
+	public double getChannelWindowEnd(int w) 
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		return cb[w].getInputEnd();
@@ -268,7 +268,7 @@ class RenderingControlProxy
 	{
 		MethodCall mCall = new MethodCall() {
 			public void doCall() { 
-				servant.saveCurrentSettings();
+				servant.saveCurrentSettings();	
 			}
 		};
 		RenderingPropChange rpc = new RenderingPropChange(mCall);
@@ -302,8 +302,8 @@ class RenderingControlProxy
 	private void resetDefaultsChannel(int w, PixelsStats stats)
 	{
 		setActive(w, w == 0);
-		Integer s = new Integer((int) (stats.getGlobalEntry(w).globalMin));
-		Integer e = new Integer((int) (stats.getGlobalEntry(w).globalMax));
+		double s = stats.getGlobalEntry(w).globalMin,
+		 		e = stats.getGlobalEntry(w).globalMax;
 		setChannelWindow(w, s, e);
 		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
 	}
