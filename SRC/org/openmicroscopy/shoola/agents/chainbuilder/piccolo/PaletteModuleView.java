@@ -108,14 +108,16 @@ public class PaletteModuleView extends SingleModuleView {
 	}
 	
 	public void mouseEntered(GenericEventHandler handler) {
-		super.mouseEntered(handler);
+		setAllHighlights(true);
+		((ChainPaletteEventHandler) handler).setLastEntered(this);
 		ChainBox cb = getChainBoxParent();
 		if (cb != null)
 			cb.mouseEntered(handler);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
-		super.mouseEntered(handler);
+		setAllHighlights(false);
+		((ChainPaletteEventHandler) handler).setLastEntered(null);
 		ChainBox cb = getChainBoxParent();
 		if (cb != null)
 			cb.mouseExited(handler);
@@ -148,12 +150,16 @@ public class PaletteModuleView extends SingleModuleView {
 	
 	public void mousePopup(GenericEventHandler handler) {
 		ChainView view = getChainViewParent();
-		((ModuleNodeEventHandler) handler).animateToNode(view);
-		((ModuleNodeEventHandler) handler).setLastEntered(view);
+		((ChainPaletteEventHandler) handler).animateToNode(view);
+		((ChainPaletteEventHandler) handler).setLastEntered(view);
+		((ChainPaletteEventHandler) handler).hideLastChainView();
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
-		super.mouseClicked(handler);
+		((ChainPaletteEventHandler) handler).animateToNode(this);
+		((ChainPaletteEventHandler) handler).setLastEntered(this);
 	}
+	
+	
 }
 	
