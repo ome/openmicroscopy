@@ -94,6 +94,7 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 				//String desc = mod.getDescription();
 				if (name.compareTo("") != 0) {
 					PText pt = new PText(name);
+					pt.setPickable(false);
 					pt.setFont(font);
 					node = new PPath();
 					node.addChild(pt);
