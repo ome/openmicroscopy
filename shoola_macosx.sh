@@ -30,4 +30,4 @@
 # -Xms or "max" -Xmx memory size. More information about these command line
 # switches may be found by running "java -X"
 
-java -Xms128000000 -Xmx256000000 -jar shoola.jar
+java -Xms128000000 -Xmx256000000 -jar jar/shoola.jar
