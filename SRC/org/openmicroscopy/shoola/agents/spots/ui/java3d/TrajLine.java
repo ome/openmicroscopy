@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.spots.ui.java3d;
 import com.sun.j3d.utils.picking.PickTool;
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.Node;
 
 //Third-party libraries
 
@@ -75,7 +74,7 @@ public class TrajLine extends TrajShape {
 		ca.setColor(TrajSwitch.POINT_COLOR);
 		app.setColoringAttributes(ca);
 		shape.setAppearance(app);
-		PickTool.setCapabilities((Node) shape,PickTool.INTERSECT_FULL);
+		PickTool.setCapabilities(shape,PickTool.INTERSECT_FULL);
 	
 		addChild(shape);
 	}
