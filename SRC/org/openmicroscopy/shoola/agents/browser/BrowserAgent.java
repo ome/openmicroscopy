@@ -323,8 +323,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         BrowserController controller = new BrowserController(model,topModel,view);
         controller.setStatusView(new StatusBar());
 
-        int count = env.getBrowserManager().getBrowserCount();
-        final int browserIndex = count;
+        final int browserIndex = 0; // default behavior for new browser
         final BrowserInternalFrame bif = new BrowserInternalFrame(controller);
         env.getBrowserManager().addBrowser(bif);
 
