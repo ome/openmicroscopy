@@ -27,10 +27,10 @@
 <p>Use the targets in this category to test the application and generate test reports. 
   These targets output under the <i>test</i> directory. Follows their description:</p>
 <ul>
-  <li><code>test</code>: Runs all the tests, outputing a brief report for each test 
-    on the console and a detailed report under <i>test/reports/html</i>. This 
-    target will automatically execute <code>compile</code>, so you won't have to invoke 
-    it yourself before running the tests.</li>
+  <li><code>test</code>: Runs all the tests, outputting a brief report for each test 
+    on the console and a detailed report under <i>test/reports/html</i>. This target 
+    will automatically execute <code>compile</code>, so you won't have to invoke it 
+    yourself before running the tests.</li>
   <li><code>test.clean</code>: Deletes the <i>test</i> directory and all its 
     contents.</li>
 </ul>
@@ -40,8 +40,8 @@
   output under the <i>docs</i> directory. Follows their description:</p>
 <ul>
   <li><code>docs</code>: Outputs all available project documentation. This includes 
-    both techinical documents (like this document, architecture/design documents, 
-    JavaDoc, etc.) and users documentation.</li>
+    both technical documents (like this document, architecture/design documents, JavaDoc, 
+    etc.) and users documentation.</li>
   <li><code>docs.clean</code>: Deletes the <i>docs</i> directory and all its 
     contents.</li>
 </ul>
@@ -88,9 +88,12 @@
   <div class="noteLabel">Note for developers</div>
   <div class="noteContent">Some internal targets not mentioned above could be useful 
     during development. For example, you can run only some given tests or generate 
-    only a subset of the project documentation. Also, it is possibe to easily tweak 
+    only a subset of the project documentation. Also, it is possible to easily tweak 
     existing targets by simply overriding their properties from the command line. 
-    Refer to the various child build files for details.</div>
+    Refer to the various child build files for details. Finally note that if you need 
+    to experiment with new libraries, just drop them into the <i>LIB</i> or <i>LIB/test</i> 
+    directory (depending on whether the application or test code depends on that library) 
+    and the build system will pick them up automatically.</div>
 </div>
 </body>
 </html>
