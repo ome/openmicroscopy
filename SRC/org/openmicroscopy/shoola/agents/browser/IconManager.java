@@ -111,10 +111,14 @@ public class IconManager
      */
     public static final int ST_TREE_BOOLEAN = 8;
     
+    public static final int ZOOM_IN = 9;
+    public static final int ZOOM_OUT = 10;
+    public static final int ZOOM_FIT = 11;
+    
     /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 8;
+    public static final int MAX_ID = 11;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -137,6 +141,9 @@ public class IconManager
         smallPaths[ST_TREE_NUMBER] = "st_number.png";
         smallPaths[ST_TREE_BOOLEAN] = "st_boolean.png";
         smallPaths[ST_TREE_TYPE] = "st_type.png";
+        smallPaths[ZOOM_IN] = "zoomin16.png";
+        smallPaths[ZOOM_OUT] = "zoomout16.png";
+        smallPaths[ZOOM_FIT] = "zoomfit16.png";
     }
     
     static
@@ -150,6 +157,9 @@ public class IconManager
         largePaths[ST_TREE_NUMBER] = "st_number.png";
         largePaths[ST_TREE_BOOLEAN] = "st_boolean.png";
         largePaths[ST_TREE_TYPE] = "st_type.png";
+        largePaths[ZOOM_IN] = "zoomin16.png";
+        largePaths[ZOOM_OUT] = "zoomout16.png";
+        largePaths[ZOOM_FIT] = "zoomfit16.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";

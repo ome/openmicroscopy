@@ -50,15 +50,12 @@ import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JSeparator;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -157,62 +154,11 @@ public class BrowserInternalFrame extends JInternalFrame
         });
         optionsButton.setToolTipText("Show Options Menu");
         
+        
         toolbarPanel.add(optionsButton);
-        
-        final JLabel minZoomLabel = new JLabel("10%");
-        final JLabel maxZoomLabel = new JLabel("200%");
-        final JSlider slider = new JSlider(new DefaultBoundedRangeModel(100,10,10,200));
-        slider.setPaintLabels(true);
-        slider.addChangeListener(new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent arg0)
-            {
-                int value = slider.getValue();
-                if(slider.getValueIsAdjusting())
-                {
-                    embeddedView.setZoomToScale(false);
-                }
-                embeddedView.setZoomLevel(((double)value)/100.0);
-            }
-        });
-        
-        embeddedView.addZoomParamListener(new ZoomParamListener()
-        {
-            public void minZoomLevelChanged(double level)
-            {
-                int val = (int)Math.round(level*100);
-                if(slider.getValue() < val)
-                {
-                    slider.setValue(val);
-                }
-                minZoomLabel.setText(String.valueOf(val)+"%");
-                slider.setMinimum(val);
-            }
-            
-            public void maxZoomLevelChanged(double level)
-            {
-                int val = (int)Math.round(level*100);
-                if(slider.getValue() > val)
-                {
-                    slider.setValue(val);
-                }
-                maxZoomLabel.setText(String.valueOf(val)+"%");
-                slider.setMaximum(val);
-            }
-            
-            public void zoomLevelChanged(double level)
-            {
-                if(!slider.getValueIsAdjusting())
-                {
-                    int val = (int)Math.round(level*100);
-                    slider.setValue(val);
-                }
-            }
-        });
-        
-        toolbarPanel.add(minZoomLabel);
-        toolbarPanel.add(slider);
-        toolbarPanel.add(maxZoomLabel);
+        toolbarPanel.add(new JSeparator(JSeparator.HORIZONTAL));
+        ZoomButtonPanel panel = new ZoomButtonPanel(embeddedView);
+        toolbarPanel.add(panel);
 
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
