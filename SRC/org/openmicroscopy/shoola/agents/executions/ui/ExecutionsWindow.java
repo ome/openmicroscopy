@@ -40,7 +40,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+
 
 //Third-party libraries
 
@@ -79,8 +79,6 @@ import org.openmicroscopy.shoola.util.ui.Constants;
 public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	ActionListener {
 	
-	public static final int X = 100;
-	public static final int Y = 400;
 	
 	/* a pointer to the registry */
 	private Registry registry;
@@ -137,7 +135,6 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	{
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		content.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// execution canvas
@@ -148,8 +145,8 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		slider  = execsModel.getSlider();
 		slider.setEnabled(true);
 		slider.setBorder(BorderFactory.
-				createEmptyBorder(0,GridModel.GRID_OFFSET,0,
-						2*GridModel.GRID_OFFSET));
+				createEmptyBorder(0,GridModel.GRID_OFFSET+GridModel.LABEL_SIZE,0,
+						2*GridModel.GRID_OFFSET-GridModel.DOT_SIDE));
 		slider.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// reset button
 		IconFactory icons = (IconFactory)  
@@ -175,6 +172,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		
 		// listen to events
 		pack();
+		
 		enableButtons(true);
 	}
 	
@@ -217,6 +215,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		else if (e.getSource() == combo) {
 			String choice = (String) ((JComboBox) e.getSource()).getSelectedItem();
 			execsModel.setRenderingOrder(choice);
+			
 			execCanvas.repaint();
 		}
 	}
