@@ -32,7 +32,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
-import javax.swing.JInternalFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
@@ -58,15 +59,16 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
  * @since OME2.2
  */
 public class Viewer
-	extends JInternalFrame
 	implements Agent, AgentEventListener, EventBus
 {
-	/** Reference to the {@link Registry}. */
-	private Registry		registry;
+	private PixelsDimensions	pixelsDims;
 	
-	private ViewerUIF		presentation;
-	private ViewerCtrl		control;
-	private TopFrame		topFrame;
+	/** Reference to the {@link Registry}. */
+	private Registry			registry;
+	
+	private ViewerUIF			presentation;
+	private ViewerCtrl			control;
+	private TopFrame			topFrame;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
@@ -110,6 +112,27 @@ public class Viewer
 		return registry;
 	}
 	
+	PixelsDimensions getPixelsDims()
+	{
+		if (pixelsDims == null) 
+			pixelsDims = new PixelsDimensions(200, 200, 10, 2, 20);
+		return pixelsDims;
+	}
+	
+	int getDefaultT()
+	{
+		return 0;
+	}
+	
+	int getDefaultZ()
+	{
+		return 10;
+	}
+	
+	//fired an event.
+	void onPlaneSelected(int z, int t)
+	{
+	}
 	/** Implement as specified by {@link AgentEventListener}. */
 	public void eventFired(AgentEvent e) 
 	{
@@ -132,24 +155,28 @@ public class Viewer
 	}
 
 	/**
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
 	public void remove(AgentEventListener subscriber) {}
 
 
 	/**
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
 	public void remove(AgentEventListener subscriber, Class event) {}
 
 	/**
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
 	public void remove(AgentEventListener subscriber, Class[] events) {}
 
 	/**
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
 	public void post(AgentEvent e) {}
 
 }

@@ -32,18 +32,21 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.Rectangle;
-
+import java.awt.image.BufferedImage;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -75,12 +78,15 @@ public class ViewerUIF
 	/** Location y-coordinate. */
 	private static final int		Y_LOCATION = 0;
 	
-	private ViewerCtrl 				control;
-	
-	private Registry				registry;
+	/** Canvas to display the currently selected 2D image. */
+	private ImageCanvas             canvas;
 	
 	/** Menu specific to this agent. */
 	private JMenu					internalMenu;
+	
+	private ViewerCtrl 				control;
+	
+	private Registry				registry;
 	
 	ViewerUIF(ViewerCtrl control, Registry registry)
 	{
@@ -96,7 +102,8 @@ public class ViewerUIF
 	
 	/** 
 	 * Menu item to add to the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
+	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
+	 */
 	JMenuItem getViewMenuItem()
 	{
 		JMenuItem menuItem = new JMenuItem("Viewer2D");
@@ -121,6 +128,17 @@ public class ViewerUIF
 		editor.setVisible(true);
 	}
 	
+	/**
+	 * Displays the image in the viewer.
+	 * 
+	 * @param img
+	 */
+	 void setImage(BufferedImage img)
+	 {
+		canvas.display(img);
+		revalidate();
+	 }
+	   
 	/** Creates an internal menu. */
 	private JMenuBar createMenuBar()
 	{
@@ -137,16 +155,20 @@ public class ViewerUIF
 		JMenuItem menuItem = new JMenuItem("Control");
 		control.setMenuItemListener(menuItem, ViewerCtrl.CONTROL);
 		internalMenu.add(menuItem);
-		menuItem = new JMenuItem("SAVE");
-		control.setMenuItemListener(menuItem, ViewerCtrl.SAVE);
+		menuItem = new JMenuItem("SAVE AS...");
+		control.setMenuItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		internalMenu.add(menuItem);
 	}	
 	
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
+		canvas = new ImageCanvas(this, getContentPane());
+		JScrollPane scrollPane = new JScrollPane(canvas);
+		getContentPane().add(scrollPane);
 		IconManager im = IconManager.getInstance(registry);
 		Icon icon = im.getIcon(IconManager.OME);
-		setFrameIcon(icon);	
+		setFrameIcon(icon);
 	}
+	
 }

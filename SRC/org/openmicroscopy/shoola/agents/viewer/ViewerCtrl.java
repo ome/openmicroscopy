@@ -29,11 +29,10 @@
 
 package org.openmicroscopy.shoola.agents.viewer;
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -42,7 +41,9 @@ import javax.swing.JMenuItem;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.controls.NavigationPalette;
+import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
  * 
@@ -63,7 +64,7 @@ public class ViewerCtrl
 {
 	static final int			V_VISIBLE = 0;
 	static final int			CONTROL = 1;
-	static final int			SAVE = 2;
+	static final int			SAVE_AS = 2;
 	
 	private NavigationPalette	palette;
 	private Viewer				abstraction;
@@ -73,20 +74,52 @@ public class ViewerCtrl
 		this.abstraction = abstraction;
 	}
 	
+	/** Forward event to {@link Viewer}. */
 	public JFrame getReferenceFrame()
 	{
 		return abstraction.getRegistry().getTopFrame().getFrame();
 	}
 	
+	/** Forward event to {@link Viewer}. */
 	public Registry getRegistry()
 	{
 		return abstraction.getRegistry();
 	}
+	
+	/** Return the buffered Image displayed. */
+	public BufferedImage getBufferedImage()
+	{
+		return null;
+	}
+	
+	/** Forward event to {@link Viewer}. */
+	public PixelsDimensions getPixelsDims()
+	{
+		return abstraction.getPixelsDims();
+	}
+	
+	/** Forward event to {@link Viewer}. */
+	public int getDefaultT()
+	{
+		return abstraction.getDefaultT();
+	}
+	
+	/** Forward event to {@link Viewer}. */
+	public int getDefaultZ()
+	{
+		return abstraction.getDefaultZ();
+	}
+	
+	public void onPlaneSelected(int z, int t)
+	{
+		abstraction.onPlaneSelected(z, t);
+	}
+	
 	/** 
-	* Returns the abstraction component of this agent.
-	*
-	* @return  See above.
-	*/
+	 * Returns the abstraction component of this agent.
+	 *
+	 * @return  See above.
+	 */
 	Viewer getAbstraction()
 	{
 		return abstraction;
@@ -112,6 +145,9 @@ public class ViewerCtrl
 				case CONTROL:
 					showControls();
 					break; 	
+				case SAVE_AS:
+					new ImageSaver(this);
+					break;
 		   }
 		} catch(NumberFormatException nfe) {   
 			   throw nfe;  //just to be on the safe side...
@@ -129,5 +165,6 @@ public class ViewerCtrl
 		if (palette == null) palette = new NavigationPalette(this);
 		showDialog(palette);		
 	}
+	
 	
 }
