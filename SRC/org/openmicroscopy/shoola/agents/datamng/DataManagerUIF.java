@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
-import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -221,12 +220,8 @@ class DataManagerUIF
 											JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
-		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		IconManager im = IconManager.getInstance(registry);
-		Icon icon = im.getIcon(IconManager.OME);
-		
-		//TODO: image not loaded						
-		tabs.addTab("Explorer", icon, explPane);
+		Font font = (Font) registry.lookup("/resources/fonts/Titles");					
+		tabs.addTab("Explorer", IconManager.getOMEIcon(), explPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
 		tabs.setSelectedComponent(explPane);
@@ -235,7 +230,7 @@ class DataManagerUIF
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(bar, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(icon);	
+		setFrameIcon(IconManager.getOMEIcon());	
 	} 	
 	
 	/** Creates an internal menu. */

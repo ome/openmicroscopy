@@ -31,12 +31,10 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
-import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 

@@ -155,7 +155,7 @@ public class DatasetEditor
 					null, POS_MAIN);
 		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), imagesPane,
 						null, POS_IMAGE);
-		tabs.insertTab("Owner", im.getIcon(IconManager.OME), ownerPane, null, 
+		tabs.insertTab("Owner", IconManager.getOMEIcon(), ownerPane, null, 
 						POS_OWNER);
 
 		tabs.setSelectedComponent(generalPane);
