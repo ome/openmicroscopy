@@ -97,6 +97,7 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 		super();
 		this.panel = panel;
 		layer = getLayer();
+		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
 		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,
 				30));
 		removeInputEventListener(getPanEventHandler());
