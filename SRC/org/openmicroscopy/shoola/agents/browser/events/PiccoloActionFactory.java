@@ -305,7 +305,7 @@ public class PiccoloActionFactory
             public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
-                                     BrowserMode.DEFAULT_MODE);
+                                     BrowserMode.IMAGE_NAME_MODE);
             }
         };
         return action;

@@ -168,6 +168,11 @@ public class BrowserMode
      * Indicates that the browser should zoom to 200%.
      */
     public static final BrowserMode ZOOM_200_MODE = new BrowserMode(15);
+    
+    /**
+     * Indicates that mouse-over should trigger display of the image name.
+     */
+    public static final BrowserMode IMAGE_NAME_MODE = new BrowserMode(16);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be

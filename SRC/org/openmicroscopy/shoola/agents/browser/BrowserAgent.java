@@ -211,6 +211,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         eventBus.register(this,LoadDataset.class);
         
+        /*
         JMenuItem testItem = new JMenuItem("Browser");
         testItem.addActionListener(new ActionListener()
         {
@@ -223,6 +224,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         tf.addToMenu(TopFrame.VIEW,testItem);
         testItem.setEnabled(true);
+        */
         
         // test code to check for image STs
         SemanticTypesService sts = registry.getSemanticTypesService();

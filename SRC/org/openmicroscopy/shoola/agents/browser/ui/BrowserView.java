@@ -224,7 +224,7 @@ public class BrowserView extends PCanvas
 
         semanticLayer = new HoverManager();
         semanticHoverThumbnailAction =
-            PiccoloActionFactory.getImageNameEnterAction(semanticLayer);
+            PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
             
         semanticExitThumbnailAction =
             PiccoloActionFactory.getOverlayExitAction(semanticLayer);
@@ -376,7 +376,7 @@ public class BrowserView extends PCanvas
         }
         else if(className.equals(BrowserModel.SEMANTIC_MODE_NAME))
         {
-            if(mode == BrowserMode.DEFAULT_MODE)
+            if(mode == BrowserMode.IMAGE_NAME_MODE)
             {
                 semanticHoverThumbnailAction =
                     PiccoloActionFactory.getImageNameEnterAction(semanticLayer);

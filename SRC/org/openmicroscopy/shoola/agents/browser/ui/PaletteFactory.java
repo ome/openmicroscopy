@@ -188,6 +188,7 @@ public class PaletteFactory
         
         semanticIcon.setMouseDownStickyActions(activatedActions,
                                                deactivatedActions);
+        semanticIcon.setActivated(true);
         palette.addIcon(semanticIcon);
         return palette;
     }

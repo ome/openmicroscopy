@@ -167,9 +167,9 @@ public class BrowserModel
                                  
         semanticModeClass =
             new BrowserModeClass(SEMANTIC_MODE_NAME,
-                                 new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+                                 new BrowserMode[] { BrowserMode.IMAGE_NAME_MODE,
                                                      BrowserMode.SEMANTIC_ZOOMING_MODE},
-                                 BrowserMode.DEFAULT_MODE);
+                                 BrowserMode.SEMANTIC_ZOOMING_MODE);
         
         modeClassMap.put(PAN_MODE_NAME,panActionClass);
         modeClassMap.put(MAJOR_UI_MODE_NAME,majorUIModeClass);
