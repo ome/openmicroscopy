@@ -100,7 +100,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	
 	public void mouseEntered(PInputEvent e) {
 		PNode n = e.getPickedNode();
-		System.err.println("entering..."+n);
 		super.mouseEntered(e);
 	}
 	
