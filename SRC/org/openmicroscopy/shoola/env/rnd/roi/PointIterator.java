@@ -131,7 +131,7 @@ public class PointIterator
     }
     
     /**
-     * Called to notify the observers of the current pixel being iterated.
+     * Notifies all observers, if any, of the current pixel being iterated.
      * 
      * @param pixelValue  The value of the current pixel. 
      * @param z  The index of the plane in the stack.

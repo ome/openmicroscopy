@@ -40,7 +40,20 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
- * 
+ * Collects some basic stats for each 2D-selection within a 5D ROI.
+ * <p>This class implements {@link PointIteratorObserver} in order to collect
+ * {@link ROIPlaneStats} for each 2D ROI contained in a given 5D ROI.  You
+ * register an instance of this class with a {@link PointIterator} and then
+ * you {@link PointIterator#iterate(ROI5D) iterate} a given 5D ROI.  As the
+ * iteration advances, the <code>ROIStats</code> object computes the stats.
+ * Because a second {@link PointIterator#iterate(ROI5D) iteratation} over a
+ * different 5D ROI would overwrite the previous stats, you should normally
+ * {@link PointIterator#remove(PointIteratorObserver) remove} the 
+ * <code>ROIStats</code> object from the notification list after the iteration
+ * has completed.</p>
+ * <p>After iterating an ROI 5D, you can access the computed results plane by
+ * plane through the {@link #getPlaneStats(int, int, int) getPlaneStats}
+ * method.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,7 +70,16 @@ public class ROIStats
     implements PointIteratorObserver
 {
 
+    /** 
+     * The dimensions of the pixels set over which the stats will be computed.
+     */
     private PixelsDimensions    dims;
+    
+    /**
+     * Maps a {@link #linearize(int, int, int) linearized} <code>(z, w, t)
+     * </code> tuple identifying a plane onto the stats calculated for the
+     * 2D-selection contained in that plane. 
+     */
     private Map                 arrayMap;
     
     
@@ -66,9 +88,9 @@ public class ROIStats
      * The returned value <code>L</code> is calculated as follows: 
      * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
      * 
-     * @param z   The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-     * @param w   The w coord.  Must be in the range <code>[0, sizeW)</code>.
-     * @param t   The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
+     * @param w The w coord.  Must be in the range <code>[0, sizeW)</code>.
+     * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
      * @return The linearized value corresponding to <code>(z, w, t)</code>.
      */
     private Integer linearize(int z, int w, int t) {
@@ -84,6 +106,13 @@ public class ROIStats
         return new Integer(dims.sizeZ*dims.sizeW*t + dims.sizeZ*w + z);
     }
     
+    /**
+     * Creates a new object to collect {@link ROIPlaneStats} for a given
+     * 5D ROI.
+     * 
+     * @param dims The dimensions of the pixels set over which the stats will
+     *              be computed.  Mustn't be <code>null</code>.
+     */
     public ROIStats(PixelsDimensions dims)
     {
         if (dims == null) throw new NullPointerException("No dims.");
@@ -94,13 +123,15 @@ public class ROIStats
     public int getSize() { return arrayMap.size(); }
     
     /**
-     * Returns the stats, if any, that were calculated against the 2D selection
+     * Returns the stats, if any, that were calculated against the 2D-selection
      * within the specified plane.
      * 
-     * @param z
-     * @param w
-     * @param t
-     * @return
+     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
+     * @param w The w coord.  Must be in the range <code>[0, sizeW)</code>.
+     * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @return A {@link ROIPlaneStats} object holding the stats for the
+     *          2D-selection in the specified plane.  If no selection was
+     *          made in that plane, then <code>null</code> is returned instead.
      */
     public ROIPlaneStats getPlaneStats(int z, int w, int t)
     {

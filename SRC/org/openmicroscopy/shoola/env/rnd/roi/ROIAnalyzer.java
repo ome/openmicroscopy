@@ -104,6 +104,16 @@ public class ROIAnalyzer
         this.dims = dims;
     }
     
+    /**
+     * Computes an {@link ROIStats} object for each {@link ROI5D} that was
+     * specified at creation time.
+     * 
+     * @return A map whose keys are the {@link ROI5D} objects specified at
+     *          creation time and whose values are the corresponding 
+     *          {@link ROIStats} objects computed by this method.
+     * @throws DataSourceException  If an error occurs while retrieving plane
+     *                              data from the pixels source.
+     */
     public Map analyze() 
         throws DataSourceException
     {
