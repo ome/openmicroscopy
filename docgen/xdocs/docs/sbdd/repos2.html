@@ -3,9 +3,20 @@
   <title>Downloading from CVS</title>
 </head>
 <body>
-
-
-
+<p>The whole Shoola source code and other related artifacts can be freely downloaded 
+(refer to <a href="legal.html">Legal</a> for licensing issues) from our CVS repository. 
+To do so, you will need a CVS client. If you don't have it, you can get one from <a href="http://www.cvshome.org/">http://www.cvshome.org/</a>.
+Before you start downloading from CVS, make a new directory and move there. Then, 
+type the following at the command line prompt:</p>
+<pre><code>    cvs -d ':pserver:anoncvs@cvs.openmicroscopy.org.uk:/ome' login</code></pre>
+<p>When prompted for a password, enter <code>anoncvs</code>. Then, type:</p>
+<pre><code>    cvs -z3 -d ':pserver:anoncvs@cvs.openmicroscopy.org.uk:/ome' checkout Shoola</code></pre>
+<p>The above will download the whole Shoola module in the current directory. What 
+  you get is the latest version of the files on CVS. If you're interested in a specific 
+  branch/tag instead, then type:</p>
+<pre><code>    cvs -d ':pserver:anoncvs@cvs.openmicroscopy.org.uk:/ome' -r tag_id Shoola</code></pre>
+<p>Where <code>tag_id</code> is the label identifier for the branch/tag you're interested 
+  in, for example <code>OME_2_2</code>.</p>
 </body>
 </html>
 
