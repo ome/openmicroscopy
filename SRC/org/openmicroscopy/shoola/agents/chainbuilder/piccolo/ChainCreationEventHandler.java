@@ -409,20 +409,27 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void doMouseClicked(PInputEvent e) {
 		// we only scale if we're not drawing a link.
+		//System.err.println("mouse clicked..");
+		//System.err.println("link state is "+linkState);
 		if (linkState != NOT_LINKING) {
-			if (linkState == LINKING_CANCELLATION)
+			if (linkState == LINKING_CANCELLATION) {
+				//System.err.println("cancelled link. set to not linking");
 				linkState = NOT_LINKING;
+			}
+			//System.err.println("linking...");
 			e.setHandled(true);
 			return;
 		}
 		
 		if (postPopup == true) {
+			//System.err.println("post popup");
 			postPopup = false;
 			e.setHandled(true);
 			return;
 		}
 		
 		PNode node = e.getPickedNode();
+		//System.err.println("mouse clicked on .."+node);
 		int mask = e.getModifiers() & allButtonMask;
 		
 		// if it's a buffered object that is not a chain.
@@ -441,18 +448,21 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			}
 		}
 		
-		// otherwise, must be a camera
-		if (! (node instanceof PCamera))
-			return;
+		// otherwise, must be a camera, or a chain. either way, zoom in/out
+		//if (! (node instanceof PCamera))
+		//	return;
 		
 		if (e.isShiftDown()) {
+			//System.err.println("zoomed with shhift..");
 			PBounds b = canvas.getBufferedBounds();
 			canvas.getCamera().animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 			e.setHandled(true);
 		}
 		else {
+			//System.err.println("zoomed witout shift...");
 			double scaleFactor = Constants.SCALE_FACTOR;
 			if (e.isControlDown() || ((mask & MouseEvent.BUTTON3_MASK)==1)) {
+				//System.err.println("but wit control...");
 				scaleFactor = 1/scaleFactor;
 			}
 			zoom(scaleFactor,e);
@@ -464,12 +474,17 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	private void doMouseDoubleClicked(PInputEvent e) {
 		PNode node = e.getPickedNode();
 		//System.err.println("got a double click on "+node);
-		if (node instanceof ModuleView)
-			startModuleLinks(e);
+		if (node instanceof ModuleView){
+			selectedModule = (ModuleView) node;
+			// only start links if it's linkable
+			if (selectedModule.isLinkable())
+				startModuleLinks(e);
+		}
 		else if (node instanceof FormalParameter) {
 			selectedModule = ((FormalParameter) node).getModuleView();
-			startModuleLinks(e);
-		}
+			if (selectedModule.isLinkable())
+				startModuleLinks(e);
+		}		
 		e.setHandled(true);
 	}
 	
@@ -526,7 +541,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			selectedLink.setSelected(false);
 			selectedLink = null;
 		}
-		if (selectedModule != null) {
+		if (selectedModule != null && linkState != LINKING_MODULES) {
 			selectedModule.removeHandles();
 			selectedModule = null;
 		}
@@ -552,8 +567,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			mousePressedNotLinking(node,e);		
 		else if (linkState == LINK_CHANGING_POINT)
 			mousePressedChangingPoint(node,e);
-		else
+		else {
+			//System.err.println("mouse pressed..setting link state to not linking..");
 			linkState = NOT_LINKING;
+		}
 	}
 	
 	/**
@@ -565,6 +582,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (linkState != LINK_CHANGING_POINT) {
 			selectedLink = (Link) node;
 			selectedLink.setSelected(true);
+			//System.err.println("mousePressedLink. setting linkstate to not linking");
 			linkState = NOT_LINKING;
 		}
 	}
@@ -589,6 +607,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		//System.err.println("pressing on selection target..");
 		selectionTarget = (LinkSelectionTarget) node;
 		selectionTarget.getLink().setSelected(true);
+		//System.err.println("mousePressedSelectionTarget.... setting link state to changing point");
 		linkState = LINK_CHANGING_POINT;
 	}
 	
@@ -604,6 +623,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	private void mousePressedLinkingParams(PNode node,PInputEvent e) {
 		if (e.getClickCount() ==2) {
 			cancelParamLink();
+			//System.err.println("mouse pressed linking params. setting to linking cancellation");
 			linkState = LINKING_CANCELLATION;
 		}
 		else if (lastParameterEntered == null) { // we're on canvas.
@@ -688,12 +708,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			if (lastParameterEntered == null) 
 				mouseEntered(e);
 			FormalParameter param = (FormalParameter) node;
+			//System.err.println("starting a link from .."+param.getParameter().getName());
 			if (param.canBeLinkOrigin())
 				startParamLink(param);
 		}
 		else if (node instanceof LinkSelectionTarget) {
 		//	System.err.println("pressiing on target..");
 			selectionTarget  = (LinkSelectionTarget) node;
+			//System.err.println("mouse pressed not linking. setting to link changing point");
 			linkState = LINK_CHANGING_POINT;
 		}
 		e.setHandled(true);
@@ -708,7 +730,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedChangingPoint(PNode node,PInputEvent e) {
 		if (node instanceof PCamera)  {
-		//	System.err.println("clearing link selection target...");
+			//System.err.println("clearing link selection target.. not_LINKING.");
 			linkState = NOT_LINKING;
 			if (selectionTarget != null) {
 				Link link = selectionTarget.getLink();
@@ -724,12 +746,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param param the origin of the new link
 	 */
  	private void startParamLink(FormalParameter param) {
-		//System.err.println("mouse pressing and starting link");
+		////System.err.println("mouse pressing and starting link");
 		linkOrigin = param;
 		link = new ParamLink();
 		linkLayer.addChild(link);
 		link.setStartParam(linkOrigin);
 		link.setPickable(false);
+		//System.err.println("start param link. link state is LINKING_PARAMS");
 		linkState = LINKING_PARAMS;			
  	}
 		
@@ -751,6 +774,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			//////System.err.println("trying to finish link, but end point is not linkable");
 			cancelParamLink();
 		}
+		//System.err.println("finishParamLink. state is NOT_LINKING");
 		linkState = NOT_LINKING;
 	}
 	
@@ -802,6 +826,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			startModuleLinks(outputs); 
 			moduleLinksStartedAsInputs = false;
 		}
+		//System.err.println("start module links. link state is LINKING_MODULES");
 		linkState = LINKING_MODULES; 
 	}
 	
@@ -811,6 +836,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param params
 	 */
 	private void startModuleLinks(Collection params) {
+		//System.err.println("starting module link.. selected is "+selectedModule);
 		activeModuleLinkParams = params;
 	
 		Iterator iter = params.iterator();
@@ -841,6 +867,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		 	c = mod.getInputParameters();
 		finishModuleLinks(c);
 		links = new Vector();
+		//System.err.println("finish module links. state is not_linking");
+		mod.setAllHighlights(false);
 		linkState = NOT_LINKING;
 	}
 	
@@ -896,11 +924,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void cancelModuleLinks() {
 		//System.err.println("cancelling module links...");
+		//System.err.println("selected module is..."+selectedModule);
 		Iterator iter = links.iterator();
 		while (iter.hasNext()) {
 			ParamLink link = (ParamLink) iter.next();
 			link.removeFromParent();
 		}
+		//System.err.println("cancelling modules links. link state is NOT_LINKING");
 		linkState = NOT_LINKING;
 		cleanUpModuleLink();
 	}
@@ -916,6 +946,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			origin.setParamsHighlighted(false);
 		}
 		links = new Vector();
+		selectedModule.setAllHighlights(false);
 	}
 	
 	/** 
@@ -940,6 +971,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		postPopup=true;
 		PNode n = e.getPickedNode();
 		PNode p = n.getParent();
+		//System.err.println("popup. zooming out of "+n);
 		if (n instanceof BufferedObject && (p == canvas.getLayer() 
 				|| p instanceof ChainView)) {
 			// if I'm on a module that's not in a chain or not. 
@@ -948,8 +980,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			PCamera camera =canvas.getCamera();
 			camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);	
 		}
-		else if (p instanceof PCamera || p == canvas.getLayer() ||
-				n instanceof PCamera || n == canvas.getLayer()){
+		else {
 			double scaleFactor = 1/Constants.SCALE_FACTOR;
 			zoom(scaleFactor,e); 	
 		}
