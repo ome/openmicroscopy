@@ -43,6 +43,7 @@ import javax.swing.table.TableColumnModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.Annotator;
 import org.openmicroscopy.shoola.agents.annotator.AnnotatorCtrl;
 import org.openmicroscopy.shoola.agents.annotator.AnnotatorUIF;
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
@@ -93,6 +94,8 @@ class AnnotationTable
     private AnnotationTableMng      manager;
     
     private AnnotationData[]        annotations;
+    private AnnotatorCtrl           control;
+    
     private JTextArea[]             areas;
     
     static {
@@ -112,6 +115,7 @@ class AnnotationTable
                     AnnotatorCtrl control, boolean b)
     {
         super(numberRows, h.length);
+        this.control = control;
         manager = new AnnotationTableMng(this, control);
         creation = false;
         height = AnnotatorUIF.SCROLLPANE_HEADER+
@@ -232,9 +236,20 @@ class AnnotationTable
     
     private JButton createViewButton(IconManager im)
     {
-        JButton view = new JButton(im.getIcon(IconManager.VIEWER));
-        view.setToolTipText(
-                UIUtilities.formatToolTipText("View the annotated Image."));
+        JButton view = null;
+        String s = "";
+        switch(control.getAnnotationIndex()) {
+            case Annotator.IMAGE:
+                view = new JButton(im.getIcon(IconManager.VIEWER));
+                s = "View the annotated Image.";
+                break;
+            case Annotator.DATASET:
+                view = new JButton(im.getIcon(IconManager.BROWSER));
+                s = "View the annotated Dataset.";
+                break;
+                
+        }
+        view.setToolTipText(UIUtilities.formatToolTipText(s));
         return view;
     }
     

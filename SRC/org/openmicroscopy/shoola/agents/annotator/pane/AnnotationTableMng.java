@@ -42,6 +42,7 @@ import javax.swing.text.Document;
 //Third-party libraries
 
 //Application-internal dependenciess
+import org.openmicroscopy.shoola.agents.annotator.Annotator;
 import org.openmicroscopy.shoola.agents.annotator.AnnotatorCtrl;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 
@@ -90,11 +91,19 @@ class AnnotationTableMng
     public void actionPerformed(ActionEvent e)
     {
         try {
-            int index = Integer.parseInt(e.getActionCommand());
-            if (view.creation) control.viewImage();
-            else {
-                AnnotationData data = view.getAnnotationData(index);
-                control.viewImage(data.getTheZ(), data.getTheT());
+            int annotationIndex = control.getAnnotationIndex();
+            switch(annotationIndex) {
+                case Annotator.IMAGE:
+                    int index = Integer.parseInt(e.getActionCommand());
+                    if (view.creation) control.viewImage();
+                    else {
+                        AnnotationData data = view.getAnnotationData(index);
+                        control.viewImage(data.getTheZ(), data.getTheT());
+                    }
+                    break;
+                case Annotator.DATASET:
+                    control.viewDataset();
+                    break;
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
