@@ -84,11 +84,12 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	
 	
 	public void mouseEntered(PInputEvent e) {
+		
 		PNode n = e.getPickedNode();
-		if (n != lastChainView && lastChainView != null &&
+		if (n == null || (n != lastChainView && lastChainView != null &&
 				!checkEventInNodeInterior(lastChainView,e) &&
 				!n.isAncestorOf(lastChainView) && 
-				!n.isDescendentOf(lastChainView))
+				!n.isDescendentOf(lastChainView)))
 			hideLastChainView();
 		super.mouseEntered(e);
 			
@@ -187,8 +188,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	 */
 	public void setLastChainView(PaletteChainView lastChainView) {
 		// if I get this twice, show the full view.
-		if (this.lastChainView == lastChainView)
+		if (this.lastChainView == lastChainView) {
 			lastChainView.showFullView(true);
+		}
 		this.lastChainView = lastChainView;
 	}
 	
@@ -196,9 +198,8 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		if (lastChainView != null) {		
 			lastChainView.hide();
 		}
-		lastChainView = null;
+		//lastChainView = null;
 	}
-	
 }
 
 
