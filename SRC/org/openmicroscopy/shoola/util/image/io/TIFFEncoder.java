@@ -58,7 +58,6 @@ import java.io.IOException;
  */
 public class TIFFEncoder
 {
-    
 	public static final String	FORMAT_EXTENSION = "tiff";
 								
 	private DataOutputStream	output;
@@ -84,7 +83,7 @@ public class TIFFEncoder
 	public void write()
 		throws IOException
 	{
-		writeHeader();
+		output.write(TIFFEncoderCst.header);
 		writeIFD();
 		int bpsSize = 0, scaleSize;
 		if (colorType == ColorSpace.TYPE_RGB) {
@@ -144,14 +143,7 @@ public class TIFFEncoder
 		output.writeShort(8);
 		output.writeShort(8);
 	}
-
-	/** Write the header. */
-	private void writeHeader()
-		throws IOException
-	{
-		output.write(TIFFEncoderCst.header);
-	}
-     
+	
 	/** Write one Image File Directory. */
 	private void writeIFD()
 		throws IOException
@@ -167,6 +159,8 @@ public class TIFFEncoder
 		} else {
 			writeEntry(TIFFEncoderCst.BITS_PER_SAMPLE,  3, 1, bitsPerSample);
 		}
+			
+		
 		writeEntry(TIFFEncoderCst.PHOTO_INTERP, 3, 1, photoInterp);
 		writeEntry(TIFFEncoderCst.STRIP_OFFSETS, 4, 1,
 					TIFFEncoderCst.IMAGE_START);
@@ -223,6 +217,6 @@ public class TIFFEncoder
 			output.write(buffer, 0, count);
 			bytesWritten += count;
 		}
-	}
+	}    
 
 }
