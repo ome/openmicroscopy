@@ -258,7 +258,7 @@ public class LayoutChainData  extends AnalysisChainData
 		// we know node is at i.
 		
 		GraphLayoutNode to = (GraphLayoutNode) link.getToNode();
-		//System.err.println("..link to "+to.getName());
+		System.err.println("..link to "+to.getName());
 		int toLayer = to.getLayer();
 		if (toLayer == (i-1)) {
 			// layer is correct
@@ -267,14 +267,14 @@ public class LayoutChainData  extends AnalysisChainData
 		else {
 			// create new dummy node
 			DummyNode dummy = new DummyNode();
-			//System.err.println("node is "+dummy);
-			LayoutLinkData semantiLayoutLinkData = link.getSemanticLink();
+			LayoutLinkData semanticLayoutLinkData = link.getSemanticLink();
+			System.err.println("link is ..."+semanticLayoutLinkData.getID());
 			// make this node point to "to"
-			LayoutLink dummyOutLink = new LayoutLink(semantiLayoutLinkData,dummy,to);
+			LayoutLink dummyOutLink = new LayoutLink(semanticLayoutLinkData,dummy,to);
 			dummy.addSuccLink(dummyOutLink);
 			
 			// make node point to new node
-			LayoutLink newOutLink = new LayoutLink(semantiLayoutLinkData,node,dummy);
+			LayoutLink newOutLink = new LayoutLink(semanticLayoutLinkData,node,dummy);
 			
 			dummy.addPredLink(newOutLink);
 			
@@ -290,14 +290,14 @@ public class LayoutChainData  extends AnalysisChainData
 			to.addPredLink(dummyOutLink);
 			
 			// add dummy to next layer.
-			//System.err.println("adding a dummy node at layer"+(i-1));
-			//System.err.println("node is "+dummy);
+			System.err.println("adding a dummy node at layer"+(i-1));
+			System.err.println("node is "+dummy);
 			layering.addToLayer(i-1,dummy);
 			
 			// adjust the semantic link to put dummy in between "from" and "to".
 			// invariant is that "from" is directly before "to", so just put it
 			//after "from"
-			semantiLayoutLinkData.addIntermediate(node,dummy);
+			semanticLayoutLinkData.addIntermediate(node,dummy);
 		}
 	}
 	
