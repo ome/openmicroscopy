@@ -51,7 +51,6 @@ import java.util.Vector;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
-import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
@@ -65,7 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.Constants;
-import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 
 /** 
@@ -81,7 +80,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
  * </small>
  */
 
-public class DatasetBrowserCanvas extends PCanvas implements BufferedObject, 
+public class DatasetBrowserCanvas extends BufferedCanvas implements  
 	ContentComponent {
 	
 	
@@ -304,20 +303,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		return res;
 	}
 	
-	
-	
-	
-	/**
-	 * Calculate the bounds necessary for appropriate zooming for this canvas
-	 */	
-	public PBounds getBufferedBounds() {
-		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-Constants.SMALL_BORDER,
-			b.getY()-Constants.SMALL_BORDER,
-			b.getWidth()+2*Constants.SMALL_BORDER,
-			b.getHeight()+2*Constants.SMALL_BORDER); 
-	}
-	
+
 	
 	/**
 	 * Displaying all of the datasets.

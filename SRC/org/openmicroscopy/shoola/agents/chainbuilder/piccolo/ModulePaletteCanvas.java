@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModuleTreeNode;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
@@ -87,8 +88,8 @@ import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
  * </small>
  */
 
-public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
-	BufferedObject, ContentComponent {
+public class ModulePaletteCanvas extends BufferedCanvas implements 
+	DragGestureListener, ContentComponent {
 	
 	/**
 	 * Some screen layout parameters
@@ -219,16 +220,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	public void scaleToResize() {
 		handler.animateToLastBounds();
 	}
-	/**
-	 * Calculate the bounds necessary for appropriate zooming for this canvas
-	 */	
-	public PBounds getBufferedBounds() {
-		PBounds b = layer.getFullBounds();
-		return new PBounds(b.getX()-Constants.SMALL_BORDER,
-			b.getY()-Constants.SMALL_BORDER,
-			b.getWidth()+2*Constants.SMALL_BORDER,
-			b.getHeight()+2*Constants.SMALL_BORDER); 
-	}
+
 	
 	/*
 	 * Add the modules that are children of this category, 
