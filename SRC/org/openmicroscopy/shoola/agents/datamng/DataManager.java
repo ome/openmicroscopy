@@ -211,7 +211,8 @@ public class DataManager
 	{
 		//EventBus eventBus = registry.getEventBus();
 		//eventBus.post(new ImportImages(datasetID, images));
-		//registry.getUserNotifier().notifyInfo("Importer", "not yet implemented");
+		registry.getUserNotifier().notifyInfo("Importer", 
+			"not yet implemented"+images+" "+datasetID);
 	}
 	
 	/**
@@ -518,7 +519,7 @@ public class DataManager
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
-		} 	
+		}
 	}
 	
 	/**

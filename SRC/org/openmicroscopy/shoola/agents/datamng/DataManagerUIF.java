@@ -65,24 +65,13 @@ class DataManagerUIF
 	extends JInternalFrame
 {
 	
-	/** Width of the widget. */
-	private static final int 				WIN_WIDTH = 350;
-	
-	/** Height of the widget. */
-	private static final int 				WIN_HEIGHT = 350;
-	
-	/** Location x-coordinate. */
-	private static final int				X_LOCATION = 0;
-	
-	/** Location y-coordinate. */
-	private static final int				Y_LOCATION = 0;
-	
 	/** 
 	 * UI component to view a summary of the user's data
 	 * and to mark the currently viewed image. 
 	 */
 	private ExplorerPane					explPane;
 	
+	/** List of image summary object. */
 	private ImagesPane						imgPane;
 	
 	/** Reference to the regisry. */
@@ -108,8 +97,7 @@ class DataManagerUIF
 		imgPane = new ImagesPane(control, registry);
 		setJMenuBar(createMenuBar());
 		buildGUI(new ToolBar(control, registry));
-		//set the size and position the window.
-		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
+		pack();	
 	}
 
 	/** Forward event to {@link ExplorerPaneManager}. */
@@ -169,7 +157,6 @@ class DataManagerUIF
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(bar, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		//getContentPane().add(explPane, BorderLayout.CENTER);
 		setFrameIcon(im.getIcon(IconManager.DMANAGER));	
 	} 	
 	
@@ -198,6 +185,7 @@ class DataManagerUIF
 	}
 	
 	/** Creates the <code>importMenu</code>. */
+	/*
 	private JMenu createImportMenu()
 	{
 		JMenu menu = new JMenu("Import");
@@ -207,5 +195,5 @@ class DataManagerUIF
 		menu.add(menuItem);
 		return menu;
 	}
-	
+	*/
 }
