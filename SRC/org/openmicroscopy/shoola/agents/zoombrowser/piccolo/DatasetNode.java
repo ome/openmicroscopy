@@ -53,7 +53,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 
 /** 
- * A subclass of {@link PCategoryBox} that is used to provide a colored 
+ * A subclass of {@link CategoryBox} that is used to provide a colored 
  * background to the display of images in a dataest 
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
@@ -86,8 +86,6 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 //	private ChainLabels chainLabels;
 	
 
-	/** The event handler for the canvas that we're on */
-	private DatasetBrowserEventHandler handler; 
 	/**
 	 * Width and height values,
 	 *  with prevWidth so we can revert - needed to create treemap layout.
@@ -418,31 +416,34 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	}
 	
 	public void setHandler(DatasetBrowserEventHandler handler) {
-		this.handler = handler;
 		if (images != null)
 			images.setHandler(handler);
 	}
 	
-	public void mouseEntered() {
+	public void mouseEntered(GenericEventHandler handler) {
 		rollover();
 	}
 	
-	public void mouseExited() {
+	public void mouseExited(GenericEventHandler handler) {
 	}
 	
-	public void mouseClicked() {
-		if (handler != null && handler.getZoomLevel() == 0) {
+	public void mouseClicked(GenericEventHandler handler) {
+		DatasetBrowserEventHandler 
+			dsHandler = (DatasetBrowserEventHandler) handler;
+		if (dsHandler != null && dsHandler.getZoomLevel() == 0) {
 			SelectionState.getState().setSelectedDataset(getDataset());
-			handler.animateToNode(this);
+			dsHandler.animateToNode(this);
 		}
 	}
 	
-	public void mousePopup() {
+	public void mousePopup(GenericEventHandler handler) {
+		DatasetBrowserEventHandler 
+			dsHandler = (DatasetBrowserEventHandler) handler;
 		SelectionState.getState().setSelectedDataset(null);
-		if (handler != null)
-			handler.resetZoomLevel();
+		if (dsHandler != null)
+			dsHandler.resetZoomLevel();
 	}
 	
-	public void mouseDoubleClicked() {
+	public void mouseDoubleClicked(GenericEventHandler handler) {
 	}
 }
