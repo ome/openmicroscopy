@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -133,6 +134,7 @@ public class ViewerUIF
 		toolBar.repaint();
 	}
 	
+	/** Reset the sliders' values when a new image is selected. */
 	private void resetSliders(int maxT, int t, int maxZ, int z)
 	{
 		tSlider.removeChangeListener(control);
@@ -143,18 +145,21 @@ public class ViewerUIF
 		zSlider.setMaximum(maxZ);
 		zSlider.setValue(z);
 		zSlider.addChangeListener(control);
+		zSlider.setEnabled(maxZ != 0);
+		tSlider.setEnabled(maxT != 0);
 	}
 
-	
 	/** Initiliazes the z-slider and t-slider. */
 	private void initSliders(int maxT, int t, int maxZ, int z)
 	{
 		tSlider = new JSlider(JSlider.HORIZONTAL, 0, maxT, t);
-		tSlider.setToolTipText("Move the slider to navigate across time.");
-		if (maxT == 0) tSlider.setEnabled(false);
+		String s = "Move the slider to navigate across time.";
+		tSlider.setToolTipText(UIFactory.formatToolTipText(s));
+		tSlider.setEnabled(maxT != 0);
 		zSlider = new JSlider(JSlider.VERTICAL, 0, maxZ, z);
-		zSlider.setToolTipText("Move the slider to navigate across Z stack.");
-		if (maxZ == 0) zSlider.setEnabled(false);
+		s = "Move the slider to navigate across Z stack.";
+		zSlider.setToolTipText(UIFactory.formatToolTipText(s));
+		zSlider.setEnabled(maxZ != 0);
 	}
 	
 	/** Initiliazes the toolBar. */
@@ -184,7 +189,7 @@ public class ViewerUIF
 	/**
 	 * Display the image in the viewer.
 	 * 
-	 * @param img
+	 * @param img	Buffered image to be displayed.
 	 */
 	 void setImage(BufferedImage img)
 	 {
@@ -200,7 +205,7 @@ public class ViewerUIF
 	 	revalidate();
 	 }
 	   
-	/** Create an internal menu. */
+	/** Create a menu. */
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
@@ -209,7 +214,7 @@ public class ViewerUIF
 		return menuBar;
 	}
 
-	/** Create a menu. */
+	/** Create a Movie menu. */
 	private JMenu createMovieMenu()
 	{
 		IconManager im = IconManager.getInstance(registry);
@@ -229,7 +234,7 @@ public class ViewerUIF
 		return menu;
 	}
 	
-	/** Create the <code>newMenu</code>. */
+	/** Create the control Menu. */
 	private JMenu createControlMenu()
 	{
 		JMenu menu = new JMenu("Controls");
@@ -253,7 +258,6 @@ public class ViewerUIF
 		buildContents();
 		JScrollPane scrollPane = new JScrollPane(contents);
 		container.add(scrollPane);
-		
 		
 		IconManager im = IconManager.getInstance(registry);
 		Icon icon = im.getIcon(IconManager.OME);
@@ -285,6 +289,7 @@ public class ViewerUIF
 		contents.add(pt);
 	}
 	
+	/** Set the size of the window w.r.t the size of the screen. */
 	private void setWindowSize(int w, int h)
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
+
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
@@ -51,6 +53,7 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -82,6 +85,7 @@ public class Viewer
 	private BufferedImage		curImage;
 	
 	private JCheckBoxMenuItem	viewItem;
+	private JButton 			viewButton;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate() {}
@@ -98,7 +102,9 @@ public class Viewer
 		bus.register(this, ImageRendered.class);
 		topFrame = registry.getTopFrame();
 		viewItem = getViewMenuItem();
+		viewButton = getViewButton();
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
+		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -212,7 +218,9 @@ public class Viewer
 		control.setPresentation(presentation);
 		control.attachListener();
 		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
+		control.setToolBarItemListener(viewButton, ViewerCtrl.V_VISIBLE);
 		viewItem.setEnabled(true);
+		viewButton.setEnabled(true);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);	
 	}
@@ -226,6 +234,16 @@ public class Viewer
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Viewer");
 		menuItem.setEnabled(false);
 		return menuItem;
+	}
+	
+	private JButton getViewButton()
+	{
+		IconManager im = IconManager.getInstance(registry);
+		JButton b = new JButton(im.getIcon(IconManager.VIEWER));
+		b.setEnabled(false);
+		b.setToolTipText(
+			UIFactory.formatToolTipText("Bring up the viewer."));
+		return b;
 	}
 	
 }

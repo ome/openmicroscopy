@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -106,6 +108,23 @@ public class ViewerCtrl
 		zSlider.addChangeListener(this);
 		presentation.addInternalFrameListener(this);
 	}
+
+	/** Return the {@link Viewer abstraction}. */
+	Viewer getAbstraction() { return abstraction; }
+	
+	/** Attach listener to a menu Item. */
+	void setMenuItemListener(JMenuItem item, int id)
+	{
+		item.setActionCommand(""+id);
+		item.addActionListener(this);
+	}
+	
+	/** Attach listener to a button of the toolBar. */
+	void setToolBarItemListener(JButton b, int id)
+	{
+		b.setActionCommand(""+id);
+		b.addActionListener(this);
+	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
 	public JFrame getReferenceFrame()
@@ -147,16 +166,6 @@ public class ViewerCtrl
 	public void onPlaneSelected(int z, int t)
 	{
 		abstraction.onPlaneSelected(z, t);
-	}
-	
-	/** Return the {@link Viewer abstraction}. */
-	Viewer getAbstraction() { return abstraction; }
-	
-	/** Attach listener to a menu Item. */
-	void setMenuItemListener(JMenuItem item, int id)
-	{
-		item.setActionCommand(""+id);
-		item.addActionListener(this);
 	}
 	
 	/** Update t-slider. */
