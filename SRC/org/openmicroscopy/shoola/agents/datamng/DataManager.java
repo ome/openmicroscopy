@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -64,7 +63,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.imp.events.ImportImages;
+//import org.openmicroscopy.shoola.env.imp.events.ImportImages;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -212,8 +211,9 @@ public class DataManager
 	 */
 	void importImages(List images, int datasetID)
 	{
-		EventBus eventBus = registry.getEventBus();
-		eventBus.post(new ImportImages(datasetID, images));
+		//EventBus eventBus = registry.getEventBus();
+		//eventBus.post(new ImportImages(datasetID, images));
+		registry.getUserNotifier().notifyInfo("Importer", "not yet implemented");
 	}
 	
 	/**
