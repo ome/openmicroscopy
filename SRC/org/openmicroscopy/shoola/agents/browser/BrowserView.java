@@ -37,10 +37,14 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
@@ -56,7 +60,6 @@ import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
-import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
@@ -70,10 +73,7 @@ import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PDragSequenceEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.util.PPickPath;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -109,6 +109,16 @@ public class BrowserView extends PCanvas
     // the initial selection point for selecting multiple thumbnails in
     // the region.
     private Point2D initialSelectPoint;
+    
+    // the translated selection point.
+    private Point2D initialViewPoint;
+    
+    // the current selection point for selecting multiple thumbnails in
+    // the region.
+    private Point2D currentSelectPoint;
+    
+    // indicates that a selection is occurring.
+    private boolean selectionInProgress;
     
     // The region being selected, right now.
     private Rectangle2D selectingRegion;
@@ -299,6 +309,19 @@ public class BrowserView extends PCanvas
                 // TODO: fill this in
             }
         }
+        else if(className.equals(BrowserModel.SELECT_MODE_NAME))
+        {
+            if(mode == BrowserMode.SELECTING_MODE)
+            {
+                selectionInProgress = true;
+                repaint();
+            }
+            else
+            {
+                selectionInProgress = false;
+                repaint();
+            }
+        }
     }
     
     /**
@@ -316,6 +339,13 @@ public class BrowserView extends PCanvas
      */
     public void thumbnailsSelected(Thumbnail[] thumbnails)
     {
+        if(thumbnails == null || thumbnails.length == 0)
+        {
+            return;
+        }
+        
+        browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
+                                    BrowserMode.SELECTED_MODE);
         // here's the paint method assignment
         for(int i=0;i<thumbnails.length;i++)
         {
@@ -509,6 +539,38 @@ public class BrowserView extends PCanvas
     {
         // TODO: close BProgressIndicator, nothing more (success implicit)
     }
+    
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D)g;
+        
+        if(selectionInProgress)
+        {
+            Color c = g2.getColor();
+            Paint p = g2.getPaint();
+            
+            double minX = Math.min(initialViewPoint.getX(),
+                                   currentSelectPoint.getX());
+            double minY = Math.min(initialViewPoint.getY(),
+                                   currentSelectPoint.getY());
+            double maxX = Math.max(initialViewPoint.getX(),
+                                   currentSelectPoint.getX());
+            double maxY = Math.max(initialViewPoint.getY(),
+                                   currentSelectPoint.getY());
+                                   
+            Rectangle2D region =
+                new Rectangle2D.Double(minX,minY,maxX-minX,maxY-minY);
+            
+            g2.setPaint(new Color(153,153,153,153));
+            g2.fill(region);
+            g2.setColor(Color.white);
+            g2.draw(region);
+            g2.setPaint(p);
+            g2.setColor(c);
+            
+        }
+    }
 
 
     // send internal error through the BrowserEnvironment pathway
@@ -530,13 +592,16 @@ public class BrowserView extends PCanvas
     /**
      * The background node of this view that will handle selection events.
      */
-    class BackgroundNode extends PNode implements MouseDragSensitive
+    class BackgroundNode extends PNode implements MouseDragSensitive,
+                                                  MouseDownSensitive
     {
         private MouseDragActions mouseDragActions;
+        private MouseDownActions mouseDownActions;
         
         public BackgroundNode()
         {
             mouseDragActions = new MouseDragActions();
+            mouseDownActions = new MouseDownActions();
         }
         
         /**
@@ -545,6 +610,14 @@ public class BrowserView extends PCanvas
         public MouseDragActions getMouseDragActions()
         {
             return mouseDragActions;
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+         */
+        public MouseDownActions getMouseDownActions()
+        {
+            return mouseDownActions;
         }
         
         /**
@@ -559,36 +632,141 @@ public class BrowserView extends PCanvas
         }
         
         /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+         */
+        public void setMouseDownActions(MouseDownActions actions)
+        {
+            if(actions != null)
+            {
+                mouseDownActions = actions;
+            }
+        }
+        
+        /**
+         * Non-overrideable behavior.
+         * 
          * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondDrag(edu.umd.cs.piccolo.event.PInputEvent)
          */
         public void respondDrag(PInputEvent e)
         {
-            System.err.println("dragging");
-            PiccoloAction action =
-                mouseDragActions.getDragAction(PiccoloModifiers.getModifier(e));
-            action.execute(e);
+            currentSelectPoint = e.getCamera().viewToLocal(e.getPosition());
+            repaint();
         }
         
         /**
+         * Non-overrideable behavior.
+         * 
          * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondStartDrag(edu.umd.cs.piccolo.event.PInputEvent)
          */
         public void respondStartDrag(PInputEvent e)
         {
-            System.err.println("Start drag");
-            PiccoloAction action =
-                mouseDragActions.getStartDragAction(PiccoloModifiers.getModifier(e));
-            action.execute(e);
+            Point2D position = e.getPosition();
+            Dimension2D offset = e.getDelta();
+            initialSelectPoint = new Point2D.Double(position.getX()-
+                                                    offset.getWidth(),
+                                                    position.getY()-
+                                                    offset.getHeight());
+            Point2D dummy = new Point2D.Double(initialSelectPoint.getX(),
+                                               initialSelectPoint.getY());
+            initialViewPoint = e.getCamera().viewToLocal(dummy);
+            currentSelectPoint = e.getCamera().viewToLocal(position);
+                                                    
+            int modifier = PiccoloModifiers.getModifier(e);
+            if(modifier != PiccoloModifiers.MOUSE_INDIV_SELECT &&
+               modifier != PiccoloModifiers.SHIFT_DOWN)
+            {
+                browserModel.deselectAllThumbnails();
+            }
+            browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
+                                        BrowserMode.SELECTING_MODE);
         }
         
         /**
+         * Non-overrideable behavior.
+         * 
          * @see org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive#respondEndDrag(edu.umd.cs.piccolo.event.PInputEvent)
          */
         public void respondEndDrag(PInputEvent e)
         {
-            System.err.println("end drag");
+            Point2D endSelectPoint = e.getPosition();
+            double tlX = Math.min(initialSelectPoint.getX(),
+                                  endSelectPoint.getX());
+            double tlY = Math.min(initialSelectPoint.getY(),
+                                  endSelectPoint.getY());
+            double brX = Math.max(initialSelectPoint.getX(),
+                                  endSelectPoint.getX());
+            double brY = Math.max(initialSelectPoint.getY(),
+                                  endSelectPoint.getY());
+            
+            Rectangle2D region = new Rectangle2D.Double(tlX,tlY,brX-tlX,
+                                                        brY-tlY);
+            System.err.println(region);
+                                                        
+            List thumbnailList = browserModel.getThumbnails();
+            for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                Rectangle2D tBounds =
+                    new Rectangle2D.Double(t.getOffset().getX(),
+                                           t.getOffset().getY(),
+                                           t.getBounds().getWidth(),
+                                           t.getBounds().getHeight());
+                if(tBounds.intersects(region))
+                {
+                    browserModel.selectThumbnail(t);
+                }
+            }
+            
+            if(browserModel.getSelectedImages().size() > 0)
+            {
+                browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
+                                            BrowserMode.SELECTED_MODE);
+            }
+            else
+            {
+                browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
+                                            BrowserMode.UNSELECTED_MODE);
+            }
+        }
+        
+        /**
+         * Non-overrideable.
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseClick(PInputEvent event)
+        {
+            if(browserModel.getCurrentMode(BrowserModel.SELECT_MODE_NAME) ==
+               BrowserMode.SELECTED_MODE)
+            {
+                int modifiers = PiccoloModifiers.getModifier(event);
+                if(modifiers != PiccoloModifiers.MOUSE_INDIV_SELECT &&
+                   modifiers != PiccoloModifiers.SHIFT_DOWN)
+                {
+                    browserModel.deselectAllThumbnails();
+                    browserModel.setCurrentMode(BrowserModel.SELECT_MODE_NAME,
+                                                BrowserMode.UNSELECTED_MODE);
+                }
+            }
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMousePress(PInputEvent event)
+        {
             PiccoloAction action =
-                mouseDragActions.getEndDragAction(PiccoloModifiers.getModifier(e));
-            action.execute(e);
+                mouseDownActions.getMousePressAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
+        }
+        
+        /**
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseRelease(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseRelease(PInputEvent event)
+        {
+            PiccoloAction action =
+                mouseDownActions.getMouseReleaseAction(PiccoloModifiers.getModifier(event));
+            action.execute(event);
         }
     }
 }

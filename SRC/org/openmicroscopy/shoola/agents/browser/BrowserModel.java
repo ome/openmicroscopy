@@ -159,7 +159,7 @@ public class BrowserModel
      */
     public void addThumbnail(Thumbnail thumb)
     {
-        if(thumb == null)
+        if(thumb == null || thumbnailSet.contains(thumb))
         {
             return;
         }
@@ -190,12 +190,22 @@ public class BrowserModel
     		return;
     	}
     	
+        int added = 0;
     	for(int i=0;i<thumbs.length;i++)
     	{
-    		thumbnailSet.add(thumbs[i]);
-    		GroupModel group = groupingMethod.getGroup(thumbs[i]);
-    		group.addThumbnail(thumbs[i]);
+            if(!thumbnailSet.contains(thumbs[i]))
+            {
+    		  thumbnailSet.add(thumbs[i]);
+    		  GroupModel group = groupingMethod.getGroup(thumbs[i]);
+    		  group.addThumbnail(thumbs[i]);
+              added++;
+            }
     	}
+        
+        if(added == 0)
+        {
+            return;
+        }
         
         for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
         {
@@ -216,7 +226,7 @@ public class BrowserModel
      */
     public void removeThumbnail(Thumbnail thumb)
     {
-        if(thumb == null)
+        if(thumb == null || !thumbnailSet.contains(thumb))
         {
             return;
         }
@@ -423,7 +433,7 @@ public class BrowserModel
      */
     public void selectThumbnail(Thumbnail t)
     {
-        if(t == null)
+        if(t == null || selectedThumbnails.contains(t))
         {
             return;
         }
@@ -452,10 +462,21 @@ public class BrowserModel
         }
         else
         {
+            int added = 0;
             for(int i=0;i<ts.length;i++)
             {
-                selectedThumbnails.add(ts[i]);
+                if(!selectedThumbnails.contains(ts[i]))
+                {
+                    selectedThumbnails.add(ts[i]);
+                    added++;
+                }
             }
+            
+            if(added == 0)
+            {
+                return;
+            }
+            
             for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
             {
                 BrowserModelListener bml =
