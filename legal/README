@@ -209,7 +209,7 @@
   License File: -
   
   Project: The Infovis Toolkit.
-  Web Site: -
+  Web Site: http://ivtk.sourceforge.net/
   Artifacts: The RangeSlider.java class borrows some of the implementation
   		code of the RangeSlider class in Infovis.  This file is located under
   		SRC/org/openmicroscopy/shoola/agents/spots/range/
