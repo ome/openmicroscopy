@@ -40,6 +40,7 @@ import java.util.Vector;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
@@ -311,19 +312,36 @@ public class TableSorter
 		tableView.setColumnSelectionAllowed(false); 
 		MouseAdapter listMouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				TableColumnModel columnModel = tableView.getColumnModel();
-				int viewColumn = columnModel.getColumnIndexAtX(e.getX()); 
-				int column = tableView.convertColumnIndexToModel(viewColumn); 
-				if (e.getClickCount() == 1 && column != -1) {
-					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK; 
-					boolean ascending = (shiftPressed == 0); 
-					sorter.sortByColumn(column, ascending); 
-				}
+				onClick(e, tableView, sorter);	
 			}
 		};
 		JTableHeader th = tableView.getTableHeader(); 
 		th.addMouseListener(listMouseListener); 
 	}
 	
-}
+	private void onClick(MouseEvent e, JTable tableView, TableSorter sorter) 
+	{
+		TableColumnModel columnModel = tableView.getColumnModel();
+		JTableHeader header = tableView.getTableHeader();
+		int viewColumn = columnModel.getColumnIndexAtX(e.getX()); 
+		int column = tableView.convertColumnIndexToModel(viewColumn); 
+		if (e.getClickCount() == 1 && column != -1) {
+			TableColumn tc = columnModel.getColumn(viewColumn);
+			Object headerValue = tc.getHeaderValue();
+			boolean ascending;
+			if (headerValue instanceof TableHeaderTextAndIcon) {
+				TableHeaderTextAndIcon value = 
+							(TableHeaderTextAndIcon) headerValue;
+				ascending = value.isAscending();
+				value.setAscending(!ascending);
+				header.repaint();
+			} else {
+				int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK; 
+				ascending = (shiftPressed == 0); 
+			}
+			sorter.sortByColumn(column, ascending); 				
+		}
+	}
+	
+}	
 

@@ -73,19 +73,18 @@ public class TableIconRenderer
 		   		setFont(header.getFont());
 	   		}
    		}
-    
+	
+		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+		setHorizontalAlignment(JLabel.CENTER);
 		if (value instanceof TableHeaderTextAndIcon) {
 			TableHeaderTextAndIcon v = (TableHeaderTextAndIcon) value;
-	   		setIcon(v.getIcon());
 	   		setText(v.getText());
 	   		setToolTipText(UIUtilities.formatToolTipText(v.getToolTipTxt()));
-   		} else {
-	   		setText((value == null) ? "" : value.toString());
-	   		setIcon(null);
+	   		if (v.isAscending()) setIcon(v.getIconUp());
+	   		else setIcon(v.getIconDown());
    		}
-		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-	   	setHorizontalAlignment(JLabel.CENTER);
 	   	return this;
    }
 
 }
+

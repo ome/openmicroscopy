@@ -55,21 +55,39 @@ import javax.swing.Icon;
 public class TableHeaderTextAndIcon
 {
 
-	private String	text;
-	private String	toolTipTxt;
-	private Icon	icon;
+	/** Text of the column in the header. */
+	private String		text;
 	
-	public TableHeaderTextAndIcon(String text, Icon icon, String toolTipTxt)
+	/** Tooltip of the column. */
+	private String		toolTipTxt;
+	
+	/** Icon displayed in the header. */
+	private Icon		iconUp, iconDown;
+	
+	/** control is ascending or descending sorting. */
+	private boolean 	ascending;
+	
+	public TableHeaderTextAndIcon(String text, Icon iconUp, Icon iconDown, 
+									String toolTipTxt)
 	{
             this.text = text;
-            this.icon = icon;
+            this.iconUp = iconUp;
+			this.iconDown = iconDown;
             this.toolTipTxt = toolTipTxt;
+            ascending = false;
 	}
 
-	public Icon getIcon() {	return icon; }
+	public Icon getIconDown() {	return iconDown; }
+	
+	public Icon getIconUp() {	return iconUp; }
 
 	public String getText() { return text; }
 	
 	public String getToolTipTxt() { return toolTipTxt; }
+
+
+	public boolean isAscending() { return ascending; }
+
+	public void setAscending(boolean ascending) { this.ascending = ascending; }
 
 }
