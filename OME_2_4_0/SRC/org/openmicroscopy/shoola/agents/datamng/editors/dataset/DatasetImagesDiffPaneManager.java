@@ -64,6 +64,7 @@ class DatasetImagesDiffPaneManager
 	private static final int			ALL = 100;
 	private static final int			CANCEL = 101;
 	private static final int			SAVE = 102;
+    private static final int            SHOW_IMAGES = 103;
 	
 	/** List of images to be added. */
 	private List						imagesToAdd;
@@ -75,27 +76,28 @@ class DatasetImagesDiffPaneManager
 	
 	private List						imagesDiff;
 	
+    private int                         selectionIndex;
+    
 	DatasetImagesDiffPaneManager(DatasetImagesDiffPane view, 
-									DatasetEditorManager control, 
-									List imagesDiff)
+									DatasetEditorManager control)
 	{
 			this.view = view;
 			this.control = control;	
-			this.imagesDiff = imagesDiff;
+            selectionIndex = -1;
 			imagesToAdd = new ArrayList();
 			attachListeners();					
 	}
-	
-	List getImagesDiff() { return imagesDiff; }
-	
+    
 	/** Attach listeners. */
 	private void attachListeners()
 	{
         attachButtonListener(view.selectButton, ALL);
         attachButtonListener(view.cancelButton, CANCEL);
         attachButtonListener(view.saveButton, SAVE);
+        attachButtonListener(view.showImages, SHOW_IMAGES);
 	}
     
+    /** Attach a ActionListener to a JButton. */
     private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
@@ -114,7 +116,9 @@ class DatasetImagesDiffPaneManager
 				case ALL:
 					selectAll(); break;
 				case CANCEL:
-					cancelSelection();
+					cancelSelection(); break;
+                case SHOW_IMAGES:
+                    showImages();
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -151,6 +155,29 @@ class DatasetImagesDiffPaneManager
 		} else 	imagesToAdd.remove(is);
 	}
 	
+    /** Retrieve and display the requested list of images. */
+    private void showImages()
+    {
+        int selectedIndex = view.selections.getSelectedIndex();
+        if (selectedIndex != selectionIndex) {
+            selectionIndex = selectedIndex;
+            List images = null;
+            switch (selectedIndex) {
+                case DatasetImagesDiffPane.IMAGES_IMPORTED:
+                    images = control.getImagesDiff(); break;
+                case DatasetImagesDiffPane.IMAGES_USED:
+                    images = control.getImagesInUserDatasetsDiff(); break;
+                case DatasetImagesDiffPane.IMAGES_GROUP:
+                    images = control.getImagesInUserGroupDiff(); break;
+                case DatasetImagesDiffPane.IMAGES_SYSTEM:
+                    images = control.getImagesInSystemDiff(); break;
+            }
+            if (images == null || images.size() == 0) return;
+            imagesDiff = images;
+            view.showImages(images);
+        }
+    }
+    
 	/** Add the selection to the dataset. */
 	private void saveSelection()
 	{

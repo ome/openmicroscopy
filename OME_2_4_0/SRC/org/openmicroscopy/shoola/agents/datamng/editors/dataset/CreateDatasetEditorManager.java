@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -90,6 +91,8 @@ public class CreateDatasetEditorManager
 	
 	private boolean					isName;
 	
+    private int                     selectionIndex;
+    
 	public CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl control,
 									  DatasetData model, List projects)
@@ -97,6 +100,7 @@ public class CreateDatasetEditorManager
 		this.control = control;
 		this.view = view;
 		this.model = model;
+        selectionIndex = -1;
 		this.projects = projects;
 		imagesToAdd = new ArrayList();
 		projectsToAdd = new ArrayList();
@@ -154,7 +158,7 @@ public class CreateDatasetEditorManager
 				case RESET_SELECTION_IMAGE:
 					resetSelectionImage(); break;
                 case SHOW_IMAGES:
-                    view.showImages(control.getGroupImages());;
+                    showImages();
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -191,6 +195,28 @@ public class CreateDatasetEditorManager
 		} else 	projectsToAdd.remove(ps);
 	}
 
+    /** Show the images. */
+    private void showImages()
+    {
+        int selectedIndex = view.getImagesSelections().getSelectedIndex();
+        if (selectedIndex != selectionIndex) {
+            selectionIndex = selectedIndex;
+            List images = null;
+            switch (selectedIndex) {
+                case CreateDatasetImagesPane.IMAGES_IMPORTED:
+                    images = control.getImportedImages(); break;
+                case CreateDatasetImagesPane.IMAGES_USED:
+                    images = control.getUsedImages(); break;
+                case CreateDatasetImagesPane.IMAGES_GROUP:
+                    images = control.getGroupImages(); break;
+                case CreateDatasetImagesPane.IMAGES_SYSTEM:
+                    images = control.getSystemImages(); break;
+            }
+            if (images == null || images.size() == 0) return;
+            view.showImages(images);
+        }
+    }
+    
 	/** Close the widget, doesn't save changes. */
 	private void cancel()
 	{
@@ -204,10 +230,18 @@ public class CreateDatasetEditorManager
 	 */
 	private void save()
 	{
+        if (projectsToAdd.size() == 0) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Create dataset", 
+                    "The dataset you wish to create must " +
+                    "be added to an existing project.");
+            return;
+        }
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameArea().getText());
 		//update tree and forward event to DB.
 		//forward event to DataManager.
+        
 		control.addDataset(projectsToAdd, imagesToAdd, model);
 		//close widget.
 		view.dispose();
