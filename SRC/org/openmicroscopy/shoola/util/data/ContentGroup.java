@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.util.data;
 import java.util.Vector;
 import java.util.Iterator;
 
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
 
 //Third-party libraries
 
