@@ -31,13 +31,11 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -75,12 +73,6 @@ public class ToolBar
 	extends JPanel
 {
 
-	/** 
-	 * The size of the invisible components used to separate widgets
-	 * horizontally.
-	 */
-	private static final Dimension	H_SPACER_SIZE = new Dimension(5, 1);
-	
 	/** Bring up the 3Dimage viewer. */
 	private JButton					viewer3D;
 	
@@ -104,6 +96,11 @@ public class ToolBar
 	
 	/** Fields displaying the current z-section and the current timepoint. */
 	private JTextField				zField, tField;
+	
+	/** TextField with the start (resp. end) timepoint. */
+	private JTextField				movieStart, movieEnd;
+	
+	private JPanel					controlsMoviePanel;
 	
 	/** Labels displaying the number of timepoints and of z-sections. */
 	private JLabel					zLabel, tLabel;
@@ -155,6 +152,10 @@ public class ToolBar
 
 	public JTextField getZField() { return zField; }
 
+	public JTextField getMovieStart() { return movieStart; }
+	
+	public JTextField getMovieEnd() { return movieEnd; }
+	
 	public ToolBarManager getManager() { return manager; }
 	
 	/** Initialize the buttons components. */
@@ -220,7 +221,6 @@ public class ToolBar
 	{
 		zLabel = new JLabel("/"+maxZ);
 		tLabel = new JLabel("/"+maxT);
-		tField = new JTextField();
 		tField = new JTextField(""+t, (""+maxT).length());
 		if (maxT-1 == 0) tField.setEditable(false);
 		tField.setForeground(Viewer.STEELBLUE);
@@ -232,6 +232,16 @@ public class ToolBar
 			UIUtilities.formatToolTipText("Enter a Z point"));
 		if (maxZ-1 == 0) zField.setEditable(false);
 		ztPanel = textFieldsPanel((""+maxZ).length(), (""+maxT).length());
+		
+		movieStart = new JTextField(""+0, (""+maxT).length());
+		movieStart.setForeground(Viewer.STEELBLUE);
+		movieStart.setToolTipText(
+		UIUtilities.formatToolTipText("Enter the starting point of the movie"));
+		movieEnd = new JTextField(""+maxT, (""+maxT).length());
+		movieEnd.setForeground(Viewer.STEELBLUE);
+		movieEnd.setToolTipText(
+		UIUtilities.formatToolTipText("Enter the end point of the movie"));
+		controlsMoviePanel = buildControlsMoviePanel((""+maxT).length());
 	}
 	
 	/** Build the main tool bar. */
@@ -240,6 +250,7 @@ public class ToolBar
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(buildBar());
 		add(moviePanel());
+		add(controlsMoviePanel);
 		add(new JSeparator(SwingConstants.VERTICAL));
 		add(ztPanel);
 	}
@@ -256,8 +267,8 @@ public class ToolBar
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
 		//movie controls.
 		bar.add(play);
-		bar.add(pause);
-		bar.add(stop);
+		//bar.add(pause);
+		//bar.add(stop);
 		bar.add(rewind);
 		bar.add(forward);
 		return bar;
@@ -267,12 +278,53 @@ public class ToolBar
 	private JPanel moviePanel()
 	{
 		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		JLabel label = new JLabel(" Rate ");
-		p.add(label);
+		//p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		p.setLayout(gridbag);
+		c.fill = GridBagConstraints.NONE;
+		JLabel l = new JLabel(" Rate ");
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.EAST;
+		gridbag.setConstraints(l, c);
+		p.add(l);
+		c.gridx = 1;
+		gridbag.setConstraints(fps, c);
 		p.add(fps);
-		p.add(Box.createRigidArea(H_SPACER_SIZE));
+		//p.add(Box.createRigidArea(H_SPACER_SIZE));
 		return p;
+	}
+	
+	private JPanel buildControlsMoviePanel(int length)
+	{
+		JPanel p = new JPanel();
+		JLabel l = new JLabel(" start ");
+		int x = length/2*txtWidth;
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		p.setLayout(gridbag);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.EAST;
+		gridbag.setConstraints(l, c);
+		p.add(l);
+		c.gridx = 1;
+		c.ipadx = x;
+		gridbag.setConstraints(movieStart, c);
+		p.add(movieStart);
+		c.gridx = 2;
+		c.ipadx = 0;
+		l = new JLabel(" end ");
+		gridbag.setConstraints(l, c);
+		p.add(l);
+		c.gridx = 3;
+		c.ipadx = x;
+		gridbag.setConstraints(movieEnd, c);
+		p.add(movieEnd);
+		return p; 
 	}
 	
 	/** Build panel with labels and text fields. */
@@ -291,7 +343,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 1;
 		Insets insets = zField.getInsets();
-		c.ipadx = insets.left+zLength*txtWidth+insets.right;
+		c.ipadx = insets.left+zLength/2*txtWidth+insets.right;
 		gridbag.setConstraints(zField, c);
 		p.add(zField);
 		c.gridx = 2;
@@ -304,7 +356,7 @@ public class ToolBar
 		p.add(l);
 		c.gridx = 4;
 		insets = tField.getInsets();
-		c.ipadx = insets.left+tLength*txtWidth+insets.right;
+		c.ipadx = insets.left+tLength/2*txtWidth+insets.right;
 		gridbag.setConstraints(tField, c);
 		p.add(tField);
 		c.gridx = 5;

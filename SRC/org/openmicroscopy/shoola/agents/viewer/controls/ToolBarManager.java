@@ -103,8 +103,16 @@ public class ToolBarManager
 	/** Action command ID to be used with the viewer3D button. */
 	private static final int   					VIEWER3D_CMD = 11;
 	
+	/** Action command ID to be used with the viewer3D button. */
+	private static final int   					MOVIE_START_CMD = 12;
+	
+	/** Action command ID to be used with the viewer3D button. */
+	private static final int   					MOVIE_END_CMD = 13;
+	
 	private int									curT, maxT, curR;
 	private int									curZ, maxZ;
+	
+	private int									curMovieStart, curMovieEnd;
 	
 	private ViewerCtrl							control;
 	
@@ -119,6 +127,8 @@ public class ToolBarManager
 		curT = t;
 		maxZ = sizeZ;
 		curZ = z;
+		curMovieStart = 0;
+		curMovieEnd = sizeT;
 	}
 	
 	/** Attach the listeners. */
@@ -126,7 +136,8 @@ public class ToolBarManager
 	{
 		//textfield
 		JTextField tField = view.getTField(), editor = view.getEditor(),
-					zField = view.getZField();
+					zField = view.getZField(), start = view.getMovieStart(),
+					end = view.getMovieEnd();
 		tField.setActionCommand(""+T_FIELD_CMD);  
 		tField.addActionListener(this);
 		tField.addFocusListener(this);
@@ -136,6 +147,12 @@ public class ToolBarManager
 		zField.addActionListener(this);
 		zField.addFocusListener(this);
 		
+		start.setActionCommand(""+MOVIE_START_CMD);  
+		start.addActionListener(this);
+		start.addFocusListener(this);
+		end.setActionCommand(""+MOVIE_END_CMD);  
+		end.addActionListener(this);
+		end.addFocusListener(this);
 		//button
 		JButton	play = view.getPlay(), stop = view.getStop(), 
 				rewind = view.getRewind(), render = view.getRender(), 
@@ -273,11 +290,59 @@ public class ToolBarManager
 			curZ = val;
 			control.onZChange(curZ, curT);
 		} else {
-			view.getTField().selectAll();
+			view.getZField().selectAll();
 			UserNotifier un = control.getRegistry().getUserNotifier();
 			un.notifyInfo("Invalid z-section", 
 				"Please enter a z-section between 0 and "+maxZ);
 		}
+	}
+	
+	/** 
+	 * Handles the action event fired by the starting text field when the user 
+	 * enters some text. 
+	 * If that text doesn't evaluate to a valid timepoint, then we simply 
+	 * suggest the user to enter a valid one.
+	 */
+	private void movieStartActionHandler()
+	{
+		boolean valid = false;
+		int val = 0;
+		int valEnd = maxT;
+		try {
+			val = Integer.parseInt(view.getMovieStart().getText());
+			valEnd = Integer.parseInt(view.getMovieEnd().getText());
+			if (0 <= val && val < valEnd) valid = true;
+		} catch(NumberFormatException nfe) {}
+		if (!valid) {
+			view.getMovieStart().selectAll();
+			UserNotifier un = control.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid start point", 
+				"Please enter a timepoint between 0 and "+valEnd);
+		} else curMovieStart = val;
+	}
+	
+	/** 
+	 * Handles the action event fired by the end text field when the user 
+	 * enters some text. 
+	 * If that text doesn't evaluate to a valid timepoint, then we simply 
+	 * suggest the user to enter a valid one.
+	 */
+	private void movieEndActionHandler()
+	{
+		boolean valid = false;
+		int val = 0;
+		int valStart = 0;
+		try {
+			val = Integer.parseInt(view.getMovieEnd().getText());
+			valStart = Integer.parseInt(view.getMovieStart().getText());
+			if (valStart < val && val <= maxT) valid = true;
+		} catch(NumberFormatException nfe) {}
+		if (!valid) {
+			view.getMovieEnd().selectAll();
+			UserNotifier un = control.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid end point", 
+				"Please enter a timepoint between "+ valStart+" and "+maxT);
+		} else curMovieEnd = val;
 	}
 	
 	/** Handle events fired byt text field and buttons. */
@@ -286,6 +351,10 @@ public class ToolBarManager
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 		    switch (index) {
+		    	case MOVIE_START_CMD:
+					movieStartActionHandler(); break;
+				case MOVIE_END_CMD:
+					movieEndActionHandler(); break;	
 				case T_FIELD_CMD:
 					tFieldActionHandler(); break;
 				case Z_FIELD_CMD:
@@ -298,16 +367,15 @@ public class ToolBarManager
 					control.showImageSaver(); break;
 				case VIEWER3D_CMD:
 					control.showImage3DViewer(); break;	
+				//TODO: REMOVE COMMENTS
 				/*
-			   	case PLAY_CMD:  //not implemented yet
-			   	case STOP_CMD:  //not implemented yet
-			   	case REWIND_CMD:  //not implemented yet
-			   	case FORWARD_CMD:
-			   	case PAUSE_CMD:
-			   	case EDITOR_CMD:
-					editorActionHandler();
-				   	break;
-				  */
+				case PLAY_CMD:
+					control.playMovie(); break;
+				case FORWARD_CMD:	
+					control.playForward(); break;
+				case REWIND_CMD:	
+					control.playRewind(); break;
+				*/
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe); 
@@ -334,9 +402,16 @@ public class ToolBarManager
 		String tVal = view.getTField().getText(), t = ""+curT;
 		String zVal = view.getZField().getText(), z = ""+curZ;
 		String edit = view.getEditor().getText(), ed = ""+curR;
+		String startVal = view.getMovieStart().getText(), 
+				start = ""+curMovieStart;
+		String endVal = view.getMovieEnd().getText(), end = ""+curMovieEnd;
 		if (tVal == null || !tVal.equals(t)) view.getTField().setText(t);
 		if (zVal == null || !zVal.equals(z)) view.getZField().setText(z);
 		if (edit == null || !edit.equals(ed)) view.getEditor().setText(ed);
+		if (startVal == null || !startVal.equals(start)) 
+				view.getMovieStart().setText(start);
+		if (endVal == null || !endVal.equals(end)) 
+				view.getMovieEnd().setText(end);
 	}
 	
 	/** 
