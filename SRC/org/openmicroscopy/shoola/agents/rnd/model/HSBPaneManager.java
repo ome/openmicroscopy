@@ -164,7 +164,7 @@ class HSBPaneManager
 	private void showChannelInfo(int w) 
 	{
 		ChannelData[] cd = eventManager.getChannelData();
-		showDialog(new ChannelEditor(eventManager, cd[w], w));
+		showDialog(new ChannelEditor(eventManager, cd[w]));
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF}. */

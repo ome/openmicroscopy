@@ -129,7 +129,7 @@ public class GreyScalePane
 		b.setIcon(im.getIcon(IconManager.INFO));
 		
 		//init JLabel
-		String s = " Wavelength "+data.nanometer;
+		String s = " Wavelength "+data.getNanometer();
 		JLabel label = new JLabel(s);
 		
 		//init radioButton

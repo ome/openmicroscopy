@@ -112,7 +112,7 @@ class GreyScalePaneManager
 	private void showChannelInfo(int w) 
 	{
 		ChannelData[] cd = eventManager.getChannelData();
-		eventManager.showDialog(new ChannelEditor(eventManager, cd[w], w));
+		eventManager.showDialog(new ChannelEditor(eventManager, cd[w]));
 	}
 	
 }
