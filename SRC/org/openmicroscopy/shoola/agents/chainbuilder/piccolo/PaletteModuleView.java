@@ -118,9 +118,6 @@ public class PaletteModuleView extends SingleModuleView {
 	public void mouseExited(GenericEventHandler handler) {
 		setAllHighlights(false);
 		((ChainPaletteEventHandler) handler).setLastEntered(null);
-		ChainBox cb = getChainBoxParent();
-		if (cb != null)
-			cb.mouseExited(handler);
 	}
 	
 	private ChainBox getChainBoxParent() {

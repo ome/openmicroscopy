@@ -137,12 +137,7 @@ public class PaletteChainView extends ChainView {
 
 	// do nothing here. let the chainbox handle it.
 	public void mouseExited(GenericEventHandler handler) {
-		
-		// super.mouseExited(handler);
 		((ChainPaletteEventHandler) handler).setLastEntered(null);
-		/*ChainBox cb = getParentChainBox();
-		if (cb != null)
-			cb.mouseExited(handler); */
 	}
 	
 	//	 if this chain is in a chainbox - which would then be the grandparent
