@@ -41,7 +41,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
+
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
 import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
@@ -51,7 +51,7 @@ import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
-
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
@@ -105,7 +105,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	private ProjectSelectionCanvas projectBrowser;
 	
 	
-	private ChainExecutions chainExecutions;
+	private ExecutionsData chainExecutions;
 	
 	// the top window manager for this window
 	private TopWindowManager topWindowManager;
@@ -197,8 +197,15 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		
 		
 		configureDisplayButtons();
-		
-		//enableButtons(true);
+		Registry registry = dataManager.getRegistry();
+		registry.getEventBus().register(this,
+			new Class[] { 
+				SelectAnalysisChain.class,
+				MouseOverAnalysisChain.class,
+				LoadChainExecutionsEvent.class,
+				MouseOverChainExecutionEvent.class,
+				SelectChainExecutionEvent.class,
+				LoadDataset.class});
 	}
 		
 	
@@ -247,7 +254,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		}
 		else if (e instanceof LoadChainExecutionsEvent) {
 			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
-			chainExecutions = event.getChainExecutions();
+			chainExecutions = event.getExecutionsData();
 		}
 		else if (e instanceof LoadDataset && datasetBrowser!= null) {
 			LoadDataset event = (LoadDataset) e;
@@ -259,7 +266,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		}
 	}
 	
-	public ChainExecutions getChainExecutions() {
+	public ExecutionsData getChainExecutions() {
 		return chainExecutions;
 	}
 	
@@ -295,15 +302,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	
 	public void contentComplete() {
 		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
-			Registry registry = dataManager.getRegistry();
-			registry.getEventBus().register(this,
-				new Class[] { 
-					SelectAnalysisChain.class,
-					MouseOverAnalysisChain.class,
-					LoadChainExecutionsEvent.class,
-					MouseOverChainExecutionEvent.class,
-					SelectChainExecutionEvent.class,
-					LoadDataset.class});
+			
 			buildGUI();
 			topWindowManager.continueHandleDisplay();
 			dataState = LOADED;
