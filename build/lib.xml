@@ -170,10 +170,10 @@
    *  fo        Pathname of the AurigaDoc stylesheet to generate    Yes
    *            the intermediate XSL-FO file from which we obtain
    *            the PDF.
-   *  pdfstyle  Pathname of the XML file that maps the CSS file     Yes
-   *            (used for HTML) into something the AurigaDoc
-   *            XSL-FO stylesheet can digest.  This way, PDF files
-   *            will retain (to some extent) the same HTML style.
+   *  pdfstyle  URL of the XML file that maps the CSS file (used    Yes
+   *            for HTML) into something the AurigaDoc XSL-FO
+   *            stylesheet can digest.  This way, PDF files will 
+   *            retain (to some extent) the same HTML style.
    *  mhtml     Pathname of the AurigaDoc stylesheet to generate    Yes
    *            the multi-page HTML document.
    *
@@ -198,7 +198,7 @@
       <!-- Do PDF. --> 
       <xslt style="@{fo}" in="@{destdir}/auriga.doc" out="@{destdir}/doc.fo"> 
         <outputproperty name="method" value="xml" /> 
-        <param name="css-file" expression="file:///@{pdfstyle}" />  
+        <param name="css-file" expression="@{pdfstyle}" />  
       </xslt> 
       <fop format="application/pdf" 
            basedir="@{destir}" 
@@ -355,7 +355,19 @@
     <attribute name="navdir" /> 
     <attribute name="cssfile" />  
     <![CDATA[
-    
+
+      //Utility to convert a file pathname to a URL string.    
+      function fileToURL(file)
+      {
+        try {
+          var f = new java.io.File(file);       
+          return f.toURL().toString();
+        } catch (exc) {
+          throw new Packages.org.apache.tools.ant.BuildException(
+                                      "Can't convert file to URL: "+file+".");
+        }
+      }
+
       //Sets the specified attributes in the task's RuntimeConfigurable.
       //(Because the tasks we use are defined through macrodefs, we don't
       //get explicit methods like setSrcDir/setAuriga/etc. and so we have
@@ -386,7 +398,9 @@
         var taskCfg = this.task.getRuntimeConfigurableWrapper();
         var attrNames = ["srcdir", "destdir", "auriga", "fo", "pdfstyle", 
                           "mhtml"];
-        configureTask(taskCfg, attrNames); 
+        configureTask(taskCfg, attrNames);
+        //Re-set the pdfstyle attribute, as we get a pathname in.
+        taskCfg.setAttribute("pdfstyle", fileToURL(attributes.get("pdfstyle")));        
         
         this.imgTask = project.createTask("xdocimg");
         taskCfg = this.imgTask.getRuntimeConfigurableWrapper(); 
@@ -422,7 +436,7 @@
       XDoc.prototype.setPDFStyle = function (file)  //Must be an absolute path. 
       { 
         var taskCfg = this.task.getRuntimeConfigurableWrapper(); 
-        taskCfg.setAttribute("pdfstyle", file);   
+        taskCfg.setAttribute("pdfstyle", fileToURL(file));
       } 
       XDoc.prototype.setCSSFile = function (file)  //Must be an absolute path. 
       { 
