@@ -39,6 +39,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.AnalysisChain;
+import org.openmicroscopy.ds.dto.ChainExecution;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Module;
@@ -48,6 +49,7 @@ import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
+import org.openmicroscopy.shoola.env.data.map.ChainExecutionMapper;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.ModuleMapper;
@@ -59,6 +61,7 @@ import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -69,6 +72,8 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
+import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
+import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -448,7 +453,42 @@ class DMSAdapter
 		return retrieveChains(null,null,null,null,null,null,null);
 	}
 	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveChainExecutions(ChainExecutionData ceProto,
+			DatasetSummary dsProto,AnalysisChainData acProto,
+			NodeExecutionData neProto,AnalysisNodeData anProto,
+			ModuleData mProto,ModuleExecutionData meProto) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+
+		if (ceProto == null)    ceProto = new ChainExecutionData();
+		if (dsProto == null)    dsProto = new DatasetSummary();		
+		if (acProto == null)    acProto = new AnalysisChainData();
+		if (neProto == null) 	   neProto = new NodeExecutionData();
+		if (anProto == null)    anProto = new AnalysisNodeData();
+		if (mProto == null)     mProto = new ModuleData();
+		if (meProto == null)    meProto = new ModuleExecutionData();
+		
+		//Define the criteria by which the object graph is pulled out
+		Criteria c = ChainExecutionMapper.buildChainExecutionCriteria();
 	
+		// Load the graph defined by the criteria
+		List execs = (List) gateway.retrieveListData(ChainExecution.class,c);
+	
+		List execDS = null;
+		
+		if (execs != null) 
+			execDS = ChainExecutionMapper.fillChainExecutions(execs,
+					ceProto,dsProto,acProto,neProto,anProto,mProto,meProto);
+		return execDS;
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveChainExecutions()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return retrieveChainExecutions(null,null,null,null,null,null,null);
+	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal, 

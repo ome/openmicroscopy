@@ -38,6 +38,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -47,7 +48,9 @@ import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
+import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -380,7 +383,39 @@ public interface DataManagementService
 	 */
 	public List retrieveChains() 
 		throws DSOutOfServiceException,DSAccessException;
-			
+
+	/**
+	 * Retrieve all of the system's analysis chains
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveChainExecutions(ChainExecutionData ceProto,
+			DatasetSummary dsProto,AnalysisChainData acProto,NodeExecutionData
+			neProto,AnalysisNodeData anProto,ModuleData mProto,
+			ModuleExecutionData meProto) 
+		throws DSOutOfServiceException,DSAccessException;
+		
+		
+	/**
+	 * Retrieve all of the system's analysis chain executions
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveChainExecutions() 
+		throws DSOutOfServiceException,DSAccessException;
+
 	/**
 	 * Create a new project.
 	 * 
