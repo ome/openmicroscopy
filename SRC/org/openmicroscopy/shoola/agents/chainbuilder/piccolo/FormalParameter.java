@@ -89,7 +89,7 @@ public abstract class FormalParameter extends PNode implements
 	 * Some generic display parameters
 	 */
 	public static final int TYPE_NODE_VERTICAL_OFFSET=12;
-	public static final float TYPE_NODE_DEFAULT_SCALE=0.5f;
+	//public static final float TYPE_NODE_DEFAULT_SCALE=0.5f;
 	
 	private static final float HEIGHT_PORTION=0.8f;
 	
@@ -183,9 +183,8 @@ public abstract class FormalParameter extends PNode implements
 			typeNode = new PText(type.getName());
 		//	typeNode.setGreekThreshold(0);
 			labelNode.addChild(typeNode);
-			typeNode.setScale(TYPE_NODE_DEFAULT_SCALE);
 			typeNode.setTextPaint(Constants.DEFAULT_TEXT_COLOR);
-			typeNode.setFont(Constants.NAME_FONT);
+			typeNode.setFont(Constants.ST_FONT);
 		}						
 		
 		// this formal parameter will listen to any changes that happen to
