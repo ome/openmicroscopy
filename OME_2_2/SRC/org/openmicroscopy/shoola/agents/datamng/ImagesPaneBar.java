@@ -58,6 +58,7 @@ class ImagesPaneBar
 	extends JToolBar
 {
 
+	/** Reference to the registry. */
 	private Registry	registry;
 	
 	/** Order by button. */
@@ -97,7 +98,7 @@ class ImagesPaneBar
 		setFloatable(false);
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
 		add(load);
-		add(filter);
+		//add(filter);
 	}
 	
 }

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 
 //Third-party libraries
@@ -58,8 +59,8 @@ public class ImageData
 	private int 		id;
 	private String 		name;
 	private String 		description;
-	private String		inserted;
-	private String		created;
+	private Timestamp	inserted;
+	private Timestamp	created;
 	private int 		ownerID;
 	private String		ownerFirstName;
 	private String		ownerLastName;
@@ -72,11 +73,12 @@ public class ImageData
 	
 	public ImageData() {}
 
-	public ImageData(int id, String name, String description, String inserted,
-					 String created, int ownerID, String ownerFirstName, 
-					 String ownerLastName,  String ownerEmail, 
-					 String ownerInstitution,  int ownerGroupID, 
-					 String ownerGroupName, List pixels, List datasets)
+	public ImageData(int id, String name, String description, 
+					Timestamp inserted, Timestamp created, int ownerID, 
+					String ownerFirstName, String ownerLastName, 
+					String ownerEmail, String ownerInstitution, 
+					int ownerGroupID, String ownerGroupName, List pixels, 
+					List datasets)
 	{ 
 		this.id = id;
 		this.name = name;
@@ -169,13 +171,13 @@ public class ImageData
 		this.ownerLastName = ownerLastName;
 	}
 
-	public String getCreated() { return created; }
+	public Timestamp getCreated() { return created; }
 
-	public String getInserted() { return inserted; }
+	public Timestamp getInserted() { return inserted; }
 
-	public void setCreated(String created) { this.created = created; }
+	public void setCreated(Timestamp created) { this.created = created; }
 
-	public void setInserted(String inserted) { this.inserted = inserted; }
+	public void setInserted(Timestamp inserted) { this.inserted = inserted; }
 
 	public List getPixels() { return pixels; }
 

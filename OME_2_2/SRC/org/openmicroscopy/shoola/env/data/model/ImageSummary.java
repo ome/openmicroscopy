@@ -29,7 +29,10 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+
+
 //Java imports
+import java.sql.Timestamp;
 
 //Third-party libraries
 
@@ -66,7 +69,7 @@ public class ImageSummary
     private int[]	pixelsIDs;
     
     /** Date: the image was imported into OME i.e. created in DB. */
-    private String	date;
+    private Timestamp	date;
     
     /**
      * The default pixels of the image.
@@ -100,9 +103,9 @@ public class ImageSummary
 
 	public String getName() { return name; }
 
-	public String getDate() { return date; }
+	public Timestamp getDate() { return date; }
 	
-	public void setDate(String date) { this.date = date; }
+	public void setDate(Timestamp date) { this.date = date; }
 	
 	public void setID(int id) { this.id = id; }
 
