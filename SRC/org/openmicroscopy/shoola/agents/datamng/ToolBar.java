@@ -103,7 +103,7 @@ class ToolBar
 		addSeparator(SEPARATOR);
 		add(datasetButton);
 		addSeparator(SEPARATOR);
-		add(imageButton);
+		//add(imageButton);
 	}
 
 }

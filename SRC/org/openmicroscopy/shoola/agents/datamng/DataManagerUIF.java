@@ -44,7 +44,7 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
@@ -82,7 +82,6 @@ class DataManagerUIF
 	 * and to mark the currently viewed image. 
 	 */
 	private ExplorerPane					explPane;
-	
 	
 	private ImagesPane						imgPane;
 	
@@ -126,9 +125,15 @@ class DataManagerUIF
 	void updateDatasetInTree() { explPane.getManager().updateDatasetInTree(); }
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void updateImageInTree(ImageData id)
+	void updateImageInTree(ImageSummary is)
 	{
-		explPane.getManager().updateImageInTree(id);
+		explPane.getManager().updateImageInTree(is);
+	}
+	
+	/** Forward event to {@link ImagesPaneManager}. */
+	void updateImageInTable(ImageSummary is)
+	{
+		imgPane.getManager().updateImageInTable(is);
 	}
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
@@ -173,7 +178,7 @@ class DataManagerUIF
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createNewMenu());
-		menuBar.add(createImportMenu());
+		//menuBar.add(createImportMenu());
 		return menuBar;
 	}
 	
@@ -199,7 +204,6 @@ class DataManagerUIF
 		JMenuItem menuItem = new JMenuItem("Image", 
 								im.getIcon(IconManager.IMPORT_IMAGE));
 		control.attachItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
-		//menuItem.setEnabled(false); //tempo
 		menu.add(menuItem);
 		return menu;
 	}
