@@ -149,9 +149,4 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	public void unhighlightModules(ChainModuleData mod) {
 		mod.setModulesHighlighted(false);
 	}
-	
-	public boolean hasNoModuleEntered() { 
-		System.err.println("last module entered is "+lastEntered);
-		return (lastEntered == null);
-	}
 }
