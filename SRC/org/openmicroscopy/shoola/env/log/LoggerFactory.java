@@ -105,10 +105,15 @@ public class LoggerFactory
 	{
 		return new Logger() {
 			public void debug(Object c, String logMsg) {}
+			public void debug(Object c, LogMessage msg) {}
 			public void error(Object c, String logMsg) {}
+			public void error(Object c, LogMessage msg) {}
 			public void fatal(Object c, String logMsg) {}
+			public void fatal(Object c, LogMessage msg) {}
 			public void info(Object c, String logMsg) {}
+			public void info(Object c, LogMessage msg) {}
 			public void warn(Object c, String logMsg) {}
+			public void warn(Object c, LogMessage msg) {}
 		};
 	}
 	
