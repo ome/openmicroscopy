@@ -138,7 +138,7 @@ public class DatasetData
 		return ownerInstitution;
 	}
 
-	public void setDatasets(List images)
+	public void setImages(List images)
 	{
 		this.images = images;
 	}
