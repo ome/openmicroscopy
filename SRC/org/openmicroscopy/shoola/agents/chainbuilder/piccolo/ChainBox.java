@@ -50,14 +50,15 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
+import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
+
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericBox;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.MouseableNode;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
-/*import org.openmicroscopy.vis.chains.SelectionState;
-import org.openmicroscopy.vis.chains.events.SelectionEvent;
-import org.openmicroscopy.vis.chains.events.SelectionEventListener; */
+import org.openmicroscopy.shoola.env.config.Registry;
 
 
 /** 
@@ -110,9 +111,13 @@ public class ChainBox extends GenericBox implements MouseableNode
 	/** the chain being represented */
 	private ChainView chainView;
 	
-	public ChainBox(LayoutChainData chain) {
+	/** The OME registry */
+	private Registry registry;
+	
+	public ChainBox(LayoutChainData chain,Registry registry) {
 		super();
 		this.chain = chain;
+		this.registry = registry;
 		chainID = chain.getID();
 		/*SelectionState selectionState = SelectionState.getState();
 		selectionState.addSelectionEventListener(this); */
@@ -269,20 +274,29 @@ public class ChainBox extends GenericBox implements MouseableNode
 	}*/
 
 	public void mouseClicked(GenericEventHandler handler) {
-		
-		((ModuleNodeEventHandler) handler).animateToNode(this);
-		((ModuleNodeEventHandler) handler).setLastEntered(chainView);
+		((ChainPaletteEventHandler) handler).animateToNode(this);
+		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
+		SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
+		registry.getEventBus().post(event);
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
 	}
 
 	public void mouseEntered(GenericEventHandler handler) {
-		((ModuleNodeEventHandler) handler).setLastEntered(chainView);
+		((ChainPaletteEventHandler) handler).setLastHighlighted(this);
+		setHighlighted(true);
+		MouseOverAnalysisChain event = 
+			new MouseOverAnalysisChain(chainView.getChain());
+		registry.getEventBus().post(event);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
-		((ModuleNodeEventHandler) handler).setLastEntered(null);
+		((ChainPaletteEventHandler) handler).setLastHighlighted(null);
+		setHighlighted(false);
+		MouseOverAnalysisChain event = 
+			new MouseOverAnalysisChain(null);
+		registry.getEventBus().post(event);
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
