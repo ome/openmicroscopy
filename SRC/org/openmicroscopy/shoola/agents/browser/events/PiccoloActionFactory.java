@@ -202,7 +202,7 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
-            public void execute()
+            public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_TO_FIT_MODE);
@@ -221,7 +221,7 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
-            public void execute()
+            public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_ACTUAL_MODE);
@@ -240,7 +240,7 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
-            public void execute()
+            public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_50_MODE);
@@ -259,10 +259,11 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
-            public void execute()
+            public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_75_MODE);
+                System.err.println("75%");
             }
         };
         return action;
@@ -278,7 +279,7 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
-            public void execute()
+            public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
                                      BrowserMode.ZOOM_200_MODE);

@@ -321,6 +321,7 @@ public class BIcon extends PNode implements MouseOverSensitive,
      */
     public void respondMouseClick(PInputEvent event)
     {
+        System.err.println("click...");
         if(sticky)
         {
             if(activated)

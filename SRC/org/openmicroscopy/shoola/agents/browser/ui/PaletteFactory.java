@@ -190,8 +190,8 @@ public class PaletteFactory
         
         PiccoloAction to50Action =
             PiccoloActionFactory.getZoomTo50Action(backingModel);
-        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
-                                           to50Action);
+        to50Actions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                        to50Action);
         to50Icon.setMouseDownActions(to50Actions);
         palette.addIcon(to50Icon);
         
@@ -200,7 +200,7 @@ public class PaletteFactory
         
         PiccoloAction to75Action =
             PiccoloActionFactory.getZoomTo75Action(backingModel);
-        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+        to75Actions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                            to75Action);
         to75Icon.setMouseDownActions(to75Actions);
         palette.addIcon(to75Icon);
@@ -210,7 +210,7 @@ public class PaletteFactory
         
         PiccoloAction toActualAction =
             PiccoloActionFactory.getZoomToActualAction(backingModel);
-        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+        to100Actions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                            toActualAction);
         to100Icon.setMouseDownActions(to100Actions);
         palette.addIcon(to100Icon);
@@ -220,9 +220,9 @@ public class PaletteFactory
         
         PiccoloAction to200Action =
             PiccoloActionFactory.getZoomTo200Action(backingModel);
-        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+        to200Actions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                            to200Action);
-        to50Icon.setMouseDownActions(to200Actions);
+        to200Icon.setMouseDownActions(to200Actions);
         palette.addIcon(to200Icon);
         
         return palette;
