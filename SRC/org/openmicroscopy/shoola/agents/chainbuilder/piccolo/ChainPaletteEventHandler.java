@@ -72,7 +72,10 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	private Registry registry;
 	
 	/** the last highlighted box..*/
-	private ChainBox lastHighlighted = null;
+	private ChainBox lastHighlighted = null; 
+	
+	/** how far zoomed in are we? */
+	private int zoomInSteps = 0;
 	
 	
 	public ChainPaletteEventHandler(ChainPaletteCanvas canvas,Registry registry) {
@@ -80,38 +83,35 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		this.registry = registry;
 	}	
 	
-	public void doMouseClicked(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		if (n instanceof PaletteChainView) {
-			System.err.println("zooming in on palette chain view..");
-			zoomIn(e);
+	
+	public void zoomIn(PInputEvent e) {
+		zoom(e,Constants.LARGE_SCALE_FACTOR);
+		zoomInSteps++;
+	}
+	
+	public void zoomOut(PInputEvent e) {
+		if (zoomInSteps > 0) {		
+			zoom(e,1/Constants.LARGE_SCALE_FACTOR);
+			zoomInSteps--;
 		}
-		super.doMouseClicked(e);	
 	}
 	
-	public void handlePopup(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		if (n instanceof PaletteChainView) {
-			System.err.println("zooming out of palette chain view...");
-			zoomOut(e);
-		}
-		super.handlePopup(e);
+	public boolean isZoomedIntoChain() {
+		return (zoomInSteps > 0);
 	}
 	
-	private void zoomIn(PInputEvent e) {
-		zoom(e,Constants.SCALE_FACTOR);
-	}
-	
-	private void zoomOut(PInputEvent e) {
-		zoom(e,1/Constants.SCALE_FACTOR);
+	public void animateToNode(PNode node) {
+		zoomInSteps = 0;
+		super.animateToNode(node);
 	}
 	
 	private void zoom(PInputEvent e,double scale) {
 		PCamera camera=canvas.getCamera();
-		double curScale = camera.getScale();
-		curScale *= scale;
+		//double curScale = camera.getScale();
+		//curScale *= scale;
+		System.err.println("old scale is "+camera.getViewScale());
 		Point2D pos = e.getPosition();
-		camera.scaleViewAboutPoint(curScale,pos.getX(),pos.getY());
+		camera.scaleViewAboutPoint(scale,pos.getX(),pos.getY());
 	}
 	
 	
