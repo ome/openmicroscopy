@@ -171,6 +171,7 @@ public class BrowserManagerSFImpl extends BrowserManager
         if(!sFrame.isShowing())
         {
             sFrame.show();
+            sFrame.toFront();
         }
     }
     
