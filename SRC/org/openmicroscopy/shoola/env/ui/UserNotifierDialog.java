@@ -203,7 +203,8 @@ public class UserNotifierDialog
 	private void loadImages(Registry reg)
 	{
 		images = new Icon[3];
-		IconFactory factory = (IconFactory) reg.lookup("/resources/icons");
+		IconFactory factory = (IconFactory) 
+								reg.lookup("/resources/icons/DefaultFactory");
 		images[INFORMATION_MESSAGE] = factory.getIcon("OME16.png");
 		images[WARNING_MESSAGE] = factory.getIcon("OME16.png");
 		images[ERROR_MESSAGE] = factory.getIcon("OME16.png");
