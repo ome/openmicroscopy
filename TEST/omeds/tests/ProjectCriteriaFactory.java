@@ -29,18 +29,13 @@
 
 package omeds.tests;
 
-
-
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectData;
 
 /** 
  * 

@@ -37,6 +37,7 @@ package omeds.tests;
 import omeds.DBFixture;
 import omeds.OMEDSTestCase;
 import omeds.dbrows.ProjectRow;
+import omeds.dbrows.DatasetRow;
 
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Project;
@@ -60,6 +61,8 @@ public class TestProject
 {
 
 	private ProjectRow		projectRow;
+	private DatasetRow		datasetRow;
+	
 	/* (non-Javadoc)
 	 * @see omeds.OMEDSTestCase#prepareFixture(java.sql.Connection)
 	 */
@@ -67,9 +70,13 @@ public class TestProject
 	{
 		// TODO Auto-generated method stub
 		DBFixture dbFixture = new DBFixture();
-		projectRow = new ProjectRow(new Integer(2), "view", "test insert", 1, 
-									"test du soir");
+		projectRow = new ProjectRow(null, null, "project insert", 1, 
+									"lundi matin");
+		datasetRow = new DatasetRow(false, null," dataset insert", 1,
+									 "toujours le vieux discours. ");							
 		dbFixture.add(projectRow);
+		dbFixture.add(datasetRow);
+		
 		return dbFixture;
 	}
 	
@@ -84,13 +91,14 @@ public class TestProject
 		System.out.println("Name: "+x.getName());
 		System.out.println("description: "+x.getDescription());
 		
+		/*
 		System.out.println("owner id: "+x.getOwner().getID());
 		System.out.println("owner First Name: "+x.getOwner().getFirstName());
 		System.out.println("owner Last Name: "+x.getOwner().getLastName());
 		System.out.println("owner e-mail: "+x.getOwner().getEmail());
 		System.out.println("owner institution: "+x.getOwner().getInstitution());
 		
-		/*
+		
 		System.out.println("group owner id: "+x.getOwner().getGroup().getID());
 		System.out.println("group owner name: "+x.getOwner().getGroup().getName());
 		Iterator i = x.getDatasets().iterator();
@@ -120,6 +128,6 @@ public class TestProject
 		TestProject x = new TestProject();
 		x.setUp();
 		x.testRetrieveProject();
-		x.tearDown();
+		//x.tearDown();
 	}
 }
