@@ -185,9 +185,6 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	
 	public void positionTip() {
 		PBounds b = getCamera().getViewBounds();
-		System.err.println("chain creation canvas bounds.."+b);
-		System.err.println("height of window is "+getHeight()+","+ getWidth());
-		System.err.println("tip size is "+tip.getWidth()+", "+tip.getHeight());
 		tip.setOffset(10,getHeight()/2-tip.getHeight()/2);
 		
 	}
