@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -45,10 +42,10 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
- * @since 2.2
+ * @since OME2.2
  */
 public abstract class AbstractOrderedLayoutMethod implements LayoutMethod
 {
@@ -56,26 +53,27 @@ public abstract class AbstractOrderedLayoutMethod implements LayoutMethod
    * The comparator that orders the thumbnails.
    */
   protected LayoutComparator comparator;
-  
+
   /**
    * Returns the ordered list of thumbnails based on the comparator.
+   * 
    * @param ts The thumbnails to order.
    * @return Those same thumbnails, placed in layout order.
    */
   protected List getThumbnailOrder(Thumbnail[] ts)
   {
-    if(comparator == null)
+    if (comparator == null)
     {
       return Arrays.asList(ts);
     }
     else
     {
       List thumbnailList = Arrays.asList(ts);
-      Collections.sort(thumbnailList,comparator);
+      Collections.sort(thumbnailList, comparator);
       return thumbnailList;
     }
   }
-  
+
   /**
    * Constructs a layout method that orders thumbnails by the specified
    * comparison criteria.

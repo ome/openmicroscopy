@@ -45,14 +45,16 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since 2.2
  */
 public abstract class LayoutComparator implements Comparator
 {
   /**
    * overrides the Comparator method to sort thumbnails.
    * 
+   * @param o1 The first object to compare.
+   * @param o2 The second object to compare.
    * @return see compareThumbnails.
    */
   public int compare(Object o1, Object o2)
