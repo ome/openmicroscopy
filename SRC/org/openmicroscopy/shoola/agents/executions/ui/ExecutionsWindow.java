@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
 public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	ActionListener {
 	
+	private static final int SLIDER_FUDGE=3;
 	
 	/* a pointer to the registry */
 	private Registry registry;
@@ -147,13 +148,18 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		slider.setEnabled(true);
 		slider.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		
+		execCanvas.setSlider(slider);
+		
 		// panel for the slider
 		JPanel sliderPanel = new JPanel();
 		sliderPanel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		sliderPanel.setLayout(new BoxLayout(sliderPanel,BoxLayout.X_AXIS));
 		sliderPanel.add(Box.createRigidArea(new Dimension(GridModel.LEFT_GAP,0)));
 		sliderPanel.add(slider);
-		sliderPanel.add(Box.createRigidArea(new Dimension(GridModel.RIGHT_GAP,0)));
+		// slider appears to stick out SLIDER_FUDGE pixels to the right of 
+		// where you'd think...
+		sliderPanel.add(Box.createRigidArea(
+				new Dimension(GridModel.RIGHT_GAP-SLIDER_FUDGE,0)));
 		
 		// reset button
 		IconFactory icons = (IconFactory)  
