@@ -13,7 +13,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 /**
  * @author josh
  */
-public class JenaQueries implements Queries {
+public class JenaQueryStrings implements Queries {
 
 	protected final static String subject = "subject";
 	protected final static String predicate = "predicate";

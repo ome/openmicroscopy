@@ -18,14 +18,14 @@ public class RMIServer {
 		}
 	
 		try {
-		    RMIAdministrationFacade obj = new RMIAdministrationFacade();
+		    RMIServiceFactory obj = new RMIServiceFactory();
 	
-		    // Bind this object instance to the name "HelloServer"
-		    Naming.rebind("//localhost/Admin", obj);
+		    // Bind this object instance to the name "HelloServer" TODO
+		    Naming.rebind("//localhost/ServiceFactory", obj);
 	
-		    System.out.println("AdminService bound in registry.");
+		    System.out.println("Service Factory bound in registry.");
 		} catch (Exception e) {
-		    System.out.println("Admin Service Error: " + e.getMessage());
+		    System.out.println("RMI Error: " + e.getMessage());
 		    e.printStackTrace();
 		}
 	}

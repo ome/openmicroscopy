@@ -20,13 +20,7 @@ import org.ome.srv.db.TemporaryDBFactoryFactory;
 /**
  * @author josh
  */
-public class FollowGroupServiceImpl implements FollowGroupService {
-
-	protected ServiceFactory dbFactory = TemporaryDBFactoryFactory
-			.getServiceFactory();
-
-	protected CacheFactory cacheFactory = TemporaryCacheFactoryFactory
-			.getCacheFactory();
+public class FollowGroupServiceImpl extends AbstractServiceImpl implements FollowGroupService {
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.PredicateGroupService#getPredicateGroup(org.ome.LSID)

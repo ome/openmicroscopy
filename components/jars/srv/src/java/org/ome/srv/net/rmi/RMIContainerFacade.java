@@ -1,29 +1,31 @@
 /*
  * Created on Feb 19, 2005
  */
-package org.ome.srv.logic;
+package org.ome.srv.net.rmi;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ome.cache.Cache;
-import org.ome.cache.CacheFactory;
-import org.ome.cache.TemporaryCacheFactoryFactory;
 import org.ome.interfaces.ContainerService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.model.IDataset;
 import org.ome.model.IProject;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
-import org.ome.model.ProjectWrapper;
-import org.ome.srv.db.TemporaryDBFactoryFactory;
+import org.ome.srv.logic.ServiceFactoryImpl;
 
 /**
  * @author josh
  */
-public class ContainerServiceImpl extends AbstractServiceImpl implements ContainerService {
+public class RMIContainerFacade 
+	extends UnicastRemoteObject implements
+	ContainerService {
 
+public RMIContainerFacade() throws RemoteException {
+	super();
+}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -31,18 +33,19 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 	 */
 	public List retrieveProjectsByExperimenter(LSID experimenterId)
 			throws RemoteException {
-
-		ContainerService containerService = dbFactory.getContainerService();
-		Cache cache = cacheFactory.getCache();
-
-		List lsObjects = containerService
+		System.err
+				.println("RMIAdministrationFacade.retrieveProjectsByExperimenter()");
+		System.err.flush();
+		ServiceFactory factory = new ServiceFactoryImpl();
+		List results = factory.getContainerService()
 				.retrieveProjectsByExperimenter(experimenterId);
-
-		List domainObjects = ProjectWrapper.wrap(lsObjects);
-
-		return domainObjects;
+		for (Iterator iter = results.iterator(); iter.hasNext();) {
+			Object element = (Object) iter.next();
+			System.err.println(element.getClass());
+			System.err.flush();
+		}
+		return results;
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveProjectsByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
@@ -51,7 +54,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID)
 	 */
@@ -60,7 +62,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID, int)
 	 */
@@ -69,7 +70,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(org.ome.model.LSID)
 	 */
@@ -78,7 +78,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
@@ -87,7 +86,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveDataset(org.ome.model.LSID)
 	 */
@@ -96,7 +94,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveDataset(org.ome.model.LSID, org.ome.model.LSID)
 	 */
@@ -105,7 +102,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createProject()
 	 */
@@ -114,7 +110,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createProject(org.ome.model.IProject)
 	 */
@@ -123,7 +118,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return 0; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#updateProject(org.ome.model.IProject)
 	 */
@@ -132,7 +126,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/*  */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#setProject(org.ome.model.IProject)
 	 */
@@ -141,7 +134,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/*  */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createDataset()
 	 */
@@ -150,7 +142,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createDataset(org.ome.model.IDataset)
 	 */
@@ -159,7 +150,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/* return 0; */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#updateDataset(org.ome.model.IDataset)
 	 */
@@ -168,7 +158,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/*  */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#setDataset(org.ome.model.IDataset)
 	 */
@@ -177,7 +166,6 @@ public class ContainerServiceImpl extends AbstractServiceImpl implements Contain
 		/*  */
 		throw new RuntimeException("implement me");
 	}
-
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveIDPHierarchy(org.ome.model.LSObject[])
 	 */

@@ -22,38 +22,7 @@ import org.ome.model.ProjectWrapper;
 /**
  * @author josh
  */
-public class AdministrationServiceImpl implements AdministrationService {
-
-	protected ServiceFactory dbFactory = TemporaryDBFactoryFactory
-			.getServiceFactory();
-
-	protected CacheFactory cacheFactory = TemporaryCacheFactoryFactory
-			.getCacheFactory();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ome.srv.RemoteAdministrationService#retrieveProjectsByExperimenter(int)
-	 */
-	public List retrieveProjectsByExperimenter(LSID experimenterId)
-			throws RemoteException {
-
-		ContainerService containerService = dbFactory.getContainerService();
-		Cache cache = cacheFactory.getCache();
-		
-		List lsObjects = containerService
-				.retrieveProjectsByExperimenter(experimenterId);
-
-		for (Iterator iter = lsObjects.iterator(); iter.hasNext();) {
-			LSObject obj = (LSObject) iter.next();
-			
-		}
-		
-		
-		List domainObjects = ProjectWrapper.wrap(lsObjects);
-
-		return domainObjects;
-	}
+public class AdministrationServiceImpl extends AbstractServiceImpl implements AdministrationService {
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getSessionKey()

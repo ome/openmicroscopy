@@ -3,6 +3,9 @@
 */
 package org.ome.srv.logic;
 
+import java.rmi.RemoteException;
+import java.util.List;
+
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.cache.CacheFactory;
@@ -15,13 +18,7 @@ import org.ome.model.FollowGroup;
 /**
  * @author josh
  */
-public class GenericServiceImpl implements GenericService {
-
-	protected ServiceFactory dbFactory = TemporaryDBFactoryFactory
-	.getServiceFactory();
-
-	protected CacheFactory cacheFactory = TemporaryCacheFactoryFactory
-	.getCacheFactory();
+public class GenericServiceImpl extends AbstractServiceImpl implements GenericService {
 	
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
@@ -53,6 +50,33 @@ public class GenericServiceImpl implements GenericService {
 	public LSObject getLSObject(LSID lsid, FollowGroup fg) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.GenericService#getLSObjectWithFollowGroup(org.ome.model.LSID, org.ome.model.FollowGroup)
+	 */
+	public LSObject getLSObjectWithFollowGroup(LSID arg0, FollowGroup arg1) throws RemoteException {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.GenericService#getLSObjectsByLSIDType(org.ome.model.LSID)
+	 */
+	public List getLSObjectsByLSIDType(LSID arg0) throws RemoteException {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.GenericService#getLSObjectsByClassType(java.lang.Class)
+	 */
+	public List getLSObjectsByClassType(Class arg0) throws RemoteException {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
 	}
 
 }

@@ -12,6 +12,7 @@ import org.ome.interfaces.ContainerService;
 import org.ome.model.IDataset;
 import org.ome.model.IProject;
 import org.ome.model.LSID;
+import org.ome.model.LSObject;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdql.QueryResults;
@@ -33,7 +34,7 @@ public class JenaContainerStore extends JenaAbstractStore implements ContainerSe
 		Map map = new HashMap();
 
 		map.put("exp", m.getResource(experimenterId.getURI()));
-		QueryResults results = queryWithBinding(m, JenaQueries
+		QueryResults results = queryWithBinding(m, JenaQueryStrings
 				.getProjectsByExperimenterQueryString(), map);
 
 		List l = lsObjectFromQueryResult(results, "project");
@@ -42,63 +43,63 @@ public class JenaContainerStore extends JenaAbstractStore implements ContainerSe
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveProjectsByExperimenter(int, int)
+	 * @see org.ome.interfaces.ContainerService#retrieveProjectsByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public List retrieveProjectsByExperimenter(int arg0, int arg1) throws RemoteException {
+	public List retrieveProjectsByExperimenter(LSID arg0, LSID arg1) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveProject(int)
+	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID)
 	 */
-	public IProject retrieveProject(int arg0) throws RemoteException {
+	public IProject retrieveProject(LSID arg0) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveProject(int, int)
+	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID, int)
 	 */
-	public IProject retrieveProject(int arg0, int arg1) throws RemoteException {
+	public IProject retrieveProject(LSID arg0, int arg1) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(int)
+	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(org.ome.model.LSID)
 	 */
-	public List retrieveDatasetsByExperimenter(int arg0) throws RemoteException {
+	public List retrieveDatasetsByExperimenter(LSID arg0) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(int, int)
+	 * @see org.ome.interfaces.ContainerService#retrieveDatasetsByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public List retrieveDatasetsByExperimenter(int arg0, int arg1) throws RemoteException {
+	public List retrieveDatasetsByExperimenter(LSID arg0, LSID arg1) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveDataset(int)
+	 * @see org.ome.interfaces.ContainerService#retrieveDataset(org.ome.model.LSID)
 	 */
-	public IDataset retrieveDataset(int arg0) throws RemoteException {
+	public IDataset retrieveDataset(LSID arg0) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveDataset(int, int)
+	 * @see org.ome.interfaces.ContainerService#retrieveDataset(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public IDataset retrieveDataset(int arg0, int arg1) throws RemoteException {
+	public IDataset retrieveDataset(LSID arg0, LSID arg1) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -177,12 +178,11 @@ public class JenaContainerStore extends JenaAbstractStore implements ContainerSe
 	}
 
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveIDPHierarchy(int[])
+	 * @see org.ome.interfaces.ContainerService#retrieveIDPHierarchy(org.ome.model.LSObject[])
 	 */
-	public List retrieveIDPHierarchy(int[] arg0) throws RemoteException {
+	public List retrieveIDPHierarchy(LSObject[] arg0) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
 	}
-	
 }

@@ -18,6 +18,7 @@ import org.ome.interfaces.ContainerService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.srv.db.TemporaryDBFactoryFactory;
 import org.ome.srv.db.jena.JenaAdministrationStore;
+import org.ome.srv.logic.ServiceFactoryImpl;
 import org.ome.model.Vocabulary;
 import org.ome.model.IProject;
 ;
@@ -38,7 +39,7 @@ public class AdminServiceTest extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceFactory factory = TemporaryDBFactoryFactory.getServiceFactory();
+		ServiceFactory factory = new ServiceFactoryImpl();
 		a = factory.getAdministrationService();
 	}
 	
