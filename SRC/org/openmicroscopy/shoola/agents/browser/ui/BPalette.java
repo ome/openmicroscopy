@@ -77,6 +77,7 @@ public class BPalette extends PNode
     private int iconSpacing;
     
     private TitleBar titleBar;
+    private IconBar iconBar;
     
     /**
      * Constructs a palette with the given name.
@@ -90,6 +91,42 @@ public class BPalette extends PNode
         titleBar = new TitleBar(name);
         addChild(titleBar);
         setBounds(titleBar.getBounds());
+    }
+    
+    /**
+     * The palette's icon bar.
+     */
+    class IconBar extends PNode
+    {
+        private int maxWidth;
+        private double observedWidth;
+        private double currentXOffset; // simplistic LM for now
+        private double currentYOffset; // simplistic LM for now
+        
+        // bad assumption, but I'll have it now: assuming all icons to be
+        // added will be of the same height.
+        
+        public IconBar(int maxWidth)
+        {
+            observedWidth = 0;
+            this.maxWidth = maxWidth;
+        }
+        
+        public void addIcon(BIcon icon)
+        {
+            addChild(icon);
+            if(icon.getWidth() + currentXOffset > maxWidth)
+            {
+                currentYOffset += icon.getHeight();
+                icon.setOffset(0,currentYOffset);
+                currentXOffset += icon.getWidth();
+            }
+            else
+            {
+                icon.setOffset(currentXOffset,currentYOffset);
+                currentXOffset += icon.getWidth();
+            }
+        }
     }
     
     /**
@@ -133,7 +170,6 @@ public class BPalette extends PNode
             actionSet = new MouseDragActions();
             actionSet.setDragAction(PiccoloModifiers.NORMAL,
                                     PiccoloActions.DRAG_MOVE_ACTION);
-            
             
             addChild(titleNode);
             titleNode.setOffset(4,4);
@@ -261,10 +297,8 @@ public class BPalette extends PNode
          */
         public void respondMouseClick(PInputEvent event)
         {
-            System.err.println("respond click");
             PiccoloAction action =
                 actionSet.getMouseClickAction(PiccoloModifiers.getModifier(event));
-            System.err.println(action);
             action.execute(event);
         }
         
