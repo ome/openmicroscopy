@@ -40,8 +40,22 @@ import org.openmicroscopy.shoola.util.mem.Copiable;
 import org.openmicroscopy.shoola.util.mem.CopiableArray;
 
 /** 
+ * This <i>stateless</i> class extends {@link CopiableArray}.
+ * This class is the top container of the ROI selection algorithm.
+ * The {@link #set(Copiable, int)} and {@link #get(int)} methods defined
+ * by {@link CopiableArray} are overriden for type-safety.
+ * It also provides two utility methods to access directly the 
+ * {@link PlaneArea elements} positioned at the bottom of the hierarchy.
+ * <p>
+ * A {@link ROI5D} object can be seen as a collection of 
+ * <code>stack of ROIs across time</code> {@link ROI4D objects}.
+ * </p>
+ * <p>
+ * A {@link ROI5D} object is an array of {@link ROI4D} elements.
+ * In turn, a {@link ROI4D} object is an array of {@link ROI3D} elements.
+ * A {@link ROI3D} is an array of {@link PlaneArea} objects (leaf).
+ * </p>
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -57,19 +71,28 @@ public class ROI5D
     extends CopiableArray
 {
 
+    /** Public constructor. */
     public ROI5D(int size)
     {
         super(size);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.util.mem.CopiableArray#makeNew(int)
+    /** 
+     * Constructs a new {@link CopiableArray} of the specified size.
+     * 
+     * @param size number of elements in the array. 
      */
     protected CopiableArray makeNew(int size)
     {
         return new ROI5D(size);
     }
 
+    /** 
+     * Overrides the {@link #set(Copiable, int)} method of 
+     * {@link CopiableArray}. Check if the element is an instance of 
+     * the excepted type i.e. {@link ROI4D}. 
+     * Note that a {@link ROI4D} object cannot be set to <code>null</code>.
+     */
     public void set(Copiable roi4D, int channel)
     {
         if (!(roi4D instanceof ROI4D))
@@ -77,23 +100,53 @@ public class ROI5D
         super.set(roi4D, channel);
     }
    
+    /** Set an element of the correct type i.e. {@link ROI4D}. */
     public void setChannel(ROI4D stackAcrossTimeROI, int channel)
     {
         set(stackAcrossTimeROI, channel);
     }
     
+    /** Return an element of the correct type i.e. {@link ROI4D}. */
+    public ROI4D getChannel(int channel) 
+    {
+        return (ROI4D) get(channel);
+    }
+    
+    /** 
+     * Return the {@link PlaneArea leaf} at the specified positioned in the 
+     * hierarchy.
+     * 
+     * @param z         specified z-section.
+     * @param t         speficied timepoint.         
+     * @param channel   specified channel.
+     * @return
+     */
     public PlaneArea getPlaneArea(int z, int t, int channel)
     {
         ROI4D stackAcrossTimeROI = (ROI4D) get(channel);
+        if (stackAcrossTimeROI == null) return null; 
         ROI3D stackROI = (ROI3D) stackAcrossTimeROI.get(t);
+        if (stackROI == null) return null; 
         return stackROI.getPlaneArea(z);
     }
     
+    /** 
+     * Replaces the {@link PlaneArea leaf} at the specified positioned with
+     * the specified element.
+     *  
+     * @param pa        new {@link PlaneArea}.
+     * @param z         specified z-section.
+     * @param t         speficied timepoint.         
+     * @param channel   specified channel.
+     */
     public void setPlaneArea(PlaneArea pa, int z, int t, int channel)
     {
         ROI4D stackAcrossTimeROI = (ROI4D) get(channel);
-        ROI3D stackROI = (ROI3D) stackAcrossTimeROI.get(t);
-        stackROI.setPlaneArea(pa, z);
+        if (stackAcrossTimeROI != null) {
+            ROI3D stackROI = (ROI3D) stackAcrossTimeROI.get(t);
+            if (stackROI != null)
+                stackROI.setPlaneArea(pa, z);
+        }
     }
     
 }

@@ -40,7 +40,14 @@ import org.openmicroscopy.shoola.util.mem.Copiable;
 import org.openmicroscopy.shoola.util.mem.CopiableArray;
 
 /** 
- * 
+ * This <i>stateless</i> class extends {@link CopiableArray}.
+ * This class is the second container of the ROI selection algorithm.
+ * The {@link #set(Copiable, int)} and {@link #get(int)} methods defined
+ * by {@link CopiableArray} are overriden for type-safety.
+ * <p>
+ * A {@link ROI4D} can be seen as a <code>stack of ROIs across time</code>
+ * i.e. a collection of <code>stack of ROIs</code> {@link ROI3D objects}.
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,19 +64,28 @@ public class ROI4D
     extends CopiableArray
 {
 
+    /** Public constructor. */
     public ROI4D(int size)
     {
         super(size);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.util.mem.CopiableArray#makeNew(int)
+    /** 
+     * Constructs a new {@link CopiableArray} of the specified size.
+     * 
+     * @param size number of elements in the array.
      */
     protected CopiableArray makeNew(int size)
     {
         return new ROI4D(size);
     }
 
+    /** 
+     * Overrides the {@link #set(Copiable, int)} method of 
+     * {@link CopiableArray}. Check if the element is an instance of 
+     * the excepted type i.e. {@link ROI3D}. 
+     * Note that a {@link ROI3D} object cannot be set to <code>null</code>.
+     */
     public void set(Copiable roi3D, int t)
     {
         if (!(roi3D instanceof ROI3D))
@@ -77,6 +93,7 @@ public class ROI4D
         super.set(roi3D, t);
     }
     
+    /** Return an element of the correct type i.e. {@link ROI3D}. */
     public ROI3D getStack(int t) 
     {
         return (ROI3D) get(t);
@@ -87,17 +104,33 @@ public class ROI4D
         set(stackROI, t);
     }
     
+    /** 
+     * Return the {@link PlaneArea leaf} at the specified positioned in the 
+     * hierarchy.
+     * 
+     * @param z         specified z-section.
+     * @param t         speficied timepoint.         
+     * @return
+     */
     public PlaneArea getPlaneArea(int z, int t)
     {
         ROI3D stackROI = (ROI3D) get(t);
+        if (stackROI == null) return null;
         return stackROI.getPlaneArea(z);
     }
     
+    /** 
+     * Replaces the {@link PlaneArea leaf} at the specified positioned with
+     * the specified element.
+     *  
+     * @param pa        new {@link PlaneArea}.
+     * @param z         specified z-section.
+     * @param t         speficied timepoint.         
+     */
     public void setPlaneArea(PlaneArea pa, int z, int t)
     {
         ROI3D stackROI = (ROI3D) get(t);
-        stackROI.setPlaneArea(pa, z);
+        if (stackROI != null) stackROI.setPlaneArea(pa, z);
     }
-    
     
 }

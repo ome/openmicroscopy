@@ -41,7 +41,15 @@ import org.openmicroscopy.shoola.util.mem.Copiable;
 import org.openmicroscopy.shoola.util.mem.CopiableArray;
 
 /** 
- * 
+ * This <i>stateless</i> class extends {@link CopiableArray}.
+ * This class is the first container of the ROI selection algorithm.
+ * The {@link #set(Copiable, int)} and {@link #get(int)} methods defined
+ * by {@link CopiableArray} are overriden for type-safety.
+ * <p>
+ * A {@link ROI3D} can be seen as a <code>stack of ROIs</code> 
+ * i.e. a collection of {@link 2D-ROIs PlaneArea} 
+ * (i.e. a ROI drawn on a 2D-plane).
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,13 +66,16 @@ public class ROI3D
     extends CopiableArray
 {
 
+    /** Public constructor. */
     public ROI3D(int size)
     {
         super(size);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.util.mem.CopiableArray#makeNew(int)
+    /** 
+     * Constructs a new {@link CopiableArray} of the specified size.
+     * 
+     * @param size number of elements in the array.
      */
     protected CopiableArray makeNew(int size)
     {
@@ -76,6 +87,12 @@ public class ROI3D
         set(pa, z);
     }
     
+    /** 
+     * Overrides the {@link #set(Copiable, int)} method of 
+     * {@link CopiableArray}. Check if the element is an instance of 
+     * the excepted type i.e. {@link PlaneArea}.
+     * Note that a {@link PlaneArea} object can be set to <code>null</code>.
+     */
     public void set(Copiable planeArea, int z)
     {
         if (planeArea != null && !(planeArea instanceof PlaneArea))
@@ -83,6 +100,7 @@ public class ROI3D
         super.set(planeArea, z);
     }
     
+    /** Return an element of the correct type i.e. {@link PlaneArea}. */
     public PlaneArea getPlaneArea(int z)
     {
         return (PlaneArea) get(z);
