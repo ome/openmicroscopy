@@ -82,8 +82,6 @@ public class DatasetLoader
             // do nothing
             return;
         }
-        int count = 0; // TODO: replace with actual count here (line below)
-        // int count = dto.countImages();
         
         List imageList;
         try
@@ -92,23 +90,7 @@ public class DatasetLoader
         }
         catch(DataException de)
         {
-            // notify everyone that a DB read (expensive) is about to go down
-            for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
-            {
-                ProgressListener listener = (ProgressListener)iter.next();
-                listener.processStarted(1);
-            }
-            // TODO: call factory fill methods: this could take some time
-            // (and also throw more exceptions which will trigger a
-            // processFailure)
-            
-            // OK, we're done; everybody go home
-            for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
-            {
-                ProgressListener listener = (ProgressListener)iter.next();
-                listener.processAdvanced("Image metadata loaded.");
-                listener.processSucceeded();
-            }
+            fillInDatasetDTO(dto);
             imageList = dto.getImages();
         }
         
@@ -143,6 +125,30 @@ public class DatasetLoader
         if(listener != null)
         {
             progressListeners.remove(listener);
+        }
+    }
+    
+    /*
+     * Populate the Dataset dto if it has not been done already.
+     */
+    private void fillInDatasetDTO(Dataset dto)
+    {
+        // notify everyone that a DB read (expensive) is about to go down
+        for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
+        {
+            ProgressListener listener = (ProgressListener)iter.next();
+            listener.processStarted(1);
+        }
+        // TODO: call factory fill methods: this could take some time
+        // (and also throw more exceptions which will trigger a
+        // processFailure)
+        
+        // OK, we're done; everybody go home
+        for(Iterator iter = progressListeners.iterator(); iter.hasNext();)
+        {
+            ProgressListener listener = (ProgressListener)iter.next();
+            listener.processAdvanced("Image metadata loaded.");
+            listener.processSucceeded();
         }
     }
 }

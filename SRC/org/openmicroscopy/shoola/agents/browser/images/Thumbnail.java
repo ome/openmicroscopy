@@ -57,11 +57,6 @@ public class Thumbnail extends PImage
     protected ThumbnailDataModel model;
 
     /**
-     * The current render method.
-     */
-    protected RenderMethod renderMethod;
-
-    /**
      * Defines the set of paint methods in a self-organizing list
      * (impl: TreeSet)
      */
@@ -79,37 +74,6 @@ public class Thumbnail extends PImage
     public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
     {
         this.model = tdm;
-    }
-
-    /**
-     * Constructs a thumbnail around this model and specifies a first
-     * renderer for it.
-     */
-    public Thumbnail(ThumbnailDataModel tdm, RenderMethod method)
-    {
-        this.model = tdm;
-        this.renderMethod = method;
-    }
-
-    /**
-     * Returns the current render method for this thumbnail.
-     * @return The current render method.
-     */
-    public RenderMethod getRenderMethod()
-    {
-        return renderMethod;
-    }
-
-    /**
-     * Sets the current render method for this thumbnail.
-     * @param method
-     */
-    public void setRenderMethod(RenderMethod method)
-    {
-        if (method != null)
-        {
-            this.renderMethod = method;
-        }
     }
 
     /**
