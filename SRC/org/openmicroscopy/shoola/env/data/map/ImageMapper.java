@@ -262,14 +262,17 @@ public class ImageMapper
 			lc = (LogicalChannel) i.next();
 			index = 
 				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
-			nanometer = lc.getEmissionWavelength().intValue();
+			if (lc.getEmissionWavelength() == null)	
+				nanometer = index;
+			else
+				nanometer = lc.getEmissionWavelength().intValue();
+			
 			if (lc.getExcitationWavelength() == null) 
 				excitation = nanometer;
 			else 
 				excitation = lc.getExcitationWavelength().intValue();
 	
-			channelData[index] = new ChannelData(lc.getID(), index, 
-									lc.getEmissionWavelength().intValue(),
+			channelData[index] = new ChannelData(lc.getID(), index, nanometer,
 									lc.getPhotometricInterpretation(), 
 									excitation, lc.getFluor());
 		}
