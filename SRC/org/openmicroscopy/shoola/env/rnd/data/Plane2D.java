@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.Plane2D
+ * org.openmicroscopy.shoola.env.rnd.data.Plane2D
  *
  *------------------------------------------------------------------------------
  *
