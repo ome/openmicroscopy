@@ -30,11 +30,14 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 
 /** 
  * 
@@ -53,19 +56,38 @@ import java.util.Map;
 public interface RenderingControl
 {
 	
+	//Pixels metadata.
+	public PixelsDimensions getPixelsDims();
+	public PixelsStats getPixelsStats();
+	
+	//RenderingDef fields.
 	public void setModel(int model);
+	public int getModel();
+	public int getDefaultZ();
+	public int getDefaultT();
 	
-	public void setQuantum(int family, double coefficient, 
-							int cdStart, int cdEnd,
-							int bitResolution);
+	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
+	//if not necessary.
+	public void setQuantumStrategy(int family, double coefficient, 
+												int bitResolution);
+	public void setCodomainInterval(int start, int end);
+	public QuantumDef getQuantumDef();
 	
-	public void setChannel(int w, Comparable inputStart, Comparable inputEnd,
-							int[] rgba, boolean active);
+	//ChannelBindings[] elements' fields.
+	public void setChannelWindow(int w, Comparable start, Comparable end);
+	public Comparable getChannelWindowStart(int w);
+	public Comparable getChannelWindowEnd(int w);
+	public void setRGBA(int w, int red, int green, int blue, int alpha);
+	public int[] getRGBA(int w);
+	public void setActive(int w, boolean active);
+	public boolean isActive(int w);
 	
-	public void addCodomainMap(int type, Map params);
+	//Codomain chain definition.
+	public void addCodomainMap(CodomainMapContext mapCtx);
+	public void updateCodomainMap(CodomainMapContext mapCtx);
+	public void removeCodomainMap(CodomainMapContext mapCtx);
 	
-	public void updateCodomainMap(int type, Map params);
-	
-	public void removeCodomainMap(int type);
+	//Save display options to db.
+	public void saveCurrentSettings();
 	
 }
