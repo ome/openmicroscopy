@@ -181,14 +181,6 @@ public class RenderingAgt
 		presentation = null;
 	}
 	
-	/** Display the widget. */
-	//void showPresentation()
-	//{
-	//	if (presentation.getExtendedState() == Frame.ICONIFIED)
-	//		presentation.setExtendedState(Frame.NORMAL);
-	//	presentation.setVisible(true);	
-	//}
-	
 	/** Return the {@link RenderingAgtUIF presentation}. */
 	public RenderingAgtUIF getPresentation() { return presentation; }
 
@@ -488,7 +480,6 @@ public class RenderingAgt
 	/** Save the rendering settings. */
 	void saveDisplayOptions()
 	{
-		//TODO implement.
 		renderingControl.saveCurrentSettings();
 		String msg = "The settings have now been saved, Note that the " +
 			"parameters set in \"options\" haven't been saved.";
