@@ -44,12 +44,14 @@ import java.awt.Image;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
  
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ThumbnailRetriever;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -151,8 +153,8 @@ public class DataManager {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				Collection projects = 
-					dms.retrieveUserProjects(new BrowserProjectSummary(),
-												 new BrowserDatasetSummary());
+					dms.retrieveUserProjectsWithDatasetData(
+							new BrowserProjectSummary(),new BrowserDatasetData());
 				projectHash = buildProjectHash(projects);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's projects.";
@@ -221,7 +223,8 @@ public class DataManager {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				Collection datasets = 
-					dms.retrieveUserDatasets(new BrowserDatasetSummary());
+					dms.retrieveUserDatasets(new BrowserDatasetData(),
+							new BrowserImageSummary());
 				getDatasetsWithImages(datasets);
 				datasetHash = buildDatasetHash(datasets);
 				//Collections.sort(datasets);
@@ -238,7 +241,7 @@ public class DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
-		System.err.println("end of retrieve datasets.."+datasetHash);		
+		//System.err.println("end of retrieve datasets.."+datasetHash);		
 	}
 	
 	/**
@@ -253,7 +256,7 @@ public class DataManager {
 		HashMap map = new HashMap();
 		Iterator iter = datasets.iterator();
 		while (iter.hasNext()) {
-			BrowserDatasetSummary p = (BrowserDatasetSummary) iter.next();
+			BrowserDatasetData p = (BrowserDatasetData) iter.next();
 			Integer id = new Integer(p.getID());
 			map.put(id,p);
 		}
@@ -268,57 +271,53 @@ public class DataManager {
 	 * @param id
 	 * @return
 	 */
-	public BrowserDatasetSummary getDataset(int id) {
+	public BrowserDatasetData getDataset(int id) {
 		
 		if (datasetHash == null)
 			getDatasets();
 		Integer ID = new Integer(id);
-		return (BrowserDatasetSummary) datasetHash.get(ID);
+		return (BrowserDatasetData) datasetHash.get(ID);
 	}
 
-
-	public void getImages(BrowserDatasetSummary dataset) {
-		if (dataset.getImages() == null) {
-			try { 
-				DataManagementService dms = registry.getDataManagementService();
-				Collection images = dms.retrieveImages(dataset.getID(),
-					new BrowserImageSummary());
-				dataset.setImages(images);
-			} catch(DSAccessException dsae) {
-				String s = "Can't retrieve user's datasets.";
-				registry.getLogger().error(this, s+" Error: "+dsae);
-				registry.getUserNotifier().notifyError("Data Retrieval Failure",
-														s, dsae);	
-			} catch(DSOutOfServiceException dsose) {
-				ServiceActivationRequest 
-				request = new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES);
-				registry.getEventBus().post(request);
-			}
-		}
+	public void getImages(BrowserDatasetData dataset) {
+        if (dataset.getImages() == null) {
+              try { 
+                      DataManagementService dms = registry.getDataManagementService();
+                      List images = dms.retrieveImages(dataset.getID(),
+                              new BrowserImageSummary());
+                      dataset.setImages(images);
+              } catch(DSAccessException dsae) {
+                      String s = "Can't retrieve user's datasets.";
+                      registry.getLogger().error(this, s+" Error: "+dsae);
+                      registry.getUserNotifier().notifyError("Data Retrieval Failure",
+                                                                                                      s, dsae);       
+              } catch(DSOutOfServiceException dsose) {
+                      ServiceActivationRequest 
+                      request = new ServiceActivationRequest(
+                                                              ServiceActivationRequest.DATA_SERVICES);
+                      registry.getEventBus().post(request);
+              }
+        }
 	}
-
 	private Collection getDatasetsWithImages(Collection ds) {
-		BrowserDatasetSummary d;
-	
-		Iterator iter = ds.iterator();
+		BrowserDatasetData d;
+	  	Iterator iter = ds.iterator();
 		while (iter.hasNext()) {
-			d = (BrowserDatasetSummary) iter.next();
-			if (d.getImages() == null) {
-				getImages(d);
-				// get the Image items for each of these?
-				Collection images= d.getImages();
-				Iterator iter2 = images.iterator();
-				BrowserImageSummary b;
-				while (iter2.hasNext()) {
-					b = (BrowserImageSummary) iter2.next();
-					Image im = thumbnailRetriever.getImage(b);
-					b.setThumbnail(thumbnailRetriever.getImage(b));
-				}
-			}	
+			d = (BrowserDatasetData) iter.next();
+			getImages(d);
+			Collection images= d.getImages();
+			Iterator iter2 = images.iterator();
+			BrowserImageSummary b;
+			Vector imageSet = new Vector();
+			while (iter2.hasNext()) {
+				b = (BrowserImageSummary) iter2.next();
+				Image im = thumbnailRetriever.getImage(b);
+				b.setThumbnail(im);
+			}
 		}
 		return ds;
 	}
+	
 	
 	public TaskBar getTaskBar() {
 		return registry.getTaskBar();
