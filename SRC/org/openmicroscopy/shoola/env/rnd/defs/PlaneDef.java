@@ -58,7 +58,7 @@ public class PlaneDef
 	public static final int		XY = 0 ;
 	
 	/** Select a YZ-plane. */
-	public static final int		YZ = 1 ;
+	public static final int		ZY = 1 ;
 	
 	/** Select a XZ-plane. */
 	public static final int		XZ = 2 ;
@@ -104,7 +104,7 @@ public class PlaneDef
 	 */
 	public PlaneDef(int slice, int t)
 	{
-		if (slice == XY || slice == YZ || slice == XZ)
+		if (slice == XY || slice == ZY || slice == XZ)
 			this.slice = slice;
 		else new IllegalArgumentException("Plane selection not available.");
 		this.t = t;

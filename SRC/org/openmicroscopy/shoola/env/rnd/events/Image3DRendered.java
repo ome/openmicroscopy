@@ -31,12 +31,11 @@ package org.openmicroscopy.shoola.env.rnd.events;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.image.BufferedImage;
-
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /** 
@@ -62,7 +61,7 @@ public class Image3DRendered
 	
 	private BufferedImage renderedXZImage;
 	
-	private BufferedImage renderedYZImage;
+	private BufferedImage renderedZYImage;
 	
 	/**
 	 * Creates a new instance.
@@ -72,12 +71,12 @@ public class Image3DRendered
 	 */
 	public Image3DRendered(RenderImage3D act, BufferedImage renderedXYImage,
 						BufferedImage renderedXZImage, 
-						BufferedImage renderedYZImage) 
+						BufferedImage renderedZYImage) 
 	{
 		super(act);
 		this.renderedXYImage = renderedXYImage;
 		this.renderedXZImage = renderedXZImage;
-		this.renderedYZImage = renderedYZImage;
+		this.renderedZYImage = renderedZYImage;
 	}
 
 	/** Returns the rendered pixels set. */
@@ -87,6 +86,6 @@ public class Image3DRendered
 	public BufferedImage getRenderedXZImage() { return renderedXZImage; }
 		
 	/** Returns the rendered pixels set. */
-	public BufferedImage getRenderedYZImage() { return renderedYZImage; }
+	public BufferedImage getRenderedZYImage() { return renderedZYImage; }
 
 }

@@ -60,16 +60,16 @@ public class RenderImage3D
 	/** The ID of the pixels set. */
 	private int			pixelsID;
 		
-	private PlaneDef	XYPlaneDef, XZPlaneDef, YZPlaneDef;
+	private PlaneDef	XYPlaneDef, XZPlaneDef, ZYPlaneDef;
 	
 	public RenderImage3D(int pixelsID, PlaneDef XYPlaneDef, PlaneDef XZPlaneDef,
-						PlaneDef YZPlaneDef)
+						PlaneDef ZYPlaneDef)
 	{
-		if (XZPlaneDef == null || YZPlaneDef == null)
+		if (XZPlaneDef == null || ZYPlaneDef == null)
 			throw new NullPointerException("No plane definition.");
 		this.XYPlaneDef = XYPlaneDef;
 		this.XZPlaneDef = XZPlaneDef;
-		this.YZPlaneDef = YZPlaneDef;
+		this.ZYPlaneDef = ZYPlaneDef;
 		this.pixelsID = pixelsID;
 	}
 
@@ -81,6 +81,6 @@ public class RenderImage3D
 	
 	public PlaneDef getXZPlaneDef() { return XZPlaneDef; }
 	
-	public PlaneDef getYZPlaneDef() { return YZPlaneDef; }
+	public PlaneDef getZYPlaneDef() { return ZYPlaneDef; }
 	
 }

@@ -143,8 +143,8 @@ class GreyScaleStrategy
 				case PlaneDef.XZ:
 					initSizes(d.sizeX, d.sizeZ);
 					break;
-				case PlaneDef.YZ:
-					initSizes(d.sizeY, d.sizeZ);
+				case PlaneDef.ZY:
+					initSizes(d.sizeZ, d.sizeY);
 			}	
 		}catch(NumberFormatException nfe) {   
 			throw new Error("Invalid Action ID "+pd.getSlice(), nfe);

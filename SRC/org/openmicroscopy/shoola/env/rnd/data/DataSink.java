@@ -241,8 +241,8 @@ public class DataSink
 									BYTES_PER_PIXEL[pixelType],
 									wavelengthStack, strategy);
 				break;
-			case PlaneDef.YZ:
-				plane = new YZPlane(curPlaneDef, pixDims, 
+			case PlaneDef.ZY:
+				plane = new ZYPlane(curPlaneDef, pixDims, 
 									BYTES_PER_PIXEL[pixelType],
 									wavelengthStack, strategy);
 		}

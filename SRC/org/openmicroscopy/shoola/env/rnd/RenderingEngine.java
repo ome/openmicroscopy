@@ -169,13 +169,13 @@ public class RenderingEngine
 			try {
 				PlaneDef xyPD = request.getXYPlaneDef(), 
 							xzPD = request.getXZPlaneDef(),
-							yzPD = request.getYZPlaneDef();
-				BufferedImage xyPlane = null, xzPlane, yzPlane;
+							zyPD = request.getZYPlaneDef();
+				BufferedImage xyPlane = null, xzPlane, zyPlane;
 				if (xyPD != null) xyPlane = rnd.render(xyPD);
 				xzPlane = rnd.render(xzPD);
-				yzPlane = rnd.render(yzPD);
+				zyPlane = rnd.render(zyPD);
 				Image3DRendered response = new Image3DRendered(request, 
-													xyPlane, xzPlane, yzPlane);
+													xyPlane, xzPlane, zyPlane);
 				EventBus eventBus = registry.getEventBus();
 				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
 			} catch (DataSourceException dse) {
