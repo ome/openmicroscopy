@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
+import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
@@ -194,7 +195,8 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		dataManager.getRegistry().getEventBus().register(this,new Class[] {
 				MouseOverDataset.class, SelectDataset.class,
-				MouseOverChainExecutionEvent.class});
+				MouseOverChainExecutionEvent.class,
+				SelectChainExecutionEvent.class});
 	}
 	
 	
@@ -321,24 +323,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		}
 	}
 	
-       /*public void selectionChanged(SelectionEvent e) {
-		SelectionState state = e.getSelectionState();
-		LayoutChainData chain = state.getSelectedChain();
-		if (chain != null) {
-			PChainBox cb = findChainBox(chain);
-			if (cb != null)
-				zoomToChain(cb);
-		}
-		else if (state.getSelectedDataset() == null) {
-			// zoom to root.
-			animateToSize();
-		}
-	}
-	
-	public int getEventMask() {
-		return SelectionEvent.SET_SELECTED_CHAIN|
-			SelectionEvent.SET_SELECTED_DATASET;
-	}*/
+    
 	
 	private ChainBox findChainBox(AnalysisChainData chain) {
 		ChainBoxFilter filter = new ChainBoxFilter(chain);
@@ -366,6 +351,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void eventFired(AgentEvent e) {
+		System.err.println("chain builder got event ."+e);
 		if (e instanceof DatasetEvent) {
 			DatasetEvent event = (DatasetEvent) e;
 			DatasetData dataset = event.getDataset();
@@ -375,6 +361,25 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			MouseOverChainExecutionEvent event = (MouseOverChainExecutionEvent) e;
 			ChainExecutionData exec = event.getChainExecution();
 			selectChainExecution(exec);
+		}
+		else if (e instanceof SelectChainExecutionEvent) {
+			System.err.println("got select chainexecution event..");
+			SelectChainExecutionEvent event = (SelectChainExecutionEvent) e;
+			ChainExecutionData exec = event.getChainExecution();
+			selectChainExecution(exec);
+			if (exec != null) {
+				System.err.println("selecting exec..."+exec.getID());
+				ChainBox cb =  findChainBox(exec.getChain());
+				System.err.println("highlighting.."+cb);
+				if (cb != null)
+					zoomToChain(cb);
+				else 
+					scaleToSize(); // show all
+			}
+			else {
+				scaleToSize();
+				System.err.println("selecting null exec");
+			}
 		}
 	}
 	
@@ -437,7 +442,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		public boolean accept(PNode node) {
 			if (!(node instanceof ChainBox))
 				return false;
-			return ((ChainBox) node).getChain() == chain;
+			return ((ChainBox) node).getChain().getID() == chain.getID();
 		}
 		
 		public boolean acceptChildrenOf(PNode node) {
