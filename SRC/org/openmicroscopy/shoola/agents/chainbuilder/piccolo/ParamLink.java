@@ -241,8 +241,9 @@ public class ParamLink extends  Link {
 	public FormalOutput getOutput() {
 		if (start instanceof FormalOutput)
 				return (FormalOutput) start;
-			else
-				return (FormalOutput) end;
+		else if (end != null)
+			return (FormalOutput) end;
+		return null;
 	}
 	
 	/**
