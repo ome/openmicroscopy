@@ -50,7 +50,8 @@ import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
  * computation is not trivial.  Thus, there is an inherent assumption that over
  * the course of the use of this comparator, the values of the thumbnails being
  * compared will not change, --OR-- the clearState() method will be invoked
- * prior to reuse.
+ * prior to reuse.  This statefulness is used as a quasi-hack to maintain access
+ * to recent searches/comparisons
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -193,6 +194,47 @@ public class ElementComparator implements Comparator
             valueMap.put(tdm2,new Double(value2));
         }
         
-        return Double.compare(value1,value2);
+        if(value1 == value2)
+        {
+            return Double.compare(tdm1.getID(),tdm2.getID());
+        }
+        else return Double.compare(value1,value2);
+    }
+    
+    /**
+     * Clears the persistent state maintained by this comparator-- namely, the
+     * value extracted from each thumbnail.
+     */
+    public void clearState()
+    {
+        valueMap.clear();
+    }
+    
+    /**
+     * Returns the value state determined over the course of the comparison.
+     * Kind of hackish, but OK.
+     * 
+     * @param thumbObject The object to lookup.
+     * @return The value associated with the object.
+     * @throws IllegalArgumentException If the object is not a thumbnail or TDM.
+     */
+    public Number getState(Object thumbObject)
+        throws IllegalArgumentException
+    {
+        if(thumbObject == null) return null;
+        ThumbnailDataModel key = null;
+        if(thumbObject instanceof Thumbnail)
+        {
+            key = ((Thumbnail)thumbObject).getModel();
+        }
+        else if(thumbObject instanceof ThumbnailDataModel)
+        {
+            key = (ThumbnailDataModel)thumbObject;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid retrieval type");
+        }
+        return (Number)valueMap.get(key);
     }
 }

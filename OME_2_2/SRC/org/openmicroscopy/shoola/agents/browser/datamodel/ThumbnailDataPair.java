@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode
+ * org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailDataPair
  *
  *------------------------------------------------------------------------------
  *
@@ -35,35 +35,52 @@
  */
 package org.openmicroscopy.shoola.agents.browser.datamodel;
 
-import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
- * Specifies a retrieval process for attribute data.
+ * Encapsulates a thumbnail/value pair.  This facilitates storing and mapping
+ * thumbnails to numerical data.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2.1
- * @since OME2.2
+ * @since OME2.2.1
  */
-public interface DisplayValueMode
+public class ThumbnailDataPair
 {
     /**
-     * Computes a particular value over the specified elements of the
-     * list of attributes.  For example, given a set of StackMaximum
-     * attributes, compute some value based on the TheMean element.
-     *  
-     * @param attributes The list of attributes to use for computation.
-     * @param elementName The element over which to find a scalar value.
-     * @return Some value related to the values of all the elements.
-     * @throws IllegalArgumentException If elementName is an invalid element
-     *         name, or points to a non-numeric data value.
+     * The thumbnail of this pair.
      */
-    public double computeValue(Attribute[] attributes, String elementName)
-        throws IllegalArgumentException;
+    protected Thumbnail thumbnail;
     
     /**
-     * Indicate this mode as a string.
-     * @return The string representation/characterization of this mode.
+     * The number of this pair.
      */
-    public String toString();
+    protected Number value;
+    
+    /**
+     * Constructs a thumbnail-value pair.
+     * @param thumbnail The thumbnail to use.
+     * @param value The symbolic value of the thumbnail.
+     */
+    public ThumbnailDataPair(Thumbnail thumbnail, Number value)
+    {
+        if(thumbnail == null || value == null)
+        {
+            throw new IllegalArgumentException("Null parameters");
+        }
+        
+        this.thumbnail = thumbnail;
+        this.value = value;
+    }
+    
+    public Thumbnail getThumbnail()
+    {
+        return thumbnail;
+    }
+    
+    public Number getValue()
+    {
+        return value;
+    }
 }

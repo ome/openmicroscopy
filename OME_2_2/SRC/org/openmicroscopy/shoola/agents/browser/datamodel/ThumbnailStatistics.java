@@ -36,6 +36,8 @@
 package org.openmicroscopy.shoola.agents.browser.datamodel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.openmicroscopy.ds.dto.Attribute;
@@ -153,13 +155,14 @@ public class ThumbnailStatistics
      *         specified element.
      * @throws IllegalArgumentException If any of the parameters are null.
      */
-    public static Thumbnail[] sortByValue(Thumbnail[] thumbnails,
-                                          DisplayValueMode multiValue,
-                                          String attributeName,
-                                          String elementName)
+    public static ThumbnailDataPair[] sortByValue(Thumbnail[] thumbnails,
+                                                  DisplayValueMode multiValue,
+                                                  String attributeName,
+                                                  String elementName)
         throws IllegalArgumentException
     {
-        if(thumbnails == null || attributeName == null || elementName == null)
+        if(thumbnails == null || attributeName == null || elementName == null
+           || multiValue == null)
         {
             throw new IllegalArgumentException("null parameters");
         }
@@ -167,7 +170,53 @@ public class ThumbnailStatistics
         {
             return new Thumbnail[] {};
         }
-        return null;
         
+        ElementComparator ec = new ElementComparator(attributeName,
+                                                     elementName,
+                                                     multiValue);
+        Thumbnail[] validList = filterEmpties(thumbnails,attributeName,elementName);
+        List thumbnailList = Arrays.asList(validList);
+        Collections.sort(thumbnailList,ec);
+        
+        ThumbnailDataPair[] returnList = new ThumbnailDataPair[thumbnailList.size()];
+        for(int i=0;i<thumbnailList.size();i++)
+        {
+            Thumbnail thumb = (Thumbnail)thumbnailList.get(i);
+            Number value = ec.getState(thumb);
+            returnList[i] = new ThumbnailDataPair(thumb,value);
+        }
+        return returnList;
     }
+    
+    /*
+     * Removes thumbnails without a loaded attribute/element from the array.
+     */
+    private static Thumbnail[] filterEmpties(Thumbnail[] thumbnails,
+                                             String attributeName,
+                                             String elementName)
+    {
+        if(thumbnails == null || attributeName == null ||
+           elementName == null)
+        {
+            throw new IllegalArgumentException("Null parameters");
+        }
+        
+        List thumbnailList = new ArrayList();
+        for(int i=0;i<thumbnails.length;i++)
+        {
+            ThumbnailDataModel tdm = thumbnails[i].getModel();
+            AttributeMap am = tdm.getAttributeMap();
+            List attributes = am.getAttributes(attributeName);
+            // assumption-- element filled in if the attribute is valid.  this
+            // might be a big assumption, but I'm not really sure if it is.
+            // it'll come up in runtime quickly if I'm wrong.
+            if(attributes != null && attributes.size() > 0)
+            {
+                thumbnailList.add(thumbnails[i]);
+            }
+        }
+        Thumbnail[] returnVal = new Thumbnail[thumbnailList.size()];
+        thumbnailList.toArray(returnVal);
+        return returnVal;
+    }                                 
 }
