@@ -40,6 +40,12 @@ import javax.swing.BoxLayout;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
+import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
+import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
+import org.openmicroscopy.shoola.agents.events.SelectDataset;
+
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.
@@ -47,23 +53,25 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
- * An example of a top-level window that inherits from {@link TopWindow}.
+ * A top-level window for a zoomable project browser 
  * 
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </smalbl>
  * @since OME2.2
  */
-public class MainWindow extends TopWindow implements ComponentListener
+public class MainWindow extends TopWindow implements ComponentListener, 
+	AgentEventListener
 {
 	
 	/** horizontal extent */
@@ -136,7 +144,12 @@ public class MainWindow extends TopWindow implements ComponentListener
 		this.dataManager = dataManager;
 		icons = dataManager.getIconFactory();
 		
+		
 		configureDisplayButtons();
+		Registry registry = dataManager.getRegistry();
+		registry.getEventBus().register(this,
+				new Class[] { 
+					SelectAnalysisChain.class,MouseOverAnalysisChain.class});
 		//enableButtons(false);
 		//buildGUI();
 	}
@@ -152,6 +165,8 @@ public class MainWindow extends TopWindow implements ComponentListener
 	
 	public void setRolloverDataset(BrowserDatasetData dataset) {
 		projectBrowser.setRolloverDataset(dataset);
+		MouseOverDataset event = new MouseOverDataset(dataset);
+		dataManager.getRegistry().getEventBus().post(event);
 	}
 	
 	public void setSelectedProject(BrowserProjectSummary proj) {
@@ -160,6 +175,19 @@ public class MainWindow extends TopWindow implements ComponentListener
 	
 	public void setSelectedDataset(BrowserDatasetData dataset) {
 		projectBrowser.setSelectedDataset(dataset);
+		SelectDataset event = new SelectDataset(dataset);
+		dataManager.getRegistry().getEventBus().post(event);
+	}
+	
+	public void eventFired(AgentEvent e) {
+		if (e instanceof AnalysisChainEvent) {
+			AnalysisChainEvent event = (AnalysisChainEvent) e;
+			AnalysisChainData chain = event.getAnalysisChain();
+			if (event instanceof SelectAnalysisChain)
+				datasetBrowser.selectAnalysisChain(chain);
+			else if (event instanceof MouseOverAnalysisChain)
+				datasetBrowser.mouseOverAnalysisChain(chain);
+		}
 	}
 	
 	public void componentHidden(ComponentEvent e) {
@@ -175,4 +203,6 @@ public class MainWindow extends TopWindow implements ComponentListener
 		if (datasetBrowser != null)
 			datasetBrowser.scaleToSize();
 	}
+	
+	
 }
