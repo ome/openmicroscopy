@@ -113,14 +113,15 @@ public class DataServicesFactory
     {
         return ps;
     }
-	
+
 	/**
-	 * Try to connect to OMEDS.
+	 * Tries to connect to <i>OMEDS</i>.
 	 * 
-	* @throws DSOutOfServiceException If the connection is broken, or logged in
-	* @throws DSAccessException If an error occured while trying to 
-	* 			retrieve data from OMEDS service.
-	*/
+	 * @throws DSOutOfServiceException If the connection can't be established
+	 * 									or the credentials are invalid.							
+	 * @throws DSAccessException If the user ID can't be retrieved from 
+	 * 								<i>OMEDS</i>.
+	 */
 	public void connect()
 		throws DSOutOfServiceException, DSAccessException
 	{
