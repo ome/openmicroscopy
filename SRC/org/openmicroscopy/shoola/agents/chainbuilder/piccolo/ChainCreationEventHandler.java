@@ -235,6 +235,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	protected void drag(PInputEvent e) {
 		PNode node = e.getPickedNode();
+		System.err.println("calling drag on "+node);
 		
 		if (node instanceof ModuleView) {
 			if (linkState != LINKING_MODULES) {
@@ -254,6 +255,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else if (!(node instanceof FormalParameter) 
 			&& linkState == NOT_LINKING){
+			System.err.println("super drag.....");
 			super.drag(e);
 			e.setHandled(true);
 		}
@@ -340,6 +342,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * mouseDragged() behavior is equivalent to mouseMoved() behavior.
 	 */
 	public void mouseDragged(PInputEvent e) {
+		System.err.println("mouse dragged..."+e.getPickedNode());
 	//	System.err.println("CHAIN HANDLER:got a drag event in chain canvas");
 		mouseMoved(e);
 		super.mouseDragged(e);
@@ -488,6 +491,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			evaluatePopup(e);
 			return;
 		}
+		
+		super.mousePressed(e);
 		PNode node = e.getPickedNode();
 		
 		//System.err.println("mouse pressed on "+node+", state "+linkState);
@@ -600,8 +605,15 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedLinkingModules(PNode node,PInputEvent e) {
 		int count = e.getClickCount();
+		System.err.println("node is..."+node);
+		if (node instanceof ParamLink)
+			System.err.println("param link");
+		if (node instanceof ModuleLink)
+			System.err.println("module link");
 		
+		System.err.println("caling mouse pressed linking modules..");
 		if (count ==2) {
+			System.err.println("2 presses..");
 			if (node instanceof FormalParameter) {
 				FormalParameter p = (FormalParameter) node;
 				ModuleView mod = p.getModuleView();
@@ -613,8 +625,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			else
 				cancelModuleLinks();
 		}
-		else if (node instanceof PCamera){ // single click on camera 
+		else if (node instanceof PCamera){ // single click on camera
+			System.err.println("on camera");
 			//when linking modules..
+			System.err.println("adding an intermediate point to modules link");
+			
 			Iterator iter = links.iterator();
 			Point2D pos = e.getPosition();
 			ParamLink lnk;
@@ -778,6 +793,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		while (iter.hasNext()) {
 			FormalParameter param = (FormalParameter) iter.next();
 			ParamLink link = new ParamLink();
+			link.setPickable(false);
+			link.setChildrenPickable(false);
 			linkLayer.addChild(link);
 			link.setStartParam(param);
 			link.setPickable(false);
