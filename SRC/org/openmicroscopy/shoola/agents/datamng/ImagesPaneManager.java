@@ -187,7 +187,7 @@ class ImagesPaneManager
 			for (int i = 0; i < images.length; i++) {
 				is = (ImageSummary) images[i];
 				data[i][0] = is.getName();
-				data[i][1] = is.getDate(); //TODO
+				data[i][1] = ""; //TODO: is.getDate();
 			}
 		}
 
