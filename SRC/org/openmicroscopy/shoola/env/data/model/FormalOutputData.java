@@ -58,7 +58,7 @@ public class FormalOutputData
 						
 	private FormalOutput formalOutputDTO;
 	
-	public FormalOutputData() {};
+	public FormalOutputData() {}
 	
 	public FormalOutputData(int id, String name, String description,
 			ModuleData module,boolean isOptional,boolean isList,

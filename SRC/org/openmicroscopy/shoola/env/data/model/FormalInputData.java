@@ -60,7 +60,7 @@ public class FormalInputData
 						
 	private FormalInput 		formalInputDTO;
 	
-	public FormalInputData() {};
+	public FormalInputData() {}
 	
 	public FormalInputData(int id, String name, String description,
 			ModuleData module,boolean isOptional,boolean isList,
