@@ -89,5 +89,4 @@ public class LayoutModule extends ModuleView {
 	public double getHeight() {
 		return  DUMMY_HEIGHT;
 	}
-} 
-	
+}
