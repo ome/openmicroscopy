@@ -34,7 +34,9 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.XmlRpcCaller;
+import org.openmicroscopy.ds.DataFactory;
+import org.openmicroscopy.ds.DataServer;
+import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
@@ -56,51 +58,76 @@ import org.openmicroscopy.shoola.env.ui.UserCredentials;
  * </small>
  * @since OME2.2
  */
-
 public class DataServicesFactory
 {
-    
-    private static Registry		registry;
-    private static DMSProxy		dms;
-    private static STSProxy		sts;
-    private static XmlRpcCaller	transport;
-    
-    
+	
+	private static DataServicesFactory		singleton;
 	
 	//NB: this can't be called outside of container b/c agents have no refs
 	//to the singleton container. So we can be sure this method is going to
 	//create services just once.
-	public static void createDataServices(Container c)
+	public static DataServicesFactory getInstance(Container c)
 	{
 		if (c == null)
-			throw new NullPointerException();  //An agent called this?
-		registry = c.getRegistry();
-		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
-		if (info == null)
-			throw new NullPointerException("No data server host provided!");
-		//TODO: convert the above in a sound exception.
-		transport = new XmlRpcCaller(info.getServerAddress()); //URL
-		dms = new DMSProxy(transport);
-		sts = new STSProxy(transport);
+			throw new NullPointerException();  //An agent called this method?
+		if (singleton == null)	singleton = new DataServicesFactory(c);
+		return singleton;
 	}
 	
-	public static DataManagementService getDMS()
+	private Registry		registry;
+	private RemoteCaller	proxy;
+	private DMSAdapter		dms;
+	private STSAdapter		sts;
+	
+	
+	private DataServicesFactory(Container c)
+	{
+		registry = c.getRegistry();
+		
+		//Retrieve the connection URL and create the proxy.
+		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
+		if (info == null)  //TODO: get rid of this when we have an XML schema.
+			throw new NullPointerException("No data server host provided!");
+		proxy = DataServer.getDefaultCaller(info.getServerAddress());
+		
+		//Create the DMS adapter.
+		DataFactory omeds = new DataFactory(proxy);
+		dms = new DMSAdapter(omeds); 
+		
+		//Create the STS adapter.
+		//TODO: implement when SemanticTypeManager is ready.
+	}
+	
+	public DataManagementService getDMS()
 	{
 		return dms;
 	}
-	
-	public static SemanticTypesService getSTS()
+
+	public SemanticTypesService getSTS()
 	{
 		return sts;
 	}
-	
-	public static void doLogin()
+
+	public void connect()
 	{
 		UserCredentials uc = (UserCredentials)
 								registry.lookup(LookupNames.USER_CREDENTIALS);
 		//uc can't be null b/c there's no way to call this method b/f init.
-		transport.login(uc.getUserName(), uc.getPassword());
-		//TODO: check outcome of logging in.
+		try {
+			proxy.login(uc.getUserName(), uc.getPassword());
+		} catch (Exception e) {
+			//TODO: handle exception by throwing upper-level exception.
+		}
+	}
+	
+	public void shutdown()
+	{
+		try {
+			proxy.logout();
+			//proxy.dispose();	
+		} catch (Throwable e) {
+			//Ignore, we're quitting the app.
+		}
 	}
 	
 }
