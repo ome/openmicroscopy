@@ -32,8 +32,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
-
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -41,7 +43,6 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.border.Border;
 
 //Third-party libraries
 
@@ -66,7 +67,7 @@ public class TitlePanel
 {
 
 	/** Default color for the background. */
-	private Color	BACKGROUND = Color.WHITE;
+	private Color		BACKGROUND = Color.WHITE;
 	
 	/** 
 	 * Create an instance.
@@ -78,41 +79,87 @@ public class TitlePanel
 	public TitlePanel(String title, String text, Icon icon)
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(buildPanel(title, text, icon));
+		add(buildPanel(title, text, null, icon));
+		add(new JSeparator());
+	}
+
+	/** 
+	 * Create an instance.
+	 * 
+	 * @param title		title displayed in header.
+	 * @param text		brief summary to explain.
+	 * @param note		note to add.
+	 * @param icon		icon displayed in the header.
+	 */
+	public TitlePanel(String title, String text, String note, Icon icon)
+	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(buildPanel(title, text, note, icon));
 		add(new JSeparator());
 	}
 
 	/** Build header. */
-	private JPanel buildPanel(String title, String text, Icon icon)
+	private JPanel buildPanel(String title, String text, String note, Icon icon)
 	{
 		JPanel p = new JPanel();
 		p.setBackground(BACKGROUND);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(buildTextPanel(title, text));
+		p.add(buildTextPanel(title, text, note));
 		p.add(Box.createHorizontalGlue());
 		p.add(new JLabel(icon));
-		Border b = BorderFactory.createEmptyBorder(5, 10, 5, 10);
-		p.setBorder(b);
+		p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		return p;
 	}
-	
-	/** Build Panel with text displayed header. */
-	private JPanel buildTextPanel(String title, String text)
+
+	/** Build Panel with text displayed in the header. */
+	private JPanel buildTextPanel(String title, String text, String note)
 	{
-		JPanel p = new JPanel();
+		JPanel p = new JPanel(), pAll = new JPanel();
 		p.setBackground(BACKGROUND);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(setLabel(title));
-		p.add(new JLabel(" "+text));
-		return p;
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		p.setLayout(gridbag);
+		JLabel label = setTitleLabel(title);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.EAST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		gridbag.setConstraints(label, c);
+		p.add(label);
+		c.gridy = 1;
+		label = new JLabel(" "+text);
+		gridbag.setConstraints(label, c);
+		p.add(label);
+		if (note != null) {
+			c.gridy = 2;
+			MultilineLabel ml = setNoteLabel(" "+note);
+			gridbag.setConstraints(ml, c);
+			p.add(ml);
+		} 
+		//necessary to align panel on the left.
+		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
+		pAll.setBackground(BACKGROUND);
+		pAll.add(p);
+		return pAll;
 	}
 	
 	/** Set the font of the string to bold. */
-	private JLabel setLabel(String s)
+	private JLabel setTitleLabel(String s)
 	{
 		JLabel label = new JLabel(s);
 		Font font = label.getFont();
 		Font newFont = font.deriveFont(Font.BOLD);
+		label.setFont(newFont);
+		label.setBackground(Color.PINK);
+		return label;
+	}
+	
+	/** Set the font to italic. */
+	private MultilineLabel setNoteLabel(String s)
+	{
+		MultilineLabel label = new MultilineLabel(s);
+		Font font = label.getFont();
+		Font newFont = font.deriveFont(Font.ITALIC);
 		label.setFont(newFont);
 		return label;
 	}
