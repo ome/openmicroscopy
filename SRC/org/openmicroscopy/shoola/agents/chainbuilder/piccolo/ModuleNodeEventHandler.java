@@ -75,9 +75,12 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	}	
 	
 	public void mouseEntered(PInputEvent e) {
+		
 		PNode n = e.getPickedNode();
-		if (lastEntered == null || !lastEntered.isAncestorOf(n) )
+		if (lastEntered != null && !lastEntered.isAncestorOf(n))
 			unhighlightModules();
+		n = n.getParent();
+		
 		super.mouseEntered(e);
 	}
 	
