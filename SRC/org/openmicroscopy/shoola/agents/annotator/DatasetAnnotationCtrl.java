@@ -67,4 +67,13 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
         annotationList = annotator.getDatasetAnnotations(datasetID);
         attributeList = annotator.getDatasetAttributes(datasetID);
     }
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#save()
+	 */
+	public void save() 
+	{
+		//TODO Auto-generated method stub	
+	}
+	
 }

@@ -66,4 +66,13 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
         annotationList = annotator.getImageAnnotations(imageID);
         attributeList = null; // do not use this for attributes yet (if ever)
     }
+    
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#save()
+	 */
+	public void save() 
+	{
+		// TODO Auto-generated method stub
+	}
+	
 }
