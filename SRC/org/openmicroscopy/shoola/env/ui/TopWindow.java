@@ -50,12 +50,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <p>The constructor of this class automatically adds a button to the 
  * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry in the
  * {@link TaskBar#WINDOW_MENU} &#151; subclasses use the <code>configure</code>
- * methods to specify icons, names, and tooltips.  These are display-trigger
- * buttons that cause the window to be shown on screen.  This class uses the
+ * methods to specify icons, names, and tooltips. These are display-trigger
+ * buttons that cause the window to be shown on screen. This class uses the
  * {@link TopWindowManager} to control mouse clicks on these buttons as well as
  * to manage the display state of the window.</p>
  * <p>Agents with a single top level window typically have their window inherit
- * from this class.  The {@link #enableButtons(boolean) enableButtons} method
+ * from this class. The {@link #enableButtons(boolean) enableButtons} method
  * is provided so as to let agents control when the display buttons should be
  * disabled/enabled &#151; by default they're enabled.</p>
  *  
@@ -188,10 +188,7 @@ public abstract class TopWindow
 	/**
 	 * Brings up the window on screen.
 	 */
-	public void open()
-	{
-		quickLaunchBtn.doClick();
-	}
+	public void open() { quickLaunchBtn.doClick(); }
 	
 	/**
 	 * Disposes of the window and removes the display buttons from the
@@ -206,9 +203,7 @@ public abstract class TopWindow
 	
 	/**
 	 * A call for post-processing after the window is shown
-	 * 
 	 */
-	 public void postHandleDisplay() {
-	 	
-	 }
+	 public void postHandleDisplay() {}
+     
 }

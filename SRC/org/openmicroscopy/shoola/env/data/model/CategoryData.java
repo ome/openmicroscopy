@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,29 @@ public class CategoryData
                 images.add(((ImageSummary) k.next()).copyObject());  
         }
         return images;
+    }
+    
+    public Map getImageClassifications()
+    {
+        Map ids = new HashMap();
+        if (classifications != null) {
+            Iterator k = classifications.keySet().iterator();
+            ImageSummary is;
+            Integer imageID;
+            List l;
+            while (k.hasNext()) {
+                is = (ImageSummary) k.next();
+                imageID = new Integer(is.getID());
+                l = (List) ids.get(imageID);
+                if (l == null) {
+                    l = new ArrayList();
+                    ids.put(imageID, l);
+                }
+                l.add(
+                 ((ClassificationData) classifications.get(is)).copyObject());
+            } 
+        }
+        return ids;
     }
     
     public CategoryGroupData getCategoryGroup() { return categoryGroupData; }

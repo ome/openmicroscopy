@@ -35,6 +35,7 @@ import java.awt.Container;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
@@ -97,75 +98,65 @@ public class CreateDatasetEditor
 	/** Return the {@link CreateDatasetEditorManager manager} of the widget. */
 	CreateDatasetEditorManager getManager() { return manager; }
 	
-	/** Returns the TextArea displayed in {@link CreateDatasetPane}. */
+	/** Returns the TextArea displayed by {@link CreateDatasetPane}. */
 	JTextArea getDescriptionArea() { return creationPane.descriptionArea; }
 
-	/** Returns the textArea displayed in {@link CreateDatasetPane}. */
+	/** Returns the textArea displayed by {@link CreateDatasetPane}. */
 	JTextArea getNameArea() { return creationPane.nameArea; }
 	
-	/** Returns the save button displayed in {@link CreateDatasetEditorBar}. */
+	/** Returns the save button displayed by {@link CreateDatasetEditorBar}. */
 	JButton getSaveButton() { return bar.getSave(); }
 
 	/** 
-	 * Returns the cancel button displayed in 
+	 * Returns the cancel button displayed by 
 	 * {@link CreateDatasetEditorBar}.
 	 */
 	JButton getCancelButton() { return bar.getCancel(); }
 	/** 
-	 * Returns the select button displayed in {@link CreateDatasetProjectsPane}.
+	 * Returns the select button displayed by {@link CreateDatasetProjectsPane}.
 	 */
 	JButton getSelectButton() { return projectsPane.selectButton; }
 
 	/** 
-	 * Returns the reset button displayed in {@link CreateDatasetProjectsPane}.
+	 * Returns the reset button displayed by {@link CreateDatasetProjectsPane}.
 	 */
 	JButton getResetProjectButton() { return projectsPane.resetButton; }
 	
 	/** 
-	 * Returns the select button displayed in {@link CreateDatasetImagesPane}.
+	 * Returns the select button displayed by {@link CreateDatasetImagesPane}.
 	 */
 	JButton getSelectImageButton() { return imagesPane.selectButton; }
 
 	/** 
-	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
+	 * Returns the cancel button displayed by {@link CreateDatasetImagesPane}.
 	 */
 	JButton getResetImageButton() { return imagesPane.resetButton; }
     
     /** 
      * Returns the showImages button displayed 
-     * in {@link CreateDatasetImagesPane}.
+     * by {@link CreateDatasetImagesPane}.
      */
     JButton getShowImagesButton() { return imagesPane.showImages; }
 	
+    /** 
+     * Returns the selection box displayed by {@link CreateDatasetImagesPane}.
+     */
+    JComboBox getImagesSelections() { return imagesPane.selections; }
+    
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
-	void selectAllProjects()
-	{
-		projectsPane.setSelection(Boolean.TRUE);
-	}
+	void selectAllProjects() { projectsPane.setSelection(Boolean.TRUE); }
 
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
-	void resetSelectionProject()
-	{
-		projectsPane.setSelection(Boolean.FALSE);
-	}
+	void resetSelectionProject() { projectsPane.setSelection(Boolean.FALSE); }
 	
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-	void selectAllImages()
-	{
-		imagesPane.setSelection(Boolean.TRUE);
-	}
+	void selectAllImages() { imagesPane.setSelection(Boolean.TRUE); }
 
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-	void resetSelectionImage()
-	{
-		imagesPane.setSelection(Boolean.FALSE);
-	}
+	void resetSelectionImage() { imagesPane.setSelection(Boolean.FALSE); }
     
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-    void showImages(List images)
-    {
-        imagesPane.showImages(images);
-    }
+    void showImages(List images) { imagesPane.showImages(images); }
     
 	/** Build and lay out the GUI. */
 	private void buildGUI()

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -44,6 +45,7 @@ import javax.swing.JTextArea;
 
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
@@ -80,14 +82,15 @@ class CreateCategoryPane
 
     JComboBox                   groups;
     
-    CreateCategoryPane(List existingGroups) 
+    CreateCategoryPane(List existingGroups, int selectedCategoryGroupID) 
     {
-        initComponents(existingGroups);
+        initComponents(existingGroups, selectedCategoryGroupID);
         buildGUI();
     }
     
     /** Initializes the components. */
-    private void initComponents(List existingGroups)
+    private void initComponents(List existingGroups, 
+                                int selectedCategoryGroupID)
     {   
         //textfields
         nameArea = new MultilineLabel("");
@@ -96,7 +99,19 @@ class CreateCategoryPane
         descriptionArea = new MultilineLabel("");
         descriptionArea.setForeground(DataManagerUIF.STEELBLUE);
         descriptionArea.setEditable(true);
-        groups = new JComboBox(existingGroups.toArray());
+        Iterator i = existingGroups.iterator();
+        CategoryGroupData data;
+        int selectedIndex = 0, j = 0;
+        Object[] groupData = new Object[existingGroups.size()];
+        while (i.hasNext()) {
+            data = (CategoryGroupData) i.next();
+            groupData[j] = data;
+            if (data.getID() == selectedCategoryGroupID)
+                selectedIndex = j;
+            j++;
+        }
+        groups = new JComboBox(groupData);
+        groups.setSelectedIndex(selectedIndex);
     }
     
     /** Build and lay out the GUI. */

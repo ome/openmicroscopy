@@ -14,15 +14,22 @@
     * This install file.
 
   Locate the "container.xml" file within the "config" directory and edit this
-  file to specify the URL to the OME Data Server (OMEDS).  All you have to do
-  is to modify the content of the url tag within the following entry:
+  file to specify the URL of the OME Data Server (OMEDS) and the OME
+  Image Server (OMEIS).  All you have to do is to modify the content
+  of the url tags within the following entries: 
 
-    <structuredEntry name="/services/OMEDS" type = "OMEDS">
-	  <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
+    <structuredEntry name="/services/OMEIS" type = "OMEIS">
+	  <url>http://yourhost/cgi-bin/omeis</url>
     </structuredEntry>
 
-  You have to replace "http://valewalker.openmicroscopy.org.uk/shoola" with
-  the actual OMEDS URL in use at your site.
+    <structuredEntry name="/services/OMEDS" type = "OMEDS">
+	  <url>http://yourhost/shoola</url>
+    </structuredEntry>
+
+  You have to replace "http://yourhost/cgi-bin/omeis" and
+  "http://yourhost/shoola"  with  the actual OMEIS and OMEDS URLs in
+  use at your site. Most likely, this will simply involve changing
+  "yourhost" to the name of your local host.
 
 
   ____________________

@@ -64,9 +64,9 @@ public class PlayerUI
 
     private static final Dimension  V_SPACE = new Dimension(0, 20);
     
-    private ControlsPane            cPane;
+    ControlsPane                    cPane;
     
-    private MoviePane               mPane;
+    MoviePane                       mPane;
    
     private PlayerUIMng             manager;
     
@@ -78,10 +78,6 @@ public class PlayerUI
         init(reg, maxT, maxZ, settings);
         buildGUI();
     }
-    
-    ControlsPane getCPane() { return cPane; }
-    
-    MoviePane getMPane() { return mPane; }
     
     /** Initialize the two GUI components. */
     private void init(Registry reg, int maxT, int maxZ, MovieSettings settings)

@@ -129,10 +129,11 @@ class TreePopupMenuManager
 				agentCtrl.annotateImage(((ImageSummary) target));
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
-            else if (src == view.refresh) agentCtrl.refresh(target);
-		} else {
-			//if (src == view.refresh) agentCtrl.refresh();
-		}
+            else if (src == view.refresh) 
+                agentCtrl.refresh(target);
+		} else if (target == null && src == view.refresh)
+            agentCtrl.refresh(DataManagerCtrl.EXPLORER);
+            
 		view.setVisible(false);
 	}
 	

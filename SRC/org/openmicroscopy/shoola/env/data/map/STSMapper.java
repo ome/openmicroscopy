@@ -85,27 +85,7 @@ public class STSMapper
         c.addFilter("id", new Integer(objectID));
         return c;
     }
-    
-   	/** 
-   	 * Return a criteria containing the information
-   	 * required to call createAttribute(typeName, objectID).
-   	 * 
-   	 * @param granularity	The granularity of the attribute.
-     * @param targetID		The ID of the target.
-   	 */
-    /*
-   	public static Criteria buildCreateNew(String granularity, int objectID) 
-   	{
-   		Criteria c = new Criteria();
-   		if (granularity.equals(DATASET_GRANULARITY) || 
-   			granularity.equals(FEATURE_GRANULARITY))
-			c.addWantedField("id");
-   		else if (granularity.equals(IMAGE_GRANULARITY))	
-			c.addWantedField(":all:");
-		c.addFilter("id", new Integer(objectID));
-   		return c;
-   	}
-    */
+
 	/** 
 	 *
 	 * @param granularity
@@ -186,10 +166,8 @@ public class STSMapper
 			if (nextIndex == -1) {
 			   c.addWantedField(childString, ":all:");
 			   found = true;
-			} else {
-			   String substr = childString.substring(0, nextIndex);
-			   c.addWantedField(substr, ":all:");
-			}
+			} else
+			   c.addWantedField(childString.substring(0, nextIndex), ":all:");
 		   nextIndex++;
 		}
 		return c;
@@ -220,26 +198,6 @@ public class STSMapper
 		if (column != null) c.addFilter(column, "IN", Arrays.asList(targetIDs));
 		return c;
 	}
-    
-    /**
-     * Builds the default retrieval criteria for image classifications.  A dataset
-     * ID is needed to filter which classifications are returned. Classifications
-     * are image-granular, but their categories are currently dataset-granular.
-     * 
-     * @param targetIDs The IDs of the images to query.
-     * @param datasetID The ID of the dataset of the images.
-     * @return A criteria to retrieve image classification STs from the database.
-     */
-    /*
-    public static Criteria buildClassificationRetrieveCriteria(
-                            Number[] targetIDs, int datasetID)
-    {
-        if (targetIDs == null || targetIDs.length == 0) return null;
-        Criteria c = buildDefaultRetrieveCriteria(IMAGE_GRANULARITY, targetIDs);
-        c.addFilter("Category.dataset", new Integer(datasetID));
-        return c;
-    }
-    */
 
 	/**
 	 * 

@@ -109,16 +109,39 @@ class DatasetEditorManager
 		imagesToAddToRemove = new ArrayList();
 	}
 	
+    DataManagerCtrl getAgentControl() { return control; }
+    
+    DatasetEditor getView() { return view; }
+    
+    DatasetData getDatasetData() { return model; }
+    
 	List getImages() { return getDatasetData().getImages(); }
 	
 	List getImagesToAdd() { return imagesToAdd; }
 	
 	List getImagesToAddToRemove() { return imagesToAddToRemove; }
-	
-	DatasetEditor getView() { return view; }
-	
-	DatasetData getDatasetData() { return model; }
 
+    List getImagesDiff() { return control.getImagesDiff(model); }
+    
+    List getUserDatasets() { return control.getUserDatasets(); }
+    
+    /*
+    List getImagesInUserDatasetsDiff(List datasets)
+    { 
+        return control.getImagesInUserDatasetsDiff(model, datasets);
+    }
+    */
+    
+    List getImagesInUserGroupDiff()
+    {
+        return control.getImagesInUserGroupDiff(model);
+    }
+    
+    List getImagesInSystemDiff()
+    {
+        return control.getImagesInSystemDiff(model);
+    }
+    
 	/** Initializes the listeners. */
 	void initListeners()
 	{
@@ -138,12 +161,6 @@ class DatasetEditorManager
 		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
-	
-    private void attachButtonListener(JButton button, int id)
-    {
-        button.addActionListener(this);
-        button.setActionCommand(""+id);
-    }
     
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
@@ -175,19 +192,13 @@ class DatasetEditorManager
 	/** Bring up the images selection dialog. */
 	private void showImagesSelection()
 	{
-		if (dialog == null) {
-			List imagesDiff = control.getImagesDiff(model);
-			dialog = new DatasetImagesDiffPane(this, imagesDiff);
-		} else {
-			dialog.remove(dialog.getContents());
-			dialog.buildGUI();
-		}
+		if (dialog == null) dialog = new DatasetImagesDiffPane(this);
+		else dialog.removeDisplay();
 		UIUtilities.centerAndShow(dialog);
 		view.setSelectedPane(DatasetEditor.POS_IMAGE);
 		view.getSaveButton().setEnabled(true);	
 	}
-	
-	
+
 	/** Add the list of selected images to the {@link ProjectDatasetPane}. */
 	void addImagesSelection(List l)
 	{
@@ -290,6 +301,12 @@ class DatasetEditorManager
 		view.rebuildComponent();
 	}
 
+    /** Attach an {@link ActionListener} to a JButton. */
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
 	
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)

@@ -32,10 +32,12 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -75,6 +77,25 @@ class DatasetImagesDiffPane
 	extends JDialog
 {
 	
+    static final String[]                   listOfItems;
+    
+    static final int                        IMAGES_IMPORTED = 0;
+    static final int                        IMAGES_USED = 1;
+    static final int                        IMAGES_GROUP = 2;
+    static final int                        IMAGES_SYSTEM = 3;
+    private static final int                MAX_ID = 3;
+    
+    static {
+        listOfItems = new String[MAX_ID+1];
+        listOfItems[IMAGES_IMPORTED] = "All images I own";
+        listOfItems[IMAGES_USED] = "All images in my datasets";
+        listOfItems[IMAGES_GROUP] = "All images in my group";
+        listOfItems[IMAGES_SYSTEM] = "All images";
+    }
+    
+    /** List of images we wish to display. */
+    JComboBox                               selections;
+    
 	/** Action id. */
 	private static final int               NAME = 0, SELECT = 1;
 			
@@ -87,7 +108,7 @@ class DatasetImagesDiffPane
 	}
 	
 	JButton                                selectButton, cancelButton, 
-                                           saveButton;
+                                           saveButton, showImages;
 											
 	private ImagesTableModel               imagesTM;
 	
@@ -96,19 +117,20 @@ class DatasetImagesDiffPane
 	/** Reference to the control of the main widget. */
 	private DatasetEditorManager           control;
 	
-	private JPanel                         contents;
-	
+	private JPanel                         contents, componentsPanel, 
+                                           selectionsPanel;
+
 	private IconManager                    im;
 	
 	private DatasetImagesDiffPaneManager   manager;
 	
-	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
+	DatasetImagesDiffPane(DatasetEditorManager control)
 	{
 		super(control.getView(), "List of exiting images", true);
 		this.control = control;
 		im = IconManager.getInstance(control.getView().getRegistry());
-		initButtons(imagesDiff);
-		manager = new DatasetImagesDiffPaneManager(this, control, imagesDiff);
+		initComponents();
+		manager = new DatasetImagesDiffPaneManager(this, control);
 		buildGUI();
 	}
 	
@@ -127,8 +149,35 @@ class DatasetImagesDiffPane
 			imagesTM.setValueAt(val, i, countCol);
 	}
 	
+    /** Remove the table with list of images. */
+    void removeDisplay()
+    {
+        contents.removeAll();
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(componentsPanel);
+        p.add(selectionsPanel);
+        contents.add(p);
+        pack();
+    }
+    
+    /** Display the specified list of images. */
+    void showImages(List images)
+    {
+        contents.removeAll();
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(componentsPanel);
+        p.add(selectionsPanel);
+        contents.add(p);
+        if (images != null && images.size() != 0) 
+           contents.add(buildImagesPanel(images)); 
+        //repaint(); 
+        pack();
+    }
+    
 	/** initializes the controls. */
-	private void initButtons(List img)
+	private void initComponents()
 	{
 		//remove button
 		selectButton = new JButton("Select All");
@@ -146,43 +195,59 @@ class DatasetImagesDiffPane
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add the selection."));
 		
-		if (img == null ||img.size() == 0) {
-			selectButton.setEnabled(false);
-			cancelButton.setEnabled(false);
-			saveButton.setEnabled(false);
-		}
+        showImages = new JButton("Show Images");
+        showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        showImages.setToolTipText(
+            UIUtilities.formatToolTipText("Show Images."));
+        selections = new JComboBox(listOfItems);
 	}
 	
-	/** Build and lay out the GUI. */
-	void buildGUI()
-	{
-		TitlePanel tp = new TitlePanel("Add images", 
-							"Select images to add to the dataset.", 
-							im.getIcon(IconManager.IMAGE_BIG));
-		contents = buildImagesPanel();
-		contents.setSize(DataManagerUIF.ADD_WIN_WIDTH, 
-                        DataManagerUIF.ADD_WIN_HEIGHT);
-		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(contents, BorderLayout.CENTER);
-		setSize(DataManagerUIF.ADD_WIN_WIDTH, DataManagerUIF.ADD_WIN_HEIGHT);
-	}
+    /** Build and lay out the GUI. */
+    private void buildGUI()
+    {
+        TitlePanel tp = new TitlePanel("Add images", 
+                    "Select images to add to the dataset.", 
+                im.getIcon(IconManager.IMAGE_BIG));
+        buildComponentsPanel();
+        selectionsPanel = UIUtilities.buildComponentPanel(selections);
+        contents = new JPanel();
+        contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(componentsPanel);
+        p.add(selectionsPanel);
+        contents.add(p);
+        getContentPane().add(tp, BorderLayout.NORTH);
+        getContentPane().add(contents, BorderLayout.CENTER);
+        setSize(DataManagerUIF.ADD_WIN_WIDTH+100, 
+                DataManagerUIF.ADD_WIN_HEIGHT);
+    }
+
+    /** Display the buttons in a JPanel. */
+    private void buildComponentsPanel()
+    {
+        componentsPanel = new JPanel();
+        componentsPanel.setLayout(new BoxLayout(componentsPanel, 
+                                    BoxLayout.X_AXIS));
+        componentsPanel.add(cancelButton);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(selectButton);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(saveButton);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(showImages);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.setOpaque(false); //make panel transparent
+    }
 	
 	/** Build panel with table. */
-	JPanel buildImagesPanel()
+	JPanel buildImagesPanel(List images)
 	{
-		JPanel controls = new JPanel(), p = new JPanel();
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(cancelButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(selectButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(saveButton);
-		controls.setOpaque(false); //make panel transparent
-		
+		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
 		//datasets table
-		imagesTM = new ImagesTableModel();
+		imagesTM = new ImagesTableModel(images);
 		JTable t = new JTable();
 		sorter = new TableSorter(imagesTM);  
 		t.setModel(sorter);
@@ -190,13 +255,9 @@ class DatasetImagesDiffPane
 		setTableLayout(t);
 		
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManagerUIF.EXTENDED_VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
-		JScrollPane sp = new JScrollPane(t);
-		p.add(sp);
-		p.add(Box.createRigidArea(DataManagerUIF.VBOX));
-		p.add(controls);
-		p.add(Box.createRigidArea(DataManagerUIF.VBOX));
+		p.add(new JScrollPane(t));
 		return p;
 	}
 
@@ -233,15 +294,17 @@ class DatasetImagesDiffPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"Name", "Add"};
-		private final Object[]	images = manager.getImagesDiff().toArray();
-		private Object[][] 		data = new Object[images.length][2];
+		private final String[]    columnNames = {"Name", "Add"};
+		private Object[]          images;
+		private Object[][]        data;
 		
-		private ImagesTableModel()
+		private ImagesTableModel(List imagesDiff)
 		{
+            images = imagesDiff.toArray();
+            data = new Object[images.length][2];
 			for (int i = 0; i < images.length; i++) {
 				data[i][0] = (ImageSummary) images[i];
-				data[i][1] = new Boolean(false);
+				data[i][1] = Boolean.FALSE;
 			}
 		}
 	

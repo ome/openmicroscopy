@@ -40,7 +40,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
-import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
@@ -54,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -170,6 +170,18 @@ public class DataManager
 			"not yet implemented"+images+" "+datasetID);
 	}
 	
+    /** Refresh the classifications tree. */
+    void refreshCategoryGroups()
+    {
+        if (presentation != null) presentation.rebuildCategoryGroupTree();
+    }
+    
+    /** Refresh the categorySummary. */
+    void refreshCategory(CategorySummary cs)
+    {
+        if (presentation != null) presentation.refreshCategory(cs);
+    }
+    
 	/** Refresh the all tree. */
 	void refresh()
 	{
@@ -185,8 +197,8 @@ public class DataManager
     }
     
 	/**
-	 * Return a list of {@link ImageSummary} objects imported by members of the 
-     * current user's group but not contained in the specified dataset.
+	 * Return a list of {@link ImageSummary} objects owned by the 
+     * current user but not contained in the specified dataset.
 	 * 
 	 * @param data    {@link DatasetData} object.
      * 
@@ -196,7 +208,7 @@ public class DataManager
 	{
 		List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getGroupImages();   
+            imagesDiff = getImportedImages();   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -217,6 +229,106 @@ public class DataManager
 		return imagesDiff;
 	}
 	
+    /**
+     * Return a list of {@link ImageSummary} objects currently in the user's 
+     * datasets but not contained in the specified dataset.
+     * 
+     * @param data    {@link DatasetData} object.
+     * 
+     * @return See above.
+     */
+    List getImagesInUserDatasetsDiff(DatasetData data, List datasets)
+    {
+        List imagesDiff = new ArrayList();
+        if (datasets == null || datasets.size() == 0) return imagesDiff;
+        try {
+            imagesDiff = getImagesInDatasets(datasets);//getUsedImages();   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
+    /**
+     * Return a list of {@link ImageSummary} objects owned by member of the 
+     * user's group but not contained in the specified dataset.
+     * 
+     * @param data    {@link DatasetData} object.
+     * 
+     * @return See above.
+     */
+    List getImagesInUserGroupDiff(DatasetData data)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = getGroupImages();   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
+    /**
+     * Return a list of all {@link ImageSummary} objects 
+     * but not contained in the specified dataset.
+     * 
+     * @param data    {@link DatasetData} object.
+     * 
+     * @return See above.
+     */
+    List getImagesInSystemDiff(DatasetData data)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = getSystemImages();   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
 	/**
 	 * Return the list of {@link DatasetSummary} objects that belong to the user
 	 * but which are not linked to the specified project.
@@ -369,6 +481,31 @@ public class DataManager
         return new ArrayList();
     }
     
+    /** 
+     * Retrieve the images contained in the list of datasets
+     * 
+     * @param datasets    list of datasetSummary.
+     * @return list of {@link ImageSummary} objects contained in the datasets.
+     */
+    List getImagesInDatasets(List datasets)
+        throws DSAccessException
+    {
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            Iterator i = datasets.iterator();
+            List datasetIDs = new ArrayList();
+            while (i.hasNext()) 
+                datasetIDs.add(
+                        new Integer(((DatasetSummary) i.next()).getID()));  
+            return dms.retrieveImagesInUserDatasets(datasetIDs);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return new ArrayList();
+    }
+    
     /**
      * Returns the images imported by the users who belong to the same group
      * as the current user.
@@ -383,7 +520,7 @@ public class DataManager
     {
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            return dms.retrieveUserGroupImages();
+            return dms.retrieveImagesInUserGroup();
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -721,8 +858,10 @@ public class DataManager
 	 */
 	void viewDataset(int datasetID)
 	{
-		LoadDataset request = new LoadDataset(datasetID);
-		registry.getEventBus().post(request);	
+        getRegistry().getUserNotifier().notifyInfo("Browser", 
+                "Sorry, not yet implemented ");  
+		//LoadDataset request = new LoadDataset(datasetID);
+		//registry.getEventBus().post(request);	
 	}
 
 	/**
@@ -769,14 +908,20 @@ public class DataManager
         return new ArrayList();
     }
 
-    /** Retrieve all images not classified in the specified group. */
-    List retrieveImagesNotInGroup(CategoryGroupData group)
+    /** 
+     * Return the images owned by the user but not contained in the
+     * specified CategoryGroup.
+     * 
+     * @param group     corresponding data object.
+     * @return  list of {@link ImageSummary}s.
+     */
+    List retrieveImagesNotInCategoryGroup(CategoryGroupData group)
         throws DSAccessException
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
             //return sts.retrieveImagesNotInGroup(group);
-            return sts.retrieveImagesNotInGroup(group.getID());
+            return sts.retrieveImagesNotInCategoryGroup(group.getID());
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -786,8 +931,201 @@ public class DataManager
         return new ArrayList();
     }
     
-    /** Retrieve all categories in the specified group, the categories
-     * don't contain images already in the group. */
+    /** 
+     * Retrieve all images not classified in the specified group. 
+     * and contained in the specified datasets.
+     * 
+     * @param CategoryGroupData the specified group.
+     * @param List  List of {@link DatasetSummary} objects.
+     */
+    List retrieveImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData group,
+            List datasets)
+        throws DSAccessException
+    {
+        if (datasets == null || datasets.size() == 0) return new ArrayList();
+        try { 
+            List ids = new ArrayList();
+            Iterator i = datasets.iterator();
+            while (i.hasNext())
+                ids.add(new Integer(((DatasetSummary) i.next()).getID()));
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveImagesInUserDatasetsNotInCategoryGroup(group, 
+                    ids);
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
+    }
+    
+    /** Retrieve all images not classified in the specified group. */
+    List retrieveImagesInUserGroupNotInCategoryGroup(CategoryGroupData group)
+        throws DSAccessException
+    {
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveImagesInUserGroupNotInCategoryGroup(group);
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
+    }
+    
+    /** Retrieve all images not classified in the specified group. */
+    List retrieveImagesInSystemNotInCategoryGroup(CategoryGroupData group)
+        throws DSAccessException
+    {
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveImagesInSystemNotInCategoryGroup(group);
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
+    }
+    
+    /**
+     * Retrieve images owned by the user but not already in the specified 
+     * {@link CategoryData category}.
+     * @param data  specified category.
+     * @return See above.
+     */
+    List retrieveImagesDiffNotInCategoryGroup(CategoryData data)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = retrieveImagesNotInCategoryGroup(
+                        data.getCategoryGroup());   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
+    /**
+     * Retrieve images used by the current user but not already in the specified 
+     * {@link CategoryData category}.
+     * 
+     * @param data  specified category.
+     * @return See above.
+     */
+    List retrieveImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData data, 
+            List datasets)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = retrieveImagesInUserDatasetsNotInCategoryGroup(
+                        data.getCategoryGroup(), datasets);   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
+    /**
+     * Retrieve images owned by members of the user's group
+     * but not already in the specified {@link CategoryData category}.
+     * @param data  specified category.
+     * @return See above.
+     */
+    List retrieveImagesDiffInUserGroupNotInCategoryGroup(CategoryData data)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = retrieveImagesInUserGroupNotInCategoryGroup(
+                        data.getCategoryGroup());   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }
+    
+    /**
+     * Retrieve all images in system but not already in the specified 
+     * {@link CategoryData category}.
+     * @param data  specified category.
+     * @return See above.
+     */
+    List retrieveImagesDiffInSystemNotInCategoryGroup(CategoryData data)
+    {
+        List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = retrieveImagesInSystemNotInCategoryGroup(
+                        data.getCategoryGroup());   
+            List images = data.getImages();
+            ImageSummary isg;
+            Iterator i;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                i = images.iterator();
+                while (i.hasNext()) {
+                    if (((ImageSummary) i.next()).getID() == isg.getID())  
+                        imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+        return imagesDiff;
+    }   
+    
+    /** 
+     * Retrieve all categories in the specified group, the categories
+     * don't contain images already in the group. 
+     */
     List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSAccessException
     {

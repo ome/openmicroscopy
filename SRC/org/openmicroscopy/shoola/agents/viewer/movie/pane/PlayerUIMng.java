@@ -68,67 +68,83 @@ public class PlayerUIMng
     
     public void setBorderPlay(boolean b)
     {
-        view.getCPane().getPlay().setBorderPainted(b);
+        view.cPane.play.setBorderPainted(b);
     }
     
     public int getStartZ()
     {
-        return Integer.parseInt(view.getMPane().getMovieStartZ().getText());
+        return Integer.parseInt(view.mPane.movieStartZ.getText());
     }
     
     public int getStartT()
     {
-        return Integer.parseInt(view.getMPane().getMovieStartT().getText());
+        return Integer.parseInt(view.mPane.movieStartT.getText());
     }
     
     public int getEndZ()
     {
-        return Integer.parseInt(view.getMPane().getMovieEndZ().getText());
+        return Integer.parseInt(view.mPane.movieEndZ.getText());
     }
     
     public int getEndT()
     {
-        return Integer.parseInt(view.getMPane().getMovieEndT().getText());
+        return Integer.parseInt(view.mPane.movieEndT.getText());
     }
     
+    /** Set the movie index.*/
     void setIndex(int index, int max, int startMovie, int endMovie)
     { 
         playerManager.setIndex(index, max, startMovie, endMovie);
     }
     
+    /** Set the start value. */
     void setStartMovie(int v)
     { 
-        if (!playerManager.isPlaying()) playerManager.setStartMovie(v);
+        stop();
+        setBorderPlay(false);
+        playerManager.setStartMovie(v);
     }
     
+    /** Set the end value. */
     void setEndMovie(int v)
     { 
-        if (!playerManager.isPlaying()) playerManager.setEndMovie(v);
+        stop();
+        setBorderPlay(false);
+        playerManager.setEndMovie(v);
     }
-
+    
+    /** Start playing the movie. */
     void play()
     { 
         if (!playerManager.isPlaying()) playerManager.play();
     }
     
+    /** Stop playing the movie. */
     void pause()
     { 
         if (playerManager.isPlaying()) playerManager.pause(); 
     }
     
+    /** Stop playing the movie. */
     void stop()
     { 
         if (playerManager.isPlaying()) playerManager.stop();
     }
     
+    /** Set the movie type. */
     void setMovieType(int type)
     { 
-        if (!playerManager.isPlaying()) playerManager.setMovieType(type);
+        stop();
+        setBorderPlay(false);
+        playerManager.setMovieType(type);
     }
     
+    /** Set the timer. */
     void setTimerDelay(int rate)
     {
-        if (!playerManager.isPlaying()) playerManager.setTimerDelay(rate);
+        stop();
+        setBorderPlay(false);
+        playerManager.setTimerDelay(rate);
     } 
     
 }

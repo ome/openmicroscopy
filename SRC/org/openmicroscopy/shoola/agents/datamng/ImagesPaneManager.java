@@ -36,13 +36,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -59,11 +65,14 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * @since OME2.2
  */
 class ImagesPaneManager
-	implements ActionListener
+	implements ActionListener, IDatasetsSelectorMng
 {
 
-	/** Action id. */
+	/** Action command ID. */
 	private static final int				LOAD = 0;
+    
+    /** Action command ID. */
+    private static final int                SELECTION = 1;
 
 	/** This UI component's view. */
 	private ImagesPane 						view;
@@ -84,6 +93,14 @@ class ImagesPaneManager
 		initListeners();
 	}
 
+    /** Display the list of images retrieved. */
+    public void displayListImages(List images)
+    {
+        if (images == null) return;
+        view.displayImages(images.toArray());
+        loaded = true;
+    }
+    
 	/** update the view when an image's name has been modified. */
 	void updateImageInTable(ImageSummary is)
 	{
@@ -110,18 +127,22 @@ class ImagesPaneManager
         });
     }
     
-	/** 
-	 * Attach a mouse adapter to the tree in the view to get notified 
-	 * of mouse events on the tree.
-	 */
+	/** Initializes the listeners. */
 	private void initListeners()
 	{
         attachButtonListeners(view.bar.load, LOAD);
-		
+        attachBoxListeners(view.bar.selections, SELECTION);
 	}
 
-     /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void attachButtonListeners(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
+    private void attachBoxListeners(JComboBox button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
@@ -135,37 +156,47 @@ class ImagesPaneManager
 			switch (index) { 
 				case LOAD:
 					loadImages(); break;
+                case SELECTION:
+                    bringSelector(e); break;
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
 		} 
 	}
 
+    /** Bring up the datasetSelector. */
+    private void bringSelector(ActionEvent e)
+    {
+        int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
+        if (selectedIndex == ImagesPaneBar.IMAGES_USED) {
+            index = selectedIndex;
+            //retrieve the user's datasets.
+            List d = agentCtrl.getUserDatasets();
+            if (d != null && d.size() > 0)
+                UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
+                                            d, DataManagerCtrl.IMAGES_FOR_PDI, 
+                                            null));
+        }
+    }
+    
 	/** Load all the images. */
 	private void loadImages()
 	{
         int selectedIndex = view.bar.selections.getSelectedIndex();
         if (selectedIndex != index) {
             index = selectedIndex;
-            Object[] images = null;
+            List images = null;
             switch (selectedIndex) {
                 case ImagesPaneBar.IMAGES_IMPORTED:
-                    images = agentCtrl.getImportedImages().toArray(); break;
-                case ImagesPaneBar.IMAGES_USED:
-                    images = agentCtrl.getUsedImages().toArray(); break;
+                    images = agentCtrl.getImportedImages(); break;
                 case ImagesPaneBar.IMAGES_GROUP:
-                    images = agentCtrl.getGroupImages().toArray(); break;
+                    images = agentCtrl.getGroupImages(); break;
                 case ImagesPaneBar.IMAGES_SYSTEM:
-                    images = agentCtrl.getSystemImages().toArray(); break;
+                    images = agentCtrl.getSystemImages(); break;
             }
-            if (images == null) return;
-            view.displayImages(images);
-           
-            loaded = true;
+            displayListImages(images);
         }
-	}
-	
-	
+	}	
     
 	/** 
 	 * Handles mouse clicks within the tree component in the view.
@@ -190,6 +221,5 @@ class ImagesPaneManager
 			} 
 		}	
 	}
-
 	
 }

@@ -116,7 +116,10 @@ class ClassifierPopupMenuMng
                 control.viewCategory(((CategorySummary) target));
             else if (src == view.annotate && target instanceof ImageSummary)
                 control.annotateImage(((ImageSummary) target));
-        }
+            else if (src == view.refresh) 
+                control.refresh(target);
+        } else if (target == null && src == view.refresh)
+            control.refresh(DataManagerCtrl.CLASSIFIER);
         view.setVisible(false);
     }
     
@@ -126,6 +129,7 @@ class ClassifierPopupMenuMng
         view.properties.addActionListener(this);
         view.view.addActionListener(this);
         view.annotate.addActionListener(this);
+        view.refresh.addActionListener(this);
     }
 
 }

@@ -46,10 +46,12 @@ import javax.swing.JTabbedPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -99,6 +101,9 @@ public class DataManagerUIF
                                             VBOX = new Dimension(0, 10);
     public static final Dimension           VP_DIM = new Dimension(200, 70);
     
+    public static final Dimension           EXTENDED_VP_DIM = 
+                                            new Dimension(400, 100);
+    
     private static final String             HIERARCHY = "Hierarchy", 
                                             CLASSIFIER = "Classifier";
     
@@ -141,12 +146,23 @@ public class DataManagerUIF
 		imgPane = new ImagesPane(control, registry);
         classifierPane = new ClassifierPane(control, registry);
 		buildGUI(new ToolBar(control, registry));
-		pack();	
-	}
+    }
     
 	/** Forward event to {@link ExplorerPaneManager}. */
 	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
 	
+    /** Forward event to {@link classifierPaneManager}. */
+    void refreshCategory(CategorySummary cs)
+    {
+        classifierPane.getManager().refreshCategoryInTree(cs);
+    }
+    
+    /** Forward event to {@link classifierPaneManager}. */
+    void rebuildCategoryGroupTree()
+    {
+        classifierPane.getManager().rebuildTree();
+    }
+    
     /** Forward event to {@link ExplorerPaneManager}. */
     void refreshDataset(DatasetSummary ds)
     { 
@@ -298,5 +314,15 @@ public class DataManagerUIF
 		return menu;
 	}
 	*/
+    
+    /** 
+     * Overrides the {@link #setOnScreen()} method, to specify the size of the
+     * widget and the location on screen.
+     */
+    public void setOnScreen()
+    {
+        setSize(EDITOR_WIDTH, EDITOR_HEIGHT);
+        UIUtilities.centerAndShow(this);
+    }
     
 }

@@ -80,12 +80,13 @@ public class CreateCategoryEditor
     private CreateBar                   bar;
     private CreateCategoryEditorMng     manager;
     
-    public CreateCategoryEditor(DataManagerCtrl control, List groups)
+    public CreateCategoryEditor(DataManagerCtrl control, List groups, 
+                            int selectedCategoryGroupID)
     {
         super(control.getReferenceFrame(), true);
         this.registry = control.getRegistry();
         manager = new CreateCategoryEditorMng(this, control);
-        categoryPane = new CreateCategoryPane(groups);
+        categoryPane = new CreateCategoryPane(groups, selectedCategoryGroupID);
         imagePane = new CreateCategoryImagesPane(manager);
         bar = new CreateBar();
         getSaveButton().setEnabled(true);
@@ -114,6 +115,8 @@ public class CreateCategoryEditor
     JButton getResetButton() { return imagePane.resetButton; }
     
     JButton getShowImagesButton() { return imagePane.showImages; }
+    
+    JComboBox getImagesSelection() { return imagePane.selections; }
     
     /** List of imageSummary object. */
     void showImages(List images)

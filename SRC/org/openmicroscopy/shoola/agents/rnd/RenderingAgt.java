@@ -99,6 +99,8 @@ public class RenderingAgt
     /** Current image displayed: imageID and set of pixelsID. */
     private int                     curImageID, curPixelsID;
     
+    private String                  curImageName;
+    
     /** Allow or not to update the channel info. */ 
     private boolean                 canUpdate;
     
@@ -116,6 +118,7 @@ public class RenderingAgt
     {
         registry = ctx;
         canUpdate = true;
+        control  = new RenderingAgtCtrl(this);
         EventBus bus = registry.getEventBus();
         bus.register(this, ImageLoaded.class);
         bus.register(this, DisplayViewerRelatedAgent.class);
@@ -136,8 +139,7 @@ public class RenderingAgt
     /** Render a new image when a control has been activated. */
     private void refreshImage()
     {
-        RenderImage event = new RenderImage(curPixelsID);
-        registry.getEventBus().post(event); 
+        registry.getEventBus().post(new RenderImage(curPixelsID)); 
     }
     
     /** Handle the event @see DisplayViewerRelatedAgents . */
@@ -145,7 +147,11 @@ public class RenderingAgt
                                                 response)
     {
         if (response.isOnOff()) {
-            if (presentation != null) presentation.deIconify();
+            if (presentation == null) {
+                initChannelData();
+                buildPresentation();
+            }
+            presentation.deIconify();
         } else {
             if (presentation != null) removePresentation(); 
         }
@@ -160,16 +166,14 @@ public class RenderingAgt
         pxsStats = renderingControl.getPixelsStats();
         curImageID = request.getImageID();
         curPixelsID = request.getPixelsID();
-        initChannelData();
+        curImageName = request.getImageName();
         if (presentation != null) removePresentation();
-        buildPresentation(request.getImageName());
     }
     
     /** Build the presentation. */
-    private void buildPresentation(String imageName)
+    private void buildPresentation()
     {
-        control  = new RenderingAgtCtrl(this);
-        presentation = new RenderingAgtUIF(control, registry, imageName);
+        presentation = new RenderingAgtUIF(control, registry, curImageName);
         control.setPresentation(presentation);
     }
     
@@ -183,7 +187,6 @@ public class RenderingAgt
     {
         control.disposeDialogs();
         presentation.dispose();
-        control = null;
         presentation = null;
     }
     

@@ -280,11 +280,10 @@ public class ProjectMapper
      * @return
      */
     public static List fillListAnnotatedDatasets(List projects, ProjectSummary 
-                    pProto, DatasetSummary dProto, List annotations, int userID, 
+                    pProto, DatasetSummary dProto, List annotations, 
                     List projectsList)
     {
-        Map ids = AnnotationMapper.reverseListDatasetAnnotations(annotations, 
-                                                                userID);
+        Map ids = AnnotationMapper.reverseListDatasetAnnotations(annotations);
         Map datasetsMap = new HashMap();
         Iterator i = projects.iterator();
         //DataObject.

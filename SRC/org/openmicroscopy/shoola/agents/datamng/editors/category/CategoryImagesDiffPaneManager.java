@@ -36,11 +36,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -57,13 +62,15 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * @since OME2.2
  */
 class CategoryImagesDiffPaneManager
-	implements ActionListener
+	implements ActionListener, IDatasetsSelectorMng
 {
 	
-	/** ID to handle event fired by the buttons. */
+	/** Action command ID. */
 	private static final int			ALL = 100;
 	private static final int			CANCEL = 101;
 	private static final int			SAVE = 102;
+    private static final int            SHOW_IMAGES = 103;
+    private static final int            IMAGES_SELECTION = 104;
 	
 	/** List of images to be added. */
 	private List						imagesToAdd;
@@ -75,28 +82,45 @@ class CategoryImagesDiffPaneManager
 	
 	private List						imagesDiff;
 	
+    private int                         selectionIndex;
+    
 	CategoryImagesDiffPaneManager(CategoryImagesDiffPane view, 
-									CategoryEditorManager control, 
-									List imagesDiff)
+									CategoryEditorManager control)
 	{
 			this.view = view;
 			this.control = control;	
-			this.imagesDiff = imagesDiff;
+            selectionIndex = -1;
 			imagesToAdd = new ArrayList();
 			attachListeners();					
 	}
-	
-	List getImagesDiff() { return imagesDiff; }
-	
+
+    /** Implemented as specified inthe {@link IDatasetsSelectorMng I/F} */
+    public void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) return;
+        imagesDiff = images;
+        view.showImages(images);
+    }
+    
 	/** Attach listeners. */
 	private void attachListeners()
 	{
         attachButtonListener(view.selectButton, ALL);
         attachButtonListener(view.cancelButton, CANCEL);
         attachButtonListener(view.saveButton, SAVE);
+        attachButtonListener(view.showImages, SHOW_IMAGES);
+        attachBoxListeners(view.selections, IMAGES_SELECTION);
 	}
     
+    /** Attach an {@link ActionListener} to a {@link JButton}. */
     private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    /** Attach an {@link ActionListener} to a {@link JComboBox}. */
+    private void attachBoxListeners(JComboBox button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
@@ -113,7 +137,12 @@ class CategoryImagesDiffPaneManager
 				case ALL:
 					selectAll(); break;
 				case CANCEL:
-					cancelSelection();
+					cancelSelection(); break;
+                case SHOW_IMAGES:
+                    showImages(); break;
+                case IMAGES_SELECTION:
+                    bringSelector(e); break;
+                    
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -150,6 +179,42 @@ class CategoryImagesDiffPaneManager
 		} else 	imagesToAdd.remove(is);
 	}
 	
+    /** Bring up the datasetSelector. */
+    private void bringSelector(ActionEvent e)
+    {
+        int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
+        if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
+            selectionIndex = selectedIndex;
+            //retrieve the user's datasets.
+            List d = control.getUserDatasets();
+            if (d != null && d.size() > 0) {
+                DatasetsSelector dialog = new DatasetsSelector(
+                    control.getAgentControl(), this,  d, 
+                    DataManagerCtrl.IMAGES_FOR_CGI, control.getCategoryData());
+                UIUtilities.centerAndShow(dialog);
+            }   
+        }
+    }
+    
+    /** Retrieve and display the requested list of images. */
+    private void showImages()
+    {
+        int selectedIndex = view.selections.getSelectedIndex();
+        if (selectedIndex != selectionIndex) {
+            selectionIndex = selectedIndex;
+            List images = null;
+            switch (selectedIndex) {
+                case CategoryImagesDiffPane.IMAGES_IMPORTED:
+                    images = control.getImagesDiff(); break;
+                case CategoryImagesDiffPane.IMAGES_GROUP:
+                    images = control.getImagesDiffInUserGroup(); break;
+                case CategoryImagesDiffPane.IMAGES_SYSTEM:
+                    images = control.getImagesDiffInSystem(); break;
+            }
+            displayListImages(images);
+        }
+    }
+    
 	/** Add the selection to the dataset. */
 	private void saveSelection()
 	{

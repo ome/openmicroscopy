@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageSelector;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
@@ -66,7 +67,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Agent's control.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -97,8 +98,18 @@ public class DataManagerCtrl
     
     static final int            CREATE_CATEGORY = 4;
     
+    static final int            EXPLORER = 100;
+    
+    static final int            CLASSIFIER = 101;
+    
+    public static final int     IMAGES_FOR_PDI = 102;
+    
+    public static final int     IMAGES_FOR_CGI = 103;
+    
 	private DataManager			abstraction;
 	
+    private int                 selectedCategoryGroupID;
+    
 	DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
@@ -152,6 +163,24 @@ public class DataManagerCtrl
 		return abstraction.getImagesDiff(data);
 	}
 	
+    /** Forward event to the {@link DataManager abstraction}. */
+    public List getImagesInUserDatasetsDiff(DatasetData data, List datasets)
+    {
+        return abstraction.getImagesInUserDatasetsDiff(data, datasets);
+    }
+    
+    /** Forward event to the {@link DataManager abstraction}. */
+    public List getImagesInUserGroupDiff(DatasetData data)
+    {
+        return abstraction.getImagesInUserGroupDiff(data);
+    }
+    
+    /** Forward event to the {@link DataManager abstraction}. */
+    public List getImagesInSystemDiff(DatasetData data)
+    {
+        return abstraction.getImagesInSystemDiff(data);
+    }
+    
 	/** Forward event to the {@link DataManager abstraction}. */
 	public void addProject(ProjectData pd)
 	{
@@ -200,10 +229,10 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getUsedImages()
+    public List getImagesInDatasets(List datasets)
     { 
         try {
-            return abstraction.getUsedImages();
+            return abstraction.getImagesInDatasets(datasets);
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's images.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -211,6 +240,37 @@ public class DataManagerCtrl
                     "Failure", s, dsae);
         }
         return new ArrayList();
+    }
+    
+    /** 
+     * Retrieve the list of images contained the specified datasets,
+     * then forward to the specified widget manager.  
+     * @param datasets
+     * @param mng
+     */
+    public void loadImagesInDatasets(List datasets, IDatasetsSelectorMng mng, 
+            int index, DataObject data)
+    {
+        switch(index) {
+            case IMAGES_FOR_PDI:
+                if (data != null && data instanceof DatasetData)
+                    mng.displayListImages(getImagesInUserDatasetsDiff(
+                                        (DatasetData) data, datasets)); 
+                else 
+                    mng.displayListImages(getImagesInDatasets(datasets)); 
+                break;
+            case IMAGES_FOR_CGI:
+                if (data != null && data instanceof CategoryData) {
+                    List l =  getImagesDiffInUserDatasetsNotInCategoryGroup(
+                                (CategoryData) data, datasets);
+                    mng.displayListImages(l);
+                } else if (data != null && data instanceof CategoryGroupData) {
+                    List l =  getImagesInUserDatasetsNotInCategoryGroup(
+                            (CategoryGroupData) data, datasets);
+                    mng.displayListImages(l);
+                } 
+                break;
+        }
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
@@ -304,6 +364,7 @@ public class DataManagerCtrl
         } 
     }
     
+    /** Refresh project, dataset. */
     void refresh(DataObject target)
     {
         if (target == null)    return;  //shouldn't happen
@@ -311,6 +372,16 @@ public class DataManagerCtrl
             abstraction.refresh();
         else if (target instanceof DatasetSummary) 
             abstraction.refresh((DatasetSummary) target);
+        else if (target instanceof CategoryGroupData)
+            abstraction.refreshCategoryGroups();
+        else if (target instanceof CategorySummary)
+            abstraction.refreshCategory((CategorySummary) target);
+    }
+    
+    void refresh(int index)
+    {
+        if (index == EXPLORER) abstraction.refresh();  
+        else if (index == CLASSIFIER)  abstraction.refreshCategoryGroups();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
@@ -339,10 +410,10 @@ public class DataManagerCtrl
                     "Failure", s, dsae);
         }
         return null;
-}
+    }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    List getUserDatasets()
+    public List getUserDatasets()
     { 
         try {
             return abstraction.getUserDatasets(); 
@@ -444,6 +515,16 @@ public class DataManagerCtrl
     String getUserName() { return abstraction.getUserName(); }
 
     //Category manager
+    /** 
+     * Set the ID of the selected categoryGroup. 
+     * This is a workaround to help the user when he/she creates a new 
+     * category.
+     */
+    void setSelectedCategoryGroup(int categoryGroupID)
+    {
+        selectedCategoryGroupID = categoryGroupID;
+    }
+    
     /** Forward to the {@link DataManager abstraction}. */
     void viewCategoryGroup(CategoryGroupData data)
     {
@@ -465,8 +546,10 @@ public class DataManagerCtrl
                 UserNotifier un = abstraction.getRegistry().getUserNotifier();
                 un.notifyInfo("Create a category", 
                         "You must create a group first.");
-            }
-            UIUtilities.centerAndShow(new CreateCategoryEditor(this, groups));
+            } else
+                UIUtilities.centerAndShow(
+                        new CreateCategoryEditor(this, groups, 
+                                selectedCategoryGroupID));
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's categoryGroup.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -528,24 +611,93 @@ public class DataManagerCtrl
         return new ArrayList();
     }
 
-    /** 
-     * Return the images belonging to the user not contained in the
-     * specified CategoryGroupgroup.
-     * 
-     * @param group     corresponding data object.
-     * @return  list of {@link ImageSummary}s.
-     */
-    public List getImagesNotInGroup(CategoryGroupData group)
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesNotInCategoryGroup(CategoryGroupData group)
     {
         try {
-            return abstraction.retrieveImagesNotInGroup(group);
+            return abstraction.retrieveImagesNotInCategoryGroup(group);
         } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category.";
+            String s = "Can't retrieve the images.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
+    }
+    
+   /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData 
+            group, List datasets)
+    {
+        try {
+            return abstraction.retrieveImagesInUserDatasetsNotInCategoryGroup(
+                    group, datasets);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return new ArrayList();
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesInUserGroupNotInCategoryGroup(CategoryGroupData 
+            group)
+    {
+        try {
+            return abstraction.retrieveImagesInUserGroupNotInCategoryGroup(
+                    group);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return new ArrayList();
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesInSystemNotInCategoryGroup(CategoryGroupData group)
+    {
+        try {
+            return abstraction.retrieveImagesInSystemNotInCategoryGroup(
+                    group);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return new ArrayList();
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesDiffNotInCategoryGroup(CategoryData data)
+    {
+        return abstraction.retrieveImagesDiffNotInCategoryGroup(data);
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData 
+            data, List datasets)
+    {
+        return abstraction.retrieveImagesDiffInUserDatasetsNotInCategoryGroup(
+                                            data, datasets);
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesDiffInUserGroupNotInCategoryGroup(CategoryData data)
+    {
+        return abstraction.retrieveImagesDiffInUserGroupNotInCategoryGroup(
+                data);
+    }
+    
+    /** Forward request to the {@link DataManager abstraction}. */
+    public List getImagesDiffInSystemNotInCategoryGroup(CategoryData data)
+    {
+        return abstraction.retrieveImagesDiffInSystemNotInCategoryGroup(
+                data);
     }
     
     /** Forward event to the {@link DataManager} abstraction. */
@@ -575,6 +727,7 @@ public class DataManagerCtrl
     public void createNewCategory(CategoryGroupData group, String name, 
                                 String description, List images)
     {
+        setSelectedCategoryGroup(group.getID());
         CategoryData cd = new CategoryData();
         cd.setName(name);
         cd.setDescription(description);

@@ -79,9 +79,8 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 		super();
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		//		 make sure that rendering is always high quality
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);	
-		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
+		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		
 	}
 	

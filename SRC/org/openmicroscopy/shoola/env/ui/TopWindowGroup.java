@@ -107,7 +107,6 @@ public class TopWindowGroup
 	/** The close all item in the {@link #dropDownButton}. */
 	private JMenuItem	closeAllDropDownButtonEntry;
 	
-	
 	/**
 	 * Helper method to create the display buttons and the manager for the
 	 * specified window.

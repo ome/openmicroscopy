@@ -184,8 +184,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		
 		// make sure that rendering is always high quality
 		
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		
 		setPreferredSize(new Dimension(ModulePaletteWindow.SIDE,

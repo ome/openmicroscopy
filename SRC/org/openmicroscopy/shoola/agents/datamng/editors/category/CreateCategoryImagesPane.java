@@ -31,11 +31,13 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -73,6 +75,22 @@ class CreateCategoryImagesPane
     extends JPanel
 {
     
+    static final String[]                   listOfItems;
+    
+    static final int                        IMAGES_IMPORTED = 0;
+    static final int                        IMAGES_USED = 1;
+    static final int                        IMAGES_GROUP = 2;
+    static final int                        IMAGES_SYSTEM = 3;
+    private static final int                MAX_ID = 3;
+    
+    static {
+        listOfItems = new String[MAX_ID+1];
+        listOfItems[IMAGES_IMPORTED] = "All images I own";
+        listOfItems[IMAGES_USED] = "All images in my datasets";
+        listOfItems[IMAGES_GROUP] = "All images in my group";
+        listOfItems[IMAGES_SYSTEM] = "All images";
+    }
+    
     /** Action id. */
     private static final int               NAME = 0, SELECT = 1;
     
@@ -87,6 +105,9 @@ class CreateCategoryImagesPane
     JButton                                 selectButton, resetButton, 
                                             showImages;
     
+    /** List of images we wish to display. */
+    JComboBox                               selections;
+    
     /** Reference to the manager. */
     private CreateCategoryEditorMng         manager;
 
@@ -94,7 +115,7 @@ class CreateCategoryImagesPane
     
     private TableSorter                     sorter;
     
-    private JPanel                          componentsPanel;
+    private JPanel                          componentsPanel, selectionsPanel;
     
     CreateCategoryImagesPane(CreateCategoryEditorMng manager)
     {
@@ -116,9 +137,14 @@ class CreateCategoryImagesPane
     {
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(Box.createRigidArea(DataManagerUIF.VBOX));
-        add(componentsPanel);
-        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(componentsPanel);
+        p.add(selectionsPanel);
+        add(p);
+        //add(Box.createRigidArea(DataManagerUIF.VBOX));
+        //add(componentsPanel);
+        //add(Box.createRigidArea(DataManagerUIF.VBOX));
         if (images != null && images.size() != 0) {
             add(buildImagesPanel(images));
             setButtonsEnabled(true);
@@ -131,7 +157,7 @@ class CreateCategoryImagesPane
     {
         selectButton.setEnabled(b);
         resetButton.setEnabled(b);
-        showImages.setEnabled(!b);
+        //showImages.setEnabled(b);
     }
     
     /** Initializes the components. */
@@ -155,17 +181,17 @@ class CreateCategoryImagesPane
         showImages.setToolTipText(
             UIUtilities.formatToolTipText("Show list of imported images."));
         setButtonsEnabled(false);
+        selections = new JComboBox(listOfItems);
     }
-    
-    
+
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
         buildComponentsPanel();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        selectionsPanel = UIUtilities.buildComponentPanel(selections);
+        setLayout(new FlowLayout(FlowLayout.LEFT));
         add(componentsPanel);
-        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        add(selectionsPanel);
         setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
     }
 

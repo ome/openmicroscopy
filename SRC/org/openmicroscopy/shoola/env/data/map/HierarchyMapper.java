@@ -87,15 +87,15 @@ public class HierarchyMapper
         
     }
     
-    public static Criteria buildICGHierarchyCriteria(List imageIDs)
+    public static Criteria buildICGHierarchyCriteria(List imageIDs, int userID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Confidence");
         c.addWantedField("Category");
-        c.addWantedField("module_execution");
-        c.addWantedField("module_execution", "experimenter");
+        //c.addWantedField("module_execution");
+        //c.addWantedField("module_execution", "experimenter");
         //Specify which fields we want for the owner.
-        c.addWantedField("module_execution.experimenter", "id");
+        //c.addWantedField("module_execution.experimenter", "id");
         //Fields for the category
         c.addWantedField("Category", "Name");
         c.addWantedField("Category", "Description");
@@ -107,6 +107,9 @@ public class HierarchyMapper
         c.addWantedField("image", "id");
         c.addFilter("image_id", "IN", imageIDs);
         //In this case, the filter should work ;-)
+        if (userID != -1)
+            c.addFilter("module_execution.experimenter_id", 
+                    new Integer(userID));
         return c;
     }
     
@@ -180,8 +183,7 @@ public class HierarchyMapper
      * @param classifications list of 
      * {@link org.openmicroscopy.ds.st.Classification Classification} objects.
      */
-    public static Object[] fillICGHierarchy(List classifications, Map mapIS, 
-                                            int userID)
+    public static Object[] fillICGHierarchy(List classifications, Map mapIS)
     {
         Object[] results = new Object[2];
         Iterator i = classifications.iterator();
@@ -203,9 +205,6 @@ public class HierarchyMapper
         List categoriesList;
         while (i.hasNext()) {
             classification = (Classification) i.next();
-            if (userID != 
-                classification.getModuleExecution().getExperimenter().getID())
-                break;
             f = CategoryMapper.CONFIDENCE;
             if (classification.getConfidence() != null)
                 f =  classification.getConfidence().floatValue();
@@ -216,7 +215,6 @@ public class HierarchyMapper
                 classifiedImages.add(is);
             
             cData = new ClassificationData(classification.getID(), f);
-
             category = classification.getCategory();
             group = category.getCategoryGroup();
             groupID = new Integer(group.getID());
