@@ -75,11 +75,14 @@ public class IconManager
 	/** ID of the rendering icon. */
 	public static final int		RENDER = 5;
 	
+	/** ID of the viewer icon. */
+	public static final int		VIEWER = 6;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 5;
+	private static int          MAX_ID = 6;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -91,6 +94,7 @@ public class IconManager
 		relPaths[REWIND] = "rewind16.png";
 		relPaths[QUESTION] = "question24.png";	
 		relPaths[RENDER] = "render16.png";
+		relPaths[VIEWER] = "viewer16.png";
 	}
 	
 	/** The sole instance that provides. */

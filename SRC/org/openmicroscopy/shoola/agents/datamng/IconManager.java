@@ -94,11 +94,14 @@ public class IconManager
 	/** ID of the annotate icon used by the popup menu. */
 	public static final int		ANNOTATE = 11;
 	
+	/** ID of the datamanager icon. */
+	public static final int		DMANAGER = 12;
+		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 11;
+	private static int          MAX_ID = 12;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -115,7 +118,8 @@ public class IconManager
 		relPaths[VIEWER] = "viewer16.png";
 		relPaths[BROWSER] = "browser-small.png";
 		relPaths[REFRESH] = "refresh16.png";
-		relPaths[ANNOTATE] = "annotate16.png";	
+		relPaths[ANNOTATE] = "annotate16.png";
+		relPaths[DMANAGER] = "annotate16.png";		
 	}
 	
 	/** The sole instance that provides. */
