@@ -104,21 +104,20 @@ class ProjectOwnerPane
 		extends AbstractTableModel 
 	{
 		private final String[]    
-		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
-						" Institution", " Group ID", " Group Name"};
+		fieldNames = {" First Name", " Last Name", " E-mail", 
+						" Institution", " Group Name"};
 						
 		ProjectData pd = manager.getProjectData();				
-		private Object[] data = {""+pd.getOwnerID(), pd.getOwnerFirstName(),
+		private Object[] data = {pd.getOwnerFirstName(),
 								pd.getOwnerLastName(), pd.getOwnerEmail(),
-								pd.getOwnerInstitution(),
-								""+pd.getOwnerGroupID(), pd.getOwnerGroupName()
+								pd.getOwnerInstitution(), pd.getOwnerGroupName()
 								};
 								
 		private OwnerTableModel() {}
 
 		public int getColumnCount() { return 2; }
 
-		public int getRowCount() { return 7; }
+		public int getRowCount() { return 5; }
 
 		public Object getValueAt(int row, int col) 
 		{

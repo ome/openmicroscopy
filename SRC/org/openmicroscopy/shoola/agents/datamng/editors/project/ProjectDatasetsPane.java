@@ -74,18 +74,19 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ProjectDatasetsPane
 	extends JPanel
 {
-
+	
 	/** Reference to the manager. */
-	private ProjectEditorManager	manager;
+	private ProjectEditorManager			manager;
 
-	private JButton					removeButton, resetButton, 
-									removeToAddButton, resetToAddButton;
+	private JButton							removeButton, resetButton, 
+											removeToAddButton, resetToAddButton;
 	
-	private JPanel					buttonsPanel, tablePanel, buttonsToAddPanel;
+	private JPanel							buttonsPanel, tablePanel, 
+											buttonsToAddPanel;
 	
-	private DatasetsTableModel 		datasetsTM;
+	private DatasetsTableModel 				datasetsTM;
 	
-	private List					listDatasets;
+	private List							listDatasets;
 	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
@@ -232,6 +233,7 @@ class ProjectDatasetsPane
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
+
 		//Set the columns' width.
 		TableColumnModel columns = t.getColumnModel();
 		TableColumn column = columns.getColumn(1);
@@ -279,8 +281,7 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		
-		private final String[]	columnNames = {"Name", "Remove"};
+		private final String[]		columnNames = {"Name", "Remove"};
 		private final Object[]	datasets = listDatasets.toArray();
 		private Object[][] 		data = new Object[datasets.length][2];
 
@@ -305,12 +306,7 @@ class ProjectDatasetsPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{
@@ -359,12 +355,7 @@ class ProjectDatasetsPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 	
 		public void setValueAt(Object value, int row, int col)
 		{

@@ -69,7 +69,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ProjectDatasetsDiffPane
 	extends JDialog
 {
-	
+
 	private JButton							selectButton, cancelButton, 
 											saveButton;
 											
@@ -140,7 +140,7 @@ class ProjectDatasetsDiffPane
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText(
-			UIUtilities.formatToolTipText("Add the selection"));
+			UIUtilities.formatToolTipText("Add the selection."));
 		
 		if (d == null || d.size() == 0) {
 			selectButton.setEnabled(false);
@@ -154,7 +154,7 @@ class ProjectDatasetsDiffPane
 	void buildGUI()
 	{
 		TitlePanel tp = new TitlePanel(" Add datasets", 
-								"  Select datasets to add to the project", 
+								"  Select datasets to add to the project.", 
 							im.getIcon(IconManager.DATASET_BIG));
 		contents = buildDatasetsPanel();
 		contents.setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
@@ -181,6 +181,7 @@ class ProjectDatasetsDiffPane
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
 		JTable t = new JTable(datasetsTM);
+
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -191,7 +192,7 @@ class ProjectDatasetsDiffPane
 		p.add(Box.createRigidArea(DataManager.VBOX));
 		return p;
 	}
-	
+
 	/** 
 	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets contained in the project.
@@ -201,9 +202,10 @@ class ProjectDatasetsDiffPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]	columnNames = {"Name", "Add"};
-		private final Object[]	datasets = manager.getDatasetsDiff().toArray();
-		private Object[][] 		data = new Object[datasets.length][2];
+		private final String[]		columnNames = {"Name", "Remove"};
+		private final Object[]		datasets = 
+									manager.getDatasetsDiff().toArray();
+		private Object[][] 			data = new Object[datasets.length][2];
 		
 		private DatasetsTableModel()
 		{
@@ -226,12 +228,7 @@ class ProjectDatasetsDiffPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{	

@@ -128,6 +128,8 @@ public class CreateProjectEditorManager
 		isName = false;
 	}
 	
+	CreateProjectEditor getView() { return view; }
+	
 	ProjectData getProjectData() { return model; }
 	
 	List getDatasets() { return datasets; }

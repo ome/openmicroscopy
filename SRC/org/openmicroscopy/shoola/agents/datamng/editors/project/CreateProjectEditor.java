@@ -89,6 +89,8 @@ public class CreateProjectEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
+	Registry getRegistry() { return registry; }
+	
 	/** Returns the widget {@link CreateProjectEditorManager manager}. */
 	CreateProjectEditorManager getManager() { return manager; }
 	

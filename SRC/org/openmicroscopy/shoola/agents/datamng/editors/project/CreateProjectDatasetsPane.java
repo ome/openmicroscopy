@@ -70,11 +70,12 @@ class CreateProjectDatasetsPane
 {
 	
 	/** Reference to the manager. */
-	private CreateProjectEditorManager	manager;
+	private CreateProjectEditorManager		manager;
 
-	private JButton						selectButton;
-	private JButton						resetButton;
-	private DatasetsTableModel 			datasetsTM;
+	private JButton							selectButton;
+	private JButton							resetButton;
+	
+	private DatasetsTableModel 				datasetsTM;
 	
 	CreateProjectDatasetsPane(CreateProjectEditorManager manager)
 	{
@@ -139,7 +140,7 @@ class CreateProjectDatasetsPane
 		
 		return p;
 	}
-	
+
 	/** 
 	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets  to add to a new project.
@@ -150,9 +151,9 @@ class CreateProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[] columnNames = {"Name", "Select"};
-		private final Object[] datasets = manager.getDatasets().toArray();
-		private Object[][] data;
+		private final String[]		columnNames = {"Name", "Remove"};
+		private final Object[] 		datasets = manager.getDatasets().toArray();
+		private Object[][] 			data;
 		
 		private DatasetsTableModel()
 		{
@@ -176,12 +177,7 @@ class CreateProjectDatasetsPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 	
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{
