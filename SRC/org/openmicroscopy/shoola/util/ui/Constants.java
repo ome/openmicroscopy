@@ -204,6 +204,9 @@ public class Constants {
 	public static final float LINK_TARGET_HALF_SIZE=LINK_TARGET_SIZE/2;
 	public static final float  LINK_TARGET_BUFFER=3;
 	
+	public static final float MODULE_LINK_TARGET_SIZE=14;
+	
+	
 	public static final BasicStroke LINK_STROKE=
 			new BasicStroke(1,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND);
 	
