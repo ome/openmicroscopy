@@ -31,27 +31,19 @@ package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 
 
 //Java imports
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.util.ui.ExtendedDefaultListModel;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
@@ -74,23 +66,18 @@ class CreateGroupPane
     extends JPanel
 {
     
+    /** Text area for name and description. */
     MultilineLabel              nameArea, descriptionArea;
-    
-    JList                       existingGroups;
 
-    CreateGroupPane(CategoryGroupData[] groups) 
+    CreateGroupPane() 
     {
-        initComponents(groups);
+        initComponents();
         buildGUI();
     }
     
     /** Initializes the components. */
-    private void initComponents(CategoryGroupData[] groups)
-    {
-        existingGroups  = new JList(new ExtendedDefaultListModel(groups));
-        existingGroups.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        existingGroups.setLayoutOrientation(JList.VERTICAL);
-        
+    private void initComponents()
+    {   
         //textfields
         nameArea = new MultilineLabel("");
         nameArea.setForeground(DataManagerUIF.STEELBLUE);
@@ -106,29 +93,6 @@ class CreateGroupPane
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(buildSummaryPanel());
-        add(Box.createRigidArea(DataManagerUIF.VBOX));
-        add(buildListPanel());
-    }
-    
-    private JPanel buildListPanel()
-    {
-        JPanel p = new JPanel();
-        JLabel label = UIUtilities.setTextFont("Existing groups ");
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
-        c.weightx = 0.5;        
-        c.gridx = 0;
-        c.gridy = 0;
-        c.anchor = GridBagConstraints.NORTHWEST;
-        gridbag.setConstraints(label, c);
-        p.add(label);
-        JScrollPane scrollPane = new JScrollPane(existingGroups);
-        scrollPane.setPreferredSize(CreateEditor.MAX_SCROLL);
-        c.gridx = 1;
-        gridbag.setConstraints(scrollPane, c);
-        p.add(scrollPane);
-        return UIUtilities.buildComponentPanel(p);
     }
     
     /** Build the panel with name and description. */

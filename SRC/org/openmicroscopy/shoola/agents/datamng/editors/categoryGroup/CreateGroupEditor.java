@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup.CreateEditor
+ * org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup.CreateGroupEditor
  *
  *------------------------------------------------------------------------------
  *
@@ -34,12 +34,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JList;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -51,12 +48,10 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.agents.datamng.editors.controls.CreateBar;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Widget to create a new CategoryGroup.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,28 +64,21 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * </small>
  * @since OME2.2
  */
-public class CreateEditor
+public class CreateGroupEditor
     extends JDialog
 {
-    
-    static final Dimension              MAX_SCROLL = new Dimension(150, 60);
-    
+  
     private Registry                    registry;
     private CreateGroupPane             groupPane;
-    private CreateCategoryPane          categoryPane;
-    private CreateImagesPane            imagesPane;
     private CreateBar                   bar;
-    private CreateEditorManager         manager;
+    private CreateGroupEditorMng        manager;
     
-    public CreateEditor(DataManagerCtrl control, CategoryGroupData[] groups, 
-                        CategorySummary[] data, List images)
+    public CreateGroupEditor(DataManagerCtrl control)
     {
         super(control.getReferenceFrame(), true);
         this.registry = control.getRegistry();
-        manager = new CreateEditorManager(this, control);
-        groupPane = new CreateGroupPane(groups);
-        categoryPane = new CreateCategoryPane(data);
-        imagesPane = new CreateImagesPane(manager, images);
+        manager = new CreateGroupEditorMng(this, control);
+        groupPane = new CreateGroupPane();
         bar = new CreateBar();
         getSaveButton().setEnabled(true);
         buildGUI();
@@ -100,34 +88,17 @@ public class CreateEditor
     
     Registry getRegistry() { return registry; }
     
-    /** Returns the widget {@link CreateEditorManager manager}. */
-    CreateEditorManager getManager() { return manager; }
+    /** Returns the widget {@link CreateGroupEditorMng manager}. */
+    CreateGroupEditorMng getManager() { return manager; }
     
-    JTextArea getNameGroup() { return groupPane.nameArea; }
+    JTextArea getGroupName() { return groupPane.nameArea; }
     
-    JTextArea getDescriptionGroup() { return groupPane.descriptionArea; }
-    
-    JTextArea getNameCategory() { return categoryPane.nameArea; }
-    
-    JTextArea getDescriptionCategory() { return categoryPane.descriptionArea; }
-    
-    JList getListGroup() { return groupPane.existingGroups; }
-    
-    JList getListCategory() { return categoryPane.existingCategories; }
+    JTextArea getGroupDescription() { return groupPane.descriptionArea; }
     
     JButton getSaveButton() { return bar.getSave(); }
     
     JButton getCancelButton() { return bar.getCancel(); }
-    
-    JButton getSelectButton() { return imagesPane.selectButton; }
-    
-    JButton getResetButton() { return imagesPane.resetButton; }
-    
-    /** Forward event to the pane {@link CreateImagesPane}. */
-    void selectAllImages(Boolean b)
-    {
-        imagesPane.setSelection(b);
-    }
+
     
     /** Build and lay out the GUI. */
     private void buildGUI()
@@ -140,15 +111,12 @@ public class CreateEditor
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
         tabs.addTab("Group", im.getIcon(IconManager.CATEGORY_GROUP), 
                     groupPane);
-        tabs.addTab("Categories", im.getIcon(IconManager.CATEGORY), 
-                    categoryPane);
-        tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imagesPane);
         tabs.setSelectedComponent(groupPane);
         tabs.setFont(font);
         tabs.setForeground(DataManagerUIF.STEELBLUE);
-        TitlePanel tp = new TitlePanel("Category group and category", 
-                        "Create a new group and category.", 
-                        im.getIcon(IconManager.CREATE_CG_BIG));
+        TitlePanel tp = new TitlePanel("Category group", 
+                        "Create a new group.", 
+                        im.getIcon(IconManager.CREATE_GROUP_BIG));
         //set layout and add components
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));

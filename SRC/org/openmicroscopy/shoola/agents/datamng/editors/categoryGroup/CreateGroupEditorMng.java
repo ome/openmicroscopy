@@ -30,26 +30,19 @@
 package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 
 /** 
- * 
+ * Manager for {@link CreateGroupEditor}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,20 +55,17 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * </small>
  * @since OME2.2
  */
-class CreateEditorManager
+class CreateGroupEditorMng
     implements ActionListener
 {
     
     /** ID used to handle events. */
     private static final int    SAVE = 0;
-    private static final int    SELECT = 1;
-    private static final int    CANCEL = 2;
-    private static final int    RESET = 3;
+    private static final int    CANCEL = 1;
     
-    private CreateEditor        view;
+    private CreateGroupEditor   view;
+    
     private DataManagerCtrl     control;
-    
-    private List                imagesToAdd;
     
     /**
      * Creates a new instance.
@@ -84,22 +74,19 @@ class CreateEditorManager
      * @param model
      * @param datasets      List of dataset summary object.
      */
-    public CreateEditorManager(CreateEditor view, DataManagerCtrl control)
+    public CreateGroupEditorMng(CreateGroupEditor view, DataManagerCtrl control)
     {
         this.control = control;
         this.view = view;
-        imagesToAdd = new ArrayList();
     }
     
-    CreateEditor getView() { return view; }
+    CreateGroupEditor getView() { return view; }
     
     /** Initializes the listeners. */
     void initListeners()
     {
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getCancelButton(), CANCEL);
-        attachButtonListener(view.getSelectButton(), SELECT);
-        attachButtonListener(view.getResetButton(), RESET);
     }
     
     /** Attach a listener to a JButton. */
@@ -120,29 +107,10 @@ class CreateEditorManager
                     save(); break;
                 case CANCEL:
                     cancel(); break;
-                case SELECT:
-                    select(); break;
-                case RESET:
-                    resetSelection();   
             } 
         } catch(NumberFormatException nfe) {
             throw new Error("Invalid Action ID "+index, nfe);
         } 
-    }
-    
-    /** 
-     * Add (resp. remove) the image to (resp. from) the list of
-     * images to add to the new category.
-     * 
-     * @param value     boolean value true if the checkBox is selected
-     *                  false otherwise.
-     * @param ds        dataset summary to add or remove
-     */
-    void addImage(boolean value, ImageSummary is) 
-    {
-        if (value) {
-            if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
-        } else  imagesToAdd.remove(is);
     }
 
     /** Close the widget, doesn't save changes. */
@@ -155,56 +123,12 @@ class CreateEditorManager
     /** Save the new group/category. */
     private void save()
     {
-        String nameGroup = view.getNameGroup().getText();
-        CategoryGroupData data = null;
-        if (nameGroup.equals("")) {
-            //check if a lis
-            data = (CategoryGroupData) view.getListGroup().getSelectedValue();
-            if (data == null) {
-                control.getRegistry().getUserNotifier().notifyInfo(
-                        "Creation ", "Must select or create a new group."); 
-                return;
-            } 
-        }
-        String nameCategory = view.getNameCategory().getText();
-        //If we are here we are ready to save.
-        if (data != null) {
-            //Create a new category+images
-           if (nameCategory.length() > 1) {
-               control.createNewCategory(data, nameCategory,
-                       view.getDescriptionCategory().getText(), 
-                       imagesToAdd);
-           } else {
-               control.getRegistry().getUserNotifier().notifyInfo(
-                       "Creation ", "You must create a new category."); 
-           } 
-        } else {
-            if (nameCategory.length() > 1) {
-                control.createNews(nameGroup, nameCategory,
-                        view.getDescriptionGroup().getText(),
-                        view.getDescriptionCategory().getText(), 
-                        imagesToAdd);
-            } else {
-                control.createNewGroup(nameGroup, 
-                        view.getDescriptionGroup().getText());
-            }
-        }
+        String name = view.getGroupName().getText();
+        String description = view.getGroupDescription().getText();
+        //Add check if name no valid.
+        control.saveNewGroup(name, description);
         //close widget.
         view.dispose();
-    }
-    
-    /** Select all images and add them to the model. */
-    private void select()
-    {
-        view.selectAllImages(Boolean.TRUE);
-        view.getSelectButton().setEnabled(false);
-    }
-    
-    /** Remove all selected images from the selection. */
-    private void resetSelection()
-    {
-        view.selectAllImages(Boolean.FALSE);
-        view.getSelectButton().setEnabled(true);
     }
     
 }

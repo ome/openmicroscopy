@@ -125,8 +125,8 @@ class GroupEditorBar
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(cancelButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		//p.add(addButton);
-		//p.add(Box.createRigidArea(DataManagerUIF.HBOX));
+		p.add(addButton);
+		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.setOpaque(false); //make panel transparent
 		return p;
 	}

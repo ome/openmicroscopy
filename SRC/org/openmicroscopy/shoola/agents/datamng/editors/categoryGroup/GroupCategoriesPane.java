@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Display the categories within the group.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -110,29 +110,27 @@ class GroupCategoriesPane
             add(Box.createRigidArea(DataManagerUIF.VBOX));
             add(buttonsToAddPanel);
         }
-        Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-        setBorder(b);
+        //setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 	}
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		tablePanel = buildTablePanel();
-		buttonsToAddPanel = buildButtonsToAddPanel();
+		buildTablePanel();
+		buildButtonsToAddPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel);
 		add(Box.createRigidArea(DataManagerUIF.VBOX));
-		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-		setBorder(b);
+		setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 	}
 	
 	/** 
 	 * Build a panel with buttons used to remove or not 
 	 * the selected datatsets.
 	 */
-	private JPanel buildButtonsToAddPanel()
+	private void buildButtonsToAddPanel()
 	{
-		JPanel controls = new JPanel();
+		JPanel buttonsToAddPanel = new JPanel();
 		//remove button
 		removeToAddButton = new JButton("Remove added");
 		removeToAddButton.setCursor(
@@ -148,12 +146,11 @@ class GroupCategoriesPane
 		resetToAddButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
 
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(resetToAddButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(removeToAddButton);
-		controls.setOpaque(false); //make panel transparent
-		return controls;
+		buttonsToAddPanel.setLayout(new BoxLayout(buttonsToAddPanel, BoxLayout.X_AXIS));
+		buttonsToAddPanel.add(resetToAddButton);
+		buttonsToAddPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+		buttonsToAddPanel.add(removeToAddButton);
+		buttonsToAddPanel.setOpaque(false); //make panel transparent
 	}
 
 
@@ -175,10 +172,10 @@ class GroupCategoriesPane
     }
     
 	/** Build panel with table containing existing datasets. */
-	private JPanel buildTablePanel()
+	private void buildTablePanel()
 	{
-  		JPanel  p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+  		tablePanel = new JPanel();
+        tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
 		//categories table
 		categoriesTM = new CategoriesTableModel();
 		JTable t = new JTable(categoriesTM);
@@ -186,8 +183,7 @@ class GroupCategoriesPane
 		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
-		p.add(sp);
-		return p;
+		tablePanel.add(sp);
 	}
 	
 	private TableComponent buildLabelTable()
@@ -225,18 +221,20 @@ class GroupCategoriesPane
 		extends AbstractTableModel
 	{
 		
-		private final String[]	columnNames = {"Name"};
+		private final String[]	columnNames = {"Name", "Remove from groups"};
 		private final Object[]	categories = 
             manager.getCategoryGroupData().getCategories().toArray();
-		private Object[][]		data = new Object[categories.length][1];
+		private Object[][]		data = new Object[categories.length][2];
 		
 		private CategoriesTableModel()
 		{
-			for (int i = 0; i < categories.length; i++) 
-				data[i][0] = ((CategorySummary) categories[i]).getName();
+			for (int i = 0; i < categories.length; i++) {
+                data[i][0] = ((CategorySummary) categories[i]).getName();
+                data[i][1] = Boolean.FALSE;
+            }
 		}
 	
-		public int getColumnCount() { return 1; }
+		public int getColumnCount() { return 2; }
 	
 		public int getRowCount() { return categories.length; }
 	
@@ -253,6 +251,7 @@ class GroupCategoriesPane
 		
 		public void setValueAt(Object value, int row, int col) {}
 	}
+    
     /** 
      * A <code>3</code>-column table model to view the summary of 
      * datasets to be added to the project.

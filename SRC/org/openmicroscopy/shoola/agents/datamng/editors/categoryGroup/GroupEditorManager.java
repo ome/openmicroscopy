@@ -164,10 +164,9 @@ class GroupEditorManager
     void showCategorieSelection()
     {
         if (dialog == null) {
-            //tempo solution
-            List categoriesDiff = control.getCategoriesDiff(model);
-            if (categoriesDiff != null)
-                dialog = new GroupCategoriesDiffPane(this, categoriesDiff);
+            List categories = control.getCategoriesNotInGroup(model);
+            if (categories != null)
+                dialog = new GroupCategoriesDiffPane(this, categories);
         } else {
             dialog.remove(dialog.getContents());
             dialog.buildGUI();
@@ -177,7 +176,11 @@ class GroupEditorManager
         view.getSaveButton().setEnabled(true);  
     }
     
-    /** Add the list of selected categories to the {@link GroupCategoriesPane}. */
+    /** 
+     * Add the list of selected categories to 
+     * the {@link GroupCategoriesPane}. 
+     * @param list of {@link CategorySummary} objects to add.
+     */
     void addCategoriesSelection(List l)
     {
         Iterator i = l.iterator();
