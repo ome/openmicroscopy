@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,12 +55,14 @@ import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.agents.browser.datamodel.*;
 import org.openmicroscopy.shoola.agents.browser.events.AnnotateImageHandler;
+import org.openmicroscopy.shoola.agents.browser.events.ClassificationHandler;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
@@ -67,7 +70,11 @@ import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
+import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
@@ -1178,6 +1185,38 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         if(category == null) return;
         ClassifyImage classifyEvent = new ClassifyImage(imageID,category);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
+        eventBus.post(classifyEvent);
+    }
+    
+    public void classifyImages(int[] imageIDs, Category category)
+    {
+        if(imageIDs == null || imageIDs.length == 0 || category == null)
+        {
+            return;
+        }
+        
+        ClassifyImages classifyEvent = new ClassifyImages(imageIDs,category);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
+        eventBus.post(classifyEvent);
+    }
+    
+    public void reclassifyImage(Classification modifiedClassification)
+    {
+        if(modifiedClassification == null) return;
+        ReclassifyImage classifyEvent =
+            new ReclassifyImage(modifiedClassification);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
+        eventBus.post(classifyEvent);
+    }
+    
+    public void reclassifyImages(Classification[] modified)
+    {
+        if(modified == null || modified.length == 0) return;
+        List classificationList = Arrays.asList(modified);
+        ReclassifyImages classifyEvent =
+            new ReclassifyImages(classificationList);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
         eventBus.post(classifyEvent);
     }
     
@@ -1216,6 +1255,11 @@ public class BrowserAgent implements Agent, AgentEventListener
         else if(e instanceof ImageAnnotated)
         {
             ImageAnnotated event = (ImageAnnotated)e;
+            event.complete();
+        }
+        else if(e instanceof ImagesClassified)
+        {
+            ImagesClassified event = (ImagesClassified)e;
             event.complete();
         }
     }

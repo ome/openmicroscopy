@@ -36,10 +36,26 @@
  
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.shoola.agents.browser.BrowserController;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator;
+import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
 import org.openmicroscopy.shoola.env.event.CompletionHandler;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
@@ -59,7 +75,8 @@ public class ClassificationHandler implements CompletionHandler
     {
         if(!(request instanceof ClassifyImage) &&
            !(request instanceof ClassifyImages) &&
-           !(request instanceof ReclassifyImage))
+           !(request instanceof ReclassifyImage) &&
+           !(request instanceof ReclassifyImages))
         {
             throw new IllegalArgumentException("Cannot handle this message");
         }
@@ -68,6 +85,45 @@ public class ClassificationHandler implements CompletionHandler
             throw new IllegalArgumentException("Cannot handle this message");
         }
         
+        ImagesClassified ic = (ImagesClassified)response;
         
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserManager manager = env.getBrowserManager();
+        
+        if(ic.getClassifications() == null ||
+           ic.getClassifications().size() == 0)
+        {
+            return; // nothing to do
+        }
+        
+        List browsers = manager.getAllBrowsers();
+        List imageMaps = new ArrayList();
+        for(Iterator iter = browsers.iterator(); iter.hasNext();)
+        {
+            UIWrapper wrapper = (UIWrapper)iter.next();
+            BrowserController controller = wrapper.getController();
+            BrowserModel model = controller.getBrowserModel();
+            Map imageIDMap = model.getImageDataMap();
+            imageMaps.add(imageIDMap);
+        }
+        
+        Set classifications = ic.getClassifications();
+        
+        for(Iterator iter = classifications.iterator(); iter.hasNext();)
+        {
+            Classification c = (Classification)iter.next();
+            Integer key = new Integer(c.getImage().getID());
+            for(Iterator iter2 = imageMaps.iterator(); iter2.hasNext();)
+            {
+                Map imageMap = (Map)iter2.next();
+                if(imageMap.containsKey(key))
+                {
+                    ThumbnailDataModel tdm =
+                        (ThumbnailDataModel)imageMap.get(key);
+                    AttributeMap attrs = tdm.getAttributeMap();
+                    attrs.putAttribute(c);
+                }
+            }
+        }
     }
 }
