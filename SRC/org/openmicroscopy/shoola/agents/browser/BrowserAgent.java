@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,6 +51,7 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
 import org.openmicroscopy.ds.dto.SemanticType;
@@ -167,6 +169,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     public void activate()
     {
         env.setBrowserManager(new BrowserManager());
+        env.setHeatMapManager(new HeatMapManager());
     }
     
     /**
@@ -230,6 +233,35 @@ public class BrowserAgent implements Agent, AgentEventListener
         tf.addToMenu(TopFrame.VIEW,testItem);
         testItem.setEnabled(true);
         */
+        
+        JMenuItem heatItem = new JMenuItem("HeatMap");
+        heatItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                HeatMapManager manager = env.getHeatMapManager();
+                HeatMapUI ui = manager.getUI();
+                if(!ui.isShowing())
+                {
+                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
+                    ui.show();
+                    ui.setClosable(true);
+                    ui.setIconifiable(true);
+                    ui.setResizable(false);
+                    ui.setMaximizable(false);
+                }
+                else
+                {
+                    try
+                    {
+                        ui.setSelected(true);
+                    }
+                    catch(PropertyVetoException ex) {}
+                }
+            }
+        });
+        tf.addToMenu(TopFrame.VIEW,heatItem);
+        heatItem.setEnabled(true);
         
         // test code to check for image STs
         SemanticTypesService sts = registry.getSemanticTypesService();
@@ -359,6 +391,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             return false; // REEEEE-JECTED.
         }
         
+        // TODO sync bug here (messes up if other browser closed)
         final BrowserController controller =
             env.getBrowserManager().getBrowser(whichBrowser).getController();
         
@@ -631,7 +664,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     Pixels pix = sum.getDefaultPixels().getPixels();
                                     Image image = ps.getThumbnail(pix);
                                     ImageData data = new ImageData();
-                                    data.setID(pix.getID());
+                                    data.setID(sum.getID());
                                     data.setName(sum.getName());
                                     ThumbnailDataModel tdm = new ThumbnailDataModel(data);
                                     tdm.setValue(UIConstants.WELL_KEY_STRING,well);
@@ -710,7 +743,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                         Pixels pix = summary.getDefaultPixels().getPixels();
                         Image image = ps.getThumbnail(pix);
                         ImageData data = new ImageData();
-                        data.setID(pix.getID());
+                        data.setID(summary.getID());
                         ThumbnailDataModel tdm = new ThumbnailDataModel(data);
                         data.setName(summary.getName());
                         tdm.getAttributeMap().putAttribute(pix);
@@ -883,9 +916,10 @@ public class BrowserAgent implements Agent, AgentEventListener
         SemanticType[] types = new SemanticType[relevantTypes.size()];
         relevantTypes.toArray(types);
         targetModel.setRelevantTypes(types);
-        /*HeatMapModel hmm = new HeatMapModel(targetModel);
-        HeatMapUI ui = new HeatMapUI(hmm);
-        ui.show();*/
+        HeatMapModel hmm = new HeatMapModel(targetModel);
+        HeatMapManager manager = env.getHeatMapManager();
+        manager.putHeatMapModel(hmm);
+        manager.showModel(targetModel.getDataset().getID());
     }
     
     // keeps track of the time-consuming loader threads.
@@ -1071,6 +1105,16 @@ public class BrowserAgent implements Agent, AgentEventListener
             un.notifyError("Server Error",dsa.getMessage(),dsa);
         }
         return null; // fallback case
+    }
+    
+    /**
+     * TODO: maybe hide this later in favor of doing something that ensures
+     *       browser will be notified of changes?
+     * @return The STS behind this agent.
+     */
+    public SemanticTypesService getSemanticTypesService()
+    {
+        return registry.getSemanticTypesService();
     }
     
     /**

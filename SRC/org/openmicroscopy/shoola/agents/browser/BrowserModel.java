@@ -750,6 +750,15 @@ public class BrowserModel
     }
     
     /**
+     * Returns the mapping between image IDs and data models.
+     * @return
+     */
+    public Map getImageDataMap()
+    {
+        return Collections.unmodifiableMap(imageIDMap);
+    }
+    
+    /**
      * Explicitly notify all listeners that the model has been updated.
      */
     public void fireModelUpdated()

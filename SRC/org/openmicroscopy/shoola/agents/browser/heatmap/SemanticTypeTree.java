@@ -154,6 +154,7 @@ public class SemanticTypeTree
                 {
                     ElementNode elNode = new ElementNode(element.getName(),det);
                     elNode.setFQName(fqName);
+                    elNode.setParent(node);
                     node.addChild(elNode);
                 }
             }

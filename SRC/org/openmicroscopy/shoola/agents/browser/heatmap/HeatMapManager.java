@@ -125,4 +125,13 @@ public final class HeatMapManager
             embeddedUI.reset();
         }
     }
+    
+    /**
+     * Returns a reference to the heat map UI component.
+     * @return See above.
+     */
+    public HeatMapUI getUI()
+    {
+        return embeddedUI;
+    }
 }

@@ -246,13 +246,16 @@ public class SemanticZoomNode extends PImage
         {
             ThumbnailDataModel model = parentThumbnail.getModel();
             Pixels pix = (Pixels)model.getAttributeMap().getAttribute("Pixels");
-            if(pix == null)
+            if(pix != null)
             {
-                return;
+                Image image = agent.getResizedThumbnail(pix,compositeWidth,
+                                                        compositeHeight);
+                if(image != null)
+                {
+                    setImage(image);
+                }
             }
             
-            setImage(agent.getResizedThumbnail(pix,compositeWidth,
-                                               compositeHeight));
             setBounds(border);
         }
         else
@@ -269,7 +272,11 @@ public class SemanticZoomNode extends PImage
                                                   compositeHeight);
                 }
             }
-            setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
+            Image image = thumbnailImages[parentThumbnail.getMultipleImageIndex()];
+            if(image != null)
+            {
+                setImage(image);
+            }
             setBounds(border);
         }
         repaint();

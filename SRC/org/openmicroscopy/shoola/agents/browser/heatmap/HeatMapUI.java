@@ -84,6 +84,7 @@ public final class HeatMapUI extends JInternalFrame
         model.addListener(this);
         
         treePanel = new HeatMapTreeUI(model.getModel());
+        treePanel.addListener(new HeatMapDispatcher(model));
         gradPanel = new HeatMapGradientUI();
         buildUI();
     }
@@ -114,7 +115,14 @@ public final class HeatMapUI extends JInternalFrame
         gradPanel.setEnabled(false);
         contentPane.add(gradPanel,BorderLayout.SOUTH);
         
-        setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
+        if(model != null)
+        {
+            setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
+        }
+        else
+        {
+            setTitle("HeatMap: [no data]");
+        }
         pack();
     }
     
@@ -123,10 +131,17 @@ public final class HeatMapUI extends JInternalFrame
      */
     public void modelChanged(HeatMapModel model)
     {
-        if(model == null) return;
+        if(model == null)
+        {
+            return;
+        }
         this.model = model;
+        setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
         treePanel.setModel(model.getModel());
+        treePanel.removeAllListeners();
+        treePanel.addListener(new HeatMapDispatcher(model));
         gradPanel.setEnabled(false);
+        revalidate();
         repaint();
     }
 

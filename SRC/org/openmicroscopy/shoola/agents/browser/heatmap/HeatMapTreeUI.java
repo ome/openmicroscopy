@@ -36,6 +36,7 @@
  
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,6 +50,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
 
 /**
  * The UI for displaying the semantic type hierarchy for the heat map.
@@ -78,6 +80,8 @@ public class HeatMapTreeUI extends JPanel
             
             SemanticTypeTree.TreeNode node =
                 (SemanticTypeTree.TreeNode)selectedNode.getUserObject();
+
+            System.err.println(node.getFQName() + " selected");
             
             for(Iterator iter = nodeSelectionListeners.iterator(); iter.hasNext();)
             {
@@ -115,20 +119,26 @@ public class HeatMapTreeUI extends JPanel
      */
     public HeatMapTreeUI(SemanticTypeTree tree)
     {
+        setLayout(new BorderLayout());
         if(tree == null)
         {
             DefaultMutableTreeNode empty =
                 new DefaultMutableTreeNode("(empty)");
             treeView = new JTree(empty);
+            treeView.getSelectionModel().
+                setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         }
         else
         {
             this.tree = tree;
             treeView = buildTree(tree);
+            treeView.getSelectionModel().
+                setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            treeView.setCellRenderer(new HeatMapTreeRenderer());
+            treeView.addTreeSelectionListener(defaultListener);
         }
         nodeSelectionListeners = new HashSet();
-        treeView.setCellRenderer(new HeatMapTreeRenderer());
-        add(treeView);
+        add(treeView,BorderLayout.CENTER);
     }
     
     /**
@@ -139,8 +149,16 @@ public class HeatMapTreeUI extends JPanel
     {
         if(tree != null)
         {
+            remove(treeView);
             this.tree = tree;
             treeView = buildTree(tree);
+            treeView.setCellRenderer(new HeatMapTreeRenderer());
+            treeView.getSelectionModel().
+                setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            treeView.addTreeSelectionListener(defaultListener);
+            add(treeView,BorderLayout.CENTER);
+            revalidate();
+            repaint();
         }
     }
     
@@ -168,7 +186,13 @@ public class HeatMapTreeUI extends JPanel
         }
     }
     
-    
+    /**
+     * Detaches all selection listeners.
+     */
+    public void removeAllListeners()
+    {
+        nodeSelectionListeners.clear();
+    }
     
     private JTree buildTree(SemanticTypeTree tree)
     {
