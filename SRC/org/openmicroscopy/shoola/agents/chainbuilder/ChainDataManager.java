@@ -88,8 +88,6 @@ public class ChainDataManager extends DataManager {
 		
 	protected LinkedHashMap chainHash=null;
 	
-	/** a list of analysis nodes. populated when we get chains */
-	protected LinkedHashMap analysisNodes = null;
 	
 	/** flags to see if we're getting  chains & executions*/
 	private boolean gettingChains = false;
@@ -141,10 +139,13 @@ public class ChainDataManager extends DataManager {
 		}
 		else {
 			if (gettingChains == false) {
+				long start = System.currentTimeMillis();
 				gettingChains = true;
 				retrieveChains();
 				gettingChains = false;
 				notifyAll();
+				long end = System.currentTimeMillis()-start;
+				System.err.println("time for retrieving chains.. "+end);
 				res = chainHash.values();
 			}
 			else {// in progress
@@ -268,10 +269,13 @@ public class ChainDataManager extends DataManager {
 		}
 		
 		if (gettingExecutions == false) {
+			long start = System.currentTimeMillis();
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
 			notifyAll();
+			long getTime = System.currentTimeMillis()-start;
+			System.err.println("time for executions is "+getTime);
 			return chainExecutions.getExecutions();
 		}
 		else {// in progress
@@ -324,18 +328,11 @@ public class ChainDataManager extends DataManager {
 		return false;
 	}
 	
-	public void setAnalysisNodes(LinkedHashMap analysisNodes) {
-		this.analysisNodes = analysisNodes;
+	public Collection getChainExecutionsByChainID(int id) {
+		if (chainExecutions != null)
+			return chainExecutions.getChainExecutionsByChainID(id);
+		return null;
 	}
-	
-	
-	
-	public LayoutNodeData getAnalysisNode(int id) {
-		if (analysisNodes == null)
-			return null;
-		return (LayoutNodeData) analysisNodes.get(new Integer(id));
-	}
-	
 	public void saveChain(LayoutChainData chain) {
 		if (chain != null) {
 			try {
