@@ -82,7 +82,7 @@ public class LocalBrowserTest
 
         model.addPalette("Modes",PaletteFactory.getMainPalette(bm,model));
         model.addPalette("Overlays",PaletteFactory.getPaintModePalette(bm,model));
-        bm.setLayoutMethod(new PlateLayoutMethod(8,12));
+        bm.setLayoutMethod(new PlateLayoutMethod(12,8));
         BrowserView view = new BrowserView(bm,model);
         
         BrowserController controller = new BrowserController(bm,view);

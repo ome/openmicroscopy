@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel;
  */
 public class LocalTSMLoader
 {
+    /*
     private static final String ROOT_PATH =
         "/Users/jeffmellen/OME/Shoola/SRC/images/";
         
@@ -67,9 +68,28 @@ public class LocalTSMLoader
      {"909","916","919","921","922","923","924","925"},
      {"926","927","929","931","933","937","938","939"},
      {"942","943","944","945","946","947","948","949"}};
-     
+    
+    */
     private static final String[] columnNames =
     {"A","B","C","D","E","F","G","H"};
+    
+    private static final String ROOT_PATH =
+        "/Users/jeff/OME/data/";
+    
+    private static final String[][] imageNumbers =
+    {{"2","3","4","5","6","7","8","9"},
+     {"10","11","12","13","14","15","16","17"},
+     {"18","19","20","21","22","23","24","25"},
+     {"26","27","28","29","30","31","32","33"},
+     {"34","35","36","37","38","39","40","41"},
+     {"42","43","44","45","46","47","48","49"},
+     {"50","51","52","53","54","55","56","57"},
+     {"58","59","60","61","62","63","64","65"},
+     {"66","67","68","69","70","71","72","73"},
+     {"74","75","76","77","78","79","80","81"},
+     {"82","83","84","85","86","87","88","89"},
+     {"90","91","92","93","94","95","96","97"}
+    };
     
     private static final String SUFFIX = ".jpg";
     
@@ -95,10 +115,11 @@ public class LocalTSMLoader
             for(int j=0;j<row.length;j++)
             {
                 String fileNum = imageNumbers[i][j];
+                String wellNum = columnNames[j]+String.valueOf(i);
                 String fileName = ROOT_PATH + fileNum + SUFFIX;
                 
                 LocalImageData imageData =
-                    new LocalImageData(fileName,(i*12+j),fileNum,
+                    new LocalImageData(fileName,(i*12+j),wellNum,
                                        null,null,null,1,"Jeff",
                                        "Mellen","jeffm@mit.edu",
                                        "MIT",2,null,null,null);

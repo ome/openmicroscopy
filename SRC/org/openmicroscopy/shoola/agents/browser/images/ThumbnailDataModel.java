@@ -37,13 +37,12 @@ package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.browser.datamodel.DataAttribute;
-import org.openmicroscopy.shoola.agents.browser.datamodel.DataAttributeListener;
+import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
  * Model of thumbnail data.
@@ -56,9 +55,9 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.DataAttributeListener;
 public class ThumbnailDataModel
 {
     /**
-     * The ID of the model/thumbnail.
+     * The backing basic information of the model/thumbnail.
      */
-    protected int ID;
+    protected ImageData imageData;
 
     /**
      * The set of attributes in the data model.
@@ -66,47 +65,56 @@ public class ThumbnailDataModel
     protected Map attributeMap;
 
     /**
-     * The set of event listeners listening for changes in the data model.
-     */
-    protected Set eventListeners;
-
-    /**
-     * Creates a data model with the pixel source and an empty set of
-     * attributes.
+     * Creates a data model with the backing ImageData information and an
+     * empty set of attributes.
      * 
-     * @param source
+     * @param basicData The basic backing image data, including ID, name,
+     *                  and owner.
+     * @throws IllegalArgumentException if basicData is null.
      */
-    public ThumbnailDataModel(int ID)
+    public ThumbnailDataModel(ImageData basicData)
+        throws IllegalArgumentException
     {
-        this.ID = ID;
+        if(basicData == null)
+        {
+            throw new IllegalArgumentException("Basic model cannot be null" +
+                " in ThumbnailDataModel(ImageData)");
+        }
+        imageData = basicData;
         attributeMap = new HashMap();
-        eventListeners = new HashSet();
     }
 
     /**
      * Creates a data model with the pixel source and a specified set of
      * attributes.
      * 
-     * @param source
-     * @param attributeMap
+     * @param basicData The basic backing image data, including ID, name
+     *                  and owner.
+     * @param attributeMap The specified set of String-to-Attribute mappings.
+     * @throws IllegalArgumentException if basicData is null.
      */
-    public ThumbnailDataModel(int ID, Map attributeMap)
+    public ThumbnailDataModel(ImageData basicData, Map attributeMap)
     {
-        this.ID = ID;
-        this.attributeMap = new HashMap();
-        eventListeners = new HashSet();
-
-        // avoid NPE on null map.
-        if (attributeMap == null)
+        if(basicData == null)
         {
-            return;
+            throw new IllegalArgumentException("Basic model cannot be null" +
+                " in ThumbnailDataModel(ImageData,Map)");
         }
-
-        // deep copy
-        for (Iterator iter = attributeMap.keySet().iterator(); iter.hasNext();)
+        imageData = basicData;
+        
+        if(attributeMap == null)
         {
-            Object key = iter.next();
-            this.attributeMap.put(key, attributeMap.get(key));
+            this.attributeMap = new HashMap();
+        }
+        else // deep copy
+        {
+            this.attributeMap = new HashMap();
+            for(Iterator iter = attributeMap.keySet().iterator();
+                iter.hasNext();)
+            {
+                Object key = iter.next();
+                this.attributeMap.put(key,attributeMap.get(key));
+            }
         }
     }
 
@@ -116,7 +124,25 @@ public class ThumbnailDataModel
      */
     public int getID()
     {
-        return ID;
+        return imageData.getID();
+    }
+    
+    /**
+     * Returns the name of the image.
+     * @return The image name.
+     */
+    public String getName()
+    {
+        return imageData.getName();
+    }
+    
+    /**
+     * Returns the basic set of information about the image.
+     * @return See above.
+     */
+    public ImageData getImageInformation()
+    {
+        return imageData;
     }
 
     /**
@@ -135,23 +161,23 @@ public class ThumbnailDataModel
      * @param key The name of the attribute.
      * @return The attribute with the specified name.
      */
-    public DataAttribute getAttribute(String key)
+    public Attribute getAttribute(String key)
     {
         if (key != null)
         {
-            return (DataAttribute) attributeMap.get(key);
+            return (Attribute) attributeMap.get(key);
         }
         else
             return null;
     }
 
     /**
-     * Binds the name to the specified DataAttribute in the data model.
+     * Binds the name to the specified Attribute in the data model.
      * Will have no effect if either parameter is null.
      * @param key The name of the attribute.
      * @param attribute The attribute to bind.
      */
-    public void setAttribute(String key, DataAttribute attribute)
+    public void setAttribute(String key, Attribute attribute)
     {
         if (key == null || attribute == null)
         {
@@ -160,47 +186,26 @@ public class ThumbnailDataModel
         else
         {
             attributeMap.put(key, attribute);
-            // TODO: add event listener change info
         }
     }
 
     /**
-     * Unbinds (and returns) the DataAttribute previously bound to
+     * Unbinds (and returns) the Attribute previously bound to
      * the specified name.
      * @param key The attribute to remove.
      * @return The removed attribute, or null if none existed.
      */
-    public DataAttribute removeAttribute(String key)
+    public Attribute removeAttribute(String key)
     {
         if (attributeMap.containsKey(key))
         {
-            DataAttribute attr = (DataAttribute) attributeMap.get(key);
+            Attribute attr = (Attribute) attributeMap.get(key);
             attributeMap.remove(key);
             return attr;
         }
         else
+        {
             return null;
-    }
-
-    /**
-     * Adds a listener to this model.
-     */
-    public void addListener(DataAttributeListener listener)
-    {
-        if (listener != null)
-        {
-            eventListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a listener from this model.
-     */
-    public void removeListener(DataAttributeListener listener)
-    {
-        if (listener != null)
-        {
-            eventListeners.remove(listener);
         }
     }
 }

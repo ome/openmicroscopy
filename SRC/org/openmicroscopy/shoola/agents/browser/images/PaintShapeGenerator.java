@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
 /**
@@ -53,11 +54,13 @@ public final class PaintShapeGenerator
 {
     private static PaintShapeGenerator singleton;
     private Shape annotationNoteShape;
+    private Shape outerMagnifierShape;
     
     // singleton constructor
     private PaintShapeGenerator()
     {
         annotationNoteShape = getAnnotationNoteShape();
+        outerMagnifierShape = getOuterMagnifierShape();
     }
     
     // returns the annotation node shape.
@@ -97,6 +100,23 @@ public final class PaintShapeGenerator
         return paperPath;
     }
     
+    private Shape getOuterMagnifierShape()
+    {
+        GeneralPath circlePath = new GeneralPath();
+        Ellipse2D outerEllipse = new Ellipse2D.Double(0,0,12,12);
+        circlePath.append(outerEllipse,false);
+        
+        GeneralPath handlePath = new GeneralPath();
+        handlePath.moveTo(7,9);
+        handlePath.lineTo(19,21);
+        handlePath.lineTo(21,19);
+        handlePath.lineTo(9,7);
+        handlePath.closePath();
+        
+        circlePath.append(handlePath,false);
+        return circlePath;
+    }
+    
     /**
      * Get an instance of the PaintShapeGenerator.
      * @return See above.
@@ -122,5 +142,18 @@ public final class PaintShapeGenerator
         AffineTransform xform =
             AffineTransform.getTranslateInstance(offsetX,offsetY);
         return xform.createTransformedShape(annotationNoteShape);
+    }
+    
+    /**
+     * Gets the outer magnifier shape.
+     * @param offsetX The x-offset of the shape.
+     * @param offsetY The y-offset of the shape.
+     * @return
+     */
+    public Shape getOuterMagnifierShape(double offsetX, double offsetY)
+    {
+        AffineTransform xform =
+            AffineTransform.getTranslateInstance(offsetX, offsetY);
+        return xform.createTransformedShape(outerMagnifierShape);
     }
 }

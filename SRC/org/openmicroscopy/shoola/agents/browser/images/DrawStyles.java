@@ -52,5 +52,5 @@ public class DrawStyles
      * The default annotation node style.
      */
     public static final DrawStyle ANNOTATION_NODE_STYLE =
-        new DrawStyle(null,new Color(255,255,153),null);
+        new DrawStyle(Color.black,new Color(255,255,153),null);
 }

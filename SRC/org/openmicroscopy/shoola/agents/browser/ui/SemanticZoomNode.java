@@ -37,12 +37,17 @@
 package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.images.DrawStyle;
+import org.openmicroscopy.shoola.agents.browser.images.DrawStyles;
+import org.openmicroscopy.shoola.agents.browser.images.PaintShapeGenerator;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -64,6 +69,8 @@ public class SemanticZoomNode extends PImage
     protected MouseOverActions mouseOverActions;
     protected Thumbnail parentThumbnail;
     protected Rectangle2D border;
+    
+    protected Font nameFont = new Font(null,Font.PLAIN,24);
     
     /**
      * Makes the node from the specified thumbnail.
@@ -128,9 +135,30 @@ public class SemanticZoomNode extends PImage
     {
         Graphics2D g2 = context.getGraphics();
         Paint paint = g2.getPaint();
+        Font oldFont = g2.getFont();
+        Color oldColor = g2.getColor();
         g2.setPaint(Color.yellow);
         g2.fill(border);
         g2.setPaint(paint);
         g2.drawImage(getImage(),0,0,null);
+        g2.setFont(nameFont);
+        g2.setColor(Color.yellow);
+        g2.drawString(parentThumbnail.getModel().getName(),4,26);
+        g2.setFont(oldFont);
+        g2.setColor(oldColor);
+        
+        Rectangle2D bounds = getBounds().getBounds2D();
+        double width = bounds.getWidth();
+        double height = bounds.getHeight();
+        DrawStyle noteStyle = DrawStyles.ANNOTATION_NODE_STYLE;
+        DrawStyle oldStyle = noteStyle.applyStyle(g2);
+        PaintShapeGenerator generator = PaintShapeGenerator.getInstance();
+        Shape note = generator.getAnnotationNoteShape(width-32,height-38);
+        Shape glass = generator.getOuterMagnifierShape(width-32,height-68);
+        g2.fill(note);
+        g2.draw(note);
+        g2.fill(glass);
+        g2.draw(glass);
+        oldStyle.applyStyle(g2);
     }
 }

@@ -81,6 +81,6 @@ public class ThumbnailDataLoader
         // TODO: wait until STS is done to fill in information
         // establish what TDM should have in terms if image fields
         // (just use ImageData object, wrap semantic types in TDM?)
-        return new ThumbnailDataModel(imageData.getID());
+        return new ThumbnailDataModel(imageData);
     }
 }

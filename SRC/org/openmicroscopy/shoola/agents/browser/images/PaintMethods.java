@@ -36,6 +36,7 @@
 package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -53,13 +54,21 @@ public class PaintMethods
 {
     public static final PaintMethod DRAW_NAME_METHOD = new AbstractPaintMethod()
     {
+        private Font nameFont = new Font(null,Font.BOLD,30);
+        private Color nameColor = Color.yellow;
+        
         /* (non-Javadoc)
          * @see org.openmicroscopy.shoola.agents.browser.images.PaintMethod#paint(java.awt.Graphics, org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
          */
         public void paint(Graphics2D g, Thumbnail t)
         {
-            // dummy method for now
-            g.drawString("I",4,4);
+            Font oldFont = g.getFont();
+            Color oldColor = g.getColor();
+            g.setFont(nameFont);
+            g.setColor(nameColor);
+            g.drawString(t.getModel().getName(),4,32);
+            g.setColor(oldColor);
+            g.setFont(oldFont);
         }
     };
     
@@ -98,6 +107,24 @@ public class PaintMethods
                 g.draw(note);
                 oldStyle.applyStyle(g);
             }
+        }
+    };
+    
+    public static final PaintMethod MAGNIFIER_ICON_METHOD =
+        new AbstractPaintMethod()
+    {
+        public void paint(Graphics2D g, Thumbnail t)
+        {
+            Rectangle2D bounds = t.getBounds().getBounds2D();
+            double width = bounds.getWidth();
+            double height = bounds.getHeight();
+            DrawStyle noteStyle = DrawStyles.ANNOTATION_NODE_STYLE;
+            DrawStyle oldStyle = noteStyle.applyStyle(g);
+            PaintShapeGenerator generator = PaintShapeGenerator.getInstance();
+            Shape glass = generator.getOuterMagnifierShape(width-10,height-40);
+            g.fill(glass);
+            g.draw(glass);
+            oldStyle.applyStyle(g);
         }
     };
     
