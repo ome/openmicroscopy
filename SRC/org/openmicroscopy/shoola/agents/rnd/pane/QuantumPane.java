@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 import java.awt.Color;
 import java.awt.Dimension;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -59,7 +58,6 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  * @since OME2.2
  */
 public class QuantumPane
-	extends JPanel
 {
 	
 	static final String			NOTE = 
@@ -98,7 +96,6 @@ public class QuantumPane
 		if (qDef.family == QuantumFactory.EXPONENTIAL)
 			 gRepresentation.setDefaultExponential(s, e);
 		else gRepresentation.setDefaultLinear(s, e);
-		layeredPane = new JLayeredPane();
 		buildLayeredPane(gRepresentation);
 	}
 	
@@ -137,6 +134,7 @@ public class QuantumPane
 	 */   
 	void buildLayeredPane(GraphicsRepresentation gr)
 	{
+		layeredPane = new JLayeredPane();
 		layeredPane.setPreferredSize(new Dimension(GraphicsRepresentation.width, 
 										GraphicsRepresentation.height));
 		layeredPane.setBounds(0, 0, GraphicsRepresentation.width, 

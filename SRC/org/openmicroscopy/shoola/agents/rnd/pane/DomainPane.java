@@ -195,18 +195,9 @@ class DomainPane
 	/**Build and layout the GUI */
 	private void buildGUI()
 	{
-		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		add(buildBody());
-	}
-	
-	/** Build the body panel. */
-	private JPanel buildBody()
-	{
-	
-		JPanel body = new JPanel();
-		body.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		GridBagLayout gridbag = new GridBagLayout();
-		body.setLayout(gridbag);
+		setLayout(gridbag);
 		GridBagConstraints c = new GridBagConstraints();
 	
 		JLabel label = new JLabel(" Wavelength");
@@ -218,47 +209,46 @@ class DomainPane
 		c.anchor = GridBagConstraints.EAST;
 		//c.insets = TOP_PADDING;
 		gridbag.setConstraints(label, c);
-		body.add(label);
+		add(label);
 		c.gridy = 1;
 		label = new JLabel(" Map");
 		gridbag.setConstraints(label, c);
-		body.add(label);
+		add(label);
 		c.gridy = 2;
 		gridbag.setConstraints(gammaLabel, c);
-		body.add(gammaLabel);
+		add(gammaLabel);
 		c.gridy = 3;
 		
 		label = new JLabel(" Resolution");
 		gridbag.setConstraints(label, c);
-		body.add(label);
+		add(label);
 		c.gridy = 4;
 		label = new JLabel(" Histogram");
 		gridbag.setConstraints(label, c);
-		body.add(label);
+		add(label);
 		c.gridx = 1;
 		c.gridy = 0;
 		JPanel wp = buildComboBoxPanel(wavelengths);
 		gridbag.setConstraints(wp, c);
-		body.add(wp);
+		add(wp);
 		c.gridy = 1;
 		wp = buildComboBoxPanel(transformations);
 		gridbag.setConstraints(wp, c);
-		body.add(wp);
+		add(wp);
 		c.gridy = 2;
 		JPanel gp = buildSliderPanel(gamma);
 		gridbag.setConstraints(gp, c);
-		body.add(gp);
+		add(gp);
 		c.gridy = 3;
 		JPanel brp = buildSliderPanel(bitResolution);
 		gridbag.setConstraints(brp, c);
-		body.add(brp);
+		add(brp);
 		c.gridy = 4;
 		JPanel hp = buildButtonPanel(histogram);
 		gridbag.setConstraints(hp, c);
-		body.add(hp);
-		return body;
+		add(hp);
 	}
-	
+
 	/**
 	 * Build a JPanel which contains a JSlider.
 	 * 
@@ -269,7 +259,6 @@ class DomainPane
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		p.setOpaque(false);
 		p.add(slider);
 		return p;
 	}

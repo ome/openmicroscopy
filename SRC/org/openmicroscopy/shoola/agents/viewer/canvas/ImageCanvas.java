@@ -72,7 +72,8 @@ public class ImageCanvas
 	/** Coordinates of the top-left corner of he image. */
 	private int					x, y;
 	
-	private ViewerUIF view;
+	/** Reference to the {@link Viewer view}. */
+	private ViewerUIF 			view;
 	
 	public ImageCanvas(ViewerUIF view)
 	{
@@ -111,7 +112,7 @@ public class ImageCanvas
 		g2D.drawImage(image, null, x+ViewerUIF.START, y+ViewerUIF.START);
 	}
 
-	/** Paint the frame. */
+	/** Paint the XY-frame. */
 	private void paintXYFrame(Graphics2D g2D)
 	{
 		FontMetrics fontMetrics = g2D.getFontMetrics();

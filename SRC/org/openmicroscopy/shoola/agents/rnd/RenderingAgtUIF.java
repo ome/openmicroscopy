@@ -139,7 +139,7 @@ class RenderingAgtUIF
 		modelPane = control.getModelPane();
 		modelPane.buildComponent();
 		mappingPanel = new JPanel();
-		mappingPanel.setLayout(new BorderLayout(0, 0));
+		mappingPanel.setLayout(new BorderLayout(0, 10));
 	}
 	
 	/** Build and lay out the GUI. */
