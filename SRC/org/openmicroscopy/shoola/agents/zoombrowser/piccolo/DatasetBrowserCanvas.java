@@ -279,9 +279,7 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 			double yPortion = (rect.getHeight()/yExtent)*bounds.getHeight();
 			node.layoutImages(xPortion,yPortion);
 			node.setHandler(eventHandler);
-		}
-	
-	
+		}	
 	}
 	
 	private int[] getSizes(Collection datasets) {
