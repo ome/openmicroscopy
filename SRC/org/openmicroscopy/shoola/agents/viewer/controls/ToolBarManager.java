@@ -100,6 +100,9 @@ public class ToolBarManager
 	/** Action command ID to be used with the forward button. */
 	private static final int   					FORWARD_CMD = 10;
 	
+	/** Action command ID to be used with the viewer3D button. */
+	private static final int   					VIEWER3D_CMD = 11;
+	
 	private int									curT, maxT, curR;
 	private int									curZ, maxZ;
 	
@@ -137,7 +140,8 @@ public class ToolBarManager
 		JButton	play = view.getPlay(), stop = view.getStop(), 
 				rewind = view.getRewind(), render = view.getRender(), 
 				inspector = view.getInspector(), saveAs = view.getSaveAs(), 
-				pause = view.getPause(), forward = view.getForward();
+				pause = view.getPause(), forward = view.getForward(),
+				viewer3D = view.getViewer3D();
 		play.setActionCommand(""+PLAY_CMD);
 		play.addActionListener(this);
 		stop.setActionCommand(""+STOP_CMD); 
@@ -154,6 +158,8 @@ public class ToolBarManager
 		pause.addActionListener(this);
 		forward.setActionCommand(""+FORWARD_CMD);
 		forward.addActionListener(this);
+		viewer3D.setActionCommand(""+VIEWER3D_CMD);
+		viewer3D.addActionListener(this);
 		//spinner
 		view.getFPS().addChangeListener(this);
 	}
@@ -196,7 +202,8 @@ public class ToolBarManager
 	 * set all elements to the new blacklevel value. 
 	 * If that text doesn't evaluate to a valid blacklevel, then we simply 
 	 * suggest the user to enter a valid one.
-	 */      
+	 */  
+	/*    
 	private void editorActionHandler()
 	{
 		//TODO implement
@@ -221,6 +228,7 @@ public class ToolBarManager
 			un.notifyInfo("Invalid value", "Please enter ");
 		}
 	} 
+	*/
 	
 	/** 
 	 * Handles the action event fired by the timepoint text field when the user 
@@ -288,6 +296,8 @@ public class ToolBarManager
 					control.showInspector(); break;
 				case SAVEAS_CMD:
 					control.showImageSaver(); break;
+				case VIEWER3D_CMD:
+					control.showImage3DViewer(); break;	
 				/*
 			   	case PLAY_CMD:  //not implemented yet
 			   	case STOP_CMD:  //not implemented yet

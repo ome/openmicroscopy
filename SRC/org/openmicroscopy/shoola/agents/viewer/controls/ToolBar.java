@@ -81,6 +81,9 @@ public class ToolBar
 	 */
 	private static final Dimension	H_SPACER_SIZE = new Dimension(5, 1);
 	
+	/** Bring up the 3Dimage viewer. */
+	private JButton					viewer3D;
+	
 	/** Bring up the save image widget. */
 	private JButton					saveAs;
 	
@@ -121,6 +124,8 @@ public class ToolBar
 		manager.attachListeners();
 		buildToolBar();
 	}
+
+	public JButton getViewer3D() { return viewer3D; }
 	
 	public JButton getSaveAs() { return saveAs; }
 
@@ -157,6 +162,10 @@ public class ToolBar
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
+		viewer3D = new JButton(im.getIcon(IconManager.VIEWER3D));
+		viewer3D.setToolTipText(
+			UIUtilities.formatToolTipText("Bring up the image3D viewer."));
+			
 		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
 		saveAs.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the save image window."));
@@ -242,6 +251,7 @@ public class ToolBar
 		bar.setFloatable(false);
 		bar.add(render);
 		bar.add(inspector);
+		bar.add(viewer3D);
 		bar.add(saveAs);
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
 		//movie controls.

@@ -277,6 +277,10 @@ public class ViewerUIF
 									im.getIcon(IconManager.INSPECTOR));
 		control.attachItemListener(menuItem, ViewerCtrl.INSPECTOR);
 		menu.add(menuItem);
+		menuItem = new JMenuItem("3D view", 
+						im.getIcon(IconManager.VIEWER3D));
+		control.attachItemListener(menuItem, ViewerCtrl.VIEWER3D);
+		menu.add(menuItem);
 		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);

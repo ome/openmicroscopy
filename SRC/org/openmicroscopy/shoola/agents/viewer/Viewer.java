@@ -97,6 +97,8 @@ public class Viewer
 	private int						curImageID, curPixelsID;
 	private BufferedImage			curImage;
 	
+	private String					curImageName;
+	
 	private JCheckBoxMenuItem		viewItem;
 	private JButton 				viewButton;
 	
@@ -149,6 +151,8 @@ public class Viewer
 	/** Return the current buffered image. */
 	BufferedImage getCurImage() { return curImage; }
 	
+	String getCurImageName() { return curImageName; }
+	
 	/** 2D-plane selected. */
 	void onPlaneSelected(int z, int t)
 	{
@@ -192,6 +196,7 @@ public class Viewer
 	private void initPresentation(String imageName, PixelsDimensions pxsDims, 
 									boolean active)
 	{
+		curImageName = imageName;
 		presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									pxsDims.sizeT, pxsDims.sizeZ);
 		presentation.setImageName(imageName);

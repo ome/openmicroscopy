@@ -81,6 +81,7 @@ public class ViewerCtrl
 	static final int			MOVIE_FORWARD = 6;
 	static final int			MOVIE_PAUSE = 7;
 	static final int			INSPECTOR = 8;
+	static final int			VIEWER3D = 9;
 	
 	private JSlider				tSlider, zSlider;
 	
@@ -155,6 +156,9 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
+	public String getCurImageName(){ return abstraction.getCurImageName(); }
+	
+	/** Forward event to {@link Viewer abstraction}. */
 	public void onPlaneSelected(int z, int t)
 	{
 		abstraction.onPlaneSelected(z, t);
@@ -201,6 +205,8 @@ public class ViewerCtrl
 					showImageSaver(); break;
 				case INSPECTOR:
 					showInspector(); break;
+				case VIEWER3D:
+					showImage3DViewer(); break;
 				/*
 				case MOVIE_PLAY:
 				case MOVIE_STOP:
@@ -229,8 +235,7 @@ public class ViewerCtrl
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
-		//UIUtilities.centerAndShow(new Viewer3D(this));
-		new Viewer3D(this);
+		UIUtilities.centerAndShow(new Viewer3D(this));
 	}
 	
 	/** Bring up the image inspector widget. */
