@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 import java.util.List;
 
+import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.SemanticType;
 
 //Java imports
@@ -124,10 +125,74 @@ public interface SemanticTypesService
      */
     public int countProjectAttributes(SemanticType type, int projectID)
         throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Counts the number of attributes of the given semantic type that
+     * correspond to the dataset with the specified ID.  If the answer is 0,
+     * the client should not attempt to retrieve a list of attributes.
+     * 
+     * @param type The type of attribute to count.
+     * @param datasetID Which dataset to search.
+     * @return The number of attributes of the given type associated with
+     *         The specified dataset.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public int countDatasetAttributes(SemanticType type, int datasetID)
+        throws DSOutOfServiceException, DSAccessException;    
+    
+    /**
+     * Counts the number of attributes of the given semantic type that
+     * correspond to the image with the specified ID.  If the answer is 0,
+     * the client should not attempt to retrieve a list of attributes.
+     * 
+     * @param type The type of attribute to count.
+     * @param imageID Which image to search.
+     * @return The number of attributes of the given type associated with
+     *         The specified image.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public int countImageAttributes(SemanticType type, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Counts the number of attributes of the given semantic type that
+     * correspond to the feature with the specified ID.  If the answer is 0,
+     * the client should not attempt to retrieve a list of attributes.
+     * 
+     * @param type The type of attribute to count.
+     * @param featureID Which project to search.
+     * @return The number of attributes of the given type associated with
+     *         The specified feature.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public int countFeatureAttributes(SemanticType type, int featureID)
+        throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Retrieves the attribute with the given SemanticType and specified
+     * attributeID.
+     * @param type The type of attribute to retrieve.
+     * @param attributeID The ID of the attribute to retrieve.
+     * @return The Attribute corresponding to the specified ID.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public Attribute retrieveAttribute(SemanticType type, int attributeID)
+        throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Retrieves all the Attributes with the given SemanticType that belong
      * to a project with the specified ID.
+     * @param type The type of attribute to retrieve.
+     * @param projectID The ID of the project to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified project.
      * @throws DSOutOfServiceException If the user is not logged in or the
      *                                 connection with the server is lost.
      * @throws DSAccessException If there was a communication error.
@@ -138,10 +203,43 @@ public interface SemanticTypesService
     /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to a dataset with the specified ID.
+     * @param type The type of attribute to retrieve.
+     * @param datasetID The ID of the dataset to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified dataset.
      * @throws DSOutOfServiceException If the user is not logged in or the
      *                                 connection with the server is lost.
      * @throws DSAccessException If there was a communication error.
      */
     public List retrieveDatasetAttributes(SemanticType type, int datasetID)
         throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Retrieves all the Attributes with the given SemanticType that
+     * belong to an image with the specified ID.
+     * @param type The type of attribute to retrieve.
+     * @param imageID The ID of the image to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified image.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveImageAttributes(SemanticType type, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Retrieves all the Attributes with the given SemanticType that
+     * belong to a feature with the specified ID.
+     * @param type The type of attribute to retrieve.
+     * @param featureID The ID of the feature to search.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to the specified feature.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveFeatureAttributes(SemanticType type, int featureID)
+        throws DSOutOfServiceException, DSAccessException;
+    
 }

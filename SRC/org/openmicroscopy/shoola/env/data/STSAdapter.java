@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.STSProxy
+ * org.openmicroscopy.shoola.env.data.STSAdapter
  *
  *------------------------------------------------------------------------------
  *
@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.List;
 
 import org.openmicroscopy.ds.DataFactory;
+import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -145,6 +146,39 @@ class STSAdapter
     
     /**
      * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public int countDatasetAttributes(SemanticType type, int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return 0;
+    }
+    
+    /**
+     * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public int countImageAttributes(SemanticType type, int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return 0;
+    }
+    
+    /**
+     * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#countFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public int countFeatureAttributes(SemanticType type, int featureID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return 0;
+    }
+    
+    /**
+     * TODO write documentation
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveProjectAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveProjectAttributes(SemanticType type, int projectID)
@@ -159,6 +193,39 @@ class STSAdapter
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveDatasetAttributes(SemanticType type, int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return null;
+    }
+    
+    /**
+     * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public List retrieveImageAttributes(SemanticType type, int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return null;
+    }
+    
+    /**
+     * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public List retrieveFeatureAttributes(SemanticType type, int featureID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO flesh out this method
+        return null;
+    }
+
+    /**
+     * TODO write documentation
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAttribute(org.openmicroscopy.ds.dto.SemanticType, int)
+     */
+    public Attribute retrieveAttribute(SemanticType type, int attributeID)
         throws DSOutOfServiceException, DSAccessException
     {
         // TODO flesh out this method
