@@ -138,7 +138,7 @@ public class DataManagerCtrl
 	{
 		int[] pxSets = is.getPixelsIDs();
 		//TODO: select pixels if more than one!
-		abstraction.viewImage(is.getID(), pxSets[0]);
+		abstraction.viewImage(is.getID(), pxSets[0], is.getName());
 	}
 	
 	/** Forward the call to the {@link DataManager abstraction}. */

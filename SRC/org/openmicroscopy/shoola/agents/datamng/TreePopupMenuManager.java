@@ -116,10 +116,9 @@ class TreePopupMenuManager
 			if (src == view.properties)	agentCtrl.showProperties(target);
 			else {
 				if (src == view.view && target instanceof ImageSummary)       
-					agentCtrl.viewImage(((ImageSummary)target));
-				else
-					if (src == view.browse && target instanceof DatasetSummary)
-						agentCtrl.viewDataset(((DatasetSummary)target));
+					agentCtrl.viewImage(((ImageSummary) target));
+				else if (src == view.browse && target instanceof DatasetSummary)
+					agentCtrl.viewDataset(((DatasetSummary) target));
 			}
 		}
 		view.setVisible(false);

@@ -127,9 +127,7 @@ public class DataManager
 	/** All user's datasets. */
 	private List					datasetSummaries;
 
-	/** 
-	 * Creates a new instance.
-	 */
+	/** Creates a new instance. */
 	public DataManager() {}
     
 	/** Implemented as specified by {@link Agent}. */
@@ -140,9 +138,7 @@ public class DataManager
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
-	public void terminate()
-	{
-	}
+	public void terminate() {}
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void setContext(Registry ctx)
@@ -628,10 +624,11 @@ public class DataManager
 	 * 
 	 * @param imageID	The id of the image containing the pixels set.
 	 * @param pixelsID	The id of the pixels set.
+	 * @param imageName	The name of the image to load.
 	 */
-	void viewImage(int imageID, int pixelsID)
+	void viewImage(int imageID, int pixelsID, String imageName)
 	{
-		LoadImage request = new LoadImage(imageID, pixelsID);
+		LoadImage request = new LoadImage(imageID, pixelsID, imageName);
 		EventBus bus = registry.getEventBus();
 		bus.post(request);	
 	}
