@@ -135,8 +135,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	private LayoutChainData draggingChain;
 	
 	
-	/** The chains */
-	private Collection chains;
 	/** 
 	 * Listener for drag events
 	 */
@@ -196,7 +194,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 	
 	public void setContents(Object obj) {
-		chains = (Collection) obj;
 	}
 	
 	public void layoutContents() {
@@ -204,6 +201,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		LayoutChainData chain;
 		
+		Collection chains = dataManager.getChains();
 		Iterator iter = chains.iterator();
 		
 		int num = chains.size();
@@ -239,6 +237,8 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		float height = 0;
 		
+		if (chain.getNodes().size() == 0) 
+			return;
 		ChainBox box = new ChainBox(chain,dataManager.getRegistry());
 		layer.addChild(box);
 		box.moveToBack();
@@ -255,6 +255,11 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		x+= box.getWidth();
 	}
 	
+	
+	public void displayNewChain(LayoutChainData chain) {
+		drawChain(chain);
+		scaleToSize();
+	}
 
 	public void completeInitialization() {
 		handler = new ChainPaletteEventHandler(this,dataManager.getRegistry()); 
