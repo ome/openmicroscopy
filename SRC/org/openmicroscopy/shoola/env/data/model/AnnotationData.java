@@ -67,15 +67,16 @@ public class AnnotationData
     private int                 theT;
     
     /** Attribute ID in DB. */
-    private final int   id;
+    private final int           id;
     
-    private Timestamp   date;
-    private String      annotation;
+    private Timestamp           date;
+    
+    private String              annotation;
     
     /** Information on the user who wrote the annotation. */
-    private int         ownerID;
-    private String      ownerFirstName;
-    private String      ownerLastName;
+    private int                 ownerID;
+    private String              ownerFirstName;
+    private String              ownerLastName;
     
     public AnnotationData(int id, int ownerID, Timestamp date)
     {

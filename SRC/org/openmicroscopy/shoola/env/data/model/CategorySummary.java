@@ -29,6 +29,9 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 //Java imports
 
@@ -55,14 +58,22 @@ public class CategorySummary
 {
 
     private int         id;
+    
     private String      name;
     
-    public CategorySummary() {}
+    /** List of id of the images contained in the category. */
+    private List        images;
+    
+    public CategorySummary()
+    {
+        images = new ArrayList();
+    }
     
     public CategorySummary(int id, String name)
     {
         this.id = id;
         this.name = name;
+        images = new ArrayList();
     }
     
     /** Required by the DataObject interface. */
@@ -77,5 +88,7 @@ public class CategorySummary
     public String getName() { return name; }
     
     public void setName(String name) { this.name = name; }
+    
+    public List getImages() { return images; }
     
 }

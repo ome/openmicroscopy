@@ -57,25 +57,27 @@ public class ImageSummary
 {
 	
 	/** image's id. */
-	private int		id;
+	private int                id;
 	
 	/** image's name. */
-	private String	name;
+	private String             name;
 	
 	/** 
 	 * The id's of this image's pixels.
 	 * The first element of the array always contains the default pixels.
 	 */  
-    private int[]	pixelsIDs;
+    private int[]               pixelsIDs;
     
     /** Date: the image was imported into OME i.e. created in DB. */
-    private Timestamp	date;
+    private Timestamp           date;
     
     /**
      * The default pixels of the image.
      */
-    private PixelsDescription defaultPixels;
+    private PixelsDescription   defaultPixels;
 	
+    private AnnotationData      annotation;
+    
 	public ImageSummary() {}
 	
 	public ImageSummary(int id, String name, int[] pixelsIDs)
@@ -121,5 +123,24 @@ public class ImageSummary
 	public int[] getPixelsIDs() { return pixelsIDs; }
 
 	public void setPixelsIDs(int[] pixelsIDs) { this.pixelsIDs = pixelsIDs; }
-
+    
+    public void setAnnotation(AnnotationData data)
+    {
+        annotation = data;
+    }
+    
+    public AnnotationData getAnnotation() { return annotation; }
+    
+    public ImageSummary copyObject()
+    {
+        ImageSummary is = new ImageSummary();
+        is.setID(this.id);
+        is.setName(this.name);
+        is.setDate(this.date);
+        is.setDefaultPixels(this.defaultPixels);
+        is.setPixelsIDs(this.pixelsIDs);
+        is.setAnnotation(this.annotation);
+        return is;
+    }
+    
 }

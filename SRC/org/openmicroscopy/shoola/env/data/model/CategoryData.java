@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -105,6 +108,27 @@ public class CategoryData
     public void setClassifications(Map map) { classifications = map; }
     
     public Map getClassifications() { return classifications; }
+    
+    public float getConfidence(ImageSummary is)
+    { 
+        if (classifications == null)
+            throw new NullPointerException("No classifications");
+        if (is == null)
+           throw new NullPointerException("ImageSummary cannot be null");
+        return ((ClassificationData) classifications.get(is)).getConfidence();
+    }
+    
+    public List getImages()
+    { 
+        List images = new ArrayList();
+        if (classifications != null) {
+            Iterator k = classifications.keySet().iterator();
+            
+            while (k.hasNext())
+                images.add(((ImageSummary) k.next()).copyObject());  
+        }
+        return images;
+    }
     
     public CategoryGroupData getCategoryGroup() { return categoryGroupData; }
     

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DatasetSummary
+ * org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked
  *
  *------------------------------------------------------------------------------
  *
@@ -29,7 +29,9 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
@@ -43,51 +45,21 @@ package org.openmicroscopy.shoola.env.data.model;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public class DatasetSummary
-	implements DataObject
+public class DatasetSummaryLinked
+    extends DatasetSummary
 {
-	
-	/** Dataset's id. */
-	private int            id;
-	
-	/** Dataset's name. */
-	private String	        name;
-	
-    /** Annotation if any and required. Can be null. */
-    private AnnotationData  annotation;
+
+    /** List of image summary objects linked to this dataset. */
+    private List    images;
     
-	public DatasetSummary() {}
-	
-	public DatasetSummary(int id, String name)
-	{
-		this.id = id;
-		this.name = name;
-	}
-
-	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new DatasetSummary(); }
-	
-	public String toString() { return name;}
-	
-	public int getID() { return id; }
-
-	public String getName() { return name; }
-
-	public void setID(int id) { this.id = id; }
-
-	public void setName(String name) { this.name = name; }
+    public void setImages(List images) { this.images = images; }
     
-    public void setAnnotation(AnnotationData annotation)
-    {
-        this.annotation = annotation;
-    }
+    public List getImages() { return images; }
 
-    public AnnotationData getAnnotation() { return annotation; }
-    
 }
