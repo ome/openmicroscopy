@@ -56,7 +56,8 @@ import javax.swing.event.InternalFrameEvent;
  * @since OME2.2
  */
 public final class HeatMapUI extends JInternalFrame
-                             implements HeatMapModelListener
+                             implements HeatMapModelListener,
+                                        HeatMapDTListener
 {
     private HeatMapModel model;
     private HeatMapStatusUI statusPanel;
@@ -105,6 +106,7 @@ public final class HeatMapUI extends JInternalFrame
     private void init()
     {
         gradPanel = new HeatMapGradientUI();
+        gradPanel.addDTListener(this);
         statusPanel = new HeatMapStatusUI();
         modeBar = new HeatMapModeBar();
         scaleBar = new HeatMapScaleBar();
@@ -139,6 +141,7 @@ public final class HeatMapUI extends JInternalFrame
         model = null;
         treePanel = new HeatMapTreeUI(null);
         gradPanel = new HeatMapGradientUI();
+        gradPanel.addDTListener(this);
         repaint();
     }
     
@@ -225,6 +228,24 @@ public final class HeatMapUI extends JInternalFrame
         gradPanel.setEnabled(false);
         revalidate();
         repaint();
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapDTListener#inBooleanMode()
+     */
+    public void inBooleanMode()
+    {
+        modeBar.setEnabled(false);
+        scaleBar.setEnabled(false);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapDTListener#inScalarMode()
+     */
+    public void inScalarMode()
+    {
+        modeBar.setEnabled(true);
+        scaleBar.setEnabled(true);
     }
 
 }

@@ -58,6 +58,7 @@ public class HeatMapModeBar extends JPanel
 {
     private HeatMapMode currentMode = HeatMapModes.MEAN_MODE;
     private Set modeListeners;
+    private JComboBox box;
     
     private final Object[] modes = new Object[]{HeatMapModes.MINIMUM_MODE,
                                                 HeatMapModes.MEAN_MODE,
@@ -70,7 +71,7 @@ public class HeatMapModeBar extends JPanel
         modeListeners = new HashSet();
         
         JLabel label = new JLabel("View by: ");
-        JComboBox box = new JComboBox(modes);
+        box = new JComboBox(modes);
         
         box.setSelectedItem(currentMode);
         box.addItemListener(new ItemListener()
@@ -123,5 +124,11 @@ public class HeatMapModeBar extends JPanel
     public void removeAllListeners()
     {
         modeListeners.clear();
+    }
+    
+    public void setEnabled(boolean enable)
+    {
+        super.setEnabled(enable);
+        box.setEnabled(enable);
     }
 }

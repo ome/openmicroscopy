@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient
+ * org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapDTListener
  *
  *------------------------------------------------------------------------------
  *
@@ -35,65 +35,14 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
-import java.awt.Color;
-
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
-public interface HeatMapGradient
+public interface HeatMapDTListener
 {
-    /**
-     * Get the min value of the gradient.
-     * @return
-     */
-    public double getMin();
-    
-    /**
-     * Sets the min value of the gradient to the specified value.
-     * @param d
-     */
-    public void setMin(double d);
-    
-    /**
-     * Gets the max value of the gradient.
-     * @return
-     */
-    public double getMax();
-    
-    /**
-     * Sets the max value of the gradient to the specified value.
-     * @param d
-     */
-    public void setMax(double d);
-    
-    /**
-     * Gets the min color.
-     * @return
-     */
-    public Color getMinColor();
-    
-    /**
-     * Sets the min color to the specified color.
-     * @param c
-     */
-    public void setMinColor(Color c);
-    
-    /**
-     * Gets the max color.
-     * @return
-     */
-    public Color getMaxColor();
-    
-    /**
-     * Sets the max color to the specified color.
-     * @param c
-     */
-    public void setMaxColor(Color c);
-    
-    public boolean isDiscrete();
-    
-    public void setDiscrete(boolean discrete);
+    public void inScalarMode();
+    public void inBooleanMode();
 }

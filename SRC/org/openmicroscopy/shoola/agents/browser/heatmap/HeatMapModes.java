@@ -61,12 +61,14 @@ public class HeatMapModes
             double currentVal = Double.POSITIVE_INFINITY;
             for(int i=0;i<values.length;i++)
             {
+                if(values[i] == Double.NaN) continue;
                 if(values[i] < currentVal)
                 {
                     currentVal = values[i];
                 }
             }
-            return currentVal;
+            if(currentVal == Double.POSITIVE_INFINITY) return Double.NaN;
+            else return currentVal;
         }
         
         public String toString()
@@ -87,6 +89,7 @@ public class HeatMapModes
             double currentVal = 0;
             for(int i=0;i<values.length;i++)
             {
+                if(values[i] == Double.NaN) continue;
                 currentVal += values[i];
             }
             return currentVal/(double)values.length;
@@ -117,6 +120,10 @@ public class HeatMapModes
             {
                 double value1 = values[values.length/2-1];
                 double value2 = values[values.length/2];
+                if(value1 == Double.NaN || value2 == Double.NaN)
+                {
+                    return Double.NaN;
+                }
                 return (value1+value2)/2.0;
             }
         }
@@ -139,12 +146,15 @@ public class HeatMapModes
             double currentVal = Double.NEGATIVE_INFINITY;
             for(int i=0;i<values.length;i++)
             {
+                if(values[i] == Double.NaN) continue;
                 if(values[i] > currentVal)
                 {
                     currentVal = values[i];
                 }
             }
-            return currentVal;
+            if(currentVal == Double.NEGATIVE_INFINITY)
+                return Double.NaN;
+            else return currentVal;
         }
         
         public String toString()

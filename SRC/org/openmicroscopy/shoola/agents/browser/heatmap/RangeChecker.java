@@ -70,6 +70,7 @@ public class RangeChecker
         
         for(int i=0;i<vals.length;i++)
         {
+            if(vals[i] == Double.NaN) continue;
             if(vals[i] < min)
             {
                 min = vals[i];

@@ -62,13 +62,15 @@ public class HeatMapScaleBar extends JPanel
     private static final String[] scaleTypes = {Scale.LINEAR_SCALE,
                                                 Scale.LOGARITHMIC_SCALE};
     
+    private JComboBox comboBox;
+    
     public HeatMapScaleBar()
     {
         setLayout(new BorderLayout());
         modelListeners = new HashSet();
         
         JLabel label = new JLabel("Scale: ");
-        JComboBox comboBox = new JComboBox(scaleTypes);
+        comboBox = new JComboBox(scaleTypes);
         comboBox.addItemListener(new ItemListener()
         {
             public void itemStateChanged(ItemEvent e)
@@ -117,5 +119,10 @@ public class HeatMapScaleBar extends JPanel
         modelListeners.clear();
     }
     
+    public void setEnabled(boolean enabled)
+    {
+        super.setEnabled(enabled);
+        comboBox.setEnabled(enabled);
+    }
     
 }

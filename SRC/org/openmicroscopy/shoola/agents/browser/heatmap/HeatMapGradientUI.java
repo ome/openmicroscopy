@@ -43,6 +43,9 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -59,18 +62,23 @@ import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
 public final class HeatMapGradientUI extends JPanel
                                      implements HeatMapGradient
 {
-    private Font numberFont = new Font(null,Font.PLAIN,10);
+    private Font valueFont = new Font(null,Font.PLAIN,10);
     private Font axisFont = new Font(null,Font.BOLD,12);
+    
+    private boolean inBooleanMode = false;
     
     /**
      * The predefined cold color of the UI.
      */
-    public Color coldColor = new Color(0,0,192);
+    private Color coldColor = new Color(0,0,192);
     
     /**
      * The predefined warm color of the UI.
      */
-    public Color hotColor = new Color(255,0,0);
+    private Color hotColor = new Color(255,0,0);
+    
+    private Color falseColor = new Color(255,0,0);
+    private Color trueColor = new Color(0,255,0);
     
     /**
      * The predefined inactive cold color of the UI.
@@ -86,6 +94,8 @@ public final class HeatMapGradientUI extends JPanel
     private double minRange, maxRange;
     private String axisName = "";
     
+    public Set dataTypeListeners;
+    
     public HeatMapGradientUI()
     {
         // do nothin, really
@@ -93,28 +103,42 @@ public final class HeatMapGradientUI extends JPanel
         max = 100;
         min = minRange;
         max = maxRange;
+        
+        dataTypeListeners = new HashSet();
     }
     
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
-        Dimension dim = getSize();
         
+        if(inBooleanMode)
+        {
+            paintComponentBoolean(g2);
+        }
+        else
+        {
+            paintComponentScalar(g2);
+        }
+    }
+    
+    public void paintComponentScalar(Graphics2D g2)
+    {
+        Dimension dim = getSize();
         Rectangle2D rect = new Rectangle2D.Double(15,getHeight()/2-10,
-                                                  dim.getWidth()-30,30);
+                                                          dim.getWidth()-30,30);
         
         if(isEnabled())
         {
             g2.setColor(Color.black);
-            g2.setFont(numberFont);
+            g2.setFont(valueFont);
         
             GradientPaint gp = new GradientPaint((float)rect.getX(),
                                                  (float)rect.getY(),coldColor,
                                                  (float)(rect.getX()+rect.getWidth()),
                                                  (float)rect.getY(),hotColor);
-            g2.setFont(numberFont);
-            FontMetrics numberMetrics = g2.getFontMetrics(numberFont);
+            g2.setFont(valueFont);
+            FontMetrics numberMetrics = g2.getFontMetrics(valueFont);
             Rectangle2D minBounds =
                 numberMetrics.getStringBounds(String.valueOf(min),g2);
         
@@ -167,6 +191,70 @@ public final class HeatMapGradientUI extends JPanel
                           (float)(rect.getX()+
                                   (rect.getWidth()-titleBounds.getWidth())/2),
                           (float)(rect.getY()-titleBounds.getHeight()-5));
+        }
+    }
+    
+    public void paintComponentBoolean(Graphics2D g2)
+    {
+        Dimension dim = getSize();
+        
+        Rectangle2D rect = new Rectangle2D.Double(15,getHeight()/2-10,
+                                                  dim.getWidth()-30,30);
+                                                  
+        Rectangle2D falseRect = new Rectangle2D.Double(rect.getX(),
+                                                       rect.getY(),
+                                                       rect.getWidth()/2,
+                                                       rect.getHeight());
+        Rectangle2D trueRect =
+            new Rectangle2D.Double(rect.getX()+(rect.getWidth()/2),
+                                   rect.getY(),rect.getWidth()/2,
+                                   rect.getHeight());
+        
+        if(isEnabled())
+        {
+            g2.setColor(Color.black);
+            g2.setFont(valueFont);
+            FontMetrics numberMetrics = g2.getFontMetrics(valueFont);
+            Rectangle2D minBounds =
+                numberMetrics.getStringBounds("False",g2);
+        
+            Rectangle2D maxBounds =
+                numberMetrics.getStringBounds("True",g2);
+                
+            StringPainter.drawString(g2,"False",(float)rect.getX(),
+                          (float)(rect.getY()+rect.getHeight()+minBounds.getHeight()));
+                          
+            StringPainter.drawString(g2,"True",
+                          (float)(rect.getX()+rect.getWidth()-maxBounds.getWidth()),
+                          (float)(rect.getY()+rect.getHeight()+maxBounds.getHeight()));
+                          
+            g2.setFont(axisFont);
+            
+            FontMetrics axisMetrics = g2.getFontMetrics(axisFont);
+            Rectangle2D titleBounds = axisMetrics.getStringBounds(axisName,g2);
+            
+            StringPainter.drawString(g2,axisName,
+                          (float)(rect.getX()+
+                                  (rect.getWidth()-titleBounds.getWidth())/2),
+                          (float)(rect.getY()-titleBounds.getHeight()-10));
+            
+            g2.setPaint(falseColor);
+            g2.fill(falseRect);
+            g2.setPaint(trueColor);
+            g2.fill(trueRect);
+            g2.setColor(Color.black);
+            g2.draw(falseRect);
+            g2.draw(trueRect); 
+        }
+        else
+        {
+            g2.setPaint(inactiveColdColor);
+            g2.fill(falseRect);
+            g2.setPaint(inactiveHotColor);
+            g2.fill(trueRect);
+            g2.setColor(Color.black);
+            g2.draw(falseRect);
+            g2.draw(trueRect);
         }
     }
     
@@ -266,4 +354,45 @@ public final class HeatMapGradientUI extends JPanel
             repaint();
         }
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#isDiscrete()
+     */
+    public boolean isDiscrete()
+    {
+        return inBooleanMode;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapGradient#setDiscrete(boolean)
+     */
+    public void setDiscrete(boolean discrete)
+    {
+        inBooleanMode = discrete;
+        for(Iterator iter = dataTypeListeners.iterator(); iter.hasNext();)
+        {
+            HeatMapDTListener listener = (HeatMapDTListener)iter.next();
+            if(discrete) listener.inBooleanMode();
+            else listener.inScalarMode();
+        }
+        revalidate();
+        repaint();
+    }
+    
+    public void addDTListener(HeatMapDTListener listener)
+    {
+        if(listener != null)
+        {
+            dataTypeListeners.add(listener);
+        }
+    }
+    
+    public void removeDTListener(HeatMapDTListener listener)
+    {
+        if(listener != null)
+        {
+            dataTypeListeners.remove(listener);
+        }
+    }
+
 }

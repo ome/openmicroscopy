@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
@@ -241,6 +242,29 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         currentValueMethod = vpm;
     }
     
+    private void displayBooleanInformation(String attribute, String elementName)
+    {
+        if(model == null || attribute == null || elementName == null)
+        {
+            return;
+        }
+        BrowserModel browserModel = model.getInfoSource();
+        PaintMethod pm =
+            HeatMapPMFactory.getBooleanPaintMethod(attribute,elementName,
+                                                   new Color(255,0,0,153),
+                                                   new Color(0,255,0,153));
+        
+        if(currentMethod != null)
+        {
+            browserModel.removePaintMethod(currentMethod,
+                                           Thumbnail.MIDDLE_PAINT_METHOD);
+            browserModel.removePaintMethod(currentValueMethod,
+                                           Thumbnail.FOREGROUND_PAINT_METHOD);
+        }
+        browserModel.addPaintMethod(pm,Thumbnail.MIDDLE_PAINT_METHOD);
+        currentMethod = pm;
+    }
+    
     private class LoaderThread extends Thread
     {
         private SemanticTypeTree.TreeNode selectedNode;
@@ -263,6 +287,19 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 currentValueMethod = null;
                 return;
             }
+            
+            DataElementType dataType =
+                ((SemanticTypeTree.ElementNode)selectedNode).getType();
+            
+            if(dataType == DataElementType.BOOLEAN)
+            {
+                gradient.setDiscrete(true);
+            }
+            else
+            {
+                gradient.setDiscrete(false);
+            }
+            
             if(selectedNode.isLazilyInitialized())
             {
                 // get attribute
@@ -278,8 +315,17 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 SemanticType type = 
                     ((SemanticTypeTree.TypeNode)pathNode).getType();
                 attributeName = type.getName();
-                analyzeInformation(attributeName,elementName);
-                displayInformation(attributeName,elementName);
+                
+                if(dataType == DataElementType.BOOLEAN)
+                {
+                    displayBooleanInformation(attributeName,elementName);
+                }
+                else
+                {
+                    analyzeInformation(attributeName,elementName);
+                    displayInformation(attributeName,elementName);
+                }
+                
             }
             else
             {
@@ -345,8 +391,16 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                     {
                         status.showMessage("Loaded "+name+" attributes.");
                     }
-                    analyzeInformation(attributeName,elementName);
-                    displayInformation(attributeName,elementName);
+                    
+                    if(dataType == DataElementType.BOOLEAN)
+                    {
+                        displayBooleanInformation(attributeName,elementName);
+                    }
+                    else
+                    {
+                        analyzeInformation(attributeName,elementName);
+                        displayInformation(attributeName,elementName);
+                    }
                 }
                 catch(DSOutOfServiceException dso)
                 {

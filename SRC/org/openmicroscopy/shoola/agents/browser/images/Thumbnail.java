@@ -43,6 +43,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -552,10 +553,18 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         
         // now, time to iterator through the overlay methods and see if
         // anything needs updating
-        for(Iterator iter = activeOverlayMethods.iterator(); iter.hasNext();)
+        try
         {
-            OverlayMethod method = (OverlayMethod)iter.next();
-            method.display(this,context);
+            for(Iterator iter = activeOverlayMethods.iterator(); iter.hasNext();)
+            {
+                OverlayMethod method = (OverlayMethod)iter.next();
+                method.display(this,context);
+            }
+        }
+        // interrupted: add while paint
+        catch(ConcurrentModificationException e)
+        {
+            context.getCamera().repaint();
         }
         
         super.paint(context);
@@ -586,25 +595,46 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         }
         
         // now draw the middle paint methods
-        for(Iterator iter = middlePaintMethods.iterator(); iter.hasNext();)
+        try
         {
-            PaintMethod p = (PaintMethod)iter.next();
-            p.paint(context,this);
+            for(Iterator iter = middlePaintMethods.iterator(); iter.hasNext();)
+            {
+                PaintMethod p = (PaintMethod)iter.next();
+                p.paint(context,this);
+            }
+        }
+        catch(ConcurrentModificationException e)
+        {
+            context.getCamera().repaint();
         }
         
         // now draw the default overlays
-        for(Iterator iter = defaultZOrder.getMethodOrder().iterator();
-            iter.hasNext();)
+        try
         {
-            PaintMethod p = (PaintMethod)iter.next();
-            p.paint(context,this);
+            for(Iterator iter = defaultZOrder.getMethodOrder().iterator();
+                iter.hasNext();)
+            {
+                PaintMethod p = (PaintMethod)iter.next();
+                p.paint(context,this);
+            }
+        }
+        catch(ConcurrentModificationException e)
+        {
+            context.getCamera().repaint();
         }
         
         // now draw the foreground paint methods
-        for(Iterator iter = foregroundPaintMethods.iterator(); iter.hasNext();)
+        try
         {
-            PaintMethod p = (PaintMethod)iter.next();
-            p.paint(context,this);
+            for(Iterator iter = foregroundPaintMethods.iterator(); iter.hasNext();)
+            {
+                PaintMethod p = (PaintMethod)iter.next();
+                p.paint(context,this);
+            }
+        }
+        catch(ConcurrentModificationException e)
+        {
+            context.getCamera().repaint();
         }
     }
     

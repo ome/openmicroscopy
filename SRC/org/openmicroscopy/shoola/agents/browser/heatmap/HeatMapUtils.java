@@ -49,6 +49,8 @@ public class HeatMapUtils
 {
     /**
      * Gets the double from an element name, supporting nested attributes.
+     * If there is no such value to extract, return NaN.
+     * 
      * @param attribute The attribute to parse.
      * @param elementName The name of the element to extract.
      * @return The double value of the element.
@@ -76,18 +78,19 @@ public class HeatMapUtils
         }
         catch(NullPointerException npe)
         {
-            throw new IllegalArgumentException("Invalid element parsed: "+
-                                               elementName);
+            System.err.println("invalid element parsed: "+elementName);
+            return Double.NaN; // might not be the right thing to do
         }
         catch(ClassCastException cce)
         {
-            throw new IllegalArgumentException("Non-numeric element parsed.");
+            System.err.println("invalid element parsed:"+elementName);
+            return Double.NaN; // might not be the right thing to do
         }
     }
     
     /**
      * Extracts the numeric values from the attributes, given the specified
-     * element name.
+     * element name.  If there is no such value to be extracted, returns NaN.
      * 
      * @param attributes The attributes to analyze.
      * @param elementName The elementName to index by.

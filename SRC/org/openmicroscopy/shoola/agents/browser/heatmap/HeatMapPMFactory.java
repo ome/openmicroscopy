@@ -69,6 +69,49 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 public class HeatMapPMFactory
 {
     /**
+     * Returns a true/false paint overlay method for a thumbnail.
+     * @param attributeName
+     * @param elementName
+     * @param trueColor
+     * @param falseColor
+     * @return See above.
+     */
+    public static PaintMethod getBooleanPaintMethod(final String attributeName,
+                                                    final String elementName,
+                                                    final Color trueColor,
+                                                    final Color falseColor)
+    {
+        PaintMethod pm = new AbstractPaintMethod()
+        {
+            private Color alpha = new Color(0,0,0,0);
+            
+            public void paint(PPaintContext c, Thumbnail t)
+            {
+                Graphics2D g = c.getGraphics();
+                Rectangle2D region = t.getBounds().getBounds2D();
+                ThumbnailDataModel tdm = t.getModel();
+                AttributeMap map = tdm.getAttributeMap();
+                Attribute attr = map.getAttribute(attributeName);
+                if(attr == null)
+                {
+                    g.setPaint(alpha);
+                    g.fill(region);
+                }
+                else
+                {
+                    boolean value =
+                        attr.getBooleanElement(elementName).booleanValue();
+                    if(value) g.setPaint(trueColor);
+                    else g.setPaint(falseColor);
+                    g.fill(region);
+                }
+            }
+        };
+        return pm;
+    }
+    
+    
+    /**
      * Returns an overlay paint method for the thumbnail.
      * @param mode
      * @param attributeName
@@ -134,6 +177,10 @@ public class HeatMapPMFactory
                 attributes.toArray(attrs);
                 
                 double val = mode.computeValue(attrs,elementName);
+                if(val == Double.NaN)
+                {
+                    thumbnailColorMap.put(tdm,alpha);
+                }
                 Color color = scale.getColor(val,coldColor,warmColor);
                 Color alphaColor = new Color(color.getRed(),color.getGreen(),
                                              color.getBlue(),153);
