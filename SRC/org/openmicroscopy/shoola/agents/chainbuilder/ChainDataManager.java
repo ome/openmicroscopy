@@ -133,19 +133,24 @@ public class ChainDataManager extends DataManager {
 	public synchronized Collection getChains() {
 		
 		Collection res = null;
+		long start;
 		// if we're done, go for it.
 		if (chainHash != null && chainHash.size() > 0) {
 			res = chainHash.values();
 		}
 		else {
 			if (gettingChains == false) {
-				long start = System.currentTimeMillis();
+				if (ChainBuilderAgent.DEBUG) {
+					start = System.currentTimeMillis();
+				}
 				gettingChains = true;
 				retrieveChains();
 				gettingChains = false;
 				notifyAll();
-				long end = System.currentTimeMillis()-start;
-				System.err.println("time for retrieving chains.. "+end);
+				if (ChainBuilderAgent.DEBUG) {
+					long end = System.currentTimeMillis()-start;
+					System.err.println("time for retrieving chains.. "+end);
+				}
 				res = chainHash.values();
 			}
 			else {// in progress
@@ -263,19 +268,24 @@ public class ChainDataManager extends DataManager {
 	
 	public synchronized Collection getChainExecutions() {
 		
+		long start;
 		// if we're done, go for it.
 		if (chainExecutions != null) {
 			return chainExecutions.getExecutions();
 		}
 		
 		if (gettingExecutions == false) {
-			long start = System.currentTimeMillis();
+			if (ChainBuilderAgent.DEBUG) {
+				start = System.currentTimeMillis();
+			}
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
 			notifyAll();
-			long getTime = System.currentTimeMillis()-start;
-			System.err.println("time for executions is "+getTime);
+			if (ChainBuilderAgent.DEBUG) {
+				long getTime = System.currentTimeMillis()-start;
+				System.err.println("time for executions is "+getTime);
+			}
 			return chainExecutions.getExecutions();
 		}
 		else {// in progress

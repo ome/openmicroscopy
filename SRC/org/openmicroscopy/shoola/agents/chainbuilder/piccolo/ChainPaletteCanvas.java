@@ -69,6 +69,7 @@ import edu.umd.cs.piccolo.util.PNodeFilter;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
@@ -231,12 +232,20 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	public void layoutContents() {
 		// the current chain
 		
+		
 		LayoutChainData chain;
 		PaletteChainView view;
 		
 		Collection chains = dataManager.getChains();
+		long start;
+		long end;
+		if (ChainBuilderAgent.DEBUG)
+			start= System.currentTimeMillis();
 		ArrayList views = buildChainViews(chains);
-		
+		if (ChainBuilderAgent.DEBUG) {
+			end = System.currentTimeMillis()-start;
+			System.err.println("in chain layout contents. time for chain view "+end);
+		}
 		int num = views.size();
 		
 		// The display should be roughly square, 
@@ -244,6 +253,8 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		rowSize = (int) Math.floor(Math.sqrt(num));
 		
 		count=0;
+		if (ChainBuilderAgent.DEBUG)
+			start = System.currentTimeMillis();
 		// draw each of them.
 		Iterator iter = views.iterator();
 		while (iter.hasNext()) {
@@ -255,12 +266,22 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		}
 		if (x > maxRowWidth) {
 			maxRowWidth = x;
+		}	
+		if (ChainBuilderAgent.DEBUG) {
+			end = System.currentTimeMillis()-start;
+			System.err.println("time for boxes and placing.."+end);
 		}
 		// fix up the last row.
 		row.setHeight(rowHeight);
 		
-		rows.add(row);
+		rows.add(row);		
+		start = System.currentTimeMillis();
+
 		adjustSizes();
+		if (ChainBuilderAgent.DEBUG) {
+			end = System.currentTimeMillis()-start;
+			System.err.println("time for adjusting size.."+end);
+		}
 	}
 	
 	private ArrayList buildChainViews(Collection chains) {
@@ -316,9 +337,11 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		}*/
 		//		 get largest area
 		PaletteChainView largest= (PaletteChainView) views.get(views.size()-1);
-		System.err.println("largest chain is "+largest.getChain().getName()+
-				", area is "+largest.getArea());
-		System.err.println("largest width is "+largest.getWidth()+","+largest.getHeight());
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("largest chain is "+largest.getChain().getName()+
+					", area is "+largest.getArea());
+			System.err.println("largest width is "+largest.getWidth()+","+largest.getHeight());
+		}
 		
 		double logLargestArea = Math.log(largest.getArea());
 		double logArea;
@@ -336,13 +359,17 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 			newArea = largest.getArea()*ratio;
 			scale = newArea/view.getArea();
 			view.setScale(scale);
-			System.err.println("\nchain..."+view.getChain().getName());
-			System.err.println("original area is "+view.getArea());
-			System.err.println("chain width is "+view.getWidth());
-			System.err.println(" scale is "+scale);
+			if (ChainBuilderAgent.DEBUG) {
+				System.err.println("\nchain..."+view.getChain().getName());
+				System.err.println("original area is "+view.getArea());
+				System.err.println("chain width is "+view.getWidth());
+				System.err.println(" scale is "+scale);
+			}
 			double newWidth = scale*view.getWidth();
-			System.err.println(" scaled width is "+newWidth);
-			System.err.println("new area is "+newArea);
+			if (ChainBuilderAgent.DEBUG) {
+				System.err.println(" scaled width is "+newWidth);
+				System.err.println("new area is "+newArea);
+			}
 		}
 	}
 	

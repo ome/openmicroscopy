@@ -56,6 +56,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
@@ -186,7 +187,14 @@ public class ModulePaletteWindow
 		content.add(tb,BorderLayout.NORTH);
 		moduleCanvas = new ModulePaletteCanvas(this);
 		moduleCanvas.setContents(modData);
+		long start;
+		if (ChainBuilderAgent.DEBUG)
+			start = System.currentTimeMillis();
 		moduleCanvas.layoutContents();
+		if (ChainBuilderAgent.DEBUG) {
+			long end = System.currentTimeMillis()-start;
+			System.err.println("time to layout module palette.."+end);
+		}
 		
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,null,moduleCanvas);
 		split.setPreferredSize(new Dimension(2*SIDE,SIDE));
@@ -329,8 +337,11 @@ public class ModulePaletteWindow
 		uiManager.showWindows();
 	}
 	
+	long totalTime = 0;
+	long start;
 	public void preHandleDisplay(TopWindowManager manager) {
 		if (dataState == NOT_LOADED) {
+			start = System.currentTimeMillis();
 			topWindowManager = manager;
 			ContentGroup group = new ContentGroup(this);
 			modLoader = new ModuleLoader(dataManager,group);
@@ -345,10 +356,19 @@ public class ModulePaletteWindow
 	}
 	
 	public void contentComplete() {
-		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
+		if (dataManager.getChains() != null || dataManager.getModules() != null) {
+			long guiStart =System.currentTimeMillis();
 			buildGUI((ModulesData) modLoader.getContents());
+			if (ChainBuilderAgent.DEBUG) {
+				long guiTime =System.currentTimeMillis()-guiStart;
+				System.err.println("time spent on module palette .."+guiTime);
+			}
 			uiManager.contentComplete();
 			topWindowManager.continueHandleDisplay();
+			if (ChainBuilderAgent.DEBUG) {
+				totalTime = System.currentTimeMillis()-start;
+				System.err.println("time for chainbuilder start..."+totalTime);
+			}
 			dataState = LOADED;
 		}
 	}

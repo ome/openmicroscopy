@@ -47,6 +47,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
@@ -82,8 +83,9 @@ public class PaletteChainView extends ChainView {
 		this.registry = dataManager.getRegistry();
 		this.executions = dataManager.getChainExecutionsByChainID(chain.getID());
 		if (executions != null) { 
-			System.err.println("palette chain.."+chain.getName()+"...executions.."
-					+executions.size());
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("palette chain.."+chain.getName()+"...executions.."
+						+executions.size());
 		}
 		drawChain();
 		setPickable(false);

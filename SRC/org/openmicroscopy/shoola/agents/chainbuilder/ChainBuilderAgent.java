@@ -61,6 +61,7 @@ public class ChainBuilderAgent
 	implements Agent
 {
 	
+	public static final boolean DEBUG = true;
 	/** 
 	 * Holds the agent's configuration and lets the agent access all services.
 	 */

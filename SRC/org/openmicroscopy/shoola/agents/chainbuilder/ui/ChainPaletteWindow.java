@@ -42,6 +42,7 @@ import javax.swing.WindowConstants;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteCanvas;
@@ -94,7 +95,16 @@ public class ChainPaletteWindow extends JFrame  {
 
 		chainCanvas = new ChainPaletteCanvas(dataManager);
 		chainCanvas.setContents(dataManager.getChains());
+		long start;
+		if (ChainBuilderAgent.DEBUG)
+			start = System.currentTimeMillis();
 		chainCanvas.layoutContents();
+		
+		if (ChainBuilderAgent.DEBUG) {
+			long end;
+			end = System.currentTimeMillis()-start;
+			System.err.println("time to layout chains is "+end);
+		}
 		chainCanvas.completeInitialization();		
 	
 		setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));

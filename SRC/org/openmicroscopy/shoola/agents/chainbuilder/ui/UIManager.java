@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.env.config.IconFactory;
@@ -153,8 +154,19 @@ public class UIManager
 	}
 	
 	public void contentComplete() {
+		long start;
+		if (ChainBuilderAgent.DEBUG)
+			start= System.currentTimeMillis();
 		chainWindow.buildGUI();
+		long chainBuilt;
+		if (ChainBuilderAgent.DEBUG)
+			chainBuilt= System.currentTimeMillis()-start;
 		overview.buildGUI();
+		if (ChainBuilderAgent.DEBUG) {
+			long end = System.currentTimeMillis()-start;
+			System.err.println("time for building chain palette "+chainBuilt);
+			System.err.println("time for building chain palette + overview" +end);
+		}
 	}
  
 	

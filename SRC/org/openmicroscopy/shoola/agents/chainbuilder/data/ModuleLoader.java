@@ -38,6 +38,7 @@ import java.util.Vector;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
@@ -74,13 +75,20 @@ public class ModuleLoader extends ContentLoader
 	 * Do the work
 	 */
 	public Object getContents() {
-		
+		long modstart = System.currentTimeMillis();
+		if (ChainBuilderAgent.DEBUG)
+			modstart = System.currentTimeMillis();
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (modData == null) {
 			modData = new ModulesData();
+			long loadStart = System.currentTimeMillis();
 			Collection mods = chainDataManager.getModules();
 			Collection cats = chainDataManager.getModuleCategories();
-			
+			long loadEnd;
+			if (ChainBuilderAgent.DEBUG) {
+				loadEnd= System.currentTimeMillis()-loadStart;
+				System.err.println("time for get modules and get categories.."+loadEnd);
+			}
 			
 			// find uncategorized modules
 			Iterator iter = mods.iterator();
@@ -101,6 +109,11 @@ public class ModuleLoader extends ContentLoader
 					findCategoryChildren(c,cats);
 				}
 			}
+		}
+		if (ChainBuilderAgent.DEBUG) {
+			long modend = System.currentTimeMillis()-modstart;
+			if (modend > 0)
+				System.err.println("total time spent in module get contents.."+modend);
 		}
 		return modData;
 	}

@@ -63,6 +63,7 @@ import edu.umd.cs.piccolo.event.PPanEventHandler;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
@@ -328,7 +329,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		PNode node = e.getPickedNode();
 		if (node instanceof FormalParameter) {
 			lastParameterEntered = (FormalParameter) node;
-			//System.err.println("mouse entered last entered.."+
+			if (ChainBuilderAgent.DEBUG) 
+				System.err.println("mouse entered last entered.."+node);
 			if (linkState == NOT_LINKING) {
 				// turn on params for this parameter 
 				lastParameterEntered.setParamsHighlighted(true);
@@ -366,7 +368,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	public void mouseExited(PInputEvent e) {
 		PNode node = e.getPickedNode();
 		lastParameterEntered = null;
-		//System.err.println("last parameter entered cleared");
+		if (ChainBuilderAgent.DEBUG) 
+			System.err.println("last parameter entered cleared");
 		if (node instanceof FormalParameter) {
 			FormalParameter param = (FormalParameter) node;
 			if (linkState == NOT_LINKING) {	
@@ -395,8 +398,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * mouseDragged() behavior is equivalent to mouseMoved() behavior.
 	 */
 	public void mouseDragged(PInputEvent e) {
-		//System.err.println("mouse dragged..."+e.getPickedNode());
-	//	System.err.println("CHAIN HANDLER:got a drag event in chain canvas");
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("CHAIN HANDLER:got a drag event in chain canvas");
+			System.err.println("mouse dragged..."+e.getPickedNode());
+		}
 		mouseMoved(e);
 		super.mouseDragged(e);
 	}
@@ -421,7 +426,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			}
 		}
 		else if (linkState == LINKING_MODULE_TARGETS) {
-			//System.err.println("setting end of module link..");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("setting end of module link..");
 			moduleLink.setEndCoords((float) pos.getX(),(float) pos.getY());
 		}
 
@@ -429,7 +435,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	
 	public void actionPerformed(ActionEvent e) {
-		//System.err.println("mouse single click");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("mouse single click");
 		if (cachedEvent != null) 
 			doMouseClicked(cachedEvent);
 		cachedEvent = null;
@@ -438,7 +445,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	public void mouseClicked(PInputEvent e) {
 		if (timer.isRunning()) {
-			//System.err.println("mouse double click");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse double click");
 			// this is effectively a double click.
 			timer.stop();
 			if (wasDoubleClick == true)
@@ -448,7 +456,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else {
 			timer.restart();
-			//System.err.println("caching click event .."+e);
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("caching click event .."+e);
 			cachedEvent = e;
 		}
 	}
@@ -469,27 +478,33 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (postLinkCompletion == true)
 			return;
 		// we only scale if we're not drawing a link.
-	//	System.err.println("mouse clicked.."+e);
-		//System.err.println("link state is "+linkState);
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("mouse clicked.."+e);
+			System.err.println("link state is "+linkState);
+		}
 		if (linkState != NOT_LINKING) {
 			if (linkState == LINKING_CANCELLATION) {
-				//System.err.println("cancelled link. set to not linking");
+				if (ChainBuilderAgent.DEBUG)
+					System.err.println("cancelled link. set to not linking");
 				linkState = NOT_LINKING;
 			}
-			//System.err.println("linking...");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("linking...");
 			e.setHandled(true);
 			return;
 		}
 		
 		if (postPopup == true) {
-			//System.err.println("post popup");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("post popup");
 			postPopup = false;
 			e.setHandled(true);
 			return;
 		}
 		
 		PNode node = e.getPickedNode();
-		//System.err.println("mouse clicked on .."+node);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("mouse clicked on .."+node);
 		int mask = e.getModifiers() & allButtonMask;
 		
 		// if it's a buffered object that is not a chain.
@@ -497,9 +512,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			BufferedObject mod = (BufferedObject) node;
 			PCamera camera = canvas.getCamera();
 			if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount()==1) {
-				//System.err.println("zooming in on node..."+node);
+				if (ChainBuilderAgent.DEBUG) {
+					System.err.println("zooming in on node..."+node);
+					System.err.println("camera view scale was "+camera.getViewScale());
+				}
 				PBounds b = mod.getBufferedBounds();
-				//System.err.println("camera view scale was "+camera.getViewScale());
 				PActivity activity = camera.animateViewToCenterBounds(b,true,
 							Constants.ANIMATION_DELAY);
 				activity.setDelegate(new PActivityDelegate() {
@@ -514,7 +531,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				
 			}
 			else if (e.isControlDown() || (mask & MouseEvent.BUTTON3_MASK)==1) {
-				//System.err.println("canvas right click..");
+				if (ChainBuilderAgent.DEBUG) 
+					System.err.println("canvas right click..");
 				evaluatePopup(e);					
 			}
 		}
@@ -523,14 +541,16 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		//if (! (node instanceof PCamera))
 		//	return;
 		else if (e.isShiftDown()) {
-			//System.err.println("zoomed with shhift..");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("zoomed with shhift..");
 			PBounds b = canvas.getBufferedBounds();
 			canvas.getCamera().animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 			setModulesDisplayMode();
 			e.setHandled(true);
 		}
 		else {
-			//System.err.println("zoomed witout shift...");
+			if (ChainBuilderAgent.DEBUG) 
+				System.err.println("zoomed witout shift...");
 			double scaleFactor = Constants.SCALE_FACTOR;
 			if (e.isControlDown() || ((mask & MouseEvent.BUTTON3_MASK)==1)) {
 				//System.err.println("but wit control...");
@@ -544,7 +564,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private void doMouseDoubleClicked(PInputEvent e) {
 		PNode node = e.getPickedNode();
-		//System.err.println("got a double click on "+node);
+		if (ChainBuilderAgent.DEBUG) 			
+			System.err.println("got a double click on "+node);
 		if (node instanceof ModuleView){
 			selectedModule = (ModuleView) node;
 			// only start links if it's linkable
@@ -617,15 +638,18 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	public void mousePressed(PInputEvent e) {
 		
 		postLinkCompletion = false;
-		//System.err.println("mouse pressed on "+e.getPickedNode());
+		if (ChainBuilderAgent.DEBUG) 
+			System.err.println("mouse pressed on "+e.getPickedNode());
 		if (wasDoubleClick == true) {
-			//System.err.println("just came from double click..");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("just came from double click..");
 			wasDoubleClick = false;
 			return;
 		}
 		
 		if (e.isPopupTrigger()) {
-			//System.err.println("mouse pressed..");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse pressed..");
 			evaluatePopup(e);
 			return;
 		}
@@ -634,7 +658,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		PNode node = e.getPickedNode();		
 		// clear off what was selected.
 		if (selectedLink != null && linkState != LINK_CHANGING_POINT) {
-		//	System.err.println("setting selected link to not be selected, in mousePressed");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("setting selected link to not be selected, in mousePressed");
 			selectedLink.setSelected(false);
 			selectedLink = null;
 		}
@@ -667,7 +692,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		else if (linkState == LINKING_MODULE_TARGETS)
 			mousePressedLinkingModuleTargets(node,e);
 		else {
-			//System.err.println("mouse pressed..setting link state to not linking..");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse pressed..setting link state to not linking..");
 			linkState = NOT_LINKING;
 		}
 	}
@@ -702,10 +728,12 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param node the node that was pressed
 	 */
 	private void mousePressedSelectionTarget(PNode node) {
-		//System.err.println("pressing on selection target..");
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("pressing on selection target..");
+			System.err.println("mousePressedSelectionTarget.... setting link state to changing point");
+		}
 		selectionTarget = (LinkSelectionTarget) node;
 		selectionTarget.getLink().setSelected(true);
-		//System.err.println("mousePressedSelectionTarget.... setting link state to changing point");
 		linkState = LINK_CHANGING_POINT;
 	}
 	
@@ -723,7 +751,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		if (e.getClickCount() ==2) {
 			cancelParamLink();
-			//System.err.println("mouse pressed linking params. setting to linking cancellation");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse pressed linking params. setting to linking cancellation");
 			linkState = LINKING_CANCELLATION;
 			postLinkCompletion = true;
 		}
@@ -748,11 +777,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param e the pressed event
 	 */
 	private void mousePressedLinkingModuleTargets(PNode node,PInputEvent e) {
-		//System.err.println("mouse pressed linking module targets "+e);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("mouse pressed linking module targets "+e);
 		PNode n = e.getPickedNode();
 		if (e.getClickCount() ==2) {
 			cancelModuleTargetLink();
-			//System.err.println("mouse pressed linking params. setting to linking cancellation");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse pressed linking params. setting to linking cancellation");
 			linkState = LINKING_CANCELLATION;
 			postLinkCompletion = true;
 		}
@@ -783,15 +814,17 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedLinkingModules(PNode node,PInputEvent e) {
 		int count = e.getClickCount();
-		//System.err.println("node is..."+node);
-		//if (node instanceof ParamLink)
-			//System.err.println("param link");
-		//if (node instanceof ModuleLink)
-			//System.err.println("module link");
-		
-		//System.err.println("caling mouse pressed linking modules..");
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("node is..."+node);
+			if (node instanceof ParamLink)
+				System.err.println("param link");
+			if (node instanceof ModuleLink)
+				System.err.println("module link");
+			System.err.println("caling mouse pressed linking modules..");
+		}
 		if (count ==2) {
-			//System.err.println("2 presses. node is "+node);
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("2 presses. node is "+node);
 			if (node instanceof FormalParameter) {
 				FormalParameter p = (FormalParameter) node;
 				ModuleView mod = p.getModuleView();
@@ -805,9 +838,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			wasDoubleClick = true;
 		}
 		else if (node instanceof PCamera){ // single click on camera
-			//System.err.println("on camera");
-			//when linking modules..
-			//System.err.println("adding an intermediate point to modules link");
+			if (ChainBuilderAgent.DEBUG) {
+				System.err.println("on camera");
+				System.err.println("adding an intermediate point to modules link");
+			}
 			
 			Iterator iter = links.iterator();
 			Point2D pos = e.getPosition();
@@ -839,26 +873,32 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param e
 	 */
 	private void mousePressedNotLinking(PNode node,PInputEvent e) {
-		//System.err.println("got mouse presssed not linking..");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("got mouse presssed not linking..");
 		if (node instanceof FormalParameter) {
 			if (lastParameterEntered == null) 
 				mouseEntered(e);
 			FormalParameter param = (FormalParameter) node;
-			//System.err.println("starting a link from .."+param.getParameter().getName());
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("starting a link from .."+param.getParameter().getName());
 			if (param.canBeLinkOrigin())
 				startParamLink(param);
 			else
 				canvas.setStatusLabel(MULT_LINKS);
 		}
 		else if (node instanceof ModuleLinkTarget) {
-			//System.err.println("pressing on module link target...");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("pressing on module link target...");
 			ModuleLinkTarget modLink = (ModuleLinkTarget) node;
 			startModuleTargetLink(modLink);
 		}
 		else if (node instanceof LinkSelectionTarget) {
-		//	System.err.println("pressiing on target..");
+			if (ChainBuilderAgent.DEBUG) {
+				System.err.println("pressiing on target..");
+				System.err.println("mouse pressed not linking. setting to link changing point");
+			}
 			selectionTarget  = (LinkSelectionTarget) node;
-			//System.err.println("mouse pressed not linking. setting to link changing point");
+
 			linkState = LINK_CHANGING_POINT;
 		}
 		e.setHandled(true);
@@ -873,7 +913,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private void mousePressedChangingPoint(PNode node,PInputEvent e) {
 		if (node instanceof PCamera)  {
-			//System.err.println("clearing link selection target.. not_LINKING.");
+			if (ChainBuilderAgent.DEBUG) 
+				System.err.println("clearing link selection target.. not_LINKING.");
 			linkState = NOT_LINKING;
 			if (selectionTarget != null) {
 				Link link = selectionTarget.getLink();
@@ -893,7 +934,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	private void startModuleTargetLink(ModuleLinkTarget modLink) {
 		
 		moduleLinkOriginTarget = modLink;
-		//System.err.println("starting mmodule target link..."+modLink);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("starting mmodule target link..."+modLink);
 		moduleLink = new ModuleLink(linkLayer,moduleLinkOriginTarget);
 		moduleLink.setPickable(false);
 		linkState = LINKING_MODULE_TARGETS;
@@ -926,7 +968,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			return;
 		}
 			
-	//	System.err.println("finishing module target link");
+		if (ChainBuilderAgent.DEBUG)
+				System.err.println("finishing module target link");
+		
 		// ok. now, create links and make sure we have no cycles.
 		// get inputs & get outputs
 		Collection  params1 = moduleLinkOriginTarget.getParameters();
@@ -967,7 +1011,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			return;
 		}
 			
-	//	System.err.println("finishing module target link");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("finishing module target link");
 		// ok. now, create links and make sure we have no cycles.
 		// get inputs & get outputs
 		Collection  params1 = moduleLinkOriginTarget.getParameters();
@@ -1053,13 +1098,15 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param param the origin of the new link
 	 */
  	private void startParamLink(FormalParameter param) {
-		////System.err.println("mouse pressing and starting link");
+ 		if (ChainBuilderAgent.DEBUG) {
+ 			System.err.println("mouse pressing and starting link");
+ 			System.err.println("start param link. link state is LINKING_PARAMS");
+ 		}
 		linkOrigin = param;
 		link = new ParamLink();
 		linkLayer.addChild(link);
 		link.setStartParam(linkOrigin);
 		link.setPickable(false);
-		//System.err.println("start param link. link state is LINKING_PARAMS");
 		linkState = LINKING_PARAMS;			
  	}
 		
@@ -1084,7 +1131,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				cancelParamLink();
 			}
 			else {
-			//System.err.println("finishing link");
+				if (ChainBuilderAgent.DEBUG)
+					System.err.println("finishing link");
 				link.setEndParam(lastParameterEntered);
 				if (foundCycle() ==false) {
 					link.setPickable(true);
@@ -1102,7 +1150,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			canvas.setStatusLabel(MULT_LINKS);
 			cancelParamLink();
 		}
-		//System.err.println("finishParamLink. state is NOT_LINKING");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("finishParamLink. state is NOT_LINKING");
 		linkState = NOT_LINKING;
 	}
 	
@@ -1182,7 +1231,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 *
 	 */
 	private void cancelParamLink() {
-		//System.err.println("canceling link");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("canceling link");
 		if (link != null)
 			link.remove();
 		link =null;
@@ -1217,16 +1267,19 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		Collection inputs = selectedModule.getInputParameters();
 		Collection outputs = selectedModule.getOutputParameters();
 		if (isInput == true  || outputs.size() == 0) {
-		//	System.err.println("building module links on input side");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("building module links on input side");
 			startModuleLinks(inputs);
 			moduleLinksStartedAsInputs = true;
 		}
 		else { 
-		//	System.err.println("building module links on output side");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("building module links on output side");
 			startModuleLinks(outputs); 
 			moduleLinksStartedAsInputs = false;
 		}
-		//System.err.println("start module links. link state is LINKING_MODULES");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("start module links. link state is LINKING_MODULES");
 		linkState = LINKING_MODULES; 
 	}
 	
@@ -1236,7 +1289,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param params
 	 */
 	private void startModuleLinks(Collection params) {
-		//System.err.println("starting module link.. selected is "+selectedModule);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("starting module link.. selected is "+selectedModule);
 		activeModuleLinkParams = params;
 	
 		Iterator iter = params.iterator();
@@ -1267,7 +1321,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		 	c = mod.getInputParameters();
 		finishModuleLinks(c);
 		links = new Vector();
-		//System.err.println("finish module links. state is not_linking");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("finish module links. state is not_linking");
 		mod.setAllHighlights(false);
 		linkState = NOT_LINKING;
 	}
@@ -1328,14 +1383,17 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 *
 	 */
 	public void cancelModuleLinks() {
-		//System.err.println("cancelling module links...");
-		//System.err.println("selected module is..."+selectedModule);
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("cancelling module links...");
+			System.err.println("selected module is..."+selectedModule);
+		}
 		Iterator iter = links.iterator();
 		while (iter.hasNext()) {
 			ParamLink link = (ParamLink) iter.next();
 			link.remove();
 		}
-		//System.err.println("cancelling modules links. link state is NOT_LINKING");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("cancelling modules links. link state is NOT_LINKING");
 		linkState = NOT_LINKING;
 		cleanUpModuleLink();
 	}
@@ -1360,7 +1418,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mouseReleased(PInputEvent e) {
 		if (e.isPopupTrigger()) {
-		//	System.err.println("mouse released");
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse released");
 			evaluatePopup(e);
 		}
 	}
@@ -1377,7 +1436,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		postPopup=true;
 		PNode n = e.getPickedNode();
 		PNode p = n.getParent();
-		//System.err.println("popup. zooming out of "+n);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("popup. zooming out of "+n);
 		if (n instanceof BufferedObject && (p == canvas.getLayer() 
 				|| p instanceof ChainView)) {
 			// if I'm on a module that's not in a chain or not. 
@@ -1399,7 +1459,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * and/or link.
 	 */
 	public void keyPressed(PInputEvent e) {
-		//System.err.println("a key was pressed ");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("a key was pressed ");
 		int key = e.getKeyCode();
 		if (key != KeyEvent.VK_DELETE && key != KeyEvent.VK_BACK_SPACE)
 			return;
@@ -1433,7 +1494,5 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private void showNoLegalLinksBetwenModulesError() {
 		canvas.setStatusLabel(NO_LEGAL_MODULE_LINKS);
-	}
-
-	
+	}	
 }

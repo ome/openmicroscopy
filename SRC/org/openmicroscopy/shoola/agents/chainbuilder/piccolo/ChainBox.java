@@ -52,6 +52,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
@@ -306,16 +307,19 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 				PInputEvent event) {
 			
 			try {
-				System.err.println("Saving chain snapshot...");
+				if (ChainBuilderAgent.DEBUG)
+					System.err.println("Saving chain snapshot...");
 				PBounds b = chainView.getFullBounds();
 				BufferedImage image = (BufferedImage) 
 						chainView.toImage((int) (b.getWidth()*2),
 						(int) (b.getHeight()*2),Constants.CANVAS_BACKGROUND_COLOR);
 			 
 				ImageIO.write(image,"png",new File("foo.png"));
-				System.err.println("...done");
+				if (ChainBuilderAgent.DEBUG)
+					System.err.println("...done");
 			} catch (Exception ex) {
-				System.err.println("Failed to save chain snapshot");
+				if (ChainBuilderAgent.DEBUG)
+					System.err.println("Failed to save chain snapshot");
 				
 			}
 		}

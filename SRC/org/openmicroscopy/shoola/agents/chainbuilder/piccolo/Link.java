@@ -57,6 +57,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
@@ -176,7 +177,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	 * @param y
 	 */
 	public void setEndCoords(float x,float y) {
-		//System.err.println("adding link end point "+x+","+y);
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("adding link end point "+x+","+y);
 		setPoint(pointCount,new Point2D.Float(x,y));
 		setLine();
 	}
@@ -189,7 +191,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	 * @param pt
 	 */
 	public void setPoint(int index,Point2D pt) {
-		//System.err.println("setting point # "+index+", # of points is "+points.size());
+		if (ChainBuilderAgent.DEBUG)
+		System.err.println("setting point # "+index+", # of points is "+points.size());
 		if (points.size() <= index) {
 			points.add(index,pt);
 		}
@@ -259,7 +262,6 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		GeneralPath p = new GeneralPath();
 	
 		int n = pts.length;
-		//System.err.println("drawing bezier. "+n+" points");
 		// width of space?
 		int w2=100;
 		double width =w2;
@@ -269,7 +271,6 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		float y;
 		double newx=0;
 		double newy=0;
-		//System.err.println("width is "+width+", step is "+step);
 		
 		double[] pxi = new double[n];
 		double[] pyi = new double[n];
@@ -358,7 +359,8 @@ public abstract class Link extends  PPath implements NodeEventListener {
  	 * @param v
  	 */
 	public void setSelected(boolean v) {
-		//System.err.println(" setting a link to be selected..");
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println(" setting a link to be selected..");
 		LinkTarget startTarget = getStartLinkTarget();
 		LinkTarget endTarget = getEndLinkTarget();
 		startTarget.setSelected(v);

@@ -37,6 +37,7 @@ import java.util.Iterator;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
@@ -71,7 +72,9 @@ public class ChainLoader extends ContentLoader
 	 * Do the work
 	 */
 	public Object getContents() {
-		long start = System.currentTimeMillis();
+		long start;
+		if (ChainBuilderAgent.DEBUG)
+			start= System.currentTimeMillis();
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (chains == null)  {
 			chains = chainDataManager.getChains();
@@ -83,8 +86,10 @@ public class ChainLoader extends ContentLoader
 			reconcileChain(chain);
 			chain.layout();
 		}
-		long end = System.currentTimeMillis()-start;
-		System.err.println("total time in chain loader"+end);
+		if (ChainBuilderAgent.DEBUG) {
+			long end = System.currentTimeMillis()-start;
+			System.err.println("total time in chain loader"+end);
+		}
 		return chains;
 	}
 	
