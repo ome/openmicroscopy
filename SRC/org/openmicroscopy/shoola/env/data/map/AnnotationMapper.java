@@ -87,7 +87,7 @@ public class AnnotationMapper
         if (column != null) c.addFilter(column, new Integer(id));
         return c;
     }
-    
+   
     public static Criteria buildDatasetAnnotationCriteria(int datasetID)
     {
         Criteria c = new Criteria();
@@ -127,7 +127,7 @@ public class AnnotationMapper
             if (mex.getTimestamp() != null)
                 time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
             else time = PrimitiveTypesMapper.getDefaultTimestamp();
-            experimenter = imgA.getExperimenter();
+            experimenter = mex.getExperimenter();
             ownerID = experimenter.getID();
             data = new AnnotationData(imgA.getID(), ownerID, time);
             data.setAnnotation(imgA.getContent());
