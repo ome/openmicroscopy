@@ -36,6 +36,9 @@
  
 package org.openmicroscopy.shoola.env.data;
 
+//AF - needed for tmp hack, to be removed.
+import java.io.InputStream;
+
 import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -186,6 +189,17 @@ public class PixelsServiceAdapter
     {
         return pixelsFactory.getStack(pixels,theC,theT,bigEndian);
     }
+    
+    //AF - tmp hack, don't code against it!
+	public InputStream getStackStream(
+		Pixels pixels,
+		int theC,
+		int theT,
+		boolean bigEndian)
+		throws ImageServerException
+	{
+		return pixelsFactory.getStackStream(pixels,theC,theT,bigEndian);
+	}
     
     /**
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getStackStatistics(org.openmicroscopy.ds.st.Pixels)
