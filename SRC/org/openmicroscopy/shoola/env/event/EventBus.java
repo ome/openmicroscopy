@@ -99,6 +99,12 @@ public interface EventBus
 	 */     
     public void remove(AgentEventListener  subscriber, Class[] events);
     
+    /**
+     * Indicate whether or not there are any listeners for a type of event
+     * @param e
+     */
+    public boolean hasListenerFor(Class event);
+    
 	/** 
 	 * Manages the event i.e. fires an event and puts it on the EventBus. 
 	 * The event can be delivered to all subscribers that registered  in 

@@ -146,7 +146,14 @@ class EventBusImpl
         Iterator e = deMultiplexTable.keySet().iterator();
         while (e.hasNext())	remove(subscriber, (Class) e.next());
     }
-        
+    
+	/** Implemented as specified by {@link EventBus}. */  
+    public boolean hasListenerFor(Class eventType) {
+    		Object evNotifList = deMultiplexTable.get(eventType);
+    		return (evNotifList != null);
+    }
+    
+    
 	/** Implemented as specified by {@link EventBus}. */  
     public void post(AgentEvent e)
     {
