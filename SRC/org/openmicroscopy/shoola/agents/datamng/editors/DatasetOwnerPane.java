@@ -102,8 +102,8 @@ class DatasetOwnerPane
 	{
 	
 		private final String[]    
-		fieldNames = {"ID", "First Name", "Last Name", "E-mail", "Institution",
-						"Group ID", "Group Name"};
+		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
+						" Institution", " Group ID", " Group Name"};
 						
 		DatasetData dd = manager.getDatasetData();
 		private Object[] data = {""+dd.getOwnerID(), dd.getOwnerFirstName(),

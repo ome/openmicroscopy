@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -155,12 +158,17 @@ class ProjectDatasetsPane
 		private final Object[]    
 		datasets = manager.getProjectData().getDatasets().toArray();
 		private Object[][] data = new Object[datasets.length][3];
+		private Map datasetSummaries;
+		
 		private DatasetsTableModel()
 		{
+			datasetSummaries = new HashMap();
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = ""+((DatasetSummary) datasets[i]).getID();
+				String sID = ""+ ((DatasetSummary) datasets[i]).getID();
+				data[i][0] = sID;
 				data[i][1] = ((DatasetSummary) datasets[i]).getName();
 				data[i][2] = new Boolean(false);
+				datasetSummaries.put(sID, datasets[i]);
 			}
 		}
 	
@@ -201,6 +209,10 @@ class ProjectDatasetsPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
+			boolean b = ((Boolean) value).booleanValue();
+			DatasetSummary ds = (DatasetSummary) 
+			datasetSummaries.get((String) data[row][0]);
+			manager.addDataset(b, ds);
 		}
 	}
 	

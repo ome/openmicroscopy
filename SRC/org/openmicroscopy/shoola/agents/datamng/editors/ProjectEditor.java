@@ -35,11 +35,13 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
@@ -71,11 +73,12 @@ public class ProjectEditor
 	private ProjectDatasetsPane		datasetsPane;
 	private ProjectOwnerPane		ownerPane;
 	
-	public ProjectEditor(Registry registry, ProjectData model)
+	public ProjectEditor(Registry registry, DataManagerCtrl control,
+						 ProjectData model)
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new ProjectEditorManager(this, model);
+		manager = new ProjectEditorManager(this, control, model);
 		generalPane = new ProjectGeneralPane(manager, registry);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
@@ -114,6 +117,18 @@ public class ProjectEditor
 	public JButton getCancelButton()
 	{
 		return datasetsPane.getCancelButton();
+	}
+	
+	/** Returns the TextArea displayed in {@link ProjectGeneralPane}. */
+	public JTextArea getDescriptionArea()
+	{
+		return generalPane.getDescriptionArea();
+	}
+
+	/** Returns the textfield displayed in {@link ProjectGeneralPane}. */
+	public JTextArea getNameField()
+	{
+		return generalPane.getNameField();
 	}
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */

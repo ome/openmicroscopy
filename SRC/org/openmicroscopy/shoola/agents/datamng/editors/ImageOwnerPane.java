@@ -105,8 +105,8 @@ class ImageOwnerPane
 	{
 	
 		private final String[]    
-		fieldNames = {"ID", "First Name", "Last Name", "E-mail", "Institution",
-						"Group ID", "Group Name"};
+		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
+						" Institution", " Group ID", " Group Name"};
 		ImageData id = manager.getImageData();
 		private Object[] data = {""+id.getOwnerID(), id.getOwnerFirstName(),
 								id.getOwnerLastName(), id.getOwnerEmail(),

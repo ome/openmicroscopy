@@ -103,8 +103,8 @@ class ImageInfoPane
 	{
 		
 		private final String[]    
-		fieldNames = {"Size X", "Size Y", "Sections", "Timepoints",
-					 "Channels", "Bits per pixels"};
+		fieldNames = {" Size X", " Size Y", " Sections", " Timepoints",
+					 " Channels", " Bits per pixels"};
 						
 		PixelsDescription px = manager.getImageData().getDefaultPixels();
 						

@@ -41,18 +41,23 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
-import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.util.ui.TableComponent;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -72,15 +77,44 @@ class ImageGeneralPane
 	extends JPanel
 {
 
-	private ImageEditorManager manager;
+	private ImageEditorManager 		manager;
 	private Registry				registry;
 	private JButton					saveButton, reloadButton;
+	
+	private JTextArea				nameField;
+	
+	private JTextArea				descriptionArea;
 	
 	ImageGeneralPane(ImageEditorManager manager, Registry registry)
 	{
 		this.manager = manager;
 		this.registry = registry;
 		buildGUI();
+	}
+	
+	
+	/**Returns the save button. */
+	public JButton getSaveButton()
+	{ 
+		return saveButton;
+	}
+	
+	/**Returns the reload button. */
+	public JButton getReloadButton()
+	{ 
+		return reloadButton;
+	}
+	
+	/** Returns the TextArea with the project's description. */
+	public JTextArea getDescriptionArea()
+	{
+		return descriptionArea;
+	}
+
+	/** Returns the textfield with project's name. */
+	public JTextArea getNameField()
+	{
+		return nameField;
 	}
 	
 	/** Build and layout the GUI. */
@@ -95,12 +129,11 @@ class ImageGeneralPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		IconManager IM = IconManager.getInstance(registry);
 		//save button
-		saveButton = new JButton(IM.getIcon(IconManager.SAVE_DB));
+		saveButton = new JButton("Save");
 		//get rid of surrounding border
-		saveButton.setBorder(null);
-		saveButton.setMargin(null);
+		//saveButton.setBorder(null);
+		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -110,10 +143,10 @@ class ImageGeneralPane
 		saveButton.setEnabled(false);
 		
 		//reload button
-		reloadButton = new JButton(IM.getIcon(IconManager.RELOAD_DB));
+		reloadButton = new JButton("Reload");
 		//get rid of surrounding border
-		reloadButton.setBorder(null);
-		reloadButton.setMargin(null);
+		//reloadButton.setBorder(null);
+		//reloadButton.setMargin(null);
 		reloadButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		reloadButton.setOpaque(false);
@@ -138,75 +171,58 @@ class ImageGeneralPane
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
 		//summary table
-		ImageTableModel imageTM = new ImageTableModel();
-		JTable  t = new JTable(imageTM);
-		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(t);
+		p.add(buildTable());
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
 		return p;
 	}
 	
-	/**Returns the save button. */
-	public JButton getSaveButton()
-	{ 
-		return saveButton;
-	}
-	
-	/**Returns the reload button. */
-	public JButton getReloadButton()
-	{ 
-		return reloadButton;
-	}
-	
-	/** A <code>3x2</code> table model to view image summary.
+	/** 
+	 * A <code>3x2</code> table model to view image summary.
 	 * The first column contains the property names (id, name, description)
 	 * and the second column holds the corresponding values. 
 	 * <code>name</code> and <code>description</code> values
 	 * are marked as editable. 
 	 */
-	private class ImageTableModel 
-		extends AbstractTableModel 
+	private JTable buildTable()
 	{
+		JTable table = new TableComponent(3, 2);
+		table.setTableHeader(null);
+		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		// Labels
+		table.setValueAt(new JLabel(" ID"), 0, 0 );
+		table.setValueAt(new JLabel(" Name"), 1, 0 );
+		table.setValueAt(new JLabel(" Description"), 2, 0 );
 
-		private final String[]    fieldNames = {"ID", "Name", "Description"};
-		ImageData id = manager.getImageData();
-		private final Object[]	  
-		data = {""+id.getID(), id.getName(), id.getDescription()};
-		private ImageTableModel() {}
+		ImageData pd = manager.getImageData();
+		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);
+		//textfields
+		nameField = new JTextArea(pd.getName());
+		nameField.setForeground(DataManager.STEELBLUE);
+		nameField.setEditable(true);
+		nameField.setLineWrap(true);
+		nameField.setWrapStyleWord(true);
+		JScrollPane scrollPaneName  = new JScrollPane(nameField);
+		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
+		table.setValueAt(scrollPaneName, 1, 1); 
 
-		public int getColumnCount() { return 2; }
+		descriptionArea = new JTextArea(pd.getDescription());
+		descriptionArea.setForeground(DataManager.STEELBLUE);
+		descriptionArea.setEditable(true);
+		descriptionArea.setLineWrap(true);
+		descriptionArea.setWrapStyleWord(true);
+		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
+		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
+		table.setValueAt(scrollPane, 2, 1);
 
-		public int getRowCount() { return 3; }
+		table.setDefaultRenderer(JComponent.class, 
+								new TableComponentCellRenderer());
+		table.setDefaultEditor(JComponent.class, 
+								new TableComponentCellEditor());
+		return table;
+	}
 
-		public Object getValueAt(int row, int col) 
-		{
-			Object  val = null;
-			if (col == 0)  val = fieldNames[row];
-			else val = data[row];
-			return val;
-		}
-
-		//entries in the value column can be edited
-		public boolean isCellEditable(int row, int col)
-		{
-			boolean isEditable = true;
-			if (col == 0) isEditable = false;
-			if (row == 0 && col == 1) isEditable = false;
-			return isEditable;
-		}
-		
-		public void setValueAt(Object value, int row, int col)
-		{
-			if (col != 0) {
-				data[row]= value;
-				fireTableCellUpdated(row, col);
-				manager.setImageFields(value, row);
-			}
-		}
-	}	
-	
 }

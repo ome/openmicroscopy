@@ -36,11 +36,13 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -72,11 +74,12 @@ public class ImageEditor
 	private ImageInfoPane			infoPane;
 	private ImageOwnerPane			ownerPane;
 	
-	public ImageEditor(Registry registry, ImageData model)
+	public ImageEditor(Registry registry, DataManagerCtrl control,
+					ImageData model)
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new ImageEditorManager(this, model);
+		manager = new ImageEditorManager(this, control, model);
 		generalPane = new ImageGeneralPane(manager, registry);
 		infoPane = new ImageInfoPane(manager);
 		ownerPane = new ImageOwnerPane(manager);
@@ -126,4 +129,15 @@ public class ImageEditor
 		return generalPane.getReloadButton();
 	}
 	
+	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
+	public JTextArea getDescriptionArea()
+	{
+		return generalPane.getDescriptionArea();
+	}
+
+	/** Returns the textfield displayed in {@link ImageGeneralPane}. */
+	public JTextArea getNameField()
+	{
+		return generalPane.getNameField();
+	}
 }

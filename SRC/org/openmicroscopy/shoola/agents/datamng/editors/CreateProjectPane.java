@@ -38,18 +38,24 @@ import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
-import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.util.ui.TableComponent;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -73,6 +79,11 @@ class CreateProjectPane
 	private Registry 					registry;
 	
 	private JButton						saveButton;
+	
+	private JTextField					nameField;
+	
+	private JTextArea					descriptionArea;
+	
 	/**
 	 * @param manager
 	 * @param registry
@@ -91,6 +102,18 @@ class CreateProjectPane
 		return saveButton;
 	}
 	
+	/** Returns the TextArea with the project's description. */
+	public JTextArea getDescriptionArea()
+	{
+		return descriptionArea;
+	}
+
+	/** Returns the textfield with project's name. */
+	public JTextField getNameField()
+	{
+		return nameField;
+	}
+	
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
@@ -103,12 +126,11 @@ class CreateProjectPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		IconManager IM = IconManager.getInstance(registry);
 		//save button
-		saveButton = new JButton(IM.getIcon(IconManager.SAVE_DB));
+		saveButton = new JButton("Save");
 		//get rid of surrounding border
-		saveButton.setBorder(null);
-		saveButton.setMargin(null);
+		//saveButton.setBorder(null);
+		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -132,66 +154,54 @@ class CreateProjectPane
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
    	
-		//summary table
-		ProjectTableModel projectTM = new ProjectTableModel();
-		JTable projectTable = new JTable(projectTM);
-		projectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		projectTable.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(projectTable);
+		p.add(buildTable());
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
 		return p;
 	}
 
-
-	/** A <code>2x2</code> table model to view project summary.
+	/** 
+ 	 * A <code>2x2</code> table model to view project summary.
 	 * The first column contains the property names (name, description)
 	 * and the second column holds the corresponding values. 
 	 * <code>name</code> and <code>description</code> values
-	 * are marked as editable. 
+	 * are marked as editable.
 	 */
-	private class ProjectTableModel 
-		extends AbstractTableModel 
+	private JTable buildTable()
 	{
+		JTable table = new TableComponent(2, 2);
+		table.setTableHeader(null);
+		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);
+		// Labels
+		table.setValueAt(new JLabel(" Name"), 0, 0 );
+		table.setValueAt(new JLabel(" Description"), 1, 0 );
 
-		private final String[]    fieldNames = {"Name", "Description"};
 		ProjectData pd = manager.getProjectData();
-	
-		private final Object[]	  
-			data = {pd.getName(), pd.getDescription() };
-			
-		private ProjectTableModel() {}
-	
-		public int getColumnCount() { return 2; }
-	
-		public int getRowCount() { return 2; }
-	
-		public Object getValueAt(int row, int col) 
-		{
-			Object  val = null;
-			if (col == 0)  val = fieldNames[row];
-			else val = data[row];
-			return val;
-		}
-	
-		//entries in the value column can be edited
-		public boolean isCellEditable(int row, int col)
-		{
-			boolean isEditable = true;
-			if (col == 0) isEditable = false;
-			return isEditable;
-		}
-	
-		public void setValueAt(Object value, int row, int col)
-		{
-			if (col != 0) {
-				data[row]= value;
-				fireTableCellUpdated(row, col);
-				manager.setProjectFields(value, row);
-			}
-		}
+		
+		//textfields
+		nameField = new JTextField(pd.getName());
+		nameField.setForeground(DataManager.STEELBLUE);
+		table.setValueAt(nameField, 0, 1); 
+
+		descriptionArea = new JTextArea(pd.getDescription());
+		descriptionArea.setForeground(DataManager.STEELBLUE);
+		descriptionArea.setEditable(true);
+		descriptionArea.setLineWrap(true);
+		descriptionArea.setWrapStyleWord(true);
+		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
+		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
+
+		// Scrollbar
+		table.setValueAt(scrollPane,1, 1);
+
+		table.setDefaultRenderer(JComponent.class, 
+								new TableComponentCellRenderer());
+		table.setDefaultEditor(JComponent.class, 
+								new TableComponentCellEditor());
+		return table;
 	}
 
 }

@@ -35,11 +35,13 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -71,11 +73,12 @@ public class DatasetEditor
 	private DatasetImagesPane		imagesPane;
 	private DatasetOwnerPane		ownerPane;
 	
-	public DatasetEditor(Registry registry, DatasetData model)
+	public DatasetEditor(Registry registry, DataManagerCtrl control,
+						 DatasetData model)
 	{
 		super((JFrame) registry.getTopFrame().getFrame(), true);
 		this.registry = registry;
-		manager = new DatasetEditorManager(this, model);
+		manager = new DatasetEditorManager(this, control, model);
 		generalPane = new DatasetGeneralPane(manager, registry);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
@@ -83,6 +86,7 @@ public class DatasetEditor
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
+	
 	/** 
 	 * Returns the save button displayed {@link DatasetGeneralPane}.
 	 */
@@ -98,6 +102,7 @@ public class DatasetEditor
 	{
 		return generalPane.getReloadButton();
 	}
+	
 	/** 
 	 * Returns the remove button displayed in {@link DatasetImagesPane}.
 	 */
@@ -113,7 +118,18 @@ public class DatasetEditor
 	{
 		return imagesPane.getCancelButton();
 	}
+	
+	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
+	public JTextArea getDescriptionArea()
+	{
+		return generalPane.getDescriptionArea();
+	}
 
+	/** Returns the textfield displayed in {@link DatasetGeneralPane}. */
+	public JTextArea getNameField()
+	{
+		return generalPane.getNameField();
+	}
 	/** Forward event to the pane {@link DatasetImagesPane}. */
 	public void	removeAll()
 	{

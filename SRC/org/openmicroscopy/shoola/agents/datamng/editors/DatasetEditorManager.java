@@ -33,12 +33,21 @@ package org.openmicroscopy.shoola.agents.datamng.editors;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
  * 
@@ -55,7 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
  * @since OME2.2
  */
 class DatasetEditorManager
-	implements ActionListener
+	implements ActionListener, DocumentListener, MouseListener
 {
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;	
@@ -65,6 +74,10 @@ class DatasetEditorManager
 	private DatasetData			model;
 	private DatasetEditor		view;
 	
+	/** List of images to be removed. */
+	private List				imagesToRemove;
+	
+	private DataManagerCtrl 	control;
 	/** Save button displayed in the {@link DatasetGeneralPane}. */
 	private JButton 			saveButton;
 
@@ -77,10 +90,22 @@ class DatasetEditorManager
 	/** Cancel button displayed in the {@link DatasetImagesPane}. */
 	private JButton 			cancelButton;
 	
-	DatasetEditorManager(DatasetEditor view, DatasetData model)
+	/** textArea displayed in the {@link DatasetGeneralPane}. */
+	private JTextArea			descriptionArea;
+	
+	/** text field displayed in the {@link DatasetGeneralPane}. */
+	private JTextArea			nameField;
+	
+	private boolean				nameChange, isName;
+	
+	DatasetEditorManager(DatasetEditor view, DataManagerCtrl control,
+						DatasetData model)
 	{
 		this.view = view;
+		this.control = control;
 		this.model = model;
+		nameChange = false;
+		isName = false;
 	}
 	
 	DatasetData getDatasetData()
@@ -103,6 +128,11 @@ class DatasetEditorManager
 		cancelButton = view.getCancelButton();
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL_SELECTION);	
+		nameField = view.getNameField();
+		nameField.getDocument().addDocumentListener(this);
+		nameField.addMouseListener(this);
+		descriptionArea = view.getDescriptionArea();
+		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
 	/** Handles event fired by the buttons. */
@@ -130,41 +160,94 @@ class DatasetEditorManager
 		} 
 	}
 	
-	void setDatasetFields(Object value, int row)
-	{
-		saveButton.setEnabled(true);
-		switch (row) {
-			case 1:
-				model.setName((String) value);
-				break;
-			case 2:
-				model.setDescription((String) value);	
-		}
-		
-	}
-	
-	/** */
+	/** Save changes in DB. */
 	private void save()
 	{
-		System.out.println("name: "+model.getName());
+		model.setDescription(descriptionArea.getText());
+		model.setName(nameField.getText());
+		if (imagesToRemove != null) setModelImages();
+		control.updateDataset(model, nameChange);
+		view.dispose();
 	}
 	
+	/** Remove the selected images from the images list of the model. */
+	private void setModelImages()
+	{
+		Iterator i = imagesToRemove.iterator();
+		List images = model.getImages();
+		while (i.hasNext())
+			images.remove((ImageSummary) i.next());
+		model.setImages(images);
+	}
+	
+	/**Select All images.*/
 	private void remove()
 	{
-		//TODO: remove from tree and forward event to DB.
+		imagesToRemove = model.getImages();
 		view.removeAll();
 		removeButton.setEnabled(false);
 	}
-	
+	/** Cancel selection. */
 	private void cancelSelection()
 	{
+		imagesToRemove = null;
 		removeButton.setEnabled(true);
 		view.cancelSelection();
 	}
+	
 	/** */
 	private void reload()
 	{
 	}
+
+	/** Require by I/F. */
+	public void changedUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
+
+	/** Require by I/F. */
+	public void insertUpdate(DocumentEvent e)
+	{
+		if (isName) nameChange = true;
+		saveButton.setEnabled(true);
+	}
 	
+	/** Require by I/F. */
+	public void removeUpdate(DocumentEvent e)
+	{
+		if (isName) nameChange = true;
+		saveButton.setEnabled(true);
+	}
+	
+	/** Indicates that the name has been modified. */
+	public void mousePressed(MouseEvent e)
+	{ 
+		isName = true;
+	}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseClicked(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseEntered(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseExited(MouseEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */ 
+	public void mouseReleased(MouseEvent e){}
 }	
 	

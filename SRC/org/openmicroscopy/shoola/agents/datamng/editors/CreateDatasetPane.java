@@ -37,18 +37,24 @@ import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
-import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.util.ui.TableComponent;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 
 /** 
  * 
@@ -72,6 +78,10 @@ class CreateDatasetPane
 	private Registry 					registry;
 	
 	private JButton						saveButton;
+	private JTextField					nameField;
+	
+	private JTextArea					descriptionArea;
+	
 	/**
 	 * @param manager
 	 * @param registry
@@ -82,6 +92,24 @@ class CreateDatasetPane
 		this.manager = manager;
 		this.registry = registry;
 		buildGUI();
+	}
+	
+	/** Returns the TextArea with the project's description. */
+	public JTextArea getDescriptionArea()
+	{
+		return descriptionArea;
+	}
+
+	/** Returns the textfield with project's name. */
+	public JTextField getNameField()
+	{
+		return nameField;
+	}
+	
+	/** Returns the save button. */
+	public JButton getSaveButton()
+	{ 
+		return saveButton;
 	}
 	
 	/** Build and layout the GUI. */
@@ -96,12 +124,11 @@ class CreateDatasetPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		IconManager IM = IconManager.getInstance(registry);
 		//save button
-		saveButton = new JButton(IM.getIcon(IconManager.SAVE_DB));
+		saveButton = new JButton("Save");
 		//get rid of surrounding border
-		saveButton.setBorder(null);
-		saveButton.setMargin(null);
+		//saveButton.setBorder(null);
+		//saveButton.setMargin(null);
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -124,71 +151,53 @@ class CreateDatasetPane
 		gridbag.setConstraints(controls,c); 
 		all.add(controls);
 		all.setOpaque(false); //make panel transparent
-   	
-		//summary table
-		DatasetTableModel datasetTM = new DatasetTableModel();
-		JTable projectTable = new JTable(datasetTM);
-		projectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		projectTable.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(projectTable);
+		p.add(buildTable());
 		p.add(all);
 		//make panel transparent
 		p.setOpaque(false);
 		return p;
 	}
-
-	/** Returns the save button. */
-	public JButton getSaveButton()
-	{ 
-		return saveButton;
-	}
-
-	/** A <code>2x2</code> table model to view project summary.
+	/** 
+	 * A <code>2x2</code> table model to view dataset summary.
 	 * The first column contains the property names (name, description)
 	 * and the second column holds the corresponding values. 
 	 * <code>name</code> and <code>description</code> values
-	 * are marked as editable. 
+	 * are marked as editable.
 	 */
-	private class DatasetTableModel 
-		extends AbstractTableModel 
+	private JTable buildTable()
 	{
+		JTable table = new TableComponent(2, 2);
+		table.setTableHeader(null);
+		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);
+		// Labels
+		table.setValueAt(new JLabel(" Name"), 0, 0 );
+		table.setValueAt(new JLabel(" Description"), 1, 0 );
 
-		private final String[]    fieldNames = {"Name", "Description"};
-		DatasetData dd = manager.getDatasetData();
+		DatasetData pd = manager.getDatasetData();
 	
-		private final Object[]	  
-			data = {dd.getName(), dd.getDescription() };
-			
-		private DatasetTableModel() {}
-	
-		public int getColumnCount() { return 2; }
-	
-		public int getRowCount() { return 2; }
-	
-		public Object getValueAt(int row, int col) 
-		{
-			Object  val = null;
-			if (col == 0)  val = fieldNames[row];
-			else val = data[row];
-			return val;
-		}
+		//textfields
+		nameField = new JTextField(pd.getName());
+		nameField.setForeground(DataManager.STEELBLUE);
+		table.setValueAt(nameField, 0, 1); 
 
-		//entries in the value column can be edited
-		public boolean isCellEditable(int row, int col)
-		{
-			boolean isEditable = true;
-			if (col == 0) isEditable = false;
-			return isEditable;
-		}
+		descriptionArea = new JTextArea(pd.getDescription());
+		descriptionArea.setForeground(DataManager.STEELBLUE);
+		descriptionArea.setEditable(true);
+		descriptionArea.setLineWrap(true);
+		descriptionArea.setWrapStyleWord(true);
+		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
+		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
 
-		public void setValueAt(Object value, int row, int col)
-		{
-			if (col != 0) {
-				data[row]= value;
-				fireTableCellUpdated(row, col);
-				manager.setDatasetFields(value, row);
-			}
-		}
+		// Scrollbar
+		table.setValueAt(scrollPane,1, 1);
+
+		table.setDefaultRenderer(JComponent.class, 
+								new TableComponentCellRenderer());
+		table.setDefaultEditor(JComponent.class, 
+								new TableComponentCellEditor());
+		return table;
 	}
+	
 }

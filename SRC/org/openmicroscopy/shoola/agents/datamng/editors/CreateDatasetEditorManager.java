@@ -35,6 +35,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -59,13 +63,14 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 public class CreateDatasetEditorManager
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
 	private static final int		CANCEL_SELECTION_PROJECT = 2;
 	private static final int		SELECT_IMAGE = 3;
 	private static final int		CANCEL_SELECTION_IMAGE = 4;
+	private static final int		NAME_FIELD = 5;
 	
 	private CreateDatasetEditor 	view;
 	private DatasetData 			model;
@@ -75,10 +80,10 @@ public class CreateDatasetEditorManager
 	
 	private List					images;
 	
-	/** List of images to add. */
+	/** List of images to be added. */
 	private List					imagesToAdd;
 	
-	/** List of projects to add. */
+	/** List of projects to be added to. */
 	private List					projectsToAdd;
 	
 	/** Select button displayed in the {@link CreateDatasetPane}. */
@@ -87,13 +92,21 @@ public class CreateDatasetEditorManager
 	/** Select button displayed in the {@link CreateDatasetProjectsPane}. */
 	private JButton 				selectButton;
 	
-	/** cancel button displayed in the {@link CreateDatasetProjectsPane}. */
+	/** Cancel button displayed in the {@link CreateDatasetProjectsPane}. */
 	private JButton 				cancelButton;
 	
+	/** Select button displayed in the {@link CreateDatasetImagesPane}. */
 	private JButton					selectImageButton;
+	
+	/** Cancel button displayed in the {@link CreateDatasetImagesPane}. */
 	private JButton					cancelImageButton;
 	
+	/** textArea displayed in the {@link CreateDatasetPane}. */
+	private JTextArea				descriptionArea;
 	
+	/** text field displayed in the {@link CreateDatasetPane}. */
+	private JTextField				nameField;
+		
 	public CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl control,
 									  DatasetData model, List projects,
@@ -139,6 +152,11 @@ public class CreateDatasetEditorManager
 		cancelImageButton = view.getCancelImageButton();
 		cancelImageButton.addActionListener(this);
 		cancelImageButton.setActionCommand(""+CANCEL_SELECTION_IMAGE);
+		nameField = view.getNameField();
+		nameField.addActionListener(this);
+		nameField.setActionCommand(""+NAME_FIELD);
+		descriptionArea = view.getDescriptionArea();
+		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
 	/** Handles event fired by the buttons. */
@@ -164,7 +182,10 @@ public class CreateDatasetEditorManager
 					break;
 				case CANCEL_SELECTION_IMAGE:
 					cancelSelectionImage();
-					break;	
+					break;
+				case NAME_FIELD:
+					setNameField();
+					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -187,16 +208,11 @@ public class CreateDatasetEditorManager
 	}
 
 
-	void setDatasetFields(Object value, int row)
+	/** Update model when the user modifies project's name. */
+	void setNameField()
 	{
+		model.setName(nameField.getText());
 		saveButton.setEnabled(true);
-		switch (row) {
-			case 0:
-				model.setName((String) value);
-				break;
-			case 1:
-				model.setDescription((String) value);	
-		}
 	}
 	
 	/** 
@@ -214,13 +230,13 @@ public class CreateDatasetEditorManager
 		else 	projectsToAdd.remove(ps);
 	}
 
-
 	 /** 
-	  * Save the new DatasetData object and forward event to the 
+	 * Save the new DatasetData object and forward event to the 
 	 * {@link DataManagerCtrl}.
 	 */
 	private void save()
 	{
+		model.setDescription(descriptionArea.getText());
 		//update tree and forward event to DB.
 		//forward event to DataManager.
 		control.addDataset(projectsToAdd, imagesToAdd, model);
@@ -228,6 +244,7 @@ public class CreateDatasetEditorManager
 		view.dispose();
 	}
 
+	/** Select projects. */
 	private void selectProject()
 	{
 		projectsToAdd = projects;
@@ -235,12 +252,15 @@ public class CreateDatasetEditorManager
 		selectButton.setEnabled(false);
 	}
 
+	/** Cancel selection of projects. */
 	private void cancelSelectionProject()
 	{
 		projectsToAdd = null;
 		selectButton.setEnabled(true);
 		view.cancelSelectionProject();
 	}
+	
+	/** Select images. */
 	private void selectImage()
 	{
 		imagesToAdd = images;
@@ -248,11 +268,30 @@ public class CreateDatasetEditorManager
 		selectButton.setEnabled(false);
 	}
 
+	/** Cancel selection of images. */
 	private void cancelSelectionImage()
 	{
 		imagesToAdd = null;
 		selectButton.setEnabled(true);
 		view.cancelSelectionImage();
+	}
+	
+	/** Require by I/F. */
+	public void changedUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
+
+	/** Require by I/F. */
+	public void insertUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
+
+	/** Require by I/F. */
+	public void removeUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
 	}
 	
 }

@@ -35,8 +35,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -59,11 +62,12 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
  * @since OME2.2
  */
 public class CreateProjectEditorManager
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 	private static final int		SAVE = 0;
 	private static final int		SELECT = 1;
 	private static final int		CANCEL_SELECTION = 2;
+	private static final int		NAME_FIELD = 3;
 	
 	private CreateProjectEditor 	view;
 	private ProjectData 			model;
@@ -75,7 +79,7 @@ public class CreateProjectEditorManager
 	 */
 	private List					datasets;	
 	
-	/** List of datasets to add. */
+	/** List of datasets to be added. */
 	private List					datasetsToAdd;
 	
 	/** Select button displayed in the {@link CreateProjectPane}. */
@@ -87,6 +91,11 @@ public class CreateProjectEditorManager
 	/** cancel button displayed in the {@link CreateProjectDatasetsPane}. */
 	private JButton 				cancelButton;
 	
+	/** textArea displayed in the {@link CreateProjectPane}. */
+	private JTextArea				descriptionArea;
+	
+	/** text field displayed in the {@link CreateProjectPane}. */
+	private JTextField				nameField;
 			
 	/**
 	 * @param editor
@@ -125,6 +134,11 @@ public class CreateProjectEditorManager
 		cancelButton = view.getCancelButton();
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL_SELECTION);
+		nameField = view.getNameField();
+		nameField.addActionListener(this);
+		nameField.setActionCommand(""+NAME_FIELD);
+		descriptionArea = view.getDescriptionArea();
+		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
 	/** Handles event fired by the buttons. */
@@ -143,6 +157,9 @@ public class CreateProjectEditorManager
 					break;
 				case CANCEL_SELECTION:
 					cancelSelection();
+					break;
+				case NAME_FIELD:
+					setNameField();
 					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
@@ -165,16 +182,11 @@ public class CreateProjectEditorManager
 		else 	datasetsToAdd.remove(ds);
 	}
 	
-	void setProjectFields(Object value, int row)
+	/** Update model when the user modifies project's name. */
+	void setNameField()
 	{
+		model.setName(nameField.getText());
 		saveButton.setEnabled(true);
-		switch (row) {
-			case 0:
-				model.setName((String) value);
-				break;
-			case 1:
-				model.setDescription((String) value);	
-		}
 	}
 	
 	/** 
@@ -183,6 +195,7 @@ public class CreateProjectEditorManager
 	 */
 	private void save()
 	{
+		model.setDescription(descriptionArea.getText());
 		model.setDatasets(datasetsToAdd);
 		//update tree and forward event to DB.
 		//forward event to DataManager.
@@ -207,5 +220,22 @@ public class CreateProjectEditorManager
 		view.cancelSelection();
 	}
 	
+	/** Require by I/F. */
+	public void changedUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
+
+	/** Require by I/F. */
+	public void insertUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
+
+	/** Require by I/F. */
+	public void removeUpdate(DocumentEvent e)
+	{
+		saveButton.setEnabled(true);
+	}
 	
 }

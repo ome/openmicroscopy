@@ -38,6 +38,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 //Third-party libraries
 
@@ -88,6 +90,18 @@ public class CreateProjectEditor
 	public CreateProjectEditorManager getManager()
 	{
 		return manager;
+	}
+	
+	/** Returns the TextArea displayed in {@link CreateProjectPane}. */
+	public JTextArea getDescriptionArea()
+	{
+		return creationPane.getDescriptionArea();
+	}
+
+	/** Returns the textfield displayed in {@link CreateProjectPane}. */
+	public JTextField getNameField()
+	{
+		return creationPane.getNameField();
 	}
 	
 	/** 

@@ -105,8 +105,8 @@ class ProjectOwnerPane
 	{
 
 		private final String[]    
-		fieldNames = {"ID", "First Name", "Last Name", "E-mail", "Institution",
-						"Group ID", "Group Name"};
+		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
+						" Institution", " Group ID", " Group Name"};
 						
 		ProjectData pd = manager.getProjectData();				
 		private Object[] data = {""+pd.getOwnerID(), pd.getOwnerFirstName(),
