@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.net.URL;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
@@ -40,6 +43,8 @@ import org.openmicroscopy.shoola.env.Container;
 
 /** 
  * Factory for the various windows and widgets used within the container.
+ * Other utility methods (to load images, format tooltips, etc.) are also
+ * included.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,28 +65,62 @@ public class UIFactory
 	 */
 	public static SplashScreen makeSplashScreen()
 	{
-		return null;
+		return new SplashScreenProxy();
 	}
+	
 	/**
-	 * Creates a new empty {@link TopFrame}.
+	 * Creates the {@link TopFrame}.
 	 * 
 	 * @param c	Reference to the singleton {@link Container}.
-	 * @return	See above.
+	 * @return	The {@link TopFrame}.
 	 */
-	public static TopFrame makeNewTopFrame(Container c)
+	public static TopFrame makeTopFrame(Container c)
 	{
 		return new TopFrameImpl(c);
 	}
+	
 	/**
-	 * Creates a new empty {@link UserNotifier}.
+	 * Creates the {@link UserNotifier}.
 	 * 
-	 * @param c	Reference to the {@link TopFrame}. 
-	 * @return	The splash screen.
+	 * @param tf	Reference to the {@link TopFrame}. 
+	 * @return	The {@link UserNotifier}.
 	 */
-	public static UserNotifier makeNewUserNotifier(TopFrame tf)
+	public static UserNotifier makeUserNotifier(TopFrame tf)
 	{
 		return new UserNotifierImpl((TopFrameImpl) tf);
 	}
 	
+	/** Utility factory method to create an icon from a file.
+	 *
+	 * @param path    The path of the icon file relative to this class.
+	 * @return  An instance of {@link javax.swing.Icon Icon} or
+	 * 			<code>null</code> if the path was invalid.
+	 */
+	public static Icon createIcon(String path)
+	{
+		URL location = UIFactory.class.getResource(path);
+		ImageIcon icon = null;
+		if (location != null)	icon = new ImageIcon(location);
+		return icon;
+	}
+	
+	/** Utility factory method to build a tool tip in a fixed font and color.
+	 * Pass the tool tip text and get back an <i>HTML</i> string to be
+	 * passed, in turn, to the <code>setToolTipText</code> method of a 
+	 * {@link javax.swing.JComponent}.
+	 *
+	 * @param   toolTipText     The textual content of the tool tip.
+	 * @return  An <i>HTML</i> fomatted string to be passed to 
+	 * 			<code>setToolTipText()</code>.
+	 */
+	public static String formatToolTipText(String toolTipText) 
+	{
+		StringBuffer buf = new StringBuffer(90+toolTipText.length());
+		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
+		buf.append("<font face=Arial size=2>");  //TODO: change into platform independent font
+		buf.append(toolTipText);
+		buf.append("</font></body></html>");
+		return buf.toString();
+	} 
 	
 }
