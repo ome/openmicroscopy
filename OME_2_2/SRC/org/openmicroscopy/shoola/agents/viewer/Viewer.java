@@ -33,10 +33,8 @@ package org.openmicroscopy.shoola.agents.viewer;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.image.BufferedImage;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
@@ -54,8 +52,6 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -93,9 +89,7 @@ public class Viewer
 	private ViewerUIF				presentation;
 	
 	private ViewerCtrl				control;
-	
-	private TopFrame				topFrame;
-	
+		
 	private RenderingControl		renderingControl;
 	
 	private int						curImageID, curPixelsID;
@@ -103,10 +97,6 @@ public class Viewer
 	private BufferedImage			curImage;
 	
 	private String					curImageName;
-	
-	private JCheckBoxMenuItem		viewItem;
-	
-	private JButton 				viewButton;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate() {}
@@ -122,13 +112,6 @@ public class Viewer
 		bus.register(this, LoadImage.class);
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, ImageRendered.class);
-		topFrame = registry.getTopFrame();
-		IconManager im = IconManager.getInstance(registry);
-		Icon icon = im.getIcon(IconManager.VIEWER);
-		viewItem = getViewMenuItem(icon);
-		viewButton = getViewButton(icon);
-		topFrame.addToMenu(TopFrame.VIEW, viewItem);
-		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 		control = new ViewerCtrl(this);
 	}
 
@@ -209,6 +192,8 @@ public class Viewer
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
 			registry.getEventBus().post(new RenderImage(curPixelsID));
+			// have to dispose all windows linked 
+			control.disposeDialogs();
 		} else
 			initPresentation(request.getImageName(), pxsDims, true);
 	}
@@ -221,7 +206,6 @@ public class Viewer
 			curImage = null;
 			curImage = response.getRenderedImage();
 			presentation.setImage(curImage);
-			setMenuSelection(true);
 		}
 	}
 	
@@ -234,79 +218,23 @@ public class Viewer
 									pxsDims.sizeT, pxsDims.sizeZ);
 		presentation.setImageName(imageName);
 		presentation.setActive(active);
-		setPresentation();
-	}
-		
-	/** Select the menuItem. */
-	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
-	
-	/** Bring up or not the window. */
-	void setPresentation()
-	{
-		if (presentation != null) {
-			if (presentation.isClosed()) showPresentation();  
-			if (presentation.isIcon()) deiconifyPresentation();
-			setMenuSelection(true);
-			//Activate the Frame.
-			try {
-				presentation.setSelected(true);
-			} catch (Exception e) {}	
-		}			
-	}
-	
-	/** Display the presentation. */
-	void showPresentation()
-	{
-		topFrame.removeFromDesktop(presentation);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		try {
-			presentation.setClosed(false);
-		} catch (Exception e) {}
-		presentation.setVisible(true);	
+		showPresentation();
 	}
 
-	/** Pop up the presentation. */
-	void deiconifyPresentation()
-	{
-		topFrame.deiconifyFrame(presentation);
-		try {
-			presentation.setIcon(false);
-		} catch (Exception e) {}
-	}
-	
 	/** Build the GUI. */
 	private void buildPresentation(PixelsDimensions pxsDims)
 	{
 		presentation = new ViewerUIF(control, registry, pxsDims, getDefaultT(), 
 									getDefaultZ());
 		control.setPresentation(presentation);
-		control.attachListener();
-		control.attachItemListener(viewItem, ViewerCtrl.V_VISIBLE);
-		control.attachItemListener(viewButton, ViewerCtrl.V_VISIBLE);
-		viewItem.setEnabled(true);
-		viewButton.setEnabled(true);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		control.attachListener();	
+	}
+	
+	private void showPresentation()
+	{
+		if (presentation.getExtendedState() == Frame.ICONIFIED)
+			presentation.setExtendedState(Frame.NORMAL);
 		presentation.setVisible(true);	
-	}
-	
-	/** 
-	 * Menu item to add to the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
-	 */
-	private JCheckBoxMenuItem getViewMenuItem(Icon icon)
-	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Viewer", icon);
-		menuItem.setEnabled(false);
-		return menuItem;
-	}
-	
-	private JButton getViewButton(Icon icon)
-	{
-		JButton b = new JButton(icon);
-		b.setEnabled(false);
-		b.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the viewer."));
-		return b;
 	}
 	
 }

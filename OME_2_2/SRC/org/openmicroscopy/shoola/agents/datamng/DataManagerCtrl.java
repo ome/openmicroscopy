@@ -36,9 +36,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractButton;
-import javax.swing.JFrame;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
@@ -75,14 +72,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class DataManagerCtrl
-	implements ActionListener, InternalFrameListener
+	implements ActionListener
 {
 	
-	/**ID used to handle events. */
-	static final int			DM_VISIBLE = 0;
-	static final int			PROJECT_ITEM = 1;
-	static final int			DATASET_ITEM = 2;
-	static final int			IMAGE_ITEM = 3;
+	/** ID used to handle the createProject event. */
+	static final int			PROJECT_ITEM = 0;
+	
+	/** ID used to handle the createDataset event. */
+	static final int			DATASET_ITEM = 1;
+	
+	/** ID used to handle the importImages event. */
+	static final int			IMAGE_ITEM = 2;
 	
 	private DataManager			abstraction;
 	
@@ -91,25 +91,16 @@ public class DataManagerCtrl
 		this.abstraction = abstraction;
 	}
 	
-	/** Forward event to {@link Viewer abstraction}. */
-	public JFrame getReferenceFrame()
-	{
-		return abstraction.getRegistry().getTopFrame().getFrame();
-	}
-	
 	public Registry getRegistry() { return abstraction.getRegistry(); }
+	
+	/** Return the UIF of this agent. */
+	public DataManagerUIF getReferenceFrame()
+	{
+		return abstraction.getPresentation();
+	}
 	
 	/** Return the abstraction. */
 	DataManager getAbstraction() {return abstraction; }
-		
-	/** 
-	 * Attach an InternalFrameListener to the 
-	 * {@link ViewerUIF presentaion}.
-	 */
-	void attachListener() 
-	{
-		abstraction.getPresentation().addInternalFrameListener(this);
-	}
 	
 	/** Attach listener to a menuItem or a button. */
 	void attachItemListener(AbstractButton item, int id)
@@ -191,8 +182,6 @@ public class DataManagerCtrl
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			switch (index) { 
-				case DM_VISIBLE:
-					showPresentation(); break;
 				case PROJECT_ITEM:
 					createProject(); break;
 				case DATASET_ITEM:
@@ -204,17 +193,6 @@ public class DataManagerCtrl
 			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
-	
-	/** Display or not the {@link DataManagerUIF presentation}. */
-	private void showPresentation()
-	{
-		DataManagerUIF presentation = abstraction.getPresentation();
-		if (presentation != null) {
-			if (presentation.isClosed()) abstraction.showPresentation();	
-			if (presentation.isIcon()) abstraction.deiconifyPresentation();	
-			abstraction.setMenuSelection(true);
-		}  		
-	}	
 	
 	/** Refresh the Tree. */
 	void refresh() { abstraction.refresh(); }
@@ -306,47 +284,5 @@ public class DataManagerCtrl
 	{
 		abstraction.updateImage(id, nameChange);
 	}
-	
-	/** Select the checkBox in menu. */
-	public void internalFrameOpened(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(true);
-	}
-	
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosing(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(false);
-	}
-
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosed(InternalFrameEvent e) 
-	{
-		abstraction.setMenuSelection(false);
-	}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeactivated(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeiconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameIconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameActivated(InternalFrameEvent e) {}
 	
 }

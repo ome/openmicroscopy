@@ -35,12 +35,9 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
@@ -70,18 +67,30 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ViewerCtrl
-	implements ActionListener, InternalFrameListener, ChangeListener
+	implements ActionListener, ChangeListener
 {
 	
-	/** Action Command ID. */
-	static final int			V_VISIBLE = 0;
+	/** Action command ID to bring up the rendering Agent. */
 	static final int			RENDERING = 1;
+	
+	/** Action command ID to bring up the saving widget. */
 	static final int			SAVE_AS = 2;
+	
+	/** Action command ID to bring up the movie widget. */
 	static final int			MOVIE = 3;
+	
+	/** Action Command ID to bring up the inspector (with zooming) widget. */
 	static final int			INSPECTOR = 4;
+	
+	/** Action command ID to bring up the viewer3D widget. */
 	static final int			VIEWER3D = 5;
 	
+	/** Slider to control z-section selection and timepoint. */
 	private JSlider				tSlider, zSlider;
+	
+	private Player				moviePlayer;
+	
+	private ImageInspector		imageInspector;
 	
 	private Viewer				abstraction;
 	
@@ -99,17 +108,22 @@ public class ViewerCtrl
 		this.presentation = presentation;
 	}
 	
-	/** 
-	 * Attach an InternalFrameListener to the 
-	 * {@link ViewerUIF presentaion}.
-	 */
+	/** The non- modal dialogs are removed. */
+	void disposeDialogs()
+	{
+		if (moviePlayer != null) moviePlayer.dispose();
+		if (imageInspector != null) imageInspector.dispose();
+		moviePlayer = null;
+		imageInspector = null;
+	}
+	
+	/** Attach listeners. */
 	void attachListener() 
 	{
 		tSlider = presentation.getTSlider(); 
 		zSlider = presentation.getZSlider();
 		tSlider.addChangeListener(this);
 		zSlider.addChangeListener(this);
-		presentation.addInternalFrameListener(this);
 	}
 
 	/** Return the {@link Viewer abstraction}. */
@@ -123,9 +137,9 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
-	public JFrame getReferenceFrame()
+	public ViewerUIF getReferenceFrame()
 	{
-		return abstraction.getRegistry().getTopFrame().getFrame();
+		return presentation;
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
@@ -190,10 +204,7 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	public void synchPlaneSelected(int z) 
-	{
-		zSlider.setValue(z);
-	}
+	public void synchPlaneSelected(int z) { zSlider.setValue(z); }
 	
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
@@ -202,8 +213,6 @@ public class ViewerCtrl
 		int index = Integer.parseInt(s);
 		try {
 		   switch (index) { 
-				case V_VISIBLE:
-					abstraction.setPresentation(); break;
 				case RENDERING:
 					showRendering(); break; 	
 				case SAVE_AS:
@@ -249,8 +258,8 @@ public class ViewerCtrl
 	/** Bring up the movie panel. */
 	public void showMovie()
 	{
-		int maxT = abstraction.getPixelsDims().sizeT-1;
-		UIUtilities.centerAndShow(new Player(this, maxT));
+		moviePlayer = new Player(this, abstraction.getPixelsDims().sizeT-1);
+		UIUtilities.centerAndShow(moviePlayer);
 	}
 	
 	/** Bring up the image3D viewer. */
@@ -263,7 +272,8 @@ public class ViewerCtrl
 	/** Bring up the image inspector widget. */
 	public void showInspector()
 	{
-		UIUtilities.centerAndShow(new ImageInspector(this));
+		imageInspector = new ImageInspector(this);
+		UIUtilities.centerAndShow(imageInspector);
 	}
 	
 	/** Bring up the rendering widget. */
@@ -295,47 +305,5 @@ public class ViewerCtrl
 	{
 		showImageSaver(getBufferedImage());
 	}
-	
-	/** Select the checkBox in menu. */
-	public void internalFrameOpened(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(true);
-	}
-	
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosing(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(false);
-	}
-
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosed(InternalFrameEvent e) 
-	{
-		abstraction.setMenuSelection(false);
-	}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeactivated(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeiconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameIconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameActivated(InternalFrameEvent e) {}
 	
 }

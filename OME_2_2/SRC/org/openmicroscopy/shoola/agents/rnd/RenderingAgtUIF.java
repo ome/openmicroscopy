@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,6 +44,7 @@ import org.openmicroscopy.shoola.agents.rnd.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
  * 
@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 class RenderingAgtUIF 
-	extends JInternalFrame
+	extends TopWindow
 {
 	
 	/** index to position Mapping component in the tabbedPane. */
@@ -91,8 +91,7 @@ class RenderingAgtUIF
 	
 	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry)
 	{
-		//name, resizable, closable, maximizable, iconifiable.
-		super("Rendering", true, true, true, true);
+		super("Rendering");
 		this.registry = registry;
 		this.control = control;
 		im = IconManager.getInstance(registry); 
@@ -166,7 +165,7 @@ class RenderingAgtUIF
 		getContentPane().add(new ToolBar(control, registry), 
 							BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(im.getIcon(IconManager.RENDER));		
+		//setIconImage(IconManager.getOMEImageIcon());		
 	}
 	
 	/** Build a panel with graphics and control. */

@@ -36,9 +36,6 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
@@ -64,8 +61,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The data manager agent.
@@ -123,13 +118,6 @@ public class DataManager
 	/** Reference to the control component. */
 	private DataManagerCtrl     	control;
 	
-	/** Reference to the topFrame. */
-	private TopFrame				topFrame;
-	
-	private JCheckBoxMenuItem		viewItem;
-	
-	private JButton					viewButton;
-	
 	/** 
 	 * All user's projects. 
 	 * That represents all user's data rooted by project objects. 
@@ -144,11 +132,7 @@ public class DataManager
 	public DataManager() {}
     
 	/** Implemented as specified by {@link Agent}. */
-	public void activate()
-	{	
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
-	}
+	public void activate() {}
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void terminate() {}
@@ -162,14 +146,7 @@ public class DataManager
         bus.register(this, ServiceActivationResponse.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
-		control.attachListener();
-		topFrame = registry.getTopFrame();
-		IconManager im = IconManager.getInstance(registry);
-		Icon icon = im.getIcon(IconManager.DMANAGER);
-		viewItem = getViewMenuItem(icon);
-		viewButton = getViewButton(icon);
-		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
-		topFrame.addToMenu(TopFrame.VIEW, viewItem);
+		//control.attachListener();
 		datasetSummaries = new ArrayList();
 		projectSummaries = new ArrayList();
 	}
@@ -740,6 +717,7 @@ public class DataManager
 	}
 	
 	/** Display the widget. */
+	/*
 	void showPresentation()
 	{
 		topFrame.removeFromDesktop(presentation);
@@ -749,8 +727,10 @@ public class DataManager
 		} catch (Exception e) {}	
 		presentation.setVisible(true);	
 	}
+	*/
 	
 	/** Pop up the presentation. */
+	/*
 	void deiconifyPresentation()
 	{
 		topFrame.deiconifyFrame(presentation);
@@ -758,9 +738,9 @@ public class DataManager
 			presentation.setIcon(false);
 		} catch (Exception e) {}
 	}
-	
+	*/
 	/** Select the menuItem. */
-	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
+	//void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
 	/** Post an {@link AnnotateDataset} event. */
 	void annotateDataset(int id, String name)
@@ -772,27 +752,6 @@ public class DataManager
 	void annotateImage(int id, String name) 
 	{
 		registry.getEventBus().post(new AnnotateImage(id, name));
-	}
-	
-	/** 
-	 * Menu item to add into the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
-	 */
-	private JCheckBoxMenuItem getViewMenuItem(Icon icon)
-	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager", icon);
-		control.attachItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
-		return menuItem;
-	}
-	
-	/** Create the view button. */
-	private JButton getViewButton(Icon icon)
-	{
-		JButton b = new JButton(icon);
-		b.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the dataManager."));
-		control.attachItemListener(b, DataManagerCtrl.DM_VISIBLE);
-		return b;
 	}
 	
 }

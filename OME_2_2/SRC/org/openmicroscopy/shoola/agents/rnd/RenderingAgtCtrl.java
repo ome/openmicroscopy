@@ -34,7 +34,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.swing.Icon;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -87,8 +86,6 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int				RESET_DEFAULTS = 5;
 	
-	private boolean 				displayed;
-	
 	/** String corresponding to the specified model. */
 	private String					modelType;
 	
@@ -107,7 +104,7 @@ public class RenderingAgtCtrl
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
 		this.abstraction = abstraction;
-		displayed = false;
+		//displayed = false;
 		renderersPool = new HashMap();
 		im = IconManager.getInstance(abstraction.getRegistry());
 	}
@@ -127,8 +124,6 @@ public class RenderingAgtCtrl
 		if (qpManager != null) qpManager.disposeDialogs();
 	}
 	
-	void setDisplayed(boolean b) { displayed = b; }
-	
 	void setPresentation(RenderingAgtUIF presentation)
 	{
 		this.presentation = presentation;
@@ -138,9 +133,9 @@ public class RenderingAgtCtrl
 	RenderingAgt getAbstraction() { return abstraction; }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public JFrame getReferenceFrame()
+	public RenderingAgtUIF getReferenceFrame()
 	{
-		return abstraction.getRegistry().getTopFrame().getFrame();
+		return presentation;
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
@@ -227,14 +222,12 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowStart(int w, int x)
 	{
-		//TODO: support other formats
 		abstraction.setChannelWindowStart(w, (double) x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
-		//TODO: support other formats
 		abstraction.setChannelWindowEnd(w, (double) x);
 	}
 	

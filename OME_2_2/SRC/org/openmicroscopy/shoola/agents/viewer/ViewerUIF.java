@@ -37,7 +37,6 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -54,6 +53,7 @@ import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -71,7 +71,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ViewerUIF
-	extends JInternalFrame
+	extends TopWindow
 {
 	
 	/** Constants usd to draw the XY-axis. */
@@ -107,18 +107,17 @@ public class ViewerUIF
 	ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
 				int defaultT, int defaultZ)
 	{
-		setFrame();
+		super("", registry.getTaskBar());
 		active = false;
 		this.control = control;
 		this.registry = registry;
 		im = IconManager.getInstance(registry);
 		int maxT = pxsDims.sizeT-1;
 		int maxZ = pxsDims.sizeZ-1;
-		int t = defaultT;
-		int z = defaultZ;
 		setJMenuBar(createMenuBar(maxT, maxZ));
-		toolBar = new ToolBar(control, registry, maxT, t, maxZ, z);
-		initSliders(maxT, t, maxZ, z);
+		toolBar = new ToolBar(control, registry, maxT, defaultT, maxZ, 
+								defaultZ);
+		initSliders(maxT, defaultT, maxZ, defaultZ);
 		buildGUI();
 	}
 
@@ -143,7 +142,6 @@ public class ViewerUIF
 		tbm.onZChange(z);
 		int maxZ = sizeZ-1;
 		int maxT = sizeT-1;
-		
 		tbm.setMaxT(maxT);
 		tbm.setMaxZ(maxZ);
 		toolBar.getZLabel().setText("/"+maxZ);
@@ -160,16 +158,6 @@ public class ViewerUIF
 		viewer3DItem.setEnabled(bZ);
 		toolBar.getMovie().setEnabled(bT);
 		movieItem.setEnabled(bT);
-		//toolBar.repaint();
-	}
-	
-	/** Set the internalFrame status. */
-	private void setFrame()
-	{
-		setResizable(true);
-		setClosable(true);
-		setMaximizable(true);
-		setIconifiable(true);
 	}
 	
 	/** Reset the sliders' values when a new image is selected. */
@@ -252,8 +240,22 @@ public class ViewerUIF
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);
 		return menu;
-	}	
-	
+	}
+		
+	/**
+	 * Specifies icons, text, and tooltips for the display buttons in the
+	 * TaskBar.
+	 * Those buttons are managed by the superclass, we only have to specify
+	 * what they should look like.
+	 */
+	private void configureDisplayButtons()
+	{
+		configureQuickLaunchBtn(im.getIcon(IconManager.VIEWER), 
+												"Bring up the Viewer.");
+		configureWinMenuEntry("Viewer ", 
+							im.getIcon(IconManager.VIEWER));
+	}
+		
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
@@ -264,7 +266,9 @@ public class ViewerUIF
 		scrollPane = new JScrollPane(canvas);
 		container.add(buildMain());
 		container.add(buildTPanel());
-		setFrameIcon(im.getIcon(IconManager.VIEWER));
+		
+		//Configure the display buttons in the TaskBar.
+		configureDisplayButtons();
 	}
 	
 	/** Build and layout panel with slider and scrollpane. */

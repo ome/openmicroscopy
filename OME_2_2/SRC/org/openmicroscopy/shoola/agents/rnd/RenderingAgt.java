@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -57,7 +56,6 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
  * 
@@ -105,13 +103,10 @@ public class RenderingAgt
 	
 	private RenderingControl		renderingControl;
 	
-	/** Reference to the topFrame. */
-	private TopFrame				topFrame;
-	
+	/** Current image displayed: imageID and set of pixelsID. */
 	private int						curImageID, curPixelsID;
 	
-	private boolean					displayed;
-	
+	/** Allow or not to update the channel info. */ 
 	private boolean					canUpdate;
 	
 	/** Creates a new instance. */
@@ -131,7 +126,6 @@ public class RenderingAgt
 		EventBus bus = registry.getEventBus();
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, DisplayRendering.class);
-		topFrame = registry.getTopFrame();
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -141,7 +135,7 @@ public class RenderingAgt
 	public void eventFired(AgentEvent e) 
 	{
 		if (e instanceof ImageLoaded) handleImageLoaded((ImageLoaded) e);	
-		else if (e instanceof DisplayRendering) bringUpPresentation();
+		else if (e instanceof DisplayRendering) presentation.deIconify();
 	}
 	
 	/** Render a new image when a control has been activated. */
@@ -162,7 +156,7 @@ public class RenderingAgt
 		curPixelsID = request.getPixelsID();
 		initChannelData();
 		if (presentation != null) removePresentation();
-		else buildPresentation();	
+		buildPresentation();
 	}
 	
 	/** Build the presentation. */
@@ -181,71 +175,26 @@ public class RenderingAgt
 	 */
 	private void removePresentation()
 	{
-		if (presentation.isIcon()) topFrame.deiconifyFrame(presentation);
-		Rectangle bounds = presentation.getBounds();
-		if (presentation.isClosed()) displayed = false;
-		topFrame.removeFromDesktop(presentation);
 		control.disposeDialogs();
+		presentation.dispose();
 		control = null;
 		presentation = null;
-		buildPresentation();
-		if (displayed) {
-			presentation.setBounds(bounds);
-			control.setDisplayed(true);
-			displayed = true;
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);	
-		}	
 	}
+	
+	/** Display the widget. */
+	//void showPresentation()
+	//{
+	//	if (presentation.getExtendedState() == Frame.ICONIFIED)
+	//		presentation.setExtendedState(Frame.NORMAL);
+	//	presentation.setVisible(true);	
+	//}
 	
 	/** Return the {@link RenderingAgtUIF presentation}. */
 	public RenderingAgtUIF getPresentation() { return presentation; }
 
 	/** Return a refence to the {@link Registry}. */
 	Registry getRegistry() { return registry; }
-	
-	/** Pop up the presentation. */
-	void deiconifyPresentation()
-	{
-		topFrame.deiconifyFrame(presentation);
-		try {
-			presentation.setIcon(false);
-		} catch (Exception e) {}	
-	}
-	
-	/** Display the widget. */
-	void showPresentation()
-	{
-		displayed = true;
-		topFrame.removeFromDesktop(presentation);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);	
-	}
 
-	/** Display the widget when it has been closed. */
-	void displayPresentation()
-	{
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
-		try {
-			presentation.setClosed(false);
-		} catch (Exception e) {}
-	}
-	
-	/** Bring up the widget. */
-	private void bringUpPresentation()
-	{
-		if (presentation != null) {
-			if (displayed) {
-				if (presentation.isClosed()) displayPresentation();
-				if (presentation.isIcon()) deiconifyPresentation();
-			} else {
-				showPresentation();	
-				displayed = true;	
-			}
-		}
-	}
-	
 	/** 
 	 * The method is called when we can't retrieve the data from DB. 
 	 * In this case, the user can't update the channel data.
