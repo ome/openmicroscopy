@@ -32,8 +32,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data;
 //Java imports
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 //Third-party libraries
 
@@ -64,7 +64,7 @@ public class ChainLoader extends ContentLoader
 	private Collection chains = null;
 	
 	/** a hash storing the chain nodes that we find */
-	private HashMap analysisNodes = new HashMap();
+	private LinkedHashMap analysisNodes = new LinkedHashMap();
 	
 	public ChainLoader(final ChainDataManager dataManager,final ContentGroup group) {
 		super(dataManager,group);

@@ -43,9 +43,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-
+import java.util.LinkedHashMap;
  
 //Third-party libraries
 
@@ -88,19 +87,19 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 public class ChainDataManager extends DataManager {
 
 		
-	protected HashMap chainHash=null;
+	protected LinkedHashMap chainHash=null;
 	
 	/** hash executions by id */
-	protected HashMap chainExecutionHashesByID = null;
+	protected LinkedHashMap chainExecutionHashesByID = null;
 	
 	/** hash executions by dataset id */
-	protected HashMap executionsByDatasetID = null;
+	protected LinkedHashMap executionsByDatasetID = null;
 	
 	/** hash executions by chain id */
-	protected HashMap executionsByChainID = null;
+	protected LinkedHashMap executionsByChainID = null;
 	
 	/** a list of analysis nodes. populated when we get chains */
-	protected HashMap analysisNodes = null;
+	protected LinkedHashMap analysisNodes = null;
 	
 	/** flags to see if we're getting  chains & executions*/
 	private boolean gettingChains = false;
@@ -201,8 +200,8 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	protected HashMap buildChainHash(Collection chains) {
-		HashMap map = new HashMap();
+	protected LinkedHashMap buildChainHash(Collection chains) {
+		LinkedHashMap map = new LinkedHashMap();
 		Iterator iter = chains.iterator();
 		while (iter.hasNext()) {
 			LayoutChainData p = (LayoutChainData) iter.next();
@@ -282,9 +281,9 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	protected void buildExecutionHashes(Collection executions) {
-		chainExecutionHashesByID = new HashMap();
-		executionsByDatasetID = new HashMap();
-		executionsByChainID = new HashMap();
+		chainExecutionHashesByID = new LinkedHashMap();
+		executionsByDatasetID = new LinkedHashMap();
+		executionsByChainID = new LinkedHashMap();
 		Iterator iter = executions.iterator();
 		while (iter.hasNext()) {
 			
@@ -305,7 +304,7 @@ public class ChainDataManager extends DataManager {
 		}
 	}
 	
-	private void updateExecutionHash(HashMap map, Integer id,ChainExecutionData p) {
+	private void updateExecutionHash(LinkedHashMap map, Integer id,ChainExecutionData p) {
 		ArrayList execs = null;
 		Object obj = map.get(id);
 		if (obj == null)
@@ -337,7 +336,7 @@ public class ChainDataManager extends DataManager {
 		return (Collection) executionsByChainID.get(ID);
 	}
 	
-	public void setAnalysisNodes(HashMap analysisNodes) {
+	public void setAnalysisNodes(LinkedHashMap analysisNodes) {
 		this.analysisNodes = analysisNodes;
 	}
 	
