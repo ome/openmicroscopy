@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.rgbStrategy
+ * org.openmicroscopy.shoola.env.rnd.RGBStrategy
  *
  *------------------------------------------------------------------------------
  *
@@ -39,8 +39,6 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.util.Iterator;
-import java.util.List;
 
 //Third-party libraries
 
@@ -96,19 +94,17 @@ class RGBStrategy
 		
 		QuantumManager QM = renderer.getQuantumManager();
 		DataSink ds = renderer.getDataSink();
-		List cBindings = rd.channelBindings;
-		Iterator i = cBindings.iterator();
+		ChannelBindings[] cBindings = rd.channelBindings;
 		ChannelBindings cb;
 		Plane2D plane;
-		while (i.hasNext()) {
-			cb = (ChannelBindings) i.next();
-			if (cb.active) {
-				plane = ds.getPlane2D(pd, cb.index, sizeX1, sizeX2);
-				renderWave(dataBuf, plane, QM.getStrategyFor(cb.index), 
-							cb.rgba);
+		for (int i = 0; i < cBindings.length; i++) {
+			cb = (ChannelBindings) cBindings[i];
+			if (cb.isActive()) {
+				plane = ds.getPlane2D(pd, cb.getIndex(), sizeX1, sizeX2);
+				renderWave(dataBuf, plane, QM.getStrategyFor(cb.getIndex()), 
+							cb.getRGBA());
 			}
 		}
-
 		ComponentColorModel ccm = new ComponentColorModel(
 									ColorSpace.getInstance(ColorSpace.CS_sRGB), 
 									null, false, false, Transparency.OPAQUE, 
@@ -133,20 +129,21 @@ class RGBStrategy
 				initSizes(d.sizeX, d.sizeY);
 				break;
 			case PlaneDef.XZ:
-				initSizes(d.sizeZ, d.sizeX);
+				initSizes(d.sizeX, d.sizeZ);
 				break;
 			case PlaneDef.YZ:
-				initSizes(d.sizeZ, d.sizeY);
+				initSizes(d.sizeY, d.sizeZ);
 		}
 	}
 	
-	
+	/** Initializes the fields <code>sizeX1</code> and <code>sizeX2</code>. */
 	private void initSizes(int sizeX1, int sizeX2)
 	{
 		this.sizeX1 = sizeX1;
 		this.sizeX2 = sizeX2;
 	}
 	
+	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
 							QuantumStrategy qs, int[] rgba)
 	{
@@ -154,18 +151,18 @@ class RGBStrategy
 		int x1, x2, discreteValue, v;
 		int red, green, blue;
 		float alpha = ((float) rgba[3])/255; 
-		for (x1 = 0; x1 < sizeX1; ++x1) 
-	   		for (x2 = 0; x2 < sizeX2; ++x2) {
-				discreteValue = qs.quantize(plane.getPixelValue(x2, x1));
+		for (x2 = 0; x2 < sizeX2; ++x2) 
+	   		for (x1 = 0; x1 < sizeX1; ++x1) {
+				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
 				v = cc.transform(discreteValue);
-		   		red = dataBuf.getElem(R_BAND, sizeX2*x1+x2);
-			   	green = dataBuf.getElem(G_BAND, sizeX2*x1+x2);
-			   	blue = dataBuf.getElem(B_BAND, sizeX2*x1+x2);
-				dataBuf.setElem(R_BAND, sizeX2*x1+x2,
+		   		red = dataBuf.getElem(R_BAND, sizeX1*x2+x1);
+			   	green = dataBuf.getElem(G_BAND, sizeX1*x2+x1);
+			   	blue = dataBuf.getElem(B_BAND, sizeX1*x2+x1);
+				dataBuf.setElem(R_BAND, sizeX1*x2+x1,
 							   red+(int) ((rgba[0]*v*alpha)/255));
-			   dataBuf.setElem(G_BAND, sizeX2*x1+x2,
+			   dataBuf.setElem(G_BAND, sizeX1*x2+x1,
 							   green+(int) ((rgba[1]*v*alpha)/255));
-			   dataBuf.setElem(B_BAND, sizeX2*x1+x2, 
+			   dataBuf.setElem(B_BAND, sizeX1*x2+x1, 
 							   blue+(int) ((rgba[2]*v*alpha)/255));
 	   } 
 	}
