@@ -580,7 +580,7 @@ class STSAdapter
         criteria.addWantedField("semantic_type.semantic_elements","data_column");
         criteria.addWantedField("semantic_type.semantic_elements.data_column","id");
         criteria.addWantedField("semantic_type.semantic_elements.data_column","sql_type");
-        criteria.addWantedField("semantic_type.semantic_elements.data_column","reference_type");
+        criteria.addWantedField("semantic_type.semantic_elements.data_column","reference_semantic_type");
         
         if(granularity.equals(DATASET_GRANULARITY))
         {
@@ -666,7 +666,7 @@ class STSAdapter
         criteria.addWantedField("semantic_type.elements","data_column");
         criteria.addWantedField("semantic_type.elements.data_column","id");
         criteria.addWantedField("semantic_type.elements.data_column","sql_type");
-        criteria.addWantedField("semantic_type.elements.data_column","reference_type");*/
+        criteria.addWantedField("semantic_type.elements.data_column","reference_semantic_type");*/
 
         if(granularity.equals(DATASET_GRANULARITY))
         {
@@ -717,7 +717,7 @@ class STSAdapter
         criteria.addWantedField("semantic_elements.data_column","id");
         criteria.addWantedField("semantic_elements.data_column","column_name");
         criteria.addWantedField("semantic_elements.data_column","sql_type");
-        criteria.addWantedField("semantic_elements.data_column","reference_type");
+        criteria.addWantedField("semantic_elements.data_column","reference_semantic_type");
         criteria.addWantedField("semantic_elements.data_column","data_table");
         
         criteria.addWantedField("semantic_elements.data_column.data_table","id");
