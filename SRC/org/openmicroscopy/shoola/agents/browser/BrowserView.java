@@ -262,23 +262,23 @@ public class BrowserView extends PCanvas
     /**
      * Responds to a major UI mode change.
      */
-    public void modeChanged(BrowserMode mode)
+    public void modeChanged(String className, BrowserMode mode)
     {
-        if(mode.equals(BrowserMode.DEFAULT_MODE))
+        // boooooo.
+        if(className == null)
         {
-            // TODO: fill in what happens in default mode
+            return;
         }
-        else if(mode.equals(BrowserMode.ANNOTATE_MODE))
+        else if(className.equals(BrowserModel.PAN_MODE_NAME))
         {
-            // TODO: fill in what happens in annotate mode
-        }
-        else if(mode.equals(BrowserMode.HEAT_MAP_MODE))
-        {
-            // TODO: fill in what happens in heat map mode
-        }
-        else if(mode.equals(BrowserMode.CLASSIFY_MODE))
-        {
-            // TODO: fill in what happens in classify mode
+            if(mode == BrowserMode.HAND_MODE)
+            {
+                // TODO: change drag listener here
+            }
+            else if(mode == BrowserMode.NO_HAND_MODE)
+            {
+                // TODO: change back.
+            }
         }
     }
     

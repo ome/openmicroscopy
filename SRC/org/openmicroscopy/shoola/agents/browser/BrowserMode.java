@@ -128,6 +128,21 @@ public class BrowserMode
      * displayed/painted.
      */
     public static final BrowserMode ANNOTATION_ON_MODE = new BrowserMode(9);
+    
+    /**
+     * Indicates that nothing is currently selected.
+     */
+    public static final BrowserMode UNSELECTED_MODE = DEFAULT_MODE;
+    
+    /**
+     * Indicates that a selection is in progress.
+     */
+    public static final BrowserMode SELECTING_MODE = new BrowserMode(10);
+    
+    /**
+     * Indicates that multiple objects have been selected.
+     */
+    public static final BrowserMode SELECTED_MODE = new BrowserMode(11);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be

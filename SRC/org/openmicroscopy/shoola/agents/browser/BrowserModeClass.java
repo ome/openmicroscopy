@@ -49,6 +49,7 @@ public class BrowserModeClass
 {
     protected BrowserMode[] options;
     protected BrowserMode selected;
+    protected String className;
     
     /**
      * Create a browser mode with the specified potential options, and which
@@ -60,9 +61,13 @@ public class BrowserModeClass
      * @param options The enumeration of possible modes for this class.
      * @param defaultMode Which node in the class should be selected.
      */
-    public BrowserModeClass(BrowserMode[] options,
+    public BrowserModeClass(String className,
+                            BrowserMode[] options,
                             BrowserMode defaultMode)
     {
+        // even if it's null, we'll take it, I think
+        this.className = className;
+        
         if(options == null || options.length == 0)
         {
             this.options = new BrowserMode[0];
@@ -106,6 +111,15 @@ public class BrowserModeClass
     }
     
     /**
+     * Returns the name of this browser class.
+     * @return See above.
+     */
+    public String getName()
+    {
+        return className;
+    }
+    
+    /**
      * Returns an array of the potential mode options in this browser class.
      * @return Which modes are valid within this classification of modes.
      */
@@ -131,15 +145,17 @@ public class BrowserModeClass
     
     /**
      * Sets the current selected mode to the specified mode.  If the mode
-     * is not within the valid range of options, this will have no effect.
+     * is not within the valid range of options, this will return false.
      * @param mode The mode to specify.
+     * @return Whether or not an actual change occurred.
      */
-    public void setSelected(BrowserMode mode)
+    public boolean setSelected(BrowserMode mode)
     {
         if(mode == null || !optionCheck(mode))
         {
-            return;
+            return false;
         }
         selected = mode;
+        return true;
     }
 }

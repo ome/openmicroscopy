@@ -74,8 +74,30 @@ public class BrowserModel
     private Set selectedImages;
     private Set hiddenImages;
 
+    private Map modeClassMap;
+
     private BrowserModeClass panActionClass;
     private BrowserModeClass majorUIModeClass;
+    private BrowserModeClass selectModeClass;
+    
+    /**
+     * Specifies the name of the browser mode class that governs the current
+     * panning action of the browser view.
+     */
+    public static final String PAN_MODE_NAME = "panAction";
+    
+    /**
+     * Specifies the name of the browser mode class that governs the current
+     * major UI mode of the browser.
+     */
+    public static final String MAJOR_UI_MODE_NAME = "uiMode";
+    
+    /**
+     * Specifies the name of the browser mode class that governs the current
+     * selection state of the browser.
+     */
+    public static final String SELECT_MODE_NAME = "selectMode";
+    
 
     // common initialization routine
     private void init()
@@ -89,18 +111,32 @@ public class BrowserModel
         groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
         annotationModel = new PaintMethodZOrder();
+        modeClassMap = new HashMap();
 
         panActionClass =
-            new BrowserModeClass(new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+            new BrowserModeClass(PAN_MODE_NAME,
+                                 new BrowserMode[] { BrowserMode.DEFAULT_MODE,
                                                      BrowserMode.HAND_MODE},
                                  BrowserMode.DEFAULT_MODE);
                                  
         majorUIModeClass =
-            new BrowserModeClass(new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+            new BrowserModeClass(MAJOR_UI_MODE_NAME,
+                                 new BrowserMode[] { BrowserMode.DEFAULT_MODE,
                                                      BrowserMode.ANNOTATE_MODE,
                                                      BrowserMode.CLASSIFY_MODE,
                                                      BrowserMode.GRAPH_MODE},
-                                 BrowserMode.GRAPH_MODE);
+                                 BrowserMode.DEFAULT_MODE);
+        
+        selectModeClass =
+            new BrowserModeClass(SELECT_MODE_NAME,
+                                 new BrowserMode[] { BrowserMode.UNSELECTED_MODE,
+                                                     BrowserMode.SELECTING_MODE,
+                                                     BrowserMode.SELECTED_MODE},
+                                 BrowserMode.UNSELECTED_MODE);
+        
+        modeClassMap.put(PAN_MODE_NAME,panActionClass);
+        modeClassMap.put(MAJOR_UI_MODE_NAME,majorUIModeClass);
+        modeClassMap.put(SELECT_MODE_NAME,selectModeClass);
         
     }
 
@@ -239,6 +275,48 @@ public class BrowserModel
         {
             this.groupingMethod = gm;
             updateModelListeners();
+        }
+    }
+    
+    /**
+     * Returns the current mode for the class specified by the given name.
+     * If no such class exists, this method will return null.
+     * @param modeClassName See above.
+     */
+    public BrowserMode getCurrentMode(String modeClassName)
+    {
+        BrowserModeClass modeClass =
+            (BrowserModeClass)modeClassMap.get(modeClassName);
+        
+        if(modeClass == null)
+        {
+            return null;
+        }
+        else return modeClass.getSelected();
+    }
+    
+    /**
+     * Sets the current mode for this class to the specified value.  If
+     * the class doesn't exist, this will do nothing.
+     */
+    public void setCurrentMode(String modeClassName, BrowserMode mode)
+    {
+        BrowserModeClass modeClass =
+            (BrowserModeClass)modeClassMap.get(modeClassName);
+        
+        if(modeClass == null)
+        {
+            return;
+        }
+        
+        // this evaluates to true if an actual change occurred.
+        if(modeClass.setSelected(mode))
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserModelListener bml = (BrowserModelListener)iter.next();
+                bml.modeChanged(modeClassName,mode);
+            }
         }
     }
 

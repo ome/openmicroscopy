@@ -58,7 +58,8 @@ public interface BrowserModelListener
     
     /**
      * Changes the major UI mode of the browser model.
+     * @param className The browser mode class which this applies to.
      * @param mode The new mode of the model.
      */
-    public void modeChanged(BrowserMode mode);
+    public void modeChanged(String className, BrowserMode mode);
 }
