@@ -41,10 +41,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.ds.DataException;
-import org.openmicroscopy.ds.dto.Dataset;
-import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.shoola.agents.browser.*;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
  * A factory that constructs ThumbnailSourceMaps from a particular data
@@ -99,7 +98,7 @@ public class DatasetLoader
         // now, suck the images into the TSM
         for(Iterator iter = imageList.iterator(); iter.hasNext();)
         {
-            tsm.putImageData((Image)iter.next());
+            tsm.putImageData((ImageData)iter.next());
         }
         // OK, now the image data will have a data model backing, but
         // perhaps no thumbnails.

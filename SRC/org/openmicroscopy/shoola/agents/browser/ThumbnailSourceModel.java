@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.*;
 
 import org.openmicroscopy.ds.dto.Image;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
  * Specifies a mapping between image IDs and image DTOs, so that thumbnails
@@ -68,11 +69,11 @@ public class ThumbnailSourceModel
      * 
      * @param image The image to add.  Will accomplish nothing if it is null.
      */
-    public void putImageData(Image image)
+    public void putImageData(ImageData imageData)
     {
-        if(image != null)
+        if(imageData != null)
         {
-            sourceMap.put(new Integer(image.getID()),image);
+            sourceMap.put(new Integer(imageData.getID()),imageData);
         }
     }
     
@@ -85,5 +86,16 @@ public class ThumbnailSourceModel
     public Image getImageData(int imageID)
     {
         return (Image)sourceMap.get(new Integer(imageID));
+    }
+    
+    /**
+     * Returns a list of image IDs (integer objects), ordered by ID.
+     * @return
+     */
+    public List getImageKeys()
+    {
+        List list = new ArrayList(sourceMap.keySet());
+        Collections.sort(list);
+        return Collections.unmodifiableList(list);
     }
 }
