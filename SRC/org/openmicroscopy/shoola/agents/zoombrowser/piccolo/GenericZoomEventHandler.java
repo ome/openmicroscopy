@@ -40,7 +40,10 @@
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import javax.swing.Timer;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
@@ -66,7 +69,8 @@ import edu.umd.cs.piccolo.util.PBounds;
  * </small>
  */
 
-public class GenericZoomEventHandler extends  PBasicInputEventHandler {
+public class GenericZoomEventHandler extends  PBasicInputEventHandler 
+	implements ActionListener {
 	
 	/**
 	 * The Canvas for which we are handling events
@@ -83,6 +87,13 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 	 * 
 	 */
 	protected boolean postPopup = false;
+	
+	/**  timer for double click events */
+	private final Timer timer = new Timer(300,this);
+	
+	/** cached event for double-clicks */
+	private PInputEvent cachedEvent;
+	
 
 	public GenericZoomEventHandler(BufferedObject canvas) {
 		super();
@@ -124,16 +135,44 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 		e.setHandled(true);
 	}	
 	
+	/** 
+	 * Handling of a mouse click, in order to trap double clicks.
+	 */
+	public void mouseClicked(PInputEvent e) {
+		
+		if (timer.isRunning()) {
+			// this would be a second click within 300ms. call
+			// double click routine
+			timer.stop();
+			doMouseDoubleClicked(e);
+		}
+		else {
+			// first click. start the timer and save the event
+			timer.restart();
+			cachedEvent = e;
+		}
+	}
+
+	/**
+	 * If the timer expires after a click, there was no second click.
+	 * treat this like a single  click.
+	 */
+	public void actionPerformed(ActionEvent e) {
+		if (cachedEvent != null)
+			doMouseClicked(cachedEvent);
+		cachedEvent = null;
+		timer.stop();
+	}
 	
 	/**
-	 * If the mouse is clicked on a buffered node (either a 
+	 * If the mouse is single-clicked on a buffered node (either a 
 	 * {@link PCategoryBox}, or a {@link PModule}, zoom to center it.
 	 * If the mouse is clicked on the layer or on the {@link PCamera},
 	 * zoom to center the entire canvas.
 	 * 
 	 * If we right click, zoom out to the parent of where we clicked.
 	 */
-	public void mouseClicked(PInputEvent e) {
+	public void doMouseClicked(PInputEvent e) {
 		PNode node = e.getPickedNode();
 		int mask = e.getModifiers() & allButtonMask;
 		
@@ -159,6 +198,14 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler {
 			handlePopup(e);
 		}
 		e.setHandled(true); 
+	}
+	
+	public void doMouseDoubleClicked(PInputEvent e) {
+		PNode n = e.getPickedNode();
+
+		if (n instanceof MouseableNode) 
+			((MouseableNode ) n).mouseDoubleClicked();
+		e.setHandled(true);
 	}
 	
 	/**
