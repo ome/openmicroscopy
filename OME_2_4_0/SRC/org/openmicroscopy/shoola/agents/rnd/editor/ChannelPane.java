@@ -67,21 +67,25 @@ class ChannelPane
 	extends JPanel
 {
 	
-	private ChannelEditorManager			manager;
-	private MultilineLabel					interpretationArea;
-	private JTextField						excitation, fluor;
-	
+    private static final String    NANOMETER = " \u00B5m";
+    
+	private ChannelEditorManager   manager;
+    
+	MultilineLabel                 interpretationArea;
+    
+	JTextField                     excitation, fluor,  ndFilter, 
+                                   auxLightAttenuation, detectorGain,
+                                   detectorOffset, lightAttenuation,
+                                   auxLightWavelength, pinholeSize,
+                                   lightWavelength, samplesPerPixel,
+                                   auxTechnique, contrastMethod, mode,
+                                   illuminationType;
+    
 	ChannelPane(ChannelEditorManager manager)
 	{
 		this.manager = manager;
 		buildGUI();
 	}
-
-	JTextField getFluor() { return fluor; }
-	
-	MultilineLabel getInterpretationArea() { return interpretationArea; }
-	
-	JTextField getExcitation() { return excitation; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
@@ -103,27 +107,31 @@ class ChannelPane
 	}
 	
 	/** 
-	 * A <code>2x4</code> table model to view channel summary.
+	 * A <code>2x16</code> table model to view channel summary.
 	 * The first column contains the property names 
 	 * (emission, interpretation, excitation, fluorescence)
 	 * and the second column holds the corresponding values. 
 	 * <code>interpretation</code>, <code>excitation</code>, 
 	 * <code>fluorescence</code> values are marked as editable. 
 	 */
-	private TableComponent buildTable()
+	private JScrollPane buildTable()
 	{
-		TableComponent table = new TableComponent(4, 2);
+		TableComponent table = new TableComponent(17, 2);
 		setTableLayout(table);
 		ChannelData wd = manager.getChannelData();
 		
 		//First row 
-		JLabel label = new JLabel(" Emission (in nm)");
+        String s = " Emission (in "+NANOMETER+")";
+		JLabel label = new JLabel(s);
 		table.setValueAt(label, 0, 0);
 		table.setValueAt(new JLabel(""+wd.getNanometer()), 0, 1);
 		
 		//Third row.
-		label = new JLabel(" Excitation (in nm)");
-	  	excitation = new JTextField(""+wd.getExcitation());
+        s = " Excitation (in "+NANOMETER+")";
+		label = new JLabel(s);
+        s = "";
+        if (wd.getExcitation() >= 0) s = ""+wd.getExcitation();   
+	  	excitation = new JTextField(s);
 	  	excitation.setForeground(ChannelEditor.STEELBLUE);
 	  	excitation.setEnabled(true);
 
@@ -141,13 +149,107 @@ class ChannelPane
 		table.setValueAt(scrollPane, 2, 1);
 		
 		//Fourth row.
-		label = new JLabel(" Fluorescence");
+		label = new JLabel(" Fluor");
 		fluor = new JTextField(wd.getFluor());
 		fluor.setForeground(ChannelEditor.STEELBLUE);
 		fluor.setEnabled(true);
 		table.setValueAt(label, 3, 0);
 		table.setValueAt(fluor, 3, 1);
-		return table;
+        
+        int i = 4;
+        //Fith
+        label = new JLabel("ND filter");
+        ndFilter =  new JTextField(""+wd.getNDFilter());
+        ndFilter.setForeground(ChannelEditor.STEELBLUE);
+        ndFilter.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(ndFilter, i, 1);
+        i++;
+        
+        label = new JLabel("Aux Light Attenuation");
+        auxLightAttenuation =  new JTextField(""+wd.getAuxLightAttenuation());
+        auxLightAttenuation.setForeground(ChannelEditor.STEELBLUE);
+        auxLightAttenuation.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(auxLightAttenuation, i, 1);
+        i++;
+        label = new JLabel("Aux Light Wavelength");
+        auxLightWavelength =  new JTextField(wd.getAuxLightWavelength());
+        auxLightWavelength.setForeground(ChannelEditor.STEELBLUE);
+        auxLightWavelength.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(auxLightWavelength, i, 1);
+        i++;
+        label = new JLabel("Aux Technique");
+        auxTechnique =  new JTextField(wd.getAuxTechnique());
+        auxTechnique.setForeground(ChannelEditor.STEELBLUE);
+        auxTechnique.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(auxTechnique, i, 1);
+        i++;
+        label = new JLabel("Light Attenuation");
+        lightAttenuation =  new JTextField(""+wd.getLightAttenuation());
+        lightAttenuation.setForeground(ChannelEditor.STEELBLUE);
+        lightAttenuation.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(lightAttenuation, i, 1);
+        i++;
+        label = new JLabel("Light Wavelength");
+        lightWavelength =  new JTextField(wd.getLightWavelength());
+        lightWavelength.setForeground(ChannelEditor.STEELBLUE);
+        lightWavelength.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(lightWavelength, i, 1);
+        i++;
+        label = new JLabel("Detector Gain");
+        detectorGain =  new JTextField(""+wd.getDetectorGain());
+        detectorGain.setForeground(ChannelEditor.STEELBLUE);
+        detectorGain.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(detectorGain, i, 1);
+        i++;
+        label = new JLabel("Detector Offset");
+        detectorOffset =  new JTextField(""+wd.getDetectorOffset());
+        detectorOffset.setForeground(ChannelEditor.STEELBLUE);
+        detectorOffset.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(detectorOffset, i, 1);
+        i++;
+        label = new JLabel("Pin hole Size");
+        pinholeSize =  new JTextField(wd.getPinholeSize());
+        pinholeSize.setForeground(ChannelEditor.STEELBLUE);
+        pinholeSize.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(pinholeSize, i, 1);
+        i++;
+        label = new JLabel("Contrast Method");
+        contrastMethod =  new JTextField(wd.getContrastMethod());
+        contrastMethod.setForeground(ChannelEditor.STEELBLUE);
+        contrastMethod.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(contrastMethod, i, 1);
+        i++;
+        label = new JLabel("Mode");
+        mode =  new JTextField(wd.getMode());
+        mode.setForeground(ChannelEditor.STEELBLUE);
+        mode.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(mode, i, 1);
+        i++;
+        label = new JLabel("Illumination type");
+        illuminationType =  new JTextField(wd.getIlluminationType());
+        illuminationType.setForeground(ChannelEditor.STEELBLUE);
+        illuminationType.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(illuminationType, i, 1);
+        i++;
+        label = new JLabel("Samples per pixel");
+        samplesPerPixel =  new JTextField(wd.getSamplesPerPixel());
+        samplesPerPixel.setForeground(ChannelEditor.STEELBLUE);
+        samplesPerPixel.setEnabled(true);
+        table.setValueAt(label, i, 0);
+        table.setValueAt(samplesPerPixel, i, 1);
+		return new JScrollPane(table);
 	}
 	
 	/** Set the layout of the table. */

@@ -63,19 +63,13 @@ class ChannelEditorBar
 	extends JToolBar	
 {
 	
-	private JButton					saveButton, cancelButton;
+	JButton					saveButton, cancelButton;
 	
 	ChannelEditorBar()
 	{
 		initButtons();
 		buildGUI();
 	}
-
-	/** Returns the save button. */
-	JButton getSaveButton() { return saveButton; }
-	
-	/** Returns the cancel button. */
-	JButton getCancelButton() { return cancelButton; }
 	
 	/** Initializes the buttons. */
 	private void initButtons()

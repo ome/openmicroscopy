@@ -103,22 +103,63 @@ public class ChannelEditor
 	}
 	
 	/** Returns the TextField displayed in {@link ChannelPane}. */
-	JTextField getFluor() { return channelPane.getFluor(); }
+	JTextField getFluor() { return channelPane.fluor; }
 		
 	/** Returns the TextField displayed in {@link ChannelPane}. */
-	JTextField getExcitation() { return channelPane.getExcitation(); }
+	JTextField getExcitation() { return channelPane.excitation; }
 	
 	/** Returns the TextArea displayed in {@link ChannelPane}. */
-	JTextArea getInterpretationArea()
-	{
-		return channelPane.getInterpretationArea();
-	}
+	JTextArea getInterpretationArea() { return channelPane.interpretationArea; }
 
-	/** Returns the save button displayed in {@link ChannelEditorBar}. */
-	JButton getSaveButton() { return bar.getSaveButton(); }
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getNDFilter() { return channelPane.ndFilter; }
+    
+    /** Returns the TextField displayed in {@link ChannelPane}. */
+    JTextField getAuxLightAttenuation()
+    { 
+        return channelPane.auxLightAttenuation; 
+    }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getDetectorGain() { return channelPane.detectorGain; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getDetectorOffset() { return channelPane.detectorOffset; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getLightAttenuation() { return channelPane.lightAttenuation; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getAuxLightWavelength()
+    {
+        return channelPane.auxLightWavelength;  
+    }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getPinholeSize() { return channelPane.pinholeSize; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getLightWavelength() { return channelPane.lightWavelength; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getSamplesPerPixel() { return channelPane.samplesPerPixel; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getAuxTechnique() { return channelPane.auxTechnique; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getContrastMethod() { return channelPane.contrastMethod; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getMode() { return channelPane.mode; }
+    
+    /** Returns the TextArea displayed in {@link ChannelPane}. */
+    JTextField getIlluminationType() { return channelPane.illuminationType; } 
+    
+	JButton getSaveButton() { return bar.saveButton; }
 	
 	/** Returns the save button displayed in {@link ChannelEditorBar}. */
-	JButton getCancelButton() { return bar.getCancelButton(); }
+	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI(Registry registry)
