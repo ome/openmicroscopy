@@ -46,6 +46,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.is.PixelsFileFormat;
+import org.openmicroscopy.is.PlaneStatistics;
+import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.shoola.env.data.st.Pixels;
 import org.openmicroscopy.shoola.env.data.st.Repository;
 
@@ -534,4 +537,13 @@ public interface PixelsService
     public PlaneStatistics getPlaneStatistics(Pixels pixels)
         throws ImageServerException;
 
+    /**
+     * Returns a {@link StackStatistics} object containing basic pixel
+     * statistics for each stack in the specified pixels file.
+     *
+     * @param pixelsID the pixels ID of a previously created pixels
+     * file
+     */
+    public StackStatistics getStackStatistics(Pixels pixels)
+        throws ImageServerException;
 }
