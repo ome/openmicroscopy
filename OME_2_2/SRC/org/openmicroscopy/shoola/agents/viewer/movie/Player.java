@@ -42,7 +42,6 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.movie.canvas.Canvas;
@@ -66,7 +65,6 @@ public class Player
 	extends JDialog
 {
 
-	private IconManager				im;
 	private PlayerManager			manager;
 	
 	private ToolBar 				toolBar;
@@ -83,8 +81,7 @@ public class Player
 	 */
 	public Player(ViewerCtrl control, int maxT)
 	{
-		super(control.getReferenceFrame(), "Movie player");
-		im = IconManager.getInstance(control.getRegistry());
+		super(control.getReferenceFrame(), "Movie: "+control.getCurImageName());
 		init(control, maxT);
 		buildGUI();
 	}

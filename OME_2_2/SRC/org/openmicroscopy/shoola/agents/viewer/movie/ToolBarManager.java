@@ -85,17 +85,24 @@ public class ToolBarManager
 	
 	/** Action command ID to be used with the pause button. */
 	private static final int   					PAUSE_CMD = 5;
-
-	/** Action command ID to be used with the forward button. */
-	private static final int   					FORWARD_CMD = 6;
 	
 	/** Action command ID to be used with the viewer3D button. */
-	private static final int   					MOVIE_START_CMD = 7;
+	private static final int   					MOVIE_START_CMD = 6;
 	
 	/** Action command ID to be used with the viewer3D button. */
-	private static final int   					MOVIE_END_CMD = 8;
+	private static final int   					MOVIE_END_CMD = 7;
+    
+    /** Action command ID to be used with the viewer3D button. */
+    private static final int                    PLAY_END_CMD = 8;
+    
+    /** Action command ID to be used with the viewer3D button. */
+    private static final int                    PLAY_START_CMD = 9;
 	
-	private int									curT, maxT, curR;
+    private JButton                             play, stop, rewind, 
+                                                pause, playStart,
+                                                playEnd;
+    
+	private int									maxT, curR;
 	
 	private int									curMovieStart, curMovieEnd;
 	
@@ -104,15 +111,14 @@ public class ToolBarManager
 	private ToolBar								view;
 	
 	private Registry							registry;
-	
+
 	public ToolBarManager(PlayerManager control, Registry registry, 
-						ToolBar view, int sizeT, int t)
+						ToolBar view, int sizeT)
 	{
 		this.control = control;
 		this.registry = registry;
 		this.view = view;
 		maxT = sizeT;
-		curT = t;
 		curR = PlayerManager.FPS_INIT;
 		curMovieStart = 0;
 		curMovieEnd = sizeT;
@@ -138,21 +144,27 @@ public class ToolBarManager
 		end.addActionListener(this);
 		end.addFocusListener(this);
 		//button
-		JButton	play = view.getPlay(), stop = view.getStop(), 
-				rewind = view.getRewind(), saveAs = view.getSaveAs(), 
-				pause = view.getPause(), forward = view.getForward();
+		play = view.getPlay();
+        stop = view.getStop();
+		rewind = view.getRewind(); 
+		pause = view.getPause();
+        playStart = view.getPlayStart();
+        //saveAs = view.getSaveAs();
+        playEnd = view.getPlayEnd();
 		play.setActionCommand(""+PLAY_CMD);
 		play.addActionListener(this);
 		stop.setActionCommand(""+STOP_CMD); 
 		stop.addActionListener(this);
 		rewind.setActionCommand(""+REWIND_CMD);
 		rewind.addActionListener(this);
-		saveAs.setActionCommand(""+SAVEAS_CMD);
-		saveAs.addActionListener(this);
+		//saveAs.setActionCommand(""+SAVEAS_CMD);
+		//saveAs.addActionListener(this);
 		pause.setActionCommand(""+PAUSE_CMD);
 		pause.addActionListener(this);
-		forward.setActionCommand(""+FORWARD_CMD);
-		forward.addActionListener(this);
+        playStart.setActionCommand(""+PLAY_START_CMD);
+        playStart.addActionListener(this);
+        playEnd.setActionCommand(""+PLAY_END_CMD);
+        playEnd.addActionListener(this);
 		//spinner
 		view.getFPS().addChangeListener(this);
 	}
@@ -183,7 +195,7 @@ public class ToolBarManager
 	 */     
 	private void editorActionHandler()
 	{
-		control.resetTimer(false);	//freeze
+		control.stopTimer();	//freeze
 		boolean valid = false;
 		int val = PlayerManager.FPS_MIN;
 		try {
@@ -215,7 +227,7 @@ public class ToolBarManager
 	 */
 	private void movieStartActionHandler()
 	{
-		control.resetTimer(false);	//freeze
+		control.stopTimer();	//freeze
 		boolean valid = false;
 		int val = 0;
 		int valEnd = maxT;
@@ -244,7 +256,7 @@ public class ToolBarManager
 	 */
 	private void movieEndActionHandler()
 	{
-		control.resetTimer(false);	//freeze
+		control.stopTimer();	//freeze
 		boolean valid = false;
 		int val = 0;
 		int valStart = 0;
@@ -278,27 +290,83 @@ public class ToolBarManager
 				case MOVIE_END_CMD:
 					movieEndActionHandler(); break;	
 				case SAVEAS_CMD:
-					control.saveAs(); break;
+				    control.saveAs(); break;
 				case PLAY_CMD:
-					control.play(); break;
-				case FORWARD_CMD:	
-					control.forward(); break;
+                    handlePlay(); break;
 				case REWIND_CMD:	
-					control.rewind(); break;
+                    handleRewind(); break;
 				case PAUSE_CMD:	
-					control.pause(); break;
+                    handlePause(); break;
 				case STOP_CMD:
-					control.stop(); break;
+                    handleStop(); break;
+                case PLAY_END_CMD:
+                    handlePlayEnd(); break;
+                case PLAY_START_CMD:
+                    handlePlayStart(); break;
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe); 
 		}
 	}
 
+    /** Handle the play movie action. */
+    private void handlePlay()
+    {
+        paintBorder();
+        play.setBorderPainted(true);
+        control.play();
+    }
+    
+    private void handleStop()
+    {
+        
+        paintBorder();
+        stop.setBorderPainted(true);
+        control.stop();
+    }
+    
+    private void handleRewind()
+    {
+        paintBorder();
+        rewind.setBorderPainted(true);
+        control.rewind();
+    }
+    
+    private void handlePlayStart()
+    {
+        paintBorder();
+        playStart.setBorderPainted(true);
+        control.playStart();
+    }
+    
+    private void handlePlayEnd()
+    {
+        paintBorder();
+        playEnd.setBorderPainted(true);
+        control.playEnd();
+    }
+    
+    private void handlePause()
+    {
+        paintBorder();
+        pause.setBorderPainted(true);
+        control.pause();
+    }
+    
+    private void paintBorder() 
+    {
+        play.setBorderPainted(false);
+        pause.setBorderPainted(false);
+        stop.setBorderPainted(false);
+        rewind.setBorderPainted(false);
+        playStart.setBorderPainted(false);
+        playEnd.setBorderPainted(false);
+    }
+    
 	/** Handle events fired by the spinner. */
 	public void stateChanged(ChangeEvent e)
 	{
-		control.resetTimer(false);	//freeze
+		control.stopTimer();	//freeze
 		int v = ((Integer) view.getFPS().getValue()).intValue();
 		view.getEditor().setText(""+v);
 		if (v != curR) synchSpinner(v);

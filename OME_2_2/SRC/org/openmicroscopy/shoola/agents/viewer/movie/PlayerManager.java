@@ -68,13 +68,10 @@ public class PlayerManager
 	implements ActionListener, AgentEventListener
 {
 
-	static final int			SAVE_AS = 0, MOVIE_PLAY = 1, MOVIE_STOP = 4,
-								MOVIE_REWIND = 5, MOVIE_FORWARD = 6,
-								MOVIE_PAUSE = 7;
-	
 	static final int			FPS_INIT = 12, FPS_MIN = 1;
 			
 	private Player				view;
+    
 	private ViewerCtrl			control;
 	
 	private Registry			registry;
@@ -107,7 +104,7 @@ public class PlayerManager
 		sizeT = maxT;
 		curZ = control.getDefaultZ();
 		frames = new BufferedImage[maxT+1];
-		frozen = false;
+		frozen = true;
 		rewind = false;
 		delay = 1000/FPS_INIT;
 		//Set up a timer that calls this object's action handler.
@@ -135,9 +132,17 @@ public class PlayerManager
 		frameNumber = startMovie;
 	}
 	
-	void setStartMovie(int startMovie) { this.startMovie = startMovie; }
+	void setStartMovie(int startMovie)
+    { 
+        this.startMovie = startMovie;
+        setFrameNumber(startMovie);
+    }
 	
-	void setEndMovie(int endMovie) { this.endMovie = endMovie; }
+	void setEndMovie(int endMovie)
+    { 
+        this.endMovie = endMovie;
+        setFrameNumber(endMovie);
+    }
 	
 	/** Reset the timer delay. */
 	void setTimerDelay(int v)
@@ -147,27 +152,21 @@ public class PlayerManager
 		timer.setInitialDelay(delay*10);
 	}
 	
-	private void play(boolean b) 
-	{
-		timer.start();
-		frozen = false;
-		rewind = b;
-	}
-	
 	/** Play the movie. */
 	void play() { play(false); }
 	
 	/** Pause. */
 	void pause()
 	{
-		timer.stop();
+		if (!frozen) timer.stop();
 		frozen = true;
 	}
 	
 	/** Stop the movie. */
 	void stop()
 	{
-		resetTimer(true);
+		stopTimer();
+		frameNumber = startMovie;
 		updateImage(frameNumber);
 	}
 	
@@ -176,20 +175,38 @@ public class PlayerManager
 	{
 		//first stop the timer;
 		if (!frozen) timer.stop();
-		frameNumber = startMovie;
-		//restart the timer.
-		play(false);
+        if (frameNumber != startMovie || frameNumber != endMovie) frameNumber--;
+		play(true);
 	}
 	
-	/** Go to the last selected timepoint, and start the movie from there. */
-	void forward()
-	{
-		//first stop the timer;
-		if (!frozen) timer.stop();
-		frameNumber = endMovie;
-		play(true);	
-	}
-
+    /** Go to the first time point. */
+    void playStart()
+    {
+        setFrameNumber(startMovie);
+    }
+    
+    /** Go to the last time point. */
+    void playEnd()
+    {
+        setFrameNumber(endMovie);
+    }
+    
+    private void setFrameNumber(int nb)
+    {
+        //first stop the timer;
+        if (!frozen) timer.stop();
+        frozen = true;
+        frameNumber = nb;
+        updateImage(frameNumber);    
+    }
+    
+    private void play(boolean b) 
+    {
+        rewind = b;
+        frozen = false;
+        timer.start(); 
+    }
+    
 	/** Save the movie. */
 	void saveAs()
 	{
@@ -197,24 +214,30 @@ public class PlayerManager
 		un.notifyInfo("Save movie", "Sorry not yet implemented.");
 	}
 	
-	/** Stop the animation and reset the starting timepoint if requested. */
-	void resetTimer(boolean b)
-	{
-		timer.stop();
-		if (b) frameNumber = startMovie;
-		frozen = true;
-		rewind = false;
-	}
+    /** Stop the animation. */
+    void stopTimer()
+    {
+        timer.stop();       
+        frozen = true;
+        rewind = false;
+    }
 	
 	/** Handle event fired by timer. Advance the animation frame. */
+    /** For now, we play the movie from startMovie. */
 	public void actionPerformed(ActionEvent e)
 	{
-		if (frameNumber <= sizeT && frameNumber >= startMovie && 
-			frameNumber <= endMovie && !frozen) {
-			updateImage(frameNumber);	
-			if (rewind)	frameNumber--;
-			else  frameNumber++;
-		} else resetTimer(true); 
+		if (frameNumber <= sizeT && !frozen &&
+            frameNumber >= startMovie && frameNumber <= endMovie) {
+            System.out.println("number: "+frameNumber);
+            updateImage(frameNumber);
+            if (rewind) {
+                if (frameNumber == startMovie) stopTimer();
+                else frameNumber--;
+            } else {
+                if (frameNumber == endMovie) stopTimer();
+                else frameNumber++;  
+            }
+		} //else resetTimer(true);
 	}
 
 	/** Update the image, if not already created an event is posted. */

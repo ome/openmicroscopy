@@ -35,6 +35,8 @@ import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,6 +44,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -72,7 +75,8 @@ class ToolBar
 	private JButton					saveAs;
 
 	/** Buttons to control the playback of time movie. */
-	private JButton         		play, stop, rewind, pause, forward; 
+	private JButton         		play, stop, rewind, pause, playStart,
+                                    playEnd; 
 
 	/** Allows user t specify the movie playback rate in frames per second. */
 	private JSpinner        		fps;
@@ -88,16 +92,20 @@ class ToolBar
 	/** Labels displaying the number of timepoints. */
 	private JLabel					tLabel;
 
+    /** Border of the pressed button. */
+	private Border                  pressedBorder;
+    
 	private int 					txtWidth;
 	
 	private ToolBarManager			manager;
 	
 	public ToolBar(PlayerManager control, Registry registry, int sizeT, int t)
 	{
+        pressedBorder = BorderFactory.createLoweredBevelBorder();
 		initTxtWidth();
 		initComponents(registry, sizeT);
 		initFields(t, sizeT);
-		manager = new ToolBarManager(control, registry, this, sizeT, t);
+		manager = new ToolBarManager(control, registry, this, sizeT);
 		manager.attachListeners();
 		control.setToolBarManager(manager);
 		buildToolBar();
@@ -113,11 +121,13 @@ class ToolBar
 
 	public JButton getPlay() { return play; }
 
+    public JButton getPlayStart() { return playStart; }
+    
+    public JButton getPlayEnd() { return playEnd; }
+    
 	public JButton getRewind() { return rewind; }
 
 	public JButton getPause() { return pause; }
-
-	public JButton getForward() { return forward; }
 
 	public JButton getStop() { return stop; }
 
@@ -140,17 +150,23 @@ class ToolBar
 		play.setToolTipText(
 		UIUtilities.formatToolTipText("Play movie from current timepoint."));
 		stop = new JButton(im.getIcon(IconManager.STOP));
-		stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie."));
+		stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie and " +
+                "go back to the start timepoint."));
 		rewind = new JButton(im.getIcon(IconManager.REWIND));
 		rewind.setToolTipText(
-			UIUtilities.formatToolTipText("Go to the first timepoint."));
-		forward = new JButton(im.getIcon(IconManager.FORWARD));
-		forward.setToolTipText(
-			UIUtilities.formatToolTipText("Go to the last timepoint."));	
+			UIUtilities.formatToolTipText("Rewind."));
 		pause = new JButton(im.getIcon(IconManager.PAUSE));
 		pause.setToolTipText(
-			UIUtilities.formatToolTipText("Stop the movie."));
-				
+			UIUtilities.formatToolTipText("Pause."));
+			
+        playStart = new JButton(im.getIcon(IconManager.PLAYER_START));
+        playStart.setToolTipText(
+            UIUtilities.formatToolTipText("Go to the start timepoint."));
+        
+        playEnd = new JButton(im.getIcon(IconManager.PLAYER_END));
+        playEnd.setToolTipText(
+            UIUtilities.formatToolTipText("Go to the end timepoint."));
+        
 		//Spinner timepoint granularity is 1, so must be stepSize
 		//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 		fps = new JSpinner(new SpinnerNumberModel(PlayerManager.FPS_INIT, 
@@ -160,8 +176,22 @@ class ToolBar
 						"(frames per second).";
 		editor.setToolTipText(UIUtilities.formatToolTipText(s));
 		fps.setEditor(editor);
+        
+        //Set the border of the JButton.
+        setButtonBorder(play);
+        setButtonBorder(pause);
+        setButtonBorder(stop);
+        setButtonBorder(rewind);
+        setButtonBorder(playStart);
+        setButtonBorder(playEnd);
 	}
 	
+    /** Set a LoweredBevelBorder but don't paint it. */
+    private void setButtonBorder(JButton button) 
+    {
+        button.setBorder(pressedBorder);
+        button.setBorderPainted(false);
+    }
 	/** 
 	 * Initializes the text Fields displaying the current z-section and the
 	 * the current timepoint.
@@ -200,8 +230,10 @@ class ToolBar
 		bar.add(play);
 		bar.add(pause);
 		bar.add(stop);
+        bar.add(playStart);
+        bar.add(playEnd);
 		bar.add(rewind);
-		bar.add(forward);
+		//bar.add(forward);
 		return bar;
 	}
 
