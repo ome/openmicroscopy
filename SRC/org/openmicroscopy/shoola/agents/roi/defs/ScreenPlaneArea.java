@@ -72,11 +72,10 @@ public class ScreenPlaneArea
     public PlaneArea getPlaneArea() { return planeArea; }
     
     public Color getAreaColor() { return areaColor; }
-
+    
     public void setPlaneArea(PlaneArea pa) { planeArea = pa; }
     
     public void setAreaColor(Color c) { areaColor = c; }
     
     public void setIndex(int i) { index = i; }
-    
 }

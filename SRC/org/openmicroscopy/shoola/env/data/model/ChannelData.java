@@ -53,22 +53,22 @@ public class ChannelData
 {
 	
 	/** Attribute ID in DB. */
-	private final int		id;
+	private final int      id;
 	
 	/** OME index of the channel. */
-	private final int		index;
+	private final int      index;
 
 	/** Emission wavelength in nanometer. */
-	private final int		nanometer;
+	private final int      nanometer;
 
 	/** Excitation wavelength in nanometer. */
-	private int				excitation;
+	private int            excitation;
 
 	/** Photometric interpretation. */
-	private String			interpretation;
+	private String         interpretation;
 
 	/** */
-	private String			fluor;
+	private String         fluor;
 
 	public ChannelData(int id, int index, int nanometer, String interpretation,
 						int excitation, String fluor)
@@ -80,7 +80,7 @@ public class ChannelData
 		this.excitation = excitation;
 		this.fluor = fluor;
 	}
-
+    
 	public int getNanometer() { return nanometer; }
 	
 	public int getID() { return id; }
@@ -98,5 +98,5 @@ public class ChannelData
 	public void setExcitation(int excitation) { this.excitation = excitation; }
 
 	public void setFluor(String fluor) { this.fluor = fluor; }
-
+    
 }

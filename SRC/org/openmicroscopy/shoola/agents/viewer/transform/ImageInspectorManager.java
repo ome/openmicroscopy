@@ -166,7 +166,6 @@ public class ImageInspectorManager
     /** Handle windowClosing event. */
     private void onClosing()
     {
-        //control.setMagFactor(curZoomLevel);
         canvas.getManager().resetDefault(false);
         view.dispose();
     }

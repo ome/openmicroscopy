@@ -83,7 +83,7 @@ class HistogramPanel
     private static final Color      bgColor = Color.BLACK;
     
     /** Axis color. */
-    private static final Color      axeColor = Color.GRAY;
+    private static final Color      axisColor = Color.GRAY;
     
     /** Color of the input start cursor. */
     private static final Color      startColor = 
@@ -313,7 +313,7 @@ class HistogramPanel
         Rectangle2D rInput = font.getStringBounds("timepoint", 
                                             g2D.getFontRenderContext());
         int wInput = (int) rInput.getWidth();
-        g2D.setColor(axeColor);
+        g2D.setColor(axisColor);
         
         //y-axis
         g2D.drawLine(leftBorder, topBorder-8, leftBorder, tS+5);
@@ -402,7 +402,7 @@ class HistogramPanel
             bin[i] = max;
             g2D.fillRect(leftBorder+i*sizeBin, max, sizeBin, min-max); 
         }
-        g2D.setColor(axeColor);
+        g2D.setColor(axisColor);
         int y, x;
         for (int i = 0; i < histogramData.length; i++) {
              y = bin[i];

@@ -162,6 +162,7 @@ public class ImageMapper
   		criteria.addWantedField("owner.Group", "id");
   		criteria.addWantedField("owner.Group", "Name");
   		
+        //Add filter
 		criteria.addFilter("id", new Integer(id));
 		
   		return criteria;
@@ -247,15 +248,16 @@ public class ImageMapper
 	
 	/**
 	 * 
-	 * @param ciList		PixelChannelComponent list.
+	 * @param pccList		PixelChannelComponent list.
 	 * @param lcList		LogicalChannel List.
 	 * @return
 	 */
-	public static ChannelData[] fillImageChannelData(List ciList, List lcList)
+	public static ChannelData[] fillImageChannelData(List pccList, List lcList)
 	{
 		PixelChannelComponent pcc;
-		Iterator k = ciList.iterator();
+		Iterator k = pccList.iterator();
 		HashMap lcIndexes = new HashMap();
+        ChannelData[] channelData = new ChannelData[lcList.size()];
 		while (k.hasNext()) {
 			pcc = (PixelChannelComponent) k.next();
 			lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
@@ -265,7 +267,6 @@ public class ImageMapper
 		int index;
 		Iterator i = lcList.iterator();
 		int nanometer, excitation;
-		ChannelData[] channelData = new ChannelData[lcList.size()];
 		while (i.hasNext()) {
 			lc = (LogicalChannel) i.next();
 			index = 

@@ -188,7 +188,10 @@ public class MetadataSource
 			pixelType = DataSink.getPixelTypeID(desc.getPixelType());
 			pixelsDims = new PixelsDimensions(desc.getSizeX(), desc.getSizeY(),
 											desc.getSizeZ(), desc.getSizeC(), 
-											desc.getSizeT());
+											desc.getSizeT(), 
+                                            desc.getPixelSizeX(),
+                                            desc.getPixelSizeY(),
+                                            desc.getPixelSizeZ());
 			
             //Retrieve pixels stats and create suitable objects to hold them.
 			//TODO: Stats have to be retrieved from STS, not from OMEIS.

@@ -75,6 +75,15 @@ public class PixelsDescription
 	/** Number of timepoints in the OME image. */ 
 	private int 	sizeT;
 	
+    /** sizeX of a pixel in microns. */
+    private double  pixelSizeX;
+    
+    /** sizeY of a pixel in microns. */
+    private double  pixelSizeY;
+    
+    /** sizeZ of a pixel in microns. */
+    private double  pixelSizeZ;
+    
 	private String	pixelType;
 	
 	private String	imageServerURL;
@@ -197,5 +206,27 @@ public class PixelsDescription
 	public String getPixelType() { return pixelType; }
 
 	public void setPixelType(String type) { pixelType = type; }
+    
 
+    public double getPixelSizeX() { return pixelSizeX; }
+    
+    public void setPixelSizeX(double pixelSizeX)
+    { 
+        this.pixelSizeX = pixelSizeX;
+    }
+    
+    public double getPixelSizeY() { return pixelSizeY; }
+    
+    public void setPixelSizeY(double pixelSizeY)
+    {
+        this.pixelSizeY = pixelSizeY;
+    }
+    
+    public double getPixelSizeZ() { return pixelSizeZ; }
+    
+    public void setPixelSizeZ(double pixelSizeZ)
+    {
+        this.pixelSizeZ = pixelSizeZ;
+    }
+    
 }

@@ -67,6 +67,15 @@ public class PixelsDimensions
 	/** Number of timepoints in the OME image. */    
 	public final int    sizeT;
     
+    /** SizeX of a pixel in microns. */
+    public final double pixelSizeX;
+    
+    /** SizeY of a pixel in microns. */
+    public final double pixelSizeY;
+    
+    /** SizeZ of a pixel in microns. */
+    public final double pixelSizeZ;
+    
 	/** 
 	 * Creates a new object to store the passed dimensions.
 	 *
@@ -77,7 +86,8 @@ public class PixelsDimensions
 	 * @param   sizeT   Number of timepoints in the image. 
 	 */
 	public PixelsDimensions(int sizeX, int sizeY, int sizeZ, 
-							int sizeW, int sizeT)
+							int sizeW, int sizeT, double pixelSizeX, 
+                            double pixelSizeY, double pixelSizeZ)
 	{
 		if (sizeX <= 0 || sizeY <= 0 ||  sizeZ <= 0)
 			throw new IllegalArgumentException(
@@ -87,12 +97,20 @@ public class PixelsDimensions
 				"At least one wavelength is required.");
 		if (sizeT < 1)
 			throw new IllegalArgumentException("Timepoints must be positive.");
-			
+        if (pixelSizeX <= 0)
+            throw new IllegalArgumentException("Pixel size must be positive.");
+        if (pixelSizeY <= 0)
+            throw new IllegalArgumentException("Pixel size must be positive.");
+        if (pixelSizeZ <= 0)
+            throw new IllegalArgumentException("Pixel size must be positive.");
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 		this.sizeW = sizeW;
 		this.sizeT = sizeT;
+        this.pixelSizeX = pixelSizeX;
+        this.pixelSizeY = pixelSizeY;
+        this.pixelSizeZ = pixelSizeZ;
 	}
     
 }

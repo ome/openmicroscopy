@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.data.map;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
+import org.openmicroscopy.ds.st.Dimensions;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
@@ -101,4 +102,15 @@ public class PixelsMapper
 		pdProto.setPixels(px);
 	}
 	
+    public static void fillPixelsDescription(Dimensions pixelDim, 
+                                    PixelsDescription pdProto)
+    {
+        if (pixelDim.getPixelSizeX() != null)
+            pdProto.setPixelSizeX((pixelDim.getPixelSizeX()).doubleValue());
+        if (pixelDim.getPixelSizeY() != null)
+            pdProto.setPixelSizeY((pixelDim.getPixelSizeY()).doubleValue()); 
+        if (pixelDim.getPixelSizeZ() != null)
+            pdProto.setPixelSizeZ((pixelDim.getPixelSizeZ()).doubleValue()); 
+    }
+    
 }

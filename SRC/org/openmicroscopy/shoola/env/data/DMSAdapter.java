@@ -48,6 +48,7 @@ import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.Dimensions;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.RenderingSettings;
@@ -226,8 +227,8 @@ class DMSAdapter
 	  	
 		//List of dataset summary objects.
 		List datasetsDS = null;
+		//Put the server data into the corresponding client object.
 		if (datasets != null) 
-			//Put the server data into the corresponding client object.
 			datasetsDS = DatasetMapper.fillUserDatasets(datasets, dProto);
     
 		//can be null
@@ -262,9 +263,9 @@ class DMSAdapter
 	  	
 		//List of dataset summary objects.
 		List datasetsDS = null;
+		//Put the server data into the corresponding client object.
 		if (datasets != null) 
-			//Put the server data into the corresponding client object.
-			datasetsDS = 
+		    datasetsDS = 
 				DatasetMapper.fillUserDatasets(datasets, dProto,iProto);
     
 		//can be null
@@ -292,9 +293,9 @@ class DMSAdapter
 	  	
 		//List of image summary objects.
 		List imagesDS = null;
+		//Put the server data into the corresponding client object.
 		if (images != null) 
-			//Put the server data into the corresponding client object.
-			imagesDS = ImageMapper.fillUserImages(images, iProto);
+            imagesDS = ImageMapper.fillUserImages(images, iProto);
     
 		//can be null
 		return imagesDS;
@@ -319,10 +320,8 @@ class DMSAdapter
 		
 		//Load the graph defined by criteria.
 		Project project = (Project) gateway.retrieveData(Project.class, c);
-		
-		if (project != null)
-			//Put the server data into the corresponding client object.
-			ProjectMapper.fillProject(project, retVal);
+		//Put the server data into the corresponding client object.
+		if (project != null) ProjectMapper.fillProject(project, retVal);
 			
 		//Can be an empty data object.
     	return retVal;
@@ -347,10 +346,8 @@ class DMSAdapter
 	
 		//Load the graph defined by criteria.
 		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
-		
-		if (dataset != null)
-			//Put the server data into the corresponding client object.
-			DatasetMapper.fillDataset(dataset, retVal);
+		//Put the server data into the corresponding client object.
+		if (dataset != null) DatasetMapper.fillDataset(dataset, retVal);
 			
 		//Can be an empty data object.	
     	return retVal;
@@ -378,10 +375,9 @@ class DMSAdapter
 
 		//List of image summary object.
 		List images = null;
-
-		if (dataset != null)
 		//Put the server data into the corresponding client object.
-		images = DatasetMapper.fillListImages(dataset, retVal);
+		if (dataset != null)
+            images = DatasetMapper.fillListImages(dataset, retVal);
 
 		return images;
 	}
@@ -405,10 +401,9 @@ class DMSAdapter
 				
 		//Load the graph defined by criteria.
 		Image image = (Image) gateway.retrieveData(Image.class, c);
-  		if (image != null)
-  			//Put the server data into the corresponding client object.
-  			ImageMapper.fillImage(image, retVal);
-  			
+		//Put the server data into the corresponding client object.
+  		if (image != null) ImageMapper.fillImage(image, retVal);
+  		
   		//Can be an empty data object.
   		return retVal;	  
     }
@@ -429,9 +424,16 @@ class DMSAdapter
 		Criteria c = PixelsMapper.buildPixelsCriteria(imageID);
 		
 		Image img = (Image) gateway.retrieveData(Image.class, c);
+		//Put the server data into the corresponding client object.
 		if (img != null)
-			//Put the server data into the corresponding client object.
 			PixelsMapper.fillPixelsDescription(img.getDefaultPixels(), retVal);
+        //Retrieve the realSize of a pixel.
+        c = STSMapper.buildDefaultRetrieveCriteria(STSMapper.IMAGE_GRANULARITY, 
+                                                imageID);
+        Dimensions pixelDim = 
+            (Dimensions) gateway.retrieveSTSData("Dimensions", c);
+        if (pixelDim != null)
+            PixelsMapper.fillPixelsDescription(pixelDim, retVal);
 		return retVal;
 	}
 	
@@ -569,9 +571,9 @@ class DMSAdapter
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
-			DatasetData dsProto, AnalysisChainData acProto,
-			NodeExecutionData neProto, AnalysisNodeData anProto,
-			ModuleData mProto, ModuleExecutionData meProto) 
+			                DatasetData dsProto, AnalysisChainData acProto,
+			                NodeExecutionData neProto, AnalysisNodeData anProto,
+			                ModuleData mProto, ModuleExecutionData meProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ceProto == null)    ceProto = new ChainExecutionData();
@@ -688,64 +690,7 @@ class DMSAdapter
 		gateway.updateMarkedData();
 		retVal.setID(chain.getID());
 	}
-	
-	private void markChainNodes(AnalysisChain chain, Collection nodes)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Iterator iter = nodes.iterator();
-		AnalysisNodeData node;
-		AnalysisNode n;
-		
-		while (iter.hasNext()) {
-			node = (AnalysisNodeData) iter.next();
-			n  = (AnalysisNode) gateway.createNewData(AnalysisNode.class);
-			node.setAnalysisNodeDTO(n);
-			n.setModule(node.getModule().getModuleDTO());
-			n.setChain(chain);
-			gateway.markForUpdate(n);
-		}	
-	}
-	
-	private void markChainLinks(AnalysisChain chain, Collection links) 
-		throws DSOutOfServiceException, DSAccessException
-	{	
-		AnalysisNodeData node;
-		AnalysisNode n;
-		AnalysisLinkData link;
-		AnalysisLink  lnk;
-		Iterator iter = links.iterator();
-		while (iter.hasNext()) {
-			link = (AnalysisLinkData) iter.next();
-			lnk =  	(AnalysisLink) gateway.createNewData(AnalysisLink.class);
-			// set output module
-			// get the analysis Node data that it came from.
-			
-			node = link.getFromNode();
-			// get the DTO for this node
-			n = node.getAnalysisNodeDTO();
-			// set this in the dto for the link going out
-			lnk.setFromNode(n);
-			
-			// set output param
-			FormalOutputData output = link.getFromOutput();
-			lnk.setFromOutput(output.getFormalOutputDTO());
-			
-			// set input node
-			// as per above with output node
-			node = link.getToNode();
-			n = node.getAnalysisNodeDTO();
-			lnk.setToNode(n);
 
-			// set input param.
-			FormalInputData input = link.getToInput();
-			lnk.setToInput(input.getFormalInputDTO());
-			
-			//set chain
-			lnk.setChain(chain);	
-			gateway.markForUpdate(lnk);
-		}
-	}
-	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
@@ -960,6 +905,7 @@ class DMSAdapter
         }
 	}
     
+    /** Save the renderingSettings for the very first time. */
     private List saveRSFirstTime(int imageID, RenderingDef rDef)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -992,6 +938,7 @@ class DMSAdapter
         return l;
     }
 
+    /** Save the renderingSettings. */
     private List saveRS(RenderingDef rDef, List rsList)
         throws DSAccessException
     {
@@ -1020,4 +967,61 @@ class DMSAdapter
         return l;
     }
 
+    private void markChainNodes(AnalysisChain chain, Collection nodes)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator iter = nodes.iterator();
+        AnalysisNodeData node;
+        AnalysisNode n;
+        
+        while (iter.hasNext()) {
+            node = (AnalysisNodeData) iter.next();
+            n  = (AnalysisNode) gateway.createNewData(AnalysisNode.class);
+            node.setAnalysisNodeDTO(n);
+            n.setModule(node.getModule().getModuleDTO());
+            n.setChain(chain);
+            gateway.markForUpdate(n);
+        }   
+    }
+    
+    private void markChainLinks(AnalysisChain chain, Collection links) 
+        throws DSOutOfServiceException, DSAccessException
+    {   
+        AnalysisNodeData node;
+        AnalysisNode n;
+        AnalysisLinkData link;
+        AnalysisLink  lnk;
+        Iterator iter = links.iterator();
+        while (iter.hasNext()) {
+            link = (AnalysisLinkData) iter.next();
+            lnk =   (AnalysisLink) gateway.createNewData(AnalysisLink.class);
+            // set output module
+            // get the analysis Node data that it came from.
+            
+            node = link.getFromNode();
+            // get the DTO for this node
+            n = node.getAnalysisNodeDTO();
+            // set this in the dto for the link going out
+            lnk.setFromNode(n);
+            
+            // set output param
+            FormalOutputData output = link.getFromOutput();
+            lnk.setFromOutput(output.getFormalOutputDTO());
+            
+            // set input node
+            // as per above with output node
+            node = link.getToNode();
+            n = node.getAnalysisNodeDTO();
+            lnk.setToNode(n);
+
+            // set input param.
+            FormalInputData input = link.getToInput();
+            lnk.setToInput(input.getFormalInputDTO());
+            
+            //set chain
+            lnk.setChain(chain);    
+            gateway.markForUpdate(lnk);
+        }
+    }
+    
 }

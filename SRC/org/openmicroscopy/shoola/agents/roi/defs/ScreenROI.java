@@ -108,15 +108,26 @@ public class ScreenROI
     public void copyAcrossZ(PlaneArea pa, int from, int to, int t)
     {
         if (pa == null) return;
-        for (int i = from; i <= to; i++)
-            logicalROI.setPlaneArea((PlaneArea) (pa.copy()), i, t);
+        for (int z = from; z <= to; z++)
+            logicalROI.setPlaneArea((PlaneArea) (pa.copy()), z, t);
     }
     
     public void copyAcrossT(PlaneArea pa, int from, int to, int z)
     {
         if (pa == null) return;
-        for (int i = from; i <= to; i++)
-            logicalROI.setPlaneArea((PlaneArea) (pa.copy()), z, i);
+        for (int t = from; t <= to; t++)
+            logicalROI.setPlaneArea((PlaneArea) (pa.copy()), z, t);
+    }
+    
+    public void copyAcrossZAndT(PlaneArea pa, int fromZ, int toZ, int fromT,
+                                int toT)
+    {
+        if (pa == null) return;
+        for (int t = fromT; t <= toT; t++) {
+            for (int z = fromZ; z <= toZ; z++) {
+                logicalROI.setPlaneArea((PlaneArea) (pa.copy()), z, t);
+            }
+        }
     }
     
     public void copyStackAcrossT(int from, int to, int sizeZ)

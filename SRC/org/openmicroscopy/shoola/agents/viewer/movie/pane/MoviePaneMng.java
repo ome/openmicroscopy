@@ -35,7 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import javax.swing.JRadioButton;
+import javax.swing.AbstractButton;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -127,14 +127,16 @@ class MoviePaneMng
         attachFieldListeners(startZField, START_Z);
         attachFieldListeners(endZField, END_Z);
         //RadioButton
-        JRadioButton movieZ = view.getMovieZ(), movieT = view.getMovieT();
-        movieZ.addActionListener(this);
-        movieZ.setActionCommand(""+Player.MOVIE_Z);
-        movieT.addActionListener(this);
-        movieT.setActionCommand(""+Player.MOVIE_T);
-        
+        attachButtonListener(view.getMovieZ(), Player.MOVIE_Z);
+        attachButtonListener(view.getMovieT(), Player.MOVIE_T);
         view.getSliderT().addChangeListener(this);
         view.getSliderZ().addChangeListener(this);
+    }
+    
+    private void attachButtonListener(AbstractButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
     }
     
     private void attachFieldListeners(JTextField field, int id)
