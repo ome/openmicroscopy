@@ -152,7 +152,6 @@ public class ChainDataManager extends DataManager {
 		}
 		
 		if (gettingChains == false) {
-			System.err.println("loading chains..");
 			gettingChains = true;
 			retrieveChains();
 			gettingChains = false;
@@ -173,7 +172,6 @@ public class ChainDataManager extends DataManager {
 	protected synchronized void retrieveChains() {
 		if (chainHash == null ||chainHash.size() == 0) {
 			try {
-				System.err.println("trying to load chains in chain data manager.");
 				LayoutChainData acProto = new LayoutChainData();
 				LayoutLinkData alProto = new LayoutLinkData();
 				LayoutNodeData anProto = new LayoutNodeData(); 
@@ -218,6 +216,11 @@ public class ChainDataManager extends DataManager {
 		return (LayoutChainData) chainHash.get(ID);
 	}
 	
+	private void addChain(LayoutChainData chain) {
+		Integer ID = new Integer(chain.getID());
+		chainHash.put(ID,chain);
+	}
+	
 	public synchronized Collection getChainExecutions() {
 		
 		// if we're done, go for it.
@@ -226,7 +229,6 @@ public class ChainDataManager extends DataManager {
 		}
 		
 		if (gettingChains == false) {
-			System.err.println("loading chains..");
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
@@ -341,5 +343,36 @@ public class ChainDataManager extends DataManager {
 		if (analysisNodes == null)
 			return null;
 		return (LayoutNodeData) analysisNodes.get(new Integer(id));
+	}
+	
+	public void saveChain(LayoutChainData chain) {
+		if (chain != null) {
+			try {
+				DataManagementService dms = registry.getDataManagementService();
+				dms.createAnalysisChain(chain);
+			} catch(DSAccessException dsae) {
+				String s = "Can't save new chain.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);	
+			} catch(DSOutOfServiceException dsose) {
+				ServiceActivationRequest 
+				request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
+			}
+		}
+	}
+	
+	public boolean hasChainWithName(String name) {
+		Collection chains = getChains();
+		Iterator iter = chains.iterator();
+		LayoutChainData chain;
+		while (iter.hasNext()) {
+			chain = (LayoutChainData) iter.next();
+			if (name.compareTo(chain.getName()) == 0)
+				return true;
+		}
+		return false;
 	}
 }
