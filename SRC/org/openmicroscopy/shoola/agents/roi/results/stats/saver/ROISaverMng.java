@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.roi.results.stats.saver;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 //Third-party libraries
@@ -39,8 +40,12 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPaneMng;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.file.WriterText;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -90,7 +95,7 @@ class ROISaverMng
     {
         if (format == null || fileName == null) {
             UserNotifier un = mng.getRegistry().getUserNotifier();
-            un.notifyError("Save ROI results", "the fileName cannot be null");
+            un.notifyError("Save ROI results", "The name cannot be null");
             return;
         }
         this.format = format;
@@ -105,6 +110,7 @@ class ROISaverMng
         view.dispose();
     }
     
+    /** Save the result according to the format selected. */
     void saveROIResult()
     {
         UserNotifier un = mng.getRegistry().getUserNotifier();
@@ -113,12 +119,25 @@ class ROISaverMng
         try {
             if (format.equals(TEXTFilter.TEXT))
                 WriterText.writeTableAsText(f, mng.getTableModel());
+            else if (format.equals(JPEGFilter.JPG) || 
+                        format.equals(PNGFilter.PNG))
+                saveGraphicImage(f, null); 
             un.notifyInfo("ROI results saved", message);
         } catch (Exception e) {
             f.delete();
             un.notifyError("Save ROI result failure", "Unable to save " +
                     "the result of the ROI analysis.", e);
         }
+    }
+    
+    private void saveGraphicImage(File f, Encoder encoder)
+        throws Exception
+    {
+        BufferedImage img = mng.getGraphicImage();
+        if (encoder == null) 
+            WriterImage.saveImage(f, img, format);
+        else  
+            WriterImage.saveImage(f, encoder, img);
     }
     
 }

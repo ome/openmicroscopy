@@ -38,8 +38,12 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPaneMng;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /** 
  * 
  *
@@ -69,26 +73,51 @@ class FileFormatChooser
     /** Display or not the fileChooser, when the dialog is shown. */
     private boolean                 display;
     
-    public FileFormatChooser(ROISaverMng manager)
+    public FileFormatChooser(ROISaverMng manager, int resultIndex)
     {
         this.manager = manager;
         display = false;
-        buildGUI();
+        buildGUI(resultIndex);
     }
     
     void setDisplay(boolean b) { display = b; }
     
     /** Build and lay out the GUI. */
-    private void buildGUI()
+    private void buildGUI(int resultIndex)
     {
         setDialogType(SAVE_DIALOG);
         setFileSelectionMode(FILES_ONLY);
+        setFilters(resultIndex);
+        setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
+        setApproveButtonText("Save as");
+    }
+    
+    private void setFilters(int resultIndex)
+    {
+        switch (resultIndex) {
+            case StatsResultsPaneMng.TABLE_RESULT:
+                setTableFilters(); break;
+            case StatsResultsPaneMng.GRAPHIC_RESULT:
+                setGraphicFilters();
+        }
+        setAcceptAllFileFilterUsed(false);  
+    }
+    
+    private void setTableFilters()
+    {
         TEXTFilter txtFilter = new TEXTFilter();
         setFileFilter(txtFilter);
         addChoosableFileFilter(txtFilter); 
-        setAcceptAllFileFilterUsed(false);
-        setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
-        setApproveButtonText("Save as");
+    }
+    
+    private void setGraphicFilters()
+    {
+        JPEGFilter jpegFilter = new JPEGFilter();
+        setFileFilter(jpegFilter);
+        addChoosableFileFilter(jpegFilter); 
+        PNGFilter pngFilter = new PNGFilter();
+        addChoosableFileFilter(pngFilter); 
+        setFileFilter(pngFilter);
     }
     
     /** Override the {@link #cancelSelection} method. */
@@ -121,6 +150,10 @@ class FileFormatChooser
         String format = DEFAULT_FORMAT;
         if (filter instanceof TEXTFilter) 
             format = TEXTFilter.TEXT;
+        else if (filter instanceof JPEGFilter)
+            format = JPEGFilter.JPG;
+        else if (filter instanceof PNGFilter) 
+            format = PNGFilter.PNG;
         return format;
     }
     

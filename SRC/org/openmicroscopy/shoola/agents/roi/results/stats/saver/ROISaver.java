@@ -71,29 +71,29 @@ public class ROISaver
     static final String         SUMMARY = "Save the results in " +
                                             "one of the following format";
     
-    static final String         MSG_DIR = "The table has been saved in \n";
+    static final String         MSG_DIR = "The result has been saved in \n";
     
     private ROISaverMng         manager;
     
     private FileFormatChooser   chooser;
     
-    public ROISaver(StatsResultsPaneMng mng)
+    public ROISaver(StatsResultsPaneMng mng, int resultIndex)
     {
         super(mng.getReferenceFrame(), "Save ROI results", true);
         manager = new ROISaverMng(this, mng);
-        buildGUI(IconManager.getInstance(mng.getRegistry()));
+        buildGUI(IconManager.getInstance(mng.getRegistry()), resultIndex);
         pack();
     }
     
     void setDisplay(boolean b) { chooser.setDisplay(b); }
     
     /** Build and lay out the GUI. */
-    private void buildGUI(IconManager im)
+    private void buildGUI(IconManager im, int resultIndex)
     {
         getContentPane().setLayout(new BorderLayout(0, 0));
         TitlePanel tp = new TitlePanel(TITLE, SUMMARY, 
                                 im.getIcon(IconManager.SAVEAS_BIG));
-        chooser = new FileFormatChooser(manager);           
+        chooser = new FileFormatChooser(manager, resultIndex);           
         getContentPane().add(tp, BorderLayout.NORTH);
         getContentPane().add(chooser, BorderLayout.CENTER);
         if (JDialog.isDefaultLookAndFeelDecorated()) {
