@@ -250,7 +250,7 @@ public class ToolBar
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(buildBar());
 		add(moviePanel());
-		add(controlsMoviePanel);
+		//add(controlsMoviePanel);
 		add(new JSeparator(SwingConstants.VERTICAL));
 		add(ztPanel);
 	}
