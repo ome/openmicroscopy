@@ -1,4 +1,4 @@
-/*
+ /*
  * org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory
  *
  *------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ public class QuantumFactory
     /** Retrieve a {@link QuantumStrategy}. */
 	private static QuantumStrategy getQuantization(QuantumDef qd)
 	{
-		QuantumStrategy     qs = null;
+		QuantumStrategy qs = null;
 		switch (qd.pixelType) {
 			case DataSink.INT8:
 			case DataSink.UINT8:
@@ -176,7 +176,7 @@ public class QuantumFactory
     
 	private static void verifyPixelType(int pixelType)
 	{
-		boolean     b = false;
+		boolean b = false;
 		switch (pixelType) {
 			case DataSink.BIT:    b = true; break;
 			case DataSink.INT8:   b = true; break;
