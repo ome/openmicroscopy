@@ -60,6 +60,9 @@ public class UserCredentials
 	/** The login password. */
 	private String		password;
 	
+	/** The user's ID. */
+	private int			userID;
+	
 	/** Tells whether or not the credentials have been filled in. */
 	private boolean		isFilledIn;
 	
@@ -128,4 +131,24 @@ public class UserCredentials
 		return password;
 	}
 
+	/** 
+	 * Returns the userID.
+	 * 
+	 * @return	The user's ID stored, value retrieve from DB.
+	 */
+	public int getUserID()
+	{
+		return userID;
+	}
+	
+	/**
+	 * Sets the user's ID.
+	 * 
+	 * @param userID	user's ID retrieved from DB.
+	 */
+	public void setUserID(int userID)
+	{
+		this.userID = userID;
+	}
+	
 }
