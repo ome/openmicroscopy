@@ -49,6 +49,7 @@ import java.awt.Color;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
@@ -76,6 +77,11 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 	public ChainPaletteOverviewCanvas() {
 		super();
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+		//		 make sure that rendering is always high quality
+		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);	
+		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
+		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
+		
 	}
 	
 	public void setDetailCanvas(ChainPaletteCanvas detail) {
