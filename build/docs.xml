@@ -13,7 +13,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <checkdef prop="build.dir" /> 
   <checkdef prop="base.src.dir" />
-  <checkdef prop="base.docgen.index.file" /> 
+  <checkdef prop="base.docgen.index.file" />
+  <checkdef prop="base.userdocs.index.file" /> 
   <checkdef prop="base.docgen.javadoc.cssfile" />
   <checkdef prop="base.docgen.xdocs.dir" /> 
   <checkdef prop="base.docgen.xdocs.cssfile" />  
@@ -47,7 +48,7 @@
    *       docs.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="docs.dir" location="${build.dir}/docs" />
-  <property name="userdocs.dir" location="${build.dir}/docs/userdocs" />
+  <property name="docs.userdocs.dir" location="${build.dir}/docs/userdocs" />
   <property name="docs.javadoc.dir" location="${docs.dir}/javadoc" /> 
   <property name="docs.xml2ad.file" 
               location="${base.docgen.xdocs.xsl.dir}/xml2ad.xsl" /> 
@@ -67,7 +68,7 @@
   <target name="docs-init" depends="init">
     <mkdir dir="${docs.dir}" /> 
     <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
-    <copy todir="${userdocs.dir}"  file="${base.userdocs.index.file}"/>
+    <copy todir="${docs.userdocs.dir}" file="${base.userdocs.index.file}" />
   </target> 
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
