@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+import java.util.List;
+
 
 //Java imports
 
@@ -62,11 +64,15 @@ public class UserDetails
     /** The user's Last name. */
     public String userLastName;
     
-    public UserDetails(int id, String firstName, String lastName)
+    /** A list of group id, the user may belong to more than a group. */
+    private List         groupIDs;
+    
+    public UserDetails(int id, String firstName, String lastName, List groupIDs)
     {
         userID = id;
         userFirstName = firstName;
         userLastName = lastName;
+        this.groupIDs = groupIDs;
     }
 
     /** Returns the user's first name. */
@@ -77,5 +83,8 @@ public class UserDetails
     
     /** Returns the user's last name. */
     public String getUserLastName() { return userLastName; }
+    
+    /** Returns the list of group's id, the user belongs to. */
+    public List getGroupIDs() { return groupIDs; }
     
 }
