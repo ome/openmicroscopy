@@ -122,11 +122,29 @@ public class IconManager
     
     public static final int     VIEWER = 27;
     
+    public static final int     GRAPHIC = 28;
+    
+    public static final int     BACK = 29;
+    
+    public static final int     FORWARD = 30;
+    
+    public static final int     GRAPHIC_BIG = 31;
+    
+    public static final int     APPLY = 32;
+    
+    public static final int     ROISHEET = 33;
+    
+    public static final int     BACKGROUND = 34;
+    
+    public static final int     RATIO = 35;
+    
+    public static final int     INITIAL = 36;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 27;
+    private static int          MAX_ID = 36;
   
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -142,6 +160,7 @@ public class IconManager
         relPaths[CLOSE] = "nuvola_cancel16.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
         relPaths[ROISHEET_BIG] = "nuvola_spreadsheet48.png";
+        relPaths[ROISHEET] = "nuvola_spreadsheet16.png";
         relPaths[SAVEAS_BIG] = "nuvola_filesaveas48.png";
         relPaths[UNDO_ERASE] = "eclipse_clear_co16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
@@ -149,7 +168,7 @@ public class IconManager
         relPaths[UP] = "nuvola_up16.png";
         relPaths[DOWN] = "nuvola_down16.png";
         relPaths[UNDO] = "nuvola_undo16.png";
-        relPaths[ASSISTANT] = "openOffice_stock_form-table-control-16.png";
+        relPaths[ASSISTANT] = "openOffice_stock_chart-data-in-rows-16.png";
         relPaths[COPY] = "nuvola_editcopy16.png";
         relPaths[COPY_STACK] = "openOffice_stock_3d-perspective-16.png";
         relPaths[CREATE_ROI] = "nuvola_kpovmodeler16.png";
@@ -158,6 +177,14 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[VIEWER] = "ome_eye16.png";
+        relPaths[GRAPHIC] = "nuvola_kmplot16.png";
+        relPaths[BACK] = "nuvola_back16.png";
+        relPaths[FORWARD] = "nuvola_forward16.png";
+        relPaths[GRAPHIC_BIG] = "nuvola_kmplot48.png";
+        relPaths[APPLY] = "nuvola_apply16.png";
+        relPaths[BACKGROUND] = "openOffice_stock_bring-forward-16.png";
+        relPaths[RATIO] = "openOffice_stock_font-formatting-toggle-16.png";
+        relPaths[INITIAL] = "openOffice_stock_form-table-control-16.png";
     }
       
     /** The sole instance. */
