@@ -160,20 +160,7 @@ public class ImageCanvas
                       paintNewLensImage((BufferedImage) r[0], false), 
                                          (RectangleArea) r[1], painting, c);
     }
-    
-    private Object[] prepareLensImage()
-    {
-        Object[] results = new Object[2];
-        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
-        BufferedImage lImg = itMng.buildDisplayImage(lensCanvas.lensImage);
-        RectangleArea pa = new RectangleArea(lensCanvas.xTopCorner, 
-                        lensCanvas.yTopCorner, widthNew, 
-                        widthNew);
-        results[0] = lImg;
-        results[1] = pa;
-        return results;
-    }
-    
+
     public BufferedImage getImageAndROIs(List rois)
     {
         if (displayImage == null) return null;
@@ -259,10 +246,10 @@ public class ImageCanvas
      */ 
     public void paintImage(double level, int w, int h)
     {
-        resetLens();
         this.w = w;
         this.h = h;
         height = h-2*ViewerUIF.START;
+        manager.setZoomImageRatio(level/itMng.getMagFactor());
         manager.setDrawingArea(ViewerUIF.START, ViewerUIF.START,
                                             (int)(image.getWidth()*level), 
                                             (int)(image.getHeight()*level));
@@ -322,6 +309,19 @@ public class ImageCanvas
     /** Return the lens image. */
     BufferedImage getLens() { return lensCanvas.lensImage; }
     
+    private Object[] prepareLensImage()
+    {
+        Object[] results = new Object[2];
+        int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
+        BufferedImage lImg = itMng.buildDisplayImage(lensCanvas.lensImage);
+        RectangleArea pa = new RectangleArea(lensCanvas.xTopCorner, 
+                        lensCanvas.yTopCorner, widthNew, 
+                        widthNew);
+        results[0] = lImg;
+        results[1] = pa;
+        return results;
+    }
+    
     /** Overrides the {@link #paint(Graphics)} method. */
     public void paintComponent(Graphics g)
     {
@@ -332,6 +332,10 @@ public class ImageCanvas
         control.setImageArea(x+ViewerUIF.START, y+ViewerUIF.START,
                 (int)(image.getWidth()*itMng.getMagFactor()), 
                 (int)(image.getHeight()*itMng.getMagFactor()));
+        
+        //lens location
+        lensCanvas.setImageCanvasCoordinates(x, y);
+        
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
         g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -342,7 +346,8 @@ public class ImageCanvas
         paintXYFrame(g2D);
         if (realValue > 0)
               paintScaleBar(g2D, ViewerUIF.START, 3*ViewerUIF.START/2+height, 
-                        LENGTH2, ""+(int) (realValue*LENGTH2), Color.GRAY);
+                        LENGTH2, ""+(int) (realValue*LENGTH2)+" \u00B5m", 
+                        Color.GRAY);
         if (displayImage != null)
             g2D.drawImage(displayImage, null, ViewerUIF.START, ViewerUIF.START);
         //if (lensCanvas.lensImage != null)

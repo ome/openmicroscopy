@@ -112,6 +112,12 @@ public class ImageCanvasMng
     
     double getMagFactorLens() { return magFactorLens; }
     
+    void setZoomImageRatio(double level)
+    { 
+        width = (int) (width*level);
+        anchor = null;
+    }
+    
     public void setMagFactorLens(double f)
     {
         magFactorLens = f;
@@ -152,11 +158,8 @@ public class ImageCanvasMng
     public void setPin(boolean b)
     { 
         pin = b;
-        if (pin && anchor != null)
-            drawLens(anchor);
-        else if (!pin)
-            view.resetLens();
-            //view.repaint();
+        if (pin && anchor != null) drawLens(anchor);
+        else if (!pin) view.resetLens();
     }
     
     public void setPainting(boolean b, Color c)
@@ -169,6 +172,7 @@ public class ImageCanvasMng
     
     void setDrawingArea(int x, int y, int w, int h)
     { 
+        view.resetLens();
         drawingArea.setBounds(x+width/2, y+width/2, w-width, h-width);
     }
     
@@ -177,7 +181,6 @@ public class ImageCanvasMng
     {
         if (e.getClickCount() == 1 && click) {
             Point p = new Point(e.getPoint());
-            //view.resetLens();
             if (!dragging && onOff && drawingArea.contains(p)) {
                 dragging = true;
                 drawLens(p);
@@ -197,10 +200,7 @@ public class ImageCanvasMng
     public void mouseReleased(MouseEvent e)
     { 
         dragging = false;
-        if (onOff && !pin) {
-            view.resetLens();
-            //view.repaint();  
-        }
+        if (onOff && !pin) view.resetLens();
     }
     
     /** Forward event to the view. */

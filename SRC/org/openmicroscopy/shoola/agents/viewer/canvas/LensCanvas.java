@@ -68,9 +68,19 @@ public class LensCanvas
     
     int                     xTopCorner, yTopCorner, xLens, yLens;
     
+    private int             xImageCanvas, yImageCanvas;
+    
     public LensCanvas()
     {
         setDoubleBuffered(true);
+        xImageCanvas = 0;
+        yImageCanvas = 0;
+    }
+    
+    void setImageCanvasCoordinates(int x, int y)
+    {
+        xImageCanvas = x;
+        yImageCanvas = y;
     }
     
     void resetLens()
@@ -99,8 +109,8 @@ public class LensCanvas
                                             lensWidth, painting, c);
         setPreferredSize(new Dimension(lensImage.getWidth(), 
                 lensImage.getHeight()));
-                
-        setBounds(xLens, yLens, lensImage.getWidth(), lensImage.getHeight());
+        setBounds(xImageCanvas+xLens, yImageCanvas+yLens, lensImage.getWidth(),
+                    lensImage.getHeight());
         //repaint();
     }
     
