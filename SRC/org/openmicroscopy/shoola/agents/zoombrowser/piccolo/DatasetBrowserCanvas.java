@@ -529,13 +529,13 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		if (lastRolledOver != null) { 
 			if (rolled == lastRolledOver.getDataset())
 				return;
-			lastRolledOver.setSelected(false);
+			lastRolledOver.setHighlighted(false);
 			lastRolledOver = null;
 		}
 		
 		if (rolled != null) {	
 			lastRolledOver = rolled.getNode();
-			lastRolledOver.setSelected(true);
+			lastRolledOver.setHighlighted(true);
 		}
 		mainWindow.setRolloverDataset(rolled);
 	}
@@ -591,7 +591,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		if (dataset == selectedDataset && dataset != null)
 			return;
 		if (selectedDataset != null)
-			selectedDataset.getNode().setSelected(false);
+			selectedDataset.getNode().setHighlighted(false);
 		selectedDataset  = dataset;
 		
 		// if a dataset is clicked on to be selected, it has already
@@ -619,8 +619,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			if (execs != null && chain != null && hasExecutionForChain(execs,chain)) 
 				n.setHighlighted(true);
 			else
-				n.setHighlighted(false);
-			
+				n.setHighlighted(false);	
 		}
 		
 	}

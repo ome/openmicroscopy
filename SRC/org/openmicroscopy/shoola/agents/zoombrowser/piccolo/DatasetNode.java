@@ -411,15 +411,27 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	}
 	
 	/**
-	 * Set the selected state
-	 * @param v true if selected, else false
+	 * Set the highlighted state: when i mouse in/out
+	 * @param v true if highlighted, else false
 	 */
-	public void setSelected(boolean v) {
-		setHighlighted(v);
+	public void setHighlighted(boolean v) {
+		super.setHighlighted(v);
 		if (images !=null) 
 			images.setSelected(v);
 	}
 		
+	/**
+	 * Set selected state - when something that I correspond to (like a chain exec)
+	 * is highlighted..
+	 * @param v
+	 */
+	public void setSelected(boolean v) {
+		if (v == true) 
+			setPaint(PConstants.SELECTED_FILL);
+		else 
+			setPaint(null);
+		repaint();
+	}
 	
 	
 	public void setHandler(DatasetBrowserEventHandler handler) {
