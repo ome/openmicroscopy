@@ -443,15 +443,8 @@
         taskCfg.setAttribute("cssfile", file);   
       } 
       XDoc.prototype.run = function () 
-      { 
-        //Run makexdoc on srcdir and destdir.  If srcdir contains a custom
-        //'style.xml' file, then use it.  Otherwise default to the one 
-        //specified by the pdfstyle input attribute.
-        var customPDFStyle = new java.io.File(this.srcDir, "style.xml");
-        if (customPDFStyle.exists() && customPDFStyle.isFile())
-          this.setPDFStyle(customPDFStyle.toString());
-        this.task.perform();  
-        
+      {   
+   
         //Run xdocres to copy resources in destdir.  If srcdir contains a
         //custom 'style.css' file, then use it.  Otherwise default to the
         //one specified by the cssfile input attribute.
@@ -465,6 +458,14 @@
         var imagesDir = new java.io.File(this.srcDir, "images");
         if (imagesDir.exists() && imagesDir.isDirectory())
           this.imgTask.perform(); 
+
+        //Run makexdoc on srcdir and destdir.  If srcdir contains a custom
+        //'style.xml' file, then use it.  Otherwise default to the one 
+        //specified by the pdfstyle input attribute.
+        var customPDFStyle = new java.io.File(this.srcDir, "style.xml");
+        if (customPDFStyle.exists() && customPDFStyle.isFile())
+          this.setPDFStyle(customPDFStyle.toString());
+        this.task.perform();
       }  
   
       //Finds all xdoc dirs within the specified base dir.
