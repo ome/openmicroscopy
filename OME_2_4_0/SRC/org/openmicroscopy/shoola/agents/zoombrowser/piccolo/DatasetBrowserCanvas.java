@@ -154,9 +154,7 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 		this.registry = registry;
 		layer = getLayer();
 		
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 
 		//	remove handlers
