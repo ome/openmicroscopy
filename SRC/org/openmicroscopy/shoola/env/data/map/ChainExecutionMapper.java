@@ -79,7 +79,7 @@ public class ChainExecutionMapper
 	 * 
 	 * @param userID	user ID.
 	 */
-	public static Criteria buildChainExecutionCriteria()
+	public static Criteria buildChainExecutionCriteria(int userID)
 	{
 		Criteria criteria = new Criteria();
 	
@@ -93,6 +93,7 @@ public class ChainExecutionMapper
 		// stuff for dataset
 		criteria.addWantedField("dataset","id");
 		criteria.addWantedField("dataset","name");
+		criteria.addWantedField("dataset","owner_id");
 		
 		// stuff for chains
 		criteria.addWantedField("analysis_chain","id");
@@ -108,6 +109,8 @@ public class ChainExecutionMapper
 		criteria.addWantedField("node_executions.module_execution","status");
 		criteria.addWantedField("node_executions.module_execution","timestamp");
 				
+		criteria.addFilter("experimenter_id",new Integer(userID));
+		criteria.addFilter("dataset.owner_id",new Integer(userID));
 		return criteria;
 	}
 
@@ -218,14 +221,13 @@ public class ChainExecutionMapper
 		Date date=null;
 		String parsed =null;
 		ParsePosition pos = new ParsePosition(0);
-		
+	
 		// this code is a bit sketchy. might be postgresql dependent.
 		// based in experience (not postgres docs), times can either look like
 		// 2004-01-29 21:49:45.50726 or 
 		// 2004-05-25 18:10:56-04
 		// for first case, throw out everything including and after last period
 		// otherwise, throw out everything including and after the dash.
-
 		int index = time.lastIndexOf(".");
 		if (index != -1) {
 			parsed = time.substring(0,index);
@@ -237,7 +239,8 @@ public class ChainExecutionMapper
 		}
 		if (parsed != null) {
 			SimpleDateFormat format = new 
-				SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
+				SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			format.setLenient(true);
 			date = format.parse(time,pos);
 		}
 		return date;
