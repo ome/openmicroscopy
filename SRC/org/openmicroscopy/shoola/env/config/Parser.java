@@ -152,7 +152,7 @@ class Parser
             readConfigEntries();
             Iterator i = entriesTags.iterator();
             while (i.hasNext()) {
-               Node node = (Node)i.next();
+               Node node = (Node) i.next();
                Entry entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }
@@ -170,11 +170,10 @@ class Parser
     {
         for (int k = 0; k < tagsEntry.length; ++k) {
             NodeList list = document.getElementsByTagName(tagsEntry[k]);
-            int l = entriesTags.size();
-            for (int i = 0; i < list.getLength(); ++i) {
-                Node n = list.item(i);
-                if (n.hasChildNodes()) entriesTags.add(k*l+i, n);
-            }
+			for (int i = 0; i < list.getLength(); ++i) {
+				Node n = list.item(i);
+				if (n.hasChildNodes()) entriesTags.add(n);
+			}
         }
     }
     
