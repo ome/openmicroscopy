@@ -88,7 +88,8 @@ public class BrowserManagerSFImpl extends BrowserManager
         activeBrowser = bf;
         activeWindow = bf;
         browserList.add(bf);
-        topWindowGroup.add(bf,bf.getTitle(),
+        // temporary workaround: can you set the title later?
+        topWindowGroup.add(bf,"Browser window",
                            iconManager.getSmallIcon(IconManager.BROWSER));
         bf.open();
         return bf;
@@ -105,6 +106,7 @@ public class BrowserManagerSFImpl extends BrowserManager
         if(browser != null && browserList.contains(bf))
         {
             browserList.remove(bf);
+            topWindowGroup.remove(bf,true);
             BrowserEnvironment env = BrowserEnvironment.getInstance();
             env.getBrowserAgent().interruptThread(bf.getController());
             bf.setVisible(false);
