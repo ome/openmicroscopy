@@ -35,7 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
@@ -44,7 +43,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -134,9 +132,7 @@ public class Controls
     /** Color selection. */
     private JComboBox                   colors;
     
-    private JCheckBox                   drawOnOff;
-    
-    private JCheckBox                   textOnOff;
+    private JCheckBox                   drawOnOff, textOnOff, annotationOnOff;
     
     /** Border of the pressed button. */
     private Border                      pressedBorder;
@@ -163,6 +159,8 @@ public class Controls
     public JCheckBox getDrawOnOff() { return drawOnOff; }
     
     public JCheckBox getTextOnOff() { return textOnOff; }
+    
+    public JCheckBox getAnnotationOnOff() { return annotationOnOff; }
     
     Color getColorSelected(int i) { return colorSelection[i]; }    
     
@@ -201,11 +199,14 @@ public class Controls
         drawOnOff.setToolTipText(
                 UIUtilities.formatToolTipText("Display the selections."));
         drawOnOff.setSelected(true);
-        
         textOnOff = new JCheckBox();
         textOnOff.setToolTipText(
                 UIUtilities.formatToolTipText("Display the ROI #."));
         textOnOff.setSelected(false);
+        annotationOnOff = new JCheckBox();
+        annotationOnOff.setToolTipText(
+                UIUtilities.formatToolTipText("Display the annotated ROI."));
+        annotationOnOff.setSelected(false);
     }
 
     /** Initialize the buttons. */
@@ -248,15 +249,17 @@ public class Controls
         
     }
     
+    /** Build and lay out the GUI. */
     private void buildGUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildComponentPanel(UIUtilities.setTextFont(" Drawing context")), 
+        add(UIUtilities.buildComponentPanel(
+                UIUtilities.setTextFont(" Drawing context")), 
                 BorderLayout.NORTH);
         add(buildMain(), BorderLayout.CENTER);
     }
     
-    /** Build and lay out the GUI. */
+    /** Build the main panel. */
     private JPanel buildMain()
     {
         JPanel main = new JPanel(), all = new JPanel();
@@ -278,7 +281,7 @@ public class Controls
         gridbag.setConstraints(p, c);
         main.add(p);
         all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
-        all.add(buildComponentPanel(main));
+        all.add(UIUtilities.buildComponentPanel(main));
         all.add(new JSeparator(JSeparator.HORIZONTAL));
         return all;
     }
@@ -290,8 +293,8 @@ public class Controls
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(gridbag);
-        JLabel l = new JLabel(" Selection Color ");
-        bp = buildComponentPanel(colors);
+        JLabel l = new JLabel(" Selection Color");
+        bp = UIUtilities.buildComponentPanel(colors);
         c.gridx = 0;
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
@@ -302,17 +305,26 @@ public class Controls
         p.add(bp);
         c.gridx = 0;
         c.gridy = 1;
-        l = new JLabel(" Channel ");
-        bp = buildComponentPanel(channels);
+        l = new JLabel(" Channel");
+        bp = UIUtilities.buildComponentPanel(channels);
         gridbag.setConstraints(l, c);
         p.add(l);
         c.gridx = 1;
         gridbag.setConstraints(bp, c);
         p.add(bp);
+        //c.gridx = 0;
+        //c.gridy = 2;
+        //l = new JLabel(" Draw");
+        //bp = UIUtilities.buildComponentPanel(drawOnOff);
+        //gridbag.setConstraints(l, c);
+        //p.add(l);
+        //c.gridx = 1;
+        //gridbag.setConstraints(bp, c);
+        //p.add(bp);
         c.gridx = 0;
         c.gridy = 2;
-        l = new JLabel(" Draw ");
-        bp = buildComponentPanel(drawOnOff);
+        l = new JLabel(" Label");
+        bp = UIUtilities.buildComponentPanel(textOnOff);
         gridbag.setConstraints(l, c);
         p.add(l);
         c.gridx = 1;
@@ -320,8 +332,8 @@ public class Controls
         p.add(bp);
         c.gridx = 0;
         c.gridy = 3;
-        l = new JLabel(" Label ");
-        bp = buildComponentPanel(textOnOff);
+        l = new JLabel(" Annotate");
+        bp = UIUtilities.buildComponentPanel(annotationOnOff);
         gridbag.setConstraints(l, c);
         p.add(l);
         c.gridx = 1;
@@ -353,15 +365,6 @@ public class Controls
         bar.add(analyse);
         return bar;
     }
-    
-    /** Wrap a JComponent in a JPanel. */
-    private JPanel buildComponentPanel(JComponent component)
-    {
-        JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT));
-        p.add(component);
-        return p;
-    }  
     
     /** Set a LoweredBevelBorder but don't paint it. */
     private void setButtonBorder(JButton button, boolean painted) 

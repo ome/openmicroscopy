@@ -89,12 +89,15 @@ class ControlsManager
     private static final int    TEXT_ON_OFF = 8;
     
     /** Action command ID for the checkBox. */
-    private static final int    COLOR = 9;
+    private static final int    ANNOTATION_ON_OFF = 9;
     
     /** Action command ID for the checkBox. */
-    private static final int    CHANNEL = 10;
+    private static final int    COLOR = 10;
     
-    private static final int    UNDO_ERASE = 11;
+    /** Action command ID for the checkBox. */
+    private static final int    CHANNEL = 11;
+    
+    private static final int    UNDO_ERASE = 12;
     
     private ROIAgtCtrl          control;
     
@@ -139,11 +142,14 @@ class ControlsManager
         channelsBox.setActionCommand(""+CHANNEL);
         //Box
         JCheckBox drawOnOff = view.getDrawOnOff(), 
-                    textOnOff = view.getTextOnOff();
+                    textOnOff = view.getTextOnOff(), 
+                    annotationOnOff = view.getAnnotationOnOff();
         drawOnOff.addActionListener(this);
         drawOnOff.setActionCommand(""+DRAW_ON_OFF);
         textOnOff.addActionListener(this);
         textOnOff.setActionCommand(""+TEXT_ON_OFF);
+        annotationOnOff.addActionListener(this);
+        annotationOnOff.setActionCommand(""+ANNOTATION_ON_OFF);
     }
 
     /** Handle events fired by buttons. */
@@ -168,6 +174,8 @@ class ControlsManager
                     handleOnOffDrawing(e); break;
                 case TEXT_ON_OFF:
                     handleOnOffText(e); break;
+                case ANNOTATION_ON_OFF:
+                    handleOnOffAnnotation(e); break;    
                 case COLOR:
                     handleColor(e); break;
                 case CHANNEL:
@@ -210,6 +218,12 @@ class ControlsManager
     {
         JCheckBox box = (JCheckBox) e.getSource();
         control.onOffText(box.isSelected());
+    }
+    
+    private void handleOnOffAnnotation(ActionEvent e)
+    {
+        JCheckBox box = (JCheckBox) e.getSource();
+        control.onOffAnnotation(box.isSelected());
     }
     
     private void setType(int type, boolean b)
