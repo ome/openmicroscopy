@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.init.AgentsInit
  *
  *------------------------------------------------------------------------------
  *
@@ -27,17 +27,19 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data;
+package org.openmicroscopy.shoola.env.init;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.shoola.env.Container;
 
 /** 
+ * For all Agents
  *
+ * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,10 +49,50 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+final class AgentsInit
+	extends InitializationTask
+{
 
+	/**
+	 * Constructor required by superclass.
+	 * 
+	 * @param c	Reference to the singleton {@link Container}.
+	 */
+	AgentsInit(Container c)
+	{
+		super(c);
+	}
 
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
+	/**
+	 * Returns the name of this task.
+	 * @see InitializationTask#getName()
+	 */
+	String getName()
+	{
+		return "Loading Agents configuration";
+	}
+
+	/** 
+	 * Does nothing, as this task requires no set up.
+	 * @see InitializationTask#configure()
+	 */
+	void configure() {}
+
+	/** 
+	 * Carries out this task.
+	 * @see InitializationTask#execute()
+	 */
+	void execute() 
+		throws StartupException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/** 
+	 * Does nothing.
+	 * @see InitializationTask#rollback()
+	 */
+	void rollback() {}
+
 }

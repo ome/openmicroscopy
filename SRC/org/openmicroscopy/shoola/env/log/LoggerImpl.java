@@ -52,7 +52,6 @@ public class LoggerImpl
     implements Logger
 {
     
-    // TODO: configure log4j
     public LoggerImpl() {}
     
 	/** Implemented as specified by {@link Logger}. */     

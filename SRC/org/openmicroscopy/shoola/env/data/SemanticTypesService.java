@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.data.SemanticTypeService
  *
  *------------------------------------------------------------------------------
  *
@@ -34,9 +34,9 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
 
 /** 
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,10 +47,6 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+public interface SemanticTypesService {
 
-
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.log.LoggerFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -27,16 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data;
+package org.openmicroscopy.shoola.env.log;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
 
 /** 
+ * A factory for the {@link Logger}. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,10 +47,16 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+public class LoggerFactory {
 
+	/**
+	 * Creates a new empty {@link Logger}.
+	 * 
+	 * @return	See above.
+	 */
+	public static Logger makeNew()
+	{
+		return new LoggerImpl();
+	}
 
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
 }

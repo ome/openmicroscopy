@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -34,9 +34,11 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
+ * A factory for the {@link DataManagementService} and the
+ * {@link SemanticTypeService}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,10 +49,31 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+public class DataServicesFactory
+{
 
-
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
+	/**
+	 * Creates a new empty {@link DataManagementService}.
+	 * 
+	 * @param reg	Reference to the {@link Registry}.
+	 * @return	See above.
+	 */
+	public static DataManagementService createDMS(Registry reg)
+	{		
+			return (DataManagementService) null;
+			//return new DataManagerServiceImpl();
+	}
+	/**
+	 * Creates a new empty {@link SemanticTypeService}.
+	 *
+	 * @param reg	Reference to the {@link Registry}.
+	 * @return	See above.
+	 */
+	public static SemanticTypesService createSTS(Registry reg)
+	{		
+			return (SemanticTypesService) null;
+			//return new SemanticTypeServiceImpl();
+	}
+	
+	
 }

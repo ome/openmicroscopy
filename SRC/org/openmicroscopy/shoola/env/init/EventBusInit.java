@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.init.EventBusInit
  *
  *------------------------------------------------------------------------------
  *
@@ -27,17 +27,24 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data;
+package org.openmicroscopy.shoola.env.init;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.ConfigException;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.EventBusFactory;
 
 /** 
- *
+ * Register the {@link EventBus} in the Registry
+ * 
+ * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,10 +54,56 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+final class EventBusInit 
+	extends InitializationTask
+{
 
+	/**
+	 * Constructor required by superclass.
+	 * 
+	 * @param c	Reference to the singleton {@link Container}.
+	 */
+	EventBusInit(Container c)
+	{
+		super(c);
+	}
 
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
+	/**
+	 * Returns the name of this task.
+	 * @see InitializationTask#getName()
+	 */
+	String getName() 
+	{
+		return "Loading EventBus configuration";
+	}
+
+	/** 
+	 * Does nothing, as this task requires no set up.
+	 * @see InitializationTask#configure()
+	 */
+	void configure() {}
+
+	/** 
+	 * Carries out this task.
+	 * @see InitializationTask#execute()
+	 */
+	void execute() 
+		throws StartupException
+	{
+		EventBus eb = EventBusFactory.makeNew();
+		Registry reg = container.getRegistry();
+		try {
+			RegistryFactory.linkEventBus(eb, reg);
+		} catch (ConfigException ce) {
+			throw new StartupException("Unable to load EventBus configuration",
+										ce);
+		}
+
+	}
+	/** 
+	 * Does nothing.
+	 * @see InitializationTask#rollback()
+	 */
+	void rollback() {}
+
 }

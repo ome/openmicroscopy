@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DataManagementService
+ * org.openmicroscopy.shoola.env.init.LoggerInit
  *
  *------------------------------------------------------------------------------
  *
@@ -27,17 +27,27 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data;
+package org.openmicroscopy.shoola.env.init;
+
+
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.dto.Project;
+
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.ConfigException;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.log.LoggerFactory;
 
 /** 
- *
+ * Register the {@link Logger} in the Registry.
+ * 
+ * @see	InitializationTask
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,10 +57,53 @@ import org.openmicroscopy.ds.dto.Project;
  * @version 2.2
  * @since OME2.2
  */
+final class LoggerInit extends InitializationTask {
 
+	/**
+	 * Constructor required by superclass.
+	 * 
+	 * @param c	Reference to the singleton {@link Container}.
+	 */
+	LoggerInit(Container c)
+	{
+		super(c);
+	}
 
-public interface DataManagementService {
-    
-    public Project retrieveProject(int id);
-    
+	/**
+	 * Returns the name of this task.
+	 * @see InitializationTask#getName()
+	 */
+	String getName()
+	{
+		return "Loading Logger configuration";
+	}
+	/** 
+	 * Configure <code>log4j</code>.
+	 */
+	void configure() {
+		// TODO: configure log4j
+	}
+
+	/** 
+	 * Carries out this task.
+	 * @see InitializationTask#execute()
+	 */
+	void execute() 
+		throws StartupException
+	{		
+		Registry reg = container.getRegistry();
+		Logger	logger = LoggerFactory.makeNew();
+		try {
+			RegistryFactory.linkLogger(logger, reg);
+		} catch (ConfigException ce) {
+			throw new StartupException("Unable to load Logger configuration",
+										ce);
+		}
+	}
+	/** 
+	 * Does nothing.
+	 * @see InitializationTask#rollback()
+	 */
+	void rollback() {}
+
 }
