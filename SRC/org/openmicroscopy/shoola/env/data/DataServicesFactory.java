@@ -92,7 +92,7 @@ public class DataServicesFactory
 		
 		//Create the DMS adapter.
 		DataFactory omeds = new DataFactory(proxy);
-		dms = new DMSAdapter(omeds); 
+		dms = new DMSAdapter(omeds, registry); 
 		
 		//Create the STS adapter.
 		//TODO: implement when SemanticTypeManager is ready.
@@ -115,6 +115,8 @@ public class DataServicesFactory
 		//uc can't be null b/c there's no way to call this method b/f init.
 		try {
 			proxy.login(uc.getUserName(), uc.getPassword());
+			//retrieve the user's ID and store it in the UserCredentials.
+			uc.setUserID(dms.getUserID());
 		} catch (Exception e) {
 			//TODO: handle exception by throwing upper-level exception.
 		}

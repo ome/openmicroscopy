@@ -36,7 +36,13 @@ package org.openmicroscopy.shoola.env.data;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
+import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  *
@@ -56,15 +62,37 @@ class DMSAdapter
 {
 	
 	private DataFactory		proxy;
-	
+	private Registry		registry;
 	/**
 	 * 
 	 */
-	DMSAdapter(DataFactory proxy)
+	DMSAdapter(DataFactory proxy, Registry registry)
 	{
 		this.proxy = proxy;
+		this.registry = registry;
 	}
 
+	public int getUserID()
+	{
+		int userID = 0;
+		Experimenter experimenter = null;
+		Criteria crit = new Criteria();
+		crit.addWantedField("id");
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+		crit.addFilter("ome_name", uc.getUserName());
+		try {
+			experimenter = (Experimenter) 
+								proxy.retrieve(Experimenter.class, crit);
+			userID = experimenter.getID();	
+	 	} catch (Exception e) {
+		 // TODO: handle exception by throwing either NotLoggedInException
+		 //(broken connection, expired session) or ServiceUnavailableExc
+		 //(temp server failure, temp middleware failure).
+	 	}
+
+		return userID;
+	}
 	/* (non-Javadoc)
 	 * @see DataManagementService#retrieveProject(int)
 	 */
@@ -106,6 +134,91 @@ class DMSAdapter
 		}
 		
 		return project;
+	}
+
+	/* (non-Javadoc)
+	 * @see DataManagementService#retrieveDataset(int)
+	 */
+	public Dataset retrieveDataset(int id)
+	{
+		Dataset dataset = null;
+		Criteria crit = new Criteria();
+
+		//Specify which fields we want for the project.
+		crit.addWantedField("id");
+		crit.addWantedField("name");
+		crit.addWantedField("description");
+		crit.addWantedField("owner");
+		crit.addWantedField("images"); 
+
+		//Specify which fields we want for the owner.
+		crit.addWantedField("owner", "id");
+		crit.addWantedField("owner", "FirstName");
+		crit.addWantedField("owner", "LastName");
+		crit.addWantedField("owner", "Email");
+		crit.addWantedField("owner", "Institution");
+		crit.addWantedField("owner", "Group");
+
+		//Specify which fields we want for the owner's group.
+		crit.addWantedField("owner.Group", "id");
+		crit.addWantedField("owner.Group", "Name");
+
+		//Specify which fields we want for the images.
+		crit.addWantedField("images", "id");
+		crit.addWantedField("images", "name");
+	
+		//Load the graph defined by crit.
+		try {
+			dataset = (Dataset) proxy.load(Dataset.class, id, crit);
+		} catch (Exception e) {
+			// TODO: handle exception by throwing either NotLoggedInException
+			//(broken connection, expired session) or ServiceUnavailableExc
+			//(temp server failure, temp middleware failure).
+		}
+	
+		return dataset;
+	}
+	
+	/* (non-Javadoc)
+	 * @see DataManagementService#retrieveDataset(int)
+	 */
+	public Image retrieveImage(int id)
+	{
+		Image image = null;
+		Criteria crit = new Criteria();
+
+		//Specify which fields we want for the project.
+		crit.addWantedField("id");
+		crit.addWantedField("name");
+		crit.addWantedField("description");
+		crit.addWantedField("owner");
+		// not sure we need it
+		crit.addWantedField("created"); 
+		crit.addWantedField("inserted");
+		 
+		//Specify which fields we want for the owner.
+		crit.addWantedField("owner", "id");
+		crit.addWantedField("owner", "FirstName");
+		crit.addWantedField("owner", "LastName");
+		crit.addWantedField("owner", "Email");
+		crit.addWantedField("owner", "Institution");
+		crit.addWantedField("owner", "Group");
+
+		//Specify which fields we want for the owner's group.
+		crit.addWantedField("owner.Group", "id");
+		crit.addWantedField("owner.Group", "Name");
+
+		// grad info on the image.
+		//Load the graph defined by crit.
+		try {
+			image = (Image) proxy.load(Image.class, id, crit);
+		} catch (Exception e) {
+			// TODO: handle exception by throwing either NotLoggedInException
+			//(broken connection, expired session) or ServiceUnavailableExc
+			//(temp server failure, temp middleware failure).
+		}
+
+		return image;
 	}
 
 }
