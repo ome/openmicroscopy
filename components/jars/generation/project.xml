@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
   <extend>../../../project.xml</extend>
   <pomVersion>3</pomVersion>
+  <artifactId>gen</artifactId>
+  <groupId>gen</groupId>
+  <repository />
   <id>gen</id>
-  <name>OME OWL-->Code Generation Library</name>
+  <name>OME OWL--&gt;Code Generation Library</name>
   <currentVersion>1.0</currentVersion>
   <package>org.ome.generation</package>
   <description>Code to generate source code from OWL</description>
   <dependencies>
-    
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.2</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.3</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <!-- JENA REQUIREMENTS -->
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>commons-logging</artifactId>
       <version>ome</version>
@@ -20,8 +36,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>antlr</artifactId>
       <version>ome</version>
@@ -29,8 +44,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>concurrent</artifactId>
       <version>ome</version>
@@ -38,8 +52,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>icu4j</artifactId>
       <version>ome</version>
@@ -47,9 +60,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>jakarta-oro</artifactId>
       <version>2.0.5</version>
@@ -57,8 +68,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>jena</artifactId>
       <version>ome</version>
@@ -66,8 +76,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>junit</artifactId>
       <version>ome</version>
@@ -75,8 +84,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.7</version>
@@ -84,8 +92,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>xercesImpl</artifactId>
       <version>ome</version>
@@ -93,8 +100,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
-     <dependency>
+    <dependency>
       <groupId>ome-jena</groupId>
       <artifactId>xml-apis</artifactId>
       <version>ome</version>
@@ -102,9 +108,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-
   </dependencies>
-
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -122,7 +126,13 @@
         <includes>
           <include>*.properties</include>
         </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/templates</directory>
+        <filtering>false</filtering>
       </resource>
     </resources>
   </build>
 </project>
+

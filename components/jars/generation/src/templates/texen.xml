@@ -1,7 +1,7 @@
 <project name="OWL2JAVAGenerator" default="generate">
 
-  	<taskdef name="texen" classname="org.ome.gen.TexenTask"/>
-	<property name="outputDir" location="${basedir}/../model/src/generated/org/ome/texen"/>
+  <taskdef name="texen" classname="org.ome.gen.TexenTask"/>
+  <property name="outputDir" location="${basedir}/../model/src/generated/org/ome/texen"/>
 
   <!-- ================================================================ -->
   <!-- G E N E R A T E  O W L  B I N D I N G S                          -->
