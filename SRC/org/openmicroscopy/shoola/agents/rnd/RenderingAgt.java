@@ -34,7 +34,8 @@ package org.openmicroscopy.shoola.agents.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
+import org.openmicroscopy.shoola.agents.annotator.IconManager;
+import org.openmicroscopy.shoola.agents.viewer.events.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -73,6 +75,10 @@ public class RenderingAgt
     implements Agent, AgentEventListener
 {
 
+    private static final String     TITLE = "Save rendering settings.",
+                                    MSG = "The rendering settings have " +
+                                          "been saved.";
+    
     private PixelsStats             pxsStats;
     
     private PixelsDimensions        pxsDims;
@@ -112,7 +118,7 @@ public class RenderingAgt
         canUpdate = true;
         EventBus bus = registry.getEventBus();
         bus.register(this, ImageLoaded.class);
-        bus.register(this, DisplayRendering.class);
+        bus.register(this, DisplayViewerRelatedAgent.class);
     }
     
     /** Implemented as specified by {@link Agent}. */
@@ -121,8 +127,10 @@ public class RenderingAgt
     /** Implement as specified by {@link AgentEventListener}. */
     public void eventFired(AgentEvent e) 
     {
-        if (e instanceof ImageLoaded) handleImageLoaded((ImageLoaded) e);   
-        else if (e instanceof DisplayRendering) presentation.deIconify();
+        if (e instanceof ImageLoaded) 
+            handleImageLoaded((ImageLoaded) e);   
+        else if (e instanceof DisplayViewerRelatedAgent)
+            handleDisplayViewerRelatedAgents((DisplayViewerRelatedAgent) e);  
     }
     
     /** Render a new image when a control has been activated. */
@@ -130,6 +138,16 @@ public class RenderingAgt
     {
         RenderImage event = new RenderImage(curPixelsID);
         registry.getEventBus().post(event); 
+    }
+    
+    /** Handle the event @see DisplayViewerRelatedAgents . */
+    private void handleDisplayViewerRelatedAgents(DisplayViewerRelatedAgent 
+                                                response)
+    {
+        if (response.isOnOff()) presentation.deIconify();
+        else {
+            if (presentation != null) removePresentation(); 
+        }
     }
     
     /** Handle the event @see ImageLoaded. */
@@ -493,6 +511,9 @@ public class RenderingAgt
     void saveDisplayOptions()
     {
         renderingControl.saveCurrentSettings();
+        UserNotifier un = registry.getUserNotifier();
+        IconManager im = IconManager.getInstance(registry);
+        un.notifyInfo(TITLE, MSG, im.getIcon(IconManager.SEND_TO_DB));
     }
 
 }

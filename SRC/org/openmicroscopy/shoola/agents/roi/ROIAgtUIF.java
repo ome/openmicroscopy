@@ -61,6 +61,10 @@ public class ROIAgtUIF
     extends TopWindow
 {
 
+    public static final int             MAX_SCROLLPANE_HEIGHT = 400;
+    
+    public static final int             SCROLLPANE_HEADER = 30;
+    
     /** Drawing command ID. */
     public static final int             NOT_ACTIVE_STATE = 0, MOVING = 1,
                                         CONSTRUCTING = 2, RESIZING = 3;

@@ -180,34 +180,37 @@ public class ViewerCtrl
         item.addActionListener(this);
     }
 
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public ViewerUIF getReferenceFrame()
     {
         return presentation;
     }
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public Registry getRegistry()
     {
         return abstraction.getRegistry();
     }
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
+    public void annotateImage() { abstraction.annotateImage(); }
+    
+    /** Forward event to the {@link Viewer abstraction}. */
     public int getModel() { return abstraction.getModel(); } 
 
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public void setModel(int model) { abstraction.setModel(model); } 
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public int getCurPixelsID() { return abstraction.getCurPixelsID(); } 
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public int getDefaultT() {return abstraction.getDefaultT(); }
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public int getDefaultZ() {return abstraction.getDefaultZ(); }
     
-    /** Forward event to {@link Viewer abstraction}. */
+    /** Forward event to the {@link Viewer abstraction}. */
     public BufferedImage getBufferedImage()
     {
         return abstraction.getCurImage();
@@ -591,11 +594,13 @@ public class ViewerCtrl
         
     }
 
-    /** Close the window. */
+    /** Close the window and all related agents. */
     private void onWindowClose()
     {
         //Post an event to close roi.
-        if (roiOnOff) abstraction.addRoiCanvas(false);
+        //if (roiOnOff) abstraction.addRoiCanvas(false);
+        setRoiOnOff(false);
+        abstraction.removeViewerRelatedAgents();
     }
     
 }

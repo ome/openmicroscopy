@@ -93,6 +93,8 @@ public class ROIAgtCtrl
      */
     private Color                   newColor;
     
+    private ROIResults                      resultsDialog;
+    
     ROIAgtCtrl(ROIAgt abstraction)
     {
         this.abstraction = abstraction;  
@@ -106,9 +108,6 @@ public class ROIAgtCtrl
     public String[] getChannels() { return abstraction.getChannels(); }
 
     public void setType(int type) { drawingCanvas.getManager().setType(type); }
-    
-    /** Draw or not the ROI selections. */
-    public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
 
     public double getPixelsSizeX() { return abstraction.getPixelSizeX(); }
     
@@ -480,14 +479,13 @@ public class ROIAgtCtrl
     /** Forward to {@link ROIAgt abstraction}. */
     public void computeROIStatistics(List selectedChannels, List rois)
     {
-        
+        disposeDialogs();
         if (selectedChannels.size() == 0 || rois.size() == 0) {
             UserNotifier un = getRegistry().getUserNotifier();
             un.notifyInfo("Invalid selection", 
                     "No channel selected and/or ROI.");
         } else
             abstraction.computeROIStatistics(selectedChannels, rois);
-       
     }
 
     /** 
@@ -532,9 +530,19 @@ public class ROIAgtCtrl
     void displayROIAnalysisResults(int sizeT, int sizeZ)
     {
         abstraction.getListScreenROI();
-        ROIResults roiResults = new ROIResults(this, sizeT, sizeZ);
-        UIUtilities.centerAndShow(roiResults);
+        resultsDialog = new ROIResults(this, sizeT, sizeZ);
+        UIUtilities.centerAndShow(resultsDialog);
     }    
+    
+    /** Close the {@link ROIResults Results} dialog. */ 
+    private void disposeDialogs()
+    {
+        if (resultsDialog != null) {
+            resultsDialog.dispose();
+            resultsDialog.setVisible(false);
+        }
+        resultsDialog = null;
+    }
     
     private void setROIThumbnail()
     {
@@ -545,7 +553,8 @@ public class ROIAgtCtrl
     /** Handle window closing event. */
     private void onClosing()
     {
-        abstraction.onOffDrawing(false);
+        abstraction.removeDrawingCanvas();
+        disposeDialogs();
         presentation.dispose();
     }
     
@@ -564,5 +573,6 @@ public class ROIAgtCtrl
             public void windowClosing(WindowEvent we) { onClosing(); }
         });
     }
+    
 }
 

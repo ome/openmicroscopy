@@ -173,7 +173,8 @@ public class DataManagerCtrl
 	/** Forward event to the {@link DataManager abstraction}. */
 	void annotateImage(ImageSummary is)
 	{
-		abstraction.annotateImage(is.getID(), is.getName());
+        int[] pixelsID = is.getPixelsIDs();
+		abstraction.annotateImage(is.getID(), is.getName(), pixelsID[0]);
 	}
 	
 	/**Handles event fired by menu. */

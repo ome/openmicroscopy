@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
 import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
 import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
+import org.openmicroscopy.shoola.agents.viewer.events.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.agents.viewer.events.IATChanged;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -156,6 +157,7 @@ public class ROIAgt
         bus.register(this, IATChanged.class);
         bus.register(this, ImageRendered.class);
         bus.register(this, ROIAnalysisResults.class);
+        bus.register(this, DisplayViewerRelatedAgent.class);
     }
 
     /** Implemented as specified by {@link Agent}. */
@@ -176,6 +178,8 @@ public class ROIAgt
             handleImageRendered();
         else if (e instanceof ROIAnalysisResults)
             handleROIAnalysisResults((ROIAnalysisResults) e);
+        else if (e instanceof DisplayViewerRelatedAgent)
+            handleDisplayViewerRelatedAgents((DisplayViewerRelatedAgent) e);
     }
 
     Registry getRegistry() { return registry; }
@@ -208,9 +212,9 @@ public class ROIAgt
     BufferedImage getImageOnScreen() { return imageOnScreen; }
     
     /** Post an event to close the ROI widget. */
-    void onOffDrawing(boolean b)
+    void removeDrawingCanvas()
     {
-        registry.getEventBus().post(new AddROICanvas(b));
+        registry.getEventBus().post(new AddROICanvas(false));
     }
     
     /** Prepare the roi5D object and post an event to compute the statistics. */
@@ -470,6 +474,14 @@ public class ROIAgt
     {
         ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyStack(from, to, pxsDims.sizeZ);
+    }
+    
+    /** Handle the event @see DisplayViewerRelatedAgents. */
+    private void handleDisplayViewerRelatedAgents(DisplayViewerRelatedAgent 
+                                                    response)
+    {
+        if (!response.isOnOff() && presentation != null) 
+            removePresentation();
     }
     
     /** Handle the event @see ImageRendered. */

@@ -36,12 +36,13 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
 import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
 import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+import org.openmicroscopy.shoola.agents.viewer.events.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.agents.viewer.events.IATChanged;
 //import org.openmicroscopy.shoola.agents.viewer3D.events.DisplayViewer3D;
 import org.openmicroscopy.shoola.env.Agent;
@@ -133,7 +134,7 @@ implements Agent, AgentEventListener
     ViewerUIF getPresentation() { return presentation; }
     
     Registry getRegistry() { return registry; }
-    
+   
     int getModel() { return renderingControl.getModel(); }
     
     void setModel(int model) { renderingControl.setModel(model); }
@@ -191,6 +192,16 @@ implements Agent, AgentEventListener
     
     /** 
      * Post an event to bring up the 
+     * {@link org.openmicroscopy.shoola.agents.annotator.Annotator Annotator}. 
+     */
+    void annotateImage()
+    {
+        registry.getEventBus().post(
+                new AnnotateImage(curImageID, curImageName, curPixelsID));
+    }
+
+    /** 
+     * Post an event to bring up the 
      * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}. 
      */
     void showROI(DrawingCanvas drawingCanvas, ImageAffineTransform iat)
@@ -204,7 +215,7 @@ implements Agent, AgentEventListener
      */
     void showRendering()
     {
-        registry.getEventBus().post(new DisplayRendering());
+        registry.getEventBus().post(new DisplayViewerRelatedAgent(true));
     }
     
     void imageDisplayedUpdated(ImageAffineTransform iat, BufferedImage img)
@@ -212,10 +223,15 @@ implements Agent, AgentEventListener
         registry.getEventBus().post(new IATChanged(iat, img));
     }
     
-    /** Close ROIAgt when the viewer is closed. */
-    void addRoiCanvas(boolean b)
+    /** 
+     * Post an event to close Agents related to this agent. 
+     * e.g. 
+     * {@link org.openmicroscopy.shoola.agents.rnd.RenderingAgt RenderingAgt} 
+     * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}  
+     */
+    void removeViewerRelatedAgents()
     {
-        registry.getEventBus().post(new AddROICanvas(b));
+        registry.getEventBus().post(new DisplayViewerRelatedAgent(false));
     }
     
     /** Handle event @see DisplayViewer3D. */

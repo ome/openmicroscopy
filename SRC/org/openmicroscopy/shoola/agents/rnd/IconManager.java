@@ -64,63 +64,65 @@ public class IconManager
 {
 	
 	/** ID of the information icon. */
-	public static final int     INFO = 0;   
+	public static final int    INFO = 0;   
   
 	/** ID of the histogram icon. */
-	public static final int     HISTOGRAM = 1;
+	public static final int    HISTOGRAM = 1;
 	
 	/** ID of the contrast stretching icon. */
-	public static final int     STRETCHING = 2;
+	public static final int    STRETCHING = 2;
 	
 	/** ID of the plane slicing icon. */
-	public static final int     SLICING = 3;
+	public static final int    SLICING = 3;
 	
 	/** ID of the greyscale icon. */
-	public static final int		GREYSCALE = 4;
+	public static final int    GREYSCALE = 4;
 	
 	/** ID of the greyscale icon. */
-	public static final int		RGB = 5;
+	public static final int    RGB = 5;
 		
 	/** ID of the greyscale icon. */
-	public static final int		HSB = 6;
+	public static final int    HSB = 6;
 	
 	/** ID of the codomain icon. */
-	public static final int		CODOMAIN = 7;
+	public static final int    CODOMAIN = 7;
 	
 	/** ID of the save icon. */
-	public static final int		SAVE_SETTINGS = 8;
+	public static final int    SAVE_SETTINGS = 8;
 	
 	/** ID of the save icon. */
-	public static final int		RENDER = 9;
+	public static final int    RENDER = 9;
 	
 	/** ID of the mapping icon. */
-	public static final int		MAPPING = 10;
+	public static final int    MAPPING = 10;
 	
 	/** ID of the channel big icon. */
-	public static final int		CHANNEL_BIG = 11;	
+	public static final int    CHANNEL_BIG = 11;	
 	
 	/** ID of the channel big icon. */
-	public static final int		CHANNEL = 12;
+	public static final int    CHANNEL = 12;
 	
 	/** ID of the channel big icon. */
-	public static final int		HISTOGRAM_BIG = 13;		
+	public static final int    HISTOGRAM_BIG = 13;		
 	
 	/** ID of the contrast stretching icon. */
-	public static final int     STRETCHING_BIG = 14;
+	public static final int    STRETCHING_BIG = 14;
 	
 	/** ID of the plane slicing icon. */
-	public static final int     SLICING_BIG = 15;
+	public static final int    SLICING_BIG = 15;
 	
-	public static final int		RESET_DEFAULTS = 16;
-	
+	public static final int    RESET_DEFAULTS = 16;
+    
+	public static final int    SEND_TO_DB = 17;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 16;
+	private static int         MAX_ID = 17;
 	
 	/** Paths of the icon files. */
-	private static String[]     relPaths = new String[MAX_ID+1];
+	private static String[]    relPaths = new String[MAX_ID+1];
 		
 	static {
 		relPaths[INFO] = "nuvola_info16.png";
@@ -141,6 +143,7 @@ public class IconManager
 		relPaths[STRETCHING_BIG] = "openOffice_stock_new-drawing-48.png";
 		relPaths[SLICING_BIG] = "openOffice_stock_new-labels-48.png";
 		relPaths[RESET_DEFAULTS] = "nuvola_undo16.png";
+        relPaths[SEND_TO_DB] = "nuvola_package_games_board32.png";
 	}
 	
 	/** The sole instance that provides. */

@@ -154,11 +154,13 @@ public class IconManager
 	/** ID of the filter icon. */
 	public static final int		FILTER = 30;
 	
+    public static final int     SEND_TO_DB = 31;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 30;
+	private static int          MAX_ID = 31;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -169,7 +171,7 @@ public class IconManager
 		relPaths[SAVE_DB] = "nuvola_save_all16.png";
 		relPaths[RELOAD_DB] = "reload_DB30.png";
 		relPaths[INFO] = "nuvola_info16.png";
-		relPaths[PROPERTIES] = "properties16.png";
+		relPaths[PROPERTIES] = "nuvola_kate16.png";
 		relPaths[VIEWER] = "viewer16.png";
 		relPaths[BROWSER] = "browser-small.png";
 		relPaths[REFRESH] = "nuvola_reload16.png";
@@ -194,6 +196,7 @@ public class IconManager
 		relPaths[ORDER_BY_SELECTED_UP] = "endturn_with_arrow_up.png";
 		relPaths[ORDER_BY_SELECTED_DOWN] = "endturn_with_arrow_down.png";
 		relPaths[FILTER] = "eclipse_filter_ps16.png";		
+        relPaths[SEND_TO_DB] = "nuvola_package_games_board32.png";
 	}
 	
 	/** The sole instance. */

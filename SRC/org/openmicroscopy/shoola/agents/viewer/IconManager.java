@@ -128,11 +128,14 @@ public class IconManager
     /** ID of the minus icon. */
     public static final int     MINUS = 21;
     
+    /** ID of the annotate icon. */
+    public static final int     ANNOTATE = 22;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 21;
+    private static int          MAX_ID = 22;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -160,6 +163,7 @@ public class IconManager
         relPaths[ROI] = "nuvola_kig16.png";
         relPaths[PLUS] = "gtk_stock_add_16.png";
         relPaths[MINUS] = "gtk_stock_remove_16.png";
+        relPaths[ANNOTATE] = "nuvola_kwrite16.png";
 	}
 	
 	/** The sole instance. */

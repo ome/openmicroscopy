@@ -38,6 +38,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
@@ -59,6 +60,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * The data manager agent.
@@ -463,8 +465,6 @@ public class DataManager
 				if (projects != null ) 
 					presentation.addNewDatasetToTree(projects);	
 			} else  presentation.rebuildTree();
-				
-				
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the dataset: "+dd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -494,6 +494,10 @@ public class DataManager
 			//projectSummaries list accordingly
 			updatePSList(pd);
 			if (nameChange) presentation.updateProjectInTree();
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Update project", "The project has been updated.", 
+                    im.getIcon(IconManager.SEND_TO_DB));
 		} catch(DSAccessException dsae) {
 			String s = "Can't update the project: "+pd.getID()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -546,6 +550,10 @@ public class DataManager
 			if (datasetSummaries.size() != 0) updateDSList(dd);
 			updateDatasetInPS(dd);
 			if (nameChange) presentation.updateDatasetInTree();
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Update dataset", "The dataset has been updated.", 
+                    im.getIcon(IconManager.SEND_TO_DB));
 		} catch(DSAccessException dsae) {
 			String s = "Can't update the dataset: "+dd.getID()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -619,6 +627,10 @@ public class DataManager
 				is.setID(id.getID());
 				synchImagesView(is);
 			} 
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Update image", "The image has been updated.", 
+                    im.getIcon(IconManager.SEND_TO_DB));
 		} catch(DSAccessException dsae) {
 			String s = "Can't update the image: "+id.getID()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -719,9 +731,9 @@ public class DataManager
 	}
 	
 	/** Post an {@link AnnotateImage} event. */
-	void annotateImage(int id, String name) 
+	void annotateImage(int id, String name, int pixelsID) 
 	{
-		registry.getEventBus().post(new AnnotateImage(id, name));
+		registry.getEventBus().post(new AnnotateImage(id, name, pixelsID));
 	}
 	
 }
