@@ -73,6 +73,11 @@ public class ChainExecutions {
 		Iterator iter = executions.iterator();
 		ChainExecutionData exec;
 		
+		if (executions.size() == 0) {
+			firstExecTime = lastExecTime;
+			return;
+		}
+		
 		while (iter.hasNext()) {
 			exec = (ChainExecutionData) iter.next();
 			addChainExecution(exec);
