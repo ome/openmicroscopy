@@ -45,6 +45,7 @@
    *   + dist.app.config.dir.name: The name of the ${app.config.dir}.
    *   + dist.osx.icon: The icon to use for the Mac OS X client.
    *   + dist.osx.stub: The stub file for the Mac OS X client.
+   *   + dist.osx.stub.name: The name of the above file.
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
@@ -64,6 +65,7 @@
             location="${base.launch.dir}/osx/shoola.icns"/>
   <property name="dist.osx.stub" 
             location="${base.launch.dir}/osx/JavaApplicationStub"/> 
+  <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
 
@@ -162,11 +164,16 @@
                 vmoptions="-Xms256M -Xmx512M">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-    </jarbundler> 
+    </jarbundler>  
     <zip destfile=
            "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-      <fileset dir="${dist.dir}" includes="Shoola.app/**"/>
+      <fileset dir="${dist.dir}" 
+               includes="Shoola.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
+      <zipfileset file="${dist.osx.stub}" 
+                  fullpath="Shoola.app/Contents/MacOS/${dist.osx.stub.name}"
+                  filemode="777"/> 
       <fileset file="${dist.osx.installfile}"/>
       <fileset file="${base.licensefile}"/> 
     </zip> 
