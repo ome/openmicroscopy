@@ -270,6 +270,7 @@ public class GraphicCanvas
                 point = (PlanePoint) k.next();
                 x1 = leftBorder+(int) Math.abs(hBin*(point.x1-minX));
                 y1 = TOP+height-(int) Math.abs(vBin*(point.x2-minY));
+                if (y1 < TOP) y1 = TOP;
                 if (x0 != -1 && y0 != -1)
                     g2D.drawLine(x0, y0, x1, y1);
                 x0 = x1;

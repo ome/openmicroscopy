@@ -91,8 +91,8 @@ class SelectionPane
     
     private static final    Color[]     defaultColors;
     
-    private static final int            RED = 0, GREEN = 1, BLUE = 3, 
-                                        YELLOW = 4;
+    private static final int            RED = 0, GREEN = 1, BLUE = 2, 
+                                        PINK = 3;
     private static final int            MODULO = 4;
     
     TableComponent                      table;
@@ -104,11 +104,11 @@ class SelectionPane
     private SelectionPaneMng            manager;
 
     static {
-        defaultColors = new Color[MODULO+1];
+        defaultColors = new Color[MODULO];
         defaultColors[RED] = Color.RED;
         defaultColors[GREEN] = Color.GREEN;
         defaultColors[BLUE] = Color.BLUE;
-        defaultColors[YELLOW] = Color.YELLOW;
+        defaultColors[PINK] = Color.PINK;
     }
     
     SelectionPane(List toSelect, String name, StatsResultsPaneMng mng)
