@@ -6,8 +6,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-/**
- * Sits at the base of a hierarchy of classes that represent entries in configuration file
+/** Sits at the base of a hierarchy of classes that represent entries in configuration file
  * It represents a name-value pair, where the name is the content of the <code>name</code>
  * attribute.
  * Subclasses of <code>Entry</code> implement the <code>setContent()</code> method to grab the tag's
@@ -24,9 +23,12 @@ import org.w3c.dom.Node;
 abstract class Entry {
     
     static  HashMap     contentHandlers;
-    static  String      NAME = "name", TYPE = "type", DEFAULT = "string";
+    static  String      NAME = "name", TYPE = "type";
+    static  String      ENTRY = "entry", STRUCT_ENTRY = "structuredEntry";
+    static  String      DEFAULT_ENTRY = "string", DEFAULT_STRUCT_ENTRY ="map";
     static {
         contentHandlers = new HashMap();
+        contentHandlers.put("map", MapEntry.class);
         contentHandlers.put("string", StringEntry.class);
         contentHandlers.put("integer", IntegerEntry.class);
         contentHandlers.put("float", FloatEntry.class);
@@ -45,14 +47,18 @@ abstract class Entry {
 /* For a given entry or structuredEntry tag, creates a concrete <code>Entry</code> object to
  * handle the conversion of the tag's content into an object
  *
- *@param   n    DOM node representing the tag
+ * @param   n    DOM node representing the tag
  */  
     
     static Entry createEntryFor(Node node) {
         Entry entry = null;
         if (node.hasAttributes()) { // to be removed when we have xmlSchema (config)
             NameTypePair ntp = retrieveEntryAttributes(node);
-            String key = ntp.type==null? DEFAULT : ntp.type;
+            String key = null;
+            if (node.getNodeName() == ENTRY) // entry tag
+                key = ntp.type==null? DEFAULT_ENTRY : ntp.type;
+            else if (node.getNodeName() == STRUCT_ENTRY) // structuredEntry tag 
+                key = ntp.type==null? DEFAULT_STRUCT_ENTRY : ntp.type;
             Class handler = (Class)contentHandlers.get(key);
             try {
                 if (handler == null) handler = Class.forName(key); 
@@ -66,7 +72,7 @@ abstract class Entry {
     
 /* retrieves the value of the attributes name and type and initializes
  *
- *@param   n    DOM node
+ * @param   n    DOM node
  */    
     private static NameTypePair retrieveEntryAttributes(Node n) {
         NameTypePair    ntp = new NameTypePair();
