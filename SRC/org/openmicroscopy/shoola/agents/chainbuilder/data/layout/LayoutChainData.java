@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 
 //Java imports
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,8 +41,12 @@ import java.util.Vector;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureError;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureErrors;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.MultiplyBoundInputError;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 
 
 /** 
@@ -71,14 +76,19 @@ public class LayoutChainData  extends AnalysisChainData
 	
 	/** Information about the layering of nodes */
 	private Layering layering = new Layering();
-	
+
+	/** set of structure errors */
+	private ChainStructureErrors errors = null;
 	public LayoutChainData() {}
 	
 	
 	/** Required by the DataObject interface. */
 	public DataObject makeNew() { return new LayoutChainData(); }
+	
+
 
 	public void layout() {
+		//validateChainStructure();
 		initNodes();
 		layerNodes();
 		makeProper();
@@ -87,6 +97,72 @@ public class LayoutChainData  extends AnalysisChainData
 		//dumpChain();
 	}
 	
+	private void validateChainStructure() {
+		// validate links
+		validateLinks();
+		// validate cycles - TBD
+	}
+	
+	private void validateLinks() {
+		// first, get a hash that maps formal inputs to associate links.
+		HashMap inputLinkMap = getInputLinkMap();
+		if (inputLinkMap.size() == 0)
+			return;
+		
+		FormalInputData inp;
+		// then, iterate over keys,
+		// grabbing each key that has more than two links.
+		Iterator iter = inputLinkMap.keySet().iterator();
+		while (iter.hasNext()) {
+			Integer inpID = (Integer) iter.next();
+			Vector inLinks = (Vector) inputLinkMap.get(inpID);
+			int linkCount = inLinks.size();
+			if (inLinks != null && linkCount > 1) {
+				// get a link
+				LayoutLinkData link = (LayoutLinkData) inLinks.elementAt(0);
+				MultiplyBoundInputError error = 
+					new MultiplyBoundInputError(link.getToInput(),
+							link.getToNode(),linkCount);
+				addStructureError(error);
+			}
+		}
+	}
+	
+	private HashMap getInputLinkMap() {
+		List links = getLinks();
+		HashMap inputLinkMap = new HashMap();
+		//		 build map of links by endpoint
+		Iterator iter = links.iterator();
+		LayoutLinkData link;
+		FormalInputData inp;
+		Vector inLinks;
+		
+		while (iter.hasNext()) {
+			link = (LayoutLinkData) iter.next();
+			inp = link.getToInput();
+			Integer inpID = new Integer(inp.getID());
+			Object obj = inputLinkMap.get(inpID);
+			if (obj == null)
+				inLinks = new Vector();
+			else
+				inLinks = (Vector) obj;
+			inLinks.add(link);
+			inputLinkMap.put(inpID,inLinks);
+		}
+		return inputLinkMap;
+	}
+	
+	private void addStructureError(ChainStructureError error) {
+		if (errors == null) 
+			errors = new ChainStructureErrors();
+		errors.addError(error);
+	}
+	
+	public ChainStructureErrors getStructureErrors() {
+		if (errors == null)
+			validateChainStructure();
+		return errors;
+	}
 	
 	/**
 	 * Initalize each of the {@link LayoutNodeData}s in the chain. This is an ugly 
@@ -212,7 +288,7 @@ public class LayoutChainData  extends AnalysisChainData
 			}
 		}
 		catch (Exception e) { 
-			System.err.println("exception in makeProperLayer..");
+			//System.err.println("exception in makeProperLayer..");
 			e.printStackTrace();
 		}
 	}
@@ -258,7 +334,7 @@ public class LayoutChainData  extends AnalysisChainData
 		// we know node is at i.
 		
 		GraphLayoutNode to = (GraphLayoutNode) link.getToNode();
-		System.err.println("..link to "+to.getName());
+		//System.err.println("..link to "+to.getName());
 		int toLayer = to.getLayer();
 		if (toLayer == (i-1)) {
 			// layer is correct
@@ -268,7 +344,7 @@ public class LayoutChainData  extends AnalysisChainData
 			// create new dummy node
 			DummyNode dummy = new DummyNode();
 			LayoutLinkData semanticLayoutLinkData = link.getSemanticLink();
-			System.err.println("link is ..."+semanticLayoutLinkData.getID());
+			//System.err.println("link is ..."+semanticLayoutLinkData.getID());
 			// make this node point to "to"
 			LayoutLink dummyOutLink = new LayoutLink(semanticLayoutLinkData,dummy,to);
 			dummy.addSuccLink(dummyOutLink);
@@ -290,8 +366,8 @@ public class LayoutChainData  extends AnalysisChainData
 			to.addPredLink(dummyOutLink);
 			
 			// add dummy to next layer.
-			System.err.println("adding a dummy node at layer"+(i-1));
-			System.err.println("node is "+dummy);
+			//System.err.println("adding a dummy node at layer"+(i-1));
+			//System.err.println("node is "+dummy);
 			layering.addToLayer(i-1,dummy);
 			
 			// adjust the semantic link to put dummy in between "from" and "to".
@@ -371,7 +447,7 @@ public class LayoutChainData  extends AnalysisChainData
 			assignPosFromLayer(layerNumber);
 		}
 		catch(Exception e) {
-			System.err.println("exception caught!"); 
+			//System.err.println("exception caught!"); 
 		}
 	}
 	
