@@ -105,7 +105,7 @@ class ImageInfoPane
 	{
 		private final String[]    
 		fieldNames = {" Size X", " Size Y", " Sections", " Timepoints",
-					 " Channels", " Bits per pixels"};
+					 " Channels", " Pixel type"};
 						
 		PixelsDescription px = manager.getImageData().getDefaultPixels();
 						
@@ -119,7 +119,7 @@ class ImageInfoPane
 				data[2] = ""+px.getSizeZ();
 				data[3] = ""+px.getSizeT();
 				data[4] = ""+px.getSizeC();
-				data[5] = ""+px.getBitsPerPixel();
+				data[5] = ""+px.getPixelType();
 			}		
 		}
 

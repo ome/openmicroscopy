@@ -60,10 +60,10 @@ public class PixelsDimensions
 	/** Size of image stack i.e. number of XY-planes. */
 	public final int    sizeZ;
 	
-	/** Number of wavelengths in the image. */
+	/** Number of wavelengths in the OME image. */
 	public final int    sizeW;
 	
-	/** Number of timepoints in the image. */    
+	/** Number of timepoints in the OME image. */    
 	public final int    sizeT;
     
 	/** 

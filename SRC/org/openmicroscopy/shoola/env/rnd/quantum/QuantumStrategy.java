@@ -88,50 +88,44 @@ public abstract class QuantumStrategy
 	}
 	
 	/**
-	* globalMin and globalMax could be out of pixel type range 
+	* min and max could be out of pixel type range 
 	* b/c of an error occured in stats calculations.
 	* 
-	* @param globalMin	lower bound.
-	* @param globalMax	upper bound.
+	* @param min	lower bound.
+	* @param max	upper bound.
 	*/
-	private void verifyInterval(Comparable globalMin, Comparable globalMax)
+	private void verifyInterval(Comparable min, Comparable max)
 	{
-		boolean     b = false;
-		if (globalMin != null && globalMax != null && 
-			0 < globalMax.compareTo(globalMin)) {
-				
+		boolean b = false;
+		if (min != null && max != null && 0 < max.compareTo(min)) {
 			switch (qDef.pixelType) { 
 				case DataSink.INT8:
 				case DataSink.UINT8:
-					if (globalMin instanceof Integer && 
-						globalMax instanceof Integer) {
-						int m = ((Integer) globalMin).intValue(),
-							M = ((Integer) globalMax).intValue();
+					if (min instanceof Integer && max instanceof Integer) {
+						int m = ((Integer) min).intValue(),
+							M = ((Integer) max).intValue();
 						if (m < M && M-m < 0x100)  b = true; 
 					}
 					break;
 				case DataSink.INT16:
 				case DataSink.UINT16:
-					if (globalMin instanceof Integer && 
-						globalMax instanceof Integer) {
-						int m = ((Integer) globalMin).intValue(),
-							M = ((Integer) globalMax).intValue();
+					if (min instanceof Integer && max instanceof Integer) {
+						int m = ((Integer) min).intValue(),
+							M = ((Integer) max).intValue();
 						if (m < M && M-m < 0x10000)  b = true; 
 					}
 					break;
 				case DataSink.INT32:
-					if (globalMin instanceof Integer &&
-						globalMax instanceof Integer) {
-						int m = ((Integer) globalMin).intValue(),
-							M = ((Integer) globalMax).intValue();
+					if (min instanceof Integer && max instanceof Integer) {
+						int m = ((Integer) min).intValue(),
+							M = ((Integer) max).intValue();
 						if (m < M && M-m < 0x100000000L)  b = true; 
 					}
 					break;
 				case DataSink.UINT32:
-					if (globalMin instanceof Long &&
-						globalMax instanceof Long) {
-						long m = ((Long) globalMin).longValue(),
-							 M = ((Long) globalMax).longValue();
+					if (min instanceof Long && max instanceof Long) {
+						long m = ((Long) min).longValue(),
+							 M = ((Long) max).longValue();
 						if (m < M && M-m < 0x100000000L)  b = true; 
 					}
 					break;
@@ -170,8 +164,8 @@ public abstract class QuantumStrategy
 	 */
 	public void setWindow(Comparable start, Comparable end)
 	{
-		if (end.compareTo(start) <= 0 || start.compareTo(globalMin) < 0 ||
-			globalMax.compareTo(end) < 0)
+		verifyInterval(start, end);
+		if (start.compareTo(globalMin) < 0 || globalMax.compareTo(end) < 0)
 			throw new IllegalArgumentException("Wrong interval definition");
 		windowStart = start;
 		windowEnd = end;
