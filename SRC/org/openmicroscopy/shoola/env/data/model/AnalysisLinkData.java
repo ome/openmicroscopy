@@ -61,10 +61,16 @@ public class AnalysisLinkData implements DataObject
 	public AnalysisLinkData() {}
 	
 	public AnalysisLinkData(int id,AnalysisChainData chain,AnalysisNodeData 
+			fromNode,FormalOutputData fromOutput,AnalysisNodeData toNode,
+			FormalInputData toInput) {
+		this(chain,fromNode,fromOutput,toNode,toInput);
+		this.id = id;
+	}
+	
+	public AnalysisLinkData(AnalysisChainData chain,AnalysisNodeData 
 		fromNode,FormalOutputData fromOutput,AnalysisNodeData toNode,
 		FormalInputData toInput) 
 	{	
-		this.id = id;
 		this.chain = chain;
 		this.fromNode = fromNode;
 		this.fromOutput = fromOutput;
