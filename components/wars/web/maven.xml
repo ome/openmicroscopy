@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" default="war">
+  <preGoal name="java:compile">
+    <mkdir dir="${maven.build.dir}/xdoclet/webdoclet/WEB-INF" />
+  	<attainGoal name="xdoclet:webdoclet" />
+  </preGoal>
+</project>
+

@@ -1,0 +1,19 @@
+White Paper : Categories, Annotations, and Other Metadata
+ Josh Moore
+ 
+ In order to differentiate between our various forms of 
+ 
+ Data for us is actually the pixels. However, of our metadata, some is also more data like. 
+ 
+ 1) Categories
+  -set
+  -not Attributes (no mexes)
+  -touchgraphs would be a good gui
+  -possible use case: visualize n groups, if they are distinct, add them to a category group
+ 
+ 2) Annotations
+  -links to external information or prose (non semantic information, *.doc *.ppt ...)
+  -gui is basically a web browser ("rendering")
+  =
+  
+ 3) the other metadata in the system consists of "original data" (import data) and that contained in attributes.

@@ -1,0 +1,45 @@
+<project name="OWL2JAVAGenerator" default="generate" basedir=".">
+
+  	<taskdef name="texen" classname="org.ome.gen.TexenTask"/>
+	<property name="outputDir" location="${basedir}/src/generated/org/ome/texen"/>
+
+	<target name="refreshEclipse" depends="generate">
+		<eclipse.refreshLocal/>
+	</target>
+	
+  <!-- ================================================================ -->
+  <!-- G E N E R A T E  O W L  B I N D I N G S                          -->
+  <!-- ================================================================ -->
+  <!-- This target will generate a set of Java classes based on         -->
+  <!-- the information in our control context (the OWL Db).             -->
+  <!-- ================================================================ -->
+
+  <!-- needs jena libs, commons collections, velocity.jar and our teask -->
+
+  <target name="generate">
+
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| Generating OWL Bindings!                 |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+	<delete dir="${outputDir}"/>
+
+  	<mkdir dir="${outputDir}"/>
+    <mkdir dir="${outputDir}/interfaces"/>
+    <mkdir dir="${outputDir}/srv"/>
+    <mkdir dir="${outputDir}/client"/>
+    <mkdir dir="${outputDir}/xsd"/>
+
+    <texen
+      controlTemplate="Control.vm"
+      outputDirectory="${outputDir}"
+      outputFile="generation.log"
+      ontology = "file:///${basedir}/src/conf/ome.n3.owl"
+      templatePath="src/templates" 
+    />
+
+  </target>
+
+</project>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>model</id>
+  <name>OME Model Objects</name>
+  <currentVersion>1.0</currentVersion>
+  <package>org.ome.model</package>
+  <description>Model code generated from owl</description>
+  <dependencies>
+   <!-- ideally should remain none -->
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

@@ -1,0 +1,30 @@
+#*
+file: Control.vm
+This is the control template for a OWL binding generator.
+*#
+Starting: $now
+Generating Vocabulary >>>>>>>>>>>>>>>>>>>>>>>.
+#set ($outputFile = "Vocabulary.java" )
+$generator.parse("vocab.vm", $outputFile, "[Vocab]", $predicates)
+Generating Classes>>>>>>>>>>>>>>>>>>>>>>>.
+#set ($outputFile = "xsd/Base.xsd")
+$generator.parse("base.vm",$outputFile,"[Base]",$classes)
+#foreach ($class in $classes)
+    #set ($outputFile = "xsd/${class.localName}.xsd" )
+    $generator.parse("schema.vm", $outputFile, "[XSD]", $class)
+    #set ($outputFile = "interfaces/I${class.localName}.java" )
+    $generator.parse("interface.vm", $outputFile, "[Interface]", $class)
+    #set ($outputFile = "client/${class.localName}.java" )
+    $generator.parse("client.vm", $outputFile, "[Client]", $class)
+    #set ($outputFile = "srv/${class.localName}.java" )
+    $generator.parse("server.vm", $outputFile, "[Server]", $class)
+    #set ($outputFile = "srv/${class.localName}Wrapper.java" )
+    $generator.parse("wrapper.vm", $outputFile, "[Wrapper]", $class)
+#end
+Generating Services >>>>>>>>>>>>>>>>>>
+#foreach ($module in $modules)
+    #set ($outputFile = "${module}Vocabulary.java" )
+    $generator.parse("vocab.vm", $outputFile, "[OWL2VOCAB]", $module)
+    #set ($outputFile = "${module}Interface.java" )
+    $generator.parse("interface.vm", $outputFile, "[OWL2INTERFACE]", $module)
+#end

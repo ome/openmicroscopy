@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <!-- the version of maven's project object model -->
+
+  <pomVersion>3</pomVersion>
+  <!-- a unique name for this project -->
+
+  <id>ome3</id>
+  <groupId>ome3</groupId>
+  <name>Open Microscopy Environment v3</name>
+  <!-- The version of the project under development, e.g.
+       1.1, 1.2, 2.0-SNAPSHOT -->
+
+  <currentVersion>1.0</currentVersion>
+
+  <organization>
+    <name>Open Microscopy Environment</name>
+    <url>http://www.openmicroscopy.org/</url>
+    <logo>http://www.openmicroscopy.org/FIXME.gif</logo>
+  </organization>
+
+  <inceptionYear>1999</inceptionYear>
+  <package>org.ome</package>
+  <logo>http://maven.apache.org/images/maven.jpg</logo>
+  <description></description>
+  <shortDescription></shortDescription>
+  <url>http://www.openmicroscopy.org</url>
+
+  <issueTrackingUrl>http://bugzilla.openmicroscopy.org</issueTrackingUrl>
+  <siteAddress></siteAddress>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  <!-- the version control repository and http url for online access
+       the connection element has the form:
+       scm:<system>:<system specific connection string> -->
+
+<!--
+  <repository>
+    <connection>scm:cvs:pserver:anoncvs@cvs..org:</connection>
+    <url>http://cvs.org/</url>
+  </repository>
+  -->
+  <mailingLists/>
+  <developers/>
+  <dependencies/>
+  <reports>
+    <report>maven-changelog-plugin</report>
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-file-activity-plugin</report>
+  </reports>
+</project>

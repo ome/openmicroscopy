@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>srv</id>
+  <name>OME Server Code</name>
+  <currentVersion>1.0</currentVersion>
+  <package>org.ome.srv</package>
+  <description>Server code</description>
+  <dependencies>
+
+     <dependency>
+      <groupId>ome3</groupId>
+      <artifactId>model</artifactId>
+      <version>1.0</version>
+    </dependency>
+  
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
