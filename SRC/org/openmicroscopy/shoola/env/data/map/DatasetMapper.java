@@ -101,6 +101,8 @@ public class DatasetMapper
 		return criteria;
 	}
 	
+	
+	
 	/**
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieveImages.
@@ -267,6 +269,32 @@ public class DatasetMapper
 		return datasetsList;
 	}
 
+	/**
+	 * Create a list of dataset summary objects
+	 *
+	 * @param datasets	list of datasets objects.
+	 * @param dProto	dataObject to model.
+	 * @return See above.
+	 */
+	public static List fillUserDatasets(List datasets, 
+				DatasetData dProto,ImageSummary iProto)
+	{
+		List datasetsList = new ArrayList();  //The returned summary list.
+		Iterator i = datasets.iterator();
+		DatasetData ds;
+		Dataset d;
+		//For each d in datasets...
+		while (i.hasNext()) {
+			d = (Dataset) i.next();
+			//Make a new DataObject and fill it up.
+			ds = (DatasetData) dProto.makeNew();
+			ds.setID(d.getID());
+			ds.setName(d.getName());
+			datasetsList.add(ds);
+		}
+		return datasetsList;
+	}
+	
 	//	TODO: will be modified as soon as we have a better approach.
 	private static int[] fillListPixelsID(Image image)
 	{
