@@ -44,6 +44,7 @@ import java.lang.Comparable;
 
 
 //Third-party libraries
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 
@@ -66,5 +67,7 @@ public interface SortableBufferedObject extends BufferedObject, Comparable  {
 	public void setOffset(double x,double y);
 		
 	public int compareTo(Object o);
+	
+	public PBounds getBounds();
 	
 }
