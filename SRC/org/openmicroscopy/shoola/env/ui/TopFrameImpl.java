@@ -48,11 +48,9 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -81,14 +79,13 @@ public class TopFrameImpl
 	 * in the connectMenu.
 	 */ 
 	static final int        OMEDS = TopFrame.OMEDS;
-	static final int        OMEIS = TopFrame.OMEIS; 
-    static final int        BROWSE = 2;
+	static final int        OMEIS = TopFrame.OMEIS;
 	
 	/** Action command ID. */ 
 	static final int        EXIT = 10;
 	
 	/** the 4 available menus. */    
-    private JMenu           fileMenu, viewMenu, helpMenu, connectMenu, testMenu;
+    private JMenu           fileMenu, viewMenu, helpMenu, connectMenu;
     
 	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
@@ -184,9 +181,6 @@ public class TopFrameImpl
                 case OMEIS:
 					connectToOMEIS();
                     break;
-                case BROWSE:
-                    loadTestBrowser();
-                    break;
                 default: break;
             }        
         } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
@@ -207,15 +201,6 @@ public class TopFrameImpl
 		LoginOMEIS loginIS = new LoginOMEIS(container);
 		showLogin(loginIS);
 	}
-    
-    private void loadTestBrowser()
-    {
-        Registry registry = container.getRegistry();
-        Integer dummyID =
-            (Integer)registry.lookup("/agents/browser/config/dummyDataset");
-        EventBus bus = registry.getEventBus();
-        bus.post(new LoadDataset(dummyID.intValue()));
-    }
     
 	/**
 	* Pops up the top frame window.
@@ -270,14 +255,12 @@ public class TopFrameImpl
         JMenuBar menuBar = new JMenuBar(); 
         createFileMenu();
         createConnectMenu();
-        createTestMenu();
         viewMenu = new JMenu("View");
         helpMenu = new JMenu("Help");
         menuBar.add(fileMenu);
         menuBar.add(viewMenu);
         menuBar.add(connectMenu);
         menuBar.add(helpMenu);
-        menuBar.add(testMenu);
         return menuBar;
     }
     
@@ -306,17 +289,6 @@ public class TopFrameImpl
 		menuItem.addActionListener(this);
 		connectMenu.add(menuItem);
 	}
-    
-    /** Initializes the testMenu. */
-    private void createTestMenu()
-    {
-        testMenu = new JMenu("Test");
-        JMenuItem menuItem = new JMenuItem("Load Dummy Browser");
-        menuItem.setActionCommand(String.valueOf(BROWSE));
-        menuItem.setEnabled(true);
-        menuItem.addActionListener(this);
-        testMenu.add(menuItem);
-    }
 	
 	/** 
 	* Retrieves the specified menu. 
@@ -339,8 +311,6 @@ public class TopFrameImpl
                     menu = helpMenu;
                 case CONNECT:
                 	menu = connectMenu;
-                case TEST:
-                    menu = testMenu;
             }// end switch  
         } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
                 throw nfe;  //just to be on the safe side...

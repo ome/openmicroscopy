@@ -76,7 +76,6 @@ public interface TopFrame
 	public static final int        	VIEW = 1;
 	public static final int        	HELP = 2;
 	public static final int        	CONNECT = 3;
-    public static final int         TEST = 4;
 	
 	
 	public static final int			OMEDS = 0;
