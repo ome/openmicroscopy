@@ -94,6 +94,16 @@ class UserAgentViewer
     public void showPage(String url)
     {
         try {
+            if (url == null || url.length() == 0)
+                throw new MalformedURLException("No URL was provided.");
+            
+            if (url.indexOf('.') == -1) url += ".html";
+            //NOTE: An enclosing section may have no html file associated to
+            //it.  In this case, the stylesheet will automatically generate
+            //an empty HTML file.  The the href attribute must still contain 
+            //a string -- with no '.' in it.  This string is used by the
+            //stylesheet to generate the file name by appending '.html'. 
+            
             URL pageURL = new URL(docBase, url);
             userAgent.showDocument(pageURL, displayWindow);
         } catch (MalformedURLException mue) {
