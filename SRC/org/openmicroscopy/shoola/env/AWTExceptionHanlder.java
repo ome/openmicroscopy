@@ -42,6 +42,19 @@ package org.openmicroscopy.shoola.env;
  * provides the ability to catch unhandled exceptions in the AWT
  * event-dispatch thread.  It is subject to change at any time Sun will modify
  * the implementation of the <code>EventDispatchThread</code> class.
+ * 
+ * <p><small>
+ * <b>NOTE</b>: If no exception hanlder is attached to the AWT event-dispatch
+ * thread, then any {@link RuntimeException} or {@link Error}, which is thrown
+ * by a non-modal component, is re-thrown for the thread group to handle &#151;
+ * see {@link EventDispatchThread#processException(Throwable, boolean)}.
+ * Because of the way container initialization happens, the AWT event-dispatch
+ * thread is part of the {@link RootThreadGroup}.  This means, that any such
+ * exception would be forwarded to the {@link AbnormalExitHandler} anyway.  So
+ * do we need this class?  Unfortunately yes.  In fact, if no exception handler
+ * is specified, any {@link Throwable} thrown within a modal dialog results in
+ * a stack trace being printed and the exception being discarded.
+ * </small></p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,7 +106,7 @@ public final class AWTExceptionHanlder
 	 */
 	public void handle(Throwable t)
 	{
-		//This method is required by the reflection code in the
+		//This is the hook method called by the code in the
 		//EventDispatchThread.handleException(Throwable) method.
 		
 		AbnormalExitHandler.terminate(t);
