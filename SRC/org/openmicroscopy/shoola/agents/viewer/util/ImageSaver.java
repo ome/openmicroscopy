@@ -61,27 +61,26 @@ public class ImageSaver
 	extends JDialog
 {
 	
-	static String			MESSAGE = "A file with the same name and " +
+	static final String			MESSAGE = "A file with the same name and " +
 										"extension already exists in " +
 										"this directory. Do you " +
 										"still want to save the image?";
 	
-	static String			TITLE = "Save Image";
+	static final String			TITLE = "Save Image";
 	
+	static final String 		SUMMARY = "Save the currrent image as a " +
+											"tiff, png or jpeg.";
+											
 	/** Reference to the {@link ViewerCtrl controller}. */
 	private ViewerCtrl		controller;
-	
-	private IconManager		im;
-	
+
 	private ImageChooser	chooser;
 	
 	public ImageSaver(ViewerCtrl controller)
 	{
 		super(controller.getReferenceFrame(), "Save image As", true);
 		this.controller = controller;
-		im = IconManager.getInstance(controller.getRegistry());
-		IconManager im = IconManager.getInstance(controller.getRegistry());
-		buildGUI(im);
+		buildGUI();
 		pack();
 		setVisible(true);
 	}
@@ -91,15 +90,14 @@ public class ImageSaver
 	ViewerCtrl getController() { return controller; }
 	
 	BufferedImage getBufferedImage() { return controller.getBufferedImage(); }
-
 	
 	/** Build and layout the GUI. */
-	private void buildGUI(IconManager im)
+	private void buildGUI()
 	{
+		IconManager im = IconManager.getInstance(controller.getRegistry());
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		TitlePanel tp = new TitlePanel(TITLE, 
-							"Save the currrent image as a tiff, png or jpeg.", 
-							im.getIcon(IconManager.SAVEAS_BIG));
+		TitlePanel tp = new TitlePanel(TITLE, SUMMARY, 
+								im.getIcon(IconManager.SAVEAS_BIG));
 		chooser = new ImageChooser(this);			
 		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(chooser, BorderLayout.CENTER);
