@@ -135,8 +135,8 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 		
 		chainLayer.addChild(owner);
-		owner.setOffset(x+HGAP,y+VGAP);
-		y += owner.getHeight()+VGAP;
+		owner.setOffset(x+HGAP,y+VGAP*3);
+		y += owner.getHeight()+VGAP*4;
 		
 		// build the chain..
 		chainView = new PaletteChainView(chain,registry);
@@ -221,10 +221,12 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 
 	public void mouseClicked(GenericEventHandler handler) {
+		//chainView.mouseClicked(handler);
 		((ChainPaletteEventHandler) handler).animateToNode(this);
 		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
+		((ChainPaletteEventHandler) handler).hideLastChainView();
 		SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
-		registry.getEventBus().post(event);
+		registry.getEventBus().post(event); 
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
@@ -249,9 +251,10 @@ public class ChainBox extends GenericBox implements MouseableNode
 	public void mousePopup(GenericEventHandler handler) {
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
-			((ModuleNodeEventHandler) handler).animateToNode(p);	
+			((ChainPaletteEventHandler) handler).animateToNode(p);	
 		else
-			((ModuleNodeEventHandler) handler).animateToCanvasBounds();
+			((ChainPaletteEventHandler) handler).animateToCanvasBounds();
+		((ChainPaletteEventHandler) handler).hideLastChainView();
 	}	
 		
 }
