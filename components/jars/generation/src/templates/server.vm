@@ -1,10 +1,7 @@
-#set ($file = "wrapper.vm") 
+#set ($file = "model.vm") 
 
 #if( $package )
-  package ${package}.srv;
-  import ${package}.interfaces.*;
-#else
-  import interfaces.*;  
+  package ${package}.model;
 #end
   import java.util.HashMap;
 
@@ -14,14 +11,23 @@ public class ${class.LocalName}
 #if ($class.SuperClass)
 #set ($super = $class.SuperClass)
    extends ${super.LocalName} 
+#else
+   extends LSObject
 #end
    implements I${class.LocalName},ILSObject
 {
 
-	public static final float version = $version ;
+	public static final double ontologyVersion = $version ;
+	private HashMap oldValues = new HashMap();
+	private boolean clean = true;
 
 	public String getURI(){
 		return I${class.LocalName}.URI;
+	}
+
+	public $class.LocalName (LSID lsid){
+		super(lsid);
+		this.lsid=lsid;
 	}
 
 #foreach( $p in $class.Predicates )
@@ -34,21 +40,26 @@ public class ${class.LocalName}
 		return $n;
 	}
 	public boolean set${util.uc(${n})}($t value){
+		if (!oldValues.containsKey("$n")){
+		  oldValues.put("$n",this.get${util.uc(${n})}());
+		}
 		this.$n = value;
+		clean=false;
 		return true;
-	}
 
+	}
 #end
 
     public boolean put(String str, Object obj){
-	  boolean value;
+	  boolean value = false;
 
 	  if (null != str){
 #foreach( $p in $class.Predicates )
 #set ( $t = $p.Type )
 #set ( $n = $p.LocalName )
     	  if (str.equals("$p.URI")) {
-    	     this.set${util.uc(${n})}(obj);
+    	     this.set${util.uc(${n})}(($t)obj);
+    	     value = true;
 	      } else
 #end
           {
@@ -57,4 +68,28 @@ public class ${class.LocalName}
 	   }
 	   return value;
     }
+
+	//=============================================
+	//=============================================
+
+	public void commit() 
+//	  throws UpddateConflictException, RMIException TODO
+{
+//		RemoteService.update(this);
+		clean=true;
+	}
+
+	public void rollback(){
+		if (!clean){
+#foreach( $p in $class.Predicates )
+#set ( $n = $p.LocalName )
+#set ( $t = $p.Type )
+		if (oldValues.containsKey("$n")){
+			this.$n = ($t) oldValues.get("$n");
+		}
+#end
+		}
+		clean=true;
+	}
 }
+
