@@ -54,7 +54,6 @@ import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.browser.layout.QuantumTreemap;
 import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
@@ -64,6 +63,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.QuantumTreemap;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 
