@@ -189,11 +189,13 @@ class RenderingAgtUIF
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("Controls");
+		/*
 		JMenuItem menuItem = new JMenuItem("Save", 
 									im.getIcon(IconManager.SAVE_SETTINGS));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.SAVE);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("Reset defaults", 
+		*/
+		JMenuItem menuItem = new JMenuItem("Reset defaults", 
 								im.getIcon(IconManager.RESET_DEFAULTS));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.RESET_DEFAULTS);
 		menu.add(menuItem);

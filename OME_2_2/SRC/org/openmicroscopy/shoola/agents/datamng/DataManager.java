@@ -127,6 +127,7 @@ public class DataManager
 	private TopFrame				topFrame;
 	
 	private JCheckBoxMenuItem		viewItem;
+	
 	private JButton					viewButton;
 	
 	/** 
@@ -213,6 +214,13 @@ public class DataManager
 		//eventBus.post(new ImportImages(datasetID, images));
 		registry.getUserNotifier().notifyInfo("Importer", 
 			"not yet implemented"+images+" "+datasetID);
+	}
+	
+	/** Refresh the all tree. */
+	void refresh()
+	{
+		projectSummaries.removeAll(projectSummaries);
+		if (presentation != null) presentation.rebuildTree();
 	}
 	
 	/**
@@ -675,7 +683,6 @@ public class DataManager
 			registry.getEventBus().post(request);
 		} 	
 	}
-
 	
 	/**
 	 * Update a specified image.

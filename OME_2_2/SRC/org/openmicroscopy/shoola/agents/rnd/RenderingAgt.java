@@ -400,7 +400,7 @@ public class RenderingAgt
 	 * 
 	 * @param w		OME index of the specified wavlength.
 	 */
-	Comparable getChannelWindowStart(int w)
+	double getChannelWindowStart(int w)
 	{
 		return renderingControl.getChannelWindowStart(w);
 	}
@@ -411,9 +411,9 @@ public class RenderingAgt
 	 * @param w		OME index of the specified wavlength.
 	 * @param x		lower bound.
 	 */
-	void setChannelWindowStart(int w, Comparable x)
+	void setChannelWindowStart(int w, double x)
 	{
-		Comparable end = renderingControl.getChannelWindowEnd(w);
+		double end = renderingControl.getChannelWindowEnd(w);
 		renderingControl.setChannelWindow(w, x, end);
 		refreshImage();
 	}
@@ -424,7 +424,7 @@ public class RenderingAgt
 	 * 
 	 * @param w		OME index of the specified wavlength.
 	 */
-	Comparable getChannelWindowEnd(int w)
+	double getChannelWindowEnd(int w)
 	{
 		return renderingControl.getChannelWindowEnd(w);
 	}
@@ -435,9 +435,9 @@ public class RenderingAgt
 	 * @param w		OME index of the specified wavlength.
 	 * @param x		upper bound.
 	 */
-	void setChannelWindowEnd(int w, Comparable x)
+	void setChannelWindowEnd(int w, double x)
 	{
-		Comparable start = renderingControl.getChannelWindowStart(w);
+		double start = renderingControl.getChannelWindowStart(w);
 		renderingControl.setChannelWindow(w, start, x);
 		refreshImage();
 	}
@@ -534,6 +534,16 @@ public class RenderingAgt
 	{
 		renderingControl.resetDefaults();
 		refreshImage();
+	}
+	
+	/** Save the rendering settings. */
+	void saveDisplayOptions()
+	{
+		//TODO implement.
+		renderingControl.saveCurrentSettings();
+		String msg = "The settings have now been saved, Note that the " +
+			"parameters set in \"options\" haven't been saved.";
+		registry.getUserNotifier().notifyInfo("Rendering", msg);
 	}
 	
 }

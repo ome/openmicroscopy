@@ -150,13 +150,13 @@ public class QuantumPaneManager
 	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowStart(int w)
 	{
-		return ((Integer) eventManager.getChannelWindowStart(w)).intValue();
+		return (int) eventManager.getChannelWindowStart(w);
 	}
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowEnd(int w)
 	{
-		return ((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+		return (int) eventManager.getChannelWindowEnd(w);
 	}
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
@@ -221,9 +221,9 @@ public class QuantumPaneManager
 		int mini = (int) eventManager.getGlobalChannelWindowStart(w);
 		int maxi = (int) eventManager.getGlobalChannelWindowEnd(w);
 		int s = 
-			((Integer) eventManager.getChannelWindowStart(w)).intValue();
+			(int) eventManager.getChannelWindowStart(w);
 		int e = 
-			((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+			(int) eventManager.getChannelWindowEnd(w);
 		QuantumDef qDef = getQuantumDef();
 		gr = new GraphicsRepresentation(this, qDef.family, 
 				qDef.curveCoefficient, qDef.cdStart, qDef.cdEnd, mini, maxi);

@@ -126,7 +126,7 @@ public class ToolBar
 		add(hsbButton);
 		add(separator);
 		add(resetButton);
-		add(saveButton);
+		//add(saveButton);
 	}
 
 }

@@ -216,6 +216,9 @@ public class DataManagerCtrl
 		}  		
 	}	
 	
+	/** Refresh the Tree. */
+	void refresh() { abstraction.refresh(); }
+	
 	/** Bring up the corresponding editor. */
 	void createProject()
 	{

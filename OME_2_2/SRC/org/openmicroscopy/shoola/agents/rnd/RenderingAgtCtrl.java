@@ -180,13 +180,13 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public Comparable getChannelWindowStart(int w)
+	public double getChannelWindowStart(int w)
 	{
 		return abstraction.getChannelWindowStart(w);
 	}
 
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public Comparable getChannelWindowEnd(int w)
+	public double getChannelWindowEnd(int w)
 	{
 		return abstraction.getChannelWindowEnd(w);
 	}
@@ -228,14 +228,14 @@ public class RenderingAgtCtrl
 	public void setChannelWindowStart(int w, int x)
 	{
 		//TODO: support other formats
-		abstraction.setChannelWindowStart(w, new Integer(x));
+		abstraction.setChannelWindowStart(w, (double) x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
 		//TODO: support other formats
-		abstraction.setChannelWindowEnd(w, new Integer(x));
+		abstraction.setChannelWindowEnd(w, (double) x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
@@ -329,7 +329,7 @@ public class RenderingAgtCtrl
 	/** Save the image settings. */
 	public void saveDisplayOptions()
 	{
-		//TODO: implement method.
+		abstraction.saveDisplayOptions();
 	}
 	
 	/** Create the specified panel. */

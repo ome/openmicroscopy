@@ -90,9 +90,9 @@ public class QuantumPane
 		int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
 		int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
 		int s = 
-			((Integer) eventManager.getChannelWindowStart(INDEX)).intValue();
+			(int) eventManager.getChannelWindowStart(INDEX);
 		int e = 
-			((Integer) eventManager.getChannelWindowEnd(INDEX)).intValue();
+			(int) eventManager.getChannelWindowEnd(INDEX);
 		codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
 		domainPane = new DomainPane(eventManager.getRegistry(), manager, 
 									eventManager.getChannelData(), qDef, INDEX);
