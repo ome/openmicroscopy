@@ -105,6 +105,14 @@ public final class BrowserEnvironment
     public void setBrowserManager(BrowserManager manager)
     {
         this.browserManager = manager;
+        if(heatMapManager != null)
+        {
+            manager.addSelectionListener(heatMapManager);
+        }
+        if(colorMapManager != null)
+        {
+            manager.addSelectionListener(colorMapManager);
+        }
     }
 
     /**
@@ -161,7 +169,15 @@ public final class BrowserEnvironment
      */
     public void setHeatMapManager(HeatMapManager manager)
     {
+        if(browserManager != null)
+        {
+            browserManager.removeSelectionListener(heatMapManager);
+        }
         this.heatMapManager = manager;
+        if(browserManager != null)
+        {
+            browserManager.addSelectionListener(manager);
+        }
     }
     
     /**
@@ -179,7 +195,15 @@ public final class BrowserEnvironment
      */
     public void setColorMapManager(ColorMapManager manager)
     {
+        if(browserManager != null)
+        {
+            browserManager.removeSelectionListener(colorMapManager);
+        }
         this.colorMapManager = manager;
+        if(browserManager != null)
+        {
+            browserManager.addSelectionListener(colorMapManager);
+        }
     }
 
     /**

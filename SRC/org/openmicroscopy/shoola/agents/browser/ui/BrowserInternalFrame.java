@@ -244,6 +244,15 @@ public class BrowserInternalFrame extends JInternalFrame
             {
                 env.getBrowserManager().removeBrowser(refCopy);
             }
+            
+            /* (non-Javadoc)
+             * @see javax.swing.event.InternalFrameAdapter#internalFrameActivated(javax.swing.event.InternalFrameEvent)
+             */
+            public void internalFrameActivated(InternalFrameEvent arg0)
+            {
+                env.getBrowserManager().setActiveBrowser(refCopy);
+            }
+
         });
 
     }

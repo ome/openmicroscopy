@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.ui.CommonFocusAdapter
+ * org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener
  *
  *------------------------------------------------------------------------------
  *
@@ -33,46 +33,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.ui;
-
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-
-import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
-import org.openmicroscopy.shoola.agents.browser.BrowserManager;
+ 
+package org.openmicroscopy.shoola.agents.browser;
 
 /**
- * The common focus adapter for JFrame/JInternalFrame objects.
- * 
+ * (documentation)
+ *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class CommonFocusAdapter extends FocusAdapter
+public interface BrowserSelectionListener
 {
-    private UIWrapper wrapper;
-    private BrowserEnvironment env;
-    
     /**
-     * Constructs a focus adapter which receives events for a particular
-     * controller wrapper.
-     * @param wrapper The wrapper.
+     * Indicates that a particular browser has been selected.
+     * @param controller The browser selected.
      */
-    public CommonFocusAdapter(UIWrapper wrapper)
-    {
-        this.wrapper = wrapper;
-        env = BrowserEnvironment.getInstance();
-    }
-    
-    /**
-     * What happens when the focus of a component is received. (In this case,
-     * the wrapper calls its controller and sets it to be the active)
-     */
-    public void focusGained(FocusEvent event)
-    {
-        System.err.println("FOCUS GAINED");
-        BrowserManager manager = env.getBrowserManager();
-        manager.setActiveBrowser(wrapper);
-    } 
+    public void browserSelected(BrowserController controller);
 }

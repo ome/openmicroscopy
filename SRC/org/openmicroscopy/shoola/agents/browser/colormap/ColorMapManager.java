@@ -38,7 +38,11 @@ package org.openmicroscopy.shoola.agents.browser.colormap;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserController;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener;
 
 /**
  * Manages the various models shown by the colormap (there should be only
@@ -49,7 +53,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserModel;
  * @version 2.2
  * @since OME2.2
  */
-public class ColorMapManager
+public class ColorMapManager implements BrowserSelectionListener
 {
     private Map datasetModelMap;
     private ColorMapUI embeddedUI;
@@ -66,6 +70,9 @@ public class ColorMapManager
     {
         datasetModelMap = new HashMap();
         embeddedUI = new ColorMapUI();
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserManager manager = env.getBrowserManager();
+        manager.addSelectionListener(this);
     }
     
     public ColorMapModel getModel(int datasetID)
@@ -124,4 +131,19 @@ public class ColorMapManager
             model.fireUpdated();
         }
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener#browserSelected(org.openmicroscopy.shoola.agents.browser.BrowserController)
+     */
+    public void browserSelected(BrowserController controller)
+    {
+        try
+        {
+            int datasetID = controller.getBrowserModel().getDataset().getID();
+            showModel(datasetID);
+        }
+        // hasn't been loaded yet; BrowserAgent will pick it up
+        catch(NullPointerException npe) {}
+    }
+
 }

@@ -37,7 +37,10 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 
@@ -56,6 +59,9 @@ public class BrowserManager
     
     private List browserList;
     
+    // A set of browser selection listeners.
+    private Set listeners;
+    
     /**
      * The return value for hasBrowser(datasetID) if the browser is not
      * present.
@@ -68,6 +74,7 @@ public class BrowserManager
     public BrowserManager()
     {
         browserList = new ArrayList();
+        listeners = new HashSet();
     }
 
     /**
@@ -181,6 +188,10 @@ public class BrowserManager
      */
     public void setActiveBrowser(UIWrapper browser)
     {
+        if(getActiveBrowser() == browser)
+        {
+            return;
+        }
         synchronized(browserList) // will this lock?
         {
             int prevIndex = browserList.indexOf(browser)+1;
@@ -188,5 +199,34 @@ public class BrowserManager
             browserList.remove(prevIndex);
         }
         browser.select();
+        for(Iterator iter = listeners.iterator(); iter.hasNext();)
+        {
+            BrowserSelectionListener listener =
+                (BrowserSelectionListener)iter.next();
+            listener.browserSelected(browser.getController());
+        }
+    }
+    
+    /**
+     * Adds a selection listener to the manager.
+     */
+    public void addSelectionListener(BrowserSelectionListener listener)
+    {
+        if(listener != null)
+        {
+            listeners.add(listener);
+        }
+    }
+    
+    /**
+     * Removes a selection listener from the manager.
+     * @param listener
+     */
+    public void removeSelectionListener(BrowserSelectionListener listener)
+    {
+        if(listener != null)
+        {
+            listeners.remove(listener);
+        }
     }
 }

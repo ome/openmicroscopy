@@ -38,6 +38,11 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserController;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
+import org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener;
+
 /**
  * Manages instances of the heat maps (keeps track as to not provoke
  * reloading from the DB, and to make sure that the lazy initialization
@@ -48,7 +53,7 @@ import java.util.Map;
  * @version 2.2
  * @since OME2.2
  */
-public final class HeatMapManager
+public final class HeatMapManager implements BrowserSelectionListener
 {
     private Map datasetModelMap;
     private HeatMapUI embeddedUI;
@@ -64,6 +69,9 @@ public final class HeatMapManager
     {
         datasetModelMap = new HashMap();
         embeddedUI = new HeatMapUI();
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserManager manager = env.getBrowserManager();
+        manager.addSelectionListener(this);
     }
     
     /**
@@ -134,4 +142,19 @@ public final class HeatMapManager
     {
         return embeddedUI;
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener#browserSelected(org.openmicroscopy.shoola.agents.browser.BrowserController)
+     */
+    public void browserSelected(BrowserController controller)
+    {
+        try
+        {
+            int datasetID = controller.getBrowserModel().getDataset().getID();
+            showModel(datasetID);
+        }
+        // hasn't been loaded yet; do nothing
+        catch(NullPointerException npe) {}
+    }
+
 }
