@@ -96,7 +96,7 @@ public class ImportImageChooser
 		
 		IconManager im = IconManager.getInstance(control.getRegistry());
 		TitlePanel tp = new TitlePanel("Import Image", 
-								"Import new images in a existing dataset.", 
+								"Import new images in an existing dataset.", 
 								im.getIcon(IconManager.IMPORT_IMAGE_BIG));
 		add(tp, BorderLayout.NORTH);
 		add(iiSelection, BorderLayout.SOUTH);
