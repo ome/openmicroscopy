@@ -65,15 +65,20 @@ public class Viewer3DManager
 
 	private Viewer3D 		view;
 	
+	/** Current image displayed. */
 	private BufferedImage	XYimage, XZimage, ZYimage;
 	
 	private int 			xMax, yMax;
 	
 	private ImagesCanvas	canvas;
+	
 	private DrawingCanvas 	drawing;
 	
 	/** coordinates of the top-left corner of the XY-image. */
 	private int				xMain, yMain;
+	
+	/** Coordinates of the origin. */
+	private int				xOrigin, yOrigin;
 	
 	public Viewer3DManager(Viewer3D view)
 	{
@@ -100,7 +105,7 @@ public class Viewer3DManager
 	void setDrawingCanvas(DrawingCanvas drawing) { this.drawing = drawing; }
 	
 	/**
-	 * Display the 3 images in the canvas.
+	 * Display the 3 images in the canvas for the first time.
 	 * 
 	 * @param XYimage	XYImage to display.
 	 * @param XZimage	XZImage to display.
@@ -116,32 +121,44 @@ public class Viewer3DManager
 		yMax = XZimage.getHeight()+XYimage.getHeight()+2*Viewer3D.SPACE;
 		//set the size of the panel.
 		Dimension d = new Dimension(xMax, yMax);
-		
 		canvas.setBounds(0, 0, xMax, yMax);
 		drawing.setPreferredSize(d);
 		drawing.setSize(d);		
 		drawing.setBounds(0, 0, xMax, yMax);
-
 		canvas.setPreferredSize(d);
-		canvas.setSize(d);	
 		canvas.paintImages(XYimage.getWidth(), ZYimage.getWidth(),
 									XYimage.getHeight());
-		
 		canvas.revalidate();
-		//view.validate();
 		setWindowSize(d);
 	} 
 	
-	
+	/** The XZImage and ZYImage to display. */
 	void setImages(BufferedImage XZimage, BufferedImage ZYimage)
 	{
 		this.XZimage = XZimage;
 		this.ZYimage = ZYimage;
-		ImagesCanvas canvas = view.canvas;
 		canvas.repaint();	
 	}
 	
+	/** The XZImage, ZYImage and XYImage to display. */ 
+	void resetImages(BufferedImage XYimage, BufferedImage XZimage, 
+					BufferedImage ZYimage)	
+	{
+		this.XYimage = XYimage;
+		this.XZimage = XZimage;
+		this.ZYimage = ZYimage;	
+		canvas.repaint();
+	}
+	
+	/** X-coordinate of the origin of the frame. */
+	public int getXOrigin() { return xOrigin; }
+	
+	/** Y-ccordinate of the origin of the frame. */
+	public int getYOrigin() { return yOrigin; }
+	
 	/**
+	 * A point has been selected on the XYImage. a new XZImage and ZYImage
+	 * will be rendered.
 	 * 
 	 * @param x		x-coordinate of the point selected.
 	 * @param y		y-coordinate of the point selected.
@@ -151,8 +168,44 @@ public class Viewer3DManager
 		view.onPlaneSelected(x-xMain, y-yMain);
 	}
 	
+	/**
+	 * A point has been selected on the XZImage. a new XZImage, ZYImage and 
+	 * XYImage will be rendered.
+	 * 
+	 * @param x		x-coordinate of the point selected.
+	 * @param y		y-coordinate of the point selected.
+	 */
+	public void onXZPlaneSelected(int x, int z)
+	{
+		view.onPlaneSelected(z-yOrigin, 
+							x-xOrigin-Viewer3D.SPACE-ZYimage.getWidth(),
+							Viewer3D.XZ);
+	}
+	
+	/**
+	 * A point has been selected on the ZYImage. a new XZImage, ZYImage and 
+	 * XYImage will be rendered.
+	 * 
+	 * @param x		x-coordinate of the point selected.
+	 * @param y		y-coordinate of the point selected.
+	 */
+	public void onZYPlaneSelected(int z, int y)
+	{
+		view.onPlaneSelected(z-xOrigin, 
+							y-Viewer3D.SPACE-XZimage.getHeight()-yOrigin,
+							Viewer3D.ZY);
+	}
+	
+	/** 
+	 * Set the drawing area. 
+	 * 
+	 * @param x	x-coordinate of origin of the frame.
+	 * @param y y-coordinate of origin of the frame.
+	 */
 	public void setDrawingArea(int x, int y)
 	{
+		xOrigin = x;
+		yOrigin = y;
 		JLayeredPane contents = view.contents;
 		JPanel back = view.backPanel;
 		Dimension d = new Dimension(x+xMax, y+yMax);
@@ -163,14 +216,13 @@ public class Viewer3DManager
 		DrawingCanvasMng dm = drawing.getManager();
 		xMain = x+ZYimage.getWidth()+Viewer3D.SPACE;
 		yMain = y+XZimage.getHeight()+Viewer3D.SPACE;
-		
 		drawing.setDrawingDimension(XYimage.getWidth(), XYimage.getHeight(), 
 									ZYimage.getWidth(), xMain, yMain);
 	
 		dm.setDrawingAreaXY(xMain, yMain, XYimage.getWidth(), 
 							XYimage.getHeight());					
-		//dm.setDrawingAreaXZ(xMain, y, XYimage.getWidth(), XZimage.getHeight());
-		//dm.setDrawingAreaZY(x, yMain, ZYimage.getWidth(), XZimage.getHeight());	
+		dm.setDrawingAreaXZ(xMain, y, XYimage.getWidth(), XZimage.getHeight());
+		dm.setDrawingAreaZY(x, yMain, ZYimage.getWidth(), ZYimage.getHeight());	
 	}
 	
 	/** Set the size of the window. */

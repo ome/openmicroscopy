@@ -62,8 +62,8 @@ public class DrawingCanvas
 	/** The model and controller component of this widget. */    
 	private DrawingCanvasMng 	manager;  
     
-	/** current Selected point. */
-	private Point				currentPointXY, currentPointXZ, currentPointZY;
+	/** current selected point. */
+	private Point				currentPointXY, currentPointZY, currentPointXZ;
     
 	/** Width and height of the XY-image.  */
 	private int 				width, height;
@@ -74,15 +74,28 @@ public class DrawingCanvas
     /** coordinates of the top-left corner of the XYimage.*/
     private int					x, y;
     
-	public DrawingCanvas(Viewer3DManager control)
+    /** Control to paint or not the line on the images. */
+ 	private boolean				linesShown;
+ 	
+ 	private Viewer3DManager		control;
+ 	
+ 	private int					defaultZ, maxZ;
+ 	
+	public DrawingCanvas(Viewer3DManager control, int defaultZ, int sizeZ)
 	{
+		this.control = control;
+		this.defaultZ = defaultZ;
+		maxZ = sizeZ;
 		manager = new DrawingCanvasMng(this, control);
 		currentPointXY = null;
+		linesShown = false;
 		setOpaque(false);
+		currentPointXY = new Point(0, 0);
 	}
 	
 	public DrawingCanvasMng getManager() { return manager; }
 	
+	/** Set the drawing area, and initialize current point. */
 	public void setDrawingDimension(int width, int height, int zWidth, int x, 
 									int y)
 	{
@@ -91,56 +104,67 @@ public class DrawingCanvas
 		this.x = x;
 		this.y = y;
 		this.zWidth = zWidth;
+		int v = (zWidth*defaultZ/maxZ);
+		if (currentPointXZ == null) 
+			currentPointXZ = new Point(0, v+control.getYOrigin());
+		if (currentPointZY == null)
+			currentPointZY = new Point(v+control.getXOrigin(), 0);
 	}
-	
-	Point getCurrentPointXY() { return currentPointXY; }
 	
 	/** Erases current shape, if any. */
 	void erase()
 	{
-		currentPointXY = null;
+		linesShown = false;
 		repaint();
 	}
     
 	/** 
-	 * Draws the 2 perpendicular lines on the canvas. 
+	 * Set the current points.
 	 * 
-	 * @param p   The intersection of the lines.
+	 * @param p   The selected point on the XYimage.
 	 */
 	void drawXY(Point p)
 	{
 		if (p != null) {
-			currentPointXY = p;
+			linesShown = true;
+			currentPointXY.x = p.x;
+			currentPointXY.y = p.y;
+			currentPointXZ.x = p.x;
+			currentPointZY.y = p.y;
 			repaint();
 		}
 	}
     
 	/** 
-	 * Draws the 2 perpendicular lines on the canvas. 
+	 * Set the current points.
 	 * 
-	 * @param p   The intersection of the lines.
+	 * @param p   The selected point on the XZimage.
 	 */
 	void drawXZ(Point p)
 	{
 		if (p != null) {
-			currentPointXZ = p;
-			if (currentPointXY != null) currentPointXY.x = p.x;
-			if (currentPointZY != null) currentPointZY.x = p.y;
+			linesShown = true;
+			currentPointXZ.x = p.x;
+			currentPointXZ.y = p.y;
+			currentPointXY.x = p.x;
+			currentPointZY.x = control.getXOrigin()+(p.y-control.getYOrigin());
 			repaint();
 		}
 	}
 	
 	/** 
-	 * Draws the 2 perpendicular lines on the canvas. 
+	 * Set the current points.
 	 * 
-	 * @param p   The intersection of the lines.
+	 * @param p   The selected point on the ZYimage.
 	 */
 	void drawZY(Point p)
 	{
 		if (p != null) {
-			currentPointZY = p;
-			if (currentPointXY != null) currentPointXY.y = p.y;
-			if (currentPointZY != null) currentPointZY.x = p.y;
+			linesShown = true;
+			currentPointZY.x = p.x;
+			currentPointZY.y = p.y;
+			currentPointXY.y = p.y;
+			currentPointXZ.y = control.getYOrigin()+(p.x-control.getXOrigin());
 			repaint();
 		}
 	}
@@ -149,9 +173,13 @@ public class DrawingCanvas
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2D = (Graphics2D) g;
-		if (currentPointXY != null) paintXY(g2D);
+		if (linesShown) {
+			paintXY(g2D);
+			paintZ(g2D);
+		}
 	}
 
+	/** Paint the X and Y lines on the 3 2Dimages. */
 	private void paintXY(Graphics2D g2D)
 	{
 		g2D.setColor(Viewer3D.YlineColor);
@@ -166,6 +194,16 @@ public class DrawingCanvas
 					x-Viewer3D.SPACE, currentPointXY.y);
 		//line on the XYimage.
 		g2D.drawLine(x, currentPointXY.y, x+width, currentPointXY.y);
+	}
+	
+	/** Paint the Zlines on the XZimage and ZYimage. */
+	private void paintZ(Graphics2D g2D)
+	{
+		g2D.setColor(Viewer3D.ZlineColor);
+		//line on the ZYimage.
+		g2D.drawLine(currentPointZY.x, y, currentPointZY.x, y+height);
+		//line on the XZimage.
+		g2D.drawLine(x, currentPointXZ.y, x+width, currentPointXZ.y);
 	}
 	
 }

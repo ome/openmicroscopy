@@ -75,6 +75,7 @@ public class ImagesCanvas
 	
 	private static final int	LENGTH_SQRT = (int) (LENGTH*(Math.sqrt(2.0))/2);
 	
+	/** Coordinate of the origin. */
 	private int					x, y;
 	
 	/** width of the ZYimage+Viewer3D.SPACE+XYimage */
@@ -210,10 +211,9 @@ public class ImagesCanvas
 		g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont);	
 	}
 
-
+	/** Set the location of the origin. */
 	private void setLocation()
 	{
-		//Set the location of the image.
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
 		x = (int) (r.width-imagesWidth)/2;
 		y = (int) (r.height-imagesHeight)/2;

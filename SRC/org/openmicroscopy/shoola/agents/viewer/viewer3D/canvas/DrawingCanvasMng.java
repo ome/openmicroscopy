@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.viewer.viewer3D.canvas;
 
 
-
 //Java imports
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -80,41 +79,44 @@ public class DrawingCanvasMng
 		drawingAreaZY = new Rectangle();
 	}
 
+	/** Set the XY drawing area. */
 	public void setDrawingAreaXY(int x, int y, int w, int h)
 	{
 		drawingAreaXY.setBounds(x, y, w, h);
 	}
 	
+	/** Set the XZ drawing area. */
 	public void setDrawingAreaXZ(int x, int y, int w, int h)
 	{
 		drawingAreaXZ.setBounds(x, y, w, h);
 	}
 	
+	/** Set the ZY drawing area. */
 	public void setDrawingAreaZY(int x, int y, int w, int h)
 	{
 		drawingAreaZY.setBounds(x, y, w, h);
 	}
 	
-	/** Draw the lines and update the XZimage and ZYimage. */ 
+	/** Handle mouse pressed event. */ 
 	public void mousePressed(MouseEvent e)
 	{
 		Point p = e.getPoint();
 		if (!dragging) {
 			dragging = true;
 			if (drawingAreaXY.contains(p)) drawXY(p);
-			//if (drawingAreaXZ.contains(p)) view.drawXZ(p);
-			//if (drawingAreaZY.contains(p)) view.drawZY(p);
+			if (drawingAreaXZ.contains(p)) drawXZ(p);
+			if (drawingAreaZY.contains(p)) drawZY(p);
 		}
 	}
 
-	/** Draw the lines and update the XZimage and ZY image. */
+	/** Handle mouse dragged event. */ 
 	public void mouseDragged(MouseEvent e)
 	{
 		Point p = e.getPoint();
 		if (dragging) {
 			if (drawingAreaXY.contains(p)) drawXY(p);
-			//if (drawingAreaXZ.contains(p)) view.drawXZ(p);
-			//if (drawingAreaZY.contains(p)) view.drawZY(p);	
+			if (drawingAreaXZ.contains(p)) drawXZ(p);
+			if (drawingAreaZY.contains(p)) drawZY(p);	
 		}
 	}
 
@@ -122,6 +124,19 @@ public class DrawingCanvasMng
 	{
 		control.onPlaneSelected(p.x, p.y);
 		view.drawXY(p);
+	}
+	
+	
+	private void drawXZ(Point p) 
+	{
+		control.onXZPlaneSelected(p.x, p.y);
+		view.drawXZ(p);
+	}
+	
+	private void drawZY(Point p) 
+	{
+		control.onZYPlaneSelected(p.x, p.y);
+		view.drawZY(p);
 	}
 	
 	/** 

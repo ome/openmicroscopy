@@ -75,7 +75,7 @@ public class Viewer3D
 {
 
 	/** Space between the images. */
-	public static final int			SPACE = 25;
+	public static final int			SPACE = 35;
 
 	/** 
 	 * Color in sRGB of the vertical line drawn on top of the XYimage and 
@@ -98,6 +98,9 @@ public class Viewer3D
 	/** Background color. */
 	public static final Color		BACKGROUND_COLOR = new Color(204, 204, 255);
 
+	/** ID to control which plane has been selected. */
+	static final int				XZ = 0, ZY = 1;
+	
 	private Viewer3DManager			manager;
 	
 	private ViewerCtrl 				control;
@@ -113,64 +116,96 @@ public class Viewer3D
 	
 	private boolean					visible;
 	
-	private BufferedImage 			xyImage;
+	private PlaneDef				defXY, defXZ, defZY;
 	
-	public Viewer3D(ViewerCtrl control)
+	/** Current selection. */
+	private int						curZ, curX, curY;
+	
+	private Registry				registry;
+
+	
+	public Viewer3D(ViewerCtrl control, int sizeZ)
 	{
 		super(control.getReferenceFrame(),"", true);
 		this.control = control;
+		curZ = control.getDefaultZ();
+		registry = control.getRegistry();
 		visible = false;
-		init();
+		init(sizeZ);
 		buildGUI();
 	}
 	
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
-	/** 2D plane selected. */
+	/** 
+	 * A point has been selected on the XYImage and new images have to be 
+	 * rendered2D.
+	 */
 	void onPlaneSelected(int x, int y)
 	{
+		curX = x;
+		curY = y;
 		int t = control.getDefaultT();
-		Registry registry = control.getRegistry();
-		int curPixelsID = control.getCurPixelsID();
-		PlaneDef defXZ = new PlaneDef(PlaneDef.XZ, t);
+		if (defXZ == null) defXZ = new PlaneDef(PlaneDef.XZ, t);
 		defXZ.setY(y);
-		PlaneDef defYZ = new PlaneDef(PlaneDef.ZY, t);
-		defYZ.setX(x);
-		PlaneDef defXY = null;
+		if (defZY == null) defZY = new PlaneDef(PlaneDef.ZY, t);
+		defZY.setX(x);
 		if (!visible) {
 			defXY = new PlaneDef(PlaneDef.XY, t);
-			defXY.setZ(control.getDefaultZ());
-			visible = true;
+			defXY.setZ(curZ);
 		} 
-		setWindowTitle(x, y);
-		registry.getEventBus().post(new RenderImage3D(curPixelsID, defXY, defXZ, 
-								defYZ));		
+		setWindowTitle();
+		registry.getEventBus().post(new RenderImage3D(control.getCurPixelsID(),
+									defXY, defXZ, defZY));		
 	}
 	
-	private void setWindowTitle(int x, int y)
+	/** 
+	 * A point has been selected on the XZImage or ZYImage and new images 
+	 * have to be rendered2D.
+	 */
+	void onPlaneSelected(int z, int v, int type) 
 	{
-		String title = control.getCurImageName()+" [x = "+x+", y = "+y+"]";
+		defXY.setZ(z);
+		curZ = z;
+		if (type == XZ) {
+			defZY.setX(v);
+			curX = v;
+		} else if (type == ZY) {
+			defXZ.setY(v); 
+			curY = v;
+		}
+		setWindowTitle();
+		registry.getEventBus().post(new RenderImage3D(control.getCurPixelsID(),
+									defXY, defXZ, defZY));	
+	}
+	
+	/** Set the window title and current value. */
+	private void setWindowTitle()
+	{
+		String title = control.getCurImageName()+
+						" [z = "+curZ+", x = "+curX+", y = "+curY+"]";
 		setTitle(title);	
 	}
 	
-	private void init()
+	/** Initialize components. */
+	private void init(int sizeZ)
 	{
-		Registry reg = control.getRegistry();
-		reg.getEventBus().register(this, Image3DRendered.class);
+		registry.getEventBus().register(this, Image3DRendered.class);
 		manager = new Viewer3DManager(this);
 		model = control.getModel();
-		initComponents();
+		initComponents(sizeZ);
 		control.setModel(RenderingDef.GS);
 		onPlaneSelected(0, 0);
 	}
 
-	private void initComponents()
+	/** Initialize the GUI components. */
+	private void initComponents(int sizeZ)
 	{
 		contents = new JLayeredPane();
 		backPanel = new JPanel();
 		backPanel.setBackground(BACKGROUND_COLOR); 
 		canvas = new ImagesCanvas(this, manager);	
-		drawing = new DrawingCanvas(manager);
+		drawing = new DrawingCanvas(manager, control.getDefaultZ(), sizeZ);
 		manager.setImagesCanvas(canvas);
 		manager.setDrawingCanvas(drawing);
 		contents.add(backPanel, new Integer(0));
@@ -190,6 +225,7 @@ public class Viewer3D
 		container.add(scrollPane);
 	}
 
+	/** Required by I/F. */
 	public void eventFired(AgentEvent e)
 	{
 		if (e instanceof Image3DRendered)	
@@ -200,24 +236,28 @@ public class Viewer3D
 	private void handleImage3DRendered(Image3DRendered response)
 	{
 		BufferedImage	xzImage = response.getRenderedXZImage(),
-						yzImage = response.getRenderedZYImage();
+						yzImage = response.getRenderedZYImage(),
+						xyImage = response.getRenderedXYImage();
 		if (xyImage == null) {
-			xyImage = response.getRenderedXYImage();
-			manager.setImages(xyImage, xzImage, yzImage);
-		} else manager.setImages(xzImage, yzImage);
-		
+			manager.setImages(xzImage, yzImage);	
+		} else {
+			if (!visible){
+				 manager.setImages(xyImage, xzImage, yzImage); 
+				 visible = true;
+			} else manager.resetImages(xyImage, xzImage, yzImage);
+		}
 	}
 	
+	/** Reset values. */
 	void onClosing()
 	{
 		control.setModel(model);
-		Registry registry = control.getRegistry();
 		int t = control.getDefaultT();
-		
 		int curPixelsID = control.getCurPixelsID();
 		PlaneDef pd = new PlaneDef(PlaneDef.XY, t);
-		pd.setZ(control.getDefaultZ());
+		pd.setZ(curZ);
 		registry.getEventBus().post(new ResetPlaneDef(curPixelsID, pd));
+		control.synchPlaneSelected(curZ);
 		dispose();
 	}
 	
