@@ -128,57 +128,36 @@ class HSBPaneManager
 	public void itemStateChanged(ItemEvent e)
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
-		int index = Integer.parseInt((String) box.getActionCommand());
-		if (e.getStateChange()== ItemEvent.SELECTED) 
-			mapChannel(index);
-		else clearMapping(index);
+		int w = Integer.parseInt((String) box.getActionCommand());
+		boolean b = false;
+		if (e.getStateChange()== ItemEvent.SELECTED) b = true;
+		eventManager.setActive(w, b);
+	}
+	
+	void setRGBA(int w, int red, int green, int blue, int alpha)
+	{
+		eventManager.setRGBA(w, red, green, blue, alpha);
 	}
 	
 	/**
 	 * Pop up the colorChooserDialog widget.
 	 * 
-	 * @param index		wavelength index.
+	 * @param w		wavelength index.
 	 */
-	private void showColorChooser(int index)
+	private void showColorChooser(int w)
 	{
-		//test
-		int[] rgba = new int[4];
-		rgba[0] = 124;
-		rgba[1] = 124;
-		rgba[2] = 124;
-		rgba[3] = 255;	
-		showDialog(new ColorChooser(this, rgba));
+		showDialog(new ColorChooser(this, eventManager.getRGBA(w), w));
 	}
 	
 	/**
 	 * Pop up the wavelength info editor.
 	 * 
-	 * @param index		wavelength index.
+	 * @param w		wavelength w.
 	 */
-	private void showChannelInfo(int index) 
+	private void showChannelInfo(int w) 
 	{
 		ChannelData[] cd = eventManager.getChannelData();
-		showDialog(new ChannelEditor(eventManager, cd[index]));
-	}
-	
-	/**
-	 * Map the specified wavelength.
-	 * Forward event to {@link RenderingAgtCtrl}.
-	 * 
-	 * @param index	wavelength index to be mapped.
-	 */
-	private void mapChannel(int index)
-	{
-		
-	}
-	
-	/**
-	 * Unmap the specified wavelength.
-	 * Forward event to {@link RenderingAgtCtrl}.
-	 * @param index	wavelength index.
-	 */
-	private void clearMapping(int index)
-	{
+		showDialog(new ChannelEditor(eventManager, cd[w], w));
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF}. */

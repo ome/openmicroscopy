@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Container;
 import java.awt.Dimension;
+import java.util.HashMap;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -44,7 +45,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 
 /** 
  * 
@@ -63,11 +64,14 @@ import javax.swing.JRadioButton;
 class PlaneSlicingDialog
 	extends JDialog
 {
+	/** Width of the widget. */
 	private static final int			WIDTH_WIN = 440;
+	
+	/** Height of the widget. */
 	private static final int			HEIGHT_WIN = 350;
 	private static final int			HEIGHT_PANEL = 100;
-	private static final int			DEFAULT_BP = 
-											PlaneSlicingDialogManager.B_SEVEN;	
+	private static final int			TB = PlaneSlicingPanel.topBorder;
+	 	
 	private static final String[]   	RANGE;
 	static {
 		RANGE = new String[7];
@@ -80,6 +84,28 @@ class PlaneSlicingDialog
 		RANGE[PlaneSlicingDialogManager.B_SEVEN] = "7-bit plane";         
 	}
 	
+	private static final HashMap			rBitPlanes;
+	
+	static {
+		rBitPlanes = new HashMap();
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_ONE), 
+						new Integer(PlaneSlicingDialogManager.B_ONE));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_TWO), 
+						new Integer(PlaneSlicingDialogManager.B_TWO));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_THREE), 
+						new Integer(PlaneSlicingDialogManager.B_THREE));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_FOUR), 
+						new Integer(PlaneSlicingDialogManager.B_FOUR));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_FIVE), 
+						new Integer(PlaneSlicingDialogManager.B_FIVE));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_FIVE), 
+						new Integer(PlaneSlicingDialogManager.B_FIVE));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_SIX), 
+						new Integer(PlaneSlicingDialogManager.B_SIX));
+		rBitPlanes.put(new Integer(PlaneSlicingContext.BIT_SEVEN), 
+						new Integer(PlaneSlicingDialogManager.B_SEVEN));
+	}
+	
 	private	JRadioButton				radioStatic, radioDynamic;
 	private JComboBox					range;
 		
@@ -87,22 +113,31 @@ class PlaneSlicingDialog
 	private PlaneSlicingStaticPanel		pssPanel;
 	private PlaneSlicingDialogManager	manager;
 	
-	PlaneSlicingDialog(QuantumPaneManager control)
+	
+	PlaneSlicingDialog(QuantumPaneManager control, PlaneSlicingContext psCtx)
 	{
-		super(control.getReferenceFrame(), "Plane Slicing", true);
-		manager = new PlaneSlicingDialogManager(this, control);
-		int yStart, yEnd;
-		int tb = PlaneSlicingPanel.topBorder;
-		//TODO: retrieve user settings.
-		int s = control.getCurOutputStart();
-		int e = control.getCurOutputEnd();
-		yStart = tb+manager.convertRealIntoGraphics(s, s-e, e);
-		yEnd = tb+manager.convertRealIntoGraphics(e, s-e, e);
+		super(control.getReferenceFrame(), "Plane Slicing", true);	
+		manager = new PlaneSlicingDialogManager(this, control, psCtx);
+		int yStart, yEnd, s, e; 
+		s = control.getCodomainStart();
+		e = control.getCodomainEnd();
+		yStart = TB+manager.convertRealIntoGraphics(psCtx.getLowerLimit(), s-e,
+													e);
+		yEnd = TB+manager.convertRealIntoGraphics(psCtx.getUpperLimit(), s-e, 
+												 e);
 		psPanel = new PlaneSlicingPanel(yStart, yEnd);
 		pssPanel = new PlaneSlicingStaticPanel();
+		boolean constant = psCtx.IsConstant();
+		psPanel.setIsSelected(constant);
+		pssPanel.setIsSelected(!constant);
 		manager.setOutputStartBox(yStart);
 		manager.setOutputEndBox(yEnd);
-		initialize(DEFAULT_BP); //TODO: user settings.
+		Integer pSelected = new Integer(psCtx.getPlaneSelected());
+		Integer j = (Integer) rBitPlanes.get(pSelected);
+		int i = PlaneSlicingDialogManager.B_SEVEN;
+		if (j != null) i = j.intValue();
+
+		initialize(i, constant); 
 		manager.attachListeners();
 		buildGUI();
 	}
@@ -141,7 +176,7 @@ class PlaneSlicingDialog
 	}
 
 	/** Initializes the component. */
-	private void initialize(int index)
+	private void initialize(int index, boolean constant)
 	{
 		String txtDynamic = "<html>Highlights a range,<br>" +
 							"reduces others to a constant level (cf. (1))." +
@@ -150,7 +185,8 @@ class PlaneSlicingDialog
 							"preserves others (cf. (2)).</html>";
 		radioStatic = new JRadioButton(txtStatic);
 		radioDynamic = new JRadioButton(txtDynamic);
-		radioDynamic.setSelected(true);
+		if (constant) radioDynamic.setSelected(true);
+		else radioStatic.setSelected(true);
 		range = new JComboBox(RANGE);
 		range.setSelectedIndex(index);
 	}
@@ -181,7 +217,6 @@ class PlaneSlicingDialog
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		radioDynamic.setSelected(true);
 		ButtonGroup group = new ButtonGroup();
 		group.add(radioDynamic);
 		group.add(radioStatic);		

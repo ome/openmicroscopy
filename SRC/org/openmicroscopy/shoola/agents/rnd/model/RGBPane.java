@@ -29,7 +29,6 @@
 
 package org.openmicroscopy.shoola.agents.rnd.model;
 
-
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,7 +49,6 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
-import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
@@ -133,27 +131,17 @@ public class RGBPane
 	private JPanel buildTable()
 	{
 		JPanel p = new JPanel();
-		ChannelData[]	channelData = eventManager.getChannelData();
-		/*
-		ChannelBindings[]
-			cb = eventManager.getRenderingDef().getChannelBindings();
-		*/
-		//Test
-		ChannelBindings[] cb = new ChannelBindings[2];
-		ChannelBindings c1 = new ChannelBindings(0, new Integer(200), 
-							new Integer(100), 255, 255, 0, 255, true);
-		ChannelBindings c2 = new ChannelBindings(1, new Integer(200), 
-									new Integer(100), 124, 124, 124, 255, false);	
-		cb[0] = c1;
-		cb[1] = c2;				
+		ChannelData[]	channelData = eventManager.getChannelData();			
 		JTable table = new TableComponent(channelData.length, NUM_COLUMNS);
 		tableLayout(table);
 		Color color;
 		int[] rgba;
+		boolean active;
 		for (int i = 0; i < channelData.length; i++) {
-			rgba = cb[i].getRGBA();
+			rgba = eventManager.getRGBA(i);
+			active = eventManager.isActive(i);
 			color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
-			addRow(table, i, channelData[i], color, cb[i].isActive());
+			addRow(table, i, channelData[i], color, active);
 		}
 		p.add(table);
 		p.setOpaque(false);

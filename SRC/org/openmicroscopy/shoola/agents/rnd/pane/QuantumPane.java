@@ -61,36 +61,40 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 public class QuantumPane
 	extends JPanel
 {
+	/** set the background color of the layered pane. */
 	private static final Color		BACKGROUND = Color.WHITE;
+	
+	/** Default index. */
+	private static final int		INDEX = 0;
+	
 	private CodomainPane			codomainPane;
 	private DomainPane				domainPane;
 	private GraphicsRepresentation  gRepresentation;
 	private JLayeredPane			layeredPane;
 	
 	/** Reference to the {@link QuantumPaneManager manager}. */
-	private QuantumPaneManager	manager;
+	private QuantumPaneManager		manager;
 	
-	//TODO: retrive codomain settings.
-	public QuantumPane(RenderingAgtCtrl eventManager, String[] waves, 
-					int mini, int maxi)
+	public QuantumPane(RenderingAgtCtrl eventManager)
 	{
-		//TEST
-		QuantumDef qDef = new QuantumDef(QuantumFactory.LINEAR, 16, 1, 
-									0, QuantumFactory.DEPTH_8BIT,
-									QuantumFactory.DEPTH_8BIT);
+		QuantumDef qDef = eventManager.getQuantumDef();
 		manager = new QuantumPaneManager(eventManager, this);
-		
-		//Retrieve user settings
+		int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
+		int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
+		int s = 
+			((Integer) eventManager.getChannelWindowStart(INDEX)).intValue();
+		int e = 
+			((Integer) eventManager.getChannelWindowEnd(INDEX)).intValue();
 		codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
-		//TODO: cannot pass quantumDef
-		domainPane = new DomainPane(eventManager.getRegistry(), manager, waves, 
-									qDef);
+		domainPane = new DomainPane(eventManager.getRegistry(), manager, 
+									eventManager.getChannelData(), qDef, INDEX);
 		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
-		gRepresentation.setDefaultLinear(mini, maxi);
-		manager.setMinimum(mini);
-		manager.setMaximum(maxi);
-		initLayeredPane();
-		//buildGUI();
+		
+		if (qDef.family == QuantumFactory.EXPONENTIAL)
+			 gRepresentation.setDefaultExponential(s, e);
+		else gRepresentation.setDefaultLinear(s, e);
+		layeredPane = new JLayeredPane();
+		buildLayeredPane(gRepresentation);
 	}
 
 	public QuantumPaneManager getManager()
@@ -118,32 +122,21 @@ public class QuantumPane
 		return layeredPane;
 	}
 	
-	/** Build and layout the GUI. */
-	private void buildGUI()
-	{
-		//add(domainPane);
-		//add(codomainPane);
-		//add(buildCurveGUI());
-	}
-	
 	/** 
 	 * Builds a layeredPane containing the GraphicsRepresentation.
 	 *
 	 * @return the above mentioned.
 	 */   
-	private void initLayeredPane()
+	void buildLayeredPane(GraphicsRepresentation gr)
 	{
-		layeredPane = new JLayeredPane();
 		layeredPane.setPreferredSize(new Dimension(GraphicsRepresentation.width, 
 										GraphicsRepresentation.height));
 		layeredPane.setBounds(0, 0, GraphicsRepresentation.width, 
 							GraphicsRepresentation.height);
-		gRepresentation.setSize(GraphicsRepresentation.height, 
-								GraphicsRepresentation.height);
-		gRepresentation.setBackground(BACKGROUND);
-		layeredPane.add(gRepresentation);
+		gr.setSize(GraphicsRepresentation.height, 
+					GraphicsRepresentation.height);
+		gr.setBackground(BACKGROUND);
+		layeredPane.add(gr);
 	}
-
-
 
 }

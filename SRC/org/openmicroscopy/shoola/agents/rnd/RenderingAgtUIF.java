@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Rectangle;
-
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -47,10 +46,7 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.model.GreyScalePane;
-import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
-import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -83,6 +79,18 @@ class RenderingAgtUIF
 	/** Location y-coordinate. */
 	private static final int		Y_LOCATION = 0;
 	
+	/** index to position Graphic component in the tabbedPane. */
+	private static final int		POS_GR = 0 ;
+			
+	/** index to position Domain component in the tabbedPane. */
+	private static final int		POS_D = 1 ;
+	
+	/** index to position Codomain component in the tabbedPane. */
+	private static final int		POS_CD = 2 ;
+	
+	/** index to position Model component in the tabbedPane. */
+	private static final int		POS_M = 3 ;
+	
 	/** Reference to the regisry. */
 	private Registry				registry;
 	
@@ -92,6 +100,8 @@ class RenderingAgtUIF
 	private QuantumPane				quantumPane;
 	
 	private ModelPane				modelPane;
+	
+	private JTabbedPane 			tabs;
 	
 	/** Menu specific to this agent. */
 	private JMenu					internalMenu;
@@ -127,29 +137,30 @@ class RenderingAgtUIF
 	void showDialog(JDialog editor)
 	{
 		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle   tfB = topFrame.getBounds(), 
-					psB = editor.getBounds();
-		int         offsetX = (tfB.width-psB.width)/2, 
-					offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)   offsetX = 0;
-		if (offsetY < 0)   offsetY = 0;
+		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
+		int offsetX = (tfB.width-psB.width)/2, 
+			offsetY = (tfB.height-psB.height)/2;
+		if (offsetX < 0) offsetX = 0;
+		if (offsetY < 0) offsetY = 0;
 		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
 		editor.setVisible(true);
+	}
+	
+	/** Set the selected model. */
+	void setModelPane(ModelPane pane)
+	{
+		tabs.remove(POS_M);
+		modelPane.removeAll();
+		modelPane = pane;
+		modelPane.buildComponent();
+		tabs.insertTab("Model", null, modelPane, null, POS_M);	
 	}
 	
 	/** Initialize the components. */
 	private void initPanes()
 	{
-		//test
-		String[] waves = new String[2];
-		waves[0] = ""+200;
-		waves[1] = ""+230;
-		quantumPane = new QuantumPane(control, waves, 0, 400);
-		//TODO: init according to user choice.
-		//modelPane = new GreyScalePane();
-		//modelPane = new RGBPane();
-		modelPane = new HSBPane();
-		modelPane.setEventManager(control);
+		quantumPane = new QuantumPane(control);
+		modelPane = control.getModelPane();
 		modelPane.buildComponent();
 	}
 	
@@ -161,8 +172,7 @@ class RenderingAgtUIF
 		Icon icon = im.getIcon(IconManager.OME);
 		
 		//create and initialize the tabs
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
-									JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		
   		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		tabs.setFont(font);
@@ -170,11 +180,12 @@ class RenderingAgtUIF
 		JPanel p = new JPanel();
 		p.setOpaque(false);
 		p.add(quantumPane.getLayeredPane());
-		tabs.addTab("Graphic", p);
-		tabs.addTab("Domain", quantumPane.getDomainPane());
-		tabs.addTab("Codomain", quantumPane.getCodomainPane());
-		tabs.addTab("Model", modelPane);
-  		
+		tabs.insertTab("Graphic", null, p, null, POS_GR);
+		tabs.insertTab("Domain", null, quantumPane.getDomainPane(), null,
+						POS_D);
+		tabs.insertTab("Codomain", null, quantumPane.getCodomainPane(), null, 
+						POS_CD);
+		tabs.insertTab("Model", null, modelPane, null, POS_M);
   		//set layout and add components
   		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);

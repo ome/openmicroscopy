@@ -73,15 +73,17 @@ class PlaneSlicingDialogManager
 	static final int				B_FIVE = 4;
 	static final int				B_SIX = 5;
 	static final int				B_SEVEN = 6;
-	
+
 	private static final int 		B_ZERO = -1;
 	
+	 
 	/** ID to handle events. */
 	private static final int		STATIC = 0;
 	private static final int		DYNAMIC = 1;
 	private static final int 		RANGE = 2;
 	
 	private static final HashMap	bitPlanes;
+	
 	static {
 		bitPlanes = new HashMap();
 		bitPlanes.put(new Integer(B_ZERO), 
@@ -118,19 +120,23 @@ class PlaneSlicingDialogManager
 	private PlaneSlicingDialog		view;
 	
 	/** Reference to the main control {@link QuantumPaneManager}. */
-	private QuantumPaneManager	control;
+	private QuantumPaneManager		control;
 
+	private PlaneSlicingContext		ctx;
+	
 	/**
 	 * Create a new instance.
 	 * @param view			
 	 * @param control
 	 */
 	PlaneSlicingDialogManager(PlaneSlicingDialog view, 
-								QuantumPaneManager control)
+								QuantumPaneManager control,
+								PlaneSlicingContext ctx)
 	{
 		this.view = view;
 		this.control = control;
-		isSelected = true;
+		this.ctx = ctx;
+		isSelected = ctx.IsConstant();
 		boxOutputStart = new Rectangle();
 		boxOutputEnd = new Rectangle();
 	}
@@ -181,8 +187,7 @@ class PlaneSlicingDialogManager
 					break;
 				case DYNAMIC:
 					activateDynamic();
-			}// end switch  
-		//impossible if IDs are set correctly 
+			}
 		} catch(NumberFormatException nfe) {
 				throw nfe;  //just to be on the safe side...
 		} 
@@ -233,56 +238,50 @@ class PlaneSlicingDialogManager
 		//retrieve the level of the plane
 		Integer psI = (Integer) bitPlanes.get(new Integer(index));
 		int planeSelected = psI.intValue();
-		//int e = control.getCurOutputEnd();
-		//int s = control.getCurOutputStart();
-		int e = 255;
-		int s = 100;
+		int e = control.getCodomainEnd();
+		int s = control.getCodomainStart();
 		if (planeSelected > e || planeSelected < s) {
-			String message = "The plane selected is not in the output " +
-				"interval. Please resize the output window or select a " +
-				"new plane.";
+			String message = "The level of the plane selected is not a value" +
+				"contained int the output interval. Please resize the output " +
+				"window or select a new plane.";
 			UserNotifier un = 
 					control.getEventManager().getRegistry().getUserNotifier();
 			un.notifyInfo("Plane Selection", message);
 		} else {
 			Integer ppI = (Integer) bitPlanes.get(new Integer(index-1));
-			int planePrevious = ppI.intValue();
+			ctx.setPlanes(ppI.intValue(), planeSelected);
+			control.updateCodomainMap(ctx);
 		}
-
-		//Add control i.e. is the plane selected in the range codomain
-		//psDef.setPlaneIndex(index);
-		//Forward event to control
 	}
 	
 	/**
 	 * Set the lower limit.
-	 * @param x			x-coordinate.
+	 * @param y		y-coordinate.
 	 */
 	private void setLowerLimit(int y)
 	{
 		setOutputStartBox(y);
 		view.getPSPanel().updateOutputStart(y);
-		//psDef.setLowerLimit(convertGraphicsIntoReal(x));
-		//Forward event to control
-		int e = control.getCurOutputEnd();
-		int s = control.getCurOutputStart();
+		int e = control.getCodomainEnd();
+		int s = control.getCodomainStart();
 		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
-		System.out.println(yReal);
+		ctx.setLowerLimit(yReal);
+		control.updateCodomainMap(ctx);
 	}
 	
 	/**
 	 * Set the upper limit.
-	 * @param x			x-coordinate.
+	 * @param y		y-coordinate.
 	 */
 	private void setUpperLimit(int y)
 	{
 		setOutputEndBox(y);
 		view.getPSPanel().updateOutputEnd(y);
-		int e = control.getCurOutputEnd();
-		int s = control.getCurOutputStart();
+		int e = control.getCodomainEnd();
+		int s = control.getCodomainStart();
 		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
-		//psDef.setUpperLimit(convertGraphicsIntoReal(x));
-		//Forward event to control
+		ctx.setUpperLimit(yReal);
+		control.updateCodomainMap(ctx);
 	}
 	
 	/** 
@@ -311,6 +310,7 @@ class PlaneSlicingDialogManager
 	 */
 	private void activateDynamic()
 	{
+		isSelected = true;
 		view.getPSPanel().setIsSelected(true);
 		view.getPSSPanel().setIsSelected(false);
 	}
@@ -321,6 +321,7 @@ class PlaneSlicingDialogManager
 	 */
 	private void activateStatic()
 	{
+		isSelected = false;
 		view.getPSPanel().setIsSelected(false);
 		view.getPSSPanel().setIsSelected(true);
 	}

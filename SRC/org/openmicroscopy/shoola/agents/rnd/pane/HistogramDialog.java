@@ -36,7 +36,7 @@ import javax.swing.JDialog;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 
 /** 
  * 
@@ -55,6 +55,7 @@ import javax.swing.JDialog;
 class HistogramDialog
 	extends JDialog
 {
+	/** Height of the widget. */
 	private static final int		HEIGHT_WIN = 280;
 
 	private HistogramPanel			histogramPanel;
@@ -62,7 +63,7 @@ class HistogramDialog
 	private HistogramDialogManager 	manager;
 	
 	HistogramDialog(QuantumPaneManager control, int mini, int maxi, 
-					int start, int end, Object[] histogramData)
+					int start, int end, PixelsStatsEntry[] histogramData)
 	{
 		super(control.getReferenceFrame(), "Histogram", true);
 		manager = new HistogramDialogManager(this, control);

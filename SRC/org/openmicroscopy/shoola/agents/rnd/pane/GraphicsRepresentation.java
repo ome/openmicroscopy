@@ -177,7 +177,7 @@ class GraphicsRepresentation
 		endPt = new Point2D.Double();
 		staticStartPt = new Point2D.Double();
 		staticEndPt = new Point2D.Double();
-		 // control output window to be removed
+		//control output window to be removed
 		controlOutputStart = square;
 		controlOutputEnd = 0;
 		xStartMax = leftBorder;

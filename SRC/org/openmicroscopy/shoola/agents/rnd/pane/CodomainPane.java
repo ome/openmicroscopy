@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Dimension;
 import java.awt.GridLayout;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -97,8 +96,7 @@ class CodomainPane
 	{
 		//TODO: retrieve Data from CodomainMapDefs.
 		manager = new CodomainPaneManager(this, control);
-		initButton(registry);
-		initCheckBox();
+		initComponents(registry);
 		manager.attachListeners();
 		buildGUI();
 	}
@@ -134,17 +132,15 @@ class CodomainPane
 		return ri;
 	}
 	
-	/** Initializes the buttons. */
-	private void initButton(Registry registry)
+	/** Initialize the checkboxes and buttons. */
+	private void initComponents(Registry registry)
 	{
 		IconManager im = IconManager.getInstance(registry);
 		cStretching = new JButton(im.getIcon(IconManager.STRETCHING));
 		pSlicing = new JButton(im.getIcon(IconManager.SLICING));
-	}
-	
-	/** Initializes the checkboxes. */
-	private void initCheckBox()
-	{
+		cStretching.setEnabled(false);
+		pSlicing.setEnabled(false);
+		//TODO: check according to user settings.
 		ri = new JCheckBox();
 		cs = new JCheckBox();
 		ps = new JCheckBox();	

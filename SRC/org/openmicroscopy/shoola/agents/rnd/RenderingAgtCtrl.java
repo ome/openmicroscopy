@@ -45,7 +45,10 @@ import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 /** 
  * 
  *
@@ -81,8 +84,6 @@ public class RenderingAgtCtrl
 	private boolean 		active;
 	private HashMap 		renderersPool;
 	
-	private ModelPane		curRenderer;
-	
 	private RenderingAgt	abstraction;
 	
 	RenderingAgtCtrl(RenderingAgt abstraction)
@@ -109,6 +110,128 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt}. */
+	public int getCodomainStart()
+	{
+		return abstraction.getCodomainStart();
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public int getCodomainEnd()
+	{
+		return abstraction.getCodomainEnd();
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public PixelsStatsEntry[] getChannelStats(int w)
+	{
+		return abstraction.getChannelStats(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public double getGlobalChannelWindowStart(int w)
+	{
+		return abstraction.getGlobalChannelWindowStart(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public double getGlobalChannelWindowEnd(int w)
+	{
+		return abstraction.getGlobalChannelWindowEnd(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public Comparable getChannelWindowStart(int w)
+	{
+		return abstraction.getChannelWindowStart(w);
+	}
+
+	/** Forward event to {@link RenderingAgt}. */
+	public Comparable getChannelWindowEnd(int w)
+	{
+		return abstraction.getChannelWindowEnd(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public QuantumDef getQuantumDef()
+	{
+		return abstraction.getQuantumDef();
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setActive(int w, boolean active)
+	{
+		abstraction.setActive(w, active);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public boolean isActive(int w)
+	{
+		return abstraction.isActive(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public int[] getRGBA(int w)
+	{
+		return abstraction.getRGBA(w);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setRGBA(int w, int red, int green, int blue, int alpha)
+	{
+		abstraction.setRGBA(w, red, green, blue, alpha);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setChannelWindowStart(int w, int x)
+	{
+		//TODO: support others format
+		abstraction.setChannelWindowStart(w, new Integer(x));
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setChannelWindowEnd(int w, int x)
+	{
+		//TODO: support others format
+		abstraction.setChannelWindowEnd(w, new Integer(x));
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setCodomainLowerBound(int x)
+	{
+		abstraction.setCodomainLowerBound(x);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setCodomainUpperBound(int x)
+	{
+		abstraction.setCodomainUpperBound(x);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void setQuantumStrategy(int k, int family, int resolution)
+	{
+		abstraction.setQuantumStrategy(k, family, resolution);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void addCodomainMap(CodomainMapContext ctx)
+	{
+		abstraction.addCodomainMap(ctx);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void removeCodomainMap(CodomainMapContext ctx)
+	{
+		abstraction.removeCodomainMap(ctx);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
+	public void updateCodomainMap(CodomainMapContext ctx)
+	{
+		abstraction.updateCodomainMap(ctx);
+	}
+	
+	/** Forward event to {@link RenderingAgt}. */
 	public Registry getRegistry()
 	{
 		return abstraction.getRegistry();
@@ -126,13 +249,7 @@ public class RenderingAgtCtrl
 		return null;
 	}
 	
-	/** Attach listener to a menu Item. */
-	void setMenuItemListener(JMenuItem item, int id)
-	{
-		item.setActionCommand(""+id);
-		item.addActionListener(this);
-	}
-
+	/** Handle events. */
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
@@ -150,34 +267,44 @@ public class RenderingAgtCtrl
 					activateRenderingModel(index);
 					break;	   	
 		   }
-		//impossible if IDs are set correctly
 		} catch(NumberFormatException nfe) {   
 			   throw nfe;  //just to be on the safe side...
 		} 
 	}
 	
-	private void saveDisplayOptions()
+	/** Attach listener to a menu Item. */
+	void setMenuItemListener(JMenuItem item, int id)
 	{
-		
+		item.setActionCommand(""+id);
+		item.addActionListener(this);
 	}
-	
+
+	/** Return the current RenderingModel. */
+	ModelPane getModelPane()
+	{
+		Class c = getRendererClass(abstraction.getModel());
+		return activate(c);
+	}
+
 	private void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
-		activate(c);
+		abstraction.getPresentation().setModelPane(activate(c));
+		abstraction.setModel(i);
 	}
 	
-	private void activate(Class c)
+	private ModelPane activate(Class c)
 	{
 	   ModelPane rnd = (ModelPane) renderersPool.get(c);
 	   if (rnd == null) {
 		   rnd = createRenderer(c);
-		   //rnd.setEventManager(this);
+		   rnd.setEventManager(this);
 		   renderersPool.put(c, rnd);
 	   }
-	   rnd.setVisible(true);
+	   return rnd;
 	}
 	
+	/** Create the model associated to the Class. */
 	private ModelPane createRenderer(Class c)
 	{ 
 		ModelPane model = null;
@@ -187,9 +314,7 @@ public class RenderingAgtCtrl
 		return model;
 	}
 	
-	/**
-	 * Return class associated to the constant.
-	 */
+	/** Return class associated to the constant. */
 	private Class getRendererClass(int i)
 	{
 		Class result = null;
@@ -203,7 +328,13 @@ public class RenderingAgtCtrl
 			case RGB:
 				result = RGBPane.class;
 		}
+		
 		return result;
+	}
+	
+	private void saveDisplayOptions()
+	{
+	
 	}
 	
 }

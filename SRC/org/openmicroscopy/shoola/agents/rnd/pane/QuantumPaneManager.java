@@ -38,6 +38,9 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 /** 
  * 
@@ -54,25 +57,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  * @since OME2.2
  */
 class QuantumPaneManager
-{
-	/** minimum value (real value) of the input window. */
-	private int 				minimum;
-	
-	/** maximum value (real value) of the input window. */
-	private int 				maximum;
-	
-	/** The current window input start value. */
-	private int					curStart;
-	
-	/** The current window input end value. */
-	private int					curEnd;
-	
-	/** The current window output start value. */
-	private int					curOutputStart;
-	
-	/** The current window output end value. */
-	private int					curOutputEnd;
-	
+{	
 	/** Reference to the {@link QuantumPane view}. */
 	private QuantumPane			view;
 	
@@ -85,139 +70,201 @@ class QuantumPaneManager
 		this.view = view;
 	}
 	
-	void setCurStart(int v)
+	QuantumDef getQuantumDef()
 	{
-		curStart = v;
+		return eventManager.getQuantumDef();
 	}
 	
-	void setCurEnd(int v)
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	int getCodomainStart()
 	{
-		curEnd = v;
+		return eventManager.getCodomainStart();
 	}
 	
-	int getCurStart()
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	int getCodomainEnd()
 	{
-		return curStart;
+		return eventManager.getCodomainEnd();
 	}
 	
-	int getCurEnd()
+	
+	int getGlobalMinimum()
 	{
-		return curEnd;
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		return (int) eventManager.getGlobalChannelWindowStart(w);
 	}
 	
-	void setMinimum(int minimum)
+	int getGlobalMaximum()
 	{
-		this.minimum = minimum;
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		return (int) eventManager.getGlobalChannelWindowEnd(w);
 	}
 	
-	void setMaximum(int maximum)
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	int getGlobalChannelWindowStart(int w)
 	{
-		this.maximum = maximum;
-	}
-
-	int getMaximum()
-	{
-		return maximum;
-	}
-
-	int getMinimum()
-	{
-		return minimum;
+		return (int) eventManager.getGlobalChannelWindowStart(w);
 	}
 	
-	int getCurOutputEnd()
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	int getGlobalChannelWindowEnd(int w)
 	{
-		return curOutputEnd;
-	}
-
-	int getCurOutputStart()
-	{
-		return curOutputStart;
+		return (int) eventManager.getGlobalChannelWindowEnd(w);
 	}
 	
-	void setCurOutputEnd(int i)
+	/** Forward event to {@link RenderingAgtCtrl}. */
+	PixelsStatsEntry[] getChannelStats(int w)
 	{
-		curOutputEnd = i;
-	}
-
-	void setCurOutputStart(int i)
-	{
-		curOutputStart = i;
-	}
-
-	void setStrategy()
-	{
-	}
-
-	/**
-	 * 
-	 * @param index		index of the wavelength.
-	 */
-	void setWavelength(int index)
-	{
-	}
-	
-	/** Forward event to the {@link GraphicsRepresentation}. */
-	void updateGraphic(int coefficient, int family)
-	{
-		if (family == QuantumFactory.POLYNOMIAL) 
-			view.getGRepresentation().setControlLocation(coefficient);
-		else if (family == QuantumFactory.EXPONENTIAL) 
-			view.getGRepresentation().setControlAndEndLocation(coefficient);
-	}
-	
-	/** Forward event to the {@link GraphicsRepresentation}. */
-	void updateGraphic(int family) 
-	{
-		view.getGRepresentation().setControlsPoints(family);
-		if (family == QuantumFactory.LOGARITHMIC)
-			view.getGRepresentation().setControlLocation(
-										GraphicsRepresentation.MIN);
-   		else if (family == QuantumFactory.LINEAR || 
-				family == QuantumFactory.POLYNOMIAL)
-			view.getGRepresentation().setControlLocation(
-										GraphicsRepresentation.INIT);
-		else if (family == QuantumFactory.EXPONENTIAL)
-			view.getGRepresentation().setControlAndEndLocation(
-										GraphicsRepresentation.INIT);
-	}
-	
-	/** Forward event to the {@link GraphicsRepresentation}. */
-	void updateGraphic(boolean b)
-	{
-		view.getGRepresentation().reverse(b);
+		return eventManager.getChannelStats(w);
 	}
 	
 	/** 
-	 * Resize the input window and forward event to the different views.
-	 *
-	 * @param value	real input value.
+	 * Return the inputWindowStart of a specified wavelength. 
+	 * 
+	 * @param w		wavelgenth index.
 	 */
-	void setInputWindowStart(int value)
+	int getChannelWindowStart(int w)
 	{
-		//TODO: update window
-		curStart = value;
+		return ((Integer) eventManager.getChannelWindowStart(w)).intValue();
+	}
+	
+	/** 
+	 * Return the inputWindowEnd of a specified wavelength. 
+	 * 
+	 * @param w		wavelgenth index.
+	 */
+	int getChannelWindowEnd(int w)
+	{
+		return ((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+	}
+	
+	/** 
+	 * Set the lower bound of the codomain interval.
+	 * 
+	 * @param x		lower bound of the interval (in the range [0, 255]).
+	 */
+	void setCodomainLowerBound(int x)
+	{
+		eventManager.setCodomainLowerBound(x);
+	}
+	
+	/** 
+	 * Set the lower bound of the codomain interval.
+	 * 
+	 * @param x		lower bound of the interval (in the range [0, 255]).
+	 */
+	void setCodomainUpperBound(int x)
+	{
+		eventManager.setCodomainUpperBound(x);
+	}
+	
+	/**
+	 * Add or remove the codomain map context. 
+	 * @param ctx		context of the codomain map.
+	 * @param selected	<code>true</code> if the map is selected.			
+	 * @param id		Action command id one the constant defined by 
+	 * 					{@link CodomainPaneManager}. 
+	 */
+	void setCodomainMap(CodomainMapContext ctx, boolean selected, int id)
+	{
+		if (id == CodomainPaneManager.RI) updateGraphic(selected);
+		if (selected) eventManager.addCodomainMap(ctx);
+		else eventManager.removeCodomainMap(ctx);
+	}
+	
+	/** Update the context. */
+	void updateCodomainMap(CodomainMapContext ctx)
+	{
+		eventManager.updateCodomainMap(ctx);
+	}
+	
+	/** 
+	 * Forward event to @see RenderingAgtCtrl#setStrategy
+	 *
+	 * @param k				gamma	(real value).
+	 * @param family 		one of the contants used to identify the family.
+	 * @param resolution	bitResolution.
+	 * @param id			Action command id, one the constant defined by 
+	 * 						{@link DomainPaneManager}.
+	 */
+	void setQuantumStrategy(int k, int family, int resolution, int id)
+	{
+		if (id == DomainPaneManager.FAMILY)	
+			updateGraphic(family);
+		else if (id == DomainPaneManager.GAMMA)
+			updateGraphic(k*10, family);	//for graphic *10
+		eventManager.setQuantumStrategy(k, family, resolution);
+	}
+	
+	/**
+	 * Select a new wavelength.
+	 * @param w		wavelength index.
+	 */
+	void setWavelength(int w)
+	{
+		view.getLayeredPane().removeAll();
+		GraphicsRepresentation gr = view.getGRepresentation();
+		gr = null;
+		int mini = (int) eventManager.getGlobalChannelWindowStart(w);
+		int maxi = (int) eventManager.getGlobalChannelWindowEnd(w);
+		int s = 
+			((Integer) eventManager.getChannelWindowStart(w)).intValue();
+		int e = 
+			((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+		QuantumDef qDef = getQuantumDef();
+		gr = new GraphicsRepresentation(this, qDef, mini, maxi);
+		
+		if (qDef.family == QuantumFactory.EXPONENTIAL)
+			gr.setDefaultExponential(s, e);
+		else gr.setDefaultLinear(s, e);
+		view.buildLayeredPane(gr);
+	}
+	
+	/** 
+	 * Resize the input window and synchronize the different views.
+	 *
+	 * @param value		real input value in the range [inputStart, inputEnd].
+	 * @param w			wavelength index.
+	 */
+	void setInputWindowStart(int value, int w)
+	{
 		DomainPaneManager dpManager = view.getDomainPane().getManager();
 		GraphicsRepresentationManager 
 			grManager = view.getGRepresentation().getManager();
 		dpManager.setInputWindowStart(value);
-		grManager.setInputWindowStart(value);			
+		
+		grManager.setInputWindowStart(value, getGlobalChannelWindowStart(w),
+									getGlobalChannelWindowEnd(w));
+		eventManager.setChannelWindowStart(w, value);
+	}
+	
+	void setInputWindowStart(int value) 
+	{
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		setInputWindowStart(value, w);
 	}
 	
 	/** 
-	 * Set the window input and synchronize the different view.
+	 * Resize the window input and synchronize the different views.
 	 *
-	 * @param value	real input value.
+	 * @param value		real input value in the range [inputStart, inputEnd].
+	 * @param w			wavelength index.
 	 */
-	void setInputWindowEnd(int value)
+	void setInputWindowEnd(int value, int w)
 	{
-		curEnd = value;
-		//TODO: update window
 		DomainPaneManager dpManager = view.getDomainPane().getManager();
 		GraphicsRepresentationManager 
 			grManager = view.getGRepresentation().getManager();
 		dpManager.setInputWindowEnd(value);
-		grManager.setInputWindowEnd(value);	
+		grManager.setInputWindowEnd(value, getGlobalChannelWindowStart(w),
+									getGlobalChannelWindowEnd(w));	
+		eventManager.setChannelWindowEnd(w,value);
+	}
+	
+	void setInputWindowEnd(int value) 
+	{
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		setInputWindowEnd(value, w);
 	}
 	
 	/** Forward event to the {@link RenderingAgtCtrl eventManager}. */
@@ -236,5 +283,36 @@ class QuantumPaneManager
 	{
 		return eventManager;
 	}
+	
+	/** Update the graphic. */
+	private void updateGraphic(int coefficient, int family)
+	{
+		if (family == QuantumFactory.POLYNOMIAL) 
+			view.getGRepresentation().setControlLocation(coefficient);
+		else if (family == QuantumFactory.EXPONENTIAL) 
+			view.getGRepresentation().setControlAndEndLocation(coefficient);
+	}
 
+	/** Update the graphic. */
+	private void updateGraphic(int family) 
+	{
+		view.getGRepresentation().setControlsPoints(family);
+		if (family == QuantumFactory.LOGARITHMIC)
+			view.getGRepresentation().setControlLocation(
+										GraphicsRepresentation.MIN);
+		else if (family == QuantumFactory.LINEAR || 
+				family == QuantumFactory.POLYNOMIAL)
+			view.getGRepresentation().setControlLocation(
+										GraphicsRepresentation.INIT);
+		else if (family == QuantumFactory.EXPONENTIAL)
+			view.getGRepresentation().setControlAndEndLocation(
+										GraphicsRepresentation.INIT);
+	}
+
+	/** Update the graphic. */
+	private void updateGraphic(boolean b)
+	{
+		view.getGRepresentation().reverse(b);
+	}
+	
 }

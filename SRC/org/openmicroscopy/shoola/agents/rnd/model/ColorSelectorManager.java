@@ -83,9 +83,17 @@ class ColorSelectorManager
 	
 	private ColorSelector		view;
 	
-	ColorSelectorManager(ColorSelector view, Color c)
+	private RGBPaneManager		rgbManager;
+	
+	/** Channel index. */
+	private int					index;
+	
+	ColorSelectorManager(ColorSelector view, RGBPaneManager rgbManager,
+						Color c, int index)
 	{
 		this.view = view;
+		this.index = index;
+		this.rgbManager = rgbManager;
 		curColor = c;
 		curAlpha = c.getAlpha();
 	}
@@ -110,9 +118,10 @@ class ColorSelectorManager
 					JComboBox cb = (JComboBox) e.getSource();
 					modifyPeview(cb.getSelectedIndex());
 		   		case APPLY:
-			   		saveSettings();
+			   		applySettings();
 			   		break;
 		   		case CANCEL:
+		   			view.setVisible(false);
 			   		break;
 	   		}// end switch  
 		} catch(NumberFormatException nfe) {  
@@ -126,8 +135,12 @@ class ColorSelectorManager
 		modifyAlpha(view.getAlphaSlider().getValue());
 	}
 	
-	private void saveSettings()
+	private void applySettings()
 	{
+		int red = curColor.getRed(), green = curColor.getGreen(),
+			blue = curColor.getBlue(), alpha = curColor.getAlpha();
+		rgbManager.setRGBA(index, red, green, blue, alpha);
+		view.setVisible(false);
 	}
 	
 	/** 

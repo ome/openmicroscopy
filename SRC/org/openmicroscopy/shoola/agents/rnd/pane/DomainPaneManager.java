@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JSlider;
@@ -43,6 +44,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
@@ -62,12 +64,28 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class DomainPaneManager
 	implements ActionListener, ChangeListener
 {
-	/** Action command ID. */    
-	private static final int        WAVELENGTH = 0;
-	private static final int        TRANSFORMATION = 1;
-	private static final int        HISTOGRAM = 2;
+	/** Action command ID. */ 
+	static final int        		FAMILY = 0;  
+	static final int        		BR = 1;
+	static final int        		GAMMA = 2;
+	private static final int        WAVELENGTH =3;
+	private static final int        HISTOGRAM = 4;
+	
+	static final HashMap			resolutions;
+	static {
+		resolutions = new HashMap();
+		resolutions.put(new Integer(1), new Integer(QuantumFactory.DEPTH_1BIT));
+		resolutions.put(new Integer(2), new Integer(QuantumFactory.DEPTH_2BIT));
+		resolutions.put(new Integer(3), new Integer(QuantumFactory.DEPTH_3BIT));
+		resolutions.put(new Integer(4), new Integer(QuantumFactory.DEPTH_4BIT));
+		resolutions.put(new Integer(5), new Integer(QuantumFactory.DEPTH_5BIT));
+		resolutions.put(new Integer(6), new Integer(QuantumFactory.DEPTH_6BIT));
+		resolutions.put(new Integer(7), new Integer(QuantumFactory.DEPTH_7BIT));
+		resolutions.put(new Integer(8), new Integer(QuantumFactory.DEPTH_8BIT));
+	}
 	
 	private DomainPane				view;
+	
 	private HistogramDialog         histogramDialog;
 	
 	/** Reference to the main {@link QuantumPaneManager manager}. */
@@ -85,14 +103,13 @@ class DomainPaneManager
 		//sliders
 		view.getGamma().addChangeListener(this);
 		view.getBitResolution().addChangeListener(this);
-		
 		//comboboxes
 		JComboBox transformations = view.getTransformations(),
 				  wavelengths = view.getWavelengths();
 		wavelengths.addActionListener(this);
 		wavelengths.setActionCommand(""+WAVELENGTH);
 		transformations.addActionListener(this);
-		transformations.setActionCommand(""+TRANSFORMATION);
+		transformations.setActionCommand(""+FAMILY);
 		
 		//button
 		JButton button = view.getHistogram();
@@ -101,11 +118,10 @@ class DomainPaneManager
 	}
 
 	/**
-	 * Resize the input window.
+	 * Resize the input window, update the Histogram view if exists.
 	 * The method is called by the control {@link QuantumPaneManager}.
-	 * Forward event to the HistogramDialogManager.
 	 * 
-	 * @param value	real value.
+	 * @param value		real input value.
 	 */
 	void setInputWindowStart(int value)
 	{
@@ -117,7 +133,7 @@ class DomainPaneManager
 	 * Resize the input window.
 	 * The method is called by the control {@link QuantumPaneManager}.
 	 * 
-	 * @param value	real value.
+	 * @param value		real input value.
 	 */
 	void setInputWindowEnd(int value)
 	{
@@ -130,9 +146,9 @@ class DomainPaneManager
 	{
 		String s = (String) e.getActionCommand();
 		try {
-			int     index = Integer.parseInt(s);
+			int index = Integer.parseInt(s);
 			switch (index) { 
-				case TRANSFORMATION:
+				case FAMILY:
 					JComboBox cbx = (JComboBox) e.getSource();
 					setFamily(cbx.getSelectedIndex());
 					break;
@@ -142,8 +158,7 @@ class DomainPaneManager
 					break;
 				case HISTOGRAM:
 					popUpHistogram();
-			}// end switch  
-		// impossible if IDs are set correctly 
+			}
 		} catch(NumberFormatException nfe) {  
 				throw nfe;  //just to be on the safe side...
 		} 
@@ -160,78 +175,96 @@ class DomainPaneManager
 	
 	/** 
 	 * Set the curve coefficient and forward event to 
-	 * {@link QuantumPaneManager}.
+	 * @see QuantumPaneManager#setStrategy.
 	 * 
-	 * @param value		slider value.
+	 * @param value		slider's value.
 	 */
 	private void setCurveCoefficient(int value)
 	{
-		view.getGammaLabel().setText(" Gamma: "+((double) value/10));
+		double k = value/10;
+		view.getGammaLabel().setText(" Gamma: "+k);
 		view.repaint();
-		int family = view.getTransformations().getSelectedIndex();
-		control.updateGraphic(value, family);
-		control.setStrategy();
+		int family = view.getTransformations().getSelectedIndex(); //family
+		int b = view.getBitResolution().getValue();	// bitResolution
+		int br = ((Integer) resolutions.get(new Integer(b))).intValue();
+		control.setQuantumStrategy((int) k, family, br, GAMMA);
 	}
 	
-	private void setBitResolution(int value)
+	/**
+	 * Modify the bit resolution.
+	 * Forward event to @see QuantumPaneManager#setStrategy.
+	 * 
+	 * @param v		slider's value in the range 1-8.
+	 */
+	private void setBitResolution(int v)
 	{
-		control.setStrategy();
+		int k = view.getGamma().getValue();	//gamma
+		int family = view.getTransformations().getSelectedIndex(); //family
+		//bitResolution
+		int br = ((Integer) resolutions.get(new Integer(v))).intValue(); 
+		
+		control.setQuantumStrategy(k/10, family, br, BR);
 	}
 	
 	/** 
-	 * Forward event to {@link QuantumPaneManager}.
+	 * Select a family.
+	 * Forward event to @see QuantumPaneManager#setStrategy.
 	 * 
 	 * @param family    family index.
 	 */  
 	private void setFamily(int family)
 	{
-		control.setStrategy();
 		if (family == QuantumFactory.LOGARITHMIC || 
 			family == QuantumFactory.LINEAR) 
 			view.getGamma().setEnabled(false);
 		else
 			view.getGamma().setEnabled(true);
-		control.updateGraphic(family);
 		resetDefaultGamma();
 		view.repaint();
-		
+		int b = view.getBitResolution().getValue();	// bitResolution
+		int br = ((Integer) resolutions.get(new Integer(b))).intValue();
+		int k = view.getGamma().getValue();	//gamma
+		control.setQuantumStrategy(k/10, family, br, FAMILY);
 	}
 	
-	/** 
-	 * Forward event to {@link QuantumMPaneManager}.
-	 *  
-	 * @param index		wavelength index.
-	 */	
 	
-	private void setWavelength(int index)
+	/**
+	 * Select a wavelength.
+	 * @param w	wavelength indexd.
+	 */
+	private void setWavelength(int w)
 	{
-		//TODO: need to update graphics end histogram if exists.
-		control.setWavelength(index);
-		//Update the view.
+		histogramDialog = null;
+		control.setWavelength(w);
 	}
 
-	/** 
-	 * Initialize the histogramDialog window if the window hasn't been 
-	 * created yet and display.
-	 *
-	 */
+	/** Initialize and display the histogramDialog window. */
 	private void popUpHistogram()
 	{
 		if (histogramDialog == null) {
-			//TODO initializes histogramDialog
-			// need to retrieve histogramData.+ minimum + start
-			histogramDialog = new HistogramDialog(control, 0, 400, 0, 400, null);
+			int w, start, end, min, max;
+			w = view.getWavelengths().getSelectedIndex();
+			start = control.getChannelWindowStart(w);
+			end  = control.getChannelWindowEnd(w);
+			min = control.getGlobalChannelWindowStart(w);
+			max = control.getGlobalChannelWindowEnd(w);
+			PixelsStatsEntry[] channelStats = control.getChannelStats(w);
+			if (channelStats == null) // this shouln't happen
+				throw new IllegalArgumentException("Cannot retrieve the stats");
+			histogramDialog = new HistogramDialog(control, min, max, start, end,
+												channelStats);
 		}
 		control.showDialog(histogramDialog);
 	}
 	
 	/** 
-	 * Resets the curveCoefficient to 1.0.
+	 * Re-set the curveCoefficient to 1.0. 
+	 * Method called when a new family is selected.
 	 */
 	private void resetDefaultGamma()
 	{
 		view.getGammaLabel().setText(" Gamma: "+(double) 
-												GraphicsRepresentation.INIT/10);
+											GraphicsRepresentation.INIT/10);
 		JSlider ccSlider = view.getGamma();
 		//Remove temporarily the listener otherwise an event is fired.
 		ccSlider.removeChangeListener(this);

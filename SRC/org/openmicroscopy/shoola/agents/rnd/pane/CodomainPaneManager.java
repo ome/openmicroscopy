@@ -40,6 +40,9 @@ import javax.swing.JCheckBox;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
+import org.openmicroscopy.shoola.env.rnd.codomain.ReverseIntensityContext;
 
 /** 
  * 
@@ -58,19 +61,27 @@ import javax.swing.JCheckBox;
 class CodomainPaneManager
 	implements ActionListener, ItemListener
 {
-	/** JButtons events. */
-	private static final int			STRETCHING = 0;
-	private static final int			SLICING = 1;	
-	
-	/** CheckBoxes events. */
-	private static final int			RI = 0;
+	/** Action command ID. */
+	static final int					RI = 0;
 	private static final int			CS = 1; 
 	private static final int			PS = 2; 
+	
+	/** JButtons events. */
+	private static final int			STRETCHING = 3;
+	private static final int			SLICING = 4;	
 	
 	private QuantumPaneManager			control;
 	private CodomainPane				view;
 	
-	//TODO: cf note in CodomainPane
+	/** Context of the planeSlicing map. */
+	private PlaneSlicingContext			psCtx;
+	
+	/** Context of the contrastStretching map. */
+	private ContrastStretchingContext	csCtx;
+	
+	/** Context of the reverseIntensity map, stateless ctx. */
+	private ReverseIntensityContext		rCtx;
+	
 	CodomainPaneManager(CodomainPane view, QuantumPaneManager control)
 	{
 		this.view = view;
@@ -98,23 +109,22 @@ class CodomainPaneManager
 	}
 
 	/** Handles events fired by the JButtons. */
-		public void actionPerformed(ActionEvent e)
-		{
-			String s = (String) e.getActionCommand();
-			try {
-				int     index = Integer.parseInt(s);
-				switch (index) { 
-					case STRETCHING:
-						popUpContrastStretchingDialog();
-						break;
-					case SLICING:
-						popUpPlaneSlicingDialog();
-				}// end switch  
-			} catch(NumberFormatException nfe) {
-				//impossible if IDs are set correctly 
-				throw nfe;  //just to be on the safe side...
-			} 
-		}
+	public void actionPerformed(ActionEvent e)
+	{
+		String s = (String) e.getActionCommand();
+		try {
+			int index = Integer.parseInt(s);
+			switch (index) { 
+				case STRETCHING:
+					popUpContrastStretchingDialog();
+					break;
+				case SLICING:
+					popUpPlaneSlicingDialog();
+			}  
+		} catch(NumberFormatException nfe) {
+			throw nfe;  //just to be on the safe side...
+		} 
+	}
 
 	/** Handle event fired by the CheckBox. */
 	public void itemStateChanged(ItemEvent e)
@@ -123,31 +133,79 @@ class CodomainPaneManager
 		boolean b = false;
 		if (e.getStateChange()== ItemEvent.SELECTED) b = true;
 		if (box == view.getRI()) reverseIntensity(b);
-		//TODO register or remove codomainTransformation.	
+		if (box == view.getPS()) planeSlicing(b);	
+		if (box == view.getCS()) contrastStretching(b);	
 	}
 	
-	/** Forward event to the {@link QuantumPaneManager control}. */
+	/** Forward event to @see QuantumPaneManager#setCodomainMap. */
+	private void contrastStretching(boolean b)
+	{
+		view.getCStretching().setEnabled(b);
+		view.repaint();
+		if (b) {
+			csCtx = null;
+			csCtx = getCsCtxDefault();
+		}
+		control.setCodomainMap(csCtx, b, CS);
+	}
+	
+	/** Forward event to @see QuantumPaneManager#setCodomainMap. */
+	private void planeSlicing(boolean b)
+	{
+		view.getPSlicing().setEnabled(b);
+		view.repaint();
+		//TODO: retrieve user settings
+		if (b) {
+			psCtx = null;
+			psCtx = getPsCtxDefault();
+		}
+		control.setCodomainMap(psCtx, b, PS);
+	}
+	
+	/** Forward event to @see QuantumPaneManager#setCodomainMap. */
 	private void reverseIntensity(boolean b)
 	{
-		control.updateGraphic(b);
+		if (b) {
+			rCtx = null;	//if was already defined
+			rCtx = new ReverseIntensityContext();	
+		}
+		control.setCodomainMap(rCtx, b, RI);
 	}
 	
-	/** 
-	 * Initializes the dialog window and forward event to 
-	 * {@link QuantumPaneManager}.
-	 */ 
+	/** Initialize and display the dialog window. */
 	private void popUpContrastStretchingDialog()
 	{
-		control.showDialog(new ContrastStretchingDialog(control));
+		control.showDialog(new ContrastStretchingDialog(control, csCtx));
 	}
 	
-	/** 
-	 * Initializes the dialog window and forward event to 
-	 * {@link QuantumPaneManager}.
-	 */
+	/** Initialize and display the dialog window. */
 	private void popUpPlaneSlicingDialog()
 	{
-		control.showDialog(new PlaneSlicingDialog(control));
+		control.showDialog(new PlaneSlicingDialog(control, psCtx));
+	}
+	
+	/** Set the planeSlicingCtx if not retrieved from DB. */
+	private PlaneSlicingContext getPsCtxDefault()
+	{
+		PlaneSlicingContext ctx = 
+			new PlaneSlicingContext(PlaneSlicingContext.BIT_SIX, 
+				PlaneSlicingContext.BIT_SEVEN, true);
+		int cdStart = control.getCodomainStart();
+		int cdEnd = control.getCodomainEnd();
+		ctx.setCodomain(cdStart, cdEnd);
+		ctx.setLimits(cdStart, cdEnd);
+		return ctx;
+	}
+	
+	/** Set the contrastStretchingCtx if not retrieved from DB. */
+	private ContrastStretchingContext getCsCtxDefault()
+	{
+		int s = control.getCodomainStart();
+		int e = control.getCodomainEnd();
+		ContrastStretchingContext ctx = new ContrastStretchingContext();
+		ctx.setCodomain(control.getCodomainStart(), control.getCodomainEnd());
+		ctx.setCoordinates(s, s, e, e);
+		return ctx;
 	}
 	
 }

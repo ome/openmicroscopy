@@ -36,7 +36,7 @@ import javax.swing.JDialog;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 /** 
  * 
  *
@@ -54,19 +54,19 @@ import javax.swing.JDialog;
 class ContrastStretchingDialog
 	extends JDialog
 {
+	private static final int 				LB = 
+											ContrastStretchingPanel.leftBorder,
+											TB = 
+											ContrastStretchingPanel.topBorder;
 	private ContrastStretchingPanel			csPanel;
 	private ContrastStretchingDialogManager	manager;
 
-	/**
-	 * 
-	 * @param control
-	 */
-	//TODO: retrieve contrastStretching settings from DB.
-	ContrastStretchingDialog(QuantumPaneManager control)
+	ContrastStretchingDialog(QuantumPaneManager control, 
+							ContrastStretchingContext ctx)
 	{
 		super(control.getReferenceFrame(), "Contrast Stretching", true);
-		manager = new ContrastStretchingDialogManager(this, control);
-		initPanel(control);
+		manager = new ContrastStretchingDialogManager(this, control, ctx);
+		initPanel(control, ctx);
 		manager.attachListeners();
 		buildGUI();	
 	}
@@ -82,27 +82,16 @@ class ContrastStretchingDialog
 	}
 	
 	/** Initialize the {@link ContrastStretchingPanel}. */
-	private void initPanel(QuantumPaneManager control)
+	private void initPanel(QuantumPaneManager control, 
+							ContrastStretchingContext ctx)
 	{
 		int xStart, xEnd, yStart, yEnd;
-		int lb = ContrastStretchingPanel.leftBorder;
-		int tb = ContrastStretchingPanel.topBorder;
-		//int s = control.getCurOutputStart();
-		//int e = control.getCurOutputEnd();
-		//TEST
-		int s = 0;
-		int e = 255;
-		//TODO: to be modified, retrieve user settings from DB.
-		xStart = lb+manager.convertRealIntoGraphics(s, e-s, s);
-		xEnd = lb+manager.convertRealIntoGraphics(e, e-s, s);
-		yStart = tb+manager.convertRealIntoGraphics(s, s-e, e);
-		yEnd = tb+manager.convertRealIntoGraphics(e, s-e, e);
-		/*
-		xStart = lb+manager.convertRealIntoGraphics(csDef.getXStart(), e-s, s);
-		xEnd = lb+manager.convertRealIntoGraphics(csDef.getXEnd(), e-s, s);
-		yStart = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
-		yEnd = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
-		*/
+		int s = control.getCodomainStart();
+		int e = control.getCodomainEnd();
+		xStart = LB+manager.convertRealIntoGraphics(ctx.getXStart(), e-s, s);
+		xEnd = LB+manager.convertRealIntoGraphics(ctx.getXEnd(), e-s, s);
+		yStart = TB+manager.convertRealIntoGraphics(ctx.getYStart(), s-e, e);
+		yEnd = TB+manager.convertRealIntoGraphics(ctx.getYEnd(), s-e, e);
 		manager.setRectangles(xStart, xEnd, yStart, yEnd);
 		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
 	}

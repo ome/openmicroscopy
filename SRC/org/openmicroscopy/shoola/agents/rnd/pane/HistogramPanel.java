@@ -40,6 +40,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -64,8 +66,7 @@ class HistogramPanel
 	static final int            WIDTH = 420, HEIGHT = 250;
 	static final int			topBorder = 20, leftBorder = 80, 
 								bottomBorder = 30, rightBorder = 40, 
-								window = 10,
-								heightStat = 200, widthStat = 300,
+								window = 10, heightStat = 200, widthStat = 300,
 								triangleW = 7, triangleH = 8,
 								lS = leftBorder+widthStat,
 								tS = topBorder+heightStat;
@@ -77,7 +78,9 @@ class HistogramPanel
 	private int                 xEndOutput1, xEndOutput2, xEndOutput3,
 								yEndOutput1, yEndOutput2, yEndOutput3;
 	private String              min, max, curMin, curMax;
-	private Object[]            histogramData;
+	
+	
+	private PixelsStatsEntry[]  histogramData;
 	private int                 sizeBin;   
 	 
 	/** Color of the Histogram bins. */
@@ -87,7 +90,7 @@ class HistogramPanel
 	private static final Color	bgColor = Color.BLACK;
 
 	/** Axis color. */
-	private static final Color	axisColor = Color.GRAY;
+	private static final Color	axeColor = Color.GRAY;
 	
 	/** Color of the input start cursor. */
 	private static final Color  startColor = 
@@ -113,13 +116,10 @@ class HistogramPanel
 	 * @param histogramData
 	 */
 	HistogramPanel(int mini, int maxi, int startReal, int endReal, int yStart,
-				int yEnd, Object[] histogramData)
+				int yEnd, PixelsStatsEntry[] histogramData)
 	{
 		this.histogramData = histogramData;
-		//TEST
-		//TODO: Check: HistogramData cannot be null.
-		sizeBin = (int) (widthStat/1);
-		//sizeBin = (int) (widthStat/histogramData.length);
+		sizeBin = (int) (widthStat/histogramData.length);
 		setWindowLimits(mini, maxi);
 		setInputWindow(startReal, endReal);
 		
@@ -135,32 +135,6 @@ class HistogramPanel
 		super.repaint();
 	}
 
-	/**
-	 * Resets the Histogram when a new wavelength is selected.
-	 * 
-	 * @param mini
-	 * @param maxi			
-	 * @param startReal		real start value.
-	 * @param endReal		real end value.
-	 * @param h				histogramData for the selected wavelength
-	 */
-	void setInputsWavelength(int mini, int maxi, int startReal, 
-							int endReal, int yStart, int yEnd, Object[] h)
-	{
-		histogramData = null;
-		setWindowLimits(mini, maxi);
-		setInputWindow(startReal, endReal);
-		controlOutputStart = yStart;
-		controlOutputEnd = yEnd;
-		heightEnd = yEnd-topBorder;
-		heightStart = tS-yStart; 
-		updateStartOutputCursor(yStart);
-		updateEndOutputCursor(yEnd);
-		histogramData = h;
-		sizeBin = (int) (widthStat/histogramData.length);
-		super.repaint();   	
-	}
-	
 	/**
 	 * Resets the current Minimum value and repaint the leftBorder.
 	 *
@@ -313,7 +287,7 @@ class HistogramPanel
 		Rectangle2D rInput = font.getStringBounds("timepoint", 
 											g2D.getFontRenderContext());
 		int wInput = (int) rInput.getWidth();
-		g2D.setColor(axisColor);
+		g2D.setColor(axeColor);
 		
 		//y-axis
 		g2D.drawLine(leftBorder, topBorder-8, leftBorder, tS+5);
@@ -366,34 +340,23 @@ class HistogramPanel
 		g2D.setColor(binColor);
 		g2D.drawString("Pixel", 5, topBorder+heightStat/2);
 		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
-		//TODO: implement real histogram.
-		/*
-		//if (histogramData != null) { 
-		for (int i=0; i<histogramData.length; i++) {
-			 int    m = ((MinMax) histogramData[i]).getMin(),
-					M =((MinMax) histogramData[i]).getMax();
-			 // test version
-			 int y = tS-M;
-			 int L = M-m;
-			 g2D.fillRect(leftBorder+i*sizeBin, y, sizeBin, L);             
-			 //g2D.fillRect(leftBorder+i*sizeBin, M, sizeBin, m-M); 
+		PixelsStatsEntry entry;
+		int min, max;
+		for (int i = 0; i < histogramData.length; i++) {
+			entry = histogramData[i];
+			min = (int) entry.min;
+			max = (int) entry.max;
+			g2D.fillRect(leftBorder+i*sizeBin, max, sizeBin, min-max); 
 		}
-		g2D.setColor(Color.gray);
-		for (int j = 0; j < histogramData.length; j++) {
-			 //test version
-			 int y = tS-((MinMax) histogramData[j]).getMax();
-			 int x = leftBorder+(j+1)*sizeBin;
-			 g2D.drawLine(x, y, x, tS+5);
-			 // real version
-			 //int y = ((MinMax)hist[j]).getMax();
-			 //int x = leftBorder+(j+1)*sizeBin;
-			 //g2D.drawLine(x, y, x, tS+5);
+		g2D.setColor(axeColor);
+		int y, x;
+		for (int i = 0; i < histogramData.length; i++) {
+			 y = (int) histogramData[i].max;
+			 x = leftBorder+(i+1)*sizeBin;
+			 g2D.drawLine(x, y, x, topBorder+heightStat+5);
 		}
-		//}
-		 * */
-		g2D.drawString("Pixel", 5, topBorder+heightStat/2);
-		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
-		// paint rectangles 
+		
+		// paint layered rectangles 
 		g2D.setColor(layerColor);
 		
 		//end rectangle

@@ -64,11 +64,10 @@ class ColorChooserManager
 
 	/** ID to handle events fired by the view {@link ColorChooser}. */
 	private static final int			APPLY = 0;
-	private static final int			SAVE = 1;
-	private static final int			CANCEL = 2;
-	private static final int			R_AREA = 3;
-	private static final int			G_AREA = 4;
-	private static final int			B_AREA = 5;
+	private static final int			CANCEL = 1;
+	private static final int			R_AREA = 2;
+	private static final int			G_AREA = 3;
+	private static final int			B_AREA = 4;
 	
 	private static final int			MAX_VALUE = 255;
 	
@@ -80,6 +79,9 @@ class ColorChooserManager
 	private int[]						rgba;
 	private int							alpha;
 	
+	/** Channel index. */
+	private int							index;
+	
 	/**
 	 * Creates the manager.
 	 * 
@@ -89,12 +91,13 @@ class ColorChooserManager
 	 * @param alpha			alpha component (GUI version).
 	 */
 	ColorChooserManager(ColorChooser view, HSBPaneManager hsbManager,
-						int[] rgba, int alpha)
+						int[] rgba, int alpha, int index)
 	{
 		this.view = view;
 		this.hsbManager = hsbManager;
 		this.alpha = alpha;
 		this.rgba = rgba;
+		this.index = index;
 		buildColor();
 	}
 	
@@ -116,12 +119,9 @@ class ColorChooserManager
 	{
 		view.getAlphaSlider().addChangeListener(this);
 		JButton applyButton = view.getApplyButton(),
-				saveButton = view.getApplyButton(),
 				cancelButton = view.getCancelButton();
 		applyButton.addActionListener(this);
 		applyButton.setActionCommand(""+APPLY);
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
 		
@@ -150,7 +150,7 @@ class ColorChooserManager
 					applySettings();
 					break;
 				case CANCEL:
-					cancel();
+					view.setVisible(false);
 					break;
 				case R_AREA:
 					checkFieldValue(R_AREA);
@@ -195,24 +195,15 @@ class ColorChooserManager
 			view.getBArea().setText(blue);
 	}
     
-	/** 
-	 * Required by the FocusListener interface, 
-	 * but empty as we don't need it. 
-	 */
-	public void focusGained(FocusEvent e) {} 
 	
-	/** 
-	 * Applies the color settings to the wavelength. 
-	 * */
+	
+	/** Applies the color settings to the wavelength. */
 	void applySettings()
 	{
-		//TODO: save and close the dialog
-	}
-	
-	/** Close the widget. */
-	void cancel()
-	{
-		//TODO: setVisible(false);
+		int red = colorSelected.getRed(), green = colorSelected.getGreen(),
+			blue = colorSelected.getBlue(), alpha = colorSelected.getAlpha();
+		hsbManager.setRGBA(index, red, green, blue, alpha);
+		view.setVisible(false);
 	}
 	
 	/** 
@@ -318,6 +309,12 @@ class ColorChooserManager
 		view.getGArea().setText(""+c.getGreen());
 		view.getBArea().setText(""+c.getBlue());
 	}
+	
+	/** 
+	 * Required by the FocusListener interface, 
+	 * but empty as we don't need it. 
+	 */
+	public void focusGained(FocusEvent e) {} 
 	
 }
 

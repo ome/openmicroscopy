@@ -40,6 +40,7 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 
 /** 
  * 
@@ -86,11 +87,15 @@ class ContrastStretchingDialogManager
 	/** Reference to the main {@link QuantumPaneManager manager}. */
 	private QuantumPaneManager			control;
 	
+	private ContrastStretchingContext	ctx;
+	
 	ContrastStretchingDialogManager(ContrastStretchingDialog view,
-									QuantumPaneManager control)
+									QuantumPaneManager control, 
+									ContrastStretchingContext ctx)
 	{
 		this.view = view;
 		this.control = control;
+		this.ctx = ctx;
 	}
 	
 	/** Attach listeners. */
@@ -175,49 +180,58 @@ class ContrastStretchingDialogManager
 		dragging = false;
 	}
 	
+	/** Modify the x-coordinate of the control startPoint. */
 	private void setInputStart(int x)
 	{
 		setInputStartBox(x);
 		view.getCSPanel().updateStartCursor(x);
-		int s  = control.getCurOutputStart();
+		int s  = control.getCodomainStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder, 
-											control.getCurOutputEnd()-s, s);
+										control.getCodomainEnd()-s, s);
 		//Forward event to control
+		ctx.setXStart(xReal);
+		control.updateCodomainMap(ctx);
 	}
 	
+	/** Modify the x-coordinate of the control endPoint. */
 	private void setInputEnd(int x)
 	{
 		setInputEndBox(x);
 		view.getCSPanel().updateEndCursor(x);
-		int s  = control.getCurOutputStart();
+		int s  = control.getCodomainStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder,
-											control.getCurOutputEnd()-s, s);
-		//Forward event to control
+										control.getCodomainEnd()-s, s);
+		ctx.setXEnd(xReal);
+		control.updateCodomainMap(ctx);
 	}
 	
+	/** Modify the y-coordinate of the control startPoint. */
 	private void setOutputStart(int y)
 	{
 		setOutputStartBox(y);
 		view.getCSPanel().updateStartOutputCursor(y);
-		int e = control.getCurOutputEnd();
+		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
-										e-control.getCurOutputStart(), e);
+										e-control.getCodomainStart(), e);
 		
-		//Forward event to control
+		ctx.setYStart(yReal);
+		control.updateCodomainMap(ctx);
 	}
 	
+	/** Modify the y-coordinate of the control endPoint. */
 	private void setOutputEnd(int y)
 	{
 		setOutputEndBox(y);
 		view.getCSPanel().updateEndOutputCursor(y);
-		int e = control.getCurOutputEnd();
+		int e = control.getCodomainEnd();
 		int yReal = convertGraphicsIntoReal(y-topBorder, 
-										e-control.getCurOutputStart(), e);
-		//Forward event to control
+										e-control.getCodomainStart(), e);
+		ctx.setYEnd(yReal);
+		control.updateCodomainMap(ctx);
 	}
 	
 	/** 
-	 * Sizes the rectangle used to listen to the inputStart cursor.
+	 * Size the rectangle used to listen to the inputStart cursor.
 	 *
 	 * @param x     x-coordinate.
 	 */
@@ -228,7 +242,7 @@ class ContrastStretchingDialogManager
 	}
 	
 	/** 
-	 * Sizes the rectangle used to listen to the inputEnd cursor.
+	 * Size the rectangle used to listen to the inputEnd cursor.
 	 *
 	 * @param x     x-coordinate.
 	 */
@@ -239,7 +253,7 @@ class ContrastStretchingDialogManager
 	}
 	
 	/** 
-	 * Sizes the rectangle used to listen to the outputStart cursor.
+	 * Size the rectangle used to listen to the outputStart cursor.
 	 *
 	 * @param y     y-coordinate.
 	 */
@@ -251,7 +265,7 @@ class ContrastStretchingDialogManager
 	}
 	
 	/** 
-	 * Sizes the rectangle used to listen to the outputEnd cursor.
+	 * Size the rectangle used to listen to the outputEnd cursor.
 	 *
 	 * @param y     y-coordinate.
 	 */

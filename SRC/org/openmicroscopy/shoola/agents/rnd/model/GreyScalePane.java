@@ -74,7 +74,7 @@ public class GreyScalePane
 	private static final int		ROW_HEIGHT = 25;
 	
 	/** Default width of a cell. */
-	private static final int		DEFAULT_WIDTH = 20;
+	private static final int		DEFAULT_WIDTH = 30;
 	
 	/** Width of the label cell. */
 	private static final int		WIDTH_LABEL = 100;
@@ -129,8 +129,17 @@ public class GreyScalePane
 		JTable table = new TableComponent(channelData.length, NUM_COLUMNS);
 		tableLayout(table);
 		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < channelData.length; i++)
-			addRow(table, group, i, channelData[i]);
+		boolean active;
+		boolean selected = false;
+		for (int i = 0; i < channelData.length; i++) {
+			active = eventManager.isActive(i);
+			if (active) {
+				if (selected) active = false;
+				selected = true; 
+			} 
+			addRow(table, group, i, channelData[i], active);
+		}
+			
 		p.add(table);
 		p.setOpaque(false);
 		return p;
@@ -138,7 +147,7 @@ public class GreyScalePane
 	
 	/** Build a row in the table. */
 	private void addRow(JTable table, ButtonGroup group, int index, 
-						ChannelData data)
+						ChannelData data, boolean active)
 	{
 		//init JButton
 		JButton b = new JButton();
@@ -150,6 +159,7 @@ public class GreyScalePane
 		
 		//init radioButton
 		JRadioButton rb = new JRadioButton();
+		rb.setSelected(active);
 		group.add(rb);
 		
 		table.setValueAt(buttonPanel(b), index, POS_INFO);

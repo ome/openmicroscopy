@@ -111,17 +111,13 @@ public class ColorChooser
 	
 	private JPanel						contents;
 	
-	/**
-	 * Creates a new ColorChooser instance.
-	 * 
-	 * @param cb		reference to the {@link channelBindings} object.
-	 */
-	public ColorChooser(HSBPaneManager hsbManager, int[] rgba)
+
+	public ColorChooser(HSBPaneManager hsbManager, int[] rgba, int index)
 	{
 		super(hsbManager.getReferenceFrame(), "ColorChooser", true);
 		int v = (int) (rgba[ALPHA]*100/255);
 		Color c = new Color(rgba[RED], rgba[GREEN], rgba[BLUE], rgba[ALPHA]);
-		ccManager = new ColorChooserManager(this, hsbManager, rgba, v);
+		ccManager = new ColorChooserManager(this, hsbManager, rgba, v, index);
 		cp = new ColorPalette(ccManager);
 		Container contentPane = super.getContentPane(); 
 		initButtons();

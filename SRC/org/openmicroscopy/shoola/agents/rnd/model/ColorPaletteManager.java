@@ -80,7 +80,6 @@ class ColorPaletteManager
 	{
 		this.view = view;
 		this.ccManager = ccManager;
-		//TODO: Initializes the hsb value
 		initBoxes();
 	}
 	

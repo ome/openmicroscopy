@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.HashMap;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -48,6 +50,7 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
@@ -101,13 +104,26 @@ class DomainPane
     
 	//the Families
 	static {
-	   algorithms = new String[4];
-	   algorithms[QuantumFactory.LINEAR] = "Linear";
-	   algorithms[QuantumFactory.EXPONENTIAL] ="Exponential";
-	   algorithms[QuantumFactory.LOGARITHMIC] = "Logarithmic";
-	   algorithms[QuantumFactory.POLYNOMIAL] ="Polynomial";      
-   }
-
+		algorithms = new String[4];
+	   	algorithms[QuantumFactory.LINEAR] = "Linear";
+	   	algorithms[QuantumFactory.EXPONENTIAL] ="Exponential";
+	   	algorithms[QuantumFactory.LOGARITHMIC] = "Logarithmic";
+	   	algorithms[QuantumFactory.POLYNOMIAL] ="Polynomial";      
+	}
+   	private static final HashMap	uiBR;
+   	
+	static {
+		uiBR = new HashMap();
+		uiBR.put(new Integer(QuantumFactory.DEPTH_1BIT), new Integer(1));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_2BIT), new Integer(2));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_3BIT), new Integer(3));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_4BIT), new Integer(4));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_5BIT), new Integer(5));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_6BIT), new Integer(6));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_7BIT), new Integer(7));
+		uiBR.put(new Integer(QuantumFactory.DEPTH_8BIT), new Integer(8));
+	}
+	
 	private JButton					histogram;
 	private JLabel					gammaLabel;
 	private JComboBox				transformations;
@@ -121,11 +137,11 @@ class DomainPane
 	private DomainPaneManager		manager;
 	
 	DomainPane(Registry registry, QuantumPaneManager control, 
-				String[] waves, QuantumDef qDef)
+				ChannelData[] data, QuantumDef qDef, int index)
 	{
 		this.qDef = qDef;
 		manager = new DomainPaneManager(this, control);
-		initComboBoxes(waves);
+		initComboBoxes(data, index);
 		initSliders();
 		initLabel();
 		initButton(registry);
@@ -176,12 +192,16 @@ class DomainPane
 	}
 	
 	/** Initializes the comboBoxes: wavelengths and transformations. */  
-	private void initComboBoxes(String[] waves)
+	private void initComboBoxes(ChannelData[] data, int index)
 	{
 		transformations = new JComboBox(algorithms);
-		transformations.setSelectedIndex(qDef.family); 
+		transformations.setSelectedIndex(qDef.family);
+
+		String[] waves = new String[data.length];
+		for (int i = 0; i < data.length; i++)
+			waves[i] = ""+data[i].nanometer;
 		wavelengths = new JComboBox(waves);
-		wavelengths.setSelectedIndex(0); 
+		wavelengths.setSelectedIndex(index); 
 	}
 	
 	/** Initializes the sliders: gamma and bitResolution. */    
@@ -193,9 +213,11 @@ class DomainPane
 			qDef.family == QuantumFactory.LOGARITHMIC) 
 			gamma.setEnabled(false);
 		else gamma.setEnabled(true);
-		//TODO: find a UI conversion system
+		Integer br = ((Integer) uiBR.get(new Integer(qDef.bitResolution)));
+		int resolution = DEPTH_END;
+		if (br != null) resolution = br.intValue();
 		bitResolution = new JSlider(JSlider.HORIZONTAL, DEPTH_START, DEPTH_END,
-									DEPTH_END);
+									resolution);
 	}
 	
 	/** Initializes the gamma label. */
@@ -220,8 +242,6 @@ class DomainPane
 		JPanel p = new JPanel();
 		p.setOpaque(false);
 		p.add(buildTable());
-		
-		//add(buildTable());
 		add(p);
 	}
 	

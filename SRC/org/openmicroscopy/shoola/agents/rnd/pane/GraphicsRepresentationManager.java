@@ -90,7 +90,9 @@ class GraphicsRepresentationManager
 	/** Reference to the view. */
 	private GraphicsRepresentation	view;
 	
-	/** Quantum Family selected. */
+	/** 
+	 * Family selected one of the constants defined by {@link QuantumFactory}. 
+	 */
 	private int 					type;
 	
 	GraphicsRepresentationManager(GraphicsRepresentation view, 
@@ -120,10 +122,9 @@ class GraphicsRepresentationManager
 	 * 
 	 * @param value	real input value.
 	 */
-	void setInputWindowStart(int v)
+	void setInputWindowStart(int v, int min, int max)
 	{
-		int min = control.getMinimum();
-		int vg = convertRealIntoGraphics(v, control.getMaximum()-min, 
+		int vg = convertRealIntoGraphics(v, max-min, 
 										view.getInputGraphicsRange(), min);
 		vg = vg + leftBorder;
 		setInputStartBox(vg);
@@ -136,10 +137,9 @@ class GraphicsRepresentationManager
 	 * 
 	 * @param v	real input value.
 	 */
-	void setInputWindowEnd(int v)
+	void setInputWindowEnd(int v, int min, int max)
 	{
-		int min = control.getMinimum();
-		int vg = convertRealIntoGraphics(v, control.getMaximum()-min, 
+		int vg = convertRealIntoGraphics(v, max-min, 
 										view.getInputGraphicsRange(), min);
 		vg = vg + leftBorder;
 		setInputEndBox(vg);
@@ -203,25 +203,25 @@ class GraphicsRepresentationManager
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
 				p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
 				&& type == QuantumFactory.EXPONENTIAL) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);
 				control.setInputWindowEnd(v);
 			}	
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x <= minEndX) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				control.setInputWindowStart(v);
 			}
@@ -242,25 +242,25 @@ class GraphicsRepresentationManager
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
 				p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
 				&& type == QuantumFactory.EXPONENTIAL) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x <= minEndX) {
-				int min = control.getMinimum();
+				int min = control.getGlobalMinimum();
 				int v = convertGraphicsIntoReal(p.x-leftBorder, 
-								control.getMaximum()-min, 
+								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);
 				control.setInputWindowStart(v);	
 			}	
@@ -289,6 +289,7 @@ class GraphicsRepresentationManager
 		setOutputStartBox(y);
 		view.updateOutputStart(y);
 		int yReal = convertGraphicsIntoReal(y, 255, square, 0);
+		control.setCodomainLowerBound(yReal);
 	}
 
 	/**
@@ -301,6 +302,7 @@ class GraphicsRepresentationManager
 		setOutputEndBox(y);
 		view.updateOutputEnd(y);
 		int yReal = convertGraphicsIntoReal(y, 255, square, 0);
+		control.setCodomainUpperBound(yReal);
 	}
 	
 	/** 
