@@ -61,7 +61,7 @@ import
  */
 public class ChainPaletteOverviewWindow extends JFrame  {
 
-	private static final String TITLE="Chain Palette";
+	private static final String TITLE="Overview";
 	
 	public static final int SIDE=150;
 	/** Data manager*/
