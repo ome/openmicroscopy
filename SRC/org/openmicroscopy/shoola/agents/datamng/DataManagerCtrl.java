@@ -97,6 +97,10 @@ public class DataManagerCtrl
     
     static final int            CREATE_CATEGORY = 4;
     
+    static final int            EXPLORER = 100;
+    
+    static final int            CLASSIFIER = 101;
+    
 	private DataManager			abstraction;
 	
     private int                 selectedCategoryGroupID;
@@ -336,6 +340,12 @@ public class DataManagerCtrl
             abstraction.refreshCategoryGroups();
         else if (target instanceof CategorySummary)
             abstraction.refreshCategory((CategorySummary) target);
+    }
+    
+    void refresh(int index)
+    {
+        if (index == EXPLORER) abstraction.refresh();  
+        else if (index == CLASSIFIER)  abstraction.refreshCategoryGroups();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
