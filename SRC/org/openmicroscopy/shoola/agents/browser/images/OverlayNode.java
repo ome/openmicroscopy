@@ -35,16 +35,6 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
-import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
-import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
-import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
-import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
-import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
-import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
-
-import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PInputEvent;
-
 /**
  * Simplified version of overlay nodes that have to respond to UI input
  * (such as mouse overs, mouse downs)
@@ -54,12 +44,8 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * @version 2.2
  * @since OME2.2
  */
-public abstract class OverlayNode extends PNode
-                                          implements MouseDownSensitive,
-                                                     MouseOverSensitive
+public abstract class OverlayNode extends ResponsiveNode
 {
-    protected MouseDownActions mouseDownActions;
-    protected MouseOverActions mouseOverActions;
     protected String overlayNodeType;
     protected Thumbnail parentNode;
     
@@ -72,9 +58,6 @@ public abstract class OverlayNode extends PNode
     public OverlayNode(String type, Thumbnail parentNode)
         throws IllegalArgumentException
     {
-        mouseDownActions = new MouseDownActions();
-        mouseOverActions = new MouseOverActions();
-        
         if(type == null || parentNode == null)
         {
             throw new IllegalArgumentException("Null parameters");
@@ -106,75 +89,6 @@ public abstract class OverlayNode extends PNode
         if(parent != null)
         {
             this.parentNode = parent;
-        }
-    }
-    
-    public MouseDownActions getMouseDownActions()
-    {
-        return mouseDownActions;
-    }
-    
-    public MouseOverActions getMouseOverActions()
-    {
-        return mouseOverActions;
-    }
-    
-    public void respondMouseClick(PInputEvent event)
-    {
-        PiccoloAction action =
-            mouseDownActions.getMouseClickAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void respondMouseDoubleClick(PInputEvent event)
-    {
-        // TODO is this wrong?
-        PiccoloAction action =
-            mouseDownActions.getMouseClickAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void respondMousePress(PInputEvent event)
-    {
-        PiccoloAction action =
-            mouseDownActions.getMousePressAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void respondMouseRelease(PInputEvent event)
-    {
-        PiccoloAction action =
-            mouseDownActions.getMouseReleaseAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void respondMouseEnter(PInputEvent event)
-    {
-        PiccoloAction action =
-            mouseOverActions.getMouseEnterAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void respondMouseExit(PInputEvent event)
-    {
-        PiccoloAction action =
-            mouseOverActions.getMouseExitAction(PiccoloModifiers.getModifier(event));
-        action.execute(event);
-    }
-    
-    public void setMouseDownActions(MouseDownActions actions)
-    {
-        if(actions != null)
-        {
-            this.mouseDownActions = actions;
-        }
-    }
-    
-    public void setMouseOverActions(MouseOverActions actions)
-    {
-        if(actions != null)
-        {
-            this.mouseOverActions = actions;
         }
     }
 }

@@ -38,6 +38,8 @@ package org.openmicroscopy.shoola.agents.browser.images;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
@@ -45,6 +47,7 @@ import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
@@ -60,6 +63,8 @@ public class ImageAnnotationOverlay extends OverlayNode
         PaintShapeGenerator.getInstance().getAnnotationNoteShape(0,0);
     private final Color fillColor = new Color(255,255,192);
     
+    private ImageAnnotationNode popupNode;
+    
     /**
      * Constructs an ImageAnnotationOverlay that bases its actions and display
      * action on the context of the parent thumbnail.
@@ -71,14 +76,34 @@ public class ImageAnnotationOverlay extends OverlayNode
               parent);
         setBounds(imageShape.getBounds2D());
         
+        final ImageAnnotationOverlay refCopy = this;
+        
         PiccoloAction mouseEnterAction = new PiccoloAction()
         {
             public void execute(PInputEvent e)
             {
+                System.err.println("executing...");
                 AttributeMap map = parent.getModel().getAttributeMap();
                 ImageAnnotation ia = 
                     (ImageAnnotation)map.getAttribute("ImageAnnotation");
-                System.err.println("IA: "+ia.getContent());
+                PCamera camera = e.getCamera();
+                Rectangle2D cameraBounds = camera.getBounds().getBounds2D();
+                popupNode = new ImageAnnotationNode(ia,refCopy,camera);
+                
+                Point2D originalPoint = new Point2D.Double(getX(),getY());
+                Point2D offset = camera.viewToLocal(localToGlobal(originalPoint));
+                double x = offset.getX();
+                double y = offset.getY();
+                if(offset.getX()+popupNode.getWidth() > cameraBounds.getWidth())
+                {
+                    x = cameraBounds.getWidth()-popupNode.getWidth();
+                }
+                if(offset.getY()+popupNode.getHeight() > cameraBounds.getHeight())
+                {
+                    y = cameraBounds.getHeight()-popupNode.getHeight();
+                }
+                popupNode.setOffset(new Point2D.Double(x,y));
+                repaint();
             }
         };
         
