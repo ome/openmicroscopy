@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
@@ -75,14 +76,14 @@ public class ViewerUIF
 	extends JInternalFrame
 {
 	
-	private static final int		EXTRA = 20;
+	/** Constants usd to draw the XY-axis. */
+	public static final int			START = 25, ORIGIN = 5, LENGTH = 20, 
+									ARROW = 3;
 	
-	private static final Dimension  HBOX = new Dimension(EXTRA, 0);
+	private static final Dimension  HBOX = new Dimension(20, 0);
 	
 	/** Canvas to display the currently selected 2D image. */
 	private ImageCanvas             canvas;
-	
-	private JPanel					contents;
 	
 	/** z-slider and t-slider. */
 	private JSlider					tSlider, zSlider;
@@ -205,13 +206,20 @@ public class ViewerUIF
 	 */
 	 void setImage(BufferedImage img)
 	 {
-	 	int imageWidth = img.getWidth(), imageHeight  = img.getHeight();
+	 	int imageWidth = img.getWidth()+2*START, 
+	 		imageHeight  = img.getHeight()+2*START;
 		Dimension d = new Dimension(imageWidth, imageHeight);
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
-		canvas.paintImage(img);
+		//Set the location of the image.
+		Rectangle r = scrollPane.getViewportBorderBounds();
+		int x = (int) (r.width-img.getWidth())/2;
+		int y = (int) (r.height-img.getHeight())/2;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		canvas.paintImage(img, x, y);
 		canvas.revalidate();
-		setWindowSize(imageWidth+4*EXTRA, imageHeight+6*EXTRA); 
+		setWindowSize(imageWidth+4*START, imageHeight+6*START); 
 	}
 	
 	/** Create a menu. */
@@ -280,44 +288,45 @@ public class ViewerUIF
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		container.add(toolBar);
 		canvas = new ImageCanvas();
-		contents = new JPanel();
-		buildContents();
-		scrollPane = new JScrollPane(contents);
-		container.add(scrollPane);
+		scrollPane = new JScrollPane(canvas);
+		container.add(buildMain());
+		container.add(buildTPanel());
 		setFrameIcon(im.getIcon(IconManager.VIEWER));
 	}
-		
-	private void buildContents()
+	
+	/** Build and layout panel with slider and scrollpane. */
+	private JPanel buildMain()
 	{
-		JPanel p = new JPanel(), pt = new JPanel(), pz = new JPanel();
-
-		//t-slider
-		JLabel label = new JLabel("T ");
-		pt.setLayout(new BoxLayout(pt, BoxLayout.X_AXIS));
-		pt.add(Box.createRigidArea(HBOX));
-		pt.add(label);
-		pt.add(tSlider);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		//z-slider
-		label = new JLabel("Z ");
+		JLabel label = new JLabel("Z ");
+		JPanel pz = new JPanel();
 		pz.setLayout(new BoxLayout(pz, BoxLayout.Y_AXIS));
 		pz.add(label);
 		pz.add(zSlider);
-
-		//image+z-slider panel
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(pz);
-		p.add(canvas);
-		contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
-		contents.add(p);
-		contents.add(pt);
+		p.add(scrollPane);
+		return p;
+		
+	}
+	private JPanel buildTPanel()
+	{
+		JPanel p = new JPanel();
+		JLabel label = new JLabel("T ");
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(Box.createRigidArea(HBOX));
+		p.add(label);
+		p.add(tSlider);
+		return p;
 	}
 	
 	/** Set the size of the window w.r.t the size of the screen. */
 	private void setWindowSize(int w, int h)
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = 8*(screenSize.width/10);
-		int height = 8*(screenSize.height/10);
+		int width = 7*(screenSize.width/10);
+		int height = 7*(screenSize.height/10);
 		if (w > width) w = width;
 		if (h > height) h = height;
 		setTBSize(w);
