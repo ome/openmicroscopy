@@ -132,7 +132,8 @@ class ColorSelector
 	ColorSelector(RGBPaneManager rgbManager, int[] rgba, int index)
 	{
 		super(rgbManager.getReferenceFrame(), "Color Selector", true);	
-		Color c = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+		//Color c = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+		Color c = new Color(255, 0, 0, rgba[3]);
 		manager = new ColorSelectorManager(this, rgbManager, c, index);
 		initColorPanel(c);
 		initControls((int) (rgba[3]*100/255));

@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -105,6 +107,12 @@ class ColorSelectorManager
 		list.setActionCommand(""+COLOR);
 		//Alpha slider.
 		view.getAlphaSlider().addChangeListener(this);
+		//buttons.
+		JButton apply = view.getApplyButton(), cancel = view.getCancelButton();
+		apply.addActionListener(this);
+		apply.setActionCommand(""+APPLY);
+		cancel.addActionListener(this);
+		cancel.setActionCommand(""+CANCEL);
 	}
 
 	/** Handle events fired by Combobox and buttons. */
@@ -117,6 +125,7 @@ class ColorSelectorManager
 				case COLOR:
 					JComboBox cb = (JComboBox) e.getSource();
 					modifyPeview(cb.getSelectedIndex());
+					break;
 		   		case APPLY:
 			   		applySettings();
 			   		break;
@@ -137,9 +146,7 @@ class ColorSelectorManager
 	
 	private void applySettings()
 	{
-		int red = curColor.getRed(), green = curColor.getGreen(),
-			blue = curColor.getBlue(), alpha = curColor.getAlpha();
-		rgbManager.setRGBA(index, red, green, blue, alpha);
+		rgbManager.setRGBA(index, curColor);
 		view.setVisible(false);
 	}
 	

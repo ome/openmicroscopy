@@ -161,6 +161,7 @@ class ColorChooserManager
 					break;
 				case B_AREA:
 					checkFieldValue(B_AREA);
+					break;
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 		   throw nfe;  //just to be on the safe side...
@@ -199,9 +200,7 @@ class ColorChooserManager
 	/** Applies the color settings to the wavelength. */
 	void applySettings()
 	{
-		int red = colorSelected.getRed(), green = colorSelected.getGreen(),
-			blue = colorSelected.getBlue(), alpha = colorSelected.getAlpha();
-		hsbManager.setRGBA(index, red, green, blue, alpha);
+		hsbManager.setRGBA(index, colorSelected);
 		view.setVisible(false);
 	}
 	

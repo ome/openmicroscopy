@@ -31,10 +31,12 @@ package org.openmicroscopy.shoola.agents.rnd.model;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.HashMap;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -70,9 +72,12 @@ class RGBPaneManager
 	
 	private RenderingAgtCtrl 	eventManager;
 	
+	private HashMap				coloredButtons;
+	
 	RGBPaneManager(RGBPane view)
 	{
 		this.view = view;
+		coloredButtons = new HashMap();
 	}
 	
 	RGBPane getView()
@@ -94,13 +99,17 @@ class RGBPaneManager
 	void attachObjectListener(Object component, int index)
 	{
 		AbstractButton ab = null;
-		if (component instanceof JButton || component instanceof ColoredButton) 
-		{
+		if (component instanceof ColoredButton) {
 			ab = (JButton) component;
 			ab.addActionListener(this);
+			coloredButtons.put(new Integer(index), component);
 		} else if (component instanceof JCheckBox) {
 			ab = (JCheckBox) component;
 			ab.addItemListener(this);
+		} else {
+			//JButton
+			ab = (JButton) component;
+			ab.addActionListener(this);
 		}
 		ab.setActionCommand(""+index);
 	}
@@ -128,9 +137,13 @@ class RGBPaneManager
 	}
 	
 	/** Set the four components of the selected color. */
-	void setRGBA(int w, int red, int green, int blue, int alpha)
+	void setRGBA(int w, Color c)
 	{
-		eventManager.setRGBA(w, red, green, blue, alpha);
+		ColoredButton cb = (ColoredButton) coloredButtons.get(new Integer(w));
+		cb.setBackground(c);
+		view.repaint();
+		eventManager.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
+							c.getAlpha());
 	}
 	
 	/**
