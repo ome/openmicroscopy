@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -106,6 +108,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     private EventBus eventBus;
     private BrowserEnvironment env;
     private TopFrame tf;
+    
+    private Map activeThreadMap;
     
     private boolean useServerThumbs;
     private int thumbnailWidth;
@@ -147,6 +151,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         env = BrowserEnvironment.getInstance();
         env.setBrowserAgent(this);
+        activeThreadMap = new IdentityHashMap();
     }
     
     /**
@@ -285,18 +290,26 @@ public class BrowserAgent implements Agent, AgentEventListener
         bif.show();
         
         final int theDataset = datasetID;
-        Thread retrieveThread = new Thread()
+        KillableThread retrieveThread = new KillableThread()
         {
             public void run()
             {
+                addLoaderThread(bif.getController(),this);
                 try
                 {
                     DataManagementService dms =
                         registry.getDataManagementService();
                     DatasetData dataset = dms.retrieveDataset(theDataset);
                     model.setDataset(dataset);
-                    bif.setTitle("Image Browser: "+dataset.getName());
-                    loadDataset(browserIndex,dataset);
+                    if(!kill)
+                    {
+                        bif.setTitle("Image Browser: "+dataset.getName());
+                        loadDataset(browserIndex,dataset);
+                    }
+                    else
+                    {
+                        System.err.println("killed OK");
+                    }
                 }
                 catch(DSAccessException dsae)
                 {
@@ -310,6 +323,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                     // pop up new login window (eventually caught)
                     throw new RuntimeException(dsoe);
                 }
+                removeLoaderThread(bif.getController(),this);
             }
         };
         
@@ -398,6 +412,12 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         try
         {
+            // explicit interrupt check
+            if(!activeThreadMap.containsKey(controller))
+            {
+                System.err.println("killed OK");
+                return false;
+            }
             // will this order by image ID?
             // should I explicitly order by another parameter?
             writeStatusImmediately(status,"Retrieving image records from DB...");
@@ -412,6 +432,12 @@ public class BrowserAgent implements Agent, AgentEventListener
             Collections.sort(imageList,idComparator);
             List idList = new ArrayList();
             
+            // explicit interrupt check
+            if(!activeThreadMap.containsKey(controller))
+            {
+                System.err.println("killed OK");
+                return false;
+            }
             // get plate information (if any) so that we can properly add
             // images
             writeStatusImmediately(status,"Retrieving plate information from DB...");
@@ -423,6 +449,12 @@ public class BrowserAgent implements Agent, AgentEventListener
             
             plateList = sts.retrieveImageAttributes("ImagePlate",idList);
             
+            // explicit interrupt check
+            if(!activeThreadMap.containsKey(controller))
+            {
+                System.err.println("killed OK");
+                return false;
+            }
             writeStatusImmediately(status,"Retrieving annotation information from DB...");
             annotationList = sts.retrieveImageAttributes("ImageAnnotation",idList);
             annotationMap = new HashMap();
@@ -475,10 +507,11 @@ public class BrowserAgent implements Agent, AgentEventListener
         final PlateInfo refInfo = plateInfo;
         final Map refAnnotations = annotationMap;
         
-        Thread plateLoader = new Thread()
+        KillableThread plateLoader = new KillableThread()
         {
             public void run()
             {
+                addLoaderThread(controller,this);
                 final List thumbnails = new ArrayList();
                 int count = 1;
                 int total = refList.size();
@@ -499,6 +532,13 @@ public class BrowserAgent implements Agent, AgentEventListener
                 {
                     for(int j=0;j<refInfo.getNumCols();j++)
                     {
+                        // explicit break out
+                        if(kill)
+                        {
+                            j=refInfo.getNumCols();
+                            i=refInfo.getNumRows();
+                            break;
+                        }
                         String row = refInfo.getRowName(i);
                         String col = refInfo.getColumnName(j);
                         String well = row+col;
@@ -611,29 +651,38 @@ public class BrowserAgent implements Agent, AgentEventListener
                     }
                 }
                 
-                Runnable finalTask = new Runnable()
+                if(!kill)
                 {
-                    public void run()
+                    Runnable finalTask = new Runnable()
                     {
-                        Thumbnail[] ts = new Thumbnail[thumbnails.size()];
-                        thumbnails.toArray(ts);
-                        model.addThumbnails(ts);
-                        status.processSucceeded("All images loaded.");
-                    }
-                };
-                SwingUtilities.invokeLater(finalTask);
-                return;
+                        public void run()
+                        {
+                            Thumbnail[] ts = new Thumbnail[thumbnails.size()];
+                            thumbnails.toArray(ts);
+                            model.addThumbnails(ts);
+                            status.processSucceeded("All images loaded.");
+                        }
+                    };
+                    SwingUtilities.invokeLater(finalTask);
+                    return;
+                }
+                else
+                {
+                    System.err.println("killed OK");
+                }
+                removeLoaderThread(controller,this);
             }
         };
         
-        Thread loader = new Thread()
+        KillableThread loader = new KillableThread()
         {
             public void run()
             {
+                addLoaderThread(controller,this);
                 int count = 1;
                 int total = refList.size();
                 
-                for(Iterator iter = refList.iterator(); iter.hasNext();)
+                for(Iterator iter = refList.iterator(); (iter.hasNext() && !kill);)
                 {
                     ImageSummary summary = (ImageSummary)iter.next();
                     
@@ -672,17 +721,28 @@ public class BrowserAgent implements Agent, AgentEventListener
                     }
                 }
                 
-                Runnable finalTask = new Runnable()
+                if(!kill)
                 {
-                    public void run()
+                    Runnable finalTask = new Runnable()
                     {
-                        status.processSucceeded("All images loaded.");
-                    }
-                };
-                SwingUtilities.invokeLater(finalTask);
-                return;
+                        public void run()
+                        {
+                            status.processSucceeded("All images loaded.");
+                        }
+                    };
+                    SwingUtilities.invokeLater(finalTask);
+                    return;
+                }
+                removeLoaderThread(controller,this);
             }
         };
+        
+        // explicit interrupt check
+        if(!activeThreadMap.containsKey(controller))
+        {
+            System.err.println("killed OK");
+            return false;
+        }
         
         if(plateMode)
         {
@@ -767,6 +827,57 @@ public class BrowserAgent implements Agent, AgentEventListener
                 }
             }
         };
+    }
+    
+    // keeps track of the time-consuming loader threads.
+    private void addLoaderThread(BrowserController loader,
+                                 KillableThread thread)
+    {
+        if(activeThreadMap.containsKey(loader))
+        {
+            List list = (List)activeThreadMap.get(loader);
+            list.add(thread);
+        }
+        else
+        {
+            List list = new ArrayList();
+            list.add(thread);
+            activeThreadMap.put(loader,list);
+        }
+    }
+    
+    private void removeLoaderThread(BrowserController loader,
+                                    KillableThread thread)
+    {
+        if(activeThreadMap.containsKey(loader))
+        {
+            List list = (List)activeThreadMap.get(loader);
+            list.remove(thread);
+            if(list.size() == 0)
+            {
+                activeThreadMap.remove(loader);
+            }
+        }
+    }
+    
+    /**
+     * Indicates browser shutdown; interrupt any threads associated with
+     * this browser.
+     * @param loader The browser to cancel loading.
+     */
+    public void interruptThread(BrowserController loader)
+    {
+        System.err.println("interrupt requested");
+        if(activeThreadMap.containsKey(loader))
+        {
+            List list = (List)activeThreadMap.get(loader);
+            for(Iterator iter = list.iterator(); iter.hasNext();)
+            {
+                KillableThread kt = (KillableThread)iter.next();
+                kt.kill();
+            }
+            activeThreadMap.remove(loader);
+        }
     }
     
     /**

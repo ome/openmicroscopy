@@ -126,6 +126,8 @@ public class BrowserManager
         if (browser != null && browserList.contains(browser))
         {
             browserList.remove(browser);
+            BrowserEnvironment env = BrowserEnvironment.getInstance();
+            env.getBrowserAgent().interruptThread(browser.getController());
         }
     }
     

@@ -44,6 +44,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
@@ -123,6 +125,18 @@ public class BrowserInternalFrame extends JInternalFrame
             container.add(controller.getStatusView(),BorderLayout.SOUTH);
         }
         this.addFocusListener(new CommonFocusAdapter(this));
+        
+        final UIWrapper refCopy = this;
+        this.addInternalFrameListener(new InternalFrameAdapter()
+        {
+            /* (non-Javadoc)
+             * @see javax.swing.event.InternalFrameAdapter#internalFrameClosing(javax.swing.event.InternalFrameEvent)
+             */
+            public void internalFrameClosing(InternalFrameEvent arg0)
+            {
+                env.getBrowserManager().removeBrowser(refCopy);
+            }
+        });
 
     }
     
