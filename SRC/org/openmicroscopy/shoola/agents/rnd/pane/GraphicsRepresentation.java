@@ -239,7 +239,7 @@ class GraphicsRepresentation
 		int k;
 		if (qDef.family == QuantumFactory.LINEAR) k = INIT;
 		else if (qDef.family == QuantumFactory.LOGARITHMIC) k = MIN;
-		else k = (int) qDef.curveCoefficient;
+		else k = (int) (qDef.curveCoefficient*10);
 		setControlLocation(k); 
 	}
 	
