@@ -180,29 +180,14 @@ public interface DataManagementService
 	 */
     public List retrieveUserDatasets()
 		throws DSOutOfServiceException, DSAccessException;
-     
-    /**
-	 * Create, if none provided, two new protos and fill them up
-	 * with data retrieved form OMEDS Dataset objects.
-	 * 
-	 * @param dProto	dataset proto
-	 * @param iProto image proto
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service.
-	 */
-	public List retrieveUserDatasets(DatasetData dProto,
-				ImageSummary iProto)
-		throws DSOutOfServiceException, DSAccessException;
     								
 	 /**
 	 * Create, if none provided, twC new protos and fill them up
 	 * with data retrieved form OMEDS Dataset objects. Image detail will be retrieved 
 	 * as well
 	 * 
-	 * @param dProto	dataset proto
-	 * @param iProto image proto
+	 * @param dProto   dataset proto
+	 * @param iProto   image proto
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 

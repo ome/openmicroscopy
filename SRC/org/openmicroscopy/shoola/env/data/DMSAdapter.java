@@ -246,39 +246,10 @@ class DMSAdapter
 	{
 		return retrieveUserDatasets(null);
 	}
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
-		throws DSOutOfServiceException, DSAccessException
-	{
-    	//Make a new proto if none was provided.
-		if (dProto == null) dProto = new DatasetData();
-		if (iProto == null) iProto = new ImageSummary();
-		
-		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
 
-		//Define the criteria by which the object graph is pulled out.
-		Criteria c = 
-			DatasetMapper.buildUserDatasetsCriteria(uc.getUserID());
-
-		//Load the graph defined by criteria.
-		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
-	  	
-		//List of dataset summary objects.
-		List datasetsDS = null;
-		//Put the server data into the corresponding client object.
-		if (datasets != null) 
-		    datasetsDS = 
-				DatasetMapper.fillUserDatasets(datasets, dProto,iProto);
-    
-		//can be null
-		return datasetsDS;
-	}
-	
     /** Implemented as specified in {@link DataManagementService}. */
-    public List fullRetrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
+    public List fullRetrieveUserDatasets(DatasetData dProto, 
+                                        ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException
 	{
     	//Make a new proto if none was provided.
