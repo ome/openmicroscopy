@@ -81,4 +81,10 @@ public interface MouseDownSensitive
      * @param event The event parameters.
      */
     public void respondMouseClick(PInputEvent event);
+    
+    /**
+     * Respond to a mouse double click.
+     * @param event
+     */
+    public void respondMouseDoubleClick(PInputEvent event);
 }

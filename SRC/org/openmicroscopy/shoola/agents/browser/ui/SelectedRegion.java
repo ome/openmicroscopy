@@ -221,6 +221,16 @@ class SelectedRegion extends PNode implements MouseDownSensitive,
     }
     
     /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseDoubleClick(PInputEvent e)
+    {
+        PiccoloAction action =
+            mouseDownActions.getDoubleClickAction(PiccoloModifiers.getModifier(e));
+        action.execute(e);
+    }
+    
+    /**
      * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
      */
     public void respondMousePress(PInputEvent e)

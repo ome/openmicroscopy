@@ -457,6 +457,16 @@ public class BPalette extends PNode
         }
         
         /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseDoubleClick(PInputEvent event)
+        {
+            // pass through (no double clicking on icons); ignore
+            respondMouseClick(event);
+        }
+
+        
+        /* (non-Javadoc)
          * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
          */
         public void respondMousePress(PInputEvent event)

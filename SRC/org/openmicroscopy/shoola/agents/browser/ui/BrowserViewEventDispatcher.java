@@ -69,8 +69,16 @@ public final class BrowserViewEventDispatcher
                 {
                     if(node instanceof MouseDownSensitive)
                     {
-                        ((MouseDownSensitive)node).respondMouseClick(e);
-                        e.setHandled(true);
+                        if(e.getClickCount() < 2)
+                        {
+                            ((MouseDownSensitive)node).respondMouseClick(e);
+                            e.setHandled(true);
+                        }
+                        else
+                        {
+                            ((MouseDownSensitive)node).respondMouseDoubleClick(e);
+                            e.setHandled(true);
+                        }
                     }
                     else
                     {

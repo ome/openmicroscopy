@@ -54,6 +54,7 @@ public class MouseDownActions
 {
     private Map mousePressModifierMap;
     private Map mouseClickModifierMap;
+    private Map mouseDoubleClickModifierMap;
     private Map mouseReleaseModifierMap;
     
     private final Integer normalInteger = new Integer(PiccoloModifiers.NORMAL);
@@ -73,6 +74,9 @@ public class MouseDownActions
         mouseReleaseModifierMap = new HashMap();
         setAction(PiccoloAction.PNOOP_ACTION,mouseReleaseModifierMap,
                   PiccoloModifiers.NORMAL);
+        mouseDoubleClickModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,mouseDoubleClickModifierMap,
+                  PiccoloModifiers.NORMAL);
     }
       
     /**
@@ -84,6 +88,17 @@ public class MouseDownActions
     public PiccoloAction getMouseClickAction(int modifier)
     {
         return getAction(mouseClickModifierMap,modifier);
+    }
+    
+    /**
+     * Returns the action bound to a mouse double-click event with the
+     * specified modifier.
+     *
+     * @return See above.
+     */
+    public PiccoloAction getDoubleClickAction(int modifier)
+    {
+        return getAction(mouseDoubleClickModifierMap,modifier);
     }
 
     /**
@@ -119,6 +134,22 @@ public class MouseDownActions
     public void setMouseClickAction(int modifier, PiccoloAction action)
     {
         setAction(action,mouseClickModifierMap,modifier);
+    }
+    
+    /**
+     * Sets the action bound ot a mouse double click event to the specified
+     * action and modifier.  If the action is <code>null</code>, the bound
+     * mouse click action will be {@link PiccoloAction.PNOOP_ACTION}.  Put any
+     * actions that have conditional modifier logic using the
+     * {@link PiccoloModifiers.NORMAL} modifier.
+     * 
+     * @param modifier The modifier to bind the double-click with.
+     * @param action The action to bind the combination of modifier and mouse
+     *               double click to.
+     */
+    public void setMouseDoubleClickAction(int modifier, PiccoloAction action)
+    {
+        setAction(action,mouseDoubleClickModifierMap,modifier);
     }
 
     /**

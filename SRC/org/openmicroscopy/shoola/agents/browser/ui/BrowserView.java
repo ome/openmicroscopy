@@ -781,6 +781,16 @@ public class BrowserView extends PCanvas
         }
         
         /**
+         * For now, don't do anything-- just pass as if it were a single click.
+         * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+         */
+        public void respondMouseDoubleClick(PInputEvent event)
+        {
+            respondMouseClick(event);
+        }
+
+        
+        /**
          * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
          */
         public void respondMousePress(PInputEvent event)

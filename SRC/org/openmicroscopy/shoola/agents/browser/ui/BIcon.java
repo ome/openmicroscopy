@@ -338,6 +338,16 @@ public class BIcon extends PNode implements MouseOverSensitive,
     }
     
     /**
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseDoubleClick(PInputEvent event)
+    {
+        // ignore double; pass through to single
+        respondMouseClick(event);
+    }
+
+    
+    /**
      * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#respondMouseEnter(edu.umd.cs.piccolo.event.PInputEvent)
      */
     public void respondMouseEnter(PInputEvent e)
