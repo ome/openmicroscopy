@@ -128,7 +128,7 @@ public class HeatMapModel
         for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
         {
             HeatMapModelListener listener = (HeatMapModelListener)iter.next();
-            listener.modelChanged(treeModel);
+            listener.modelChanged(this);
         }
     }
 }
