@@ -87,18 +87,18 @@ public class Viewer
 	public static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	/** Reference to the {@link Registry}. */
-	private Registry			registry;
+	private Registry				registry;
 	
-	private ViewerUIF			presentation;
-	private ViewerCtrl			control;
-	private TopFrame			topFrame;
-	private RenderingControl	renderingControl;
+	private ViewerUIF				presentation;
+	private ViewerCtrl				control;
+	private TopFrame				topFrame;
+	private RenderingControl		renderingControl;
 	
-	private int					curImageID, curPixelsID;
-	private BufferedImage		curImage;
+	private int						curImageID, curPixelsID;
+	private BufferedImage			curImage;
 	
-	private JCheckBoxMenuItem	viewItem;
-	private JButton 			viewButton;
+	private JCheckBoxMenuItem		viewItem;
+	private JButton 				viewButton;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate() {}
@@ -129,10 +129,16 @@ public class Viewer
 	
 	Registry getRegistry() { return registry; }
 	
+	int getModel() { return renderingControl.getModel(); }
+	
+	void setModel(int model) { renderingControl.setModel(model); }
+	
 	PixelsDimensions getPixelsDims()
 	{ 
 		return renderingControl.getPixelsDims();
 	}
+	
+	int getCurPixelsID() { return curPixelsID; } 
 	
 	/** Default timepoint. */
 	int getDefaultT() { return renderingControl.getDefaultT(); }

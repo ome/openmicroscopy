@@ -48,6 +48,7 @@ import javax.swing.event.InternalFrameListener;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
+import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3D;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -133,6 +134,21 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
+	public int getModel() { return abstraction.getModel(); } 
+	
+	/** Forward event to {@link Viewer abstraction}. */
+	public void setModel(int model) { abstraction.setModel(model); } 
+	
+	/** Forward event to {@link Viewer abstraction}. */
+	public int getCurPixelsID() { return abstraction.getCurPixelsID(); } 
+	
+	/** Forward event to {@link Viewer abstraction}. */
+	public int getDefaultT() {return abstraction.getDefaultT(); }
+	
+	/** Forward event to {@link Viewer abstraction}. */
+	public int getDefaultZ() {return abstraction.getDefaultZ(); }
+	
+	/** Forward event to {@link Viewer abstraction}. */
 	public BufferedImage getBufferedImage()
 	{
 		return abstraction.getCurImage();
@@ -210,6 +226,13 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(valZ, valT);
 	}
 
+	/** Bring up the image3D viewer. */
+	public void showImage3DViewer()
+	{
+		//UIUtilities.centerAndShow(new Viewer3D(this));
+		new Viewer3D(this);
+	}
+	
 	/** Bring up the image inspector widget. */
 	public void showInspector()
 	{
