@@ -106,9 +106,11 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	/** The OME registry */
 	private Registry registry;
 	
-	public ChainBox(LayoutChainData chain,Registry registry) {
+		
+	public ChainBox(ChainView chainView,Registry registry) {
 		super();
-		this.chain = chain;
+		this.chainView = chainView;
+		this.chain = chainView.getChain();
 		this.registry = registry;
 		
 		chainLayer = new PLayer();
@@ -138,23 +140,20 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 		
 		chainLayer.addChild(owner);
+		owner.setScale(2);
 		owner.setOffset(x+HGAP,y+VGAP);
 		y += owner.getHeight()+VGAP*5;
-		
-		// build the chain..
-		chainView = new PaletteChainView(chain,registry);
-		
+				
 		chainLayer.addChild(chainView);
+		float xoff = HGAP*2;
 		chainView.setOffset(HGAP*2,y);
-		y += chainView.getHeight()+VGAP; 
-
-		//		 find width. use it in layout of datasets/executions..
-		if (chainView.getWidth() > width)
-			width = chainView.getWidth();	
-		setExtent(width+HGAP*2,y);
+		double scale = chainView.getScale();
+		double yoff = chainView.getHeight()*scale;
+		y += chainView.getHeight()*scale+VGAP; 
+		double newWidth =chainView.getWidth()*scale;	
+		setExtent(newWidth+HGAP*2,y);
 		invalidateFullBounds();
 	}
-	
 	/**
 	 * 
 	 * @return the ID of the chain stored in the box
@@ -174,14 +173,6 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	public ChainView getChainView() {
 		return chainView;
 	}
-	
-	/*public void setExtent(double width,double height) {
-		super.setExtent(width,height);
-		// add a triangle in the corner.
-		if (chain.getIsLocked()) {
-			addLockedIndicator();
-		}
-	}*/
 		
 	public void centerChain() {
 		// get my extent
@@ -190,8 +181,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		double boxHeight = b.getHeight();
 		
 		// get chain's extent
-		double chainWidth = chainView.getWidth();
-		double chainHeight = chainView.getHeight();
+		double chainWidth = chainView.getFullBounds().getWidth();
+		double chainHeight = chainView.getFullBounds().getHeight();
 		// set offset of chain to be in center.
 		
 		// topmost part of where chain goes
@@ -254,9 +245,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
-		PNode node = ((PaletteChainView)chainView).getFullView();
-		PBounds b = node.getFullBounds();
-		BufferedImage image = (BufferedImage) node.toImage((int) (b.getWidth()*7),
+		PBounds b = chainView.getFullBounds();
+		BufferedImage image = (BufferedImage) chainView.toImage((int) (b.getWidth()*7),
 					(int) (b.getHeight()*7),Constants.CANVAS_BACKGROUND_COLOR);
 		try { 
 			ImageIO.write(image,"png",new File("foo.png"));
