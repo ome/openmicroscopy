@@ -174,7 +174,7 @@ public class ChainExecutionMapper
 			exec.setChain(chain);
 			
 			//node executions
-			getNodeExecutions(exec,e,neProto,anProto,mProto,meProto);
+			getNodeExecutions(exec,e,neProto,anProto,mProto,meProto,chain);
 			execList.add(exec);
 		}
 		
@@ -183,7 +183,7 @@ public class ChainExecutionMapper
 	
 	public static void getNodeExecutions(ChainExecutionData exec,ChainExecution e,
 			NodeExecutionData neProto,AnalysisNodeData anProto,
-			ModuleData mProto,ModuleExecutionData meProto) {
+			ModuleData mProto,ModuleExecutionData meProto,AnalysisChainData chain) {
 		ArrayList nodeExecutionList = new ArrayList();
 		
 		List executions = e.getNodeExecutions();
@@ -208,7 +208,7 @@ public class ChainExecutionMapper
 			
 			// get the node's id.
 			analysisNode.setID(n.getID());
-			
+			analysisNode.setChain(chain);
 			
 			
 			nodeExecution.setAnalysisNode(analysisNode);
