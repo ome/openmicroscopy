@@ -224,7 +224,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	private void buildMagnifiedLabel() {
 		// set up the magnified version of the module name
 		zoomName = new PText(getName());
-		//zoomName.setGreekThreshold(0);
+		zoomName.setGreekThreshold(0);
 		zoomName.setFont(Constants.NAME_FONT);
 		zoomName.setPickable(false);
 		zoomName.setConstrainWidthToTextWidth(false); 
@@ -433,14 +433,14 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	}
 	
 	public void showOverview() {
-		if (!overview.getVisible()) {
-			overview.setVisible(true);
-			overview.setChildrenPickable(true);
-			setBounds(overview.getBounds());
+		if (detail.getParent() == this && detail.getVisible() == true) {
+			detail.setVisible(false);
+			detail.setChildrenPickable(false);
 		}
 		overview.setVisible(true);
-		if (detail.getParent() == this && detail.getVisible() == true)
-			detail.setVisible(false);
+	    overview.setChildrenPickable(true);
+		setBounds(overview.getBounds());
+		
 	}
 	
 		
@@ -462,7 +462,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	
 	// can only link modules if the parameters are visible
 	public boolean isLinkable() {
-		return labelNodes.getVisible();
+		return detail.getVisible();
 	}
 	
 	/**
