@@ -32,13 +32,17 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.Dimension;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * 
@@ -54,29 +58,42 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
  * </small>
  * @since OME2.2
  */
-class QuantumMapping
+public class QuantumPane
 	extends JPanel
 {
+	private static final Color		BACKGROUND = Color.WHITE;
 	private CodomainPane			codomainPane;
 	private DomainPane				domainPane;
 	private GraphicsRepresentation  gRepresentation;
+	private JLayeredPane			layeredPane;
 	
-	private QuantumMappingManager	manager;
+	/** Reference to the {@link QuantumPaneManager manager}. */
+	private QuantumPaneManager	manager;
 	
 	//TODO: retrive codomain settings.
-	QuantumMapping(Registry registry, QuantumDef qDef, String[] waves, int mini,
-				 	int maxi)
+	public QuantumPane(RenderingAgtCtrl eventManager, String[] waves, 
+					int mini, int maxi)
 	{
-		manager = new QuantumMappingManager(this);
-		codomainPane = new CodomainPane(registry, manager);
-		domainPane = new DomainPane(registry, manager, waves, qDef);
+		//TEST
+		QuantumDef qDef = new QuantumDef(QuantumFactory.LINEAR, 16, 1, 
+									0, QuantumFactory.DEPTH_8BIT,
+									QuantumFactory.DEPTH_8BIT);
+		manager = new QuantumPaneManager(eventManager, this);
+		
+		//Retrieve user settings
+		codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
+		//TODO: cannot pass quantumDef
+		domainPane = new DomainPane(eventManager.getRegistry(), manager, waves, 
+									qDef);
 		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
+		gRepresentation.setDefaultLinear(mini, maxi);
 		manager.setMinimum(mini);
 		manager.setMaximum(maxi);
-		buildGUI();
+		initLayeredPane();
+		//buildGUI();
 	}
 
-	public QuantumMappingManager getManager()
+	public QuantumPaneManager getManager()
 	{
 		return manager;
 	}
@@ -95,11 +112,38 @@ class QuantumMapping
 	{
 		return gRepresentation;
 	}
+
+	public JLayeredPane getLayeredPane()
+	{
+		return layeredPane;
+	}
 	
-	/** Builds and layout the GUI. */
+	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
-	
+		//add(domainPane);
+		//add(codomainPane);
+		//add(buildCurveGUI());
 	}
+	
+	/** 
+	 * Builds a layeredPane containing the GraphicsRepresentation.
+	 *
+	 * @return the above mentioned.
+	 */   
+	private void initLayeredPane()
+	{
+		layeredPane = new JLayeredPane();
+		layeredPane.setPreferredSize(new Dimension(GraphicsRepresentation.width, 
+										GraphicsRepresentation.height));
+		layeredPane.setBounds(0, 0, GraphicsRepresentation.width, 
+							GraphicsRepresentation.height);
+		gRepresentation.setSize(GraphicsRepresentation.height, 
+								GraphicsRepresentation.height);
+		gRepresentation.setBackground(BACKGROUND);
+		layeredPane.add(gRepresentation);
+	}
+
+
 
 }

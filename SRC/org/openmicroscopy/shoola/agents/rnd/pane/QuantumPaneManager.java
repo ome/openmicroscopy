@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.rnd.QuantumMappingManager
+ * org.openmicroscopy.shoola.agents.rnd.pane.QuantumPaneManager
  *
  *------------------------------------------------------------------------------
  *
@@ -29,12 +29,16 @@
 
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
+
 //Java imports
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 /** 
  * 
  *
@@ -49,7 +53,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
  * </small>
  * @since OME2.2
  */
-class QuantumMappingManager
+class QuantumPaneManager
 {
 	/** minimum value (real value) of the input window. */
 	private int 				minimum;
@@ -69,10 +73,15 @@ class QuantumMappingManager
 	/** The current window output end value. */
 	private int					curOutputEnd;
 	
-	private QuantumMapping		view;
+	/** Reference to the {@link QuantumPane view}. */
+	private QuantumPane			view;
 	
-	QuantumMappingManager(QuantumMapping view)
+	/** Reference to the {@link RenderingAgtCtrl eventManager}. */
+	private RenderingAgtCtrl	eventManager;
+	
+	QuantumPaneManager(RenderingAgtCtrl eventManager, QuantumPane view)
 	{
+		this.eventManager = eventManager;
 		this.view = view;
 	}
 	
@@ -138,7 +147,6 @@ class QuantumMappingManager
 
 	void setStrategy()
 	{
-		//TODO: update strategy
 	}
 
 	/**
@@ -147,6 +155,37 @@ class QuantumMappingManager
 	 */
 	void setWavelength(int index)
 	{
+	}
+	
+	/** Forward event to the {@link GraphicsRepresentation}. */
+	void updateGraphic(int coefficient, int family)
+	{
+		if (family == QuantumFactory.POLYNOMIAL) 
+			view.getGRepresentation().setControlLocation(coefficient);
+		else if (family == QuantumFactory.EXPONENTIAL) 
+			view.getGRepresentation().setControlAndEndLocation(coefficient);
+	}
+	
+	/** Forward event to the {@link GraphicsRepresentation}. */
+	void updateGraphic(int family) 
+	{
+		view.getGRepresentation().setControlsPoints(family);
+		if (family == QuantumFactory.LOGARITHMIC)
+			view.getGRepresentation().setControlLocation(
+										GraphicsRepresentation.MIN);
+   		else if (family == QuantumFactory.LINEAR || 
+				family == QuantumFactory.POLYNOMIAL)
+			view.getGRepresentation().setControlLocation(
+										GraphicsRepresentation.INIT);
+		else if (family == QuantumFactory.EXPONENTIAL)
+			view.getGRepresentation().setControlAndEndLocation(
+										GraphicsRepresentation.INIT);
+	}
+	
+	/** Forward event to the {@link GraphicsRepresentation}. */
+	void updateGraphic(boolean b)
+	{
+		view.getGRepresentation().reverse(b);
 	}
 	
 	/** 
@@ -175,13 +214,23 @@ class QuantumMappingManager
 		curEnd = value;
 		//TODO: update window
 		DomainPaneManager dpManager = view.getDomainPane().getManager();
-  		GraphicsRepresentationManager 
-	 	 	grManager = view.getGRepresentation().getManager();
-  		dpManager.setInputWindowStart(value);
-  		grManager.setInputWindowStart(value);	
+		GraphicsRepresentationManager 
+			grManager = view.getGRepresentation().getManager();
+		dpManager.setInputWindowEnd(value);
+		grManager.setInputWindowEnd(value);	
 	}
 	
+	/** Forward event to the {@link RenderingAgtCtrl eventManager}. */
+	void showDialog(JDialog dialog)
+	{
+		eventManager.showDialog(dialog);
+	}
 	
+	/** Retrieve the main Frame. */
+	JFrame getReferenceFrame()
+	{
+		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
+	}
 	
 	
 }
