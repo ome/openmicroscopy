@@ -30,11 +30,13 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import javax.swing.UIManager;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -60,6 +62,10 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
 final class TopFrameInit
     extends InitializationTask
 {
+	
+	/** Default value of the L&F entry in the container's configuration file. */
+	private static final String		SYSTEM_LF = "system";
+	
 
 	/**
 	 * Constructor required by superclass.
@@ -87,13 +93,33 @@ final class TopFrameInit
 	void configure() {}
 
 	/** 
-	 * Carries out this task.
+	 * Loads the L&F, creates the top frame and then links it to the registry.
+	 * The L&F is chosen as follows:
+	 * <ul>
+	 *  <li>If the look and feel configuration entry in the container's
+	 *  configuration file is set to "system" (case insensitive), then
+	 *  the system's L&F is loaded.</li>
+	 *  <li>If the look and feel configuration entry in the container's
+	 *  configuration file specifies a valid class name, then that L&F is
+	 *  loaded.</li>
+	 *  <li>Failing the above, the dafault L&F is loaded.</li>
+	 * </ul>
+	 * 
 	 * @see InitializationTask#execute()
 	 */
 	void execute() 
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
+		try {
+			String lookAndFeelClass = 
+								(String) reg.lookup(LookupNames.LOOK_N_FEEL);
+			if (SYSTEM_LF.equalsIgnoreCase(lookAndFeelClass))
+				lookAndFeelClass = UIManager.getSystemLookAndFeelClassName();
+			UIManager.setLookAndFeel(lookAndFeelClass);
+		} catch(Exception e) { 
+			//Ignore, we'll use the default L&F.
+		}
 		TopFrame tf = UIFactory.makeTopFrame(container);
 		RegistryFactory.linkTopFrame(tf, reg);
 	}
