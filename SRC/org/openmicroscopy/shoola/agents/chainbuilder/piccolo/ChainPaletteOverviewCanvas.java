@@ -120,9 +120,10 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 		viewRect.setVisible(true);
 	}
 	
-	public void updateMainView() { 
-		detail.getCamera().
-			animateViewToCenterBounds(viewRect.getGlobalBounds(),true,0);
+	public void updateMainView() {
+		detail.panView(viewRect.getGlobalBounds());
+		/*detail.getCamera().
+			animateViewToCenterBounds(viewRect.getGlobalBounds(),true,0); */
 	}
 	
 	public void hideOverview() {
