@@ -102,6 +102,7 @@ public class SingleModuleView extends ModuleView {
 	public void setAllHighlights(boolean v) {
 		super.setAllHighlights(v);
 		setModulesHighlighted(v);
+		setHighlighted(v);
 	}
 	
 	public String getName() {
@@ -142,5 +143,13 @@ public class SingleModuleView extends ModuleView {
 		}
 		module.removeModuleNode(this);
 		removeFromParent();
+	}
+	
+	public double getHeight() {
+		return detail.getHeight();
+	}
+	
+	public double getWidth() {
+		return detail.getWidth();
 	}
 }
