@@ -32,8 +32,10 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -54,8 +56,10 @@ import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.RenderingSettings;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
+import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.ChainExecutionMapper;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
+import org.openmicroscopy.shoola.env.data.map.HierarchyMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.ModuleMapper;
 import org.openmicroscopy.shoola.env.data.map.ModuleCategoryMapper;
@@ -395,6 +399,42 @@ class DMSAdapter
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesWithAnnotations(int datasetID, ImageSummary retVal)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Create a new dataObject if none provided.
+        //Object used as prototype.
+        if (retVal == null) retVal = new ImageSummary();
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
+
+        //Load the graph defined by criteria.
+        Dataset dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
+
+        //List of image summary object.
+        List images = null;
+        //Put the server data into the corresponding client object.
+        if (dataset != null) {
+            //Retrieve the user ID.
+            UserCredentials uc = (UserCredentials)
+                                registry.lookup(LookupNames.USER_CREDENTIALS);
+            List ids = DatasetMapper.prepareListImagesID(dataset);
+            c = AnnotationMapper.buildImageAnnotationCriteria(ids);
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            images = DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
+                        uc.getUserID());
+        }
+        return images;
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesWithAnnotations(int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesWithAnnotations(datasetID, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
     public ImageData retrieveImage(int id, ImageData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
@@ -420,7 +460,7 @@ class DMSAdapter
                     STSMapper.IMAGE_GRANULARITY, id);
             List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
             //need to fix problem if no logical channel(shouldn't happen)
-            if (lc != null && lc.size() > 0) 
+            if (lc != null && lc.size() != retVal.getDefaultPixels().getSizeC()) 
                 retVal.setChannels(ImageMapper.fillImageChannels(lc));
             else 
                 retVal.setChannels(ImageMapper.fillDefaultImageChannels(
@@ -499,10 +539,10 @@ class DMSAdapter
 		if (mcProto == null)   mcProto = new ModuleCategoryData();
 		if (mProto == null)    mProto = new ModuleData();
 				
-		// Define the criteria by which the object graph is pulled out
+		//Define the criteria by which the object graph is pulled out
 		Criteria c = ModuleCategoryMapper.buildModuleCategoriesCriteria();
 	
-		// Load the graph defined by the criteria
+		//Load the graph defined by the criteria
 		List categories = 
 			(List) gateway.retrieveListData(ModuleCategory.class, c);
 	
@@ -535,11 +575,8 @@ class DMSAdapter
 		if (finProto == null)   finProto = new FormalInputData();
 		if (foutProto == null)  foutProto = new FormalOutputData();
 		if (stProto == null)    stProto = new SemanticTypeData();
-		
-		//		Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-		// Define the criteria by which the object graph is pulled out
+
+		//Define the criteria by which the object graph is pulled out
 		Criteria c = AnalysisChainMapper.buildChainsCriteria();
 	
 		// Load the graph defined by the criteria
@@ -854,20 +891,20 @@ class DMSAdapter
 			gateway.updateMarkedData();
 		} 
 	}
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public ChannelData[] getChannelData(int imageID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Criteria c = PixelsMapper.buildPixelChannelComponentCriteria(imageID);
-		List ciList = 
-			(List) gateway.retrieveListSTSData("PixelChannelComponent", c);
-		c = PixelsMapper.buildLogicalChannelCriteria(
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public ChannelData[] getChannelData(int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = PixelsMapper.buildPixelChannelComponentCriteria(imageID);
+        List ciList = 
+            (List) gateway.retrieveListSTSData("PixelChannelComponent", c);
+        c = PixelsMapper.buildLogicalChannelCriteria(
                     STSMapper.IMAGE_GRANULARITY, imageID);
-		List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-		if (ciList == null || lcList == null) return null;
+        List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
+        if (ciList == null || lcList == null) return null;
         return ImageMapper.fillImageChannelData(ciList, lcList);
-	}
+    }
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public void updateChannelData(ChannelData retVal)
@@ -930,7 +967,36 @@ class DMSAdapter
         }
 	}
     
-    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveIDPHierarchy(List imageSummaries)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (imageSummaries == null)
+            throw new NullPointerException("List of imageSummaries " +
+                "cannot be null");
+        if (imageSummaries.size() == 0)
+            throw new IllegalArgumentException("List of imageSummaries " +
+                    "cannot be of length 0");
+        Iterator i = imageSummaries.iterator();
+        ImageSummary is;
+        Map map = new HashMap();
+        List ids = new ArrayList();
+        Integer id;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            id = new Integer(is.getID());
+            map.put(id, is);
+            ids.add(id);
+        }
+        Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
+        List l = null;
+        //Load the graph defined by criteria.
+            List images = (List) gateway.retrieveListData(Image.class, c);
+            if (images != null)
+                 l = HierarchyMapper.fillIDPHierarchy(images, map);
+            return l;
+    }
+
     
     /** Save the renderingSettings for the very first time. */
     private List saveRSFirstTime(int imageID, RenderingDef rDef)
