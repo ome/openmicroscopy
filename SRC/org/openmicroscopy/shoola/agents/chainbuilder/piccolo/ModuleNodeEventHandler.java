@@ -99,4 +99,7 @@ public class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 		mod.setModulesHighlighted(true);
 	}
 	
+	public void unhighlightModules(ChainModuleData mod) {
+		mod.setModulesHighlighted(false);
+	}
 }
