@@ -80,7 +80,7 @@ public class ImageMapper
   		criteria.addWantedField("description"); 
 		criteria.addWantedField("inserted"); 
 		criteria.addWantedField("created"); 
-		criteria.addWantedField("owner");
+		//criteria.addWantedField("owner");	
 		criteria.addWantedField("datasets");
 		criteria.addWantedField("default_pixels");
 		
@@ -99,6 +99,7 @@ public class ImageMapper
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
   		
+  		/*
   		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
   		criteria.addWantedField("owner", "FirstName");
@@ -110,7 +111,7 @@ public class ImageMapper
   		//Specify which fields we want for the owner's group.
   		criteria.addWantedField("owner.Group", "id");
   		criteria.addWantedField("owner.Group", "Name");
-  		
+  		*/
   		return criteria;
 	}
 	
@@ -126,8 +127,7 @@ public class ImageMapper
 		//Fill in the data coming from OMEDS object.
 		empty.setID(image.getID());
 		empty.setName(image.getName());
-		//TODO: remove comments when bug fixed
-		//empty.setDescription(image.getDescription());
+		empty.setDescription(image.getDescription());
 		empty.setCreated(image.getCreated());
 		empty.setInserted(image.getInserted());
 		
@@ -137,8 +137,7 @@ public class ImageMapper
 		empty.setOwnerFirstName(owner.getFirstName());
 		empty.setOwnerLastName(owner.getLastName());
 		empty.setOwnerEmail(owner.getEmail());
-		//TODO: remove comments when bug fixed
-		//empty.setOwnerInstitution(owner.getInstitution());
+		empty.setOwnerInstitution(owner.getInstitution());
 	
 		//Fill in the data coming from Group.
 		Group group = owner.getGroup();
@@ -165,14 +164,14 @@ public class ImageMapper
 		List pixels = new ArrayList();
 		PixelsDescription pxd = new PixelsDescription();
 		pxd.setID(px.getID());
-		pxd.setSizeX(px.getSizeX());
-		pxd.setSizeY(px.getSizeY());
-		pxd.setSizeZ(px.getSizeZ());
-		pxd.setSizeC(px.getSizeC());
-		pxd.setSizeT(px.getSizeT());
-		pxd.setBitsPerPixel(px.getBitsPerPixel());
-		//TODO: remove comments when bug fixed
-		//pxd.setImageServerUrl(px.getRepository().getImageServerURL());
+		if (px.getSizeX() != null) pxd.setSizeX((px.getSizeX()).intValue());
+		if (px.getSizeY() != null) pxd.setSizeY((px.getSizeY()).intValue());
+		if (px.getSizeZ() != null) pxd.setSizeZ((px.getSizeZ()).intValue());
+		if (px.getSizeC() != null) pxd.setSizeC((px.getSizeC()).intValue());
+		if (px.getSizeT() != null) pxd.setSizeT((px.getSizeT()).intValue());
+		if (px.getBitsPerPixel() != null) 
+			pxd.setBitsPerPixel((px.getBitsPerPixel()).intValue());
+		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
 		pixels.add(pxd);
 		return pixels;
 	}
