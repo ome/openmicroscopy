@@ -84,7 +84,7 @@ public class DatasetMapper
 	 * Criteria linked to retrieveDataset.
 	 * 
 	 */
-	public static Criteria buildDatasetCriteria()
+	public static Criteria buildDatasetCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 
@@ -111,6 +111,8 @@ public class DatasetMapper
 		criteria.addWantedField("images", "id");
 		criteria.addWantedField("images", "name");
 		
+		criteria.addFilter("id", new Integer(id));
+		
 		return criteria;
 	}
 	
@@ -134,8 +136,7 @@ public class DatasetMapper
 		empty.setOwnerFirstName(owner.getFirstName());
 		empty.setOwnerLastName(owner.getLastName());
 		empty.setOwnerEmail(owner.getEmail());
-		// null pointer exceptions
-		//empty.setOwnerInstitution(owner.getInstitution());
+		empty.setOwnerInstitution(owner.getInstitution());
 		
 		//Fill in the data coming from Group.
 		Group group = owner.getGroup();

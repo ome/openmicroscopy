@@ -70,7 +70,7 @@ public class ImageMapper
 	 * Define the criteria by which the object graph is pulled out.
 	 * @return
 	 */
-	public static Criteria buildImageCriteria()
+	public static Criteria buildImageCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 		
@@ -80,13 +80,14 @@ public class ImageMapper
   		criteria.addWantedField("description"); 
 		criteria.addWantedField("inserted"); 
 		criteria.addWantedField("created"); 
-		//criteria.addWantedField("owner");	
+		criteria.addWantedField("owner");	
 		criteria.addWantedField("datasets");
 		criteria.addWantedField("default_pixels");
 		
 		//Specify which fields we want for the datasets.
 		criteria.addWantedField("datasets", "id");
 		criteria.addWantedField("datasets", "name");
+		
 		
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("default_pixels", "id");
@@ -99,7 +100,7 @@ public class ImageMapper
 		criteria.addWantedField("default_pixels", "Repository");
 		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
   		
-  		/*
+  		
   		//Specify which fields we want for the owner.
 		criteria.addWantedField("owner", "id");
   		criteria.addWantedField("owner", "FirstName");
@@ -111,7 +112,9 @@ public class ImageMapper
   		//Specify which fields we want for the owner's group.
   		criteria.addWantedField("owner.Group", "id");
   		criteria.addWantedField("owner.Group", "Name");
-  		*/
+  		
+		criteria.addFilter("id", new Integer(id));
+		
   		return criteria;
 	}
 	
@@ -155,8 +158,10 @@ public class ImageMapper
 		empty.setDatasets(datasets);
 		
 		// pixelsDescription list.
-		List pixels = fillPixels((Pixels) image.getDefaultPixels());
-		empty.setPixels(pixels);	
+		if (image.getDefaultPixels() != null) {
+			List pixels = fillPixels((Pixels) image.getDefaultPixels());
+			empty.setPixels(pixels);
+		}	
 	}
 	
 	private static List fillPixels(Pixels px)

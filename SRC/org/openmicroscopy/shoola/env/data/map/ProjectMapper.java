@@ -97,7 +97,7 @@ public class ProjectMapper
 	 * Criteria linked to retrieveProject.
 	 * 
 	 */
-	public static Criteria buildProjectCriteria()
+	public static Criteria buildProjectCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 
@@ -124,6 +124,8 @@ public class ProjectMapper
 		criteria.addWantedField("datasets", "id");
 		criteria.addWantedField("datasets", "name");
 		
+		criteria.addFilter("id", new Integer(id));
+		
 		return criteria;
 	}
 	
@@ -147,8 +149,7 @@ public class ProjectMapper
 		empty.setOwnerFirstName(owner.getFirstName());
 		empty.setOwnerLastName(owner.getLastName());
 		empty.setOwnerEmail(owner.getEmail());
-		// null pointer exception b/c
-		//empty.setOwnerInstitution(owner.getInstitution());
+		empty.setOwnerInstitution(owner.getInstitution());
 		
 		//Fill in the data coming from Group.
 		Group group = owner.getGroup();
