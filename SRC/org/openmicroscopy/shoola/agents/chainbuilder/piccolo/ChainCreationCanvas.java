@@ -214,7 +214,9 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				e.getDropTargetContext().dropComplete(true);
 				int id = i.intValue(); 
 				Point2D loc = e.getLocation();
+				System.err.println("trying to drop chain.."+id);
 				LayoutChainData chain = manager.getChain(id);
+				System.err.println("dropping chain retrieved by manager is "+chain);
 				createDroppedChain(chain,loc);
 				addInputEventListener(handler);			
 			} 
@@ -331,6 +333,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				JOptionPane.INFORMATION_MESSAGE);
 		newChain.layout();
 		frame.updateChainPalette(newChain);
+		manager.addChain(newChain);
 
 	}
 	
