@@ -47,7 +47,7 @@ import java.awt.datatransfer.DataFlavor;
 
 
 /**
- * A DataTransfer Flavor for {@link CModule} objects. This one encodes the 
+ * A DataTransfer Flavor for {@link ModuleData} objects. This one encodes the 
  * module id as a string, rather than as an Integer. It's a bit of a hack,
  * but it seems necessary if we're going to allow drag/drop of both chains and
  * modules based on a single id - they must have separate class names in the 
