@@ -50,9 +50,6 @@ import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JSeparator;
@@ -63,9 +60,6 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.IconManager;
 import org.openmicroscopy.shoola.agents.browser.UIConstants;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * Wraps a BrowserView in a JInternalFrame for use in MDI applications.
@@ -104,39 +98,7 @@ public class BrowserInternalFrame extends JInternalFrame
             this.env = BrowserEnvironment.getInstance();
         }
         
-        final TopFrame tf = env.getBrowserAgent().getTopFrame();
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("View");
-        JMenuItem heatItem = new JMenuItem("HeatMap");
-        heatItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ae)
-            {
-                HeatMapManager manager = env.getHeatMapManager();
-                HeatMapUI ui = manager.getUI();
-                ui.setClosable(true);
-                ui.setIconifiable(true);
-                ui.setResizable(false);
-                ui.setMaximizable(false);
-                if(!ui.isShowing())
-                {
-                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                    ui.show();
-                }
-                else
-                {
-                    try
-                    {
-                        ui.setSelected(true);
-                    }
-                    catch(PropertyVetoException ex) {}
-                }
-            }
-        });
-        heatItem.setEnabled(true);
-        menu.add(heatItem);
-        menuBar.add(menu);
-        setJMenuBar(menuBar);
+        setJMenuBar(new BrowserMenuBar(theController.getBrowserModel()));
         
         JPanel toolbarPanel = new JPanel();
         toolbarPanel.setLayout(new FlowLayout(FlowLayout.LEFT));

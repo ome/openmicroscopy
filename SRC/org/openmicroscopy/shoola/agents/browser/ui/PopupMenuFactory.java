@@ -36,6 +36,8 @@
  
 package org.openmicroscopy.shoola.agents.browser.ui;
 
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -86,7 +88,28 @@ public class PopupMenuFactory
      */
     public static JPopupMenu getThumbnailMenu(final Thumbnail t)
     {
-        JPopupMenu menu = new JPopupMenu();
+        final JMenuItem annotateItem = new JMenuItem("Annotate");
+        final JPopupMenu menu = new JPopupMenu()
+        {
+            public void show(Component arg0, int arg1, int arg2)
+            {
+                super.show(arg0, arg1, arg2);
+                Point p = arg0.getLocationOnScreen();
+                
+                final Point displayPoint = new Point(p.x+arg1,p.y+arg2);
+                System.err.println("display="+displayPoint);
+                
+                annotateItem.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        PiccoloAction action =
+                            PiccoloActionFactory.getAnnotateImageAction(t,displayPoint);
+                        action.execute();
+                    }
+                });
+            }
+        };
         JMenuItem openItem = new JMenuItem("Open");
         openItem.addActionListener(new ActionListener()
         {
@@ -110,17 +133,6 @@ public class PopupMenuFactory
             }
         });
         menu.add(infoItem);
-        
-        JMenuItem annotateItem = new JMenuItem("Annotate");
-        annotateItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                PiccoloAction action =
-                    PiccoloActionFactory.getAnnotateImageAction(t);
-                action.execute();
-            }
-        });
         menu.add(annotateItem);
         
         return menu;

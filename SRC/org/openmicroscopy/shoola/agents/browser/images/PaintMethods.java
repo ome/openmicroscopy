@@ -42,6 +42,9 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.shoola.agents.browser.UIConstants;
+import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
+
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
@@ -56,7 +59,7 @@ public class PaintMethods
 {
     public static final PaintMethod DRAW_NAME_METHOD = new AbstractPaintMethod()
     {
-        private Font nameFont = new Font(null,Font.BOLD,30);
+        private Font nameFont = new Font(null,Font.BOLD,9);
         private Color nameColor = Color.yellow;
         
         /* (non-Javadoc)
@@ -69,7 +72,27 @@ public class PaintMethods
             Color oldColor = g.getColor();
             g.setFont(nameFont);
             g.setColor(nameColor);
-            g.drawString(t.getModel().getName(),4,32);
+            StringPainter.drawString(g,t.getModel().getName(),4,15);
+            g.setColor(oldColor);
+            g.setFont(oldFont);
+        }
+    };
+    
+    public static final PaintMethod DRAW_WELLNO_METHOD = new AbstractPaintMethod()
+    {
+        private Font wellNoFont = new Font(null,Font.BOLD,12);
+        private Color numberColor = Color.yellow;
+        
+        public void paint(PPaintContext c, Thumbnail t)
+        {
+            Graphics2D g = c.getGraphics();
+            Font oldFont = g.getFont();
+            Color oldColor = g.getColor();
+            g.setFont(wellNoFont);
+            g.setColor(numberColor);
+            String wellNo = (String)t.getModel().
+                                    getValue(UIConstants.WELL_KEY_STRING);
+            StringPainter.drawString(g,wellNo,4,18);
             g.setColor(oldColor);
             g.setFont(oldFont);
         }

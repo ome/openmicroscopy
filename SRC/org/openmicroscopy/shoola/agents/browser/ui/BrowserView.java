@@ -222,7 +222,7 @@ public class BrowserView extends PCanvas
                                                 PiccoloActions.POPUP_MENU_ACTION);
         
 
-        semanticLayer = new HoverManager();
+        semanticLayer = new HoverManager(this);
         semanticHoverThumbnailAction =
             PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
             

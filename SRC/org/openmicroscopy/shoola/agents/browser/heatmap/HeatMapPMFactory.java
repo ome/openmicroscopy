@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.images.ZoomDependentPaintMethod;
+import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
 
 import edu.umd.cs.piccolo.util.PPaintContext;
 
@@ -178,7 +179,7 @@ public class HeatMapPMFactory
                     Point2D anchorPoint = (Point2D)stringLocationMap.get(t.getModel());
                     String valueString = (String)valueStringMap.get(t.getModel());
                     g.setColor(textColor);
-                    g.drawString(valueString,(float)anchorPoint.getX(),
+                    StringPainter.drawString(g,valueString,(float)anchorPoint.getX(),
                                              (float)anchorPoint.getY());
                 }
                 else
@@ -187,7 +188,7 @@ public class HeatMapPMFactory
                     Point2D anchorPoint = (Point2D)stringLocationMap.get(t.getModel());
                     String valueString = (String)valueStringMap.get(t.getModel());
                     g.setColor(textColor);
-                    g.drawString(valueString,(float)anchorPoint.getX(),
+                    StringPainter.drawString(g,valueString,(float)anchorPoint.getX(),
                                              (float)anchorPoint.getY());
                 }
             }

@@ -37,6 +37,7 @@
 package org.openmicroscopy.shoola.agents.browser.events;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -250,6 +251,30 @@ public class PiccoloActionFactory
     }
     
     /**
+     * Creates an action that, when executed, will trigger the annotation
+     * dialog for this particular image shown in this thumbnail.  The
+     * annotator will be launched at the specified point.
+     * @param t The thumbnail to annotate (current image being annotated)
+     * @param point Where to launch the annotator.
+     * @return A PiccoloAction that wraps the appropriate Annotator trigger
+     *         code in an execute() statement.
+     */
+    public static PiccoloAction getAnnotateImageAction(final Thumbnail t,
+                                                       final Point point)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.annotateImage(t,point);
+            }
+        };
+        return action;
+    }
+    
+    /**
      * Creates an action, that, when exected, will trigger a zoom-to-fit
      * command.
      * @param model The browser to affect.
@@ -266,7 +291,7 @@ public class PiccoloActionFactory
             }
         };
         return action;
-    };
+    }
     
     /**
      * Creates an action, that, when exected, will trigger a zoom-to-actual
@@ -285,7 +310,7 @@ public class PiccoloActionFactory
             }
         };
         return action;
-    };
+    }
     
     /**
      * Creates an action, that, when exected, will trigger a zoom-to-50%
@@ -304,7 +329,7 @@ public class PiccoloActionFactory
             }
         };
         return action;
-    };
+    }
     
     /**
      * Creates an action, that, when exected, will trigger a zoom-to-75%
@@ -323,7 +348,7 @@ public class PiccoloActionFactory
             }
         };
         return action;
-    };
+    }
     
     /**
      * Creates an action, that, when exected, will trigger a zoom-to-200%
@@ -348,6 +373,10 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
+            public void execute()
+            {
+                execute(null);
+            }
             public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
@@ -361,6 +390,10 @@ public class PiccoloActionFactory
     {
         PiccoloAction action = new PiccoloAction()
         {
+            public void execute()
+            {
+                execute(null);
+            }
             public void execute(PInputEvent e)
             {
                 model.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,

@@ -41,6 +41,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -55,9 +56,12 @@ import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.images.PaintShapeGenerator;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
@@ -102,6 +106,8 @@ public class SemanticZoomNode extends PImage
     protected Image[] thumbnailImages;
     
     protected boolean multipleModeOn;
+    
+    protected Point absoluteLocation = null;
     
     /**
      * Makes the node from the specified thumbnail.
@@ -322,6 +328,24 @@ public class SemanticZoomNode extends PImage
     }
     
     /**
+     * Returns the absolute point onscreen of this node.
+     * @return The absolute onscreen location of this node.
+     */
+    public Point getAbsoluteLocation()
+    {
+        return absoluteLocation;
+    }
+    
+    /**
+     * Sets the absolute point onscreen of this node.
+     * @param point The absolute onscreen location of this node.
+     */
+    public void setAbsoluteLocation(Point point)
+    {
+        this.absoluteLocation = point;
+    }
+    
+    /**
      * returns nothing.
      * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
      */
@@ -380,10 +404,11 @@ public class SemanticZoomNode extends PImage
         {
             if(annotateIconShape.contains(pos))
             {
-                BrowserEnvironment env = BrowserEnvironment.getInstance();
-                BrowserAgent agent = env.getBrowserAgent();
-                agent.annotateImage(parentThumbnail);
-                return;
+                PiccoloAction action = 
+                    PiccoloActionFactory.getAnnotateImageAction(parentThumbnail,
+                                                                absoluteLocation);
+                System.err.println(absoluteLocation);
+                action.execute();
             }
         }
     }
@@ -501,10 +526,7 @@ public class SemanticZoomNode extends PImage
         String wellName =
             (String)parentThumbnail.getModel().getValue(UIConstants.WELL_KEY_STRING);
             
-        if(wellName != null)
-        {
-            g2.drawString(wellName,4,26);
-        }
+        StringPainter.drawString(g2,wellName,4,26);
         g2.setFont(oldFont);
         g2.setColor(oldColor);
         
@@ -524,7 +546,7 @@ public class SemanticZoomNode extends PImage
                 getBounds().getBounds2D();
             
             g2.setFont(multiFont);
-            g2.drawString(whichSelected,
+            StringPainter.drawString(g2,whichSelected,
                           (float)((totalBounds.getWidth()-selectedBounds.getWidth())/2),
                           (float)(totalBounds.getHeight()-selectedBounds.getHeight()-5));
             

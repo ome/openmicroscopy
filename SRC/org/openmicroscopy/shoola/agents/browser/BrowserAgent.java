@@ -36,6 +36,7 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -999,17 +1000,29 @@ public class BrowserAgent implements Agent, AgentEventListener
         if(t == null) return;
         ThumbnailDataModel tdm = t.getModel();
         ImageSummary summary = tdm.getImageInformation();
-        annotateImage(summary);
+        annotateImage(summary,null); // default popup location
+    }
+    
+    public void annotateImage(Thumbnail t, Point popupLocation)
+    {
+        if(t == null) return;
+        ThumbnailDataModel tdm = t.getModel();
+        ImageSummary summary = tdm.getImageInformation();
+        annotateImage(summary,popupLocation);
     }
     
     /**
      * Use the Annotator to annotate the image with the specified ID.
      * @param imageID The ID of the image to annotate.
      */
-    public void annotateImage(ImageSummary imageInfo)
+    public void annotateImage(ImageSummary imageInfo, Point popupLocation)
     {
         AnnotateImage event = new AnnotateImage(imageInfo.getID(),
                                                 imageInfo.getName());
+        if(popupLocation != null)
+        {
+            event.setSpecifiedLocation(popupLocation);
+        }
         
         // makes sure correct response occurs
         event.setCompletionHandler(new AnnotateImageHandler());

@@ -46,6 +46,8 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
+
 /**
  * UI for showing the legend of the heat map.
  * 
@@ -119,11 +121,12 @@ public final class HeatMapGradientUI extends JPanel
             Rectangle2D maxBounds =
                 numberMetrics.getStringBounds(String.valueOf(max),g2);
         
-            g2.drawString(String.valueOf(min),
-                          (float)rect.getX(),
+            String theMin = String.valueOf(min);
+            String theMax = String.valueOf(max);
+            StringPainter.drawString(g2,theMin,(float)rect.getX(),
                           (float)(rect.getY()+rect.getHeight()+minBounds.getHeight()));
                       
-            g2.drawString(String.valueOf(max),
+            StringPainter.drawString(g2,theMax,
                           (float)(rect.getX()+rect.getWidth()-maxBounds.getWidth()),
                           (float)(rect.getY()+rect.getHeight()+maxBounds.getHeight()));
                           
@@ -131,7 +134,7 @@ public final class HeatMapGradientUI extends JPanel
             FontMetrics axisMetrics = g2.getFontMetrics(axisFont);
             Rectangle2D titleBounds = axisMetrics.getStringBounds(axisName,g2);
             
-            g2.drawString(axisName,
+            StringPainter.drawString(g2,axisName,
                           (float)(rect.getX()+
                                   (rect.getWidth()-titleBounds.getWidth())/2),
                           (float)(rect.getY()-titleBounds.getHeight()-10));
@@ -160,7 +163,7 @@ public final class HeatMapGradientUI extends JPanel
             String dummyString = "(no scalar selected)";
             Rectangle2D titleBounds =
                 axisMetrics.getStringBounds(dummyString,g2);
-            g2.drawString(dummyString,
+            StringPainter.drawString(g2,dummyString,
                           (float)(rect.getX()+
                                   (rect.getWidth()-titleBounds.getWidth())/2),
                           (float)(rect.getY()-titleBounds.getHeight()-5));

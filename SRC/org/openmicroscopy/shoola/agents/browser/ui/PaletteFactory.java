@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
  * Makes the appropriate palettes for each browser window.
@@ -145,11 +146,13 @@ public class PaletteFactory
         
         PiccoloAction nameModeOnAction =
             PiccoloActionFactory.getAddPaintMethodAction(backingModel,
-                                                 PaintMethods.DRAW_NAME_METHOD);
+                                                 PaintMethods.DRAW_NAME_METHOD,
+                                                 Thumbnail.FOREGROUND_PAINT_METHOD);
                                                  
         PiccoloAction nameModeOffAction =
             PiccoloActionFactory.getRemovePaintMethodAction(backingModel,
-                                                 PaintMethods.DRAW_NAME_METHOD);
+                                                 PaintMethods.DRAW_NAME_METHOD,
+                                                 Thumbnail.FOREGROUND_PAINT_METHOD);
         
         // turn off if on
         activatedActions.setMouseClickAction(PiccoloModifiers.NORMAL,

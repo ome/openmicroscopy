@@ -36,8 +36,12 @@
  
 package org.openmicroscopy.shoola.agents.browser.ui;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.swing.JComponent;
 
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
@@ -59,11 +63,14 @@ public final class HoverManager
     private boolean awaitingDisplay = false;
     private boolean displayingNode = false;
     
+    private JComponent parentComponent;
+    
     private TimerTask pendingTask;
     
-    public HoverManager()
+    public HoverManager(JComponent parent)
     {
         showNodeTimer = new Timer();
+        this.parentComponent = parent;
     }
     
     public void nodeEntered(final PCamera target,
@@ -93,7 +100,16 @@ public final class HoverManager
                 // TODO fix this hack
                 if(displayedNode instanceof SemanticZoomNode)
                 {
-                    ((SemanticZoomNode)displayedNode).loadCompositeImages();
+                    SemanticZoomNode node = (SemanticZoomNode)displayedNode;
+                    node.loadCompositeImages();
+                    System.err.println(node.getOffset());
+                    
+                    Point parentPoint = parentComponent.getLocationOnScreen();
+                    Point2D offset = node.getOffset();
+                    int x = (int)Math.round(offset.getX());
+                    int y = (int)Math.round(offset.getY());
+                    node.setAbsoluteLocation(new Point(parentPoint.x+x,
+                                                       parentPoint.y+y));
                 }
             }
         };
