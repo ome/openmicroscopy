@@ -40,7 +40,9 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
-
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.nodes.PText;
@@ -229,6 +231,17 @@ public class ChainBox extends GenericBox implements MouseableNode
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
+		PNode node = ((PaletteChainView)chainView).getFullView();
+		PBounds b = node.getFullBounds();
+		BufferedImage image = (BufferedImage) node.toImage((int) (b.getWidth()*7),
+					(int) (b.getHeight()*7),Constants.CANVAS_BACKGROUND_COLOR);
+		try { 
+			ImageIO.write(image,"png",new File("foo.png"));
+			System.err.println("Saved chain snapshot");
+		} catch (Exception e) {
+			System.err.println("Failed to save chain snapshot");
+			
+		}
 	}
 
 	public void mouseEntered(GenericEventHandler handler) {
