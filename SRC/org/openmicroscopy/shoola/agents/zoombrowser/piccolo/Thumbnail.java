@@ -84,7 +84,6 @@ public class Thumbnail extends PImage implements BufferedObject,
 	
 	private PPath highlightRect=null;
 	
-	
 	public Thumbnail(BrowserImageSummary image) {
 		super();
 	//	setAccelerated(false);
@@ -96,6 +95,8 @@ public class Thumbnail extends PImage implements BufferedObject,
 		
 		image.addThumbnail(this);
 	}
+	
+
 	
 	/**
 	 * Buffered Bounds of the thumbnail, as required by {@link BufferedObject}.
@@ -150,8 +151,6 @@ public class Thumbnail extends PImage implements BufferedObject,
 	 * thumbnail image and the name of the image.
 	 */
 	public PNode getFullToolTip() {
-		//if (imageNode == null)
-		//	return null;
 		PNode n = new PNode();
 		Image im = getImage();
 		PImage imNode = new PImage(); // had as second arg,false);
@@ -199,7 +198,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 	}
 	
 	/**
-	 * These objects will generally be used as children of 
+	 * These objects will generally be used underneath
 	 * {@link DatasetImagesNode} objects.  However, they are grandchildren
 	 * of the {@link DatasetImagesNode} objects. Use this relationship to find our 
 	 * way back to the {@link DatasetImagesNode}
