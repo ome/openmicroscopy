@@ -42,6 +42,8 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import java.awt.Image;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -53,6 +55,7 @@ import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.is.PixelsFileFormat;
 import org.openmicroscopy.is.PlaneStatistics;
 import org.openmicroscopy.is.StackStatistics;
+import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.ds.st.Repository;
 
