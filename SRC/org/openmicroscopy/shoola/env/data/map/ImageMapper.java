@@ -329,6 +329,15 @@ public class ImageMapper
         return channels;
     }
 
+    /** Create a default channels arry if no logical channel. */
+    public static int[] fillDefaultImageChannels(int sizeC)
+    {
+        int[] channels = new int[sizeC];
+        for (int i = 0; i < sizeC; i++)
+            channels[i] = i;
+        return channels;
+    }
+    
     /** Fill in a renderingDef object. */
 	public static RenderingDef fillInRenderingDef(List rsList, int pixelType, 
                                                 int userID)
