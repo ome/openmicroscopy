@@ -55,8 +55,8 @@ public class BrowserMode
     }
 
     /**
-     * Indicates that the browser is in some sort of default mode.  (This will
-     * probably stay.)
+     * Indicates that the browser is in some sort of default mode (universal
+     * for all ranges/classes)
      */
     public static final BrowserMode DEFAULT_MODE = new BrowserMode(0);
 
@@ -77,6 +77,36 @@ public class BrowserMode
      * phenotype, etc.) mode.
      */
     public static final BrowserMode CLASSIFY_MODE = new BrowserMode(3);
+    
+    /**
+     * Indicates that the browser is in graphical classification (by
+     * shared scalar value) mode.
+     */
+    public static final BrowserMode GRAPH_MODE = new BrowserMode(4);
+    
+    /**
+     * Indicates that panning should be conducted by a mouse drag, which
+     * essentially nullifies any other mouse down/drag inputs.  Its opposite
+     * is likely DEFAULT_MODE.
+     */
+    public static final BrowserMode HAND_MODE = new BrowserMode(5);
+    
+    /**
+     * Indicates that semantic expansion of thumbnails should take place on
+     * a mouse over.
+     */
+    public static final BrowserMode SEMANTIC_ZOOMING_MODE = new BrowserMode(6);
+    
+    /**
+     * Indicates that the name of thumbnails should be displayed/painted.
+     */
+    public static final BrowserMode NAME_ON_MODE = new BrowserMode(7);
+    
+    /**
+     * Indicates that hints about thumbnail annotations should be
+     * displayed/painted.
+     */
+    public static final BrowserMode ANNOTATION_ON_MODE = new BrowserMode(8);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be

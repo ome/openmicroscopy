@@ -74,7 +74,8 @@ public class BrowserModel
     private Set selectedImages;
     private Set hiddenImages;
 
-    private BrowserMode currentMode;
+    private BrowserModeClass panActionClass;
+    private BrowserModeClass majorUIModeClass;
 
     // common initialization routine
     private void init()
@@ -89,8 +90,18 @@ public class BrowserModel
         thumbnailSet = new HashSet();
         annotationModel = new PaintMethodZOrder();
 
-        // default behavior (may replace later)
-        currentMode = BrowserMode.DEFAULT_MODE;
+        panActionClass =
+            new BrowserModeClass(new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+                                                     BrowserMode.HAND_MODE},
+                                 BrowserMode.DEFAULT_MODE);
+                                 
+        majorUIModeClass =
+            new BrowserModeClass(new BrowserMode[] { BrowserMode.DEFAULT_MODE,
+                                                     BrowserMode.ANNOTATE_MODE,
+                                                     BrowserMode.CLASSIFY_MODE,
+                                                     BrowserMode.GRAPH_MODE},
+                                 BrowserMode.GRAPH_MODE);
+        
     }
 
     /**

@@ -156,8 +156,8 @@ public class BrowserView extends PCanvas
         layoutMap = new HashMap();
         footprint = new Rectangle2D.Double(0,0,0,0);
         hoverSensitive = new HashSet();
-        regionSensitive = new HashSet();        
-        // here we disable zoom/pan (TODO: save for later, reinstate on mode)
+        regionSensitive = new HashSet();
+        
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
        

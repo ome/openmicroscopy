@@ -166,6 +166,19 @@ public class Thumbnail extends PImage
     }
     
     /**
+     * Removes this paint method from the list of background paint methods to
+     * be executed.
+     * @param p The paint method to remove.
+     */
+    public void removeBackgroundPaintMethod(PaintMethod p)
+    {
+        if(p != null)
+        {
+            backgroundPaintMethods.remove(p);
+        }
+    }
+    
+    /**
      * Adds this paint method to the list of overlays/paint methods to
      * be executed, in addition to the overlays specified in the Z order.
      * This paint method will be executed after the image is drawn, but
@@ -184,6 +197,20 @@ public class Thumbnail extends PImage
     }
     
     /**
+     * Removes this paint method from the list of overlays/paint methods to
+     * be executed.
+     * @param p The paint method to remove.
+     */
+    public void removeMiddlePaintMethod(PaintMethod p)
+    {
+        if(p != null)
+        {
+            middlePaintMethods.remove(p);
+        }
+    }
+    
+    
+    /**
      * Adds this paint method to the list of overlays/paint methods to be
      * added, in addition to the overlays specified in the Z order. This
      * paint method will be executed after the image and overlays are
@@ -197,6 +224,19 @@ public class Thumbnail extends PImage
         if(p != null)
         {
             foregroundPaintMethods.add(p);
+        }
+    }
+    
+    /**
+     * Removes this paint method from the list of overlays/paint methods to
+     * be executed after all paint methods are complete.
+     * @param p The paint method to remove.
+     */
+    public void removeForegroundPaintMethod(PaintMethod p)
+    {
+        if(p != null)
+        {
+            foregroundPaintMethods.remove(p);
         }
     }
     
