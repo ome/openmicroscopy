@@ -38,8 +38,6 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.beans.PropertyVetoException;
@@ -47,19 +45,16 @@ import java.beans.PropertyVetoException;
 import javax.swing.BoundedRangeModel;
 import javax.swing.Box;
 import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.JSeparator;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.IconManager;
-import org.openmicroscopy.shoola.agents.browser.UIConstants;
 
 /**
  * Wraps a BrowserView in a JInternalFrame for use in MDI applications.
@@ -105,20 +100,6 @@ public class BrowserInternalFrame extends JInternalFrame
         
         IconManager manager = env.getIconManager();
         
-        JButton optionsButton =
-            new JButton(manager.getSmallIcon(IconManager.OPTIONS_BAR));
-        optionsButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                controller.getOverlayModel().showPalette(UIConstants.OPTIONS_PALETTE_NAME);
-            }
-        });
-        optionsButton.setToolTipText("Show Options Menu");
-        
-        
-        toolbarPanel.add(optionsButton);
-        toolbarPanel.add(new JSeparator(JSeparator.HORIZONTAL));
         ZoomButtonPanel panel = new ZoomButtonPanel(embeddedView);
         toolbarPanel.add(panel);
 
