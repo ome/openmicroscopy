@@ -124,7 +124,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	/**
 	 * Specific code for handling a background click
 	 */
-	protected void handleBackgroundClick() {
+	public void handleBackgroundClick() {
 		animateToCanvasBounds();
 	}
 	

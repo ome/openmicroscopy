@@ -94,7 +94,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 
 	
 	/** What happens when I click on the background? */
-	protected void handleBackgroundClick() {
+	public  void handleBackgroundClick() {
 		// click on background clears selected dataset
 		SelectionState selectionState = SelectionState.getState();
 		selectionState.setSelectedDataset(null);
