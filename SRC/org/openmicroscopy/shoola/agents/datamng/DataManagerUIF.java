@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -233,7 +234,7 @@ class DataManagerUIF
 	 */
 	void showPS(JDialog editor)
 	{
-		UIFactory.showEditor(editor);
+		UIUtilities.centerAndShow(editor);
 	}
 
 	/** Build and lay out the GUI. */

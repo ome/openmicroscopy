@@ -51,6 +51,7 @@ import javax.swing.table.AbstractTableModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -112,12 +113,12 @@ class CreateDatasetProjectsPane
 		selectButton = new JButton("Select All");
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		selectButton.setToolTipText(
-			UIFactory.formatToolTipText("Select all projects."));
+			UIUtilities.formatToolTipText("Select all projects."));
 		//cancel button
 		resetButton = new JButton("Reset");
 		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		resetButton.setToolTipText(
-			UIFactory.formatToolTipText("Cancel selection."));
+			UIUtilities.formatToolTipText("Cancel selection."));
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(resetButton);

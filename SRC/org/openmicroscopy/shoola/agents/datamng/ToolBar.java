@@ -41,6 +41,7 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -87,13 +88,13 @@ class ToolBar
 		IconManager im = IconManager.getInstance(registry);
 		projectButton =  new JButton(im.getIcon(IconManager.PROJECT));
 		projectButton.setToolTipText(
-			UIFactory.formatToolTipText("Create a new project."));
+			UIUtilities.formatToolTipText("Create a new project."));
 		datasetButton =  new JButton(im.getIcon(IconManager.DATASET));
 		datasetButton.setToolTipText(
-			UIFactory.formatToolTipText("Create a new Dataset."));
+			UIUtilities.formatToolTipText("Create a new Dataset."));
 		imageButton =  new JButton(im.getIcon(IconManager.IMAGE));
 		imageButton.setToolTipText(
-			UIFactory.formatToolTipText("Import a new image."));
+			UIUtilities.formatToolTipText("Import a new image."));
 	}
 	
 	/** Build and lay out the tool bar. */

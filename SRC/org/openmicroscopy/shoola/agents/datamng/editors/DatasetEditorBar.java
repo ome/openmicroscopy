@@ -41,6 +41,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -93,7 +94,7 @@ class DatasetEditorBar
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
 		saveButton.setToolTipText(
-			UIFactory.formatToolTipText("Save data in the DB."));
+			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
 		
 		cancelButton = new JButton("Cancel");
@@ -101,14 +102,14 @@ class DatasetEditorBar
 		//suppress button press decoration
 		cancelButton.setContentAreaFilled(false); 
 		cancelButton.setToolTipText(
-			UIFactory.formatToolTipText("Close without saving."));
+			UIUtilities.formatToolTipText("Close without saving."));
 		
 		addButton = new JButton("Add images");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//suppress button press decoration
 		addButton.setContentAreaFilled(false); 
 		addButton.setToolTipText(
-			UIFactory.formatToolTipText("Add images to the dataset."));	
+			UIUtilities.formatToolTipText("Add images to the dataset."));	
 	}
 	
 	/** Build and lay out the GUI. */

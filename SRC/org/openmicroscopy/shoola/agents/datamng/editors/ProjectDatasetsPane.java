@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -155,13 +156,13 @@ class ProjectDatasetsPane
 		removeButton = new JButton("Remove All");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		removeButton.setToolTipText(
-			UIFactory.formatToolTipText("Remove all datasets."));
+			UIUtilities.formatToolTipText("Remove all datasets."));
 		
 		//cancel button
 		resetButton = new JButton("Reset");
 		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		resetButton.setToolTipText(
-			UIFactory.formatToolTipText("Cancel selection."));
+			UIUtilities.formatToolTipText("Cancel selection."));
 
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(resetButton);

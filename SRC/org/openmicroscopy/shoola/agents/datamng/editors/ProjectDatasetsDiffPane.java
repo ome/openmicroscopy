@@ -50,6 +50,7 @@ import javax.swing.table.AbstractTableModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -127,19 +128,19 @@ class ProjectDatasetsDiffPane
 		selectButton = new JButton("Select All");
 		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		selectButton.setToolTipText(
-			UIFactory.formatToolTipText("Select all datasets."));
+			UIUtilities.formatToolTipText("Select all datasets."));
 		
 		//cancel button
 		cancelButton = new JButton("Reset");
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		cancelButton.setToolTipText(
-			UIFactory.formatToolTipText("Cancel selection."));
+			UIUtilities.formatToolTipText("Cancel selection."));
 		
 		//cancel button
 		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText(
-			UIFactory.formatToolTipText("Add the selection"));
+			UIUtilities.formatToolTipText("Add the selection"));
 		
 		if (datasetsDiff == null || datasetsDiff.size() == 0) {
 			selectButton.setEnabled(false);

@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The data manager agent.
@@ -693,7 +694,7 @@ public class DataManager
 		IconManager im = IconManager.getInstance(registry);
 		JButton b = new JButton(im.getIcon(IconManager.DMANAGER));
 		b.setToolTipText(
-			UIFactory.formatToolTipText("Bring up the dataManager."));
+			UIUtilities.formatToolTipText("Bring up the dataManager."));
 		control.attachItemListener(b, DataManagerCtrl.DM_VISIBLE);
 		return b;
 	}
