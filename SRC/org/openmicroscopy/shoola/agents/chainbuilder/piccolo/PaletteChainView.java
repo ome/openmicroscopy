@@ -124,7 +124,7 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void mouseEntered(GenericEventHandler handler) {
-		super.mouseExited(handler);
+		super.mouseEntered(handler);
 		//((ModuleNodeEventHandler) handler).setLastEntered(this);
 		ChainBox cb = getParentChainBox();
 		if (cb != null)
@@ -174,7 +174,6 @@ public class PaletteChainView extends ChainView {
 	 *
 	 */
 	public void zoomToFullView(GenericEventHandler handler) {
-		showFullView(true);
 		if (handler instanceof ModuleNodeEventHandler) 
 			((ModuleNodeEventHandler) handler).animateToNode(this);
 		
