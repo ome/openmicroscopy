@@ -96,7 +96,7 @@ public class GreyScalePane
 	static final int 				POS_LABEL = 1;
 	static final int 				POS_RADIO = 2;
 
-	private IconManager 			IM;
+	private IconManager 			im;
 	
 	private GreyScalePaneManager	manager;
 	
@@ -105,10 +105,10 @@ public class GreyScalePane
 		manager = new GreyScalePaneManager(this);	
 	}
 	
-	/** Need to set the eventManager in ModelPane before calling this method. */
 	public void buildComponent()
 	{
-		IM = IconManager.getInstance(eventManager.getRegistry());
+		manager.setEventManager(eventManager);
+		im = IconManager.getInstance(eventManager.getRegistry());
 		buildGUI();
 	}
 	
@@ -151,7 +151,7 @@ public class GreyScalePane
 	{
 		//init JButton
 		JButton b = new JButton();
-		b.setIcon(IM.getIcon(IconManager.INFO));
+		b.setIcon(im.getIcon(IconManager.INFO));
 		
 		//init JLabel
 		String s = " Wavelength "+data.nanometer;
