@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,7 +51,6 @@ import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.RenderingSettings;
-import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
 import org.openmicroscopy.shoola.env.data.map.ChainExecutionMapper;
@@ -138,7 +136,7 @@ class DMSAdapter
     
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
-    								DatasetSummary dProto)
+                                    DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
 	{	
 		//Make new protos if none was provided.
@@ -209,8 +207,6 @@ class DMSAdapter
 		return retrieveUserProjectsWithDatasetData(null, null);
 	}
 
-	
-	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserDatasets(DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
@@ -246,11 +242,10 @@ class DMSAdapter
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveUserDatasets(DatasetData dProto,
-			ImageSummary iProto)
+    public List retrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException
 	{
-    		//    	Make a new proto if none was provided.
+    	//Make a new proto if none was provided.
 		if (dProto == null) dProto = new DatasetData();
 		if (iProto == null) iProto = new ImageSummary();
 		
@@ -311,6 +306,7 @@ class DMSAdapter
 	{
 		return retrieveUserImages(null);
 	}
+    
     /** Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
@@ -439,10 +435,9 @@ class DMSAdapter
 		return retVal;
 	}
 	
-
 	/** Implemented as specified in {@link DataManagementService}. */
-	public List retrieveModules(ModuleData mProto,ModuleCategoryData mcProto,
-					FormalInputData finProto,FormalOutputData foutProto,
+	public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto,
+					FormalInputData finProto, FormalOutputData foutProto,
 					SemanticTypeData stProto)
 		throws DSOutOfServiceException, DSAccessException 
 	{
@@ -456,12 +451,12 @@ class DMSAdapter
 		Criteria c = ModuleMapper.buildModulesCriteria();
 		
 		// Load the graph defined by the criteria
-		List modules = (List) gateway.retrieveListData(Module.class,c);
+		List modules = (List) gateway.retrieveListData(Module.class, c);
 		
 		List moduleDS = null;
 		if (modules != null) 
-			moduleDS = ModuleMapper.fillModules(modules,mProto,mcProto,
-				finProto,foutProto,stProto);
+			moduleDS = ModuleMapper.fillModules(modules, mProto, mcProto,
+			                                    finProto, foutProto, stProto);
 		return moduleDS;
 	}
 	
@@ -469,7 +464,7 @@ class DMSAdapter
 	public List retrieveModules()
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		return retrieveModules(null,null,null,null,null);
+		return retrieveModules(null, null, null, null, null);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -485,13 +480,13 @@ class DMSAdapter
 	
 		// Load the graph defined by the criteria
 		List categories = 
-			(List) gateway.retrieveListData(ModuleCategory.class,c);
+			(List) gateway.retrieveListData(ModuleCategory.class, c);
 	
 		List categoryDS = null;
 		if (categories != null) 
 			categoryDS = 
-				ModuleCategoryMapper.fillModuleCategories(categories,
-						mcProto,mProto);
+				ModuleCategoryMapper.fillModuleCategories(categories, mcProto, 
+                                                        mProto);
 		return categoryDS;
 	}
 
@@ -501,12 +496,11 @@ class DMSAdapter
 	{
 		return retrieveModuleCategories(null,null);
 	}
-	
-	
+
 	/** Implemented as specified in {@link DataManagementService}. */
-	public List retrieveChains(AnalysisChainData acProto,AnalysisLinkData
-			alProto,AnalysisNodeData anProto,ModuleData modProto,
-			FormalInputData finProto,FormalOutputData foutProto,
+	public List retrieveChains(AnalysisChainData acProto, AnalysisLinkData
+			alProto, AnalysisNodeData anProto, ModuleData modProto,
+			FormalInputData finProto, FormalOutputData foutProto,
 			SemanticTypeData stProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -522,12 +516,12 @@ class DMSAdapter
 		Criteria c = AnalysisChainMapper.buildChainCriteria();
 	
 		// Load the graph defined by the criteria
-		List chains = (List) gateway.retrieveListData(AnalysisChain.class,c);
+		List chains = (List) gateway.retrieveListData(AnalysisChain.class, c);
 	
 		List chainsDS = null;
 		if (chains != null) 
-			chainsDS = AnalysisChainMapper.fillChains(chains,acProto,
-				alProto,anProto,modProto,finProto,foutProto,stProto);
+			chainsDS = AnalysisChainMapper.fillChains(chains, acProto,
+			        alProto, anProto, modProto, finProto, foutProto, stProto);
 		return chainsDS;
 	}
 	
@@ -535,14 +529,14 @@ class DMSAdapter
 	public List retrieveChains() 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		return retrieveChains(null,null,null,null,null,null,null);
+		return retrieveChains(null, null, null, null, null, null, null);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
-	public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
-			alProto,AnalysisNodeData anProto,ModuleData modProto,
-			FormalInputData finProto,FormalOutputData foutProto,
-			SemanticTypeData stProto) 
+	public AnalysisChainData retrieveChain(int id, AnalysisChainData acProto,
+            AnalysisLinkData alProto, AnalysisNodeData anProto, 
+            ModuleData modProto, FormalInputData finProto, 
+            FormalOutputData foutProto, SemanticTypeData stProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (acProto == null)    acProto = new AnalysisChainData();
@@ -558,12 +552,11 @@ class DMSAdapter
 	
 		// Load the graph defined by the criteria
 		AnalysisChain chain = (AnalysisChain) 
-			gateway.retrieveData(AnalysisChain.class,c);
-	
-		
+			gateway.retrieveData(AnalysisChain.class, c);
+
 		if (chain != null) 
-			AnalysisChainMapper.fillChain(chain,acProto,
-				alProto,anProto,modProto,finProto,foutProto,stProto);
+			AnalysisChainMapper.fillChain(chain, acProto, alProto, anProto,
+                        modProto, finProto, foutProto, stProto);
 		return acProto;
 	}
 	
@@ -571,17 +564,16 @@ class DMSAdapter
 	public AnalysisChainData retrieveChain(int id) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		return retrieveChain(id,null,null,null,null,null,null,null);
+		return retrieveChain(id, null, null, null, null, null, null, null);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
-			DatasetData dsProto,AnalysisChainData acProto,
-			NodeExecutionData neProto,AnalysisNodeData anProto,
-			ModuleData mProto,ModuleExecutionData meProto) 
+			DatasetData dsProto, AnalysisChainData acProto,
+			NodeExecutionData neProto, AnalysisNodeData anProto,
+			ModuleData mProto, ModuleExecutionData meProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-
 		if (ceProto == null)    ceProto = new ChainExecutionData();
 		if (dsProto == null)    dsProto = new DatasetData();		
 		if (acProto == null)    acProto = new AnalysisChainData();
@@ -590,7 +582,7 @@ class DMSAdapter
 		if (mProto == null)     mProto = new ModuleData();
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
-//		Retrieve the user ID.
+		//Retrieve the user ID.
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		//Define the criteria by which the object graph is pulled out
@@ -598,13 +590,12 @@ class DMSAdapter
 			buildChainExecutionCriteria(uc.getUserID());
 	
 		// Load the graph defined by the criteria
-		List execs = (List) gateway.retrieveListData(ChainExecution.class,c);
+		List execs = (List) gateway.retrieveListData(ChainExecution.class, c);
 	
 		List execDS = null;
-		
 		if (execs != null) 
-			execDS = ChainExecutionMapper.fillChainExecutions(execs,
-					ceProto,dsProto,acProto,neProto,anProto,mProto,meProto);
+			execDS = ChainExecutionMapper.fillChainExecutions(execs, ceProto, 
+                     dsProto, acProto, neProto, anProto, mProto, meProto);
 		return execDS;
 	}	
 	
@@ -612,12 +603,13 @@ class DMSAdapter
 	public List retrieveChainExecutions()
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return retrieveChainExecutions(null,null,null,null,null,null,null);
+		return retrieveChainExecutions(null, null, null, null, null, null,
+                                        null);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal, 
-										ProjectSummary pProto)
+                                        ProjectSummary pProto)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//Make a new proto if none was provided.
@@ -691,16 +683,13 @@ class DMSAdapter
 		chain.setDescription(retVal.getDescription());
 		chain.setOwner(gateway.getCurrentUser(c));
 		gateway.markForUpdate(chain);
-
-		
 		markChainNodes(chain,retVal.getNodes());		
 		markChainLinks(chain,retVal.getLinks());
-		
 		gateway.updateMarkedData();
 		retVal.setID(chain.getID());
 	}
 	
-	private void markChainNodes(AnalysisChain chain,Collection nodes)
+	private void markChainNodes(AnalysisChain chain, Collection nodes)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Iterator iter = nodes.iterator();
@@ -717,7 +706,7 @@ class DMSAdapter
 		}	
 	}
 	
-	private void markChainLinks(AnalysisChain chain,Collection links) 
+	private void markChainLinks(AnalysisChain chain, Collection links) 
 		throws DSOutOfServiceException, DSAccessException
 	{	
 		AnalysisNodeData node;
@@ -734,7 +723,6 @@ class DMSAdapter
 			node = link.getFromNode();
 			// get the DTO for this node
 			n = node.getAnalysisNodeDTO();
-			
 			// set this in the dto for the link going out
 			lnk.setFromNode(n);
 			
@@ -747,8 +735,7 @@ class DMSAdapter
 			node = link.getToNode();
 			n = node.getAnalysisNodeDTO();
 			lnk.setToNode(n);
-			
-			
+
 			// set input param.
 			FormalInputData input = link.getToInput();
 			lnk.setToInput(input.getFormalInputDTO());
@@ -877,7 +864,6 @@ class DMSAdapter
 		
 		Criteria c = ImageMapper.buildUpdateCriteria(retVal.getID());
 		Image i = (Image) gateway.retrieveData(Image.class, c);
-		
 		if (i != null) {
 			gateway.markForUpdate(i);
 			i.setName(retVal.getName());
@@ -898,24 +884,6 @@ class DMSAdapter
 			i.setName(retVal.getName());
 			gateway.updateMarkedData();
 		} 
-	}
-
-	/** Implemented as specified in {@link DataManagementService}. */
-	public void importImages(int datasetID, List images)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Criteria c = DatasetMapper.buildUpdateCriteria(datasetID);
-		Dataset d = (Dataset) gateway.retrieveData(Dataset.class, c);
-		Repository rep = gateway.getRepository();
-		List filesToImport = new ArrayList();
-		Iterator i = images.iterator();
-		Long ID;
-		while (i.hasNext()) {
-			ID = gateway.uploadFile(rep, (File) i.next());
-			if (ID != null) filesToImport.add(ID);
-		}
-		if (d != null && filesToImport.size() != 0) 
-			gateway.startImport(d, filesToImport);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -955,7 +923,6 @@ class DMSAdapter
 											int pixelType)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		RenderingDef displayOptions = null;
         //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
@@ -966,8 +933,7 @@ class DMSAdapter
             (List) gateway.retrieveListSTSData("RenderingSettings", c);
         if (rsList != null && rsList.size() != 0)
             displayOptions = ImageMapper.fillInRenderingDef(rsList, pixelType, 
-                                                uc.getUserID());
-                                         
+                                                uc.getUserID());                               
 		return displayOptions;
 	}
 	
@@ -978,7 +944,6 @@ class DMSAdapter
 	{ 
 	    Criteria c = STSMapper.buildDefaultRetrieveCriteria(
                             STSMapper.IMAGE_GRANULARITY, imageID);
-        
         List rsList = 
             (List) gateway.retrieveListSTSData("RenderingSettings", c);
         
@@ -1013,7 +978,6 @@ class DMSAdapter
         Criteria cImage = ImageMapper.buildImageCriteria(imageID);       
         //Load the graph defined by criteria.
         Image image = (Image) gateway.retrieveData(Image.class, cImage);
-        
         Criteria cExp = UserMapper.getUserStateCriteria();
         Experimenter experimenter = gateway.getCurrentUser(cExp);
         for (int i = 0; i < channelBindings.length; i++) {

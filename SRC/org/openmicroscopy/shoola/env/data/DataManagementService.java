@@ -74,8 +74,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 public interface DataManagementService
 {
-	
-	
+
     /**
      * Returns the session key in use.
      * 
@@ -119,7 +118,8 @@ public interface DataManagementService
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
 	 * Each project proto object is linked to a list of dataset proto 
-	 * objects. Not that the dataset are dataset data objects, not dataset summary
+	 * objects. Not that the dataset are dataset data objects, 
+     * not dataset summary
 	 * 
 	 * @param pProto	project proto.
 	 * @param dProto	dataset proto.
@@ -137,7 +137,8 @@ public interface DataManagementService
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
 	 * Each project proto object is linked to a list of dataset proto 
-	 * objects. Not that the dataset are dataset data objects, not dataset summary
+	 * objects. Not that the dataset are dataset data objects, 
+     * not dataset summary
 	 * 
 	 * @param pProto	project proto.
 	 * @param dProto	dataset proto.
@@ -358,8 +359,8 @@ public interface DataManagementService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	public List retrieveModules(ModuleData mProto,ModuleCategoryData
-			mcProto,FormalInputData finProto,FormalOutputData foutProto,
+	public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto, 
+            FormalInputData finProto, FormalOutputData foutProto,
 			SemanticTypeData stProto)
 		throws DSOutOfServiceException, DSAccessException;
   								
@@ -423,9 +424,9 @@ public interface DataManagementService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service. 
 	 */
-	public List retrieveChains(AnalysisChainData acProto,AnalysisLinkData
-			alProto,AnalysisNodeData anProto,ModuleData modProto,
-			FormalInputData finProto,FormalOutputData foutProto,
+	public List retrieveChains(AnalysisChainData acProto, AnalysisLinkData
+			alProto, AnalysisNodeData anProto, ModuleData modProto,
+			FormalInputData finProto, FormalOutputData foutProto,
 			SemanticTypeData stProto) 
 		throws DSOutOfServiceException,DSAccessException;
 		
@@ -469,13 +470,11 @@ public interface DataManagementService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service. 
 	 */
-	public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
-			alProto,AnalysisNodeData anProto,ModuleData modProto,
-			FormalInputData finProto,FormalOutputData foutProto,
-			SemanticTypeData stProto) 
+	public AnalysisChainData retrieveChain(int id, AnalysisChainData acProto,
+            AnalysisLinkData alProto, AnalysisNodeData anProto,
+            ModuleData modProto, FormalInputData finProto,
+            FormalOutputData foutProto, SemanticTypeData stProto) 
 		throws DSOutOfServiceException,DSAccessException;
-		
-		
 
 	/**
 	 * Retrieve all of the system's analysis chains
@@ -489,8 +488,8 @@ public interface DataManagementService
 	 * retrieve data from OMEDS service. 
 	 */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
-			DatasetData dsProto,AnalysisChainData acProto,NodeExecutionData
-			neProto,AnalysisNodeData anProto,ModuleData mProto,
+			DatasetData dsProto, AnalysisChainData acProto, NodeExecutionData
+			neProto, AnalysisNodeData anProto, ModuleData mProto,
 			ModuleExecutionData meProto) 
 		throws DSOutOfServiceException,DSAccessException;
 		
@@ -563,7 +562,6 @@ public interface DataManagementService
 										DatasetData retVal)
 			throws DSOutOfServiceException, DSAccessException;
 		
-
 	/**
 	 * Create a Chain
 	 * 
@@ -585,8 +583,7 @@ public interface DataManagementService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
      */
-    public void updateProject(ProjectData retVal, List dsToRemove, 
-    								List dsToAdd)
+    public void updateProject(ProjectData retVal, List dsToRemove, List dsToAdd)
 		throws DSOutOfServiceException, DSAccessException;
 		
 	/**
@@ -599,8 +596,7 @@ public interface DataManagementService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
 	 */
-	public void updateDataset(DatasetData retVal, List isToRemove, 
-									List isToAdd)
+	public void updateDataset(DatasetData retVal, List isToRemove, List isToAdd)
 		throws DSOutOfServiceException, DSAccessException;
 			
 	/**
@@ -638,19 +634,6 @@ public interface DataManagementService
 	 */
 	public void updateChannelData(ChannelData retVal)	
 		throws DSOutOfServiceException, DSAccessException;
-	
-	
-	/**
-	 * Import the specified image files into a dataset.
-	 * 
-	 * @param datasetID	ID of the dataset to import into.
-	 * @param images	list of image files to import.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void importImages(int datasetID, List images)	
-		throws DSOutOfServiceException, DSAccessException;
-	
 	
 	/**
 	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
