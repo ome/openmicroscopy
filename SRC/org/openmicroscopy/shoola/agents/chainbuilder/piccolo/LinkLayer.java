@@ -44,13 +44,13 @@ import java.util.Iterator;
 import java.util.Vector;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
-
 /** 
  * A {@link PLayer} specifically designed to hold PLink objects - both ParamLinks and 
  * PModuleLinks. This layer also handles the transition between showing only
@@ -71,12 +71,12 @@ public class LinkLayer extends PLayer {
 	/**
 	 * A node to hold all ParamLinks.
 	 */ 
-	private PNode params;
+	protected PNode params;
 	
 	/**
 	 * A node to hold all modules;
 	 */ 
-	private PNode modules;
+	protected PNode modules;
 	
 	public LinkLayer() {
 		super();
@@ -148,7 +148,8 @@ public class LinkLayer extends PLayer {
 	 * Otherwise, take the opposite approach.
 	 */
 	protected void paint(PPaintContext aPaintContext) {
-		double scale = aPaintContext.getScale();
+		PCamera camera = aPaintContext.getCamera();
+		double scale = camera.getViewScale();
 		if (scale < Constants.SCALE_THRESHOLD) {
 			params.setVisible(false);
 			modules.setVisible(true);
@@ -158,6 +159,7 @@ public class LinkLayer extends PLayer {
 			modules.setVisible(false);
 		}
 	}
+
 	
 	
 	/**
@@ -224,7 +226,7 @@ public class LinkLayer extends PLayer {
 	 * @param end   The module at the end of a link
 	 * @return the {@link ModuleLink linking thhe two modules
 	 */
-	private ModuleLink findModuleLink(ModuleView start,ModuleView end) {
+	public ModuleLink findModuleLink(ModuleView start,ModuleView end) {
 		ModuleLink lnk = null;
 		
 		Iterator iter = modules.getChildrenIterator();
@@ -234,7 +236,7 @@ public class LinkLayer extends PLayer {
 				lnk = (ModuleLink) obj;
 				ModuleView s = lnk.getStart();
 				ModuleView e = lnk.getEnd();
-				if (start == s && end == e) 
+				if (start == s && end == e || start == e && end == s ) 
 					return lnk;
 			}
 		}
