@@ -37,6 +37,8 @@ package org.openmicroscopy.shoola.env.init;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
@@ -169,19 +171,14 @@ final class SplashScreenInit
 		reg.bind(LookupNames.USER_CREDENTIALS, uc);
 		
 		//Now try to connect to OMEDS.
+		//Ignore exceptions, the user will be prompted to log in when they try
+		//to access their data.
 		try {
 			DataServicesFactory factory = 
 									DataServicesFactory.getInstance(container);
 			factory.connect();
-		} catch (Exception e) {
-			//Ignore, the user will be prompted to log in when they try
-			//to access their remote data.
-			//no other option b/c of xmlrpc
-			//TopFrame tf = reg.getTopFrame();
-			//JMenuItem item = tf.getItemFromMenu(TopFrame.CONNECT, 
-			//									TopFrame.OMEDS);
-			//item.setEnabled(true);									
-		}
+		} catch (DSOutOfServiceException e) {									
+		} catch (DSAccessException e) {}
 	
 		splashScreen.close();
 	}
