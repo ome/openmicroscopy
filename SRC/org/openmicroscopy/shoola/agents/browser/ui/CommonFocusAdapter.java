@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.BrowserController
+ * org.openmicroscopy.shoola.agents.browser.ui.CommonFocusAdapter
  *
  *------------------------------------------------------------------------------
  *
@@ -33,66 +33,47 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser;
+package org.openmicroscopy.shoola.agents.browser.ui;
 
-import org.openmicroscopy.shoola.agents.browser.events.ModularEventHandler;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 
 /**
- * The controller of the browser component MVC architecture.
+ * The common focus adapter for JFrame/JInternalFrame objects.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
- * <b>Internal Version:</b> $Revision$ $Date$
+ * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class BrowserController
+public class CommonFocusAdapter extends FocusAdapter
 {
-    private ModularEventHandler commonEventHandler;
-    private BrowserModel browserModel;
-    private BrowserTopModel overlayModel;
-
-    private BrowserView browserView;
-
+    private UIWrapper wrapper;
+    private BrowserEnvironment env;
+    
     /**
-     * Constructs a browser controller with an empty browser model.
-     *
+     * Constructs a focus adapter which receives events for a particular
+     * controller wrapper.
+     * @param wrapper The wrapper.
      */
-    public BrowserController()
+    public CommonFocusAdapter(UIWrapper wrapper)
     {
-        browserModel = new BrowserModel();
-        overlayModel = new BrowserTopModel();
+        this.wrapper = wrapper;
+        env = BrowserEnvironment.getInstance();
     }
     
     /**
-     * Constructs a browser controller with a specific browser backing model.
-     * @param model The browser model to back the controller.
+     * What happens when the focus of a component is received. (In this case,
+     * the wrapper calls its controller and sets it to be the active)
      */
-    public BrowserController(BrowserModel model)
+    public void focusGained(FocusEvent event)
     {
-        this.browserModel = model;
-        overlayModel = new BrowserTopModel();
-        
+        BrowserManager manager = env.getBrowserManager();
+        manager.setActiveBrowser(wrapper.getController());
     }
     
-    /**
-     * Gets the current view selected by this controller.
-     * @return The current view.
-     */
-    public BrowserView getView()
-    {
-        return browserView;
-    }
     
-    /**
-     * Sets the current view selected by this controller.
-     * @param view The view for the controller to present the model by.
-     */
-    public void setView(BrowserView view)
-    {
-        if(view != null)
-        {
-            browserView = view;
-        }
-        view.repaint();
-    }
 }

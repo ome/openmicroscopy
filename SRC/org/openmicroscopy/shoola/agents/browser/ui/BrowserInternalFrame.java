@@ -40,6 +40,8 @@ import java.awt.Container;
 
 import javax.swing.JInternalFrame;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserController;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserView;
 
 /**
@@ -51,23 +53,46 @@ import org.openmicroscopy.shoola.agents.browser.BrowserView;
  * @since OME2.2
  */
 public class BrowserInternalFrame extends JInternalFrame
+                                  implements UIWrapper
 {
     private IntraDragAdapter dragAdapter;
+    private BrowserController controller;
     private BrowserView embeddedView;
+    private BrowserEnvironment env;
     
-    public BrowserInternalFrame(BrowserView view)
+    /**
+     * Constructs a JInternalFrame that wraps the BrowserController and its
+     * BrowserView (which ultimately extends JPanel)
+     * 
+     * @param controller The controller to wrap.
+     */
+    public BrowserInternalFrame(BrowserController controller)
     {
         setSize(600,600);
         setTitle("Image Browser--"); // TODO: get name of dataset
         setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
         
-        if(view != null)
+        if(controller != null)
         {
-            this.embeddedView = view;
+            this.controller = controller;
+            this.embeddedView = controller.getView();
+            this.env = BrowserEnvironment.getInstance();
         }
         
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
-        container.add(view);
+        container.add(embeddedView,BorderLayout.CENTER);
+        this.addFocusListener(new CommonFocusAdapter(this));
     }
+    
+    /**
+     * Returns the embedded controller.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#getController()
+     */
+    public BrowserController getController()
+    {
+        return controller;
+    }
+
 }

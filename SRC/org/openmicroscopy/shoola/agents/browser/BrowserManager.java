@@ -40,7 +40,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A class that manages multiple instances of browser windows.
+ * A class that manages multiple instances of browser windows.  Automatically
+ * manages/keeps track of the current Z order of the browsers.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -49,6 +50,8 @@ import java.util.List;
  */
 public class BrowserManager
 {
+    // TODO: add listener methods (ask JM/Andrea how to pull this off)
+    
     private List browserList;
 
     /**
@@ -67,13 +70,15 @@ public class BrowserManager
     {
         if (browser != null)
         {
-            browserList.add(browser);
+            browserList.add(0,browser);
         }
     }
 
     /**
      * Gets the browser at the specified index.  This will return null
-     * if the index is invalid.
+     * if the index is invalid.  The front-most (most recently selected)
+     * browser will be at position 0.
+     * 
      * @param index The index of the browser to access.
      * @return The accessed browser.
      */
@@ -100,7 +105,9 @@ public class BrowserManager
     }
 
     /**
-     * Returns an unmodifiable list of all the browsers in the manager.
+     * Returns an unmodifiable list of all the browsers in the manager, in
+     * order of front most to rear most.
+     * 
      * @return See above.
      */
     public List getAllBrowsers()
@@ -117,6 +124,29 @@ public class BrowserManager
         if (browser != null && browserList.contains(browser))
         {
             browserList.remove(browser);
+        }
+    }
+    
+    /**
+     * Returns the active controller.
+     *
+     */
+    public BrowserController getActiveBrowser()
+    {
+        return (BrowserController)browserList.get(0);
+    }
+    
+    /**
+     * Sets the current browser to be the active.
+     * @param browser The browser to make active.
+     */
+    public void setActiveBrowser(BrowserController browser)
+    {
+        synchronized(browserList) // will this lock?
+        {
+            int prevIndex = browserList.indexOf(browser)+1;
+            browserList.add(0,browser);
+            browserList.remove(prevIndex);
         }
     }
 }
