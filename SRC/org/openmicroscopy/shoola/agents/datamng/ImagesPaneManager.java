@@ -126,7 +126,6 @@ class ImagesPaneManager
 		load = view.bar.getLoad();
 		load.addActionListener(this);
 		load.setActionCommand(""+LOAD);		
-		
 		view.table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) { onClick(e); }
 			public void mouseReleased(MouseEvent e) { onClick(e); }
@@ -157,6 +156,7 @@ class ImagesPaneManager
 			sorter = new TableSorter(tableModel);  
 			table.setModel(sorter);
 			sorter.addMouseListenerToHeaderInTable(table);
+			sorter.sortByColumn(NAME);
 			setTableLayout(table);
 			loaded = true;
 		}
