@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  */
 public class ProjectMapper
 {
-
+	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria linked to retrieveUserProjects.

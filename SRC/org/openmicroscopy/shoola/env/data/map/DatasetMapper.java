@@ -64,6 +64,26 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
  */
 public class DatasetMapper
 {
+	
+	public static Criteria buildDatasetsDiffCriteria(int userID, int projectID)
+	{
+		Criteria criteria = new Criteria();
+		//Specify which fields we want for the dataset.
+		criteria.addWantedField("id");
+		criteria.addWantedField("name");
+		criteria.addWantedField("projects");
+		
+		//Retrieve the user's datasets.
+		criteria.addFilter("owner_id", new Integer(userID));
+		
+		//Specify which fields we want for the datasets.
+		criteria.addWantedField("projects", "id");
+		List l = new ArrayList();
+		l.add(new Integer(projectID));
+		criteria.addFilter("projects.id", "NOT IN", l);
+		return criteria;
+	}
+	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria linked to retrieveUserDatasets.
@@ -90,7 +110,7 @@ public class DatasetMapper
 	 * 
 	 * @return 
 	 */
-	public static Criteria buildImagesCriteria()
+	public static Criteria buildImagesCriteria(int datasetID)
 	{
 		Criteria criteria = new Criteria();
 		
@@ -106,6 +126,7 @@ public class DatasetMapper
         criteria.addWantedField("images.default_pixels", "Repository");
         criteria.addWantedField("images.default_pixels.Repository",
 								"ImageServerURL");
+		criteria.addFilter("id", new Integer(datasetID));
         criteria.addOrderBy("id");
 		
 		return criteria;
