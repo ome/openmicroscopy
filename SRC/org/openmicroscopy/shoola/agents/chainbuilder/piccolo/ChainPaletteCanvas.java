@@ -351,7 +351,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		System.err.println("chain builder got event ."+e);
 		if (e instanceof DatasetEvent) {
 			DatasetEvent event = (DatasetEvent) e;
 			DatasetData dataset = event.getDataset();
@@ -363,14 +362,11 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			selectChainExecution(exec);
 		}
 		else if (e instanceof SelectChainExecutionEvent) {
-			System.err.println("got select chainexecution event..");
 			SelectChainExecutionEvent event = (SelectChainExecutionEvent) e;
 			ChainExecutionData exec = event.getChainExecution();
 			selectChainExecution(exec);
 			if (exec != null) {
-				System.err.println("selecting exec..."+exec.getID());
 				ChainBox cb =  findChainBox(exec.getChain());
-				System.err.println("highlighting.."+cb);
 				if (cb != null)
 					zoomToChain(cb);
 				else 
@@ -378,7 +374,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			}
 			else {
 				scaleToSize();
-				System.err.println("selecting null exec");
 			}
 		}
 	}
