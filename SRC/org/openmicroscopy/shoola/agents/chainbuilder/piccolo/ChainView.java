@@ -46,6 +46,8 @@ import java.util.Vector;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PPath;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.PLayer;
 
@@ -79,7 +81,8 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  */
-public class ChainView extends PNode implements BufferedObject, MouseableNode {
+public class ChainView extends PNode implements BufferedObject, MouseableNode, 
+	ToolTipNode {
 
 	/**
 	 * The Chain to be rendered
@@ -129,6 +132,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	 */
 	private NodeLayers nodeLayers;
 	
+	protected LinkLayer linkLayer;
 
 	
 	/** layers for full view */
@@ -145,7 +149,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		this.layering = chain.getLayering();
 
 		
-		LinkLayer linkLayer = getLinkLayer();
+		linkLayer = getLinkLayer();
 		addChild(fullLayer);
 		fullLayer.addChild(linkLayer);
 		
@@ -445,7 +449,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
-		((ModuleNodeEventHandler) handler).setLastEntered(this);
+		mouseEntered(handler);
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
@@ -457,15 +461,34 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 
 	// let the grandparent handle the event. otherwise, clear last enetered.
 	public void mouseExited(GenericEventHandler handler) {
-		((ModuleNodeEventHandler) handler).setLastEntered(null);
+		//((ModuleNodeEventHandler) handler).setLastEntered(null);
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
-		((ModuleNodeEventHandler) handler).animateToNode(this);
-		((ModuleNodeEventHandler) handler).setLastEntered(this);
+		mouseClicked(handler);
 	}
 	
-	
+	public PNode getToolTip() {
+		String name = getChain().getName();
+		//String desc = mod.getDescription();
+		if (name.compareTo("") != 0) {
+			PText pt = new PText(name);
+			pt.setPickable(false);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			PPath node = new PPath();
+			node.addChild(pt);
+			pt.setOffset(0,0);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			
+			node.setBounds(node.getUnionOfChildrenBounds(null));
+			node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+			node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+			node.setPickable(false);
+			return node;
+		}
+		else 
+			return null;
+	}
 	
 	/**
 	 * A convenience class that tracks the nodes in each layer,
