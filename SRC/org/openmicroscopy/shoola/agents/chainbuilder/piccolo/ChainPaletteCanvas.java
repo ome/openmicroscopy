@@ -388,31 +388,22 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			if (obj instanceof ChainBox) {
 				ChainBox cb = (ChainBox) obj;
 				LayoutChainData chain = cb.getChain();
-				Collection chainExecs = 
-					dataManager.getChainExecutionsByChainID(chain.getID());
-			
-				//do  any of the executions refer to this dataset?
-				if (d != null && chainExecs != null &&
-						hasExecutionsFor(d,chainExecs))
-					cb.setSelected(true);
-				else
-					cb.setSelected(false);
+				if (d == null) 
+					cb.setHighlighted(false);
+				else {
+					boolean hasExecs =
+						dataManager.chainHasExecutionsForDataset(chain.getID(),
+								d.getID());
+					if (hasExecs == true)
+						cb.setHighlighted(true);
+					else
+						cb.setHighlighted(false);
+				}
 			}
-		}
+		}					
 	}
 	
-	private boolean hasExecutionsFor(DatasetData d ,Collection chainExecs) {
-		Iterator iter = chainExecs.iterator();
-		ChainExecutionData exec;
-		while (iter.hasNext()) {
-			exec = (ChainExecutionData) iter.next();
-			DatasetData execDataset = exec.getDataset();
-			if (execDataset != null && execDataset.getID() == d.getID()) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 	
 	private void selectChainExecution(ChainExecutionData exec) {
 		AnalysisChainData selChain = null;
@@ -428,9 +419,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 				LayoutChainData chain = cb.getChain();
 				
 				if (selChain != null && selChain.getID() == chain.getID())
-					cb.setSelected(true);
+					cb.setHighlighted(true);
 				else
-					cb.setSelected(false);
+					cb.setHighlighted(false);
 			}
 		}
 		
