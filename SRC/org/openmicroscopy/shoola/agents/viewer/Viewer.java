@@ -29,17 +29,23 @@
 
 package org.openmicroscopy.shoola.agents.viewer;
 
-
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
+import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
+import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
+import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
+import org.openmicroscopy.shoola.agents.roi.events.IATChanged;
+import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+//import org.openmicroscopy.shoola.agents.viewer3D.events.DisplayViewer3D;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -57,10 +63,10 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -68,174 +74,241 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
  * @since OME2.2
  */
 public class Viewer
-	implements Agent, AgentEventListener
+    implements Agent, AgentEventListener
 {
-		
-	/** Background color. */
-	public static final Color		BACKGROUND_COLOR = new Color(204, 204, 255);
-	
-	public static final Color		STEELBLUE = new Color(0x4682B4);
-	
-	public static final Dimension	TOOLBAR_DIMENSION = new Dimension(20, 300);
-	
-	/** Dimension of the separator between the toolBars. */
-	public static final Dimension	SEPARATOR_END = new Dimension(100, 0);
-	
-	public static final Dimension	SEPARATOR = new Dimension(15, 0);
-	
-	/** Reference to the {@link Registry}. */
-	private Registry				registry;
-	
-	private ViewerUIF				presentation;
-	
-	private ViewerCtrl				control;
-		
-	private RenderingControl		renderingControl;
-	
-	private int						curImageID, curPixelsID;
-	
-	private BufferedImage			curImage;
-	
-	private String					curImageName;
-	
-	/** Implemented as specified by {@link Agent}. */
-	public void activate() {}
-	
-	/** Implemented as specified by {@link Agent}. */
-	public void terminate() {}
+    
+    /** position of the canvas in the layer. */
+    public static final int         IMAGE_LEVEL = 0;
+    
+    public static final int         LENS_LEVEL = 1;
+    
+    public static final int         ROI_LEVEL = 2;
+    
+    /** Background color. */
+    public static final Color       BACKGROUND_COLOR = new Color(204, 204, 255);
+    
+    public static final Color       STEELBLUE = new Color(0x4682B4);
+    
+    public static final Dimension   TOOLBAR_DIMENSION = new Dimension(20, 300);
 
-	/** Implemented as specified by {@link Agent}. */
-	public void setContext(Registry ctx) 
-	{
-		registry = ctx;
-		EventBus bus = registry.getEventBus();
-		bus.register(this, LoadImage.class);
-		bus.register(this, ImageLoaded.class);
-		bus.register(this, ImageRendered.class);
-		control = new ViewerCtrl(this);
-	}
+    /** Dimension of the separator between the toolBars. */
+    public static final Dimension   SEPARATOR_END = new Dimension(100, 0);
+    
+    public static final Dimension   SEPARATOR = new Dimension(15, 0);
+    
+    /** Reference to the {@link Registry}. */
+    private Registry                registry;
+    
+    private ViewerUIF               presentation;
+    
+    private ViewerCtrl              control;
+        
+    private RenderingControl        renderingControl;
+    
+    private int                     curImageID, curPixelsID;
+    
+    private BufferedImage           curImage;
+    
+    private String                  curImageName;
+    
+    /** Implemented as specified by {@link Agent}. */
+    public void activate() {}
+    
+    /** Implemented as specified by {@link Agent}. */
+    public void terminate() {}
 
-	/** Implemented as specified by {@link Agent}. */
-	public boolean canTerminate() { return true; }
+    /** Implemented as specified by {@link Agent}. */
+    public void setContext(Registry ctx) 
+    {
+        registry = ctx;
+        EventBus bus = registry.getEventBus();
+        bus.register(this, LoadImage.class);
+        bus.register(this, ImageLoaded.class);
+        bus.register(this, ImageRendered.class);
+        bus.register(this, AddROICanvas.class);
+        //bus.register(this, DisplayViewer3D.class);
+        control = new ViewerCtrl(this);
+    }
 
-	ViewerUIF getPresentation() { return presentation; }
-	
-	Registry getRegistry() { return registry; }
-	
-	int getModel() { return renderingControl.getModel(); }
-	
-	void setModel(int model) { renderingControl.setModel(model); }
-	
-	PixelsDimensions getPixelsDims()
-	{ 
-		return renderingControl.getPixelsDims();
-	}
-	
-	int getCurPixelsID() { return curPixelsID; } 
-	
-	/** Default timepoint. */
-	int getDefaultT() { return renderingControl.getDefaultT(); }
-	
-	/** Default z-section in the stack. */
-	int getDefaultZ() { return renderingControl.getDefaultZ(); }
-	
-	/** Return the current buffered image. */
-	BufferedImage getCurImage() { return curImage; }
-	
-	String getCurImageName() { return curImageName; }
-	
-	/** 2D-plane selected. */
-	void onPlaneSelected(int z, int t)
-	{
-		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
-		def.setZ(z);
-		RenderImage renderImage = new RenderImage(curPixelsID, def);
-		registry.getEventBus().post(renderImage);	
-	}
-	
+    /** Implemented as specified by {@link Agent}. */
+    public boolean canTerminate() { return true; }
+    
+    ViewerUIF getPresentation() { return presentation; }
+    
+    Registry getRegistry() { return registry; }
+    
+    int getModel() { return renderingControl.getModel(); }
+    
+    void setModel(int model) { renderingControl.setModel(model); }
+    
+    PixelsDimensions getPixelsDims()
+    { 
+        return renderingControl.getPixelsDims();
+    }
+    
+    int getCurPixelsID() { return curPixelsID; } 
+    
+    /** Default timepoint. */
+    int getDefaultT() { return renderingControl.getDefaultT(); }
+    
+    /** Default z-section in the stack. */
+    int getDefaultZ() { return renderingControl.getDefaultZ(); }
+    
+    /** Return the current buffered image. */
+    BufferedImage getCurImage() { return curImage; }
+    
+    String getCurImageName() { return curImageName; }
+
+    /** 2D-plane selected. */
+    void onPlaneSelected(int z, int t)
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
+        def.setZ(z);
+        renderingControl.setDefaultZ(z);
+        renderingControl.setDefaultT(t);
+        RenderImage renderImage = new RenderImage(curPixelsID, def);
+        registry.getEventBus().post(renderImage);   
+    }
+    
     void onPlaneSelected(int z)
     {
         onPlaneSelected(z, getDefaultT());
     }
+
+    /** 
+     * Post an event to bring up the 
+     * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}. 
+     */
+    void showViewer3D()
+    {
+        /**
+        DisplayViewer3D event = new DisplayViewer3D(true);
+        event.setOwner(presentation);
+        registry.getEventBus().post(event);
+        */
+    }
+
+    /** 
+     * Post an event to bring up the 
+     * {@link org.openmicroscopy.shoola.agents.roi.ROIAgt ROIAgt}. 
+     */
+    void showROI(DrawingCanvas drawingCanvas, ImageAffineTransform iat)
+    {
+        registry.getEventBus().post(new DisplayROI(drawingCanvas, iat));
+    }
+
+    /** 
+     * Post an event to bring up the 
+     * {@link org.openmicroscopy.shoola.agents.rnd.RenderingAgt RenderingAgt}. 
+     */
+    void showRendering()
+    {
+        registry.getEventBus().post(new DisplayRendering());
+    }
     
-	/** Post an event to bring up the rendering agt. */
-	void showRendering()
-	{
-		registry.getEventBus().post(new DisplayRendering());
-	}
-	
-	/** Implement as specified by {@link AgentEventListener}. */
-	public void eventFired(AgentEvent e) 
-	{
-		if (e instanceof ImageLoaded)
-			handleImageLoaded((ImageLoaded) e);
-		else if (e instanceof ImageRendered)
-			handleImageRendered((ImageRendered) e);
-		else if (e instanceof LoadImage)
-			handleLoadImage((LoadImage) e);
-	}
-	
-	/** Handle event @see LoadImage. */
-	private void handleLoadImage(LoadImage request)
-	{
-		//TODO: REMOVE COMMENTS
-		//control.showProgressNotifier(request.getImageName());
-	}
-	
-	/** Handle event @see ImageLoaded. */
-	private void handleImageLoaded(ImageLoaded response)
-	{
-		LoadImage request = (LoadImage) response.getACT();
-		renderingControl = response.getProxy();
-		PixelsDimensions pxsDims = renderingControl.getPixelsDims();
-		//TODO:	REMOVE COMMENTS
-		//control.removeProgressNotifier();
-		if (curImageID != request.getImageID()) {
-			if (presentation == null) buildPresentation(pxsDims);
-			initPresentation(request.getImageName(), pxsDims, false);
-			curImageID = request.getImageID();
-			curPixelsID = request.getPixelsID();
-			registry.getEventBus().post(new RenderImage(curPixelsID));
-			// have to dispose all windows linked 
-			control.disposeDialogs();
-		} showPresentation();
-	}
+    void affineTransformChanged(ImageAffineTransform iat)
+    {
+        registry.getEventBus().post(new IATChanged(iat));
+    }
 
-	/** Handle event @see ImageRendered. */
-	private void handleImageRendered(ImageRendered response)
-	{
-	    curImage = null;
-	    curImage = response.getRenderedImage();
-	    presentation.setImage(curImage);
-	}
-	
-	/** Set the default. */
-	private void initPresentation(String imageName, PixelsDimensions pxsDims, 
-							boolean active)
-	{
-		curImageName = imageName;
-		presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
-									pxsDims.sizeT, pxsDims.sizeZ);
-		presentation.setImageName(imageName);
-		presentation.setActive(active);
+    void addRoiCanvas(boolean b)
+    {
+        registry.getEventBus().post(new AddROICanvas(b));
+    }
+    
+    /** Implement as specified by {@link AgentEventListener}. */
+    public void eventFired(AgentEvent e) 
+    {
+        if (e instanceof ImageLoaded)
+            handleImageLoaded((ImageLoaded) e);
+        else if (e instanceof ImageRendered)
+            handleImageRendered((ImageRendered) e);
+        else if (e instanceof LoadImage)
+            handleLoadImage((LoadImage) e);
+        else if (e instanceof AddROICanvas)
+            handleAddROI((AddROICanvas) e);
+        //else if (e instanceof DisplayViewer3D)
+        //    handleDisplayViewer3D((DisplayViewer3D) e);
+    }
+    
+    /** Handle event @see DisplayViewer3D. */
+    /*
+    private void handleDisplayViewer3D(DisplayViewer3D response)
+    {
+        if (!response.isVisible()) {
+            int z = getDefaultZ();
+            control.resetZSlider(z);
+            control.resetZField(z);
+        }
+    }
+    */
+    
+    /** Handle event @see AddROICanvas. */
+    private void handleAddROI(AddROICanvas response)
+    {
+        control.setRoiOnOff(response.isOnOff());
+    }
+    
+    /** Handle event @see LoadImage. */
+    private void handleLoadImage(LoadImage request)
+    {
+        //TODO: REMOVE COMMENTS
+        //control.showProgressNotifier(request.getImageName());
+    }
+    
+    /** Handle event @see ImageLoaded. */
+    private void handleImageLoaded(ImageLoaded response)
+    {
+        LoadImage request = (LoadImage) response.getACT();
+        renderingControl = response.getProxy();
+        PixelsDimensions pxsDims = renderingControl.getPixelsDims();
+        //TODO: REMOVE COMMENTS
+        //control.removeProgressNotifier();
+        if (curImageID != request.getImageID()) {
+            if (presentation == null) buildPresentation(pxsDims);
+            initPresentation(request.getImageName(), pxsDims, false);
+            curImageID = request.getImageID();
+            curPixelsID = request.getPixelsID();
+            registry.getEventBus().post(new RenderImage(curPixelsID));
+            // have to dispose all windows linked 
+            control.disposeDialogs();
+        } showPresentation();
+    }
+
+    /** Handle event @see ImageRendered. */
+    private void handleImageRendered(ImageRendered response)
+    {
+        curImage = null;
+        curImage = response.getRenderedImage();
+        presentation.setImage(curImage);
+    }
+
+    /** Set the default. */
+    private void initPresentation(String imageName, PixelsDimensions pxsDims, 
+                            boolean active)
+    {
+        curImageName = imageName;
+        presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
+                                    pxsDims.sizeT, pxsDims.sizeZ);
+        presentation.setImageName(imageName);
+        presentation.setActive(active);
         presentation.resetMagFactor();
-		showPresentation();
-	}
+    }
 
-	/** Build the GUI. */
-	private void buildPresentation(PixelsDimensions pxsDims)
-	{
-		presentation = new ViewerUIF(control, registry, pxsDims, getDefaultT(), 
-									getDefaultZ());
-		control.setPresentation(presentation);
-		control.attachListener();	
-	}
-	
-	private void showPresentation()
-	{
-		if (presentation.getExtendedState() == Frame.ICONIFIED)
-			presentation.setExtendedState(Frame.NORMAL);
-		presentation.setVisible(true);	
-	}
-	
+    /** Build the GUI. */
+    private void buildPresentation(PixelsDimensions pxsDims)
+    {
+        presentation = new ViewerUIF(control, registry, pxsDims, getDefaultT(), 
+                                    getDefaultZ());
+        control.setPresentation(presentation);
+        control.attachListener();   
+    }
+    
+    private void showPresentation()
+    {
+        if (presentation.getExtendedState() == Frame.ICONIFIED)
+            presentation.setExtendedState(Frame.NORMAL);
+        presentation.setVisible(true);
+    }
+
 }

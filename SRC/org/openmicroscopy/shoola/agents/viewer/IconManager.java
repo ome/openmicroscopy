@@ -116,13 +116,23 @@ public class IconManager
     /** ID of the player end icon. */
     public static final int     PLAYER_END = 17;
 	
-    /** ID of the player end icon. */
+    /** ID of the player start icon. */
     public static final int     PLAYER_START = 18;
-	/** 
-	 * The maximum ID used for the icon IDs.
-	 * Allows to correctly build arrays for direct indexing. 
-	 */
-	private static int          MAX_ID = 18;
+    
+    /** ID of the roi icon. */
+    public static final int     ROI = 19;
+    
+    /** ID of the plus icon. */
+    public static final int     PLUS = 20;
+    
+    /** ID of the minus icon. */
+    public static final int     MINUS = 21;
+    
+    /** 
+     * The maximum ID used for the icon IDs.
+     * Allows to correctly build arrays for direct indexing. 
+     */
+    private static int          MAX_ID = 21;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -147,6 +157,9 @@ public class IconManager
 		relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
         relPaths[PLAYER_START] = "nuvola_player_start16.png";
         relPaths[PLAYER_END] = "nuvola_player_end16.png";
+        relPaths[ROI] = "nuvola_kig16.png";
+        relPaths[PLUS] = "gtk_stock_add_16.png";
+        relPaths[MINUS] = "gtk_stock_remove_16.png";
 	}
 	
 	/** The sole instance. */
