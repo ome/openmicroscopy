@@ -101,8 +101,7 @@ public class UIManager
 		chainWindow = new ChainPaletteWindow(manager);
 		config = manager.getRegistry();
 		IconFactory icons = (IconFactory) config.lookup("/resources/icons/MyFactory");
-		chainGroup = new TopWindowGroup("chains", 
-				icons.getIcon("chains.png"), config.getTaskBar());
+		chainGroup = new TopWindowGroup("chains",icons.getIcon("chains.png"), config.getTaskBar());
 	}
 	
 
