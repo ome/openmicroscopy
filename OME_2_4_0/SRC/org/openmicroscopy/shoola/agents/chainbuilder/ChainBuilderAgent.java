@@ -76,6 +76,11 @@ public class ChainBuilderAgent
 	/** The data manager */
 	private ChainDataManager dataManager;
 	
+	public static void debug(String s,int level) {
+		if (DEBUG >= level)
+			System.err.println(s);
+	}
+	
 	/**
 	 * Does nothing.
 	 * However, all agents must have a no-params public constructor.
