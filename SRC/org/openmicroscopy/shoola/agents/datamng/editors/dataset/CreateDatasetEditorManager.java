@@ -36,7 +36,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -45,10 +47,13 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -64,8 +69,9 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * </small>
  * @since OME2.2
  */
-public class CreateDatasetEditorManager
-	implements ActionListener, DocumentListener, MouseListener
+class CreateDatasetEditorManager
+	implements ActionListener, DocumentListener, MouseListener, 
+    IDatasetsSelectorMng
 {
 	
 	/** ID used to handle events. */
@@ -76,10 +82,12 @@ public class CreateDatasetEditorManager
 	private static final int		RESET_SELECTION_IMAGE = 4;
 	private static final int		CANCEL = 5;
     private static final int        SHOW_IMAGES = 6;
+    private static final int        IMAGES_SELECTION = 7;
 	
 	private CreateDatasetEditor 	view;
 	private DatasetData 			model;
-	private DataManagerCtrl			control;
+    
+	private DataManagerCtrl			agentCtrl;
 	
 	private List					projects;
 	
@@ -93,11 +101,11 @@ public class CreateDatasetEditorManager
 	
     private int                     selectionIndex;
     
-	public CreateDatasetEditorManager(CreateDatasetEditor view, 
-									  DataManagerCtrl control,
+    CreateDatasetEditorManager(CreateDatasetEditor view, 
+									  DataManagerCtrl agentCtrl,
 									  DatasetData model, List projects)
 	{
-		this.control = control;
+		this.agentCtrl = agentCtrl;
 		this.view = view;
 		this.model = model;
         selectionIndex = -1;
@@ -107,6 +115,13 @@ public class CreateDatasetEditorManager
 		isName = false;
 	}
 	
+    /** Implemented as specified in  {@link IDatasetsSelectorMng}. */
+    public void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) return;
+        view.showImages(images);
+    }
+    
 	CreateDatasetEditor getView() { return view; }
 	
 	DatasetData getDatasetData() { return model; }
@@ -116,6 +131,7 @@ public class CreateDatasetEditorManager
 	/** Initializes the listeners. */
 	void initListeners()
 	{
+        attachBoxListeners(view.getImagesSelections(), IMAGES_SELECTION);
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getSelectButton(), SELECT_PROJECT);
@@ -132,7 +148,15 @@ public class CreateDatasetEditorManager
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    /** Attach an {@link ActionListener} to a {@link JComboBox}. */
+    private void attachBoxListeners(JComboBox button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
@@ -158,7 +182,9 @@ public class CreateDatasetEditorManager
 				case RESET_SELECTION_IMAGE:
 					resetSelectionImage(); break;
                 case SHOW_IMAGES:
-                    showImages();
+                    showImages(); break;
+                case IMAGES_SELECTION:
+                    bringSelector(e); break;
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -195,6 +221,21 @@ public class CreateDatasetEditorManager
 		} else 	projectsToAdd.remove(ps);
 	}
 
+    /** Bring up the datasetSelector. */
+    private void bringSelector(ActionEvent e)
+    {
+        int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
+        if (selectedIndex == CreateDatasetImagesPane.IMAGES_USED) {
+            selectionIndex = selectedIndex;
+            //retrieve the user's datasets.
+            List d = agentCtrl.getUserDatasets();
+            if (d != null && d.size() > 0)
+                UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
+                                            d, DataManagerCtrl.IMAGES_FOR_PDI, 
+                                            null));
+        }
+    }
+    
     /** Show the images. */
     private void showImages()
     {
@@ -204,16 +245,13 @@ public class CreateDatasetEditorManager
             List images = null;
             switch (selectedIndex) {
                 case CreateDatasetImagesPane.IMAGES_IMPORTED:
-                    images = control.getImportedImages(); break;
-                case CreateDatasetImagesPane.IMAGES_USED:
-                    images = control.getUsedImages(); break;
+                    images = agentCtrl.getImportedImages(); break;
                 case CreateDatasetImagesPane.IMAGES_GROUP:
-                    images = control.getGroupImages(); break;
+                    images = agentCtrl.getGroupImages(); break;
                 case CreateDatasetImagesPane.IMAGES_SYSTEM:
-                    images = control.getSystemImages(); break;
+                    images = agentCtrl.getSystemImages(); break;
             }
-            if (images == null || images.size() == 0) return;
-            view.showImages(images);
+            displayListImages(images);
         }
     }
     
@@ -231,9 +269,9 @@ public class CreateDatasetEditorManager
 	private void save()
 	{
         if (projectsToAdd.size() == 0) {
-            UserNotifier un = control.getRegistry().getUserNotifier();
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
             un.notifyInfo("Create dataset", 
-                    "The dataset you wish to create must " +
+                    "The dataset you want to create must " +
                     "be added to an existing project.");
             return;
         }
@@ -242,7 +280,7 @@ public class CreateDatasetEditorManager
 		//update tree and forward event to DB.
 		//forward event to DataManager.
         
-		control.addDataset(projectsToAdd, imagesToAdd, model);
+		agentCtrl.addDataset(projectsToAdd, imagesToAdd, model);
 		//close widget.
 		view.dispose();
 	}

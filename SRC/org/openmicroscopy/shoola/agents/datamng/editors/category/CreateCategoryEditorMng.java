@@ -37,7 +37,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -46,8 +49,11 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
+import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -65,7 +71,8 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * @since OME2.2
  */
 class CreateCategoryEditorMng
-    implements ActionListener, DocumentListener, MouseListener
+    implements ActionListener, DocumentListener, MouseListener,
+    IDatasetsSelectorMng
 {
 
     /** ID used to handle events. */
@@ -74,6 +81,7 @@ class CreateCategoryEditorMng
     private static final int        RESET_SELECT_IMAGE = 2;
     private static final int        CANCEL = 3;
     private static final int        SHOW_IMAGES = 4;
+    private static final int        IMAGES_SELECTION = 5;
     
     /** List of images to be added. */
     private List                    imagesToAdd;
@@ -99,11 +107,19 @@ class CreateCategoryEditorMng
         imagesToAdd = new ArrayList();
     }
 
+    /** Implemented as specified in  {@link IDatasetsSelectorMng}. */
+    public void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) return;
+        view.showImages(images);
+    }
+    
     CreateCategoryEditor getView() { return view; }
     
     /** Attach listeners to the components. */
     void initListeners()
     {
+        attachBoxListeners(view.getImagesSelection(), IMAGES_SELECTION);
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getSelectButton(), SELECT_IMAGE);
@@ -131,8 +147,15 @@ class CreateCategoryEditorMng
         } else  imagesToAdd.remove(is);
     }
     
-    /** Add actionListener to a button. */
+    /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
     private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
+    /** Attach an {@link ActionListener} to a {@link JComboBox}. */
+    private void attachBoxListeners(JComboBox button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
@@ -160,7 +183,6 @@ class CreateCategoryEditorMng
         view.dispose();
     }
 
-    
     /** Select images. */
     private void selectImage()
     {
@@ -175,6 +197,24 @@ class CreateCategoryEditorMng
         view.resetImageSelection();
     }
 
+    /** Bring up the datasetSelector. */
+    private void bringSelector(ActionEvent e)
+    {
+        int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
+        if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
+            selectionIndex = selectedIndex;
+            //retrieve the user's datasets.
+            List d = control.getUserDatasets();
+            if (d != null && d.size() > 0) {
+                CategoryGroupData group = 
+                (CategoryGroupData) view.getExistingGroups().getSelectedItem();
+                DatasetsSelector dialog = new DatasetsSelector(
+                    control, this,  d, DataManagerCtrl.IMAGES_FOR_CGI, group);
+                UIUtilities.centerAndShow(dialog);
+            }   
+        }
+    }
+    
     /** Show the existing images. */
     private void showImages()
     {
@@ -187,10 +227,6 @@ class CreateCategoryEditorMng
             switch (selectedIndex) {
                 case CreateCategoryImagesPane.IMAGES_IMPORTED:
                     images = control.getImagesNotInCategoryGroup(group); break;
-                case CreateCategoryImagesPane.IMAGES_USED:
-                    images = 
-                       control.getImagesInUserDatasetsNotInCategoryGroup(group);
-                    break;
                 case CreateCategoryImagesPane.IMAGES_GROUP:
                     images = 
                         control.getImagesInUserGroupNotInCategoryGroup(group);
@@ -200,8 +236,7 @@ class CreateCategoryEditorMng
                         control.getImagesInSystemNotInCategoryGroup(group);
                      break;
             }
-            if (images == null || images.size() == 0) return;
-            view.showImages(images);
+            displayListImages(images);
         }
     }
     
@@ -221,7 +256,9 @@ class CreateCategoryEditorMng
                 case RESET_SELECT_IMAGE:
                     resetSelectionImage(); break;
                 case SHOW_IMAGES:
-                    showImages();;
+                    showImages(); break;
+                case IMAGES_SELECTION:
+                    bringSelector(e); break;    
             }
         } catch(NumberFormatException nfe) {
             throw new Error("Invalid Action ID "+index, nfe);

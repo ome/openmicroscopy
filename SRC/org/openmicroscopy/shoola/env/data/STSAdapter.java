@@ -533,6 +533,14 @@ class STSAdapter
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInUserDatasetsNotInCategoryGroup(
             CategoryGroupData group)
+    throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasetsNotInCategoryGroup(group, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, List datasetIDs)
         throws DSOutOfServiceException, DSAccessException
     {
         Iterator i = group.getCategories().iterator();
@@ -549,8 +557,14 @@ class STSAdapter
             }  
         }
         List images = new ArrayList();
-        List userImages = 
+        List userImages = null;
+        if (datasetIDs == null || datasetIDs.size() == 0)
+            userImages = 
             registry.getDataManagementService().retrieveImagesInUserDatasets();
+        else 
+            userImages = 
+            registry.getDataManagementService().retrieveImagesInUserDatasets(
+                    datasetIDs);
         Iterator j = userImages.iterator();
         ImageSummary is;
         while (j.hasNext()) {

@@ -385,6 +385,10 @@ public interface SemanticTypesService
                         CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, List datasetsID)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /** 
      * Retrieve a list of all images but
      * not contained in the specified category group.
