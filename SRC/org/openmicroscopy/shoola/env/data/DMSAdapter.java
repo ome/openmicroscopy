@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
@@ -335,6 +336,12 @@ class DMSAdapter
 		return retrieveImage(id, null);
 	}
 	
+	/**Implemented as specified in {@link DataManagementService}. */
+	public PixelsDescription retrievePixels(int pixelsID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal, 
