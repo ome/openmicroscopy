@@ -138,7 +138,6 @@ public class ExecutionsCanvas extends JPanel implements
 		gridModel.drawAxes(g2);
 		drawExecutions(g2);
 		if (currentExecution != null) {
-			System.err.println("doing tool tip");
 			drawExecutionTip(g2);
 		}
 	}
@@ -211,8 +210,6 @@ public class ExecutionsCanvas extends JPanel implements
 	private void drawExecutionTip(Graphics2D g) {
 		
 		ChainExecutionData exec= currentExecution.getChainExecution();
-		System.err.println("getting tip for exection.."+exec);
-		System.err.println("chain objecdt is "+exec.getChain());
 		String chain = exec.getChain().getName();
 		String dataset = exec.getDataset().getName();
 		
@@ -220,7 +217,6 @@ public class ExecutionsCanvas extends JPanel implements
 		FontMetrics metrics = g.getFontMetrics(tipFont);
 		
 		int height = 3* metrics.getHeight();
-		System.err.println("getting width of "+chain);
 		int width = metrics.stringWidth(chain);
 		int newWidth = metrics.stringWidth(dataset);
 		if (newWidth > width)
