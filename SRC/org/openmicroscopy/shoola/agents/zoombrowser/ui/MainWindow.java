@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.HashMap;
 import javax.swing.border.Border;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -42,6 +41,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
@@ -97,7 +97,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	private ProjectSelectionCanvas projectBrowser;
 	
 	
-	private HashMap chainExecutions;
+	private ChainExecutions chainExecutions;
 	/**
 	 * Specifies names, icons, and tooltips for the quick-launch button and the
 	 * window menu entry in the task bar.
@@ -224,11 +224,11 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		}
 		else if (e instanceof ChainExecutionsLoadedEvent) {
 			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
-			chainExecutions = event.getChainExecutionsByDatasetID();
+			chainExecutions = event.getChainExecutions();
 		}
 	}
 	
-	public HashMap getChainExecutions() {
+	public ChainExecutions getChainExecutions() {
 		return chainExecutions;
 	}
 	

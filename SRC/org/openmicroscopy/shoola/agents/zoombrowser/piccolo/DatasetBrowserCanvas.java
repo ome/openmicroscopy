@@ -43,7 +43,6 @@ import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -55,6 +54,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.ui.MainWindow;
@@ -613,36 +613,28 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		mainWindow.setSelectedDataset(dataset);
 	}
 	
-	public void selectAnalysisChain(AnalysisChainData chain) {
-		HashMap chainExecutions = mainWindow.getChainExecutions();
-		if (chainExecutions == null) 
-			return; //do nothing if no executions;
 	
+	public void selectAnalysisChain(AnalysisChainData chain) {
+		ChainExecutions chainExecutions = mainWindow.getChainExecutions();
+		if (chainExecutions == null)
+			return;
+		
 		Iterator iter = layer.getChildrenIterator();
 		DatasetNode n;
 		while (iter.hasNext()) {
 			n = (DatasetNode) iter.next();
 			int id = n.getDataset().getID();
-			Collection execs = (Collection) chainExecutions.get(new Integer(id));
-			// execs are the executions for this dataset
-			if (execs != null && chain != null && hasExecutionForChain(execs,chain)) 
-				n.setHighlighted(true);
-			else
-				n.setHighlighted(false);	
+			if (chain == null)
+				n.setHighlighted(false);
+			else {
+				int chainID = chain.getID();
+				if (chainExecutions.chainHasExecutionsForDataset(chainID,id))
+					n.setHighlighted(true);
+				else
+					n.setHighlighted(false);
+			}
 		}
 		
-	}
-	
-	public boolean hasExecutionForChain(Collection execs,AnalysisChainData chain) {
-		ChainExecutionData exec;
-		Iterator iter = execs.iterator();
-		while (iter.hasNext()) {
-			exec = (ChainExecutionData) iter.next();
-			AnalysisChainData execChain = exec.getChain();
-			if (execChain != null && execChain.getID() == chain.getID())
-				return true;
-		}
-		return false;
 	}
 	
 	public void mouseOverAnalysisChain(AnalysisChainData chain) {
