@@ -159,7 +159,10 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
-				scaleToSize();
+				if (selectedDataset != null)
+					eventHandler.animateToNode(selectedDataset.getNode());
+				else
+					scaleToSize();
 			}
 		});
 		
@@ -482,8 +485,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	public void scaleToSize() {
 		eventHandler.animateToCanvasBounds();
 	}
-
-
+	
 	/**
 	 * Highlight all of the datasets in a collection. 
 	 * @param p The project with datasets to be highlighted.
