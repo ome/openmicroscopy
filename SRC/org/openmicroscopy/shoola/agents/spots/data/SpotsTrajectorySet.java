@@ -148,7 +148,6 @@ public class SpotsTrajectorySet
 		try {
 			List instances = 			
 				sts.retrieveTrajectoryEntriesByMEXs(mexes);
-			System.err.println("# of trajectories..."+instances.size());
 			return instances;
 	   }
 	   catch(DSOutOfServiceException dso)
