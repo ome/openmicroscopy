@@ -142,8 +142,6 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		content.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		// execution canvas
 		execCanvas = new ExecutionsCanvas(execsModel,registry);
-		
-		
 		// slider
 		slider  = execsModel.getSlider();
 		slider.setEnabled(true);
@@ -204,7 +202,8 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		if (e instanceof LoadChainExecutionsEvent) {
 			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
 			execsModel = new ExecutionsModel(event);
-			buildGUI();
+			if (execsModel.size() >0)
+				buildGUI();
 		}
 		else if (e instanceof AnalysisChainEvent) {
 			AnalysisChainEvent event = (AnalysisChainEvent) e;
