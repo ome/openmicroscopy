@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.pane.ROIViewerMng;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 /** 
  * 
@@ -80,6 +81,8 @@ public class ROIImageCanvas
     
     private ROIViewerMng    manager;
     
+    private PlaneArea       clip;
+
     public ROIImageCanvas(ROIViewerMng manager) 
     {
         this.manager = manager;
@@ -89,8 +92,9 @@ public class ROIImageCanvas
     
     public BufferedImage getROIImage() { return roiImage; }
     
-    public void paintImage(BufferedImage roiImage)
+    public void paintImage(BufferedImage roiImage, PlaneArea clip)
     {
+        this.clip = clip;
         this.roiImage = roiImage;
         displayedImage = roiImage;
         if (roiImage != null) {
@@ -111,6 +115,8 @@ public class ROIImageCanvas
     {
         this.w = w;
         this.h = h;
+        if (clip != null) 
+            clip.scale(level/manager.getOldFactor());
         AffineTransform at = new AffineTransform();
         at.scale(level, level);
         displayedImage = Factory.magnifyImage(roiImage, level, at, 0);
@@ -129,8 +135,21 @@ public class ROIImageCanvas
                             RenderingHints.VALUE_RENDER_QUALITY);
         g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                         RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        if (displayedImage != null)
-            g2D.drawImage(displayedImage, null, 0, 0);
+        if (displayedImage != null) 
+            g2D.drawImage(paintNewImage(), null, 0, 0); 
+    }
+    
+    private BufferedImage paintNewImage()
+    {
+        BufferedImage newImage = (BufferedImage) createImage(w, h);
+        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setClip(clip);
+        g2.drawImage(displayedImage, null, 0, 0); 
+        return newImage;
     }
     
     /** Set the location of the canvas. */

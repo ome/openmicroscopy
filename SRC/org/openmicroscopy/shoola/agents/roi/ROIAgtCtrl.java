@@ -37,6 +37,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -46,11 +47,11 @@ import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvasMng;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
 import org.openmicroscopy.shoola.agents.roi.editor.ROIEditor;
-import org.openmicroscopy.shoola.agents.roi.pane.AnalysisControlsMng;
 import org.openmicroscopy.shoola.agents.roi.pane.ToolBar;
 import org.openmicroscopy.shoola.agents.roi.pane.ToolBarMng;
 import org.openmicroscopy.shoola.agents.roi.results.ROIResults;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -71,14 +72,25 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ROIAgtCtrl
 {
 
+    /** Reference to the {@link ROIAgt abstraction}. */
     private ROIAgt                  abstraction;
   
+    /** Reference to the {@link ROIAgtUIF view}. */
     private ROIAgtUIF               presentation;
     
+    /** Reference to the {@link DrawingCanvas}. */
     private DrawingCanvas           drawingCanvas;
     
+    /** 
+     * Name and annotation of the new ROI4D object, 
+     * needed b/c of initialization process. 
+     */
     private String                  newName, newAnnotation;
     
+    /** 
+     * lineColor of the new ROI4D object, 
+     * needed b/c of initialization process. 
+     */
     private Color                   newColor;
     
     ROIAgtCtrl(ROIAgt abstraction)
@@ -86,14 +98,17 @@ public class ROIAgtCtrl
         this.abstraction = abstraction;  
         setDefaultsNew();
     }
-  
-    /** Attach a window listener. */
-    private void attachListener()
-    {
-        presentation.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) { onClosing(); }
-        });
-    }
+
+    public ROIAgtUIF getReferenceFrame() { return presentation; }
+    
+    public Registry getRegistry() { return abstraction.getRegistry(); }
+
+    public String[] getChannels() { return abstraction.getChannels(); }
+
+    public void setType(int type) { drawingCanvas.getManager().setType(type); }
+    
+    /** Draw or not the ROI selections. */
+    public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
 
     public BufferedImage getROIImage()
     {
@@ -105,28 +120,38 @@ public class ROIAgtCtrl
             if (pa != null) {
                 Rectangle r = pa.getBounds();
                 BufferedImage image = abstraction.getImageOnScreen();
-                if (image != null) //to be on the save-side, shouldn't happen
-                roiImg = image.getSubimage(r.x, r.y, r.width, r.height);
+                if (image != null && r.width > 0 && r.height > 0) 
+                    roiImg = image.getSubimage(r.x, r.y, r.width, r.height);
             }
         }
         return roiImg;
     }
     
-    /** Invoke when resize or move. */
-    public void setROIThumbnail(int x, int y, int w, int h)
+    public PlaneArea getClip()
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        ScreenPlaneArea spa = drawingCanvas.getScreenPlaneArea(index);
+        PlaneArea pa = null;
+        if (spa != null) {
+            if (spa.getPlaneArea() != null)
+                pa = (PlaneArea) (spa.getPlaneArea()).copy(); 
+        }
+        return pa;
+    }
+    
+    /** Invoke when the shape is resized, moved or under construction. */
+    public void setROIThumbnail(PlaneArea pa)
     {
         ToolBarMng tbm = presentation.getToolBar().getManager();
         if (tbm.isViewerOn()) {
             BufferedImage image = abstraction.getImageOnScreen();
-            if (image != null) //to be on the save-side, shouldn't happen
-                tbm.setROIImage(image.getSubimage(x, y, w, h));
+            if (image != null && pa != null) {
+                    Rectangle r = pa.getBounds();
+                    if (r.width > 0 && r.height > 0)
+                        tbm.setROIImage(image.getSubimage(r.x, r.y, r.width, 
+                                r.height), pa);  
+            }        
         }
-    }
-    
-    private void setROIThumbnail()
-    {
-        ToolBarMng tbm = presentation.getToolBar().getManager();
-        if (tbm.isViewerOn()) tbm.setROIImage(getROIImage());
     }
 
     /** Set the new shape selection for the current 5D-selection. */
@@ -209,11 +234,14 @@ public class ROIAgtCtrl
     {
         ToolBar tb = presentation.getToolBar();
         int index = tb.getSelectedIndex();
-        tb.removeROI5D();
+        tb.removeROI5D(index);
         presentation.getAnalysisControls().removeROI5D(index);
-        //remove the dialog Assistant and ROIViewer.
+        drawingCanvas.removeScreenPlaneArea(index);
+        abstraction.removeScreenROI(index);
+        drawingCanvas.repaint();
     }
 
+    /** Bring up the {@link ROIEditor} widget. */
     public void showROIEditor()
     {
         ScreenROI roi = getScreenROI();
@@ -227,15 +255,15 @@ public class ROIAgtCtrl
         drawingCanvas.setTextOnOff(b); 
     }
 
+    /** Forward to the {@link ROIAgt abstraction}. */
     public void displayROIDescription(int index)
     {
         abstraction.displayROIDescription(index);
     }
     
+    /** Synchronize the different view when a new ROI index is selected. */
     public void setSelectedIndex(int index)
     {
-        //int curIndex = presentation.getToolBar().getSelectedIndex();
-        //if (curIndex != index) {
         presentation.getToolBar().setSelectedROIIndex(index);
         drawingCanvas.setSelectedIndex(index);
         PlaneArea pa = getPlaneArea(getCurrentZ(), getCurrentT());
@@ -244,10 +272,12 @@ public class ROIAgtCtrl
         if (pa == null) state =  ROIAgtUIF.CONSTRUCTING;
         drawingCanvas.getManager().setDefault(roi.getIndex(), 
                 roi.getAreaColor(), state);
-        //}
     }
     
-    /** Erase all the {@link PlaneArea planeAreas}. */
+    /** 
+     * Erase all the {@link PlaneArea planeAreas}, 
+     * synchronize the different views.
+     */
     public void removeAllPlaneAreas()
     {
         abstraction.removeAllPlaneAreas();
@@ -261,7 +291,11 @@ public class ROIAgtCtrl
         setROIThumbnail();
     }
     
-    /** Erase the current {@link PlaneArea}, call by the paitingControls. */
+    /** 
+     * Erase the current {@link PlaneArea}, synchronize the different views.
+     * Method invoked by 
+     * {@link org.openmicroscopy.shoola.agents.roi.pane.PaitingControlsMng}. 
+     */
     public void removePlaneArea()
     {
         removePlaneArea(getCurrentZ(), getCurrentT());
@@ -269,7 +303,11 @@ public class ROIAgtCtrl
         tbm.removeCurrentPlane(getCurrentZ(), getCurrentT());
     }
     
-    /** Erase the current {@link PlaneArea}, call by the Assistant. */
+    /** 
+     * Erase the current {@link PlaneArea}, synchronize the different views.
+     * Method invoked by 
+     * {@link org.openmicroscopy.shoola.agents.roi.pane.AssistantDialogMng}. 
+     */
     public void removePlaneArea(int z, int t)
     {
         int index = presentation.getToolBar().getSelectedIndex();
@@ -284,6 +322,13 @@ public class ROIAgtCtrl
         }
     }
     
+    /** 
+     * Copy the specified {@link PlaneArea} at the specified position..
+     * 
+     * @param pa    {@link PlaneArea} to copy.
+     * @param newZ  z-section.
+     * @param newT  timepoint.
+     */
     public void copyPlaneArea(PlaneArea pa, int newZ, int newT)
     {
         int index = presentation.getToolBar().getSelectedIndex();
@@ -366,7 +411,7 @@ public class ROIAgtCtrl
         //clear previous view
         drawingCanvas.clearPreviousView();
         int index = presentation.getToolBar().getSelectedIndex(); 
-        Iterator i = abstraction.getListScreenROI().values().iterator();
+        Iterator i = abstraction.getListScreenROI().iterator();
         ScreenROI roi;
         PlaneArea pa;
         ScreenPlaneArea spa;
@@ -387,84 +432,72 @@ public class ROIAgtCtrl
         drawingCanvas.repaint();
         setROIThumbnail();
     } 
-
-    private void paintScreenROIs()
-    {
-        paintScreenROIs(getCurrentZ(), getCurrentT(), 
-                abstraction.getMagFactor());
-    }
     
+    /** Forward to {@link ROIAgt abstraction}. */
+    public void computeROIStatistics(List selectedChannels, List rois)
+    {
+        
+        if (selectedChannels.size() == 0 || rois.size() == 0) {
+            UserNotifier un = getRegistry().getUserNotifier();
+            un.notifyInfo("Invalid selection", 
+                    "No channel selected and/or ROI.");
+        } else
+            abstraction.computeROIStatistics(selectedChannels, rois);
+       
+    }
+
+    /** 
+     * Set a reference to the {@link ROIAgtUIF view} and 
+     * attach the listener.
+     */
     void setPresentation(ROIAgtUIF presentation)
     {
         this.presentation = presentation;
         attachListener();
     }
-    
+    /** Set a reference to the {@link DrawingCanvas}. */
     void setDrawingCanvas(DrawingCanvas drawingCanvas)
     {
         this.drawingCanvas = drawingCanvas;
         drawingCanvas.getManager().setControl(this);
     }
     
+    /** Forward to the the {@link DrawingCanvas}. */
+    void clearScreenPlaneAreas()
+    {
+        if (drawingCanvas != null) drawingCanvas.removeAllSreenPlaneArea();
+    }
+    
     DrawingCanvas getDrawingCanvas() { return drawingCanvas; }
-    
-    public ROIAgtUIF getReferenceFrame() { return presentation; }
-    
-    public Registry getRegistry() { return abstraction.getRegistry(); }
 
-    public String[] getChannels()
+    public List getAnalyzedROI() {return abstraction.getAnalyzedROI(); }
+    
+    public Map getROIResults() { return abstraction.getROIResults(); }
+    
+    public Map getChannelsMap() { return abstraction.getChannelsMap(); }
+    
+    public String[] getAnalyzedChannels()
+    { 
+        return abstraction.getAnalyzedChannels();
+    }
+    public int getAnalyzedChannel(int index)
     {
-        return abstraction.getChannels();
+        return abstraction.getAnalyzedChannel(index);
+    }
+    
+    void displayROIAnalysisResults(int sizeT, int sizeZ)
+    {
+        abstraction.getListScreenROI();
+        ROIResults roiResults = new ROIResults(this, sizeT, sizeZ);
+        UIUtilities.centerAndShow(roiResults);
+    }    
+    
+    private void setROIThumbnail()
+    {
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        if (tbm.isViewerOn()) tbm.setROIImage(getROIImage(), getClip());
     }
 
-    public void setType(int type)
-    {    
-        drawingCanvas.getManager().setType(type);
-    }
-    
-    /** Draw or not the ROI selections. */
-    public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
-
-    /** Analyse data. */
-    public void analyseStats()
-    {
-        /*
-        AnalysisControlsMng
-            mng = presentation.getAnalysisControls().getManager();
-        List selectedChannels = mng.getSelectedChannels();
-        List selectedROI = abstraction.getListROI();
-        if (selectedChannels.size() != 0 && selectedROI.size() != 0) 
-            retrieveAnalyseContext(mng, selectedROI);
-        else {
-            String msg = "No ROI selected.";
-            if (selectedChannels.size() == 0) msg = "No channel selected.";
-            if (selectedChannels.size() == 0 && selectedROI.size() == 0)
-                msg = "No channel and ROI selected.";
-            UserNotifier un = getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid selection", msg);   
-        }  
-        */
-    }
-    
-    private void retrieveAnalyseContext(AnalysisControlsMng mng, 
-                                        List selectedROI)
-    {
-        //Test
-        UIUtilities.centerAndShow(new ROIResults(this, abstraction.getRegistry()));
-        //need to retrieveROI from canvas
-    }
-    
-    /** Return the results of the ROI. */
-    public String[][] getROIStats()
-    {
-        String[][] stats = new String[2][9];
-        for (int i = 0; i < 9; i++) {
-            stats[0][i] = ""+i;
-            stats[1][i] = ""+2*i;
-        }
-        return stats;
-    }
-    
     /** Handle window closing event. */
     private void onClosing()
     {
@@ -472,12 +505,20 @@ public class ROIAgtCtrl
         presentation.dispose();
     }
     
+    /** Reset default. */
     private void setDefaultsNew()
     {
         newName = null;
         newAnnotation = null;
         newColor = null;
     }
-    
+
+    /** Attach a window listener. */
+    private void attachListener()
+    {
+        presentation.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { onClosing(); }
+        });
+    }
 }
 

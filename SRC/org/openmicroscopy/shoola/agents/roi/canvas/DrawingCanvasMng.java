@@ -152,6 +152,8 @@ public class DrawingCanvasMng
     
     public int getShapeType() { return shapeType; }
     
+    int getState() { return state; }
+    
     /** Mouse pressed event. */
     public void mousePressed(MouseEvent e)
     {
@@ -285,9 +287,7 @@ public class DrawingCanvasMng
     {
         planeArea = ROIFactory.makeShape(anchor, p, shapeType);
         view.repaint();
-        Rectangle r = planeArea.getBounds();
-        if (r.width>0 && r.height>0)
-            control.setROIThumbnail(r.x, r.y, r.width, r.height);
+        control.setROIThumbnail((PlaneArea) planeArea.copy());
     }
     
     /** Save the current PlaneArea. */
@@ -348,7 +348,7 @@ public class DrawingCanvasMng
     {
         planeArea.setBounds(x, y, w, h);
         view.repaint();
-        control.setROIThumbnail(x, y, w, h);
+        control.setROIThumbnail((PlaneArea) planeArea.copy());
     }
     
     /** Check if the shape is still in the drawingArea. */

@@ -44,6 +44,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
@@ -110,6 +111,8 @@ public class DrawingCanvas
         repaint();
     }
     
+    public List getScreenPlaneAreas() { return listSPA; }
+    
     public void addSPAToCanvas(ScreenPlaneArea spa)
     {
         listSPA.add(spa);
@@ -123,13 +126,30 @@ public class DrawingCanvas
     
     public void clearPreviousView()
     {
-        //listSPA.removeAll(listSPA);
         Iterator i = listSPA.iterator();
         ScreenPlaneArea spa;
         while (i.hasNext()) {
             spa = (ScreenPlaneArea) i.next();
             spa.setPlaneArea(null);
         }
+    }
+    
+    public void removeAllSreenPlaneArea()
+    {
+        listSPA.removeAll(listSPA);
+    }
+    
+    public void removeScreenPlaneArea(int index)
+    {
+        Iterator i = listSPA.iterator();
+        ScreenPlaneArea spa;
+        int j;
+        while (i.hasNext()) {
+            spa = (ScreenPlaneArea) i.next();
+            j = spa.getIndex();
+            if (j > index) spa.setIndex(j-1);
+        }
+        listSPA.remove(index);
     }
     
     public ScreenPlaneArea getScreenPlaneArea(int index)
@@ -199,6 +219,8 @@ public class DrawingCanvas
                 g2D.setStroke(dashed);
                 g2D.setColor(alphaColor(spa.getAreaColor()));
                 if (spa.getIndex() == indexSelected) {
+                    if (manager.getState() == ROIAgtUIF.CONSTRUCTING)
+                        manager.setState(ROIAgtUIF.NOT_ACTIVE_STATE);
                     g2D.setStroke(stroke);
                     g2D.setColor(spa.getAreaColor());
                 }

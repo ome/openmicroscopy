@@ -33,9 +33,11 @@ package org.openmicroscopy.shoola.agents.roi;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -56,16 +58,21 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.events.AnalyzeROIs;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
 import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.rnd.events.ROIAnalysisResults;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.roi.ROI3D;
 import org.openmicroscopy.shoola.util.image.roi.ROI4D;
+import org.openmicroscopy.shoola.util.image.roi.ROI5D;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 /** 
- * 
+ * The ROI agent. This agent displays the selection widgets and 
+ * manages the ROI selection. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -94,24 +101,36 @@ public class ROIAgt
     /** Reference to the {@link ROIAgtCtrl control}. */
     private ROIAgtCtrl              control;
     
-    /** Map of the current ROI. */
-    private Map                     listScreenROI;
+    /** List of the current ROI. */
+    private List                    listScreenROI;
     
+    private List                    analyzedROI;
+    
+    private String[]                analyzedChannels;
+    
+    /** ID of the current image loaded. */
     private int                     curImageID;
     
+    /** Name of the current image loaded. */
     private String                  imageName;
     
+    /** Dimensions of the set of Pixels loaded. */
     private PixelsDimensions        pxsDims;
     
     private String[]                channels;
     
+    /** Magnification factor of the image currently in the viewer. */
     private double                  magFactor;
     
-    private boolean                 sameImage;
-    
+    /** Image currently displayed in the viewer. */
     private BufferedImage           imageOnScreen;
     
+    /** current z-section and timepoint. */
     private int                     curZ, curT;
+    
+    private Map                     roiResults;
+    
+    private Map                     channelsMap;
     
     /** Implemented as specified by {@link Agent}. */
     public void activate() {}
@@ -125,9 +144,10 @@ public class ROIAgt
         registry = ctx;
         curImageID = -1;
         magFactor = 1;
-        sameImage = false;
         curZ = curT = -1;
-        listScreenROI = new TreeMap();
+        listScreenROI = new ArrayList();
+        analyzedROI = new ArrayList();
+        channelsMap = new HashMap();
         control  = new ROIAgtCtrl(this);
         EventBus bus = registry.getEventBus();
         bus.register(this, ImageLoaded.class);
@@ -135,6 +155,7 @@ public class ROIAgt
         bus.register(this, AddROICanvas.class);
         bus.register(this, IATChanged.class);
         bus.register(this, ImageRendered.class);
+        bus.register(this, ROIAnalysisResults.class);
     }
 
     /** Implemented as specified by {@link Agent}. */
@@ -153,31 +174,106 @@ public class ROIAgt
             handleIATChanged((IATChanged) e);
         else if (e instanceof ImageRendered)
             handleImageRendered();
+        else if (e instanceof ROIAnalysisResults)
+            handleROIAnalysisResults((ROIAnalysisResults) e);
     }
 
     Registry getRegistry() { return registry; }
     
     String[] getChannels() { return channels; }
     
-    Map getListScreenROI() { return listScreenROI; }
+    List getListScreenROI() { return listScreenROI; }
+    
+    List getAnalyzedROI() { return analyzedROI; }
+    
+    String[] getAnalyzedChannels() { return analyzedChannels; }
+    
+    Map getChannelsMap() { return channelsMap; }
+    
+    Map getROIResults() {return roiResults; }
+    
+    int getAnalyzedChannel(int index) 
+    {
+        return ((Integer) channelsMap.get(new Integer(index))).intValue();
+    }
     
     int getCurrentZ() { return renderingControl.getDefaultZ(); }
     
     int getCurrentT() { return renderingControl.getDefaultT(); }
     
     double getMagFactor() { return magFactor; }
-        
+    
+    BufferedImage getImageOnScreen() { return imageOnScreen; }
+    
     /** Post an event to close the ROI widget. */
     void onOffDrawing(boolean b)
     {
-        //drawOnOff = b;
         registry.getEventBus().post(new AddROICanvas(b));
     }
     
+    /** Prepare the roi5D object and post an event to compute the statistics. */
+    void computeROIStatistics(List selectedChannels, List selectedROIs)
+    {
+        if (!listScreenROI.isEmpty()) { //now we prepare the ROI5D object.
+            //remove all previous analyzed selection
+            analyzedROI.removeAll(analyzedROI); 
+            createAnalyzedChannels(selectedChannels);
+            ScreenROI roi;
+            ROI5D roi5D;
+            Iterator j = selectedROIs.iterator();
+            ROI5D[] rois = new ROI5D[selectedROIs.size()];
+            int c = 0;
+            int index;
+            while (j.hasNext()) {
+                index = ((Integer) j.next()).intValue();
+                roi = (ScreenROI) listScreenROI.get(index);
+                if (roi != null && roi.getIndex() == index) {
+                    roi5D = createROI5DElement(roi, selectedChannels);
+                    rois[c++] = roi5D;
+                    roi.setActualROI(roi5D); 
+                    analyzedROI.add(roi);
+                }
+            }
+            registry.getEventBus().post(new AnalyzeROIs(rois)); 
+        } else {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyInfo("Invalid selection", "No ROI selection."); 
+        }
+    }
+
+    private ROI5D createROI5DElement(ScreenROI roi, List selectedChannels)
+    {
+        ROI5D roi5D = new ROI5D(channels.length);
+        Iterator i = selectedChannels.iterator();
+        int channel;
+        while (i.hasNext()) {
+            channel = ((Integer) i.next()).intValue();
+            roi5D.setChannel(roi.getLogicalROI(), channel);
+        }
+        return roi5D;
+    }
+    
+    private void createAnalyzedChannels(List l)
+    {
+        analyzedChannels = new String[l.size()];
+        Iterator i = l.iterator();
+        int index;
+        int c = 0;
+        while (i.hasNext()) {
+            index = ((Integer) i.next()).intValue();
+            analyzedChannels[c] = channels[index];
+            channelsMap.put(new Integer(c), new Integer(index));
+            c++;
+        }
+    }
     /** Display the annotation in the viewer. */
     void displayROIDescription(int roiIndex)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(roiIndex));
+        if (roiIndex < 0) {
+            registry.getEventBus().post(new AnnotateROI(null));
+            return;
+        }
+        ScreenROI roi = (ScreenROI) listScreenROI.get(roiIndex);
         String text = null;
         if (roi != null) {
             text = "#"+roi.getIndex();
@@ -187,17 +283,32 @@ public class ROIAgt
         registry.getEventBus().post(new AnnotateROI(text));
     }
 
-    /** Create a new {@link ScreenROI}. */
+    /** Remove the {@link ScreenROI}  from the list. */
+    void removeScreenROI(int index)
+    {
+        Iterator i = listScreenROI.iterator();
+        ScreenROI roi;
+        int j;
+        while (i.hasNext()) {
+            roi = (ScreenROI) i.next();
+            j = roi.getIndex();
+            if (j > index) roi.setIndex(j-1);
+        }
+        listScreenROI.remove(index);
+    }
+    
+    /** Create a new {@link ScreenROI} and add it to the list. */
     void createScreenROI(int index, String name, String annotation, Color c)
     {
         PixelsDimensions pxsDims = renderingControl.getPixelsDims();
         ROI4D logicalROI = new ROI4D(pxsDims.sizeT);
         
+        //Should be modified, need to review the ROI array concept.
         for (int t = 0; t < pxsDims.sizeT; t++) 
             logicalROI.setStack(new ROI3D(pxsDims.sizeZ), t);
         
         ScreenROI roi = new ScreenROI(index, name, annotation, c, logicalROI);
-        listScreenROI.put(new Integer(index), roi);
+        listScreenROI.add(roi);
     }
     
     /** Set the {@link PlaneaArea} drawn on screen. */
@@ -211,26 +322,35 @@ public class ROIAgt
     void setPlaneArea(PlaneArea pa, int z, int t, int roiIndex)
     {
         pa.scale(1/magFactor);
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(roiIndex));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(roiIndex);
         ROI4D logicalROI = roi.getLogicalROI();
         logicalROI.setPlaneArea(pa, z, t);
     }
 
+    /** 
+     * Retrieve the {@link PlaneaArea} at the specified position.
+     * 
+     * @param z         z-section
+     * @param t         timepoint
+     * @param roiIndex  ROI index.
+     * @return
+     */
     PlaneArea getPlaneArea(int z, int t, int roiIndex)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(roiIndex));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(roiIndex);
         ROI4D logicalROI = roi.getLogicalROI();
         return logicalROI.getPlaneArea(z, t);
     }
     
     ScreenROI getScreenROI(int roiIndex)
     {
-        return (ScreenROI) listScreenROI.get(new Integer(roiIndex));
+        return (ScreenROI) listScreenROI.get(roiIndex);
     }
 
+    /** Remove all {@link PlaneArea}s from the current ROI4D object. */
     void removeAllPlaneAreas()
     {
-        Iterator i = listScreenROI.values().iterator();
+        Iterator i = listScreenROI.iterator();
         ScreenROI roi;
         while (i.hasNext()) {
             roi = (ScreenROI) i.next();
@@ -239,38 +359,80 @@ public class ROIAgt
         }
     }
     
+    /** 
+     * Copy the specified {@link PlaneArea} at the specified position.
+     * 
+     * @param pa    {@link PlaneArea} to copy.
+     * @param index roi index.
+     * @param newZ  z-section.
+     * @param newT  timepoint.
+     */
     void copyPlaneArea(PlaneArea pa, int index, int newZ, int newT)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(index));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) 
             roi.getLogicalROI().setPlaneArea(pa, newZ, newT); 
     }
     
+    /** 
+     * Copy the specified {@link PlaneArea} from the specified position
+     * <code>(from, t)</code> to the new position <code>(to, t)</code>.
+     * 
+     * @param pa    {@link PlaneArea} to copy.
+     * @param index roi index.
+     * @param from  start z-section.
+     * @param to    end z-section.
+     * @param t     timepoint. 
+     */
     void copyAcrossZ(PlaneArea pa, int index, int from, int to, int t)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(index));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyAcrossZ(pa, from, to, t);
     }
     
+    /**
+     * Copy the specified {@link PlaneArea} from the specified position
+     * <code>(z, from)</code> to the new position <code>(z, to)</code>.
+     * 
+     * @param pa    {@link PlaneArea} to copy.
+     * @param index roi index.
+     * @param from  start timepoint.
+     * @param to    end timepoint.
+     * @param z     z-section.
+     */
     void copyAcrossT(PlaneArea pa, int index, int from, int to, int z)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(index));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyAcrossT(pa, from, to, z);
     }
     
+    /**
+     * Copy the stack from timepoint <code>from</code> to timepoint 
+     * <code>to</code>.
+     * 
+     * @param index roi index.
+     * @param from  start timepoint.
+     * @param to    end timepoint.
+     */
     void copyStackAcrossT(int index, int from, int to)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(index));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyStackAcrossT(from, to, pxsDims.sizeZ);
     }
     
+    /**
+     * Copy the stack positioned at timepoint <code>from</code> into timepoint 
+     * <code>to</code>.
+     * 
+     * @param index roi index.
+     * @param from  start timepoint.
+     * @param to    end timepoint.
+     */
     void copyStack(int index, int from, int to)
     {
-        ScreenROI roi = (ScreenROI) listScreenROI.get(new Integer(index));
+        ScreenROI roi = (ScreenROI) listScreenROI.get(index);
         if (roi != null) roi.copyStack(from, to, pxsDims.sizeZ);
     }
-
-    BufferedImage getImageOnScreen() { return imageOnScreen; }
     
     /** Handle the event @see ImageRendered. */
     private void handleImageRendered()
@@ -306,10 +468,11 @@ public class ROIAgt
             pxsDims = renderingControl.getPixelsDims();
             imageName = request.getImageName();
             initChannels();
-            sameImage = false;
             curZ = renderingControl.getDefaultZ();
             curT = renderingControl.getDefaultT();
-            if (presentation != null) removePresentation();   
+            if (presentation != null) removePresentation();  
+            listScreenROI.clear();  //clear the map
+            control.clearScreenPlaneAreas();
         }         
     }
     
@@ -329,6 +492,11 @@ public class ROIAgt
         if (response.isOnOff()) presentation.deIconify();
     }
 
+    private void handleROIAnalysisResults(ROIAnalysisResults response)
+    {
+        roiResults = response.getResults();
+        control.displayROIAnalysisResults(pxsDims.sizeT, pxsDims.sizeZ);
+    }
     
     /** Initializes the channel information. */
     private void initChannels() 
