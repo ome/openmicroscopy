@@ -1,5 +1,5 @@
 /*
- * omeds.dbrows.Project
+ * omeds.dbrows.GroupRow
  *
  *------------------------------------------------------------------------------
  *
@@ -53,7 +53,7 @@ import omeds.DBRow;
  * </small>
  * @since OME2.2
  */
-public class ProjectRow
+public class GroupRow
 	extends DBRow
 {
 
@@ -62,28 +62,22 @@ public class ProjectRow
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
-		buf.append("INSERT INTO projects ");
-		buf.append("(project_id, group_id, view, name, owner_id, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
+		buf.append("INSERT INTO groups ");
+		buf.append("(attribute_id, leader, name, contact)");
+		buf.append(" VALUES (?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
 	}
 	
 	
 	private String		name;
-	private String		description;
-	private String		view;
-	private	int			ownerID;
-	private Integer		groupID;
+	private Integer		leader;
+	private Integer		contact;
 	
-	public ProjectRow(Integer groupID, String view, 
-					String name, int ownerID, String description)
+	public GroupRow(Integer leader, String name, Integer contact)
 	{
-		this.groupID = groupID;
-		this.view = view;
+		this.leader = leader;
 		this.name = name;
-		this.ownerID = ownerID;
-		this.description = description;
-		
+		this.contact = contact;	
 	}
 	
 	/* (non-Javadoc)
@@ -91,7 +85,7 @@ public class ProjectRow
 	 */
 	public String getTableName()
 	{
-		return "projects";
+		return "groups";
 	}
 
 	/* (non-Javadoc)
@@ -99,7 +93,7 @@ public class ProjectRow
 	 */
 	public String getIDColumnName()
 	{
-		return "project_id";
+		return "attribute_id";
 	}
 
 	/* (non-Javadoc)
@@ -108,6 +102,7 @@ public class ProjectRow
 	public void fillFromDB(int id)
 		throws Exception
 	{
+		
 	}
 
 	/* (non-Javadoc)
@@ -119,12 +114,11 @@ public class ProjectRow
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
-		if (groupID == null) ps.setNull(2, Types.INTEGER);
-		else ps.setInt(2, groupID.intValue());
-		ps.setString(3, view);
-		ps.setString(4, name);
-		ps.setInt(5, ownerID);
-		ps.setString(6, description);
+		if (leader == null) ps.setNull(2, Types.INTEGER);
+		else ps.setInt(2, leader.intValue());
+		ps.setString(3, name);
+		if (contact == null) ps.setNull(4, Types.INTEGER);
+		else ps.setInt(4, contact.intValue());
 		ps.execute();
 	}
 

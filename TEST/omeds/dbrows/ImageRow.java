@@ -1,5 +1,5 @@
 /*
- * omeds.dbrows.Project
+ * omeds.dbrows.ImageRow
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package omeds.dbrows;
 
 //Java imports
@@ -53,7 +52,7 @@ import omeds.DBRow;
  * </small>
  * @since OME2.2
  */
-public class ProjectRow
+public class ImageRow
 	extends DBRow
 {
 
@@ -62,26 +61,35 @@ public class ProjectRow
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
-		buf.append("INSERT INTO projects ");
-		buf.append("(project_id, group_id, view, name, owner_id, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
+		buf.append("INSERT INTO images ");
+		buf.append("(image_id, pixels_id, created, group_id, inserted, name,");
+		buf.append(" experimenter_id, image-guid, description)");
+		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
 	}
 	
 	
+	private Integer		pixelsID;
+	private String		created;
+	private String		inserted;
 	private String		name;
 	private String		description;
-	private String		view;
+	private String		imageGuid;
 	private	int			ownerID;
 	private Integer		groupID;
 	
-	public ProjectRow(Integer groupID, String view, 
-					String name, int ownerID, String description)
+	
+	public ImageRow(Integer pixelsID, String created, Integer groupID,
+					String inserted, String name, int ownerID, 
+					String imageGuid, String description)
 	{
+		this.pixelsID = pixelsID;
+		this.created = created;
 		this.groupID = groupID;
-		this.view = view;
+		this.inserted = inserted;
 		this.name = name;
 		this.ownerID = ownerID;
+		this.imageGuid = imageGuid;
 		this.description = description;
 		
 	}
@@ -91,7 +99,7 @@ public class ProjectRow
 	 */
 	public String getTableName()
 	{
-		return "projects";
+		return "images";
 	}
 
 	/* (non-Javadoc)
@@ -99,7 +107,7 @@ public class ProjectRow
 	 */
 	public String getIDColumnName()
 	{
-		return "project_id";
+		return "image_id";
 	}
 
 	/* (non-Javadoc)
@@ -119,12 +127,16 @@ public class ProjectRow
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
-		if (groupID == null) ps.setNull(2, Types.INTEGER);
+		if (pixelsID == null) ps.setNull(2, Types.INTEGER);
 		else ps.setInt(2, groupID.intValue());
-		ps.setString(3, view);
-		ps.setString(4, name);
-		ps.setInt(5, ownerID);
-		ps.setString(6, description);
+		ps.setString(3, created);
+		if (groupID == null) ps.setNull(4, Types.INTEGER);
+		else ps.setInt(4, groupID.intValue());
+		ps.setString(5, inserted);
+		ps.setString(6, name);
+		ps.setInt(7, ownerID);
+		ps.setString(8, imageGuid);
+		ps.setString(9, description);
 		ps.execute();
 	}
 

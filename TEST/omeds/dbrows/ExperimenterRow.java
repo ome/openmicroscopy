@@ -1,5 +1,5 @@
 /*
- * omeds.dbrows.Project
+ * omeds.dbrows.OwnerRow
  *
  *------------------------------------------------------------------------------
  *
@@ -53,7 +53,7 @@ import omeds.DBRow;
  * </small>
  * @since OME2.2
  */
-public class ProjectRow
+public class ExperimenterRow
 	extends DBRow
 {
 
@@ -62,28 +62,33 @@ public class ProjectRow
 	static {
 		//INSERT_STM
 		StringBuffer    buf = new StringBuffer();
-		buf.append("INSERT INTO projects ");
-		buf.append("(project_id, group_id, view, name, owner_id, description)");
-		buf.append(" VALUES (?, ?, ?, ?, ?, ?)");
+		buf.append("INSERT INTO experimenters ");
+		buf.append("(attribute_id, ome_name, firstname, data_dir, lastname,");
+		buf.append(" email, group_id, institution)");
+		buf.append(" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		INSERT_STM = buf.toString();
 	}
 	
 	
-	private String		name;
-	private String		description;
-	private String		view;
-	private	int			ownerID;
+	private String		omeName;
+	private String		firstName;
+	private String		lastName;
+	private String		email;
+	private String		institution;
+	private String		dataDirectory;
 	private Integer		groupID;
 	
-	public ProjectRow(Integer groupID, String view, 
-					String name, int ownerID, String description)
+	public ExperimenterRow(String omeName, String firstName, 
+							String dataDirectory, String lastName, String email,
+							Integer groupID, String institution)
 	{
+		this.omeName = omeName;
+		this.firstName = firstName;
+		this.dataDirectory = dataDirectory;
+		this.lastName = lastName;
+		this.email = email;
 		this.groupID = groupID;
-		this.view = view;
-		this.name = name;
-		this.ownerID = ownerID;
-		this.description = description;
-		
+		this.institution = institution;		
 	}
 	
 	/* (non-Javadoc)
@@ -91,7 +96,7 @@ public class ProjectRow
 	 */
 	public String getTableName()
 	{
-		return "projects";
+		return "experimenters";
 	}
 
 	/* (non-Javadoc)
@@ -99,7 +104,7 @@ public class ProjectRow
 	 */
 	public String getIDColumnName()
 	{
-		return "project_id";
+		return "attribute_id";
 	}
 
 	/* (non-Javadoc)
@@ -119,12 +124,14 @@ public class ProjectRow
 		DBManager dbm = DBManager.getInstance();
 		PreparedStatement ps = dbm.getPreparedStatement(INSERT_STM);
 		ps.setInt(1, getID());	
-		if (groupID == null) ps.setNull(2, Types.INTEGER);
-		else ps.setInt(2, groupID.intValue());
-		ps.setString(3, view);
-		ps.setString(4, name);
-		ps.setInt(5, ownerID);
-		ps.setString(6, description);
+		ps.setString(2, omeName);
+		ps.setString(3, firstName);
+		ps.setString(4, dataDirectory);
+		ps.setString(5, lastName);
+		ps.setString(6, email);
+		if (groupID == null) ps.setNull(7, Types.INTEGER);
+		else ps.setInt(7, groupID.intValue());
+		ps.setString(8, institution);
 		ps.execute();
 	}
 
