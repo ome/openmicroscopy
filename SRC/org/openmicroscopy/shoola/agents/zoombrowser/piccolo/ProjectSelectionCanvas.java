@@ -105,12 +105,14 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	
 	public void setContents(Object obj) {
 		Collection projects = (Collection) obj;
-		ProjectLabel pl;
-		Iterator iter = projects.iterator();
-		while (iter.hasNext()) {
-			BrowserProjectSummary p = (BrowserProjectSummary) iter.next();
-			pl = new ProjectLabel(p,this);
-			layer.addChild(pl);
+		if (projects != null) {
+			ProjectLabel pl;
+			Iterator iter = projects.iterator();
+			while (iter.hasNext()) {
+				BrowserProjectSummary p = (BrowserProjectSummary) iter.next();
+				pl = new ProjectLabel(p,this);
+				layer.addChild(pl);
+			}
 		}
 
 	}
