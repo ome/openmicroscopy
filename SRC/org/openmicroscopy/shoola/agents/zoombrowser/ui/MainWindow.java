@@ -132,10 +132,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		projectBrowser = new ProjectSelectionCanvas(this);
 		
 		datasetBrowser.setContents(dataManager.getDatasets());
-		datasetBrowser.layoutContents();
 		projectBrowser.setContents(dataManager.getProjects());
 		projectBrowser.layoutContents();
-		datasetBrowser.completeInitialization();
 		projectBrowser.completeInitialization();
 		
 		JPanel projectsPanel = new JPanel();
@@ -154,6 +152,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		contents.add(projectsPanel,BorderLayout.NORTH);
 		contents.add(datasetPanel,BorderLayout.CENTER);
 		pack();
+		datasetBrowser.layoutContents();
+		datasetBrowser.completeInitialization();
+		
 		addComponentListener(this);
 		enableButtons(true);
 	}
