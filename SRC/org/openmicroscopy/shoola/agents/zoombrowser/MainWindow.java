@@ -160,4 +160,12 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 	public void setRolloverDataset(BrowserDatasetSummary dataset) {
 		projectBrowser.setRolloverDataset(dataset);
 	}
+	
+	public void setSelectedProject(BrowserProjectSummary proj) {
+		datasetBrowser.setSelectedProject(proj);
+	}
+	
+	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+		projectBrowser.setSelectedDataset(dataset);
+	}
 }
