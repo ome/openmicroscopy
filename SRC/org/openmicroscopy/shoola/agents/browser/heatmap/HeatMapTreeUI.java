@@ -81,8 +81,6 @@ public class HeatMapTreeUI extends JPanel
             SemanticTypeTree.TreeNode node =
                 (SemanticTypeTree.TreeNode)selectedNode.getUserObject();
 
-            System.err.println(node.getFQName() + " selected");
-            
             for(Iterator iter = nodeSelectionListeners.iterator(); iter.hasNext();)
             {
                 HeatMapTreeListener listener = (HeatMapTreeListener)iter.next();

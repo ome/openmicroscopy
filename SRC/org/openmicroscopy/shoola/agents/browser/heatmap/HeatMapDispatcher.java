@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -64,6 +65,11 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
 {
     private HeatMapModel model;
     private HeatMapStatus status;
+    private String attributeName = "";
+    private String elementName = "";
+    
+    // current method applied to every thumbnnail.
+    private PaintMethod currentMethod = null;
     
     public HeatMapDispatcher(HeatMapModel model)
     {
@@ -101,7 +107,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
      */
     public void modeChanged(HeatMapMode newMode)
     {
-        // TODO Auto-generated method stub
+        System.err.println("mode change: "+newMode.toString());
     }
     
     /**
@@ -171,6 +177,8 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 
                 SemanticType parentType = parentNode.getType();
                 String name = parentType.getName();
+                attributeName = name;
+                elementName = selectedNode.getFQName();
                 BrowserModel source = model.getInfoSource();
                 
                 Map imageIDMap = source.getImageDataMap();

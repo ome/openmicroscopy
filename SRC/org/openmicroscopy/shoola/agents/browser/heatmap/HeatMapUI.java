@@ -59,6 +59,8 @@ public final class HeatMapUI extends JInternalFrame
     private HeatMapStatusUI statusPanel;
     private HeatMapTreeUI treePanel;
     private HeatMapGradientUI gradPanel;
+    private HeatMapModeBar modeBar;
+    private HeatMapDispatcher dispatcher;
     
     /**
      * Create an empty heat map UI.
@@ -69,6 +71,7 @@ public final class HeatMapUI extends JInternalFrame
         treePanel = new HeatMapTreeUI(null);
         gradPanel = new HeatMapGradientUI();
         statusPanel = new HeatMapStatusUI();
+        modeBar = new HeatMapModeBar();
         buildUI();
     }
     
@@ -88,7 +91,9 @@ public final class HeatMapUI extends JInternalFrame
         
         statusPanel = new HeatMapStatusUI();
         treePanel = new HeatMapTreeUI(model.getModel());
-        treePanel.addListener(new HeatMapDispatcher(model,statusPanel));
+        dispatcher = new HeatMapDispatcher(model,statusPanel);
+        treePanel.addListener(dispatcher);
+        modeBar.addListener(dispatcher);
         gradPanel = new HeatMapGradientUI();
         buildUI();
     }
@@ -117,10 +122,20 @@ public final class HeatMapUI extends JInternalFrame
         scrollPane.setSize(new Dimension(250,200));
         mainPanel.add(scrollPane,BorderLayout.CENTER);
         
-        gradPanel.setPreferredSize(new Dimension(250,100));
-        gradPanel.setSize(new Dimension(250,100));
+        JPanel controlPanel = new JPanel();
+        
+        gradPanel.setPreferredSize(new Dimension(250,90));
+        gradPanel.setSize(new Dimension(250,90));
         gradPanel.setEnabled(false);
-        mainPanel.add(gradPanel,BorderLayout.SOUTH);
+        
+        controlPanel.setLayout(new BorderLayout());
+        controlPanel.add(gradPanel,BorderLayout.CENTER);
+        
+        JPanel barPanel = new JPanel();
+        barPanel.add(modeBar,BorderLayout.CENTER);
+        controlPanel.add(barPanel,BorderLayout.NORTH);
+        
+        mainPanel.add(controlPanel,BorderLayout.SOUTH);
         
         contentPane.add(mainPanel,BorderLayout.CENTER);
         contentPane.add(statusPanel,BorderLayout.SOUTH);
@@ -149,8 +164,11 @@ public final class HeatMapUI extends JInternalFrame
         this.model = model;
         setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
         treePanel.setModel(model.getModel());
-        treePanel.removeAllListeners();
-        treePanel.addListener(new HeatMapDispatcher(model,statusPanel));
+        treePanel.removeListener(dispatcher);
+        modeBar.removeListener(dispatcher);
+        dispatcher = new HeatMapDispatcher(model,statusPanel);
+        treePanel.addListener(dispatcher);
+        modeBar.addListener(dispatcher);
         gradPanel.setEnabled(false);
         revalidate();
         repaint();
