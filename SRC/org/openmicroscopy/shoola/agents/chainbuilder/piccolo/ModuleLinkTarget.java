@@ -69,6 +69,10 @@ public class ModuleLinkTarget extends LinkTarget {
  		return Constants.MODULE_LINK_TARGET_SIZE;
  	}
  	
+ 	public float getHalfSize() {
+ 		return getSize()/2;
+ 	}
+ 	
  	public ModuleView getModuleView() {
  		PNode p  = getParent();
  		while (p !=null) {
