@@ -225,8 +225,7 @@ class DomainPane
         gridbag.setConstraints(gammaLabel, c);
         add(gammaLabel);
         c.gridy = 3;
-        
-        label = new JLabel(" Resolution");
+        label = new JLabel(" Bit depth");
         gridbag.setConstraints(label, c);
         add(label);
         c.gridy = 4;
