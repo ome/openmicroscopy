@@ -263,7 +263,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	}
 	
 	protected LinkTarget getLinkTarget() {
-		return new LinkTarget();
+		return new ModuleLinkTarget();
 	}
 	
 	private void buildMagnifiedLabel() {
@@ -661,8 +661,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	
 	/**
 	 * 
-	 * @return a sorted list of all of the input parameters that don't already
-	 * have incoming links. These parameters are identified via
+	 * @return a sorted list of all of the input parameters that might be 
+	 * link origins - those that both don't have incoming links and 
+	 * can be link origins. These parameters are identified via
 	 * 	a {@link PNodeFilter}
 	 */
 	public TreeSet getInputParameters() {
@@ -683,6 +684,29 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		return new TreeSet(labelNodes.getAllNodes(inputFilter,null));
 	}
 	
+	/**
+	 * 
+	 * @return a sorted list of all of the input parameters that might be 
+	 * don't have incoming linksThese parameters are identified via
+	 * 	a {@link PNodeFilter}
+	 */
+	public TreeSet getUnlinkedInputParameters() {
+		PNodeFilter inputFilter = new PNodeFilter() {
+			public boolean accept(PNode aNode) {
+				// want only those things that are inputs.
+				if (!(aNode instanceof FormalInput))
+					return false;
+				FormalInput inp = (FormalInput) aNode;
+				// and can still be origins - don't have anything 
+				// linked to them.
+				return inp.isLinkable();
+			}
+			public boolean acceptChildrenOf(PNode aNode) {
+				return true;
+			}
+		};
+		return new TreeSet(labelNodes.getAllNodes(inputFilter,null));
+	}
 	/**
 	 * 
 	 * @return a sorted list of all of the output parameters. These parameters 
