@@ -49,8 +49,8 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
-import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.classifier.CategoryTree;
 
 /**
  * Factory that generates menus (and submenus) based on the current list of

@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
+import org.openmicroscopy.shoola.agents.classifier.*;
 import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
@@ -477,7 +478,8 @@ public class BrowserAgent implements Agent, AgentEventListener
                 ImageAnnotation ia = (ImageAnnotation)iter.next();
                 annotationMap.put(new Integer(ia.getImage().getID()),ia);
             }
-            
+            writeStatusImmediately(status,"Loading in category types...");
+            model.setCategoryTree(loadCategoryTree(datasetModel.getID()));
             writeStatusImmediately(status,"Filling in relevant ST info from DB...");
             loadRelevantTypes(imageList,model,status);
             
@@ -1173,6 +1175,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         {
             categoryList =
                 sts.retrieveDatasetAttributes("CategoryGroup",datasetID);
+            
         }
         catch(Exception e) {}
         return null; // TODO change
