@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
@@ -146,10 +147,11 @@ public class CreateProjectEditor
 		TitlePanel tp = new TitlePanel("Project", "Create a new project.", 
 						im.getIcon(IconManager.CREATE_PROJECT_BIG));
 		//set layout and add components
-		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(tabs, BorderLayout.CENTER);
-		getContentPane().add(bar, BorderLayout.SOUTH);
+        Container c = getContentPane();
+		c.setLayout(new BorderLayout(0, 0));
+		c.add(tp, BorderLayout.NORTH);
+		c.add(tabs, BorderLayout.CENTER);
+		c.add(bar, BorderLayout.SOUTH);
 	}
 
 	

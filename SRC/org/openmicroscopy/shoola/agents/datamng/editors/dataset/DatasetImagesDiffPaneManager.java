@@ -94,16 +94,19 @@ class DatasetImagesDiffPaneManager
 	private void attachListeners()
 	{
 		selectButton = view.getSelectButton();
-		selectButton.addActionListener(this);
-		selectButton.setActionCommand(""+ALL);
+        attachButtonListener(selectButton, ALL);
 		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
+        attachButtonListener(cancelButton, CANCEL);
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+        attachButtonListener(saveButton, SAVE);
 	}
-
+    
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	/** Handle events fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{

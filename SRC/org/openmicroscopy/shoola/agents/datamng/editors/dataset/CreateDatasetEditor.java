@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
@@ -172,13 +173,14 @@ public class CreateDatasetEditor
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
+        Container c = getContentPane();
 		TitlePanel tp = new TitlePanel("Dataset", "Create a new dataset.", 
 							im.getIcon(IconManager.CREATE_DATASET_BIG));
 		//set layout and add components
-		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(tabs, BorderLayout.CENTER);
-		getContentPane().add(bar, BorderLayout.SOUTH);
+		c.setLayout(new BorderLayout(0, 0));
+		c.add(tp, BorderLayout.NORTH);
+		c.add(tabs, BorderLayout.CENTER);
+		c.add(bar, BorderLayout.SOUTH);
 	}
 
 }

@@ -101,12 +101,9 @@ class ImageEditorManager
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+        attachButtonListener(saveButton, SAVE);
 		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
-		
+		attachButtonListener(cancelButton, CANCEL);
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -114,6 +111,12 @@ class ImageEditorManager
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{

@@ -111,7 +111,7 @@ class BottomBar
                         "of the results of 2 different ROIs."));
         background = new JButton(im.getIcon(IconManager.BACKGROUND));
         background.setToolTipText(
-                UIUtilities.formatToolTipText("Substract background."));
+                UIUtilities.formatToolTipText("Subtract background."));
         initial = new JButton(im.getIcon(IconManager.INITIAL));
         initial.setToolTipText(
                 UIUtilities.formatToolTipText("Display the original results."));

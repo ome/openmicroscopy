@@ -91,7 +91,7 @@ public class ChannelEditor
 	
 	public ChannelEditor(RenderingAgtCtrl control, ChannelData data)
 	{
-		super(control.getReferenceFrame(), "Channel Info", true);
+		super(control.getReferenceFrame(), "Channel Editor", true);
 		ChannelEditorManager manager = new ChannelEditorManager(control, this, 
 																data);
 		channelPane = new ChannelPane(manager);

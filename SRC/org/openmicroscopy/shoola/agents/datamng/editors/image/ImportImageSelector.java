@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.util.List;
 import javax.swing.JDialog;
 
@@ -109,9 +110,10 @@ public class ImportImageSelector
 		TitlePanel tp = new TitlePanel("Import Image", 
 								"Import new images in an existing dataset.", 
 								NOTE, im.getIcon(IconManager.IMPORT_IMAGE_BIG));			
-		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(chooser, BorderLayout.CENTER);
-		getContentPane().add(selection, BorderLayout.SOUTH);	
+		Container c = getContentPane();
+        c.add(tp, BorderLayout.NORTH);
+		c.add(chooser, BorderLayout.CENTER);
+		c.add(selection, BorderLayout.SOUTH);	
 	}
 
 }

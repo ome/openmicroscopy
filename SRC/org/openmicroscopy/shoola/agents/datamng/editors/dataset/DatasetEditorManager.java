@@ -153,29 +153,19 @@ class DatasetEditorManager
 	{
 		//buttons
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+        attachButtonListener(saveButton, SAVE);
 		addButton = view.getAddButton();
-		addButton.addActionListener(this);
-		addButton.setActionCommand(""+ADD);	
-		
+		attachButtonListener(addButton, ADD);
 		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);	
-		
+        attachButtonListener(cancelButton, CANCEL);
 		removeButton = view.getRemoveButton();
-		removeButton.addActionListener(this);
-		removeButton.setActionCommand(""+REMOVE);
+        attachButtonListener(removeButton, REMOVE);
 		resetButton = view.getResetButton();
-		resetButton.addActionListener(this);
-		resetButton.setActionCommand(""+RESET);	
-		
+        attachButtonListener(resetButton, RESET);
 		removeToAddButton = view.getRemoveToAddButton();
-		removeToAddButton.addActionListener(this);
-		removeToAddButton.setActionCommand(""+REMOVE_ADDED);
+        attachButtonListener(removeToAddButton, REMOVE_ADDED);
 		resetToAddButton = view.getResetToAddButton();
-		resetToAddButton.addActionListener(this);
-		resetToAddButton.setActionCommand(""+RESET_ADDED);
+        attachButtonListener(resetToAddButton, RESET_ADDED);
 		
 		//textfields
 		nameField = view.getNameField();
@@ -185,6 +175,12 @@ class DatasetEditorManager
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{

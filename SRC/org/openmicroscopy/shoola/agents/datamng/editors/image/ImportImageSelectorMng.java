@@ -95,17 +95,17 @@ class ImportImageSelectorMng
 	/** Attach listeners. */
 	void attachListener()
 	{
-		JButton saveButton = selection.getBar().getSaveButton(), 
-				cancelButton = selection.getBar().getCancelButton(),
-				removeButton = selection.getBar().getRemoveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+IMPORT);
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
-		removeButton.addActionListener(this);
-		removeButton.setActionCommand(""+REMOVE);
+        attachButtonListener(selection.getBar().getSaveButton(), IMPORT);
+        attachButtonListener(selection.getBar().getCancelButton(), CANCEL);
+        attachButtonListener(selection.getBar().getRemoveButton(), REMOVE);
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	List getFilesToImport() { return filesToImport; }
 	
 	List getFilesToRemove() { return filesToRemove; }

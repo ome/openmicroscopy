@@ -142,24 +142,17 @@ public class CreateDatasetEditorManager
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+        attachButtonListener(saveButton, SAVE);
 		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
-		
+        attachButtonListener(cancelButton, CANCEL);
 		selectButton = view.getSelectButton();
-		selectButton.addActionListener(this);
-		selectButton.setActionCommand(""+SELECT_PROJECT);
+        attachButtonListener(selectButton, SELECT_PROJECT);
 		resetProjectButton = view.getResetProjectButton();
-		resetProjectButton.addActionListener(this);
-		resetProjectButton.setActionCommand(""+RESET_SELECTION_PROJECT);
+        attachButtonListener(resetProjectButton, RESET_SELECTION_PROJECT);
 		selectImageButton = view.getSelectImageButton();
-		selectImageButton.addActionListener(this);
-		selectImageButton.setActionCommand(""+SELECT_IMAGE);
+        attachButtonListener(selectImageButton, SELECT_IMAGE);
 		resetImageButton = view.getResetImageButton();
-		resetImageButton.addActionListener(this);
-		resetImageButton.setActionCommand(""+RESET_SELECTION_IMAGE);
+        attachButtonListener(resetImageButton, RESET_SELECTION_IMAGE);
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -167,6 +160,12 @@ public class CreateDatasetEditorManager
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{

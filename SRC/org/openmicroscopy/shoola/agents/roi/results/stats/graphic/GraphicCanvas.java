@@ -268,8 +268,9 @@ public class GraphicCanvas
             k = list.iterator();
             while (k.hasNext()) {
                 point = (PlanePoint) k.next();
-                x1 = leftBorder+(int) (hBin*(point.x1-minX));
-                y1 = TOP+height-(int) (vBin*(int)(point.x2-minY));
+                x1 = leftBorder+(int) Math.abs(hBinAxis*(point.x1-minX));
+                //y1 = TOP+height-(int) (vBinAxis*(int)(point.x2-minY));
+                y1 = TOP+height-Math.abs((vBinAxis*(int)(point.x2-minY)));
                 if (x0 != -1 && y0 != -1)
                     g2D.drawLine(x0, y0, x1, y1);
                 x0 = x1;

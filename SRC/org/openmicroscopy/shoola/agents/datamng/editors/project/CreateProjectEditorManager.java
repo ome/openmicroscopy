@@ -138,18 +138,14 @@ public class CreateProjectEditorManager
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+        attachButtonListener(saveButton, SAVE);
 		cancelButton = view.getCancelButton();
-		cancelButton.addActionListener(this);
-		cancelButton.setActionCommand(""+CANCEL);
+        attachButtonListener(cancelButton, CANCEL);
 		
 		selectButton = view.getSelectButton();
-		selectButton.addActionListener(this);
-		selectButton.setActionCommand(""+SELECT);
+        attachButtonListener(selectButton, SELECT);
 		resetButton = view.getResetButton();
-		resetButton.addActionListener(this);
-		resetButton.setActionCommand(""+RESET);
+        attachButtonListener(resetButton, RESET);
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -157,6 +153,12 @@ public class CreateProjectEditorManager
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
