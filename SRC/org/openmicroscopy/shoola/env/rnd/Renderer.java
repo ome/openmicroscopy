@@ -138,6 +138,8 @@ class Renderer
 	void initialize()
 		throws MetadataSourceException
 	{
+		//Load pixels metadata (create default display options if none 
+		//available)
 		MetadataSource source = engine.getMetadataSource(imageID, pixelsID);
 		source.load();
 		omeisPixelsID = source.getOmeisPixelsID();
@@ -147,13 +149,24 @@ class Renderer
 		if (renderingDef == null)
 			renderingDef = createDefaultRenderingDef(pixelsDims, pixelsStats,
 														source.getPixelType());
-		planeDef = null;  //RE will pass this to render().
+		
+		//Set the default plane.
+		planeDef = new PlaneDef(PlaneDef.XY, renderingDef.getDefaultT());
+		planeDef.setZ(renderingDef.getDefaultZ());
+		
+		//Create and configure the quantum strategies.
 		QuantumDef qd = renderingDef.getQuantumDef();
 		quantumManager = new QuantumManager(pixelsDims.sizeW);
 		quantumManager.initStrategies(qd, pixelsStats);
+		
+		//Create and configure the codomain chain.
 		codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd,
 											renderingDef.getCodomainChainDef());
+		
+		//Cache a reference to the pixels source gateway. 
 		dataSink = engine.getDataSink(imageID, pixelsID);
+		
+		//Create an appropriate rendering strategy.
 		renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());
 	}
 	
@@ -168,12 +181,37 @@ class Renderer
 		quantumManager.initStrategies(qd, pixelsStats);
 	}
 	
-	/** Render a specified plane. */
+	/**
+	 * Renders the data selected by <code>pd</code> according to the current
+	 * rendering settings.
+	 * The passed argument selects a plane orthogonal to one of the <i>X</i>, 
+	 * <i>Y</i>, or <i>Z</i> axes.  How many wavelengths are rendered and
+	 * what color model is used depends on the current rendering settings.
+	 * 
+	 * @param pd	Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+	 * 				or <i>Z</i> axes.  Mustn't be <code>null</code>.
+	 * @return	A buffered image ready to be displayed on screen.
+	 */
 	BufferedImage render(PlaneDef pd)
 	{
 		if (pd == null)
 			throw new NullPointerException("No plane definition.");
 		planeDef = pd;
+		return renderingStrategy.render(this);
+	}
+	
+	/**
+	 * Renders the data selected by the current plane definition according to
+	 * the current rendering settings.
+	 * The current plane definition is initially set to the <i>XY</i> plane
+	 * specified in the display options and then to the argument passed to
+	 * {@link #render(PlaneDef)}.
+	 * 
+	 * @return	A buffered image ready to be displayed on screen.
+	 */
+	BufferedImage render()
+	{
+		//Note that planeDef can never be null.
 		return renderingStrategy.render(this);
 	}
 

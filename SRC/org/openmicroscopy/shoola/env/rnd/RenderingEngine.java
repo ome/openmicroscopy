@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
 import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
@@ -108,12 +109,13 @@ public class RenderingEngine
 		try {
 			rnd.initialize();
 			renderers.put(new Integer(request.getPixelsID()), rnd);
+			//TODO: how do we figure when to remove? 
 			RenderingDef original = rnd.getRenderingDef(), copy;
 			copy = original.copy();
 			EventBus eventBus = registry.getEventBus();
 			RenderingControlImpl facade = new RenderingControlImpl(rnd);
 			RenderingControlProxy proxy =
-								new RenderingControlProxy(facade, copy, eventBus);
+							new RenderingControlProxy(facade, copy, eventBus);
 			ImageLoaded response = new ImageLoaded(request, proxy);
 			eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
 		} catch (MetadataSourceException mse) {
@@ -129,7 +131,10 @@ public class RenderingEngine
 		//TODO: if null, log?
 		if (rnd != null) {
 			try {
-				BufferedImage img = rnd.render(request.getPlaneDef());  //Never null, see RenderImage.
+				PlaneDef pd = request.getPlaneDef();
+				BufferedImage img;
+				if (pd == null)	img = rnd.render();
+				else	img = rnd.render(pd);
 				ImageRendered response = new ImageRendered(request, img);
 				EventBus eventBus = registry.getEventBus();
 				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
