@@ -64,6 +64,8 @@ public class ImageSummary
 	 */
 	private long[]	imageServerPixelsID;
     
+    private int[]	pixelsIDs;
+    
     /**
      * The default pixels of the image.
      */
@@ -71,19 +73,19 @@ public class ImageSummary
 	
 	public ImageSummary() {}
 	
-	public ImageSummary(int id, String name, long[] imageServerPixelsID)
+	public ImageSummary(int id, String name, int[] pixelsIDs)
 	{
 		this.id = id;
 		this.name = name;
-		this.imageServerPixelsID = imageServerPixelsID;
+		this.pixelsIDs = pixelsIDs;
 	}
     
-    public ImageSummary(int id, String name, long[] imageServerPixelsID,
+    public ImageSummary(int id, String name, int[] pixelsIDs,
                         PixelsDescription defaultPixels)
     {
         this.id  = id;
         this.name = name;
-        this.imageServerPixelsID = imageServerPixelsID;
+        this.pixelsIDs = pixelsIDs;
         this.defaultPixels = defaultPixels;
     }
 	
@@ -118,17 +120,6 @@ public class ImageSummary
 		this.name = name;
 	}
 
-
-	public long[] getImageServerPixelsID()
-	{
-		return imageServerPixelsID;
-	}
-
-	public void setImageServerPixelsID(long[] imageServerPixelsID)
-	{
-		this.imageServerPixelsID = imageServerPixelsID;
-	}
-    
     public PixelsDescription getDefaultPixels()
     {
         return defaultPixels;
@@ -138,5 +129,15 @@ public class ImageSummary
     {
         this.defaultPixels = pxd;
     }
+
+	public int[] getPixelsIDs()
+	{
+		return pixelsIDs;
+	}
+
+	public void setPixelsIDs(int[] pixelsIDs)
+	{
+		this.pixelsIDs = pixelsIDs;
+	}
 
 }
