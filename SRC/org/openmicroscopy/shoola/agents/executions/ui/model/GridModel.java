@@ -46,7 +46,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.executions.ui.AxisHash;
 import org.openmicroscopy.shoola.agents.executions.ui.ExecutionsCanvas;
-
+import org.openmicroscopy.shoola.util.ui.Constants;
 /** 
 * A model of the mapping between values in a set of executions 
 *  (low-high range displayed) and a canvas of a given width and height
@@ -69,7 +69,9 @@ public class GridModel implements ChangeListener {
 	public static final int GRID_OFFSET=15;
 	private static final Color AXIS_COLOR= new Color(150,150,240);
 	public static final int DOT_SIDE=4;
-	protected final static BasicStroke axisStroke = new BasicStroke(2.0f);
+	public static final float AXIS_STROKE_WIDTH=2.0f;
+	protected final static BasicStroke axisStroke = 
+		new BasicStroke(AXIS_STROKE_WIDTH);
 	protected final static BasicStroke hashStroke = new BasicStroke(1.0f);
 	
 	
@@ -98,15 +100,16 @@ public class GridModel implements ChangeListener {
 	/** # of rows */
 	private int rowCount;
 	
-	/** min row */
-	private int rowMin = 0;
 	
 	/** the canvas in question */
 	private ExecutionsCanvas canvas = null;
 	
 	private Vector axisHashes;
 	
-	public GridModel(long min,long max,int rowCount) {
+	private ExecutionsModel model;
+	
+	public GridModel(ExecutionsModel model,long min,long max,int rowCount) {
+		this.model = model;
 		setExtent(min,max);
 		this.rowCount = rowCount;
 	}
@@ -132,19 +135,19 @@ public class GridModel implements ChangeListener {
 		// upper-left. Thus, to make all dots stay above axes, 
 		// we move the start higher up by DOT_SIDE
 	
-		gridWidth = canvasWidth-3*GRID_OFFSET-3*DOT_SIDE; 	
-		gridHeight= canvasHeight-3*GRID_OFFSET-3*DOT_SIDE; 
-	
+		
 		xStart = GRID_OFFSET+DOT_SIDE;
 		yStart = yStartAxis-2*DOT_SIDE;
 		
-		// we also need the end of the horizontal axis to extend past the 
-		// right side of the right-most dot.
-		xEndAxis = xStart+gridWidth+DOT_SIDE;
-		yEndAxis = yStart-gridHeight; // because in canvas coords.
-								// y increases going downwards.
+		// we also need a buffer on the right, 
+		// and the end of the horizontal axis to extend past the 
+		// right side of the right-most dot
+		xEndAxis = canvasWidth - 2*GRID_OFFSET;
+		yEndAxis = GRID_OFFSET; // leave buffer at top
 		
-		
+		gridWidth = xEndAxis-xStart-DOT_SIDE;
+		gridHeight = yStartAxis-yEndAxis;
+	
 	}
 	
 	public float getHorizCoord(long x) {
@@ -156,8 +159,7 @@ public class GridModel implements ChangeListener {
 	}
 	
 	public float getVertCoord(int y) {
-		float offset = y-rowMin;
-		float ratio = offset/rowCount;
+		float ratio = ((float) y)/((float) rowCount);
 		float res  =  yStart-ratio*gridHeight;
 		return res;
 	}
@@ -184,12 +186,34 @@ public class GridModel implements ChangeListener {
 		//vert
 		g.drawLine(xStartAxis,yStartAxis,xStartAxis,yEndAxis);
 	
+		// stripes
+		drawStripes(g);
 		//hashes
 		g.setStroke(hashStroke);
 		drawHorizHashes(g);
 
 		g.setPaint(oldcolor);
 		g.setStroke(oldStroke);
+	}
+	
+	private void drawStripes(Graphics2D g) {
+		int stripeCount = model.getMajorRowCount();
+		// remember, y increases as we go down the screen,
+		// so yStartAxis is larger value.
+		double ratio = ((double)gridHeight)/((double) stripeCount);
+		int stripeSize = (int) Math.ceil(ratio);
+		Paint oldColor = g.getPaint();
+		g.setPaint(Constants.ALT_BACKGROUND_COLOR);
+		int xStart = xStartAxis+(int)AXIS_STROKE_WIDTH;
+		for (int y = yEndAxis; y <yStartAxis; y += stripeSize*2) {
+			int bottom = y+stripeSize;
+			if (bottom >=yStartAxis)
+				stripeSize = yStartAxis-y;
+			g.fillRect(xStart,y,xEndAxis-xStartAxis,stripeSize);
+		}
+		g.setPaint(oldColor);
+		
+		
 	}
 	
 	private void drawHorizHashes(Graphics2D g) {
