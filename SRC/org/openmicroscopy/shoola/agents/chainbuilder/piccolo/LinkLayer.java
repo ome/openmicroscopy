@@ -44,13 +44,11 @@ import java.util.Iterator;
 import java.util.Vector;
 
 //Third-party libraries
-import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.Constants;
+
 /** 
  * A {@link PLayer} specifically designed to hold PLink objects - both ParamLinks and 
  * PModuleLinks. This layer also handles the transition between showing only
@@ -71,12 +69,12 @@ public class LinkLayer extends PLayer {
 	/**
 	 * A node to hold all ParamLinks.
 	 */ 
-	protected PNode params;
+	private PNode params;
 	
 	/**
 	 * A node to hold all modules;
 	 */ 
-	protected PNode modules;
+	private PNode modules;
 	
 	public LinkLayer() {
 		super();
@@ -113,6 +111,52 @@ public class LinkLayer extends PLayer {
 		return params.getChildrenReference();
 	}
 	
+	protected Collection parameters() {
+		return new Vector(links());
+	}
+	
+	protected Collection  modules() {
+		if (modules == null)
+			return null;
+		return new Vector(modules.getChildrenReference());
+	}
+	/** 
+	 * Move all of the links from the source to be added to this.
+	 * @param source
+	 */
+	public void reparentLinks(LinkLayer source) {
+		Link node;
+		Iterator iter;
+		// first do param links of original
+		Collection sourceParams = source.parameters();
+		if (sourceParams != null) {
+			// params is always added, so we don't need to check to see if it is 
+			//null
+			iter = sourceParams.iterator();
+			while (iter.hasNext()) {
+				node = (Link) iter.next();
+				node.reparent(params);
+				node.setLinkLayer(this);
+			}
+		}
+		
+		// then modules
+		Collection sourceMods = source.modules();
+		if (sourceMods != null) {
+			if (modules == null) {
+				modules = new PNode();
+				addChild(modules);
+			}
+			iter = sourceMods.iterator();
+			while (iter.hasNext()) {
+				node = (Link) iter.next();
+				node.reparent(modules);
+				node.setLinkLayer(this);
+			}
+			
+		}
+	}
+	
 	/**
 	 * When a link between two parameters is completed, we need to make sure 
 	 * that thare is also a direct link between the two modules involved. 
@@ -144,36 +188,30 @@ public class LinkLayer extends PLayer {
 			addChild(modules);
 		}
 		modules.addChild(lnk);
+		
 	}
 	
-	/**
-	 * Semantic zooming - if magnification is below a certain threshold, 
-	 * make the module links visible and the paramter links invisible. 
-	 * Otherwise, take the opposite approach.
-	 */
-	protected void paint(PPaintContext aPaintContext) {
-		PCamera camera = aPaintContext.getCamera();
-		if (camera == null)
-			return;
-		double scale = camera.getViewScale();
-		if (scale < Constants.SCALE_THRESHOLD) {
-			if (params != null)
-				params.setVisible(false);
-			if (modules != null) {
-				modules.setVisible(true);
-				modules.setPickable(true);
-			}
+	
+	public void showModuleLinks() {
+		if (params != null) {
+			params.setVisible(false);
 		}
-		else {
-			if (params != null) {
-				params.setVisible(true);
-				params.setPickable(true);
-			}
-			if (modules != null)
-				modules.setVisible(false);
+		if (modules != null) {
+			modules.setVisible(true);
+			modules.setPickable(true);
 		}
 	}
 
+	public void showParamLinks() {
+		if (modules != null) {
+			modules.setVisible(false);
+		}
+		if (params != null) {
+			params.setVisible(true);
+			params.setPickable(true);
+		}
+		
+	}
 	
 	
 	/**
