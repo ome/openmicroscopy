@@ -168,7 +168,7 @@ public class ThumbnailStatistics
         }
         else if(thumbnails.length == 0)
         {
-            return new Thumbnail[] {};
+            return new ThumbnailDataPair[] {};
         }
         
         ElementComparator ec = new ElementComparator(attributeName,
