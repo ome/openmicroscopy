@@ -83,9 +83,7 @@ public class CodomainChain
 		
 	public CodomainChain(int start, int end)
 	{
-		verifyInterval(start, end);
-		intervalStart = start;
-		intervalEnd = end;
+		setInterval(start, end);
 		init();
 	}
 	
@@ -133,17 +131,11 @@ public class CodomainChain
 		return intervalStart;
 	}
 
-	public void setIntervalEnd(int end)
+	public void setInterval(int start, int end)
 	{
-		verifyInterval(intervalStart, end);
-		intervalEnd = end;
-		buildLUT();
-	}
-
-	public void setIntervalStart(int start)
-	{
-		verifyInterval(start, intervalEnd);
+		verifyInterval(start, end);
 		intervalStart = start;
+		intervalEnd = end;
 		buildLUT();
 	}
 	
