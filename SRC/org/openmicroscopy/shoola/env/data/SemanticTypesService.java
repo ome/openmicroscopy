@@ -494,4 +494,7 @@ public interface SemanticTypesService
  
     public List retrieveLocationsByFeatureID(List features)
     		throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveExtentsByFeatureID(List features)
+        throws DSOutOfServiceException, DSAccessException;
 }
