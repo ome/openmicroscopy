@@ -321,7 +321,6 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
  
 		x = 0;
 		if (width > maxRowWidth) {
-			System.err.println("new chain changes max width to "+width);
 			maxRowWidth = width;
 		}
 		row = new RowInfo();
