@@ -52,8 +52,6 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIFactory;
 import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
-import org.openmicroscopy.shoola.util.math.geom2D.Segment;
 
 /** 
  * 
@@ -341,35 +339,25 @@ public class DrawingCanvasMng
         anchor = p;
         Iterator i = listROI.iterator();
         ROIShape roi;
-        Shape s;
+        Shape s, vLeft, vRight, hTop, hBottom;
         Rectangle r;
-        Segment vLeft, vRight, hTop, hBottom;
-        PlanePoint topLeftCorner, topRightCorner, bottomLeftCorner, 
-                    bottomRightCorner;
-        PlanePoint cPoint;
         while (i.hasNext()) {
             roi = (ROIShape) (i.next());
             s = roi.getShape();
             r = s.getBounds();
-            topLeftCorner = new PlanePoint(r.x, r.y);
-            topRightCorner = new PlanePoint(r.x+r.width-2, r.y);
-            bottomLeftCorner = new PlanePoint(r.x, r.y+r.height-2);
-            bottomRightCorner = new PlanePoint(r.x+r.width-2, r.y+r.height-2);
-            vLeft = new Segment(topLeftCorner, bottomLeftCorner);
-            vRight = new Segment(topRightCorner, bottomRightCorner);
-            hTop = new Segment(topLeftCorner, topRightCorner);
-            hBottom = new Segment(bottomLeftCorner, bottomRightCorner);
-            cPoint = new PlanePoint(p.x, p.y);
+            vLeft = ROIFactory.getVerticalArea(r.x, r.y, r.height);
+            vRight = ROIFactory.getVerticalArea(r.x+r.width, r.y, r.height);
+            hTop = ROIFactory.getHorizontalArea(r.x, r.y, r.width);
+            hBottom = ROIFactory.getHorizontalArea(r.x, r.y+r.height, r.width);
             if (s.contains(p)) {
                 setHandlePressedValues(roi, s, r.x, r.y);
-                cPoint = new PlanePoint(p.x, p.y);
-                if (vLeft.lies(cPoint))
+                if (vLeft.contains(p))
                     resizeZone = LEFT;
-                else if (vRight.lies(cPoint))
+                else if (vRight.contains(p))
                     resizeZone = RIGHT;
-                else if (hTop.lies(cPoint))
+                else if (hTop.contains(p))
                     resizeZone = TOP;
-                else if (hBottom.lies(cPoint))
+                else if (hBottom.contains(p))
                     resizeZone = BOTTOM;
                 else handlePressedIn(roi, clickCount);
             }
@@ -439,10 +427,8 @@ public class DrawingCanvasMng
     /** Move the current roi. */
     private void move(Point p)
     {
-        int diffX = p.x-anchor.x, diffY = p.y-anchor.y;
-
         Rectangle r = currentShape.getBounds();
-        int x = xControl+diffX, y = yControl+diffY,
+        int x = xControl+p.x-anchor.x, y = yControl+p.y-anchor.y,
             w = r.width,  h = r.height;
         if (areaValid(x, y, w, h)) {
             ROIFactory.setShapeBounds(currentShape, currentROI.getShapeType(), 
@@ -487,7 +473,6 @@ public class DrawingCanvasMng
                                              x, y, w, h);
             view.draw(currentShape);
             moving = true;
-            //view.moveAndDraw(currentShape); 
         }
     }
     
