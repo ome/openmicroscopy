@@ -21,6 +21,7 @@ public class RegistryImpl
     //private EventBus                eb;
     //private DataManagementService   dms;
     //private SemanticTypesService    sts;
+    //private PixelsService           ps;
     //private LogService              ls;
     //private TopFrame                tf;
     //private UserNotifier            un;
@@ -46,6 +47,9 @@ public class RegistryImpl
 /** Implemented as specified by {@linkRegistry}.
  */
    //public SemanticTypesService getSemanticTypesServices();
+/** Implemented as specified by {@linkRegistry}.
+ */
+   //public PixelsService getPixelsServices();
 /** Implemented as specified by {@linkRegistry}.
  */
    //public LogService getLogService();

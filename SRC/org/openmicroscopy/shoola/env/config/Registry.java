@@ -12,7 +12,8 @@ public interface Registry{
    public Object lookup(String name);
    //public EventBus getEventBus();
    //public DataManagementService getDataManagementService();
-   //public SemanticTypesService getSemanticTypesServices();
+   //public SemanticTypesService getSemanticTypesService();
+    //public PixelsService getPixelsServce();
    //public LogService getLogService();
    //public TopFrame getTopFrame();
    //public UserNotifier getUserNotifier();
