@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
@@ -38,10 +39,14 @@ import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Project;
-import org.openmicroscopy.shoola.env.data.map.DatasetDataMapper;
-import org.openmicroscopy.shoola.env.data.map.ProjectDataMapper;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
+import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -71,7 +76,7 @@ class DMSAdapter
 		this.proxy = proxy;
 		this.registry = registry;
 	}
-
+	//TODO: write the method in STSAdapter b/c Experimenter is a semantic type
 	public int getUserID()
 	{
 		int userID = 1;
@@ -100,41 +105,74 @@ class DMSAdapter
 	 	 return userID;
 	}
     
+    /** Retrieve user projects. */
+    public List retrieveUserProjects(ProjectSummary pProto, 
+    								DatasetSummary dProto)
+	{	
+		//Make new protos if none was provided.
+		if (pProto == null) pProto = new ProjectSummary();
+		if (dProto == null) dProto = new DatasetSummary();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria criteria = ProjectMapper.buildUserProjectsCriteria(
+															uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List projects = null;
+	  	try {
+			projects = (List) proxy.retrieveList(Project.class, criteria);
+	  	} catch (Exception e) {
+	  		
+		// TODO: handle exception by throwing either NotLoggedInException
+		//(broken connection, expired session) or ServiceUnavailableExc
+		//(temp server failure, temp middleware failure).
+	  	}
+    	
+    	return ProjectMapper.fillUserProjects(projects, pProto, dProto);
+	}
+	
+    public List retrieveUserProjects()
+    {
+    	return retrieveUserProjects(null, null);
+    }
+    
+    /** Retrieve a project. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
     {
 		//Make a new retVal if none was provided.
 		if (retVal == null) retVal = new ProjectData();
 		
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = ProjectDataMapper.buildCriteria();
+		Criteria criteria = ProjectMapper.buildProjectCriteria();
 		
 		Project project = null;
-		//Load the graph defined by criteria.
-		criteria.addFilter("id", new Integer(id));
-		try {
-			//project = (Project) proxy.load(Project.class, id, criteria);
-			project = (Project) proxy.retrieve(Project.class, criteria);
-		} catch (Exception e) {
-			boolean silly = true;
-			
-			  // TODO: handle exception by throwing either NotLoggedInException
-			  //(broken connection, expired session) or ServiceUnavailableExc
-			  //(temp server failure, temp middleware failure).
-		}
 		
+		//Load the graph defined by criteria.
+		try {
+			project = (Project) proxy.load(Project.class, id, criteria);
+		} catch (Exception e) {
+		  // TODO: handle exception by throwing either NotLoggedInException
+		  //(broken connection, expired session) or ServiceUnavailableExc
+		  //(temp server failure, temp middleware failure).
+		}
 		//Put the server data into the corresponding client object.
-		ProjectDataMapper.fill(project, retVal);
+		ProjectMapper.fillProject(project, retVal);
 		
     	return retVal;
     }
     
+	/** Retrieve a dataset. */
     public DatasetData retrieveDataset(int id, DatasetData retVal)
     {
 		//Make a new retVal if none was provided.
 		if (retVal == null) retVal = new DatasetData();
 	
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = DatasetDataMapper.buildCriteria();
+		Criteria criteria = DatasetMapper.buildDatasetCriteria();
 	
 		Dataset dataset = null;
 	
@@ -142,15 +180,13 @@ class DMSAdapter
 		try {
 			dataset = (Dataset) proxy.load(Dataset.class, id, criteria);
 		} catch (Exception e) {
-			boolean silly = true;
-		
-			  // TODO: handle exception by throwing either NotLoggedInException
-			  //(broken connection, expired session) or ServiceUnavailableExc
-			  //(temp server failure, temp middleware failure).
+		  // TODO: handle exception by throwing either NotLoggedInException
+		  //(broken connection, expired session) or ServiceUnavailableExc
+		  //(temp server failure, temp middleware failure).
 		}
 	
 		//Put the server data into the corresponding client object.
-		DatasetDataMapper.fill(dataset, retVal);
+		DatasetMapper.fillDataset(dataset, retVal);
     	return retVal;
     }
     

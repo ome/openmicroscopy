@@ -30,12 +30,15 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 
 /** 
@@ -55,9 +58,20 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 
 public interface DataManagementService
 {
-    
+    //TODO: put in SemanticTypesService
     public int getUserID();
+    
+    /**Retrieve all the projects of the current User. */
+    public List retrieveUserProjects(ProjectSummary pProto, 
+    								DatasetSummary dProto);
+    								
+	/**Retrieve all the projects of the current User. */
+    public List retrieveUserProjects();
+    
+	/**Retrieve a given project. */								
     public ProjectData retrieveProject(int id, ProjectData retVal);
+    
+	/**Retrieve a given project. */
     public DatasetData retrieveDataset(int id, DatasetData retVal);
     //public Image retrieveImage(int id);
 }
