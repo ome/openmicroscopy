@@ -29,14 +29,14 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-import org.openmicroscopy.shoola.env.config.Registry;
+
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Implements the {@link UserNotifier} interface.
@@ -107,8 +107,7 @@ public class UserNotifierImpl
             buf.append(":\n\n");
             buf.append(d);
         }
-		showMessageDialog(title, buf.toString(), d, 
-						UserNotifierDialog.INFORMATION_MESSAGE);
+		showMessageDialog(title, buf.toString(), d, IconManager.ERROR);
     }
     
 	/** Implemented as specified by {@link UserNotifier}. */     
@@ -126,8 +125,7 @@ public class UserNotifierImpl
         if (message == null || message.length() == 0)   
             buf.append(DEFAULT_INFO_MESSAGE);
         else    buf.append(message);
-		showMessageDialog(title, buf.toString(), 
-						UserNotifierDialog.INFORMATION_MESSAGE);
+		showMessageDialog(title, buf.toString(), IconManager.INFO);
     }
     
 	/** Implemented as specified by {@link UserNotifier}. */ 
@@ -139,8 +137,7 @@ public class UserNotifierImpl
         if (message == null || message.length()==0)   
             buf.append(DEFAULT_WARNING_MESSAGE);
         else    buf.append(message);
-        showMessageDialog(title, buf.toString(), 
-        				UserNotifierDialog.WARNING_MESSAGE);
+        showMessageDialog(title, buf.toString(), IconManager.WARNING);
     }
        
 	/**

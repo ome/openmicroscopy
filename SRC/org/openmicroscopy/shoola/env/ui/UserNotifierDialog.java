@@ -41,8 +41,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -51,17 +49,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.openmicroscopy.shoola.env.config.IconFactory;
-import org.openmicroscopy.shoola.env.config.Registry;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
 
 
 
 /** 
- * Brings a dialog to tell the user about something that has happened.
+ * Brings up a dialog to tell the user about something that has happened.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,12 +74,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class UserNotifierDialog
 	extends JDialog
 	implements ActionListener
-{
-	/** Icons ID. */
-	static final int				INFORMATION_MESSAGE = 0;
-	static final int				WARNING_MESSAGE = 1;
-	static final int				ERROR_MESSAGE = 2;
-	
+{	
 	/** The width of the dialog window. */
 	private static final int		WIN_W = 150;  
 	
@@ -95,35 +86,30 @@ public class UserNotifierDialog
 	
 	/** Value used to hide or display the message. */
 	private boolean					isShown;
-	
-	/** 
-	 * The image icons needed to build the GUI.
-	 * The first icon is the information, the second is the warning, the third
-	 * is the error.
-	*/
-	private Icon[]  				images;
-	
+
 	/** Contents the component to display in the JDialog. */
 	private Container				contentPane;
 	
 	/** Details's button. */
 	private JButton					button;
 	
+	/** Reference to the registry .*/
+	private Registry				registry;
 	/**
 	 * Creates a new instance of {@link UserNotifierDialog}.
 	 * 
-	 * @param reg			reference to the {@link Registry}.
+	 * @param registry		reference to the {@link Registry}.
 	 * @param frame			parentComponent, reference to the topFrame.
 	 * @param title			dialog's window title.
 	 * @param summary		summary to display.
 	 * @param iconID		icon ID.
 	 */
-	public UserNotifierDialog(Registry reg, JFrame frame, String title, 
+	public UserNotifierDialog(Registry registry, JFrame frame, String title, 
 								String summary, int iconID)
 	{
 		super(frame, title, true);
+		this.registry = registry;
 		isShown = false;
-		loadImages(reg);
 		setResizable(false);
 		contentPane = super.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
@@ -135,20 +121,20 @@ public class UserNotifierDialog
 	/**
 	 * Creates a new instance of {@link UserNotifierDialog}.
 	 * 
-	 * @param reg			reference to the {@link Registry}.
+	 * @param registry		reference to the {@link Registry}.
 	 * @param frame			parentComponent, reference to the topFrame.
 	 * @param title			dialog's window title.
 	 * @param summary		summary to display.
 	 * @param message		complement of informations.
 	 * @param iconID		icon ID.
 	 */
-	public UserNotifierDialog(Registry reg, JFrame frame, String title, 
+	public UserNotifierDialog(Registry registry, JFrame frame, String title, 
 								String summary, String detail, int iconID)
 	{
 		super(frame, title, true);
+		this.registry = registry;
 		this.detail = detail;
 		isShown = false;
-		loadImages(reg);
 		setResizable(false);
 		contentPane = super.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
@@ -196,29 +182,16 @@ public class UserNotifierDialog
 		contentPane.add(scrollPane);
 		pack(); 
 	 }
-	 
-	/**
-	 * Fills up the <code>images</code> array.
-	 */
-	private void loadImages(Registry reg)
-	{
-		images = new Icon[3];
-		IconFactory factory = (IconFactory) 
-								reg.lookup("/resources/icons/DefaultFactory");
-		images[INFORMATION_MESSAGE] = factory.getIcon("OME16.png");
-		images[WARNING_MESSAGE] = factory.getIcon("OME16.png");
-		images[ERROR_MESSAGE] = factory.getIcon("OME16.png");
-		//TODO: handle nulls (image not loaded).
-	}
 	
 	/**
-	 * Buils a basic GUI.
+	 * Buil and layout the GUI.
 	 * 
 	 * @param summary		summary of information/ warning.
 	 * @param iconID		iconID.
 	 */
 	private void buildGUI(String summary, int iconID)
 	{
+		IconManager IM = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
 		JTextArea  label = new JTextArea(summary);
 		label.setLineWrap(true);
@@ -226,7 +199,8 @@ public class UserNotifierDialog
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		iconPanel.add(new JLabel(images[iconID]));
+		
+		iconPanel.add(new JLabel(IM.getIcon(iconID)));
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		content.setLayout(gridbag);
@@ -246,13 +220,15 @@ public class UserNotifierDialog
 	}
 	
 	/**
-	 * Builds a GUI with option to display the details of the error message.
+	 * Build and layout the GUI, with the option to display the details 
+	 * of an error message.
 	 * 
 	 * @param summary		summary of the error message.
 	 * @param iconID		iconID.
 	 */
 	private void buildGUIWithButton(String summary, int iconID)
 	{
+		IconManager IM = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
 		JTextArea  label = new JTextArea(summary);
 		label.setLineWrap(true);
@@ -260,7 +236,7 @@ public class UserNotifierDialog
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		iconPanel.add(new JLabel((ImageIcon) images[iconID]));
+		iconPanel.add(new JLabel(IM.getIcon(iconID)));
 		button = new JButton("Details >>");
 		button.addActionListener(this);
 		GridBagLayout gridbag = new GridBagLayout();
