@@ -210,7 +210,6 @@ public class TitlePanel
 		Font font = label.getFont();
 		Font newFont = font.deriveFont(Font.BOLD);
 		label.setFont(newFont);
-		label.setBackground(Color.PINK);
 		return label;
 	}
 	
