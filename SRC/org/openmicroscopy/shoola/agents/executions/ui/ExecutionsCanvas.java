@@ -93,6 +93,8 @@ public class ExecutionsCanvas extends JPanel implements
 	
 	private AxisHash currentHash;
 	private AxisRowDecoration currentRowDecoration;
+	
+	private boolean pressSelected = true;
 	/**
 	 * Creates a new instance.
 	 */
@@ -137,7 +139,7 @@ public class ExecutionsCanvas extends JPanel implements
 			return;
 		gridModel.drawAxes(g2);
 		drawExecutions(g2);
-		if (currentExecution != null) {
+		if (currentExecution != null  && pressSelected == false) {
 			currentExecution.drawExecutionTip(g2,xLoc,yLoc);
 		}
 		if (currentHash != null)
@@ -163,11 +165,14 @@ public class ExecutionsCanvas extends JPanel implements
 	public void mousePressed(MouseEvent e) {
 		ChainExecutionData exec = null;
 		ExecutionView ev = getViewAt(e.getX(),e.getY());
-		
 		if (ev != null) {
+			currentExecution = ev;
+			pressSelected = true;
 			exec = ev.getChainExecution();
-			System.err.println("selectec execution "+exec.getID());
+			System.err.println("selected execution "+exec.getID());
 		}
+		else
+			pressSelected = false;
 		SelectChainExecutionEvent event =
 			new SelectChainExecutionEvent(exec);
 		registry.getEventBus().post(event);
@@ -196,7 +201,7 @@ public class ExecutionsCanvas extends JPanel implements
 		xLoc = e.getX();
 		yLoc = e.getY();
 		ExecutionView exec = getViewAt(xLoc,yLoc);
-		if ( exec != currentExecution) {
+		if ( exec != currentExecution && pressSelected == false) {
 			currentExecution = exec;
 			MouseOverChainExecutionEvent event;
 			ChainExecutionData execution = null;
