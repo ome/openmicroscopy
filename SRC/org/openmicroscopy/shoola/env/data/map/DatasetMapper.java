@@ -366,9 +366,8 @@ public class DatasetMapper
      */
     public static List fillListAnnotatedImages(Dataset dataset, 
                                          ImageSummary iProto, List annotations, 
-                                         int userID)
+                                         int userID, List images)
     {
-        List images = new ArrayList();
         Iterator i = dataset.getImages().iterator();
         Image image;
         ImageSummary is;

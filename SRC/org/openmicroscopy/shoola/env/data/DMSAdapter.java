@@ -139,10 +139,7 @@ class DMSAdapter
     
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public String getSessionKey()
-    {
-        return gateway.getSessionKey();
-    }
+    public String getSessionKey() { return gateway.getSessionKey(); }
     
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
@@ -244,13 +241,17 @@ class DMSAdapter
         List projects = (List) gateway.retrieveListData(Project.class, c);
         
         //Put the server data into the corresponding client object.
-        List projectsDS = null;
+        List projectsDS = new ArrayList();
         if (projects != null) {
             List ids = ProjectMapper.prepareListDatasetsID(projects);
-            c = AnnotationMapper.buildDatasetAnnotationCriteria(ids);
-            List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
-            projectsDS = ProjectMapper.fillListAnnotatedDatasets(projects, 
-                    pProto, dProto, l, uc.getUserID());
+            if (ids != null && ids.size() != 0) {
+                c = AnnotationMapper.buildDatasetAnnotationCriteria(ids);
+                List l = (List) gateway.retrieveListSTSData("DatasetAnnotation",
+                                                            c);
+                ProjectMapper.fillListAnnotatedDatasets(projects, 
+                        pProto, dProto, l, uc.getUserID(), projectsDS);
+            }
+            
         }
         return projectsDS;
     }
@@ -437,7 +438,8 @@ class DMSAdapter
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveImagesWithAnnotations(int datasetID, ImageSummary retVal)
+    public List retrieveImagesWithAnnotations(int datasetID, 
+                                            ImageSummary retVal)
         throws DSOutOfServiceException, DSAccessException
     {
         //Create a new dataObject if none provided.
@@ -450,7 +452,7 @@ class DMSAdapter
         Dataset dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
 
         //List of image summary object.
-        List images = null;
+        List images = new ArrayList();
         //Put the server data into the corresponding client object.
         if (dataset != null) {
             //Retrieve the user ID.
@@ -458,9 +460,12 @@ class DMSAdapter
                                 registry.lookup(LookupNames.USER_CREDENTIALS);
             List ids = DatasetMapper.prepareListImagesID(dataset);
             c = AnnotationMapper.buildImageAnnotationCriteria(ids);
-            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-            images = DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
-                        uc.getUserID());
+            if (ids != null && ids.size() != 0) {
+                List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
+                                        c);
+                DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, 
+                                    uc.getUserID(), images);
+            }  
         }
         return images;
     }
