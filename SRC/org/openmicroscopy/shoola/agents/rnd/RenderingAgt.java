@@ -39,6 +39,9 @@ package org.openmicroscopy.shoola.agents.rnd;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -62,7 +65,7 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
  * @since OME2.2
  */
 public class RenderingAgt
-	implements Agent
+	implements Agent, AgentEventListener, EventBus
 {
 	
 	private PixelsStats			pxsStats;
@@ -82,9 +85,8 @@ public class RenderingAgt
 	
 	private RenderingControl	renderingControl;
 	
-	//TEMPO
 	/** Reference to the topFrame. */
-	private TopFrame				topFrame;
+	private TopFrame			topFrame;
 	
 	/** Creates a new instance. */
 	public RenderingAgt() {}
@@ -92,25 +94,20 @@ public class RenderingAgt
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
 	{
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
+		//register(this, ImageLoaded.class);
+		//register(this, RenderImage.class);	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
 	public void terminate()
 	{
-	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-		control  = new RenderingAgtCtrl(this);
-		presentation = new RenderingAgtUIF(control, registry);
-		//TODO: to be removed
-		topFrame = registry.getTopFrame();
-		topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
+		control  = new RenderingAgtCtrl(this);	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -118,7 +115,37 @@ public class RenderingAgt
 	{
 		return true;
 	}
-
+	
+	/** Implement as specified by {@link AgentEventListener}. */
+	public void eventFired(AgentEvent e) 
+	{
+		//if (e instanceof ImageLoaded) {
+			//init the renderingControl
+			presentation = new RenderingAgtUIF(control, registry);
+			topFrame = registry.getTopFrame();
+			topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
+			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+			presentation.setVisible(true);
+		//}	
+	}
+	
+	/** Implement as specified by {@link EventBus}. */
+	public void register(AgentEventListener subscriber, Class event) 
+	{
+		registry.getEventBus().register(subscriber, event);	
+	}
+	
+	/** Implement as specified by {@link EventBus}. */
+	public void register(AgentEventListener subscriber, Class[] events)
+	{
+		for (int i = 0; i < events.length; i++) 
+			registry.getEventBus().register(subscriber, events[i]);
+	}
+	
+	/** Implement as specified by {@link EventBus}. */
+	public void post(AgentEvent e) {}
+		
+	/** Return the presentation. */
 	public RenderingAgtUIF getPresentation()
 	{
 		return presentation;
@@ -129,7 +156,7 @@ public class RenderingAgt
 		return registry;
 	}
 	
-	//TODO: retrieve from DataManager service.
+	//TODO: retrieve data from DataManagerService.
 	ChannelData[] getChannelData()
 	{
 		if (pxsDims == null) renderingControl.getPixelsDims();
@@ -355,5 +382,20 @@ public class RenderingAgt
 	{
 		return renderingControl.isActive(w);
 	}
-	
+
+	/** 
+	* Required by I/F but not actually needed in our case, no op implementation.
+	*/ 
+	public void remove(AgentEventListener subscriber) {}
+
+	/** 
+	* Required by I/F but not actually needed in our case, no op implementation.
+	*/ 
+	public void remove(AgentEventListener subscriber, Class event) {}
+
+	/** 
+	* Required by I/F but not actually needed in our case, no op implementation.
+	*/ 
+	public void remove(AgentEventListener subscriber, Class[] events) {}
+
 }

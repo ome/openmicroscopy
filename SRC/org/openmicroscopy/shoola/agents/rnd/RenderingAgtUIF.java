@@ -94,7 +94,7 @@ class RenderingAgtUIF
 	/** Reference to the regisry. */
 	private Registry				registry;
 	
-	/** Reference to the regisry. */
+	/** Reference to the control. */
 	private RenderingAgtCtrl		control;
 	
 	private QuantumPane				quantumPane;
