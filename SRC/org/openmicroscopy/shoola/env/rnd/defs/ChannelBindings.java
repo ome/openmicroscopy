@@ -111,7 +111,10 @@ public class ChannelBindings
 
 	public int[] getRGBA() 
 	{
-		return rgba;
+		int[] colors = new int[rgba.length];
+		for (int i = 0; i < rgba.length; i++)
+			colors[i] = rgba[i];
+		return colors;
 	}
 
 	public void setActive(boolean active)
@@ -159,13 +162,10 @@ public class ChannelBindings
 		ChannelBindings cb = new ChannelBindings();
 		cb.index = this.index;
 		cb.active = this.active;
-		//Will work b/c the objects are read-only.
+		//Will work b/c the objects are read-only: Integer, Float, etc.
 		cb.inputStart = this.inputStart;
 		cb.inputEnd = this.inputEnd;
-		int[] colors = new int[rgba.length];
-		for (int i = 0; i < rgba.length; i++)
-			colors[i] = rgba[i];
-		cb.rgba = colors;
+		cb.rgba = getRGBA();
 		return cb;
 	}
 	
