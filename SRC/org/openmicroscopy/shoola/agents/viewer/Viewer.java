@@ -174,20 +174,22 @@ public class Viewer
 		PixelsDimensions pxsDims = renderingControl.getPixelsDims();
 		if (curImageID != request.getImageID()) {
 			if (presentation == null) buildPresentation(pxsDims);
-			initPresentation(request.getImageName(), pxsDims);
+			initPresentation(request.getImageName(), pxsDims, false);
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
 			registry.getEventBus().post(new RenderImage(curPixelsID));
 		} else
-			initPresentation(request.getImageName(), pxsDims);
+			initPresentation(request.getImageName(), pxsDims, true);
 	}
 	
 	/** Set the default. */
-	private void initPresentation(String imageName, PixelsDimensions pxsDims)
+	private void initPresentation(String imageName, PixelsDimensions pxsDims, 
+									boolean active)
 	{
 		presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									pxsDims.sizeT, pxsDims.sizeZ);
 		presentation.setImageName(imageName);
+		presentation.setActive(active);
 		setPresentation();
 	}
 	

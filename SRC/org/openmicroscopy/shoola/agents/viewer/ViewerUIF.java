@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
@@ -102,10 +101,13 @@ public class ViewerUIF
 	
 	private JScrollPane 			scrollPane;
 
+	private boolean					active;
+	
 	ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
 				int defaultT, int defaultZ)
 	{
 		setFrame();
+		active = false;
 		this.control = control;
 		this.registry = registry;
 		im = IconManager.getInstance(registry);
@@ -119,11 +121,15 @@ public class ViewerUIF
 		buildGUI();
 	}
 	
+	public JScrollPane getScrollPane() { return scrollPane; }
+	
 	public JSlider getTSlider() { return tSlider; }
 	
 	public JSlider getZSlider() { return zSlider; }
 	
 	public ToolBar getToolBar() { return toolBar; } 
+	
+	void setActive(boolean b) { active = b; }
 	
 	/** Display the name of the image in the title. */
 	void setImageName(String imageName) { setTitle(imageName); }
@@ -206,20 +212,16 @@ public class ViewerUIF
 	 */
 	 void setImage(BufferedImage img)
 	 {
-	 	int imageWidth = img.getWidth()+2*START, 
-	 		imageHeight  = img.getHeight()+2*START;
-		Dimension d = new Dimension(imageWidth, imageHeight);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
-		//Set the location of the image.
-		Rectangle r = scrollPane.getViewportBorderBounds();
-		int x = (int) (r.width-img.getWidth())/2;
-		int y = (int) (r.height-img.getHeight())/2;
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
-		canvas.paintImage(img, x, y);
-		canvas.revalidate();
-		setWindowSize(imageWidth+4*START, imageHeight+6*START); 
+		if (!active) {
+			int imageWidth = img.getWidth()+2*START, 
+			imageHeight  = img.getHeight()+2*START;
+			Dimension d = new Dimension(imageWidth, imageHeight);
+			canvas.setPreferredSize(d);
+			canvas.setSize(d);
+			setWindowSize(imageWidth+4*START, imageHeight+6*START);
+		} 
+		canvas.paintImage(img);
+		active = true; 
 	}
 	
 	/** Create a menu. */
@@ -287,7 +289,7 @@ public class ViewerUIF
 		Container container = getContentPane();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		container.add(toolBar);
-		canvas = new ImageCanvas();
+		canvas = new ImageCanvas(this);
 		scrollPane = new JScrollPane(canvas);
 		container.add(buildMain());
 		container.add(buildTPanel());
@@ -310,6 +312,8 @@ public class ViewerUIF
 		return p;
 		
 	}
+	
+	/** Build panel with the tSlider. */
 	private JPanel buildTPanel()
 	{
 		JPanel p = new JPanel();
