@@ -146,27 +146,30 @@ public class ChainDataManager extends DataManager {
 	
 	public synchronized Collection getChains() {
 		
+		Collection res = null;
 		// if we're done, go for it.
 		if (chainHash != null && chainHash.size() > 0) {
-			return chainHash.values();
+			res = chainHash.values();
 		}
-		
-		if (gettingChains == false) {
-			gettingChains = true;
-			retrieveChains();
-			gettingChains = false;
-			notifyAll();
-			return chainHash.values();
-		}
-		else {// in progress
-			try{ 
-				wait();
-				return chainHash.values();
+		else {
+			if (gettingChains == false) {
+				gettingChains = true;
+				retrieveChains();
+				gettingChains = false;
+				notifyAll();
+				res = chainHash.values();
 			}
-			catch (InterruptedException e) {
-				return null;
+			else {// in progress
+				try{ 
+					wait();
+					res = chainHash.values();
+				}
+				catch (InterruptedException e) {
+					res = null;
+				}
 			}
 		}
+		return res;
 	}
 	
 	protected synchronized void retrieveChains() {
