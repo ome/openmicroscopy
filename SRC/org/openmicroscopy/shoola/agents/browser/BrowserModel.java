@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.*;
 
 import org.openmicroscopy.is.CompositingSettings;
+import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -76,7 +77,7 @@ public class BrowserModel
 
     private Set selectedThumbnails;
     
-    private List relevantImageSTs;
+    private AttributeMap attributeMap;
 
     private Map modeClassMap;
 
@@ -110,7 +111,7 @@ public class BrowserModel
         progressListeners = new HashSet();
         modelListeners = new HashSet();
         selectedThumbnails = new HashSet();
-        relevantImageSTs = new ArrayList();
+        attributeMap = new AttributeMap();
         groupingMethod = new SingleGroupingMethod();
         groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
@@ -182,6 +183,26 @@ public class BrowserModel
     public void setDataset(DatasetData dataset)
     {
         this.backingModel = dataset;
+    }
+    
+    /**
+     * Returns the mapping of STs (or ST names) to the respective attributes
+     * that the backing dataset has.
+     * @return See above.
+     */
+    public AttributeMap getAttributes()
+    {
+        return attributeMap;
+    }
+    
+    /**
+     * Sets the mapping of STs (or ST names) to the respective attributes
+     * that the backing dataset has.
+     * @param map The above mapping.
+     */
+    public void setAttributes(AttributeMap map)
+    {
+        this.attributeMap = map;
     }
     
     // TODO: include constructor which loads settings (so that the grouping
