@@ -75,11 +75,11 @@ public class DrawingCanvas
     private int					x, y;
     
     /** Control to paint or not the line on the images. */
- 	private boolean				linesShown;
+ 	private boolean				linesShown, selected;
  	
  	private Viewer3DManager		control;
  	
- 	private int					defaultZ, maxZ;
+ 	private int					defaultZ, maxZ, curValueXZ, curValueZY;
  	
 	public DrawingCanvas(Viewer3DManager control, int defaultZ, int sizeZ)
 	{
@@ -89,6 +89,7 @@ public class DrawingCanvas
 		manager = new DrawingCanvasMng(this, control);
 		currentPointXY = null;
 		linesShown = false;
+		selected = false;
 		setOpaque(false);
 		currentPointXY = new Point(0, 0);
 		currentPointXZ = new Point(0, 0);
@@ -97,18 +98,22 @@ public class DrawingCanvas
 	
 	public DrawingCanvasMng getManager() { return manager; }
 	
-	/** Set the drawing area, and initialize current point. */
-	public void setDrawingDimension(int width, int height, int zWidth, int x, 
-									int y)
+	public void setSizes(int width, int height, int zWidth) 
 	{
 		this.width = width;
 		this.height = height;
+		this.zWidth = zWidth;
+		curValueXZ = (zWidth*defaultZ/maxZ);
+		curValueZY = (zWidth*defaultZ/maxZ);
+	}
+	
+	/** Set the drawing area, and initialize current point. */
+	public void setDrawingDimension(int x, int y)
+	{
 		this.x = x;
 		this.y = y;
-		this.zWidth = zWidth;
-		int v = (zWidth*defaultZ/maxZ);
-		currentPointXZ.y = v+control.getYOrigin();
-		currentPointZY.x = v+control.getXOrigin();
+		currentPointXZ.y = curValueXZ+control.getYOrigin();
+		currentPointZY.x = curValueZY+control.getXOrigin();
 	}
 	
 	/** Erases current shape, if any. */
@@ -129,9 +134,6 @@ public class DrawingCanvas
 			linesShown = true;
 			currentPointXY.x = p.x;
 			currentPointXY.y = p.y;
-			currentPointXZ.x = p.x;
-			currentPointZY.y = p.y;
-			repaint();
 		}
 	}
     
@@ -144,11 +146,10 @@ public class DrawingCanvas
 	{
 		if (p != null) {
 			linesShown = true;
-			currentPointXZ.x = p.x;
 			currentPointXZ.y = p.y;
 			currentPointXY.x = p.x;
-			currentPointZY.x = control.getXOrigin()+(p.y-control.getYOrigin());
-			repaint();
+			curValueZY = p.y-control.getYOrigin();
+			curValueXZ = p.y-control.getYOrigin();
 		}
 	}
 	
@@ -162,11 +163,10 @@ public class DrawingCanvas
 		if (p != null) {
 			linesShown = true;
 			currentPointZY.x = p.x;
-			currentPointZY.y = p.y;
 			currentPointXY.y = p.y;
-			currentPointXZ.y = control.getYOrigin()+(p.x-control.getXOrigin());
-			repaint();
-		}
+			curValueXZ = p.x-control.getXOrigin();
+			curValueZY = p.x-control.getXOrigin();
+		} 
 	}
 	
 	/** Overrides the paintComponent. */

@@ -122,6 +122,8 @@ public class Viewer3DManager
 		drawing.setPreferredSize(d);
 		drawing.setSize(d);		
 		drawing.setBounds(0, 0, xMax, yMax);
+		drawing.setSizes(XYimage.getWidth(), XYimage.getHeight(), 
+							ZYimage.getWidth());
 		canvas.setPreferredSize(d);
 		canvas.paintImages(XYimage.getWidth(), ZYimage.getWidth(),
 									XYimage.getHeight());
@@ -211,13 +213,13 @@ public class Viewer3DManager
 		DrawingCanvasMng dm = drawing.getManager();
 		xMain = x+ZYimage.getWidth()+Viewer3D.SPACE;
 		yMain = y+XZimage.getHeight()+Viewer3D.SPACE;
-		drawing.setDrawingDimension(XYimage.getWidth(), XYimage.getHeight(), 
-									ZYimage.getWidth(), xMain, yMain);
-	
+		drawing.setDrawingDimension(xMain, yMain);
 		dm.setDrawingAreaXY(xMain, yMain, XYimage.getWidth(), 
-							XYimage.getHeight());					
-		dm.setDrawingAreaXZ(xMain, y, XYimage.getWidth(), XZimage.getHeight());
-		dm.setDrawingAreaZY(x, yMain, ZYimage.getWidth(), ZYimage.getHeight());	
+									XYimage.getHeight());					
+		dm.setDrawingAreaXZ(xMain, y, XYimage.getWidth(), 
+							XZimage.getHeight());
+		dm.setDrawingAreaZY(x, yMain, ZYimage.getWidth(), 
+							ZYimage.getHeight());	
 	}
 	
 	/** Set the size of the window. */

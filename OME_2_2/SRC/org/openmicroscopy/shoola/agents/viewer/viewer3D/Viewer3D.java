@@ -235,6 +235,8 @@ public class Viewer3D
 	/** Display a 3DImage. */
 	private void handleImage3DRendered(Image3DRendered response)
 	{
+		// TODO: check boolean value to see if we have enough memory to 
+		// render the images.
 		BufferedImage	xzImage = response.getRenderedXZImage(),
 						yzImage = response.getRenderedZYImage(),
 						xyImage = response.getRenderedXYImage();
