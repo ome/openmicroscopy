@@ -41,6 +41,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -105,6 +106,48 @@ public class TitlePanel
 		add(new JSeparator());
 	}
 
+    /** 
+     * Create an instance.
+     * 
+     * @param title     title displayed in header.
+     * @param text      brief summary to explain.
+     * @param component JComponent to display in the header.
+     */
+    public TitlePanel(String title, String text, JComponent c)
+    {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(buildPanel(title, text, null, c));
+        add(new JSeparator());
+    }
+
+    /** 
+     * Create an instance.
+     * 
+     * @param title     title displayed in header.
+     * @param text      brief summary to explain.
+     * @param note      note to add.
+     * @param icon      icon displayed in the header.
+     */
+    public TitlePanel(String title, String text, String note, JComponent c)
+    {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(buildPanel(title, text, note, c));
+        add(new JSeparator());
+    }
+    
+    /** Build header. */
+    private JPanel buildPanel(String title, String text, String note, 
+                            JComponent c)
+    {
+        JPanel p = new JPanel();
+        p.setBackground(backgroundColor);
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(buildTextPanel(title, text, note));
+        p.add(Box.createHorizontalGlue());
+        p.add(c);
+        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        return p;
+    }
 	/** Build header. */
 	private JPanel buildPanel(String title, String text, String note, Icon icon)
 	{
