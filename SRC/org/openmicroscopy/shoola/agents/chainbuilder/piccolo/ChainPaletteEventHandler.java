@@ -43,9 +43,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Third-party libraries
 import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
-import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PInputEvent;
 
 
 //Application-internal dependencies
@@ -84,18 +82,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}	
 	
 	
-	public void mouseEntered(PInputEvent e) {
-		
-		PNode n = e.getPickedNode();
-		if (n == null || (shouldHideLastChainView(n) &&
-				!(n instanceof PCamera))) {
-			hideLastChainView();
-		}
-		super.mouseEntered(e);
-			
-	}
-	
-	
 	protected void unhighlightModules() {
 		clearHighlights();
 		lastEntered = null;
@@ -109,6 +95,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			ChainBox cb = (ChainBox)node;
 			if (cb.getChainView() instanceof PaletteChainView)
 				lastChainView = (PaletteChainView) cb.getChainView();
+		}
+		if (node instanceof ChainView && lastEntered != null) {
+			unhighlightModules();
 		}
 		super.setLastEntered(node);
 	}
@@ -172,15 +161,17 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		// if I get this twice, show the full view.
 		if (this.lastChainView == lastChainView) {
 			PActivity a = lastChainView.showFullView(true);
-			a.setDelegate(new PActivityDelegate() {
-				public void activityStarted(PActivity activity) {
-				}
-				public void activityStepped(PActivity activity) {
-				}
-				public void activityFinished(PActivity activity) {
-					animateToLastChainView();				
-				}
-			});
+			if (a != null) {
+				a.setDelegate(new PActivityDelegate() {
+					public void activityStarted(PActivity activity) {
+					}
+					public void activityStepped(PActivity activity) {
+					}
+					public void activityFinished(PActivity activity) {
+						animateToLastChainView();				
+					}
+				});
+			}
 		}
 		this.lastChainView = lastChainView;
 	}
@@ -192,10 +183,9 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void hideLastChainView() {
-		if (lastChainView != null) {	
+		if (lastChainView != null) {
 			lastChainView.hide(); 
 		}
-		//lastChainView = null;
 	}
 }
 
