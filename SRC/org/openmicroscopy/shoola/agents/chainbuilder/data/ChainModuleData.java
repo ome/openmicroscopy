@@ -111,9 +111,11 @@ public class ChainModuleData  extends ModuleData
 		
 		for  (int i = 0; i < widgets.size(); i++) {
 			m = (ModuleView) widgets.get(i);
-			m.setHighlighted(v);
-			if (v == false)
-				m.setParamsHighlighted(v);
+			m.setParamsHighlighted(v);
+			if (v == false) {
+				m.showOverview();
+				//m.setParamsHighlighted(v);
+			}
 		}
 		if (mainWindow != null) {
 			if (v == true)
