@@ -230,6 +230,7 @@ public class ImageMapper
 		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
 		if (px.getImageServerID() != null)
 			pxd.setImageServerID((px.getImageServerID()).intValue());
+        pxd.setPixels(px);
 		pixels.add(pxd);
 		return pixels;
 	}

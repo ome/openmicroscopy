@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
+import org.openmicroscopy.ds.st.Pixels;
+
 //Java imports
 
 //Third-party libraries
@@ -54,7 +56,7 @@ public class PixelsDescription
 {
 	/** Attribute_id in DB. */
 	private int		id;
-	private int		imageServerID;
+	private long	imageServerID;
 	private int 	sizeX;
 	private int 	sizeY;
 	private int 	sizeZ;
@@ -62,10 +64,41 @@ public class PixelsDescription
 	private int 	sizeT;
 	private int 	bitsPerPixel;
 	private String	imageServerURL;
+    
+    private Pixels  backingPixels;
 	
 	public PixelsDescription() {}
+    
+    /**
+     * Easier constructor for creating a description from a Pixels
+     * attribute, given that the Pixels attribute has been completely
+     * filled out when extracting a DB call.
+     * @param pixels The Pixels attribute to base this description from.
+     */
+    public PixelsDescription(Pixels pixels)
+    {
+        if(pixels == null)
+        {
+            throw new IllegalArgumentException("Null pixels parameter");
+        }
+        
+        this.id = pixels.getID();
+        this.imageServerID = pixels.getImageServerID().longValue();
+        this.sizeX = pixels.getSizeX().intValue();
+        this.sizeY = pixels.getSizeY().intValue();
+        this.sizeZ = pixels.getSizeZ().intValue();
+        this.sizeC = pixels.getSizeC().intValue();
+        this.sizeT = pixels.getSizeT().intValue();
+        this.bitsPerPixel = pixels.getBitsPerPixel().intValue();
+        this.imageServerURL = pixels.getRepository().getImageServerURL();
+        this.backingPixels = pixels;
+    }
 	
-	public PixelsDescription(int id, int imageServerID, int sizeX, int sizeY, 
+    /**
+     * (Old) constructor-- does not specify the Pixels attribute (bad, but
+     * maybe required for some old code not to break)
+     */
+	public PixelsDescription(int id, long imageServerID, int sizeX, int sizeY, 
 							int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
 							String imageServerURL)
 	{
@@ -79,6 +112,30 @@ public class PixelsDescription
 		this.bitsPerPixel = bitsPerPixel;
 		this.imageServerURL = imageServerURL;	
 	}
+    
+    /**
+     * New default constructor-- specifies the Pixels attribute so that
+     * getPixels() behaves correctly.
+     * 
+     * @param id
+     * @param imageServerID
+     * @param sizeX
+     * @param sizeY
+     * @param sizeZ
+     * @param sizeC
+     * @param sizeT
+     * @param bitsPerPixel
+     * @param imageServerURL
+     * @param pixels
+     */
+    public PixelsDescription(int id, long imageServerID, int sizeX, int sizeY,
+                             int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
+                             String imageServerURL, Pixels pixels)
+    {
+        this(id,imageServerID,sizeX,sizeY,sizeZ,sizeC,sizeT,bitsPerPixel,
+             imageServerURL);
+        this.backingPixels = pixels;
+    }
 	
 	/** Required by the DataObject interface. */
 	public DataObject makeNew()
@@ -166,14 +223,27 @@ public class PixelsDescription
 		this.id = id;
 	}
 
-	public int getImageServerID()
+	public long getImageServerID()
 	{
 		return imageServerID;
 	}
 
-	public void setImageServerID(int imageServerID)
+	public void setImageServerID(long imageServerID)
 	{
 		this.imageServerID = imageServerID;
 	}
+    
+    public Pixels getPixels()
+    {
+        return backingPixels;
+    }
+    
+    public void setPixels(Pixels pixels)
+    {
+        if(pixels != null)
+        {
+            this.backingPixels = pixels;
+        }
+    }
 
 }
