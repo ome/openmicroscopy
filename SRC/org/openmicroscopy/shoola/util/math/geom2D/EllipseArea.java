@@ -42,7 +42,7 @@ import java.awt.geom.Rectangle2D;
 import org.openmicroscopy.shoola.util.mem.Handle;
 
 /** 
- * Represents an ellipse in Euclidean space <b>R</b><sup>2</sup>.
+ * Represents an ellipse in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,8 +69,7 @@ public class EllipseArea
     public void setBounds(int x, int y, int width, int height)
     {
         breakSharing();
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        adapter.setBounds(x, y, width, height);
+        ((EllipseAreaAdapter) getBody()).setBounds(x, y, width, height);
     }
 
     /** Implemented as specified in the {@link PlaneArea} I/F. */
@@ -86,28 +85,25 @@ public class EllipseArea
     /** Implemented as specified in the {@link PlaneArea} I/F. */
     public PlanePoint[] getPoints()
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.getPoints();
+        return ((EllipseAreaAdapter) getBody()).getPoints();
     }
 
+    /** Implemented as specified in the {@link PlaneArea} I/F. */
     public boolean onBoundaries(double x, double y)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.onBoundaries(x, y);
+        return ((EllipseAreaAdapter) getBody()).onBoundaries(x, y);
     }
     
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.contains(x, y);
+        return ((EllipseAreaAdapter) getBody()).contains(x, y);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y, double w, double h)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.contains(x, y, w, h);
+        return ((EllipseAreaAdapter) getBody()).contains(x, y, w, h);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
@@ -120,50 +116,43 @@ public class EllipseArea
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public Rectangle getBounds()
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.getBounds();
+        return ((EllipseAreaAdapter) getBody()).getBounds();
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(Point2D p)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.contains(p);
+        return ((EllipseAreaAdapter) getBody()).contains(p);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public Rectangle2D getBounds2D()
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.getBounds2D();
+        return ((EllipseAreaAdapter) getBody()).getBounds2D();
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(Rectangle2D r)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.contains(r);
+        return ((EllipseAreaAdapter) getBody()).contains(r);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean intersects(Rectangle2D r)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.intersects(r);
+        return ((EllipseAreaAdapter) getBody()).intersects(r);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public PathIterator getPathIterator(AffineTransform at)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.getPathIterator(at);
+        return ((EllipseAreaAdapter) getBody()).getPathIterator(at);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public PathIterator getPathIterator(AffineTransform at, double flatness)
     {
-        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
-        return adapter.getPathIterator(at, flatness);
+        return ((EllipseAreaAdapter) getBody()).getPathIterator(at, flatness);
     }
 
 }

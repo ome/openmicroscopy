@@ -126,12 +126,10 @@ public class ROIAgt
     /** Image currently displayed in the viewer. */
     private BufferedImage           imageOnScreen;
     
-    /** current z-section and timepoint. */
+    /** Current z-section and timepoint. */
     private int                     curZ, curT;
     
-    private Map                     roiResults;
-    
-    private Map                     channelsMap;
+    private Map                     roiResults, channelsMap;
     
     /** Implemented as specified by {@link Agent}. */
     public void activate() {}
@@ -143,6 +141,7 @@ public class ROIAgt
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        //Initializes and sets the default.
         curImageID = -1;
         magFactor = 1;
         curZ = curT = -1;
@@ -182,8 +181,10 @@ public class ROIAgt
             handleDisplayViewerRelatedAgents((DisplayViewerRelatedAgent) e);
     }
 
+    /** Return reference to the {@link Registry}. */
     Registry getRegistry() { return registry; }
     
+    /** Return an array with wavelength values. */
     String[] getChannels() { return channels; }
     
     List getListScreenROI() { return listScreenROI; }
@@ -211,7 +212,7 @@ public class ROIAgt
     
     BufferedImage getImageOnScreen() { return imageOnScreen; }
     
-    /** Post an event to close the ROI widget. */
+    /** Post an event to remove the ROICanvas from the Viewer layer. */
     void removeDrawingCanvas()
     {
         registry.getEventBus().post(new AddROICanvas(false));
@@ -247,31 +248,6 @@ public class ROIAgt
         }
     }
 
-    private ROI5D createROI5DElement(ScreenROI roi, List selectedChannels)
-    {
-        ROI5D roi5D = new ROI5D(channels.length);
-        Iterator i = selectedChannels.iterator();
-        int channel;
-        while (i.hasNext()) {
-            channel = ((Integer) i.next()).intValue();
-            roi5D.setChannel(roi.getLogicalROI(), channel);
-        }
-        return roi5D;
-    }
-    
-    private void createAnalyzedChannels(List l)
-    {
-        analyzedChannels = new String[l.size()];
-        Iterator i = l.iterator();
-        int index;
-        int c = 0;
-        while (i.hasNext()) {
-            index = ((Integer) i.next()).intValue();
-            analyzedChannels[c] = channels[index];
-            channelsMap.put(new Integer(c), new Integer(index));
-            c++;
-        }
-    }
     /** Display the annotation in the viewer. */
     void displayROIDescription(int roiIndex)
     {
@@ -595,4 +571,34 @@ public class ROIAgt
         presentation = null;
     }
     
+
+    /** 
+     * Create an {@link ROI5D} object.
+     * 
+     * @param roi   corresponding GUI 4D-object.
+     * @param selectedChannels list of channels.
+     *  */
+    private ROI5D createROI5DElement(ScreenROI roi, List selectedChannels)
+    {
+        ROI5D roi5D = new ROI5D(channels.length);
+        Iterator i = selectedChannels.iterator();
+        while (i.hasNext()) 
+            roi5D.setChannel(roi.getLogicalROI(), 
+                            ((Integer) i.next()).intValue());
+        return roi5D;
+    }
+    
+    private void createAnalyzedChannels(List l)
+    {
+        analyzedChannels = new String[l.size()];
+        Iterator i = l.iterator();
+        Integer index;
+        int c = 0;
+        while (i.hasNext()) {
+            index = (Integer) i.next();
+            analyzedChannels[c] = channels[index.intValue()];
+            channelsMap.put(new Integer(c), index);
+            c++;
+        }
+    }
 }

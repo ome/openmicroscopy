@@ -99,18 +99,16 @@ public class ROI4D
         return (ROI3D) get(t);
     }
     
-    public void setStack(ROI3D stackROI, int t)
-    {
-        set(stackROI, t);
-    }
+    /** Set the element i.e. {@link ROI3D} at the specified timepoint. */
+    public void setStack(ROI3D stackROI, int t) { set(stackROI, t); }
     
     /** 
-     * Return the {@link PlaneArea leaf} at the specified positioned in the 
+     * Return the {@link PlaneArea leaf} at the specified position in the 
      * hierarchy.
      * 
      * @param z         specified z-section.
      * @param t         speficied timepoint.         
-     * @return
+     * @return          See above.
      */
     public PlaneArea getPlaneArea(int z, int t)
     {
@@ -120,7 +118,7 @@ public class ROI4D
     }
     
     /** 
-     * Replaces the {@link PlaneArea leaf} at the specified positioned with
+     * Replaces the {@link PlaneArea leaf} at the specified position with
      * the specified element.
      *  
      * @param pa        new {@link PlaneArea}.

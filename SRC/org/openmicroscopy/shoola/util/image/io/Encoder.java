@@ -40,7 +40,7 @@ import java.io.IOException;
 //Application-internal dependencies
 
 /** 
- * 
+ * Encoder interface. Each specific encoder must implement this I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

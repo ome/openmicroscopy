@@ -73,7 +73,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
  * @since OME2.2
  */
 public class Viewer
-implements Agent, AgentEventListener
+    implements Agent, AgentEventListener
 {
     
     /** Reference to the {@link Registry}. */

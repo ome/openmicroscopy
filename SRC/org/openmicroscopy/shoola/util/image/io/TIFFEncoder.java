@@ -107,9 +107,8 @@ public class TIFFEncoder
 		samplesPerPixel = 1;
 		nEntries = 12;
 		photoInterp = 1;
-		ifdSize = 6 + nEntries*12;
+		ifdSize = 6+nEntries*12;
 		int bytesPerPixel = 1;
-		
 		if (colorType  == ColorSpace.TYPE_RGB) {
 			photoInterp = 2;
 			samplesPerPixel = 3;
@@ -157,10 +156,9 @@ public class TIFFEncoder
 		if (colorType == ColorSpace.TYPE_RGB) {
 			writeEntry(TIFFEncoderCst.BITS_PER_SAMPLE,  3, 3, tagDataOffset);
 			tagDataOffset += TIFFEncoderCst.BPS_DATA_SIZE;
-		} else {
+		} else
 			writeEntry(TIFFEncoderCst.BITS_PER_SAMPLE,  3, 1, bitsPerSample);
-		}
-			
+
 		writeEntry(TIFFEncoderCst.PHOTO_INTERP, 3, 1, photoInterp);
 		writeEntry(TIFFEncoderCst.STRIP_OFFSETS, 4, 1,
 					TIFFEncoderCst.IMAGE_START);
@@ -168,7 +166,7 @@ public class TIFFEncoder
 		writeEntry(TIFFEncoderCst.ROWS_PER_STRIP,   3, 1, imageHeight);
 		writeEntry(TIFFEncoderCst.STRIP_BYTE_COUNT, 4, 1, imageSize);
 		
-		/** X resolution info, Y resolution info.. */
+		//X resolution info, Y resolution info.. 
 		writeEntry(TIFFEncoderCst.X_RESOLUTION, 5, 1, tagDataOffset);
 		writeEntry(TIFFEncoderCst.Y_RESOLUTION, 5, 1, tagDataOffset+8);
 		int unit = 2;	//TODO: support all unit
@@ -220,7 +218,6 @@ public class TIFFEncoder
 		writeColorMap(red, green, blue);
 	}    
 	
-	
 	/** Write color palette following the image. */
 	private void writeColorMap(byte[] red, byte[] green, byte[] blue)
 		throws IOException
@@ -244,12 +241,11 @@ public class TIFFEncoder
         double xscale = 1.0/imageWidth;
         double yscale = 1.0/imageHeight;
         double scale = 1000000.0;
-        if (xscale>1000.0) scale = 1000.0;
+        if (xscale > 1000.0) scale = 1000.0;
         output.writeInt((int)(xscale*scale));
         output.writeInt((int)scale);
         output.writeInt((int)(yscale*scale));
         output.writeInt((int)scale);
-    
     }
     
 }

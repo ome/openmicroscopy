@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.util.math;
 //Application-internal dependencies
 
 /** 
- *
+ * Utility class. Collection of static methods.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,8 +54,7 @@ public class Approximation
 
 	/** 
 	 * Returns the nearest integer e.g. 
-	 * 1.2 returns 1, 
-	 * 1.6 returns 2.
+	 * 1.2 returns 1, 1.6 returns 2.
 	 */
 	public static double nearestInteger(double v)
 	{

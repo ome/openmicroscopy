@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.util.math.geom2D;
 //Application-internal dependencies
 
 /** 
- * Represents a point in Euclidean space <b>R</b><sup>2</sup>.
+ * Represents a point in the Euclidean space <b>R</b><sup>2</sup>.
  * <p>Because this space is built on the vector space <b>R</b><sup>2</sup>, any
  * instance of this class also represents a vector in <b>R</b><sup>2</sup>.
  * Moreover, unless otherwise stated, we assume the orthonormal frame 
@@ -63,8 +63,7 @@ public class PlanePoint
     
     /** The second element. */
     public final double     x2;
-    
-    
+     
     /**
      * Creates a new instance.
      * 
@@ -104,7 +103,7 @@ public class PlanePoint
      * This is the standard sum of two vectors in the <b>R</b><sup>2</sup>
      * group and is given by the sum of their components.
      * 
-     * @param vec   The other vector.  Mustn't be a <code>null</code> reference.
+     * @param vec   The other vector. Mustn't be a <code>null</code> reference.
      * @return  The sum of this vector with <code>vec</code>.
      */
     public PlanePoint sum(PlanePoint vec)
@@ -117,13 +116,13 @@ public class PlanePoint
      * Calculates the sum of this vector with the reciprocal of the specified 
      * argument.
      * The sum is the standard sum of two vectors in the <b>R</b><sup>2</sup>
-     * group &#151; the sum of their components.  Under this sum, the reciprocal
+     * group &#151; the sum of their components. Under this sum, the reciprocal
      * of an element <nobr><i>v=(x<sub>1</sub>, x<sub>2</sub>)</i></nobr> of
      * <b>R</b><sup>2</sup> is given by
      * <nobr><i>-v=(-x<sub>1</sub>, -x<sub>2</sub>)</i></nobr>.
      * 
-     * @param vec   The other vector.  Mustn't be a <code>null</code> reference.
-     * @return  The sum of this vector with <code>-vec</code>.
+     * @param vec   The other vector. Mustn't be a <code>null</code> reference.
+     * @return      The sum of this vector with <code>-vec</code>.
      */
     public PlanePoint diff(PlanePoint vec)
     {
@@ -141,10 +140,7 @@ public class PlanePoint
      * @return  The vector obtained by multiplying this vector by 
      *          <code>k</code>.
      */
-    public PlanePoint scalar(double k)
-    {
-        return new PlanePoint(k*x1, k*x2);
-    }
+    public PlanePoint scalar(double k) { return new PlanePoint(k*x1, k*x2); }
     
     /**
      * Calculates the vector associated to this point and the specified 
@@ -159,7 +155,7 @@ public class PlanePoint
      * This method returns <nobr><i>f(t, p)</i></nobr>, where <i>t</i> is this
      * point and <i>p</i> is the specified argument.
      * 
-     * @param p The other point.  Mustn't be a <code>null</code> reference.
+     * @param p The other point. Mustn't be a <code>null</code> reference.
      * @return  The vector associated to this point and <i>p</i>.
      */
     public PlanePoint vec(PlanePoint p)
@@ -188,16 +184,13 @@ public class PlanePoint
     }
     
     /**
-     * Calculates the norm of this vector.
+     * Calculates the Euclidian norm of this vector.
      * That is, the square root of the {@link #dot(Point) dot} product of this
      * vector by itself.
      * 
      * @return  The norm of this vector.
      */
-    public double norm()
-    {
-        return Math.sqrt(dot(this));
-    }
+    public double norm() { return Math.sqrt(dot(this)); }
     
     /**
      * Calculates the unit vector of this vector, provided this is not the
@@ -225,10 +218,10 @@ public class PlanePoint
      * <nobr>acos(<i>v<b>.</b>w</i> / ||<i>v</i>||*||<i>w</i>||)</nobr>.
      * If any of the two vectors is the null vector we throw an exception.
      * 
-     * @param vec   The other vector.  Mustn't be a <code>null</code> reference
+     * @param vec   The other vector. Mustn't be a <code>null</code> reference
      *              and mustn't be the null vector.
-     * @return  The angle between this vector and <code>vec</code>, in the
-     *          range of <code>0</code> through <code>pi</code>.
+     * @return      The angle between this vector and <code>vec</code>, in the
+     *              range of <code>0</code> through <code>pi</code>.
      * @throws IllegalArgumentException If this vector or <code>vec</code> or
      *                                  both are the null vector.
      */
@@ -239,7 +232,7 @@ public class PlanePoint
         if (thisNorm == 0 || vecNorm == 0)
             throw new IllegalArgumentException(
             "The angle is not defined for a null vector.");       
-        return Math.acos(dotPrd / (thisNorm*vecNorm));
+        return Math.acos(dotPrd/(thisNorm*vecNorm));
     }
     
     /**
@@ -263,7 +256,7 @@ public class PlanePoint
     public int hashCode() 
     {
         long bits = Double.doubleToLongBits(x1);
-        bits ^= Double.doubleToLongBits(x2) * 31;
+        bits ^= Double.doubleToLongBits(x2)*31;
         return (((int) bits) ^ ((int) (bits >> 32)));
     }
     

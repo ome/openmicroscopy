@@ -42,7 +42,7 @@ import java.awt.geom.Rectangle2D;
 import org.openmicroscopy.shoola.util.mem.Handle;
 
 /** 
- * Represents an rectangle in Euclidean space <b>R</b><sup>2</sup>.
+ * Represents a rectangle in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -83,8 +83,7 @@ public class RectangleArea
     public void setBounds(int x, int y, int width, int height)
     {
         breakSharing();
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        adapter.setBounds(x, y, width, height);
+        ((RectangleAreaAdapter) getBody()).setBounds(x, y, width, height);
     }
 
     /** Implemented as specified in the {@link PlaneArea} I/F. */
@@ -100,85 +99,73 @@ public class RectangleArea
     /** Implemented as specified in the {@link PlaneArea} I/F. */
     public PlanePoint[] getPoints()
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();;
-        return adapter.getPoints();
+        return ((RectangleAreaAdapter) getBody()).getPoints();
     }
 
     /** Implemented as specified in the {@link PlaneArea} I/F. */
     public boolean onBoundaries(double x, double y)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();;
-        return adapter.onBoundaries(x, y);
+        return ((RectangleAreaAdapter) getBody()).onBoundaries(x, y);
     }
     
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.contains(x, y);
+        return ((RectangleAreaAdapter) getBody()).contains(x, y);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y, double w, double h)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.contains(x, y, w, h);
+        return ((RectangleAreaAdapter) getBody()).contains(x, y, w, h);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean intersects(double x, double y, double w, double h)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.intersects(x, y, w, h);
+        return ((RectangleAreaAdapter) getBody()).intersects(x, y, w, h);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public Rectangle getBounds()
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.getBounds();
+        return ((RectangleAreaAdapter) getBody()).getBounds();
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(Point2D p)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.contains(p);
+        return ((RectangleAreaAdapter) getBody()).contains(p);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public Rectangle2D getBounds2D()
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.getBounds2D();
+        return ((RectangleAreaAdapter) getBody()).getBounds2D();
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(Rectangle2D r)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.contains(r);
+        return ((RectangleAreaAdapter) getBody()).contains(r);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean intersects(Rectangle2D r)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.intersects(r);
+        return ((RectangleAreaAdapter) getBody()).intersects(r);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public PathIterator getPathIterator(AffineTransform at)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.getPathIterator(at);
+        return ((RectangleAreaAdapter) getBody()).getPathIterator(at);
     }
 
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public PathIterator getPathIterator(AffineTransform at, double flatness)
     {
-        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();
-        return adapter.getPathIterator(at, flatness);
+        return ((RectangleAreaAdapter) getBody()).getPathIterator(at, flatness);
     }
 
 }

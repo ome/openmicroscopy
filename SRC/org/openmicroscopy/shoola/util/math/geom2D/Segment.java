@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.util.math.geom2D;
 //Application-internal dependencies
 
 /** 
- * 
+ * A segment in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,14 +53,10 @@ package org.openmicroscopy.shoola.util.math.geom2D;
 public class Segment
 {
     
-    /**
-     * The origin point of the segment. 
-     */
+    /** The origin point of the segment. */
     public final PlanePoint  origin;
     
-    /**
-     * The end point of the segment.
-     */
+    /** The end point of the segment. */
     public final PlanePoint  direction;
     
     public Segment(PlanePoint o, PlanePoint e)
@@ -88,13 +84,13 @@ public class Segment
             throw new IllegalArgumentException("Coefficient must be in the " +
                     "range [0, 1].");
         return new PlanePoint(origin.x1 + k*direction.x1, 
-                        origin.x2 + k*direction.x2);
+                                origin.x2 + k*direction.x2);
     }
     
     /**
      * Tells whether the specified point lies on this line.
      * 
-     * @param p The point to test.  Mustn't be <code>null</code>.
+     * @param p The point to test. Mustn't be <code>null</code>.
      * @return  <code>true</code> if <code>p</code> lies on this line,
      *          <code>false</code> otherwise.
      */
@@ -129,8 +125,7 @@ public class Segment
     public boolean equals(Object o)
     {
         boolean isEqual = false;
-        if (o != null && o instanceof Line)
-        {
+        if (o != null && o instanceof Line) {
             Line other = (Line) o;
             isEqual = (origin == other.origin && direction == other.direction);
         }
@@ -141,9 +136,6 @@ public class Segment
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
      */
-    public int hashCode() 
-    {
-        return origin.hashCode();
-    }
+    public int hashCode() { return origin.hashCode(); }
     
 }

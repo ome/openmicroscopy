@@ -65,14 +65,14 @@ public interface PlaneArea
     
     /** 
      * Resets the bounding <code>Rectangle</code> of the planeArea
-     * according to the specified factor.
+     * according to the specified scaling factor.
      */
     public void scale(double factor);
     
     /** Return an array of {@link PlanePoint} contained in the PlaneArea. */
     public PlanePoint[] getPoints();
     
-    /** Tests if a specified point is on the boundary of the PlaneArea. */
+    /** Checks if a specified point belongs to the boundary of the PlaneArea. */
     public boolean onBoundaries(double x, double y);
     
 }

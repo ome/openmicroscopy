@@ -100,26 +100,29 @@ public class ROI5D
         super.set(roi4D, channel);
     }
    
-    /** Set an element of the correct type i.e. {@link ROI4D}. */
+    /** 
+     * Set an element of the correct type i.e. {@link ROI4D} 
+     * at the specified channel. 
+     * 
+     * @param stackAcrossTimeROI    {@link ROI4D} objet.
+     * @param channel               specified channel.             
+     * */
     public void setChannel(ROI4D stackAcrossTimeROI, int channel)
     {
         set(stackAcrossTimeROI, channel);
     }
     
     /** Return an element of the correct type i.e. {@link ROI4D}. */
-    public ROI4D getChannel(int channel) 
-    {
-        return (ROI4D) get(channel);
-    }
+    public ROI4D getChannel(int channel) { return (ROI4D) get(channel); }
     
     /** 
-     * Return the {@link PlaneArea leaf} at the specified positioned in the 
+     * Return the {@link PlaneArea leaf} at the specified position in the 
      * hierarchy.
      * 
      * @param z         specified z-section.
      * @param t         speficied timepoint.         
      * @param channel   specified channel.
-     * @return
+     * @return See above.
      */
     public PlaneArea getPlaneArea(int z, int t, int channel)
     {

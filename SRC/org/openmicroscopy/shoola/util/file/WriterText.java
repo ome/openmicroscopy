@@ -66,7 +66,7 @@ public class WriterText
     private static final String VALUE = "value";
     
     //TODO: MUST BE ASCII/CRLF= 0x0D 0x0A
-    private static final String RECORD_SEPARATOR = ""; 
+    //private static final String RECORD_SEPARATOR = ""; 
     
     /** Save the content of a table as a text file. */
     public static void writeTableAsText(File f, AbstractTableModel table)
@@ -85,8 +85,9 @@ public class WriterText
         output.write(s);
         output.newLine();
         s = "";
-        for (int i = 0; i < table.getRowCount(); i++) {
-            for (int j = 0; j < col; j++) {
+        int i, j;
+        for (i = 0; i < table.getRowCount(); i++) {
+            for (j = 0; j < col; j++) {
                 if (j < col-1) tail = ",";
                 s += table.getValueAt(i, j)+tail;
                 tail = "";
@@ -123,11 +124,12 @@ public class WriterText
         HashMap rowAttributes = new HashMap(), 
                 columnAttributes = new HashMap();
         String key = VALUE;
-        for (int i = 0; i < table.getRowCount(); i++) {
+        int i, j;
+        for (i = 0; i < table.getRowCount(); i++) {
             rowAttributes.put(NUMBER, ""+i);
             output.write(writeOpenTag(ROW, rowAttributes, false));
             output.newLine();
-            for (int j = 0; j < table.getColumnCount(); j++) {
+            for (j = 0; j < table.getColumnCount(); j++) {
                 columnAttributes.put(NUMBER, ""+j);
                 if (table.getColumnName(j) != null) 
                     key = table.getColumnName(j);
@@ -145,8 +147,7 @@ public class WriterText
     private static String writeOpenTag(String tagName, HashMap attributes, 
                                         boolean emptyTag)
     {
-        String tag;
-        tag = "<"+tagName;
+        String tag = "<"+tagName;
         if (attributes != null) {
             Iterator i = attributes.keySet().iterator();
             String key, value;
@@ -156,16 +157,14 @@ public class WriterText
                 tag+= " "+key+"=\""+value+"\"";
             }
         }
-        if (emptyTag) tag +="/>";
-        else tag +=">";
+        if (emptyTag) tag += "/>";
+        else tag += ">";
         return tag;
     }
     
     private static String writeCloseTag(String tagName)
     {
-        String tag;
-        tag = "</"+tagName+">";
-        return tag;
+        return "</"+tagName+">";
     }
     
 }

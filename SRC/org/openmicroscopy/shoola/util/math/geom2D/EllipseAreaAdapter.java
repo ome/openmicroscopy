@@ -80,8 +80,9 @@ class EllipseAreaAdapter
         Rectangle r = getBounds();
         ArrayList vector = new ArrayList(r.height*r.width);
         int xEnd = r.x+r.width, yEnd = r.y+r.height;
-        for (int y = r.y; y < yEnd; ++y) 
-            for (int x = r.x; x < xEnd; ++x) 
+        int x, y;
+        for (y = r.y; y < yEnd; ++y) 
+            for (x = r.x; x < xEnd; ++x) 
                 if (contains(x, y)) vector.add(new PlanePoint(x, y));
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
@@ -94,12 +95,11 @@ class EllipseAreaAdapter
 
     /** 
      * Implemented as specified in the {@link PlaneArea} I/F. 
-     * Remind that the equation of an ellipse is given by
+     * The equation of an ellipse is of the form
      * <p>
      * ((x-x0)/a)^2+((y-y0)/b)^2 = 1
      * </p>
-     * where, in this case, a = getWidth()/2 , b = getHeight()/2
-     * x0 = getX()+a, y0 = getY()+b.
+     * where a = getWidth()/2, b = getHeight()/2, x0 = getX()+a, y0 = getY()+b.
      * 
      * */
     public boolean onBoundaries(double x, double y)
@@ -116,9 +116,6 @@ class EllipseAreaAdapter
      * Implemented as specified in the 
      * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
      */
-    public Object copy()
-    {
-        return super.clone();
-    }
+    public Object copy() { return super.clone(); }
     
 }

@@ -45,7 +45,8 @@ import java.awt.image.RescaleOp;
 //Application-internal dependencies
 
 /** 
- * 
+ * Apply some basic filtering methods and affine transfromations
+ * to a {@link BufferedImage}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,8 +61,7 @@ import java.awt.image.RescaleOp;
  */
 public class Factory
 {
-    
-    
+        
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
             0.f, -1.f,  0.f,
@@ -79,9 +79,9 @@ public class Factory
      * 
      * @param img       BufferedImage to zoom in or out.
      * @param level     magnification factor.
-     * @param at        Affine transform
+     * @param at        Affine transformation.
      * @param w         extra space, necessary b/c of the lens option.         
-     * @return          The zoomed bufferedImage.
+     * @return          The zoomed BufferedImage.
      */
     public static BufferedImage magnifyImage(BufferedImage img, double level, 
                                         AffineTransform at, int w)

@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.util.math.geom2D;
 //Application-internal dependencies
 
 /** 
- * An orientated line in Euclidean space <b>R</b><sup>2</sup>.
+ * An orientated line in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,16 +68,15 @@ public class Line
      * line.
      */
     public final PlanePoint  direction;
-    
-    
+       
     /**
      * Creates a new object to represent the line passing through the 
      * <code>o</code> and <code>p</code> points.
      * The <code>o</code> point is taken to define the origin of the line
      * and the direction is defined by the <i>op</i> vector.  
      * 
-     * @param o The origin of the line.  Mustn't be <code>null</code>.
-     * @param p A point of the line.  Mustn't be <code>null</code> nor the same
+     * @param o The origin of the line. Mustn't be <code>null</code>.
+     * @param p A point of the line. Mustn't be <code>null</code> nor the same
      *          as <code>o</code>.
      */
     public Line(PlanePoint o, PlanePoint p)
@@ -97,10 +96,10 @@ public class Line
      * and head of the vector <i>pq</i> that is taken to define the direction
      * of the line.  
      * 
-     * @param p Tail of a vector.  Mustn't be <code>null</code>.
-     * @param q Head of a vector.  Mustn't be <code>null</code> nor the same
+     * @param p Tail of a vector. Mustn't be <code>null</code>.
+     * @param q Head of a vector. Mustn't be <code>null</code> nor the same
      *          as <code>q</code>.
-     * @param o The origin of the line.  Mustn't be <code>null</code>.
+     * @param o The origin of the line. Mustn't be <code>null</code>.
      */
     public Line(PlanePoint p, PlanePoint q, PlanePoint o)
     {
@@ -123,16 +122,14 @@ public class Line
      */
     public PlanePoint getPoint(double k)
     {
-        return new PlanePoint(
-                origin.x1 + k*direction.x1,
-                origin.x2 + k*direction.x2
-                );
+        return new PlanePoint(origin.x1 + k*direction.x1,
+                                origin.x2 + k*direction.x2);
     }
     
     /**
      * Tells whether the specified point lies on this line.
      * 
-     * @param p The point to test.  Mustn't be <code>null</code>.
+     * @param p The point to test. Mustn't be <code>null</code>.
      * @return  <code>true</code> if <code>p</code> lies on this line,
      *          <code>false</code> otherwise.
      */
@@ -150,15 +147,15 @@ public class Line
      * Tells whether the specified point lies on this line and within the
      * specified orientation.
      * The <code>positiveOrientation</code> parameter is used to specify which
-     * side (with respect to the {@link #origin}) of the line to check.  If
+     * side (with respect to the {@link #origin}) of the line to check. If
      * <code>true</code>, then we check to see whether <code>p</code> falls on
      * the half line that has the same orientation as the {@link #direction}
      * unit vector &#151; this also includes the {@link #origin}.  
      * If <code>false</code>, we check to see whether <code>p</code> falls on 
      * the opposite half line. 
      * 
-     * @param p The point to test.  Mustn't be <code>null</code>.
-     * @param positiveOrientation   <code>true</code> for the positive 
+     * @param p The point to test. Mustn't be <code>null</code>.
+     * @param positiveOrientation  <code>true</code> for the positive 
      *                              orientation, <code>false</code> for the
      *                              strictly negative orientation.
      * @return  <code>true</code> if <code>p</code> lies on this line,
@@ -181,8 +178,7 @@ public class Line
     public boolean equals(Object o)
     {
         boolean isEqual = false;
-        if (o != null && o instanceof Line)
-        {
+        if (o != null && o instanceof Line) {
             Line other = (Line) o;
             isEqual = (origin == other.origin && direction == other.direction);
         }
@@ -193,9 +189,6 @@ public class Line
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
      */
-    public int hashCode() 
-    {
-        return origin.hashCode();
-    }
+    public int hashCode() { return origin.hashCode(); }
     
 }

@@ -77,15 +77,10 @@ public class ROI3D
      * 
      * @param size number of elements in the array.
      */
-    protected CopiableArray makeNew(int size)
-    {
-        return new ROI3D(size);
-    }
+    protected CopiableArray makeNew(int size) { return new ROI3D(size); }
 
-    public void setPlaneArea(PlaneArea pa, int z)
-    {
-        set(pa, z);
-    }
+    /** Set the {@link PlaneArea} at the specified z-section. */
+    public void setPlaneArea(PlaneArea pa, int z) { set(pa, z); }
     
     /** 
      * Overrides the {@link #set(Copiable, int)} method of 
@@ -100,10 +95,13 @@ public class ROI3D
         super.set(planeArea, z);
     }
     
-    /** Return an element of the correct type i.e. {@link PlaneArea}. */
-    public PlaneArea getPlaneArea(int z)
-    {
-        return (PlaneArea) get(z);
-    }
+    /** 
+     * Return an element of the correct type i.e. {@link PlaneArea} at the
+     * specified z-section.
+     * 
+     * @param z specified z-section.
+     * @return  See above.
+     */
+    public PlaneArea getPlaneArea(int z) { return (PlaneArea) get(z); }
     
 }

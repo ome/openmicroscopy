@@ -41,7 +41,7 @@ import java.io.IOException;
 //Application-internal dependencies
 
 /** 
- * 
+ * A bitmap encoder.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -119,15 +119,15 @@ public class BMPEncoder
 		byte[] green = bufferByte.getData(EncoderUtils.GREEN_BAND);
 		byte[] blue = bufferByte.getData(EncoderUtils.BLUE_BAND);
 		
-		int v;
-	  	for (int row = imageHeight; row > 0; row--) {
-			for (int col = 0; col < imageWidth; col++) {
-				v = (row-1)*imageWidth + col;
+		int i, v, row, col;
+	  	for (row = imageHeight; row > 0; row--) {
+			for (col = 0; col < imageWidth; col++) {
+				v = (row-1)*imageWidth+col;
 				output.write(blue[v]);
 				output.write(green[v]);
 		  		output.write(red[v]);				
 			}
-		   	for (int i = 1; i <= pad; i++) output.write(0x00);
+		   	for (i = 1; i <= pad; i++) output.write(0x00);
 	   }
 	}
 	

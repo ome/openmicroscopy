@@ -91,8 +91,9 @@ class RectangleAreaAdapter
         Rectangle r = getBounds();
         ArrayList vector = new ArrayList(r.height*r.width);
         int xEnd = r.x+r.width, yEnd = r.y+r.height;
-        for (int y = r.y; y < yEnd; ++y) 
-            for (int x = r.x; x < xEnd; ++x) 
+        int x, y;
+        for (y = r.y; y < yEnd; ++y) 
+            for (x = r.x; x < xEnd; ++x) 
                 if (contains(x, y)) vector.add(new PlanePoint(x, y));
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
@@ -112,9 +113,6 @@ class RectangleAreaAdapter
      * Implemented as specified in the 
      * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
      */
-    public Object copy()
-    {
-        return super.clone();
-    }
+    public Object copy() { return super.clone(); }
 
 }
