@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import javax.swing.JOptionPane;
 
 //Third-party libraries
 
@@ -55,11 +54,12 @@ public class UserNotifierImpl
 {
     
     private static final String     DEFAULT_ERROR_TITLE = "Error";
-    private static final String     DEFAULT_ERROR_SUMMARY = "An error occurred";    
+    private static final String     DEFAULT_ERROR_SUMMARY = "Sorry, an error " +
+    														"occurred";    
     private static final String     DEFAULT_INFO_TITLE = "Info";
     private static final String     DEFAULT_INFO_MESSAGE = "Message Info";
     private static final String     DEFAULT_WARNING_TITLE = "Warning";
-    private static final String     DEFAULT_WARNING_MESSAGE = "Message "; 
+    private static final String     DEFAULT_WARNING_MESSAGE = "Message Warning"; 
     private TopFrameImpl            topFrame;
     
     /** Creates a new instance of UserNotifierImpl. */
@@ -84,15 +84,16 @@ public class UserNotifierImpl
             buf.append(":\n\n");
             buf.append(d);
         }
-        // to be modified
-        JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
-                                                    JOptionPane.ERROR_MESSAGE);
+		showMessageDialog(title, buf.toString(), d, 
+						UserNotifierDialog.INFORMATION_MESSAGE);
     }
+    
 	/** Implemented as specified by {@link UserNotifier}. */     
     public void notifyError(String title, String summary)
     {
         notifyError(title, summary, null);
     }
+    
 	/** Implemented as specified by {@link UserNotifier}. */ 
     public void notifyInfo(String title, String message)
     {  
@@ -102,9 +103,8 @@ public class UserNotifierImpl
         if (message == null || message.length() == 0)   
             buf.append(DEFAULT_INFO_MESSAGE);
         else    buf.append(message);
-        // to be modified
-        JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
-                                        JOptionPane.INFORMATION_MESSAGE);
+		showMessageDialog(title, buf.toString(), 
+						UserNotifierDialog.INFORMATION_MESSAGE);
     }
     
 	/** Implemented as specified by {@link UserNotifier}. */ 
@@ -116,10 +116,39 @@ public class UserNotifierImpl
         if (message == null || message.length()==0)   
             buf.append(DEFAULT_WARNING_MESSAGE);
         else    buf.append(message);
-        // to be modified
-        JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
-                                        JOptionPane.WARNING_MESSAGE);
-    }    
-
-    
+        showMessageDialog(title, buf.toString(), 
+        				UserNotifierDialog.WARNING_MESSAGE);
+    }
+       
+	/**
+	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
+	 * summary, icon.
+	 * 
+	 * @param title			dialog window title.	
+	 * @param summary		message.
+	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
+	 */
+	private void showMessageDialog(String title, String summary, int iconID)
+	{	
+		new UserNotifierDialog(topFrame, title, summary, iconID);
+	}
+	
+	/**
+	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
+	 * summary, icon.
+	 * 
+	 * @param title			dialog window title.	
+	 * @param summary		message.
+	 * @param detail		message's details. 
+	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
+	 */
+	private void showMessageDialog(String title, String summary, 
+									String detail, int iconID)
+	{
+		if (detail == null) 
+			new UserNotifierDialog(topFrame, title, summary, iconID);
+		else	
+			new UserNotifierDialog(topFrame, title, summary, detail, iconID); 
+	}
+	
 }
