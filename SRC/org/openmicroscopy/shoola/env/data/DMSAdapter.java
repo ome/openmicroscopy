@@ -518,8 +518,11 @@ class DMSAdapter
 		if (foutProto == null)  foutProto = new FormalOutputData();
 		if (stProto == null)    stProto = new SemanticTypeData();
 		
+		//		Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
 		// Define the criteria by which the object graph is pulled out
-		Criteria c = AnalysisChainMapper.buildChainCriteria();
+		Criteria c = AnalysisChainMapper.buildChainsCriteria(uc.getUserID());
 	
 		// Load the graph defined by the criteria
 		List chains = (List) gateway.retrieveListData(AnalysisChain.class, c);

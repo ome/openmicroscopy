@@ -78,9 +78,15 @@ public class AnalysisChainMapper
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieving modules
 	 * 
-	 * @param userID	user ID.
 	 */
-	public static Criteria buildChainCriteria()
+	
+	public static Criteria buildChainsCriteria(int uid) {
+		Criteria c = buildChainsCriteria();
+		c.addFilter("owner_id", new Integer(uid));
+		return c;
+	}
+	
+	public static Criteria buildChainsCriteria()
 	{
 		Criteria criteria = new Criteria();
 	
@@ -124,11 +130,13 @@ public class AnalysisChainMapper
 		criteria.addWantedField("links.to_input.semantic_type","id");
 		criteria.addWantedField("links.from_output.semantic_type","name");
 		criteria.addWantedField("links.to_input.semantic_type","name"); 
+		
+		
 		return criteria;
 	}
 	
 	public static Criteria buildChainCriteria(int id) {
-		Criteria crit = buildChainCriteria();
+		Criteria crit = buildChainsCriteria();
 		crit.addFilter("id",new Integer(id));
 		return crit;
 	}
