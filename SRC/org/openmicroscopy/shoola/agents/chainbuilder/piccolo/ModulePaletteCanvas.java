@@ -214,15 +214,11 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	}
 	
 	public void completeInitialization() {
-		System.err.println("completing palette and zooming inn..");
-		scaleToSize();
-		main.configureTreeNode();
 	}
 	
 	public void scaleToSize() {
-		PBounds b = getBufferedBounds();
-		getCamera().animateViewToCenterBounds(b,true,0);	
-	
+		System.err.println("scaling module palette..");
+		handler.animateToCanvasBounds();
 	}
 	
 	/**

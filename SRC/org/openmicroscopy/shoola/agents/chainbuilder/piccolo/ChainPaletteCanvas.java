@@ -139,8 +139,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	 */
 	private DragSource dragSource;
 	
-//	private PExecutionList executionList;
-
+	/*** my event handler */
+	private ChainPaletteEventHandler handler;
+	
 	public ChainPaletteCanvas() {
 		super();
 		
@@ -241,21 +242,13 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 
 	public void completeInitialization() {
-		addInputEventListener(new ChainPaletteEventHandler(this));
-		scaleToSize();
+		handler = new ChainPaletteEventHandler(this); 
+		addInputEventListener(handler);
 	}
 	
-	/**
-	 * Animate the view to center on the  contents of this canvas.
-	 *
-	 */
 	public void scaleToSize() {
-		getCamera().animateViewToCenterBounds(getBufferedBounds(),true,0);
-	}
-	
-	public void animateToSize() {
-		getCamera().animateViewToCenterBounds(getBufferedBounds(),true,
-				PConstants.ANIMATION_DELAY);
+		System.err.println("chain palette canvas animating to bounds..");
+		handler.animateToCanvasBounds();
 	}
 
 	/**
