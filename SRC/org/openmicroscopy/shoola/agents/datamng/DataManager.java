@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
@@ -51,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -156,6 +156,43 @@ public class DataManager
     {
     	return presentation;
     }
+	
+	/**
+	 * Return the list of all image summaries that belong to the user
+	 * but which are not in the specified dataset.
+	 * 
+	 * @param projectID		id of the dataset.
+	 * @return
+	 */
+	List getImagesDiff(int projectID)
+	{
+		//TODO: remove test, have to figure out how to retrieve data via ds
+		List imagesDiff = new ArrayList();
+		ImageSummary d = new ImageSummary(101, "image 101", null);
+		imagesDiff.add(d);
+		d = d = new ImageSummary(102, "image 102", null);
+		imagesDiff.add(d);
+		return imagesDiff;
+	}
+	
+	
+	/**
+	 * Return the list of all dataset summaries that belong to the user
+	 * but which are not linked to the specified project.
+	 * 
+	 * @param projectID		if of the project.
+	 * @return
+	 */
+	List getDatasetsDiff(int projectID)
+	{
+		//TODO: remove test, have to figure out how to retrieve data via ds
+		List datasetsDiff = new ArrayList();
+		DatasetSummary d = new DatasetSummary(101, "test 101");
+		datasetsDiff.add(d);
+		d = new DatasetSummary(102, "test 102");
+		datasetsDiff.add(d);
+		return datasetsDiff;
+	}
 	
 	/**
 	 * Returns all projects which belong to the current user.

@@ -249,7 +249,7 @@ class DataManagerUIF
 	 *
 	 * @param   editor	The editor dialog.
 	 */
-	private void showPS(JDialog editor)
+	void showPS(JDialog editor)
 	{
 		//editor.pack();
 		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
