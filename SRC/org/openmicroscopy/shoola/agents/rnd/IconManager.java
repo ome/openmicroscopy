@@ -58,32 +58,44 @@ public class IconManager
 	/** Contains icon objects to be retrieved through the icon IDs. */
 	private Icon[]				icons;
 
+	/** ID of the OME logo icon. */
+	public static final int     OME = 0; 
+	
 	/** ID of the information icon. */
-	public static final int     INFO = 0;   
+	public static final int     INFO = 1;   
   
 	/** ID of the histogram icon. */
-	public static final int     HISTOGRAM = 1;
+	public static final int     HISTOGRAM = 2;
 	
 	/** ID of the contrast stretching icon. */
-	public static final int     STRETCHING = 2;
+	public static final int     STRETCHING = 3;
 	
 	/** ID of the plane slicing icon. */
-	public static final int     SLICING = 3;
+	public static final int     SLICING = 4;
+	
+	/** ID of the QuantumMapping icon. */
+	public static final int		QUANTUM = 5;
+	
+	/** ID of the Rendering Model icon. */
+	public static final int		MODEL	= 6;
 	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 4;
+	private static int          MAX_ID = 7;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
+		relPaths[OME] = "OME16.png";
 		relPaths[INFO] = "information16.png";
 		relPaths[HISTOGRAM] = "information16.png";
 		relPaths[STRETCHING] = "information16.png";
 		relPaths[SLICING] = "information16.png";
+		relPaths[QUANTUM] = "information16.png";
+		relPaths[MODEL] = "information16.png";
 	}
 	
 	/**
