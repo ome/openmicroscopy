@@ -115,7 +115,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			
 		// create datasets, etc here.
 		datasetBrowser = new DatasetBrowserCanvas(this);
-		System.err.println("created dataset browser..");
 		projectBrowser = new ProjectSelectionCanvas(this);
 		
 		datasetBrowser.setContents(dataManager.getDatasets());
@@ -124,7 +123,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		projectBrowser.layoutContents();
 		datasetBrowser.completeInitialization();
 		projectBrowser.completeInitialization();
-		System.err.println("dataset and browser are initialized...");
 		
 		contents.add(projectBrowser);
 		contents.add(datasetBrowser);
@@ -196,7 +194,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 				datasetBrowser.mouseOverAnalysisChain(chain);
 		}
 		else if (e instanceof ChainExecutionsLoadedEvent) {
-			System.err.println("got notification that chains are loaded..");
 			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
 			chainExecutions = event.getChainExecutions();
 		}

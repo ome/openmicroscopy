@@ -97,7 +97,6 @@ class UIManager implements ContentGroupSubscriber
 	}
 	
 	public void contentComplete() {
-		System.err.println("building gui for main window");
 		mainWindow.buildGUI();
 	}
 }

@@ -29,7 +29,6 @@
 
 
 
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Harry Hochheiser <hsh@nih.gov>
@@ -127,7 +126,6 @@ public class DataManager {
 			return projectHash.values();
 		
 		if (loadingProjects == false) {
-			System.err.println("loading projects..");
 			loadingProjects = true;
 			retrieveProjects();
 			Collection res = projectHash.values();
