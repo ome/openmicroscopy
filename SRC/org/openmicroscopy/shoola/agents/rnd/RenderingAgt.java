@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 
 //Java imports
+import java.awt.Rectangle;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -96,6 +97,8 @@ public class RenderingAgt
 	
 	private int					curImageID, curPixelsID;
 	
+	private boolean				displayed;
+	
 	/** Creates a new instance. */
 	public RenderingAgt() {}
 	
@@ -147,7 +150,8 @@ public class RenderingAgt
 		pxsDims = renderingControl.getPixelsDims();
 		pxsStats = renderingControl.getPixelsStats();
 		intiChannelData();
-		buildPresentation();
+		if (presentation != null) removePresentation();
+		else buildPresentation();
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
 	}
@@ -159,6 +163,30 @@ public class RenderingAgt
 		presentation = new RenderingAgtUIF(control, registry);
 		control.setMenuItemListener(viewItem, RenderingAgtCtrl.R_VISIBLE);
 		viewItem.setEnabled(true);
+	}
+	
+	/** 
+	 * Remove and rebuild the presentation. 
+	 * The method is invoked when a new image is loaded and the presentation
+	 * is displayed.
+	 *
+	 */
+	private void removePresentation()
+	{
+		if (presentation.isIcon())
+			topFrame.deiconifyFrame(presentation);
+		Rectangle bounds = presentation.getBounds();
+		if (presentation.isClosed()) displayed = false;
+		topFrame.removeFromDesktop(presentation);
+		control = null;
+		presentation = null;
+		buildPresentation();
+		if (displayed) {
+			presentation.setBounds(bounds);
+			displayed = true;
+			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+			presentation.setVisible(true);	
+		}	
 	}
 	
 	/** Menu item to add to the {@link TopFrame} menu bar. */
@@ -187,11 +215,33 @@ public class RenderingAgt
 		return registry;
 	}
 	
+	/** Pop up the presentation. */
+	void deiconifyPresentation()
+	{
+		topFrame.deiconifyFrame(presentation);
+		try {
+			presentation.setIcon(false);
+		} catch (Exception e) {}	
+	}
+	
 	/** Display the widget. */
 	void showPresentation()
 	{
+		displayed = true;
+		topFrame.removeFromDesktop(presentation);
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		presentation.setVisible(true);	
+	}
+
+	/** Display the widget when it has been closed. */
+	void displayPresentation()
+	{
+		topFrame.removeFromDesktop(presentation);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
+		try {
+			presentation.setClosed(false);
+		} catch (Exception e) {}
 	}
 	
 	//TODO: retrieve data from DataManagerService.
@@ -459,5 +509,5 @@ public class RenderingAgt
 	 * no op implementation.
 	 */ 
 	public void post(AgentEvent e) {}
-	
+
 }

@@ -342,7 +342,8 @@ public class RenderingAgtCtrl
 		RenderingAgtUIF presentation = abstraction.getPresentation();
 		if (presentation != null)
 			if (active) {
-				if (presentation.isClosed()) abstraction.showPresentation();
+				if (presentation.isClosed()) abstraction.displayPresentation();
+				if (presentation.isIcon()) abstraction.deiconifyPresentation();
 			} else {
 				abstraction.showPresentation();	
 			}
