@@ -1,0 +1,231 @@
+
+
+
+                                   README
+
+                      OPEN MICROSCOPY ENVIRONMENT (OME)
+                              
+                                 S H O O L A
+                                 
+                                    Legal
+
+
+
+
+
+
+
+  Preamble
+  --------
+  
+  Within this document, the term 'third-party software' shall refer to the set 
+  of all the files which are contained in the Shoola CVS module and which are 
+  listed in each 'Artifacts' entry within the 'Third-Party Software Licenses' 
+  section of this document.  The term 'Shoola' or, equivalently, 'our software'
+  shall refer to any other file contained in the Shoola CVS module.
+  
+  
+  
+  Purpose
+  -------
+  
+  This document states which licenses apply to which files in the Shoola CVS
+  module.  It also gives credit to other projects and developers that provided
+  us with their valuable software.
+  
+  
+  
+  OME-Shoola License
+  ------------------
+  
+  Our software is licensed under the terms of the Lesser General Public License
+  (LGPL), a copy of which may be found in the 'lgpl.txt' file within this
+  directory.
+  
+  
+  
+  Third-Party Software Licenses
+  -----------------------------
+  
+  We are in debt with many open-source projects for providing us with valuable
+  artifacts, ranging from application libraries to graphics files.  This section
+  lists all the third-party software that is used by Shoola.  Software artifacts
+  are grouped according to the project of provenience and using the following 
+  format:
+  
+  Project: The name of the project the artifacts belong to and a brief 
+  		(optional) description.
+  Web Site: The project's Web site address.
+  Artifacts: The files our software makes use of.  The wildcard character * can
+  		be appended to a sequence of characters S denoting a file name.  
+  		This shall mean 'all the files whose name starts with S'.  For example, 
+  		'ant-*' means all the files whose name starts with 'ant-'.
+  		Unless otherwise specified, directory pathnames are given relative to the
+  		root of the Shoola CVS module.
+  License: The type of license that applies to the files listed in 'Artifacts'.
+  License File: The file, within this directory, that contains the license.
+  
+  Follows the list.
+  
+
+  Project: The Apache Ant Project.  Ant is a Java-based build tool.  It supports
+  		the build system in Shoola.
+  Web Site: http://ant.apache.org/
+  Artifacts: The ant-*, junit-frames.xsl, and junit-noframes.xsl files under 
+  		build/tools/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: The Formatting Objects Processor (FOP).  FOP is a print formatter 
+  		driven by XSL formatting objects (XSL-FO).  It provides our build system
+  		with pdf generation capabilities.
+  Web Site: http://xml.apache.org/fop/
+  Artifacts: The fop-* file under build/tools/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The Apache Avalon Framework.  We don't use this software directly,
+  		but it is required by the FOP library.
+  Web Site: http://avalon.apache.org/
+  Artifacts: The avalon-* file under build/tools/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The Apache Batik SVG Toolkit.  We don't use this software directly,
+  		but it is required by the FOP library.
+  Web Site: http://xml.apache.org/batik/
+  Artifacts: The batik.jar file under build/tools/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The Bean Scripting Framework (BSF).  It provides scripting language 
+  		support within Java applications.  We use it to add scripting capabilities
+  		to Ant.
+  Web Site: http://jakarta.apache.org/bsf/
+  Artifacts: The bsf-* file under build/tools/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The Rhino JavaScript Engine.  It provides JavaScript support to
+  		the BSF library.
+  Web Site: http://www.mozilla.org/rhino/
+  Artifacts: The rhino-* file under build/tools/
+  License: Netscape Public License (NPL), Version 1.1
+  License File: npl-1_1.txt
+  
+  Project: The Jar Bundler Ant Task.  It lets Ant create Mac OS X application 
+  		bundles.
+  Web Site: http://www.loomcom.com/jarbundler/
+  Artifacts: The jarbundler-* file under build/tools/
+  License: General Public License (GPL), Version 2
+  License File: gpl.txt
+  
+  Project: The Xalan-Java Project.  An XSLT processor which is used by Ant.
+  Web Site: http://xml.apache.org/xalan-j/
+  Artifacts: The xalan-* file under build/tools/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: The Xerces2 Java Parser.  An XML parser which is used by Ant.
+  Web Site: http://xml.apache.org/xerces2-j/
+  Artifacts: The xerces-* file under build/tools/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The JUnit Testing Framework.  A framework for unit-testing.  All our
+  		regression tests make use of this framework in a way or another.
+  Web Site: http://www.junit.org/
+  Artifacts: The junit-* files under build/tools/ and under LIB/test/
+  License: Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+  
+  Project: The Log4j Project.  The logging framework used by Shoola.
+  Web Site: http://logging.apache.org/log4j/
+  Artifacts: The log4j-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: The Jakarta Commons.  The Commons is a Jakarta subproject focused on 
+  		all aspects of reusable Java components.  We don't use this software 
+  		directly, but it is required by the OME-Java library (which is used by 
+  		Shoola).  Specifically the Commons Logging and Http Client components are
+  		used.
+  Web Site: http://jakarta.apache.org/commons/
+  Artifacts: The commons-* files under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: Apache XML-RPC.  We don't use this software directly, but it is 
+  		required by the OME-Java library (which is used by Shoola).  Specifically,
+  		the XML-RPC client classes are used.
+  Web Site: http://ws.apache.org/xmlrpc/
+  Artifacts: The xmlrpc-* file under LIB/
+  License: Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+  
+  Project: The Piccolo Graphics Framework.  A graphics framework for zoomable
+  		user interfaces (ZUI), developed at the University of Maryland by Ben 
+  		Bederson and his group.  A lot of the UI code in Shoola relies on Piccolo.
+  Web Site: http://www.cs.umd.edu/hcil/jazz/
+  Artifacts: The piccolo* files under LIB/.
+  License: Piccolo license
+  License File: piccolo.txt
+  
+	Project: The Eclipse project.  We're using a few of their icons.
+  Web Site: http://www.eclipse.org/
+  Artifacts: All the eclipse_* graphics files contained the Shoola CVS module.
+  License: Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+  
+  Project: Ximian.  We're using a few of their icons that they designed for
+  		Open Office.
+  Web Site: http://www.novell.com/linux/ximian.html
+  Artifacts: All the openOffice_* graphics files contained the Shoola CVS 
+  		module.
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
+  
+  Project: The Nuvola icon theme.  It provides most of the icons in Shoola.
+  Web Site: http://www.icon-king.com/
+  Artifacts: All the nuvola_* graphics files contained the Shoola CVS module.
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
+  
+  Project: The Matrix Algorithm Simulation Framework.  We borrow some of the
+  		implementation of a layered graph layout algorithm for DAGs.
+  Web Site: http://www.cs.hut.fi/Research/Matrix/
+  Artifacts: The LayoutChainData.java class borrows some of the implementation
+  		code.  This file is located under
+  		SRC/org/openmicroscopy/shoola/agents/chainbuilder/data/layout/
+  License: General Public License (GPL), Version 2
+  License File: gpl.txt
+  
+  Project: "An Interactive Introduction to Splines" paper by Evgeny Demidov.  
+  		The code that draws the Bezier curves that creates links between
+  		inputs and outputs in chains is based on code presented in this paper.
+  Web Site: http://ipm.sci-nnov.ru/~Demidov/
+  Artifacts: -
+  License: -
+  License File: -
+  
+  Project: The Infovis Toolkit.
+  Web Site: -
+  Artifacts: The RangeSlider.java class borrows some of the implementation
+  		code of the RangeSlider class in Infovis.  This file is located under
+  		SRC/org/openmicroscopy/shoola/agents/spots/range/
+  		Also, the LongRangeSlider.java class is a further modification of the
+  		original RangeSlider.  This file is located under
+  		SRC/org/openmicroscopy/shoola/agents/executions/ui/
+  License: Infovis license
+  License File: infovis.txt
+  
+  Project: The Quantum Treemap.  A layout algorithm written by Benjamin B. 
+  		Bederson.
+  Web Site: http://www.cs.umd.edu/~bederson
+  Artifacts: We included the original source code in the Shoola CVS module.
+  		It can be found in
+  		SRC/org/openmicroscopy/shoola/util/ui/QuantumTreemap.java
+  License: Mozilla Public License, Version 1.0
+  License File: mpl-v1_0.htm
+  
+  
