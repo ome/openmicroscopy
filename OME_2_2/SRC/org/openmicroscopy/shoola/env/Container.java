@@ -271,12 +271,16 @@ public final class Container
 		Iterator i = agents.iterator();
 		AgentInfo agentInfo;
 		Agent a;
+		Registry r; 
 		
 		//Agents linking phase.
+		Environment env = new Environment(this);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
 			a = agentInfo.getAgent();
-			a.setContext(agentInfo.getRegistry());
+			r = agentInfo.getRegistry();
+			r.bind(LookupNames.ENV, env);
+			a.setContext(r);
 		}
 		
 		//Agents activation phase.

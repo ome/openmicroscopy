@@ -54,6 +54,8 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
 
+	public static final String ENV = "/env";
+	
 	public static final	String USER_CREDENTIALS = "/user/credentials";
 	
 	public static final String AGENTS = "/agents";
