@@ -130,28 +130,28 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPixelsInfo(pixels.getPixelsID());
+        return is.getPixelsInfo(pixels.getImageServerID().longValue());
     }
 
     public String getPixelsSHA1(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPixelsSHA1(pixels.getPixelsID());
+        return is.getPixelsSHA1(pixels.getImageServerID().longValue());
     }
 
     public String getPixelsServerPath(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPixelsServerPath(pixels.getPixelsID());
+        return is.getPixelsServerPath(pixels.getImageServerID().longValue());
     }
 
     public boolean isPixelsFinished(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.isPixelsFinished(pixels.getPixelsID());
+        return is.isPixelsFinished(pixels.getImageServerID().longValue());
     }
 
     public byte[] getPixels(Pixels pixels,
@@ -159,7 +159,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPixels(pixels.getPixelsID(),bigEndian);
+        return is.getPixels(pixels.getImageServerID().longValue(),bigEndian);
     }
 
     public byte[] getStack(Pixels pixels,
@@ -168,7 +168,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getStack(pixels.getPixelsID(),theC,theT,bigEndian);
+        return is.getStack(pixels.getImageServerID().longValue(),theC,theT,bigEndian);
     }
 
     public byte[] getPlane(Pixels pixels,
@@ -177,7 +177,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPlane(pixels.getPixelsID(),theZ,theC,theT,bigEndian);
+        return is.getPlane(pixels.getImageServerID().longValue(),theZ,theC,theT,bigEndian);
     }
 
     public byte[] getROI(Pixels pixels,
@@ -187,7 +187,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getROI(pixels.getPixelsID(),
+        return is.getROI(pixels.getImageServerID().longValue(),
                          x0,y0,z0,c0,t0,x1,y1,z1,c1,t1,
                          bigEndian);
     }
@@ -198,7 +198,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.setPixels(pixels.getPixelsID(),buf,bigEndian);
+        is.setPixels(pixels.getImageServerID().longValue(),buf,bigEndian);
     }
 
     public void setPixels(Pixels pixels,
@@ -207,7 +207,7 @@ public class ImageServerPixelsService
         throws ImageServerException, FileNotFoundException
     {
         ImageServer is = activatePixels(pixels);
-        is.setPixels(pixels.getPixelsID(),file,bigEndian);
+        is.setPixels(pixels.getImageServerID().longValue(),file,bigEndian);
     }
 
     public void setStack(Pixels pixels,
@@ -217,7 +217,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.setStack(pixels.getPixelsID(),theC,theT,buf,bigEndian);
+        is.setStack(pixels.getImageServerID().longValue(),theC,theT,buf,bigEndian);
     }
 
     public void setStack(Pixels pixels,
@@ -227,7 +227,7 @@ public class ImageServerPixelsService
         throws ImageServerException, FileNotFoundException
     {
         ImageServer is = activatePixels(pixels);
-        is.setStack(pixels.getPixelsID(),theC,theT,file,bigEndian);
+        is.setStack(pixels.getImageServerID().longValue(),theC,theT,file,bigEndian);
     }
 
     public void setPlane(Pixels pixels,
@@ -237,7 +237,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.setPlane(pixels.getPixelsID(),theZ,theC,theT,buf,bigEndian);
+        is.setPlane(pixels.getImageServerID().longValue(),theZ,theC,theT,buf,bigEndian);
     }
 
     public void setPlane(Pixels pixels,
@@ -247,7 +247,7 @@ public class ImageServerPixelsService
         throws ImageServerException, FileNotFoundException
     {
         ImageServer is = activatePixels(pixels);
-        is.setPlane(pixels.getPixelsID(),theZ,theC,theT,file,bigEndian);
+        is.setPlane(pixels.getImageServerID().longValue(),theZ,theC,theT,file,bigEndian);
     }
 
     public void setROI(Pixels pixels,
@@ -258,7 +258,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.setROI(pixels.getPixelsID(),
+        is.setROI(pixels.getImageServerID().longValue(),
                   x0,y0,z0,c0,t0,x1,y1,z1,c1,t1,
                   buf,bigEndian);
     }
@@ -271,7 +271,7 @@ public class ImageServerPixelsService
         throws ImageServerException, FileNotFoundException
     {
         ImageServer is = activatePixels(pixels);
-        is.setROI(pixels.getPixelsID(),
+        is.setROI(pixels.getImageServerID().longValue(),
                   x0,y0,z0,c0,t0,x1,y1,z1,c1,t1,
                   file,bigEndian);
     }
@@ -280,21 +280,21 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.finishPixels(pixels.getPixelsID());
+        is.finishPixels(pixels.getImageServerID().longValue());
     }
 
     public PlaneStatistics getPlaneStatistics(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getPlaneStatistics(pixels.getPixelsID());
+        return is.getPlaneStatistics(pixels.getImageServerID().longValue());
     }
 
     public StackStatistics getStackStatistics(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getStackStatistics(pixels.getPixelsID());
+        return is.getStackStatistics(pixels.getImageServerID().longValue());
     }
 
     public Image getComposite(Pixels pixels,
@@ -302,7 +302,7 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getComposite(pixels.getPixelsID(),settings);
+        return is.getComposite(pixels.getImageServerID().longValue(),settings);
     }
 
     public void setThumbnail(Pixels pixels,
@@ -310,13 +310,13 @@ public class ImageServerPixelsService
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        is.setThumbnail(pixels.getPixelsID(),settings);
+        is.setThumbnail(pixels.getImageServerID().longValue(),settings);
     }
 
     public Image getThumbnail(Pixels pixels)
         throws ImageServerException
     {
         ImageServer is = activatePixels(pixels);
-        return is.getThumbnail(pixels.getPixelsID());
+        return is.getThumbnail(pixels.getImageServerID().longValue());
     }
 }
