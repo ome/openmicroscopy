@@ -490,7 +490,6 @@ public class Annotator
             id = (Integer) i.next();
             name = ((AnnotationData) 
                 ((List) annotationsMap.get(id)).get(0)).getOwnerLastName();
-            System.out.println(name);
             if (ud.getUserID() == id.intValue()) {
                 selectedIndex = index;
                 name = ud.getUserLastName();
