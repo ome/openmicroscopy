@@ -445,7 +445,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	public void setHighlighted(boolean v) {
 		if (v == true)
-			setStrokePaint(PConstants.SELECTED_HIGHLIGHT_COLOR);
+			setStrokePaint(PConstants.SINGLE_HIGHLIGHT_COLOR);
 		else
 			setStrokePaint(PConstants.DEFAULT_COLOR);
 		repaint();
@@ -459,9 +459,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	public void setLinkableHighlighted(boolean v) {
 		if (v == true)
-			setStrokePaint(PConstants.HIGHLIGHT_COLOR);
+			setPaint(PConstants.SELECTED_FILL);
 		else
-			setStrokePaint(PConstants.DEFAULT_COLOR);
+			setPaint(PConstants.DEFAULT_FILL);
 		repaint();
 	}
 	
