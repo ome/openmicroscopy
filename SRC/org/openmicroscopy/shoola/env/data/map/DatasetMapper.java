@@ -43,6 +43,7 @@ import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
@@ -61,6 +62,25 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  */
 public class DatasetMapper
 {
+	/** 
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria linked to retrieveUserDatasets.
+	 * 
+	 * @param userID	user ID.
+	 */
+	public static Criteria buildUserDatasetsCriteria(int userID)
+	{
+		Criteria criteria = new Criteria();
+		
+		//Specify which fields we want for the dataset.
+		criteria.addWantedField("id");
+		criteria.addWantedField("name");
+		
+		criteria.addFilter("owner_id", new Integer(userID));
+		
+		return criteria;
+	}
+	
 	/**
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria linked to retrieveImages.
@@ -172,4 +192,41 @@ public class DatasetMapper
 		return images;
 	}
 	
+	/**
+	 * @param datasets
+	 * @param dProto
+	 * @return
+	 */
+	public static List fillUserDatasets(List datasets, DatasetSummary dProto)
+	{
+		List datasetsList = new ArrayList();  //The returned summary list.
+		Iterator i = datasets.iterator();
+		DatasetSummary ds;
+		Dataset d;
+		//For each d in datasets...
+		while (i.hasNext()) {
+			d = (Dataset) i.next();
+			//Make a new DataObject and fill it up.
+			ds = (DatasetSummary) dProto.makeNew();
+			ds.setID(d.getID());
+			ds.setName(d.getName());
+		
+			//Add the datasets to the list of returned datasets.
+			datasetsList.add(ds);
+		}
+		
+		return datasetsList;
+	}
+	
+	/**
+	 * Create a dataset summary when a new dataset is created.
+	 * 
+	 * @param d			OMEDS dataset object.
+	 * @param dProto	dataset summry object.
+	 */
+	public static void fillNewDataset(Dataset d, DatasetSummary dProto)
+	{
+		dProto.setID(d.getID());
+		dProto.setName(d.getName());
+	}
 }

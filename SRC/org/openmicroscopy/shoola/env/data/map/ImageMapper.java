@@ -47,6 +47,7 @@ import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
 /** 
@@ -65,6 +66,24 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
  */
 public class ImageMapper
 {
+	/** 
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria linked to retrieveUserImges.
+	 * 
+	 * @param userID	user ID.
+	 */
+	public static Criteria buildUserImagesCriteria(int userID)
+	{
+		Criteria criteria = new Criteria();
+		
+		//Specify which fields we want for the image.
+		criteria.addWantedField("id");
+		criteria.addWantedField("name");
+		
+		criteria.addFilter("owner_id", new Integer(userID));
+		
+		return criteria;
+	}
 	
 	/** 
 	 * Define the criteria by which the object graph is pulled out.
@@ -164,6 +183,32 @@ public class ImageMapper
 		}	
 	}
 	
+	/**
+	 * @param images
+	 * @param iProto
+	 * @return
+	 */
+	public static List fillUserImages(List images, ImageSummary iProto)
+	{
+		List imagesList = new ArrayList();  //The returned summary list.
+		Iterator i = images.iterator();
+		ImageSummary is;
+		Image img;
+		//For each d in datasets...
+		while (i.hasNext()) {
+			img = (Image) i.next();
+			//Make a new DataObject and fill it up.
+			is = (ImageSummary) iProto.makeNew();
+			is.setID(img.getID());
+			is.setName(img.getName());
+		
+			//Add the images to the list of returned images
+			imagesList.add(is);
+		}
+		
+		return imagesList;
+	}
+	
 	private static List fillPixels(Pixels px)
 	{
 		List pixels = new ArrayList();
@@ -180,4 +225,5 @@ public class ImageMapper
 		pixels.add(pxd);
 		return pixels;
 	}
+	
 }

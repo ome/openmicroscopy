@@ -226,4 +226,17 @@ public class ProjectMapper
 		return projectsList;
 	}
 	
+	/**
+	 * Create a project Summry when a new project is created.
+	 * 
+	 * @param p			OMEDS project object.
+	 * @param pProto	project summry object.
+	 */
+	public static void fillNewProject(Project p, ProjectSummary pProto)
+	{
+		pProto.setID(p.getID());
+		pProto.setName(p.getName());
+		// check datasets.
+	}
+	
 }
