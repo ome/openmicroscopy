@@ -31,9 +31,9 @@ package org.openmicroscopy.shoola.agents.viewer.canvas;
 
 //Java imports
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 
 /** 
  * 
@@ -60,7 +61,7 @@ import org.openmicroscopy.shoola.agents.viewer.Viewer;
 public class ImageCanvas
 	extends JPanel
 {
-	 
+
 	/** The BufferedImage to display. */	
 	private BufferedImage 		image;
 	
@@ -73,6 +74,7 @@ public class ImageCanvas
 	public ImageCanvas()
 	{
 		setBackground(Viewer.BACKGROUND_COLOR); 
+		setDoubleBuffered(true);
 	}
  
 	/** 
@@ -81,11 +83,13 @@ public class ImageCanvas
 	 * @param image		buffered image to display.
 	 * 	
 	 */	
-	public void paintImage(BufferedImage image)
+	public void paintImage(BufferedImage image, int x, int y)
 	{
 		this.image = image;
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
+		this.x = x;
+		this.y = y;
 		repaint();
 	} 
 	
@@ -94,24 +98,39 @@ public class ImageCanvas
 	{
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
-		setLocation();
+		//setLocation();
+		FontMetrics fontMetrics = g2D.getFontMetrics();
+		int hFont = fontMetrics.getHeight()/4;
+		paintXYFrame(g2D, hFont);
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
 							RenderingHints.VALUE_RENDER_QUALITY);
 
 		g2D.setColor(Color.black);
-		g2D.drawImage(image, null, x, y);
+		g2D.drawImage(image, null, x+ViewerUIF.START, y+ViewerUIF.START);
 	}
 
-	/** Set the coordinate of the top-left corner of the image. */
-	private void setLocation()
+	private void paintXYFrame(Graphics2D g2D, int hFont)
 	{
-		Rectangle d = getBounds();
-		x = (int) (d.width-imageWidth)/2;
-		y = (int) (d.height-imageHeight)/2;
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
+		//x-axis
+		int x1 = ViewerUIF.START-ViewerUIF.ORIGIN+x;
+		int y1 = ViewerUIF.START-ViewerUIF.ORIGIN+y;
+		g2D.drawLine(x1, y1, x1+ViewerUIF.LENGTH, y1);
+		g2D.drawLine(x1-ViewerUIF.ARROW+ViewerUIF.LENGTH, y1-ViewerUIF.ARROW, 
+					x1+ViewerUIF.LENGTH, y1);
+		g2D.drawLine(x1-ViewerUIF.ARROW+ViewerUIF.LENGTH, y1+ViewerUIF.ARROW, 
+					x1+ViewerUIF.LENGTH, y1);
+		//y-axis
+		g2D.drawLine(x1, y1, x1, ViewerUIF.LENGTH+y1);
+		g2D.drawLine(x1-ViewerUIF.ARROW, ViewerUIF.LENGTH+y1-ViewerUIF.ARROW, 
+					x1, ViewerUIF.LENGTH+y1);
+		g2D.drawLine(x1+ViewerUIF.ARROW, ViewerUIF.LENGTH+y1-ViewerUIF.ARROW, 
+					x1, ViewerUIF.LENGTH+y1);	
+		//
+		g2D.drawString("o", x1-hFont, y1-hFont);
+		g2D.drawString("x", x1+ViewerUIF.LENGTH/2, y1-hFont);
+		g2D.drawString("y", x1-2*hFont, y1+ViewerUIF.LENGTH-hFont);	
 	}
 	
 }
