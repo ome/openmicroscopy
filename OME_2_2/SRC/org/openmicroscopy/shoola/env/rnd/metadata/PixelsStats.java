@@ -64,10 +64,9 @@ public class PixelsStats
 
 	public PixelsStatsEntry getEntry(int w, int t) { return stats[w][t]; }
 
-	void setEntry(int w, int t, double min, double max, double mean, 
-				double sigma)
+	void setEntry(int w, int t, double min, double max)
 	{
-		stats[w][t] = new PixelsStatsEntry(min, max, mean, sigma);
+		stats[w][t] = new PixelsStatsEntry(min, max);
 	}
 
 	void setGlobalEntry(int w, double gMin, double gMax)

@@ -59,26 +59,23 @@ public class PixelsStatsEntry
 	public final double  	max;
     
     /** Arithmetic mean of the pixel intensities computed for the all stack. */
-    public final double 	mean;
+    //public final double 	mean;
     
     /** Standard deviation. */
-    public final double 	sigma;
+    //public final double 	sigma;
     
 	/** 
 	 * Creates a new object to store the passed stats entry.
 	 *
 	 * @param   min  minimum pixel intensity of the stack.
 	 * @param   max  maximum pixel intensity of the stack.
-	 * @param	mean
-	 * @param	sigma
 	 */  
-	public PixelsStatsEntry(double min, double max, double mean, 
-							double sigma)
+	public PixelsStatsEntry(double min, double max)
 	{       
 		this.min = min;
 		this.max = max;
-		this.mean = mean;
-		this.sigma = sigma;
+		//this.mean = mean;
+		//this.sigma = sigma;
 	}
 	
 }

@@ -183,7 +183,7 @@ public class MetadataSource
 					gMax = Math.max(gMax, max);
 				}
 				
-				ps.setEntry(w, t, min, max, s.mean[w][t], s.sigma[w][t]); 
+				ps.setEntry(w, t, min, max); 
 			}
 			ps.setGlobalEntry(w, gMin, gMax);
 		}
