@@ -34,13 +34,10 @@ package org.openmicroscopy.shoola.agents.executions.ui;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
-import java.text.SimpleDateFormat;
 import javax.swing.event.MouseInputListener;
 import javax.swing.JPanel;
 
@@ -74,10 +71,10 @@ public class ExecutionsCanvas extends JPanel implements
 	
 	public static final int WIDTH =300;
 	public static final int HEIGHT=150;
-	public static final int SPACING=5;
+	public static final int TIP_SPACING=5;
 	
-	private static Font tipFont = new Font("Helvetica",Font.PLAIN,10); 
-
+	public static Font TIPFONT = new Font("Helvetica",Font.PLAIN,9); 
+	public static Font LABELFONT = new Font("Helvetica",Font.PLAIN,10); 
 	/* the shoola registry */
 	private Registry registry;
 	
@@ -93,6 +90,7 @@ public class ExecutionsCanvas extends JPanel implements
 	private int yLoc;
 	private ExecutionView currentExecution;
 	
+	private AxisHash currentHash;
 	/**
 	 * Creates a new instance.
 	 */
@@ -138,8 +136,10 @@ public class ExecutionsCanvas extends JPanel implements
 		gridModel.drawAxes(g2);
 		drawExecutions(g2);
 		if (currentExecution != null) {
-			drawExecutionTip(g2);
+			currentExecution.drawExecutionTip(g2,xLoc,yLoc);
 		}
+		if (currentHash != null)
+			currentHash.drawHashTip(g2,xLoc,yLoc);
 	}
 	
 	public void drawExecutions(Graphics2D g) {
@@ -191,8 +191,14 @@ public class ExecutionsCanvas extends JPanel implements
 				execution = exec.getChainExecution(); 
 			registry.getEventBus().post(
 					new MouseOverChainExecutionEvent(execution));
-			repaint();
+			// if we didn't mouse over an event
+			
 		}
+		currentHash = null;
+		if (currentExecution == null) {
+			currentHash = gridModel.getHashAt(xLoc,yLoc);
+		}
+		repaint();
 	}
 	
 	private ExecutionView getViewAt(int x,int y) {
@@ -206,65 +212,10 @@ public class ExecutionsCanvas extends JPanel implements
 		}
 		return null;
 	}
-	
-	private void drawExecutionTip(Graphics2D g) {
-		
-		ChainExecutionData exec= currentExecution.getChainExecution();
-		String chain = exec.getChain().getName();
-		String dataset = exec.getDataset().getName();
-		
-		g.setFont(tipFont);
-		FontMetrics metrics = g.getFontMetrics(tipFont);
-		
-		int height = 3* metrics.getHeight();
-		int width = metrics.stringWidth(chain);
-		int newWidth = metrics.stringWidth(dataset);
-		if (newWidth > width)
-			width = newWidth;
-		
-		// date string
-		Date date = exec.getDate();
-		// formaat is like "Sat Jan 24 2004"
-		SimpleDateFormat strFormat = new SimpleDateFormat("EEE MMM dd yyyy");
-		
-		String date1 = strFormat.format(date);
-		newWidth = metrics.stringWidth(date1.toString());
-		//newWidth = metrics.stringWidth(date.toString());
-		if (newWidth > width)
-			width = newWidth;
-		
-		//this format is "18:41:41 EST" 
-		strFormat = new SimpleDateFormat("kk:mm:ss zzz");
-		String date2 = strFormat.format(date);
-		newWidth = metrics.stringWidth(date2.toString());
-		if (newWidth > width)
-			width = newWidth;
-		
 
-		int x = xLoc;
-		int y = yLoc;
+	
+
 		
-		//		 eventually, adjust xLoc,yLoc
-		// to account for going over side
-		if (x+width > gridModel.getHorizMax())
-			x -= width;
-		else // give it some spacing to the right, as
-			// cursor goes to the right
-			x += SPACING;
-			
-		
-		if (y+height > gridModel.getVertStart())
-			y -= height;
-			
-		g.drawString(chain,x,y);
-		y+=metrics.getHeight();
-		g.drawString(dataset,x,y);
-		y+=metrics.getHeight();
-		g.drawString(date1,x,y);
-		y+=metrics.getHeight();
-		g.drawString(date2,x,y);
-		
-	}
 	
 	public void selectChain(AnalysisChainData chain) {
 		Iterator iter = executionViews.iterator();

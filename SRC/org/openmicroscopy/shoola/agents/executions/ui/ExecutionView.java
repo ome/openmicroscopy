@@ -31,8 +31,11 @@ package org.openmicroscopy.shoola.agents.executions.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.geom.Ellipse2D;
 import java.awt.Graphics2D;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 //Third-party libraries
 
@@ -76,7 +79,6 @@ public class ExecutionView extends Ellipse2D.Float {
 	
 	public void paint(Graphics2D g,boolean current) {
 		long time = execution.getDate().getTime();
-		
 		if (execsModel.isInRange(time)) {
 		
 			Color oldColor = g.getColor();
@@ -84,9 +86,10 @@ public class ExecutionView extends Ellipse2D.Float {
 				g.setColor(Constants.SELECTED_FILL);
 			else if (highlighted == true)
 				g.setColor(Constants.HIGHLIGHT_COLOR);
-			else
+			else {
+			
 				g.setColor(Constants.DEFAULT_COLOR);
-				
+			}
 			int x = (int) gridModel.getHorizCoord(time);
 			int y = (int) gridModel.getVertCoord(execsModel.getRow(execution));
 			setFrame(x,y,GridModel.DOT_SIDE,GridModel.DOT_SIDE);
@@ -107,8 +110,68 @@ public class ExecutionView extends Ellipse2D.Float {
 		return execution;
 	}
 	
+	// highlighted if the appropriate chain/dataset has been moused
+	// over in a different view.
 	public void setHighlighted(boolean v) {
 		highlighted = v;
+	}
+	
+	public void drawExecutionTip(Graphics2D g,int xLoc,int yLoc) {
+		
+		ChainExecutionData exec= getChainExecution();
+		String chain = exec.getChain().getName();
+		String dataset = exec.getDataset().getName();
+		
+		g.setFont(ExecutionsCanvas.TIPFONT);
+		FontMetrics metrics = g.getFontMetrics(ExecutionsCanvas.TIPFONT);
+		
+		int height = 3* metrics.getHeight();
+		int width = metrics.stringWidth(chain);
+		int newWidth = metrics.stringWidth(dataset);
+		if (newWidth > width)
+			width = newWidth;
+		
+		// date string
+		Date date = exec.getDate();
+		// formaat is like "Sat Jan 24 2004"
+		SimpleDateFormat strFormat = new SimpleDateFormat("EEE MMM dd yyyy");
+		
+		String date1 = strFormat.format(date);
+		newWidth = metrics.stringWidth(date1.toString());
+		if (newWidth > width)
+			width = newWidth;
+		
+		//this format is "18:41:41 EST" 
+		strFormat = new SimpleDateFormat("kk:mm:ss zzz");
+		String date2 = strFormat.format(date);
+		newWidth = metrics.stringWidth(date2.toString());
+		if (newWidth > width)
+			width = newWidth;
+		
+
+		int x = xLoc;
+		int y = yLoc;
+		
+		//		 eventually, adjust xLoc,yLoc
+		// to account for going over side
+		if (x+width > gridModel.getHorizMax())
+			x -= width;
+		else // give it some spacing to the right, as
+			// cursor goes to the right
+			x += ExecutionsCanvas.TIP_SPACING;
+			
+		
+		if (y+height > gridModel.getVertStart())
+			y -= height;
+			
+		g.drawString(chain,x,y);
+		y+=metrics.getHeight();
+		g.drawString(dataset,x,y);
+		y+=metrics.getHeight();
+		g.drawString(date1,x,y);
+		y+=metrics.getHeight();
+		g.drawString(date2,x,y);
+		
 	}
 }
 	
