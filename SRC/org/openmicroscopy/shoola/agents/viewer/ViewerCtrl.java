@@ -39,7 +39,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
-
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JSlider;
@@ -331,6 +330,17 @@ public class ViewerCtrl
     {
         ToolBarManager tbm = presentation.getToolBar().getManager();
         tbm.onZChange(z);
+    }
+    
+    /** 
+     * Invokes by the 
+     * {@link org.openmicroscopy.shoola.agents.viewer.movie.PlayerManager}. 
+     */
+    public void renderImage(int z, int t)
+    {
+        resetTField(t);
+        resetZField(z);
+        abstraction.onPlaneSelected(z, t);   
     }
     
     /** Handles events. */
