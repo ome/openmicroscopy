@@ -105,20 +105,26 @@ public class IconManager
 	/** ID of the channel big icon. */
 	public static final int		HISTOGRAM_BIG = 13;		
 	
+	/** ID of the contrast stretching icon. */
+	public static final int     STRETCHING_BIG = 14;
+	
+	/** ID of the plane slicing icon. */
+	public static final int     SLICING_BIG = 15;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 13;
+	private static int          MAX_ID = 15;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
 		relPaths[INFO] = "nuvola_info16.png";
-		relPaths[HISTOGRAM] = "histogram16.png";
-		relPaths[STRETCHING] = "contrastStretching16.png";
-		relPaths[SLICING] = "planeSlicing16.png";
+		relPaths[HISTOGRAM] = "nuvola_kchart_chrt16.png";
+		relPaths[STRETCHING] = "openOffice_stock_new-drawing-16.png";
+		relPaths[SLICING] = "openOffice_stock_new-labels-16.png";
 		relPaths[GREYSCALE] = "grayscale.png";
 		relPaths[RGB] = "rgb16.png";
 		relPaths[HSB] = "hsb16.png";
@@ -128,7 +134,9 @@ public class IconManager
 		relPaths[MAPPING] = "nuvola_kmplot16.png";
 		relPaths[CHANNEL_BIG] = "nuvola_log48.png";
 		relPaths[CHANNEL] = "nuvola_log16.png";
-		relPaths[HISTOGRAM_BIG] = "histogram16.png";
+		relPaths[HISTOGRAM_BIG] = "nuvola_kchart_chrt48.png";
+		relPaths[STRETCHING_BIG] = "openOffice_stock_new-drawing-48.png";
+		relPaths[SLICING_BIG] = "openOffice_stock_new-labels-48.png";
 	}
 	
 	/** The sole instance that provides. */
