@@ -98,7 +98,6 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private static final float LEFT=20f;
 	private static final float VGAP=10f;
 	private static final float NAME_INSET=20;
-	private static final String UNCAT_NAME="Uncategorized";
 	
 
 	/**
@@ -191,10 +190,11 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		if (modData.getUncategorizedCount() == 0)
 			return;
 			
-		CategoryBox box =decorateCategory(layer,UNCAT_NAME);
-		displayCategoryName(box,UNCAT_NAME);
+		// no category type for uncategorized
+		CategoryBox box =decorateCategory(layer,null);
+		displayCategoryName(box,ModuleTreeNode.UNCAT_NAME);
 		iter = modData.uncategorizedModulesIterator();
-		ModuleTreeNode uncatNode = new ModuleTreeNode("Uncategorized");
+		ModuleTreeNode uncatNode = new ModuleTreeNode(ModuleTreeNode.UNCAT_NAME);
 		treeNode.add(uncatNode);
 		while (iter.hasNext()) {
 			ChainModuleData mod  = (ChainModuleData) iter.next();
@@ -205,8 +205,8 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		layer.setVisible(true);
 	}
 	
-	private CategoryBox decorateCategory(PNode parent,String name) {
-		CategoryBox box  = new CategoryBox(name);
+	private CategoryBox decorateCategory(PNode parent,ModuleCategoryData category) {
+		CategoryBox box  = new CategoryBox(category);
 		parent.addChild(box);
 		return box;
 	}
@@ -245,7 +245,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		Iterator iter  = mods.iterator();
 
 		//decorate the category with a box.		
-		CategoryBox box = decorateCategory(parent,cat.getName());
+		CategoryBox box = decorateCategory(parent,cat);
 		displayCategoryName(box,cat.getName());
 		ModuleTreeNode catNode = new ModuleTreeNode(cat); // was .getName(),cat.getID());
 		treeParent.add(catNode);
@@ -460,14 +460,14 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	public void unhighlightModules(ChainModuleData mod) {
 		handler.unhighlightModules(mod);
 	}
-	public void highlightCategory(String name) {
+	public void highlightCategory(ModuleCategoryData category) {
 		Collection result = layer.getAllNodes();
 		Iterator iter = result.iterator();
 		while (iter.hasNext()) {
 			PNode node = (PNode) iter.next();
 			if (node instanceof CategoryBox) {
 				CategoryBox cb = (CategoryBox)node;
-				if (cb.getName().compareTo(name) ==0) {
+				if (cb.isSameCategory(category) == true) {
 						//	zoom in to it. 
 					BufferedObject cBox = (BufferedObject) node;				
 					PBounds b = cBox.getBufferedBounds();

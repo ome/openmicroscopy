@@ -45,6 +45,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
 
 /** 
@@ -59,15 +60,19 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
  */
 public class CategoryBox extends GenericBox {
 	
-	private String name;
+	private ModuleCategoryData category;
 	
-	public CategoryBox(String name) {
+	public CategoryBox(ModuleCategoryData category) {
 		super();
-		this.name = name;
+		this.category = category;
 	}
 	
-	public String getName() {
-		return name;
+	public boolean isSameCategory(ModuleCategoryData other) {
+		if (other == null && category == null)
+			return true;
+		else if (other != null && category != null && other.getID() == category.getID())
+			return true;
+		else return false;
 	}
 }
 
