@@ -79,7 +79,11 @@ class RegistryImpl
     {
         entriesMap = new HashMap();
     }
-	
+	/**  Implemented as specified by {@link Registry}. */
+	public void bind(String name, Object obj)
+	{
+		entriesMap.put(name, obj);
+	}
 	/** Implemented as specified by {@link Registry}. */
     public Object lookup(String name)
     {
@@ -121,6 +125,7 @@ class RegistryImpl
 //	public PixelsService getPixelsServices();
 	/** 
 	* Add a new entry in the map of {@link Entry}.
+	* The {@link Entry} object is created after parsing the configuration file.
 	* 
 	* @param e new Entry.
 	*/
@@ -129,7 +134,7 @@ class RegistryImpl
 		entriesMap.put(e.getName(), e);
    	}
 	/**
-	* Set the {@link EventBus}.
+	* Sets the {@link EventBus}.
 	* 
 	* @param eb	{@link EventBus}.
 	*/
@@ -138,7 +143,7 @@ class RegistryImpl
 		this.eb = eb;
 	}
    	/**
-	* Set the {@link DataManagementService}.
+	* Sets the {@link DataManagementService}.
 	* 
 	* @param dms	{@link DataManagementService}.
 	*/
@@ -147,7 +152,7 @@ class RegistryImpl
 		this.dms = dms;
 	}
 	/**
-	* Set the {@link SemanticTypeService}.
+	* Sets the {@link SemanticTypeService}.
 	* 
 	* @param sts {@link SemanticTypeService}.
 	*/
@@ -156,7 +161,7 @@ class RegistryImpl
 		this.sts = sts;
    	}
    	/**
-	* Set the {@link TopFrame}.
+	* Sets the {@link TopFrame}.
 	* 
 	* @param tf {@link TopFrame}.
 	*/
@@ -165,7 +170,7 @@ class RegistryImpl
 		this.tf = tf;
    	}
 	/**
-	* Set the {@link Logger}.
+	* Sets the {@link Logger}.
 	* 
 	* @param logger {@link Logger}.
 	*/
@@ -174,7 +179,7 @@ class RegistryImpl
 		this.logger = logger;
 	}
 	/**
-	* Set the {@link UserNotifier}.
+	* Sets the {@link UserNotifier}.
 	* 
 	* @param un {@link UserNotifier}.
 	*/

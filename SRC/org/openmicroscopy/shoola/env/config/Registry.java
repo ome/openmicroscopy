@@ -56,51 +56,60 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  */
 public interface Registry
 {  
+	/** 
+	 * Binds a name to an object. 
+	 * Adds an object in the {@link Entry}'s map.
+	 * e.g. UserCredentials.
+	 * 
+	 * @param name		
+	 * @param object
+	 */
+	public void bind(String name, Object obj);
 	/**
-	 * Retrieve an {@link Entry} from the map maintained by the Registry.
+	 * Retrieves an {@link Entry} from the map maintained by the Registry.
 	 * 
 	 * @param name	{@link Entry}'s name.
 	 * @return See above.
 	 */  
 	public Object lookup(String name);
    	/**
-    * Return the {@link EventBus} registered.
+    * Returns the {@link EventBus} registered.
     * 
     * @return See above.
     */
 	public EventBus getEventBus();
    	/**
-    * Return the {@link DataManagementService} registered.
+    * Returns the {@link DataManagementService} registered.
     * 
     * @return See above.
     */
    	public DataManagementService getDataManagementService();
    	/**
-   	* Return the {@link SemanticTypesService} registered.
+   	* Returns the {@link SemanticTypesService} registered.
    	* 
    	* @return See above.
    	*/
    	public SemanticTypesService getSemanticTypesService();	
    	/**
-   	* Return the {@link Logger} registered.
+   	* Returns the {@link Logger} registered.
    	* 
    	* @return See above.
    	*/
 	public Logger getLogService();
    	/**
-   	* Return the {@link TopFrame} registered.
+   	* Returns the {@link TopFrame} registered.
    	* 
    	* @return See above.
    	*/
 	public TopFrame getTopFrame();
    	/**
-   	* Return the {@link UserNotifier} registered.
+   	* Returns the {@link UserNotifier} registered.
    	* 
    	* @return See above.
    	*/
    	public UserNotifier getUserNotifier();
 	/**
-	* Return the {@link PixelsService} registered.
+	* Returns the {@link PixelsService} registered.
 	* 
 	* @return See above.
 	*/
