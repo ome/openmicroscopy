@@ -66,9 +66,9 @@ public class PConstants {
 	/** default label color   */ 
     public static final Color DEFAULT_COLOR = Color.BLACK;
 	public static final Color DEFAULT_TEXT_COLOR = DEFAULT_COLOR;
-	public static final Color DEFAULT_FILL = Color.LIGHT_GRAY;
-    
-   
+	public static final Color SELECTED_FILL = new Color(145,174,255);
+    public static final Color DEFAULT_FILL = new Color(182,209,255);
+	
    	/** default label font */
 	public static final Font PROJECT_LABEL_FONT = 
 			new Font("Helvetica",Font.BOLD,10);
@@ -93,26 +93,32 @@ public class PConstants {
 	public static final Color PROJECT_ROLLOVER_COLOR = new Color(0,0,200);
 	
 	/** The standard background color for Piccolo Canvases */
-	public static final Color CANVAS_BACKGROUND_COLOR = Color.WHITE;
+	public static final Color CANVAS_BACKGROUND_COLOR = new Color(227,227,227);
 	
 	/** Highlighting of a link  between modules */
 	public static final Color LINK_HIGHLIGHT_COLOR=Color.WHITE;
     
 	
 	/** Highlighting of generic boxes*/
-    
-	public static final Color HIGHLIGHT_COLOR_OUTER = new Color(215,140,47);
-	public static final Color HIGHLIGHT_COLOR_MIDDLE = new Color(223,163,89);
-	public static final Color HIGHLIGHT_COLOR_INNER = new Color(231,186,130);
-  
+	public static final Color HIGHLIGHT_COLORS[] = {
+			new Color(199,94,0),
+			new Color(207,117,23),
+			new Color(215,140,46),
+			new Color(223,163,69),
+			new Color(231,186,92),
+	};
+	
 	 /** Borders of generic boxes */
-	public static final Color BORDER_OUTER = new Color(191,191,191);
-	public static final Color BORDER_MIDDLE = new Color(212,212,212);
-	public static final Color BORDER_INNER =  new Color(233,233,233);
-
-	/** color for an executed chain */	
-	public static final Color EXECUTED_COLOR = new Color(150,150,255,100);
-
+	public static final Color BORDER_COLORS[] = {
+			new Color(149,149,149),
+			new Color(170,170,170),
+			new Color(191,191,191),
+			new Color(212,212,212),
+			new Color(233,233,233)
+	};
+	
+	public static final Color SINGLE_HIGHLIGHT_COLOR=HIGHLIGHT_COLORS[0];
+	
 	/** color for a locked chain */
 	public static final Color LOCKED_COLOR = Color.RED;
 	/**
@@ -152,7 +158,7 @@ public class PConstants {
 	public static final BasicStroke BORDER_STROKE = new BasicStroke(STROKE_WIDTH);
 	
 	/** and for module nodes */
-	public static final BasicStroke MODULE_STROKE = new BasicStroke(5);
+	public static final BasicStroke MODULE_STROKE = new BasicStroke(7);
 		
 	/** gap between images in dataset browser */
 	public static final int DATASET_IMAGE_GAP=8;
