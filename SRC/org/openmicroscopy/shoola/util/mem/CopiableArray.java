@@ -37,7 +37,15 @@ package org.openmicroscopy.shoola.util.mem;
 //Application-internal dependencies
 
 /** 
- * 
+ * This abstract class provides an implementation of the {@link Copiable}
+ * interface. It constructs an array of {@link Copiable}s , note that
+ * all subclasses must implement the {@link #makeNew(int)} method.
+ * It provides methods to manipulate elements of the array 
+ * {@link #set(Copiable, int)} and {@link #get(int)}.
+ * It also implements a {@link #copy(int, int)} method which allows to copy 
+ * an element from a specified position in the array into a new specified
+ * position.
+ * Subclasses inherit the {@link #copy()} method
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,25 +64,62 @@ public abstract class CopiableArray
     
     private Copiable[]  elements;
     
+    /** Constructor. */
     protected CopiableArray(int size)
     {
+        if (size <= 0) 
+            throw new IllegalArgumentException("Size cannot be <=0");
         elements = new Copiable[size];
     }
     
+    /** Contruct a new array of the speficied size. */
     protected abstract CopiableArray makeNew(int size);
     
+    /** Return the number of elements in the array. */
+    public int getSize() { return elements.length; }
+    
+    /** 
+     * Replaces the element at the specified position with the 
+     * specified {@link Copiable}.
+     * 
+     * @param element Copiable to set.
+     * @param index   position.
+     * */
     public void set(Copiable element, int index)
     {
+        if (index >= elements.length || index < 0)
+            throw new IllegalArgumentException("index not valid");
         elements[index] = element;
     }
     
+    /** 
+     * Return the {@link Copiable} at the specified position.
+     * 
+     * @param position.
+     */
     public Copiable get(int index)
     {
+        if (index >= elements.length || index < 0)
+            throw new IllegalArgumentException("index not valid");
         return elements[index];
     }
  
+    /** 
+     * Copy the {@link Copiable} from the specified position <code>from</code>
+     * into the specified position <code>to</code>.
+     * 
+     * @param from  position.
+     * @param to    position.
+     */
     public void copy(int from, int to)
     {
+        if (from >= elements.length || from < 0)
+            throw new IllegalArgumentException("from index not valid");
+        if (to >= elements.length || to < 0)
+            throw new IllegalArgumentException("to index not valid");
+        if (from > to) 
+            throw new IllegalArgumentException(from+" must be <= than "+to);
+        
         Copiable master = elements[from];
         if (master != null) {
             for (int i = from+1; i <= to; i++)
@@ -83,9 +128,9 @@ public abstract class CopiableArray
             for (int i = from+1; i <= to; i++)
                 elements[i] = null;
         }
-
     }
     
+    /** Implements the method as specified by {@link Copiable}. */
     public Object copy()
     {
         CopiableArray copy = makeNew(elements.length);
