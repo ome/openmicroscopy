@@ -73,7 +73,7 @@ public class ParameterNode extends PNode {
 	}
 	
 	public void setPickable(boolean b) {
-		setPickable(b);
+		super.setPickable(b);
 		setChildrenPickable(b);
 	}
 }
