@@ -53,7 +53,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
  * </small>
  * @since OME2.2
  */
-public class ProjectEditorManager
+class ProjectEditorManager
 	implements ActionListener
 {
 	private static final int	SAVE = 0;	
@@ -63,7 +63,7 @@ public class ProjectEditorManager
 	private ProjectEditor		view;
 	private JButton 			saveButton, reloadButton;
 	
-	public ProjectEditorManager(ProjectEditor view, ProjectData model)
+	ProjectEditorManager(ProjectEditor view, ProjectData model)
 	{
 		this.view = view;
 		this.model = model;

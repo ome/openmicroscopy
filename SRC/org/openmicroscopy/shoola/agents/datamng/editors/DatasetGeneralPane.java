@@ -48,7 +48,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
@@ -93,10 +93,10 @@ class DatasetGeneralPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		IconFactory factory = (IconFactory) 
-									registry.lookup("/resources/icons/Factory");
+		IconManager IM = IconManager.getInstance(registry);
+	
 		//save button
-		saveButton = new JButton(factory.getIcon("project16.png"));
+		saveButton = new JButton(IM.getIcon(IconManager.SAVE_DB));
 		//get rid of surrounding border
 		saveButton.setBorder(null);
 		saveButton.setMargin(null);
@@ -109,7 +109,7 @@ class DatasetGeneralPane
 		saveButton.setEnabled(false);
 		
 		//reload button
-		reloadButton = new JButton(factory.getIcon("project16.png"));
+		reloadButton = new JButton(IM.getIcon(IconManager.RELOAD_DB));
 		//get rid of surrounding border
 		reloadButton.setBorder(null);
 		reloadButton.setMargin(null);

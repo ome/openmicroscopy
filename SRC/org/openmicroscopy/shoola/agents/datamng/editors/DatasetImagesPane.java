@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * </small>
  * @since OME2.2
  */
-public class DatasetImagesPane
+class DatasetImagesPane
 	extends JPanel
 {
 	private static final Dimension	VP_DIM = new Dimension(200, 70);

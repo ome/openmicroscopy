@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
  * </small>
  * @since OME2.2
  */
-public class ImageEditorManager
+class ImageEditorManager
 	implements ActionListener
 {
 	private static final int	SAVE = 0;	
@@ -64,7 +64,7 @@ public class ImageEditorManager
 	private ImageEditor			view;
 	private JButton 			saveButton, reloadButton;
 	
-	public ImageEditorManager(ImageEditor view, ImageData model)
+	ImageEditorManager(ImageEditor view, ImageData model)
 	{
 		this.view = view;
 		this.model = model;

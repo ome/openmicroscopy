@@ -48,7 +48,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 
@@ -76,7 +76,6 @@ class ProjectGeneralPane
 	private Registry				registry;
 	
 	private JButton					saveButton, reloadButton;
-	private JTable  				projectTable;
 	
 	/** Creates a new instance. */
 	ProjectGeneralPane(ProjectEditorManager manager, Registry registry)
@@ -98,10 +97,9 @@ class ProjectGeneralPane
 	private JPanel buildSummaryPanel() 
 	{	
 		JPanel  p = new JPanel();
-		IconFactory factory = (IconFactory) 
-									registry.lookup("/resources/icons/Factory");
+		IconManager IM = IconManager.getInstance(registry);
 		//save button
-		saveButton = new JButton(factory.getIcon("project16.png"));
+		saveButton = new JButton(IM.getIcon(IconManager.SAVE_DB));
 		//get rid of surrounding border
 		saveButton.setBorder(null);
 		saveButton.setMargin(null);
@@ -114,7 +112,7 @@ class ProjectGeneralPane
 		saveButton.setEnabled(false);
 		
 		//reload button
-		reloadButton = new JButton(factory.getIcon("project16.png"));
+		reloadButton = new JButton(IM.getIcon(IconManager.RELOAD_DB));
 		//get rid of surrounding border
 		reloadButton.setBorder(null);
 		reloadButton.setMargin(null);
@@ -144,7 +142,7 @@ class ProjectGeneralPane
 	   	
 		//summary table
 		ProjectTableModel projectTM = new ProjectTableModel();
-		projectTable = new JTable(projectTM);
+		JTable projectTable = new JTable(projectTM);
 		projectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		projectTable.setTableHeader(null);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -165,11 +163,6 @@ class ProjectGeneralPane
 	public JButton getReloadButton()
 	{ 
 		return reloadButton;
-	}
-	
-	public JTable getProjectTable()
-	{
-		return projectTable;
 	}
 	
 	/** A <code>3x2</code> table model to view project summary.

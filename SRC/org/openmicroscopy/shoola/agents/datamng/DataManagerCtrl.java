@@ -29,18 +29,21 @@
 
 package org.openmicroscopy.shoola.agents.datamng;
 
+
+//Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JMenuItem;
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -57,9 +60,15 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 public class DataManagerCtrl
+	implements ActionListener
 {
 
-	private DataManager	abstraction;
+	static final int		PROJECT_ITEM = 0;
+	static final int		DATASET_ITEM = 1;
+	static final int		IMAGE_ITEM = 2;
+	
+	private DataManager		abstraction;
+	
 	public DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
@@ -75,6 +84,13 @@ public class DataManagerCtrl
 		return abstraction;
 	}
 	
+	/** Attach listener to a menu Item. */
+	void menuItemListener(JMenuItem item, int id)
+	{
+		item.setActionCommand(""+id);
+		item.addActionListener(this);
+	}
+	 
 	/** 
 	 * Brings up a suitable property sheet dialog for the specified
 	 * <code>target</code>.
@@ -101,5 +117,27 @@ public class DataManagerCtrl
 			presentation.showImagePS(image);
 		}
 	}
+
+	/**Handles event fired by menu. */
+	public void actionPerformed(ActionEvent e)
+	{
+		String s = (String) e.getActionCommand();
+		DataManagerUIF presentation = abstraction.getPresentation();
+		try {
+		   int     index = Integer.parseInt(s);
+		   switch (index) { 
+				case PROJECT_ITEM:
+					presentation.showCreateProject(new ProjectData());
+				   	break;
+				case DATASET_ITEM:
+					presentation.showCreateDataset(new DatasetData());
+					break;	
+				   	
+		   }// end switch  
+		} catch(NumberFormatException nfe) {  //impossible if IDs are set correctly 
+			   throw nfe;  //just to be on the safe side...
+		} 
+	}
+	
 		
 }

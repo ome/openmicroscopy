@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -41,15 +40,13 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.openmicroscopy.shoola.env.config.IconFactory;
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * UI component to browse the whole project-dataset
@@ -70,6 +67,13 @@ class ExplorerPane
 	extends JScrollPane
 {
 
+	static final int    ROOT_ICON = 0;   
+	static final int    PROJECT_ICON = 1;
+	static final int    DATASET_ICON = 2;
+	static final int    IMAGE_ICON = 3;
+	static final int    OWNER_ICON = 4;
+	static final int    NO_ICON = 5; 
+	
 	/** This UI component's controller and model. */
 	private ExplorerPaneManager     manager;
 	
@@ -78,8 +82,7 @@ class ExplorerPane
 	
 	/** The tree used to represent the project-dataset hierarchy. */
 	JTree       					tree;
-
-	 
+	
 	/** 
 	 * Creates a new instance.
 	 *
@@ -132,11 +135,7 @@ class ExplorerPane
 	private final class DataTreeCellRenderer
 		extends DefaultTreeCellRenderer
 	{
-		private static final int    ROOT_ICON = 0;   
-		private static final int    PROJECT_ICON = 1;
-		private static final int    DATASET_ICON = 2;
-		private static final int    IMAGE_ICON = 3;
-		private static final int    NO_ICON = 4;
+
 		
 		public Component getTreeCellRendererComponent(JTree tree, Object value,
 							boolean sel, boolean expanded, boolean leaf,
@@ -144,21 +143,19 @@ class ExplorerPane
 		{
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
 													row, hasFocus);
-													
-			IconFactory factory = (IconFactory) 
-							registry.lookup("/resources/icons/Factory");
+			IconManager IM = IconManager.getInstance(registry);									
 			switch (getIconID(value)) {
 				case ROOT_ICON:
-					setIcon(factory.getIcon("OME16.png"));
+					setIcon(IM.getIcon(IconManager.OME));
 					break;
 				case PROJECT_ICON:
-					setIcon(factory.getIcon("project16.png"));
+					setIcon(IM.getIcon(IconManager.PROJECT));
 					break;
 				case DATASET_ICON:
-					setIcon(factory.getIcon("dataset16.png"));
+					setIcon(IM.getIcon(IconManager.DATASET));
 					break;
 				case IMAGE_ICON:
-					setIcon(factory.getIcon("image16.png"));
+					setIcon(IM.getIcon(IconManager.IMAGE));
 					break;
 				case NO_ICON:
 					setIcon(null);

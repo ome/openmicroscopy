@@ -39,11 +39,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 /** 
  * 
@@ -59,7 +58,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
  * </small>
  * @since OME2.2
  */
-public class DatasetOwnerPane
+class DatasetOwnerPane
 	extends JPanel
 {
 

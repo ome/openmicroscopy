@@ -39,16 +39,19 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.editors.CreateDatasetEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.CreateProjectEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.DatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.ImageEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.ProjectEditor;
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -82,13 +85,15 @@ class DataManagerUIF
 	 * UI component to view a summary of the user's data
 	 * and to mark the currently viewed image. 
 	 */
-	private ExplorerPane	explPane;
+	private ExplorerPane			explPane;
 	
 	/** Reference to the regisry. */
-	private Registry		registry;
+	private Registry				registry;
 	
 	/** Reference to the regisry. */
-	private DataManagerCtrl	control;
+	private DataManagerCtrl			control;
+	
+	private JMenu					newMenu;
 			
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
@@ -97,6 +102,7 @@ class DataManagerUIF
 		this.registry = registry;
 		this.control = control;
 		explPane = new ExplorerPane(control, registry);
+		setJMenuBar(createMenuBar());
 		buildGUI();
 	}
 	
@@ -143,6 +149,43 @@ class DataManagerUIF
 	}	
 	
 	/** 
+	 * Brings up the createProject dialog for the specified image.
+	 *
+	 * @param   i   The image whose properties will be displayed by the 
+	 * 				property sheet dialog. Mustn't be <code>null</code>.
+	 */
+	void showCreateProject(ProjectData p)
+	{
+		CreateProjectEditor cpe = new CreateProjectEditor(registry, p);
+		showPS((JDialog) cpe);
+	}
+	
+	/** 
+	 * Brings up the createDataset dialog for the specified image.
+	 *
+	 * @param   i   The image whose properties will be displayed by the 
+	 * 				property sheet dialog. Mustn't be <code>null</code>.
+	 */
+	void showCreateDataset(DatasetData d)
+	{
+		CreateDatasetEditor cde = new CreateDatasetEditor(registry, d);
+		showPS((JDialog) cde);
+	}
+	
+	/** 
+	 * Brings up the createImage dialog for the specified image.
+	 *
+	 * @param   i   The image whose properties will be displayed by the 
+	 * 				property sheet dialog. Mustn't be <code>null</code>.
+	 */
+	void showCreateImage(ImageData i)
+	{
+		//CreateDatasetEditor cde = new CreateDatasetEditor(registry, d);
+		//showPS((JDialog) cpe);
+	}
+	
+	
+	/** 
 	 * Sizes, centers and brings up the specified editor dialog.
 	 *
 	 * @param   editor	The editor dialog.
@@ -172,9 +215,8 @@ class DataManagerUIF
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		IconFactory factory = (IconFactory) 
-								registry.lookup("/resources/icons/Factory");
-		Icon icon = factory.getIcon("OME16.png");
+		IconManager IM = IconManager.getInstance(registry);
+		Icon icon = IM.getIcon(IconManager.OME);
 		
 		//TODO: image not loaded						
 		tabs.addTab("Explorer", icon, explPane);
@@ -191,5 +233,28 @@ class DataManagerUIF
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);	
 	} 	
 	
+	/**Creates an internal menu. */
+	private JMenuBar createMenuBar()
+	{
+		JMenuBar menuBar = new JMenuBar(); 
+		createNewMenu();
+		menuBar.add(newMenu);
+		return menuBar;
+	}
+	
+	/** Creates the <code>newMenu</code>. */
+	private void createNewMenu()
+	{
+		newMenu = new JMenu("New...");
+		JMenuItem menuItem = new JMenuItem("Project");
+		control.menuItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
+		newMenu.add(menuItem);
+		menuItem = new JMenuItem("Dataset");
+		control.menuItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
+		newMenu.add(menuItem);
+		menuItem = new JMenuItem("Image");
+		control.menuItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
+		newMenu.add(menuItem);
+	}
 	
 }

@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
  * </small>
  * @since OME2.2
  */
-public class DatasetEditorManager
+class DatasetEditorManager
 	implements ActionListener
 {
 	private static final int	SAVE = 0;	
@@ -64,7 +64,7 @@ public class DatasetEditorManager
 	private DatasetData			model;
 	private DatasetEditor		view;
 	
-	public DatasetEditorManager(DatasetEditor view, DatasetData model)
+	DatasetEditorManager(DatasetEditor view, DatasetData model)
 	{
 		this.view = view;
 		this.model = model;
