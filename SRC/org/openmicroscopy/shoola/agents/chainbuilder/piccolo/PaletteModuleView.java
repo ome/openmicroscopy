@@ -112,17 +112,14 @@ public class PaletteModuleView extends SingleModuleView {
 		return new FormalOutput(this,paramOut,delegate);
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
-		setAllHighlights(true);
-		((ChainPaletteEventHandler) handler).setLastEntered(this);
-	}
+	
 
 	public void mouseExited(GenericEventHandler handler) {
 		setAllHighlights(false);
-		((ChainPaletteEventHandler) handler).setLastEntered(null);
+		//((ChainPaletteEventHandler) handler).setLastEntered(null);
 	}
 	
-	private ChainBox getChainBoxParent() {
+	public ChainBox getChainBoxParent() {
 		PNode p = getParent();
 		while (p != null) {
 			if (p instanceof ChainBox)
@@ -132,7 +129,7 @@ public class PaletteModuleView extends SingleModuleView {
 		return null;
 	}
 
-	private PaletteChainView getChainViewParent() {
+	public PaletteChainView getChainViewParent() {
 		PNode p = getParent();
 		while (p != null) {
 			if (p instanceof PaletteChainView)
@@ -149,13 +146,17 @@ public class PaletteModuleView extends SingleModuleView {
 	
 	public void mousePopup(GenericEventHandler handler) {
 		PaletteChainView view = getChainViewParent();
-		PBounds b = view.getChainDetailBounds();
-		((ChainPaletteEventHandler) handler).animateToBounds(b);
+		((ChainPaletteEventHandler) handler).animateToNode(view);
 		((ChainPaletteEventHandler) handler).setLastEntered(view);
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		((ChainPaletteEventHandler) handler).animateToBounds(getZoomInBounds());
+		((ChainPaletteEventHandler) handler).setLastEntered(this);
+	}
+	
+	public void mouseEntered(GenericEventHandler handler) {
+		setAllHighlights(true);
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
 	}
 	
