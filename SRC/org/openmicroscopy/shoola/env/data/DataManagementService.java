@@ -38,6 +38,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
@@ -91,6 +92,58 @@ public interface DataManagementService
     public List retrieveUserProjects()
 		throws DSOutOfServiceException, DSAccessException;
     
+	/**
+	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Dataset objects.
+	 * 
+	 * @param dProto	dataset proto.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	public List retrieveUserDatasets(DatasetSummary dProto)
+		throws DSOutOfServiceException, DSAccessException;
+    								
+	/**
+	 * Retrieve all user's datasets.
+	 * Create a list of dataset summary DataObjects filled up with 
+	 * data retrieved from an OMEDS dataset objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+    public List retrieveUserDatasets()
+		throws DSOutOfServiceException, DSAccessException;
+     
+	/**
+	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Dataset objects.
+	 * 
+	 * @param dProto	dataset proto.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	public List retrieveUserImages(ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException;
+    								
+	/**
+	 * Retrieve all user's datasets.
+	 * Create a list of dataset summary DataObjects filled up with 
+	 * data retrieved from an OMEDS dataset objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveUserImages()
+		throws DSOutOfServiceException, DSAccessException; 
+
 	/**
 	 * Create, if none provided, a DataObject and fill it up with
 	 * data retrieved from an OMEDS Project object.
@@ -186,6 +239,58 @@ public interface DataManagementService
     public List retrieveImages(int datasetID)
 		throws DSOutOfServiceException, DSAccessException;
 		
+	/**
+	 * Create a new project.
+	 * 
+	 * @param projectSummaries	List of project summary object.
+	 * @param retVal	DataObject 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public ProjectSummary createProject(ProjectData retVal, 
+										ProjectSummary pProto)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Create a new dataset.
+	 * 
+	 * @param projectSummaries	List of project summary object.
+	 * @param retVal			DataObject
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public DatasetSummary createDataset(List projectSummaries, 
+										List imageSummaries,
+										DatasetData retVal, 
+										DatasetSummary dProto)
+			throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Create a new project.
+	 * 
+	 * @param retVal	DataObject 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public ProjectSummary createProject(ProjectData retVal)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Create a new dataset.
+	 * 
+	 * @param retVal	DataObject
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public DatasetSummary createDataset(List projectSummaries,
+										List imageSummaries,
+										DatasetData retVal)
+			throws DSOutOfServiceException, DSAccessException;
+					
     /**
      * Update a specified project.
      * 
@@ -218,4 +323,5 @@ public interface DataManagementService
 	 */
 	public void updateImage(ImageData retVal)
 			throws DSOutOfServiceException, DSAccessException;
+				
 }
