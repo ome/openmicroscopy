@@ -23,11 +23,13 @@
  *
  * ______
  * NOTES:
- * 1. Ant requires some XML libs to run.  The reason why those libs are not 
- *    incuded with the Builder tool is easy: JDK 1.4 and later already ship
- *    with implemetations of those libs and Ant 1.6.2 (the version we use)
- *    can work just fine with those JDK default libs.  (At least the tasks
- *    we use Ant for.)
+ * 1. Ant requires some XML libs to run.  Even though JDK 1.4 already ships
+ *    with those libraries (Xerces and Xalan), we included them nonetheless.
+ *    The reason is simple: because of the JAXP pluggability layer, different
+ *    JAXP implementations could be used, thus overriding the defaults.  Since
+ *    we tested the build tool with Xerces 2.6.2 and Xalan 2.6.0, we link the
+ *    Builder to those libraries and make sure the system JAXP settings will be 
+ *    overridden to use our libs.
  * 2. The way we invoke Ant is kinda lame, but works fine with all the tasks 
  *    currently in Shoola's build.  The potential problem is that we don't
  *    set ant.home and invoke org.apache.tools.ant.Main rather than the new
@@ -55,17 +57,17 @@
     Temporary dir to write and compile the Builder class.
     NOTE: The deploy target will delete this dir. 
   -->  
-  <property name="tmp.dir" location="tmp"/>
-  <available file="${tmp.dir}" property="tmp.dir.present"/>
+  <property name="tmp.dir" location="tmp" />
+  <available file="${tmp.dir}" property="tmp.dir.present" />
   <fail message="Can't override existing dir: ${tmp.dir}." 
-        if="tmp.dir.present"/> 
+        if="tmp.dir.present" /> 
   
   <!-- Dir containing all Ant and third-party libs. --> 
-  <property name="lib.dir" location="."/>
+  <property name="lib.dir" location="." />
   
   <!-- The set of all Ant and third-party libs. --> 
   <path id="libs">
-    <fileset dir="${lib.dir}" includes="*.jar"/>
+    <fileset dir="${lib.dir}" includes="*.jar" />
   </path>
      
  
@@ -73,12 +75,30 @@
   
   <!-- Private target to write the Builder class source in ${tmp.dir}. -->
   <target name="write-source">
-    <mkdir dir="${tmp.dir}"/>
+    <mkdir dir="${tmp.dir}" />
     <echo file="${tmp.dir}/Builder.java">
       public class Builder
       {
           public static void main(String[] args)
           {
+              //Set Xerces properties. 
+              System.setProperty("javax.xml.parsers.DocumentBuilderFactory", 
+                         "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+              System.setProperty("javax.xml.parsers.SAXParserFactory", 
+                  "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+              System.setProperty(
+                  "org.apache.xerces.xni.parser.XMLParserConfiguration",
+                  "org.apache.xerces.parsers.XML11Configuration");
+              System.setProperty("org.xml.sax.driver", 
+                  "org.apache.xerces.parsers.SAXParser");
+      
+              //Set Xalan properties.
+              System.setProperty("javax.xml.transform.TransformerFactory", 
+                  "org.apache.xalan.processor.TransformerFactoryImpl");
+              System.setProperty("org.apache.xml.dtm.DTMManager", 
+                  "org.apache.xml.dtm.ref.DTMManagerDefault");
+     
+              //Run Ant. 
               org.apache.tools.ant.Main.main(args);
           }
       } 
@@ -93,7 +113,7 @@
            deprecation="yes"
            debug="yes"
            debuglevel="lines,vars,source">
-      <classpath refid="libs"/>
+      <classpath refid="libs" />
     </javac> 
   </target>
 
@@ -104,29 +124,29 @@
     in ${lib.dir} parent directory.
   -->
   <target name="jar" depends="compile">
-    <basename file="${lib.dir}" property="lib.dir.name"/> 
+    <basename file="${lib.dir}" property="lib.dir.name" /> 
     <pathconvert property="jar.manifest.cp" 
                  pathsep=" " 
                  dirsep="/"
                  refid="libs">
-      <map from="${lib.dir}" to="${lib.dir.name}"/>                
+      <map from="${lib.dir}" to="${lib.dir.name}" />                
     </pathconvert>
     <jar destfile="${tmp.dir}/build" basedir="${tmp.dir}" includes="**/*.class">
       <manifest>
-        <attribute name="Created-By" value="OME Development Team"/>
-        <attribute name="Class-Path" value="${jar.manifest.cp}"/>
-        <attribute name="Main-Class" value="Builder"/>
+        <attribute name="Created-By" value="OME Development Team" />
+        <attribute name="Class-Path" value="${jar.manifest.cp}" />
+        <attribute name="Main-Class" value="Builder" />
       </manifest> 
     </jar>
   </target>  
  
   <!-- Public target to deploy 'build' in in ${lib.dir} parent directory. --> 
   <target name="deploy" depends="jar">
-    <dirname file="${lib.dir}" property="lib.dir.parentdir"/>
+    <dirname file="${lib.dir}" property="lib.dir.parentdir" />
     <copy todir="${lib.dir.parentdir}">
-      <fileset file="${tmp.dir}/build"/>
+      <fileset file="${tmp.dir}/build" />
     </copy>
-    <delete dir="${tmp.dir}"/>
+    <delete dir="${tmp.dir}" />
   </target>  
 
 </project>
