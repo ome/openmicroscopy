@@ -41,7 +41,10 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.event.PInputEvent;
+
 //Application-internal dependencies
 
 
@@ -67,6 +70,12 @@ public class ModulePaletteEventHandler extends ModuleNodeEventHandler  {
 		super(canvas);
 	}	
 	
+	public void mouseEntered(PInputEvent event) {
+		PNode node = event.getPickedNode();
+		if (node instanceof PCamera)
+			setLastCategoryBox(null);
+		super.mouseEntered(event);
+	}
 	protected void unhighlightModules() {
 		super.unhighlightModules();
 		if (lastCategoryBox != null) 
@@ -81,6 +90,8 @@ public class ModulePaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void setLastCategoryBox(CategoryBox box) {
+		if (lastCategoryBox != null)
+			lastCategoryBox.setHighlighted(false);
 		lastCategoryBox=box;
 	}
 }
