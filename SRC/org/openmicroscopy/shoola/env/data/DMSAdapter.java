@@ -600,12 +600,10 @@ class DMSAdapter
 		Criteria c = ChainExecutionMapper.
 			buildChainExecutionCriteria(uc.getUserID());
 		long mapEnd = System.currentTimeMillis()-mapStart;
-		System.err.println("build chain execution criteria took.."+mapEnd);
 		// Load the graph defined by the criteria
 		long retStart = System.currentTimeMillis();
 		List execs = (List) gateway.retrieveListData(ChainExecution.class, c);
 		long retEnd = System.currentTimeMillis()-retStart;
-		System.err.println("retreive chain execution list data.."+retEnd);
 		
 		List execDS = null;
 		
@@ -616,8 +614,6 @@ class DMSAdapter
 		long end = System.currentTimeMillis()-start;
 		
 		long fillEnd = System.currentTimeMillis()-fillStart;
-		System.err.println("map chain executions took.."+fillEnd);
-		System.err.println("total retrieve chain executions took.."+end);
 		return execDS;
 	}	
 	
