@@ -204,7 +204,12 @@ public class RenderingAgt
 		try {
 			DataManagementService ds = registry.getDataManagementService();
 			channelData = ds.getChannelData(curImageID); 
-			if (channelData.length != pxsDims.sizeW) defaultInitChannelData();
+            if (channelData == null) defaultInitChannelData();
+			else {
+                if (channelData.length != pxsDims.sizeW) 
+                    defaultInitChannelData();
+            }
+                
 		} catch(DSAccessException dsae) {
 			String s = "Can't retrieve the channel data for "+curImageID+".";
 			registry.getLogger().error(this, s+" Error: "+dsae); 
@@ -215,6 +220,7 @@ public class RenderingAgt
 			ServiceActivationRequest request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
+            defaultInitChannelData();
 		} 
 	}
 

@@ -568,8 +568,8 @@ class DMSAdapter
 			(List) gateway.retrieveListSTSData("PixelChannelComponent", c);
 		
 		List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-		
-		return ImageMapper.fillImageChannelData(ciList, lcList);
+		if (ciList == null || lcList == null) return null;
+        return ImageMapper.fillImageChannelData(ciList, lcList);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
