@@ -266,25 +266,6 @@ public class BoundedEdgePanHandler extends PBasicInputEventHandler
     }
     
     /**
-     * Overrides mouseEntered (but not really)
-     */
-    public void mouseEntered(PInputEvent e)
-    {
-        // do nothing, actually, wait for mouse moved to handle it
-    }
-    
-    /**
-     * Cancels activation on mouse exit.
-     */
-    public void mouseExited(PInputEvent e)
-    {
-        System.err.println("exit");
-        activated = false;
-        activeTask.cancel();
-        activationTimer.cancel();
-    }
-    
-    /**
      * Overrides the mouseMoved method for Piccolo event handlers.
      */
     public void mouseMoved(PInputEvent e)
@@ -305,12 +286,22 @@ public class BoundedEdgePanHandler extends PBasicInputEventHandler
             return;
         }
         
+        System.err.println(cachedBounds);
+        System.err.println(point);
+        if(!cachedBounds.contains(point))
+        {
+            activationTimer.cancel();
+            activeTask.cancel();
+            activated = false;
+        }
+        
         // stop panning or cancel the pan
         if(excludeRegion.contains(point))
         {
             if(activated)
             {
                 activationTimer.cancel();
+                activeTask.cancel();
                 activated = false;
             }
             return; // and bail
