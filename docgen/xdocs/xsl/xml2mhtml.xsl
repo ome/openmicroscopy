@@ -64,7 +64,6 @@ other templates from here.
 		</head>
 		<body>
 			<xsl:call-template name="cover-page"/>
-			<!-- xsl:apply-templates select="document-header"/ -->
 			<xsl:apply-templates select="document-body/table-of-content" mode="toc"/>
 			<xsl:apply-templates select="document-body"/>		
 		</body>
@@ -146,12 +145,12 @@ This template is handles a section element.
 								</p>
 							</div>
 							<!-- Section body. -->
-								<div>
-									<xsl:apply-templates/>
-										<xsl:call-template name="sub-section-links">
-											<xsl:with-param name="link-node" select="$toc//link[@href = $href]"/>
-										</xsl:call-template>
-								</div>
+							<div>
+								<xsl:apply-templates/>
+									<xsl:call-template name="sub-section-links">
+										<xsl:with-param name="link-node" select="$toc//link[@href = $href]"/>
+									</xsl:call-template>
+							</div>
 						</td>
 					</tr>
 					<!-- Document footer. -->
@@ -233,7 +232,8 @@ This template renders a toc link without section numbers
 
 <!-- 
 *************************************************************************
-Dummy template to avoid the below template being applied in normal mode
+Dummy template to avoid the below template being applied 
+in normal mode.
 *************************************************************************
 -->
 <xsl:template match="table-of-content|page-number|page-break">
@@ -325,7 +325,15 @@ This template renders the navigation links for each section.
 -->
 <xsl:template name="get-section-navigation">
 	<xsl:param name="href"/>
-	<xsl:variable name="nodes" select="$toc//link[@href = $href]/../link"/>
+	<!-- xsl:variable name="nodes" select="$toc//link[@href = $href]/../link"/ -->
+	<xsl:variable name="nodes" select="$toc//link"/>
+	<xsl:variable name="href-parent">
+		<xsl:for-each select="$nodes">
+		<xsl:if test="@href = $href and parent::link">
+			<xsl:value-of select="parent::link/@href"/>
+		</xsl:if>
+		</xsl:for-each>
+	</xsl:variable>
 	<!-- toc link -->
 	<xsl:value-of select="$nbsp"/>
 	<a href="{$index-file}">Table of Contents</a>
@@ -333,13 +341,13 @@ This template renders the navigation links for each section.
 		<!-- Up link -->
 		<xsl:if test="@href = $href and parent::link">
 			<xsl:value-of select="$nbsp"/>| Up: <a href="{substring-after(parent::link/@href, '#')}.html">
-				<xsl:if test="$generate-section-numbers = 'yes'">
-					<xsl:call-template name="get-section-number">
-						<xsl:with-param name="href" select="parent::link/@href"/>
-					</xsl:call-template>
-					<xsl:value-of select="$nbsp"/>
-				</xsl:if>
-				<xsl:value-of select="parent::link/text()[1]"/>
+			<xsl:if test="$generate-section-numbers = 'yes'">
+				<xsl:call-template name="get-section-number">
+					<xsl:with-param name="href" select="parent::link/@href"/>
+				</xsl:call-template>
+				<xsl:value-of select="$nbsp"/>
+			</xsl:if>
+			<xsl:value-of select="parent::link/text()[1]"/>
 			</a>
 		</xsl:if>
 	</xsl:for-each>
@@ -347,12 +355,14 @@ This template renders the navigation links for each section.
 		<!-- previous link -->
 		<xsl:if test="following-sibling::link[1][@href = $href]">
 			<xsl:value-of select="$nbsp"/>| Previous: <a href="{substring-after(@href, '#')}.html">
-				<xsl:if test="$generate-section-numbers = 'yes'">
-					<xsl:number level="multiple"/>.<xsl:value-of select="$nbsp"/>
-				</xsl:if>
-				<xsl:value-of select="text()[1]"/>
-			</a>
+			<xsl:if test="$generate-section-numbers = 'yes'">
+				<xsl:number level="multiple"/>.<xsl:value-of select="$nbsp"/>
+			</xsl:if>
+			<xsl:value-of select="text()[1]"/>
+			</a> 
 		</xsl:if>
+	</xsl:for-each>
+	<xsl:for-each select="$nodes">
 		<!-- next link -->
 		<xsl:if test="preceding-sibling::link[1][@href=$href]">
 			<xsl:value-of select="$nbsp"/>| Next: <a href="{substring-after(@href, '#')}.html">
@@ -362,7 +372,45 @@ This template renders the navigation links for each section.
 				<xsl:value-of select="text()[1]"/>
 			</a>
 		</xsl:if>
-	</xsl:for-each>
+	</xsl:for-each>	
+	
+	<xsl:for-each select="$nodes">
+		<!-- next link -->
+		<xsl:if test="preceding-sibling::link[1][@href=$href-parent]">
+			<xsl:value-of select="$nbsp"/>| Down: <a href="{substring-after(@href, '#')}.html">
+				<xsl:if test="$generate-section-numbers = 'yes'">
+					<xsl:number level="multiple"/>.<xsl:value-of select="$nbsp"/>
+				</xsl:if>
+				<xsl:value-of select="text()[1]"/>
+			</a>
+		</xsl:if>
+	</xsl:for-each>		
+		<!--
+		<xsl:if test="following-sibling::link[1][@href = $href]">
+			<xsl:value-of select="$nbsp"/>| Previous: <a href="{substring-after(@href, '#')}.html">
+				<xsl:if test="$generate-section-numbers = 'yes'">
+					<xsl:number level="multiple"/>.<xsl:value-of select="$nbsp"/>
+				</xsl:if>
+				<xsl:value-of select="text()[1]"/>
+			</a>
+</xsl:if>
+-->
+		
+		
+		
+		
+		<!-- next link -->
+		<!--
+		<xsl:if test="preceding-sibling::link[1][@href=$href]">
+			<xsl:value-of select="$nbsp"/>| Next: <a href="{substring-after(@href, '#')}.html">
+				<xsl:if test="$generate-section-numbers = 'yes'">
+					<xsl:number level="multiple"/>.<xsl:value-of select="$nbsp"/>
+				</xsl:if>
+				<xsl:value-of select="text()[1]"/>
+			</a>
+		</xsl:if>
+-->
+	
 </xsl:template>
 
 <!-- 
