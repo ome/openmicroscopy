@@ -218,8 +218,10 @@ public class ParamLink extends  Link {
 	 *
 	 */	
 	public void clearLinks() {
-		start.clearLinkedTo(end);
-		end.clearLinkedTo(start);
+		if (start != null)
+			start.clearLinkedTo(end);
+		if (end != null)
+			end.clearLinkedTo(start);
 	}
 
 	
@@ -241,7 +243,7 @@ public class ParamLink extends  Link {
 	public FormalOutput getOutput() {
 		if (start instanceof FormalOutput)
 				return (FormalOutput) start;
-		else if (end != null)
+		else if (end != null && end instanceof FormalOutput)
 			return (FormalOutput) end;
 		return null;
 	}
