@@ -88,6 +88,8 @@ public class ViewerUIF
 	
 	private Registry				registry;
 	
+	private boolean					active;
+	
 	ViewerUIF(ViewerCtrl control, Registry registry)
 	{
 		//name, resizable, closable, maximizable, iconifiable.
@@ -123,11 +125,14 @@ public class ViewerUIF
 	 void setImage(BufferedImage img)
 	 {
 		canvas.display(img);
-		int w = canvas.getIconWidth()+EXTRA;
-		int h = canvas.getIconHeight()+EXTRA;
-		if (w > WIN_WIDTH) w = WIN_WIDTH;
-		if (h > WIN_HEIGHT) h = WIN_HEIGHT;
-		setSize(w, h);
+		if (!active) {
+			int w = canvas.getIconWidth()+EXTRA;
+			int h = canvas.getIconHeight()+EXTRA;
+			if (w > WIN_WIDTH) w = WIN_WIDTH;
+			if (h > WIN_HEIGHT) h = WIN_HEIGHT;
+			setSize(w, h);
+	 	}
+	 	active = true;
 		revalidate();
 	 }
 	   

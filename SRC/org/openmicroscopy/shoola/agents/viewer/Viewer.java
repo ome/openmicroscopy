@@ -171,16 +171,17 @@ public class Viewer
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
-	
-		if (presentation == null) buildPresentation();
-		else {
-			if (presentation.isClosed()) showPresentation();
-			else if (presentation.isIcon()) deiconifyPresentation();
+		if (curImageID != request.getImageID()) {
+			if (presentation == null) buildPresentation();
+			else {
+				if (presentation.isClosed()) showPresentation();
+				else if (presentation.isIcon()) deiconifyPresentation();
+			}
+			curImageID = request.getImageID();
+			curPixelsID = request.getPixelsID();
+			RenderImage event = new RenderImage(curPixelsID);
+			registry.getEventBus().post(event);
 		}
-		curImageID = request.getImageID();
-		curPixelsID = request.getPixelsID();
-		RenderImage event = new RenderImage(curPixelsID);
-		registry.getEventBus().post(event);
 	}
 	
 	/** Handle event @see ImageRendered. */

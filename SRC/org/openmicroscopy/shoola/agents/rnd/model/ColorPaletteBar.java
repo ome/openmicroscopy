@@ -58,8 +58,9 @@ import javax.swing.JPanel;
 class ColorPaletteBar 
 	extends JPanel
 {
-	/** Color of the cursor. */
-	private static final Color	CURSOR_COLOR = Color.GRAY;
+	
+	/** Color of the knob. */
+	private static final Color	KNOB_COLOR = Color.GRAY;
 	
 	private static final int  	border = ColorPalette.leftBorder;
 	private static final int	triangleW = ColorPalette.triangleW, 
@@ -72,18 +73,18 @@ class ColorPaletteBar
     
 	private static final String	type = "H";
     
-	/** cursor's coordinate. */
-	private int 		xCursor, yCursor;
+	/** knobs' coordinate. */
+	private int 		xKnob, yKnob;
     
 	/**
 	 * Creates a new intance.
 	 * 
-	 * @param x		x-coordinate of the cursor in the range [0, w]
+	 * @param x		x-coordinate of the knob in the range [0, w]
 	 */
 	ColorPaletteBar(int x)
 	{
-		yCursor = 0;
-		xCursor = ColorPalette.leftBorder+x;
+		yKnob = 0;
+		xKnob = ColorPalette.leftBorder+x;
 	}
     
 	/** 
@@ -93,7 +94,7 @@ class ColorPaletteBar
 	 */
 	void setLineLocation(int x)
 	{
-		xCursor = x;
+		xKnob = x;
 	}
     
 	/** Overrides the paintComponent method. */
@@ -103,46 +104,46 @@ class ColorPaletteBar
 		g2D.setPaint(Color.black);
 		g2D.drawString(type, 0, h);
 		int k = 0;        
-		GradientPaint redToYellow = new GradientPaint(border+k*p, yCursor, 
-										Color.red, border+(k+1)*p, yCursor, 
+		GradientPaint redToYellow = new GradientPaint(border+k*p, yKnob, 
+										Color.red, border+(k+1)*p, yKnob, 
 										Color.yellow);
 		g2D.setPaint(redToYellow);
-		g2D.fillRect(border+k*p, yCursor, p, h);
+		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
-		GradientPaint yellowToGreen = new GradientPaint(border+k*p, yCursor, 
+		GradientPaint yellowToGreen = new GradientPaint(border+k*p, yKnob, 
 											Color.yellow, border+(k+1)*p, 
-											yCursor, Color.green);
+											yKnob, Color.green);
 		g2D.setPaint(yellowToGreen);
-		g2D.fillRect(border+k*p, yCursor, p, h);
+		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
-		GradientPaint greenToCyan = new GradientPaint(border+k*p, yCursor,
-										Color.green, border+(k+1)*p, yCursor,
+		GradientPaint greenToCyan = new GradientPaint(border+k*p, yKnob,
+										Color.green, border+(k+1)*p, yKnob,
 										Color.cyan);
 		g2D.setPaint(greenToCyan);
-		g2D.fillRect(border+k*p, yCursor, p, h);
+		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
-		GradientPaint cyanToBlue = new 	GradientPaint(border+k*p, yCursor,
-										Color.cyan, border+(k+1)*p, yCursor,
+		GradientPaint cyanToBlue = new GradientPaint(border+k*p, yKnob,
+										Color.cyan, border+(k+1)*p, yKnob,
 										Color.blue);
 		g2D.setPaint(cyanToBlue);
-		g2D.fillRect(border+k*p, yCursor, p, h);
+		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
-		GradientPaint blueToMagenta = new GradientPaint(border+k*p, yCursor, 
-											Color.blue, border+(k+1)*p, yCursor,
+		GradientPaint blueToMagenta = new GradientPaint(border+k*p, yKnob, 
+											Color.blue, border+(k+1)*p, yKnob,
 											Color.magenta);
 		g2D.setPaint(blueToMagenta);
-		g2D.fillRect(border+k*p, yCursor, p, h);
+		g2D.fillRect(border+k*p, yKnob, p, h);
 		k++;
-		GradientPaint magentaToRed = new GradientPaint(border+k*p, yCursor, 
+		GradientPaint magentaToRed = new GradientPaint(border+k*p, yKnob, 
 											Color.magenta, border+(k+1)*p,
-											yCursor, Color.red);
+											yKnob, Color.red);
 		g2D.setPaint(magentaToRed);
-		g2D.fillRect(border+k*p, yCursor, p, h);
-		// draw cursor
-		g2D.setColor(CURSOR_COLOR);
-		g2D.drawLine(xCursor, yCursor, xCursor, yCursor+h);
-		int xPoints[] = {xCursor, xCursor-triangleW, xCursor+triangleW};
-		int yPoints[] = {yCursor+h, yCursor+h+triangleH, yCursor+h+triangleH};
+		g2D.fillRect(border+k*p, yKnob, p, h);
+		//draw knob
+		g2D.setColor(KNOB_COLOR);
+		g2D.drawLine(xKnob, yKnob, xKnob, yKnob+h);
+		int xPoints[] = {xKnob, xKnob-triangleW, xKnob+triangleW};
+		int yPoints[] = {yKnob+h, yKnob+h+triangleH, yKnob+h+triangleH};
 		GeneralPath filledPolygon = new GeneralPath();
 		filledPolygon.moveTo(xPoints[0], yPoints[0]);
 		for (int index = 1; index < xPoints.length; index++)

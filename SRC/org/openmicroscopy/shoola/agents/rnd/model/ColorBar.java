@@ -58,8 +58,9 @@ import javax.swing.JPanel;
 class ColorBar
 	extends JPanel
 {
-	/** Color of the cursor. */
-	private static final Color	CURSOR_COLOR = Color.GRAY;
+	
+	/** Color of the knob. */
+	private static final Color	KNOB_COLOR = Color.GRAY;
 	
 	private static final int	triangleW = ColorPalette.triangleW, 
 								triangleH = ColorPalette.triangleH;
@@ -68,9 +69,9 @@ class ColorBar
 	private static final int	w = ColorPalette.WIDTH_BAR; 
 	private static final int 	h = ColorPalette.HEIGHT_BAR;
 
-	/** cursor's coordinate. */
-	private int 				xCursor;
-	private int					yCursor;
+	/** Knobs' coordinate. */
+	private int 				xKnob;
+	private int					yKnob;
 	
 	/** paint from colorStart to colorEnd. */
 	private Color 				colorEnd, colorStart;
@@ -80,7 +81,7 @@ class ColorBar
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param x				x-coordinate of the cursor in the range [0, w].
+	 * @param x				x-coordinate of the knob in the range [0, w].
 	 * @param colorStart	color.
 	 * @param colorEnd		color.
 	 */
@@ -89,8 +90,8 @@ class ColorBar
 		this.colorEnd = colorEnd;
 		this.colorStart = colorStart;
 		this.type = type;
-		yCursor = 0;
-		xCursor = ColorPalette.leftBorder+x;       
+		yKnob = 0;
+		xKnob = ColorPalette.leftBorder+x;       
 	}
     
 	/** 
@@ -100,7 +101,7 @@ class ColorBar
 	 */
 	void setLineLocation(int x)
 	{
-		xCursor = x;
+		xKnob = x;
 	}
     
 	/** 
@@ -127,10 +128,10 @@ class ColorBar
 		g2D.setPaint(startToEnd);
 		g2D.fillRect(ColorPalette.leftBorder, 0, w, h);
 		// draw cursor
-		g2D.setColor(CURSOR_COLOR);
-		g2D.drawLine(xCursor, yCursor, xCursor, yCursor+h);
-		int xPoints[] = {xCursor, xCursor-triangleW, xCursor+triangleW};
-		int yPoints[] = {yCursor+h, yCursor+h+triangleH, yCursor+h+triangleH};
+		g2D.setColor(KNOB_COLOR);
+		g2D.drawLine(xKnob, yKnob, xKnob, yKnob+h);
+		int xPoints[] = {xKnob, xKnob-triangleW, xKnob+triangleW};
+		int yPoints[] = {yKnob+h, yKnob+h+triangleH, yKnob+h+triangleH};
 		GeneralPath filledPolygon = new GeneralPath();
 		filledPolygon.moveTo(xPoints[0], yPoints[0]);
 		for (int index = 1; index < xPoints.length; index++)

@@ -56,6 +56,7 @@ import java.awt.event.MouseMotionListener;
 class ColorPaletteManager
 	implements MouseListener, MouseMotionListener
 {
+	
 	private static final int 			leftBorder = ColorPalette.leftBorder;
 	private static final int 			topBorder = ColorPalette.topBorder;
 	private static final int 			widthBar = ColorPalette.WIDTH_BAR;
@@ -99,7 +100,7 @@ class ColorPaletteManager
 	}
 	
 	/** 
-	 * Initializes the rectangles used to control the cursors.
+	 * Initializes the rectangles used to control the knobs.
 	 *
 	 */
 	void initBoxes()
@@ -165,15 +166,15 @@ class ColorPaletteManager
 	
 	
 	/**
-	 * Computes the hue value, creates the colors and updates the color bars
+	 * Compute the hue value, create the colors and update the color bars
 	 * accordingly.
 	 * 
-	 * @param x			x-coordinate value in the range [0, widthBar]
+	 * @param x		x-coordinate value in the range [0, widthBar]
 	 */
 	private void setHue(int x)
 	{
 		hue = (float) x/widthBar;
-		// cD: 	color selected, c: colorBar.
+		//cD: 	color selected, c: colorBar.
 		Color cD = Color.getHSBColor(hue, saturation, brightness);
 		Color c = Color.getHSBColor(hue, 1f, 1f);
 		view.getBarS().setColor(c);
@@ -182,9 +183,9 @@ class ColorPaletteManager
 	}
 	
 	/**
-	 * Computes the saturation value and creates the colors accordingly.
+	 * Compute the saturation value and create the colors accordingly.
 	 * 
-	 * @param x			x-coordinate value in the range [0, widthBar]
+	 * @param x		x-coordinate value in the range [0, widthBar]
 	 */
 	private void setSaturation(int x)
 	{
@@ -194,9 +195,9 @@ class ColorPaletteManager
 	}
 	
 	/**
-	 * Computes the Brightness value and creates the colors accordingly.
+	 * Compute the Brightness value and create the colors accordingly.
 	 * 
-	 * @param x			x-coordinate value in the range [0, widthBar]
+	 * @param x		x-coordinate value in the range [0, widthBar]
 	 */
 	private void setBrightness(int x)
 	{
@@ -206,7 +207,7 @@ class ColorPaletteManager
 	}
 	
 	/** 
-	 * Releases the mouse and sets the dragging control to false.
+	 * Release the mouse and set the dragging control to false.
 	 */
 	public void mouseReleased(MouseEvent e)
 	{
