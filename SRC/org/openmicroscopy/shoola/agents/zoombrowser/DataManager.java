@@ -78,22 +78,22 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 public class DataManager {
 
 	/** The OME Registry */
-	private Registry registry;
+	protected Registry registry;
 	
 	/** Cached list of projects. */
-	private List projects=null;
+	protected List projects=null;
 	
 	/** cached list of datasets */
-	private List datasets = null;
+	protected List datasets = null;
 	
 	/** cached list of modules */
-	private List modules = null;
+	protected List modules = null;
 
 	/** cached list of module categories */
-	private List moduleCategories = null;		
+	protected List moduleCategories = null;		
 
 	/** object to grab thumbnails */
-	private ThumbnailRetriever thumbnailRetriever;
+	protected ThumbnailRetriever thumbnailRetriever;
 	
 	public DataManager(Registry registry) {
 		this.registry = registry;
