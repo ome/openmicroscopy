@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -51,12 +50,10 @@ import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
-import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
  * 
@@ -266,16 +263,6 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrievePixels(int, int)
-     */
-    public PixelsDescription retrievePixels(int pixelsID, int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveModules(org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.ModuleCategoryData, org.openmicroscopy.shoola.env.data.model.FormalInputData, org.openmicroscopy.shoola.env.data.model.FormalOutputData, org.openmicroscopy.shoola.env.data.model.SemanticTypeData)
      */
     public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto, FormalInputData finProto, FormalOutputData foutProto, SemanticTypeData stProto)
@@ -456,46 +443,6 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#getChannelData(int)
-     */
-    public ChannelData[] getChannelData(int imageID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#updateChannelData(org.openmicroscopy.shoola.env.data.model.ChannelData)
-     */
-    public void updateChannelData(ChannelData retVal)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveRenderingSettings(int, int, int)
-     */
-    public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, int pixelType)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#saveRenderingSettings(int, int, org.openmicroscopy.shoola.env.rnd.defs.RenderingDef)
-     */
-    public void saveRenderingSettings(int pixelsID, int imageID, RenderingDef rDef)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesWithAnnotations(int)
      */
     public List retrieveImagesWithAnnotations(int datasetID)
@@ -539,6 +486,76 @@ public class NullDataManagementService
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserProjectsWithDAnnotations(org.openmicroscopy.shoola.env.data.model.ProjectSummary, org.openmicroscopy.shoola.env.data.model.DatasetSummary)
      */
     public List retrieveUserProjectsWithDAnnotations(ProjectSummary pProto, DatasetSummary dProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserGroupImages()
+     */
+    public List retrieveUserGroupImages()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInSystem()
+     */
+    public List retrieveImagesInSystem()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets(java.util.List)
+     */
+    public List retrieveImagesInUserDatasets(List datasetID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets()
+     */
+    public List retrieveImagesInUserDatasets()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserGroupImages(org.openmicroscopy.shoola.env.data.model.ImageSummary)
+     */
+    public List retrieveUserGroupImages(ImageSummary iProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets(java.util.List, org.openmicroscopy.shoola.env.data.model.ImageSummary)
+     */
+    public List retrieveImagesInUserDatasets(List datasetIDs, ImageSummary iProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInSystem(org.openmicroscopy.shoola.env.data.model.ImageSummary)
+     */
+    public List retrieveImagesInSystem(ImageSummary iProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub

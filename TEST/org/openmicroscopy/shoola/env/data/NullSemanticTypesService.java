@@ -41,6 +41,9 @@ import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
  * 
@@ -398,6 +401,56 @@ public class NullSemanticTypesService
     {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrievePixels(int, int)
+     */
+    public PixelsDescription retrievePixels(int pixelsID, int imageID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getChannelData(int)
+     */
+    public ChannelData[] getChannelData(int imageID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateChannelData(org.openmicroscopy.shoola.env.data.model.ChannelData)
+     */
+    public void updateChannelData(ChannelData retVal)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveRenderingSettings(int, int, int)
+     */
+    public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, int pixelType)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#saveRenderingSettings(int, int, org.openmicroscopy.shoola.env.rnd.defs.RenderingDef)
+     */
+    public void saveRenderingSettings(int pixelsID, int imageID, RenderingDef rDef)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        
     }
     
 }
