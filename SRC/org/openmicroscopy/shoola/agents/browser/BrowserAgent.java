@@ -39,11 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.dto.Dataset;
-
-/* 
- * TODO: Get AgentEventListener/EventBus architecture into main CVS tree;
- * talk to J-M and Andrea about this
- */
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -59,7 +56,7 @@ import org.openmicroscopy.shoola.env.data.dto.Dataset;
  * @version 2.2
  * @since 2.2
  */
-public class BrowserAgent // implements AgentEventListener
+public class BrowserAgent implements AgentEventListener
 {
     private List controllers;
 
@@ -185,5 +182,16 @@ public class BrowserAgent // implements AgentEventListener
     {
         // TODO: fill in hideBrowser()
     }
+    
+    /**
+     * Responds to an event on the event bus.
+     * 
+     * @see org.openmicroscopy.shoola.env.event.AgentEventListener#eventFired(org.openmicroscopy.shoola.env.event.AgentEvent)
+     */
+    public void eventFired(AgentEvent e)
+    {
+        // TODO handle listening events here
+    }
+
 
 }

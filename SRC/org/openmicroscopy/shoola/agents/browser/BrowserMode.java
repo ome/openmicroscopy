@@ -65,8 +65,18 @@ public class BrowserMode
      * a good example of a mode, but it illustrates the usage pattern.)
      */
     public static final BrowserMode ANNOTATE_MODE = new BrowserMode(1);
-
-    // TODO: Determine which modes are really necessary and include them
+    
+    /**
+     * Indicates that the browser is in scalar classification ("heat map")
+     * mode.
+     */
+    public static final BrowserMode HEAT_MAP_MODE = new BrowserMode(2);
+    
+    /**
+     * Indicates that the browser is in categorical classification (by
+     * phenotype, etc.) mode.
+     */
+    public static final BrowserMode CLASSIFY_MODE = new BrowserMode(3);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be
