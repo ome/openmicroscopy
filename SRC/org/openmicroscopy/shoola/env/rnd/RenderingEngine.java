@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -87,11 +88,8 @@ public class RenderingEngine
 		return singleton;
 	}
 	
-	
-	
 	private Registry		registry;
 	private Map				renderers;
-	
 	
 	private RenderingEngine(Container c)
 	{
@@ -101,8 +99,8 @@ public class RenderingEngine
 	
 	private void hanldeException(String message, Exception cause)
 	{
-		throw new RuntimeException(message, cause);
-		//TODO: post an event on Swing thread that launches UserNotifier.
+		UserNotifier un = registry.getUserNotifier();
+		un.notifyError("Rendering Engine exception", message, cause);
 	}
 	
 	private void handleLoadImage(LoadImage request)
