@@ -42,8 +42,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.browser.images.Renderable;
-
 /**
  * Model of thumbnail data.
  * 
@@ -58,11 +56,6 @@ public class ThumbnailDataModel
      * The ID of the model/thumbnail.
      */
     protected int ID;
-
-    /**
-     * The raw pixels backing the thumbnail.
-     */
-    protected Renderable pixelSource;
 
     /**
      * The set of attributes in the data model.
@@ -80,10 +73,9 @@ public class ThumbnailDataModel
      * 
      * @param source
      */
-    public ThumbnailDataModel(int ID, Renderable source)
+    public ThumbnailDataModel(int ID)
     {
         this.ID = ID;
-        this.pixelSource = source;
         attributeMap = new HashMap();
         eventListeners = new HashSet();
     }
@@ -95,10 +87,9 @@ public class ThumbnailDataModel
      * @param source
      * @param attributeMap
      */
-    public ThumbnailDataModel(int ID, Renderable source, Map attributeMap)
+    public ThumbnailDataModel(int ID, Map attributeMap)
     {
         this.ID = ID;
-        this.pixelSource = source;
         this.attributeMap = new HashMap();
         eventListeners = new HashSet();
 
@@ -123,15 +114,6 @@ public class ThumbnailDataModel
     public int getID()
     {
         return ID;
-    }
-
-    /**
-     * Returns the raw pixels from the thumbnail's base image.
-     * @return
-     */
-    public Renderable getPixels()
-    {
-        return pixelSource;
     }
 
     /**
