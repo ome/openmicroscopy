@@ -126,8 +126,31 @@ public class AnalysisChainMapper
 		criteria.addWantedField("links.to_input.semantic_type","name"); 
 		return criteria;
 	}
+	
+	public static Criteria buildChainCriteria(int id) {
+		Criteria crit = buildChainCriteria();
+		crit.addFilter("id",new Integer(id));
+		return crit;
+	}
 
 
+	public static void fillChain(AnalysisChain c,AnalysisChainData chain,
+			AnalysisLinkData alProto,AnalysisNodeData anProto,ModuleData mdProto,
+			FormalInputData finProto,FormalOutputData foutProto,SemanticTypeData
+			stProto) {
+		
+		Experimenter exp;
+		chain.setID(c.getID());
+		chain.setName(c.getName());
+		chain.setDescription(c.getDescription());
+		chain.setIsLocked(c.isLocked().booleanValue());
+		
+		exp = c.getOwner();
+		chain.setOwner(exp.getFirstName()+" "+exp.getLastName());
+		getNodes(chain,c,anProto,mdProto);
+		getLinks(chain,c,anProto,alProto,finProto,foutProto,stProto);
+		
+	}
 	
 	/**
 	 * Create list of project summary objects.
@@ -148,7 +171,7 @@ public class AnalysisChainMapper
 		AnalysisChain c;
 		AnalysisChainData chain;
 		Iterator j;
-		Experimenter exp;
+		//Experimenter exp;
 
 		stMap = new HashMap();
 		//For each m in modules....
@@ -157,20 +180,10 @@ public class AnalysisChainMapper
 			
 			//Make a new DataObject and fill it up.
 			chain = (AnalysisChainData) acProto.makeNew();
-			chain.setID(c.getID());
-			chain.setName(c.getName());
-			chain.setDescription(c.getDescription());
-			chain.setIsLocked(c.isLocked().booleanValue());
-			
-			exp = c.getOwner();
-			chain.setOwner(exp.getFirstName()+" "+exp.getLastName());
-			getNodes(chain,c,anProto,mdProto);
-			getLinks(chain,c,anProto,alProto,finProto,foutProto,stProto);
-			
+			fillChain(c,chain,alProto,anProto,mdProto,finProto,foutProto,stProto);
 			chainList.add(chain);
 		}
 		
-		stMap = null; // so we can collect it.
 		return chainList;
 	}
 	
@@ -234,6 +247,7 @@ public class AnalysisChainMapper
 			foutData = (FormalOutputData) foutProto.makeNew();
 			foutData.setID(fout.getID());
 			foutData.setName(fout.getName());
+			foutData.setModule(analysisNode.getModule());
 			st = fout.getSemanticType();
 			if (st != null) {
 				stData = getSemanticTypeData(st,stProto);
@@ -253,6 +267,7 @@ public class AnalysisChainMapper
 			finData = (FormalInputData) finProto.makeNew();
 			finData.setID(fin.getID());
 			finData.setName(fin.getName());
+			finData.setModule(analysisNode.getModule());
 			st = fin.getSemanticType();
 			if (st!= null) {
 				stData = getSemanticTypeData(st,stProto);
@@ -263,7 +278,6 @@ public class AnalysisChainMapper
 			linksList.add(analysisLink);
 						
 		}
-		
 		chain.setLinks(linksList);
 	}
 	
