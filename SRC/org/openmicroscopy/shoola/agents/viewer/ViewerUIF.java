@@ -38,7 +38,6 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
