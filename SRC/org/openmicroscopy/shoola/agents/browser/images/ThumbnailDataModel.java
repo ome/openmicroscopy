@@ -44,7 +44,7 @@ import java.util.Map;
 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /**
  * Model of thumbnail data.
@@ -59,7 +59,7 @@ public class ThumbnailDataModel
     /**
      * The backing basic information of the model/thumbnail.
      */
-    protected ImageData imageData;
+    protected ImageSummary imageSummary;
 
     /**
      * The set of attributes in the data model.
@@ -79,7 +79,7 @@ public class ThumbnailDataModel
      *                  and owner.
      * @throws IllegalArgumentException if basicData is null.
      */
-    public ThumbnailDataModel(ImageData basicData)
+    public ThumbnailDataModel(ImageSummary basicData)
         throws IllegalArgumentException
     {
         if(basicData == null)
@@ -87,7 +87,7 @@ public class ThumbnailDataModel
             throw new IllegalArgumentException("Basic model cannot be null" +
                 " in ThumbnailDataModel(ImageData)");
         }
-        imageData = basicData;
+        imageSummary = basicData;
         attributeMap = new AttributeMap();
         metadataMap = new HashMap();
     }
@@ -101,14 +101,14 @@ public class ThumbnailDataModel
      * @param attributeMap The specified set of String-to-Attribute mappings.
      * @throws IllegalArgumentException if basicData is null.
      */
-    public ThumbnailDataModel(ImageData basicData, AttributeMap attributeMap)
+    public ThumbnailDataModel(ImageSummary basicData, AttributeMap attributeMap)
     {
         if(basicData == null)
         {
             throw new IllegalArgumentException("Basic model cannot be null" +
                 " in ThumbnailDataModel(ImageData,Map)");
         }
-        imageData = basicData;
+        imageSummary = basicData;
         metadataMap = new HashMap();
         
         if(attributeMap == null)
@@ -138,7 +138,7 @@ public class ThumbnailDataModel
      */
     public int getID()
     {
-        return imageData.getID();
+        return imageSummary.getID();
     }
     
     /**
@@ -147,16 +147,16 @@ public class ThumbnailDataModel
      */
     public String getName()
     {
-        return imageData.getName();
+        return imageSummary.getName();
     }
     
     /**
      * Returns the basic set of information about the image.
      * @return See above.
      */
-    public ImageData getImageInformation()
+    public ImageSummary getImageInformation()
     {
-        return imageData;
+        return imageSummary;
     }
 
     /**

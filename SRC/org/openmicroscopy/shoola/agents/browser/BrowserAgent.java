@@ -83,7 +83,6 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -608,10 +607,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     lm.setWellHeight(image.getHeight(null));
                                     wellSized = true;
                                 }
-                                ImageData data = new ImageData();
-                                data.setID(sum.getID());
-                                data.setName(sum.getName());
-                                ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                ThumbnailDataModel tdm = new ThumbnailDataModel(sum);
                                 tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                 tdm.getAttributeMap().putAttribute(pix);
                                 
@@ -662,10 +658,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                 {
                                     Pixels pix = sum.getDefaultPixels().getPixels();
                                     Image image = ps.getThumbnail(pix);
-                                    ImageData data = new ImageData();
-                                    data.setID(sum.getID());
-                                    data.setName(sum.getName());
-                                    ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                    ThumbnailDataModel tdm = new ThumbnailDataModel(sum);
                                     tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                     tdm.getAttributeMap().putAttribute(pix);
                                     images[k] = image;
@@ -741,10 +734,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                     {
                         Pixels pix = summary.getDefaultPixels().getPixels();
                         Image image = ps.getThumbnail(pix);
-                        ImageData data = new ImageData();
-                        data.setID(summary.getID());
-                        ThumbnailDataModel tdm = new ThumbnailDataModel(data);
-                        data.setName(summary.getName());
+                        ThumbnailDataModel tdm = new ThumbnailDataModel(summary);
                         tdm.getAttributeMap().putAttribute(pix);
                         // TODO: figure out strategy for adding attributes.  do it here?
                         final Thumbnail t = new Thumbnail(image,tdm);

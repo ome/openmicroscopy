@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /**
  * The controller of the browser component MVC architecture.
@@ -188,7 +188,7 @@ public class BrowserController
 			for(Iterator iter = keyList.iterator(); iter.hasNext();)
 			{
 				int ID = ((Integer)iter.next()).intValue();
-				ImageData data = model.getImageData(ID);
+				ImageSummary data = model.getImageData(ID);
 				ThumbnailDataModel tdm = dataLoader.loadDataFrom(data);
             
 				// TODO: fix composite settings
