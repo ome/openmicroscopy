@@ -86,6 +86,9 @@ public class PaletteChainView extends ChainView {
 	}
 	
 
+	protected LinkLayer getLinkLayer() {
+		return new PaletteChainLinkLayer();
+	}
 	
 	protected ModuleView getModuleView(ChainModuleData mod) {
 		return new PaletteModuleView(mod);
@@ -100,11 +103,16 @@ public class PaletteChainView extends ChainView {
 		return pLink;
 	}
 	
+	
+	// we don't use module links in palette view
 	protected ModuleLink getModuleLink(LinkLayer linkLayer,ParamLink newLinkNode) {
+		return null; 
+	}
+/*	protected ModuleLink getModuleLink(LinkLayer linkLayer,ParamLink newLinkNode) {
 		ModuleLink  mLink = super.getModuleLink(linkLayer,newLinkNode);
 		mLink.setPickable(false);
 		return mLink;
-	}
+	}*/
 			
 	//	 if this chain is in a chainbox - which would then be the grandparent
 	// return a chain box that is the enclosing grandparent

@@ -82,8 +82,8 @@ public class LinkLayer extends PLayer {
 		super();
 		params = new PNode();
 		addChild(params);
-		modules = new PNode();
-		addChild(modules);
+		//modules = new PNode();
+		//addChild(modules);
 	}
 	
 	
@@ -133,12 +133,16 @@ public class LinkLayer extends PLayer {
 		ModuleLink lnk = findModuleLink(start,end);
 		if (lnk == null) {// if there is no link
 			lnk = new ModuleLink(this,link,start,end);
-			modules.addChild(lnk);
+			addModuleLink(lnk);
 		}
 		return lnk;
 	}
 	
 	public void addModuleLink(ModuleLink lnk) {
+		if (modules == null) {
+			modules = new PNode();
+			addChild(modules);
+		}
 		modules.addChild(lnk);
 	}
 	
@@ -226,7 +230,7 @@ public class LinkLayer extends PLayer {
 	}
 	
 	public void removeModuleLink(ModuleLink lnk) {
-		if (lnk != null)
+		if (lnk != null && modules != null)
 			modules.removeChild(lnk);
 	}
 	
@@ -238,6 +242,9 @@ public class LinkLayer extends PLayer {
 	 */
 	public ModuleLink findModuleLink(ModuleView start,ModuleView end) {
 		ModuleLink lnk = null;
+		
+		if (modules == null)
+			return null;
 		
 		Iterator iter = modules.getChildrenIterator();
 		while (iter.hasNext()) {

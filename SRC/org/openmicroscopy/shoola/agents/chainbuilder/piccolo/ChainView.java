@@ -439,7 +439,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		float ypos = (float) mod.getY()+CURVE_OFFSET;
 		// insert x,y into link somehow.
 		link.insertIntermediatePoint(j,xpos,ypos);
-		modLink.insertIntermediatePoint(j,xpos,ypos);
+		if (modLink != null)
+			modLink.insertIntermediatePoint(j,xpos,ypos);
 	}
 	
 	
