@@ -40,8 +40,10 @@ import javax.swing.event.EventListenerList;
 
 
 /** 
-* A range model based on longs, instead of ints. This code is an adaptation of 
-* the DefaultBoundedRangeModel found in the Java SDK
+* A range model based on longs, instead of ints. This code is similar
+* to the DefaultBoundedRangeModel found in the Java SDK, but it differs in
+* implementation internals and provides a more-stripped down api.
+* 
 *
 * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -54,17 +56,16 @@ import javax.swing.event.EventListenerList;
 
 public class BoundedLongRangeModel {
 	
-    protected EventListenerList listenerList = new EventListenerList();
+    private EventListenerList listenerList = new EventListenerList();
 
-    protected transient ChangeEvent changeEvent = null;
+    private transient ChangeEvent changeEvent = null;
 
-	private static final float LABEL_FACTOR=0.2f;
 
-	private long value = 0;
-    private long extent = 0;
+	private long start = 0;
+    private long end = 0;
     private long min = 0;
     private long max = 100;
-    private boolean isAdjusting = false;
+    private boolean adjusting = false;
 
 	
 	public BoundedLongRangeModel() {
@@ -72,8 +73,8 @@ public class BoundedLongRangeModel {
 	
 	public BoundedLongRangeModel(long min,long max) {
         if (max >= min) {
-            this.value = min;
-            this.extent = max-min;
+            this.start = min;
+            this.end = max;
             this.min = min;
             this.max = max;
         }
@@ -82,16 +83,12 @@ public class BoundedLongRangeModel {
         }
     }
     
-    public long getValue() {
-    		return value;
+    public long getStart() {
+    		return start;
     }
 	
-	public long getMax() {
-		return getValue()+getExtent();
-	}
-	
-	public long getExtent() {
-		return extent;
+	public long getEnd() {
+		return end;
 	}
 	
 	public long getMinimum() {
@@ -103,92 +100,65 @@ public class BoundedLongRangeModel {
 	}
 	
 	public boolean isInRange(long val) {
-		if (val >= value && val <= (value+extent))
+		if (val >= start && val <= end)
 			return true;
 		else
 			return false;
 	}
 	
-    public void setValue(long n) {
-        long newValue = Math.max(n, min);
-        if(newValue + extent > max) {
-            newValue = max - extent; 
-        }
-        setProperties(newValue, extent, min, max, isAdjusting);
+    public void setStart(long n) {
+    		if (n < min)
+    			n=min;
+        update(n,end, adjusting);
     }
     
-    public void setExtent(long n) {
-        long newExtent = Math.max(0, n);
-        if(value + newExtent > max) {
-            newExtent = max - value;
-        }
-        setProperties(value, newExtent, min, max, isAdjusting);
-    }
-
-    public void setMinimum(long n) {
-        long newMax = Math.max(n, max);
-        long newValue = Math.max(n, value);
-        long newExtent = Math.min(newMax - newValue, extent);
-        setProperties(newValue, newExtent, n, newMax, isAdjusting);
+    public void setEnd(long n) {
+    		if (n > max)
+    			n =max;
+    		update(start, n, adjusting);
     }
     
-    public void setMaximum(long n) {
-        long newMin = Math.min(n, min);
-        long newExtent = Math.min(n - newMin, extent);
-        long newValue = Math.min(n - newExtent, value);
-        setProperties(newValue, newExtent, newMin, n, isAdjusting);
+    public void offset(long dx) {
+    		long newStart = start+dx;
+    		long newEnd = end+dx;
+    		if (newStart < min)
+    			newStart = min;
+    		if (newEnd > max)
+    			newEnd = max;
+    		update(newStart,newEnd,adjusting);
     }
 
-    public void setValueIsAdjusting(boolean b) {
-        setProperties(value, extent, min, max, b);
+    public void setAdjusting(boolean b) {
+        update(start, end, b);
     }
 
-    public boolean getValueIsAdjusting() {
-        return isAdjusting; 
-    }
-
-    public void setProperties(long newValue,long newEnd) {
-    		setProperties(newValue,newEnd-newValue,min,max,false);
+    public void reset() {
+    		update(min,max,false);
     }
     
-    public void setProperties(long newValue, 
-    		long newExtent, long newMin, long newMax, boolean adjusting)
+    
+    private void update(long newStart, long newEnd, boolean adjusting)
     {
-        if (newMin > newMax) {
-            newMin = newMax;
-        }
-        
-        if (newValue > newMax) {
-            newMax = newValue;
-        }
-        
-        if (newValue < newMin) {
-            newMin = newValue;
-        }
+    		if (newStart < min)
+    			newStart = min;
+    		
+    		if (newEnd > max)
+    			newEnd = max;
+    
+        if (newEnd < newStart) 
+            newEnd = newStart;
 
-        if ((newExtent + newValue) > newMax) {
-            newExtent = newMax - newValue;
-        }
-	
-        if (newExtent < 0) {
-            newExtent = 0;
-        }
+        boolean changed =
+            (newStart != start) ||
+            (newEnd != end) ||
+            (this.adjusting != adjusting);
 
-        boolean isChange =
-            (newValue != value) ||
-            (newExtent != extent) ||
-            (newMin != min) ||
-            (newMax != max) ||
-            (adjusting != isAdjusting);
+        if (changed) {
+            start = newStart;
+            end = newEnd;
+            this.adjusting = adjusting;
 
-        if (isChange) {
-            value = newValue;
-            extent = newExtent;
-            min = newMin;
-            max = newMax;
-            isAdjusting = adjusting;
-
-            fireStateChanged();
+            fireChange();
         }
     }
 
@@ -203,19 +173,7 @@ public class BoundedLongRangeModel {
     }
 
 
-    public ChangeListener[] getChangeListeners() {
-        return (ChangeListener[])listenerList.getListeners(
-                ChangeListener.class);
-    }
-
-
-    /** 
-     * Runs each <code>ChangeListener</code>'s <code>stateChanged</code> method.
-     * 
-     * @see #setProperties
-     * @see EventListenerList
-     */
-    protected void fireStateChanged() 
+    private void fireChange() 
     {
         Object[] listeners = listenerList.getListenerList();
         for (int i = listeners.length - 2; i >= 0; i -=2 ) {
@@ -227,20 +185,4 @@ public class BoundedLongRangeModel {
             }          
         }
     }   
-
-
-	public String getLowTickString() {
-		long low = getValue();
-		long high = getMax();
-		long lowval =  (long) (low+ LABEL_FACTOR*(high-low));
-		return Long.toString(lowval);
-	}
-	
-	public String getHighTickString() {
-		long low = getValue();
-		long high = getMax();
-		long highval =  (long) (low+(1-LABEL_FACTOR)*(high-low));
-		return Long.toString(highval);
-	}
 }
-

@@ -400,7 +400,7 @@ public class GridModel implements ChangeListener {
 		if (!(o instanceof BoundedLongRangeModel))
 			return;
 		BoundedLongRangeModel blrm = (BoundedLongRangeModel) o;
-		setExtent(blrm.getValue(),blrm.getMax());
+		setExtent(blrm.getStart(),blrm.getEnd());
 		if (canvas != null)
 			canvas.repaint();
 	}

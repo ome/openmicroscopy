@@ -81,7 +81,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * @return the current "low" value shown by the range slider's bar.
 	 */
 	public long getLowValue() {
-		return model.getValue();
+		return model.getStart();
 	}
 	/**
 	 * Returns the current "high" value shown by the range slider's bar. The
@@ -91,7 +91,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * @return the current "high" value shown by the range slider's bar.
 	 */
 	public long getHighValue() {
-		return model.getValue() + model.getExtent();
+		return model.getEnd();
 	}
 	/**
 	 * Returns the minimum possible value for either the low value or the high
@@ -134,15 +134,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *            the low value shown by this range slider
 	 */
 	public void setLowValue(long lowValue) {
-		long high;
-		if ((lowValue + model.getExtent()) > getMaximum()) {
-			high = getMaximum();
-		} else {
-			high = getHighValue();
-		}
-		long extent = high - lowValue;
-		model.setProperties(lowValue, extent, getMinimum(), getMaximum(),
-				true);
+		model.setStart(lowValue);
 	}
 	/**
 	 * Sets the high value shown by this range slider. This causes the range
@@ -152,26 +144,9 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 *            the high value shown by this range slider
 	 */
 	public void setHighValue(long highValue) {
-		model.setExtent(highValue - getLowValue());
+		model.setEnd(highValue);
 	}
-	/**
-	 * Sets the minimum value of the sizeModel.
-	 * 
-	 * @param min
-	 *            the minimum value.
-	 */
-	public void setMinimum(long min) {
-		model.setMinimum(min);
-	}
-	/**
-	 * Sets the maximum value of the sizeModel.
-	 * 
-	 * @param max
-	 *            the maximum value.
-	 */
-	public void setMaximum(long max) {
-		model.setMaximum(max);
-	}
+	
 	Rectangle getInBounds() {
 		Dimension sz = getSize();
 		Insets insets = getInsets();
@@ -313,16 +288,16 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	
 	
 	public int getLeftXCoord() {
-		return toScreenX(model.getValue());
+		return toScreenX(model.getStart());
 	}
 	
 	public int getRightXCoord() {
-		return toScreenX(model.getValue()+model.getExtent());
+		return toScreenX(model.getEnd());
 	}
 	
 	private void offset(long dx)
 	{
-		model.setValue(getLowValue() + dx);
+		model.offset(dx);
 	}
 	/**
 	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
@@ -335,7 +310,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		pick = pickHandle(e.getX());
 		pickOffset = e.getX() - toScreenX(getLowValue());
 		mouseX = e.getX();
-		model.setValueIsAdjusting(true);
+		model.setAdjusting(true);
 	}
 	/**
 	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
@@ -396,7 +371,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {
-		model.setValueIsAdjusting(false);
+		model.setAdjusting(false);
 		
 	}
 	private void setCurs(int c) {
@@ -433,8 +408,8 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 */
 	public void mouseClicked(MouseEvent e) {
 		if (e.getClickCount() == 2) {
-			model.setValue(model.getMinimum());
-			model.setExtent(model.getMaximum() - model.getMinimum());
+			model.setStart(model.getMinimum());
+			model.setEnd(model.getMaximum());
 			repaint();
 		}
 	}

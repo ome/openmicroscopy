@@ -113,7 +113,7 @@ public class ExecutionsModel {
 	public void resetRangeProperties() {
 		long start = chainExecutions.getStartTime();
 		long end = chainExecutions.getEndTime();
-		model.setProperties(start,end);
+		model.reset();
 	}
 
 	public int getChainCount() {
