@@ -54,10 +54,11 @@ class OMEISEntry
     extends Entry
 {
     
-    private HostInfo value;
+    private OMEISInfo value;
     OMEISEntry()
     {
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
@@ -66,17 +67,18 @@ class OMEISEntry
             //add control b/c we don't use a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
-                HostInfo hi = new HostInfo();
+                OMEISInfo info = new OMEISInfo();
                 for (int i = 0; i < childList.getLength(); i++){
                     Node child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
-                        hi.setValue(child.getFirstChild().getNodeValue(),
+                        info.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());
                 }
-                value = hi;
+                value = info;
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {

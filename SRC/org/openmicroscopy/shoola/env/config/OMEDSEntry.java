@@ -55,10 +55,11 @@ class OMEDSEntry
     extends Entry
 {
     
-    private HostInfo value;
+    private OMEDSInfo value;
     OMEDSEntry()
     {
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
@@ -67,14 +68,14 @@ class OMEDSEntry
             //add control b/c we don't use a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
-                HostInfo hi = new HostInfo();
+                OMEDSInfo info = new OMEDSInfo();
                 for (int i = 0; i < childList.getLength(); i++) {
                     Node child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
-                        hi.setValue(child.getFirstChild().getNodeValue(), 
+                        info.setValue(child.getFirstChild().getNodeValue(), 
                                     child.getNodeName());
                 }
-                value = hi;
+                value = info;
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
