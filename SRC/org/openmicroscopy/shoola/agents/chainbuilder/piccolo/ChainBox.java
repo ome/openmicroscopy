@@ -222,10 +222,12 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;
 		if (active == false) {
-			if (!chainHandler.isZoomedIntoChain())
+			if (!chainHandler.isZoomedIntoChain()) {
 				chainHandler.animateToNode(this);
-			else
+			}
+			else {
 				chainHandler.zoomIn(e);
+			}
 			chainHandler.setLastEntered(chainView);
 			SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
 			registry.getEventBus().post(event);
@@ -257,10 +259,14 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
-		PBounds b = chainView.getFullBounds();
-		BufferedImage image = (BufferedImage) chainView.toImage((int) (b.getWidth()*7),
+		if (!e.isControlDown())
+			return;
+		
+		try {
+			PBounds b = chainView.getFullBounds();
+			BufferedImage image = (BufferedImage) chainView.toImage((int) (b.getWidth()*7),
 					(int) (b.getHeight()*7),Constants.CANVAS_BACKGROUND_COLOR);
-		try { 
+		 
 			ImageIO.write(image,"png",new File("foo.png"));
 			System.err.println("Saved chain snapshot");
 		} catch (Exception ex) {
@@ -292,7 +298,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 				((ChainPaletteEventHandler) handler).animateToNode(p);
 			}
 			else {
-				((ChainPaletteEventHandler) handler).animateToCanvasBounds();
+				((ChainPaletteEventHandler) handler).handleBackgroundClick();
 			}
 		}
 	}	
