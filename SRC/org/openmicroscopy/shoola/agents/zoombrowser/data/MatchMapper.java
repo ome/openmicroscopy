@@ -90,4 +90,14 @@ public class MatchMapper
 		Vector items = (Vector) map.get(new Integer(id));
 		return items;	
 	}
+	
+	public void removeMatch(int id,Object object) {
+		Integer ID = new Integer(id);
+		Object obj = map.get(ID);
+		if (obj != null) {
+			Vector items = (Vector) obj;
+			items.remove(object);
+			map.put(ID,items);
+		}
+	}
 }
