@@ -44,7 +44,7 @@ import javax.swing.JRadioButton;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 
 /** 
@@ -100,7 +100,7 @@ public class GreyScalePane
 		GridBagLayout gridbag = new GridBagLayout();
 		contents.setLayout(gridbag);
 		GridBagConstraints cst = new GridBagConstraints();
-		cst.ipadx = RenderingAgt.H_SPACE;
+		cst.ipadx = RenderingAgtUIF.H_SPACE;
 		cst.weightx = 0.5;
 		cst.fill = GridBagConstraints.HORIZONTAL;
 		cst.anchor = GridBagConstraints.EAST;

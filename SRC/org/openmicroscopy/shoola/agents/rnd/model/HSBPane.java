@@ -44,7 +44,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 
@@ -101,7 +101,7 @@ public class HSBPane
 		GridBagLayout gridbag = new GridBagLayout();
 		contents.setLayout(gridbag);
 		GridBagConstraints cst = new GridBagConstraints();
-		cst.ipadx = RenderingAgt.H_SPACE;
+		cst.ipadx = RenderingAgtUIF.H_SPACE;
 		cst.weightx = 0.5;
 		cst.fill = GridBagConstraints.HORIZONTAL;
 		cst.anchor = GridBagConstraints.EAST;
@@ -137,10 +137,10 @@ public class HSBPane
 		//init Color button
 		ColoredButton colorButton = new ColoredButton();
 		colorButton.setBorder(BorderFactory.createLineBorder(
-								RenderingAgt.COLORBUTTON_BORDER));
+                            RenderingAgtUIF.COLORBUTTON_BORDER));
 		colorButton.setBackground(color);
-		colorButton.setPreferredSize(RenderingAgt.COLORBUTTON_DIM);
-		colorButton.setSize(RenderingAgt.COLORBUTTON_DIM);
+		colorButton.setPreferredSize(RenderingAgtUIF.COLORBUTTON_DIM);
+		colorButton.setSize(RenderingAgtUIF.COLORBUTTON_DIM);
 		c.gridx = 0;
 		c.gridy = index;
 		JPanel p = buttonPanel(b);

@@ -49,7 +49,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 
 /** 
  * 
@@ -95,7 +95,7 @@ class ImportImageSelectionPane
 	{
 		removeAll();
 		add(titlePanel, POS_ZERO);
-		add(Box.createRigidArea(DataManager.VBOX), POS_ONE);
+		add(Box.createRigidArea(DataManagerUIF.VBOX), POS_ONE);
 		if (manager.getFilesToImport().size() != 0)
 			add(buildTableToAddPanel(), POS_TWO);
 	}
@@ -132,7 +132,7 @@ class ImportImageSelectionPane
 		ImagesToAddTableModel tm = new ImagesToAddTableModel();
 		JTable table = new JTable(tm);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		table.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane spAdd = new JScrollPane(table);
 		p.add(spAdd);

@@ -40,8 +40,8 @@ import javax.swing.JTextArea;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -88,7 +88,7 @@ public class ImageEditor
 		bar = new ImageEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
+		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
 	/** Returns the save button displayed in {@link ImageEditorBar}. */
@@ -118,7 +118,7 @@ public class ImageEditor
 		tabs.addTab("Owner", im.getIcon(IconManager.OWNER), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
-		tabs.setForeground(DataManager.STEELBLUE);
+		tabs.setForeground(DataManagerUIF.STEELBLUE);
 		TitlePanel tp = new TitlePanel("Image", "Edit an existing image.", 
 								im.getIcon(IconManager.IMAGE_BIG));
 		//set layout and add components

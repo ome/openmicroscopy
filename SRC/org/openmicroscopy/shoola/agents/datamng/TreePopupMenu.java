@@ -129,7 +129,7 @@ class TreePopupMenu
 									icons.getIcon(IconManager.PROPERTIES));
 		properties.setBorder(null);
 		properties.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		properties.setForeground(DataManager.STEELBLUE);
+		properties.setForeground(DataManagerUIF.STEELBLUE);
 		properties.setEnabled(false);    
 	}
 
@@ -140,7 +140,7 @@ class TreePopupMenu
 		view = new JMenuItem("View", icons.getIcon(IconManager.VIEWER));
 		view.setBorder(null);
 		view.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		view.setForeground(DataManager.STEELBLUE); 
+		view.setForeground(DataManagerUIF.STEELBLUE); 
 		view.setEnabled(false);  
 	}
 	
@@ -151,7 +151,7 @@ class TreePopupMenu
 		browse = new JMenuItem("Browse", icons.getIcon(IconManager.BROWSER));
 		browse.setBorder(null);
 		browse.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		browse.setForeground(DataManager.STEELBLUE); 
+		browse.setForeground(DataManagerUIF.STEELBLUE); 
 		browse.setEnabled(false);  
 	}
    
@@ -162,7 +162,7 @@ class TreePopupMenu
 		refresh = new JMenuItem("Refresh", icons.getIcon(IconManager.REFRESH));
 		refresh.setBorder(null);
 		refresh.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		refresh.setForeground(DataManager.STEELBLUE); 
+		refresh.setForeground(DataManagerUIF.STEELBLUE); 
 	}
 
 	/** Creates and initializes the annotate button. */
@@ -173,7 +173,7 @@ class TreePopupMenu
 								icons.getIcon(IconManager.ANNOTATE));
 		annotate.setBorder(null);
 		annotate.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		annotate.setForeground(DataManager.STEELBLUE);
+		annotate.setForeground(DataManagerUIF.STEELBLUE);
 		annotate.setEnabled(false);  
 	}
 	
@@ -185,7 +185,7 @@ class TreePopupMenu
 								icons.getIcon(IconManager.IMPORT_IMAGE));
 		importImg.setBorder(null);
 		importImg.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		importImg.setForeground(DataManager.STEELBLUE);
+		importImg.setForeground(DataManagerUIF.STEELBLUE);
 		importImg.setEnabled(false);  
 	}
 	

@@ -48,12 +48,12 @@ import javax.swing.table.TableColumnModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.util.ui.TableHeaderTextAndIcon;
-import org.openmicroscopy.shoola.util.ui.TableIconRenderer;
-import org.openmicroscopy.shoola.util.ui.TableSorter;
+import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
+import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -174,11 +174,12 @@ class ProjectDatasetsDiffPane
 								"  Select datasets to add to the project.", 
 							im.getIcon(IconManager.DATASET_BIG));
 		contents = buildDatasetsPanel();
-		contents.setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
+		contents.setSize(DataManagerUIF.ADD_WIN_WIDTH, 
+                        DataManagerUIF.ADD_WIN_HEIGHT);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(contents, BorderLayout.CENTER);
-		setSize(DataManager.ADD_WIN_WIDTH, DataManager.ADD_WIN_HEIGHT);
+		setSize(DataManagerUIF.ADD_WIN_WIDTH, DataManagerUIF.ADD_WIN_HEIGHT);
 	}
 	
 	/** Build panel with table. */
@@ -187,9 +188,9 @@ class ProjectDatasetsDiffPane
 		JPanel controls = new JPanel(), p = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(cancelButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		controls.add(selectButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		controls.add(saveButton);
 		controls.setOpaque(false); //make panel transparent
 		
@@ -204,13 +205,13 @@ class ProjectDatasetsDiffPane
 		setTableLayout(t);
 		
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);
-		p.add(Box.createRigidArea(DataManager.VBOX));
+		p.add(Box.createRigidArea(DataManagerUIF.VBOX));
 		p.add(controls);
-		p.add(Box.createRigidArea(DataManager.VBOX));
+		p.add(Box.createRigidArea(DataManagerUIF.VBOX));
 		return p;
 	}
 

@@ -80,35 +80,7 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 public class DataManager
 	implements Agent, AgentEventListener
 {
-	
-	public static final Color   	STEELBLUE = new Color(0x4682B4);
 
-	/** Width of the editor dialog window. */
-	public static final int			EDITOR_WIDTH = 500;
-	
-	/** Height of the editor dialog window. */
-	public static final int			EDITOR_HEIGHT = 500;
-	
-	/** Width of the "add" window. */
-	public static final int			ADD_WIN_WIDTH = 400;
-	
-	/** Height of the "add" window. */
-	public static final int			ADD_WIN_HEIGHT = 400;
-		
-	public static final Dimension	DIM_SCROLL_TABLE = new Dimension(40, 60);
-	
-	public static final Dimension	DIM_SCROLL_NAME = new Dimension(40, 25);
-	
-	public static final int			ROW_TABLE_HEIGHT = 60;
-	
-	public static final int			ROW_NAME_FIELD = 25;
-	
-	public static final int			SELECT_COLUMN_WIDTH = 15;
-	
-	public static final Dimension	HBOX = new Dimension(10, 0),
-									VBOX = new Dimension(0, 10);
-	public static final Dimension	VP_DIM = new Dimension(200, 70);
-	
 	/** Reference to the registry. */
 	private Registry				registry;
 	

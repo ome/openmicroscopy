@@ -74,18 +74,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 public class RenderingAgt
     implements Agent, AgentEventListener
 {
-    
-    public static final Dimension   HBOX = new Dimension(10, 0), 
-                                    VBOX = new Dimension(0, 10);
-    
-    /** horizontal space between the cells in the grid. */
-    public static final int         H_SPACE = 10;
 
-    /** Dimension of the colored button, same size as the icon. */
-    public static final Dimension   COLORBUTTON_DIM = new Dimension(16, 16);
-    
-    public static final Color       COLORBUTTON_BORDER = Color.BLACK;
-    
     private PixelsStats             pxsStats;
     
     private PixelsDimensions        pxsDims;

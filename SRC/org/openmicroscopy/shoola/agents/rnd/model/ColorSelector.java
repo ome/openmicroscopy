@@ -50,9 +50,9 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ColorPanel;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableComponent;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 
 /** 
  * Select a color from a predefined list of colors.

@@ -43,7 +43,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -104,14 +104,14 @@ class CreateProjectEditorBar
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.EAST;
-		Component cp = Box.createRigidArea(DataManager.VBOX);
+		Component cp = Box.createRigidArea(DataManagerUIF.VBOX);
 		gridbag.setConstraints(cp, c);
 		add(cp);
 		c.gridy = 1;
 		gridbag.setConstraints(controls, c); 
 		add(controls);
 		c.gridy = 2;
-		cp = Box.createRigidArea(DataManager.VBOX);
+		cp = Box.createRigidArea(DataManagerUIF.VBOX);
 		gridbag.setConstraints(cp, c);
 		add(cp);
 		setOpaque(false); //make panel transparent
@@ -123,9 +123,9 @@ class CreateProjectEditorBar
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(saveButton);
-		p.add(Box.createRigidArea(DataManager.HBOX));
+		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(cancelButton);
-		p.add(Box.createRigidArea(DataManager.HBOX));
+		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.setOpaque(false); //make panel transparent
 		return p;
 	}

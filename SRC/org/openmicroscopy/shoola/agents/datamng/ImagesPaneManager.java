@@ -47,9 +47,9 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.util.ui.TableHeaderTextAndIcon;
-import org.openmicroscopy.shoola.util.ui.TableIconRenderer;
-import org.openmicroscopy.shoola.util.ui.TableSorter;
+import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
+import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 
 /** 
  * 

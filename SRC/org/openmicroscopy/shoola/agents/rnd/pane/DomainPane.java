@@ -46,7 +46,7 @@ import javax.swing.JSlider;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -210,7 +210,7 @@ class DomainPane
         GridBagConstraints c = new GridBagConstraints();
     
         JLabel label = new JLabel(" Wavelength");
-        c.ipadx = RenderingAgt.H_SPACE;
+        c.ipadx = RenderingAgtUIF.H_SPACE;
         c.weightx = 0.5;
         c.gridx = 0;
         c.gridy = 0;

@@ -45,9 +45,9 @@ import javax.swing.border.Border;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableComponent;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 
 /** 
  * 

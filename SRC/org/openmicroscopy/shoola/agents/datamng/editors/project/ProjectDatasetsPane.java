@@ -50,11 +50,11 @@ import javax.swing.table.TableColumnModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableComponent;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -120,11 +120,11 @@ class ProjectDatasetsPane
 		removeAll();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel);
-		add(Box.createRigidArea(DataManager.VBOX));
+		add(Box.createRigidArea(DataManagerUIF.VBOX));
 		add(buttonsPanel);
 		if (manager.getDatasetsToAdd().size() != 0) {
 			add(buildTableToAddPanel());
-			add(Box.createRigidArea(DataManager.VBOX));
+			add(Box.createRigidArea(DataManagerUIF.VBOX));
 			add(buttonsToAddPanel);
 		}
 		
@@ -141,9 +141,9 @@ class ProjectDatasetsPane
 		buttonsToAddPanel = buildButtonsToAddPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel);
-		add(Box.createRigidArea(DataManager.VBOX));
+		add(Box.createRigidArea(DataManagerUIF.VBOX));
 		add(buttonsPanel);
-		add(Box.createRigidArea(DataManager.VBOX));
+		add(Box.createRigidArea(DataManagerUIF.VBOX));
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -166,7 +166,7 @@ class ProjectDatasetsPane
 
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(resetButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		controls.add(removeButton);
 		controls.setOpaque(false); //make panel transparent
 		
@@ -201,7 +201,7 @@ class ProjectDatasetsPane
 
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(resetToAddButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		controls.add(removeToAddButton);
 		controls.setOpaque(false); //make panel transparent
 		return controls;
@@ -215,9 +215,9 @@ class ProjectDatasetsPane
 		p.add(buildLabelTable());
 		DatasetsAddTableModel tm = new DatasetsAddTableModel();
 		JTable table = new JTable(tm);
-		table.setBackground(DataManager.STEELBLUE);
+		table.setBackground(DataManagerUIF.STEELBLUE);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		table.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane spAdd = new JScrollPane(table);
 		p.add(spAdd);
@@ -237,10 +237,10 @@ class ProjectDatasetsPane
 		//Set the columns' width.
 		TableColumnModel columns = t.getColumnModel();
 		TableColumn column = columns.getColumn(1);
-		column.setPreferredWidth(DataManager.SELECT_COLUMN_WIDTH);
-		column.setWidth(DataManager.SELECT_COLUMN_WIDTH);
+		column.setPreferredWidth(DataManagerUIF.SELECT_COLUMN_WIDTH);
+		column.setWidth(DataManagerUIF.SELECT_COLUMN_WIDTH);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
 		JScrollPane sp = new JScrollPane(t);
 		p.add(sp);
@@ -265,7 +265,7 @@ class ProjectDatasetsPane
 		table.setTableHeader(null);
 		table.setOpaque(false);
 		table.setShowGrid(false);
-		table.setRowHeight(DataManager.ROW_NAME_FIELD);
+		table.setRowHeight(DataManagerUIF.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 

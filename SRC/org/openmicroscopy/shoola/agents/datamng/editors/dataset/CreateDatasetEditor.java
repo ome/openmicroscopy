@@ -41,8 +41,8 @@ import javax.swing.JTextArea;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -87,7 +87,7 @@ public class CreateDatasetEditor
 		bar = new CreateDatasetEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);
+		setSize(DataManagerUIF.EDITOR_WIDTH+100, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
 	Registry getRegistry() { return registry; }
@@ -171,7 +171,7 @@ public class CreateDatasetEditor
 					imagesPane);			
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
-		tabs.setForeground(DataManager.STEELBLUE);
+		tabs.setForeground(DataManagerUIF.STEELBLUE);
 		TitlePanel tp = new TitlePanel("Dataset", "Create a new dataset.", 
 							im.getIcon(IconManager.CREATE_DATASET_BIG));
 		//set layout and add components

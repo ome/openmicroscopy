@@ -37,7 +37,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -51,7 +50,7 @@ import javax.swing.JRadioButton;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -206,7 +205,7 @@ class PlaneSlicingDialog
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildGraphicsPane());
-		p.add(Box.createRigidArea(RenderingAgt.VBOX));
+		p.add(Box.createRigidArea(RenderingAgtUIF.VBOX));
 		p.add(buildControlsPanel());
 		return p;
 	}

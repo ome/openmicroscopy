@@ -39,8 +39,8 @@ import javax.swing.JTextArea;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
@@ -92,7 +92,7 @@ public class ProjectEditor
 		bar = new ProjectEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
+		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
 	Registry getRegistry() { return registry; } 
@@ -166,7 +166,7 @@ public class ProjectEditor
 						POS_OWNER);
   		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
-		tabs.setForeground(DataManager.STEELBLUE);
+		tabs.setForeground(DataManagerUIF.STEELBLUE);
 		TitlePanel tp = new TitlePanel("Edit Project", 
 										"Edit an existing project.", 
 										im.getIcon(IconManager.PROJECT_BIG));

@@ -42,12 +42,12 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.TableComponent;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
-import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+import org.openmicroscopy.shoola.util.ui.table.TableComponent;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 
 /** 
  * 
@@ -81,13 +81,12 @@ class CreateDatasetPane
 		buildGUI();
 	}
 	
-	/** Returns the TextArea with the project's description. */
+	/** Returns the TextArea with the dataset's description. */
 	MultilineLabel getDescriptionArea() { return descriptionArea; }
 
-	/** Returns the textfield with project's name. */
+	/** Returns the textfield with dataset's name. */
 	MultilineLabel getNameField() { return nameField; }
 
-	
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
@@ -103,9 +102,7 @@ class CreateDatasetPane
 		JPanel  p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildTable());
-		//make panel transparent
 		p.setOpaque(false);
-		
 		return p;
 	}
 	
@@ -128,24 +125,20 @@ class CreateDatasetPane
 		table.setValueAt(label, 1, 0);
 
 		DatasetData pd = manager.getDatasetData();
-	
 		//textfields
 		nameField = new MultilineLabel(pd.getName());
-		nameField.setForeground(DataManager.STEELBLUE);
+		nameField.setForeground(DataManagerUIF.STEELBLUE);
 		nameField.setEditable(true);
 		JScrollPane scrollPaneName  = new JScrollPane(nameField);
-		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
+		scrollPaneName.setPreferredSize(DataManagerUIF.DIM_SCROLL_NAME);
 		table.setValueAt(scrollPaneName, 0, 1);  
 
 		descriptionArea = new MultilineLabel(pd.getDescription());
-		descriptionArea.setForeground(DataManager.STEELBLUE);
+		descriptionArea.setForeground(DataManagerUIF.STEELBLUE);
 		descriptionArea.setEditable(true);
 		JScrollPane scrollPane  = new JScrollPane(descriptionArea);
-		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
-
-		// Scrollbar
+		scrollPane.setPreferredSize(DataManagerUIF.DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 1, 1);
-
 		return table;
 	}
 	
@@ -153,8 +146,8 @@ class CreateDatasetPane
 	private void setTableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
-		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
-		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);
+		table.setRowHeight(1, DataManagerUIF.ROW_TABLE_HEIGHT);
+		table.setRowHeight(0, DataManagerUIF.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
