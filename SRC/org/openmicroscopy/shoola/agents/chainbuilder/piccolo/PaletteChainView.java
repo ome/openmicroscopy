@@ -40,6 +40,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
+import edu.umd.cs.piccolo.PLayer;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.activities.PInterpolatingActivity;
@@ -109,7 +110,10 @@ public class PaletteChainView extends ChainView {
 			newScale = widthRatio;
 		fullLayer.setScale(newScale);
 	}
-	
+
+	protected PLayer getFullView() {
+		return fullLayer;
+	}
 	protected ModuleView getModuleView(ChainModuleData mod) {
 		return new PaletteModuleView(mod);
 	}
