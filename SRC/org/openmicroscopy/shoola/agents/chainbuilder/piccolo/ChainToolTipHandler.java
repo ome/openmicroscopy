@@ -79,7 +79,7 @@ public class ChainToolTipHandler extends ModulePaletteToolTipHandler {
 		
 		double scale = camera.getViewScale();
 		if (scale >= SCALE_THRESHOLD)
-			return (PNode) null;
+			return null;
 		
 		PNode n = event.getInputManager().getMouseOver().getPickedNode();
 			
@@ -88,7 +88,7 @@ public class ChainToolTipHandler extends ModulePaletteToolTipHandler {
 			FormalOutput out = ((ParamLink) n).getOutput();
 			String s = in.getName()+"-"+out.getName();
 			if (s.compareTo("") == 0)
-				return (PNode) null;
+				return null;
 			else {
 				PText p = new PText(s);
 				p.setFont(font);
