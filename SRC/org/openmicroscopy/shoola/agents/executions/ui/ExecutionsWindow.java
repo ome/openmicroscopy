@@ -81,6 +81,7 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	ActionListener {
 	
 	private static final int SLIDER_FUDGE=3;
+	private static final String RUN_ICON="nuvola-run16.png";
 	
 	/* a pointer to the registry */
 	private Registry registry;
@@ -127,9 +128,9 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	{
 		IconFactory icons = (IconFactory)  
 			registry.lookup("/resources/icons/MyFactory");
-		Icon execsIcon = icons.getIcon("execs.png");
+		Icon execsIcon = icons.getIcon(RUN_ICON);
 		configureQuickLaunchBtn(execsIcon, "Execution Viewer");
-		configureWinMenuEntry("Execution Viewer", icons.getIcon("execs.png"));
+		configureWinMenuEntry("Execution Viewer", icons.getIcon(RUN_ICON));
 	}
 	
 	/** Builds and lays out this window. */
