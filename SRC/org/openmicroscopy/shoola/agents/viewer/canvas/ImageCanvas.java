@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 
 /** 
- * 
+ * Canvas to display the selected buffered 2D-image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,7 +69,7 @@ public class ImageCanvas
 	/** Width and height. */
 	private int					imageWidth, imageHeight;
 	
-	/** Location of the image. */
+	/** Coordinates of the top-left corner of he image. */
 	private int					x, y;
 	
 	private ViewerUIF view;
@@ -82,7 +82,7 @@ public class ImageCanvas
 	}
  
 	/** 
-	 * Display the image. 
+	 * Paint the image. 
 	 * 
 	 * @param image		buffered image to display.
 	 * 	
@@ -101,9 +101,7 @@ public class ImageCanvas
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		setLocation();
-		FontMetrics fontMetrics = g2D.getFontMetrics();
-		int hFont = fontMetrics.getHeight()/4;
-		paintXYFrame(g2D, hFont);
+		paintXYFrame(g2D);
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -113,8 +111,11 @@ public class ImageCanvas
 		g2D.drawImage(image, null, x+ViewerUIF.START, y+ViewerUIF.START);
 	}
 
-	private void paintXYFrame(Graphics2D g2D, int hFont)
+	/** Paint the frame. */
+	private void paintXYFrame(Graphics2D g2D)
 	{
+		FontMetrics fontMetrics = g2D.getFontMetrics();
+		int hFont = fontMetrics.getHeight()/4;
 		//x-axis
 		int x1 = ViewerUIF.START-ViewerUIF.ORIGIN+x;
 		int y1 = ViewerUIF.START-ViewerUIF.ORIGIN+y;
@@ -129,15 +130,15 @@ public class ImageCanvas
 					x1, ViewerUIF.LENGTH+y1);
 		g2D.drawLine(x1+ViewerUIF.ARROW, ViewerUIF.LENGTH+y1-ViewerUIF.ARROW, 
 					x1, ViewerUIF.LENGTH+y1);	
-		//
+		//name
 		g2D.drawString("o", x1-hFont, y1-hFont);
 		g2D.drawString("x", x1+ViewerUIF.LENGTH/2, y1-hFont);
 		g2D.drawString("y", x1-2*hFont, y1+ViewerUIF.LENGTH-hFont);	
 	}
 	
+	/** Set the coordinates of the top-left corner of the image. */
 	private void setLocation()
 	{
-		//Set the location of the image.
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
 		x = (int) (r.width-imageWidth)/2;
 		y = (int) (r.height-imageHeight)/2;

@@ -83,6 +83,7 @@ public class ZoomBar
 	private Registry 				registry;
 	
 	private ToolBar					tbContainer;
+	
 	public ZoomBar(Registry registry, ImageInspectorManager mng, 
 					ToolBar tbContainer)
 	{

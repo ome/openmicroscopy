@@ -105,6 +105,7 @@ public class ZoomMenuManager
 	}
 	
 	private ZoomMenu				view;
+	
 	private ImageInspectorManager 	control;
 	
 	private HashMap					items;

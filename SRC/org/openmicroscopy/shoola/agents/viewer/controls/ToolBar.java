@@ -235,6 +235,7 @@ public class ToolBar
 		add(ztPanel);
 	}
 	
+	/** Build a toolBar with buttons. */
 	private JToolBar buildBar()
 	{
 		JToolBar bar = new JToolBar();
@@ -252,6 +253,7 @@ public class ToolBar
 		return bar;
 	}
 	
+	/** Build panel with text editor. */
 	private JPanel moviePanel()
 	{
 		JPanel p = new JPanel();
