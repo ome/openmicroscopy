@@ -495,4 +495,34 @@ public class NullDataManagementService
         
     }
 
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesWithAnnotations(int)
+     */
+    public List retrieveImagesWithAnnotations(int datasetID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesWithAnnotations(int, org.openmicroscopy.shoola.env.data.model.ImageSummary)
+     */
+    public List retrieveImagesWithAnnotations(int datasetID, ImageSummary iProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveIDPHierarchy(java.util.List)
+     */
+    public List retrieveIDPHierarchy(List imageSummaries)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
