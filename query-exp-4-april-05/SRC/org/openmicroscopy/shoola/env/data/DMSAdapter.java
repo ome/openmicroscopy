@@ -700,11 +700,7 @@ class DMSAdapter
 		if (foutProto == null)  foutProto = new FormalOutputData();
 		if (stProto == null)    stProto = new SemanticTypeData();
 
-		//Define the criteria by which the object graph is pulled out
-		Criteria c = AnalysisChainMapper.buildChainsCriteria();
-	
-		// Load the graph defined by the criteria
-		List chains = (List) gateway.retrieveListData(AnalysisChain.class, c);
+		List chains = (List) gateway.retrieveChains();
 	
 		List chainsDS = null;
 		if (chains != null) 
