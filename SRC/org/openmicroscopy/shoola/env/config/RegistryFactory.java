@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -162,6 +163,17 @@ public class RegistryFactory
 	public static void linkTopFrame(TopFrame tf, Registry reg)
 	{
 		((RegistryImpl) reg).setTopFrame(tf);
+	}
+	
+	/**
+	 * Adds the {@link TaskBar} instance to the container's {@link Registry}.
+	 * 
+	 * @param tf	The {@link TaskBar} instance.
+	 * @param reg	The container's {@link Registry}.
+	 */
+	public static void linkTaskBar(TaskBar tb, Registry reg)
+	{
+		((RegistryImpl) reg).setTaskBar(tb);
 	}
 	
 	/**
