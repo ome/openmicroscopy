@@ -136,6 +136,11 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		addChild(bulb);
 	}
 	
+	public void setPickable(boolean v) {
+		super.setPickable(v);
+		bulb.setPickable(v);
+	}
+	
 	/**
 	 * Set the starting coordinates of this link. Note that the starting and
 	 * ending coordinates are defined in terms of the order in which the points 
