@@ -192,13 +192,22 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 		return new Rectangle(insets.left, insets.top, sz.width - insets.left
 				- insets.right, sz.height - insets.top - insets.bottom);
 	}
+	
+	
+	Dimension getScreenBounds() {
+		Dimension sz = getSize();
+		Insets insets = getInsets();
+		
+		return new Dimension((int)sz.getWidth()-insets.left-insets.right,
+				(int)sz.getHeight());
+	}
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		long paintStart  = System.currentTimeMillis();
 		g.setColor(Color.lightGray);
-		//Dimension sz = getSize();
 		Rectangle rect = getInBounds();
 		g.fill3DRect(rect.x, rect.y, rect.width, rect.height, false);
 		int minX = toScreenX(getLowValue());
@@ -287,15 +296,15 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	}
 	// Converts from screen coordinates to a range value.
 	private long toLocalX(int x) {
-		Dimension sz = getSize();
+		Dimension sz = getScreenBounds();
 		double xScale = (sz.width - 3) / (double) (getMaximum() - getMinimum());
 		return (long) ((x / xScale) + getMinimum());
 	}
 	// Converts from a range value to screen coordinates.
 	private int toScreenX(long x) {
-		Dimension sz = getSize();
+		Dimension sz = getScreenBounds();
 		double xScale = (sz.width - 3) / (double) (getMaximum() - getMinimum());
-		return (int) ((x - getMinimum()) * xScale);
+		return (int) ((x - getMinimum()) * xScale + getInsets().left);
 	}
 	private int pickHandle(int x) {
 		int minX = toScreenX(getLowValue());
