@@ -155,6 +155,12 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	/*** my event handler */
 	private ChainPaletteEventHandler handler;
 	
+	/** paneevent handler*/
+	private ChainPalettePanHandler panHandler;
+	
+	/** are we panning */
+	private boolean panning = false;
+	
 	/** the data manager */
 	private ChainDataManager dataManager;
 	
@@ -189,7 +195,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		// install custom event handler
 		
 		removeInputEventListener(getZoomEventHandler());
-		removeInputEventListener(getPanEventHandler());
+		removeInputEventListener(panHandler);
 		 
 		
 		// initialize data transfer
@@ -439,7 +445,20 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 
 	public void completeInitialization() {
 		handler = new ChainPaletteEventHandler(this,dataManager.getRegistry()); 
+		panHandler = new ChainPalettePanHandler(handler);
 		addInputEventListener(handler);
+	}
+	
+	public void setToZoom() {
+		panning = false;
+		removeInputEventListener(panHandler);
+		addInputEventListener(handler);
+	}
+	
+	public void setToPan() {
+		panning = true;
+		removeInputEventListener(handler);
+		addInputEventListener(panHandler);
 	}
 	
 	public void scaleToSize() {
@@ -470,7 +489,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	 * @see PPaletteCanvas
 	 */
 	public void dragGestureRecognized(DragGestureEvent event) {
-		if (isChainDragging()) {
+		if (panning == false && isChainDragging()) {
 			Integer id = new Integer(draggingChain.getID());
 			ChainSelection c = new ChainSelection(id);
 			
