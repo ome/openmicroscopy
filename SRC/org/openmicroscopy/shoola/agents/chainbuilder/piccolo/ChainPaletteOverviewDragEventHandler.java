@@ -87,41 +87,12 @@ public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
 	}
 
 
-	/*protected void drag(PInputEvent event) {
-		if (isInBounds(overviewCanvas.getViewRect(),event)) {
-			System.err.println("dragging..");
-			overviewCanvas.updateMainView();
-		}
-	}
-	
-	public boolean isInBounds(PPath viewRect,PInputEvent event) {
-		PDimension d = event.getDeltaRelativeTo(event.getPickedNode());
-		System.err.println("drag delta is "+d);
-		PBounds b = viewRect.getGlobalBounds();
-		camera.viewToLocal(b);
-		camera.viewToLocal(d);
-		System.err.println("final delta to consider is "+d);
-		double myX = b.getX()+d.getWidth();
-		double myY = b.getY()+d.getHeight();
-		
-		double right = myX+b.getWidth();
-		double bottom = myY+b.getHeight();
-		if (myX > overviewCanvas.getWidth()-BOUNDARY 
-				|| myY >overviewCanvas.getHeight()-BOUNDARY)
-			return false;
-		
-		if (bottom < BOUNDARY || right < BOUNDARY)
-			return false;
-		viewRect.offset(d.getWidth(), d.getHeight());
-		return true;
-	}*/
 	
 	protected void drag(PInputEvent event) {
 
 		PDimension d = event.getDeltaRelativeTo(event.getPickedNode());
 		
 		PBounds b = viewRect.getGlobalBounds();
-		//System.err.println("view rect global bounds are ..."+b);
 		double myX = b.getX()+d.getWidth();
 		double myY = b.getY()+d.getHeight();
 		double right = myX+b.getWidth();
@@ -132,10 +103,6 @@ public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
 		
 		PBounds cbounds = overviewCanvas.getDetailLayer().getGlobalFullBounds();
 		
-	//	System.err.println("new pos is "+myX+","+myY+","+right+","+bottom);
-		
-		//System.err.println("canvas..."+overs.getWidth()+","+overs.getHeight());
-		//System.err.println("canvas is "+cbounds);
 		
 		// move as far as we can.
 		if (myX > cbounds.getWidth()-BOUNDARY)

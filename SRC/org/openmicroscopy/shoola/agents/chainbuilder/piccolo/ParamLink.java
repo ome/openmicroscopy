@@ -77,9 +77,6 @@ public class ParamLink extends  Link {
 	
 	public ParamLink(FormalInput in,FormalOutput out) {
 		super();
-		//System.err.println("link between parameters");
-		//this.start = in;
-		//this.end = out;
 		this.start=out;
 		this.end=in;
 		start.addNodeEventListener(this);
@@ -166,18 +163,12 @@ public class ParamLink extends  Link {
 	
 			if ( start instanceof FormalInput) {
 				// in this case, we started at the input and drew back to output
-			//	System.err.println("went from end to start");
-				//first = (Point2D) points.get(1);
 				second = (Point2D) points.get(0);	
 			}
 			else {
 				int n = points.size();
-		//		first = (Point2D) points.get(n-2);
 				second = (Point2D) points.get(n-1);
 			}
-			//theta = getAngle((float) first.getX(),(float)first.getY(),
-			//					(float)second.getX(),(float)second.getY());
-			//System.err.println("ending link at "+second.getX()+","+second.getY());
 			drawLinkEnd((float) second.getX(),(float)second.getY());
 		}
 		catch(Exception e) {

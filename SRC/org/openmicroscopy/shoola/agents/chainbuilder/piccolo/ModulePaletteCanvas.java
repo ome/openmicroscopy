@@ -273,7 +273,6 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 			box.addLabel(nameText);
 			nameText.setScale(2);
 			nameText.moveToFront();
-			//System.err.println("translating name label to "+nameX+","+y);
 			nameText.setOffset(Constants.CATEGORY_LABEL_OFFSET_X,
 				Constants.CATEGORY_LABEL_OFFSET_Y);
 		}

@@ -97,14 +97,12 @@ public class LinkSelectionTarget extends LinkTarget {
 		
 		super.translate(x,y);
 		Point2D pt = getOffset();
-	//	System.err.println("new offset is "+pt.getX()+","+pt.getY());
 		Point2D newPt = new Point2D.Float((float) pt.getX()+
 			Constants.LINK_TARGET_HALF_SIZE,
 			(float) pt.getY()+Constants.LINK_TARGET_HALF_SIZE);
 		link.setPoint(index,newPt);
 		link.setLine();
 		link.setSelected(true);
-		// adjust point in line
 	}
 	
 }

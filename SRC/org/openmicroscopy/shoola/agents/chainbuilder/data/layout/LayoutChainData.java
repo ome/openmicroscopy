@@ -1,4 +1,4 @@
-/*
+	/*
  * org.openmicroscopy.shoola.agents.chainbuidler.data.LayoutChainData
  *
  *------------------------------------------------------------------------------
@@ -474,9 +474,6 @@ public class LayoutChainData  extends AnalysisChainData
 				if (node.hasLayer())
 					continue;
 				
-				//System.err.println("finding successors for "+
-				//		node.getModule().getName());	
-				//System.err.println("...."+node);
 				Collection succs = node.getSuccessors();	
 						
 					
@@ -524,7 +521,6 @@ public class LayoutChainData  extends AnalysisChainData
 	 */
 	private void makeProperLayer(int i) {
 		GraphLayoutNode node;
-		//System.err.println("working on layer "+i);
 		try {
 			Iterator iter = layering.layerIterator(i);
 			if (iter != null) {
@@ -535,7 +531,6 @@ public class LayoutChainData  extends AnalysisChainData
 			}
 		}
 		catch (Exception e) { 
-			//System.err.println("exception in makeProperLayer..");
 			e.printStackTrace();
 		}
 	}
@@ -553,10 +548,7 @@ public class LayoutChainData  extends AnalysisChainData
 		Iterator iter = node.succLinkIterator();
 		LayoutLink link;
 		
-		//System.err.println("making node proper: "+node.getName());
-		//System.err.println("doing links..."); 
 		while (iter.hasNext()) {
-			//System.err.println("LINK: ");
 			link = (LayoutLink) iter.next();
 			makeProperLink(node,link,i,newLinks);
 		}
@@ -581,7 +573,6 @@ public class LayoutChainData  extends AnalysisChainData
 		// we know node is at i.
 		
 		GraphLayoutNode to = link.getToNode();
-		//System.err.println("..link to "+to.getName());
 		int toLayer = to.getLayer();
 		if (toLayer == (i-1)) {
 			// layer is correct
@@ -591,7 +582,6 @@ public class LayoutChainData  extends AnalysisChainData
 			// create new dummy node
 			DummyNode dummy = new DummyNode();
 			LayoutLinkData semanticLayoutLinkData = link.getSemanticLink();
-			//System.err.println("link is ..."+semanticLayoutLinkData.getID());
 			// make this node point to "to"
 			LayoutLink dummyOutLink = new LayoutLink(semanticLayoutLinkData,dummy,to);
 			dummy.addSuccLink(dummyOutLink);
@@ -646,11 +636,8 @@ public class LayoutChainData  extends AnalysisChainData
 				crossingReduction(count,false);
 			}
 			
-			//for (int curLayer = layers.size()-2; curLayer >=0; curLayer--) {
 			for (int curLayer = layering.getLayerCount()-2; 
 				curLayer>=0;curLayer--) {
-				//Vector layer  = (Vector) layers.elementAt(curLayer);
-				//crossingReduction(layer,false); 11/10/03 hsh
 				crossingReduction(curLayer,true);
 			}
 			//stop if no changes
@@ -753,7 +740,6 @@ public class LayoutChainData  extends AnalysisChainData
 		double pos = 0.0;
 		
 		try {
-			//System.err.println("assigning position from layer "+layerNumber);
 			while (iter.hasNext()) {
 				GraphLayoutNode node = (GraphLayoutNode) iter.next();
 				node.setPosInLayer(pos);
