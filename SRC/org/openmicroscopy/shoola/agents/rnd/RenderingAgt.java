@@ -144,8 +144,9 @@ public class RenderingAgt
     private void handleDisplayViewerRelatedAgents(DisplayViewerRelatedAgent 
                                                 response)
     {
-        if (response.isOnOff()) presentation.deIconify();
-        else {
+        if (response.isOnOff()) {
+            if (presentation != null) presentation.deIconify();
+        } else {
             if (presentation != null) removePresentation(); 
         }
     }

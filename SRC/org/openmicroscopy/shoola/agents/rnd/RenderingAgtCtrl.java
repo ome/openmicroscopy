@@ -133,16 +133,10 @@ public class RenderingAgtCtrl
     RenderingAgt getAbstraction() { return abstraction; }
 
     /** Forward event to {@link RenderingAgt abstraction}. */
-    public RenderingAgtUIF getReferenceFrame()
-    {
-        return presentation;
-    }
+    public RenderingAgtUIF getReferenceFrame() { return presentation; }
 
     /** Forward event to {@link RenderingAgtUIF presentation}. */
-    public void setMappingPane()
-    {
-        presentation.setMappingPane();
-    }
+    public void setMappingPane() { presentation.setMappingPane(); }
     
     /** Forward event to {@link RenderingAgt abstraction}.  */
     public void updateChannelData(ChannelData cd)
@@ -316,8 +310,9 @@ public class RenderingAgtCtrl
     /** Handle events. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+           index = Integer.parseInt(e.getActionCommand());
            switch (index) { 
                 case SAVE:
                     saveDisplayOptions(); break;
@@ -350,16 +345,12 @@ public class RenderingAgtCtrl
     }
 
     /** Save the image settings. */
-    public void saveDisplayOptions()
-    {
-        abstraction.saveDisplayOptions();
-    }
+    public void saveDisplayOptions() { abstraction.saveDisplayOptions(); }
     
     /** Create the specified panel. */
     public void activateRenderingModel(int i)
     {
-        Class c = getRendererClass(i);
-        presentation.setModelPane(activate(c), true);
+        presentation.setModelPane(activate(getRendererClass(i)), true);
         QuantumPane qp = presentation.getQuantumPane();
         if (i == GREY) {
             qp.setSelectionWavelengthsEnable(false);
