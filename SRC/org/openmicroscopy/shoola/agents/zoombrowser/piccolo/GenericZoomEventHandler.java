@@ -40,13 +40,9 @@
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import javax.swing.Timer;
 
 //Third-party libraries
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.event.PInputEventFilter;
 import edu.umd.cs.piccolo.PCamera;
@@ -69,8 +65,7 @@ import edu.umd.cs.piccolo.util.PBounds;
  * </small>
  */
 
-public class GenericZoomEventHandler extends  PBasicInputEventHandler 
-	implements ActionListener {
+public class GenericZoomEventHandler extends  GenericEventHandler {
 	
 	/**
 	 * The Canvas for which we are handling events
@@ -88,13 +83,7 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler
 	 */
 	protected boolean postPopup = false;
 	
-	/**  timer for double click events */
-	private final Timer timer = new Timer(300,this);
 	
-	/** cached event for double-clicks */
-	private PInputEvent cachedEvent;
-	
-
 	public GenericZoomEventHandler(BufferedObject canvas) {
 		super();
 		PInputEventFilter filter = new PInputEventFilter();
@@ -103,66 +92,6 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler
 		this.canvas = canvas;		
 	}
 	
-	/**
-	 * Handler for entering a node
-	 */	
-	public void mouseEntered(PInputEvent e) {
-		PNode n = e.getPickedNode();
-
-	
-		if (n instanceof MouseableNode) 
-			((MouseableNode) n).mouseEntered();
-		else 
-			defaultMouseEntered();
-		e.setHandled(true);
-	}
-	
-	/***
-	 * mouse entered for non-mouseable nodes 
-	 */
-	protected void defaultMouseEntered() {
-		
-	}
-	
-	/**
-	 * Mouse exited handler
-	 */
-	public void mouseExited(PInputEvent e) {
-		PNode n = e.getPickedNode();
-	
-		if (n instanceof MouseableNode) 
-			((MouseableNode ) n).mouseExited();
-		e.setHandled(true);
-	}	
-	
-	/** 
-	 * Handling of a mouse click, in order to trap double clicks.
-	 */
-	public void mouseClicked(PInputEvent e) {
-		
-		if (timer.isRunning()) {
-			// this would be a second click within 300ms. call
-			// double click routine
-			timer.stop();
-			doMouseDoubleClicked(e);
-		}
-		else {
-			// first click. start the timer and save the event
-			timer.restart();
-			cachedEvent = e;
-		}
-	}
-
-	/**
-	 * If the timer expires after a click, there was no second click.
-	 * treat this like a single  click.
-	 */
-	public void actionPerformed(ActionEvent e) {
-		if (cachedEvent != null)
-			doMouseClicked(cachedEvent);
-		cachedEvent = null;
-		timer.stop();
-	}
 	
 	/**
 	 * If the mouse is single-clicked on a buffered node (either a 
@@ -176,11 +105,9 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler
 		PNode node = e.getPickedNode();
 		int mask = e.getModifiers() & allButtonMask;
 		
-		if (postPopup == true) {
-			postPopup = false;
-			e.setHandled(true);
+		if (isPostPopup(e))
 			return;
-		}
+			
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
 			
 			if (node instanceof MouseableNode) {
@@ -199,15 +126,7 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler
 		}
 		e.setHandled(true); 
 	}
-	
-	public void doMouseDoubleClicked(PInputEvent e) {
-		PNode n = e.getPickedNode();
-
-		if (n instanceof MouseableNode) 
-			((MouseableNode ) n).mouseDoubleClicked();
-		e.setHandled(true);
-	}
-	
+		
 	/**
 	 * Specific code for handling a background click
 	 */
@@ -215,27 +134,12 @@ public class GenericZoomEventHandler extends  PBasicInputEventHandler
 		animateToCanvasBounds();
 	}
 	
-	/**
-	 * Mouse release event can lead to a popup
-	 */
-	public void mouseReleased(PInputEvent e) {
-		if (e.isPopupTrigger()) {
-			handlePopup(e);
-			e.setHandled(true);
-		}
-	}
-	
-	/**
-	 * Mouse press event can lead to a popup
-	 */
-	public void mousePressed(PInputEvent e) {
-		mouseReleased(e);
-	}
+
 	
 	/***
 	 * Handle the popup, or zoom to the parent of the current node 
 	 */
-	protected void handlePopup(PInputEvent e) {
+	public void handlePopup(PInputEvent e) {
 		postPopup = true;
 		PNode node = e.getPickedNode();
 		if (node instanceof MouseableNode) {
