@@ -32,7 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -67,8 +67,7 @@ public class NullPixelsService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#newPixels(int, int, int, int, int, int, boolean, boolean)
      */
-    public Pixels newPixels(int sizeX, int sizeY, int sizeZ, int sizeC,
-            int sizeT, int bytesPerPixel, boolean isSigned, boolean isFloat)
+    public Pixels newPixels(int sizeX, int sizeY, int sizeZ, int sizeC, int sizeT, int bytesPerPixel, boolean isSigned, boolean isFloat)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
@@ -148,8 +147,7 @@ public class NullPixelsService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getPlane(org.openmicroscopy.ds.st.Pixels, int, int, int, boolean)
      */
-    public byte[] getPlane(Pixels pixels, int theZ, int theC, int theT,
-            boolean bigEndian)
+    public byte[] getPlane(Pixels pixels, int theZ, int theC, int theT, boolean bigEndian)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
@@ -159,8 +157,7 @@ public class NullPixelsService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getROI(org.openmicroscopy.ds.st.Pixels, int, int, int, int, int, int, int, int, int, int, boolean)
      */
-    public byte[] getROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0,
-            int x1, int y1, int z1, int c1, int t1, boolean bigEndian)
+    public byte[] getROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0, int x1, int y1, int z1, int c1, int t1, boolean bigEndian)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
@@ -174,7 +171,7 @@ public class NullPixelsService
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -184,74 +181,67 @@ public class NullPixelsService
             throws ImageServerException, FileNotFoundException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setStack(org.openmicroscopy.ds.st.Pixels, int, int, byte[], boolean)
      */
-    public void setStack(Pixels pixels, int theC, int theT, byte[] buf,
-            boolean bigEndian)
+    public void setStack(Pixels pixels, int theC, int theT, byte[] buf, boolean bigEndian)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setStack(org.openmicroscopy.ds.st.Pixels, int, int, java.io.File, boolean)
      */
-    public void setStack(Pixels pixels, int theC, int theT, File file,
-            boolean bigEndian)
+    public void setStack(Pixels pixels, int theC, int theT, File file, boolean bigEndian)
             throws ImageServerException, FileNotFoundException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setPlane(org.openmicroscopy.ds.st.Pixels, int, int, int, byte[], boolean)
      */
-    public void setPlane(Pixels pixels, int theZ, int theC, int theT,
-            byte[] buf, boolean bigEndian)
+    public void setPlane(Pixels pixels, int theZ, int theC, int theT, byte[] buf, boolean bigEndian)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setPlane(org.openmicroscopy.ds.st.Pixels, int, int, int, java.io.File, boolean)
      */
-    public void setPlane(Pixels pixels, int theZ, int theC, int theT,
-            File file, boolean bigEndian)
+    public void setPlane(Pixels pixels, int theZ, int theC, int theT, File file, boolean bigEndian)
             throws ImageServerException, FileNotFoundException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setROI(org.openmicroscopy.ds.st.Pixels, int, int, int, int, int, int, int, int, int, int, byte[], boolean)
      */
-    public void setROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0,
-            int x1, int y1, int z1, int c1, int t1, byte[] buf,
-            boolean bigEndian)
+    public void setROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0, int x1, int y1, int z1, int c1, int t1, byte[] buf, boolean bigEndian)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#setROI(org.openmicroscopy.ds.st.Pixels, int, int, int, int, int, int, int, int, int, int, java.io.File, boolean)
      */
-    public void setROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0,
-            int x1, int y1, int z1, int c1, int t1, File file, boolean bigEndian)
+    public void setROI(Pixels pixels, int x0, int y0, int z0, int c0, int t0, int x1, int y1, int z1, int c1, int t1, File file, boolean bigEndian)
             throws ImageServerException, FileNotFoundException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -261,7 +251,7 @@ public class NullPixelsService
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -287,7 +277,7 @@ public class NullPixelsService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getComposite(org.openmicroscopy.ds.st.Pixels, org.openmicroscopy.is.CompositingSettings)
      */
-    public Image getComposite(Pixels pixels, CompositingSettings settings)
+    public BufferedImage getComposite(Pixels pixels, CompositingSettings settings)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
@@ -301,13 +291,13 @@ public class NullPixelsService
             throws ImageServerException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getThumbnail(org.openmicroscopy.ds.st.Pixels)
      */
-    public Image getThumbnail(Pixels pixels)
+    public BufferedImage getThumbnail(Pixels pixels)
             throws ImageServerException
     {
         // TODO Auto-generated method stub
@@ -317,7 +307,7 @@ public class NullPixelsService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.PixelsService#getThumbnail(org.openmicroscopy.ds.st.Pixels, int, int)
      */
-    public Image getThumbnail(Pixels pixels, int width, int height)
+    public BufferedImage getThumbnail(Pixels pixels, int width, int height)
             throws ImageServerException
     {
         // TODO Auto-generated method stub

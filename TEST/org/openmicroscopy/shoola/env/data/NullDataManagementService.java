@@ -76,7 +76,6 @@ public class NullDataManagementService
         implements DataManagementService
 {
 
-
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#getUserDetails()
      */
@@ -86,7 +85,7 @@ public class NullDataManagementService
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#getSessionKey()
      */
@@ -99,8 +98,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserProjects(org.openmicroscopy.shoola.env.data.model.ProjectSummary, org.openmicroscopy.shoola.env.data.model.DatasetSummary)
      */
-    public List retrieveUserProjects(ProjectSummary pProto,
-            DatasetSummary dProto)
+    public List retrieveUserProjects(ProjectSummary pProto, DatasetSummary dProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -120,8 +118,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserProjectsWithDatasetData(org.openmicroscopy.shoola.env.data.model.ProjectSummary, org.openmicroscopy.shoola.env.data.model.DatasetData)
      */
-    public List retrieveUserProjectsWithDatasetData(ProjectSummary pProto,
-            DatasetData dProto)
+    public List retrieveUserProjectsWithDatasetData(ProjectSummary pProto, DatasetData dProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -159,9 +156,9 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserDatasets(org.openmicroscopy.shoola.env.data.model.DatasetData, org.openmicroscopy.shoola.env.data.model.ImageSummary)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#fullRetrieveUserDatasets(org.openmicroscopy.shoola.env.data.model.DatasetData, org.openmicroscopy.shoola.env.data.model.ImageSummary)
      */
-    public List retrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
+    public List fullRetrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -281,9 +278,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveModules(org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.ModuleCategoryData, org.openmicroscopy.shoola.env.data.model.FormalInputData, org.openmicroscopy.shoola.env.data.model.FormalOutputData, org.openmicroscopy.shoola.env.data.model.SemanticTypeData)
      */
-    public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto,
-            FormalInputData finProto, FormalOutputData foutProto,
-            SemanticTypeData stProto)
+    public List retrieveModules(ModuleData mProto, ModuleCategoryData mcProto, FormalInputData finProto, FormalOutputData foutProto, SemanticTypeData stProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -303,8 +298,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveModuleCategories(org.openmicroscopy.shoola.env.data.model.ModuleCategoryData, org.openmicroscopy.shoola.env.data.model.ModuleData)
      */
-    public List retrieveModuleCategories(ModuleCategoryData mcProto,
-            ModuleData mProto)
+    public List retrieveModuleCategories(ModuleCategoryData mcProto, ModuleData mProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -324,10 +318,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveChains(org.openmicroscopy.shoola.env.data.model.AnalysisChainData, org.openmicroscopy.shoola.env.data.model.AnalysisLinkData, org.openmicroscopy.shoola.env.data.model.AnalysisNodeData, org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.FormalInputData, org.openmicroscopy.shoola.env.data.model.FormalOutputData, org.openmicroscopy.shoola.env.data.model.SemanticTypeData)
      */
-    public List retrieveChains(AnalysisChainData acProto,
-            AnalysisLinkData alProto, AnalysisNodeData anProto,
-            ModuleData modProto, FormalInputData finProto,
-            FormalOutputData foutProto, SemanticTypeData stProto)
+    public List retrieveChains(AnalysisChainData acProto, AnalysisLinkData alProto, AnalysisNodeData anProto, ModuleData modProto, FormalInputData finProto, FormalOutputData foutProto, SemanticTypeData stProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -345,12 +336,29 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveChain(int)
+     */
+    public AnalysisChainData retrieveChain(int id)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveChain(int, org.openmicroscopy.shoola.env.data.model.AnalysisChainData, org.openmicroscopy.shoola.env.data.model.AnalysisLinkData, org.openmicroscopy.shoola.env.data.model.AnalysisNodeData, org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.FormalInputData, org.openmicroscopy.shoola.env.data.model.FormalOutputData, org.openmicroscopy.shoola.env.data.model.SemanticTypeData)
+     */
+    public AnalysisChainData retrieveChain(int id, AnalysisChainData acProto, AnalysisLinkData alProto, AnalysisNodeData anProto, ModuleData modProto, FormalInputData finProto, FormalOutputData foutProto, SemanticTypeData stProto)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveChainExecutions(org.openmicroscopy.shoola.env.data.model.ChainExecutionData, org.openmicroscopy.shoola.env.data.model.DatasetData, org.openmicroscopy.shoola.env.data.model.AnalysisChainData, org.openmicroscopy.shoola.env.data.model.NodeExecutionData, org.openmicroscopy.shoola.env.data.model.AnalysisNodeData, org.openmicroscopy.shoola.env.data.model.ModuleData, org.openmicroscopy.shoola.env.data.model.ModuleExecutionData)
      */
-    public List retrieveChainExecutions(ChainExecutionData ceProto,
-            DatasetData dsProto, AnalysisChainData acProto,
-            NodeExecutionData neProto, AnalysisNodeData anProto,
-            ModuleData mProto, ModuleExecutionData meProto)
+    public List retrieveChainExecutions(ChainExecutionData ceProto, DatasetData dsProto, AnalysisChainData acProto, NodeExecutionData neProto, AnalysisNodeData anProto, ModuleData mProto, ModuleExecutionData meProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -370,8 +378,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#createProject(org.openmicroscopy.shoola.env.data.model.ProjectData, org.openmicroscopy.shoola.env.data.model.ProjectSummary)
      */
-    public ProjectSummary createProject(ProjectData retVal,
-            ProjectSummary pProto)
+    public ProjectSummary createProject(ProjectData retVal, ProjectSummary pProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -381,8 +388,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#createDataset(java.util.List, java.util.List, org.openmicroscopy.shoola.env.data.model.DatasetData, org.openmicroscopy.shoola.env.data.model.DatasetSummary)
      */
-    public DatasetSummary createDataset(List projectSummaries,
-            List imageSummaries, DatasetData retVal, DatasetSummary dProto)
+    public DatasetSummary createDataset(List projectSummaries, List imageSummaries, DatasetData retVal, DatasetSummary dProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -402,8 +408,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#createDataset(java.util.List, java.util.List, org.openmicroscopy.shoola.env.data.model.DatasetData)
      */
-    public DatasetSummary createDataset(List projectSummaries,
-            List imageSummaries, DatasetData retVal)
+    public DatasetSummary createDataset(List projectSummaries, List imageSummaries, DatasetData retVal)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -417,7 +422,7 @@ public class NullDataManagementService
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -427,7 +432,7 @@ public class NullDataManagementService
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -437,7 +442,7 @@ public class NullDataManagementService
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -447,7 +452,7 @@ public class NullDataManagementService
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
@@ -467,14 +472,13 @@ public class NullDataManagementService
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
+        
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveRenderingSettings(int, int, int)
      */
-    public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID,
-            int pixelType)
+    public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, int pixelType)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -484,27 +488,11 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#saveRenderingSettings(int, int, org.openmicroscopy.shoola.env.rnd.defs.RenderingDef)
      */
-    public void saveRenderingSettings(int pixelsID, int imageID,
-            RenderingDef rDef)
+    public void saveRenderingSettings(int pixelsID, int imageID, RenderingDef rDef)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-
-    }
-     
-    public AnalysisChainData retrieveChain(int id)
-        throws DSOutOfServiceException, DSAccessException
-    {
-    		return null;
+        
     }
 
-    public AnalysisChainData retrieveChain(int id, AnalysisChainData acProto,
-            AnalysisLinkData alProto, AnalysisNodeData anProto,
-            ModuleData modProto, FormalInputData finProto, 
-            FormalOutputData foutProto, SemanticTypeData stProto)
-        throws DSOutOfServiceException, DSAccessException
-    {
-    		return null;
-    }
- 
 }
