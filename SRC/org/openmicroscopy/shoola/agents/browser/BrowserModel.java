@@ -35,7 +35,6 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
-// TODO: put hotspot areas in LayoutMethod or BrowserModel? (Layout class?)
 import java.util.*;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailSourceMap;
@@ -79,7 +78,6 @@ public class BrowserModel
 
         // default behavior (may replace later)
         currentMode = BrowserMode.DEFAULT_MODE;
-        // TODO: add layout method initialization
     }
 
     /**
