@@ -81,14 +81,16 @@ class OMEDSGateway
 	}
 	
 	/**
-	 * Try to connect to <i>OMEDS</i>.
+	 * Tries to connect to <i>OMEDS</i> and log in by using the supplied
+	 * credentials.
 	 * 
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * 			retrieve data from OMEDS service.
+	 * @param userName	The user name to be used for login.
+	 * @param password	The password to be used for login.
+	 * @throws DSOutOfServiceException If the connection can't be established
+	 * 									or the credentials are invalid.
 	 */
 	void login(String userName, String password)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException
 	{
 		RemoteCaller proxy = proxiesFactory.getRemoteCaller();
 		proxy.login(userName, password);
