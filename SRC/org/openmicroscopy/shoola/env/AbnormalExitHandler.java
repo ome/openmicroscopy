@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -118,20 +119,17 @@ class AbnormalExitHandler
 		un.notifyError("Abnormal Termination", 
 					"An unforeseen error occurred, the application will exit.",
 					diagnostic);
-		
+				
 		//Now try to log.  There may be no logger yet (or even no container)
-		//if the exception was thrown at start up.
+		//if the exception was thrown at start up.		
+		LogMessage msg = new LogMessage();
+		msg.writeln("Abnormal termination due to an uncaught exception.");
+		msg.write(diagnostic);
 		Container c = Container.getInstance();
 		Logger logger = null;
 		if (c != null)	logger = c.getRegistry().getLogger();
-		if (logger != null)	
-			logger.fatal(this, 
-						"Abnormal termination due to an uncaught exception.\n"+
-						diagnostic);
-		else
-			System.err.println(
-						"Abnormal termination due to an uncaught exception.\n"+
-						diagnostic);
+		if (logger != null)		logger.fatal(this, msg.toString());
+		else	System.err.println(msg.toString());
 		
 		//Quit the app. 
 		System.exit(1);
@@ -153,24 +151,25 @@ class AbnormalExitHandler
 		int framesToPrint = (trace.length < MAX_STACK_TRACE ? 
 						trace.length : MAX_STACK_TRACE),
 				framesLeft = (trace.length - framesToPrint); 
-		StringBuffer buf = new StringBuffer();
-		buf.append(t.getClass().getName());
-		buf.append(": ");
-		buf.append(t.getMessage());
-		buf.append("\n");
+		
+		LogMessage buf = new LogMessage();
+		buf.write(t.getClass().getName());
+		buf.write(": ");
+		buf.writeln(t.getMessage());
 		for (int i = 0; i < framesToPrint; ++i) {
-			buf.append("\tat ");
-			buf.append(trace[i].toString());
-			buf.append("\n");
+			buf.writetab();
+			buf.write("at ");
+			buf.writeln(trace[i].toString());
 		}
 		if (0 < framesLeft) {
-			buf.append("\t\t(... ");
-			buf.append(framesLeft);
-			buf.append(" more)\n");
+			buf.writetab(2);
+			buf.write("(... ");
+			buf.write(""+framesLeft);
+			buf.writeln(" more)");
 		}
-		buf.append("Exception in thread \"");
-		buf.append(Thread.currentThread().getName());	
-		buf.append("\"\n");
+		buf.write("Exception in thread \"");
+		buf.write(Thread.currentThread().getName());	
+		buf.writeln("\"");
 		return buf.toString();
 	}
 
