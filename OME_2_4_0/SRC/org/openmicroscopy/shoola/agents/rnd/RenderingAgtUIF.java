@@ -163,6 +163,7 @@ public class RenderingAgtUIF
     {
         quantumPane = new QuantumPane(control);
         modelPane = control.getModelPane();
+        modelPane.removeAll();
         modelPane.buildComponent();
         mappingPanel = new JPanel();
         mappingPanel.setLayout(new BorderLayout(0, 10));

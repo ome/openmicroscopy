@@ -81,6 +81,7 @@ public class HSBPane
 		manager = new HSBPaneManager(this);
 	}
 
+    /** Re-build the component. */
 	public void buildComponent()
 	{
 		im = IconManager.getInstance(eventManager.getRegistry());
@@ -91,6 +92,7 @@ public class HSBPane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        removeAll();
 		buildBody();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
