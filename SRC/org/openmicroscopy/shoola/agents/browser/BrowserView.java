@@ -284,6 +284,14 @@ public class BrowserView extends PCanvas
         
         addInputEventListener(new PDragSequenceEventHandler()
         {
+            // OK, rant: this is stupid that this isn't the default behavior.
+            // Jesse Grosjean, fix this thing, man, come on man.
+            public void startDrag(PInputEvent e)
+            {
+                
+                setIsDragging(true);
+            }
+            
             public void drag(PInputEvent e)
             {
                 PPickPath pickPath = e.getPath();
