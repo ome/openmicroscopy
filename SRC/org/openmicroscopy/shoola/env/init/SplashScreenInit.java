@@ -36,6 +36,8 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
@@ -159,9 +161,11 @@ final class SplashScreenInit
 		
 		//Wait until the user enters their credentials for logging into OME.
 		UserCredentials uc = splashScreen.getUserCredentials();
-		
-		//TODO: add credentials to the registry.
-		
+	
+		//Add credentials to the registry.
+		Registry reg = container.getRegistry();
+		reg.bind(LookupNames.USER_CREDENTIALS, uc);
+	
 		splashScreen.close();
 	}
 
