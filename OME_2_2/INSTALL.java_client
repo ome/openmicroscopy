@@ -4,11 +4,15 @@ Open Microscopy Environment - Install Notes (Java Client)
 ________
 Preamble
 
-The client software requires a Java Runtime Environment (JRE) to run 
-(version 1.4 or later).  If you don't have one already, you can download
-the JRE install bundle from:
+The client software requires a J2SE Java Runtime Environment (JRE) to
+run (version 1.4 or later).  If you don't have one already, you can
+download the J2SE JRE install bundle from:
 
-	http://java.sun.com/
+	http://java.sun.com/j2se/downloads/
+
+
+NOTE
+You don't need to download the whole J2SE SDK, just the JRE is enough.
  
 
 _________________
