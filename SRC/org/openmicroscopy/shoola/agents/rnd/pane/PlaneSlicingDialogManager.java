@@ -38,12 +38,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -62,10 +65,42 @@ import javax.swing.JRadioButton;
 class PlaneSlicingDialogManager
 	implements ActionListener, MouseListener, MouseMotionListener
 {
+	/** ID to map biPlane inex and value. */
+	static final int				B_ONE = 0;
+	static final int				B_TWO = 1;
+	static final int				B_THREE = 2;
+	static final int				B_FOUR = 3;
+	static final int				B_FIVE = 4;
+	static final int				B_SIX = 5;
+	static final int				B_SEVEN = 6;
+	
+	private static final int 		B_ZERO = -1;
+	
 	/** ID to handle events. */
 	private static final int		STATIC = 0;
 	private static final int		DYNAMIC = 1;
 	private static final int 		RANGE = 2;
+	
+	private static final HashMap	bitPlanes;
+	static {
+		bitPlanes = new HashMap();
+		bitPlanes.put(new Integer(B_ZERO), 
+							new Integer(PlaneSlicingContext.BIT_ZERO));
+		bitPlanes.put(new Integer(B_ONE), 
+					new Integer(PlaneSlicingContext.BIT_ONE));
+		bitPlanes.put(new Integer(B_TWO), 
+							new Integer(PlaneSlicingContext.BIT_TWO));
+		bitPlanes.put(new Integer(B_THREE), 
+							new Integer(PlaneSlicingContext.BIT_THREE));
+		bitPlanes.put(new Integer(B_FOUR), 
+							new Integer(PlaneSlicingContext.BIT_FOUR));
+		bitPlanes.put(new Integer(B_FIVE), 
+							new Integer(PlaneSlicingContext.BIT_FIVE));
+		bitPlanes.put(new Integer(B_SIX), 
+							new Integer(PlaneSlicingContext.BIT_SIX));
+		bitPlanes.put(new Integer(B_SEVEN), 
+							new Integer(PlaneSlicingContext.BIT_SEVEN));
+	}
 	
 	/** Graphical constants. */
 	private static final int    	topBorder = PlaneSlicingPanel.topBorder,
@@ -75,18 +110,6 @@ class PlaneSlicingDialogManager
 	private static final int 		lS = leftBorder+square, 
 									tS = topBorder+square;
 	private static final int 		triangleW = PlaneSlicingPanel.triangleW;
-	
-	/** 
-	 * Coefficient of the map: y = coeff*x+b to convert
-	 * a real value into a coordinate.
-	 */
-	private static final double		coeff = square/255;	
-
-	/** 
-	 * Coefficient of the map: y = rCoeff*x+b to convert
-	 * a graphical value into a real value in the range [0, 255].
-	 */
-	private static final double		rCoeff = 255/square;
 				
 	private Rectangle				boxOutputStart, boxOutputEnd;
 	private boolean					dragging, isSelected;
@@ -130,26 +153,16 @@ class PlaneSlicingDialogManager
 		view.getPSPanel().addMouseMotionListener(this);
 	}
 
-	/** 
-	 * Convert a real value into a coordinate.
-	 * 
-	 * @param value		real value.
-	 * @return	See above.
-	 */
-	int convertRealIntoGraphics(int x)
+	int convertGraphicsIntoReal(int x, int r, int b)
 	{
-		return	(int) (tS-coeff*x);
+		double a = (double) r/square;
+		return (int) (a*x+b);
 	}
-	
-	/** 
-	 * Convert into a real value i.e. value in the range [0, 255] 
-	 * 
-	 * @param y		y-coordinate.
-	 * @return
-	 */
-	int convertGraphicsIntoReal(int x)
+
+	int convertRealIntoGraphics(int x, int r, int b)
 	{
-		return (int) (rCoeff*(tS-x));
+		double a = (double) square/r;
+		return (int) (a*(x-b));
 	}
 	
 	/** Handles event fired by the radio button and the comboBox. */
@@ -217,6 +230,26 @@ class PlaneSlicingDialogManager
 	 */
 	private void setPlaneIndex(int index)
 	{
+		//retrieve the level of the plane
+		Integer psI = (Integer) bitPlanes.get(new Integer(index));
+		int planeSelected = psI.intValue();
+		//int e = control.getCurOutputEnd();
+		//int s = control.getCurOutputStart();
+		int e = 255;
+		int s = 100;
+		if (planeSelected > e || planeSelected < s) {
+			String message = "The plane selected is not in the output " +
+				"interval. Please resize the output window or select a " +
+				"new plane.";
+			UserNotifier un = 
+					control.getEventManager().getRegistry().getUserNotifier();
+			un.notifyInfo("Plane Selection", message);
+		} else {
+			Integer ppI = (Integer) bitPlanes.get(new Integer(index-1));
+			int planePrevious = ppI.intValue();
+		}
+
+		//Add control i.e. is the plane selected in the range codomain
 		//psDef.setPlaneIndex(index);
 		//Forward event to control
 	}
@@ -225,22 +258,29 @@ class PlaneSlicingDialogManager
 	 * Set the lower limit.
 	 * @param x			x-coordinate.
 	 */
-	private void setLowerLimit(int x)
+	private void setLowerLimit(int y)
 	{
-		setOutputStartBox(x);
-		view.getPSPanel().updateOutputStart(x);
+		setOutputStartBox(y);
+		view.getPSPanel().updateOutputStart(y);
 		//psDef.setLowerLimit(convertGraphicsIntoReal(x));
 		//Forward event to control
+		int e = control.getCurOutputEnd();
+		int s = control.getCurOutputStart();
+		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
+		System.out.println(yReal);
 	}
 	
 	/**
 	 * Set the upper limit.
 	 * @param x			x-coordinate.
 	 */
-	private void setUpperLimit(int x)
+	private void setUpperLimit(int y)
 	{
-		setOutputEndBox(x);
-		view.getPSPanel().updateOutputEnd(x);
+		setOutputEndBox(y);
+		view.getPSPanel().updateOutputEnd(y);
+		int e = control.getCurOutputEnd();
+		int s = control.getCurOutputStart();
+		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
 		//psDef.setUpperLimit(convertGraphicsIntoReal(x));
 		//Forward event to control
 	}

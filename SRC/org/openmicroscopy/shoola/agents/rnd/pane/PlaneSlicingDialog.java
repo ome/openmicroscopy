@@ -66,17 +66,18 @@ class PlaneSlicingDialog
 	private static final int			WIDTH_WIN = 440;
 	private static final int			HEIGHT_WIN = 350;
 	private static final int			HEIGHT_PANEL = 100;
-	
+	private static final int			DEFAULT_BP = 
+											PlaneSlicingDialogManager.B_SEVEN;	
 	private static final String[]   	RANGE;
 	static {
 		RANGE = new String[7];
-		RANGE[0] = "1-bit plane";
-		RANGE[1] = "2-bit plane";
-		RANGE[2] = "3-bit plane";
-		RANGE[3] = "4-bit plane";
-		RANGE[4] = "5-bit plane";
-		RANGE[5] = "6-bit plane";
-		RANGE[6] = "7-bit plane";         
+		RANGE[PlaneSlicingDialogManager.B_ONE] = "1-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_TWO] = "2-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_THREE] = "3-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_FOUR] = "4-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_FIVE] = "5-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_SIX] = "6-bit plane";
+		RANGE[PlaneSlicingDialogManager.B_SEVEN] = "7-bit plane";         
 	}
 	
 	private	JRadioButton				radioStatic, radioDynamic;
@@ -91,16 +92,17 @@ class PlaneSlicingDialog
 		super(control.getReferenceFrame(), "Plane Slicing", true);
 		manager = new PlaneSlicingDialogManager(this, control);
 		int yStart, yEnd;
+		int tb = PlaneSlicingPanel.topBorder;
 		//TODO: retrieve user settings.
-		int start = control.getCurOutputStart();
-		int end = control.getCurOutputEnd();
-		yStart = manager.convertRealIntoGraphics(start);
-		yEnd = manager.convertRealIntoGraphics(end);
+		int s = control.getCurOutputStart();
+		int e = control.getCurOutputEnd();
+		yStart = tb+manager.convertRealIntoGraphics(s, s-e, e);
+		yEnd = tb+manager.convertRealIntoGraphics(e, s-e, e);
 		psPanel = new PlaneSlicingPanel(yStart, yEnd);
 		pssPanel = new PlaneSlicingStaticPanel();
 		manager.setOutputStartBox(yStart);
 		manager.setOutputEndBox(yEnd);
-		initialize(0); //TODO: user settings.
+		initialize(DEFAULT_BP); //TODO: user settings.
 		manager.attachListeners();
 		buildGUI();
 	}
@@ -146,8 +148,8 @@ class PlaneSlicingDialog
 							"</html>";
 		String txtStatic = "<html>Highlights a range,<br>" +
 							"preserves others (cf. (2)).</html>";
-		radioStatic =	new JRadioButton(txtStatic);
-		radioDynamic =	new JRadioButton(txtDynamic);
+		radioStatic = new JRadioButton(txtStatic);
+		radioDynamic = new JRadioButton(txtDynamic);
 		radioDynamic.setSelected(true);
 		range = new JComboBox(RANGE);
 		range.setSelectedIndex(index);

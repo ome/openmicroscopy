@@ -231,6 +231,10 @@ class QuantumPaneManager
 	{
 		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
 	}
-	
-	
+
+	RenderingAgtCtrl getEventManager()
+	{
+		return eventManager;
+	}
+
 }

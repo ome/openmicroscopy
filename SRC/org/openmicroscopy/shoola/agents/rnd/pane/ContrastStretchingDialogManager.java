@@ -181,7 +181,7 @@ class ContrastStretchingDialogManager
 		view.getCSPanel().updateStartCursor(x);
 		int s  = control.getCurOutputStart();
 		int xReal = convertGraphicsIntoReal(x-leftBorder, 
-											control.getCurEnd()-s, s);
+											control.getCurOutputEnd()-s, s);
 		//Forward event to control
 	}
 	
