@@ -44,8 +44,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
  
 
 /** 
