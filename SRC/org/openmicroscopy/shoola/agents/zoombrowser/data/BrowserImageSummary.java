@@ -74,16 +74,7 @@ public class BrowserImageSummary  extends ImageSummary
 	public void addThumbnail(Thumbnail thumb) {
 		
 		imageThumbnailMap.addMatch(getID(),thumb);
-		/*Vector thumbs;
-		Integer id = new Integer(getID());
-		Object obj = imageThumbnailMap.get(id);
-		if (obj == null) {
-			 thumbs = new Vector();
-		}
-		else
-			thumbs = (Vector) obj;
-		thumbs.add(thumb);
-		imageThumbnailMap.put(id,thumbs);*/
+
 	}
 	
 	//to prevent re-entrant loops
