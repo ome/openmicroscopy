@@ -48,7 +48,7 @@ import org.openmicroscopy.ds.dto.ModuleExecution;
 import org.openmicroscopy.ds.dto.NodeExecution;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
@@ -117,7 +117,7 @@ public class ChainExecutionMapper
 	 * @return 
 	 */
 	public static List fillChainExecutions(List execs,ChainExecutionData ceProto,
-		DatasetSummary dsProto,AnalysisChainData acProto,NodeExecutionData 
+		DatasetData dsProto,AnalysisChainData acProto,NodeExecutionData 
 		neProto,AnalysisNodeData anProto,ModuleData mProto,ModuleExecutionData
 		meProto)
 	{
@@ -127,7 +127,7 @@ public class ChainExecutionMapper
 		ChainExecution e;
 		ChainExecutionData exec;
 		Dataset d;
-		DatasetSummary ds;
+		DatasetData ds;
 		AnalysisChain c;
 		AnalysisChainData chain;
 		
@@ -145,7 +145,7 @@ public class ChainExecutionMapper
 			
 			// dataset
 			d = e.getDataset();
-			ds = (DatasetSummary) dsProto.makeNew();
+			ds = (DatasetData) dsProto.makeNew();
 			ds.setID(d.getID());
 			exec.setDataset(ds);
 			
