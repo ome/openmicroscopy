@@ -1,5 +1,5 @@
 /*
- * omeds.TestProject
+ * omeds.tests.TestCountDatasetsInProject
  *
  *------------------------------------------------------------------------------
  *
@@ -26,11 +26,11 @@
  *
  *------------------------------------------------------------------------------
  */
-
+ 
 package omeds.tests;
 
+
 //Java imports
-import java.util.Iterator;
 
 //Third-party libraries
 
@@ -39,18 +39,16 @@ import omeds.DBFixture;
 import omeds.LoadRowCommand;
 import omeds.OMEDSTestCase;
 import omeds.SQLCommand;
+import omeds.dbrows.DatasetRow;
 import omeds.dbrows.ExperimenterRow;
 import omeds.dbrows.GroupRow;
 import omeds.dbrows.ProjectDatasetMapRow;
 import omeds.dbrows.ProjectRow;
-import omeds.dbrows.DatasetRow;
 
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Project;
-
 /** 
- * Retrieve a given project.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,7 +61,7 @@ import org.openmicroscopy.ds.dto.Project;
  * </small>
  * @since OME2.2
  */
-public class TestProject
+public class TestCountDatasetsInProject
 	extends OMEDSTestCase
 {
 
@@ -72,7 +70,7 @@ public class TestProject
 	private ProjectRow					projectRow;
 	private DatasetRow					datasetRow;
 	private ProjectDatasetMapRow		pdmRow;
-	
+	private int							numberDataset;
 	/* (non-Javadoc)
 	 * @see omeds.OMEDSTestCase#prepareFixture(java.sql.Connection)
 	 */
@@ -80,19 +78,18 @@ public class TestProject
 	{
 		DBFixture dbFixture = new DBFixture();
 		//Then create a experimenter.
-		expRow = new ExperimenterRow("tester", "tester","/ome_files",
-									"tester", "tester@toto.org", null);
+		expRow = new ExperimenterRow("afalconi", "andrea","/lm/sync/ome_files",
+									"falconi", "afalconi@toto.org", null);
 		//Then a group.							
 		groupRow = new GroupRow("ome 2", expRow);
-		
 		//create project & dataset.
-		
+
 		projectRow = new ProjectRow(groupRow, null, "project insert", expRow, 
 									"lundi matin");
 		datasetRow = new DatasetRow(false, groupRow," dataset insert", expRow,
 									 "toujours le vieux discours. ");	
 		pdmRow = new ProjectDatasetMapRow(projectRow, datasetRow);	
-		
+
 		SQLCommand lrc1, lrc2, lrc3, lrc4, lrc5, lrc6;
 		lrc1 = new LoadRowCommand(expRow, dbFixture);
 		lrc2 = new LoadRowCommand(groupRow, dbFixture);
@@ -109,56 +106,36 @@ public class TestProject
 		lrc4 = new LoadRowCommand(datasetRow, dbFixture);
 		lrc5 = new LoadRowCommand(projectRow, dbFixture);
 		lrc6 = new LoadRowCommand(pdmRow, dbFixture);
-		
+
 		dbFixture.enlist(lrc1);
 		dbFixture.enlist(lrc2);
 		dbFixture.enlist(lrc3);
 		dbFixture.enlist(lrc4);
 		dbFixture.enlist(lrc5);
 		dbFixture.enlist(lrc6);
-
+		numberDataset = 1;
+		
 		return dbFixture;
 	}
 	
-	public void testRetrieveProject()
+	
+	public void testCountDatasetsInProject()
 	{
-		
-		Criteria c = ProjectCriteriaFactory.buildProjectCriteria();
+		Criteria c = new Criteria();
+		c.addWantedField("#datasets");
 		
 		int projectID = projectRow.getID();
 		Project p = (Project) omeds.load(Project.class, projectID, c);
 		
-		//project data
-		assertEquals(projectID, p.getID());
-		assertEquals(projectRow.getName(), p.getName());
-		assertEquals(projectRow.getDescription(), p.getDescription());
-		
-		//dataset data
-		Iterator i = p.getDatasets().iterator();
-		Dataset d;
-		while (i.hasNext()) {
-			d = (Dataset) i.next();
-			assertEquals(datasetRow.getID(), d.getID());
-			assertEquals(datasetRow.getName(), d.getName());
-		}
-		
-		//owner data
-		assertEquals(projectRow.getExperimenterRow().getID(), 
-					p.getOwner().getID());
-		assertEquals(projectRow.getExperimenterRow().getFirstName(),
-					p.getOwner().getFirstName());
-		assertEquals(projectRow.getExperimenterRow().getLastName(), 
-					p.getOwner().getLastName());
-		assertEquals(projectRow.getExperimenterRow().getEmail(),
-					p.getOwner().getEmail());
-		assertEquals(projectRow.getExperimenterRow().getInstitution(), 
-					p.getOwner().getInstitution());
-							
-		//group data
-		assertEquals(projectRow.getGroupRow().getID(),
-					p.getOwner().getGroup().getID());
-		assertEquals(projectRow.getGroupRow().getName(), 
-					p.getOwner().getGroup().getName());		
+		assertEquals(numberDataset, p.countDatasets());
 	}
-
+	
+	public static void main(String[] args)
+	{
+		TestCountDatasetsInProject x = new TestCountDatasetsInProject();
+		x.setUp();
+		x.testCountDatasetsInProject();
+		x.tearDown();
+	}
+	
 }

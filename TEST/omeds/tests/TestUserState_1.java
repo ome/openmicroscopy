@@ -1,5 +1,5 @@
 /*
- * omeds.TestProject
+ * omeds.tests.TestUserState
  *
  *------------------------------------------------------------------------------
  *
@@ -29,8 +29,10 @@
 
 package omeds.tests;
 
+
+
 //Java imports
-import java.util.Iterator;
+import java.sql.Timestamp;
 
 //Third-party libraries
 
@@ -41,16 +43,14 @@ import omeds.OMEDSTestCase;
 import omeds.SQLCommand;
 import omeds.dbrows.ExperimenterRow;
 import omeds.dbrows.GroupRow;
-import omeds.dbrows.ProjectDatasetMapRow;
-import omeds.dbrows.ProjectRow;
-import omeds.dbrows.DatasetRow;
+import omeds.dbrows.UserStateRow;
 
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.ds.dto.Dataset;
-import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.dto.UserState;
+import org.openmicroscopy.ds.st.Experimenter;
 
 /** 
- * Retrieve a given project.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,15 +63,13 @@ import org.openmicroscopy.ds.dto.Project;
  * </small>
  * @since OME2.2
  */
-public class TestProject
+public class TestUserState_1
 	extends OMEDSTestCase
 {
 
 	private GroupRow					groupRow;
 	private ExperimenterRow				expRow;
-	private ProjectRow					projectRow;
-	private DatasetRow					datasetRow;
-	private ProjectDatasetMapRow		pdmRow;
+	private UserStateRow				userStateRow;
 	
 	/* (non-Javadoc)
 	 * @see omeds.OMEDSTestCase#prepareFixture(java.sql.Connection)
@@ -81,19 +79,16 @@ public class TestProject
 		DBFixture dbFixture = new DBFixture();
 		//Then create a experimenter.
 		expRow = new ExperimenterRow("tester", "tester","/ome_files",
-									"tester", "tester@toto.org", null);
-		//Then a group.							
-		groupRow = new GroupRow("ome 2", expRow);
-		
-		//create project & dataset.
-		
-		projectRow = new ProjectRow(groupRow, null, "project insert", expRow, 
-									"lundi matin");
-		datasetRow = new DatasetRow(false, groupRow," dataset insert", expRow,
-									 "toujours le vieux discours. ");	
-		pdmRow = new ProjectDatasetMapRow(projectRow, datasetRow);	
-		
-		SQLCommand lrc1, lrc2, lrc3, lrc4, lrc5, lrc6;
+							  "tester", "tester@toto.org", null);
+  		//Then a group.							
+  		groupRow = new GroupRow("ome 2", expRow);
+  		
+		Timestamp lastAccess, started;
+		lastAccess = new Timestamp(System.currentTimeMillis());
+		started = new Timestamp(System.currentTimeMillis());
+		userStateRow = new UserStateRow(expRow, lastAccess, started);
+										
+		SQLCommand lrc1, lrc2, lrc3, lrc4;
 		lrc1 = new LoadRowCommand(expRow, dbFixture);
 		lrc2 = new LoadRowCommand(groupRow, dbFixture);
 		lrc3 = new SQLCommand(){
@@ -106,59 +101,32 @@ public class TestProject
 					//Do nothing b/c expRow and groupRow will be deleted.
 					public void undo(){}
 				};
-		lrc4 = new LoadRowCommand(datasetRow, dbFixture);
-		lrc5 = new LoadRowCommand(projectRow, dbFixture);
-		lrc6 = new LoadRowCommand(pdmRow, dbFixture);
-		
+		lrc4 = new LoadRowCommand(userStateRow, dbFixture);
 		dbFixture.enlist(lrc1);
 		dbFixture.enlist(lrc2);
 		dbFixture.enlist(lrc3);
 		dbFixture.enlist(lrc4);
-		dbFixture.enlist(lrc5);
-		dbFixture.enlist(lrc6);
 
 		return dbFixture;
 	}
 	
-	public void testRetrieveProject()
+	public void testUserState()
 	{
+		//Build the criteria.
+		Criteria criteria = new Criteria();
+
+		//Specify which fields we want for the ome_sessions.
+		criteria.addWantedField("experimenter");
 		
-		Criteria c = ProjectCriteriaFactory.buildProjectCriteria();
+		//Specify which field we want for the experimenter.
+		criteria.addWantedField("experimenter", "id");
+
+		//Retrieve the user state
+		UserState us = (UserState) omeds.getUserState(criteria);
 		
-		int projectID = projectRow.getID();
-		Project p = (Project) omeds.load(Project.class, projectID, c);
-		
-		//project data
-		assertEquals(projectID, p.getID());
-		assertEquals(projectRow.getName(), p.getName());
-		assertEquals(projectRow.getDescription(), p.getDescription());
-		
-		//dataset data
-		Iterator i = p.getDatasets().iterator();
-		Dataset d;
-		while (i.hasNext()) {
-			d = (Dataset) i.next();
-			assertEquals(datasetRow.getID(), d.getID());
-			assertEquals(datasetRow.getName(), d.getName());
-		}
-		
-		//owner data
-		assertEquals(projectRow.getExperimenterRow().getID(), 
-					p.getOwner().getID());
-		assertEquals(projectRow.getExperimenterRow().getFirstName(),
-					p.getOwner().getFirstName());
-		assertEquals(projectRow.getExperimenterRow().getLastName(), 
-					p.getOwner().getLastName());
-		assertEquals(projectRow.getExperimenterRow().getEmail(),
-					p.getOwner().getEmail());
-		assertEquals(projectRow.getExperimenterRow().getInstitution(), 
-					p.getOwner().getInstitution());
-							
-		//group data
-		assertEquals(projectRow.getGroupRow().getID(),
-					p.getOwner().getGroup().getID());
-		assertEquals(projectRow.getGroupRow().getName(), 
-					p.getOwner().getGroup().getName());		
+		//experimenter data.
+		Experimenter e = us.getExperimenter();
+		assertFalse(expRow.getID() == e.getID());
 	}
 
 }
