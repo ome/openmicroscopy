@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -85,6 +86,9 @@ class RegistryImpl
 	
 	/** Reference to container's service. */
 	private TopFrame                tf;
+	
+	/** Reference to container's service. */
+	private TaskBar					tb;
 	
 	/** Reference to container's service. */
    	private UserNotifier            un;
@@ -134,6 +138,9 @@ class RegistryImpl
 	public TopFrame getTopFrame() { return tf; }
 	
 	/** Implemented as specified by {@link Registry}. */
+	public TaskBar getTaskBar() { return tb; }
+	
+	/** Implemented as specified by {@link Registry}. */
 	public UserNotifier getUserNotifier() { return un; }
    	
 	/** Implemented as specified by {@link Registry}. */
@@ -181,6 +188,13 @@ class RegistryImpl
 	 * @param tf	The {@link TopFrame}.
 	 */
    	void setTopFrame(TopFrame tf) { this.tf = tf; }
+   	
+	/**
+	 * Stores a reference to the {@link TaskBar}.
+	 * 
+	 * @param tb	The {@link TaskBar}.
+	 */
+	void setTaskBar(TaskBar tb) { this.tb = tb; }
    	
 	/**
 	 * Stores a reference to the {@link Logger}.
