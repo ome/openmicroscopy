@@ -38,7 +38,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -69,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class CodomainPane
 	extends JPanel
 {
+	
 	/** row's height. */ 
 	private static final int 		ROW_HEIGHT = 30;
 	
@@ -146,23 +146,11 @@ class CodomainPane
 	}
 	
 	/** Build the JTable. */
-	private JTable buildTable()
+	private TableComponent buildTable()
 	{
-		JTable table = new TableComponent(3, 3);
-		table.setTableHeader(null);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
+		TableComponent table = new TableComponent(3, 3);
+		setTableLayout(table);
 		
-		//Set the columns' width.
-		TableColumnModel columns = table.getColumnModel();
-		TableColumn column = columns.getColumn(0);
-		column.setPreferredWidth(WIDTH);
-		column.setWidth(WIDTH);
-		column = columns.getColumn(2);
-		column.setPreferredWidth(BWIDTH);
-		column.setWidth(BWIDTH);
-
 		//First row.
 		JLabel label = new JLabel(" Reverse Intensity");
 		table.setValueAt(label, 0, 0);
@@ -182,11 +170,29 @@ class CodomainPane
 		table.setValueAt(ps, 2, 1);
 		table.setValueAt(buildButtonPanel(pSlicing), 2, 2);
 		
+		return table;
+	}
+	
+	/** Set the layout of the table. */
+	private void setTableLayout(TableComponent table)
+	{
+		table.setTableHeader(null);
+		table.setOpaque(false);
+		table.setShowGrid(false);
+		table.setRowHeight(ROW_HEIGHT);
+		
+		//Set the columns' width.
+		TableColumnModel columns = table.getColumnModel();
+		TableColumn column = columns.getColumn(0);
+		column.setPreferredWidth(WIDTH);
+		column.setWidth(WIDTH);
+		column = columns.getColumn(2);
+		column.setPreferredWidth(BWIDTH);
+		column.setWidth(BWIDTH);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
-		return table;
 	}
 	
 	/**

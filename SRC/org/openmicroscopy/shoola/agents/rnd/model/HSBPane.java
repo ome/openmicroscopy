@@ -38,7 +38,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -110,7 +109,8 @@ public class HSBPane
 	{
 		JPanel p = new JPanel();
 		ChannelData[] channelData = eventManager.getChannelData();
-		JTable table = new TableComponent(channelData.length, NUM_COLUMNS);
+		TableComponent table = new TableComponent(channelData.length, 
+												NUM_COLUMNS);
 		tableLayout(table);
 		Color color;
 		int[] rgba;
@@ -127,8 +127,8 @@ public class HSBPane
 	}
 	
 	/** Build a row in the table. */
-	private void addRow(JTable table, int index, ChannelData data, Color color, 
-						boolean active)
+	private void addRow(TableComponent table, int index, ChannelData data, 
+						Color color, boolean active)
 	{
 		//init JButton
 		JButton b = new JButton();
@@ -174,7 +174,7 @@ public class HSBPane
 	}
 	
 	/** Table layout. */
-	private void tableLayout(JTable table)
+	private void tableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
 		table.setRowHeight(ROW_HEIGHT);

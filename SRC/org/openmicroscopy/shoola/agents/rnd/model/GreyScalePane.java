@@ -38,7 +38,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -77,7 +76,7 @@ public class GreyScalePane
 	static final int 				POS_INFO = 0;
 	static final int 				POS_LABEL = 1;
 	static final int 				POS_RADIO = 2;
-
+	
 	private IconManager 			im;
 	
 	private GreyScalePaneManager	manager;
@@ -87,6 +86,7 @@ public class GreyScalePane
 		manager = new GreyScalePaneManager(this);
 	}
 	
+	/** Re-build the component. */
 	public void buildComponent()
 	{
 		manager.setEventManager(eventManager);
@@ -108,18 +108,12 @@ public class GreyScalePane
 	{
 		JPanel p = new JPanel();
 		ChannelData[] channelData = eventManager.getChannelData();
-		JTable table = new TableComponent(channelData.length, NUM_COLUMNS);
+		TableComponent table = new TableComponent(channelData.length, 
+													NUM_COLUMNS);
 		tableLayout(table);
 		ButtonGroup group = new ButtonGroup();
-		boolean active;
-		boolean selected = false;
 		for (int i = 0; i < channelData.length; i++) {
-			active = eventManager.isActive(i);
-			if (active) {
-				if (selected) active = false;
-				selected = true; 
-			} 
-			addRow(table, group, i, channelData[i], active);
+			addRow(table, group, i, channelData[i], eventManager.isActive(i));
 		}
 		p.add(table);
 		p.setOpaque(false);
@@ -127,8 +121,8 @@ public class GreyScalePane
 	}
 	
 	/** Build a row in the table. */
-	private void addRow(JTable table, ButtonGroup group, int index, 
-						ChannelData data, boolean active)
+	private void addRow(TableComponent table, ButtonGroup group, 
+								int index, ChannelData data, boolean active)
 	{
 		//init JButton
 		JButton b = new JButton();
@@ -142,7 +136,6 @@ public class GreyScalePane
 		JRadioButton rb = new JRadioButton();
 		rb.setSelected(active);
 		group.add(rb);
-		
 		table.setValueAt(buttonPanel(b), index, POS_INFO);
 		table.setValueAt(label, index, POS_LABEL);
 		table.setValueAt(rb, index, POS_RADIO);
@@ -167,7 +160,7 @@ public class GreyScalePane
 	}
 	
 	/** Table layout. */
-	private void tableLayout(JTable table)
+	private void tableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
 		table.setRowHeight(ROW_HEIGHT);

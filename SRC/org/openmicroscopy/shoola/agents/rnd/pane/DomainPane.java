@@ -40,7 +40,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -75,11 +74,12 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class DomainPane
 	extends JPanel
 {
+	
 	/** row's height. */ 
 	private static final int 		ROW_HEIGHT = 30;
 	
 	/** row's width. */
-	private static final int		COLUMN_WIDTH = 90;
+	private static final int		COLUMN_WIDTH = 90, COLUMN_TWO = 110;
 	
 	/** Dimension of the JPanel which contains the slider. */
 	private static final int		PANEL_HEIGHT = 25;
@@ -223,24 +223,10 @@ class DomainPane
 	}
 	
 	/** Build the JTable. */
-	private JTable buildTable()
+	private TableComponent buildTable()
 	{
-		JTable table = new TableComponent(5, 2);
-		table.setTableHeader(null);
-		table.setOpaque(false);
-		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
-		
-		//Set the columns' width.
-		TableColumnModel columns = table.getColumnModel();
-		TableColumn column = columns.getColumn(0);
-		column.setPreferredWidth(COLUMN_WIDTH);
-		column.setWidth(COLUMN_WIDTH);
-		
-		//Set the width of the second column
-		column = columns.getColumn(1);
-		column.setPreferredWidth(PANEL_WIDTH);
-		column.setWidth(PANEL_WIDTH);
+		TableComponent table = new TableComponent(5, 2);
+		setTableLayout(table);
 
 		//First row.
 		JLabel label = new JLabel(" Wavelength");
@@ -265,12 +251,32 @@ class DomainPane
 		label = new JLabel(" Histogram");
 		table.setValueAt(label, 4, 0);
 		table.setValueAt(buildButtonPanel(histogram), 4, 1);
-
+				
+		return table;
+	}
+	
+	/** Set the table layout. */
+	private void setTableLayout(TableComponent table) 
+	{
+		table.setTableHeader(null);
+		table.setOpaque(false);
+		table.setShowGrid(false);
+		table.setRowHeight(ROW_HEIGHT);
+		
+		//Set the columns' width.
+		TableColumnModel columns = table.getColumnModel();
+		TableColumn column = columns.getColumn(0);
+		column.setPreferredWidth(COLUMN_WIDTH);
+		column.setWidth(COLUMN_WIDTH);
+		
+		//Set the width of the second column
+		column = columns.getColumn(1);
+		column.setPreferredWidth(COLUMN_TWO);
+		column.setWidth(COLUMN_TWO);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
-								new TableComponentCellEditor());						
-		return table;
+								new TableComponentCellEditor());	
 	}
 	
 	/**
