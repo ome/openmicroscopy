@@ -116,8 +116,9 @@ public class UIManager implements ContentGroupSubscriber
 		ContentGroup group = new ContentGroup(this);
 		modLoader = new ModuleLoader(manager,group);
 		ChainExecutionLoader execLoader = new ChainExecutionLoader(manager,group);
-		group.setAllLoadersAdded();
 		ChainLoader chainLoader = new ChainLoader(manager,group);
+		
+		group.setAllLoadersAdded();
 	}
 	
 
