@@ -84,7 +84,7 @@ public class LayoutChainData  extends AnalysisChainData
 		makeProper();
 		reduceCrossings();
 		cleanupNodes();
-		//dumpLayers();
+		dumpChain();
 	}
 	
 	
@@ -457,6 +457,14 @@ public class LayoutChainData  extends AnalysisChainData
 	 	layering = null;
 	 }
 	
+	private void dumpChain() {
+		System.err.println("dumping layers for chain ..."+getName());
+	 	dumpLayers();
+		System.err.println("...dumping nodes..");
+		dumpNodes();
+		System.err.println("...dumping Links...");
+		dumpLinks();
+	}
 	
 	/**
 	 * Debug code to print the layers.
@@ -488,6 +496,45 @@ public class LayoutChainData  extends AnalysisChainData
 			System.err.println("... position in layer is "+
 				node.getPosInLayer());
 		} 
+	}
+	
+	private void dumpNodes() {
+		Collection nodes = getNodes();
+		Iterator iter = nodes.iterator();
+		while (iter.hasNext()) {
+			GraphLayoutNode node = (GraphLayoutNode) iter.next();
+			dumpNode(node);
+	
+		}
+	}
+	
+	private void dumpLinks() {
+		Collection links  = getLinks();
+		Iterator iter  = links.iterator();
+		while (iter.hasNext()) {
+			LayoutLinkData link = (LayoutLinkData) iter.next();
+			System.err.println("link.."+link);
+			LayoutNodeData from = (LayoutNodeData) link.getFromNode();
+			System.err.println(" from node..."+from.getModule().getName());
+			LayoutNodeData to = (LayoutNodeData) link.getToNode();
+			System.err.println(" to node..."+to.getModule().getName());
+			
+			Iterator iter2 = link.getNodeIterator();
+			while (iter2.hasNext()) {
+				GraphLayoutNode node = (GraphLayoutNode) iter2.next();
+				dumpNode(node);
+			}
+		}
+	}
+	
+	private void dumpNode(GraphLayoutNode node) {
+		if (node instanceof LayoutNodeData) {
+			ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).
+				getModule();
+			System.err.println("...node for ..."+mod.getName());
+		}
+		else
+			System.err.println("dummy node...");	
 	}
 	
 	public int compareTo(Object o) {
