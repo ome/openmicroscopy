@@ -562,7 +562,7 @@ class DMSAdapter
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't retrieve data", rsee);
+            throw new DSAccessException("Can't retrieve data", rsee);
 		} 
 		
 		return retVal;

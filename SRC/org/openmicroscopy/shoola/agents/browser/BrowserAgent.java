@@ -348,7 +348,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                     try
                     {
                         Pixels pix = summary.getDefaultPixels().getPixels();
-                        Image image = ps.getThumbnail(pix);
+                        Image image = ps.getThumbnail(pix,thumbnailWidth,thumbnailHeight);
                         ImageData data = new ImageData();
                         data.setID(pix.getID());
                         ThumbnailDataModel tdm = new ThumbnailDataModel(data);
