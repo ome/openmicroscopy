@@ -54,6 +54,8 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
+import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -165,8 +167,10 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		final PCamera camera = getCamera();
    	    getCamera().setViewScale(INIT_SCALE);
 	    
+   	    handler.setModulesDisplayMode();
 	    // setup tool tips.
 		camera.addInputEventListener(new ChainToolTipHandler(camera));
+		
 		
 		
 	}
@@ -263,6 +267,9 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		
 		// put the module info back into the connection
 		setSaveEnabled(true);
+		
+		mNode.showDetails();
+		handler.setModulesDisplayMode();
 	}
 	
 	/**
@@ -288,9 +295,18 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 			b.getY()-Constants.BORDER,
 			b.getWidth()+2*Constants.BORDER,
 			b.getHeight()+2*Constants.BORDER);
-		getCamera().animateViewToCenterBounds(newb,true,
-			Constants.ANIMATION_DELAY);
-		setSaveEnabled(true);
+		PActivity activity = getCamera().animateViewToCenterBounds(newb,true,
+					Constants.ANIMATION_DELAY);
+		activity.setDelegate(new PActivityDelegate() {
+			public void activityStarted(PActivity activity) {				
+			}
+			public void activityStepped(PActivity activity) {				
+			}
+			public void activityFinished(PActivity activity) {
+				setSaveEnabled(true);
+				handler.setModulesDisplayMode();
+			}
+		});
 	}
 	
 	
