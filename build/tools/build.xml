@@ -105,16 +105,22 @@
     </echo> 
   </target>
    
-  <!-- Private target to compile the Builder class in ${tmp.dir}. -->
+  <!-- 
+    Private target to compile the Builder class in ${tmp.dir}. 
+    The source and target switches make sure Builder is compiled just like
+    it would be compiled under 1.4 if a later compiler is used.  (Versions
+    are set to 1.2 because such are the defaults of 1.4.)
+  -->
   <target name="compile" depends="write-source">
     <javac srcdir="${tmp.dir}"
            destdir="${tmp.dir}"
+           classpath="ant-1.6.2.jar"
+           target="1.2"
+           source="1.2"
            includeantruntime="no"  
            deprecation="yes"
            debug="yes"
-           debuglevel="lines,vars,source">
-      <classpath refid="libs" />
-    </javac> 
+           debuglevel="lines,vars,source" />
   </target>
 
   <!-- 
