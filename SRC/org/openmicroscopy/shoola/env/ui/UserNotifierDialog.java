@@ -32,10 +32,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -54,6 +50,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 
 
 /** 
