@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIFactory;
 import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
+import org.openmicroscopy.shoola.util.math.geom2D.Segment;
 
 /** 
  * 
@@ -75,6 +77,8 @@ public class DrawingCanvasMng
     public static final Color   LINE_COLOR = Color.RED;
     
     private static final int    DEFAULT_CURSOR = 0, HAND_CURSOR = 1;
+    
+    private static final int    LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
     
     private Cursor              handCursor, defaultCursor;
     
@@ -118,6 +122,8 @@ public class DrawingCanvasMng
     
     private boolean             erase, eraseAll;
 
+    private int                 resizeZone;
+    
     public DrawingCanvasMng(DrawingCanvas view)
     {
         this.view = view;
@@ -260,13 +266,6 @@ public class DrawingCanvasMng
             shapeType = type;
     }
     
-    public void setState(int state)
-    { 
-        if (state == ROIAgt.CONSTRUCTING || state == ROIAgt.MOVING ||
-            state == ROIAgt.RESIZING)
-            this.state = state; 
-    }
-    
     public void setChannelIndex(int index) { channelIndex = index; }
     
     /** Mouse pressed event. */
@@ -299,13 +298,16 @@ public class DrawingCanvasMng
                 break;
             case ROIAgt.MOVING: 
             case ROIAgt.RESIZING: 
-                
+                state = ROIAgt.CONSTRUCTING;
                 if (currentShape != null) saveShape();   
         } 
         pressed = false;
     }
     
-    /** Handle mouse moved event on existing ROIShape. */
+    /** 
+     * Handle mouse moved event on existing ROIShape.
+     * Display the annotation if any.
+     */
     public void mouseMoved(MouseEvent e)
     {
         if (annotationOnOff) {
@@ -327,6 +329,175 @@ public class DrawingCanvasMng
                 } 
             }     
         }
+    }
+
+    /** Handle mouse pressed event. */
+    private void handleMousePressed(Point p, int clickCount)
+    {
+        pressed = true;
+        dragging = true;
+        currentROI = null;
+        currentShape = null;
+        anchor = p;
+        Iterator i = listROI.iterator();
+        ROIShape roi;
+        Shape s;
+        Rectangle r;
+        Segment vLeft, vRight, hTop, hBottom;
+        PlanePoint topLeftCorner, topRightCorner, bottomLeftCorner, 
+                    bottomRightCorner;
+        PlanePoint cPoint;
+        while (i.hasNext()) {
+            roi = (ROIShape) (i.next());
+            s = roi.getShape();
+            r = s.getBounds();
+            topLeftCorner = new PlanePoint(r.x, r.y);
+            topRightCorner = new PlanePoint(r.x+r.width-2, r.y);
+            bottomLeftCorner = new PlanePoint(r.x, r.y+r.height-2);
+            bottomRightCorner = new PlanePoint(r.x+r.width-2, r.y+r.height-2);
+            vLeft = new Segment(topLeftCorner, bottomLeftCorner);
+            vRight = new Segment(topRightCorner, bottomRightCorner);
+            hTop = new Segment(topLeftCorner, topRightCorner);
+            hBottom = new Segment(bottomLeftCorner, bottomRightCorner);
+            cPoint = new PlanePoint(p.x, p.y);
+            if (s.contains(p)) {
+                setHandlePressedValues(roi, s, r.x, r.y);
+                cPoint = new PlanePoint(p.x, p.y);
+                if (vLeft.lies(cPoint))
+                    resizeZone = LEFT;
+                else if (vRight.lies(cPoint))
+                    resizeZone = RIGHT;
+                else if (hTop.lies(cPoint))
+                    resizeZone = TOP;
+                else if (hBottom.lies(cPoint))
+                    resizeZone = BOTTOM;
+                else handlePressedIn(roi, clickCount);
+            }
+        }
+        if (state == ROIAgt.MOVING) setCursor(HAND_CURSOR);
+        else setCursor(DEFAULT_CURSOR);
+    }
+    
+    private void setHandlePressedValues(ROIShape roi, Shape s, int x, int y)
+    {
+        currentROI = roi;
+        currentShape = s;
+        xControl = x;
+        yControl = y;
+        //default
+        state = ROIAgt.RESIZING;
+        view.setIndexSelected(roi.getIndex());
+    }
+    
+    private void handlePressedIn(ROIShape roi, int clickCount)
+    {
+        if (clickCount == 1) { // in this case we move the existing ROI
+            state = ROIAgt.MOVING;
+        } else if (clickCount == 2) {
+            dragging = false;
+            state = ROIAgt.CONSTRUCTING;
+            control.annotateROI(roi);
+        }
+    }
+
+    /** Handle mouse dragged event. */
+    private void handleMouseDrag(Point p)
+    {
+        switch (state) {
+            case ROIAgt.CONSTRUCTING:
+                currentShape = ROIFactory.makeShape(anchor, p, shapeType);
+                view.draw(currentShape);
+                break;
+            case ROIAgt.MOVING: 
+                if (currentShape != null) move(p);
+                break;
+            case ROIAgt.RESIZING: 
+                if (currentShape != null) resize(p);
+                break;    
+        }
+    }
+
+    /** Same the modified existing shape. */
+    private void saveShape()
+    {
+        currentROI.setShape(currentShape);
+        view.setIndexSelected(currentROI.getIndex());   
+    }
+    
+    /** Build a ROIShape object, and draw it. */
+    private void saveROI()
+    {
+        int index = listROI.size();
+        ImageAffineTransform at = control.getImageAffineTransform();
+        ROIShape roi = new ROIShape(currentShape, index, lineColor, shapeType, 
+                            channelIndex, at.copy());
+        currentROI = roi;
+        listROI.add(index, roi); 
+        view.setIndexSelected(index);   
+    }
+    
+    /** Move the current roi. */
+    private void move(Point p)
+    {
+        int diffX = p.x-anchor.x, diffY = p.y-anchor.y;
+
+        Rectangle r = currentShape.getBounds();
+        int x = xControl+diffX, y = yControl+diffY,
+            w = r.width,  h = r.height;
+        if (areaValid(x, y, w, h)) {
+            ROIFactory.setShapeBounds(currentShape, currentROI.getShapeType(), 
+                                        x , y, w, h);
+            moving = true;
+            view.moveAndDraw(currentShape); 
+        }
+    }
+    
+    /** Check if the shape is still in the drawingArea. */
+    private boolean areaValid(int x, int y, int w, int h)
+    {
+        boolean b = true;
+        if (!drawingArea.contains(x, y)) b = false;
+        if (!drawingArea.contains(x+w, y)) b = false;
+        if (!drawingArea.contains(x, y+h)) b = false;
+        return b;
+    }
+    
+    /** Resize the current roi. */
+    private void resize(Point p)
+    {
+        Rectangle r = currentROI.getShape().getBounds();
+        int x = r.x, y = r.y, w = r.width, h = r.height;
+        switch (resizeZone) {
+            case LEFT:
+                x = p.x;
+                w += anchor.x-p.x;
+                break;
+            case RIGHT: 
+                w += p.x-anchor.x;
+                break;
+            case TOP: 
+                y = p.y;
+                h += anchor.y-p.y; 
+                break;
+            case BOTTOM:
+                h += p.y-anchor.y;  
+        }
+        if (areaValid(x, y, w, h)) {
+            currentShape = ROIFactory.makeShape(currentROI.getShapeType(), 
+                                             x, y, w, h);
+            view.draw(currentShape);
+            moving = true;
+            //view.moveAndDraw(currentShape); 
+        }
+    }
+    
+    /** Set the cursor type according to event. */
+    private void setCursor(int type)
+    {
+        Cursor c = null;
+        if (type == DEFAULT_CURSOR) c = defaultCursor;
+        else if (type == HAND_CURSOR) c = handCursor;
+        if (c != null) view.setCursor(c);
     }
     
     /** Restore the last erased shape if the erase button was pressed. */
@@ -371,120 +542,6 @@ public class DrawingCanvasMng
         currentShape = roi.getShape();
         eraseAll = false;
         view.setIndexSelected(roi.getIndex());
-    }
-    
-    /** Erase or not the selected shape. */
-    private void handleMousePressed(Point p, int clickCount)
-    {
-        pressed = true;
-        dragging = true;
-        currentROI = null;
-        currentShape = null;
-        anchor = p;
-        Iterator i = listROI.iterator();
-        ROIShape roi;
-        Shape s;
-        if (state == ROIAgt.MOVING) setCursor(HAND_CURSOR);
-        else setCursor(DEFAULT_CURSOR);
-        while (i.hasNext()) {
-            roi = (ROIShape) (i.next());
-            s = roi.getShape();
-            if (s.contains(p)) {
-                currentROI = roi;
-                currentShape = s;
-                Rectangle r = s.getBounds();
-                xControl = r.x;
-                yControl = r.y;
-                view.setIndexSelected(roi.getIndex());
-                if (clickCount == 2) {
-                    dragging = false;
-                    control.annotateROI(roi);
-                }
-            }
-        }
-    }
-    
-    /** Handle mouse dragged event. */
-    private void handleMouseDrag(Point p)
-    {
-        switch (state) {
-            case ROIAgt.CONSTRUCTING:
-                currentShape = ROIFactory.makeShape(anchor, p, shapeType);
-                view.draw(currentShape);
-                break;
-            case ROIAgt.MOVING: 
-                if (currentShape != null) move(p);
-                break;
-            case ROIAgt.RESIZING: 
-                if (currentShape != null) resize(p);
-                break;    
-        }
-    }
-
-    /** Same the modified existing shape. */
-    private void saveShape()
-    {
-        currentROI.setShape(currentShape);
-        view.setIndexSelected(currentROI.getIndex());   
-    }
-    
-    /** Build a ROIShape object, and draw it. */
-    private void saveROI()
-    {
-        int index = listROI.size();
-        ImageAffineTransform at = control.getImageAffineTransform();
-        ROIShape roi = new ROIShape(currentShape, index, lineColor, shapeType, 
-                            channelIndex, at.copy());
-        currentROI = roi;
-        listROI.add(index, roi); 
-        view.setIndexSelected(index);   
-    }
-    
-    /** Move the current roi. */
-    private void move(Point p)
-    {
-        int diffX = p.x-anchor.x, diffY = p.y-anchor.y;
-        
-        Rectangle r = currentShape.getBounds();
-        int x = xControl+diffX, y = yControl+diffY,
-            w = r.width,  h = r.height;
-        if (areaValid(x, y, w, h)) {
-            ROIFactory.setShapeBounds(currentShape, currentROI.getShapeType(), 
-                                        x , y, w, h);
-            moving = true;
-            view.moveAndDraw(currentShape); 
-        }
-    }
-    
-    /** Check if the shape is still in the drawingArea. */
-    private boolean areaValid(int x, int y, int w, int h)
-    {
-        boolean b = true;
-        if (!drawingArea.contains(x, y)) b = false;
-        if (!drawingArea.contains(x+w, y)) b = false;
-        if (!drawingArea.contains(x, y+h)) b = false;
-        return b;
-    }
-    
-    /** Resize the current roi. */
-    private void resize(Point p)
-    {
-        Rectangle r = currentShape.getBounds();
-        int width = Math.abs(r.x-p.x), 
-            height = Math.abs(r.y-p.y); 
-        ROIFactory.setShapeBounds(currentShape, currentROI.getShapeType(), 
-                                 r.x, r.y, width, height);
-        moving = true;
-        view.draw(currentShape); 
-    }
-    
-    /** Set the cursor type according to event. */
-    private void setCursor(int type)
-    {
-        Cursor c = null;
-        if (type == DEFAULT_CURSOR) c = defaultCursor;
-        else if (type == HAND_CURSOR) c = handCursor;
-        if (c != null) view.setCursor(c);
     }
     
     /** 

@@ -148,7 +148,7 @@ public class DrawingCanvas
     private void paintROI(Graphics2D g2D)
     {
         if (currentShape != null) {
-            if (!manager.isMoving()) g2D.setColor(manager.getLineColor());
+            g2D.setColor(manager.getLineColor());
             g2D.draw(currentShape);
         }
         List l = manager.getListROI();
