@@ -39,6 +39,8 @@ import javax.swing.JSplitPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
@@ -79,6 +81,10 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 	/** The split pane in the window. */
 	private JSplitPane split;
 	
+	/** canvases contained in this window */
+	private DatasetBrowserCanvas datasetBrowser;
+	private ProjectSelectionCanvas projectBrowser;
+	
 	/**
 	 * Specifies names, icons, and tooltips for the quick-launch button and the
 	 * window menu entry in the task bar.
@@ -99,16 +105,16 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 		
 			
 		// create datasets, etc here.
-		DatasetBrowserCanvas browser = new DatasetBrowserCanvas();		
-		ProjectSelectionCanvas v = new ProjectSelectionCanvas(this);
+		datasetBrowser = new DatasetBrowserCanvas(this);		
+		projectBrowser = new ProjectSelectionCanvas(this);
 		ContentGroup group = new ContentGroup(this);
 		
-		final DatasetLoader dl = new DatasetLoader(dataManager,browser,group);
-		final ProjectLoader pl = new ProjectLoader(dataManager,v,group);
+		final DatasetLoader dl = new DatasetLoader(dataManager,datasetBrowser,group);
+		final ProjectLoader pl = new ProjectLoader(dataManager,projectBrowser,group);
 		group.setAllLoadersAdded();
 		
-		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,v,browser);
-		split.setTopComponent(v);
+		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,projectBrowser,
+					datasetBrowser);
 		split.setOneTouchExpandable(true);
 		split.setResizeWeight(0.33);
 		split.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -147,4 +153,11 @@ public class MainWindow extends TopWindow implements ContentGroupSubscriber
 			split.setDividerLocation(h);
 	}
 
+	public void setRolloverProject(BrowserProjectSummary proj) {
+	 	datasetBrowser.setRolloverProject(proj);
+	}
+	
+	public void setRolloverDataset(BrowserDatasetSummary dataset) {
+		projectBrowser.setRolloverDataset(dataset);
+	}
 }
