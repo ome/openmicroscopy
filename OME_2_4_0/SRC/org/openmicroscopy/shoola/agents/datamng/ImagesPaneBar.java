@@ -81,7 +81,7 @@ class ImagesPaneBar
     static {
         listOfItems = new String[MAX_ID+1];
         listOfItems[IMAGES_IMPORTED] = "All images I own";
-        listOfItems[IMAGES_USED] = "All my images";
+        listOfItems[IMAGES_USED] = "All images in my datasets";
         listOfItems[IMAGES_GROUP] = "All images in my group";
         listOfItems[IMAGES_SYSTEM] = "All images";
     }
