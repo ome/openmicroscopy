@@ -112,6 +112,20 @@ public class LensBarMng
         width = ViewerUIF.DEFAULT_WIDTH;
     }
 
+    public void setLensEnabled(boolean b)
+    {
+        JButton sizePlus = view.getSizePlus(), sizeMinus = view.getSizeMinus(), 
+            magPlus = view.getMagPlus(), magMinus = view.getMagMinus();
+        sizePlus.setEnabled(b);
+        sizeMinus.setEnabled(b);
+        magPlus.setEnabled(b);
+        magMinus.setEnabled(b);
+        view.getColors().setEnabled(b);
+        view.getOnOff().setEnabled(b);
+        view.getPin().setEnabled(b);
+        view.getPainting().setEnabled(b);
+    }
+    
     double getMagFactor() { return magFactor; }
     
     /** Attach listeners. */
