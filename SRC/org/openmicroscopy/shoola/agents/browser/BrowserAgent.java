@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
+import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
@@ -1164,6 +1166,19 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
         catch(Exception e) {}
         return null; // TODO change
+    }
+    
+    /**
+     * Adds a single (new) image classification to the DB, and fires the
+     * appropriate 
+     * @param imageID
+     * @param category
+     */
+    public void classifyImage(int imageID, Category category)
+    {
+        if(category == null) return;
+        ClassifyImage classifyEvent = new ClassifyImage(imageID,category);
+        eventBus.post(classifyEvent);
     }
     
     /**

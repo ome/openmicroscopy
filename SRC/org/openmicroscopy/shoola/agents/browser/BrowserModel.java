@@ -141,6 +141,7 @@ public class BrowserModel
         annotationModel = new PaintMethodZOrder();
         modeClassMap = new HashMap();
         availableTypesList = new ArrayList();
+        categoryTree = new CategoryTree(); // empty category tree.
 
         panActionClass =
             new BrowserModeClass(PAN_MODE_NAME,
