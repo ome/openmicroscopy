@@ -102,6 +102,7 @@ public class CategoryUI extends JDialog
     private boolean changingCategory = false;
     
     private int selectedGroup = -1;
+    private int selectedCategory = -1;
     
     private CategoryUI refCopy;
     
@@ -318,10 +319,11 @@ public class CategoryUI extends JDialog
             public void valueChanged(ListSelectionEvent e)
             {
                 int i = categoryList.getSelectedIndex();
+                if(i != -1) selectedCategory = i;
                 CategoryGroup group =
                     (CategoryGroup)controller.getCategoryGroups().get(selectedGroup);
                 Category cat =
-                    (Category)controller.getCategories(group).get(i);
+                    (Category)controller.getCategories(group).get(selectedCategory);
                 repaint();
             }
         });
