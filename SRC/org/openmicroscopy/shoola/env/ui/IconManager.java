@@ -119,13 +119,19 @@ public class IconManager
 	static final int		EXIT = 2;
 		
 	/** ID of the login icon. */
-	static final int		LOGIN = 3;	
-		
+	static final int		LOGIN_INIT = 3;
+
+	/** ID of the login icon. */
+	static final int		LOGIN = 4;
+	
+	/** ID of the connect to DS icon. */
+	static final int		CONNECT_DS_BIG = 5;
+			
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 3;
+	private static int      MAX_ID = 5;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -133,7 +139,9 @@ public class IconManager
 		relPaths[HELP] = "nuvola_help16.png";
 		relPaths[CONNECT_DS] = "nuvola_server16.png";
 		relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
-		relPaths[LOGIN] = "nuvola_server16.png";
+		relPaths[LOGIN_INIT] = "nuvola_button_cancel16.png";
+		relPaths[LOGIN] = "nuvola_apply16.png";
+		relPaths[CONNECT_DS_BIG] = "nuvola_server48.png";
 	}
 	
 	/** The sole instance. */

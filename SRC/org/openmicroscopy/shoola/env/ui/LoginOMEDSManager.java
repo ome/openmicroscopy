@@ -34,6 +34,10 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -56,7 +60,7 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
  * @since OME2.2
  */
 public class LoginOMEDSManager
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 
 	/**
@@ -73,6 +77,12 @@ public class LoginOMEDSManager
 	/** Reference to the view. */
 	private LoginOMEDS			view;
 	
+	private IconManager			im;
+	
+	private boolean				isUser, isPass;
+	
+	private Document 			dUser, dPass;
+	
 	/** 
 	 * Create a new instance.
 	 * 
@@ -85,6 +95,9 @@ public class LoginOMEDSManager
 		this.registry = registry;
 		this.dsf = dsf;
 		this.view = view;
+		im = IconManager.getInstance(registry);
+		isUser = false;
+		isPass = false;
 	}
 	
 	/** Initializes the listeners. */
@@ -92,7 +105,11 @@ public class LoginOMEDSManager
 	{
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
-		view.login.addActionListener(this);
+		dUser = view.user.getDocument(); 
+		dPass =  view.pass.getDocument();
+		dUser.addDocumentListener(this);
+		dPass.addDocumentListener(this);
+		view.loginButton.addActionListener(this);
 	}
 
 	public boolean isActivationSuccessful() { return activationSuccessful; }
@@ -106,7 +123,7 @@ public class LoginOMEDSManager
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append(view.pass.getPassword());
-		String  usr = view.user.getText(), psw = buf.toString();
+		String usr = view.user.getText(), psw = buf.toString();
 		if (usr == null || usr.length() == 0) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Login Incomplete", "Please enter a user name");
@@ -122,8 +139,8 @@ public class LoginOMEDSManager
 	 * Try to connect to OMEDS.
 	 * 
 	 * @param usr		User's name.
-	 * @param psw		User's password.
-	*/
+ 	 * @param psw		User's password.
+	 */
 	private void connect(String usr, String psw) 
 	{
 		UserCredentials uc = (UserCredentials)
@@ -142,6 +159,41 @@ public class LoginOMEDSManager
 			activationSuccessful = false;
 		}
 		view.dispose();
+	}
+
+	/** Set the icon of the loginButton. */
+	private void setLoginButtonIcon()
+	{
+		if (isUser && isPass) 
+			view.loginButton.setIcon(im.getIcon(IconManager.LOGIN));
+		else view.loginButton.setIcon(im.getIcon(IconManager.LOGIN_INIT));
+	}
+	
+	/** Require by {@link DocumentListener} interface. */
+	public void changedUpdate(DocumentEvent e)
+	{
+		Document doc = e.getDocument();
+		if (dUser.equals(doc))	isUser = true;
+		if (dPass.equals(doc))	isPass = true;
+		setLoginButtonIcon();
+	}
+
+	/** Require by {@link DocumentListener} interface. */
+	public void insertUpdate(DocumentEvent e)
+	{
+		Document doc = e.getDocument();
+		if (dUser.equals(doc))	isUser = true;
+		if (dPass.equals(doc))	isPass = true;
+		setLoginButtonIcon();
+	}
+
+	/** Require by {@link DocumentListener} interface. */
+	public void removeUpdate(DocumentEvent e)
+	{
+		Document doc = e.getDocument();
+		if (dUser.equals(doc))	isUser = false;
+		if (dPass.equals(doc))	isPass = false;
+		setLoginButtonIcon();
 	}
 
 }
