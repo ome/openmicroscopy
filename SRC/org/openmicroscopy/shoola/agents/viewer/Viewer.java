@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -72,6 +73,11 @@ public class Viewer
 	implements Agent, AgentEventListener
 {
 		
+	/** Background color. */
+	public static final Color		BACKGROUND_COLOR = new Color(204, 204, 255);
+	
+	public static final Color		STEELBLUE = new Color(0x4682B4);
+	
 	/** Reference to the {@link Registry}. */
 	private Registry			registry;
 	

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 
 
 //Java imports
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -45,6 +44,7 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -111,9 +111,9 @@ public class ZoomBarManager
 	/** Handle event fired by button. */
 	public void actionPerformed(ActionEvent e) 
 	{
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-			switch (cmd) {
+			switch (index) {
 				case ZOOM_FIELD_CMD:
 					zoomFieldActionHandler(); break;
 				case ZOOM_IN_CMD:
@@ -123,7 +123,9 @@ public class ZoomBarManager
 				case ZOOM_FIT_CMD:
 					zoomFit(); break;
 			}
-		} catch(NumberFormatException nfe) { throw nfe; }
+		} catch(NumberFormatException nfe) { 
+			throw new Error("Invalid Action ID "+index, nfe);
+		}
 	}
 
 	/** Set the value. */
@@ -151,7 +153,7 @@ public class ZoomBarManager
 	/** Reset the image. */
 	private void zoomFit()
 	{
-		zoomLevel = 1.0;
+		zoomLevel = ImageInspectorManager.ZOOM_DEFAULT;
 		control.setZoomLevel(zoomLevel);
 	}
 	
@@ -182,7 +184,9 @@ public class ZoomBarManager
 		if (valid) synchZoom(val);  
 		else {
 			zoomField.selectAll();
-			Toolkit.getDefaultToolkit().beep();
+			UserNotifier un = view.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid input value", 
+				"Please enter a value between 25% and 300%.");
 		}
 	}
 	

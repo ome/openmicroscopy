@@ -33,13 +33,13 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 
@@ -60,9 +60,6 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 public class ImageInspector
 	extends JDialog
 {
-	
-	/** Background color. */
-	public static final Color	BACKGROUND_COLOR = new Color(204, 204, 255);
 	
 	/** Maximum width of the window. */
 	private static final int		WIN_W = 500;
@@ -99,7 +96,7 @@ public class ImageInspector
 	private void buildGUI()
 	{
 		JScrollPane scroll = new JScrollPane(zoomPanel);
-		scroll.setBackground(BACKGROUND_COLOR);
+		scroll.setBackground(Viewer.BACKGROUND_COLOR);
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(scroll, BorderLayout.CENTER);
 	}

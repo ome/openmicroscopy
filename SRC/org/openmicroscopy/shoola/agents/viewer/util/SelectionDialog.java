@@ -43,12 +43,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 
 /** 
  * Dialog widget to give the user the choice to save or not the image with the
@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.viewer.IconManager;
 class SelectionDialog
 	extends JDialog
 {
+	
 	/** Width and Height of the widget. */
 	private static final int		W_WIDTH = 200, W_HEIGHT  = 200;
 	
@@ -124,7 +125,7 @@ class SelectionDialog
 		p.add(iconPanel);
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.EAST;
-		JTextArea area = buildTextPanel();
+		MultilineLabel area = buildTextPanel();
 		gridbag.setConstraints(area, c);
 		p.add(area); 
 		c.insets = new Insets(10, 0, 0, 0);  //top padding
@@ -136,17 +137,12 @@ class SelectionDialog
 	}
 	
 	/** Build the text message. */
-	private JTextArea buildTextPanel()
+	private MultilineLabel buildTextPanel()
 	{ 
 		String  s = "A file with the same name and extension already " +
 					"exists in this directory. ";
 				s += "Do you still want to save the image with this name?";
-		JTextArea label = new JTextArea(s);
-		label.setLineWrap(true);
-		label.setWrapStyleWord(true);
-		label.setBorder(null);
-		label.setEditable(false);
-		label.setOpaque(false);
+		MultilineLabel label = new MultilineLabel(s);
 		return label;
 	}
 	
@@ -156,18 +152,9 @@ class SelectionDialog
 		JPanel controls = new JPanel();
 		yesButton = new JButton("Yes");
 		yesButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		yesButton.setOpaque(false);
-		//suppress button press decoration
-		yesButton.setContentAreaFilled(false); 
 		
 		noButton = new JButton("No");
 		noButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//make panel transparent
-		noButton.setOpaque(false);
-		//suppress button press decoration
-		noButton.setContentAreaFilled(false); 
-				
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
 		controls.add(yesButton);
 		controls.add(Box.createRigidArea(HBOX));

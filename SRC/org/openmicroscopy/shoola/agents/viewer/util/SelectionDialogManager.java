@@ -84,8 +84,8 @@ class SelectionDialogManager
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-			int index = Integer.parseInt(s);
 			switch (index) { 
 				case YES:
 					saveImage();
@@ -94,7 +94,7 @@ class SelectionDialogManager
 					closeSelection();
 			}  
 		} catch(NumberFormatException nfe) {
-		   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
 //Java imports
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -45,6 +44,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -88,7 +88,7 @@ public class ToolBarManager
 	 */
 	private static final int   					EDITOR_CMD = 6;
 	
-	/** Action command ID to be used with the timepoint text field. */
+	/** Action command ID to be used with the z-section text field. */
 	private static final int					Z_FIELD_CMD = 7;
 	
 	private int									curT, maxT, curR;
@@ -178,9 +178,10 @@ public class ToolBarManager
 	 * set all elements to the new blacklevel value. 
 	 * If that text doesn't evaluate to a valid blacklevel, then we simply 
 	 * suggest the user to enter a valid one.
-	 */       
+	 */      
 	private void editorActionHandler()
 	{
+		//TODO implement
 		boolean valid = false;
 		int val = 0;
 		try {
@@ -198,7 +199,8 @@ public class ToolBarManager
 		if (valid) synchSpinner(val);  
 		else {
 			view.getEditor().selectAll();
-			Toolkit.getDefaultToolkit().beep();
+			UserNotifier un = control.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid value", "Please enter ");
 		}
 	} 
 	
@@ -218,11 +220,12 @@ public class ToolBarManager
 		} catch(NumberFormatException nfe) {}
 		if (valid) {
 			curT = val;
-			
 			control.onTChange(curZ, curT); 
 		} else {
 			view.getTField().selectAll();
-			Toolkit.getDefaultToolkit().beep();
+			UserNotifier un = control.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid timepoint", 
+				"Please enter a timepoint between 0 and "+maxT);
 		}
 	}
 	
@@ -245,16 +248,18 @@ public class ToolBarManager
 			control.onZChange(curZ, curT);
 		} else {
 			view.getTField().selectAll();
-			Toolkit.getDefaultToolkit().beep();
+			UserNotifier un = control.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid z-section", 
+				"Please enter a z-section between 0 and "+maxZ);
 		}
 	}
 	
 	/** Handle events fired byt text field and buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-		    switch (cmd) {
+		    switch (index) {
 				case T_FIELD_CMD:
 					tFieldActionHandler();
 				   	break;
@@ -267,14 +272,18 @@ public class ToolBarManager
 				case INSPECTOR_CMD:
 					control.showInspector();
 					break;
+				/*
 			   	case PLAY_CMD:  //not implemented yet
 			   	case STOP_CMD:  //not implemented yet
 			   	case REWIND_CMD:  //not implemented yet
 			   	case EDITOR_CMD:
 					editorActionHandler();
 				   	break;
+				  */
 			}
-		} catch(NumberFormatException nfe) { throw nfe; }
+		} catch(NumberFormatException nfe) { 
+			throw new Error("Invalid Action ID "+index, nfe); 
+		}
 	}
 
 	/** Handle events fired by the spinner. */
@@ -297,8 +306,10 @@ public class ToolBarManager
 	{
 		String tVal = view.getTField().getText(), t = ""+curT;
 		String zVal = view.getZField().getText(), z = ""+curZ;
+		String edit = view.getEditor().getText(), ed = ""+curR;
 		if (tVal == null || !tVal.equals(t)) view.getTField().setText(t);
 		if (zVal == null || !zVal.equals(z)) view.getZField().setText(z);
+		if (edit == null || !edit.equals(ed)) view.getEditor().setText(ed);
 	}
 	
 	/** 

@@ -47,7 +47,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
+import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 
 /** 
@@ -82,7 +82,7 @@ public class ZoomPanel
 	 
 	public ZoomPanel(BufferedImage image)
 	{
-		setBackground(ImageInspector.BACKGROUND_COLOR); 
+		setBackground(Viewer.BACKGROUND_COLOR); 
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
 		this.image = image;
 		imageWidth = image.getWidth();
@@ -132,7 +132,6 @@ public class ZoomPanel
 	private void setLocation()
 	{
 		Rectangle d = getBounds();
-		System.out.println(d);
 		int w = (int) (imageWidth*magFactor);
 		int h = (int) (imageHeight*magFactor);
 		x = (int) (d.width-w)/2;

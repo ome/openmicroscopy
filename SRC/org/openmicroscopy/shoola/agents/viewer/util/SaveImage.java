@@ -36,10 +36,10 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Iterator;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
  */
 class SaveImage
 {
+	
 	private Registry	registry;
 	
 	SaveImage(Registry registry, String format, BufferedImage image, 

@@ -30,14 +30,11 @@
 package org.openmicroscopy.shoola.agents.viewer.transform;
 
 
-
-
-
 //Java imports
 import java.awt.Dimension;
-
 import javax.swing.BoxLayout;
 import javax.swing.JToolBar;
+
 //Third-party libraries
 
 //Application-internal dependencies

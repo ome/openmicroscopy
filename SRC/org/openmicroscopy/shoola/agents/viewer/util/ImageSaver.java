@@ -30,12 +30,9 @@
 package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -44,6 +41,7 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Save the current image.
@@ -62,13 +60,13 @@ import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 public class ImageSaver
 	extends JFileChooser
 {
+	
 	/** Default extension format. */
 	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
 	private ViewerCtrl				controller;
 	
 	/** 
-	 * Control to display or not the fileChooser, when we pop up the dialog 
-	 * widget.
+	 * Control used to display or not the fileChooser, when the dialog is shown.
 	 */
 	private boolean					display;
 	
@@ -79,20 +77,11 @@ public class ImageSaver
 		createChooser();
 	}
 
-	void isDisplay(boolean b)
-	{
-		display = b;
-	}
+	void isDisplay(boolean b) { display = b; }
 	
-	ViewerCtrl getController()
-	{
-		return controller;
-	}
+	ViewerCtrl getController() { return controller; }
 	
-	BufferedImage getBufferedImage()
-	{
-		return controller.getBufferedImage();
-	}
+	BufferedImage getBufferedImage() { return controller.getBufferedImage(); }
 	
 	/** Build the file chooser. */
 	private void createChooser()
@@ -155,29 +144,13 @@ public class ImageSaver
 			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
 			
 		if (exist) {
-			showDialog(new SelectionDialog(this, format, fileName, message));
+			UIUtilities.centerAndShow(new SelectionDialog(this, format, 
+									fileName, message));
 		} else {
 			display = false;
 			new SaveImage(controller.getRegistry(), format, 
 						controller.getBufferedImage(), fileName, message);
 		}				
-	}
-	
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param editor	The editor dialog.
-	 */
-	void showDialog(JDialog editor)
-	{
-		JFrame topFrame = (JFrame) controller.getReferenceFrame();
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)	offsetX = 0;
-		if (offsetY < 0)	offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
 	}
 	
 }

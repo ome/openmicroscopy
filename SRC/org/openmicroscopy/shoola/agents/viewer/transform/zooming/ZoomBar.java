@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 
 //Java imports
-import java.awt.Color;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -41,6 +40,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
+import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -62,8 +62,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ZoomBar
 	extends JToolBar
 {
-	
-	private static final Color		STEELBLUE = new Color(0x4682B4);
 																																					
 	private JButton					zoomIn, zoomOut, zoomFit;
 	
@@ -72,14 +70,18 @@ public class ZoomBar
 	
 	private ZoomBarManager			manager;
 	
+	private Registry 				registry;
+	
 	public ZoomBar(Registry registry, ImageInspectorManager mng)
 	{
-		initZoomComponents(registry);
+		this.registry = registry;
+		initZoomComponents();
 		manager = new ZoomBarManager(this, mng);
 		manager.attachListeners();
 		buildToolBar();
 	}
-		
+	Registry getRegistry() { return registry; }
+	
 	JButton getZoomIn() { return zoomIn; }
 	
 	JButton getZoomOut() { return zoomOut; }
@@ -91,21 +93,21 @@ public class ZoomBar
 	public ZoomBarManager getManager() { return manager; }
 	
 	/** Initialize the zoom components. */
-	private void initZoomComponents(Registry registry)
+	private void initZoomComponents()
 	{
-		zoomField = new JTextField("100%", "200%".length());
-		zoomField.setForeground(STEELBLUE);
+		zoomField = new JTextField("100%", "300%".length());
+		zoomField.setForeground(Viewer.STEELBLUE);
 		zoomField.setToolTipText(
 		UIUtilities.formatToolTipText("zooming percentage."));
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
-		zoomIn =  new JButton(im.getIcon(IconManager.ZOOMIN));
+		zoomIn = new JButton(im.getIcon(IconManager.ZOOMIN));
 		zoomIn.setToolTipText(
 			UIUtilities.formatToolTipText("Zoom in."));	
-		zoomOut =  new JButton(im.getIcon(IconManager.ZOOMOUT));
+		zoomOut = new JButton(im.getIcon(IconManager.ZOOMOUT));
 		zoomOut.setToolTipText(
 			UIUtilities.formatToolTipText("Zoom out."));
-		zoomFit =  new JButton(im.getIcon(IconManager.ZOOMFIT));
+		zoomFit = new JButton(im.getIcon(IconManager.ZOOMFIT));
 				zoomOut.setToolTipText(
 					UIUtilities.formatToolTipText("Reset."));
 	}	

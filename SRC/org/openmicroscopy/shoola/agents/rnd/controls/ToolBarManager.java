@@ -97,19 +97,21 @@ class ToolBarManager
 	/** Handle events fired by buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
+		int index = Integer.parseInt(e.getActionCommand());
 		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-			switch (cmd) {
+			switch (index) {
 				case SAVE:
 					control.saveDisplayOptions();
 					break;
 				case GREY:
 				case RGB:
 				case HSB:
-					control.activateRenderingModel(cmd);
+					control.activateRenderingModel(index);
 					break;
 			}
-		} catch(NumberFormatException nfe) { throw nfe; }
+		} catch(NumberFormatException nfe) {
+			throw new Error("Invalid Action ID "+index, nfe);
+		}
 	}
 	
 }

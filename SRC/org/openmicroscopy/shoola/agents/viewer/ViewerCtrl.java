@@ -192,21 +192,17 @@ public class ViewerCtrl
 	public void actionPerformed(ActionEvent e) 
 	{
 		String s = (String) e.getActionCommand();
+		int index = Integer.parseInt(s);
 		try {
-		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case V_VISIBLE:
-					abstraction.setPresentation();
-					break;
+					abstraction.setPresentation(); break;
 				case RENDERING:
-					showRendering();
-					break; 	
+					showRendering(); break; 	
 				case SAVE_AS:
-					showImageSaver();
-					break;
+					showImageSaver(); break;
 				case INSPECTOR:
-					showInspector();
-					break;
+					showInspector(); break;
 				/*
 				case MOVIE_PLAY:
 				case MOVIE_STOP:
@@ -215,7 +211,7 @@ public class ViewerCtrl
 				*/
 		   }
 		} catch(NumberFormatException nfe) {   
-			   throw nfe;  //just to be on the safe side...
+			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	

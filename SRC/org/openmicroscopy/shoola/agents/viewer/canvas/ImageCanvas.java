@@ -41,7 +41,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.viewer.Viewer;
 
 /** 
  * 
@@ -61,9 +61,6 @@ public class ImageCanvas
 	extends JPanel
 {
 	 
-	/** Background color. */
-	private static final Color	BACKGROUND_COLOR = new Color(204, 204, 255);
-	
 	/** The BufferedImage to display. */	
 	private BufferedImage 		image;
 	
@@ -75,7 +72,7 @@ public class ImageCanvas
 	
 	public ImageCanvas()
 	{
-		setBackground(BACKGROUND_COLOR); 
+		setBackground(Viewer.BACKGROUND_COLOR); 
 	}
  
 	/** 

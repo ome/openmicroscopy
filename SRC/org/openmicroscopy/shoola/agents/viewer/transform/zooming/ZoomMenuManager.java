@@ -74,7 +74,7 @@ public class ZoomMenuManager
 	static final int				ZOOM_275 = 10;
 	static final int				ZOOM_300 = 11;
 	
-	private static final HashMap	values;
+	private static final HashMap	values, inverseValues;
 	static {
 		values = new HashMap();
 		values.put(new Double(0.25), new Integer(ZOOM_25));
@@ -89,6 +89,19 @@ public class ZoomMenuManager
 		values.put(new Double(2.5), new Integer(ZOOM_250));
 		values.put(new Double(2.75), new Integer(ZOOM_275));
 		values.put(new Double(3.0), new Integer(ZOOM_300));
+		inverseValues = new HashMap();
+		inverseValues.put(new Integer(ZOOM_25), new Double(0.25));
+		inverseValues.put(new Integer(ZOOM_50), new Double(0.5));
+		inverseValues.put(new Integer(ZOOM_75), new Double(0.75));
+		inverseValues.put(new Integer(ZOOM_100), new Double(1.0));
+		inverseValues.put(new Integer(ZOOM_125), new Double(1.25));
+		inverseValues.put(new Integer(ZOOM_150), new Double(1.5));
+		inverseValues.put(new Integer(ZOOM_175), new Double(1.75));
+		inverseValues.put(new Integer(ZOOM_200), new Double(2.0));
+		inverseValues.put(new Integer(ZOOM_225), new Double(2.25));
+		inverseValues.put(new Integer(ZOOM_250), new Double(2.5));
+		inverseValues.put(new Integer(ZOOM_275), new Double(2.75));
+		inverseValues.put(new Integer(ZOOM_300), new Double(3.0));
 	}
 	
 	private ZoomMenu				view;
@@ -114,35 +127,10 @@ public class ZoomMenuManager
 	/** Handle events fired but menuItem. */
 	public void actionPerformed(ActionEvent e)
 	{
-		try {
-			int cmd = Integer.parseInt(e.getActionCommand());
-			switch (cmd) {
-				case ZOOM_25:
-					control.setZoomLevel(0.25); break;
-				case ZOOM_50:
-					control.setZoomLevel(0.5); break;
-				case ZOOM_75:
-					control.setZoomLevel(0.75); break;
-				case ZOOM_100:
-					control.setZoomLevel(1.0); break;
-				case ZOOM_125:
-					control.setZoomLevel(1.25); break;
-				case ZOOM_150:
-					control.setZoomLevel(1.50); break;
-				case ZOOM_175:
-					control.setZoomLevel(1.75); break;
-				case ZOOM_200:
-					control.setZoomLevel(2.0); break;
-				case ZOOM_225:
-					control.setZoomLevel(2.25); break;
-				case ZOOM_250:
-					control.setZoomLevel(2.5); break;
-				case ZOOM_275:
-					control.setZoomLevel(2.75); break;
-				case ZOOM_300:
-					control.setZoomLevel(3.0); break;
-			}
-		} catch(NumberFormatException nfe) { throw nfe; }
+		int index = Integer.parseInt(e.getActionCommand());
+		Double value = (Double) inverseValues.get(new Integer(index));
+		if (value != null) control.setZoomLevel(value.doubleValue());
+		else throw new Error("Invalid Action ID "+index);
 	}
 	
 	public void setItemSelected(double level)
