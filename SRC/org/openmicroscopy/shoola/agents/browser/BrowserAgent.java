@@ -285,6 +285,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         final BrowserModel model = new BrowserModel();
         model.setLayoutMethod(new NumColsLayoutMethod(8));
+        model.setDefaultLayoutMethod(new NumColsLayoutMethod(8));
         BrowserTopModel topModel = new BrowserTopModel();
         
         BPalette optionPalette = PaletteFactory.getOptionPalette(model,topModel);
@@ -571,6 +572,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                 PlateLayoutMethod lm = new PlateLayoutMethod(refInfo.getNumRows(),
                                                              refInfo.getNumCols());
                 model.setLayoutMethod(lm);
+                model.setDefaultLayoutMethod(lm);
                 
                 CompletePlate plate = new CompletePlate();
                 for(Iterator iter = refPlateList.iterator(); iter.hasNext();)

@@ -74,8 +74,10 @@ public class BrowserModel
     private Set modelListeners;
 
     private LayoutMethod layoutMethod;
-    private List groupModels;
     private GroupingMethod groupingMethod;
+    
+    private LayoutMethod defaultLayoutMethod;
+    private GroupingMethod defaultGroupingMethod;
     
     private CompositingSettings renderSettings;
     private PaintMethodZOrder annotationModel;
@@ -135,7 +137,7 @@ public class BrowserModel
         selectedThumbnails = new HashSet();
         attributeMap = new AttributeMap();
         groupingMethod = new SingleGroupingMethod();
-        groupModels = Arrays.asList(groupingMethod.getGroups());
+        defaultGroupingMethod = groupingMethod;
         thumbnailSet = new HashSet();
         imageIDMap = new HashMap();
         annotationModel = new PaintMethodZOrder();
@@ -266,6 +268,29 @@ public class BrowserModel
     public void setCategoryTree(CategoryTree tree)
     {
         this.categoryTree = tree;
+        fireModelUpdated();
+    }
+    
+    public double getAverageWidth()
+    {
+        double total = 0;
+        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            total += t.getImage().getWidth(null);
+        }
+        return total/thumbnailSet.size();
+    }
+    
+    public double getAverageHeight()
+    {
+        double total = 0;
+        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            total += t.getImage().getHeight(null);
+        }
+        return total/thumbnailSet.size();
     }
     
     // TODO: include constructor which loads settings (so that the grouping
@@ -415,10 +440,10 @@ public class BrowserModel
     public void clearThumbnails()
     {
         thumbnailSet.clear();
-        for(Iterator iter = groupModels.iterator(); iter.hasNext();)
+        GroupModel[] models = groupingMethod.getGroups();
+        for(int i=0;i<models.length;i++)
         {
-            GroupModel group = (GroupModel)iter.next();
-            group.clearThumbnails();
+            models[i].clearThumbnails();
         }
         updateModelListeners();
     }
@@ -431,6 +456,11 @@ public class BrowserModel
     public LayoutMethod getLayoutMethod()
     {
         return layoutMethod;
+    }
+    
+    public LayoutMethod getDefaultLayoutMethod()
+    {
+        return defaultLayoutMethod;
     }
     
     /**
@@ -447,6 +477,14 @@ public class BrowserModel
         }
     }
     
+    public void setDefaultLayoutMethod(LayoutMethod lm)
+    {
+        if(lm != null)
+        {
+            this.defaultLayoutMethod = lm;
+        }
+    }
+    
     /**
      * Returns the method by which individual thumbnails are divided into
      * certain criteria or phenotypes (and look so onscreen)
@@ -455,6 +493,11 @@ public class BrowserModel
     public GroupingMethod getGroupingMethod()
     {
         return groupingMethod;
+    }
+    
+    public GroupingMethod getDefaultGroupingMethod()
+    {
+        return defaultGroupingMethod;
     }
     
     /**
@@ -467,7 +510,18 @@ public class BrowserModel
         if(gm != null)
         {
             this.groupingMethod = gm;
+            Thumbnail[] ts = new Thumbnail[thumbnailSet.size()];
+            thumbnailSet.toArray(ts);
+            gm.assignGroups(ts);
             updateModelListeners();
+        }
+    }
+    
+    public void setDefaultGroupingMethod(GroupingMethod gm)
+    {
+        if(gm != null)
+        {
+            this.defaultGroupingMethod = gm;
         }
     }
     

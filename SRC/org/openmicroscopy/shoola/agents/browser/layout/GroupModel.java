@@ -97,6 +97,17 @@ public class GroupModel
     }
     
     /**
+     * Returns whether or not this group model contains this particular
+     * thumbnail.
+     * @param t The thumbnail to determine membership
+     * @return Whether or not this thumbnail is a member of this group.
+     */
+    public boolean containsThumbnail(Thumbnail t)
+    {
+        return thumbnails.contains(t);
+    }
+    
+    /**
      * Removes all thumbnails from this group (effectively resets it)
      */
     public void clearThumbnails()

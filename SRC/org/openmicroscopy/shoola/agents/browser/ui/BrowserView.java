@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -78,12 +79,17 @@ import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
+import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
+import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.QuantumGroupLayoutMethod;
 
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
+import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -149,6 +155,7 @@ public class BrowserView extends PCanvas
     // thumbnails and cameras and palettes (signifying the start of a multiple
     // select, perhaps)
     private PNode backgroundNode;
+    private PNode foregroundNode;
     
     // map for storing modes during temporary actions when you need
     // to override, like when you're selecting objects and don't want
@@ -264,7 +271,9 @@ public class BrowserView extends PCanvas
         
         setBackground(new Color(192,192,192));
         backgroundNode = new BackgroundNode();
+        foregroundNode = new ForegroundNode();
         getLayer().addChild(backgroundNode);
+        getLayer().addChild(foregroundNode);
         
         layoutMap = new HashMap();
         footprint = new Rectangle2D.Double(0,0,0,0);
@@ -711,6 +720,9 @@ public class BrowserView extends PCanvas
         boundCameraPosition();
         
         double viewScale = getCamera().getViewScale();
+        PBounds bounds = getCamera().getViewBounds();
+        foregroundNode.setOffset(new Point2D.Double(bounds.getX(),
+                                                    bounds.getY()));
         backgroundNode.setBounds(0,0,10000,10000); // to be realistic... (hack)
         
         //      update things
@@ -746,6 +758,7 @@ public class BrowserView extends PCanvas
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         super.paintComponent(g2);
+        System.err.println("repainting...");
     }
     
     /**
@@ -765,7 +778,9 @@ public class BrowserView extends PCanvas
         // apply the current UI modes...
         t.setMouseDownActions(defaultTDownActions);
         t.setMouseOverActions(defaultTOverActions);
+        getLayer().removeChild(foregroundNode);
         getLayer().addChild(t);
+        getLayer().addChild(foregroundNode);
         updateThumbnails();
     }
     
@@ -778,6 +793,8 @@ public class BrowserView extends PCanvas
             ts[i].setMouseOverActions(defaultTOverActions);
             getLayer().addChild(ts[i]);
         }
+        getLayer().removeChild(foregroundNode);
+        getLayer().addChild(foregroundNode);
         updateThumbnails();
     }
     
@@ -843,6 +860,55 @@ public class BrowserView extends PCanvas
         handler.reportError(message);
     }
     
+    class ForegroundNode extends PNode
+    {
+        private PNode cheapNode;
+        public ForegroundNode()
+        {
+            // THIS IS REAL HACKY-LIKE
+            cheapNode = new PNode();
+            cheapNode.setBounds(0,0,1,1);
+            addChild(cheapNode);
+        }
+        
+        public void setOffset(Point2D offset)
+        {
+            cheapNode.setOffset(offset);
+        }
+        
+        public void paint(PPaintContext context)
+        {
+            PCamera camera = getCamera();
+            if(browserModel.getLayoutMethod() instanceof
+                QuantumGroupLayoutMethod)
+            {
+                QuantumGroupLayoutMethod lm =
+                    (QuantumGroupLayoutMethod)browserModel.getLayoutMethod();
+                Graphics2D g2 = context.getGraphics();
+                Font f = new Font(null,Font.BOLD,12);
+                FontMetrics fm = g2.getFontMetrics(f);
+                GroupModel[] groups = browserModel.getGroupingMethod().getGroups();
+                g2.setFont(f);
+                for(int i=0;i<groups.length;i++)
+                {
+                    Rectangle2D region = lm.getRegionBounds(groups[i]);
+                    Rectangle2D bounds =
+                        fm.getStringBounds(groups[i].getName(),g2);
+                    Rectangle2D newBounds =
+                        new Rectangle2D.Double(region.getX(),region.getY(),
+                                               bounds.getWidth()+4,bounds.getHeight()+4);
+                    g2.setPaint(Color.black);
+                    g2.fill(newBounds);
+                    g2.setColor(Color.white);
+                    g2.drawString(groups[i].getName(),
+                                  (float)region.getX()+2,
+                                  (float)region.getY()+fm.getAscent()+2);
+                }
+                
+            }
+        }
+    }
+    
     /**
      * The background node of this view that will handle selection events.
      */
@@ -856,6 +922,25 @@ public class BrowserView extends PCanvas
         {
             mouseDragActions = new MouseDragActions();
             mouseDownActions = new MouseDownActions();
+        }
+        
+        public void paint(PPaintContext context)
+        {
+            Graphics2D g2 = context.getGraphics();
+            if(browserModel.getLayoutMethod() instanceof
+               QuantumGroupLayoutMethod)
+            {
+                QuantumGroupLayoutMethod method =
+                    (QuantumGroupLayoutMethod)browserModel.getLayoutMethod();
+                GroupingMethod groupMethod = browserModel.getGroupingMethod();
+                GroupModel[] groups = groupMethod.getGroups();
+                for(int i=0;i<groups.length;i++)
+                {
+                    Rectangle2D region = method.getRegionBounds(groups[i]);
+                    g2.setColor(Color.black);
+                    g2.draw(region);
+                }
+            }
         }
         
         /**

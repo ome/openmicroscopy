@@ -41,6 +41,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -48,12 +50,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserModelAdapter;
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapUI;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
@@ -61,6 +66,10 @@ import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
 import org.openmicroscopy.shoola.agents.browser.images.OverlayMethods;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.layout.CategoryGroupingMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
+import org.openmicroscopy.shoola.agents.browser.layout.QuantumGroupLayoutMethod;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
@@ -77,7 +86,7 @@ public class BrowserMenuBar extends JMenuBar
 {
     public static final int VIEW_MENU = 1;
     public static final int ANALYZE_MENU = 2;
-    // public static final int LAYOUT_MENU = 3; (disable for now)
+    public static final int LAYOUT_MENU = 3;
     
     public static final int VIEW_WELLNO_ITEM = 101;
     public static final int VIEW_ANNOTATION_ITEM = 102;
@@ -87,6 +96,9 @@ public class BrowserMenuBar extends JMenuBar
     public static final int ANALYZE_HEATMAP_ITEM = 202;
     public static final int ANALYZE_VIEW_CATEGORIES_ITEM = 203;
     public static final int ANALYZE_CATEGORIES_ITEM = 204;
+    
+    public static final int LAYOUT_DEFAULT_ITEM = 301;
+    public static final int LAYOUT_CATEGORY_ITEM = 302;
     
     private Map menuMap;
     private Map menuItemMap;
@@ -102,6 +114,19 @@ public class BrowserMenuBar extends JMenuBar
         
         add(createViewMenu());
         add(createAnalyzeMenu());
+        add(createLayoutMenu()); // comment out if you don't want it
+        
+        target.addModelListener(new BrowserModelAdapter()
+        {
+            public void modelUpdated()
+            {
+                JMenu menu = (JMenu)menuMap.get(new Integer(LAYOUT_MENU));
+                JMenuItem menuItem =
+                    (JMenuItem)menuItemMap.get(new Integer(LAYOUT_CATEGORY_ITEM));
+                menu.remove(menuItem);
+                menu.add(createCategoryLayoutMenu());
+            }
+        });
     }
     
     /**
@@ -143,6 +168,17 @@ public class BrowserMenuBar extends JMenuBar
         menu.add(createAnalyzeCategoryItem());
         
         menuMap.put(new Integer(ANALYZE_MENU),menu);
+        return menu;
+    }
+    
+    private JMenu createLayoutMenu()
+    {
+        JMenu menu = new JMenu("Layout");
+        
+        menu.add(createDefaultLayoutItem());
+        menu.add(createCategoryLayoutMenu());
+        
+        menuMap.put(new Integer(LAYOUT_MENU),menu);
         return menu;
     }
     
@@ -340,6 +376,49 @@ public class BrowserMenuBar extends JMenuBar
         });
         menuItemMap.put(new Integer(ANALYZE_CATEGORIES_ITEM),categoryItem);
         return categoryItem;
+    }
+    
+    private JMenuItem createDefaultLayoutItem()
+    {
+        JMenuItem defaultItem = new JMenuItem("Default Layout");
+        defaultItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                LayoutMethod defaultLM = actionTarget.getDefaultLayoutMethod();
+                actionTarget.setLayoutMethod(defaultLM);
+            }
+        });
+        menuItemMap.put(new Integer(LAYOUT_DEFAULT_ITEM),defaultItem);
+        return defaultItem;
+    }
+    
+    private JMenu createCategoryLayoutMenu()
+    {
+        JMenu groupMenu = new JMenu("Arrange by Phenotype");
+        final CategoryTree tree = actionTarget.getCategoryTree();
+        List groups = tree.getCategoryGroups();
+        for(Iterator iter = groups.iterator(); iter.hasNext();)
+        {
+            final CategoryGroup cg = (CategoryGroup)iter.next();
+            JMenuItem item = new JMenuItem(cg.getName());
+            item.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent ae)
+                {
+                    GroupingMethod gm = new CategoryGroupingMethod(cg,tree);
+                    actionTarget.setGroupingMethod(gm);
+                    int width = (int)Math.round(actionTarget.getAverageWidth())+10;
+                    int height = (int)Math.round(actionTarget.getAverageHeight())+10;
+                    LayoutMethod lm =
+                        new QuantumGroupLayoutMethod(gm,width,height);
+                    actionTarget.setLayoutMethod(lm);
+                }
+            });
+            groupMenu.add(item);
+        }
+        menuItemMap.put(new Integer(LAYOUT_CATEGORY_ITEM),groupMenu);
+        return groupMenu;
     }
     
     /**

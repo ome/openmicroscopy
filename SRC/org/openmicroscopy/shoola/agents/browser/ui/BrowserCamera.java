@@ -272,7 +272,7 @@ public class BrowserCamera implements RegionSensitive,
         else invalidRegion = false;
         this.cameraBounds = cameraBounds;
         
-        recalculatePanNodes();
+        // recalculatePanNodes();
     }
     
     /**
@@ -457,7 +457,7 @@ public class BrowserCamera implements RegionSensitive,
         if(region != null)
         {
             activeRegion = region;
-            recalculatePanNodes();
+            // recalculatePanNodes();
         }
         else
         {

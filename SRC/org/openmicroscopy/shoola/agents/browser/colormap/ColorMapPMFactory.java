@@ -101,6 +101,11 @@ public class ColorMapPMFactory
             {
                 AttributeMap attrMap = tdm.getAttributeMap();
                 List attributes = attrMap.getAttributes("Classification");
+                if(attributes == null)
+                {
+                    thumbnailColorMap.put(tdm,alpha);
+                    return;
+                }
                 for(Iterator iter = attributes.iterator(); iter.hasNext();)
                 {
                     Classification c = (Classification)iter.next();

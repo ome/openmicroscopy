@@ -76,6 +76,19 @@ public class SingleGroupingMethod implements GroupingMethod
     }
     
     /**
+     * Assigns all thumbnails in the array to the single group in the method.
+     * @see org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod#assignGroups(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void assignGroups(Thumbnail[] ts)
+    {
+        if(ts != null || ts.length == 0) return;
+        for(int i=0;i<ts.length;i++)
+        {
+            singleGroup.addThumbnail(ts[i]);
+        }
+    }
+    
+    /**
      * Returns the single backing group model regardless of thumbnail.
      * @return See above.
      */

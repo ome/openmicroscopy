@@ -50,8 +50,8 @@ import org.openmicroscopy.shoola.agents.browser.util.GrepOperator;
  */
 public class CriteriaGroupingMethod implements GroupingMethod
 {
-    private List criteria;
-    private Map criteriaMap;
+    protected List criteria;
+    protected Map criteriaMap;
 
     /**
      * Creates a grouping method based on certain true/false criteria.
@@ -153,6 +153,21 @@ public class CriteriaGroupingMethod implements GroupingMethod
             }
         }
         return null;
+    }
+    
+    /**
+     * Assigns group model designation to all thumbnails in the specified
+     * array.
+     * 
+     * @param ts The thumbnails to assign.
+     */
+    public void assignGroups(Thumbnail[] ts)
+    {
+        if(ts == null || ts.length == 0) return;
+        for(int i=0;i<ts.length;i++)
+        {
+            assignGroup(ts[i]);
+        }
     }
 
     /**

@@ -495,7 +495,7 @@ public class PiccoloActionFactory
                     }
                     if(offBottom > 0)
                     {
-                        offTop = offBottom-offTop-4;
+                        offTop = offTop-offBottom-4;
                         semanticNode.setOffset(offLeft,offTop);
                     }
                     if(offLeft < 4)
@@ -509,7 +509,7 @@ public class PiccoloActionFactory
                         semanticNode.setOffset(offLeft,offTop);
                     }
                     
-                    layer.nodeEntered(e.getCamera(),semanticNode,200);
+                    layer.nodeEntered(e.getCamera(),semanticNode,500);
                 }
             }
         };

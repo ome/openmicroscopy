@@ -55,6 +55,14 @@ public interface GroupingMethod
      * @return Which group the thumbnail was assigned to.
      */
     public GroupModel assignGroup(Thumbnail t);
+    
+    /**
+     * Assigns groups to all thumbnails, based on the group model.  Does not
+     * return GroupModel values like its single counterpart; that information
+     * should be retained in the subclass GroupingMethod itself.
+     * @param ts The thumbnails to assign.
+     */
+    public void assignGroups(Thumbnail[] ts);
 
     /**
      * Gets the currently assigned group of the specified thumbnail, if there
