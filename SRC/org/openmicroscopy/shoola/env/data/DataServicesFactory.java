@@ -34,7 +34,12 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.ds.XmlRpcCaller;
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.OMEDSInfo;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  * A factory for the {@link DataManagementService} and the
@@ -51,67 +56,48 @@ package org.openmicroscopy.shoola.env.data;
  */
 public class DataServicesFactory
 {
-    /**
-	 * Creates a new {@link DataManagementService} and {@link
-	 * SemanticTypesService}.
-	 * 
-	 * @param reg	Reference to the {@link Registry}.
-	 */
-    /*
-	public static void createDataServices(Registry reg)
-        throws NotLoggedInException
-	{
-        UserCredentials uc = (UserCredentials)
-            reg.lookup(LookupNames.USER_CREDENTIALS);
-        if (uc == null)
-            throw new NotLoggedInException("User has not provided credentials");
-
-        HostInfo hi = (HostInfo)
-            reg.lookup(LookupNames.OMEDS);
-        if (hi == null)
-            throw new NotLoggedInException("No data server host provided!");
-
-        URL url = null;
-        try
-        {
-            url = new URL("http",hi.getHost(),hi.getPort().intValue(),"");
-        } catch (MalformedURLException e) {
-            throw new NotLoggedInException("Malformed data server URL "+
-                                           e.getMessage());
-        }
-
-        try
-        {
-            DataManagementService dms =
-                new RemoteDataManagementService(url,
-                                                uc.getUserName(),
-                                                uc.getPassword());
-            // sts = new RemoteSemanticTypesService(dms.getRemoteCaller());
-
-            RegistryFactory.linkDMS(dms,reg);
-            //RegistryFactory.linkSTS(sts,reg);
-        } catch (RemoteException e) {
-            throw new NotLoggedInException("Could not log into data server"+
-                                           e.getMessage());
-        }
-	}
-	*/
+    
+    private static Registry		registry;
+    private static DMSProxy		dms;
+    private static STSProxy		sts;
+    private static XmlRpcCaller	transport;
+    
+    
 	
-	public static void createDataServices()
+	//NB: this can't be called outside of container b/c agents have no refs
+	//to the singleton container. So we can be sure this method is going to
+	//create services just once.
+	public static void createDataServices(Container c)
 	{
-		//TODO: Implement.
+		if (c == null)
+			throw new NullPointerException();  //An agent called this?
+		registry = c.getRegistry();
+		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
+		if (info == null)
+			throw new NullPointerException("No data server host provided!");
+		//TODO: convert the above in a sound exception.
+		transport = new XmlRpcCaller(info.getServerAddress()); //URL
+		dms = new DMSProxy(transport);
+		sts = new STSProxy(transport);
 	}
 	
 	public static DataManagementService getDMS()
 	{
-		//TODO: implement.
-		return null;
+		return dms;
 	}
 	
 	public static SemanticTypesService getSTS()
 	{
-		//TODO: implement.
-		return null;
+		return sts;
+	}
+	
+	public static void doLogin()
+	{
+		UserCredentials uc = (UserCredentials)
+								registry.lookup(LookupNames.USER_CREDENTIALS);
+		//uc can't be null b/c there's no way to call this method b/f init.
+		transport.login(uc.getUserName(), uc.getPassword());
+		//TODO: check outcome of logging in.
 	}
 	
 }
