@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JComponent;
@@ -62,7 +64,8 @@ public class TopFrameImpl
     extends JFrame 
     implements TopFrame, ActionListener
 {
-    
+	/** Constant used to size and positions the topFrame. */
+	static final int		INSET = 100;
 	/** Action command ID. */    
     static final int        FILE = 0;
     static final int        VIEW = 1;
@@ -146,7 +149,9 @@ public class TopFrameImpl
 	*/
     public void open()
     {
-    	pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		setBounds(INSET, INSET, screenSize.width  - INSET*2,
+				  screenSize.height - INSET*2);
     	setVisible(true);
     }
     
