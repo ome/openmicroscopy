@@ -149,13 +149,10 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         if(currentMethod != null)
         {
             BrowserModel browserModel = model.getInfoSource();
-            List thumbnailList = browserModel.getThumbnails();
-            for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
-            {
-                Thumbnail t = (Thumbnail)iter.next();
-                t.addMiddlePaintMethod(currentMethod);
-                t.addForegroundPaintMethod(currentValueMethod);
-            }
+            browserModel.addPaintMethod(currentMethod,
+                                        Thumbnail.MIDDLE_PAINT_METHOD);
+            browserModel.addPaintMethod(currentMethod,
+                                        Thumbnail.FOREGROUND_PAINT_METHOD);
         }
     }
     
@@ -230,21 +227,19 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         PaintMethod vpm =
             HeatMapPMFactory.getShowValueMethod(currentMode,attribute,elementName,
                                                 0.75,Color.yellow);
-        for(Iterator iter = browserModel.getThumbnails().iterator();
-            iter.hasNext();)
+        
+        if(currentMethod != null)
         {
-            Thumbnail t = (Thumbnail)iter.next();
-            if(currentMethod != null)
-            {
-                t.removeMiddlePaintMethod(currentMethod);
-                t.removeForegroundPaintMethod(currentValueMethod);
-            }
-            t.addMiddlePaintMethod(pm);
-            t.addForegroundPaintMethod(vpm);
+            browserModel.removePaintMethod(currentMethod,
+                                           Thumbnail.MIDDLE_PAINT_METHOD);
+            browserModel.removePaintMethod(currentValueMethod,
+                                           Thumbnail.FOREGROUND_PAINT_METHOD);
         }
+        browserModel.addPaintMethod(pm,Thumbnail.MIDDLE_PAINT_METHOD);
+        browserModel.addPaintMethod(vpm,Thumbnail.FOREGROUND_PAINT_METHOD);
+        
         currentMethod = pm;
         currentValueMethod = vpm;
-        browserModel.fireModelUpdated();
     }
     
     private class LoaderThread extends Thread

@@ -97,10 +97,12 @@ public class PiccoloActionFactory
      * Generates an add paint method action.
      * @param target The browser model to change.
      * @param method The (overlay) paint method to add.
+     * @param location The layer on which to add the paint method.
      * @return The action which executes this paint method inclusion.
      */
     public static PiccoloAction getAddPaintMethodAction(final BrowserModel target,
-                                                        final PaintMethod method)
+                                                        final PaintMethod method,
+                                                        final int location)
     {
         if(target == null || method == null)
         {
@@ -111,7 +113,7 @@ public class PiccoloActionFactory
         {
             public void execute(PInputEvent e)
             {
-                target.addPaintMethod(method);
+                target.addPaintMethod(method,location);
             }
         };
         return action;
@@ -121,10 +123,12 @@ public class PiccoloActionFactory
      * Generates a remove paint method action.
      * @param target The browser model to change.
      * @param method The (overlay) paint method to remove.
+     * @param location The layer from which to remove the paint method.
      * @return The action which executes this paint method exclusion.
      */
     public static PiccoloAction getRemovePaintMethodAction(final BrowserModel target,
-                                                           final PaintMethod method)
+                                                           final PaintMethod method,
+                                                           final int location)
     {
         if(target == null || method == null)
         {
@@ -135,7 +139,7 @@ public class PiccoloActionFactory
         {
             public void execute(PInputEvent e)
             {
-                target.removePaintMethod(method);
+                target.removePaintMethod(method,location);
             }
         };
         return action;

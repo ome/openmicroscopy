@@ -559,21 +559,46 @@ public class BrowserModel
      * model.  For example, adding the paint method which paints a thumbnail's
      * name will cause the name to be rendered on all thumbnails.
      * 
-     * IMPL NOTE: Simplified accessor to z order; adds to top (default).
-     * Might be a smart idea to add the bottom method to, or index methods as
-     * in PaintMethodZOrder, but I think this will do the job for now.
-     * 
-     * @param m The paint method to add (to the top)
+     * The variable position specifies where this paint method should be
+     * included.  It must be one of Thumbnail.FOREGROUND_PAINT_METHOD,
+     * Thumbnail.MIDDLE_PAINT_METHOD, or Thumbnail.BACKGROUND_PAINT_METHOD.
      */
-    public void addPaintMethod(PaintMethod m)
+    public void addPaintMethod(PaintMethod m, int position)
     {
         if(m == null)
         {
             return;
         }
-        annotationModel.addMethodToTop(m); // TODO: make change here?
         
-        updatePaintMethods();
+        if(position == Thumbnail.FOREGROUND_PAINT_METHOD)
+        {
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.addForegroundPaintMethod(m);
+            }
+        }
+        else if(position == Thumbnail.MIDDLE_PAINT_METHOD)
+        {
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.addMiddlePaintMethod(m);
+            }
+        }
+        else if(position == Thumbnail.BACKGROUND_PAINT_METHOD)
+        {
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.addBackgroundPaintMethod(m);
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid paint method location");
+        }
+        
         for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
         {
             BrowserModelListener bml =
@@ -587,36 +612,52 @@ public class BrowserModel
      * removing the paint method which paints a thumbnail's name will prevent
      * the name from being rendered on all thumbnails in the model.
      * 
+     * The position parameter specifies from which layer in the thumbnail the
+     * paint method should be removed.
+     * 
      * @param m The paint method to deactivate.
      */
-    public void removePaintMethod(PaintMethod m)
+    public void removePaintMethod(PaintMethod m, int position)
     {
         if(m == null)
         {
             return;
         }
-        boolean changed = annotationModel.removePaintMethod(m);
-        
-        if(changed)
+       
+        if(position == Thumbnail.FOREGROUND_PAINT_METHOD)
         {
-            updatePaintMethods();
-            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
             {
-                BrowserModelListener bml =
-                    (BrowserModelListener)iter.next();
-                
-                bml.paintMethodsChanged();
+                Thumbnail t = (Thumbnail)iter.next();
+                t.removeForegroundPaintMethod(m);
             }
         }
-    }
-    
-    // applies the current z order to all thumbnails in the model.
-    private void updatePaintMethods()
-    {
-        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        else if(position == Thumbnail.MIDDLE_PAINT_METHOD)
         {
-            Thumbnail t = (Thumbnail)iter.next();
-            t.setPaintMethodZOrder(annotationModel);
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.removeMiddlePaintMethod(m);
+            }
+        }
+        else if(position == Thumbnail.BACKGROUND_PAINT_METHOD)
+        {
+            for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.addBackgroundPaintMethod(m);
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid paint method location");
+        }
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener bml =
+                (BrowserModelListener)iter.next();
+            bml.paintMethodsChanged();
         }
     }
 
