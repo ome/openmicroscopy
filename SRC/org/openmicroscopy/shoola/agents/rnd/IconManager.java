@@ -31,16 +31,22 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 
 //Java imports
-import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 /** 
- * 
+ * Provides the icons used by the Rendering Agent.
+ * <p>The icons are retrieved by first calling the 
+ * {@link #getInstance(Registry) getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class &#151; icons will be retrieved
+ * from the Rendering Agent's graphics bundle, which implies that its
+ * configuration has been read in (this happens during the initialization
+ * procedure).</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,51 +60,46 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 public class IconManager
+	extends AbstractIconManager
 {
-	/** Contains icon objects to be retrieved through the icon IDs. */
-	private Icon[]				icons;
-
-	/** ID of the OME logo icon. */
-	public static final int     OME = 0; 
 	
 	/** ID of the information icon. */
-	public static final int     INFO = 1;   
+	public static final int     INFO = 0;   
   
 	/** ID of the histogram icon. */
-	public static final int     HISTOGRAM = 2;
+	public static final int     HISTOGRAM = 1;
 	
 	/** ID of the contrast stretching icon. */
-	public static final int     STRETCHING = 3;
+	public static final int     STRETCHING = 2;
 	
 	/** ID of the plane slicing icon. */
-	public static final int     SLICING = 4;
+	public static final int     SLICING = 3;
 	
 	/** ID of the greyscale icon. */
-	public static final int		GREYSCALE = 5;
+	public static final int		GREYSCALE = 4;
 	
 	/** ID of the greyscale icon. */
-	public static final int		RGB = 6;
+	public static final int		RGB = 5;
 		
 	/** ID of the greyscale icon. */
-	public static final int		HSB = 7;
+	public static final int		HSB = 6;
 	
 	/** ID of the codomain icon. */
-	public static final int		CODOMAIN = 8;
+	public static final int		CODOMAIN = 7;
 	
 	/** ID of the save icon. */
-	public static final int		SAVE_SETTINGS = 9;
+	public static final int		SAVE_SETTINGS = 8;
 	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 9;
+	private static int          MAX_ID = 8;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
-		relPaths[OME] = "OME16.png";
 		relPaths[INFO] = "information16.png";
 		relPaths[HISTOGRAM] = "histogram16.png";
 		relPaths[STRETCHING] = "contrastStretching16.png";
@@ -116,17 +117,10 @@ public class IconManager
 	/** Returns the <code>IconManager</code> object. */
 	public static IconManager getInstance(Registry registry)
 	{
-		if (singleton == null) {
-			try {	
-				singleton = new IconManager(registry);
-			} catch (Exception e) {
-				throw new RuntimeException("Can't create the IconManager", e);
-			}
-		}
+		if (singleton == null)	singleton = new IconManager(registry);
 		return singleton;
 	}
 	
-	private IconFactory 		factory;
 	
 	/**
 	 * Creates a new instance and configures the parameters.
@@ -135,20 +129,7 @@ public class IconManager
 	 */
 	private IconManager(Registry registry)
 	{
-		factory = (IconFactory) registry.lookup("/resources/icons/Factory");
-		icons = new Icon[MAX_ID+1];
-	}
-
-	/** 
-	 * Retrieves the icon specified by the icon <code>ID</code>.
-	 *
-	 * @param ID    Must be one of the IDs defined by this class.
-	 * @return The specified icon. The retuned value is meant to be READ-ONLY.
-	 */    
-	public Icon getIcon(int ID)
-	{
-		if (icons[ID] == null) icons[ID] = factory.getIcon(relPaths[ID]);
-		return icons[ID];
+		super(registry, "/resources/icons/Factory", relPaths);
 	}
 	
 }
