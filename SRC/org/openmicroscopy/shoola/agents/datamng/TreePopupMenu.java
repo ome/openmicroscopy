@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.BorderFactory;
@@ -212,7 +213,7 @@ class TreePopupMenu
 		IconManager icons = IconManager.getInstance(config);
 		properties = new JMenuItem("Properties", 
 									icons.getIcon(IconManager.PROPERTIES));
-		properties.setOpaque(false);
+		//properties.setOpaque(false);
 		properties.setBorder(null);
 		properties.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		properties.setForeground(DataManager.STEELBLUE);  
@@ -223,7 +224,7 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		view = new JMenuItem("View", icons.getIcon(IconManager.VIEWER));
-		view.setOpaque(false);
+		//view.setOpaque(false);
 		view.setBorder(null);
 		view.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		view.setForeground(DataManager.STEELBLUE); 
@@ -235,7 +236,7 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		browse = new JMenuItem("Browse", icons.getIcon(IconManager.BROWSER));
-		browse.setOpaque(false);
+		//browse.setOpaque(false);
 		browse.setBorder(null);
 		browse.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		browse.setForeground(DataManager.STEELBLUE); 
@@ -247,7 +248,7 @@ class TreePopupMenu
 	{
 		IconManager icons = IconManager.getInstance(config);
 		refresh = new JMenuItem("Refresh", icons.getIcon(IconManager.REFRESH));
-		refresh.setOpaque(false);
+		//refresh.setOpaque(false);
 		refresh.setBorder(null);
 		refresh.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		refresh.setForeground(DataManager.STEELBLUE); 
@@ -259,7 +260,7 @@ class TreePopupMenu
 		IconManager icons = IconManager.getInstance(config);
 		annotate = new JMenuItem("Annotate", 
 								icons.getIcon(IconManager.ANNOTATE));
-		annotate.setOpaque(false);
+		//annotate.setOpaque(false);
 		annotate.setBorder(null);
 		annotate.setFont((Font) config.lookup("/resources/fonts/Labels"));
 		annotate.setForeground(DataManager.STEELBLUE);
