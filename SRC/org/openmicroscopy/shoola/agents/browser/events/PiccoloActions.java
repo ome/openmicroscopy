@@ -35,17 +35,16 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
-import java.awt.Image;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import javax.swing.JPopupMenu;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.ui.PopupMenuFactory;
-import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
-import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -71,6 +70,21 @@ public interface PiccoloActions
             PNode node = e.getPickedNode();
             Dimension2D d = e.getDeltaRelativeTo(node);
             node.translate(d.getWidth(),d.getHeight());
+        }
+    };
+    
+    /**
+     * The action for launching an image in the viewer.
+     */
+    public static final PiccoloAction OPEN_IMAGE_ACTION = new PiccoloAction()
+    {
+        public void execute(PInputEvent e)
+        {
+            PNode node = e.getPickedNode();
+            Thumbnail t = (Thumbnail)node;
+            BrowserEnvironment env = BrowserEnvironment.getInstance();
+            BrowserAgent agent = env.getBrowserAgent();
+            agent.loadImage(t);
         }
     };
     

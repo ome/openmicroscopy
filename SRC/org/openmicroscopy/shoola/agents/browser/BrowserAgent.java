@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
+import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -81,6 +82,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -273,9 +275,9 @@ public class BrowserAgent implements Agent, AgentEventListener
         controller.setStatusView(new StatusBar());
 
         int count = env.getBrowserManager().getBrowserCount();
-        env.getBrowserManager().addBrowser(controller);
         final int browserIndex = count;
         final BrowserInternalFrame bif = new BrowserInternalFrame(controller);
+        env.getBrowserManager().addBrowser(bif);
 
         StatusBar status = controller.getStatusView();
 
@@ -332,7 +334,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
         
         final BrowserController controller =
-            env.getBrowserManager().getBrowser(whichBrowser);
+            env.getBrowserManager().getBrowser(whichBrowser).getController();
         
         final BrowserModel model = controller.getBrowserModel();
         final BrowserView view = controller.getView();
@@ -481,6 +483,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         {
             public void run()
             {
+                final List thumbnails = new ArrayList();
                 int count = 1;
                 int total = refList.size();
                 
@@ -541,7 +544,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                 {
                                     public void run()
                                     {
-                                        model.addThumbnail(t);
+                                        thumbnails.add(t);
                                         String message =
                                             ProgressMessageFormatter.format("Loaded image %n of %t...",
                                                                             theCount,theTotal);
@@ -580,10 +583,6 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     images[k] = image;
                                     models[k] = tdm;
                                     count++;
-                                    String message =
-                                        ProgressMessageFormatter.format("Loaded image %n of %t...",
-                                                                        count,total);
-                                    status.processAdvanced(message);
                                 }
                                 catch(ImageServerException ise)
                                 {
@@ -596,12 +595,18 @@ public class BrowserAgent implements Agent, AgentEventListener
                             
                             final Thumbnail t = new Thumbnail(images,models);
                             lm.setIndex(t,i,j);
+                            final int theCount = count;
+                            final int theTotal = total;
                             
                             Runnable addTask = new Runnable()
                             {
                                 public void run()
                                 {
-                                    model.addThumbnail(t);
+                                    String message =
+                                        ProgressMessageFormatter.format("Loaded image %n of %t...",
+                                                                        theCount,theTotal);
+                                    status.processAdvanced(message);
+                                    thumbnails.add(t);
                                 }
                             };
                             SwingUtilities.invokeLater(addTask);
@@ -613,6 +618,9 @@ public class BrowserAgent implements Agent, AgentEventListener
                 {
                     public void run()
                     {
+                        Thumbnail[] ts = new Thumbnail[thumbnails.size()];
+                        thumbnails.toArray(ts);
+                        model.addThumbnails(ts);
                         status.processSucceeded("All images loaded.");
                     }
                 };
@@ -724,10 +732,59 @@ public class BrowserAgent implements Agent, AgentEventListener
      * @param datasetID The ID of the dataset to load.
      * @return true If the load was successful, false if not.
      */
-    public boolean loadDataset(int browserIndex, int datasetID)
+    public void loadDataset(int browserIndex, int datasetID)
     {
-        // TODO: fill in loadDataset(int)
-        return true;
+        final int theDataset = datasetID;
+        final int theIndex = browserIndex;
+        BrowserManager manager = env.getBrowserManager();
+        final UIWrapper browser = manager.getBrowser(browserIndex);
+        
+        BrowserController controller = browser.getController();
+        
+        final BrowserModel model = controller.getBrowserModel();
+        
+        Thread retrieveThread = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    DataManagementService dms =
+                        registry.getDataManagementService();
+                    DatasetData dataset = dms.retrieveDataset(theDataset);
+                    model.setDataset(dataset);
+                    browser.setBrowserTitle("Image Browser: "+dataset.getName());
+                    loadDataset(theIndex,dataset);
+                }
+                catch(DSAccessException dsae)
+                {
+                    UserNotifier notifier = registry.getUserNotifier();
+                    notifier.notifyError("Data retrieval failure",
+                    "Unable to retrieve dataset (id = " + theDataset + ")", dsae);
+                    return;
+                }
+                catch(DSOutOfServiceException dsoe)
+                {
+                    // pop up new login window (eventually caught)
+                    throw new RuntimeException(dsoe);
+                }
+            }
+        };
+    }
+    
+    /**
+     * Instruct the BrowserAgent to fire a LoadImage event, to show
+     * the current image and pixels represented in the thumbnail.
+     * @param t The thumbnail of the image to load in the viewer.
+     */
+    public void loadImage(Thumbnail t)
+    {
+        ThumbnailDataModel tdm = t.getModel(); // gets current model
+        int imageID = tdm.getID();
+        Pixels pixels = (Pixels)tdm.getAttributeMap().getAttribute("Pixels");
+        int pixelsID = pixels.getID();
+        
+        loadImage(imageID,pixelsID);
     }
 
     /**
@@ -736,9 +793,12 @@ public class BrowserAgent implements Agent, AgentEventListener
      * 
      * @param imageID The ID of the image to load (in a viewer, for example)
      */
-    public void loadImage(int imageID)
+    public void loadImage(int imageID, int pixelsID)
     {
-        // TODO: fill in loadImage(int)
+        LoadImage imageEvent = new LoadImage(imageID,pixelsID);
+        EventBus eventBus = registry.getEventBus();
+        System.err.println("about to post events");
+        eventBus.post(imageEvent);
     }
 
     /**

@@ -40,6 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PNode;
 
 /**
  * Holds the current selected semantic node for a particular browser, and
@@ -50,23 +51,24 @@ import edu.umd.cs.piccolo.PCamera;
  * @version 2.2
  * @since OME2.2
  */
-public final class SemanticLayer
+public final class HoverManager
 {
     private Timer showNodeTimer;
     
-    private SemanticZoomNode displayedNode;
+    private PNode displayedNode;
     private boolean awaitingDisplay = false;
     private boolean displayingNode = false;
     
     private TimerTask pendingTask;
     
-    public SemanticLayer()
+    public HoverManager()
     {
         showNodeTimer = new Timer();
     }
     
     public void nodeEntered(final PCamera target,
-                            final SemanticZoomNode node)
+                            final PNode node,
+                            int delayInMillis)
     {
         if(awaitingDisplay)
         {
@@ -87,12 +89,22 @@ public final class SemanticLayer
                 displayingNode = true;
                 displayedNode = node;
                 target.repaint();
-                displayedNode.loadCompositeImages();
+                
+                // TODO fix this hack
+                if(displayedNode instanceof SemanticZoomNode)
+                {
+                    ((SemanticZoomNode)displayedNode).loadCompositeImages();
+                }
             }
         };
         
-        showNodeTimer.schedule(pendingTask,200);
+        showNodeTimer.schedule(pendingTask,delayInMillis);
         awaitingDisplay = true;
+    }
+    
+    public PNode getDisplayedNode()
+    {
+        return displayedNode;
     }
     
     public void nodeExited()
@@ -106,6 +118,17 @@ public final class SemanticLayer
     
     public void hideSemanticNode(PCamera camera)
     {
-        displayingNode = false;
+        if(displayingNode)
+        {
+            displayingNode = false;
+            
+            try
+            {
+                camera.removeChild(displayedNode);
+                displayedNode = null;
+            }
+            // was already removed (TODO: better way?)
+            catch(Exception e) {}
+        }
     }
 }

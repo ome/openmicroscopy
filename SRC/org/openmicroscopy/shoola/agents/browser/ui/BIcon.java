@@ -258,6 +258,11 @@ public class BIcon extends PNode implements MouseOverSensitive,
         Graphics2D g2 = context.getGraphics();
         g2.setColor(new Color(153,153,153));
         g2.draw(getBounds().getBounds2D());
+        if(sticky && activated)
+        {
+            g2.setPaint(new Color(102,102,102));
+            g2.fill(getBounds().getBounds2D());
+        }
     }
     
     /**

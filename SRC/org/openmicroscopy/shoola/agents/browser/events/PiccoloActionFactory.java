@@ -45,9 +45,11 @@ import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
-import org.openmicroscopy.shoola.agents.browser.ui.SemanticLayer;
+import org.openmicroscopy.shoola.agents.browser.ui.ImageNameNode;
+import org.openmicroscopy.shoola.agents.browser.ui.HoverManager;
 import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -293,7 +295,67 @@ public class PiccoloActionFactory
         return action;
     };
     
-    public static PiccoloAction getSemanticEnterAction(final SemanticLayer layer)
+    public static PiccoloAction getImageNameEnterAction(final HoverManager layer)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                Thumbnail t = (Thumbnail)e.getPickedNode();
+                
+                ImageNameNode nameNode = new ImageNameNode(t);
+                
+                double width = t.getWidth()*e.getCamera().getViewScale();
+                double height = t.getHeight()*e.getCamera().getViewScale();
+                
+                Point2D centerPoint = new Point2D.Double(t.getOffset().getX()+
+                                                         t.getBounds().getCenter2D().getX(),
+                                                         t.getOffset().getY()+
+                                                         t.getBounds().getCenter2D().getY());
+                Point2D viewPoint = e.getCamera().viewToLocal(centerPoint);
+                
+                nameNode.setOffset(viewPoint.getX(),viewPoint.getY());
+                
+                double offRight = nameNode.getOffset().getX()+
+                                  nameNode.getBounds().getWidth()-
+                                  e.getCamera().getBounds().getWidth();
+                
+                double offBottom = nameNode.getOffset().getY()+
+                                   nameNode.getBounds().getHeight()-
+                                   e.getCamera().getBounds().getHeight();
+                
+                double offLeft = nameNode.getOffset().getX();
+                double offTop = nameNode.getOffset().getY();
+                
+                if(offRight > 0)
+                {
+                    offLeft = offLeft-offRight-4;
+                    nameNode.setOffset(offLeft,offTop);
+                }
+                if(offBottom > 0)
+                {
+                    offTop = offBottom-offTop-4;
+                    nameNode.setOffset(offLeft,offTop);
+                }
+                if(offLeft < 4)
+                {
+                    offLeft = 4;
+                    nameNode.setOffset(offLeft,offTop);
+                }
+                if(offTop < 4)
+                {
+                    offTop = 4;
+                    nameNode.setOffset(offLeft,offTop);
+                }
+                
+                layer.nodeExited();
+                layer.nodeEntered(e.getCamera(),nameNode,200);
+            }
+        };
+        return action;
+    }
+    
+    public static PiccoloAction getSemanticEnterAction(final HoverManager layer)
     {
         PiccoloAction action = new PiccoloAction()
         {
@@ -354,20 +416,36 @@ public class PiccoloActionFactory
                         semanticNode.setOffset(offLeft,offTop);
                     }
                     
-                    layer.hideSemanticNode(e.getCamera());
-                    layer.nodeEntered(e.getCamera(),semanticNode);
+                    layer.nodeEntered(e.getCamera(),semanticNode,200);
                 }
             }
         };
         return action;
     }
     
-    public static PiccoloAction getSemanticExitAction(final SemanticLayer layer)
+    public static PiccoloAction getOverlayExitAction(final HoverManager layer)
     {
         PiccoloAction action = new PiccoloAction()
         {
             public void execute(PInputEvent e)
             {
+                if(layer.getDisplayedNode() != null)
+                {
+                    PNode node = layer.getDisplayedNode();
+                    PCamera camera = e.getCamera();
+                    Point2D pos = camera.viewToLocal(e.getPosition());
+                    Rectangle2D bounds =
+                        new Rectangle2D.Double(node.getOffset().getX(),
+                                               node.getOffset().getY(),
+                                               node.getWidth(),
+                                               node.getHeight());
+                    System.err.println(pos);
+                    System.err.println(bounds);
+                    if(!bounds.contains(pos))
+                    {
+                        layer.hideSemanticNode(e.getCamera());
+                    }
+                }
                 layer.nodeExited();
             }
         };

@@ -122,5 +122,12 @@ public class BrowserInternalFrame extends JInternalFrame
     {
         return controller;
     }
-
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#setBrowserTitle(java.lang.String)
+     */
+    public void setBrowserTitle(String title)
+    {
+        setTitle(title);
+    }
 }

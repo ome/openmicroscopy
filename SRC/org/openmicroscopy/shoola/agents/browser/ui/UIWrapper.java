@@ -55,4 +55,10 @@ public interface UIWrapper
      * @return See above.
      */
     public BrowserController getController();
+    
+    /**
+     * Sets the title of the browser to the specified string.
+     * @param title See above.
+     */
+    public void setBrowserTitle(String title);
 }

@@ -91,5 +91,11 @@ public class BrowserFrame extends JFrame implements UIWrapper
         return controller;
     }
     
-    // TODO: would key events need to be passed on here?
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.UIWrapper#setBrowserTitle(java.lang.String)
+     */
+    public void setBrowserTitle(String title)
+    {
+        setTitle(title);
+    }
 }

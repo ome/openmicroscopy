@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+
 /**
  * A class that manages multiple instances of browser windows.  Automatically
  * manages/keeps track of the current Z order of the browsers.
@@ -66,7 +68,7 @@ public class BrowserManager
      * Adds a browser to the manager.
      * @param browser The controller to the browser to add.
      */
-    public void addBrowser(BrowserController browser)
+    public void addBrowser(UIWrapper browser)
     {
         if (browser != null)
         {
@@ -82,11 +84,11 @@ public class BrowserManager
      * @param index The index of the browser to access.
      * @return The accessed browser.
      */
-    public BrowserController getBrowser(int index)
+    public UIWrapper getBrowser(int index)
     {
         try
         {
-            return (BrowserController) browserList.get(index);
+            return (UIWrapper) browserList.get(index);
         }
         catch (Exception e)
         {
@@ -119,7 +121,7 @@ public class BrowserManager
      * Removes the specified browser from the manager, if it is present.
      * @param browser The browser to remove.
      */
-    public void removeBrowser(BrowserController browser)
+    public void removeBrowser(UIWrapper browser)
     {
         if (browser != null && browserList.contains(browser))
         {
@@ -131,16 +133,16 @@ public class BrowserManager
      * Returns the active controller.
      *
      */
-    public BrowserController getActiveBrowser()
+    public UIWrapper getActiveBrowser()
     {
-        return (BrowserController)browserList.get(0);
+        return (UIWrapper)browserList.get(0);
     }
     
     /**
      * Sets the current browser to be the active.
      * @param browser The browser to make active.
      */
-    public void setActiveBrowser(BrowserController browser)
+    public void setActiveBrowser(UIWrapper browser)
     {
         synchronized(browserList) // will this lock?
         {
