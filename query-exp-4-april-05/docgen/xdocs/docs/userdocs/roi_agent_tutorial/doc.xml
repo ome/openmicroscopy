@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>ROI Analysis Tool Tutorial</title>
+  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
+  <author name="Andrea Falconi" email="a.falconi@dundee.ac.uk" />
+
+  <revision number="$Revision$" />
+  <last-modified date="$Date$" />
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+	<section href="section_1.html" name="Overview"/>
+	<section href="section_2.html" name="Defining ROIs"/>
+	<section href="section_3.html" name="Analyzing ROIs"/>
+	<section href="section_4.html" name="Viewing Results"/>
+	<section href="section_5.html" name="Manipulating Results"/>
+	<section href="section_6.html" name="Export"/>
+  </toc>
+</xdoc>
