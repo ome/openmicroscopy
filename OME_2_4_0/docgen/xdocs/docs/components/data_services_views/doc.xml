@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>Data Services Views</title>
+  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
+  <author name="Andrea Falconi" email="a.falconi@dundee.ac.uk" />
+
+  <revision number="$Revision$" />
+  <last-modified date="$Date$" />
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+	<section href="section_1.html" name="Requirements"/>
+	<section href="section_2.html" name="Usage"/>
+	<section href="section_3.html" name="Design in a Nutshell"/>
+	<section href="section_4.html" name="Packages and Dependencies"/>
+	<section href="section_5.html" name="Execution Infrastructure"/>
+	<section href="section_6.html" name="Commands Structure"/>
+	<section href="section_7.html" name="Initialization"/>
+	<section href="section_8.html" name="Threading"/>
+	<section href="section_9.html" name="Testability"/>
+  </toc>
+</xdoc>
