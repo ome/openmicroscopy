@@ -60,13 +60,15 @@ public class ColoredLabel
     extends JLabel
 {
     
-    private Color   DEFAULT_FONT_COLOR = Color.BLACK;
+    private Color               DEFAULT_FONT_COLOR = Color.BLACK;
     
-    private int     textWidth;
+    private int                 textWidth;
     
-    private String  text;
+    private boolean             draw;
     
-    private Color   fontColor; 
+    private String              text;
+    
+    private Color               fontColor; 
     
     public ColoredLabel(String text)
     {
@@ -78,6 +80,10 @@ public class ColoredLabel
     {
         initTextWidth();
     }
+    
+    public void setDraw(boolean b) { draw = b; }
+    
+    public boolean getDraw() { return draw; }
     
     /** Overrides the setText method. */
     public void setText(String text) { this.text = text; }
@@ -92,6 +98,10 @@ public class ColoredLabel
         g2D.setColor(getBackground());
         Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height); 
+        if (draw) {
+            g2D.setColor(DEFAULT_FONT_COLOR);
+            g2D.fillRect(2, 2, 5, 5);
+        }
         if (text != null) paintText(g2D, d.width, d.height);
     }
     
@@ -105,8 +115,7 @@ public class ColoredLabel
         y = hFont+(height-hFont)/2;
         if (fontColor == null) g2D.setColor(DEFAULT_FONT_COLOR);
         else g2D.setColor(fontColor);
-        
-        g2D.drawString(text, x, y);
+        g2D.drawString(text, x, y); 
     }
     
     /** Initializes the width of the text. */
