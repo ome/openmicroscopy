@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -66,7 +68,8 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class DataManagerCtrl
 	implements ActionListener, InternalFrameListener
 {
-	/**ID sed to handle events. */
+	
+	/**ID used to handle events. */
 	static final int			DM_VISIBLE = 0;
 	static final int			PROJECT_ITEM = 1;
 	static final int			DATASET_ITEM = 2;
@@ -77,6 +80,12 @@ public class DataManagerCtrl
 	DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
+	}
+	
+	/** Bring up a suitable dialog. */
+	public void showDialog(JDialog dialog)
+	{
+		abstraction.getPresentation().showPS(dialog);
 	}
 	
 	/** 
@@ -104,7 +113,7 @@ public class DataManagerCtrl
 		item.setActionCommand(""+id);
 		item.addActionListener(this);
 	}
-	 
+	
 	/** 
 	 * Brings up a suitable property sheet dialog for the specified
 	 * <code>target</code>.
@@ -157,12 +166,12 @@ public class DataManagerCtrl
 		try {
 		   int     index = Integer.parseInt(s);
 		   switch (index) { 
-		   		case DM_VISIBLE:
+				case DM_VISIBLE:
 					showPresentation();
 					break;
 				case PROJECT_ITEM:
 					createProject();
-				   	break;
+					break;
 				case DATASET_ITEM:
 					createDataset();
 					break;	
@@ -181,10 +190,6 @@ public class DataManagerCtrl
 			if (presentation.isClosed()) abstraction.showPresentation();	
 			if (presentation.isIcon()) abstraction.deiconifyPresentation();	
 			abstraction.setMenuSelection(true);
-			//Activate the Frame.
-			try {
-				presentation.setSelected(true);
-			} catch (Exception e) {}
 		}  		
 	}	
 	
@@ -203,6 +208,18 @@ public class DataManagerCtrl
 		List projects = abstraction.getUserProjects();
 		List images = abstraction.getUserImages();
 		presentation.showCreateDataset(new DatasetData(), projects, images);
+	}
+	
+	/** Forward event to the abstraction {@link DataManager}. */
+	public List getDatasetsDiff(int projectID)
+	{
+		return abstraction.getDatasetsDiff(projectID);
+	}
+	
+	/** Forward event to the abstraction {@link DataManager}. */
+	public List getImagesDiff(int imageID)
+	{
+		return abstraction.getImagesDiff(imageID);
 	}
 	
 	/** Forward event to the abstraction {@link DataManager}. */
