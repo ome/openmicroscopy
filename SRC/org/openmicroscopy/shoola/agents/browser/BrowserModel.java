@@ -171,7 +171,8 @@ public class BrowserModel
                                  
         semanticModeClass =
             new BrowserModeClass(SEMANTIC_MODE_NAME,
-                                 new BrowserMode[] { BrowserMode.IMAGE_NAME_MODE,
+                                 new BrowserMode[] { BrowserMode.NOOP_MODE,
+                                                     BrowserMode.IMAGE_NAME_MODE,
                                                      BrowserMode.SEMANTIC_ZOOMING_MODE},
                                  BrowserMode.SEMANTIC_ZOOMING_MODE);
         

@@ -36,9 +36,6 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,14 +45,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
@@ -238,35 +233,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         testItem.setEnabled(true);
         */
         
-        JMenuItem heatItem = new JMenuItem("HeatMap");
-        heatItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ae)
-            {
-                HeatMapManager manager = env.getHeatMapManager();
-                HeatMapUI ui = manager.getUI();
-                if(!ui.isShowing())
-                {
-                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                    ui.show();
-                    ui.setClosable(true);
-                    ui.setIconifiable(true);
-                    ui.setResizable(false);
-                    ui.setMaximizable(false);
-                }
-                else
-                {
-                    try
-                    {
-                        ui.setSelected(true);
-                    }
-                    catch(PropertyVetoException ex) {}
-                }
-            }
-        });
-        tf.addToMenu(TopFrame.VIEW,heatItem);
-        heatItem.setEnabled(true);
-        
         // test code to check for image STs
         SemanticTypesService sts = registry.getSemanticTypesService();
         try
@@ -315,14 +281,11 @@ public class BrowserAgent implements Agent, AgentEventListener
         model.setLayoutMethod(new NumColsLayoutMethod(8));
         BrowserTopModel topModel = new BrowserTopModel();
         
-        BPalette zoomPalette = PaletteFactory.getZoomPalette(model,topModel);
-        topModel.addPalette(UIConstants.ZOOM_PALETTE_NAME,zoomPalette);
-        
         BPalette optionPalette = PaletteFactory.getOptionPalette(model,topModel);
         topModel.addPalette(UIConstants.OPTIONS_PALETTE_NAME,optionPalette);
+        topModel.hidePalette(optionPalette);
         
-        zoomPalette.setOffset(0,0);
-        optionPalette.setOffset(0,75);
+        optionPalette.setOffset(0,0);
         BrowserView view = new BrowserView(model,topModel);
         BrowserController controller = new BrowserController(model,topModel,view);
         controller.setStatusView(new StatusBar());
@@ -1168,6 +1131,16 @@ public class BrowserAgent implements Agent, AgentEventListener
     public SemanticTypesService getSemanticTypesService()
     {
         return registry.getSemanticTypesService();
+    }
+    
+    /**
+     * Returns a reference to the top frame (TODO: maybe hide desired functions
+     * behind the BA, as above)
+     * @return A reference to the TopFrame, the overarching container of Shoola.
+     */
+    public TopFrame getTopFrame()
+    {
+        return registry.getTopFrame();
     }
     
     /**

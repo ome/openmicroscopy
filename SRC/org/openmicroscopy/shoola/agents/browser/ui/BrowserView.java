@@ -115,16 +115,11 @@ public class BrowserView extends PCanvas
     // set of thumbnails.
     private Rectangle2D footprint;
     
-    // the initial selection point for selecting multiple thumbnails in
-    // the region.
-    private Point2D initialSelectPoint;
+    // the anchor point for selecting multiple thumbnails.
+    private Point2D selectionAnchorPoint;
     
-    // the translated selection point.
-    private Point2D initialViewPoint;
-    
-    // the current selection point for selecting multiple thumbnails in
-    // the region.
-    private Point2D currentSelectPoint;
+    // the selection node for selecting multiple thumbnails.
+    private PNode selectionNode;
     
     // indicates that a selection is occurring.
     private boolean selectionInProgress;
@@ -150,6 +145,11 @@ public class BrowserView extends PCanvas
     // thumbnails and cameras and palettes (signifying the start of a multiple
     // select, perhaps)
     private PNode backgroundNode;
+    
+    // map for storing modes during temporary actions when you need
+    // to override, like when you're selecting objects and don't want
+    // the magnifier popping up.
+    private Map oldModeMap;
     
     /** REUSABLE PICCOLO ACTIONS... **/
     private PiccoloAction selectThumbnailAction;
@@ -253,6 +253,7 @@ public class BrowserView extends PCanvas
         hoverSensitive = new HashSet();
         regionSensitive = new HashSet();
         zoomParamListeners = new HashSet();
+        oldModeMap = new HashMap();
         
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
@@ -414,11 +415,17 @@ public class BrowserView extends PCanvas
             if(mode == BrowserMode.SELECTING_MODE)
             {
                 selectionInProgress = true;
+                oldModeMap.put(BrowserModel.SEMANTIC_MODE_NAME,
+                               browserModel.getCurrentMode(BrowserModel.SEMANTIC_MODE_NAME));
+                browserModel.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
+                                            BrowserMode.NOOP_MODE);
                 repaint();
             }
             else
             {
                 selectionInProgress = false;
+                browserModel.setCurrentMode(BrowserModel.SEMANTIC_MODE_NAME,
+                    (BrowserMode)oldModeMap.remove(BrowserModel.SEMANTIC_MODE_NAME));
                 repaint();
             }
         }
@@ -451,6 +458,13 @@ public class BrowserView extends PCanvas
         }
         else if(className.equals(BrowserModel.SEMANTIC_MODE_NAME))
         {
+            if(mode == BrowserMode.NOOP_MODE)
+            {
+                semanticHoverThumbnailAction = PiccoloAction.PNOOP_ACTION;
+                defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
+                                                        semanticHoverThumbnailAction);
+                setThumbnailOverActions(defaultTOverActions);
+            }
             if(mode == BrowserMode.IMAGE_NAME_MODE)
             {
                 semanticHoverThumbnailAction =
@@ -653,7 +667,7 @@ public class BrowserView extends PCanvas
         boundCameraPosition();
         
         double viewScale = getCamera().getViewScale();
-        backgroundNode.setBounds(0,0,width/viewScale,height/viewScale);
+        backgroundNode.setBounds(0,0,10000,10000); // to be realistic... (hack)
         
         //      update things
         for(Iterator iter = regionSensitive.iterator(); iter.hasNext();)
@@ -748,38 +762,6 @@ public class BrowserView extends PCanvas
             t.setMouseOverActions(actions);
         }
     }
-    
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
-        
-        if(selectionInProgress)
-        {
-            Color c = g2.getColor();
-            Paint p = g2.getPaint();
-            
-            double minX = Math.min(initialViewPoint.getX(),
-                                   currentSelectPoint.getX());
-            double minY = Math.min(initialViewPoint.getY(),
-                                   currentSelectPoint.getY());
-            double maxX = Math.max(initialViewPoint.getX(),
-                                   currentSelectPoint.getX());
-            double maxY = Math.max(initialViewPoint.getY(),
-                                   currentSelectPoint.getY());
-                                   
-            Rectangle2D region =
-                new Rectangle2D.Double(minX,minY,maxX-minX,maxY-minY);
-            
-            g2.setPaint(new Color(153,153,153,153));
-            g2.fill(region);
-            g2.setColor(Color.white);
-            g2.draw(region);
-            g2.setPaint(p);
-            g2.setColor(c);
-            
-        }
-    }
 
 
     // send internal error through the BrowserEnvironment pathway
@@ -858,7 +840,18 @@ public class BrowserView extends PCanvas
          */
         public void respondDrag(PInputEvent e)
         {
-            currentSelectPoint = e.getCamera().viewToLocal(e.getPosition());
+            double originalX = selectionAnchorPoint.getX();
+            double originalY = selectionAnchorPoint.getY();
+            double newX = e.getPosition().getX();
+            double newY = e.getPosition().getY();
+            
+            double minX = Math.min(originalX,newX);
+            double minY = Math.min(originalY,newY);
+            double maxX = Math.max(originalX,newX);
+            double maxY = Math.max(originalY,newY);
+            
+            selectionNode.setBounds(minX,minY,
+                                    maxX-minX,maxY-minY);
             repaint();
         }
         
@@ -871,14 +864,12 @@ public class BrowserView extends PCanvas
         {
             Point2D position = e.getPosition();
             Dimension2D offset = e.getDelta();
-            initialSelectPoint = new Point2D.Double(position.getX()-
-                                                    offset.getWidth(),
-                                                    position.getY()-
-                                                    offset.getHeight());
-            Point2D dummy = new Point2D.Double(initialSelectPoint.getX(),
-                                               initialSelectPoint.getY());
-            initialViewPoint = e.getCamera().viewToLocal(dummy);
-            currentSelectPoint = e.getCamera().viewToLocal(position);
+            selectionNode = new PNode();
+            selectionNode.setPaint(new Color(153,153,192,128));
+            selectionAnchorPoint = position;
+            selectionNode.setBounds(position.getX(),position.getY(),
+                                    offset.getWidth(),offset.getHeight());
+            getLayer().addChild(selectionNode);
                                                     
             int modifier = PiccoloModifiers.getModifier(e);
             if(modifier != PiccoloModifiers.MOUSE_INDIV_SELECT &&
@@ -898,17 +889,18 @@ public class BrowserView extends PCanvas
         public void respondEndDrag(PInputEvent e)
         {
             Point2D endSelectPoint = e.getPosition();
-            double tlX = Math.min(initialSelectPoint.getX(),
+            double tlX = Math.min(selectionAnchorPoint.getX(),
                                   endSelectPoint.getX());
-            double tlY = Math.min(initialSelectPoint.getY(),
+            double tlY = Math.min(selectionAnchorPoint.getY(),
                                   endSelectPoint.getY());
-            double brX = Math.max(initialSelectPoint.getX(),
+            double brX = Math.max(selectionAnchorPoint.getX(),
                                   endSelectPoint.getX());
-            double brY = Math.max(initialSelectPoint.getY(),
+            double brY = Math.max(selectionAnchorPoint.getY(),
                                   endSelectPoint.getY());
             
             Rectangle2D region = new Rectangle2D.Double(tlX,tlY,brX-tlX,
                                                         brY-tlY);
+            getLayer().removeChild(selectionNode);
                                                         
             List thumbnailList = browserModel.getThumbnails();
             for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)

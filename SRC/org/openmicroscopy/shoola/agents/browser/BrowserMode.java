@@ -53,6 +53,11 @@ public class BrowserMode
     {
         this.value = value;
     }
+    
+    /**
+     * Indicates that no action should be taken.
+     */
+    public static final BrowserMode NOOP_MODE = new BrowserMode(-1);
 
     /**
      * Indicates that the browser is in some sort of default mode (universal

@@ -153,6 +153,7 @@ public class BrowserTopModel
             return;
         }
         paletteMap.put(paletteName,palette);
+        paletteStatusMap.put(palette,new Integer(PALETTE_HIDDEN));
     }
     
     /**

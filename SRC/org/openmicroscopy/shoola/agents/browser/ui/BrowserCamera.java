@@ -195,7 +195,7 @@ public class BrowserCamera implements RegionSensitive,
         }
         
         palettes.add(palette);
-        camera.addChild(palette);
+        //camera.addChild(palette);
     }
     
     /**

@@ -460,11 +460,15 @@ public class SemanticZoomNode extends PImage
         Color oldColor = g2.getColor();
         g2.setPaint(Color.yellow);
         g2.fill(border);
-        g2.setPaint(oldPaint);
+        g2.setPaint(new Color(153,153,153,128));
         g2.drawImage(getImage(),0,0,null);
+
+        g2.fill(openIconShape);
         g2.drawImage(openIconImage,
                      (int)Math.round(openIconShape.getX()),
                      (int)Math.round(openIconShape.getY()),null);
+
+        g2.fill(closeIconShape);
         g2.drawImage(closeIconImage,
                      (int)Math.round(closeIconShape.getX()),
                      (int)Math.round(closeIconShape.getY()),null);
