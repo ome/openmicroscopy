@@ -84,9 +84,12 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import com.sun.rsasign.h;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -108,6 +111,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     private EventBus eventBus;
     private BrowserEnvironment env;
     private TopFrame tf;
+    
+    private List imageTypeList;
     
     private Map activeThreadMap;
     
@@ -152,6 +157,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         env = BrowserEnvironment.getInstance();
         env.setBrowserAgent(this);
         activeThreadMap = new IdentityHashMap();
+        imageTypeList = new ArrayList();
     }
     
     /**
@@ -234,6 +240,7 @@ public class BrowserAgent implements Agent, AgentEventListener
             for(Iterator iter = typeList.iterator(); iter.hasNext();)
             {
                 SemanticType st = (SemanticType)iter.next();
+                imageTypeList.add(st);
             }
         }
         catch(DSOutOfServiceException dso)
@@ -465,6 +472,9 @@ public class BrowserAgent implements Agent, AgentEventListener
                 ImageAnnotation ia = (ImageAnnotation)iter.next();
                 annotationMap.put(new Integer(ia.getImage().getID()),ia);
             }
+            
+            writeStatusImmediately(status,"Filling in relevant ST info from DB...");
+            loadRelevantTypes(model);
             
             // going to assume that all image plates in dataset belong to
             // same plate (could be very wrong)
@@ -771,17 +781,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         };
         SwingUtilities.invokeLater(writeTask);
     }
-        
-    
-    /**
-     * Gets the valid image types for the particular dataset.
-     * @param dataset
-     * @return
-     */
-    public List getImageTypesForDataset(DatasetData dataset)
-    {
-        return null;
-    }
 
     /**
      * Instructs the agent to load the Dataset with the given ID into the
@@ -829,6 +828,70 @@ public class BrowserAgent implements Agent, AgentEventListener
                 }
             }
         };
+    }
+    
+    /**
+     * Fills the model with a list of pertinent image-granular attributes.
+     * @param model The model to load.
+     */
+    private void loadRelevantTypes(BrowserModel model)
+    {
+        if(model == null) return;
+        List relevantTypes = new ArrayList();
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        
+        List integerList = new ArrayList();
+        List thumbnailList = model.getThumbnails();
+        
+        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            if(!t.isMultipleThumbnail())
+            {
+                ThumbnailDataModel tdm = t.getModel();
+                integerList.add(new Integer(tdm.getID()));
+            }
+            else
+            {
+                ThumbnailDataModel[] tdms = t.getMultipleModels();
+                for(int i=0;i<tdms.length;i++)
+                {
+                    integerList.add(new Integer(tdms[i].getID()));
+                }
+            }
+        }
+        
+        System.err.println(integerList.size());
+        for(Iterator iter = imageTypeList.iterator(); iter.hasNext();)
+        {
+            SemanticType st = (SemanticType)iter.next();
+            try
+            {
+                System.err.println("checking "+st.getName());
+                int count = sts.countImageAttributes(st,integerList);
+                if(count > 0) relevantTypes.add(st);
+            }
+            catch(DSAccessException dsa)
+            {
+                UserNotifier un = registry.getUserNotifier();
+                un.notifyError("Server Error","Could not count attributes",dsa);
+            }
+            catch(DSOutOfServiceException dso)
+            {
+                UserNotifier un = registry.getUserNotifier();
+                un.notifyError("Communication Error","Could not retrieve count",dso);
+            }
+        }
+        try
+        {
+            int count = sts.countImageAttributes("Pixels",integerList);
+            System.err.println(count);
+        }
+        catch(Exception e) {System.err.println("uh oh");}
+        
+        SemanticType[] types = new SemanticType[relevantTypes.size()];
+        relevantTypes.toArray(types);
+        model.setRelevantTypes(types);
     }
     
     // keeps track of the time-consuming loader threads.
