@@ -77,7 +77,7 @@ public class ChainPaletteWindow extends JFrame  {
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		
-		chainCanvas = new ChainPaletteCanvas();
+		chainCanvas = new ChainPaletteCanvas(dataManager.getRegistry());
 		chainCanvas.setContents(dataManager.getChains());
 		chainCanvas.layoutContents();
 		chainCanvas.completeInitialization();
