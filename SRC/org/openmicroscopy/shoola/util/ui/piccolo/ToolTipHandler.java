@@ -172,6 +172,7 @@ public abstract class ToolTipHandler extends PBasicInputEventHandler {
 			if (displayed == false)
 				camera.addChild(tooltip);
 			tooltip.addChild(n);
+			n.setPickable(false);
 			n.moveToFront();
 			displayed = true;
 			PBounds newBounds = new PBounds(0,0,n.getWidth()*n.getScale(),
