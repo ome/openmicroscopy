@@ -35,7 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser.ui;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -82,7 +82,7 @@ public class BIcon extends PNode
      * Constructs an icon with the specified image.
      * @param imageIcon The image to show in the icon.
      */
-    public BIcon(BufferedImage imageIcon)
+    public BIcon(Image imageIcon)
     {
         init();
         presentationNode = new PImage(imageIcon,true);
