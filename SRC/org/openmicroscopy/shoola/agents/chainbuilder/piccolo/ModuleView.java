@@ -98,7 +98,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
 public class ModuleView extends PNode implements SortableBufferedObject,
-	MouseableNode {
+	MouseableNode, ToolTipNode  {
 	
 	/*
 	 * 
@@ -945,6 +945,27 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	
 	public void remove() {
 		
+	}
+	
+	public PNode getToolTip() {
+		String name = getName();
+		//String desc = mod.getDescription();
+		if (name.compareTo("") != 0) {
+			PText pt = new PText(name);
+			pt.setPickable(false);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			PPath path  = new PPath();
+			path.addChild(pt);
+			pt.setOffset(0,0);
+			pt.setFont(Constants.TOOLTIP_FONT);
+			path.setBounds(path.getUnionOfChildrenBounds(null));
+			path.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+			path.setPaint(Constants.TOOLTIP_FILL_COLOR);
+			path.setPickable(false);
+			return path;
+		}
+		else
+			return null;	
 	}
 	
 	class OrderableText extends PText implements Comparable, ParameterLabelNode {

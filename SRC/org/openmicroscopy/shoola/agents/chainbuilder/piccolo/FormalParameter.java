@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Vector;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -81,7 +82,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 
 public abstract class FormalParameter extends PNode implements 
-	NodeEventListener, Comparable, MouseableNode, ParameterLabelNode {
+	NodeEventListener, Comparable, MouseableNode, ParameterLabelNode, ToolTipNode {
 	
 	/**
 	 * Some generic display parameters
@@ -525,5 +526,32 @@ public abstract class FormalParameter extends PNode implements
 	
 	public void setOffset(float x,float y) {
 		super.setOffset((double) x,(double) y);
+	}
+	
+	public PNode getToolTip() {
+		PPath node = new PPath();
+		
+		FormalParameterData fp = getParameter();
+		PText p = new PText(fp.getName());
+		node.addChild(p);
+		double y=0;
+		p.setOffset(0,y);
+		p.setFont(Constants.TOOLTIP_FONT);
+		p.setPickable(false);
+		y += p.getHeight();
+		SemanticTypeData st = fp.getSemanticType();
+		if (st != null) {
+			p = new PText("Type: "+st.getName());
+			p.setPickable(false);
+			node.addChild(p);
+			p.setFont(Constants.TOOLTIP_FONT);
+			p.setOffset(0,y);
+			y+=p.getHeight();	
+		}
+		node.setBounds(node.getUnionOfChildrenBounds(null));
+		node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
+		node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+		node.setPickable(false);
+		return node;	
 	}
 }
