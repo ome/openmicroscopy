@@ -145,12 +145,12 @@ public class CreateProjectEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		IconManager IM = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		tabs.addTab("New Project", IM.getIcon(IconManager.PROJECT), 
+		tabs.addTab("New Project", im.getIcon(IconManager.PROJECT), 
 					creationPane);
-		tabs.addTab("Add Datasets", IM.getIcon(IconManager.DATASET), 
+		tabs.addTab("Add Datasets", im.getIcon(IconManager.DATASET), 
 					datasetsPane);
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);

@@ -263,13 +263,13 @@ class DataManagerUIF
 	 */
 	private void buildGUI()
 	{
-		JTabbedPane     tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
-												JTabbedPane.WRAP_TAB_LAYOUT);
+		JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM, 
+											JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		IconManager IM = IconManager.getInstance(registry);
-		Icon icon = IM.getIcon(IconManager.OME);
+		IconManager im = IconManager.getInstance(registry);
+		Icon icon = im.getIcon(IconManager.OME);
 		
 		//TODO: image not loaded						
 		tabs.addTab("Explorer", icon, explPane);

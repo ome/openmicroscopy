@@ -152,10 +152,10 @@ public class DatasetEditor
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		IconManager IM = IconManager.getInstance(registry);
-		tabs.addTab("General", IM.getIcon(IconManager.DATASET), generalPane);
-		tabs.addTab("Images", IM.getIcon(IconManager.IMAGE), imagesPane);
-		tabs.addTab("Owner", IM.getIcon(IconManager.OME), ownerPane);
+		IconManager im = IconManager.getInstance(registry);
+		tabs.addTab("General", im.getIcon(IconManager.DATASET), generalPane);
+		tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imagesPane);
+		tabs.addTab("Owner", im.getIcon(IconManager.OME), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);

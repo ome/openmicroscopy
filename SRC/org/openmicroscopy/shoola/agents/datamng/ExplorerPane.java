@@ -147,19 +147,19 @@ class ExplorerPane
 		{
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
 													row, hasFocus);
-			IconManager IM = IconManager.getInstance(registry);									
+			IconManager im = IconManager.getInstance(registry);									
 			switch (getIconID(value)) {
 				case ROOT_ICON:
-					setIcon(IM.getIcon(IconManager.OME));
+					setIcon(im.getIcon(IconManager.OME));
 					break;
 				case PROJECT_ICON:
-					setIcon(IM.getIcon(IconManager.PROJECT));
+					setIcon(im.getIcon(IconManager.PROJECT));
 					break;
 				case DATASET_ICON:
-					setIcon(IM.getIcon(IconManager.DATASET));
+					setIcon(im.getIcon(IconManager.DATASET));
 					break;
 				case IMAGE_ICON:
-					setIcon(IM.getIcon(IconManager.IMAGE));
+					setIcon(im.getIcon(IconManager.IMAGE));
 					break;
 				case NO_ICON:
 					setIcon(null);
@@ -171,12 +171,12 @@ class ExplorerPane
 		{
 			DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
 			Object  usrObject = node.getUserObject();
-			int     id = ROOT_ICON;
-			if (node.getLevel() != 0 ) {
+			int id = ROOT_ICON;
+			if (node.getLevel() != 0) {
 				if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;
-				else if (usrObject instanceof DatasetSummary)id = DATASET_ICON;
-				else if (usrObject instanceof ImageSummary)id = IMAGE_ICON;
-				else if (usrObject instanceof String)id = NO_ICON;
+				else if (usrObject instanceof DatasetSummary) id = DATASET_ICON;
+				else if (usrObject instanceof ImageSummary) id = IMAGE_ICON;
+				else if (usrObject instanceof String) id = NO_ICON;
 			}
 			
 			return id;

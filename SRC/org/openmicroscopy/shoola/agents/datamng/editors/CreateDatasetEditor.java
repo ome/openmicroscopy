@@ -176,14 +176,14 @@ public class CreateDatasetEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		IconManager IM = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
-		tabs.addTab("New Dataset", IM.getIcon(IconManager.DATASET), 
+		tabs.addTab("New Dataset", im.getIcon(IconManager.DATASET), 
 					creationPane);
-		tabs.addTab("Add to Projects", IM.getIcon(IconManager.PROJECT), 
+		tabs.addTab("Add to Projects", im.getIcon(IconManager.PROJECT), 
 					projectsPane);
-		tabs.addTab("Add Images", IM.getIcon(IconManager.IMAGE), 
+		tabs.addTab("Add Images", im.getIcon(IconManager.IMAGE), 
 					imagesPane);			
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);

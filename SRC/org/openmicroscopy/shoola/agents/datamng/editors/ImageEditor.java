@@ -96,13 +96,13 @@ public class ImageEditor
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
-		IconManager IM = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(registry);
 		
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		
-		tabs.addTab("General", IM.getIcon(IconManager.IMAGE), generalPane);
-		tabs.addTab("Info", IM.getIcon(IconManager.INFO), infoPane);
-		tabs.addTab("Owner", IM.getIcon(IconManager.OME), ownerPane);
+		tabs.addTab("General", im.getIcon(IconManager.IMAGE), generalPane);
+		tabs.addTab("Info", im.getIcon(IconManager.INFO), infoPane);
+		tabs.addTab("Owner", im.getIcon(IconManager.OME), ownerPane);
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManager.STEELBLUE);
