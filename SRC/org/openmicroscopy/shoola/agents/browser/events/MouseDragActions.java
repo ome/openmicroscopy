@@ -35,8 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Specifies a set mouse drag-to-action bindings.
+ * Specifies a set mouse press-to-action bindings.
+ * 
+ * I highly recommend using PiccoloModifiers to look up the modifiers,
+ * although this is internally consistent with the modifier integers in
+ * java.awt.event.InputEvent.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -45,111 +52,138 @@ package org.openmicroscopy.shoola.agents.browser.events;
  */
 public class MouseDragActions
 {
-    // the bound startDragAction
-    private PiccoloAction startDragAction;
+    private Map startDragModifierMap;
+    private Map dragModifierMap;
+    private Map endDragModifierMap;
     
-    // the bound whileDragAction
-    private PiccoloAction whileDragAction;
-    
-    // the bound endDragAction
-    private PiccoloAction endDragAction;
+    private final Integer normalInteger = new Integer(PiccoloModifiers.NORMAL);
     
     /**
-     * Initializes the sets with all mouse events bound to
+     * Initializes the sets with all mouse events at all modifiers bound to
      * a NOOP action.
      */
     public MouseDragActions()
     {
-        startDragAction = PiccoloAction.PNOOP_ACTION;
-        whileDragAction = PiccoloAction.PNOOP_ACTION;
-        endDragAction = PiccoloAction.PNOOP_ACTION;
+        startDragModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,startDragModifierMap,
+                  PiccoloModifiers.NORMAL);
+        dragModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,dragModifierMap,
+                  PiccoloModifiers.NORMAL);
+        endDragModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,endDragModifierMap,
+                  PiccoloModifiers.NORMAL);
     }
-    
+      
     /**
-     * Returns the action bound to an end drag event.
+     * Returns the action bound to a dragging event with the specified
+     * modifier.
      * 
      * @return See above.
      */
-    public PiccoloAction getEndDragAction()
+    public PiccoloAction getDragAction(int modifier)
     {
-        return endDragAction;
+        return getAction(dragModifierMap,modifier);
     }
 
     /**
-     * Returns the action bound to a start drag event.
+     * Returns the action bound to a drag start event, with the specified
+     * modifier.
      * 
      * @return See above.
      */
-    public PiccoloAction getStartDragAction()
+    public PiccoloAction getStartDragAction(int modifier)
     {
-        return startDragAction;
+        return getAction(startDragModifierMap,modifier);
     }
 
     /**
-     * Returns the action bound to a dragging event.
+     * Returns the action bound to a drag end event, with the specified
+     * modifier.
      * 
      * @return See above.
      */
-    public PiccoloAction getWhileDragAction()
+    public PiccoloAction getEndDragAction(int modifier)
     {
-        return whileDragAction;
-    }
-
-    /**
-     * Sets the action bound to an end drag event to the
-     * specified action.  If the action is NULL, the bound end
-     * drag action will be PiccoloAction.PNOOP_ACTION.
-     * 
-     * @param action See above.
-     */
-    public void setEndDragAction(PiccoloAction action)
-    {
-        if(action == null)
-        {
-            action = PiccoloAction.PNOOP_ACTION;
-        }
-        else
-        {
-            endDragAction = action;
-        }
-    }
-
-    /**
-     * Sets the action bound to a start drag event to the
-     * specified action.  If the action is NULL, the bound start
-     * drag action will be PiccoloAction.PNOOP_ACTION.
-     * 
-     * @param action See above.
-     */
-    public void setStartDragAction(PiccoloAction action)
-    {
-        if(action == null)
-        {
-            action = PiccoloAction.PNOOP_ACTION;
-        }
-        else
-        {
-            startDragAction = action;
-        }
+        return getAction(endDragModifierMap,modifier);
     }
 
     /**
      * Sets the action bound to a dragging event to the
-     * specified action.  If the action is NULL, the bound 
-     * dragging action will be PiccoloAction.PNOOP_ACTION.
+     * specified action and modifier.  If the action is NULL, the bound mouse
+     * click action will be PiccoloAction.PNOOP_ACTION.
      * 
      * @param action See above.
      */
-    public void setWhileDragAction(PiccoloAction action)
+    public void setDragAction(PiccoloAction action, int modifier)
     {
-        if(action == null)
+        setAction(action,dragModifierMap,modifier);
+    }
+
+    /**
+     * Sets the action bound to a start drag event to the
+     * specified action and modifier.  If the action is NULL, the bound mouse
+     * press action will be PiccoloAction.PNOOP_ACTION.
+     * 
+     * @param action See above.
+     */
+    public void setStartDragAction(PiccoloAction action, int modifier)
+    {
+        setAction(action,startDragModifierMap,modifier);
+    }
+
+    /**
+     * Sets the action bound to an end drag event to the
+     * specified action and modifier.  If the action is NULL, the bound mouse
+     * release action will be PiccoloAction.PNOOP_ACTION.
+     * 
+     * @param action See above.
+     */
+    public void setEndDragAction(PiccoloAction action, int modifier)
+    {
+        setAction(action,endDragModifierMap,modifier);
+    }
+    
+    /*
+     * shortcut method for all actions.
+     * 
+     * @param whichMap The map to draw from.
+     * @param modifier The modifier to index on.
+     * @return The action for the selected event type and modifier.  If there
+     *         is no explicit event mapped to that modifier, it will return
+     *         the default (no modifier) event.
+     */
+    private PiccoloAction getAction(Map whichMap, int modifier)
+    {
+        Integer modInt = new Integer(modifier);
+        if(whichMap.containsKey(modInt))
         {
-            action = PiccoloAction.PNOOP_ACTION;
+            return (PiccoloAction)whichMap.get(modInt);
         }
         else
         {
-            whileDragAction = action;
-        } 
+            return (PiccoloAction)whichMap.get(normalInteger);
+        }
+    }
+    
+    /*
+     * Binds an action to an event type and modifier.
+     * 
+     * @param whichMap The event type map to update.
+     * @param action The action to bind.
+     * @param modifier The modifier to index on.
+     */
+    private void setAction(PiccoloAction action, Map whichMap, int modifier)
+    {
+        Integer modInt = new Integer(modifier);
+        if(action != null)
+        {
+            whichMap.put(modInt,action);
+        }
+        else
+        {
+            whichMap.put(modInt,PiccoloAction.PNOOP_ACTION);
+        }
     }
 
 }

@@ -35,8 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Specifies a set mouse press-to-action bindings.
+ * 
+ * I highly recommend using PiccoloModifiers to look up the modifiers,
+ * although this is internally consistent with the modifier integers in
+ * java.awt.event.InputEvent.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -45,79 +52,111 @@ package org.openmicroscopy.shoola.agents.browser.events;
  */
 public class MouseOverActions
 {
-    // the bound mouseEnterAction
-    private PiccoloAction mouseEnterAction;
+    private Map mouseEnterModifierMap;
+    private Map mouseExitModifierMap;
     
-    // the bound mouseExitAction
-    private PiccoloAction mouseExitAction;
+    private final Integer normalInteger = new Integer(PiccoloModifiers.NORMAL);
     
     /**
-     * Initializes the sets with all mouse events bound to
+     * Initializes the sets with all mouse events at all modifiers bound to
      * a NOOP action.
      */
     public MouseOverActions()
     {
-        mouseEnterAction = PiccoloAction.PNOOP_ACTION;
-        mouseExitAction = PiccoloAction.PNOOP_ACTION;
+        mouseEnterModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,mouseEnterModifierMap,
+                  PiccoloModifiers.NORMAL);
+        mouseExitModifierMap = new HashMap();
+        setAction(PiccoloAction.PNOOP_ACTION,mouseExitModifierMap,
+                  PiccoloModifiers.NORMAL);
     }
-
+      
     /**
-     * Returns the action bound to a mouse enter event.
+     * Returns the action bound to a mouse exit event with the specified
+     * modifier.
      * 
      * @return See above.
      */
-    public PiccoloAction getMouseEnterAction()
+    public PiccoloAction getMouseExitAction(int modifier)
     {
-        return mouseEnterAction;
+        return getAction(mouseExitModifierMap,modifier);
     }
 
     /**
-     * Returns the action bound to a mouse exit event.
+     * Returns the action bound to a mouse enter event, with the specified
+     * modifier.
      * 
      * @return See above.
      */
-    public PiccoloAction getMouseExitAction()
+    public PiccoloAction getMouseEnterAction(int modifier)
     {
-        return mouseExitAction;
-    }
-
-
-    /**
-     * Sets the action bound to a mouse enter event to the
-     * specified action.  If the action is NULL, the bound mouse
-     * enter action will be PiccoloAction.PNOOP_ACTION.
-     * 
-     * @param action See above.
-     */
-    public void setMouseEnterAction(PiccoloAction action)
-    {
-        if(action == null)
-        {
-            action = PiccoloAction.PNOOP_ACTION;
-        }
-        else
-        {
-            mouseEnterAction = action;
-        }
+        return getAction(mouseEnterModifierMap,modifier);
     }
 
     /**
      * Sets the action bound to a mouse exit event to the
-     * specified action.  If the action is NULL, the bound mouse
-     * exit action will be PiccoloAction.PNOOP_ACTION.
+     * specified action and modifier.  If the action is NULL, the bound mouse
+     * click action will be PiccoloAction.PNOOP_ACTION.
      * 
      * @param action See above.
      */
-    public void setMouseExitAction(PiccoloAction action)
+    public void setMouseExitAction(PiccoloAction action, int modifier)
     {
-        if(action == null)
+        setAction(action,mouseExitModifierMap,modifier);
+    }
+
+    /**
+     * Sets the action bound to a mouse enter event to the
+     * specified action and modifier.  If the action is NULL, the bound mouse
+     * press action will be PiccoloAction.PNOOP_ACTION.
+     * 
+     * @param action See above.
+     */
+    public void setMouseEnterAction(PiccoloAction action, int modifier)
+    {
+        setAction(action,mouseEnterModifierMap,modifier);
+    }
+    
+    /*
+     * shortcut method for all actions.
+     * 
+     * @param whichMap The map to draw from.
+     * @param modifier The modifier to index on.
+     * @return The action for the selected event type and modifier.  If there
+     *         is no explicit event mapped to that modifier, it will return
+     *         the default (no modifier) event.
+     */
+    private PiccoloAction getAction(Map whichMap, int modifier)
+    {
+        Integer modInt = new Integer(modifier);
+        if(whichMap.containsKey(modInt))
         {
-            action = PiccoloAction.PNOOP_ACTION;
+            return (PiccoloAction)whichMap.get(modInt);
         }
         else
         {
-            mouseExitAction = action;
-        } 
+            return (PiccoloAction)whichMap.get(normalInteger);
+        }
+    }
+    
+    /*
+     * Binds an action to an event type and modifier.
+     * 
+     * @param whichMap The event type map to update.
+     * @param action The action to bind.
+     * @param modifier The modifier to index on.
+     */
+    private void setAction(PiccoloAction action, Map whichMap, int modifier)
+    {
+        Integer modInt = new Integer(modifier);
+        if(action != null)
+        {
+            whichMap.put(modInt,action);
+        }
+        else
+        {
+            whichMap.put(modInt,PiccoloAction.PNOOP_ACTION);
+        }
     }
 
 }
