@@ -102,7 +102,10 @@ public class ImageData
 	
 	public PixelsDescription getDefaultPixels()
 	{
-		return (PixelsDescription) pixels.get(0);
+		PixelsDescription defaultPixels = null;
+		if (pixels != null) 
+			defaultPixels = (PixelsDescription) pixels.get(0);
+		return defaultPixels;
 	}
 	
 	public String getDescription()
