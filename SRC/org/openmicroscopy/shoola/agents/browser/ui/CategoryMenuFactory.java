@@ -36,7 +36,12 @@
  
 package org.openmicroscopy.shoola.agents.browser.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -79,16 +84,49 @@ public class CategoryMenuFactory
     {
         CategoryTree tree = backingModel.getCategoryTree();
         JMenu menu = new JMenu("Categorize");
-        JMenuItem item = new JMenuItem();
+        
+        List list = tree.getCategoryGroups();
+        Collections.sort(list);
+        for(Iterator iter = list.iterator(); iter.hasNext();)
+        {
+            CategoryGroup cg = (CategoryGroup)iter.next();
+            menu.add(createCategoryMenu(tree,cg));
+        }
         return menu;
     }
     
-    private JMenu createCategoryMenu(CategoryTree tree, CategoryGroup group)
+    private JMenu createCategoryMenu(CategoryTree tree, final CategoryGroup group)
     {
         JMenu menu = new JMenu(group.getName());
         
-        List categoryList = tree.getCategories(group);
-        
+        List categoryList = tree.getCategories(group); 
+        for(Iterator iter = categoryList.iterator(); iter.hasNext();)
+        {
+            final Category category = (Category)iter.next();
+            JMenuItem item = new JMenuItem(category.getName());
+            item.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent ae)
+                {
+                    Set selectedSet = backingModel.getSelectedImages();
+                    if(selectedSet == null || selectedSet.size() == 0)
+                        return;
+                    
+                    Thumbnail[] ts = new Thumbnail[selectedSet.size()];
+                    selectedSet.toArray(ts);
+                    if(ts.length == 1)
+                    {
+                        Thumbnail t = ts[0];
+                        CategoryEventHandler.handle(t,group,category);
+                    }
+                    else
+                    {
+                        CategoryEventHandler.handle(ts,group,category);
+                    }
+                }
+            });
+            menu.add(item);
+        }
         
         return menu;
     }

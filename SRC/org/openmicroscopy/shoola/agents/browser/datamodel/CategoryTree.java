@@ -87,6 +87,11 @@ public class CategoryTree
         return (CategoryGroup)categoryGroupList.get(i);
     }
     
+    public List getCategoryGroups()
+    {
+        return Collections.unmodifiableList(categoryGroupList);
+    }
+    
     public List getCategories(int i)
     {
         try
