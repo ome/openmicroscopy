@@ -98,6 +98,8 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private static final float LEFT=20f;
 	private static final float VGAP=10f;
 	private static final float NAME_INSET=20;
+	private static final float ROW_GAP=3.0f;
+	
 	
 
 	/**
@@ -297,7 +299,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 	private void displayModule(CategoryBox box,ChainModuleData mod,
 		ModuleTreeNode catNode) {
 
-		ModuleView mNode = new SingleModuleView(mod);
+		ModuleView mNode = new ModulePaletteModuleView(mod);
 		mod.addModuleNode(mNode);
 		box.addChild(mNode);
 		mNode.setOffset(0,0);
@@ -382,10 +384,10 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		}
 		if (node instanceof CategoryBox) {
 			// adjust the size of the category box
-			b = new PBounds();
-			b = node.getUnionOfChildrenBounds(b);
-			((CategoryBox) node).setExtent(b.getWidth()+2*HGAP,
-					b.getHeight()+4*VGAP);
+			
+			PBounds c = node.getUnionOfChildrenBounds(null);
+			((CategoryBox) node).setExtent(c.getWidth()+2*HGAP,
+					c.getHeight()+4*VGAP);
 		}
 	}
 
@@ -412,11 +414,11 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 				arrangeChildren((PNode) node);
 			node.setOffset(x,y);
 		
-			PBounds b = ((PNode) node).getBounds();
+			PBounds b = node.getBounds();
+			
 			childHeight = (float) b.getHeight();
 			childWidth = (float) b.getWidth();
 		
-
 			x += childWidth+HGAP;
 			// track the height of the row
 			if (childHeight > maxHeight)
@@ -425,7 +427,7 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 		
 		// return a point that indicates how wide the row is and the 
 		// y-coordinate of the bottom.
-		return new Point2D.Float(x-(LEFT),y+maxHeight);
+		return new Point2D.Float(x-(LEFT),y+maxHeight+ROW_GAP);
 	}	
 	
 	public void setSelectedForDrag(ModuleView module) {
@@ -473,8 +475,10 @@ public class ModulePaletteCanvas extends PCanvas implements DragGestureListener,
 					PBounds b = cBox.getBufferedBounds();
 					PCamera camera = getCamera();
 					camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY); 
-					return;
+					cb.setHighlighted(true);
 				}
+				else
+					cb.setHighlighted(false);
 			} 
 		}
 	}
