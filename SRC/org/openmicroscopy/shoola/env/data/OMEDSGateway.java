@@ -52,6 +52,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
+import org.openmicroscopy.ds.managers.HistoryManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.is.ImageServerException;
@@ -245,6 +246,12 @@ class OMEDSGateway
 	{
 		return (AnnotationManager) proxiesFactory.getService(
 													AnnotationManager.class);
+	}
+	
+	private HistoryManager getHistoryManager()
+	{
+		return (HistoryManager) proxiesFactory.getService(
+													HistoryManager.class);
 	}
 
 	/** Retrieve the current experimenter. */
@@ -505,6 +512,35 @@ class OMEDSGateway
 		} 
 	}
 	
+	
+	/** Get a list of module executions that is the history of an object */
+	List getModuleExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			List result = getHistoryManager().
+				getMexDataHistory(new Integer(mexID));
+			return result;
+		} catch(Exception e) {
+			handleException(e,"Can't get history for module execution "+mexID);
+			
+		}
+		return null;
+	}
+	
+	List getChainExecutionHistory(int chexID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			List result = getHistoryManager().
+				getChainDataHistory(new Integer(chexID));
+			return result;
+		} catch(Exception e) {
+			handleException(e,"Can't get history for chain execution "+chexID);
+			
+		}
+		return null;
+	}
 	/** 
 	 * Annotate. Each attribute in the list must be a newly-created
      * attribute; otherwise, call updateAttributes() with that attribute

@@ -30,7 +30,9 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -152,6 +154,22 @@ public class ModuleExecutionData implements DataObject
 	
 	public ModuleData getModule() {
 		return module;
+	}
+	
+	/**
+	 * A derived function for ease of access to predecessors
+	 * 
+	 * @return list of mexes that directly precede one in data history
+	 */
+	public List getPredecessors() {
+		ArrayList preds = new ArrayList();
+		Iterator iter = inputs.iterator();
+		
+		while (iter.hasNext()) {
+			ActualInputData input = (ActualInputData) iter.next();
+			preds.add(input.getInputMex());
+		}
+		return preds;
 	}
 	
 	public void setDataset(DatasetSummary dataset) {

@@ -61,10 +61,12 @@ import org.openmicroscopy.shoola.env.data.map.HierarchyMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.ModuleMapper;
 import org.openmicroscopy.shoola.env.data.map.ModuleCategoryMapper;
+import org.openmicroscopy.shoola.env.data.map.ModuleExecutionMapper;
 import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
 import org.openmicroscopy.shoola.env.data.map.UserMapper;
+import org.openmicroscopy.shoola.env.data.model.ActualInputData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
@@ -1090,4 +1092,52 @@ class DMSAdapter
         }
     }
     
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List getMexExecutionHistory(int mexID,ModuleExecutionData mexProto,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+			FormalOutputData foutData,SemanticTypeData stData)
+    		throws DSOutOfServiceException, DSAccessException
+    {
+    		if (mexProto == null) mexProto = new ModuleExecutionData();
+    		
+    		List mexes  = gateway.getModuleExecutionHistory(mexID);
+    		List mexDS  =null;
+    		if (mexes != null)
+    				mexDS = ModuleExecutionMapper.
+						fillHistoryMexes(mexes,mexProto,modData,inpData,
+								finData,foutData,stData); 
+    		return mexDS;
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List getMexExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+    		return getMexExecutionHistory(mexID,null,null,null,null,null,null);
+	}
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List getChainExecutionHistory(int chexID,ModuleExecutionData mexProto,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+				FormalOutputData foutData,SemanticTypeData stData) 
+	throws DSOutOfServiceException, DSAccessException
+	{	
+    		if (mexProto == null) mexProto = new ModuleExecutionData();
+
+    		List mexes =  gateway.getChainExecutionHistory(chexID);
+    		List mexDS = null;
+    		if (mexes != null)
+    				mexDS = ModuleExecutionMapper.
+					fillHistoryMexes(mexes,mexProto,modData,inpData,finData,
+							foutData,stData);
+    		return mexDS;
+	}
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List getChainExecutionHistory(int chexID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+    		return getChainExecutionHistory(chexID,null,null,null,null,null,null);
+	}
 }
+

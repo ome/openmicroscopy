@@ -35,6 +35,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.ActualInputData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
@@ -562,5 +565,57 @@ public class NullDataManagementService
         return null;
     }
 
+    /*
+     *  (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#
+     * getMexExecutionHistory()
+     */
+    public List getMexExecutionHistory(int mexID,ModuleExecutionData mexData,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+			FormalOutputData foutData,SemanticTypeData stData) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+        // TODO Auto-generated method stub
+        return null;	
+	}
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#
+     * getMexExecutionHistory()
+     */
+    public List getMexExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+	    // TODO Auto-generated method stub
+	   return null;	
+	}
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#
+     * getChainExecutionHistory()
+     */
+    public List getChainExecutionHistory(int mexID,ModuleExecutionData mexData,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+				FormalOutputData foutData,SemanticTypeData stData) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+	    // TODO Auto-generated method stub
+	   return null;	
+	}    
+
+    /*
+     *  (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#
+     * getChainExecutionHistory()
+     */    
+    public List getChainExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+	    // TODO Auto-generated method stub
+	   return null;	
+	}    
+		
     
 }

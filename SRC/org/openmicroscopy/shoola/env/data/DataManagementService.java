@@ -35,6 +35,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ActualInputData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
@@ -774,4 +775,76 @@ public interface DataManagementService
     public List retrieveIDPHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException;
 
+     
+    /****
+     * Given an id of a module execution, get the list of module executions that 
+     * represents the entire data history for this execution. 
+     * 
+     * @param mexID			Id of the module execution
+     * @param mexData	         object prototype
+     * @param modData 		module prototype
+     * @param inpData 		ActualInput prototype
+     * @param finData	        FormalInput Prototype
+     * @param foutData       FormalOutput Prototype
+     * @param stData	        SemanticType prototype
+     * 
+     * @return list of {@link ModuleExecutionData} objects
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List getMexExecutionHistory(int mexID,ModuleExecutionData mexData,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+			FormalOutputData foutData,SemanticTypeData stData) 
+		throws DSOutOfServiceException, DSAccessException;
+    
+    /****
+     * Given an id of a module execution, get the list of module executions that 
+     * represents the entire data history for this execution. 
+     * 
+     * @param mexID			Id of the module execution
+     * 
+     * @return list of {@link ModuleExecutionData} objects
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List getMexExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException;
+    
+    /****
+     * Given an id of a chain execution, get the list of module executions that 
+     * represents the entire data history for this execution.
+     * 
+     * @param chexID			Id of the chain execution
+     * @param mexData 		object prototype
+     * @param modData 		module prototype
+     * @param inpData 		ActualInput prototype
+     * @param finData	        FormalInput Prototype
+     * @param foutData       FormalOutput Prototype
+     * @param stData	        SemanticType prototype
+     * 
+     * @return list of {@link ChainExecutionData} objects
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List getChainExecutionHistory(int mexID,ModuleExecutionData mexData,
+    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
+				FormalOutputData foutData,SemanticTypeData stData) 
+		throws DSOutOfServiceException, DSAccessException;
+    
+    /****
+     * Given an id of a chain execution, get the list of module executions that 
+     * represents the entire data history for this execution.
+     * 
+     * @param chexID			Id of the chain execution
+     * 
+     * @return list of {@link ChainExecutionData} objects
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List getChainExecutionHistory(int mexID) 
+		throws DSOutOfServiceException, DSAccessException;
 }
