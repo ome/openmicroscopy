@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -158,16 +157,6 @@ public class ViewerUIF
 		s = "Move the slider to navigate across Z stack.";
 		zSlider.setToolTipText(UIFactory.formatToolTipText(s));
 		zSlider.setEnabled(maxZ != 0);
-	}
-	
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param editor	The editor dialog.
-	 */
-	void showDialog(JDialog editor)
-	{
-		UIFactory.showEditor(editor);
 	}
 	
 	/**

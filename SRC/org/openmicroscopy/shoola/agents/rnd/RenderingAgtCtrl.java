@@ -33,12 +33,15 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.editor.ChannelDictionary;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.agents.rnd.model.GreyScalePane;
 import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
@@ -49,6 +52,7 @@ import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 /** 
  * 
  *
@@ -100,6 +104,19 @@ public class RenderingAgtCtrl
 	/** Returns the {@link RenderingAgt abstraction}. */
 	RenderingAgt getAbstraction() { return abstraction; }
 	
+	/** Forward event to {@link RenderingAgt abstraction}. */
+	public JFrame getReferenceFrame()
+	{
+		return abstraction.getRegistry().getTopFrame().getFrame();
+	}
+	
+	/** Forward event to {@link RenderingAgtUIF presentation}. */
+	public void showChannelDictionary()
+	{
+		List l = abstraction.getChannelDictionary();
+		showDialog(new ChannelDictionary(l));
+	}
+	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void setMappingPane()
 	{
@@ -109,7 +126,13 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
-		abstraction.getPresentation().showDialog(dialog);
+		UIFactory.showEditor(dialog);
+	}
+	
+	/** Forward event to {@link RenderingAgt abstraction}.  */
+	public void updateChannelData(ChannelData cd)
+	{
+		abstraction.updateChannelData(cd);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */

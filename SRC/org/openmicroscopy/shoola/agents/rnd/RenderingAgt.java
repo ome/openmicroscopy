@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -247,11 +248,17 @@ public class RenderingAgt
 			}
 	}
 
+	List getChannelDictionary()
+	{
+		return (List) registry.lookup("/dictionary/ChannelDictionary");
+	}
+	
 	/** Initializes the channel data. */
 	void initChannelData()
 	{
+		//TODO: modify the way we retrieve data. We do it this way b/c of the 
+		// actual implementation of the remoteFramework
 		channelData = new ChannelData[pxsDims.sizeW];
-		//TODO: modify the way we retrieve data.
 		try {
 			SemanticTypesService sts = registry.getSemanticTypesService();
 			//channel components.
@@ -270,16 +277,25 @@ public class RenderingAgt
 			LogicalChannel lc;
 			int index;
 			Iterator i = lcList.iterator();
+			int nanometer, excitation;
 			while (i.hasNext()) {
 				lc = (LogicalChannel) i.next();
 				index = 
 				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
-				channelData[index] = new ChannelData(index, 
+				
+				nanometer = lc.getEmissionWavelength().intValue();
+				if (lc.getExcitationWavelength() == null) 
+					excitation = nanometer;
+				else 
+					excitation = lc.getExcitationWavelength().intValue();
+					
+				channelData[index] = new ChannelData(lc.getID(), index, 
 									lc.getEmissionWavelength().intValue(),
-									lc.getPhotometricInterpretation());
+									lc.getPhotometricInterpretation(), 
+									excitation, lc.getFluor());
 			}
 			
-		}catch(DSAccessException dsae) {
+		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
 			"Unable to retrieve the LogicalChannel data for "+curImageID, dsae);
@@ -290,6 +306,36 @@ public class RenderingAgt
 		} 
 	}
 
+	/** Update the channel. */
+	void updateChannelData(ChannelData cd)
+	{
+		//TODO: modify the way we update data. We do it this way b/c of the 
+		// actual implementation of the remoteFramework
+		try {
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			LogicalChannel lc =  (LogicalChannel) 
+				(LogicalChannel) sts.retrieveAttribute("LogicalChannel", 
+														cd.getID());
+			//update the LogicalChannel object
+			lc.setExcitationWavelength(new Integer(cd.getExcitation()));
+			lc.setFluor(cd.getFluor());
+			lc.setPhotometricInterpretation(cd.getInterpretation());
+			List l = new ArrayList();
+			l.add(lc);
+			sts.updateAttributes(l);
+			// update the local copy.
+			channelData[cd.getIndex()] = cd;
+		}  catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+			"Unable to update the channel info", dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+								ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		} 
+	}
+	
 	ChannelData[] getChannelData() { return channelData; }
 
 	/** Return the current rendering model. */

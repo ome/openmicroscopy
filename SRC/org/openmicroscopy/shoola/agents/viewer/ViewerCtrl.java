@@ -242,7 +242,7 @@ public class ViewerCtrl
 	/** Forward event to {@link ViewerUIF presentation}. */
 	public void showDialog(JDialog dialog)
 	{
-		presentation.showDialog(dialog);
+		UIFactory.showEditor(dialog);
 	}
 	
 	/** Bring the file chooser. */

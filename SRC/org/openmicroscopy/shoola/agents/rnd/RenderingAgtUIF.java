@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -48,7 +47,6 @@ import org.openmicroscopy.shoola.agents.rnd.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -67,6 +65,7 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
 class RenderingAgtUIF 
 	extends JInternalFrame
 {
+	
 	/** Width of the widget. */
 	private static final int 		WIN_WIDTH = 300;
 	
@@ -118,16 +117,6 @@ class RenderingAgtUIF
 		buildGUI();
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
-	}
-
-	/** 
-	 * Sizes, centers and brings up the specified editor dialog.
-	 *
-	 * @param   editor	The editor dialog.
-	 */
-	void showDialog(JDialog editor)
-	{
-		UIFactory.showEditor(editor);
 	}
 	
 	/** Set the selected model. */

@@ -176,7 +176,7 @@ class DomainPane
 		transformations.setSelectedIndex(qDef.family);
 		String[] waves = new String[data.length];
 		for (int i = 0; i < data.length; i++)
-			waves[i] = ""+data[i].nanometer;
+			waves[i] = ""+data[i].getNanometer();
 		wavelengths = new JComboBox(waves);
 		wavelengths.setSelectedIndex(index); 
 	}
