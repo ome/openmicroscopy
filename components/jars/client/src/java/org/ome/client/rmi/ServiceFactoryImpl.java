@@ -8,10 +8,13 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import org.ome.client.Properties;
 import org.ome.interfaces.AdministrationService;
+import org.ome.interfaces.AnalysisService;
+import org.ome.interfaces.AttributeService;
+import org.ome.interfaces.ContainerService;
 import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.GenericService;
+import org.ome.interfaces.ImageService;
 import org.ome.interfaces.ServiceFactory;
 
 /** provides client side implementations for all services 
@@ -21,23 +24,32 @@ import org.ome.interfaces.ServiceFactory;
  */
 public class ServiceFactoryImpl implements ServiceFactory {
 
+	ServiceFactory factory;
+
+	public ServiceFactoryImpl(){
+		try {
+			factory = (ServiceFactory) Naming
+					.lookup("//localhost/ServiceFactory"); 
+			
+		} catch (MalformedURLException mue) {
+			throw new RuntimeException(mue);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		} catch (NotBoundException e) {
+			throw new RuntimeException(e);
+		}
+ 
+	}
+	
 	/** TODO do we return null or throw?
 	 * @return
 	 */
 	public AdministrationService getAdministrationService()  {
 		try {
-			AdministrationService as = (AdministrationService) Naming
-					.lookup(Properties.getString("RMIServiceFactory.AdminService")); 
-			return as;
-			
-		} catch (MalformedURLException mue) {
-			// TODO: handle exception
+			return factory.getAdministrationService();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 	
 	/** 
@@ -45,18 +57,10 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	 */
 	public GenericService getGenericService()  {
 		try {
-			GenericService gs = (GenericService) Naming
-					.lookup(Properties.getString("RMIServiceFactory.GenericService")); 
-			return gs;
-			
-		} catch (MalformedURLException mue) {
-			// TODO: handle exception
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
+			return factory.getGenericService();
+		} catch (Exception e){
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
 	/* (non-Javadoc)
@@ -64,17 +68,49 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	 */
 	public FollowGroupService getFollowGroupService() {
 		try {
-			FollowGroupService fgs = (FollowGroupService) Naming
-					.lookup(Properties.getString("RMIServiceFactory.GenericService")); 
-			return fgs;
-			
-		} catch (MalformedURLException mue) {
-			// TODO: handle exception
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
+			return factory.getFollowGroupService();
+		} catch (Exception e){
+			throw new RuntimeException(e);
 		}
-		return null;	}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getContainerService()
+	 */
+	public ContainerService getContainerService() throws RemoteException {
+		try {
+			return factory.getContainerService();
+		} catch (Exception e){
+			throw new RuntimeException(e);
+		}	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getImageService()
+	 */
+	public ImageService getImageService() throws RuntimeException {
+		try {
+			return factory.getImageService();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getAttributeService()
+	 */
+	public AttributeService getAttributeService() throws RuntimeException {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getAnalysisService()
+	 */
+	public AnalysisService getAnalysisService() throws RuntimeException {
+		// TODO Auto-generated method stub
+		/* return null; */
+		throw new RuntimeException("implement me");
+	}
 
 }
