@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import java.awt.Container;
 import javax.swing.JDialog;
 
 //Third-party libraries
@@ -55,20 +54,17 @@ import javax.swing.JDialog;
 class ContrastStretchingDialog
 	extends JDialog
 {
-	//TO BE REMOVED when we retrieve user setting from DB.
-	private static final int				HEIGHT_WIN = 280;
-
 	private ContrastStretchingPanel			csPanel;
 	private ContrastStretchingDialogManager	manager;
 
 	/**
 	 * 
 	 * @param control
-	 * @param csDef
 	 */
 	//TODO: retrieve contrastStretching settings from DB.
-	ContrastStretchingDialog(QuantumMappingManager control)
+	ContrastStretchingDialog(QuantumPaneManager control)
 	{
+		super(control.getReferenceFrame(), "Contrast Stretching", true);
 		manager = new ContrastStretchingDialogManager(this, control);
 		initPanel(control);
 		manager.attachListeners();
@@ -85,14 +81,17 @@ class ContrastStretchingDialog
 		return manager;
 	}
 	
-	/** Inialize the {@link ContrastStretchingPanel}. */
-	private void initPanel(QuantumMappingManager control)
+	/** Initialize the {@link ContrastStretchingPanel}. */
+	private void initPanel(QuantumPaneManager control)
 	{
 		int xStart, xEnd, yStart, yEnd;
 		int lb = ContrastStretchingPanel.leftBorder;
 		int tb = ContrastStretchingPanel.topBorder;
-		int s = control.getCurOutputStart();
-		int e = control.getCurOutputEnd();
+		//int s = control.getCurOutputStart();
+		//int e = control.getCurOutputEnd();
+		//TEST
+		int s = 0;
+		int e = 255;
 		//TODO: to be modified, retrieve user settings from DB.
 		xStart = lb+manager.convertRealIntoGraphics(s, e-s, s);
 		xEnd = lb+manager.convertRealIntoGraphics(e, e-s, s);
@@ -111,9 +110,9 @@ class ContrastStretchingDialog
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
-		Container contentPane = super.getContentPane();
-		contentPane.add(csPanel);
-		setSize(ContrastStretchingPanel.WIDTH, HEIGHT_WIN);
+		super.getContentPane().add(csPanel);
+		setSize(ContrastStretchingPanel.WIDTH, ContrastStretchingPanel.HEIGHT+
+					ContrastStretchingPanel.bottomBorder);
 		setResizable(false);
 	}
 	

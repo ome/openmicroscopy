@@ -63,11 +63,11 @@ import javax.swing.JRadioButton;
 class PlaneSlicingDialog
 	extends JDialog
 {
-	private static final int		WIDTH_WIN = 440;
-	private static final int		HEIGHT_WIN = 350;
-	private static final int		HEIGHT_PANEL = 100;
+	private static final int			WIDTH_WIN = 440;
+	private static final int			HEIGHT_WIN = 350;
+	private static final int			HEIGHT_PANEL = 100;
 	
-	private static final String[]   RANGE;
+	private static final String[]   	RANGE;
 	static {
 		RANGE = new String[7];
 		RANGE[0] = "1-bit plane";
@@ -86,8 +86,9 @@ class PlaneSlicingDialog
 	private PlaneSlicingStaticPanel		pssPanel;
 	private PlaneSlicingDialogManager	manager;
 	
-	PlaneSlicingDialog(QuantumMappingManager control)
+	PlaneSlicingDialog(QuantumPaneManager control)
 	{
+		super(control.getReferenceFrame(), "Plane Slicing", true);
 		manager = new PlaneSlicingDialogManager(this, control);
 		int yStart, yEnd;
 		//TODO: retrieve user settings.
@@ -140,10 +141,10 @@ class PlaneSlicingDialog
 	/** Initializes the component. */
 	private void initialize(int index)
 	{
-		String txtDynamic = "<html>highlights a range,<br>" +
+		String txtDynamic = "<html>Highlights a range,<br>" +
 							"reduces others to a constant level (cf. (1))." +
 							"</html>";
-		String txtStatic = "<html>highlights a range,<br>" +
+		String txtStatic = "<html>Highlights a range,<br>" +
 							"preserves others (cf. (2)).</html>";
 		radioStatic =	new JRadioButton(txtStatic);
 		radioDynamic =	new JRadioButton(txtDynamic);
@@ -158,10 +159,9 @@ class PlaneSlicingDialog
 		Container contentPane = super.getContentPane();
 		contentPane.setLayout(null);
 		psPanel.setBounds(0, 0, PlaneSlicingPanel.WIDTH, 
-							PlaneSlicingPanel.HEIGHT);
-		pssPanel.setBounds(PlaneSlicingPanel.WIDTH, 0,
-							PlaneSlicingPanel.WIDTH, 
-							PlaneSlicingPanel.HEIGHT);					 
+						PlaneSlicingPanel.HEIGHT);
+		pssPanel.setBounds(PlaneSlicingPanel.WIDTH, 0, PlaneSlicingPanel.WIDTH, 
+						PlaneSlicingPanel.HEIGHT);					 
 		contentPane.add(psPanel);
 		contentPane.add(pssPanel);
 		contentPane.add(buildRadioGroupPanel());
@@ -197,7 +197,7 @@ class PlaneSlicingDialog
 	private JPanel buildComboBoxPanel()
 	{
 		JPanel p = new JPanel();
-		JLabel txt = new JLabel("Select a range: ");
+		JLabel txt = new JLabel(" Select a range: ");
 		int hTxt, wLabel = 110;		
 		Dimension d = range.getPreferredSize();
 		hTxt = (int) d.getHeight();

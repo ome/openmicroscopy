@@ -77,14 +77,17 @@ class ContrastStretchingDialogManager
 	private Rectangle  					boxStart, boxEnd, boxOutputStart, 
 										boxOutputEnd;
 										
+	/** Control to position the cursors. */									
 	private int 						maxStartX, minEndX, maxStartOutputY,
 										minEndOutputY;
 	/** Reference to the view. */
 	private ContrastStretchingDialog	view;
-	private QuantumMappingManager		control;
+	
+	/** Reference to the main {@link QuantumPaneManager manager}. */
+	private QuantumPaneManager			control;
 	
 	ContrastStretchingDialogManager(ContrastStretchingDialog view,
-									QuantumMappingManager control)
+									QuantumPaneManager control)
 	{
 		this.view = view;
 		this.control = control;
@@ -96,7 +99,6 @@ class ContrastStretchingDialogManager
 		view.getCSPanel().addMouseListener(this);
 		view.getCSPanel().addMouseMotionListener(this);
 	}
-	
 	
 	int convertGraphicsIntoReal(int x, int r, int b)
 	{
@@ -113,6 +115,10 @@ class ContrastStretchingDialogManager
 	/** Initializes the rectangles which control the cursors. */
 	void setRectangles(int xStart, int xEnd, int yStart, int yEnd)
 	{
+		minEndX = xEnd-triangleW;
+		maxStartX = xStart+triangleW;
+		minEndOutputY =  yEnd+triangleW;
+		maxStartOutputY = yStart-triangleW;
 		boxStart = new Rectangle(xStart-triangleW, tS, length, bottomBorder);
 		boxEnd = new Rectangle(xEnd-triangleW, tS, length, bottomBorder);
 		boxOutputStart = new Rectangle(0, yStart-triangleW, 
@@ -120,12 +126,14 @@ class ContrastStretchingDialogManager
 		boxOutputEnd = new Rectangle(0, yEnd-triangleW, leftBorder-triangleW-1,
 										length);
 	}
-	
+
 	/** Handles events fired the cursors. */
 	public void mousePressed(MouseEvent e)
 	{
 		Point p = e.getPoint();
-		if (dragging) {  
+		
+		if (!dragging) { 
+			dragging = true; 
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
 				&& p.x <= minEndX)
 				setInputStart(p.x);

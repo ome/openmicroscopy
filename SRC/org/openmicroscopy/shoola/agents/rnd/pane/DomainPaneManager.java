@@ -62,45 +62,47 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 class DomainPaneManager
 	implements ActionListener, ChangeListener
 {
-	/** ID used to control events*/    
+	/** Action command ID. */    
 	private static final int        WAVELENGTH = 0;
 	private static final int        TRANSFORMATION = 1;
 	private static final int        HISTOGRAM = 2;
 	
-	private QuantumMappingManager	control;
 	private DomainPane				view;
 	private HistogramDialog         histogramDialog;
 	
-	DomainPaneManager(DomainPane view, QuantumMappingManager control)
+	/** Reference to the main {@link QuantumPaneManager manager}. */
+	private QuantumPaneManager		control;
+		
+	DomainPaneManager(DomainPane view, QuantumPaneManager control)
 	{
 		this.control = control;
 		this.view = view;
 	}
 
 	/** Initializes the listeners. */
-	void initListeners()
+	void attachListeners()
 	{
 		//sliders
 		view.getGamma().addChangeListener(this);
 		view.getBitResolution().addChangeListener(this);
 		
-		//combobox
-		JComboBox   transformations = view.getTransformations(),
-					wavelengths = view.getWavelengths();
+		//comboboxes
+		JComboBox transformations = view.getTransformations(),
+				  wavelengths = view.getWavelengths();
 		wavelengths.addActionListener(this);
 		wavelengths.setActionCommand(""+WAVELENGTH);
 		transformations.addActionListener(this);
 		transformations.setActionCommand(""+TRANSFORMATION);
 		
 		//button
-		JButton     button = view.getHistogram();
+		JButton button = view.getHistogram();
 		button.addActionListener(this);
 		button.setActionCommand(""+HISTOGRAM);
 	}
 
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumMappingManager}.
+	 * The method is called by the control {@link QuantumPaneManager}.
 	 * Forward event to the HistogramDialogManager.
 	 * 
 	 * @param value	real value.
@@ -113,7 +115,7 @@ class DomainPaneManager
 	
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumMappingManager}.
+	 * The method is called by the control {@link QuantumPaneManager}.
 	 * 
 	 * @param value	real value.
 	 */
@@ -141,7 +143,8 @@ class DomainPaneManager
 				case HISTOGRAM:
 					popUpHistogram();
 			}// end switch  
-		} catch(NumberFormatException nfe) {  //impossible if IDs are set correctly 
+		// impossible if IDs are set correctly 
+		} catch(NumberFormatException nfe) {  
 				throw nfe;  //just to be on the safe side...
 		} 
 	}
@@ -157,13 +160,16 @@ class DomainPaneManager
 	
 	/** 
 	 * Set the curve coefficient and forward event to 
-	 * {@link QuantumMappingManager}.
+	 * {@link QuantumPaneManager}.
 	 * 
 	 * @param value		slider value.
 	 */
 	private void setCurveCoefficient(int value)
 	{
-		view.getGammaLabel().setText(""+((double) value/10));
+		view.getGammaLabel().setText(" Gamma: "+((double) value/10));
+		view.repaint();
+		int family = view.getTransformations().getSelectedIndex();
+		control.updateGraphic(value, family);
 		control.setStrategy();
 	}
 	
@@ -173,28 +179,33 @@ class DomainPaneManager
 	}
 	
 	/** 
-	 * Forward event to {@link QuantumMappingManager}.
+	 * Forward event to {@link QuantumPaneManager}.
 	 * 
 	 * @param family    family index.
 	 */  
 	private void setFamily(int family)
 	{
+		control.setStrategy();
 		if (family == QuantumFactory.LOGARITHMIC || 
 			family == QuantumFactory.LINEAR) 
 			view.getGamma().setEnabled(false);
 		else
 			view.getGamma().setEnabled(true);
-		control.setStrategy();
+		control.updateGraphic(family);
+		resetDefaultGamma();
+		view.repaint();
+		
 	}
 	
 	/** 
-	 * Forward event to {@link QuantumMappingManager}.
+	 * Forward event to {@link QuantumMPaneManager}.
 	 *  
-	 * @param index wavelength index.
+	 * @param index		wavelength index.
 	 */	
 	
 	private void setWavelength(int index)
 	{
+		//TODO: need to update graphics end histogram if exists.
 		control.setWavelength(index);
 		//Update the view.
 	}
@@ -209,16 +220,18 @@ class DomainPaneManager
 		if (histogramDialog == null) {
 			//TODO initializes histogramDialog
 			// need to retrieve histogramData.+ minimum + start
+			histogramDialog = new HistogramDialog(control, 0, 400, 0, 400, null);
 		}
-		histogramDialog.setVisible(true);
+		control.showDialog(histogramDialog);
 	}
 	
 	/** 
-	 * Resets the default values for gamma.
+	 * Resets the curveCoefficient to 1.0.
 	 */
 	private void resetDefaultGamma()
 	{
-		view.getGammaLabel().setText(""+GraphicsRepresentation.INIT/10);
+		view.getGammaLabel().setText(" Gamma: "+(double) 
+												GraphicsRepresentation.INIT/10);
 		JSlider ccSlider = view.getGamma();
 		//Remove temporarily the listener otherwise an event is fired.
 		ccSlider.removeChangeListener(this);

@@ -59,29 +59,38 @@ class HistogramDialogManager
 	implements MouseListener, MouseMotionListener
 {
 	/** Graphics constants. */
-	private static final int	heightStat = HistogramPanel.heightStat,
-								widthStat = HistogramPanel.widthStat, 
-								topBorder = HistogramPanel.topBorder,
-								leftBorder = HistogramPanel.leftBorder,
-								rightBorder = HistogramPanel.rightBorder,
-								lS = leftBorder+widthStat, 
-								tS = topBorder+heightStat,
-								triangleW = HistogramPanel.triangleW,
-								length = 2*triangleW, 
-								window = HistogramPanel.window,
-								rangeGraphics = heightStat-2*window;
-   	private static final int    absEnd = topBorder+window, absStart = tS-window;
+	private static final int		heightStat = HistogramPanel.heightStat,
+									widthStat = HistogramPanel.widthStat, 
+									topBorder = HistogramPanel.topBorder,
+									leftBorder = HistogramPanel.leftBorder,
+									rightBorder = HistogramPanel.rightBorder,
+									lS = leftBorder+widthStat, 
+									tS = topBorder+heightStat,
+									triangleW = HistogramPanel.triangleW,
+									length = 2*triangleW, 
+									window = HistogramPanel.window,
+									rangeGraphics = heightStat-2*window;
+   	private static final int    	absEnd = topBorder+window, 
+   									absStart = tS-window;
    	
-   	private final int			tW = topBorder+window;
+   	private final int				tW = topBorder+window;
    	
    	private int                     maxStartInputY, minEndInputY;
+   	
+   	/** Rectangle used to listen to the cursors. */
    	private Rectangle               boxInputStart, boxInputEnd;
+   	
+   	/** Dragging control. */
 	private boolean					dragging;
+	
+	/** Reference to the view. */
 	private HistogramDialog			view;
-	private QuantumMappingManager 	control;
+	
+	/** Reference to the main manager {@link QuantumPaneManager}. */
+	private QuantumPaneManager 		control;
 	
 	
-	HistogramDialogManager(HistogramDialog view, QuantumMappingManager control)
+	HistogramDialogManager(HistogramDialog view, QuantumPaneManager control)
 	{
 		this.view = view;
 		this.control = control;

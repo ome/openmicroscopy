@@ -251,14 +251,12 @@ class ContrastStretchingPanel
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
 		g2D.fillRect(0, 0, WIDTH, HEIGHT);
-		
 		Font font = g2D.getFont();
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight();
 		Rectangle2D rInput = font.getStringBounds("Input", 
 									g2D.getFontRenderContext());
 		int wInput = (int) rInput.getWidth();
-		
 		// grid
 		AffineTransform transform = new AffineTransform();
 		// 140/10 =14 then  middle = 14/2
@@ -295,9 +293,8 @@ class ContrastStretchingPanel
 		int yStartPoints[] = {yStart1, yStart2, yStart3};
 		GeneralPath filledPolygonStart = new GeneralPath();
 		filledPolygonStart.moveTo(xStartPoints[0], yStartPoints[0]);
-		for (int index = 1; index < xStartPoints.length; index++) {
+		for (int index = 1; index < xStartPoints.length; index++)
 			filledPolygonStart.lineTo(xStartPoints[index], yStartPoints[index]);
-		}
 		filledPolygonStart.closePath();
 		g2D.setColor(startColor);
 		g2D.fill(filledPolygonStart);
@@ -307,9 +304,8 @@ class ContrastStretchingPanel
 		int yEndPoints[] = {yEnd1, yEnd2, yEnd3};
 		GeneralPath filledPolygonEnd = new GeneralPath();
 		filledPolygonEnd.moveTo(xEndPoints[0], yEndPoints[0]);
-		for (int index = 1; index < xEndPoints.length; index++) {
+		for (int index = 1; index < xEndPoints.length; index++)
 			filledPolygonEnd.lineTo(xEndPoints[index], yEndPoints[index]);
-		}
 		filledPolygonEnd.closePath();
 		g2D.setColor(endColor);
 		g2D.fill(filledPolygonEnd);
@@ -322,10 +318,9 @@ class ContrastStretchingPanel
 		GeneralPath filledPolygonStartOutput = new GeneralPath();
 		filledPolygonStartOutput.moveTo(xStartOutputPoints[0], 
 										yStartOutputPoints[0]);
-		for (int index = 1; index < xStartOutputPoints.length; index++) {
+		for (int index = 1; index < xStartOutputPoints.length; index++)
 			filledPolygonStartOutput.lineTo(xStartOutputPoints[index],
 											 yStartOutputPoints[index]);
-		}
 		filledPolygonStartOutput.closePath();
 		g2D.setColor(startColor);
 		g2D.fill(filledPolygonStartOutput);
@@ -334,13 +329,13 @@ class ContrastStretchingPanel
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();
 		filledPolygonEndOutput.moveTo(xEndOutputPoints[0], yEndOutputPoints[0]);
-		for (int index = 1; index < xEndOutputPoints.length; index++) {
+		for (int index = 1; index < xEndOutputPoints.length; index++)
 			filledPolygonEndOutput.lineTo(xEndOutputPoints[index], 
 										yEndOutputPoints[index]);
-		}
 		filledPolygonEndOutput.closePath();
-		g2D.setColor(startColor);
+		g2D.setColor(endColor);
 		g2D.fill(filledPolygonEndOutput);
+		
 		g2D.drawString("Input", lS2-wInput/2, tS+bottomBorder/2+hFont);
 		// set line color
 		g2D.setColor(lineColor);

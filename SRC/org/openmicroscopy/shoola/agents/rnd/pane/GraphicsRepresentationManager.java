@@ -60,28 +60,41 @@ class GraphicsRepresentationManager
 	implements MouseListener, MouseMotionListener
 {
 	/** Graphical constant. */
-	private static final int	topBorder = GraphicsRepresentation.topBorder, 
-								leftBorder = GraphicsRepresentation.leftBorder,
-								square = GraphicsRepresentation.square, 
-								bottomBorder = 
-									GraphicsRepresentation.bottomBorder,
-								triangleW = GraphicsRepresentation.triangleW, 
-	   							lS = leftBorder+square, tS = topBorder+square,
-								length = 2*triangleW, absMin = leftBorder+20;
-							
+	private static final int		topBorder = 
+										GraphicsRepresentation.topBorder, 
+									leftBorder = 
+										GraphicsRepresentation.leftBorder,
+									square = GraphicsRepresentation.square, 
+									bottomBorder = 
+										GraphicsRepresentation.bottomBorder,
+									triangleW = 
+										GraphicsRepresentation.triangleW, 
+	   								lS = leftBorder+square, 
+	   								tS = topBorder+square,
+									length = 2*triangleW, 
+									absMin = leftBorder+20;
+	/** Dragging control. */					
 	private boolean                 dragging;
+	
+	/** Rectangles used to listen the cursors. */
 	private Rectangle               boxStart, boxEnd, boxOutputStart,
 									boxOutputEnd;
+	
+	/** controls' bounds. */
 	private int                     maxStartX, minEndX, maxEndX, 
 									maxStartOutputY, minEndOutputY;
 
-	private QuantumMappingManager	control;
+	/** Reference to the main control {@link QuantumPaneManager}. */
+	private QuantumPaneManager		control;
+	
+	/** Reference to the view. */
 	private GraphicsRepresentation	view;
+	
+	/** Quantum Family selected. */
 	private int 					type;
 	
 	GraphicsRepresentationManager(GraphicsRepresentation view, 
-									QuantumMappingManager control, 
-									int type)
+									QuantumPaneManager control, int type)
 	{
 		this.view = view;
 		this.control = control;
@@ -103,7 +116,7 @@ class GraphicsRepresentationManager
 	
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumMappingManager}.
+	 * The method is called by the control {@link QuantumPaneManager}.
 	 * 
 	 * @param value	real input value.
 	 */
@@ -119,7 +132,7 @@ class GraphicsRepresentationManager
 
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumMappingManager}.
+	 * The method is called by the control {@link QuantumPaneManager}.
 	 * 
 	 * @param v	real input value.
 	 */
@@ -147,7 +160,7 @@ class GraphicsRepresentationManager
 	
 	/** 
 	 * Converts a graphic value into a real value 
-	 * (equation of the form y=ax+b).
+	 * (equation of the form y = ax+b).
 	 * The rangeReal & rangeGraphics values are used to 
 	 * compute a; b is a parameter.
 	 *
@@ -165,7 +178,7 @@ class GraphicsRepresentationManager
     
 	/** 
 	 * Converts a real value into a graphic value 
-	 * (equation of the form y=ax+b).
+	 * (equation of the form y = ax+b).
 	 * The rangeReal & rangeGraphics values are used to compute a;
 	 * b is a parameter.
 	 *
@@ -189,34 +202,29 @@ class GraphicsRepresentationManager
 			dragging = true;
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
 				p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
-				&& type == QuantumFactory.EXPONENTIAL ) {
+				&& type == QuantumFactory.EXPONENTIAL) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);	
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);
 				control.setInputWindowEnd(v);
-			}
-				
+			}	
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x <= minEndX) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);	
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);	
 				control.setInputWindowStart(v);
 			}
-				
 			if (boxOutputStart.contains(p) && p.y >= minEndOutputY &&
 				p.y <= tS)
 				setOutputWindowStart(p.y);	
@@ -233,30 +241,27 @@ class GraphicsRepresentationManager
 		if (dragging) {
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
 				p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
-				&& type == QuantumFactory.EXPONENTIAL ) {
+				&& type == QuantumFactory.EXPONENTIAL) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);	
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);	
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);	
 				control.setInputWindowEnd(v);
 			}
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
 				p.x <= minEndX) {
 				int min = control.getMinimum();
-				int v = convertGraphicsIntoReal(
-								p.x-leftBorder, control.getMaximum()-min, 
-								view.getInputGraphicsRange(), min
-												);
+				int v = convertGraphicsIntoReal(p.x-leftBorder, 
+								control.getMaximum()-min, 
+								view.getInputGraphicsRange(), min);
 				control.setInputWindowStart(v);	
 			}	
 			if (boxOutputStart.contains(p) && p.y >= minEndOutputY 
@@ -289,7 +294,7 @@ class GraphicsRepresentationManager
 	/**
 	 * Resize the output window.
 	 * 
-	 * @param value		graphics value..
+	 * @param value		graphics value.
 	 */
 	void setOutputWindowEnd(int y)
 	{
@@ -311,7 +316,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** 
-	 * Sets  the MaxEndX value that is used to control the cursors' motions.
+	 * Sets  the MaxEndX value that is used to control the cursors.
 	 *
 	 * @param x value.
 	 */    

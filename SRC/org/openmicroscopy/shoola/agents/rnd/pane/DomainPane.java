@@ -30,9 +30,9 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -78,9 +79,6 @@ class DomainPane
 	/** row's width. */
 	private static final int		COLUMN_WIDTH = 90;
 	
-	/** background color of the JTable. */ 
-	private static final Color		GRID_COLOR = Color.WHITE;
-	
 	/** Dimension of the JPanel which contains the slider. */
 	private static final int		PANEL_HEIGHT = 25;
 	private static final int		PANEL_WIDTH = 100;
@@ -89,10 +87,10 @@ class DomainPane
 														PANEL_HEIGHT);
 
 	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 20;
-	private static final int		BUTTON_WIDTH = 100;		
+	private static final int		BUTTON_HEIGHT = 15, BUTTON_WIDTH = 40;	
+		
 	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
-																BUTTON_HEIGHT);	
+															BUTTON_HEIGHT);
 											
 	private static final int        DEPTH_START = 1, DEPTH_END = 8;
 
@@ -117,10 +115,12 @@ class DomainPane
 	private JSlider					bitResolution;
 	private JSlider					gamma;
 	
-	private DomainPaneManager		manager;
 	private QuantumDef				qDef;
 	
-	DomainPane(Registry registry, QuantumMappingManager control, 
+	/** Reference to the {@link DomainPaneManager manager}. */
+	private DomainPaneManager		manager;
+	
+	DomainPane(Registry registry, QuantumPaneManager control, 
 				String[] waves, QuantumDef qDef)
 	{
 		this.qDef = qDef;
@@ -129,6 +129,7 @@ class DomainPane
 		initSliders();
 		initLabel();
 		initButton(registry);
+		manager.attachListeners();
 		buildGUI();
 	}
 	
@@ -152,7 +153,6 @@ class DomainPane
 	{
 		return gammaLabel;
 	}
-
 
 	public JComboBox getTransformations()
 	{
@@ -193,8 +193,9 @@ class DomainPane
 			qDef.family == QuantumFactory.LOGARITHMIC) 
 			gamma.setEnabled(false);
 		else gamma.setEnabled(true);
+		//TODO: find a UI conversion system
 		bitResolution = new JSlider(JSlider.HORIZONTAL, DEPTH_START, DEPTH_END,
-							 qDef.bitResolution);
+									DEPTH_END);
 	}
 	
 	/** Initializes the gamma label. */
@@ -214,7 +215,14 @@ class DomainPane
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
-		add(buildTable());
+		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
+		setBorder(b);
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.add(buildTable());
+		
+		//add(buildTable());
+		add(p);
 	}
 	
 	/** Build the JTable. */
@@ -222,8 +230,9 @@ class DomainPane
 	{
 		JTable table = new TableComponent(5, 2);
 		table.setTableHeader(null);
+		table.setOpaque(false);
+		table.setShowGrid(false);
 		table.setRowHeight(ROW_HEIGHT);
-		table.setGridColor(GRID_COLOR);
 		
 		//Set the columns' width.
 		TableColumnModel columns = table.getColumnModel();
@@ -233,28 +242,28 @@ class DomainPane
 		
 		//Set the width of the second column
 		column = columns.getColumn(1);
-		//column.setPreferredWidth(PANEL_WIDTH);
+		column.setPreferredWidth(PANEL_WIDTH);
 		column.setWidth(PANEL_WIDTH);
 
 		//First row.
-		JLabel label = new JLabel(" Transformation");
+		JLabel label = new JLabel(" Wavelength");
 		table.setValueAt(label, 0, 0);
-		table.setValueAt(transformations, 0, 1);
-
+		table.setValueAt(wavelengths, 0, 1);
+		
 		//Second row.
-		table.setValueAt(gammaLabel, 1, 0);
-		table.setValueAt(buildSliderPanel(gamma), 1, 1);
+		label = new JLabel(" Transformation");
+		table.setValueAt(label, 1, 0);
+		table.setValueAt(transformations, 1, 1);
 
 		//Third row.
-		label = new JLabel(" Resolution");
-		table.setValueAt(label, 2, 0);
-		table.setValueAt(buildSliderPanel(bitResolution), 2, 1);
+		table.setValueAt(gammaLabel, 2, 0);
+		table.setValueAt(buildSliderPanel(gamma), 2, 1);
 
 		//Fourth row.
-		label = new JLabel(" Wavelength");
+		label = new JLabel(" Resolution");
 		table.setValueAt(label, 3, 0);
-		table.setValueAt(wavelengths, 3, 1);
-		
+		table.setValueAt(buildSliderPanel(bitResolution), 3, 1);
+
 		//Fifth row.
 		label = new JLabel(" Histogram");
 		table.setValueAt(label, 4, 0);
@@ -264,6 +273,7 @@ class DomainPane
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
+								
 		return table;
 	}
 	
@@ -278,11 +288,12 @@ class DomainPane
 		//JPanel which contains a slider.
 		JPanel sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
+		sliderPanel.setOpaque(false);
 		sliderPanel.setPreferredSize(DIM);
 		sliderPanel.setSize(DIM);
 		slider.setPreferredSize(DIM);
 		slider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-		slider.setBackground(GRID_COLOR);
+		slider.setOpaque(false);
 		sliderPanel.add(slider);
 		
 		return sliderPanel;
@@ -290,16 +301,16 @@ class DomainPane
 	
 	/**
 	 * Build a JPanel which contains a JButton.
+	 * 
 	 * @param button
 	 * @return See above.
 	 */
 	private JPanel buildButtonPanel(JButton button)
 	{
 		JPanel p = new JPanel();
-		p.setBackground(Color.LIGHT_GRAY);
 		p.setBorder(null);
 		button.setPreferredSize(DIM_BUTTON);
-		button.setBounds(0, 0, 40, 20);
+		button.setBounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
 		button.setContentAreaFilled(false);
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);

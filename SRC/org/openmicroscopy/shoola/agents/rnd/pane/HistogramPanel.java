@@ -116,7 +116,10 @@ class HistogramPanel
 				int yEnd, Object[] histogramData)
 	{
 		this.histogramData = histogramData;
-		sizeBin = (int) (widthStat/histogramData.length);
+		//TEST
+		//TODO: Check: HistogramData cannot be null.
+		sizeBin = (int) (widthStat/1);
+		//sizeBin = (int) (widthStat/histogramData.length);
 		setWindowLimits(mini, maxi);
 		setInputWindow(startReal, endReal);
 		
@@ -337,10 +340,9 @@ class HistogramPanel
 		GeneralPath filledPolygonStartOutput = new GeneralPath();
 		filledPolygonStartOutput.moveTo(xStartOutputPoints[0], 
 										yStartOutputPoints[0]);
-		for (int index = 1; index < xStartOutputPoints.length; index++) {
+		for (int index = 1; index < xStartOutputPoints.length; index++)
 			filledPolygonStartOutput.lineTo(xStartOutputPoints[index], 
 										yStartOutputPoints[index]);
-		}
 		filledPolygonStartOutput.closePath();
 		
 		// paint with selected color
@@ -353,10 +355,9 @@ class HistogramPanel
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();
 		filledPolygonEndOutput.moveTo(xEndOutputPoints[0], yEndOutputPoints[0]);
-		for (int index = 1; index < xEndOutputPoints.length; index++) {
+		for (int index = 1; index < xEndOutputPoints.length; index++)
 			filledPolygonEndOutput.lineTo(xEndOutputPoints[index], 
 										yEndOutputPoints[index]);
-		}
 		filledPolygonEndOutput.closePath();
 		g2D.setColor(endColor);
 		g2D.drawString(curMax, 10, topBorder+hEnd+hFont+window);    

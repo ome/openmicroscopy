@@ -67,8 +67,10 @@ class HistogramBinMinMax
 	{
 		return min;
    	}
+   	
    	int getMax()
    	{
 	   return max;
    	}
+   	
 }

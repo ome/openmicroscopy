@@ -30,15 +30,17 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -76,16 +78,12 @@ class CodomainPane
 	
 	/** width of the first column. */
 	private static final int		WIDTH = 140;
-	
-	/** gridcolor of the JTable. */ 
-	private static final Color		GRID_COLOR = Color.WHITE;
 
 	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 15;
-	private static final int		BUTTON_WIDTH = 40;	
+	private static final int		BUTTON_HEIGHT = 15, BUTTON_WIDTH = 40;	
 		
 	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
-																BUTTON_HEIGHT);
+															BUTTON_HEIGHT);
 	
 	private JButton					cStretching;
 	private JButton					pSlicing;
@@ -95,10 +93,9 @@ class CodomainPane
 	
 	private CodomainPaneManager		manager;
 	
-	//TODO: retrieve contrastStretchingContext and PlaneSlicingContext
-	//data via CodomainMapContext object
-	public CodomainPane(Registry registry, QuantumMappingManager control)
+	public CodomainPane(Registry registry, QuantumPaneManager control)
 	{
+		//TODO: retrieve Data from CodomainMapDefs.
 		manager = new CodomainPaneManager(this, control);
 		initButton(registry);
 		initCheckBox();
@@ -140,9 +137,9 @@ class CodomainPane
 	/** Initializes the buttons. */
 	private void initButton(Registry registry)
 	{
-		IconManager IM = IconManager.getInstance(registry);
-		cStretching = new JButton(IM.getIcon(IconManager.STRETCHING));
-		pSlicing = new JButton(IM.getIcon(IconManager.SLICING));
+		IconManager im = IconManager.getInstance(registry);
+		cStretching = new JButton(im.getIcon(IconManager.STRETCHING));
+		pSlicing = new JButton(im.getIcon(IconManager.SLICING));
 	}
 	
 	/** Initializes the checkboxes. */
@@ -153,11 +150,17 @@ class CodomainPane
 		ps = new JCheckBox();	
 	}
 	
-	/** Builds and layout the GUI. */
+	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
-		add(buildTable());
+		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
+		setBorder(b);
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.add(buildTable());
+		add(p);
+		//add(buildTable());
 	}
 	
 	/** Build the JTable. */
@@ -165,8 +168,9 @@ class CodomainPane
 	{
 		JTable table = new TableComponent(3, 3);
 		table.setTableHeader(null);
+		table.setOpaque(false);
+		table.setShowGrid(false);
 		table.setRowHeight(ROW_HEIGHT);
-		table.setGridColor(GRID_COLOR);
 		
 		//Set the columns' width.
 		TableColumnModel columns = table.getColumnModel();
@@ -212,7 +216,6 @@ class CodomainPane
 	private JPanel buildButtonPanel(JButton button)
 	{
 		JPanel p = new JPanel();
-		p.setBackground(GRID_COLOR);
 		p.setBorder(null);
 		button.setPreferredSize(DIM_BUTTON);
 		button.setBounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);

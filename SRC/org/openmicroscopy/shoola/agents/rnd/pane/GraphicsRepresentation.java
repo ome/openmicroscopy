@@ -134,7 +134,6 @@ class GraphicsRepresentation
    	private int					coefficient, controlOutputStart, 
 								controlOutputEnd;
 								
-	/** inverse the curve is true. */
    	private boolean				reverseIntensity;
 
 	/** Input cursor coordinates. */
@@ -162,7 +161,7 @@ class GraphicsRepresentation
    	/** Reference to the manager. */
 	private GraphicsRepresentationManager       manager;
 	
-	GraphicsRepresentation(QuantumMappingManager control, QuantumDef qDef, 
+	GraphicsRepresentation(QuantumPaneManager control, QuantumDef qDef, 
 							int min, int max)
 	{
 		this.qDef = qDef;
@@ -206,8 +205,8 @@ class GraphicsRepresentation
 	 * Sets the location of the five control points and the position
 	 * of the cursors
 	 *
-	 * @param inputStart        inputWindow start.
-	 * @param inputEnd          inputWindow end.
+	 * @param inputStart        inputWindow start, real value.
+	 * @param inputEnd          inputWindow end, real value.
 	 */ 
 	void setDefaultLinear(int inputStart, int inputEnd)
 	{
@@ -258,8 +257,8 @@ class GraphicsRepresentation
 	 * Set the location of the five control points and the position
 	 * of the cursors.
 	 *
-	 * @param inputStart        inputWindow start.
-	 * @param inputEnd          inputWindow end.
+	 * @param inputStart        inputWindow start, real value.
+	 * @param inputEnd          inputWindow end, real value.
 	 */    
 	void setDefaultExponential(int inputStart, int inputEnd)
 	{
@@ -288,7 +287,7 @@ class GraphicsRepresentation
 				 xStaticEnd = (double) lS2;
 				 range = (int) xStaticEnd-leftBorder;
 			}
-		} else if(MIN <= k && k < INIT) { 
+		} else if (MIN <= k && k < INIT) { 
 			k = INIT-k;
 			if (reverseIntensity) {
 				xStaticEnd = (double) leftBorder;
@@ -315,8 +314,8 @@ class GraphicsRepresentation
 		}
 		staticStartPt.setLocation(xStaticStart, yStart);
 		staticEndPt.setLocation(xStaticEnd, yEnd);
-		xStart  = setInputGraphics(inputStart, range);
-		xEnd    = setInputGraphics(inputEnd, range);
+		xStart = setInputGraphics(inputStart, range);
+		xEnd = setInputGraphics(inputEnd, range);
 		setCursorStart((int) xStart);
 		setCursorEnd((int) xEnd);
 		
@@ -341,7 +340,7 @@ class GraphicsRepresentation
 	 * Resets the control points locations. 
 	 * This method is called when a new family is specified.
 	 *
-	 * @param t         family index.
+	 * @param t		family index.
 	 */
 	void setControlsPoints(int t)
 	{
@@ -597,7 +596,8 @@ class GraphicsRepresentation
 			if (type == QuantumFactory.EXPONENTIAL) repaintCurve();
 			else setControlLocation(coefficient);
 		}
-		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
+		//if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
+		if (b) super.repaint();
 	}
 	
 	/** 
@@ -637,7 +637,8 @@ class GraphicsRepresentation
 				setControlLocation(coefficient);
 			} 
 		}
-		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
+		//if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
+		if (b) super.repaint();
 	}
 	
 	/** 
@@ -748,7 +749,7 @@ class GraphicsRepresentation
 	}
 	
 	/**
-	 * Converts a real input value into x-coordinate.
+	 * Converts a real input value into graphical value.
 	 * 
 	 * @param x		real value.
 	 * @return a 	coordinate in the graphic system.
@@ -861,7 +862,7 @@ class GraphicsRepresentation
 	private void repaintCurve()
 	{
 		quad.setCurve(startPt, controlPt, endPt);
-		repaint();
+		super.repaint();
 	}
 	
 	/** Overrides the paintComponent() method. */ 
@@ -934,9 +935,8 @@ class GraphicsRepresentation
 		int yStartPoints[] = {yStart1+extra, yStart2+extra, yStart3+extra};
 		GeneralPath filledPolygonStart = new GeneralPath();
 		filledPolygonStart.moveTo(xStartPoints[0], yStartPoints[0]);
-		for (int index = 1; index < xStartPoints.length; index++) {
+		for (int index = 1; index < xStartPoints.length; index++)
 			filledPolygonStart.lineTo(xStartPoints[index], yStartPoints[index]);
-		}
 		filledPolygonStart.closePath();
 		g2D.setColor(iStartColor);
 		g2D.fill(filledPolygonStart);
@@ -946,9 +946,8 @@ class GraphicsRepresentation
 		int yEndPoints[] = {yEnd1+extra, yEnd2+extra, yEnd3+extra};
 		GeneralPath filledPolygonEnd = new GeneralPath();
 		filledPolygonEnd.moveTo(xEndPoints[0], yEndPoints[0]);
-		for (int index = 1; index < xEndPoints.length; index++) {
+		for (int index = 1; index < xEndPoints.length; index++)
 			filledPolygonEnd.lineTo(xEndPoints[index], yEndPoints[index]);
-		}
 		filledPolygonEnd.closePath();
 		
 		g2D.setColor(iEndColor);
@@ -962,10 +961,9 @@ class GraphicsRepresentation
 		GeneralPath filledPolygonStartOutput = new GeneralPath();
 		filledPolygonStartOutput.moveTo(xStartOutputPoints[0],
 										 yStartOutputPoints[0]);
-		for (int index = 1; index < xStartOutputPoints.length; index++) {
+		for (int index = 1; index < xStartOutputPoints.length; index++)
 			filledPolygonStartOutput.lineTo(xStartOutputPoints[index], 
 											yStartOutputPoints[index]);
-		}
 		filledPolygonStartOutput.closePath();
 		g2D.setColor(ostartColor);
 		g2D.fill(filledPolygonStartOutput);
@@ -975,10 +973,9 @@ class GraphicsRepresentation
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();
 		filledPolygonEndOutput.moveTo(xEndOutputPoints[0], yEndOutputPoints[0]);
-		for (int index = 1; index < xEndOutputPoints.length; index++) {
+		for (int index = 1; index < xEndOutputPoints.length; index++)
 			filledPolygonEndOutput.lineTo(xEndOutputPoints[index], 
 										yEndOutputPoints[index]);
-		}
 		filledPolygonEndOutput.closePath();
 		g2D.setColor(oendColor);
 		g2D.fill(filledPolygonEndOutput); 

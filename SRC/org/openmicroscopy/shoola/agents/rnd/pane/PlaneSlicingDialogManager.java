@@ -91,8 +91,11 @@ class PlaneSlicingDialogManager
 	private Rectangle				boxOutputStart, boxOutputEnd;
 	private boolean					dragging, isSelected;
 	
+	/** Reference to the view. */
 	private PlaneSlicingDialog		view;
-	private QuantumMappingManager	control;
+	
+	/** Reference to the main control {@link QuantumPaneManager}. */
+	private QuantumPaneManager	control;
 
 	/**
 	 * Create a new instance.
@@ -100,7 +103,7 @@ class PlaneSlicingDialogManager
 	 * @param control
 	 */
 	PlaneSlicingDialogManager(PlaneSlicingDialog view, 
-								QuantumMappingManager control)
+								QuantumPaneManager control)
 	{
 		this.view = view;
 		this.control = control;
@@ -112,8 +115,8 @@ class PlaneSlicingDialogManager
 	/** Attach listeners to the graphics. */
 	void attachListeners()
 	{
-		JRadioButton 	radioStatic = view.getRadioStatic(),
-						radioDynamic = view.getRadioDynamic();
+		JRadioButton radioStatic = view.getRadioStatic(),
+					 radioDynamic = view.getRadioDynamic();
 		radioStatic.addActionListener(this);
 		radioStatic.setActionCommand(""+STATIC);
 		radioDynamic.addActionListener(this);

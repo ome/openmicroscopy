@@ -134,7 +134,7 @@ class PlaneSlicingPanel
 	}
 	
 	/** 
-	 * Sets the selecttion control, <code>true</code> if the panel is selected 
+	 * Sets the selection control, <code>true</code> if the panel is selected 
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param b		true/false.
@@ -220,92 +220,90 @@ class PlaneSlicingPanel
 									g2D.getFontRenderContext());
 		Rectangle2D rUpper= font.getStringBounds("upper", 
 									g2D.getFontRenderContext());							
-		 int wInput = (int) rInput.getWidth();
-		 int wUpper = (int) rUpper.getWidth();
+		int wInput = (int) rInput.getWidth();
+		int wUpper = (int) rUpper.getWidth();
 		 
-		 // grid
-		 AffineTransform transform = new AffineTransform();
-		 // 140/10 = 14 then middle = 14/2
-		 transform.translate(leftBorder+70, topBorder+70); 
-		 transform.scale(1, -1);
-		 transform.scale(10, 10);       
-		 g2D.setPaint(gridColor);
-		 GeneralPath path = new GeneralPath();
-		 for (int i = -7; i <= 7; i++) {
-			 path.moveTo(i, -7);
-			 path.lineTo(i, 7);
-		 }
-		 for (int i = -7; i <= 7; i++) {
-			 path.moveTo(-7, i);
-			 path.lineTo(7, i);
-		 }
-		 g2D.draw(transform.createTransformedShape(path));
-		 g2D.setColor(axisColor);
+		// grid
+		AffineTransform transform = new AffineTransform();
+		// 140/10 = 14 then middle = 14/2
+		transform.translate(leftBorder+70, topBorder+70); 
+		transform.scale(1, -1);
+		transform.scale(10, 10);       
+		g2D.setPaint(gridColor);
+		GeneralPath path = new GeneralPath();
+		for (int i = -7; i <= 7; i++) {
+			path.moveTo(i, -7);
+			path.lineTo(i, 7);
+		}
+		for (int i = -7; i <= 7; i++) {
+			path.moveTo(-7, i);
+			path.lineTo(7, i);
+		}
+		g2D.draw(transform.createTransformedShape(path));
+		g2D.setColor(axisColor);
 		 
-		 //y-axis
-		 g2D.drawLine(leftBorder, topBorder-8, leftBorder, tS+5);
-		 g2D.drawLine(leftBorder, topBorder-8, leftBorder-3, topBorder-5);
-		 g2D.drawLine(leftBorder, topBorder-8, leftBorder+3, topBorder-5);
-		 g2D.drawLine(leftBorder-5, topBorder, leftBorder, topBorder);
+		//y-axis
+		g2D.drawLine(leftBorder, topBorder-8, leftBorder, tS+5);
+		g2D.drawLine(leftBorder, topBorder-8, leftBorder-3, topBorder-5);
+		g2D.drawLine(leftBorder, topBorder-8, leftBorder+3, topBorder-5);
+		g2D.drawLine(leftBorder-5, topBorder, leftBorder, topBorder);
 		 
-		 //x-axis
-		 g2D.drawLine(leftBorder-5, tS, lS+8, tS);
-		 g2D.drawLine(lS+5, tS-3, lS+8, tS);
-		 g2D.drawLine(lS+5, tS+3, lS+8, tS);
-		 g2D.drawLine(lS, tS, lS, tS+5);
+		//x-axis
+		g2D.drawLine(leftBorder-5, tS, lS+8, tS);
+		g2D.drawLine(lS+5, tS-3, lS+8, tS);
+		g2D.drawLine(lS+5, tS+3, lS+8, tS);
+		g2D.drawLine(lS, tS, lS, tS+5);
 		 
-		 //output cursor start 
-		 int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 
-									xStartOutput3};
-		 int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, 
-									yStartOutput3};
-		 GeneralPath filledPolygonStartOutput = new GeneralPath();
-		 filledPolygonStartOutput.moveTo(xStartOutputPoints[0], 
-										yStartOutputPoints[0]);
-		 for (int index = 1; index < xStartOutputPoints.length; index++) {
-			 filledPolygonStartOutput.lineTo(xStartOutputPoints[index], 
+		//output cursor start 
+		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 
+								xStartOutput3};
+		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, 
+								yStartOutput3};
+		GeneralPath filledPolygonStartOutput = new GeneralPath();
+		filledPolygonStartOutput.moveTo(xStartOutputPoints[0], 
+									yStartOutputPoints[0]);
+		for (int index = 1; index < xStartOutputPoints.length; index++)
+			filledPolygonStartOutput.lineTo(xStartOutputPoints[index], 
 											yStartOutputPoints[index]);
-		 }
-		 filledPolygonStartOutput.closePath();
-		 g2D.setColor(ostartColor);
-		 g2D.fill(filledPolygonStartOutput);
-		 //output cursor end output
-		 int xEndOutputPoints[] = {xEndOutput1, xEndOutput2, xEndOutput3};
-		 int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
-		 GeneralPath filledPolygonEndOutput = new GeneralPath();
-		 filledPolygonEndOutput.moveTo(xEndOutputPoints[0], 
-										yEndOutputPoints[0]);
-		 for (int index = 1; index < xEndOutputPoints.length; index++) {
-			 filledPolygonEndOutput.lineTo(xEndOutputPoints[index], 
-											yEndOutputPoints[index]);
-		 }
-		 filledPolygonEndOutput.closePath();
-		 g2D.setColor(oendColor);
-		 g2D.fill(filledPolygonEndOutput);
-		 g2D.drawString("lower", leftBorder+10, tS+hFont);
-		 g2D.drawString("upper", lS-wUpper-10, tS+hFont);
-		 g2D.drawString("(1) Input", leftBorder+square/2-wInput/2, 
-						tS+bottomBorder/2+hFont);
-		 g2D.drawLine(rStart-1, (int) startPt.getY(), rStart-1, tS2);
-		 g2D.drawLine(rEnd, tS2, rEnd, (int) endPt.getY());
-		 //set line color
-		 g2D.setColor(lineColor);
-		 g2D.setStroke(new BasicStroke(1.5f));
-		 //drawline
-		 g2D.drawLine(leftBorder+1, (int) startPt.getY(), rStart-1,
-					 (int) startPt.getY());
-		 g2D.drawLine(rEnd+1, (int) endPt.getY(), lS, (int) endPt.getY());
+		filledPolygonStartOutput.closePath();
+		g2D.setColor(ostartColor);
+		g2D.fill(filledPolygonStartOutput);
+		//output cursor end output
+		int xEndOutputPoints[] = {xEndOutput1, xEndOutput2, xEndOutput3};
+		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
+		GeneralPath filledPolygonEndOutput = new GeneralPath();
+		filledPolygonEndOutput.moveTo(xEndOutputPoints[0], 
+									yEndOutputPoints[0]);
+		for (int index = 1; index < xEndOutputPoints.length; index++)
+			filledPolygonEndOutput.lineTo(xEndOutputPoints[index], 
+										yEndOutputPoints[index]);
+		filledPolygonEndOutput.closePath();
+		g2D.setColor(oendColor);
+		g2D.fill(filledPolygonEndOutput);
+		g2D.drawString("lower", leftBorder+10, tS+hFont);
+		g2D.drawString("upper", lS-wUpper-10, tS+hFont);
+		g2D.drawString("(1) Input", leftBorder+square/2-wInput/2, 
+					tS+bottomBorder/2+hFont);
+		g2D.drawLine(rStart-1, (int) startPt.getY(), rStart-1, tS2);
+		g2D.drawLine(rEnd, tS2, rEnd, (int) endPt.getY());
+		//set line color
+		g2D.setColor(lineColor);
+		g2D.setStroke(new BasicStroke(1.5f));
+		//drawline
+		g2D.drawLine(leftBorder+1, (int) startPt.getY(), rStart-1,
+					(int) startPt.getY());
+		g2D.drawLine(rEnd+1, (int) endPt.getY(), lS, (int) endPt.getY());
 		 
-		 //Fixed line.
-		 g2D.setColor(fixedLineColor);
-		 g2D.drawLine(rStart, tS2, rEnd, tS2);
-		 if (isSelected) {
+		//Fixed line.
+		g2D.setColor(fixedLineColor);
+		g2D.drawLine(rStart, tS2, rEnd, tS2);
+		if (isSelected) {
 			g2D.setColor(borderColor);
 			g2D.draw(new Rectangle2D.Double(0, 0, WIDTH, HEIGHT));
-		 } else {
+		} else {
 			g2D.setColor(layerColor);
 			g2D.fillRect(0, 0, WIDTH, HEIGHT);
-		 }
-	 }
+		}
+	}
 	 
 }

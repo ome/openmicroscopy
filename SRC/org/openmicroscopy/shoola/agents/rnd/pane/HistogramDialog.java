@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import java.awt.Container;
 import javax.swing.JDialog;
 
 //Third-party libraries
@@ -62,15 +61,16 @@ class HistogramDialog
 	
 	private HistogramDialogManager 	manager;
 	
-	HistogramDialog(QuantumMappingManager control, int mini, int maxi, 
+	HistogramDialog(QuantumPaneManager control, int mini, int maxi, 
 					int start, int end, Object[] histogramData)
 	{
+		super(control.getReferenceFrame(), "Histogram", true);
 		manager = new HistogramDialogManager(this, control);
 		int yStart, yEnd;
 		yStart = manager.convertRealIntoGraphics(start);
 		yEnd = manager.convertRealIntoGraphics(end);
-		histogramPanel = new HistogramPanel(mini, maxi, start, end,
-												yStart, yEnd, histogramData);
+		histogramPanel = new HistogramPanel(mini, maxi, start, end, yStart, 
+											yEnd, histogramData);
 		manager.initRectangles(yStart, yEnd);										
 		manager.attachListeners();
 		buildGUI();	
@@ -90,8 +90,7 @@ class HistogramDialog
 	void buildGUI()
 	{
 		//histogramPanel.setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
-		Container contentPane = super.getContentPane();
-		contentPane.add(histogramPanel);
+		super.getContentPane().add(histogramPanel);
 		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
 		setResizable(false);
 	}

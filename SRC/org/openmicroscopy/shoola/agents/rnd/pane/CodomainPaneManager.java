@@ -67,13 +67,11 @@ class CodomainPaneManager
 	private static final int			CS = 1; 
 	private static final int			PS = 2; 
 	
-	private QuantumMappingManager		control;
+	private QuantumPaneManager			control;
 	private CodomainPane				view;
-	private ContrastStretchingDialog	csDialog;
-	private PlaneSlicingDialog			psDialog;
 	
 	//TODO: cf note in CodomainPane
-	CodomainPaneManager(CodomainPane view, QuantumMappingManager control)
+	CodomainPaneManager(CodomainPane view, QuantumPaneManager control)
 	{
 		this.view = view;
 		this.control = control;
@@ -121,26 +119,35 @@ class CodomainPaneManager
 	/** Handle event fired by the CheckBox. */
 	public void itemStateChanged(ItemEvent e)
 	{
-		//TODO: implement event fired by chech box.
-		//register the event in the codomain chain 
-		JCheckBox cb = (JCheckBox) e.getItemSelectable();
-		if (e.getStateChange()== ItemEvent.DESELECTED) cb.setSelected(false);
+		JCheckBox box = (JCheckBox) e.getItemSelectable();
+		boolean b = false;
+		if (e.getStateChange()== ItemEvent.SELECTED) b = true;
+		if (box == view.getRI()) reverseIntensity(b);
+		//TODO register or remove codomainTransformation.	
 	}
 	
-	/** Initializes the dialog window if it hasn't been created. */
+	/** Forward event to the {@link QuantumPaneManager control}. */
+	private void reverseIntensity(boolean b)
+	{
+		control.updateGraphic(b);
+	}
+	
+	/** 
+	 * Initializes the dialog window and forward event to 
+	 * {@link QuantumPaneManager}.
+	 */ 
 	private void popUpContrastStretchingDialog()
 	{
-		if (csDialog == null)
-			csDialog = new ContrastStretchingDialog(control);
-		csDialog.setVisible(true);
+		control.showDialog(new ContrastStretchingDialog(control));
 	}
 	
-	/** Initializes the dialog window if it hasn't been created. */
+	/** 
+	 * Initializes the dialog window and forward event to 
+	 * {@link QuantumPaneManager}.
+	 */
 	private void popUpPlaneSlicingDialog()
 	{
-		if(psDialog == null)
-			psDialog = new PlaneSlicingDialog(control);
-		psDialog.setVisible(true);
+		control.showDialog(new PlaneSlicingDialog(control));
 	}
 	
 }
