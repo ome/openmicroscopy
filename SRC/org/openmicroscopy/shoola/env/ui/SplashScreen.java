@@ -82,7 +82,7 @@ public interface SplashScreen
 	 * @param value	The total number of tasks.
 	 */
 	public void setTotalTasks(int value);
-	
+
 	/**
 	 * Updates the display to the current state of the initialization
 	 * procedure.
@@ -92,10 +92,9 @@ public interface SplashScreen
 	 * 
 	 * @param task	The name of the initialization task that is about to
 	 * 				be executed.
-	 * @param count	The number of tasks that have already been executed.
 	 */
-	public void updateProgress(String task, int count);
 	
+	public void updateProgress(String task);
 	/**
 	 * Returns the login credentials of the user.
 	 * Blocks the caller until the credentials have been entered.

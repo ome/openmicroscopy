@@ -74,7 +74,11 @@ class SplashScreenManager
 	/** Filled in with the user's login when available. */
 	private UserCredentials		userCredentials;
 
-
+	/** The current number of tasks to be executed. */
+	private int				totalTasks;
+	/** The current number of tasks that have been executed. */
+	private int				doneTasks;
+	
 	/**
 	 * Creates the splash screen component.
 	 * Creates a new instance of this manager, of its corresponding UI
@@ -90,6 +94,7 @@ class SplashScreenManager
 		view.pass.addActionListener(this);
 		view.login.addActionListener(this);
 		isOpen = false;
+		doneTasks = 0;
 	}
 
 	/**
@@ -122,22 +127,27 @@ class SplashScreenManager
 	public void setTotalTasks(int value)
 	{
 		if (!isOpen)	return;
+		totalTasks = value;
+		//NB: Increment to show that the execution process is finished 
+		// i.e. all tasks executed.
+		totalTasks++;	
 		view.progressBar.setMinimum(0);
 		view.progressBar.setMaximum(value);
 		view.progressBar.setValue(0);
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#updateProgress(java.lang.String, int)
 	 */
-	public void updateProgress(String task, int count)
+	public void updateProgress(String task)
 	{
 		if (!isOpen)	return;
 		view.currentTask.setText(task);
-		view.progressBar.setValue(count);
+		//view.progressBar.setValue(count);
+		view.progressBar.setValue(doneTasks++);
+		if (doneTasks == totalTasks) view.progressBar.setVisible(false);
 	}
-
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and

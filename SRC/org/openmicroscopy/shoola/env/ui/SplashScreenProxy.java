@@ -208,22 +208,21 @@ class SplashScreenProxy
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#updateProgress(java.lang.String, int)
 	 */
-	public void updateProgress(final String task, final int count)
+	public void updateProgress(final String task)
 	{
 		if (!isValid)	return;  //Somebody's already called close().
-			
+		
 		//Construct request of mehtod execution.
 		Runnable doUpdateProgress = new Runnable() {
 			public void run()
 			{
-				servant.updateProgress(task, count);
+				servant.updateProgress(task);
 			}
 		};
 
 		//Schedule execution within Swing dispatching thread.
 		SwingUtilities.invokeLater(doUpdateProgress);
 	}
-
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#getUserCredentials()
