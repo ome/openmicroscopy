@@ -48,7 +48,7 @@ package org.openmicroscopy.shoola.env.config;
  * @since OME2.2
  */
 
-class HostInfo
+public class HostInfo
 {
 	static final String PORT = "port", HOST = "host";
     String              host;
@@ -73,7 +73,7 @@ class HostInfo
 	 *
 	 * @return the above mentioned.
 	 */
-    String getHost()
+    public String getHost()
     {
         return host;
     }
@@ -83,7 +83,7 @@ class HostInfo
 	 *
 	 * @return the above mentioned.
 	 */
-    Integer getPort()
+    public Integer getPort()
     {
         return port;
     }
