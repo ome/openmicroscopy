@@ -87,6 +87,7 @@ public class DatasetData
 		this.ownerGroupName = ownerGroupName;	
 		this.images = images;
 	}
+    
 	/** Required by the DataObject interface. */
 	public DataObject makeNew() { return new DatasetData(); }
 	
