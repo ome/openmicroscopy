@@ -48,7 +48,7 @@ import java.util.Vector;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.nodes.PPath;
+//import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -84,7 +84,8 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 
 public abstract class FormalParameter extends PNode implements 
-	NodeEventListener, Comparable, MouseableNode, ParameterLabelNode, ToolTipNode {
+	NodeEventListener, Comparable, MouseableNode, ParameterLabelNode 
+	/*, ToolTipNode  */{
 	
 	/**
 	 * Some generic display parameters
@@ -527,8 +528,9 @@ public abstract class FormalParameter extends PNode implements
 		super.setOffset((double) x,(double) y);
 	}
 	
+	/*
 	public PNode getToolTip() {
-		PPath node = new PPath();
+	PPath node = new PPath();
 		
 		FormalParameterData fp = getParameter();
 		PText p = new PText(fp.getName());
@@ -551,6 +553,6 @@ public abstract class FormalParameter extends PNode implements
 		node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 		node.setPaint(Constants.TOOLTIP_FILL_COLOR);
 		node.setPickable(false);
-		return node;	
-	}
+		return node;
+	} */
 }
