@@ -137,13 +137,13 @@ class RenderingAgtUIF
 	}
 	
 	/** Set the selected model. */
-	void setModelPane(ModelPane pane)
+	void setModelPane(ModelPane pane, String model)
 	{
 		tabs.remove(POS_M);
 		modelPane.removeAll();
 		modelPane = pane;
 		modelPane.buildComponent();
-		tabs.insertTab("Model", null, modelPane, null, POS_M);
+		tabs.insertTab("Model "+model, null, modelPane, null, POS_M);
 		tabs.setSelectedIndex(POS_M);	
 	}
 	
@@ -176,7 +176,8 @@ class RenderingAgtUIF
 						POS_D);
 		tabs.insertTab("Codomain", null, quantumPane.getCodomainPane(), null, 
 						POS_CD);
-		tabs.insertTab("Model", null, modelPane, null, POS_M);
+		tabs.insertTab("Model "+control.getModelString(), null, modelPane, null,
+						POS_M);
   		//set layout and add components
   		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);

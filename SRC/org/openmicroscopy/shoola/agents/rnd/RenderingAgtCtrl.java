@@ -35,8 +35,6 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
@@ -66,7 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
  * @since OME2.2
  */
 public class RenderingAgtCtrl
-	implements ActionListener, InternalFrameListener
+	implements ActionListener
 {
 
 	/** Action command ID to display the {@link GreyScalePane}. */
@@ -81,10 +79,9 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int		SAVE = 4;
 	
-	/** Action command ID to display the Rendering frame. */
-	static final int		R_VISIBLE = 5;
-	
 	private boolean 		displayed;
+	
+	private String			modelString;
 	
 	private HashMap 		renderersPool;
 	
@@ -95,15 +92,6 @@ public class RenderingAgtCtrl
 		this.abstraction = abstraction;
 		displayed = false;
 		renderersPool = new HashMap();
-	}
-	
-	/** 
-	 * Attach an InternalFrameListener to the 
-	 * {@link RenderingAgtUIF presentaion}.
-	 */
-	void attachListener()
-	{
-		abstraction.getPresentation().addInternalFrameListener(this);
 	}
 	
 	void setDisplayed(boolean b) { displayed = b; }
@@ -118,16 +106,10 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public int getCodomainStart()
-	{
-		return abstraction.getCodomainStart();
-	}
+	public int getCodomainStart() { return abstraction.getCodomainStart(); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public int getCodomainEnd()
-	{
-		return abstraction.getCodomainEnd();
-	}
+	public int getCodomainEnd() { return abstraction.getCodomainEnd(); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public PixelsStatsEntry[] getChannelStats(int w)
@@ -160,10 +142,7 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public QuantumDef getQuantumDef()
-	{
-		return abstraction.getQuantumDef();
-	}
+	public QuantumDef getQuantumDef() { return abstraction.getQuantumDef(); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setActive(int w, boolean active)
@@ -172,16 +151,13 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public boolean isActive(int w)
-	{
-		return abstraction.isActive(w);
-	}
+	public void setActive(int w) { abstraction.setActive(w); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public int[] getRGBA(int w)
-	{
-		return abstraction.getRGBA(w);
-	}
+	public boolean isActive(int w) { return abstraction.isActive(w); }
+	
+	/** Forward event to {@link RenderingAgt abstraction}. */
+	public int[] getRGBA(int w) { return abstraction.getRGBA(w); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setRGBA(int w, int red, int green, int blue, int alpha)
@@ -240,14 +216,11 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public Registry getRegistry()
-	{
-		return abstraction.getRegistry();
-	}
+	public Registry getRegistry() { return abstraction.getRegistry(); }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public ChannelData[] getChannelData()
-	{
+	{ 
 		return abstraction.getChannelData();
 	}
 	
@@ -258,9 +231,6 @@ public class RenderingAgtCtrl
 		try {
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
-				case R_VISIBLE:
-					showPresentation();
-					break;
 				case SAVE:
 					saveDisplayOptions();
 					break;
@@ -288,10 +258,13 @@ public class RenderingAgtCtrl
 		return activate(getRendererClass(abstraction.getModel()));
 	}
 
+	/** Return the selected model as a string i.e. RGB, HSB or GREY. */
+	String getModelString() { return modelString; }
+	
 	private void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
-		abstraction.getPresentation().setModelPane(activate(c));
+		abstraction.getPresentation().setModelPane(activate(c), modelString);
 		abstraction.setModel(i);
 	}
 	
@@ -322,15 +295,18 @@ public class RenderingAgtCtrl
 	private Class getRendererClass(int i)
 	{
 		Class result = null;
-		switch(i) {
+		switch (i) {
 			case GREY:
 				result = GreyScalePane.class;
+				modelString = "Grey";
 				break;
 			case HSB:
 				result = HSBPane.class;
+				modelString = "HSB";
 				break;
 			case RGB:
 				result = RGBPane.class;
+				modelString = "RGB";
 		}
 		return result;
 	}
@@ -351,7 +327,6 @@ public class RenderingAgtCtrl
 				if (presentation.isIcon()) abstraction.deiconifyPresentation();
 			} else
 				abstraction.showPresentation();	
-			abstraction.setMenuSelection(true);
 			//Activate the Frame.
   			try {
 	  			presentation.setSelected(true);
@@ -359,47 +334,5 @@ public class RenderingAgtCtrl
 			displayed = true;	
 		}
 	}
-	
-	/** Select the checkBox in menu. */
-	public void internalFrameOpened(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(true);
-	}
-	
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosing(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(false);
-	}
-
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosed(InternalFrameEvent e) 
-	{
-		abstraction.setMenuSelection(false);
-	}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeactivated(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeiconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameIconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameActivated(InternalFrameEvent e) {}
 	
 }

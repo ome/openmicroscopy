@@ -36,6 +36,7 @@ import javax.swing.JCheckBoxMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -91,8 +92,6 @@ public class RenderingAgt
 	/** Reference to the topFrame. */
 	private TopFrame			topFrame;
 	
-	private JCheckBoxMenuItem	viewItem;
-	
 	private int					curImageID, curPixelsID;
 	
 	private boolean				displayed;
@@ -111,9 +110,9 @@ public class RenderingAgt
 	{
 		registry = ctx;
 		register(this, ImageLoaded.class);
+		register(this, DisplayRendering.class);
 		topFrame = registry.getTopFrame();
-		viewItem = getViewMenuItem();
-		topFrame.addToMenu(TopFrame.VIEW, viewItem);	
+		//topFrame.addToMenu(TopFrame.VIEW, viewItem);	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -122,8 +121,8 @@ public class RenderingAgt
 	/** Implement as specified by {@link AgentEventListener}. */
 	public void eventFired(AgentEvent e) 
 	{
-		if (e instanceof ImageLoaded)
-			handleImageLoaded((ImageLoaded) e);	
+		if (e instanceof ImageLoaded) handleImageLoaded((ImageLoaded) e);	
+		else if (e instanceof DisplayRendering) bringUpPresentation();
 	}
 	
 	/** Render a new image when a control has been activated. */
@@ -146,10 +145,7 @@ public class RenderingAgt
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
 	}
-	
-	/** Select the menuItem. */
-	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
-	
+
 	/** Menu item to add to the {@link TopFrame} menu bar. */
 	private JCheckBoxMenuItem getViewMenuItem()
 	{
@@ -163,9 +159,6 @@ public class RenderingAgt
 	{
 		control  = new RenderingAgtCtrl(this);
 		presentation = new RenderingAgtUIF(control, registry);
-		control.attachListener();
-		control.setMenuItemListener(viewItem, RenderingAgtCtrl.R_VISIBLE);
-		viewItem.setEnabled(true);
 	}
 	
 	/** 
@@ -232,6 +225,24 @@ public class RenderingAgt
 			presentation.setClosed(false);
 		} catch (Exception e) {}
 	}
+	
+	private void bringUpPresentation()
+	{
+		if (presentation != null) {
+			if (displayed) {
+				if (presentation.isClosed()) displayPresentation();
+				if (presentation.isIcon()) deiconifyPresentation();
+			} else
+				showPresentation();	
+				//abstraction.setMenuSelection(true);
+				//Activate the Frame.
+				//try {
+				//	presentation.setSelected(true);
+				//} catch (Exception e) {}
+				displayed = true;	
+			}
+	}
+	
 	
 	//TODO: retrieve data from DataManagerService.
 	void intiChannelData()
@@ -452,6 +463,18 @@ public class RenderingAgt
 		refreshImage();
 	}
 
+	/**
+	 * Map the specified channel and set the active to false for the other 
+	 * channels.
+	 * @param w	specified wavelength index.
+	 */
+	void setActive(int w)
+	{
+		for (int i = 0; i < pxsDims.sizeW; i++)
+			renderingControl.setActive(i, i == w); 
+		refreshImage();
+	}
+	
 	boolean isActive(int w) { return renderingControl.isActive(w); }
 
 	/** 
