@@ -236,6 +236,9 @@ public class ProjectSelectionCanvas extends PCanvas implements ContentComponent 
 	public void setSelectedDataset(BrowserDatasetData dataset) {
 		if (dataset == selectedDataset) //no change
 			return;
+		if (dataset != null && selectedProject != null &&
+				!selectedProject.hasDataset(dataset))
+			selectedProject = null;
 		selectedDataset = dataset;
 		
 		setLabelPainting(null,null);
