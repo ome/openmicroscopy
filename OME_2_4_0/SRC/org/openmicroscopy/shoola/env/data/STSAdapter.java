@@ -439,12 +439,13 @@ class STSAdapter
     public List retrieveCategoryGroups()
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1);
-        List l = 
-            (List) gateway.retrieveListSTSData("CategoryGroup", c);
-        List result = new ArrayList();
+        //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
-            registry.lookup(LookupNames.USER_CREDENTIALS);
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, 
+                                        uc.getUserID());
+        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        List result = new ArrayList();
         if (l != null || l.size() > 0)
             CategoryMapper.fillCategoryGroup(l, result, uc.getUserID());
         return result;
@@ -484,14 +485,15 @@ class STSAdapter
     public List retrieveImagesNotInCategoryGroup(int catGroupID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID);
+        UserCredentials uc = (UserCredentials)
+        registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
+                                    uc.getUserID());
         CategoryGroup group = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (group != null) {
-            UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
-            CategoryGroupData data = 
-                CategoryMapper.fillCategoryGroup(group, uc.getUserID());
+            CategoryGroupData data = CategoryMapper.fillCategoryGroup(group, 
+                                            uc.getUserID());
             if (data != null) return retrieveImagesNotInCategoryGroup(data);
         }
         return new ArrayList();
@@ -594,16 +596,16 @@ class STSAdapter
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
+        UserCredentials uc = (UserCredentials)
+            registry.lookup(LookupNames.USER_CREDENTIALS);
         //List of categorySummary objects
         List result = new ArrayList();
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
-                        group.getID());
+                        group.getID(), uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
-        UserCredentials uc = (UserCredentials)
-            registry.lookup(LookupNames.USER_CREDENTIALS);
+        
         if (l != null || l.size() > 0)
-            CategoryMapper.fillCategoryWithClassifications(l, result, group,
-                            uc.getUserID());
+            CategoryMapper.fillCategoryWithClassifications(l, result, group);
         return result;
     }
 
@@ -672,7 +674,10 @@ class STSAdapter
     public void updateCategoryGroup(CategoryGroupData data, List toAdd)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
+        UserCredentials uc = (UserCredentials)
+        registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
+                                            uc.getUserID());
         CategoryGroup cg = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         cg.setName(data.getName());
@@ -708,7 +713,10 @@ class STSAdapter
                                 List imgsToAdd)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
+        UserCredentials uc = (UserCredentials)
+        registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
+                                                    uc.getUserID());
         Category category = 
             (Category) gateway.retrieveSTSData("Category", c);
         category.setName(data.getName());
@@ -785,16 +793,16 @@ class STSAdapter
             map.put(id, is);
             ids.add(id);
         }
-        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids);
+        UserCredentials uc = (UserCredentials)
+        registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
+                                        uc.getUserID());
         List classifications = 
             (List) gateway.retrieveListSTSData("Classification", c);
         
         if (classifications == null) return null;
-        UserCredentials uc = (UserCredentials)
-                        registry.lookup(LookupNames.USER_CREDENTIALS);
-        
-        return HierarchyMapper.fillICGHierarchy(classifications, map, 
-                                                uc.getUserID());                            
+
+        return HierarchyMapper.fillICGHierarchy(classifications, map);                            
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -1043,12 +1051,12 @@ class STSAdapter
                 while (i.hasNext()) 
                     ids.add(new Integer(((ImageSummary) i.next()).getID()));
                 
-                c = AnnotationMapper.buildImageAnnotationCriteria(ids);
+                c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
+                                                            uc.getUserID());
                 List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
                                                         c);
-                
                 CategoryMapper.fillImageAnnotationInCategory(
-                        model.getClassifications(), l, uc.getUserID());
+                        model.getClassifications(), l);
             }
         }
         return model;
