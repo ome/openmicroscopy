@@ -86,6 +86,12 @@ public class DataManager {
 	/** cached list of datasets */
 	private List datasets = null;
 	
+	/** cached list of modules */
+	private List modules = null;
+
+	/** cached list of module categories */
+	private List moduleCategories = null;		
+
 	/** object to grab thumbnails */
 	private ThumbnailRetriever thumbnailRetriever;
 	
@@ -189,5 +195,47 @@ public class DataManager {
 	
 	public TaskBar getTaskBar() {
 		return registry.getTaskBar();
+	}
+	
+	public List getModules() {
+		if (modules == null ||modules.size() == 0) {
+			try { 
+				DataManagementService dms = registry.getDataManagementService();
+				modules = 
+					dms.retrieveModules();
+			} catch(DSAccessException dsae) {
+				String s = "Can't retrieve user's modules.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);	
+			} catch(DSOutOfServiceException dsose) {
+				ServiceActivationRequest 
+				request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
+			}
+		}
+		return modules;
+	}
+	
+	public List getModuleCategories() {
+		if (moduleCategories == null ||moduleCategories.size() == 0) {
+			try { 
+				DataManagementService dms = registry.getDataManagementService();
+				moduleCategories = 
+					dms.retrieveModuleCategories();
+			} catch(DSAccessException dsae) {
+				String s = "Can't retrieve user's modules.";
+				registry.getLogger().error(this, s+" Error: "+dsae);
+				registry.getUserNotifier().notifyError("Data Retrieval Failure",
+														s, dsae);	
+			} catch(DSOutOfServiceException dsose) {
+				ServiceActivationRequest 
+				request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+				registry.getEventBus().post(request);
+			}
+		}
+		return moduleCategories;
 	}
 }
