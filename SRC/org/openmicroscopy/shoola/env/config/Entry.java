@@ -155,6 +155,6 @@ abstract class Entry
     
     abstract Object getValue();
     protected abstract void setContent(Node node);
-    
+    abstract void setContent(Object content);
     
 }
