@@ -218,13 +218,20 @@ class QuantumPaneManager
 		
 		grManager.setInputWindowStart(value, getGlobalChannelWindowStart(w),
 									getGlobalChannelWindowEnd(w));
-		eventManager.setChannelWindowStart(w, value);
+		//eventManager.setChannelWindowStart(w, value);
 	}
 	
 	void setInputWindowStart(int value) 
 	{
 		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
 		setInputWindowStart(value, w);
+	}
+	
+	/** Forward an event when the knob is released. */
+	void setChannelWindowStart(int value)
+	{
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		eventManager.setChannelWindowStart(w, value);
 	}
 	
 	/** 
@@ -241,13 +248,20 @@ class QuantumPaneManager
 		dpManager.setInputWindowEnd(value);
 		grManager.setInputWindowEnd(value, getGlobalChannelWindowStart(w),
 									getGlobalChannelWindowEnd(w));	
-		eventManager.setChannelWindowEnd(w,value);
+		//eventManager.setChannelWindowEnd(w,value);
 	}
 	
 	void setInputWindowEnd(int value) 
 	{
 		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
 		setInputWindowEnd(value, w);
+	}
+	
+	/** Forward an event when the knob is released. */
+	void setChannelWindowEnd(int value)
+	{
+		int w = view.getDomainPane().getWavelengths().getSelectedIndex();
+		eventManager.setChannelWindowEnd(w, value);
 	}
 	
 	/** Retrieve the main Frame. */

@@ -87,6 +87,12 @@ class ContrastStretchingDialogManager
 	/** Reference to the view. */
 	private ContrastStretchingDialog	view;
 	
+	/** Controls to determine which knob has been selected. */
+	private boolean						inputStartKnob, inputEndKnob, 
+										outputStartKnob, outputEndKnob;
+	
+	private int							curRealValue;
+										
 	/** Reference to the main {@link QuantumPaneManager manager}. */
 	private QuantumPaneManager			control;
 	
@@ -99,6 +105,10 @@ class ContrastStretchingDialogManager
 		this.view = view;
 		this.control = control;
 		this.ctx = ctx;
+		inputStartKnob = false;
+		inputEndKnob = false; 
+		outputStartKnob = false;
+		outputEndKnob = false;
 	}
 	
 	/** Attach listeners. */
@@ -144,17 +154,25 @@ class ContrastStretchingDialogManager
 		if (!dragging) { 
 			dragging = true; 
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
-				&& p.x <= minEndX)
-				setInputStart(p.x);
+				&& p.x <= minEndX) {
+				inputStartKnob = true;
+				setInputStart(p.x);	
+			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS
-				&& p.x >= maxStartX)
-				setInputEnd(p.x); 
+				&& p.x >= maxStartX) {
+				inputEndKnob = true;	
+				setInputEnd(p.x); 	
+			}	
 			if (boxOutputStart.contains(p) && p.y >= minEndOutputY
-				&& p.y <= tS)
-				setOutputStart(p.y);
+				&& p.y <= tS) {
+				outputStartKnob = true;	
+				setOutputStart(p.y);	
+			}
 			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY
-				&& p.y >= topBorder) 
-				setOutputEnd(p.y);
+				&& p.y >= topBorder) {
+				inputStartKnob = true;	
+				setOutputEnd(p.y);	
+			}	
 		}
 	}
 	
@@ -179,7 +197,27 @@ class ContrastStretchingDialogManager
 	}
 	
 	/** Resets the dragging control to false. */
-	public void mouseReleased(MouseEvent e) { dragging = false; }
+	public void mouseReleased(MouseEvent e)
+	{ 
+		if (inputStartKnob) {
+			ctx.setXStart(curRealValue);
+			control.updateCodomainMap(ctx);
+		} else if (inputEndKnob) {
+			ctx.setXEnd(curRealValue);
+			control.updateCodomainMap(ctx);
+		} else if (outputStartKnob) {
+			ctx.setYStart(curRealValue);
+			control.updateCodomainMap(ctx);
+		} else if (outputEndKnob) {
+			ctx.setYEnd(curRealValue);
+			control.updateCodomainMap(ctx);
+		}
+		dragging = false;
+		inputStartKnob = true;
+		inputEndKnob = true;
+		outputStartKnob = true;
+		outputEndKnob = true;
+	}
 	
 	/** Modify the x-coordinate of the control startPoint. */
 	private void setInputStart(int x)
@@ -187,11 +225,8 @@ class ContrastStretchingDialogManager
 		setInputStartBox(x);
 		view.getCSPanel().updateStartKnob(x);
 		int s  = control.getCodomainStart();
-		int xReal = convertGraphicsIntoReal(x-leftBorder, 
-										control.getCodomainEnd()-s, s);
-		//Forward event to control
-		ctx.setXStart(xReal);
-		control.updateCodomainMap(ctx);
+		curRealValue = convertGraphicsIntoReal(x-leftBorder, 
+										control.getCodomainEnd()-s, s);	
 	}
 	
 	/** Modify the x-coordinate of the control endPoint. */
@@ -200,10 +235,8 @@ class ContrastStretchingDialogManager
 		setInputEndBox(x);
 		view.getCSPanel().updateEndKnob(x);
 		int s  = control.getCodomainStart();
-		int xReal = convertGraphicsIntoReal(x-leftBorder,
+		curRealValue = convertGraphicsIntoReal(x-leftBorder,
 										control.getCodomainEnd()-s, s);
-		ctx.setXEnd(xReal);
-		control.updateCodomainMap(ctx);
 	}
 	
 	/** Modify the y-coordinate of the control startPoint. */
@@ -212,10 +245,8 @@ class ContrastStretchingDialogManager
 		setOutputStartBox(y);
 		view.getCSPanel().updateStartOutputKnob(y);
 		int e = control.getCodomainEnd();
-		int yReal = convertGraphicsIntoReal(y-topBorder, 
+		curRealValue = convertGraphicsIntoReal(y-topBorder, 
 										control.getCodomainStart()-e, e);
-		ctx.setYStart(yReal);
-		control.updateCodomainMap(ctx);
 	}
 	
 	/** Modify the y-coordinate of the control endPoint. */
@@ -224,11 +255,8 @@ class ContrastStretchingDialogManager
 		setOutputEndBox(y);
 		view.getCSPanel().updateEndOutputKnob(y);
 		int e = control.getCodomainEnd();
-		int yReal = convertGraphicsIntoReal(y-topBorder, 
-										control.getCodomainStart()-e, e);
-		ctx.setYEnd(yReal);
-		control.updateCodomainMap(ctx);
-	}
+		curRealValue = convertGraphicsIntoReal(y-topBorder, 
+										control.getCodomainStart()-e, e);	}
 	
 	/** 
 	 * Size the rectangle used to listen to the inputStart cursor.

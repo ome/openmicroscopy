@@ -120,6 +120,11 @@ class PlaneSlicingDialogManager
 	/** Control with graphic view is selected. */
 	private boolean					isSelected;
 	
+	/** Controls to determine which knob has been selected. */
+	private boolean					outputStartKnob, outputEndKnob;
+	
+	private int						curRealValue;
+									
 	/** Reference to the view. */
 	private PlaneSlicingDialog		view;
 	
@@ -143,6 +148,8 @@ class PlaneSlicingDialogManager
 		isSelected = ctx.IsConstant();
 		boxOutputStart = new Rectangle(0, 0, leftBorder, tS);
 		boxOutputEnd = new Rectangle(lS, 0, 3*rightBorder, tS);
+		outputStartKnob  = false;
+		outputEndKnob  = false;
 	}
 	
 	/** Attach listeners to the graphics. */
@@ -206,11 +213,15 @@ class PlaneSlicingDialogManager
 		if (!dragging) {
 			dragging = true;
 			if (boxOutputStart.contains(p) && p.y <= tS && p.y >= topBorder 
-				&& isSelected)
+				&& isSelected) {
+				outputStartKnob	= true;
 				setLowerLimit(p.y);
+			}	
 			if (boxOutputEnd.contains(p) && p.y >= topBorder && p.y <= tS 
-				&& isSelected)
+				&& isSelected) {
+				outputEndKnob = true;
 				setUpperLimit(p.y);
+			}
 		 }  //else dragging already in progress 
 	}
 	
@@ -229,7 +240,20 @@ class PlaneSlicingDialogManager
 	}
 	
 	/** Resets the dragging control to false. */     
-	public void mouseReleased(MouseEvent e) { dragging = false; }
+	public void mouseReleased(MouseEvent e)
+	{ 
+		if (outputStartKnob) {
+			ctx.setLowerLimit(curRealValue);
+			control.updateCodomainMap(ctx);
+		}
+		if (outputEndKnob) {
+			ctx.setUpperLimit(curRealValue);
+			control.updateCodomainMap(ctx);
+		}
+		dragging = false;
+		outputStartKnob = false;
+		outputEndKnob = false;
+	}
 	
 	/**
 	 * Set the plane slice index.
@@ -267,9 +291,7 @@ class PlaneSlicingDialogManager
 		view.getPSPanel().updateOutputStart(y);
 		int e = control.getCodomainEnd();
 		int s = control.getCodomainStart();
-		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
-		ctx.setLowerLimit(yReal);
-		control.updateCodomainMap(ctx);
+		curRealValue = convertGraphicsIntoReal(y-topBorder, s-e, e);
 	}
 	
 	/**
@@ -282,9 +304,7 @@ class PlaneSlicingDialogManager
 		view.getPSPanel().updateOutputEnd(y);
 		int e = control.getCodomainEnd();
 		int s = control.getCodomainStart();
-		int yReal = convertGraphicsIntoReal(y-topBorder, s-e, e);
-		ctx.setUpperLimit(yReal);
-		control.updateCodomainMap(ctx);
+		curRealValue = convertGraphicsIntoReal(y-topBorder, s-e, e);
 	}
 
 	/** Sets the selection control. */
