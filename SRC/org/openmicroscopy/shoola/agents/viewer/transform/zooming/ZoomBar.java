@@ -30,7 +30,11 @@
 package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 
 //Java imports
-import javax.swing.BoxLayout;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -62,7 +66,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ZoomBar
 	extends JToolBar
 {
-																																					
+	
+	private static final String		MAX_LETTER = "300%";
+	
+	/** width of a letter according to the Font. */
+	private int 					txtWidth;
+	
+	/** zoom buttons. */																																				
 	private JButton					zoomIn, zoomOut, zoomFit;
 	
 	/** Field displaying the zooming factor. */
@@ -75,11 +85,13 @@ public class ZoomBar
 	public ZoomBar(Registry registry, ImageInspectorManager mng)
 	{
 		this.registry = registry;
+		initTxtWidth();
 		initZoomComponents();
 		manager = new ZoomBarManager(this, mng);
 		manager.attachListeners();
 		buildToolBar();
 	}
+	
 	Registry getRegistry() { return registry; }
 	
 	JButton getZoomIn() { return zoomIn; }
@@ -95,10 +107,10 @@ public class ZoomBar
 	/** Initialize the zoom components. */
 	private void initZoomComponents()
 	{
-		zoomField = new JTextField("100%", "300%".length());
+		zoomField = new JTextField("100%", MAX_LETTER.length());
 		zoomField.setForeground(Viewer.STEELBLUE);
 		zoomField.setToolTipText(
-		UIUtilities.formatToolTipText("zooming percentage."));
+			UIUtilities.formatToolTipText("zooming percentage."));
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
 		zoomIn = new JButton(im.getIcon(IconManager.ZOOMIN));
@@ -116,22 +128,39 @@ public class ZoomBar
 	private void buildToolBar() 
 	{
 		setFloatable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		//add(zoomOut);
+		putClientProperty("JToolBar.isRollover", new Boolean(true));
+		add(zoomOut);
+		//add(buildTextPanel());
+		add(zoomIn);
+		add(zoomFit);
 		add(buildTextPanel());
-		//add(zoomIn);
-		//add(zoomFit);
 	}
 
 	/** Panel containing textField. */
 	private JPanel buildTextPanel()
 	{
 		JPanel p = new JPanel();
-		p.add(zoomOut);
+		p.setBackground(Color.pink);
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		p.setLayout(gridbag);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.EAST;
+		Insets insets = zoomField.getInsets();
+		int x = insets.left+txtWidth+insets.right;
+		c.ipadx = x/2;
+		gridbag.setConstraints(zoomField, c);
 		p.add(zoomField);
-		p.add(zoomIn);
-		p.add(zoomFit);
+		p.setAlignmentX(LEFT_ALIGNMENT);
 		return p;
+	}
+	
+	/** Initializes the width of the text. */
+	private void initTxtWidth()
+	{
+		FontMetrics metrics = getFontMetrics(getFont());
+		txtWidth = MAX_LETTER.length()*metrics.charWidth('m');
 	}
 	
 }
