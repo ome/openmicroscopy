@@ -45,6 +45,7 @@ import java.awt.geom.Point2D;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.Link;
 
 /** 
  * A Piccolo widget indicating a control point for a selected {@link Link}

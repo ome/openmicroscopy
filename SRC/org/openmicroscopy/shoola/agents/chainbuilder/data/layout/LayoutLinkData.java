@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
+import org.openmicroscopy.shoola.util.ui.graphlayout.GraphLayoutLink;
+import org.openmicroscopy.shoola.util.ui.graphlayout.GraphLayoutNode;
 
 /** 
  * An extension of 

@@ -46,6 +46,7 @@ import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.Link;
 /** 
  * A Piccolo node for links between directly between two formal parameter.
  *

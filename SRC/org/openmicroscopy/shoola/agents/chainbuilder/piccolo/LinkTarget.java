@@ -48,6 +48,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.Link;
 /** 
  * A Piccolo widget for a linkable target. These targets are found on the 
  * edges of {@llink PormalParameter} nodes, indicating where users should 

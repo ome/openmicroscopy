@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.MultiplyBoundInputErro
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
+import org.openmicroscopy.shoola.util.ui.graphlayout.Layering;
 
 
 /** 

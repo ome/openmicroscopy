@@ -43,6 +43,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.Link;
+
 //Third-party libraries
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.PNode;
