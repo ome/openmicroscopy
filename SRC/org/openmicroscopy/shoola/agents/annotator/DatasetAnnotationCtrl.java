@@ -105,6 +105,33 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
             }
         });
     }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getAnnotation(int)
+     */
+    public String getAnnotation(int index)
+    {
+        return (String)getTextAnnotations().get(index);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#newAnnotation(java.lang.String)
+     */
+    public void newAnnotation(String annotation)
+    {
+        DatasetAnnotation da = annotator.createDatasetAnnotation(annotation);
+        annotationList.add(da);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#setAnnotation(int, java.lang.String)
+     */
+    public void setAnnotation(int annotationIndex, String annotation)
+    {
+        DatasetAnnotation da =
+            (DatasetAnnotation)annotationList.get(annotationIndex);
+        da.setContent(annotation);
+    }
 
     public boolean save()
     {
