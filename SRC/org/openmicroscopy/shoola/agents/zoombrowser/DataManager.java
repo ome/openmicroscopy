@@ -115,6 +115,10 @@ public class DataManager {
 		thumbnailRetriever = new ThumbnailRetriever(registry);	
 	}
 	
+	public Registry getRegistry() {
+		return registry;
+	}
+	
 	public synchronized Collection getProjects() {
 		
 		// if we're done, go for it.
