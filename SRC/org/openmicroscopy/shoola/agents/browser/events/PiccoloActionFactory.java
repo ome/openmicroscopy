@@ -246,6 +246,11 @@ public class PiccoloActionFactory
                 BrowserAgent agent = env.getBrowserAgent();
                 agent.annotateImage(t);
             }
+            
+            public void execute(PInputEvent e)
+            {
+                execute();
+            }
         };
         return action;
     }
@@ -269,6 +274,11 @@ public class PiccoloActionFactory
                 BrowserEnvironment env = BrowserEnvironment.getInstance();
                 BrowserAgent agent = env.getBrowserAgent();
                 agent.annotateImage(t,point);
+            }
+            
+            public void execute(PInputEvent e)
+            {
+                execute();
             }
         };
         return action;

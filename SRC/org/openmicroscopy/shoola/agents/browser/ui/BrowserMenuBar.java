@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
+import org.openmicroscopy.shoola.agents.browser.images.OverlayMethods;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -173,13 +174,11 @@ public class BrowserMenuBar extends JMenuBar
             {
                 if(e.getStateChange() == ItemEvent.DESELECTED)
                 {
-                    actionTarget.removePaintMethod(PaintMethods.DRAW_ANNOTATION_METHOD,
-                                                   Thumbnail.FOREGROUND_PAINT_METHOD);
+                    actionTarget.removeOverlayMethod(OverlayMethods.ANNOTATION_METHOD);
                 }
                 else if(e.getStateChange() == ItemEvent.SELECTED)
                 {
-                    actionTarget.addPaintMethod(PaintMethods.DRAW_ANNOTATION_METHOD,
-                                                Thumbnail.FOREGROUND_PAINT_METHOD);
+                    actionTarget.addOverlayMethod(OverlayMethods.ANNOTATION_METHOD);
                 }
             }
         });

@@ -40,6 +40,7 @@ import java.util.*;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.images.OverlayMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -651,6 +652,49 @@ public class BrowserModel
         else
         {
             throw new IllegalArgumentException("Invalid paint method location");
+        }
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener bml =
+                (BrowserModelListener)iter.next();
+            bml.paintMethodsChanged();
+        }
+    }
+    
+    /**
+     * Adds an overlay method (to dynamically add contextual nodes that respond
+     * to some sort of UI)
+     * @param method The overlay method to add to all thumbnails.
+     */
+    public void addOverlayMethod(OverlayMethod method)
+    {
+        if(method == null) return;
+        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.addOverlayMethod(method);
+        }
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener bml =
+                (BrowserModelListener)iter.next();
+            bml.paintMethodsChanged();
+        }
+    }
+    
+    /**
+     * Removes an overlay method.
+     * @param method
+     */
+    public void removeOverlayMethod(OverlayMethod method)
+    {
+        if(method == null) return;
+        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.removeOverlayMethod(method);
         }
         
         for(Iterator iter = modelListeners.iterator(); iter.hasNext();)

@@ -43,8 +43,10 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
@@ -154,6 +156,10 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
     protected int baseID;
     
     private Color overColor = new Color(192,192,192);
+    
+    protected Map activeOverlayNodes;
+    
+    protected List activeOverlayMethods;
 
     /**
      * Initializes the thumbnail.
@@ -166,6 +172,8 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         defaultZOrder = new PaintMethodZOrder();
         mouseDownActions = new MouseDownActions();
         mouseOverActions = new MouseOverActions();
+        activeOverlayNodes = new HashMap();
+        activeOverlayMethods = new ArrayList();
     }
     
     /**
@@ -539,6 +547,17 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         }
         
         // now draw the image (methinks this will work)
+        // the children (overlay nodes) may or may not be painted here;
+        // I can't tell, we shall see
+        
+        // now, time to iterator through the overlay methods and see if
+        // anything needs updating
+        for(Iterator iter = activeOverlayMethods.iterator(); iter.hasNext();)
+        {
+            OverlayMethod method = (OverlayMethod)iter.next();
+            method.display(this,context);
+        }
+        
         super.paint(context);
         
         if(hasMultipleImages)
@@ -587,6 +606,74 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
             PaintMethod p = (PaintMethod)iter.next();
             p.paint(context,this);
         }
+    }
+    
+    /**
+     * Adds an overlay method (determines whether an overlay node that can
+     * respond to UI events should be added atop the thumbnail) to this
+     * thumbnail.
+     * @param method The method to add.
+     */
+    public void addOverlayMethod(OverlayMethod method)
+    {
+        if(method != null)
+        {
+            activeOverlayMethods.add(method);
+        }
+    }
+    
+    /**
+     * Removes an overlay method.
+     * @param method
+     */
+    public void removeOverlayMethod(OverlayMethod method)
+    {
+        if(method != null)
+        {
+            activeOverlayMethods.remove(method);
+            removeActiveOverlay(method.getDisplayNodeType());
+        }
+    }
+    
+    /**
+     * Add a node that responds to user input.
+     * @param node
+     */
+    public void addActiveOverlay(OverlayNode node)
+    {
+        String nodeType = node.getOverlayType();
+        activeOverlayNodes.put(nodeType,node);
+        addChild(node);
+        repaint();
+    }
+    
+    /**
+     * Returns whether or not the thumbnail is displaying an overlay
+     * node with a specific type.  Maybe should consider switching to
+     * basing keys on class, not on strings.
+     * 
+     * @param nodeType The type of the overlay node to check.
+     * @return Whether or not a node of the specified type is already a child
+     *         of this thumbnail.
+     */
+    public boolean hasActiveOverlay(String nodeType)
+    {
+        return activeOverlayNodes.containsKey(nodeType);
+    }
+    
+    /**
+     * Remove the node (type) that responds to user input.
+     * @param overlayType
+     */
+    public void removeActiveOverlay(String overlayType)
+    {
+        OverlayNode node =
+            (OverlayNode)activeOverlayNodes.remove(overlayType);
+        if(node != null && node.isDescendentOf(this))
+        {
+            removeChild(node);
+        }
+        repaint();
     }
     
     /**
