@@ -94,6 +94,9 @@ public class DataManager {
 	/** are we loading datasets */
 	private boolean loadingDatasets = false;
 	
+	/** have we loaded datasets and projects*/
+	private boolean datasetsLoaded= false;
+	private boolean projectsLoaded = false;
 	/** hash map of modules */
 	protected HashMap moduleHash = null;
 
@@ -120,10 +123,12 @@ public class DataManager {
 	
 	public synchronized Collection getProjects() {
 		
-		// if we're done, go for it.
-		
-		if (projectHash != null && projectHash.size() > 0)
-			return projectHash.values();
+		// if we've done it, .grab it...
+		if (projectsLoaded == true) {
+			if (projectHash != null && projectHash.size() > 0)
+				return projectHash.values();
+			return null;
+		}
 		
 		if (loadingProjects == false) {
 			loadingProjects = true;
@@ -136,7 +141,10 @@ public class DataManager {
 		else {// in progress
 			try{ 
 				wait();
-				return projectHash.values();
+				if (projectHash != null && projectHash.size() > 0)
+					return projectHash.values();
+				else 
+					return null;
 			}
 			catch (InterruptedException e) {
 				return null;
@@ -158,6 +166,7 @@ public class DataManager {
 					dms.retrieveUserProjectsWithDatasetData(
 							new BrowserProjectSummary(),new BrowserDatasetData());
 				projectHash = buildProjectHash(projects);
+				projectsLoaded = true;
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's projects.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
@@ -197,9 +206,12 @@ public class DataManager {
 	public synchronized Collection getDatasets() {
 		
 		// if we're done, go for it.
-		
-		if (datasetHash != null && datasetHash.size() > 0)  {
-			return datasetHash.values();
+		if (datasetsLoaded == true) {
+			if (datasetHash != null && datasetHash.size() > 0)  {
+				return datasetHash.values();
+			}
+			else 
+				return null;
 		}
 		
 		if (loadingDatasets == false) {
@@ -212,8 +224,9 @@ public class DataManager {
 		else {// in progress
 			try{ 
 				wait();
-				//return datasetHash.values();
-				return datasetHash.values();
+				if (datasetHash != null && datasetHash.size()> 0)
+					return datasetHash.values();
+				return null;
 			}
 			catch (InterruptedException e) {
 				return null;
@@ -229,6 +242,7 @@ public class DataManager {
 							new BrowserImageSummary());
 				getDatasetsWithImages(datasets);
 				datasetHash = buildDatasetHash(datasets);
+				datasetsLoaded = true;
 				//Collections.sort(datasets);
 				registry.getLogger().info(this,"loaded datasets...");
 			} catch(DSAccessException dsae) {
