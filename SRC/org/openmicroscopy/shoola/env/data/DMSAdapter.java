@@ -539,6 +539,42 @@ class DMSAdapter
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
+	public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
+			alProto,AnalysisNodeData anProto,ModuleData modProto,
+			FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (acProto == null)    acProto = new AnalysisChainData();
+		if (alProto == null)    alProto = new AnalysisLinkData();		
+		if (anProto == null)    anProto = new AnalysisNodeData();
+		if (modProto == null) 	modProto = new ModuleData();
+		if (finProto == null)   finProto = new FormalInputData();
+		if (foutProto == null)  foutProto = new FormalOutputData();
+		if (stProto == null)    stProto = new SemanticTypeData();
+		
+		// Define the criteria by which the object graph is pulled out
+		Criteria c = AnalysisChainMapper.buildChainCriteria(id);
+	
+		// Load the graph defined by the criteria
+		AnalysisChain chain = (AnalysisChain) 
+			gateway.retrieveData(AnalysisChain.class,c);
+	
+		
+		if (chain != null) 
+			AnalysisChainMapper.fillChain(chain,acProto,
+				alProto,anProto,modProto,finProto,foutProto,stProto);
+		return acProto;
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public AnalysisChainData retrieveChain(int id) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return retrieveChain(id,null,null,null,null,null,null,null);
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
 			DatasetData dsProto,AnalysisChainData acProto,
 			NodeExecutionData neProto,AnalysisNodeData anProto,
@@ -570,7 +606,7 @@ class DMSAdapter
 			execDS = ChainExecutionMapper.fillChainExecutions(execs,
 					ceProto,dsProto,acProto,neProto,anProto,mProto,meProto);
 		return execDS;
-	}
+	}	
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions()

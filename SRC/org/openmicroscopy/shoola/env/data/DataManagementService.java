@@ -429,7 +429,6 @@ public interface DataManagementService
 			SemanticTypeData stProto) 
 		throws DSOutOfServiceException,DSAccessException;
 		
-		
 	/**
 	 * Retrieve all of the system's analysis chains
 	 * 
@@ -443,6 +442,40 @@ public interface DataManagementService
 	 */
 	public List retrieveChains() 
 		throws DSOutOfServiceException,DSAccessException;
+		
+	/**
+	 * 
+	 * Retrieve an analysiis chain by id
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public AnalysisChainData retrieveChain(int id) 
+		throws DSOutOfServiceException,DSAccessException;
+
+	/**
+	 * Retrieve an analysis chain by id
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
+			alProto,AnalysisNodeData anProto,ModuleData modProto,
+			FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto) 
+		throws DSOutOfServiceException,DSAccessException;
+		
+		
 
 	/**
 	 * Retrieve all of the system's analysis chains

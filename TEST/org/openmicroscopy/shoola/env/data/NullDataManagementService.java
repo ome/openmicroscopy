@@ -492,5 +492,16 @@ public class NullDataManagementService
         // TODO Auto-generated method stub
 
     }
+     
+    public AnalysisChainData retrieveChain(int id) {
+    		return null;
+    }
 
+    public AnalysisChainData retrieveChain(int id,AnalysisChainData acProto,AnalysisLinkData
+			alProto,AnalysisNodeData anProto,ModuleData modProto,
+			FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto) {
+    		return null;
+    }
+    
 }
