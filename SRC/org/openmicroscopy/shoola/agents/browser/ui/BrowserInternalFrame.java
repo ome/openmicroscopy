@@ -83,6 +83,7 @@ public class BrowserInternalFrame extends JInternalFrame
         container.setLayout(new BorderLayout());
         container.add(embeddedView,BorderLayout.CENTER);
         this.addFocusListener(new CommonFocusAdapter(this));
+
     }
     
     /**

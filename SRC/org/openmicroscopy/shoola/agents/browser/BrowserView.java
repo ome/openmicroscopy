@@ -36,13 +36,19 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 
 import edu.umd.cs.piccolo.PCanvas;
@@ -62,11 +68,15 @@ public class BrowserView extends PCanvas
     private BrowserModel browserModel;
     private BrowserTopModel overlayModel;
     private BrowserEnvironment env;
+    private Map layoutMap;
+    private Rectangle2D footprint;
 
     private void init()
     {
         env = BrowserEnvironment.getInstance();
         setBackground(new Color(192,192,192));
+        layoutMap = new HashMap();
+        footprint = new Rectangle2D.Double(0,0,0,0);
     }
 
     /**
@@ -96,6 +106,18 @@ public class BrowserView extends PCanvas
             }
             updateThumbnails();
         }
+        
+        this.addComponentListener(new ComponentAdapter()
+        {
+            /* (non-Javadoc)
+             * @see java.awt.event.ComponentAdapter#componentResized(java.awt.event.ComponentEvent)
+             */
+            public void componentResized(ComponentEvent arg0)
+            {
+                updateConstraints();
+            }
+        });
+
     }
     
     // TODO: retrofit to groups
@@ -113,13 +135,46 @@ public class BrowserView extends PCanvas
             return;
         }
         
-        Map layoutMap = method.getAnchorPoints(thumbnails);
+        layoutMap = method.getAnchorPoints(thumbnails);
         
         for(Iterator iter = layoutMap.keySet().iterator(); iter.hasNext();)
         {
             Thumbnail t = (Thumbnail)iter.next();
             Point2D offset = (Point2D)layoutMap.get(t);
             t.setOffset(offset);
+        }
+        
+        footprint = FootprintAnalyzer.getArea(layoutMap);
+        
+        // TODO: determine case (mode) in which this doesn't happen
+        updateConstraints();
+    }
+    
+    /**
+     * Updates the zoom camera (dependent on mode) to fit the complete dataset.
+     *
+     */
+    public void updateConstraints()
+    {
+        Dimension dimension = getSize();
+        double width = dimension.getWidth();
+        double height = dimension.getHeight();
+        
+        double xRatio = width / footprint.getWidth();
+        double yRatio = height / footprint.getHeight();
+        
+        // for some reason, setting setViewScale(0) screws things up
+        // in a big way.
+        
+        if((xRatio < 1 || yRatio < 1) &&
+           (xRatio != 0 && yRatio != 0))
+        {
+            double min = Math.min(xRatio,yRatio);
+            getCamera().setViewScale(min);
+        }
+        else
+        {
+            getCamera().setViewScale(1);
         }
     }
 
