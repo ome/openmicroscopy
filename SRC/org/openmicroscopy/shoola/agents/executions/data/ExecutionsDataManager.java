@@ -46,6 +46,7 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
@@ -104,7 +105,6 @@ public class ExecutionsDataManager extends DataManager {
 			gettingExecutions = true;
 			retrieveExecutionsData();
 			gettingExecutions = false;
-		//	notifyAll();
 			return executionsData;
 		}
 		return null;
@@ -127,7 +127,9 @@ public class ExecutionsDataManager extends DataManager {
 					dms.retrieveChainExecutions(ceProto,dsProto,
 							acProto,neProto,anProto,mProto,meProto);
 				executionsData = new ExecutionsData(execs);
-
+				LoadChainExecutionsEvent event =
+					new LoadChainExecutionsEvent(executionsData);
+				registry.getEventBus().post(event);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
 				registry.getLogger().error(this, s+" Error: "+dsae);
