@@ -54,61 +54,61 @@ import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
  * @since OME2.2
  */
 public class ZoomMenu
-	extends JMenu
+    extends JMenu
 {
-
-	private ZoomMenuManager			manager;
-	
-	public ZoomMenu(ImageInspectorManager mng, double magFactor)
-	{
-		setText("Zooming");
-		manager = new ZoomMenuManager(mng);
-		buildGUI(magFactor);
-	} 
-	
-	public ZoomMenuManager getManager() { return manager; }
-
-	/** Build the menu. */
-	private void buildGUI(double magFactor)
-	{
-		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("25%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_25);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("50%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_50);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("75%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_75);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("100%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_100);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("125%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_125);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("150%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_150);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("175%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_175);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("200%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_200);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("225%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_225);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("250%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_250);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("275%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_275);
-		add(menuItem);
-		menuItem = new JCheckBoxMenuItem("300%");
-		manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_300);
-		add(menuItem);
+    
+    private ZoomMenuManager         manager;
+    
+    public ZoomMenu(ImageInspectorManager mng, double magFactor)
+    {
+        setText("Zooming");
+        manager = new ZoomMenuManager(mng);
+        buildGUI(magFactor);
+    } 
+    
+    public ZoomMenuManager getManager() { return manager; }
+    
+    /** Build the menu. */
+    private void buildGUI(double magFactor)
+    {
+        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("25%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_25);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("50%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_50);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("75%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_75);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("100%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_100);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("125%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_125);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("150%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_150);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("175%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_175);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("200%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_200);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("225%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_225);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("250%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_250);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("275%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_275);
+        add(menuItem);
+        menuItem = new JCheckBoxMenuItem("300%");
+        manager.attachItemListener(menuItem, ZoomMenuManager.ZOOM_300);
+        add(menuItem);
         
         manager.setItemSelected(magFactor);
-	}
-	
+    }
+
 }
