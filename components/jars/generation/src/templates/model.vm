@@ -27,20 +27,9 @@ public class ${class.LocalName}
 		super(lsid);
 	}
 	
-	/** copy constructor FIXME now must have get an set logic matching!!! */
 	public $class.LocalName (LSObject lsObj){
-		super(lsObj.getLSID());
-		this.currentValues=lsObj.getMap();
-
-		#foreach( $p in $class.Predicates )
-	 	//-----------------------------------
-		// $p
-		#set ( $t = $p.Type )
-		#set ( $n = $p.LocalName )
-		this.set${util.uc(${p.LocalName})}(($t)lsObj.get("${p.URI}")); 
-		this.save();
-#end
-	}
+		super(lsObj);
+	}	
 
 #foreach( $p in $class.Predicates )
  	//-----------------------------------

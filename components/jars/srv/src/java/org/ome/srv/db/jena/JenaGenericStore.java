@@ -112,13 +112,15 @@ public class JenaGenericStore implements GenericService, GenericStore {
 				values.add(value);
 			}
 			
-			//XXX Tricky
+			//FIXME Tricky; refactor out to utils
 			if (pred.canAs(OntProperty.class)){
 				OntProperty prop = (OntProperty)pred.as(OntProperty.class);
-				if (prop.isFunctionalProperty()) {
+				if (prop.isFunctionalProperty()) { // TODO use myOntPred class and use min max (need utils)
 					if (values.size() > 0){
 						lsobj.put(pred.getURI(),values.get(0));
-					}
+					} 
+				} else {
+				    lsobj.put(pred.getURI(),values);
 				}
 			} else {
 				if (values.size() > 1){

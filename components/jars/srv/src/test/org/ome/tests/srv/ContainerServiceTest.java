@@ -39,7 +39,7 @@ public class ContainerServiceTest extends BaseServiceTestCase {
 	public void testProjectsByExperimenter1() throws RemoteException, URISyntaxException{
 		List l = cs.retrieveProjectsByExperimenter(new LSID(Vocabulary.NS+"Josh"));
 		for (Iterator iter = l.iterator(); iter.hasNext();) {
-			Object element = (Object) iter.next();
+			Object element = iter.next();
 			System.out.println(element);
 		}
 		assertTrue(l.size() > 0);

@@ -16,4 +16,7 @@ public interface LSObject {
 	public LSID getLSID();
 	
 	public Map getMap();
+	
+	public boolean save();
+	public boolean reset();
 }

@@ -25,7 +25,9 @@ public class BaseServiceTestCase extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		ModelMaker mm = JenaModelFactory.getMaker();
-		mm.removeModel(JenaModelFactory.defaultModel);
+		if (mm.hasModel(JenaModelFactory.defaultModel)){
+		    mm.removeModel(JenaModelFactory.defaultModel);
+		}
 		Model m = JenaModelFactory.getModel();
 		m.read(JenaModelFactory.ontology,JenaModelFactory.format);
 	}

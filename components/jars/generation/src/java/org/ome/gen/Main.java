@@ -28,6 +28,7 @@ import com.hp.hpl.jena.rdf.model.ModelMaker;
 
 /**
  * @author josh
+ * @deprecated
 */
 public class Main {
 

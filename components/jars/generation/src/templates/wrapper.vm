@@ -21,17 +21,4 @@ public class ${class.LocalName}Wrapper
 		return results;
 	}
 
-/** FIXME temporarily disabled	
-	public static ${class.LocalName} wrap(LSObject lsObject){
-		$class.LocalName obj = new ${class.LocalName}(lsObject.getLSID());
-#foreach( $p in $class.Predicates )
-	 	//-----------------------------------
-		// $p
-		#set ( $t = $p.Type )
-		#set ( $n = $p.LocalName )
-		obj.set${util.uc(${p.LocalName})}(($t)lsObject.get("${p.URI}")); 
-#end
-		return obj;
-	}
-	*/
 }
