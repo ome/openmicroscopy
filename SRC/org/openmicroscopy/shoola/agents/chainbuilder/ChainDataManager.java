@@ -458,7 +458,7 @@ public class ChainDataManager extends DataManager {
 		return null;
 	}
 	
-	public int getMaxNodeExecutionCount() {
+	/*public int getMaxNodeExecutionCount() {
 		if (chainExecutions == null)
 			return 0;
 		return chainExecutions.getMaxNodeExecutionCount();
@@ -474,7 +474,7 @@ public class ChainDataManager extends DataManager {
 		if (chainExecutions == null)
 			return null;
 		return chainExecutions.getNexesForModule(id);
-	}
+	}*/
 	
 
 	public void saveChain(LayoutChainData chain) {
