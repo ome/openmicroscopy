@@ -61,16 +61,26 @@ import edu.umd.cs.piccolo.PNode;
 
 public class ModulePaletteEventHandler extends ModuleNodeEventHandler  {
 
+	private CategoryBox lastCategoryBox;
 	
 	public ModulePaletteEventHandler(ModulePaletteCanvas canvas) {
 		super(canvas);
 	}	
 	
+	protected void unhighlightModules() {
+		super.unhighlightModules();
+		if (lastCategoryBox != null) 
+			lastCategoryBox.setHighlighted(false);
+	}
 	
 	public void setSelectedForDrag(PNode node) {
 		ModuleView mod = (ModuleView) node;
 		if (mod != null && mod.getModule() != null) {
 			((ModulePaletteCanvas) canvas).setSelectedForDrag(mod);
 		}
+	}
+	
+	public void setLastCategoryBox(CategoryBox box) {
+		lastCategoryBox=box;
 	}
 }
