@@ -157,8 +157,8 @@ public class PopupMenuFactory
         menu.addSeparator();
         menu.add(infoItem);
         menu.add(annotateItem);
-        //CategoryMenuFactory factory = new CategoryMenuFactory(model);
-        //menu.add(factory.createMenu());
+        CategoryMenuFactory factory = new CategoryMenuFactory(model);
+        menu.add(factory.createMenu());
         
         return menu;
     }

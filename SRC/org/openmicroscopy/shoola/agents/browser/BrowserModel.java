@@ -40,6 +40,7 @@ import java.util.*;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.OverlayMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
@@ -50,7 +51,6 @@ import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
-import org.openmicroscopy.shoola.agents.classifier.CategoryTree;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 /**

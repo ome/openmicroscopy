@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
@@ -70,7 +71,6 @@ import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
-import org.openmicroscopy.shoola.agents.classifier.*;
 import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
@@ -83,6 +83,7 @@ import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.*;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.*;
@@ -217,6 +218,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         eventBus.register(this,LoadDataset.class);
         eventBus.register(this,ImageAnnotated.class);
+        eventBus.register(this,ImagesClassified.class);
+        eventBus.register(this,CategoriesChanged.class);
         
         /*
         JMenuItem testItem = new JMenuItem("Browser");
@@ -423,6 +426,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         List plateList;
         List annotationList;
         Map annotationMap;
+        Map classificationMap;
         PlateInfo plateInfo = new PlateInfo();
         
         try
@@ -480,6 +484,25 @@ public class BrowserAgent implements Agent, AgentEventListener
             }
             writeStatusImmediately(status,"Loading in category types...");
             model.setCategoryTree(loadCategoryTree(datasetModel.getID()));
+            
+            writeStatusImmediately(status,"Retrieving classification information from DB...");
+            classificationMap = new HashMap();
+            List classificationList = sts.retrieveImageAttributes("Classification",idList);
+            for(Iterator iter = classificationList.iterator(); iter.hasNext();)
+            {
+                Classification c = (Classification)iter.next();
+                List cList = (List)classificationMap.get(c);
+                if(cList == null)
+                {
+                    cList = new ArrayList();
+                    cList.add(c);
+                    classificationMap.put(new Integer(c.getImage().getID()),cList);
+                }
+                else
+                {
+                    cList.add(c);
+                }
+            }
             writeStatusImmediately(status,"Filling in relevant ST info from DB...");
             loadRelevantTypes(imageList,model,status);
             
@@ -525,6 +548,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         final List refPlateList = Collections.unmodifiableList(plateList);
         final PlateInfo refInfo = plateInfo;
         final Map refAnnotations = annotationMap;
+        final Map refClassifications = classificationMap;
         
         KillableThread plateLoader = new KillableThread()
         {
@@ -581,12 +605,23 @@ public class BrowserAgent implements Agent, AgentEventListener
                                 tdm.getAttributeMap().putAttribute(pix);
                                 
                                 ImageAnnotation annotation =
-                                    (ImageAnnotation)refAnnotations.get(new Integer(sum.getID()));
-                                    
+                                    (ImageAnnotation)refAnnotations.get(new Integer(sum.getID()));        
                                 if(annotation != null)
                                 {
                                     tdm.getAttributeMap().putAttribute(annotation);
                                 }
+                                
+                                List classificationList =
+                                    (List)refClassifications.get(new Integer(sum.getID()));
+                                if(classificationList != null)
+                                {
+                                    for(Iterator iter = classificationList.iterator(); iter.hasNext();)
+                                    {
+                                        Classification c = (Classification)iter.next();
+                                        tdm.getAttributeMap().putAttribute(c);
+                                    }
+                                }
+                                
                                 final Thumbnail t = new Thumbnail(image,tdm);
                                 lm.setIndex(t,i,j);
                                 
@@ -636,6 +671,17 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     if(annotation != null)
                                     {
                                         tdm.getAttributeMap().putAttribute(annotation);
+                                    }
+                                    
+                                    List classificationList =
+                                        (List)refClassifications.get(new Integer(sum.getID()));
+                                    if(classificationList != null)
+                                    {
+                                        for(Iterator iter = classificationList.iterator(); iter.hasNext();)
+                                        {
+                                            Classification c = (Classification)iter.next();
+                                            tdm.getAttributeMap().putAttribute(c);
+                                        }
                                     }
                                     images[k] = image;
                                     models[k] = tdm;
@@ -718,6 +764,16 @@ public class BrowserAgent implements Agent, AgentEventListener
                         if(annotation != null)
                         {
                             tdm.getAttributeMap().putAttribute(annotation);
+                        }
+                        List classificationList =
+                            (List)refClassifications.get(new Integer(summary.getID()));
+                        if(classificationList != null)
+                        {
+                            for(Iterator iter2 = classificationList.iterator(); iter2.hasNext();)
+                            {
+                                Classification c = (Classification)iter2.next();
+                                tdm.getAttributeMap().putAttribute(c);
+                            }
                         }
                         // TODO: figure out strategy for adding attributes.  do it here?
                         final Thumbnail t = new Thumbnail(image,tdm);
@@ -1171,13 +1227,39 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         SemanticTypesService sts = registry.getSemanticTypesService();
         List categoryList;
+        List categoryGroupList;
         try
         {
-            categoryList =
+            categoryGroupList =
                 sts.retrieveDatasetAttributes("CategoryGroup",datasetID);
-            
+            categoryList =
+                sts.retrieveDatasetAttributes("Category",datasetID);
+                
+            CategoryTree tree = new CategoryTree();
+            for(Iterator iter = categoryGroupList.iterator(); iter.hasNext();)
+            {
+                CategoryGroup cg = (CategoryGroup)iter.next();
+                tree.addCategoryGroup(cg);
+            }
+            for(Iterator iter = categoryList.iterator(); iter.hasNext();)
+            {
+                Category c = (Category)iter.next();
+                tree.addCategory(c.getCategoryGroup(),c);
+            }
+            return tree;
         }
-        catch(Exception e) {}
+        catch(DSAccessException dsae)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Phenotype loading error",
+                           "Unable to load categories",dsae);
+        }
+        catch(DSOutOfServiceException dsoe)
+        {
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
         return null; // TODO change
     }
     
@@ -1204,6 +1286,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         ClassifyImages classifyEvent = new ClassifyImages(imageIDs,category);
         classifyEvent.setCompletionHandler(new ClassificationHandler());
+        System.err.println("about to post event: "+category.getName() + "(" +
+                           imageIDs.length + ")");
         eventBus.post(classifyEvent);
     }
     
@@ -1270,6 +1354,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
         else if(e instanceof CategoriesChanged)
         {
+            System.err.println("cc event retrieved");
             CategoriesChanged event = (CategoriesChanged)e;
             event.complete();
         }

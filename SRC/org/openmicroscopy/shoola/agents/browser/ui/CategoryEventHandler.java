@@ -46,6 +46,7 @@ import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 
@@ -77,9 +78,9 @@ public class CategoryEventHandler
      * @param c
      */
     public static void handle(Thumbnail t, CategoryGroup group,
-                              Category c)
+                              Category c, CategoryTree ct)
     {
-        if(t == null || group == null || c == null)
+        if(t == null || group == null || c == null || ct == null)
         {
             return;
         }
@@ -90,18 +91,21 @@ public class CategoryEventHandler
         boolean foundOld = false;
         Classification newClassification = null;
         
-        for(Iterator iter = classificationList.iterator();
-            (iter.hasNext() && !foundOld);)
+        if(classificationList != null)
         {
-            Classification cl = (Classification)iter.next();
-            CategoryGroup theGroup = cl.getCategory().getCategoryGroup();
-            if(theGroup.equals(group))
+            for(Iterator iter = classificationList.iterator();
+                (iter.hasNext() && !foundOld);)
             {
-                if(!cl.getCategory().equals(c))
+                Classification cl = (Classification)iter.next();
+                CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
+                if(theGroup.equals(group))
                 {
-                    foundOld = true;
-                    newClassification = cl;
-                    newClassification.setCategory(c);
+                    if(!cl.getCategory().equals(c))
+                    {
+                        foundOld = true;
+                        newClassification = cl;
+                        newClassification.setCategory(c);
+                    }
                 }
             }
         }
@@ -123,9 +127,9 @@ public class CategoryEventHandler
      * @param c The category to specify.
      */
     public static void handle(Thumbnail[] ts, CategoryGroup group,
-                              Category c)
+                              Category c, CategoryTree ct)
     {
-        if(ts == null || group == null || c == null)
+        if(ts == null || group == null || c == null || ct == null)
         {
             return;
         }
@@ -141,18 +145,21 @@ public class CategoryEventHandler
         
             boolean foundOld = false;
         
-            for(Iterator iter = classificationList.iterator();
-                (iter.hasNext() && !foundOld);)
+            if(classificationList != null)
             {
-                Classification cl = (Classification)iter.next();
-                CategoryGroup theGroup = cl.getCategory().getCategoryGroup();
-                if(theGroup.equals(group))
+                for(Iterator iter = classificationList.iterator();
+                    (iter.hasNext() && !foundOld);)
                 {
-                    if(!cl.getCategory().equals(c))
+                    Classification cl = (Classification)iter.next();
+                    CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
+                    if(theGroup.equals(group))
                     {
-                        foundOld = true;
-                        cl.setCategory(c);
-                        oldClassificationList.add(cl);
+                        if(!cl.getCategory().equals(c))
+                        {
+                            foundOld = true;
+                            cl.setCategory(c);
+                            oldClassificationList.add(cl);
+                        }
                     }
                 }
             }

@@ -38,7 +38,6 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -49,8 +48,8 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
-import org.openmicroscopy.shoola.agents.classifier.CategoryTree;
 
 /**
  * Factory that generates menus (and submenus) based on the current list of
@@ -86,7 +85,6 @@ public class CategoryMenuFactory
         JMenu menu = new JMenu("Categorize");
         
         List list = tree.getCategoryGroups();
-        Collections.sort(list);
         for(Iterator iter = list.iterator(); iter.hasNext();)
         {
             CategoryGroup cg = (CategoryGroup)iter.next();
@@ -95,7 +93,8 @@ public class CategoryMenuFactory
         return menu;
     }
     
-    private JMenu createCategoryMenu(CategoryTree tree, final CategoryGroup group)
+    private JMenu createCategoryMenu(final CategoryTree tree,
+                                     final CategoryGroup group)
     {
         JMenu menu = new JMenu(group.getName());
         
@@ -117,11 +116,11 @@ public class CategoryMenuFactory
                     if(ts.length == 1)
                     {
                         Thumbnail t = ts[0];
-                        CategoryEventHandler.handle(t,group,category);
+                        CategoryEventHandler.handle(t,group,category,tree);
                     }
                     else
                     {
-                        CategoryEventHandler.handle(ts,group,category);
+                        CategoryEventHandler.handle(ts,group,category,tree);
                     }
                 }
             });
