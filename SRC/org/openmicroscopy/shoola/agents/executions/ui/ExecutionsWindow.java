@@ -263,7 +263,9 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	
 	public void contentComplete() {
 		if (dataManager.getChainExecutions() != null) {
+			System.err.println("getting executions");
 			ExecutionsData execs = dataManager.getChainExecutions();
+			System.err.println("executions retrieved");
 			execsModel = new ExecutionsModel(execs);
 			if (execsModel.size() >0)
 				buildGUI();
