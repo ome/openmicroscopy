@@ -39,9 +39,22 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
 
 /** 
- * 
+ * Manages the initialization procedure -- creates all needed initialization 
+ * tasks, configures them, queues them up for execution, and finally executes
+ * all those tasks.  
+ * <p>Tasks are encapsulated by objects (concrete instances of 
+ * {@link InitializationTask}) and treated as commands -- this class manages
+ * their execution, acting as a Command Processor.</p>
+ * <p>This class is also responsible for configuring the initialization
+ * procedure, which involves creating all tasks, calling their 
+ * <code>configure</code> method and decide on the execution order -- thus, it
+ * also takes on the role of a Controller.</p>
+ * <p>Finally, this class allows {@link InitializationListener}s to subscribe
+ * for notification of initialization procedure progress -- in this regard, it
+ * plays the role of a Publisher.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,37 +70,76 @@ public class Initializer
 	/** Queue to order the tasks to be executed. */
 	private List				processingQueue;
 	
+	/** The task that is currently processed. */
 	private InitializationTask	currentTask;
 	
+	/** The notification set for initialization progress. */
 	private Set					initListeners;
 	
+	/** A reference to the singleton {@link Container}. */
+	private Container			container;
 	
-	public Initializer()
+	
+	/**
+	 * Creates a new instance.
+	 * The {@link Container} is the only class that can possibly create this
+	 * object.  In fact, the {@link Container} is the only class to have
+	 * a reference to the singleton {@link Container}.
+	 * 
+	 * @param c	A reference to the singleton {@link Container}.
+	 */
+	public Initializer(Container c)
 	{
-		processingQueue = new ArrayList();
+		if (c == null)	throw new NullPointerException();
+		processingQueue = new ArrayList(); 
 		initListeners = new HashSet();
+		container = c;
 	}
 	
+	/**
+	 * Creates all needed initialization tasks, configures them, and queues
+	 * them up for execution.
+	 * This method has to be called before {@link #doInit()}.
+	 *
+	 */
 	public void configure()
 	{
 		//TODO: create tasks, call configure() for each of them and 
 		//		queue them up properly.
 	}
 	
+	/**
+	 * Performs the initialization procedure.
+	 * 
+	 * @throws StartupException	If an error occurs while executing an
+	 * 							initialization task.
+	 */
 	public void doInit()
 		throws StartupException
 	{
 		Iterator i = processingQueue.iterator();
+		
+		//Tell all listeners that we're about to start.
 		notifyStart();
+		
+		//Execute all pending tasks. 
 		while (i.hasNext()) {
 			currentTask = (InitializationTask) i.next();
-			notifyExecute();
+			notifyExecute();  //Tell listeners we're about to exec a task.
 			currentTask.execute();
 		}
+		
+		//Tell all listeners that we're finished.
 		notifyEnd();
+		
+		//Allow for referenced objects to be garbage collected (see below).
 		currentTask = null;
 		processingQueue = null;
 		initListeners = null;
+		
+		//Now control goes into container object, so this object won't be
+		//garbage collected until startService() returns, which may be on exit.
+		container.startService();
 	}
 	
 	/**
@@ -104,6 +156,10 @@ public class Initializer
 		return initListeners.add(subscriber);
 	}
 	
+	/**
+	 * Calls the <code>onStart</code> method of each subscriber in the
+	 * notification set.
+	 */
 	private void notifyStart()
 	{
 		int	size = processingQueue.size();
@@ -115,6 +171,10 @@ public class Initializer
 		}
 	}
 	
+	/**
+	 * Calls the <code>onExecute</code> method of each subscriber in the
+	 * notification set.
+	 */
 	private void notifyExecute()
 	{
 		String name = currentTask.getName();
@@ -126,6 +186,10 @@ public class Initializer
 		}
 	}
 	
+	/**
+	 * Calls the <code>onEnd</code> method of each subscriber in the
+	 * notification set.
+	 */
 	private void notifyEnd()
 	{
 		Iterator i = initListeners.iterator();
