@@ -149,7 +149,7 @@ public class AxisHash extends Rectangle2D.Double {
 		g.drawString(tip,x,yLoc);
 	}
 	
-	public void drawLabel(Graphics2D g) {
+	private void drawLabel(Graphics2D g) {
 		int x = xPos;
 		int y = yEnd;
 		FontMetrics metrics = g.getFontMetrics(ExecutionsCanvas.TIPFONT);
