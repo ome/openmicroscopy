@@ -13,6 +13,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * In charge of parsing a configuration file, extracting entries 
+* (<code>entry</code> and <code>structuredEntry</code> tags) obtaining a <code>Entry</code> object
+ * to represent each of those entries, adding the object to a given <code>RegistryImpl</code> object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,7 +57,7 @@ class Parser{
         parse(configFile);
     }
     
-/* Parse the XML configuration file and build a DOM tree i.e. Document
+/* Parse the XML configuration file and build a DOM tree 
  * 
  *@param name   configuraition file (XML file)
  */
