@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModelListener
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapList
  *
  *------------------------------------------------------------------------------
  *
@@ -36,16 +36,16 @@
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
 /**
- * A listener for the model of the color map.
+ * Interface for displaying the color map list.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public interface ColorMapModelListener
+public interface ColorMapList
 {
-    public void modelChanged(ColorMapModel model);
+    public ColorPairModel getModel();
     
-    public void modelUpdated(ColorMapModel model);
+    public void setModel(ColorPairModel model);
 }

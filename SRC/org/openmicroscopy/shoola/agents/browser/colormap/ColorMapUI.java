@@ -37,13 +37,10 @@ package org.openmicroscopy.shoola.agents.browser.colormap;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.FlowLayout;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import org.openmicroscopy.ds.st.CategoryGroup;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 
 /**
  * The UI for the colormap.
@@ -54,34 +51,50 @@ import org.openmicroscopy.ds.st.CategoryGroup;
  * @since OME2.2
  */
 public class ColorMapUI extends JInternalFrame
-                        implements ColorMapModelListener,
-                                   ColorMapGroupListener
+                        implements ColorMapModelListener
 {
     private ColorMapModel model;
     private ColorMapGroupBar groupBar;
+    private ColorMapDispatcher dispatch;
     private ColorMapListUI listUI;
     
     public ColorMapUI()
     {
         init();
+        buildUI();
     }
     
     public ColorMapUI(ColorMapModel model)
     {
         this.model = model;
         init();
+        buildUI();
         groupBar.setCategoryTree(model.getTree());
     }
     
     public void init()
     {
+        setTitle("View Phenotypes");
         groupBar = new ColorMapGroupBar();
-        groupBar.addListener(this);
+        listUI = new ColorMapListUI();
+        if(model != null)
+        {
+            dispatch = new ColorMapDispatcher(model,listUI);
+            groupBar.addListener(dispatch);
+            listUI.addListener(dispatch);
+        }
     }
     
     public void reset()
     {
-        // TODO perform reset operation here
+        if(model != null)
+        {
+            dispatch.categoriesDeselected(); 
+            dispatch.groupsDeselected();
+            groupBar.removeListener(dispatch);
+            listUI.removeListener(dispatch);
+            listUI.setModel(null);
+        }
     }
     
     /**
@@ -89,25 +102,26 @@ public class ColorMapUI extends JInternalFrame
      */
     public void modelChanged(ColorMapModel model)
     {
-        // TODO Auto-generated method stub
+        reset();
+        this.model = model;
+        dispatch = new ColorMapDispatcher(model,listUI);
+        groupBar.addListener(dispatch);
+        groupBar.setCategoryTree(model.getTree());
+        listUI.setModel(null);
+        if(model != null)
+        {
+            groupBar.setEnabled(true);
+        }
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModelListener#modelUpdated(org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModel)
+     */
+    public void modelUpdated(ColorMapModel model)
+    {
+        dispatch.fireRedraw();
+    }
 
-    }
-    
-    /**
-     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupSelected(org.openmicroscopy.ds.st.CategoryGroup)
-     */
-    public void groupSelected(CategoryGroup group)
-    {
-        // TODO change List UI
-    }
-    
-    /**
-     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupsDeselected()
-     */
-    public void groupsDeselected()
-    {
-        // TODO change List UI
-    }
     
     private void buildUI()
     {
@@ -115,6 +129,28 @@ public class ColorMapUI extends JInternalFrame
         
         container.setLayout(new BorderLayout(2,2));
         container.add(groupBar,BorderLayout.NORTH);
+        container.add(listUI,BorderLayout.CENTER);
+        
+        addInternalFrameListener(new InternalFrameAdapter()
+        {
+            public void internalFrameClosing(InternalFrameEvent arg0)
+            {
+                if(dispatch != null)
+                {
+                    dispatch.fireModeCancel();
+                }
+            }
+            
+            public void internalFrameOpened(InternalFrameEvent arg0)
+            {
+                if(dispatch != null)
+                {
+                    dispatch.fireModeReactivate();
+                }
+            }
+        });
+        
+        pack();
     }
 
 }

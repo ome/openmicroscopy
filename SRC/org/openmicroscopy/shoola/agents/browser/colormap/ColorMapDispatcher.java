@@ -35,7 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.CategoryGroup;
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
  * Manages paint methods for the color map and dispatches instructions
@@ -46,13 +54,160 @@ import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
  * @version 2.2
  * @since OME2.2
  */
-public class ColorMapDispatcher
+public class ColorMapDispatcher implements ColorMapCategoryListener,
+                                           ColorMapGroupListener
 {
-    private ColorMapModel model;
-    private PaintMethod currentMethod = null;
+    private ColorMapModel sourceModel;
+    private ColorMapList colorList;
+    private ColorPairModel currentModel;
+    private Category selectedCategory;
+    private PaintMethod overlayMethod = null;
+    private PaintMethod highlightMethod = null;
     
     public ColorMapDispatcher(ColorMapModel model)
     {
-        this.model = model;
+        this.sourceModel = model;
+    }
+    
+    public ColorMapDispatcher(ColorMapModel model, ColorMapList colorList)
+    {
+        this.sourceModel = model;
+        this.colorList = colorList;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupSelected(org.openmicroscopy.ds.st.CategoryGroup)
+     */
+    public void groupSelected(CategoryGroup group)
+    {
+        if(group != null)
+        {
+            System.err.println("group select received by dispatch");
+            CategoryTree tree = sourceModel.getTree();
+            List categories = tree.getCategories(group);
+            if(categories != null && categories.size() > 0)
+            {
+                Category[] cats = new Category[categories.size()];
+                categories.toArray(cats);
+                currentModel = new ColorPairModel(cats);
+                colorList.setModel(currentModel);
+                clearMethods();
+                applyOverlayMethod();
+            }
+        }
+        else
+        {
+            clearMethods();
+        }
+    }
+    
+    /**
+     * Tells the dispatcher to disable heat map mode for the selected
+     * browser.
+     */
+    public void fireModeCancel()
+    {
+        PaintMethod backupOverlayMethod = overlayMethod;
+        clearMethods();
+        overlayMethod = backupOverlayMethod;
+    }
+    
+    /**
+     * Tells the dispatcher to reenable heat map mode for the selected
+     * browser.
+     */
+    public void fireModeReactivate()
+    {
+        applyOverlayMethod();
+    }
+    
+    public void fireRedraw()
+    {
+        clearMethods();
+        applyOverlayMethod();
+        applyHighlightMethod(selectedCategory);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupsDeselected()
+     */
+    public void groupsDeselected()
+    {
+        clearMethods();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapCategoryListener#categorySelected(org.openmicroscopy.ds.st.Category)
+     */
+    public void categorySelected(Category category)
+    {
+        selectedCategory = category;
+        clearHighlightMethod();
+        applyHighlightMethod(category);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapCategoryListener#categoriesDeselected()
+     */
+    public void categoriesDeselected()
+    {
+        clearHighlightMethod();
+        selectedCategory = null;
+    }
+
+    private void applyOverlayMethod()
+    {
+        if(currentModel == null) return;
+        BrowserModel browserModel = sourceModel.getSource();
+        List thumbnails = browserModel.getThumbnails();
+        overlayMethod = ColorMapPMFactory.getOverlayMethod(currentModel);
+        for(Iterator iter = thumbnails.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.addMiddlePaintMethod(overlayMethod);
+        }
+        browserModel.fireModelUpdated();
+    }
+    
+    private void applyHighlightMethod(Category whichCategory)
+    {
+        if(whichCategory == null) return;
+        BrowserModel browserModel = sourceModel.getSource();
+        List thumbnails = browserModel.getThumbnails();
+        highlightMethod = ColorMapPMFactory.getHighlightMethod(whichCategory);
+        for(Iterator iter = thumbnails.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.addBackgroundPaintMethod(highlightMethod);
+        }
+        browserModel.fireModelUpdated();
+    }
+    
+    private void clearHighlightMethod()
+    {
+        BrowserModel browserModel = sourceModel.getSource();
+        List thumbnails = browserModel.getThumbnails();
+        for(Iterator iter = thumbnails.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.removeBackgroundPaintMethod(highlightMethod);
+        }
+        highlightMethod = null;
+        browserModel.fireModelUpdated();
+    }
+    
+    private void clearMethods()
+    {
+        BrowserModel browserModel = sourceModel.getSource();
+        List thumbnails = browserModel.getThumbnails();
+        for(Iterator iter = thumbnails.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.removeMiddlePaintMethod(overlayMethod);
+            t.removeBackgroundPaintMethod(highlightMethod);
+        }
+        overlayMethod = null;
+        highlightMethod = null;
+        browserModel.fireModelUpdated();
     }
 }

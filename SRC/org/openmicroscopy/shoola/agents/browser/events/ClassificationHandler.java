@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
@@ -88,6 +89,7 @@ public class ClassificationHandler implements CompletionHandler
         
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         BrowserManager manager = env.getBrowserManager();
+        ColorMapManager cmm = env.getColorMapManager();
         
         if(ic.getClassifications() == null ||
            ic.getClassifications().size() == 0)
@@ -124,5 +126,7 @@ public class ClassificationHandler implements CompletionHandler
                 }
             }
         }
+        
+        cmm.updateModel();
     }
 }

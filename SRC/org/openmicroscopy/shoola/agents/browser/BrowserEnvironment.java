@@ -35,6 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 
 /**
@@ -54,8 +55,8 @@ public final class BrowserEnvironment
     private BrowserAgent browserAgent;
 
     private BrowserManager browserManager;
-    
     private HeatMapManager heatMapManager;
+    private ColorMapManager colorMapManager;
     
     private IconManager iconManager;
     // private static OMEDataAgent dataAgent;
@@ -161,6 +162,24 @@ public final class BrowserEnvironment
     public void setHeatMapManager(HeatMapManager manager)
     {
         this.heatMapManager = manager;
+    }
+    
+    /**
+     * Gets the (classification) color map manager for the environment.
+     * @return See above.
+     */
+    public ColorMapManager getColorMapManager()
+    {
+        return colorMapManager;
+    }
+    
+    /**
+     * Setse the color map manager of the environment.
+     * @param manager The color map manager to use.
+     */
+    public void setColorMapManager(ColorMapManager manager)
+    {
+        this.colorMapManager = manager;
     }
 
     /**

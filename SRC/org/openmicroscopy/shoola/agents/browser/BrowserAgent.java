@@ -61,6 +61,8 @@ import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.*;
 import org.openmicroscopy.shoola.agents.browser.events.AnnotateImageHandler;
 import org.openmicroscopy.shoola.agents.browser.events.CategoryChangeHandler;
@@ -169,6 +171,7 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         env.setBrowserManager(new BrowserManager());
         env.setHeatMapManager(new HeatMapManager());
+        env.setColorMapManager(new ColorMapManager());
     }
     
     /**
@@ -491,7 +494,8 @@ public class BrowserAgent implements Agent, AgentEventListener
             for(Iterator iter = classificationList.iterator(); iter.hasNext();)
             {
                 Classification c = (Classification)iter.next();
-                List cList = (List)classificationMap.get(c);
+                List cList =
+                    (List)classificationMap.get(new Integer(c.getImage().getID()));
                 if(cList == null)
                 {
                     cList = new ArrayList();
@@ -503,6 +507,11 @@ public class BrowserAgent implements Agent, AgentEventListener
                     cList.add(c);
                 }
             }
+            ColorMapModel cmm = new ColorMapModel(model);
+            ColorMapManager cManager = env.getColorMapManager();
+            cManager.putColorMapModel(cmm);
+            cManager.showModel(model.getDataset().getID());
+            
             writeStatusImmediately(status,"Filling in relevant ST info from DB...");
             loadRelevantTypes(imageList,model,status);
             

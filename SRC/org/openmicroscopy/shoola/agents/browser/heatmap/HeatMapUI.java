@@ -121,14 +121,13 @@ public final class HeatMapUI extends JInternalFrame
                 }
             }
             
-            public void internalFrameActivated(InternalFrameEvent arg0)
+            public void internalFrameOpened(InternalFrameEvent arg0)
             {
                 if(dispatcher != null)
                 {
                     dispatcher.fireModeReactivate();
                 }
             }
-
         });
 
     }

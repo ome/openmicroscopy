@@ -85,6 +85,11 @@ public class ColorMapModel
         }
     }
     
+    public void fireUpdated()
+    {
+        notifyUpdate();
+    }
+    
     public void addModelListener(ColorMapModelListener listener)
     {
         if(listener != null)
@@ -108,6 +113,16 @@ public class ColorMapModel
             ColorMapModelListener listener =
                 (ColorMapModelListener)iter.next();
             listener.modelChanged(this);
+        }
+    }
+    
+    private void notifyUpdate()
+    {
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            ColorMapModelListener listener =
+                (ColorMapModelListener)iter.next();
+            listener.modelUpdated(this);
         }
     }
 }

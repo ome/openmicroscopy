@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModelListener
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapCategoryListener
  *
  *------------------------------------------------------------------------------
  *
@@ -35,17 +35,24 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
+import org.openmicroscopy.ds.st.Category;
+
 /**
- * A listener for the model of the color map.
- * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
- * @since OME2.2
+ * @version
+ * @since
  */
-public interface ColorMapModelListener
+public interface ColorMapCategoryListener
 {
-    public void modelChanged(ColorMapModel model);
+    /**
+     * Indicates that a category has been selected.
+     * @param category The selected category.
+     */
+    public void categorySelected(Category category);
     
-    public void modelUpdated(ColorMapModel model);
+    /**
+     * Indicates that categories have been deselected.
+     */
+    public void categoriesDeselected();
 }

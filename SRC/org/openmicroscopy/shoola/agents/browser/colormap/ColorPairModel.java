@@ -60,15 +60,21 @@ public class ColorPairModel
     private Map colorMap;
     private List colorPairList;
     
+    /**
+     * Constructs an empty ColorPairModel.
+     */
     public ColorPairModel()
     {
-        factory = new ColorPairFactory();
-        colorMap = new HashMap();
-        colorPairList = new ArrayList();
+        init();
     }
     
+    /**
+     * Constructs a ColorPairModel with the specified array of categories.
+     * @param categories The array of categories to base the model on.
+     */
     public ColorPairModel(Category[] categories)
     {
+        init();
         for(int i=0;i<categories.length;i++)
         {
             ColorPair pair = factory.getColorPair(categories[i]);
@@ -77,11 +83,46 @@ public class ColorPairModel
         }
     }
     
+    private void init()
+    {
+        factory = new ColorPairFactory();
+        colorMap = new HashMap();
+        colorPairList = new ArrayList();
+    }
+    
+    /**
+     * Returns the color that represents a category.
+     * @param category The category to retrieve the color for.
+     * @return
+     */
     public Color getColor(Category category)
     {
         return (Color)colorMap.get(category);
     }
     
+    /**
+     * Gets the color pair at the specified index.
+     * @param i The index of the pair to get.
+     * @return See above.
+     */
+    public ColorPair get(int i)
+    {
+        return (ColorPair)colorPairList.get(i);
+    }
+    
+    /**
+     * Gets the number of color pairs in the model.
+     * @return See above.
+     */
+    public int size()
+    {
+        return colorPairList.size();
+    }
+    
+    /**
+     * Adds the specified category.  The color is automatically chosen.
+     * @param category The category to add to the model.
+     */
     public void addCategory(Category category)
     {
         if(category == null) return;

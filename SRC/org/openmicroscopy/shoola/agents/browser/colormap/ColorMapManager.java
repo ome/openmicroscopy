@@ -65,12 +65,18 @@ public class ColorMapManager
     public ColorMapManager()
     {
         datasetModelMap = new HashMap();
+        embeddedUI = new ColorMapUI();
     }
     
     public ColorMapModel getModel(int datasetID)
     {
         Integer integer = new Integer(datasetID);
         return (ColorMapModel)datasetModelMap.get(integer);
+    }
+    
+    public ColorMapUI getUI()
+    {
+        return embeddedUI;
     }
     
     public void putColorMapModel(ColorMapModel model)
@@ -86,7 +92,8 @@ public class ColorMapManager
         datasetModelMap.remove(new Integer(datasetID));
         if(datasetID == datasetShown)
         {
-            // TODO reset embedded UI
+            datasetShown = NO_DATASET_SHOWN;
+            embeddedUI.reset();
         }
     }
     
@@ -102,6 +109,15 @@ public class ColorMapManager
         {
             datasetShown = NO_DATASET_SHOWN;
             embeddedUI.reset();
+        }
+    }
+    
+    public void updateModel()
+    {
+        ColorMapModel model = getModel(datasetShown);
+        if(model != null)
+        {
+            model.fireUpdated();
         }
     }
 }

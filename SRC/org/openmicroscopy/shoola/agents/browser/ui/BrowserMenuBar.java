@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapUI;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
@@ -83,7 +85,8 @@ public class BrowserMenuBar extends JMenuBar
     
     public static final int ANALYZE_MAGNIFY_ITEM = 201;
     public static final int ANALYZE_HEATMAP_ITEM = 202;
-    public static final int ANALYZE_CATEGORIES_ITEM = 203;
+    public static final int ANALYZE_VIEW_CATEGORIES_ITEM = 203;
+    public static final int ANALYZE_CATEGORIES_ITEM = 204;
     
     private Map menuMap;
     private Map menuItemMap;
@@ -136,6 +139,7 @@ public class BrowserMenuBar extends JMenuBar
         menu.add(createAnalyzeMagnifierItem());
         menu.addSeparator();
         menu.add(createAnalyzeHeatmapItem());
+        menu.add(createAnalyzeViewCategoryItem());
         menu.add(createAnalyzeCategoryItem());
         
         menuMap.put(new Integer(ANALYZE_MENU),menu);
@@ -282,13 +286,49 @@ public class BrowserMenuBar extends JMenuBar
         return heatItem;
     }
     
+    private JMenuItem createAnalyzeViewCategoryItem()
+    {
+        final BrowserEnvironment env = BrowserEnvironment.getInstance();
+        final BrowserAgent agent = env.getBrowserAgent();
+        final TopFrame tf = agent.getTopFrame();
+        
+        JMenuItem categoryItem = new JMenuItem("View Phenotypes");
+        categoryItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                ColorMapManager manager = env.getColorMapManager();
+                ColorMapUI ui = manager.getUI();
+                ui.setClosable(true);
+                ui.setIconifiable(true);
+                ui.setResizable(false);
+                ui.setMaximizable(false);
+                if(!ui.isShowing())
+                {
+                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
+                    ui.show();
+                }
+                else
+                {
+                    try
+                    {
+                        ui.setSelected(true);
+                    }
+                    catch(PropertyVetoException ex) {}
+                }
+            }
+        });
+        menuItemMap.put(new Integer(ANALYZE_VIEW_CATEGORIES_ITEM),categoryItem);
+        return categoryItem;
+    }
+    
     private JMenuItem createAnalyzeCategoryItem()
     {
         final BrowserEnvironment env = BrowserEnvironment.getInstance();
         final BrowserAgent agent = env.getBrowserAgent();
         final TopFrame tf = agent.getTopFrame();
         
-        JMenuItem categoryItem = new JMenuItem("View Categories");
+        JMenuItem categoryItem = new JMenuItem("Edit Phenotypes");
         categoryItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)

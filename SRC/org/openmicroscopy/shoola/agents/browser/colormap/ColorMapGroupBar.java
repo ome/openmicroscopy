@@ -84,6 +84,7 @@ public class ColorMapGroupBar extends JPanel
         else
         {
             this.categoryTree = tree;
+            comboBox.setEnabled(true);
             init();
             buildUI();
         }
@@ -91,13 +92,14 @@ public class ColorMapGroupBar extends JPanel
     
     public void setCategoryTree(CategoryTree model)
     {
+        categoryTree = model;
         if(categoryTree == null)
         {
             buildInactiveBox();
         }
         else
         {
-            buildComboBox(model);
+            buildComboBox(categoryTree);
         }
         repaint();
     }
@@ -124,14 +126,15 @@ public class ColorMapGroupBar extends JPanel
         }
         
         List groupList = categoryTree.getCategoryGroups();
-        String[] groupNames = new String[groupList.size()];
+        String[] groupNames = new String[groupList.size()+1];
+        groupNames[0] = "Select a class:";
         for(int i=0;i<groupList.size();i++)
         {
             CategoryGroup group = (CategoryGroup)groupList.get(i);
-            groupNames[i] = group.getName();
+            groupNames[i+1] = group.getName();
         }
         comboBox.setModel(new DefaultComboBoxModel(groupNames));
-        
+        comboBox.setEnabled(true);
         // just in case, remove (will need to add if shifting from null)
         comboBox.removeItemListener(selectionListener);
         comboBox.addItemListener(selectionListener);
@@ -203,18 +206,27 @@ public class ColorMapGroupBar extends JPanel
         {
             if(arg0.getStateChange() == ItemEvent.SELECTED)
             {
-                int index = comboBox.getSelectedIndex();
+                System.err.println("item selected");
+                int index = comboBox.getSelectedIndex()-1;
+                if(index == -1) return;
                 CategoryGroup group = categoryTree.getCategoryGroup(index);
+                System.err.println("Selected group: "+group.getName());
                 notifyListeners(group);
             }
             if(arg0.getStateChange() == ItemEvent.DESELECTED)
             {
-                int index = comboBox.getSelectedIndex();
-                if(index == -1)
+                int index = comboBox.getSelectedIndex()-1;
+                if(index < 0)
                 {
                     notifyDeselection();
                 }
             }
         }
     };
+    
+    public void setEnabled(boolean enabled)
+    {
+        super.setEnabled(enabled);
+        comboBox.setEnabled(enabled);
+    }
 }
