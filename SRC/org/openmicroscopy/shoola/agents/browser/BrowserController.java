@@ -99,6 +99,15 @@ public class BrowserController
     }
     
     /**
+     * Returns the name of the dataset.
+     * @return The name of the enclosed dataset.
+     */
+    public String getName()
+    {
+        return browserModel.getDataset().getName();
+    }
+    
+    /**
      * Return the image data set that 
      * @return
      */

@@ -80,6 +80,7 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public BrowserAgent()
     {
+        System.err.println("browser launched");
         env = BrowserEnvironment.getInstance();
         env.setBrowserAgent(this);
     }
@@ -102,7 +103,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public boolean canTerminate()
     {
-        // TODO Auto-generated method stub
+        BrowserManager manager = env.getBrowserManager();
+        List browsers = manager.getAllBrowsers();
+        
         return true;
     }
     

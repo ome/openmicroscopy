@@ -68,7 +68,8 @@ public class BrowserInternalFrame extends JInternalFrame
     public BrowserInternalFrame(BrowserController controller)
     {
         setSize(600,600);
-        setTitle("Image Browser--Sample Dataset"); // TODO: get name of dataset
+        String title = controller.getName();
+        setTitle("Image Browser: "+title);
         setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
         
         if(controller != null)
