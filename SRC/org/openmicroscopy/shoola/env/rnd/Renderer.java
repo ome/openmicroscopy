@@ -105,7 +105,7 @@ class Renderer
 			//TODO: calcultate default interval using sigma, etc.
 			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
 											wGlobal.getGlobalMax(),
-											0, 0, 0, 255, false);
+											255, 0, 0, 255, false);
 		}
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
 		return new RenderingDef(dims.sizeZ/2+dims.sizeZ%2-1, 0, 
@@ -170,6 +170,12 @@ class Renderer
 		
 		//Create an appropriate rendering strategy.
 		renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());
+	}
+	
+	void setModel(int model)
+	{
+		renderingDef.setModel(model);
+		renderingStrategy = RenderingStrategy.makeNew(model);
 	}
 	
 	/**

@@ -77,7 +77,7 @@ class PlaneSlicingMap
 	/** Implemented as specified in {@link CodomainMap}. */
 	public int transform(int x)
 	{
-		int r = x;
+		int r;
 		if (psCtx.IsConstant()) r = transformConstant(x);
 		else r = transformNonConstant(x);
 		return r;

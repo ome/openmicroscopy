@@ -280,8 +280,8 @@ public class CodomainChain
 	 */
 	public int transform(int x)
 	{
-		verifyInput(x);
-		return LUT[x-intervalStart];
+		int y = verifyInput(x);
+		return LUT[y-intervalStart];
 	}
 	
 	/** Builds the lookup table. */
@@ -291,9 +291,9 @@ public class CodomainChain
 		CodomainMap map;
 		CodomainMapContext ctx;
 		int v;
-		Iterator i = chain.iterator();
 		for (int x = intervalStart; x <= intervalEnd; ++x) {
 			v = x;
+			Iterator i = chain.iterator();
 			while (i.hasNext()) {
 				ctx = (CodomainMapContext) i.next();
 				map = ctx.getCodomainMap();
@@ -321,11 +321,11 @@ public class CodomainChain
 	 * 
 	 * @param x		Input value.
 	 */
-	private void verifyInput(int x)
+	private int verifyInput(int x)
 	{
-		if (x < intervalStart || x > intervalEnd)
-			throw new IllegalArgumentException(
-				"Value not in the codomain interval: "+x);
+		if (x < intervalStart) x = intervalStart;
+		else if (x > intervalEnd) x = intervalEnd;
+		return x;
 	}
 	
 }

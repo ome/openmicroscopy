@@ -63,6 +63,7 @@ abstract class RenderingStrategy
 			case RenderingDef.GS:
 				strategy = new GreyScaleStrategy();
 				break;
+			case RenderingDef.HSB:
 			case RenderingDef.RGB:
 				strategy = new RGBStrategy();
 				break;

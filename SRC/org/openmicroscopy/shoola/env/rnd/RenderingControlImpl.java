@@ -84,8 +84,7 @@ class RenderingControlImpl
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void setModel(int model) 
 	{
-		RenderingDef rd = renderer.getRenderingDef();
-		rd.setModel(model);
+		renderer.setModel(model);
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */

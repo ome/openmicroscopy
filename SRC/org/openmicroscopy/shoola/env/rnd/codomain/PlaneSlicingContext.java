@@ -128,15 +128,10 @@ public class PlaneSlicingContext
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * Sets the lowerLimit and upperLimit.
 	 * 
 	 * @see CodomainMapContext#buildContext()
 	 */
-	void buildContext() 
-	{
-		lowerLimit = intervalStart;
-		upperLimit = intervalEnd;
-	}
+	void buildContext() {}
 
 	/** 
 	 * Implemented as specified by superclass.
