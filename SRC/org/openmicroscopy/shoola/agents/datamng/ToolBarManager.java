@@ -96,6 +96,7 @@ class ToolBarManager
 				case CREATE_D:
 					control.createDataset(); break;
 				case CREATE_I:
+					control.showImagesImporter();
 					break;
 			}
 		} catch(NumberFormatException nfe) { 
