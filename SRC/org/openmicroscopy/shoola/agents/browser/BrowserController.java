@@ -140,8 +140,12 @@ public class BrowserController
 				browserModel.addThumbnail(t);
 				statusView.processAdvanced("Loaded image "+String.valueOf(ID));
 			}
-			statusView.processFailed("I dunno... did you break it?");
+            statusView.processSucceeded("Dataset loaded.");
     	}
+        else
+        {
+            statusView.processFailed("I dunno... did you break it?");
+        }
     	
     }
     
