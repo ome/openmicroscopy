@@ -116,7 +116,6 @@ abstract class Entry
         contentHandlers.put("font", FontEntry.class);
         contentHandlers.put("icons", IconFactoryEntry.class);
         contentHandlers.put("agents", AgentsEntry.class);
-		contentHandlers.put("dictionary", DictionaryEntry.class);
     }
     
     /**
