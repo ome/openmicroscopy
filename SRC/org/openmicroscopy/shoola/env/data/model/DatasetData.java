@@ -51,7 +51,8 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class DatasetData {
+public class DatasetData
+{
 
 	private int 		id;
 	private String 		name;
