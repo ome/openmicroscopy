@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.DataSink
+ * org.openmicroscopy.shoola.env.rnd.data.DataSink
  *
  *------------------------------------------------------------------------------
  *
@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 
 //Java imports
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +42,7 @@ import java.util.Map;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.PixelsServiceAdapter;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
@@ -125,6 +128,7 @@ public class DataSink
 		pixelTypesMap.put("DOUBLE", new Integer(DOUBLE));
 	}
 	
+	/** Tells the endianness of the pixels. */
 	private static final boolean	BIG_ENDIAN = true;
 	
 	/**
@@ -133,7 +137,7 @@ public class DataSink
 	 * 
 	 * @param type	The pixel type.  Must be a valid identifier (one out of
 	 * 				"BIT", "INT8", etc.) defined by the <i>OME</i> spec.
-	 * @return
+	 * @return	The corresponding integer constant defined by this class.
 	 */
 	public static int getPixelTypeID(String type)
 	{
@@ -146,39 +150,80 @@ public class DataSink
 	
 
 	/** The id of the pixels set. */
-	private Pixels      		pixelsID;
-	//TODO: this should be turned into int!
+	private Pixels				pixelsID;
 	
 	/**
-	 * The type used to store pixel values. One of the constants defined by
-	 * this class.
+	 * The type used to store pixel values. 
+	 * One of the constants defined by this class.
 	 */
-	private int         		pixelType;
+	private int					pixelType;
     
+    /** Size of the pixels set. */
     private PixelsDimensions 	pixDims;
+    
+    /** 
+     * Caches the definition of the last plane returned by the 
+     * {@link #getPlane2D(PlaneDef, int) getPlane2D} method.
+     */
     private PlaneDef			curPlaneDef;
+    
+    /** 
+     * The z-stack of each wavelength at a given timepoint.
+     * The first element contains the stack of the wavelength which was assinged
+     * index <code>0</code>, etc.
+     * This buffer is pre-allocated when the instance is created and then
+     * filled up every time the plane definition processed by the
+     * {@link #getPlane2D(PlaneDef, int) getPlane2D} method specifies a
+     * timepoint different from the one pointed by {@link #curPlaneDef}.  
+     */
+	private byte[][]			stack;
+	
+	/** Proxy to the remote pixels source. */
     private PixelsService 		source;
     
-    private byte[][]			stack;
     
-    //Hack due to current status: should be removed. 
-    private HashMap				planes;
+    
+    /** 
+     * Pre-allocates all memory needed by the {@link #stack} array.
+     */
+    private void allocateStack()
+    {
+		int wStackSize = pixDims.sizeX*pixDims.sizeY* 
+								pixDims.sizeZ*BYTES_PER_PIXEL[pixelType];
+		stack = new byte[pixDims.sizeW][wStackSize];
+    }
     
     private void fillStack(int t)
 		throws DataSourceException
     {
-    	int stackSize = pixDims.sizeX * pixDims.sizeY * 
-    					pixDims.sizeZ * BYTES_PER_PIXEL[pixelType];
-    	stack = new byte[pixDims.sizeW][];
+		PixelsServiceAdapter omeis = (PixelsServiceAdapter) source;  //TODO: just tmp hack.
+		InputStream pixelStream = null;
+		int w = 0, bytesRead, offset;    	
     	try {
-			for (int w = 0; w < pixDims.sizeW; ++w) {
-				stack[w] = source.getStack(pixelsID, w, t, BIG_ENDIAN);
-				if (stack[w].length != stackSize)
-					throw new DataSourceException(
-						"Wrong stack size: "+stackSize+"..."+stack[w].length);
+			for (; w < pixDims.sizeW; ++w) {
+				pixelStream = omeis.getStackStream(pixelsID, w, t, BIG_ENDIAN);
+				bytesRead = offset = 0;
+				while ( 0 < 
+					(bytesRead = pixelStream.read(stack[w], offset, 1024)))
+					offset += bytesRead;
 			}	
 		} catch (ImageServerException ise) {
-			throw new DataSourceException("Can't retrieve pixels data.", ise);
+			throw new DataSourceException(
+				"Can't retrieve wavelength "+w+" stack at timepoint "+
+				t+": ", ise);
+		} catch (IOException ioe) {
+			throw new DataSourceException(
+				"Can't retrieve wavelength "+w+" stack at timepoint "+
+				t+": ", ioe);
+		} catch (ArrayIndexOutOfBoundsException aiobe) {  //Should never happen.
+			throw new DataSourceException(
+				"Can't retrieve wavelength "+w+" stack at timepoint "+
+				t+". The length of the stack stream exceeds this wavelength's"+
+				"stack size, which is "+stack[w].length+" bytes.");
+		} finally {
+			try {
+				if (pixelStream != null) pixelStream.close();
+			} catch (IOException ioe) {}
 		}
     }
     
@@ -204,34 +249,6 @@ public class DataSink
 		return plane;
 	}
     
-    //TMP method, to be removed.
-    private Plane2D makeXYPlane(int z, int w, int t, BytesConverter strategy)
-		throws DataSourceException
-    {
-		int planeSize = pixDims.sizeX * pixDims.sizeY * 
-						BYTES_PER_PIXEL[pixelType];
-		byte[] data = null;
-		try {
-			data = source.getPlane(pixelsID, z, w, t, BIG_ENDIAN);
-			if (data.length != planeSize)
-				throw new DataSourceException(
-						"Wrong plane size: "+data.length+
-						" (expected: "+planeSize);
-		} catch (ImageServerException ise) {
-			throw new DataSourceException("Can't retrieve pixels data.", ise);
-		}
-		Plane2D pXY = new Plane2D(curPlaneDef, pixDims, 
-									BYTES_PER_PIXEL[pixelType],
-									data, strategy)
-		{
-			protected int calculateOffset(int x1, int x2) 
-			{ 
-				return bytesPerPixel * (dims.sizeX*x2+x1);
-			}	
-		};
-		return pXY;
-    }
-    
 	/**
 	 * Creates a new object to deal with the image data.
 	 * 
@@ -253,8 +270,7 @@ public class DataSink
 		this.pixDims = dims;
 		this.curPlaneDef = null;
 		this.source = source;
-		stack = new byte[dims.sizeW][];
-		planes = new HashMap();
+		allocateStack();
 	}
 
 	/** Retrieves the Pixels type. */
@@ -264,44 +280,12 @@ public class DataSink
 	public Plane2D getPlane2D(PlaneDef pDef, int w)
 		throws DataSourceException
 	{
-		//if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
-		//	fillStack(pDef.getT());
-		//To be restored.
-		/*
+		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
+			fillStack(pDef.getT());
 		curPlaneDef = pDef;
 		BytesConverter strategy = 
 						BytesConverter.getConverter(pixelType, BIG_ENDIAN);
 		return createPlane(stack[w], strategy);
-		*/
-		// tempo *hack*, should be removed
-		Integer index = new Integer(w);
-		Plane2D plane = null;
-		Plane2DSelected p2DSelected = (Plane2DSelected) planes.get(index);
-		
-		if (p2DSelected == null) {
-			curPlaneDef = pDef;
-			BytesConverter strategy = 
-							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-			plane = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy);
-
-			planes.put(index, 
-						new Plane2DSelected(plane, pDef.getZ(), pDef.getT()));
-		} else {
-			if (p2DSelected.curZ != pDef.getZ() || 
-				p2DSelected.curT != pDef.getT()) {
-				curPlaneDef = pDef;
-				BytesConverter strategy = 
-							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-				plane = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy);
-				p2DSelected.setCurT(pDef.getT());
-				p2DSelected.setCurZ(pDef.getZ());
-				p2DSelected.setPlane(plane);
-				planes.put(index, p2DSelected);
-			} else {
-				plane = p2DSelected.plane;
-			}
-		}
-		return plane;
 	}
 
 }
