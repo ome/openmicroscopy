@@ -36,14 +36,16 @@ import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.BoxLayout;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -71,9 +73,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ToolBar
 	extends JToolBar
 {
-	
-	/** Height of the JPanel which contains the textfield. */
-	private static final int		HEIGHT = 20;
+
+	/** 
+	 * The size of the invisible components used to separate widgets
+	 * horizontally.
+	 */
+	private static final Dimension	H_SPACER_SIZE = new Dimension(5, 1);
 	
 	/** Bring up the save image widget. */
 	private JButton					saveAs;
@@ -99,7 +104,7 @@ public class ToolBar
 	/** Labels displaying the number of timepoints and of z-sections. */
 	private JLabel					zLabel, tLabel;
 	
-	private JPanel					zPanel, tPanel;
+	private JPanel					ztPanel;
 	
 	private ToolBarManager			manager;
 	
@@ -216,103 +221,73 @@ public class ToolBar
 		zField.setToolTipText(
 			UIUtilities.formatToolTipText("Enter a Z point"));
 		if (maxZ-1 == 0) zField.setEditable(false);
-		
-		JLabel label = new JLabel(" Z ");
-		zPanel = TextFieldPanel(label, zField, zLabel, ("/"+maxZ).length());
-		label = new JLabel(" T ");
-		tPanel = TextFieldPanel(label, tField, tLabel, ("/"+maxT).length());
+		ztPanel = textFieldsPanel((""+maxZ).length(), (""+maxT).length());
 	}
 	
 	/** Build the main tool bar. */
 	private void buildToolBar() 
 	{
 		setFloatable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		add(buildRenderingBar());
-		addSeparator(Viewer.SEPARATOR);
-		add(buildMovieBar());
-		addSeparator(Viewer.SEPARATOR);
-		add(buildTextFieldBar());
-		addSeparator(Viewer.SEPARATOR_END);
+		putClientProperty("JToolBar.isRollover", new Boolean(true));
+		add(render);
+		add(inspector);
+		add(saveAs);
+		add(new JSeparator(SwingConstants.VERTICAL));
+		//movie controls.
+		add(play);
+		add(pause);
+		add(stop);
+		add(rewind);
+		add(forward);
+		JLabel label = new JLabel(" Rate ");
+		add(label);
+		add(fps);
+		add(Box.createRigidArea(H_SPACER_SIZE));
+		add(new JSeparator(SwingConstants.VERTICAL));
+		add(ztPanel);
 	}
 	
-	/** Tool bar containing the textFields. */
-	private JToolBar buildTextFieldBar()
+	private JPanel textFieldsPanel(int zLength, int tLength)
 	{
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.add(zPanel);
-		tb.add(tPanel);
-		tb.addSeparator();
-		return tb;
-	}
-	
-	/** 
-	 * Build Panel with TextField to diplay in the toolBar. 
-	 * Use to control the size of the textField in the ToolBar.
-	 */
-	private JPanel TextFieldPanel(JLabel l, JTextField field, JLabel le, 
-					int length)
-	{
-		Insets insets = field.getInsets();
-		int y = insets.left+length*txtWidth+insets.right;
-		JPanel p = new JPanel(), pField = new JPanel(), 
-				pAll = new JPanel();
-		pField.setLayout(null);
-		Dimension d = new Dimension(y, HEIGHT);
-		pField.setPreferredSize(d);
-		pField.setSize(d);
-		field.setPreferredSize(d);
-		field.setSize(d);
-		pField.add(field);
-		
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(l);
-		p.add(pField);
-		p.add(le);
-		
+		JPanel p = new JPanel();
+		JLabel l = new JLabel(" Z ");
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
-		pAll.setLayout(gridbag);
-		c.weightx = 0.5;
+		p.setLayout(gridbag);
 		c.gridx = 0;
 		c.gridy = 0;
-		gridbag.setConstraints(p, c);
-		pAll.add(p);
-
-		return pAll;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.EAST;
+		gridbag.setConstraints(l, c);
+		p.add(l);
+		c.gridx = 1;
+		Insets insets = zField.getInsets();
+		System.out.println(insets);
+		int x = insets.left+zLength*txtWidth+insets.right;
+		c.ipadx = x;
+		gridbag.setConstraints(zField, c);
+		p.add(zField);
+		c.gridx = 2;
+		gridbag.setConstraints(zLabel, c);
+		p.add(zLabel);
+		c.gridx = 3;
+		c.ipadx = 0;
+		l = new JLabel(" T ");
+		gridbag.setConstraints(l, c);
+		p.add(l);
+		c.gridx = 4;
+		insets = tField.getInsets();
+		x = insets.left+tLength*txtWidth+insets.right;
+		c.ipadx = x;
+		gridbag.setConstraints(tField, c);
+		p.add(tField);
+		c.gridx = 5;
+		gridbag.setConstraints(tLabel, c);
+		p.add(tLabel);
+		return p;
 	}
 	
-	/** Tool bar containing the rendering buttons. */
-	private JToolBar buildRenderingBar()
-	{
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.add(render);
-		tb.add(inspector);
-		tb.add(saveAs);
-		tb.addSeparator();
-		return tb;
-	}
-	
-	/** Tool bar containing the movie buttons. */
-	private JToolBar buildMovieBar()
-	{
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.add(play);
-		tb.add(pause);
-		tb.add(stop);
-		tb.add(rewind);
-		tb.add(forward);
-		JLabel label = new JLabel(" Rate ");
-		tb.add(label);
-		tb.add(fps);
-		tb.addSeparator();
-		return tb;
-	}
-	
-	
+	/** Initializes the width of the text. */
 	private void initTxtWidth()
 	{
 		FontMetrics metrics = getFontMetrics(getFont());
