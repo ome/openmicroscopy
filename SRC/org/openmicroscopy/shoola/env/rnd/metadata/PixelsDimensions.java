@@ -97,11 +97,11 @@ public class PixelsDimensions
 				"At least one wavelength is required.");
 		if (sizeT < 1)
 			throw new IllegalArgumentException("Timepoints must be positive.");
-        if (pixelSizeX <= 0)
+        if (pixelSizeX < 0)
             throw new IllegalArgumentException("Pixel size must be positive.");
-        if (pixelSizeY <= 0)
+        if (pixelSizeY < 0)
             throw new IllegalArgumentException("Pixel size must be positive.");
-        if (pixelSizeZ <= 0)
+        if (pixelSizeZ < 0)
             throw new IllegalArgumentException("Pixel size must be positive.");
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
