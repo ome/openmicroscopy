@@ -30,10 +30,12 @@
 package org.openmicroscopy.shoola.agents.executions.ui.model;
 
 //Java imports
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
+
 import java.util.Vector;
 import javax.swing.event.ChangeListener;
 //Third-party libraries
@@ -41,7 +43,9 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.LongRangeSlider;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 
 /** 
@@ -64,18 +68,64 @@ public class ExecutionsModel {
 	
 	private int currentOrder;
 	
-	private HashMap execsByDataset;
-	private HashMap execsByChain;
+	private LinkedHashMap execsByDataset;
+	private LinkedHashMap execsByChain;
 	private Vector sortedExecs;
 	private BoundedLongRangeModel model= null;
+	
+	private String datasetNames[];
+	private String chainNames[];
+	
+	private GridModel gm;
 	
 	public ExecutionsModel(ChainExecutionsLoadedEvent event) {
 		this.execsByDataset = event.getChainExecutionsByDatasetID();
 		this.execsByChain = event.getChainExecutionsByChainID();
 		
-		HashMap byID = event.getExecutionsByID();
+		LinkedHashMap byID = event.getExecutionsByID();
 		sortedExecs = new Vector(byID.values());
-		Collections.sort(sortedExecs);		
+		Collections.sort(sortedExecs);
+		getDatasetNames();
+		getChainNames();
+	}
+	
+	// execs by dataset is a hash on dataset ids. each value is a list of
+	// executions for the given dataset. Probably should be wrapped in
+	// its own class. someday.
+	
+	private void getDatasetNames(){
+		int sz = execsByDataset.keySet().size();
+		datasetNames = new String[sz];
+		Iterator iter = execsByDataset.keySet().iterator();
+		int i = 0;
+		
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			Collection exs = (Collection) execsByDataset.get(obj);
+			Iterator iter2 = exs.iterator();
+			obj = iter2.next();
+			ChainExecutionData exec = (ChainExecutionData) obj;
+		    DatasetData ds = exec.getDataset();
+			datasetNames[i++] = ds.getName();	
+			
+		}
+	
+	}
+	
+	public void getChainNames() {
+		int sz = execsByChain.keySet().size();
+		chainNames = new String[sz];
+		Iterator iter = execsByChain.keySet().iterator();
+		int i = 0;
+		
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			Collection exs = (Collection) execsByChain.get(obj);
+			Iterator iter2 = exs.iterator();
+			ChainExecutionData exec = (ChainExecutionData) iter2.next();
+		     AnalysisChainData chain = exec.getChain();
+			chainNames[i++] = chain.getName();	
+		}
 	}
 	
 	public BoundedLongRangeModel getRangeModel() {
@@ -93,9 +143,11 @@ public class ExecutionsModel {
 	public GridModel getGridModel() {
 		if (model == null)
 			model = getRangeModel();
-		GridModel gm = new GridModel(this,model.getMinimum(),model.getMaximum(),
-				getLastRowIndex());
-		model.addChangeListener(gm);
+		if (gm == null) {
+			gm = new GridModel(this,model.getMinimum(),model.getMaximum(),
+					getLastRowIndex());
+			model.addChangeListener(gm);
+		}
 		return gm;
 	}
 	
@@ -124,7 +176,7 @@ public class ExecutionsModel {
 	// either way, entries go from row 1...|chains| * |datasets|
 	public int getLastRowIndex() {
 		int chainCount = getChainCount();
-		int datasetCount = execsByDataset.keySet().size();
+		int datasetCount = getDatasetCount();
 		return chainCount*datasetCount;
 	}
 	
@@ -154,6 +206,21 @@ public class ExecutionsModel {
 		return chain*getDatasetCount()+dataset;
 	}
 	
+	public String getMajorRowLabel(int count) {
+		if (currentOrder == DATASET_ORDER) {
+			if (count < datasetNames.length)
+				return datasetNames[count];
+			else
+				return null;
+		}
+		else {
+			if (count < chainNames.length) 
+				return chainNames[count];
+			else
+				return null;
+		}
+	}
+		
 	public int getMajorRowCount() {
 		if (currentOrder == DATASET_ORDER) 
 			return getDatasetCount();
@@ -168,11 +235,15 @@ public class ExecutionsModel {
 			return getDatasetCount();
 	}
 	
+	
+	
 	public void setRenderingOrder(String choice) {
+		System.err.println("changing rendering order..");
 		for (int i = 0; i < modes.length; i++) {
 			if (choice.compareTo(modes[i]) == 0)
 				currentOrder = i;
 		}
+		getGridModel().clearDecorations();
 	}
 	
 	private int getChainIndex(ChainExecutionData exec) {
@@ -188,7 +259,7 @@ public class ExecutionsModel {
 	
 	
 	
-	private int getIndex(int id,HashMap execHash) {
+	private int getIndex(int id,LinkedHashMap execHash) {
 		int index = 0;
 		Iterator iter = execHash.keySet().iterator();
 		while (iter.hasNext()) {
