@@ -36,7 +36,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.ds.dto.AnalysisNode;
 /** 
  * An analysis node object
  * 
@@ -60,6 +60,8 @@ public class AnalysisNodeData implements DataObject
 	private String newFeatureTag;
 	private List inputLinks;
 	private List outputLinks;
+	
+	private AnalysisNode analysisNodeDTO;
 	
 	public AnalysisNodeData() {}
 	
@@ -109,6 +111,9 @@ public class AnalysisNodeData implements DataObject
 		return outputLinks;
 	}
 
+	public AnalysisNode getAnalysisNodeDTO() {
+		return analysisNodeDTO;
+	}
 	public void setChain(AnalysisChainData data) {
 		chain = data;
 	}
@@ -145,6 +150,11 @@ public class AnalysisNodeData implements DataObject
 	
 	public void addOutputLink(AnalysisLinkData link) {
 		if (outputLinks == null)
-			outputLinks = new ArrayList();		outputLinks.add(link);
+			outputLinks = new ArrayList();
+		outputLinks.add(link);
+	}
+	
+	public void setAnalysisNodeDTO(AnalysisNode analysisNodeDTO) {
+		this.analysisNodeDTO =analysisNodeDTO;
 	}
 }

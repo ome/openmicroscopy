@@ -35,7 +35,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.ds.dto.FormalInput;
 /** 
  * Module Formal Inputs
  * 
@@ -58,6 +58,7 @@ public class FormalInputData
 	private boolean				isUserDefined;
 	private List				actualInputs;
 						
+	private FormalInput 		formalInputDTO;
 	
 	public FormalInputData() {};
 	
@@ -87,6 +88,11 @@ public class FormalInputData
 	public LookupTableData getLookupTable() {
 		return lookupTable;
 	}
+	
+	public FormalInput getFormalInputDTO() {
+		return formalInputDTO;
+	}
+	
 
 	public void setActualInputs(List actualInputs) {
 		this.actualInputs = actualInputs;
@@ -98,5 +104,9 @@ public class FormalInputData
 
 	public void setLookupTable(LookupTableData lookupTable) {
 		this.lookupTable = lookupTable;
+	}
+	
+	public void setFormalInputDTO(FormalInput formalInputDTO) {
+		this.formalInputDTO = formalInputDTO;
 	}
 }

@@ -35,6 +35,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.dto.Module;
 
 /** 
  * A module object
@@ -62,6 +63,8 @@ public class ModuleData
 	private List 				formalOutputs;
 	private List 				executions;
 	private String				executionInstructions;
+	
+	private Module 				moduleDTO;
 	
 	public ModuleData() {}
 	
@@ -117,7 +120,10 @@ public class ModuleData
 		return executionInstructions;
 	}
 
-		
+	public Module getModuleDTO() {
+		return moduleDTO;
+	}
+	
 	public void setModuleType(String moduleType) { 
 		this.moduleType = moduleType; 
 	}
@@ -154,4 +160,7 @@ public class ModuleData
 		this.executionInstructions = executionInstructions;
 	}
 
+	public void setModuleDTO(Module moduleDTO) {
+		this.moduleDTO=moduleDTO;
+	}
 }
