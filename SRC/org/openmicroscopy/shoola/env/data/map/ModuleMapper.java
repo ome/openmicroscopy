@@ -145,8 +145,10 @@ public class ModuleMapper
 			
 			//Make a new DataObject and fill it up.
 			mod = (ModuleData) mProto.makeNew();
+			mod.setModuleDTO(m);
 			mod.setID(m.getID());
 			mod.setName(m.getName());
+			
 			
 			// category
 			mc = m.getCategory();
@@ -166,7 +168,8 @@ public class ModuleMapper
 				int id = fin.getID();
 				
 				//Make a new DataObject and fill it up.
-				finData = (FormalInputData) finProto.makeNew();		
+				finData = (FormalInputData) finProto.makeNew();
+				finData.setFormalInputDTO(fin);
 				finData.setID(id);
 				finData.setName(fin.getName());
 		
@@ -190,7 +193,9 @@ public class ModuleMapper
 			while (j.hasNext()) {
 				fout  = (FormalOutput) j.next();
 				int id = fout.getID();
-				foutData = (FormalOutputData) foutProto.makeNew();		
+				
+				foutData = (FormalOutputData) foutProto.makeNew();
+				foutData.setFormalOutputDTO(fout);
 				foutData.setID(id);
 				foutData.setName(fout.getName());
 				
