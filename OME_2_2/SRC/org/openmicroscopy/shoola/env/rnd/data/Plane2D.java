@@ -75,9 +75,12 @@ public abstract class Plane2D
 	
 	protected abstract int calculateOffset(int x1, int x2);
 
-	public double getPixelValue(int x1, int x2)
+	public double getPixelValue(int x1, int x2) 
+        throws DataSourceException
 	{
 		int offset = calculateOffset(x1, x2);
+        if (data instanceof ReadOnlyByteArrayFuture)
+            data = ((ReadOnlyByteArrayFuture) data).getData();
 		return strategy.pack(data, offset, bytesPerPixel);
 	}
 	

@@ -39,6 +39,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -60,6 +61,9 @@ import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
+import org.openmicroscopy.shoola.util.concur.AsyncByteBuffer;
+import org.openmicroscopy.shoola.util.concur.tasks.AsyncProcessor;
+import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
 
 /** 
  * 
@@ -81,6 +85,7 @@ public class RenderingEngine
 
 	private static RenderingEngine		singleton;
 	private static Registry				registry;
+
 	
 	//NB: this can't be called outside of container b/c agents have no refs
 	//to the singleton container. So we can be sure this method is going to
@@ -96,9 +101,27 @@ public class RenderingEngine
 
 	private Map				renderers;
 	
+	//Shared by all instances of DataSink.
+	private AsyncByteBuffer	stackBuffer;
+    
+    //Used by DataSink and AsyncByteBuffer for async operation.
+    private CmdProcessor        cmdProcessor;
+	
 	private RenderingEngine()
 	{
 		renderers = new HashMap();
+		cmdProcessor = new AsyncProcessor();
+        Integer size = (Integer) registry.lookup(LookupNames.RE_STACK_BUF_SZ), 
+			blockSize = (Integer) registry.lookup(
+												LookupNames.RE_STACK_BLOCK_SZ);
+		int sz = size.intValue(), block = blockSize.intValue();
+		block = (0 < block ? block : 4096);
+		if (0 < sz) 
+			stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
+                                                    cmdProcessor);
+		else 
+			stackBuffer = new AsyncByteBuffer(1, 1);  
+            //Won't be used b/c we first check if we can cache a stack.
 	}
 	
 	public static Registry getRegistry() { return registry; }
@@ -214,7 +237,8 @@ public class RenderingEngine
 		//TODO: TMP (and wrong if multiple pixels), do it properly when
 		//PixelsService supports int pixelsID instead of Pixels.
 		return new DataSink(pixelsID, pixelType, dims, 
-							registry.getPixelsService());
+							registry.getPixelsService(), 
+                            stackBuffer, cmdProcessor);
 	}
 	
 	public void activate()
@@ -225,7 +249,6 @@ public class RenderingEngine
 		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
 		eventBus.register(this, ResetPlaneDef.class);
-		//eventBus.register(this, RenderImageMovie.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -237,16 +260,14 @@ public class RenderingEngine
 	public void eventFired(AgentEvent e) 
 	{
 		//TODO: put event on the queue and remove the following.
-		if (e instanceof LoadImage)	
-			handleLoadImage((LoadImage) e);
-		else if	(e instanceof RenderImage)
-			handleRenderImage((RenderImage) e);
+		if (e instanceof LoadImage)	handleLoadImage((LoadImage) e);
+		else if	(e instanceof RenderImage)	handleRenderImage((RenderImage) e);
 		else if (e instanceof RenderingPropChange)
 			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
 		else if (e instanceof ResetPlaneDef)
-			handleResetPlaneDef((ResetPlaneDef) e);		
+			handleResetPlaneDef((ResetPlaneDef) e);
 	}
 
 }
