@@ -66,9 +66,7 @@ public class SelectionEvent extends EventObject {
 	public static final int SET_SELECTED_EXECUTION =1;
 	public static final int SET_SELECTED_CHAIN =   1 << 1;
 	public static final int SET_SELECTED_PROJECT = 1 <<2;
-	public static final int SET_ROLLOVER_PROJECT = 1 <<3;
 	public static final int SET_SELECTED_DATASET = 1<<4;
-	public static final int SET_ROLLOVER_DATASET= 1<<5;
 	public static final int SET_ROLLOVER_CHAIN = 1<<6;
 	
 	public static final int SET_PROJECT =

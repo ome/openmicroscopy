@@ -71,13 +71,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEventListene
 public class SelectionState {
 	
 	private BrowserDatasetSummary currentDataset = null;
-	private BrowserDatasetSummary rolloverDataset = null;
-//	private Collection 	activeDatasets = null;
-	//private CChain	currentChain = null;
-	//private ChainExecution currentExecution = null;
 	private BrowserProjectSummary currentProject = null;
-	private BrowserProjectSummary rolloverProject = null;
-	//private CChain rolloverChain = null;
 	
 	// listener lists
 	private ArrayList selectionListeners = new ArrayList();
@@ -163,17 +157,7 @@ public class SelectionState {
 		return currentProject;
 	}
 
-	public void setRolloverProject(BrowserProjectSummary p) {
-		
-		rolloverProject =p;
-		fireSelectionEvent(
-			new SelectionEvent(this,SelectionEvent.SET_ROLLOVER_PROJECT));
-	
-	}
-	
-	public BrowserProjectSummary getRolloverProject() {
-		return rolloverProject;
-	}
+
 	
 	// DATASETS
 	
@@ -243,15 +227,7 @@ public class SelectionState {
 		return new ArrayList(res);
 	}
 	
-	public void setRolloverDataset(BrowserDatasetSummary d) {
-		rolloverDataset =d;
-		fireSelectionEvent(
-			new SelectionEvent(this,SelectionEvent.SET_ROLLOVER_DATASET));		
-	}
-
-	public BrowserDatasetSummary getRolloverDataset() {
-		return rolloverDataset;
-	}
+	
  	
  	// 	selections
 	
