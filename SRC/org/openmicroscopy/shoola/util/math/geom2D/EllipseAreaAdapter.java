@@ -38,7 +38,6 @@ import java.util.ArrayList;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.Copiable;
 
 /** 
  * This following class is the <code>body</code> of the 
@@ -57,7 +56,7 @@ import org.openmicroscopy.shoola.util.mem.Copiable;
  */
 class EllipseAreaAdapter
     extends Ellipse2D.Float 
-    implements Copiable, PlaneArea
+    implements PlaneArea
 {
 
     EllipseAreaAdapter(float x, float y, float width, float height)
@@ -91,7 +90,10 @@ class EllipseAreaAdapter
         setFrame(x, y, width, height); 
     }
 
-    /** Implemented as specified in the {@link Copiable} I/F. */
+    /** 
+     * Implemented as specified in the 
+     * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
+     */
     public Object copy()
     {
         return super.clone();

@@ -36,6 +36,7 @@ import java.awt.Shape;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.Copiable;
 
 /** 
  * Interface that all areas of the Euclidean space <b>R</b><sup>2</sup> must
@@ -53,7 +54,7 @@ import java.awt.Shape;
  * @since OME2.2
  */
 public interface PlaneArea
-    extends Shape
+    extends Copiable, Shape
 {
 
     /** 
