@@ -115,7 +115,7 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 
 
 	protected void clearHighlights() {
-	
+		
 		if (lastEntered != null) {
 			lastEntered.setParamsHighlighted(false);
 			ChainModuleData mod = lastEntered.getModule();
