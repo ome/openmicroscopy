@@ -621,11 +621,11 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		return null;
 	}
 
-	public LinkTarget getInputLinkTarget() {
+	public ModuleLinkTarget getInputLinkTarget() {
 		return inputLinkTarget;
 	}
 	
-	public LinkTarget getOutputLinkTarget() {
+	public ModuleLinkTarget getOutputLinkTarget() {
 		return outputLinkTarget;
 	}
 	
@@ -717,7 +717,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		name.setFont(Constants.NAME_FONT);
 		name.setPickable(false);
 		name.setScale(NAME_MAG);
-		name.setTransparency(Constants.MODULE_TRANSPARENT);
+	//	name.setTransparency(Constants.MODULE_TRANSPARENT);
 		detail.addChild(name);
 		
 		// get height for largest name 
