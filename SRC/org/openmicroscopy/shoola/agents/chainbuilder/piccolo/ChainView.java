@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.
 		LayoutChainData.Layering;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutLinkData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
@@ -242,8 +243,10 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			mNode = new LayoutModule();
 		}
 		else { // must be a real LayoutNodeData
-			ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).getModule();
-			mNode = getModuleView(mod);
+			//ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).getModule();
+			LayoutNodeData layoutNode = (LayoutNodeData) node;
+			ChainModuleData mod = (ChainModuleData) layoutNode.getModule();
+			mNode = getModuleView(layoutNode);
 			mod.addModuleNode(mNode);
 			mNode.showDetails();
 			// must show detail and overview of each node for links to be drawn
@@ -271,8 +274,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		return getAllNodes(filter,null);
 	}
 	
-	protected ModuleView getModuleView(ChainModuleData mod) {
-		return new SingleModuleView(mod);
+	protected ModuleView getModuleView(AnalysisNodeData node) {
+		return new SingleModuleView((ChainModuleData) node.getModule());
 	}
 	
 	/**

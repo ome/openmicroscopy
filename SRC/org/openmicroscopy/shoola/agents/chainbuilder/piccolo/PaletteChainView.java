@@ -50,11 +50,11 @@ import edu.umd.cs.piccolo.PNode;
 //Application-internal dependencies
 //import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByModuleID;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByNodeID;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
@@ -79,7 +79,7 @@ public class PaletteChainView extends ChainView {
 	
 	private boolean showingFull = false;
 	
-	private ChainExecutionsByModuleID executions;
+	private ChainExecutionsByNodeID executions;
 	
 	public PaletteChainView(LayoutChainData chain,ChainDataManager dataManager) {
 		super(chain);
@@ -102,12 +102,12 @@ public class PaletteChainView extends ChainView {
 		return new PaletteChainLinkLayer();
 	}
 	
-	protected ModuleView getModuleView(ChainModuleData mod) {
-		Collection mexes = null;
+	protected ModuleView getModuleView(AnalysisNodeData node) {
+		Collection nexes = null;
 		if (executions != null)
-			mexes = executions.getMexes(mod);
+			nexes = executions.getNexes(node);
 		PaletteModuleView moduleView = 
-			new PaletteModuleView(mod,mexes);
+			new PaletteModuleView(node,nexes);
 		//find the execution here..
 		return moduleView;
 	}
