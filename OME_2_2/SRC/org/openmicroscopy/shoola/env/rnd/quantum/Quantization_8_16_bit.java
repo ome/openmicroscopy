@@ -111,16 +111,16 @@ public class Quantization_8_16_bit
 		QuantumMap normalize = new PolynomialMap();
 	   	int extra = 10;
 	   	
-	   	double decile = (max-min)/(double) 10;
-	   	double Q1 = min+decile, Q9 = max-decile;
-		double S1 = Q1;
+	   	//double decile = (max-min)/(double) 10;
+	   	//double Q1 = min+decile, Q9 = max-decile;
+		double S1 = dStart;
 	   	double ysNorm = valueMapper.transform(0, k);
 	   	double yeNorm = valueMapper.transform(255, k);
 	   	double aNorm = qDef.bitResolution/(yeNorm-ysNorm);
         
 	   	double v = extra;
-		double c0, nom = Q9-Q1;
-		
+		double c0;//, nom = Q9-Q1;
+		/*
 		if (dStart >= Q1 && dEnd > Q9) {
 			nom = (Q9-dStart);
 			S1 = dStart;
@@ -130,16 +130,17 @@ public class Quantization_8_16_bit
 			nom = dEnd-dStart;
 			S1 = dStart;
 		}
-		c0 = (255-2*extra)/nom;
-		
+        */
+		//c0 = (255-2*extra)/nom;
+		c0 = (255)/(dEnd-dStart);
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 
-			if (x > Q1) {
-				if (x <= Q9)
+			//if (x > Q1) {
+			//	if (x <= Q9)
 					v = c0*(normalize.transform(x, 1)-S1)+extra;
-				else v = 255-extra;
-			} else v = extra;
+			//	else v = 255-extra;
+			//} else v = extra;
 			v = Approximation.nearestInteger(
 								aNorm*(valueMapper.transform(v, k)-ysNorm));
 			
