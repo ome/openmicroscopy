@@ -31,12 +31,18 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import javax.swing.JDialog;
+import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -56,13 +62,15 @@ class ContrastStretchingDialog
 	extends JDialog
 {
 	
-	private static final int 				LB = 
-											ContrastStretchingPanel.leftBorder,
-											TB = 
-											ContrastStretchingPanel.topBorder;
+	private static final String				TEXT = "Increase the dynamic " +
+											"range of the gray levels.";
+	
 	private ContrastStretchingPanel			csPanel;
+	
 	private ContrastStretchingDialogManager	manager;
 
+	private JLayeredPane					layeredPane;
+	
 	ContrastStretchingDialog(QuantumPaneManager control, 
 							ContrastStretchingContext ctx)
 	{
@@ -70,7 +78,7 @@ class ContrastStretchingDialog
 		manager = new ContrastStretchingDialogManager(this, control, ctx);
 		initPanel(control, ctx);
 		manager.attachListeners();
-		buildGUI();	
+		buildGUI(control.getRegistry());	
 	}
 	
 	ContrastStretchingPanel getCSPanel() { return csPanel; }
@@ -84,21 +92,44 @@ class ContrastStretchingDialog
 		int xStart, xEnd, yStart, yEnd;
 		int s = control.getCodomainStart();
 		int e = control.getCodomainEnd();
-		xStart = LB+manager.convertRealIntoGraphics(ctx.getXStart(), e-s, s);
-		xEnd = LB+manager.convertRealIntoGraphics(ctx.getXEnd(), e-s, s);
-		yStart = TB+manager.convertRealIntoGraphics(ctx.getYStart(), s-e, e);
-		yEnd = TB+manager.convertRealIntoGraphics(ctx.getYEnd(), s-e, e);
+		xStart = ContrastStretchingPanel.leftBorder+
+				manager.convertRealIntoGraphics(ctx.getXStart(), e-s, s);
+		xEnd = ContrastStretchingPanel.leftBorder+
+				manager.convertRealIntoGraphics(ctx.getXEnd(), e-s, s);
+		yStart = ContrastStretchingPanel.topBorder+
+				manager.convertRealIntoGraphics(ctx.getYStart(), s-e, e);
+		yEnd = ContrastStretchingPanel.topBorder+
+				manager.convertRealIntoGraphics(ctx.getYEnd(), s-e, e);
 		manager.setRectangles(xStart, xEnd, yStart, yEnd);
 		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
 	}
 	
 	/** Build and lay out the GUI. */
-	private void buildGUI()
+	private void buildGUI(Registry registry)
 	{
-		super.getContentPane().add(csPanel);
-		setSize(ContrastStretchingPanel.WIDTH, ContrastStretchingPanel.HEIGHT+
-					ContrastStretchingPanel.bottomBorder);
+		IconManager im = IconManager.getInstance(registry);
+		buildLayeredPane();
+		TitlePanel tp = new TitlePanel("Contrast Stretching", TEXT, 
+										QuantumPane.NOTE,
+										im.getIcon(IconManager.STRETCHING_BIG));
+		getContentPane().add(tp, BorderLayout.NORTH);
+		getContentPane().add(layeredPane, BorderLayout.CENTER);
 		setResizable(false);
+		pack();
+	}
+	
+	/** 
+	 * Builds a layeredPane containing the GraphicsRepresentation.
+	 *
+	 * @return the above mentioned.
+	 */   
+	private	void buildLayeredPane()
+	{
+		layeredPane = new JLayeredPane();
+		Dimension d = new Dimension(3*ContrastStretchingPanel.WIDTH/2, 
+										3*ContrastStretchingPanel.HEIGHT/2);
+		layeredPane.setPreferredSize(d);
+		layeredPane.add(csPanel);
 	}
 	
 }

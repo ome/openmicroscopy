@@ -62,6 +62,10 @@ public class QuantumPane
 	extends JPanel
 {
 	
+	static final String			NOTE = 
+				"[Note] The output interval selected in \"Mapping\" defines " +
+				"the input and output intervals for this transformation.";
+			
 	/** set the background color of the layered pane. */
 	private static final Color		BACKGROUND = Color.WHITE;
 	

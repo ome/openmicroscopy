@@ -139,6 +139,7 @@ class HistogramPanel
 		//output knob
 		setKnobOutputStart(lS+10, yStart);
 		setKnobOutputEnd(lS+10, yEnd);
+		setSize(WIDTH, HEIGHT);
 		repaint();
 	}
 
@@ -279,7 +280,7 @@ class HistogramPanel
 	/** Overrides the paintComponent method. */ 
 	public void paintComponent(Graphics g)
 	{
-		super.paintComponent(g);
+		//super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
 		g2D.fillRect(0, 0, WIDTH, HEIGHT); 

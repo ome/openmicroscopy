@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -186,6 +187,8 @@ class DomainPane
 	{
 		IconManager IM = IconManager.getInstance(registry);
 		histogram = new JButton(IM.getIcon(IconManager.HISTOGRAM));
+		histogram.setToolTipText(
+			UIUtilities.formatToolTipText("Bring the histogram dialog."));
 		histogram.setBorder(null);
 	}
 
@@ -282,6 +285,7 @@ class DomainPane
 	private JPanel buildButtonPanel(JButton b)
 	{
 		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
 		p.add(b);
 		return p;
 	}

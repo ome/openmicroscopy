@@ -31,22 +31,28 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import java.awt.Container;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.HashMap;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * 
@@ -66,15 +72,11 @@ class PlaneSlicingDialog
 	extends JDialog
 {
 	
-	/** Width of the widget. */
-	private static final int			WIDTH_WIN = 440;
-	
-	/** Height of the widget. */
-	private static final int			HEIGHT_WIN = 350;
-	private static final int			HEIGHT_PANEL = 100;
-	private static final int			TB = PlaneSlicingPanel.topBorder;
-	 	
+	private static final String			TEXT = 
+										"Highlight a specific gray-level range";
+		
 	private static final String[]   	RANGE;
+
 	static {
 		RANGE = new String[7];
 		RANGE[PlaneSlicingDialogManager.B_ONE] = "1-bit plane";
@@ -109,12 +111,16 @@ class PlaneSlicingDialog
 	}
 	
 	private	JRadioButton				radioStatic, radioDynamic;
+	
 	private JComboBox					range;
 		
 	private PlaneSlicingPanel			psPanel;
+	
 	private PlaneSlicingStaticPanel		pssPanel;
+	
 	private PlaneSlicingDialogManager	manager;
 	
+	private JLayeredPane				layeredPane;
 	
 	PlaneSlicingDialog(QuantumPaneManager control, PlaneSlicingContext psCtx)
 	{
@@ -123,10 +129,10 @@ class PlaneSlicingDialog
 		int yStart, yEnd, s, e; 
 		s = control.getCodomainStart();
 		e = control.getCodomainEnd();
-		yStart = TB+manager.convertRealIntoGraphics(psCtx.getLowerLimit(), s-e,
-													e);
-		yEnd = TB+manager.convertRealIntoGraphics(psCtx.getUpperLimit(), s-e, 
-												 e);
+		yStart = PlaneSlicingPanel.topBorder+
+				manager.convertRealIntoGraphics(psCtx.getLowerLimit(), s-e, e);
+		yEnd = PlaneSlicingPanel.topBorder+
+				manager.convertRealIntoGraphics(psCtx.getUpperLimit(), s-e, e);
 		psPanel = new PlaneSlicingPanel(yStart, yEnd);
 		pssPanel = new PlaneSlicingStaticPanel();
 		boolean constant = psCtx.IsConstant();
@@ -141,7 +147,7 @@ class PlaneSlicingDialog
 		buildGUI(control.getRegistry());
 	}
 
-	JComboBox getRange(){ return range; }
+	JComboBox getRange() { return range; }
 	
 	JRadioButton getRadioStatic() { return radioStatic; }
 
@@ -166,6 +172,9 @@ class PlaneSlicingDialog
 							"preserves others (cf. (2)).</html>";
 		radioStatic = new JRadioButton(txtStatic);
 		radioDynamic = new JRadioButton(txtDynamic);
+		ButtonGroup group = new ButtonGroup();
+		group.add(radioDynamic);
+		group.add(radioStatic);	
 		if (constant) radioDynamic.setSelected(true);
 		else radioStatic.setSelected(true);
 		range = new JComboBox(RANGE);
@@ -175,55 +184,79 @@ class PlaneSlicingDialog
 	/** Build and lay out the GUI. */
 	private void buildGUI(Registry registry)
 	{
-		Container contentPane = super.getContentPane();
-		contentPane.setLayout(null);
-		psPanel.setBounds(0, 0, PlaneSlicingPanel.WIDTH, 
-						PlaneSlicingPanel.HEIGHT);
-		pssPanel.setBounds(PlaneSlicingPanel.WIDTH, 0, PlaneSlicingPanel.WIDTH, 
-						PlaneSlicingPanel.HEIGHT);					 
-		contentPane.add(psPanel);
-		contentPane.add(pssPanel);
-		contentPane.add(buildRadioGroupPanel());
-		setSize(WIDTH_WIN, HEIGHT_WIN);
+		IconManager im = IconManager.getInstance(registry);
+		TitlePanel tp = new TitlePanel("Plane Slicing", TEXT, QuantumPane.NOTE,
+									im.getIcon(IconManager.SLICING_BIG));
+		buildLayeredPane();
+		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(tp, BorderLayout.NORTH);
+		getContentPane().add(layeredPane, BorderLayout.CENTER);
+		getContentPane().add(buildBody(), BorderLayout.SOUTH);
 		setResizable(false);
+		pack();
+	}
+	
+	private JPanel buildBody()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(buildRadioGroupPanel());
+		p.add(buildComboBoxPanel());
+		return p;
+	}
+	
+	/** Builds a layeredPane containing the GraphicsRepresentation. */   
+	private	void buildLayeredPane()
+	{
+		layeredPane = new JLayeredPane();
+		layeredPane.setLayout(null);
+		layeredPane.setPreferredSize(new Dimension(2*PlaneSlicingPanel.WIDTH, 
+												3*PlaneSlicingPanel.HEIGHT/2));
+		psPanel.setBounds(0, 0, PlaneSlicingPanel.WIDTH, 
+								PlaneSlicingPanel.HEIGHT);
+		pssPanel.setBounds(PlaneSlicingPanel.WIDTH, 0, PlaneSlicingPanel.WIDTH, 
+								PlaneSlicingPanel.HEIGHT);
+		layeredPane.add(psPanel, new Integer(1));
+		layeredPane.add(pssPanel, new Integer(1));
 	}
 	
 	/** Build a panel containing the radiogroup. */    
 	private JPanel buildRadioGroupPanel()
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		ButtonGroup group = new ButtonGroup();
-		group.add(radioDynamic);
-		group.add(radioStatic);		
+		JPanel p = new JPanel(), pAll = new JPanel();
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		p.setLayout(gridbag);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.EAST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		gridbag.setConstraints(radioDynamic, c);
 		p.add(radioDynamic);
+		c.gridy = 1;
+		gridbag.setConstraints(radioStatic, c);
 		p.add(radioStatic);
-		p.add(buildComboBoxPanel());
-		p.setBounds(0, PlaneSlicingPanel.HEIGHT, WIDTH_WIN, HEIGHT_PANEL);
-		return p;
+		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
+		pAll.add(p);
+		return pAll;
 	}
 	
 	/** Build a Panel with a combobox. */
 	private JPanel buildComboBoxPanel()
 	{
 		JPanel p = new JPanel();
-		JLabel txt = new JLabel(" Select a range: ");
-		int hTxt, wLabel = 110;		
-		Dimension d = range.getPreferredSize();
-		hTxt = (int) d.getHeight();
-		Dimension dLabel = new Dimension(wLabel, hTxt),
-				  dPanel = new Dimension(wLabel+(int) d.getWidth(), hTxt);
-		p.setLayout(null);
-		// size Jlabel
-		txt.setBounds(0, 0, wLabel, hTxt);
-		txt.setMaximumSize(dLabel);
-		txt.setMinimumSize(dLabel);	
-		range.setBounds(wLabel, 0, (int) d.getWidth()+20, hTxt);
-		p.setPreferredSize(dPanel);
-		p.setSize(dPanel);
-		p.add(txt);
-		p.add(range);  
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JLabel label = new JLabel(" Select a plane: ");
+		p.add(label);
+		p.add(buildComboBoxPanel(range));  
 		return p;	
 	}
 
+	private JPanel buildComboBoxPanel(JComboBox box)
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+		p.add(box);
+		return p;
+	}
 }

@@ -901,7 +901,7 @@ class GraphicsRepresentation
 		//input interval
 		g2D.drawString(start, leftBorder-wStart/2, tS+hFont);
 		g2D.drawString(end, xControl-wEnd/2, hFont+tS+extra);
-		g2D.drawString("Pixel intensity", lS2-wInput/2, 
+		g2D.drawString("Pixels intensity", lS2-wInput/2, 
 						hFont/2+tS+bottomBorder+hInput);
 		g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
 		g2D.drawString(curEnd, lS2+10, hFont+tS+bottomBorder+2*hInput);

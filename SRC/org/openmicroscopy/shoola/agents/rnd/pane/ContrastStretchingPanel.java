@@ -66,6 +66,7 @@ import javax.swing.JPanel;
 class ContrastStretchingPanel
 	extends JPanel
 {
+	
 	static final int            WIDTH = 220, HEIGHT = 200;
 	static final int			topBorder = 20, leftBorder = 40, square = 140, 
 								bottomBorder = 30, rightBorder = 10,
@@ -121,7 +122,8 @@ class ContrastStretchingPanel
 		// top-right corner
 		staticEndPt.setLocation((double) lS, (double) topBorder);
 		endPt.setLocation((double) xEnd, (double) yEnd);
-		super.repaint();
+		setSize(3*WIDTH/2, 3*HEIGHT/2);
+		repaint();
 	}
 	
 	/**
@@ -247,10 +249,10 @@ class ContrastStretchingPanel
 	/** Overrides the paintComponent() method. */
 	public void paintComponent(Graphics g)
 	{
-		super.paintComponent(g);
+		//super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setColor(bgColor);
-		g2D.fillRect(0, 0, WIDTH, HEIGHT);
+		g2D.fillRect(0, 0, 3*WIDTH/2, 3*HEIGHT/2);
 		Font font = g2D.getFont();
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight();

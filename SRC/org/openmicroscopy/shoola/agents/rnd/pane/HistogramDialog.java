@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import javax.swing.JDialog;
+import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
@@ -64,6 +66,8 @@ class HistogramDialog
 	
 	private HistogramDialogManager 	manager;
 	
+	private JLayeredPane			layeredPane;
+	
 	HistogramDialog(QuantumPaneManager control, int mini, int maxi, 
 					int start, int end, PixelsStatsEntry[] histogramData)
 	{
@@ -87,16 +91,28 @@ class HistogramDialog
 	void buildGUI(Registry registry)
 	{	
 		IconManager im = IconManager.getInstance(registry);
-
+		buildLayeredPane();
 		TitlePanel tp = new TitlePanel("Histogram", 
-										" Select the pixels intensity" +
+										" Select the pixels intensity " +
 										"interval across time.", 
 										im.getIcon(IconManager.HISTOGRAM_BIG));
 		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(histogramPanel, BorderLayout.CENTER);
-		//getContentPane().add(histogramPanel);
-		setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
-		//pack();
+		getContentPane().add(layeredPane, BorderLayout.CENTER);
+		setResizable(false);
+		pack();
+	}
+	
+	/** 
+	 * Builds a layeredPane containing the GraphicsRepresentation.
+	 *
+	 * @return the above mentioned.
+	 */   
+	private	void buildLayeredPane()
+	{
+		layeredPane = new JLayeredPane();
+		layeredPane.setPreferredSize(new Dimension(HistogramPanel.WIDTH, 
+									HistogramPanel.HEIGHT));
+		layeredPane.add(histogramPanel);
 	}
 	
 }
