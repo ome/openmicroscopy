@@ -56,8 +56,8 @@ public class ProgressMessageFormatter
      */
     public static String format(String message, int stepsComplete, int totalSteps)
     {
-        message.replaceAll("%n",String.valueOf(stepsComplete));
-        message.replaceAll("%t",String.valueOf(totalSteps));
+        message = message.replaceAll("%n",String.valueOf(stepsComplete));
+        message = message.replaceAll("%t",String.valueOf(totalSteps));
         return message;
     }
 }
