@@ -34,9 +34,6 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.DataFactory;
-import org.openmicroscopy.ds.DataServer;
-import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
@@ -74,8 +71,13 @@ public class DataServicesFactory
 		return singleton;
 	}
 	
+	//Container cfg.
 	private Registry		registry;
-	private RemoteCaller	proxy;
+	
+	//Unified access point to the various OMEDS services.
+	private OMEDSGateway	gateway;
+	
+	//Our adapters.
 	private DMSAdapter		dms;
 	private STSAdapter		sts;
     private PixelsServiceAdapter ps;
@@ -85,21 +87,16 @@ public class DataServicesFactory
 	{
 		registry = c.getRegistry();
 		
-		//Retrieve the connection URL and create the proxy.
+		//Retrieve the connection URL and create the gateway.
 		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
 		if (info == null)  //TODO: get rid of this when we have an XML schema.
 			throw new NullPointerException("No data server host provided!");
-		proxy = DataServer.getDefaultCaller(info.getServerAddress());
+		gateway = new OMEDSGateway(info.getServerAddress());
 		
-		//Create the DMS adapter.
-		DataFactory omeds = new DataFactory(proxy);
-		dms = new DMSAdapter(omeds, registry); 
-		
-		//Create the STS adapter.
-		sts = new STSAdapter(omeds, registry);
-        
-        //Create the new IS-based pixels service.
-        ps = new PixelsServiceAdapter(omeds, registry);
+		//Create the adapters.
+		dms = new DMSAdapter(gateway, registry); 
+		sts = new STSAdapter(gateway.getDataFactory(), registry);
+        ps = new PixelsServiceAdapter(gateway.getDataFactory(), registry);
 	}
 	
 	public DataManagementService getDMS()
@@ -130,19 +127,14 @@ public class DataServicesFactory
 		UserCredentials uc = (UserCredentials)
 								registry.lookup(LookupNames.USER_CREDENTIALS);
 		//uc can't be null b/c there's no way to call this method b/f init.
-		proxy.login(uc.getUserName(), uc.getPassword());
+		gateway.login(uc.getUserName(), uc.getPassword());
 		//retrieve the user's ID and store it in the UserCredentials.
 		uc.setUserID(dms.getUserID());
 	}
 	
 	public void shutdown()
 	{
-		try {
-			proxy.logout();
-			//proxy.dispose();	
-		} catch (Throwable e) {
-			//Ignore, we're quitting the app.
-		}
+		gateway.logout();	
 	}
 	
 }
