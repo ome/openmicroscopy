@@ -42,10 +42,10 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
 //Java imports
 import java.awt.event.MouseEvent;
 
-import org.openmicroscopy.shoola.util.ui.Constants;
 
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.event.PInputEventFilter;
 import edu.umd.cs.piccolo.PCamera;
@@ -54,6 +54,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * An event handler superclass for zoomable {@link PCanvas} surfaces.
@@ -127,8 +128,8 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	/**
 	 * Specific code for handling a background click
 	 */
-	public void handleBackgroundClick() {
-		animateToCanvasBounds();
+	public PActivity handleBackgroundClick() {
+		return animateToCanvasBounds();
 	}
 	
 
@@ -153,33 +154,35 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		e.setHandled(true);
 	}
 
-	public  void animateToBounds(PBounds b) {
+	public  PActivity animateToBounds(PBounds b) {
 		PCamera camera = ((PCanvas) canvas).getCamera();
-		camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
+		PActivity act = camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
 		lastBounds = b;
+		return act;
 	}
 	
-	public void animateToCanvasBounds() {
-		animateToBounds(canvas.getBufferedBounds());
+	public PActivity animateToCanvasBounds() {
+		return animateToBounds(canvas.getBufferedBounds());
 	}
 	
-	public void animateToLastBounds() {
+	public PActivity animateToLastBounds() {
 		if (lastBounds != null) {
-			animateToBounds(lastBounds);
+			return animateToBounds(lastBounds);
 		}
 		else {
-			animateToCanvasBounds();
+			return animateToCanvasBounds();
 		}
 	}
 	
-	public void animateToNode(PNode node) {
+	public PActivity animateToNode(PNode node) {
 		if (node instanceof BufferedObject) {
-			animateToBufferedObject((BufferedObject) node);
+			return animateToBufferedObject((BufferedObject) node);
 		}
+		return null;
 	}
 	
-	public void animateToBufferedObject(BufferedObject node) {
-		animateToBounds(node.getBufferedBounds());
+	public PActivity animateToBufferedObject(BufferedObject node) {
+		return animateToBounds(node.getBufferedBounds());
 	}
 	
 	protected boolean isBackgroundClick(PNode node) {
