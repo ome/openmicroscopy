@@ -14,6 +14,9 @@
      <entry name="/services/LOG/dir">log</entry>
      <!-- The name of the log file -->
      <entry name="/services/LOG/file">shoola.log</entry>
+     <!-- Temporary switch to launch the Task Bar instead of the Top Frame.
+          Will be removed after we all transition to the Task Bar. -->
+     <entry name="/services/TASKBAR/on" type="boolean">false</entry>
    </services>
    <agents>
      <structuredEntry name="/agents" type="agents">
