@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 
 //Third-party libraries
 
@@ -63,9 +62,6 @@ public class ChainLoader extends ContentLoader
 {
 	private Collection chains = null;
 	
-	/** a hash storing the chain nodes that we find */
-	private LinkedHashMap analysisNodes = new LinkedHashMap();
-	
 	public ChainLoader(final ChainDataManager dataManager,final ContentGroup group) {
 		super(dataManager,group);
 		start();
@@ -75,6 +71,7 @@ public class ChainLoader extends ContentLoader
 	 * Do the work
 	 */
 	public Object getContents() {
+		long start = System.currentTimeMillis();
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (chains == null)  {
 			chains = chainDataManager.getChains();
@@ -86,8 +83,8 @@ public class ChainLoader extends ContentLoader
 			reconcileChain(chain);
 			chain.layout();
 		}
-		// set the list of analysiNodes..
-		chainDataManager.setAnalysisNodes(analysisNodes);
+		long end = System.currentTimeMillis()-start;
+		System.err.println("total time in chain loader"+end);
 		return chains;
 	}
 	
@@ -104,7 +101,6 @@ public class ChainLoader extends ContentLoader
 			LayoutNodeData node = (LayoutNodeData) iter.next();
 			reconcileNode(node);
 			Integer id = new Integer(node.getID());
-			analysisNodes.put(id,node);
 		}
 	}
 	
