@@ -307,6 +307,8 @@ public class TopFrameImpl
                     break;
                 case HELP:
                     menu = helpMenu;
+                case CONNECT:
+                	menu = connectMenu;
             }// end switch  
         } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
                 throw nfe;  //just to be on the safe side...
