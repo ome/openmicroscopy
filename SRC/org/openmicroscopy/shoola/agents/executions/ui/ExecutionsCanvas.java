@@ -48,6 +48,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
+import org.openmicroscopy.shoola.agents.events.ViewTrackSpotsEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 /** 
  * A panel for drawing executions..
@@ -97,6 +99,10 @@ public class ExecutionsCanvas extends JPanel implements
 	private boolean pressSelected = true;
 	
 	private LongRangeSlider slider = null;
+	
+	/** is this event right after a popup */
+	protected boolean postPopup = false;
+	
 	/**
 	 * Creates a new instance.
 	 */
@@ -170,9 +176,14 @@ public class ExecutionsCanvas extends JPanel implements
 	}
 	
 	public void mouseClicked(MouseEvent e) {
+		
 	}
 	
 	public void mousePressed(MouseEvent e) {
+		
+		if (e.isPopupTrigger()) {
+			handlePopup(e);
+		}
 		ChainExecutionData exec = null;
 		ExecutionView ev = getViewAt(e.getX(),e.getY());
 		if (ev != null) {
@@ -189,7 +200,7 @@ public class ExecutionsCanvas extends JPanel implements
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		
+		mousePressed(e);
 	}
 	
 	public void mouseEntered(MouseEvent e) {
@@ -205,7 +216,26 @@ public class ExecutionsCanvas extends JPanel implements
 	public void mouseMoved(MouseEvent e) {
 		displayHint(e);
 	}
-	
+
+	public void handlePopup(MouseEvent e) {
+		postPopup = true;
+		xLoc = e.getX();
+		yLoc = e.getY();
+		ExecutionView exec = getViewAt(xLoc,yLoc);
+		if (exec == null)
+			return;
+		
+		ChainExecutionData execData = exec.getChainExecution();
+		System.err.println("viewing results for execution "+execData.getID());
+		String name = execData.getChain().getName();
+		if (name.compareTo("Find and track spots") ==0) {
+			System.err.println("viewing trajectories...");
+			ViewTrackSpotsEvent event = new ViewTrackSpotsEvent(execData);
+			registry.getEventBus().post(event);
+			
+		}
+		
+	}
 	
 	private void displayHint(MouseEvent e) {
 		xLoc = e.getX();
