@@ -59,6 +59,8 @@ public class UserMapper
 		Criteria criteria = new Criteria();
 		criteria.addWantedField("experimenter");
 		criteria.addWantedField("experimenter", "id");
+        criteria.addWantedField("experimenter", "FirstName");
+        criteria.addWantedField("experimenter", "LastName");
 		return criteria;
 	}
 	
