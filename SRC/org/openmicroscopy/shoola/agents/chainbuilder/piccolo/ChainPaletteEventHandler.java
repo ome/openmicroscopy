@@ -113,6 +113,7 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		PCamera camera=canvas.getCamera();
 		Point2D pos = e.getPosition();
 		camera.scaleViewAboutPoint(scale,pos.getX(),pos.getY());
+		lastBounds = camera.getViewBounds();
 		((ChainPaletteCanvas) canvas).updateOverview();
 	}
 	
