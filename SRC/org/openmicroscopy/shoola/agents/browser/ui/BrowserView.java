@@ -753,7 +753,6 @@ public class BrowserView extends PCanvas
             
             Rectangle2D region = new Rectangle2D.Double(tlX,tlY,brX-tlX,
                                                         brY-tlY);
-            System.err.println(region);
                                                         
             List thumbnailList = browserModel.getThumbnails();
             for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)

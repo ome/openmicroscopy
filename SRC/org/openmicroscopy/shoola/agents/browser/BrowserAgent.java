@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -129,6 +130,12 @@ public class BrowserAgent implements Agent, AgentEventListener
         
     public static final String DUMMY_DATASET_KEY =
         "/agents/browser/config/dummyDataset";
+        
+    public static final String SEMANTIC_WIDTH_KEY =
+        "/agents/browser/config/semanticWidth";    
+    
+    public static final String SEMANTIC_HEIGHT_KEY =
+        "/agents/browser/config/semanticHeight";
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -719,6 +726,18 @@ public class BrowserAgent implements Agent, AgentEventListener
             return;
         }
         // TODO: fill in loadImages(int[])
+    }
+    
+    /**
+     * Returns the width and height of the size the semantic window onto a node
+     * should be, specified in the registry file.  Suggested: 150x150.  Cool.
+     */
+    public int[] getSemanticNodeSize()
+    {
+        Integer width = (Integer)registry.lookup(SEMANTIC_WIDTH_KEY);
+        Integer height = (Integer)registry.lookup(SEMANTIC_HEIGHT_KEY);
+        
+        return new int[] {width.intValue(),height.intValue()};
     }
     
     /**

@@ -39,15 +39,14 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Paint;
-import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
-import org.openmicroscopy.shoola.agents.browser.images.DrawStyle;
-import org.openmicroscopy.shoola.agents.browser.images.DrawStyles;
-import org.openmicroscopy.shoola.agents.browser.images.PaintShapeGenerator;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -72,23 +71,71 @@ public class SemanticZoomNode extends PImage
     
     protected Font nameFont = new Font(null,Font.PLAIN,24);
     
+    private static boolean loadedCompositeInfo = false;
+    
+    private static int compositeWidth = 0;
+    private static int compositeHeight = 0;
+    
+    protected Image displayImage;
+    
     /**
      * Makes the node from the specified thumbnail.
      * @param image
      */
     public SemanticZoomNode(Thumbnail parent)
     {
-        super(parent.getImage(),false);
+        super(parent.getImage(),false); // TODO change back
+        if(!loadedCompositeInfo)
+        {
+            loadSizeInfo();
+        }
+        
         if(parent == null)
         {
             throw new IllegalArgumentException("null parent to" +
                 "SemanticZoomNode");
         }
+        
+        /*Image originalImage = parent.getImage();
+        int width = originalImage.getWidth(null);
+        int height = originalImage.getHeight(null);
+        
+        Image scaledImage;
+        
+        if(width < height)
+        {
+            scaledImage =
+                originalImage.getScaledInstance(-1,compositeHeight,
+                                                Image.SCALE_DEFAULT);
+        }
+        else
+        {
+            scaledImage =
+                originalImage.getScaledInstance(compositeWidth,-1,
+                                                Image.SCALE_DEFAULT);
+        }
+                                            
+        setImage(scaledImage);*/
+        
+        // TODO get runnable code for getting composite, showing it
+        
+        // TODO fix this
         parentThumbnail = parent;
         border = new Rectangle2D.Double(-4,-4,
                                         parent.getBounds().getWidth()+8,
                                         parent.getBounds().getHeight()+8);
         setBounds(border);
+    }
+    
+    private void loadSizeInfo()
+    {
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserAgent agent = env.getBrowserAgent();
+        int[] dim = agent.getSemanticNodeSize();
+        
+        compositeWidth = dim[0];
+        compositeHeight = dim[1];
+        loadedCompositeInfo = true;
     }
     
     /**

@@ -202,7 +202,6 @@ public class BrowserCamera implements RegionSensitive,
         
         // TODO: fix this bug (doesn't count scaling)
         double netAmount = panSpeed/camera.getViewScale();
-        System.err.println("net movement="+netAmount);
         
         PanCameraNode nwNode =
             new PanCameraNode(new Rectangle2D.Double(0,0,
@@ -585,8 +584,6 @@ public class BrowserCamera implements RegionSensitive,
             double nOffset = activeRegion.getY();
             double eOffset = activeRegion.getX()+activeRegion.getWidth();
             double sOffset = activeRegion.getY()+activeRegion.getHeight();
-            System.err.println(activeRegion);
-            System.err.println(rBounds);
 
             double cWest = rBounds.getX();
             double cNorth = rBounds.getY();
