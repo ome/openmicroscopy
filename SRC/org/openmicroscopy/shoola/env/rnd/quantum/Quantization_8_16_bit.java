@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.Quantization_8_16_bit
+ * org.openmicroscopy.shoola.env.rnd.quantum.Quantization_8_16_bit
  *
  *------------------------------------------------------------------------------
  *
@@ -27,13 +27,14 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.util.Approximation;
 
 /** 
  * 
@@ -97,8 +98,7 @@ public class Quantization_8_16_bit
 		// Comparable assumed to be Integer
 		//domain
 		int dStart = ((Integer) getWindowStart()).intValue(),
-			dEnd = ((Integer) getWindowEnd()).intValue();
-		//codomain  
+			dEnd = ((Integer) getWindowEnd()).intValue(); 
 		double ys = qMap.transform(dStart);
 		double ye = qMap.transform(dEnd);
 		double a0 = qDef.bitResolution/(ye-ys);

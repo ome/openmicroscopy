@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.ExponentialMap
+ * org.openmicroscopy.shoola.env.rnd.codomain.CodomainMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 
@@ -49,40 +49,17 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class ExponentialMap
-	extends QuantumMap
+interface CodomainMap
 {
-	private double k;
+	/** 
+	 * Sets the parameters used to write the equation of the specified
+	 * codomain transformation. 
+	 * 
+	 */ 
+	public void setContext(CodomainMapContext cxt);
 	
-	ExponentialMap(double k)
-	{
-		setCoefficient(k);
-	}
-	
-	/** Implemented as specified in {@link QuantumMap}. */
-	void setCoefficient(double k)
-	{
-		//TODO: add error checking if needed.
-		this.k = k;
-	}
-	
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(int x)
-	{
-		return Math.exp(Math.pow((double) x, k));
-	}
+	/** Performs the transformation. */
+	public int transform(int x);
 
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(double x)
-	{
-		return Math.exp(Math.pow(x, k));
-	}
-
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(float x)
-	{
-		return Math.exp(Math.pow((double) x, k));
-	}
-	
 }
 

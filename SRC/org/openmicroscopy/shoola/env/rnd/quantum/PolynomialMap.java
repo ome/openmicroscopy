@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef
+ * org.openmicroscopy.shoola.env.rnd.quantum.PolynomialMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -49,49 +49,38 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-public class PlaneSlicingDef
-	extends CodomainMapContext
+class PolynomialMap 
+	implements QuantumMap
 {
-	/** Default value 255*/
-	private int 	upperLimit;
+	private double k;
 	
-	/** Default value 0*/
-	private int 	lowerLimit;
-	
-	private int 	bitPlaneSelected;
-	
-	private int		bitPlanePrevious;
-	
-	private boolean isConstant;
-	
-	/**
-	 * Store parameters used for the bit-plane slicing transformations.
-	 * The order of the bit-plane 1-bit to 7-bit
-	 * 
-	 * @param lowerLevel		value (in [0, 255]) used to set
-	 * 							the level for bit-plane < bit-plane selected
-	 * @param upperLevel		value (in [0, 255]) used to set
-	 * 							the level for bit-plane > bit-plane selected
-	 */
-	public PlaneSlicingDef(int lowerLimit, int upperLimit)
+	PolynomialMap(double k)
 	{
-		this.lowerLimit = lowerLimit;
-		this.upperLimit = upperLimit;	
-		isConstant = false;
+		setCoefficient(k);
 	}
 	
-	public boolean getIsConstant()
+	/** Implemented as specified in {@link QuantumMap}. */
+	public void setCoefficient(double k)
 	{
-		return isConstant;
+		this.k = k;
 	}
-	public int getLowerLimit() 
+	
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(int x)
 	{
-		return lowerLimit;
+		return Math.pow((double) x, k);
 	}
 
-	public int getUpperLimit()
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(double x)
 	{
-		return upperLimit;
+		return Math.pow(x, k);
+	}
+
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(float x)
+	{
+		return Math.pow((double) x, k);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.QuantumFactory
+ * org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -172,3 +172,4 @@ public class QuantumFactory
 	}
   
 }
+

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.PolynomialMap
+ * org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,10 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //Java imports
 
@@ -49,39 +52,82 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class PolynomialMap 
-	extends QuantumMap
+public class CodomainChain
 {
-	private double k;
-	
-	PolynomialMap(double k)
+	//	current lookup table
+	private int[]		LUT;
+	private List		chains;
+	private int			intervalStart;
+	private int			intervalEnd;
+	private CodomainMap	identity;
+		
+	public CodomainChain(int intervalStart, int intervalEnd)
 	{
-		setCoefficient(k);
+		this.intervalStart = intervalStart;
+		this.intervalEnd = intervalEnd;
+		init();
 	}
 	
-	/** Implemented as specified in {@link QuantumMap}. */
-	void setCoefficient(double k)
+	//TODO: create a copy
+	public void add(CodomainMap cdm)
 	{
-		this.k = k;
+		chains.add(cdm);
 	}
 	
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(int x)
+	public void remove(CodomainMap cdm)
 	{
-		return Math.pow((double) x, k);
+		chains.remove(cdm);
+	}
+	
+	public int transform(int x)
+	{
+		return LUT[x-intervalStart];
 	}
 
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(double x)
+	public int getIntervalEnd()
 	{
-		return Math.pow(x, k);
+		return intervalEnd;
 	}
 
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(float x)
+	public int getIntervalStart()
 	{
-		return Math.pow((double) x, k);
+		return intervalStart;
 	}
 
+	public void setIntervalEnd(int intervalEnd)
+	{
+		this.intervalEnd = intervalEnd;
+		buildLUT();
+	}
+
+	public void setIntervalStart(int intervalStart)
+	{
+		this.intervalStart = intervalStart;
+		buildLUT();
+	}
+	
+	/** Initializes the list of codomain maps. */
+	private void init()
+	{ 
+		chains = new ArrayList();
+		if (identity == null) identity = new IdentityMap();
+		chains.add(identity);
+	}
+	
+	/** Build the codomain LUT. */
+	private void buildLUT()
+	{
+		LUT = new int[intervalEnd-intervalStart];
+		CodomainMap cdm;
+		int v;
+		for(int x = intervalStart; x <= intervalEnd; ++x) {
+			v = x;
+			for (int i = 0; i < chains.size(); i++) {
+				cdm = (CodomainMap) chains.get(i);
+				v = cdm.transform(v);
+			}
+			LUT[x-intervalStart] = v;	
+		}
+	}
+	
 }
-

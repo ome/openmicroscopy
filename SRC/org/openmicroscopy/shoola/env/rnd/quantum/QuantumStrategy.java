@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.QuantumStrategy
+ * org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.LogarithmicMap
+ * org.openmicroscopy.shoola.env.rnd.codomain.IdentityMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 
@@ -49,33 +49,16 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class LogarithmicMap
-	extends QuantumMap
+class IdentityMap
+	implements CodomainMap
 {
+	/**Required by I/F but not needed in our case. */
+	public void setContext(CodomainMapContext cxt) {}
 
-	/** 
-	 * Implemented as specified in {@link QuantumMap}.
-	 * Does nothing b/c the transformation doesn't require a coefficient.
-	 */
-	void setCoefficient(double k) {}
-	
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(int x)
+	/** Implemented as specified in {@link CodomainMap}. */
+	public int transform(int x)
 	{
-		return Math.log((double) x);
+		return x;
 	}
 
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(double x)
-	{
-		return Math.log(x);
-	}
-
-	/** Implemented as specified in {@link QuantumMap}. */
-	double transform(float x)
-	{
-		return Math.log((double) x);
-	}
-	
 }
-

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.QuantumMap
+ * org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 
@@ -49,19 +49,54 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-abstract class QuantumMap
+public class PlaneSlicingDef
+	extends CodomainMapContext
 {
+	/** Default value 255*/
+	private int 	upperLimit;
+	
+	/** Default value 0*/
+	private int 	lowerLimit;
+	
+	private int 	bitPlaneSelected;
+	
+	private int		bitPlanePrevious;
+	
+	private boolean isConstant;
+	
 	/**
-	 * Sets the curve coefficient k.
+	 * Store parameters used for the bit-plane slicing transformations.
+	 * The order of the bit-plane 1-bit to 7-bit
 	 * 
-	 * @param k	coefficient of the map.
+	 * @param lowerLevel		value (in [0, 255]) used to set
+	 * 							the level for bit-plane < bit-plane selected
+	 * @param upperLevel		value (in [0, 255]) used to set
+	 * 							the level for bit-plane > bit-plane selected
 	 */
-	abstract void setCoefficient(double k);
+	public PlaneSlicingDef(int lowerLimit, int upperLimit)
+	{
+		this.lowerLimit = lowerLimit;
+		this.upperLimit = upperLimit;	
+		isConstant = false;
+	}
 	
-	/** Transform the inputValue. */
-	abstract double transform (int x);
-	abstract double transform (double x);
-	abstract double transform (float x);
+	/** Does nothing. */
+	void onCodomainChange() {}
 	
+	public boolean getIsConstant()
+	{
+		return isConstant;
+	}
+	public int getLowerLimit() 
+	{
+		return lowerLimit;
+	}
+
+	public int getUpperLimit()
+	{
+		return upperLimit;
+	}
+
 }
+
 

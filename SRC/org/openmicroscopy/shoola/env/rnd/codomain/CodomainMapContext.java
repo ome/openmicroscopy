@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.ContrastStretchingMap
+ * org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 
@@ -49,33 +49,21 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class ContrastStretchingMap
-	extends CodomainMap
+abstract class CodomainMapContext
 {
-	
-	
-	
-	private ContrastStretchingDef csDef;
-	
-	
-	/** Implemented as specified in {@link CodomainMap}. */
-	void setContext(CodomainMapContext ctx)
+	protected int intervalStart;
+	protected int intervalEnd;
+	/** 
+	 * Set the codomain i.e. output interval subset of [0, 255].
+	 * 
+	 * @param intervalStart
+	 * @param intervalEnd
+	 */
+	void setCodomain(int intervalStart, int intervalEnd)
 	{
-		csDef = (ContrastStretchingDef) ctx;
+		this.intervalStart = intervalStart;
+		this.intervalEnd = intervalEnd;
 	}
 
-	/** Implemented as specified in {@link CodomainMap}. */
-	int transform(int x)
-	{
-		int y = csDef.getCdStart();
-		if (x >= csDef.getCdStart() && x < csDef.getXStart())
-			y = (int) (csDef.getA0()*x+csDef.getB0());
-		else if (x >= csDef.getXStart() && x < csDef.getXEnd())
-			y = (int) (csDef.getA1()*x+csDef.getB1());
-		else if (x >= csDef.getXEnd() && x <= csDef.getCdEnd())
-			y = (int) (csDef.getA2()*x+csDef.getB2());	
-		return y;
-	}
-	
+	abstract void onCodomainChange();
 }
-

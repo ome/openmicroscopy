@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.Approximation
+ * org.openmicroscopy.shoola.env.rnd.quantum.LogarithmicMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Application-internal dependencies
 
 /** 
- *
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,34 +49,33 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class Approximation
+class LogarithmicMap
+	implements QuantumMap
 {
 
 	/** 
-	 * Returns the nearest integer e.g. 
-	 * 1.2 returns 1, 
-	 * 1.6 returns 2.
+	 * Implemented as specified in {@link QuantumMap}.
+	 * Does nothing b/c the transformation doesn't require a coefficient.
 	 */
-	static double nearestInteger(double v)
-	{
-		double d = Math.floor(v);
-		double diff = v-d;
-		double value = d;
-		if (diff > 0.5) value++; 
-		return value;
-	}
-    
-	/** Returns the smallest integer. */
-	static double smallestInteger(double v)
-	{
-		return Math.floor(v);
-	}
+	public void setCoefficient(double k) {}
 	
-	/**Returns the largest integer. */    
-	static double largestInteger(double v)
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(int x)
 	{
-		return Math.ceil(v);
+		return Math.log((double) x);
 	}
 
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(double x)
+	{
+		return Math.log(x);
+	}
+
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(float x)
+	{
+		return Math.log((double) x);
+	}
+	
 }
 

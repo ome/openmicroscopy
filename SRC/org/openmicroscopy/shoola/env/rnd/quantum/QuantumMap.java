@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.CodomainMap
+ * org.openmicroscopy.shoola.env.rnd.quantum.QuantumMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -49,16 +49,19 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-abstract class CodomainMap
+interface QuantumMap
 {
-	/** 
-	 * Sets the parameters used to write the equation of the specified
-	 * codomain transformation. 
+	/**
+	 * Sets the curve coefficient k.
 	 * 
-	 */ 
-	abstract void setContext(CodomainMapContext cxt);
+	 * @param k	coefficient of the map.
+	 */
+	public void setCoefficient(double k);
 	
-	/** Performs the transformation. */
-	abstract int transform(int x);
-
+	/** Transform the inputValue. */
+	public double transform (int x);
+	public double transform (double x);
+	public double transform (float x);
+	
 }
+

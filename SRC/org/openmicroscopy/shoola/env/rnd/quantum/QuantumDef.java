@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.QuantumDef
+ * org.openmicroscopy.shoola.env.rnd.quantum.QuantumDef
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -71,5 +71,6 @@ public class QuantumDef
 	}
 
 }
+
 
 

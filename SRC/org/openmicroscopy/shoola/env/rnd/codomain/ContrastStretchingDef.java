@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef
+ * org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 
@@ -72,11 +72,15 @@ public class ContrastStretchingDef
 		this.yStart = yStart;
 		this.xEnd = xEnd;
 		this.yEnd = yEnd;
-		setFirstLineCoefficient();
-		setSecondLineCoefficient();
-		setThirdLineCoefficient();
 	}
-
+	
+	void onCodomainChange()
+	{
+		setFirstLineCoefficient(intervalStart);
+		setSecondLineCoefficient();
+		setThirdLineCoefficient(intervalEnd);
+	}
+	
 	public int getXEnd()
 	{
 		return xEnd;
@@ -126,35 +130,17 @@ public class ContrastStretchingDef
 	{
 		return b2;
 	}
-	
-	public void setXEnd(int xEnd)
-	{
-		this.xEnd = xEnd;
-	}
 
-	public void setXStart(int xStart)
+	/** Compute the coefficient of the first straight y = a0*x+b0.  */
+	private void setFirstLineCoefficient(int intervalStart)
 	{
-		this.xStart = xStart;
-	}
-
-	public void setYEnd(int yEnd)
-	{
-		this.yEnd = yEnd;
-	}
-
-	public void setYStart(int yStart)
-	{
-		this.yStart = yStart;
-	}
-
-	private void setFirstLineCoefficient()
-	{
-		double r = xStart-cdStart;
+		double r = xStart-intervalStart;
 		if (r == 0) a0 = 0;
-		else a0 = (yStart-cdStart)/r;
-		b0 = cdStart*(1-a0);
+		else a0 = (yStart-intervalStart)/r;
+		b0 = intervalStart*(1-a0);
 	}
 	
+	/** Compute the coefficient of the first straight y = a0*x+b0.  */
 	private void setSecondLineCoefficient()
 	{
 		double r = xEnd-xStart;
@@ -164,12 +150,13 @@ public class ContrastStretchingDef
 		b1 = yStart-a1*xStart;
 	}
 	
-	private void setThirdLineCoefficient()
+	/** Compute the coefficient of the first straight y = a0*x+b0.  */
+	private void setThirdLineCoefficient(int intervalEnd)
 	{
-		double r = cdEnd-xEnd;
+		double r = intervalEnd-xEnd;
 		if (r == 0) a2 = 0;
-		else a2 = (cdEnd-yEnd)/r;
-		b2 = cdEnd*(1-a2);
+		else a2 = (intervalEnd-yEnd)/r;
+		b2 = intervalEnd*(1-a2);
 	}
 	
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.PlaneSlicingMap
+ * org.openmicroscopy.shoola.env.rnd.util.Approximation
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.util;
 
 //Java imports
 
@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Application-internal dependencies
 
 /** 
- * 
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,26 +49,33 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class PlaneSlicingMap
-	extends CodomainMap
+public class Approximation
 {
-	private PlaneSlicingDef	psDef;
 
 	/** 
-	 * Implemented as specified in {@link CodomainMap}. 
-	 * 
-	 * @param params	SlicingDef object.
+	 * Returns the nearest integer e.g. 
+	 * 1.2 returns 1, 
+	 * 1.6 returns 2.
 	 */
-	void setContext(CodomainMapContext ctx)
+	public static double nearestInteger(double v)
 	{
-		psDef = (PlaneSlicingDef) ctx;
+		double d = Math.floor(v);
+		double diff = v-d;
+		double value = d;
+		if (diff > 0.5) value++; 
+		return value;
 	}
-
-	/** Implemented as specified in {@link CodomainMap}. */
-	int transform(int x)
+    
+	/** Returns the smallest integer. */
+	public static double smallestInteger(double v)
 	{
-		return x;
+		return Math.floor(v);
 	}
 	
-}
+	/**Returns the largest integer. */    
+	public static double largestInteger(double v)
+	{
+		return Math.ceil(v);
+	}
 
+}

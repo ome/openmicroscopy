@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.ReverseIntensityMap
+ * org.openmicroscopy.shoola.env.rnd.quantum.ExponentialMap
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.env.rnd.quantum;
 
 //Java imports
 
@@ -49,22 +49,40 @@ package org.openmicroscopy.shoola.env.rnd;
  * </small>
  * @since OME2.2
  */
-class ReverseIntensityMap 
-	extends CodomainMap
+class ExponentialMap
+	implements QuantumMap
 {
-	CodomainMapContext	ctx;
+	private double k;
 	
-	/** Implemented as specified in {@link CodomainMap}. */
-	void setContext(CodomainMapContext ctx)
+	ExponentialMap(double k)
 	{
-		this.ctx = ctx;
+		setCoefficient(k);
+	}
+	
+	/** Implemented as specified in {@link QuantumMap}. */
+	public void setCoefficient(double k)
+	{
+		//TODO: add error checking if needed.
+		this.k = k;
+	}
+	
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(int x)
+	{
+		return Math.exp(Math.pow((double) x, k));
 	}
 
-	/** Implemented as specified in {@link CodomainMap}. */
-	int transform(int x)
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(double x)
 	{
-		return ctx.getCdEnd()-x;
+		return Math.exp(Math.pow(x, k));
 	}
 
+	/** Implemented as specified in {@link QuantumMap}. */
+	public double transform(float x)
+	{
+		return Math.exp(Math.pow((double) x, k));
+	}
+	
 }
 
