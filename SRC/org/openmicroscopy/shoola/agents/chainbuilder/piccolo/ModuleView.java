@@ -741,7 +741,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		name.setGreekThreshold(0);
 		name.setFont(Constants.NAME_FONT);
 		name.setPickable(false);
-		name.setScale(NAME_MAG);
+		//name.setScale(NAME_MAG);
 	//	name.setTransparency(Constants.MODULE_TRANSPARENT);
 		detail.addChild(name);
 		
@@ -809,7 +809,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		if (maxNameHeight == 0f) {
 			name = new PText(getName());
 			name.setFont(Constants.NAME_FONT);
-			name.setScale(NAME_MAG);
+			//name.setScale(NAME_MAG);
 			name.setConstrainWidthToTextWidth(false);
 			name.setWidth(width-2*NAME_LABEL_OFFSET);
 			maxNameHeight = (float) name.getHeight();

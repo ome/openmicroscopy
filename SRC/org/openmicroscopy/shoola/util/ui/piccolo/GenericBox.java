@@ -71,7 +71,7 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 
 	
 	private Color colors[]=Constants.BORDER_COLORS;
-	private static final int RECT_COUNT=5;
+	private static final int RECT_COUNT=3;
 	private static final double SCALE_MULTIPLIER=2;
 	private static final double SCALE_THRESHOLD=1;
 	private static final double STROKE_MAX=75;

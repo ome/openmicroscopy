@@ -123,10 +123,10 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 		// add name
 		name = new ClickableName(chain.getName());
-		name.setGreekThreshold(0);
-		name.setFont(Constants.LABEL_FONT);
+		//name.setGreekThreshold(0);
+		name.setFont(Constants.CHAIN_BOX_FONT);
 		name.setPickable(true);
-		name.setScale(MAX_NAME_SCALE);
+		//name.setScale(MAX_NAME_SCALE);
 		chainLayer.addChild(name);
 		name.setOffset(HGAP,VGAP*3);
 		
@@ -203,7 +203,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	private void addLockedIndicator() {
 		//PBounds b = getFullBoundsReference();
 		PText locked = new PText("Locked");
-		locked.setGreekThreshold(0);
+		//locked.setGreekThreshold(0);
 		locked.setFont(Constants.LABEL_FONT);
 		locked.setTextPaint(Constants.LOCKED_COLOR);
 		locked.setScale(1.5);

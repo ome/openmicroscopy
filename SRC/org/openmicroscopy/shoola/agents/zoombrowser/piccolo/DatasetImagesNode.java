@@ -187,18 +187,14 @@ public class DatasetImagesNode extends PNode  {
 	 * @param height
 	 */
 	public void completeImages() {
-		PBounds b = imagesNode.getGlobalFullBounds();
-		// only do this if the images have non-zero bounds and there are
+		// only do this if  there are
 		// more than MIN_ICON_DATSET_SIZE images
-		if (b.getWidth() > 0 && b.getHeight() > 0 &&
-						imagesNode.getChildrenCount() > MIN_ICON_DATASET_SIZE) {
+		if (imagesNode.getChildrenCount() > MIN_ICON_DATASET_SIZE) {
                   
 			// use {@link PNode.toImage} to get a snapshot of the thumbnails.       
-			thumbnailNode = new PImage(imagesNode.toImage((int)b.getWidth(),
-							(int) b.getHeight(),null)); // was  false); as second
+			thumbnailNode = new PImage(imagesNode.toImage());
 			addChild(thumbnailNode);
 			thumbnailNode.moveToBack();
-		//	moveToBack(thumbnailNode);
 		}
 	}
         
@@ -223,7 +219,6 @@ public class DatasetImagesNode extends PNode  {
 			setPickable(true);
 		}
 		else {
-	                
 			// show images node
 			imagesNode.setVisible(false);
 			if (thumbnailNode != null) {

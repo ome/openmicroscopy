@@ -146,9 +146,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		
 		// set rendering details.
 		
-		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
-		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
+		setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		
 		setMinimumSize(new Dimension(SIDE,SIDE));
@@ -185,9 +184,6 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	
 	public void positionTip() {
 		PBounds b = getCamera().getViewBounds();
-		System.err.println("chain creation canvas bounds.."+b);
-		System.err.println("height of window is "+getHeight()+","+ getWidth());
-		System.err.println("tip size is "+tip.getWidth()+", "+tip.getHeight());
 		tip.setOffset(10,getHeight()/2-tip.getHeight()/2);
 		
 	}
