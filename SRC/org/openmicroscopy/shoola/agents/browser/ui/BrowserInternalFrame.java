@@ -38,6 +38,8 @@ package org.openmicroscopy.shoola.agents.browser.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.beans.PropertyVetoException;
@@ -45,6 +47,7 @@ import java.beans.PropertyVetoException;
 import javax.swing.BoundedRangeModel;
 import javax.swing.Box;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
@@ -55,6 +58,7 @@ import javax.swing.event.InternalFrameEvent;
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.IconManager;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserActions;
 
 /**
  * Wraps a BrowserView in a JInternalFrame for use in MDI applications.
@@ -102,6 +106,34 @@ public class BrowserInternalFrame extends JInternalFrame
         
         ZoomButtonPanel panel = new ZoomButtonPanel(embeddedView);
         toolbarPanel.add(panel);
+        
+        JButton heatMapButton =
+            new JButton(manager.getSmallIcon(IconManager.HEAT_MAP_ICON));
+            
+        heatMapButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0)
+            {
+                BrowserActions.SHOW_HEATMAP_ACTION.execute();
+            }
+        });
+        
+        heatMapButton.setToolTipText("Show heat map");
+        toolbarPanel.add(heatMapButton);
+        
+        JButton colorMapButton = 
+            new JButton(manager.getSmallIcon(IconManager.COLOR_MAP_ICON));
+        
+        colorMapButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0)
+            {
+                BrowserActions.SHOW_COLORMAP_ACTION.execute();
+            }
+        });
+        
+        colorMapButton.setToolTipText("View phenotypes (colormap)");
+        toolbarPanel.add(colorMapButton);
 
         Container container = getContentPane();
         container.setLayout(new BorderLayout());

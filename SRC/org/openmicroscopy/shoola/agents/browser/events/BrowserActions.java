@@ -35,6 +35,16 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.beans.PropertyVetoException;
+
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
+import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapUI;
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
+
 /**
  * A collection of common browser actions.
  * 
@@ -53,6 +63,66 @@ public final class BrowserActions
         public void execute()
         {
             // do nothing
+        }
+    };
+    
+    public static BrowserAction SHOW_HEATMAP_ACTION = new BrowserAction()
+    {
+        public void execute()
+        {
+            BrowserEnvironment env = BrowserEnvironment.getInstance();
+            BrowserAgent agent = env.getBrowserAgent();
+            TopFrame tf = agent.getTopFrame();
+            
+            HeatMapManager manager = env.getHeatMapManager();
+            HeatMapUI ui = manager.getUI();
+            ui.setClosable(true);
+            ui.setIconifiable(true);
+            ui.setResizable(false);
+            ui.setMaximizable(false);
+            if(!ui.isShowing())
+            {
+                tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
+                ui.show();
+            }
+            else
+            {
+                try
+                {
+                    ui.setSelected(true);
+                }
+                catch(PropertyVetoException ex) {}
+            }
+        }
+    };
+    
+    public static BrowserAction SHOW_COLORMAP_ACTION = new BrowserAction()
+    {
+        public void execute()
+        {
+            BrowserEnvironment env = BrowserEnvironment.getInstance();
+            BrowserAgent agent = env.getBrowserAgent();
+            TopFrame tf = agent.getTopFrame();
+            
+            ColorMapManager manager = env.getColorMapManager();
+            ColorMapUI ui = manager.getUI();
+            ui.setClosable(true);
+            ui.setIconifiable(true);
+            ui.setResizable(false);
+            ui.setMaximizable(false);
+            if(!ui.isShowing())
+            {
+                tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
+                ui.show();
+            }
+            else
+            {
+                try
+                {
+                    ui.setSelected(true);
+                }
+                catch(PropertyVetoException ex) {}
+            }
         }
     };
 }

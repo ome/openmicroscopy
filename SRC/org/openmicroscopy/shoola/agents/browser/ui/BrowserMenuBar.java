@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyVetoException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,13 +55,10 @@ import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.BrowserModelAdapter;
-import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
-import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapUI;
 import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserActions;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
-import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
 import org.openmicroscopy.shoola.agents.browser.images.OverlayMethods;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -288,34 +284,12 @@ public class BrowserMenuBar extends JMenuBar
     
     private JMenuItem createAnalyzeHeatmapItem()
     {
-        final BrowserEnvironment env = BrowserEnvironment.getInstance();
-        BrowserAgent agent = env.getBrowserAgent();
-        final TopFrame tf = agent.getTopFrame();
-        
         JMenuItem heatItem = new JMenuItem("HeatMap");
         heatItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)
             {
-                HeatMapManager manager = env.getHeatMapManager();
-                HeatMapUI ui = manager.getUI();
-                ui.setClosable(true);
-                ui.setIconifiable(true);
-                ui.setResizable(false);
-                ui.setMaximizable(false);
-                if(!ui.isShowing())
-                {
-                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                    ui.show();
-                }
-                else
-                {
-                    try
-                    {
-                        ui.setSelected(true);
-                    }
-                    catch(PropertyVetoException ex) {}
-                }
+                BrowserActions.SHOW_HEATMAP_ACTION.execute();
             }
         });
         menuItemMap.put(new Integer(ANALYZE_HEATMAP_ITEM),heatItem);
@@ -324,34 +298,12 @@ public class BrowserMenuBar extends JMenuBar
     
     private JMenuItem createAnalyzeViewCategoryItem()
     {
-        final BrowserEnvironment env = BrowserEnvironment.getInstance();
-        final BrowserAgent agent = env.getBrowserAgent();
-        final TopFrame tf = agent.getTopFrame();
-        
         JMenuItem categoryItem = new JMenuItem("View Phenotypes");
         categoryItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)
             {
-                ColorMapManager manager = env.getColorMapManager();
-                ColorMapUI ui = manager.getUI();
-                ui.setClosable(true);
-                ui.setIconifiable(true);
-                ui.setResizable(false);
-                ui.setMaximizable(false);
-                if(!ui.isShowing())
-                {
-                    tf.addToDesktop(ui,TopFrame.PALETTE_LAYER);
-                    ui.show();
-                }
-                else
-                {
-                    try
-                    {
-                        ui.setSelected(true);
-                    }
-                    catch(PropertyVetoException ex) {}
-                }
+                BrowserActions.SHOW_COLORMAP_ACTION.execute();
             }
         });
         menuItemMap.put(new Integer(ANALYZE_VIEW_CATEGORIES_ITEM),categoryItem);

@@ -116,11 +116,13 @@ public class IconManager
     public static final int ZOOM_FIT = 11;
     public static final int ANNOTATE = 12;
     public static final int POPUP_MENU = 13;
+    public static final int COLOR_MAP_ICON = 14;
+    public static final int HEAT_MAP_ICON = 15;
     
     /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 13;
+    public static final int MAX_ID = 15;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -148,6 +150,8 @@ public class IconManager
         smallPaths[ZOOM_FIT] = "zoomfit16.png";
         smallPaths[ANNOTATE] = "annotate.png";
         smallPaths[POPUP_MENU] = "menu24.png";
+        smallPaths[COLOR_MAP_ICON] = "colormap16.png";
+        smallPaths[HEAT_MAP_ICON] = "heatmap16.png";
     }
     
     static
@@ -166,6 +170,8 @@ public class IconManager
         largePaths[ZOOM_FIT] = "zoomfit16.png";
         largePaths[ANNOTATE] = "annotate.png";
         largePaths[POPUP_MENU] = "menu24.png";
+        largePaths[COLOR_MAP_ICON] = "colormap16.png";
+        largePaths[HEAT_MAP_ICON] = "heatmap16.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";
