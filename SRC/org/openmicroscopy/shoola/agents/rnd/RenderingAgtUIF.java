@@ -64,8 +64,8 @@ class RenderingAgtUIF
 	extends JInternalFrame
 {
 	
-	/** index to position the mapping component in the tabbedPane. */
-	static final int				POS_MAPPING = 0;
+	/** index to position Mapping component in the tabbedPane. */
+	static final int				POS_MAPPING = 0 ;
 	
 	/** index to position Model component in the tabbedPane. */
 	static final int				POS_MODEL = 1 ;
@@ -100,8 +100,6 @@ class RenderingAgtUIF
 		initPanes();
 		buildMappingPanel();
 		buildGUI();
-		//set the size and position the window.
-		//setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
 		pack();
 	}
 	
@@ -167,6 +165,7 @@ class RenderingAgtUIF
 	/** Build a panel with graphics and control. */
 	private void buildMappingPanel()
 	{
+		mappingPanel.setLayout(new BorderLayout(0, 0));
 		mappingPanel.add(quantumPane.getGRPane(), BorderLayout.NORTH);
 		mappingPanel.add(quantumPane.getDomainPane(), BorderLayout.CENTER);
 	}
