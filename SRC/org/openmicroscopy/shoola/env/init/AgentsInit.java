@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,7 +113,6 @@ final class AgentsInit
 	{
 		Class agentClass;
 		Object agentInstance;
-		URL configFile;
 		Registry reg;
 		try {
 			//Load agent's class.
@@ -127,11 +125,8 @@ final class AgentsInit
 			//Create a new instance.
 			agentInstance = agentClass.newInstance();
 			
-			//Resolve cfg file path against agent's class location.
-			configFile = agentClass.getResource(info.getConfigPath());
-			
 			//Create the agent's registry.
-			reg = createAgentsRegistry(configFile);
+			reg = createAgentsRegistry(info.getConfigPath());
 			
 			//Fill up info. (Recall that this object is already in the
 			//agents list within the container's registry.)
@@ -143,10 +138,11 @@ final class AgentsInit
 		}
 	}
 	
-	private Registry createAgentsRegistry(URL configFile)
+	private Registry createAgentsRegistry(String configFile)
 		throws Exception
 	{
-		Registry agentReg = RegistryFactory.makeNew(configFile.getPath()),
+		String absPathName = container.resolveConfigFile(configFile);
+		Registry agentReg = RegistryFactory.makeNew(absPathName),
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
