@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -43,7 +45,21 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Feature;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.CategoryGroup;
+import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.ds.st.DatasetAnnotation;
+import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.ds.st.ImageAnnotation;
+import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
+import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
+import org.openmicroscopy.shoola.env.data.map.UserMapper;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.ClassificationData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
  *  @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -63,36 +79,12 @@ import org.openmicroscopy.shoola.env.data.map.STSMapper;
 class STSAdapter
 	implements SemanticTypesService
 {
-	
-    private OMEDSGateway 	gateway;
-    
-    /**
-     * The classification semantic type name.
-     */
-    public static final String CLASSIFICATION_ST_TYPE = "Classification";
+
+    private OMEDSGateway 	      gateway;
     
     public STSAdapter(OMEDSGateway gateway)
     {
         this.gateway = gateway;
-    }
-    
-    /** @see SemanticTypesService#getAvailableGlobalTypes(). */
-    public List getAvailableGlobalTypes()
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildRetrieveTypeCriteria(
-        										STSMapper.GLOBAL_GRANULARITY);
-        										
-        return (List) gateway.retrieveListData(SemanticType.class, criteria);
-    }
-    
-    /** @see SemanticTypesService#getAvailableGlobalTypes(). */
-    public List getAvailableDatasetTypes()
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildRetrieveTypeCriteria(
-        									STSMapper.DATASET_GRANULARITY);
-        return (List) gateway.retrieveListData(SemanticType.class, criteria);
     }
     
     /** @see SemanticTypesService#getAvailableGlobalTypes(). */
@@ -103,61 +95,7 @@ class STSAdapter
         									STSMapper.IMAGE_GRANULARITY);
         return (List) gateway.retrieveListData(SemanticType.class, criteria);
     }
-    
-    /** @see SemanticTypesService#getAvailableGlobalTypes(). */
-    public List getAvailableFeatureTypes()
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildRetrieveTypeCriteria(
-        									STSMapper.FEATURE_GRANULARITY);
-        return (List) gateway.retrieveListData(SemanticType.class, criteria);
-    }
-    
-    /**
-     * @see SemanticTypesService#countDatasetAttributes(
-     * 				org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countDatasetAttributes(String typeName, int datasetID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildCountCriteria(
-        								STSMapper.DATASET_GRANULARITY, 
-        								datasetID);
-        return gateway.countData(typeName, criteria);
-    }
-    
-    /**
-     * @see SemanticTypesService#countDatasetAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countDatasetAttributes(SemanticType type, int datasetID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return countDatasetAttributes(type.getName(),datasetID);
-    }
-    
-    /**
-     * @see SemanticTypesService#countDatasetAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countImageAttributes(String typeName, int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildCountCriteria(
-        							STSMapper.IMAGE_GRANULARITY, imageID);
-        return gateway.countData(typeName, criteria);
-    }
-    
-    /**
-     * @see SemanticTypesService#countImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countImageAttributes(SemanticType type, int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return countImageAttributes(type.getName(), imageID);
-    }
-    
+
     /**
      * @see SemanticTypesService#countImageAttributes(
      * org.openmicroscopy.ds.dto.SemanticType, List).
@@ -185,68 +123,6 @@ class STSAdapter
     }
 
     /**
-     * @see SemanticTypesService#countDatasetAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countFeatureAttributes(String typeName, int featureID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria criteria = STSMapper.buildCountCriteria(
-        							STSMapper.FEATURE_GRANULARITY, featureID);
-        return gateway.countData(typeName, criteria);
-    }
-    
-    /**
-     * @see SemanticTypesService#countFeatureAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public int countFeatureAttributes(SemanticType type, int featureID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return countFeatureAttributes(type.getName(), featureID);
-    }
-    
-    /**
-     * @see SemanticTypesService#createAttribute(
-     * org.openmicroscopy.ds.dto.SemanticType).
-     */
-    public Attribute createAttribute(SemanticType type)
-		throws DSOutOfServiceException, DSAccessException
-    {
-        return createAttribute(type.getName());
-    }
-    
-    public Attribute createAttribute(SemanticType type, int objectID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return createAttribute(type.getName(), objectID);
-    }
-    
-    /** @see SemanticTypesService#createAttribute(String). */
-    public Attribute createAttribute(String typeName)
-		throws DSOutOfServiceException, DSAccessException
-    {
-        return gateway.createNewData(typeName);
-    }
-    
-    public Attribute createAttribute(String typeName, int objectID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-    	Attribute retVal = gateway.createNewData(typeName);
-		String granularity = retVal.getSemanticType().getGranularity();
-		//Build the criteria.
-		Criteria c = STSMapper.buildCreateNew(granularity, objectID);
-		if (granularity.equals(STSMapper.DATASET_GRANULARITY))
-			retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
-		else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
-			retVal.setImage((Image) gateway.retrieveData(Image.class, c));
-		else if (granularity.equals(STSMapper.FEATURE_GRANULARITY))
-			retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
-		
-		return retVal; 
-    }
-    
-    /**
      * @see SemanticTypesService#retrieveDatasetAttributes(
      * 			org.openmicroscopy.ds.dto.SemanticType, int).
      */
@@ -267,58 +143,7 @@ class STSAdapter
     {
         return retrieveDatasetAttributes(type.getName(), datasetID);
     }
-    
-    /**
-     * @see SemanticTypesService#retrieveDatasetAttributes(String, String, int).
-     */
-    public List retrieveDatasetAttributes(String typeName, 
-    									String childAttribute, int datasetID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        if (typeName == null) return null;
-        Number[] dummyArray = new Number[] {new Integer(datasetID)};
-        
-        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-        							STSMapper.DATASET_GRANULARITY,
-        							childAttribute, dummyArray);
-        
-        return (List) gateway.retrieveListSTSData(typeName, c);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes
-	 * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public List retrieveImageAttributes(String typeName, int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-        						STSMapper.IMAGE_GRANULARITY, imageID);
-        return (List) gateway.retrieveListSTSData(typeName, c);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public List retrieveImageAttributes(SemanticType type, int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveImageAttributes(type.getName(), imageID);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes(String, String, int).
-     */
-    public List retrieveImageAttributes(String typeName, String childAttribute,
-                                        int imageID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        List dummyList = new ArrayList();
-        dummyList.add(new Integer(imageID));
-        return retrieveImageAttributes(typeName, childAttribute, dummyList);
-    }
-    
+
     /**
      * @see SemanticTypesService#retrieveImageAttributes(
      * org.openmicroscopy.ds.dto.SemanticType, List).
@@ -397,6 +222,7 @@ class STSAdapter
     public List retrieveImageClassifications(List imageIDs, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
+        /*
         if (imageIDs == null || imageIDs.size() == 0)
             return null;
         
@@ -412,133 +238,12 @@ class STSAdapter
         Criteria c = STSMapper.buildClassificationRetrieveCriteria(ints,datasetID);
         
         return (List) gateway.retrieveListSTSData(CLASSIFICATION_ST_TYPE, c);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public List retrieveFeatureAttributes(String typeName, int featureID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-        						STSMapper.FEATURE_GRANULARITY, featureID);
-		return (List) gateway.retrieveListSTSData(typeName, c);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public List retrieveFeatureAttributes(SemanticType type, int featureID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveFeatureAttributes(type.getName(), featureID);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(String, String, int).
-     */
-    public List retrieveFeatureAttributes(String typeName, 
-    									String childAttribute, int featureID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        List dummyList = new ArrayList();
-        dummyList.add(new Integer(featureID));
-        return retrieveFeatureAttributes(typeName, childAttribute, dummyList);
+        
+        */
+        //Method will be removed
+        return null;
     }
 
-    
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, List).
-     */
-    public List retrieveFeatureAttributes(String typeName, List featureIDs)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        if (typeName == null || featureIDs == null || featureIDs.size() == 0)
-            return null;
-      
-        // test to see if the List is all Integers here
-        for (Iterator iter = featureIDs.iterator(); iter.hasNext();) {
-            if (!(iter.next() instanceof Number))
-                throw new IllegalArgumentException("Illegal ID type.");
-        }
-        
-        Integer[] ints = new Integer[featureIDs.size()];
-        featureIDs.toArray(ints);
-        
-        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-        					STSMapper.FEATURE_GRANULARITY, ints);
-        
-		return (List) gateway.retrieveListSTSData(typeName, c);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, List).
-     */
-    public List retrieveFeatureAttributes(SemanticType type, List featureIDs)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveFeatureAttributes(type.getName(), featureIDs);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(String, String,
-     * 														List).
-     */
-    public List retrieveFeatureAttributes(String typeName, 
-    									String childAttribute, List featureIDs)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        if (typeName == null || featureIDs == null || featureIDs.size() == 0)
-            return null;
-        
-        // test to see if the List is all Integers here
-        for (Iterator iter = featureIDs.iterator(); iter.hasNext();) {
-            if (!(iter.next() instanceof Number))
-                throw new IllegalArgumentException("Illegal ID type.");
-        }
-        
-        Integer[] ints = new Integer[featureIDs.size()];
-        featureIDs.toArray(ints);
-        
-        Criteria c = new Criteria();
-        if (childAttribute == null)
-            c = STSMapper.buildDefaultRetrieveCriteria(
-            			STSMapper.FEATURE_GRANULARITY, ints);
-        else
-            c = STSMapper.buildDefaultRetrieveCriteria(
-            			STSMapper.FEATURE_GRANULARITY, childAttribute, ints);
-		return (List) gateway.retrieveListSTSData(typeName, c);
-    }
-
-    /**
-     * @see SemanticTypesService#retrieveAttribute(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public Attribute retrieveAttribute(String typeName, int attributeID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        // cheap trick, I maybe should clear this confusion up (although this
-        // is the only way to get global attributes; it applies to any
-        // attribute which you select by individual ID)
-        Criteria criteria = STSMapper.buildDefaultRetrieveCriteria(
-        							STSMapper.GLOBAL_GRANULARITY, attributeID);
-        return (Attribute) gateway.retrieveSTSData(typeName, criteria);
-    }
-    
-    /**
-     * @see SemanticTypesService#retrieveAttribute(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
-    public Attribute retrieveAttribute(SemanticType type, int attributeID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveAttribute(type.getName(), attributeID);
-    }
-    
     /**
      * @see SemanticTypesService#retrieveSemanticType(
      * org.openmicroscopy.ds.dto.SemanticType).
@@ -556,22 +261,7 @@ class STSAdapter
         Criteria c = STSMapper.buildRetrieveSingleTypeCriteria(typeName);
         return (SemanticType) gateway.retrieveData(SemanticType.class, c);
     }
-    
-    /**
-     * Updates (new) attributes that have some sort of user input associated
-     * with them, such as ImageAnnotation, DatasetAnnotation, Classification and
-     * others.  Each user input attribute has an associated ModuleExecution,
-     * and updating these attributes requires the AnnotationManager for
-     * proper database storage.
-     * 
-     * @param attributes The list of attributes to update.
-     */
-    public void updateUserInputAttributes(List attributes)
-		throws DSOutOfServiceException, DSAccessException
-	{
-        gateway.annotateAttributesData(attributes);
-    }
-    
+
     /**
      * Updates attributes that have already been created, regardless of
      * creation method.
@@ -583,40 +273,39 @@ class STSAdapter
     }
     
     public List retrieveAttributesByMEXs(String typeName, List mexes)
-    		throws DSOutOfServiceException, DSAccessException {
+    		throws DSOutOfServiceException, DSAccessException
+   {
     		
     	if (typeName == null || mexes == null || mexes.size() == 0) return null;
-
-	    // test to see if the List is all Integers here
-	    for (Iterator iter = mexes.iterator(); iter.hasNext();) {
-	        if (!(iter.next() instanceof Number))
-	            throw new IllegalArgumentException("Illegal ID type.");
-	    }
-	
-	    Criteria c = STSMapper.buildRetrieveCriteriaWithMEXs(mexes);
-	    return (List) gateway.retrieveListSTSData(typeName, c);
+    
+        // test to see if the List is all Integers here
+        for (Iterator iter = mexes.iterator(); iter.hasNext();) {
+            if (!(iter.next() instanceof Number))
+                throw new IllegalArgumentException("Illegal ID type.");
+        }
+    
+        Criteria c = STSMapper.buildRetrieveCriteriaWithMEXs(mexes);
+        return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
     public List retrieveTrajectoriesByMEXs(List mexes) 
-    	   	throws DSOutOfServiceException, DSAccessException {
-    		
-    		if (mexes == null || mexes.size() ==0 )
-    			return null;
+    	   	throws DSOutOfServiceException, DSAccessException
+    {
+        if (mexes == null || mexes.size() == 0) return null;
     		// test to see if the List is all Integers here
-	    for (Iterator iter = mexes.iterator(); iter.hasNext();) {
-	        if (!(iter.next() instanceof Number))
-	            throw new IllegalArgumentException("Illegal ID type.");
-	    }
-	
-	    Criteria c = STSMapper.buildTrajectoryCriteriaWithMEXs(mexes);
-	    return (List) gateway.retrieveListSTSData("Trajectory", c);
+        for (Iterator iter = mexes.iterator(); iter.hasNext();) {
+            if (!(iter.next() instanceof Number))
+                throw new IllegalArgumentException("Illegal ID type.");
+        }
+    
+        Criteria c = STSMapper.buildTrajectoryCriteriaWithMEXs(mexes);
+        return (List) gateway.retrieveListSTSData("Trajectory", c);
     }
     
     public List retrieveTrajectoryEntriesByMEXs(List mexes) 
-       throws DSOutOfServiceException, DSAccessException {
-	
-    		if (mexes == null || mexes.size() ==0 )
-    			return null;
+       throws DSOutOfServiceException, DSAccessException
+    {
+        if (mexes == null || mexes.size() ==0) return null;
 		// test to see if the List is all Integers here
 		for (Iterator iter = mexes.iterator(); iter.hasNext();) {
 		    if (!(iter.next() instanceof Number))
@@ -628,34 +317,394 @@ class STSAdapter
 	}
     
     public List retrieveLocationsByFeatureID(List features)
-		throws DSOutOfServiceException, DSAccessException {
-    		
-    		if (features == null || features.size() ==0 )
-			return null;
-    		
-	     // test to see if the List is all Integers here
-	     for (Iterator iter = features.iterator(); iter.hasNext();) {
-	     if (!(iter.next() instanceof Number))
-	        throw new IllegalArgumentException("Illegal ID type.");
-	     }
-	
-	     Criteria c = STSMapper.buildLocationCriteriaWithFeatures(features);
-	     return (List) gateway.retrieveListSTSData("Location", c);
+		throws DSOutOfServiceException, DSAccessException
+    {
+    	
+        if (features == null || features.size() == 0)   return null;
+        	
+        // test to see if the List is all Integers here
+        for (Iterator iter = features.iterator(); iter.hasNext();) {
+            if (!(iter.next() instanceof Number))
+                throw new IllegalArgumentException("Illegal ID type.");
+        }
+
+        Criteria c = STSMapper.buildLocationCriteriaWithFeatures(features);
+        return (List) gateway.retrieveListSTSData("Location", c);
     }
     
     public List retrieveExtentsByFeatureID(List features)
-         throws DSOutOfServiceException, DSAccessException {
-    	
-    		if (features == null || features.size() ==0 )
-			return null;
+         throws DSOutOfServiceException, DSAccessException
+    {
+        if (features == null || features.size() == 0) return null;
     		
-	     // test to see if the List is all Integers here
-	     for (Iterator iter = features.iterator(); iter.hasNext();) {
-	     if (!(iter.next() instanceof Number))
-	        throw new IllegalArgumentException("Illegal ID type.");
-	     }
-	
-	     Criteria c = STSMapper.buildExtentCriteriaWithFeatures(features);
-	     return (List) gateway.retrieveListSTSData("Extent", c);
+         // test to see if the List is all Integers here
+        for (Iterator iter = features.iterator(); iter.hasNext();) {
+            if (!(iter.next() instanceof Number))
+               throw new IllegalArgumentException("Illegal ID type.");
+        }
+        Criteria c = STSMapper.buildExtentCriteriaWithFeatures(features);
+	    return (List) gateway.retrieveListSTSData("Extent", c);
     }
+    
+    //Annotation
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public Map getImageAnnotations(int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildImageAnnotationCriteria(imageID);
+        List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        TreeMap map = new TreeMap();
+        if (l != null || l.size() > 0) 
+            AnnotationMapper.fillImageAnnotations(l, map);
+        return map;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public Map getDatasetAnnotations(int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetID);
+        List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        TreeMap map = new TreeMap();
+        if (l != null || l.size() > 0) 
+            AnnotationMapper.fillDatasetAnnotations(l, map);
+        return map;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void updateImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildBasicImageCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        ImageAnnotation ia = 
+            (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
+        ia.setContent(data.getAnnotation());
+        if (data.getTheZ() != AnnotationData.DEFAULT) 
+            ia.setTheZ(new Integer(data.getTheZ()));
+        if (data.getTheT() != AnnotationData.DEFAULT) 
+            ia.setTheT(new Integer(data.getTheT()));
+        List l = new ArrayList();
+        l.add(ia);
+        gateway.updateAttributes(l);  
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void updateDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildBasicCriteria(
+                    STSMapper.GLOBAL_GRANULARITY, data.getID());
+        DatasetAnnotation da = 
+            (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
+        da.setContent(data.getAnnotation());
+        List l = new ArrayList();
+        l.add(da);
+        gateway.updateAttributes(l);  
+    }
+
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void removeImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildBasicCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        ImageAnnotation ia = 
+            (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
+        ia.setValid(Boolean.FALSE);
+        List l = new ArrayList();
+        l.add(ia);
+        gateway.updateAttributes(l);  
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void removeDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildBasicCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        DatasetAnnotation da = 
+            (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
+        da.setValid(Boolean.FALSE);
+        List l = new ArrayList();
+        l.add(da);
+        gateway.updateAttributes(l); 
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void createImageAnnotation(int imageID, String annotation, int theZ,
+                                        int theT)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Create a new Annotation for the user.
+        //Retrieve the current user.
+        Criteria c = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(c);
+        ImageAnnotation retVal = (ImageAnnotation) 
+                    createBasicAttribute("ImageAnnotation", 
+                            STSMapper.buildBasicCriteria(imageID));
+        retVal.setContent(annotation);
+        retVal.setExperimenter(experimenter);
+        retVal.setValid(Boolean.TRUE);
+        if (theZ != AnnotationData.DEFAULT) retVal.setTheZ(new Integer(theZ));
+        if (theT != AnnotationData.DEFAULT) retVal.setTheT(new Integer(theT));
+        ArrayList l = new ArrayList();
+        l.add(retVal);
+        gateway.annotateAttributesData(l);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void createDatasetAnnotation(int datasetID, String annotation)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Create a new Annotation for the user.
+        //Retrieve the current user.
+        Criteria c = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(c);
+        DatasetAnnotation retVal = (DatasetAnnotation) 
+                    createBasicAttribute("DatasetAnnotation", 
+                            STSMapper.buildBasicCriteria(datasetID));
+        retVal.setContent(annotation);
+        retVal.setExperimenter(experimenter);
+        retVal.setValid(Boolean.TRUE);
+        //retVal.setTimestamp(
+        //        new Long(AnnotationMapper.getTimestamp().getTime()));
+        ArrayList l = new ArrayList();
+        l.add(retVal);
+        gateway.annotateAttributesData(l);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategoryGroups()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria();
+        List l = 
+            (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        List result = new ArrayList();
+        if (l != null || l.size() > 0)
+            CategoryMapper.fillCategoryGroup(l, result);
+        return result;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategories()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //List of categorySummary objects
+        List result = new ArrayList();
+        Criteria c = CategoryMapper.buildBasicCriteria(-1);
+        List l = (List) gateway.retrieveListSTSData("Category", c);
+        if (l != null || l.size() > 0)
+            CategoryMapper.fillBasicCategory(l, result);
+        return result;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public CategoryData retrieveCategory(int id)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the specified category.
+        Criteria c = CategoryMapper.buildClassificationCriteria(id);
+        Category category = (Category) gateway.retrieveSTSData("Category", c);
+        CategoryData model = new CategoryData();
+        if (category != null) CategoryMapper.fillCategory(category, model);
+        return model;
+    }
+
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void createCategoryGroup(CategoryGroupData data)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        List l = new ArrayList();
+        l.add(buildCategoryGroup(data));
+        gateway.updateAttributes(l); 
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void createCategory(CategoryData data, List images)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        CategoryGroupData parent = data.getCategoryGroup();
+        if (parent == null) return;
+        CategoryGroup cg;
+        List l = new ArrayList();
+        if (parent.getID() == -1) { //First create a new group
+            cg = buildCategoryGroup(parent);
+            //To be on the save-side b/c I don't know if the order is kept
+            //on the server side
+            l.add(cg);
+            gateway.updateAttributes(l); 
+            l.removeAll(l);
+        } else {
+            Criteria c = STSMapper.buildBasicCriteria(parent.getID());
+            cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+        }
+        Category category = buildCategory(data, cg);
+        Classification classification;
+        //Need to add the images one by one ;-)).
+        Iterator j = images.iterator();
+        l.add(category);
+        gateway.updateAttributes(l); 
+        l.removeAll(l);
+        while (j.hasNext()) {
+            classification = buildClassification(category, 
+                    ((ImageSummary) j.next()).getID());
+            l.add(classification);
+        }
+        gateway.updateAttributes(l); 
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void updateCategoryGroup(CategoryGroupData data, List toAdd)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
+        CategoryGroup cg = 
+            (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+        cg.setName(data.getName());
+        cg.setDescription(data.getDescription());
+        List l = new ArrayList();
+        l.add(cg);
+        gateway.updateAttributes(l);
+        /* Need to discuss the semantic of the operation
+        //Prepare the categories to add or remove.
+        List categories = data.getCategories();   
+        CategorySummary cs;    
+        if (toAdd != null) {
+            Iterator j = toAdd.iterator();
+            while (j.hasNext()) {
+                cs = (CategorySummary) j.next();
+                if (!categories.contains(cs)) categories.add(cs);
+            }
+        }
+
+        Iterator k = categories.iterator();
+        List newSelection = new ArrayList();
+        while (k.hasNext()) {
+            cs = (CategorySummary) k.next();
+            c = CategoryMapper.buildBasicCriteria(cs.getID());
+            newSelection.add(gateway.retrieveSTSData("Category", c));
+        }
+        */
+
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public void updateCategory(CategoryData data, List imgsToRemove, 
+                                List imgsToAdd)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
+        Category category = 
+            (Category) gateway.retrieveSTSData("Category", c);
+        category.setName(data.getName());
+        category.setDescription(data.getDescription());
+        List toUpdate = new ArrayList();
+        toUpdate.add(category);
+        
+        Map classifications = data.getClassifications();    
+        ClassificationData cData;
+        Classification classification;
+        if (imgsToRemove != null) {
+            Iterator i = imgsToRemove.iterator();
+            while (i.hasNext()) {
+                cData = (ClassificationData) classifications.get(i.next());
+                c = CategoryMapper.buildBasicClassificationCriteria(
+                                cData.getID());
+                classification = 
+                    (Classification) gateway.retrieveSTSData("Classification", 
+                                                                c);
+                classification.setValid(Boolean.FALSE);
+                toUpdate.add(classification);
+            }     
+        }
+        if (imgsToAdd != null) {
+            Iterator j = imgsToAdd.iterator();
+            while (j.hasNext()) {
+                classification = buildClassification(category, 
+                        ((ImageSummary) j.next()).getID());
+                toUpdate.add(classification);
+            }      
+        }
+        gateway.updateAttributes(toUpdate);
+    }
+    
+    /** Return a list of CategoryData object. */
+    public Object[] retrieveImageClassifications(List imagesID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (imagesID == null)  return null;
+        Criteria c = CategoryMapper.buildClassifiedImageCriteria(
+                (Number[]) imagesID.toArray());
+        List classifications = 
+            (List) gateway.retrieveListSTSData("Classification", c);
+        //Return an array of length 2
+        // first: list of id of the unclassified images  
+        // second: List of categoryGroup object.
+        if (classifications == null) return null;
+        Object[] result = new Object[2];
+        CategoryMapper.fillClassifications(classifications , result, imagesID);                            
+        return result;
+    }
+
+    /** Create a basic attribute. */
+    private Attribute createBasicAttribute(String typeName, Criteria c)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Attribute retVal = gateway.createNewData(typeName);
+        String granularity = retVal.getSemanticType().getGranularity();
+        //Build the criteria.
+        //Criteria c = STSMapper.buildBasicCriteria(objectID);
+        //Criteria c = STSMapper.buildCreateNew(granularity, objectID);
+        if (granularity.equals(STSMapper.DATASET_GRANULARITY))
+            retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
+        else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
+            retVal.setImage((Image) gateway.retrieveData(Image.class, c));
+        else if (granularity.equals(STSMapper.FEATURE_GRANULARITY))
+            retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
+        return retVal; 
+    }
+    
+    /** Create a {@link Classification} attribute. */
+    private Classification buildClassification(Category category, int imgID)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
+                            category.getID());
+        Classification classification = (Classification) 
+                            gateway.retrieveSTSData("Classification",  c);
+        if (classification == null) {
+            c = STSMapper.buildBasicCriteria(imgID);
+            classification = (Classification) 
+                            createBasicAttribute("Classification", c);
+            classification.setCategory(category);
+            classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
+        }
+        classification.setValid(Boolean.TRUE);
+        return classification;
+    }
+    
+    /** Create a CategoryGroup attribute. */
+    private CategoryGroup buildCategoryGroup(CategoryGroupData data)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        CategoryGroup cg = 
+            (CategoryGroup) gateway.createNewData("CategoryGroup");
+        cg.setName(data.getName());
+        cg.setDescription(data.getDescription());
+        return cg;
+    }
+    
+    /** Create a CategoryGroup attribute. */
+    private Category buildCategory(CategoryData data, CategoryGroup group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        Category category = (Category) gateway.createNewData("Category");
+        category.setName(data.getName());
+        category.setDescription(data.getDescription());
+        category.setCategoryGroup(group);
+        return category;
+    }
+    
 }

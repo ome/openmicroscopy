@@ -507,6 +507,7 @@ class OMEDSGateway
      * attribute; otherwise, call updateAttributes() with that attribute
      * as a member.
      */
+    
 	void annotateAttributesData(List attributes)
 		throws DSOutOfServiceException, DSAccessException
 	{
