@@ -90,21 +90,36 @@ public final class Container
 	 * then it'll be translated into an absolute path.  Translation is system 
 	 * dependent -- in many cases, the path is resolved against the user 
 	 * directory (typically the directory in which the JVM was invoked).</p>
+	 * <p>This method rolls back all executed tasks and terminates the program
+	 * if an error occurs during the initialization procedure.</p>
 	 * 
 	 * @param home	Path to the installation directory.  If <code>null<code> or
 	 * 				empty, then the user directory is assumed.
-	 * @throws StartupException	If <code>home</code> can't be resolved to a
-	 * 			valid and existing directory.
 	 */
 	public static void startup(String home)
-		throws StartupException
 	{
+		Initializer initManager = null;
 		if (singleton == null) {
-			singleton = new Container(home);
-			Initializer initManager = new Initializer(singleton);
-			initManager.configure();
-			initManager.doInit();
-			//startService() called by Initializer at end of doInit().
+			try {
+				singleton = new Container(home);
+				initManager = new Initializer(singleton);
+				initManager.configure();
+				initManager.doInit();
+				//startService() called by Initializer at end of doInit().
+			} catch (StartupException se) {
+				if (initManager != null)	initManager.rollback();
+				//TODO: Use a dialog to do the following.
+				System.out.println();
+				System.out.println("-----------------------------------------");
+				System.out.println("An error occurred during initialization.");
+				System.out.println("Error message: "+se.getMessage());
+				System.out.println("Originated by: "+se.getOriginator());
+				System.out.println("-----------------------------------------");
+				System.out.println();
+				System.out.println("Details as follows.");
+				se.printStackTrace();
+				System.exit(1);
+			}
 		}
 	}
 	
