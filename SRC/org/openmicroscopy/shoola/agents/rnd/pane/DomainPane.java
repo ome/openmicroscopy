@@ -76,7 +76,7 @@ class DomainPane
 	extends JPanel
 {
 	/** row's height. */ 
-	private static final int 		ROW_HEIGHT = 25;
+	private static final int 		ROW_HEIGHT = 30;
 	
 	/** row's width. */
 	private static final int		COLUMN_WIDTH = 90;

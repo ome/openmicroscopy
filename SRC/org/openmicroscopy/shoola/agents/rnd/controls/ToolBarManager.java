@@ -101,6 +101,7 @@ class ToolBarManager
 			int cmd = Integer.parseInt(e.getActionCommand());
 			switch (cmd) {
 				case SAVE:
+					control.saveDisplayOptions();
 					break;
 				case GREY:
 				case RGB:

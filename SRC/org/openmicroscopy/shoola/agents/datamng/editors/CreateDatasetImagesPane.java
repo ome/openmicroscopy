@@ -83,16 +83,10 @@ class CreateDatasetImagesPane
 	}
 	
 	/** Returns the select button. */
-	JButton getSelectButton()
-	{
-		return selectButton;
-	}
+	JButton getSelectButton() { return selectButton; }
 	
 	/** Returns the cancel button. */
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	JButton getCancelButton() { return cancelButton; }
 
 	/** Select or not all images. */
 	void setSelection(Object val)
@@ -102,7 +96,7 @@ class CreateDatasetImagesPane
 				imagesTM.setValueAt(val, i, countCol); 
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));

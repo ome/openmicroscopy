@@ -66,15 +66,11 @@ class ImageEditorManager
 	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
 	private static final int	RELOAD = 1;
-	private static final int	ANNOTATE = 2;
 	
 	private ImageData			model;
 	private ImageEditor			view;
 	private DataManagerCtrl 	control;
-	
-	/** Annotate button displayed in the {@link ImageGeneralPane}. */
-	private JButton 			annotateButton;
-	
+
 	/** Save button displayed in the {@link ImageGeneralPane}. */
 	private JButton 			saveButton;
 	
@@ -99,19 +95,13 @@ class ImageEditorManager
 		isName = false;
 	}
 	
-	ImageData getImageData()
-	{
-		return model;
-	}
+	ImageData getImageData() { return model; }
 
 	/** Initializes the listeners. */
 	void initListeners()
 	{
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
-		annotateButton = view.getAnnotateButton();
-		annotateButton.addActionListener(this);
-		annotateButton.setActionCommand(""+ANNOTATE);
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
@@ -130,9 +120,6 @@ class ImageEditorManager
 		try {
 			int index = Integer.parseInt(s);
 			switch (index) { 
-				case ANNOTATE:
-					control.annotateImage(model.getID(), model.getName());
-					break;
 				case SAVE:
 					save();
 					break;

@@ -126,20 +126,11 @@ public class CreateDatasetEditorManager
 		isName = false;
 	}
 	
-	DatasetData getDatasetData()
-	{
-			return model;
-	}
+	DatasetData getDatasetData() { return model; }
 	
-	List getProjects()
-	{
-		return projects;
-	}
+	List getProjects() { return projects; }
 	
-	List getImages()
-	{
-		return images;
-	}
+	List getImages() { return images; }
 		
 	/** Initializes the listeners. */
 	void initListeners()

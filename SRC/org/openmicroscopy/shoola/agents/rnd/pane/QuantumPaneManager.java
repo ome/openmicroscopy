@@ -195,6 +195,7 @@ class QuantumPaneManager
 			gr.setDefaultExponential(s, e);
 		else gr.setDefaultLinear(s, e);
 		view.buildLayeredPane(gr);
+		eventManager.setMappingPane();
 	}
 	
 	/** 

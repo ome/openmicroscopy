@@ -89,6 +89,7 @@ class ProjectDatasetsDiffPaneManager
 			attachListeners();					
 	}
 	
+	/** Attach the listeners. */
 	private void attachListeners()
 	{
 		selectButton = view.getSelectButton();
@@ -103,7 +104,6 @@ class ProjectDatasetsDiffPaneManager
 	}
 
 	/** Handle events fired by the buttons. */
-	
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = (String) e.getActionCommand();

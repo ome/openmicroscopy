@@ -94,57 +94,26 @@ public class ProjectEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/** 
-	 * Returns the save button displayed {@link ProjectGeneralPane}.
-	 */
-	JButton getSaveButton()
-	{
-		return generalPane.getSaveButton();
-	}
+	/**  Returns the save button displayed {@link ProjectGeneralPane}. */
+	JButton getSaveButton() { return generalPane.getSaveButton(); }
 	
-	/** 
-	 * Returns the reload button displayed in {@link ProjectGeneralPane}.
-	 */
-	JButton getReloadButton()
-	{
-		return generalPane.getReloadButton();
-	}
+	/** Returns the reload button displayed in {@link ProjectGeneralPane}. */
+	JButton getReloadButton() { return generalPane.getReloadButton(); }
 	
-	/** 
-	 * Returns the remove button displayed in {@link ProjectDatasetsPane}.
-	 */
-	JButton getRemoveButton()
-	{
-		return datasetsPane.getRemoveButton();
-	}
+	/** Returns the remove button displayed in {@link ProjectDatasetsPane}. */
+	JButton getRemoveButton() { return datasetsPane.getRemoveButton(); }
 	
-	/** 
-	 * Returns the cancel button displayed in {@link ProjectDatasetsPane}.
-	 */
-	JButton getCancelButton()
-	{
-		return datasetsPane.getCancelButton();
-	}
+	/** Returns the cancel button displayed in {@link ProjectDatasetsPane}. */
+	JButton getCancelButton() { return datasetsPane.getCancelButton(); }
 	
-	/** 
-	 * Returns the cancel button displayed in {@link ProjectDatasetsPane}.
-	 */
-	JButton getAddButton()
-	{
-		return datasetsPane.getAddButton();
-	}
+	/** Returns the cancel button displayed in {@link ProjectDatasetsPane}. */
+	JButton getAddButton() { return datasetsPane.getAddButton(); }
 	
 	/** Returns the TextArea displayed in {@link ProjectGeneralPane}. */
-	JTextArea getDescriptionArea()
-	{
-		return generalPane.getDescriptionArea();
-	}
+	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
 
 	/** Returns the textfield displayed in {@link ProjectGeneralPane}. */
-	JTextArea getNameField()
-	{
-		return generalPane.getNameField();
-	}
+	JTextArea getNameField() { return generalPane.getNameField(); }
 	
 	/** Forward event to the pane {@link ProjectDatasetsPane}. */
 	void selectAll()

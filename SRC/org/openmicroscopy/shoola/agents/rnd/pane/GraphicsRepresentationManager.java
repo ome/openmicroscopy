@@ -68,6 +68,8 @@ class GraphicsRepresentationManager
 									square = GraphicsRepresentation.square, 
 									bottomBorder = 
 										GraphicsRepresentation.bottomBorder,
+									bottomBorderSupp = 
+									GraphicsRepresentation.bottomBorderSupp,
 									triangleW = 
 										GraphicsRepresentation.triangleW, 
 	   								lS = leftBorder+square, 
@@ -126,7 +128,8 @@ class GraphicsRepresentationManager
 	 */
 	void setInputWindowStart(int v, int min, int max)
 	{
-		int vg = convertRealIntoGraphics(v, max-min, square, min);
+		int vg = convertRealIntoGraphics(v, max-min, 
+										view.getInputGraphicsRange(), min);
 		vg = vg + leftBorder;
 		setInputStartBox(vg);
 		view.updateInputStart(vg, v);	
@@ -140,7 +143,8 @@ class GraphicsRepresentationManager
 	 */
 	void setInputWindowEnd(int v, int min, int max)
 	{
-		int vg = convertRealIntoGraphics(v, max-min, square, min);
+		int vg = convertRealIntoGraphics(v, max-min, 
+										view.getInputGraphicsRange(), min);
 		vg = vg + leftBorder;
 		setInputEndBox(vg);
 		view.updateInputEnd(vg, v);
@@ -318,7 +322,7 @@ class GraphicsRepresentationManager
 	void setType(int type, int x)
 	{
 		this.type = type;
-		maxEndX = x ;
+		maxEndX = x;
 	}
 	
 	/** 
@@ -326,7 +330,7 @@ class GraphicsRepresentationManager
 	 *
 	 * @param x value.
 	 */    
-	void setMaxEndX(int x) { maxEndX = x ; }
+	void setMaxEndX(int x) { maxEndX = x; }
 	
 	/** 
 	 * Sizes the rectangle used to listen to the outpuStart knob.
@@ -335,9 +339,9 @@ class GraphicsRepresentationManager
 	 */ 
 	private void setOutputStartBox(int y)
 	{
-		maxStartOutputY = y-triangleW;
-		boxOutputStart.setBounds(0, y-triangleW, leftBorder-triangleW-1,
-										 2*length);
+		maxStartOutputY = y-2*triangleW;
+		boxOutputStart.setBounds(0, y-2*triangleW, leftBorder-2*triangleW-1,
+										 4*length);
 	}
 	
 	/** 
@@ -359,8 +363,9 @@ class GraphicsRepresentationManager
 	 */
 	void setInputStartBox(int x)
 	{
-		maxStartX = x+triangleW;
-		boxStart.setBounds(x-triangleW, tS+triangleW+1, 2*length, bottomBorder);
+		maxStartX = x+2*triangleW;
+		boxStart.setBounds(x-triangleW, tS+triangleW+1, 4*length, 
+							bottomBorder+bottomBorderSupp);
 	}
 	
 	/** 
@@ -370,8 +375,9 @@ class GraphicsRepresentationManager
 	 */  
 	void setInputEndBox(int x)
 	{
-		minEndX = x-triangleW;
-		boxEnd.setBounds(x-triangleW, tS+triangleW+1, 2*length, bottomBorder);
+		minEndX = x-2*triangleW;
+		boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
+						bottomBorder+bottomBorderSupp);
 	}
 	
 	/** 

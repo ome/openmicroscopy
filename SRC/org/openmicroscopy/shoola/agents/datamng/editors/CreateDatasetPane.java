@@ -41,7 +41,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
@@ -93,24 +92,15 @@ class CreateDatasetPane
 	}
 	
 	/** Returns the TextArea with the project's description. */
-	JTextArea getDescriptionArea()
-	{
-		return descriptionArea;
-	}
+	JTextArea getDescriptionArea() { return descriptionArea; }
 
 	/** Returns the textfield with project's name. */
-	JTextArea getNameField()
-	{
-		return nameField;
-	}
+	JTextArea getNameField() { return nameField; }
 	
 	/** Returns the save button. */
-	JButton getSaveButton()
-	{ 
-		return saveButton;
-	}
+	JButton getSaveButton() { return saveButton; }
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
@@ -124,7 +114,7 @@ class CreateDatasetPane
 	{	
 		JPanel  p = new JPanel();
 		//save button
-		saveButton = new JButton("Save");
+		saveButton = new JButton("OK");
 		//get rid of surrounding border
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
@@ -164,9 +154,9 @@ class CreateDatasetPane
 	 * <code>name</code> and <code>description</code> values
 	 * are marked as editable.
 	 */
-	private JTable buildTable()
+	private TableComponent buildTable()
 	{
-		JTable table = new TableComponent(2, 2);
+		TableComponent table = new TableComponent(2, 2);
 		table.setTableHeader(null);
 		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);

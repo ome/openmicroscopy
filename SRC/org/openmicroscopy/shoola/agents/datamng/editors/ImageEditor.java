@@ -89,8 +89,20 @@ public class ImageEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/** Build and layout the GUI. */
-	void buildGUI()
+	/** Returns the save button displayed in {@link ImageGeneralPane}. */
+	JButton getSaveButton() { return generalPane.getSaveButton(); }
+
+	/** Returns the reload button displayed in {@link ImageGeneralPane}. */
+	JButton getReloadButton() { return generalPane.getReloadButton(); }
+	
+	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
+	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
+
+	/** Returns the textfield displayed in {@link ImageGeneralPane}. */
+	JTextArea getNameField() { return generalPane.getNameField(); }
+	
+	/** Build and lay out the GUI. */
+	private void buildGUI()
 	{
 		//create and initialize the tabs
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
@@ -111,35 +123,6 @@ public class ImageEditor
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tabs, BorderLayout.CENTER);	
 	}
-	
-	/** Returns the annotate button displayed in {@link ImageGeneralPane}. */
-	JButton getAnnotateButton()
-	{
-		return generalPane.getAnnotateButton();
-	}
-	
-	/** Returns the save button displayed in {@link ImageGeneralPane}. */
-	JButton getSaveButton()
-	{
-		return generalPane.getSaveButton();
-	}
 
-	/** Returns the reload button displayed in {@link ImageGeneralPane}. */
-	JButton getReloadButton()
-	{
-		return generalPane.getReloadButton();
-	}
-	
-	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
-	JTextArea getDescriptionArea()
-	{
-		return generalPane.getDescriptionArea();
-	}
-
-	/** Returns the textfield displayed in {@link ImageGeneralPane}. */
-	JTextArea getNameField()
-	{
-		return generalPane.getNameField();
-	}
 	
 }

@@ -35,14 +35,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
@@ -78,7 +76,7 @@ class DatasetGeneralPane
 	
 	private Registry				registry;
 	
-	private JButton					saveButton, reloadButton, annotateButton;
+	private JButton					saveButton, reloadButton;
 	
 	private JTextArea				nameField;
 	
@@ -91,37 +89,19 @@ class DatasetGeneralPane
 		buildGUI();
 	}
 	
-	/** Returns the annotate button. */
-	JButton getAnnotateButton()
-	{
-		return annotateButton;
-	}
-	
 	/** Returns the save button. */
-	JButton getSaveButton()
-	{ 
-		return saveButton;
-	}
+	JButton getSaveButton() { return saveButton; }
 
 	/** Returns the reload button. */
-	JButton getReloadButton()
-	{ 
-		return reloadButton;
-	}
+	JButton getReloadButton() { return reloadButton; }
 	
 	/** Returns the TextArea with the project's description. */
-	JTextArea getDescriptionArea()
-	{
-		return descriptionArea;
-	}
+	JTextArea getDescriptionArea() { return descriptionArea; }
 
 	/** Returns the textfield with project's name. */
-	JTextArea getNameField()
-	{
-		return nameField;
-	}
+	JTextArea getNameField() { return nameField; }
 
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
@@ -134,7 +114,7 @@ class DatasetGeneralPane
 	{	
 		JPanel  p = new JPanel();
 		//save button
-		saveButton = new JButton("Save");
+		saveButton = new JButton("OK");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		//make panel transparent
 		saveButton.setOpaque(false);
@@ -152,25 +132,13 @@ class DatasetGeneralPane
 		reloadButton.setContentAreaFilled(false); 
 		reloadButton.setToolTipText("Reload data from the DB.");
 		
-		//annotate button
-		annotateButton = new JButton("Annotate");
-		annotateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-  		//make panel transparent
-		annotateButton.setOpaque(false);
-  		//suppress button press decoration
-		annotateButton.setContentAreaFilled(false); 
-		annotateButton.setToolTipText("Annotate the dataset.");
-		
 		JPanel controls = new JPanel(), all = new JPanel();
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		all.setLayout(gridbag);  
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		
-		controls.add(annotateButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
-		controls.add(reloadButton);
-		controls.add(Box.createRigidArea(DataManager.HBOX));
+		//controls.add(reloadButton);
+		//controls.add(Box.createRigidArea(DataManager.HBOX));
 		controls.add(saveButton);
 		controls.setOpaque(false); //make panel transparent
 		c.weightx = 0.5;
@@ -196,9 +164,9 @@ class DatasetGeneralPane
 	 * <code>name</code> and <code>description</code> values
 	 * are marked as editable. 
 	 */
-	private JTable buildTable()
+	private TableComponent buildTable()
 	{
-		JTable table = new TableComponent(3, 2);
+		TableComponent table = new TableComponent(3, 2);
 		table.setTableHeader(null);
 		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
 		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);

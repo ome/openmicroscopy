@@ -78,9 +78,10 @@ class GraphicsRepresentation
 	extends JPanel
 {
 	/** Graphical constants. */
-	static final int            maxCharHeight = 15, minFontSize = 6;
-	static final int			width = 220, height = 250, topBorder = 20,
-								leftBorder = 40, rightBorder = 10, square = 140, 
+	static final int			width = 220, height = 250;
+	
+	static final int			topBorder = 20, leftBorder = 40, 
+								rightBorder = 10, square = 140, 
 								bottomBorder = 30, bottomBorderSupp = 50,
 								lS = leftBorder+square, tS = topBorder+square,
 								lS4 = leftBorder+square/4, 

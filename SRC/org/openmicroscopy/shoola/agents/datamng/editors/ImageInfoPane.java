@@ -71,7 +71,7 @@ class ImageInfoPane
 		buildGUI();
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));

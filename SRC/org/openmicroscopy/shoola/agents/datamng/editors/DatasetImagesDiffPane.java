@@ -95,36 +95,27 @@ class DatasetImagesDiffPane
 		buildGUI();
 	}
 	
-	DatasetImagesDiffPaneManager getManager()
-	{
-		return manager;
-	}
+	/** 
+	 * Return the {@link DatasetImagesDiffPaneManager manager} of the widget.
+	 */
+	DatasetImagesDiffPaneManager getManager() { return manager; }
 	
-	JPanel getContents()
-	{
-		return contents;
-	}
+	JPanel getContents() { return contents; }
 	
+	/** Return the select button. */
+	JButton getSelectButton() { return selectButton; }
+
+	/** Return the cancel button. */
+	JButton getCancelButton() { return cancelButton; }
+
+	/** Return the save button. */
+	JButton getSaveButton() { return saveButton; }
+		
 	void setImagesDiff(List l)
 	{
 		imagesDiff = l;
 	}
-	
-	JButton getSelectButton()
-	{
-		return selectButton;
-	}
-	
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
-	
-	JButton getSaveButton()
-	{
-		return saveButton;
-	}
-	
+
 	/** List of dataset to be added. */
 	void setImagesToAdd(List l)
 	{

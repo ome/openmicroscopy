@@ -105,9 +105,10 @@ class HistogramDialogManager
 	void initRectangles(int yStart, int yEnd)
 	{
 		//Size the rectangle used to control the OutputWindow knobs
-		boxInputStart = new Rectangle(lS, yStart-triangleW, rightBorder, 
-										length);
-		boxInputEnd = new Rectangle(lS, yEnd-triangleW, rightBorder, length);
+		boxInputStart = new Rectangle(lS, yStart-2*triangleW, rightBorder, 
+										2*length);
+		boxInputEnd = new Rectangle(lS, yEnd-2*triangleW, rightBorder, 
+									2*length);
 		maxStartInputY = yStart-triangleW;
 		minEndInputY = yEnd+triangleW; 
 		
@@ -215,8 +216,8 @@ class HistogramDialogManager
 	 */    
     void setInputStartBox(int y)
     {
-        maxStartInputY = y-triangleW;
-        boxInputStart.setBounds(lS, y-triangleW, rightBorder, length);
+        maxStartInputY = y-2*triangleW;
+        boxInputStart.setBounds(lS, y-2*triangleW, rightBorder, 2*length);
     }  
       
 	/** 
@@ -226,8 +227,8 @@ class HistogramDialogManager
 	 */ 
     void setInputEndBox(int y)
     {
-        minEndInputY = y+triangleW;
-        boxInputEnd.setBounds(lS, y-triangleW,  rightBorder, length);
+        minEndInputY = y+2*triangleW;
+        boxInputEnd.setBounds(lS, y-2*triangleW,  rightBorder, 2*length);
     }
 
 	/**

@@ -83,15 +83,10 @@ class CreateProjectDatasetsPane
 		buildGUI();
 	}
 	
-	JButton getSelectButton()
-	{
-		return selectButton;
-	}
+	/** Return the select button. */
+	JButton getSelectButton() { return selectButton; }
 	
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	JButton getCancelButton() { return cancelButton; }
 
 	/** Select or not all datasets. */
 	void setSelection(Object val)
@@ -101,7 +96,7 @@ class CreateProjectDatasetsPane
 			datasetsTM.setValueAt(val, i, countCol); 
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));

@@ -125,15 +125,9 @@ class ProjectEditorManager
 		datasetsToAdd = new ArrayList();
 	}
 	
-	ProjectEditor getView()
-	{
-		return view;
-	}
+	ProjectEditor getView() { return view; }
 	
-	ProjectData getProjectData()
-	{
-		return model;
-	}
+	ProjectData getProjectData() { return model; }
 
 	/** Initializes the listeners. */
 	void initListeners()

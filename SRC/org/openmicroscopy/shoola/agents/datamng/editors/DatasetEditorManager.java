@@ -73,7 +73,6 @@ class DatasetEditorManager
 	private static final int		REMOVE = 2;
 	private static final int		CANCEL_SELECTION = 3;
 	private static final int		ADD = 4;
-	private static final int		ANNOTATE = 5;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -86,9 +85,6 @@ class DatasetEditorManager
 	
 	private DataManagerCtrl 		control;
 	
-	/** Annotate button displayed in the {@link DatasetGeneralPane}. */
-	private JButton 				annotateButton;
-		
 	/** Save button displayed in the {@link DatasetGeneralPane}. */
 	private JButton 				saveButton;
 
@@ -141,9 +137,6 @@ class DatasetEditorManager
 		//buttons
 		saveButton = view.getSaveButton();
 		reloadButton = view.getReloadButton();
-		annotateButton = view.getAnnotateButton();
-		annotateButton.addActionListener(this);
-		annotateButton.setActionCommand(""+ANNOTATE);
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE);
 		reloadButton.addActionListener(this);
@@ -172,9 +165,6 @@ class DatasetEditorManager
 		try {
 			int index = Integer.parseInt(s);
 			switch (index) {
-				case ANNOTATE:
-					control.annotateDataset(model.getID(), model.getName()); 
-					break;
 				case SAVE:
 					save();
 					break;

@@ -99,20 +99,14 @@ class DatasetImagesPane
 		buildGUI();
 	}
 	
-	JButton getAddButton()
-	{
-		return addButton;
-	}
+	/** Return the add button. */
+	JButton getAddButton() { return addButton; }
 	
-	JButton getRemoveButton()
-	{
-		return removeButton;
-	}
+	/** Return the remove button. */
+	JButton getRemoveButton() { return removeButton; }
 
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	/** Return the cancel button. */
+	JButton getCancelButton() { return cancelButton;}
 	
 	/** Select or not all images. */
 	void setSelection(Object val)
@@ -137,7 +131,7 @@ class DatasetImagesPane
 		setBorder(b);
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		listImages = manager.getDatasetData().getImages();
@@ -222,9 +216,9 @@ class DatasetImagesPane
 		return p;
 	}
 	
-	private JTable buildLabelTable()
+	private TableComponent buildLabelTable()
 	{
-		JTable table = new TableComponent(1, 3);
+		TableComponent table = new TableComponent(1, 3);
 		table.setTableHeader(null);
 		table.setOpaque(false);
 		table.setShowGrid(false);

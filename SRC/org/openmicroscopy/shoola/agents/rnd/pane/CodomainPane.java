@@ -70,7 +70,7 @@ class CodomainPane
 	extends JPanel
 {
 	/** row's height. */ 
-	private static final int 		ROW_HEIGHT = 25;
+	private static final int 		ROW_HEIGHT = 30;
 	
 	/** row's width. */
 	private static final int		BWIDTH = 45;
@@ -104,14 +104,19 @@ class CodomainPane
 	/** Getters. */
 	CodomainPaneManager getManager() { return manager;}
 	
-	JCheckBox getCS(){ return cs; }
+	/** Contrast Stretching checkBox. */
+	JCheckBox getCS() { return cs; }
 
+	/** Contrast Stretching button. */
 	JButton getCStretching() { return cStretching; }
 
+	/** Plane slicing checkBox. */
 	JCheckBox getPS() { return ps; }
 
+	/** Plane slicing button. */
 	JButton getPSlicing() { return pSlicing; }
 
+	/** Reverse intensity checkBox. */
 	JCheckBox getRI() { return ri; }
 	
 	/** Initialize the checkboxes and buttons. */
@@ -128,7 +133,7 @@ class CodomainPane
 		ps = new JCheckBox();	
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));

@@ -142,8 +142,23 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward the call to the {@link DataManager abstraction}. */
-	void viewDataset(DatasetSummary ds) { abstraction.viewDataset(ds.getID()); }
+	void viewDataset(DatasetSummary ds)
+	{ 
+		abstraction.viewDataset(ds.getID());
+	}
 
+	/** Forward event to the {@link DataManager abstraction}. */
+	void annotateDataset(DatasetSummary ds)
+	{
+		abstraction.annotateDataset(ds.getID(), ds.getName());
+	}
+	
+	/** Forward event to the {@link DataManager abstraction}. */
+	void annotateImage(ImageSummary is)
+	{
+		abstraction.annotateImage(is.getID(), is.getName());
+	}
+	
 	/**Handles event fired by menu. */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -192,18 +207,6 @@ public class DataManagerCtrl
 		List projects = abstraction.getUserProjects();
 		List images = abstraction.getUserImages();
 		presentation.showCreateDataset(new DatasetData(), projects, images);
-	}
-	
-	/** Forward event to the {@link DataManager abstraction}. */
-	public void annotateDataset(int id, String name)
-	{
-		abstraction.annotateDataset(id, name);
-	}
-	
-	/** Forward event to the {@link DataManager abstraction}. */
-	public void annotateImage(int imageID, String name)
-	{
-		abstraction.annotateImage(imageID, name);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */

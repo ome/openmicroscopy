@@ -124,15 +124,9 @@ public class CreateProjectEditorManager
 		isName = false;
 	}
 	
-	ProjectData getProjectData()
-	{
-			return model;
-	}
+	ProjectData getProjectData() { return model; }
 	
-	List getDatasets()
-	{
-		return datasets;
-	}
+	List getDatasets() { return datasets; }
 	
 	/** Initializes the listeners. */
 	void initListeners()

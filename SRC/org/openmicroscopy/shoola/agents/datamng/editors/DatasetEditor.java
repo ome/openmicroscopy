@@ -92,65 +92,27 @@ public class DatasetEditor
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
+	
+	/**  Returns the save button displayed {@link DatasetGeneralPane}. */
+	JButton getSaveButton() { return generalPane.getSaveButton(); }
 
-	/** 
-	 * Returns the annotate button displayed {@link DatasetGeneralPane}.
-	 */
-	JButton getAnnotateButton()
-	{
-		return generalPane.getAnnotateButton();
-	}
+	/** Returns the reload button displayed in {@link DatasetGeneralPane}. */
+	JButton getReloadButton() { return generalPane.getReloadButton(); }
 	
-	/** 
-	 * Returns the save button displayed {@link DatasetGeneralPane}.
-	 */
-	JButton getSaveButton()
-	{
-		return generalPane.getSaveButton();
-	}
-
-	/** 
-	 * Returns the reload button displayed in {@link DatasetGeneralPane}.
-	 */
-	JButton getReloadButton()
-	{
-		return generalPane.getReloadButton();
-	}
+	/** Returns the save button displayed {@link DatasetImagesPane}. */
+	JButton getAddButton() { return imagesPane.getAddButton(); }
 	
-	/** 
-	 * Returns the save button displayed {@link DatasetImagesPane}.
-	 */
-	JButton getAddButton()
-	{
-		return imagesPane.getAddButton();
-	}
-	/** 
-	 * Returns the remove button displayed in {@link DatasetImagesPane}.
-	 */
-	JButton getRemoveButton()
-	{
-		return imagesPane.getRemoveButton();
-	}
+	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
+	JButton getRemoveButton() { return imagesPane.getRemoveButton(); }
 	
-	/** 
-	 * Returns the cancel button displayed in {@link DatasetImagesPane}.
-	 */
-	JButton getCancelButton()
-	{
-		return imagesPane.getCancelButton();
-	}
+	/** Returns the cancel button displayed in {@link DatasetImagesPane}. */
+	JButton getCancelButton() { return imagesPane.getCancelButton(); }
 	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
-	JTextArea getDescriptionArea()
-	{
-		return generalPane.getDescriptionArea();
-	}
+	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
 
 	/** Returns the textfield displayed in {@link DatasetGeneralPane}. */
-	JTextArea getNameField()
-	{
-		return generalPane.getNameField();
-	}
+	JTextArea getNameField() { return generalPane.getNameField(); }
 	
 	/** Forward event to the pane {@link DatasetImagesPane}. */
 	void selectAll()

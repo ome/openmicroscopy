@@ -67,6 +67,7 @@ public class ToolBar
 {
 	
 	private static final Color		STEELBLUE = new Color(0x4682B4);
+	
 	/** Dimension of the separator between the toolBars. */
 	private static final Dimension	SEPARATOR_END = new Dimension(180, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);

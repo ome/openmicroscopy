@@ -95,30 +95,21 @@ class ProjectDatasetsDiffPane
 		buildGUI();
 	}
 	
-	ProjectDatasetsDiffPaneManager getManager()
-	{
-		return manager;
-	}
+	/**
+	 * Return the {@link ProjectDatasetsDiffPaneManager manager} of the widget.
+	 */
+	ProjectDatasetsDiffPaneManager getManager() { return manager; }
 	
-	JPanel getContents()
-	{
-		return contents;
-	}
+	JPanel getContents() { return contents; }
 	
-	JButton getSelectButton()
-	{
-		return selectButton;
-	}
+	/** Return select button. */
+	JButton getSelectButton() { return selectButton; }
 	
-	JButton getCancelButton()
-	{
-		return cancelButton;
-	}
+	/** Return select button. */
+	JButton getCancelButton() { return cancelButton; }
 	
-	JButton getSaveButton()
-	{
-		return saveButton;
-	}
+	/** Return select button. */
+	JButton getSaveButton() { return saveButton; }
 	
 	/** Select or not all datasets. */
 	void setSelection(Object val)
@@ -154,7 +145,7 @@ class ProjectDatasetsDiffPane
 		
 	}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
 		contents = buildDatasetsPanel();

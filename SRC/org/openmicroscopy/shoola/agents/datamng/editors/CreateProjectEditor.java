@@ -86,47 +86,27 @@ public class CreateProjectEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
-	/** Returns the widget manager. */
-	CreateProjectEditorManager getManager()
-	{
-		return manager;
-	}
+	/** Returns the widget {@link CreateProjectEditorManager manager}. */
+	CreateProjectEditorManager getManager() { return manager; }
 	
 	/** Returns the TextArea displayed in {@link CreateProjectPane}. */
-	JTextArea getDescriptionArea()
-	{
-		return creationPane.getDescriptionArea();
-	}
+	JTextArea getDescriptionArea() { return creationPane.getDescriptionArea(); }
 
 	/** Returns the textfield displayed in {@link CreateProjectPane}. */
-	JTextArea getNameField()
-	{
-		return creationPane.getNameField();
-	}
+	JTextArea getNameField() { return creationPane.getNameField(); }
 	
-	/** 
-	 * Returns the save button displayed in {@link CreateProjectPane}.
-	 */
-	JButton getSaveButton()
-	{
-		return creationPane.getSaveButton();
-	}
+	/** Returns the save button displayed in {@link CreateProjectPane}. */
+	JButton getSaveButton() { return creationPane.getSaveButton(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	JButton getSelectButton()
-	{
-		return datasetsPane.getSelectButton();
-	}
+	JButton getSelectButton() { return datasetsPane.getSelectButton(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
 	 */
-	JButton getCancelButton()
-	{
-		return datasetsPane.getCancelButton();
-	}
+	JButton getCancelButton() { return datasetsPane.getCancelButton(); }
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
 	void selectAll()
