@@ -111,14 +111,16 @@ final class TopFrameInit
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
+		String lookAndFeelClass = null;
 		try {
-			String lookAndFeelClass = 
-								(String) reg.lookup(LookupNames.LOOK_N_FEEL);
+			lookAndFeelClass = (String) reg.lookup(LookupNames.LOOK_N_FEEL);
 			if (SYSTEM_LF.equalsIgnoreCase(lookAndFeelClass))
 				lookAndFeelClass = UIManager.getSystemLookAndFeelClassName();
 			UIManager.setLookAndFeel(lookAndFeelClass);
+			reg.getLogger().info(this, "Loaded L&F: "+lookAndFeelClass);
 		} catch(Exception e) { 
-			//Ignore, we'll use the default L&F.
+			reg.getLogger().warn(this, "Can't load L&F: "+lookAndFeelClass+
+									", will use default.");
 		}
 		TopFrame tf = UIFactory.makeTopFrame(container);
 		RegistryFactory.linkTopFrame(tf, reg);
