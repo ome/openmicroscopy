@@ -34,15 +34,14 @@ package org.openmicroscopy.shoola.agents.roi.defs;
 import java.awt.Color;
 import java.awt.Shape;
 
-import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
 
 /** 
+ * Represents a 2D-region of interest within a 2D-plane.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -56,11 +55,12 @@ import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
  */
 public class ROIShape
 {
+    
     /** Shape to draw. */
     private Shape                   shape;
     
     /** 
-     * Type of shape, one of the constants by defined
+     * Type of shape, one of the constants defined by
      *  {@link org.openmicroscopy.shoola.agents.roi.ROIAgt}.
      */
     private int                     index;
@@ -68,15 +68,21 @@ public class ROIShape
     /** Color of the shape. */
     private Color                   lineColor;
     
-    /** Channel index. */
+    /** OME index of the channel. */
     private int                     channelIndex;
     
+    /** Number associated to the selection. */
     private String                  label;
     
+    /** 
+     * One of the constants defined by
+     * {@link org.openmicroscopy.shoola.agents.roi.ROIFactory}. */
     private int                     shapeType;
-    
+     
+    /** Transformations applied to the image i.e. zooming. */
     private ImageAffineTransform    affineTransform;
     
+    /** Annotation associated to the selection. */
     private String                  annotation;
     
     public ROIShape(Shape shape, int index, Color lineColor, int shapeType,

@@ -73,7 +73,7 @@ public class ROIStats
 {
     
     private static final Dimension  HBOX = new Dimension(10, 0),
-                                    VIEWPORT = new Dimension(450, 200);
+                                    VIEWPORT = new Dimension(550, 200);
   
     private JButton                 close, save;
     

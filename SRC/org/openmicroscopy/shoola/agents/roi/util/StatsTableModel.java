@@ -61,8 +61,8 @@ class StatsTableModel
     extends AbstractTableModel 
 {
     
-    private final String[]    fieldNames = {"Label", "Channel", "Z", "T", "Min",
-                                            "Max", "Mean", "Sigma"};
+    private final String[]    fieldNames = {"Annotation", "Label", "Channel", 
+                                    "Z", "T", "Min", "Max", "Mean", "Sigma"};
     
     private Object[][] data;
     
