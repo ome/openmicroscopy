@@ -36,6 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -74,6 +75,8 @@ class DatasetEditorManager
 	private static final int		CANCEL = 2;
 	private static final int		ADD = 3;
 	private static final int		RESET = 4;
+	private static final int		REMOVE_ADDED = 5;
+	private static final int		RESET_ADDED = 6;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -83,6 +86,9 @@ class DatasetEditorManager
 	
 	/**List of images to add. */
 	private List					imagesToAdd;
+	
+	/** List of selected images to be added that have to be removed. */
+	private List					imagesToAddToRemove;
 	
 	private DataManagerCtrl 		control;
 	
@@ -100,6 +106,15 @@ class DatasetEditorManager
 
 	/** Reset button displayed in the {@link DatasetImagesPane}. */
 	private JButton 				resetButton;
+	
+	/** Reset button displayed in the {@link DatasetImagesPane}. */
+	private JButton 				resetToAddButton;
+	
+	/**  
+	 * Remove button displayed in the {@link DatasetImagesPane}. 
+	 * Remove the selected datasets from the list of datasets to add.
+	 */
+	private JButton 				removeToAddButton;
 	
 	/** textArea displayed in the {@link DatasetGeneralPane}. */
 	private JTextArea				descriptionArea;
@@ -120,7 +135,14 @@ class DatasetEditorManager
 		isName = false;
 		imagesToRemove = new ArrayList();
 		imagesToAdd = new ArrayList();
+		imagesToAddToRemove = new ArrayList();
 	}
+	
+	List getImages() { return getDatasetData().getImages(); }
+	
+	List getImagesToAdd() { return imagesToAdd; }
+	
+	List getImagesToAddToRemove() { return imagesToAddToRemove; }
 	
 	DatasetEditor getView() { return view; }
 	
@@ -148,6 +170,13 @@ class DatasetEditorManager
 		resetButton.addActionListener(this);
 		resetButton.setActionCommand(""+RESET);	
 		
+		removeToAddButton = view.getRemoveToAddButton();
+		removeToAddButton.addActionListener(this);
+		removeToAddButton.setActionCommand(""+REMOVE_ADDED);
+		resetToAddButton = view.getResetToAddButton();
+		resetToAddButton.addActionListener(this);
+		resetToAddButton.setActionCommand(""+RESET_ADDED);
+		
 		//textfields
 		nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
@@ -171,17 +200,43 @@ class DatasetEditorManager
 				case REMOVE:
 					remove(); break;
 				case RESET:
-					resetSelection();
+					resetSelection(); break;
+				case REMOVE_ADDED:
+					removeAdded(); break;
+				case RESET_ADDED:
+					resetAdded(); 
 			}  
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
+	/** Bring up the images selection dialog. */
+	private void showImagesSelection()
+	{
+		if (dialog == null) {
+			List imagesDiff = control.getImagesDiff(model);
+			dialog = new DatasetImagesDiffPane(this, imagesDiff);
+		} else {
+			dialog.remove(dialog.getContents());
+			dialog.buildGUI();
+		}
+		UIUtilities.centerAndShow(dialog);
+		view.setSelectedPane(DatasetEditor.POS_IMAGE);
+		saveButton.setEnabled(true);	
+	}
+	
+	
+	/** Add the list of selected images to the {@link ProjectDatasetPane}. */
 	void addImagesSelection(List l)
 	{
-		imagesToAdd = l;
-		view.setImagesPane(l);
+		Iterator i = l.iterator();
+		ImageSummary is;
+		while (i.hasNext()) {
+			is = (ImageSummary) i.next();
+			if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
+		}
+		view.rebuildComponent();
 	}
 	
 	/** 
@@ -192,15 +247,15 @@ class DatasetEditorManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove.
 	 */
-	void updateAddSelection(boolean value, ImageSummary is) 
+	void setToAddToRemove(boolean value, ImageSummary is) 
 	{
-		if (value)	imagesToAdd.remove(is);
+		if (value)
+				imagesToAddToRemove.add(is); 
 		else {
-			 if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
+			if (imagesToAddToRemove.contains(is)) {
+				imagesToAddToRemove.remove(is);
+			}	
 		} 
-		//To be on the save side.
-		if (dialog != null) dialog.getManager().setSelected(value, is);
-		addImagesSelection(imagesToAdd);
 	}
 	
 	/** 
@@ -219,22 +274,7 @@ class DatasetEditorManager
 		else 	imagesToRemove.remove(is);
 		saveButton.setEnabled(true);
 	}
-	
-	/** */
-	private void showImagesSelection()
-	{
-		if (dialog == null) {
-			List imagesDiff = control.getImagesDiff(model);
-			dialog = new DatasetImagesDiffPane(this, imagesDiff);
-		} else {
-			dialog.remove(dialog.getContents());
-			dialog.buildGUI();
-		}
-		UIUtilities.centerAndShow(dialog);
-		view.setSelectedPane(DatasetEditor.POS_IMAGE);
-		saveButton.setEnabled(true);	
-	}
-	
+
 	/** Close the widget, doesn't save changes. */
 	private void cancel()
 	{
@@ -254,7 +294,7 @@ class DatasetEditorManager
 	/** Select All images.*/
 	private void remove()
 	{
-		view.selectAll();
+		view.getImagesPane().setSelection(new Boolean(true));
 		removeButton.setEnabled(false);
 	}
 	
@@ -262,9 +302,34 @@ class DatasetEditorManager
 	private void resetSelection()
 	{
 		removeButton.setEnabled(true);
-		view.resetSelection();
+		view.getImagesPane().setSelection(new Boolean(false));
 	}
 
+	/** Remove the selected images from the queue of images to add. */
+	private void removeAdded()
+	{
+		Iterator i = imagesToAddToRemove.iterator();
+		ImageSummary is;
+	
+		while (i.hasNext()) {
+			is = (ImageSummary) i.next();
+			imagesToAdd.remove(is);
+			if (dialog != null) dialog.getManager().setSelected(true, is);
+		}
+		if (imagesToAddToRemove.size() != 0) {
+			imagesToAddToRemove.removeAll(imagesToAddToRemove);
+			view.rebuildComponent();
+		}
+	}
+
+	/** Reset the default for the queue of images to add. */
+	private void resetAdded()
+	{
+		imagesToAddToRemove.removeAll(imagesToAddToRemove);
+		view.rebuildComponent();
+	}
+
+	
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e) { saveButton.setEnabled(true); }
 

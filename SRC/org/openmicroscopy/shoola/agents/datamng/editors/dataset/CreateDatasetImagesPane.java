@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 //Java imports
 import java.awt.Cursor;
 import java.awt.GridLayout;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -151,19 +149,16 @@ class CreateDatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[] columnNames = {"Name", "Select"};
 		private final Object[] images = manager.getImages().toArray();
 		private Object[][] data = new Object[images.length][2];
 
-		private Map imageSummaries;
-		
 		private ImagesTableModel()
 		{
-			imageSummaries = new HashMap();
 			for (int i = 0; i < images.length; i++) {
 				data[i][0] = ((ImageSummary) images[i]).getName();
 				data[i][1] = new Boolean(false);
-				imageSummaries.put(new Integer(i), images[i]);
 			}
 		}
 
@@ -180,7 +175,6 @@ class CreateDatasetImagesPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 	
-		//cells may not be edited
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
@@ -190,11 +184,10 @@ class CreateDatasetImagesPane
 		
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			ImageSummary is = (ImageSummary) 
-								imageSummaries.get(new Integer(row));
-			manager.addImage(((Boolean) value).booleanValue(), is);
+			manager.addImage(((Boolean) value).booleanValue(),
+							(ImageSummary) images[row]);
 		}
 	}
 	

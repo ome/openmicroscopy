@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -94,6 +93,8 @@ public class DatasetEditor
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);
 	}
 	
+	DatasetImagesPane getImagesPane() { return imagesPane; }
+	
 	/**  Returns the save button displayed {@link DatasetEditorBar}. */
 	JButton getSaveButton() { return bar.getSaveButton(); }
 	
@@ -109,14 +110,18 @@ public class DatasetEditor
 	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
 	JButton getResetButton() { return imagesPane.getResetButton(); }
 	
+	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
+	JButton getRemoveToAddButton() { return imagesPane.getRemoveToAddButton(); }
+	
+	/** Returns the reset button displayed in {@link DatasetImagesPane}. */
+	JButton getResetToAddButton() { return imagesPane.getResetToAddButton(); }
+	
+	
 	/** Returns the TextArea displayed in {@link DatasetGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.getDescriptionArea(); }
 
 	/** Returns the textfield displayed in {@link DatasetGeneralPane}. */
 	JTextArea getNameField() { return generalPane.getNameField(); }
-	
-	/** Forward event to the pane {@link DatasetImagesPane}. */
-	void selectAll() { imagesPane.setSelection(new Boolean(true)); }
 
 	/** 
 	 * Set the selected tab.
@@ -127,14 +132,12 @@ public class DatasetEditor
 	 */
 	void setSelectedPane(int index) { tabs.setSelectedIndex(index); }
 	
-	/** Forward event to the pane {@link DatasetImagesPane}. */
-	void resetSelection() { imagesPane.setSelection(new Boolean(false)); }
-
+	
 	/** Reset the imagesPane. */
-	void setImagesPane(List l)
+	void rebuildComponent()
 	{
 		tabs.remove(POS_IMAGE);
-		imagesPane.buildComponent(l);
+		imagesPane.rebuildComponent();
 		IconManager im = IconManager.getInstance(registry);
 		tabs.insertTab("Datasets", im.getIcon(IconManager.IMAGE), imagesPane, 
 						null, POS_IMAGE);

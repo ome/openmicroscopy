@@ -33,9 +33,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 //Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -76,25 +74,18 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class DatasetImagesPane
 	extends JPanel
 {
-	
-	/** ID to position the components. */
-	private static final int		POS_ONE = 0, POS_TWO = 1, POS_THREE = 2,
-									POS_FOUR = 3;
-	
-	private static final int		ROW_HEIGHT = 25;
-									
+							
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
 	
-	private JButton					removeButton, resetButton;
+	private JButton					removeButton, resetButton, 
+									removeToAddButton, resetToAddButton;
 	
-	private JPanel					tablePanel, tableToAddPanel, buttonsPanel;
+	private JPanel					tablePanel, buttonsPanel, buttonsToAddPanel;
 	
 	private ImagesTableModel 		imagesTM;
 	
 	private List					imagesToAdd;
-	
-	private List					listImages;
 	
 	DatasetImagesPane(DatasetEditorManager manager)
 	{
@@ -103,6 +94,12 @@ class DatasetImagesPane
 		buildGUI();
 	}
 
+	/** Return the removeToAdd button. */
+	JButton getRemoveToAddButton() { return removeToAddButton; }
+
+	/** Return the resetToAdd button. */
+	JButton getResetToAddButton() { return resetToAddButton;}
+	
 	/** Return the remove button. */
 	JButton getRemoveButton() { return removeButton; }
 
@@ -117,17 +114,20 @@ class DatasetImagesPane
 			imagesTM.setValueAt(val, i, countCol);
 	}
 	
-	/** Rebuild the component if some datasets are marked to be added. */ 
-	void buildComponent(List l)
+	/** Rebuild the component if some images are marked to be added. */ 
+	void rebuildComponent()
 	{
-		imagesToAdd = l;
 		removeAll();
-		tableToAddPanel = buildTableToAddPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(tablePanel, POS_ONE);
-		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
-		add(buttonsPanel, POS_FOUR);
+		add(tablePanel);
+		add(Box.createRigidArea(DataManager.VBOX));
+		add(buttonsPanel);
+		if (manager.getImagesToAdd().size() != 0) {
+			add(buildTableToAddPanel());
+			add(Box.createRigidArea(DataManager.VBOX));
+			add(buttonsToAddPanel);
+		}
+		
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -135,20 +135,49 @@ class DatasetImagesPane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		listImages = manager.getDatasetData().getImages();
 		tablePanel = buildTablePanel();
 		buttonsPanel = buildButtonsPanel();
-		tableToAddPanel = buildTableToAddPanel();
+		buttonsToAddPanel = buildButtonsToAddPanel();
 		JPanel p = new JPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(tablePanel, POS_ONE);
-		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
-		add(buttonsPanel, POS_FOUR);
+		add(tablePanel);
+		add(Box.createRigidArea(DataManager.VBOX));
+		add(buttonsPanel);
+		add(Box.createRigidArea(DataManager.VBOX));
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
 	
+	/** 
+	 * Build a panel with buttons used to remove or not 
+	 * the selected datatsets.
+	 */
+	private JPanel buildButtonsToAddPanel()
+	{
+		JPanel controls = new JPanel();
+		//remove button
+		removeToAddButton = new JButton("Remove added");
+		removeToAddButton.setCursor(
+					Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		removeToAddButton.setToolTipText(
+			UIUtilities.formatToolTipText("Remove the images " +
+									"from the queue."));
+
+		//cancel button
+		resetToAddButton = new JButton("Reset");
+		resetToAddButton.setCursor(
+						Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		resetToAddButton.setToolTipText(
+			UIUtilities.formatToolTipText("Cancel selection."));
+
+		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(resetToAddButton);
+		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(removeToAddButton);
+		controls.setOpaque(false); //make panel transparent
+		return controls;
+	}
+
 	/** Initializes and build panel containing the buttons. */
 	private JPanel buildButtonsPanel()
 	{
@@ -169,7 +198,7 @@ class DatasetImagesPane
 		controls.add(removeButton);
 		controls.setOpaque(false); //make panel transparent
 	
-		if (listImages == null || listImages.size() == 0) {
+		if (manager.getImages() == null || manager.getImages().size() == 0) {
 			removeButton.setEnabled(false);
 			resetButton.setEnabled(false);
 		}
@@ -181,19 +210,18 @@ class DatasetImagesPane
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		if (imagesToAdd.size() != 0) {
-			p.add(buildLabelTable());
-	  		ImagesAddTableModel imagesAddTM = new ImagesAddTableModel();
-	  		JTable table = new JTable(imagesAddTM);
-	  		table.setBackground(DataManager.STEELBLUE);
-	  		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	  		table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
-	  		//wrap table in a scroll pane and add it to the panel
-	  		JScrollPane spAdd = new JScrollPane(table);
-			p.add(spAdd);
-  		}
+		p.add(buildLabelTable());
+		ImagesAddTableModel tm = new ImagesAddTableModel();
+		JTable table = new JTable(tm);
+		table.setBackground(DataManager.STEELBLUE);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		//wrap table in a scroll pane and add it to the panel
+		JScrollPane spAdd = new JScrollPane(table);
+		p.add(spAdd);
 		return p;
 	}
+
 	
 	/** Build panel with table containing existing datasets. */
 	private JPanel buildTablePanel()
@@ -213,14 +241,13 @@ class DatasetImagesPane
 	
 	private TableComponent buildLabelTable()
 	{
-		TableComponent table = new TableComponent(1, 3);
+		TableComponent table = new TableComponent(1, 2);
 		setTableLayout(table);
 		//First row.
 		JLabel label = new JLabel(" Images to add");
 		table.setValueAt(label, 0, 0);
 		label = new JLabel("");
 		table.setValueAt(label, 0, 1);
-		table.setValueAt(label, 0, 2);
 		return table;
 	}
 
@@ -230,7 +257,7 @@ class DatasetImagesPane
 		table.setTableHeader(null);
 		table.setOpaque(false);
 		table.setShowGrid(false);
-		table.setRowHeight(ROW_HEIGHT);
+		table.setRowHeight(DataManager.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
@@ -246,20 +273,16 @@ class DatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[]	columnNames = {"Name", "Select"};
-		private final Object[]	images = listImages.toArray();
+		private final Object[]	images = manager.getImages().toArray();
 		private Object[][]		data = new Object[images.length][2];
-		private Map 			imageSummaries;
 		
 		private ImagesTableModel()
 		{
-			imageSummaries = new HashMap();
-			ImageSummary is;
 			for (int i = 0; i < images.length; i++) {
-				is = (ImageSummary) images[i];
-				data[i][0] = is.getName();
+				data[i][0] = ((ImageSummary) images[i]).getName();
 				data[i][1] = new Boolean(false);
-				imageSummaries.put(new Integer(i), is);
 			}
 		}
 	
@@ -285,11 +308,10 @@ class DatasetImagesPane
 		
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			ImageSummary is = (ImageSummary) 
-								imageSummaries.get(new Integer(row));
-			manager.selectImage(((Boolean) value).booleanValue(), is);
+			manager.selectImage(((Boolean) value).booleanValue(), 
+								(ImageSummary) images[row]);
 		}
 	}
 	
@@ -302,18 +324,21 @@ class DatasetImagesPane
 	private class ImagesAddTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[]	columnNames = {"Name", "Remove"};
-		private final Object[]	images = imagesToAdd.toArray();
+		private final Object[]	images = manager.getImagesToAdd().toArray();
 		private Object[][] 		data = new Object[images.length][2];
-		private Map 			imageSummaries;
-
+		
+		private List			imgs = manager.getImagesToAddToRemove();
+		
 		private ImagesAddTableModel()
 		{
-			imageSummaries = new HashMap();
+			ImageSummary is;
+		
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = ((ImageSummary) images[i]).getName();
-				data[i][1] = new Boolean(false);
-				imageSummaries.put(new Integer(i), images[i]);
+				is = (ImageSummary) images[i];
+				data[i][0] = is.getName();
+				data[i][1] = new Boolean(imgs.contains(is));
 			}
 		}
 
@@ -339,11 +364,10 @@ class DatasetImagesPane
 
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			ImageSummary is = (ImageSummary) 
-								imageSummaries.get(new Integer(row));
-			manager.updateAddSelection(((Boolean) value).booleanValue(), is);
+			manager.setToAddToRemove(((Boolean) value).booleanValue(),
+									(ImageSummary) images[row]);
 		}
 	}
 	

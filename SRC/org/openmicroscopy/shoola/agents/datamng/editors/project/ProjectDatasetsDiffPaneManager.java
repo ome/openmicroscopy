@@ -89,6 +89,8 @@ class ProjectDatasetsDiffPaneManager
 			attachListeners();					
 	}
 	
+	List getDatasetsDiff() { return datasetsDiff; }
+	
 	/** Attach the listeners. */
 	private void attachListeners()
 	{

@@ -31,9 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.Cursor;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -79,16 +77,13 @@ class ProjectDatasetsDiffPane
 	
 	private ProjectDatasetsDiffPaneManager	manager;
 	
-	private List							datasetsDiff;
-	
 	private JPanel							contents;
 	
 	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
 	{
 		super(control.getView(), "List of existing datasets", true);
-		this.datasetsDiff = datasetsDiff;
 		this.control = control;
-		initButtons();
+		initButtons(datasetsDiff);
 		manager = new ProjectDatasetsDiffPaneManager(this, control, 
 													datasetsDiff);
 		buildGUI();
@@ -118,8 +113,12 @@ class ProjectDatasetsDiffPane
 			datasetsTM.setValueAt(val, i, countCol);
 	}
 	
-	/** initializes the controls. */
-	private void initButtons()
+	/** 
+	 * Initializes the controls. 
+	 * 
+	 * @param d List of datasets which don't belong to the project.
+	 */
+	private void initButtons(List d)
 	{
 		//remove button
 		selectButton = new JButton("Select All");
@@ -137,7 +136,7 @@ class ProjectDatasetsDiffPane
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add the selection"));
 		
-		if (datasetsDiff == null || datasetsDiff.size() == 0) {
+		if (d == null || d.size() == 0) {
 			selectButton.setEnabled(false);
 			cancelButton.setEnabled(false);
 			saveButton.setEnabled(false);
@@ -192,19 +191,14 @@ class ProjectDatasetsDiffPane
 		extends AbstractTableModel
 	{
 		private final String[]	columnNames = {"Name", "Add"};
-		private final Object[]	datasets = datasetsDiff.toArray();
+		private final Object[]	datasets = manager.getDatasetsDiff().toArray();
 		private Object[][] 		data = new Object[datasets.length][2];
-		private Map 			datasetSummaries;
 		
 		private DatasetsTableModel()
 		{
-			datasetSummaries = new HashMap();
-			DatasetSummary ds;
 			for (int i = 0; i < datasets.length; i++) {
-				ds = (DatasetSummary) datasets[i];
-				data[i][0] = ds.getName();
+				data[i][0] = ((DatasetSummary) datasets[i]).getName();
 				data[i][1] = new Boolean(false);
-				datasetSummaries.put(new Integer(i), datasets[i]);
 			}
 		}
 	
@@ -229,12 +223,11 @@ class ProjectDatasetsDiffPane
 		}
 		
 		public void setValueAt(Object value, int row, int col)
-		{
-			data[row][col]= value;
+		{	
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get(new Integer(row));
-			manager.addDataset(((Boolean) value).booleanValue(), ds);
+			manager.addDataset(((Boolean) value).booleanValue(), 
+								(DatasetSummary) datasets[row]);
 		}
 	}
 	

@@ -31,9 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.Cursor;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -79,18 +77,14 @@ class DatasetImagesDiffPane
 	
 	private DatasetImagesDiffPaneManager	manager;
 	
-	private List							imagesDiff;
-	
 	private JPanel							contents;
 	
 	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
 	{
 		super(control.getView(), "List of exiting images", true);
-		this.imagesDiff = imagesDiff;
 		this.control = control;
-		initButtons();
-		manager = new DatasetImagesDiffPaneManager(this, control, 
-													imagesDiff);
+		initButtons(imagesDiff);
+		manager = new DatasetImagesDiffPaneManager(this, control, imagesDiff);
 		buildGUI();
 	}
 	
@@ -110,12 +104,6 @@ class DatasetImagesDiffPane
 	/** Return the save button. */
 	JButton getSaveButton() { return saveButton; }
 	
-		
-	void setImagesDiff(List l) { imagesDiff = l; }
-
-	/** List of dataset to be added. */
-	void setImagesToAdd(List l) { imagesDiff = l; }
-	
 	/** Select or not all datasets. */
 	void setSelection(Object val)
 	{
@@ -125,7 +113,7 @@ class DatasetImagesDiffPane
 	}
 	
 	/** initializes the controls. */
-	private void initButtons()
+	private void initButtons(List img)
 	{
 		//remove button
 		selectButton = new JButton("Select All");
@@ -143,7 +131,7 @@ class DatasetImagesDiffPane
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add the selection."));
 		
-		if (imagesDiff == null || imagesDiff.size() == 0) {
+		if (img == null ||img.size() == 0) {
 			selectButton.setEnabled(false);
 			cancelButton.setEnabled(false);
 			saveButton.setEnabled(false);
@@ -196,20 +184,16 @@ class DatasetImagesDiffPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[]	columnNames = {"Name", "Add"};
-		private final Object[]	images = imagesDiff.toArray();
+		private final Object[]	images = manager.getImagesDiff().toArray();
 		private Object[][] 		data = new Object[images.length][2];
-		private Map 			imageSummaries;
 		
 		private ImagesTableModel()
 		{
-			imageSummaries = new HashMap();
-			ImageSummary is;
 			for (int i = 0; i < images.length; i++) {
-				is = (ImageSummary) images[i];
-				data[i][0] = is.getName();
+				data[i][0] = ((ImageSummary) images[i]).getName();
 				data[i][1] = new Boolean(false);
-				imageSummaries.put(new Integer(i), images[i]);
 			}
 		}
 	
@@ -235,11 +219,10 @@ class DatasetImagesDiffPane
 		
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			ImageSummary ds = (ImageSummary) 
-				imageSummaries.get(new Integer(row));
-			manager.addImage(((Boolean) value).booleanValue(), ds);
+			manager.addImage(((Boolean) value).booleanValue(), 
+							(ImageSummary) images[row]);
 		}
 	}
 	

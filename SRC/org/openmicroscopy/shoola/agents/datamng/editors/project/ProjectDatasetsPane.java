@@ -31,10 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.Cursor;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -77,28 +74,22 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ProjectDatasetsPane
 	extends JPanel
 {
-	
-	/** ID to position the components. */
-	private static final int		POS_ONE = 0, POS_TWO = 1, POS_THREE = 2,
-									POS_FOUR = 3;
-	
+
 	/** Reference to the manager. */
 	private ProjectEditorManager	manager;
 
-	private JButton					removeButton, resetButton;
+	private JButton					removeButton, resetButton, 
+									removeToAddButton, resetToAddButton;
 	
-	private JPanel					tableToAddPanel, buttonsPanel, tablePanel;
+	private JPanel					buttonsPanel, tablePanel, buttonsToAddPanel;
 	
 	private DatasetsTableModel 		datasetsTM;
-	
-	private List					datasetsToAdd;
 	
 	private List					listDatasets;
 	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
 		this.manager = manager;
-		datasetsToAdd = new ArrayList();
 		buildGUI();
 	}
 
@@ -107,6 +98,12 @@ class ProjectDatasetsPane
 	
 	/** Return the reset button. */
 	JButton getResetButton() { return resetButton; }
+	
+	/** Return the remove button. */
+	JButton getRemoveToAddButton() { return removeToAddButton; }
+	
+	/** Return the reset button. */
+	JButton getResetToAddButton() { return resetToAddButton; }
 	
 	/** Select or not all datasets. */
 	void setSelection(Object val)
@@ -117,16 +114,19 @@ class ProjectDatasetsPane
 	}
 	
 	/** Rebuild the component if some datasets are marked to be added. */ 
-	void buildComponent(List l)
+	void rebuildComponent()
 	{
-		datasetsToAdd = l;
 		removeAll();
-		tableToAddPanel = buildTableToAddPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(tablePanel, POS_ONE);
-		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
-		add(buttonsPanel, POS_FOUR);
+		add(tablePanel);
+		add(Box.createRigidArea(DataManager.VBOX));
+		add(buttonsPanel);
+		if (manager.getDatasetsToAdd().size() != 0) {
+			add(buildTableToAddPanel());
+			add(Box.createRigidArea(DataManager.VBOX));
+			add(buttonsToAddPanel);
+		}
+		
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -137,13 +137,13 @@ class ProjectDatasetsPane
 		listDatasets = manager.getProjectData().getDatasets();
 		tablePanel = buildTablePanel();
 		buttonsPanel = buildButtonsPanel();
-		tableToAddPanel = buildTableToAddPanel();
+		buttonsToAddPanel = buildButtonsToAddPanel();
 		JPanel p = new JPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(tablePanel, POS_ONE);
-		add(tableToAddPanel, POS_TWO);
-		add(Box.createRigidArea(DataManager.VBOX), POS_THREE);
-		add(buttonsPanel, POS_FOUR);
+		add(tablePanel);
+		add(Box.createRigidArea(DataManager.VBOX));
+		add(buttonsPanel);
+		add(Box.createRigidArea(DataManager.VBOX));
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -170,10 +170,40 @@ class ProjectDatasetsPane
 		controls.add(removeButton);
 		controls.setOpaque(false); //make panel transparent
 		
-		if (listDatasets == null || listDatasets.size() == 0) {
+		if ( listDatasets== null || listDatasets.size() == 0) {
 			removeButton.setEnabled(false);
 			resetButton.setEnabled(false);
 		}
+		return controls;
+	}
+	
+	/** 
+	 * Build a panel with buttons used to remove or not 
+	 * the selected datatsets.
+	 */
+	private JPanel buildButtonsToAddPanel()
+	{
+		JPanel controls = new JPanel();
+		//remove button
+		removeToAddButton = new JButton("Remove added");
+		removeToAddButton.setCursor(
+					Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		removeToAddButton.setToolTipText(
+			UIUtilities.formatToolTipText("Remove the datasets " +
+									"from the queue."));
+
+		//cancel button
+		resetToAddButton = new JButton("Reset");
+		resetToAddButton.setCursor(
+						Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		resetToAddButton.setToolTipText(
+			UIUtilities.formatToolTipText("Cancel selection."));
+
+		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(resetToAddButton);
+		controls.add(Box.createRigidArea(DataManager.HBOX));
+		controls.add(removeToAddButton);
+		controls.setOpaque(false); //make panel transparent
 		return controls;
 	}
 	
@@ -182,17 +212,16 @@ class ProjectDatasetsPane
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		if (datasetsToAdd.size() != 0) {
-			p.add(buildLabelTable());
-			DatasetsAddTableModel datasetsAddTM = new DatasetsAddTableModel();
-			JTable table = new JTable(datasetsAddTM);
-			table.setBackground(DataManager.STEELBLUE);
-			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
-			//wrap table in a scroll pane and add it to the panel
-			JScrollPane spAdd = new JScrollPane(table);
-			p.add(spAdd);
-		}
+		p.add(buildLabelTable());
+		DatasetsAddTableModel tm = new DatasetsAddTableModel();
+		JTable table = new JTable(tm);
+		table.setBackground(DataManager.STEELBLUE);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setPreferredScrollableViewportSize(DataManager.VP_DIM);
+		//wrap table in a scroll pane and add it to the panel
+		JScrollPane spAdd = new JScrollPane(table);
+		p.add(spAdd);
+
 		return p;
 	}
 	
@@ -219,14 +248,13 @@ class ProjectDatasetsPane
 	
 	private TableComponent buildLabelTable()
 	{
-		TableComponent table = new TableComponent(1, 3);
+		TableComponent table = new TableComponent(1, 2);
 		setTableLayout(table);
 		//First row.
 		JLabel label = new JLabel(" Datasets to add");
 		table.setValueAt(label, 0, 0);
 		label = new JLabel("");
 		table.setValueAt(label, 0, 1);
-		table.setValueAt(label, 0, 2);
 		return table;
 	}
 	
@@ -252,21 +280,16 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	datasets = listDatasets.toArray();
 		private Object[][] 		data = new Object[datasets.length][2];
-		private Map datasetSummaries;
 
 		private DatasetsTableModel()
 		{
-			datasetSummaries = new HashMap();
-			DatasetSummary ds;
 			for (int i = 0; i < datasets.length; i++) {
-				ds = (DatasetSummary) datasets[i];
-				String sID = ""+ ds.getID();
-				data[i][0] = ds.getName();
+				data[i][0] = ((DatasetSummary) datasets[i]).getName();
 				data[i][1] = new Boolean(false);
-				datasetSummaries.put(new Integer(i), ds);
 			}
 		}
 	
@@ -292,11 +315,10 @@ class ProjectDatasetsPane
 		
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get(new Integer(row));
-			manager.selectDataset(((Boolean) value).booleanValue(), ds);
+			manager.selectDataset(((Boolean) value).booleanValue(), 
+									(DatasetSummary) datasets[row]);
 		}
 	}
 	
@@ -309,20 +331,19 @@ class ProjectDatasetsPane
 	private class DatasetsAddTableModel
 		extends AbstractTableModel
 	{
+		
 		private final String[]	columnNames = {"Name", "Remove"};
-		private final Object[]	datasets = datasetsToAdd.toArray();
+		private final Object[]	datasets = manager.getDatasetsToAdd().toArray();
 		private Object[][]		data = new Object[datasets.length][2];
-		private Map 			datasetSummaries;
+		private List			dats = manager.getDatasetsToAddToRemove();
 
 		private DatasetsAddTableModel()
 		{
-			datasetSummaries = new HashMap();
 			DatasetSummary ds;
 			for (int i = 0; i < datasets.length; i++) {
-				ds = (DatasetSummary) datasets[i];
+				 ds = (DatasetSummary) datasets[i];
 				data[i][0] = ds.getName();
-				data[i][1] = new Boolean(false);
-				datasetSummaries.put(new Integer(i), ds);
+				data[i][1] = new Boolean(dats.contains(ds));
 			}
 		}
 
@@ -350,9 +371,8 @@ class ProjectDatasetsPane
 		{
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
-			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get(new Integer(row));
-			manager.updateAddSelection(((Boolean) value).booleanValue(), ds);
+			manager.setToAddToRemove(((Boolean) value).booleanValue(), 
+									(DatasetSummary) datasets[row]);
 		}
 	}
 

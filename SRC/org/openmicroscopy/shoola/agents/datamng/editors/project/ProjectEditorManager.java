@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -73,6 +74,8 @@ class ProjectEditorManager
 	private static final int		RESET = 2;
 	private static final int		ADD = 3;
 	private static final int		CANCEL = 4;
+	private static final int		REMOVE_ADDED = 5;
+	private static final int		RESET_ADDED = 6;
 	
 	/** Reference to the model. */
 	private ProjectData				model;
@@ -83,11 +86,14 @@ class ProjectEditorManager
 	/** Reference to the control. */
 	private DataManagerCtrl 		control;
 	
-	/** List of datasets to be removed. */
+	/** List of datasets to remove. */
 	private List					datasetsToRemove;
 	
-	/** List of datasets to be added. */
+	/** List of datasets to add. */
 	private List					datasetsToAdd;
+	
+	/** List of selected datasets to be added that have to be removed. */
+	private List					datasetsToAddToRemove;
 	
 	/** Cancel button displayed in the {@link ProjectEditorBar}. */
 	private JButton 				cancelButton;
@@ -98,8 +104,17 @@ class ProjectEditorManager
 	/** Remove button displayed in the {@link ProjectDatasetsPane}. */
 	private JButton 				removeButton;
 	
-	/** Cancel button displayed in the {@link ProjectDatasetsPane}. */
+	/** Reset button displayed in the {@link ProjectDatasetsPane}. */
 	private JButton 				resetButton;
+	
+	/** Reset button displayed in the {@link ProjectDatasetsPane}. */
+	private JButton 				resetToAddButton;
+	
+	/**  
+	 * Remove button displayed in the {@link ProjectDatasetsPane}. 
+	 * Remove the selected datasets from the list of datasets to add.
+	 */
+	private JButton 				removeToAddButton;	
 	
 	/** Add button displayed in the {@link ProjectEditorBar}. */
 	private JButton 				addButton;
@@ -124,7 +139,12 @@ class ProjectEditorManager
 		isName = false;
 		datasetsToRemove = new ArrayList();
 		datasetsToAdd = new ArrayList();
+		datasetsToAddToRemove = new ArrayList();
 	}
+	
+	List getDatasetsToAdd() { return datasetsToAdd; }
+	
+	List getDatasetsToAddToRemove() { return datasetsToAddToRemove; }
 	
 	ProjectEditor getView() { return view; }
 	
@@ -151,6 +171,12 @@ class ProjectEditorManager
 		resetButton.addActionListener(this);
 		resetButton.setActionCommand(""+RESET);
 		
+		removeToAddButton = view.getRemoveToAddButton();
+		removeToAddButton.addActionListener(this);
+		removeToAddButton.setActionCommand(""+REMOVE_ADDED);
+		resetToAddButton = view.getResetToAddButton();
+		resetToAddButton.addActionListener(this);
+		resetToAddButton.setActionCommand(""+RESET_ADDED);
 		
 		//text fields.
 		nameField = view.getNameField();
@@ -175,14 +201,18 @@ class ProjectEditorManager
 				case REMOVE:
 					remove(); break;
 				case RESET:
-					resetSelection(); 
+					resetSelection(); break;
+				case REMOVE_ADDED:
+					removeAdded(); break;
+				case RESET_ADDED:
+					resetAdded(); 
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
 	
-	/** Pop up the datasets selection dialog. */
+	/** Bring up the datasets selection dialog. */
 	void showDatasetsSelection()
 	{
 		if (dialog == null) {
@@ -201,8 +231,13 @@ class ProjectEditorManager
 	/** Add the list of selected datasets to the {@link ProjectDatasetPane}. */
 	void addDatasetsSelection(List l)
 	{
-		datasetsToAdd = l;
-		view.setDatasetsPane(l);
+		Iterator i = l.iterator();
+		DatasetSummary ds;
+		while (i.hasNext()) {
+			ds = (DatasetSummary) i.next();
+			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
+		}
+		view.rebuildComponent();
 	}
 	
 	/** 
@@ -213,15 +248,14 @@ class ProjectEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void updateAddSelection(boolean value, DatasetSummary ds) 
+	void setToAddToRemove(boolean value, DatasetSummary ds) 
 	{
-		if (value)	datasetsToAdd.remove(ds);
+		if (value)
+				datasetsToAddToRemove.add(ds); 
 		else {
-			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
+			if (datasetsToAddToRemove.contains(ds)) 
+				datasetsToAddToRemove.remove(ds);
 		} 
-		//To be on the save side.
-		if (dialog != null) dialog.getManager().setSelected(value, ds);
-		addDatasetsSelection(datasetsToAdd);
 	}
 
 	/** 
@@ -260,7 +294,7 @@ class ProjectEditorManager
 	/** Select All datasets.*/
 	private void remove()
 	{
-		view.selectAll();
+		view.getDatasetsPane().setSelection(new Boolean(true));
 		removeButton.setEnabled(false);
 	}
 	
@@ -268,7 +302,31 @@ class ProjectEditorManager
 	private void resetSelection()
 	{
 		removeButton.setEnabled(true);
-		view.resetSelection();
+		view.getDatasetsPane().setSelection(new Boolean(false));
+	}
+
+	/** Remove the selected datasets from the queue of datasets to add. */
+	private void removeAdded()
+	{
+		Iterator i = datasetsToAddToRemove.iterator();
+		DatasetSummary ds;
+	
+		while (i.hasNext()) {
+			ds = (DatasetSummary) i.next();
+			datasetsToAdd.remove(ds);
+			if (dialog != null) dialog.getManager().setSelected(true, ds);
+		}
+		if (datasetsToAddToRemove.size() != 0) {
+			datasetsToAddToRemove.removeAll(datasetsToAddToRemove);
+			view.rebuildComponent();
+		}
+	}
+
+	/** Reset the default for the queue of datasets to add. */
+	private void resetAdded()
+	{
+		datasetsToAddToRemove.removeAll(datasetsToAddToRemove);
+		view.rebuildComponent();
 	}
 
 	/** Require by I/F. */

@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 class DatasetImagesDiffPaneManager
 	implements ActionListener
 {
+	
 	/** ID to handle event fired by the buttons. */
 	private static final int			ALL = 100;
 	private static final int			CANCEL = 101;
@@ -86,6 +87,8 @@ class DatasetImagesDiffPaneManager
 			imagesToAdd = new ArrayList();
 			attachListeners();					
 	}
+	
+	List getImagesDiff() { return imagesDiff; }
 	
 	/** Attach listeners. */
 	private void attachListeners()

@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 //Java imports
 import java.awt.Cursor;
 import java.awt.GridLayout;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -155,16 +153,13 @@ class CreateProjectDatasetsPane
 		private final String[] columnNames = {"Name", "Select"};
 		private final Object[] datasets = manager.getDatasets().toArray();
 		private Object[][] data;
-		private Map datasetSummaries;
 		
 		private DatasetsTableModel()
 		{
-			datasetSummaries = new HashMap();
 			data = new Object[datasets.length][3];
 			for (int i = 0; i < datasets.length; i++) {
 				data[i][0] = ((DatasetSummary) datasets[i]).getName();
 				data[i][1] = new Boolean(false);
-				datasetSummaries.put(new Integer(i), datasets[i]);
 			}
 		}
 
@@ -181,7 +176,6 @@ class CreateProjectDatasetsPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 	
-		//cells may not be edited
 		public boolean isCellEditable(int row, int col)
 		{ 
 			boolean isEditable = false;
@@ -191,11 +185,10 @@ class CreateProjectDatasetsPane
 		
 		public void setValueAt(Object value, int row, int col)
 		{
-			data[row][col]= value;
+			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			DatasetSummary ds = (DatasetSummary) 
-								datasetSummaries.get(new Integer(row));
-			manager.addDataset(((Boolean) value).booleanValue(), ds);
+			manager.addDataset(((Boolean) value).booleanValue(), 
+								(DatasetSummary) datasets[row]);
 		}
 	}
 	
