@@ -132,10 +132,12 @@ public class ThumbnailRetriever {
 			PixelsService ps = registry.getPixelsService();
 			im = ps.getThumbnail(pix);
 			
-			// write to cache
-			BufferedImage bim = (BufferedImage) im;
-			if (bim != null)
-				ImageIO.write(bim,"jpg",imageFile);
+			if (imageFile != null) {
+				// write to cache
+				BufferedImage bim = (BufferedImage) im;
+				if (bim != null)
+					ImageIO.write(bim,"jpg",imageFile);
+			}
 			return im;
 		}
 		catch(ImageServerException ise) {
