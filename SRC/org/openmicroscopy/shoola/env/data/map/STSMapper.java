@@ -373,4 +373,16 @@ public class STSMapper
 		c.addFilter("feature_id","IN",features);
 		return c;
 	}
+	
+	public static Criteria buildExtentCriteriaWithFeatures(List features) {
+		 
+		if (features == null || features.size() == 0) return null;
+		Criteria c = new Criteria();
+		c.addWantedField("id");
+		c.addWantedField("Volume");
+		c.addWantedField("feature");	
+		
+		c.addFilter("feature_id","IN",features);
+		return c;
+	}
 }
