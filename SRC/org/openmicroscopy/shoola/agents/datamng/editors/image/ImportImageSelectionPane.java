@@ -32,8 +32,10 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.io.File;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -69,20 +71,20 @@ class ImportImageSelectionPane
 {
 	
 	private static final int		POS_ZERO = 0, POS_ONE = 1, POS_TWO = 2;
-									
+								
 	private JComboBox				existingDatasets;
-	private ImportImageChooserMng 	manager;
+	private ImportImageSelectorMng 	manager;
 	private JPanel					titlePanel;
-	
-	ImportImageSelectionPane(List datasets, ImportImageChooserMng manager)
+
+	ImportImageSelectionPane(List datasets, ImportImageSelectorMng manager)
 	{
 		this.manager = manager;
 		initComboBox(datasets);
 		buildGUI();
 	}
-	
+
 	JComboBox getExistingDatasets() { return existingDatasets; }
-	
+
 	private void initComboBox(List datasets)
 	{
 		existingDatasets = new JComboBox(datasets.toArray());
@@ -97,7 +99,7 @@ class ImportImageSelectionPane
 		if (manager.getFilesToImport().size() != 0)
 			add(buildTableToAddPanel(), POS_TWO);
 	}
-	
+
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
@@ -105,19 +107,24 @@ class ImportImageSelectionPane
 		buildTitlePanel();
 		add(titlePanel, POS_ZERO);
 	}
-	
+
 	/** Build panel with combobox. */
 	private void buildTitlePanel()
 	{
-		titlePanel = new JPanel();
+		titlePanel = new JPanel(); 
 		JLabel label = new JLabel("Import selected images into ");
+		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
 		titlePanel.add(label);
-		titlePanel.add(existingDatasets);
+		JPanel comboPanel = new JPanel();
+		comboPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		comboPanel.add(existingDatasets);
+		//titlePanel.add(existingDatasets);
+		titlePanel.add(comboPanel);
 	}
-	
+
 	/** Build panel with table containing the images to add. */
-	
+
 	private JPanel buildTableToAddPanel()
 	{
 		JPanel p = new JPanel();
@@ -131,7 +138,7 @@ class ImportImageSelectionPane
 		p.add(spAdd);
 		return p;
 	}
-	
+
 	/** 
 	 * A <code>2</code>-column table model to view the list of selected files.
 	 * The first column contains the datasets ID and the 
@@ -144,7 +151,7 @@ class ImportImageSelectionPane
 		private Object[] files = manager.getFilesToImport().toArray();
 		private List filesToRemove = manager.getFilesToRemove();
 		private Object[][] 		data = new Object[files.length][2];
-		
+	
 		private ImagesToAddTableModel()
 		{
 			File f;

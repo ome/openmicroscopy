@@ -31,19 +31,14 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.io.File;
-import java.util.List;
 import javax.swing.JFileChooser;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.util.filter.file.DVFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -60,28 +55,21 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-public class ImportImageChooser
+class ImportImageChooser
 	extends JFileChooser
 {
 
-	private DataManagerCtrl				control;
-	private ImportImageChooserMng 		manager;
+	private ImportImageSelectorMng manager;
 	
-	private ImportImageSelection		iiSelection;
-	
-	public ImportImageChooser(DataManagerCtrl control, List datasets)
+	public ImportImageChooser(ImportImageSelectorMng manager)
 	{
-		this.control = control;
-		manager = new ImportImageChooserMng(this, control);
-		iiSelection = new ImportImageSelection(manager, datasets);
-		manager.setSelectionView(iiSelection);
-		manager.attachListener();
-		createChooser();
+		this.manager = manager;
+		buildGUI();
 	}
 
-	/** Build the file chooser. */
-	private void createChooser()
-	{ 
+	/** Build and lay out the GUI. */
+	private void buildGUI()
+	{
 		setFileSelectionMode(FILES_ONLY); 
 		setMultiSelectionEnabled(true);
 		DVFilter dvFilter = new DVFilter();
@@ -93,15 +81,7 @@ public class ImportImageChooser
 		setAcceptAllFileFilterUsed(false);
 		setApproveButtonToolTipText(
 			UIUtilities.formatToolTipText("Select Images to import."));
-		
-		IconManager im = IconManager.getInstance(control.getRegistry());
-		TitlePanel tp = new TitlePanel("Import Image", 
-								"Import new images in an existing dataset.", 
-								im.getIcon(IconManager.IMPORT_IMAGE_BIG));
-		add(tp, BorderLayout.NORTH);
-		add(iiSelection, BorderLayout.SOUTH);
-		//Parent and approve button txt
-		showDialog(control.getReferenceFrame(), "Select Images");		
+		setApproveButtonText("Select images");
 	}
 	
 	/** Override the approveSelection method. */
@@ -120,8 +100,5 @@ public class ImportImageChooser
 		
 	/** Override the cancelSelection method. */
 	public void cancelSelection() { manager.resetSelection(); }
-	
-	/** Close the widget. */
-	void closeWindow() { super.cancelSelection(); }
-	
+		
 }

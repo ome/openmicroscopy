@@ -58,23 +58,20 @@ class ImportImageSelection
 	extends JPanel
 {
 	
-	private ImportImageChooserMng 		manager;
-	
 	private ImportImageBar				bar;
 	private ImportImageSelectionPane 	selectionPane;
-	
-	public ImportImageSelection(ImportImageChooserMng manager, List datasets)
+
+	public ImportImageSelection(ImportImageSelectorMng manager, List datasets)
 	{
-		this.manager = manager;
 		bar = new ImportImageBar();
 		selectionPane = new ImportImageSelectionPane(datasets, manager);
 		buildGUI();
 	}
-	
+
 	ImportImageBar getBar() { return bar; }
-	
+
 	ImportImageSelectionPane getSelectionPane() { return selectionPane; }
-	
+
 	/** Re-build the component. */
 	void rebuildComponent()
 	{
@@ -82,7 +79,7 @@ class ImportImageSelection
 		selectionPane.rebuildComponent();
 		add(selectionPane, BorderLayout.CENTER);
 	}
-	
+
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
