@@ -34,6 +34,7 @@ import java.awt.Container;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import javax.swing.BoxLayout;
+import java.util.HashMap;
 
 
 
@@ -41,6 +42,7 @@ import javax.swing.BoxLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
+import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
@@ -90,6 +92,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	private DatasetBrowserCanvas datasetBrowser;
 	private ProjectSelectionCanvas projectBrowser;
 	
+	
+	private HashMap chainExecutions;
 	/**
 	 * Specifies names, icons, and tooltips for the quick-launch button and the
 	 * window menu entry in the task bar.
@@ -110,7 +114,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		
 			
 		// create datasets, etc here.
-		datasetBrowser = new DatasetBrowserCanvas(this);		
+		datasetBrowser = new DatasetBrowserCanvas(this);
+		System.err.println("created dataset browser..");
 		projectBrowser = new ProjectSelectionCanvas(this);
 		
 		datasetBrowser.setContents(dataManager.getDatasets());
@@ -149,7 +154,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		Registry registry = dataManager.getRegistry();
 		registry.getEventBus().register(this,
 				new Class[] { 
-					SelectAnalysisChain.class,MouseOverAnalysisChain.class});
+					SelectAnalysisChain.class,
+					MouseOverAnalysisChain.class,
+					ChainExecutionsLoadedEvent.class});
 		//enableButtons(false);
 		//buildGUI();
 	}
@@ -188,6 +195,15 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			else if (event instanceof MouseOverAnalysisChain)
 				datasetBrowser.mouseOverAnalysisChain(chain);
 		}
+		else if (e instanceof ChainExecutionsLoadedEvent) {
+			System.err.println("got notification that chains are loaded..");
+			ChainExecutionsLoadedEvent event = (ChainExecutionsLoadedEvent) e;
+			chainExecutions = event.getChainExecutions();
+		}
+	}
+	
+	public HashMap getChainExecutions() {
+		return chainExecutions;
 	}
 	
 	public void componentHidden(ComponentEvent e) {
