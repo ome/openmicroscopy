@@ -178,6 +178,9 @@ public class Constants {
 	 */
 	public static final int ANIMATION_DELAY=500;
 	
+	/** Transparency delay for changing transparency in place */
+	public static final int TRANSPARENCY_DELAY=1500;
+	
 	/** a large font */
 	public static final Font LARGE_NAME_FONT = 
 			new Font("Helvtical",Font.BOLD,24);
