@@ -601,8 +601,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			return;
 		if (selectedDataset != null)
 			selectedDataset.getNode().setHighlighted(false);
-		if (dataset !=null)
-			System.err.println("setting selected dataset .."+dataset.getID());
 		selectedDataset  = dataset;
 		
 		// if a dataset is clicked on to be selected, it has already
@@ -669,13 +667,11 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		}
 		DatasetData ds = exec.getDataset();
 		int dsId = ds.getID();
-		System.err.println("selecting exec with ds ..."+dsId);
 		DatasetNode n = null;
 		BrowserDatasetData browserDataset = findDatasetData(dsId);
 		if (browserDataset != null)
 			n = browserDataset.getNode();
 		
-		System.err.println("found dataset data.."+browserDataset);
 		// make what I've found selected
 		if (n != null) {
 			// if it isn't displayed, display all
@@ -695,7 +691,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		BrowserDatasetData browserDataset = null;
 		while (iter.hasNext()) {
 			browserDataset = (BrowserDatasetData) iter.next();
-			System.err.println("looking at dataset ..."+browserDataset.getID());
 			if (browserDataset.getID() == dsId) {
 				return browserDataset;
 			}
