@@ -67,16 +67,16 @@ public class RenderingAgtCtrl
 	implements ActionListener
 {
 	/** Action command ID to display the Rendering internalFrame. */
-	static final int		R_VISIBLE = 0;
+	static final int		R_VISIBLE = 5;
 	
 	/** Action command ID to display the {@link GreyScalePane}. */
-	static final int		GREY = 1;
+	static final int		GREY = RenderingDef.GS;
 	
 	/** Action command ID to display the {@link RGBPane}. */
-	static final int		RGB = 2;
+	static final int		RGB = RenderingDef.RGB;
 	
 	/** Action command ID to display the {@link HSBPane}. */
-	static final int		HSB = 3;
+	static final int		HSB = RenderingDef.HSB;
 	
 	/** Action command ID. */
 	static final int		SAVE = 4;
@@ -241,12 +241,6 @@ public class RenderingAgtCtrl
 	public ChannelData[] getChannelData()
 	{
 		return abstraction.getChannelData();
-	}
-	
-	/** Foward event to {@link RenderingAgt}. */
-	public RenderingDef getRenderingDef()
-	{ 
-		return null;
 	}
 	
 	/** Handle events. */

@@ -147,6 +147,8 @@ public class RenderingAgt
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
+		pxsDims = renderingControl.getPixelsDims();
+		pxsStats = renderingControl.getPixelsStats();
 		buildPresentation();
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
@@ -158,8 +160,6 @@ public class RenderingAgt
 		presentation = new RenderingAgtUIF(control, registry);
 		control.setMenuItemListener(viewItem, RenderingAgtCtrl.R_VISIBLE);
 		viewItem.setEnabled(true);
-		//topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		//presentation.setVisible(true);
 	}
 	
 	/** Menu item to add to the {@link TopFrame} menu bar. */
@@ -200,7 +200,6 @@ public class RenderingAgt
 	//TODO: retrieve data from DataManagerService.
 	ChannelData[] getChannelData()
 	{
-		if (pxsDims == null) renderingControl.getPixelsDims();
 		if (channelData == null) channelData = new ChannelData[pxsDims.sizeW];
 		for (int i = 0; i < pxsDims.sizeW; i++)
 			channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
@@ -228,8 +227,6 @@ public class RenderingAgt
 	 */
 	PixelsStatsEntry[] getChannelStats(int w)
 	{
-		if (pxsDims == null) renderingControl.getPixelsDims();
-		if (pxsStats ==  null) renderingControl.getPixelsStats();
 		PixelsStatsEntry[] channelStats = new PixelsStatsEntry[pxsDims.sizeT];
 		for (int t = 0; t < pxsDims.sizeT; t++) 
 			channelStats[t] = pxsStats.getEntry(w, t);
@@ -287,7 +284,6 @@ public class RenderingAgt
 	 */
 	double getGlobalChannelWindowStart(int w)
 	{
-		if (pxsStats == null) renderingControl.getPixelsStats();
 		return pxsStats.getGlobalEntry(w).globalMin;
 	}
 	
@@ -299,7 +295,6 @@ public class RenderingAgt
 	 */
 	double getGlobalChannelWindowEnd(int w)
 	{
-		if (pxsStats == null) renderingControl.getPixelsStats();
 		return pxsStats.getGlobalEntry(w).globalMax;
 	}
 	
