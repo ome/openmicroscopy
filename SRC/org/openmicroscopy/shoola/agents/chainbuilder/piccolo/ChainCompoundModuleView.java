@@ -134,7 +134,7 @@ public class ChainCompoundModuleView extends ModuleView {
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		PaletteChainView chainView = getChainView();
-		chainView.zoomToFullView(handler);
+		((ChainPaletteEventHandler) handler).animateToNode(chainView);
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
