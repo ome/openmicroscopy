@@ -57,37 +57,23 @@ import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
-import org.openmicroscopy.shoola.agents.browser.datamodel.CompletePlate;
-import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfo;
-import org.openmicroscopy.shoola.agents.browser.datamodel.PlateInfoParser;
-import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
+import org.openmicroscopy.shoola.agents.browser.datamodel.*;
 import org.openmicroscopy.shoola.agents.browser.events.AnnotateImageHandler;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
-import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
-import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
-import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
-import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
-import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.agents.browser.ui.*;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.*;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.*;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -1159,6 +1145,25 @@ public class BrowserAgent implements Agent, AgentEventListener
             un.notifyError("Server Error",dsa.getMessage(),dsa);
         }
         return null; // fallback case
+    }
+    
+    /**
+     * Returns a category tree for a dataset with the particular ID.
+     * @param datasetID The ID of the dataset to load categories for.
+     * @return A hierarchy of the phenotype groups and categories for that
+     *         dataset (corresponding to CategoryGroup and Category in the DB)
+     */
+    public CategoryTree loadCategoryTree(int datasetID)
+    {
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        List categoryList;
+        try
+        {
+            categoryList =
+                sts.retrieveDatasetAttributes("CategoryGroup",datasetID);
+        }
+        catch(Exception e) {}
+        return null; // TODO change
     }
     
     /**

@@ -40,6 +40,7 @@ import java.util.*;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
+import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
 import org.openmicroscopy.shoola.agents.browser.images.OverlayMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
@@ -82,6 +83,7 @@ public class BrowserModel
     private Set selectedThumbnails;
     
     private AttributeMap attributeMap;
+    private CategoryTree categoryTree;
     
     private List availableTypesList;
 
@@ -243,6 +245,26 @@ public class BrowserModel
     public void setAttributes(AttributeMap map)
     {
         this.attributeMap = map;
+    }
+    
+    /**
+     * Returns the current dataset-dependent hierarchy of category groups
+     * and phenotypes.
+     * @return See above.
+     */
+    public CategoryTree getCategoryTree()
+    {
+        return categoryTree;
+    }
+    
+    /**
+     * Sets the current dataset-dependent hierarchy of category groups and
+     * phenotypes.
+     * @param tree
+     */
+    public void setCategoryTree(CategoryTree tree)
+    {
+        this.categoryTree = tree;
     }
     
     // TODO: include constructor which loads settings (so that the grouping
