@@ -107,20 +107,23 @@ public class DataServicesFactory
 	{
 		return sts;
 	}
-
+	
+	/**
+	 * Try to connect to OMEDS.
+	 * 
+	* @throws DSOutOfServiceException If the connection is broken, or logged in
+	* @throws DSAccessException If an error occured while trying to 
+	* 			retrieve data from OMEDS service.
+	*/
 	public void connect()
+		throws DSOutOfServiceException, DSAccessException
 	{
 		UserCredentials uc = (UserCredentials)
 								registry.lookup(LookupNames.USER_CREDENTIALS);
 		//uc can't be null b/c there's no way to call this method b/f init.
-		try {
-			proxy.login(uc.getUserName(), uc.getPassword());
-			//retrieve the user's ID and store it in the UserCredentials.
-			uc.setUserID(dms.getUserID());
-		} catch (Exception e) {
-			//TODO: handle exceptions
-			throw new RuntimeException(e);
-		}
+		proxy.login(uc.getUserName(), uc.getPassword());
+		//retrieve the user's ID and store it in the UserCredentials.
+		uc.setUserID(dms.getUserID());
 	}
 	
 	public void shutdown()
