@@ -220,7 +220,7 @@ public class ChainDataManager extends DataManager {
 			return chainExecutions.getExecutions();
 		}
 		
-		if (gettingChains == false) {
+		if (gettingExecutions == false) {
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
