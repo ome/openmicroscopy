@@ -51,6 +51,7 @@ import java.util.LinkedHashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionsByModuleID;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -135,7 +136,7 @@ public class ChainDataManager extends DataManager {
 			retrieveModules();
 		//	retrieveCategories();
 			loadingModules = false;
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long end = System.currentTimeMillis()-start;
 				System.err.println("time spent in getModules is "+end);
 			}
@@ -201,7 +202,7 @@ public class ChainDataManager extends DataManager {
 			loadingModuleCategories = true;
 			retrieveModuleCategories();
 			loadingModuleCategories = false;
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long end = System.currentTimeMillis()-start;
 				System.err.println("time spent in getModuleCategories.."+end);
 			}
@@ -259,13 +260,13 @@ public class ChainDataManager extends DataManager {
 		}
 		else {
 			if (gettingChains == false) {
-				if (ChainBuilderAgent.DEBUG) {
+				if (ChainBuilderAgent.DEBUG_TIMING) {
 					start = System.currentTimeMillis();
 				}
 				gettingChains = true;
 				retrieveChains();
 				gettingChains = false;
-				if (ChainBuilderAgent.DEBUG) {
+				if (ChainBuilderAgent.DEBUG_TIMING) {
 					long end = System.currentTimeMillis()-start;
 					System.err.println("time for retrieving chains.. "+end);
 				}
@@ -384,14 +385,14 @@ public class ChainDataManager extends DataManager {
 		}
 		
 		if (gettingExecutions == false) {
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				start = System.currentTimeMillis();
 			}
 			gettingExecutions = true;
 			retrieveChainExecutions();
 			gettingExecutions = false;
 		//	notifyAll();
-			if (ChainBuilderAgent.DEBUG) {
+			if (ChainBuilderAgent.DEBUG_TIMING) {
 				long getTime = System.currentTimeMillis()-start;
 				System.err.println("time for executions is "+getTime);
 			}
@@ -449,7 +450,8 @@ public class ChainDataManager extends DataManager {
 		return false;
 	}
 	
-	public Collection getChainExecutionsByChainID(int id) {
+	// to be revised
+	public ChainExecutionsByModuleID getChainExecutionsByChainID(int id) {
 		if (chainExecutions != null)
 			return chainExecutions.getChainExecutionsByChainID(id);
 		return null;
@@ -479,7 +481,7 @@ public class ChainDataManager extends DataManager {
 		LayoutChainData chain;
 		while (iter.hasNext()) {
 			chain = (LayoutChainData) iter.next();
-			if (name.compareTo(chain.getName()) == 0)
+			if (name.compareToIgnoreCase(chain.getName()) == 0)
 				return true;
 		}
 		return false;
