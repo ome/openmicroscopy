@@ -179,6 +179,7 @@ final class AgentsInit
         RegistryFactory.linkPS(containerReg.getPixelsService(),
                                agentReg);
 		RegistryFactory.linkTopFrame(containerReg.getTopFrame(), agentReg);
+		RegistryFactory.linkTaskBar(containerReg.getTaskBar(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
 		//TODO: Link Image Service when ready.
