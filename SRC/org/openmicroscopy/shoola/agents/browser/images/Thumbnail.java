@@ -275,7 +275,6 @@ public class Thumbnail extends PImage
             p.paint(g2,this);
         }
         
-        System.err.println("paint me");
         // now draw the default overlays
         for(Iterator iter = defaultZOrder.getMethodOrder().iterator();
             iter.hasNext();)
