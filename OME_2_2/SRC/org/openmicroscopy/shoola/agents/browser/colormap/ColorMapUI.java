@@ -39,6 +39,8 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 
+import org.openmicroscopy.ds.st.CategoryGroup;
+
 /**
  * The UI for the colormap.  Wrapped in a JPanel to promote layout
  * flexibility (between JIF and JFs)
@@ -143,6 +145,16 @@ public class ColorMapUI extends JPanel
         {
             dispatch.fireModeReactivate();
         }
+    }
+    
+    /**
+     * Instruct the view to display information about the specified
+     * category group.
+     * @param group The group to display in the UI.
+     */
+    public void fireGroupSelect(CategoryGroup group)
+    {
+        groupBar.selectGroup(group);
     }
 
     // build the user interface.

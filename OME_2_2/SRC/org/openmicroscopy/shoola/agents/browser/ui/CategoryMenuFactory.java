@@ -49,6 +49,8 @@ import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserAction;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserActionFactory;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
@@ -122,6 +124,9 @@ public class CategoryMenuFactory
                     {
                         CategoryEventHandler.handle(ts,group,category,tree);
                     }
+                    BrowserAction action = 
+                        BrowserActionFactory.getLoadColorMapWithGroup(group);
+                    action.execute();
                 }
             });
             menu.add(item);

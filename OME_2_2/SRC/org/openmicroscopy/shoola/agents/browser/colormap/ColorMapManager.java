@@ -119,9 +119,9 @@ public class ColorMapManager implements ActiveWindowListener
      * Returns a reference to the wrapped color map UI.
      * @return See above.
      */
-    public ColorMapWrapper getUI()
+    public ColorMapUI getUI()
     {
-        return embeddedUI;
+        return embeddedUI.getColorMapUI();
     }
     
     /**
