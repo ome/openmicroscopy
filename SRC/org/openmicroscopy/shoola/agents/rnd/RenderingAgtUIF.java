@@ -46,6 +46,7 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.rnd.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -68,10 +69,10 @@ class RenderingAgtUIF
 	extends JInternalFrame
 {
 	/** Width of the widget. */
-	private static final int 		WIN_WIDTH = 350;
+	private static final int 		WIN_WIDTH = 300;
 	
 	/** Height of the widget. */
-	private static final int 		WIN_HEIGHT = 350;
+	private static final int 		WIN_HEIGHT = 550;
 	
 	/** Location x-coordinate. */
 	private static final int		X_LOCATION = 0;
@@ -79,17 +80,18 @@ class RenderingAgtUIF
 	/** Location y-coordinate. */
 	private static final int		Y_LOCATION = 0;
 	
-	/** index to position Graphic component in the tabbedPane. */
-	private static final int		POS_GR = 0 ;
-			
-	/** index to position Domain component in the tabbedPane. */
-	private static final int		POS_D = 1 ;
+	private static final int		ROW_ZERO = 250, ROW_ONE = 150;
 	
-	/** index to position Codomain component in the tabbedPane. */
-	private static final int		POS_CD = 2 ;
+	private static final int		DEFAULT_WIDTH = 220;
+	
+	/** index to position the mapping component in the tabbedPane. */
+	private static final int		POS_MAPPING = 0;
 	
 	/** index to position Model component in the tabbedPane. */
-	private static final int		POS_M = 3 ;
+	private static final int		POS_MODEL = 1 ;
+	
+	/** index to position Codomain component in the tabbedPane. */
+	private static final int		POS_CD = 2;
 	
 	/** Reference to the regisry. */
 	private Registry				registry;
@@ -101,10 +103,9 @@ class RenderingAgtUIF
 	
 	private ModelPane				modelPane;
 	
-	private JTabbedPane 			tabs;
+	private JTabbedPane				tabs;
 	
-	/** Menu specific to this agent. */
-	private JMenu					internalMenu;
+	private JPanel					mappingPanel;
 	
 	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry)
 	{
@@ -114,6 +115,7 @@ class RenderingAgtUIF
 		this.control = control;
 		setJMenuBar(createMenuBar());
 		initPanes();
+		buildMappingPanel();
 		buildGUI();
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
@@ -137,14 +139,24 @@ class RenderingAgtUIF
 	}
 	
 	/** Set the selected model. */
-	void setModelPane(ModelPane pane, String model)
+	void setModelPane(ModelPane pane)
 	{
-		tabs.remove(POS_M);
+		tabs.remove(POS_MODEL);
 		modelPane.removeAll();
 		modelPane = pane;
 		modelPane.buildComponent();
-		tabs.insertTab("Model "+model, null, modelPane, null, POS_M);
-		tabs.setSelectedIndex(POS_M);	
+		tabs.insertTab("Color Model", null, modelPane, null, POS_MODEL);
+		tabs.setSelectedIndex(POS_MODEL);	
+	}
+
+	/** Set the mapping pane when a new wavelength is selected. */
+	void setMappingPane()
+	{
+		tabs.remove(POS_MAPPING);
+		mappingPanel.removeAll();
+		buildMappingPanel();
+		tabs.insertTab("Mapping", null, mappingPanel, null, POS_MAPPING);
+		tabs.setSelectedIndex(POS_MAPPING);	
 	}
 	
 	/** Initialize the components. */
@@ -153,6 +165,8 @@ class RenderingAgtUIF
 		quantumPane = new QuantumPane(control);
 		modelPane = control.getModelPane();
 		modelPane.buildComponent();
+		mappingPanel = new JPanel();
+		mappingPanel.setLayout(new BorderLayout(0, 0));
 	}
 	
 	/** Build and lay out the GUI. */
@@ -161,55 +175,65 @@ class RenderingAgtUIF
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		IconManager im = IconManager.getInstance(registry);
 		Icon icon = im.getIcon(IconManager.OME);
-		
+  		
 		//create and initialize the tabs
-		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs = new JTabbedPane(JTabbedPane.TOP, 
+												JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs.setAlignmentX(LEFT_ALIGNMENT);
+		tabs.insertTab("Mapping", null, mappingPanel, null, POS_MAPPING);
+		tabs.insertTab("Color Model", null, modelPane, null, POS_MODEL);
+		tabs.insertTab("Options", null, quantumPane.getCodomainPane(), null, 
+									POS_CD);
 		
-  		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		tabs.setFont(font);
-		
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.add(quantumPane.getLayeredPane());
-		tabs.insertTab("Graphic", null, p, null, POS_GR);
-		tabs.insertTab("Domain", null, quantumPane.getDomainPane(), null,
-						POS_D);
-		tabs.insertTab("Codomain", null, quantumPane.getCodomainPane(), null, 
-						POS_CD);
-		tabs.insertTab("Model "+control.getModelString(), null, modelPane, null,
-						POS_M);
-  		//set layout and add components
-  		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().add(new ToolBar(control, registry), 
+							BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		
 		setFrameIcon(icon);		
+	}
+	
+	/** Build a panel with graphics and control. */
+	private void buildMappingPanel()
+	{
+		JPanel p = new JPanel();
+		p.add(quantumPane.getLayeredPane());
+		mappingPanel.add(p, BorderLayout.NORTH);
+		mappingPanel.add(quantumPane.getDomainPane(), BorderLayout.CENTER);
 	}
 	
 	/** Creates an internal menu. */
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
-		createNewMenu();
-		menuBar.add(internalMenu);
+		menuBar.add(createModelMenu());
+		menuBar.add( createMenu());
 		return menuBar;
 	}
 
-	/** Creates the <code>newMenu</code>. */
-	private void createNewMenu()
+	private JMenu createMenu()
 	{
-		internalMenu = new JMenu("Model");
+		JMenu menu = new JMenu("Save");
+		JMenuItem menuItem = new JMenuItem("SAVE");
+		control.setMenuItemListener(menuItem, RenderingAgtCtrl.SAVE);
+		menu.add(menuItem);
+		return menu;
+	}
+	
+	/** Creates the <code>color model</code>. */
+	private JMenu createModelMenu()
+	{
+		JMenu menu = new JMenu("Model");
 		JMenuItem menuItem = new JMenuItem("GreyScale");
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.GREY);
-		internalMenu.add(menuItem);
+		menu.add(menuItem);
 		menuItem = new JMenuItem("RGB");
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.RGB);
-		internalMenu.add(menuItem);
+		menu.add(menuItem);
 		menuItem = new JMenuItem("HSB");
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.HSB);
-		internalMenu.add(menuItem);
-		menuItem = new JMenuItem("SAVE");
-		control.setMenuItemListener(menuItem, RenderingAgtCtrl.SAVE);
-		internalMenu.add(menuItem);
+		menu.add(menuItem);
+		
+		return menu;
 	}
 	
 }

@@ -81,8 +81,6 @@ public class RenderingAgtCtrl
 	
 	private boolean 		displayed;
 	
-	private String			modelString;
-	
 	private HashMap 		renderersPool;
 	
 	private RenderingAgt	abstraction;
@@ -98,6 +96,12 @@ public class RenderingAgtCtrl
 	
 	/** Returns the {@link RenderingAgt abstraction}. */
 	RenderingAgt getAbstraction() { return abstraction; }
+	
+	/** Forward event to {@link RenderingAgtUIF presentation}. */
+	public void setMappingPane()
+	{
+		abstraction.getPresentation().setMappingPane();
+	}
 	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
 	public void showDialog(JDialog dialog)
@@ -245,6 +249,14 @@ public class RenderingAgtCtrl
 		} 
 	}
 	
+	/** Create the specified panel. */
+	public void activateRenderingModel(int i)
+	{
+		Class c = getRendererClass(i);
+		abstraction.getPresentation().setModelPane(activate(c));
+		abstraction.setModel(i);
+	}
+	
 	/** Attach listener to a menu Item. */
 	void setMenuItemListener(JMenuItem item, int id)
 	{
@@ -256,16 +268,6 @@ public class RenderingAgtCtrl
 	ModelPane getModelPane()
 	{
 		return activate(getRendererClass(abstraction.getModel()));
-	}
-
-	/** Return the selected model as a string i.e. RGB, HSB or GREY. */
-	String getModelString() { return modelString; }
-	
-	private void activateRenderingModel(int i)
-	{
-		Class c = getRendererClass(i);
-		abstraction.getPresentation().setModelPane(activate(c), modelString);
-		abstraction.setModel(i);
 	}
 	
 	/** Retrieve or instanciate the ModelPane. */ 
@@ -298,21 +300,18 @@ public class RenderingAgtCtrl
 		switch (i) {
 			case GREY:
 				result = GreyScalePane.class;
-				modelString = "Grey";
 				break;
 			case HSB:
 				result = HSBPane.class;
-				modelString = "HSB";
 				break;
 			case RGB:
 				result = RGBPane.class;
-				modelString = "RGB";
 		}
 		return result;
 	}
 	
 	/** Save the image settings. */
-	private void saveDisplayOptions()
+	public void saveDisplayOptions()
 	{
 		//TODO: implement method.
 	}
