@@ -56,7 +56,8 @@ import edu.umd.cs.piccolo.util.PBounds;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
@@ -81,7 +82,7 @@ public class PaletteModuleView extends SingleModuleView {
 	
 	private static final int MEX_GAP=1;
 	
-	private PNode mexNode = null;
+	private PNode nexNode = null;
 	public PaletteModuleView() {
 		super();
 	}
@@ -98,37 +99,37 @@ public class PaletteModuleView extends SingleModuleView {
 	 * The main constructor 
 	 * @param module The OME Module being represented
 	 */
-	public PaletteModuleView(ChainModuleData module,Collection mexes) {
-		super(module);
+	public PaletteModuleView(AnalysisNodeData node,Collection nexes) {
+		super((ChainModuleData) node.getModule());
 		showDetails();
 		labelNodes.setPickable(false);
-		if (mexes != null && mexes.size() > 0)
-			addMexes(mexes);
+		if (nexes != null && nexes.size() > 0)
+			addNexes(nexes);
 	}
 	
 	/**
 	 * Add the widgets for the individual mexes.
 	 * @param mexes
 	 */
-	private void addMexes(Collection mexes) {
+	private void addNexes(Collection nexes) {
 		
 		// set up the mex node
 		double x = 0;
 		double y = 0;
 		// get the width of the node thus far.
 		float width = getBodyWidth();
-		mexNode = new PNode();
-		addChild(mexNode);
+		nexNode = new PNode();
+		addChild(nexNode);
 		
 		// add the mexes.
-		ModuleExecutionData mex;
-		Iterator iter = mexes.iterator();
-		MexView view;
+		NodeExecutionData nex;
+		Iterator iter = nexes.iterator();
+		NexView view;
 		
 		while (iter.hasNext()) {
-			mex = (ModuleExecutionData) iter.next();
-			view = new MexView(mex);
-			mexNode.addChild(view);
+			nex = (NodeExecutionData) iter.next();
+			view = new NexView(nex);
+			nexNode.addChild(view);
 			if (x + view.getWidth() > width) {
 				// move to next row
 				x =0;
@@ -137,9 +138,9 @@ public class PaletteModuleView extends SingleModuleView {
 			view.setOffset(x,y);
 			x += view.getWidth()+MEX_GAP;
 		}
-		// place the mexNode . remember, main overview/detail @ 0,0
-		mexNode.setBounds(mexNode.getUnionOfChildrenBounds(null));
-		mexNode.setOffset(0,-mexNode.getHeight());
+		// place the nexNode . remember, main overview/detail @ 0,0
+		nexNode.setBounds(nexNode.getUnionOfChildrenBounds(null));
+		nexNode.setOffset(0,-nexNode.getHeight());
 		
 	}
 	
