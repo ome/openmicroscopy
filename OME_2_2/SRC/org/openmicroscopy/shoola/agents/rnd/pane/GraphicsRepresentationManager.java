@@ -76,7 +76,9 @@ class GraphicsRepresentationManager
 	   								tS = topBorder+square,
 									length = 2*triangleW, 
 									absMin = leftBorder+20;
-									
+	
+    private static final int        extraControl = 2;
+    
 	/** Used to control mouse pressed and dragged events. */					
 	private boolean                 dragging;
 	
@@ -124,7 +126,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** Attach listeners. */
-	void attachListeners()
+	private void attachListeners()
 	{
 		view.addMouseListener(this);
 		view.addMouseMotionListener(this);
@@ -347,8 +349,7 @@ class GraphicsRepresentationManager
 				inputEndKnob = false;
 				outputStartKnob = false;
 				setOutputWindowEnd(p.y);
-			}
-				
+			}	
 		}
 	}
 	
@@ -417,7 +418,8 @@ class GraphicsRepresentationManager
 	 */ 
 	private void setOutputStartBox(int y)
 	{
-		maxStartOutputY = y-2*triangleW;
+		//maxStartOutputY = y-2*triangleW;
+        maxStartOutputY = y-extraControl;
 		boxOutputStart.setBounds(0, y-2*triangleW, leftBorder, 4*length);
 	}
 	
@@ -428,8 +430,9 @@ class GraphicsRepresentationManager
 	 */  
 	private void setOutputEndBox(int y)
 	{
-		minEndOutputY = y+triangleW;
-		boxOutputEnd.setBounds(0, y-triangleW, leftBorder, 2*length);
+		//minEndOutputY = y+triangleW;
+        minEndOutputY = y+extraControl;
+		boxOutputEnd.setBounds(lS, y-triangleW, leftBorder, 4*length);
 	}
 	
 	/** 
@@ -439,7 +442,8 @@ class GraphicsRepresentationManager
 	 */
 	void setInputStartBox(int x)
 	{
-		maxStartX = x+2*triangleW;
+		//maxStartX = x+2*triangleW;
+		maxStartX = x+extraControl;
 		boxStart.setBounds(x-triangleW, tS+triangleW+1, 4*length, 
 							bottomBorder+bottomBorderSupp);
 	}
@@ -451,9 +455,11 @@ class GraphicsRepresentationManager
 	 */  
 	void setInputEndBox(int x)
 	{
-		minEndX = x-2*triangleW;
-		boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
-						bottomBorder+bottomBorderSupp);
+		//minEndX = x-2*triangleW;
+		//boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
+		//				bottomBorder+bottomBorderSupp);
+        minEndX = x-extraControl;
+        boxEnd.setBounds(x-2*triangleW, 0, 4*length, topBorder);
 	}
 	
 	/** 

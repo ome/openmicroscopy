@@ -227,7 +227,8 @@ class GraphicsRepresentation
 		
 		//Output knob.
 		setKnobOutputStart(leftBorder-10, (int) yStart);
-		setKnobOutputEnd(leftBorder-10, topBorder);
+		//setKnobOutputEnd(leftBorder-10, topBorder);
+        setKnobOutputEnd(lS+10, topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd);
 		        
 		//Control points location.
@@ -272,7 +273,8 @@ class GraphicsRepresentation
 
 		//output knob
 		setKnobOutputStart(leftBorder-10,(int) yStart);
-		setKnobOutputEnd(leftBorder-10, topBorder);
+		//setKnobOutputEnd(leftBorder-10, topBorder);
+        setKnobOutputEnd(lS+10, topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd); 
 
 		if (k == INIT) {
@@ -770,20 +772,29 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the inputStart/End knobs, y-coordinate location.
+	 * Positions the inputStart knobs, y-coordinate location.
 	 *
 	 * @param y     y-coordinate.
 	 */     
-	private void setKnobStartEndY(int y)
+	private void setKnobStartY(int y)
 	{
 		yStart1 = y;
 		yStart2 = y+triangleH;
 		yStart3 = y+triangleH;
-		yEnd1 = y;
-		yEnd2 = y+triangleH;
-		yEnd3 = y+triangleH;
 	}
 	
+    /** 
+     * Positions the inputStart knobs, y-coordinate location.
+     *
+     * @param y     y-coordinate.
+     */     
+    private void setKnobEndY(int y)
+    {
+        yEnd1 = y;
+        yEnd2 = y-triangleH;
+        yEnd3 = y-triangleH;
+    }
+    
 	/** 
 	 * Positions the outputStart knob.
 	 *
@@ -809,8 +820,8 @@ class GraphicsRepresentation
 	private void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
-		xEndOutput2 = x-triangleH;
-		xEndOutput3 = x-triangleH;
+		xEndOutput2 = x+triangleH;
+		xEndOutput3 = x+triangleH;
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;
@@ -870,14 +881,15 @@ class GraphicsRepresentation
 		int wInput = (int) rInput.getWidth();
 		int hInput = (int) rInput.getHeight();
 	
-		setKnobStartEndY(tS+hStart+5);
+        setKnobStartY(tS+hStart+5);
+        setKnobEndY(hStart+5);
+        
 		int extra = 0;
 		if (type == QuantumFactory.EXPONENTIAL) extra = hStart/2;
 		//Grid
 		AffineTransform transform = new AffineTransform();
 		//140/10 = 14 then middle = 14/2
 		transform.translate(leftBorder+70, topBorder+70); 
-		transform.scale(1, -1);
 		transform.scale(10, 10);       
 		g2D.setPaint(Color.lightGray);
 		GeneralPath path = new GeneralPath();

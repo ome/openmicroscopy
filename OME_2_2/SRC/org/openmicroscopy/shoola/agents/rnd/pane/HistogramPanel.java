@@ -77,7 +77,7 @@ class HistogramPanel
 	int								widthWin, widthStat, lS;
 	
 	/** Color of the Histogram bins. */
-	private static final Color  	binColor = Color.BLUE;
+	private static final Color  	binColor = new Color(0, 0, 255, 150);//Color.BLUE;
 	
 	/** Background color of the panel. */
 	private static final Color		bgColor = Color.BLACK;
@@ -141,7 +141,7 @@ class HistogramPanel
 		
 		//output knob
 		setKnobOutputStart(lS+10, yStart);
-		setKnobOutputEnd(lS+10, yEnd);
+		setKnobOutputEnd(leftBorder-10, yEnd);
 		setSize(widthWin, HEIGHT);
 		repaint();
 	}
@@ -208,8 +208,8 @@ class HistogramPanel
 	void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
-		xEndOutput2 = x+triangleH;
-		xEndOutput3 = x+triangleH;
+		xEndOutput2 = x-triangleH;
+		xEndOutput3 = x-triangleH;
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;

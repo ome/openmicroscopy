@@ -38,6 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -227,11 +228,11 @@ class DomainPane
 		add(label);
 		c.gridx = 1;
 		c.gridy = 0;
-		JPanel wp = buildComboBoxPanel(wavelengths);
+		JPanel wp = buildComponentPanel(wavelengths);
 		gridbag.setConstraints(wp, c);
 		add(wp);
 		c.gridy = 1;
-		wp = buildComboBoxPanel(transformations);
+		wp = buildComponentPanel(transformations);
 		gridbag.setConstraints(wp, c);
 		add(wp);
 		c.gridy = 2;
@@ -247,7 +248,7 @@ class DomainPane
 		c.gridy = 4;
 		c.weightx = 0.0;
 		c.ipadx = 0; 
-		JPanel hp = buildButtonPanel(histogram);
+		JPanel hp = buildComponentPanel(histogram);
 		gridbag.setConstraints(hp, c);
 		add(hp);
 	}
@@ -272,22 +273,13 @@ class DomainPane
 		return p;
 	}
 
-	private JPanel buildComboBoxPanel(JComboBox box)
+    /** Wrap a JComponent in a panel. */
+	private JPanel buildComponentPanel(JComponent component)
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(box);
+		p.add(component);
 		return p;
-	}
-	
-	private JPanel buildButtonPanel(JButton b)
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(b);
-		return p;
-	}
+	}	
 
 }
