@@ -201,7 +201,9 @@ class ExplorerPaneManager
 	
     void refreshDatasetInTree(DatasetSummary ds)
     {
+        if (cDNodes == null) return;
         List nodes = (List) cDNodes.get(new Integer(ds.getID()));
+        if (nodes == null) return;
         Iterator i = nodes.iterator();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode node, childNode;   
