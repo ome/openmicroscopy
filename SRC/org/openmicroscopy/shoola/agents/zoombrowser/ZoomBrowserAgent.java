@@ -39,11 +39,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 
 
 /** 
- * This agent is just an example to show how you can plug into the
- * {@link org.openmicroscopy.shoola.env.ui.TaskBar} and how you can take 
- * advantage of the {@link org.openmicroscopy.shoola.env.ui.TopWindow} and
- * {@link org.openmicroscopy.shoola.env.ui.TopWindowGroup} classes to manage
- * the display of top-level windows.
+ * A Zoomable dataset/project browser.
  *
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
