@@ -43,17 +43,9 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
-import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -96,8 +88,6 @@ class DataManagerUIF
 	
 	/** Reference to the control component. */
 	private DataManagerCtrl					control;
-	
-	private JMenu							newMenu;
 	
 	/** On-request menu displayed for nodes in the tree. */
 	private TreePopupMenu					popupMenu;
@@ -142,76 +132,6 @@ class DataManagerUIF
 	
 	/** Return the menu displayed for nodes in the tree. */
 	TreePopupMenu getPopupMenu() { return popupMenu; }
-    
-	/** 
-	 * Brings up the property sheet dialog for the specified project.
-	 *
-	 * @param   p   The project whose properties will be displayed by the 
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
-	 */
-	void showProjectPS(ProjectData p)
-	{
-		UIUtilities.centerAndShow(new ProjectEditor(registry, control, p));
-	}
-    
-	/** 
-	 * Brings up the property sheet dialog for the specified dataset.
-	 *
-	 * @param   d   The dataset whose properties will be displayed by the
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
-	 */
-	void showDatasetPS(DatasetData d)
-	{
-		UIUtilities.centerAndShow(new DatasetEditor(registry, control, d));
-	}
-    
-	/** 
-	 * Brings up the property sheet dialog for the specified image.
-	 *
-	 * @param   i   The image whose properties will be displayed by the 
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
-	 */
-	void showImagePS(ImageData i) 
-	{
-		UIUtilities.centerAndShow(new ImageEditor(registry, control, i));
-	}	
-	
-	/** 
-	 * Brings up the createProject dialog for the specified image.
-	 *
-	 * @param p   	The project to create.
-	 * 				Mustn't be <code>null</code>.
-	 * @param d		List of available datasets.
-	 */
-	void showCreateProject(ProjectData p, List d)
-	{
-		UIUtilities.centerAndShow(new CreateProjectEditor(registry, control, p, 
-									d));
-	}
-	
-	/** 
-	 * Brings up the createDataset dialog for the specified image.
-	 *
-	 * @param   d   The image whose properties will be displayed by the 
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
-	 */
-	void showCreateDataset(DatasetData d, List p, List i)
-	{
-		UIUtilities.centerAndShow(new CreateDatasetEditor(registry, control, 
-									d, p, i));
-	}
-	
-	/** 
-	 * Brings up the createImage dialog for the specified image.
-	 *
-	 * @param   i   The image whose properties will be displayed by the 
-	 * 				property sheet dialog. Mustn't be <code>null</code>.
-	 */
-	void showCreateImage(ImageData i)
-	{
-		//CreateDatasetEditor cde = new CreateDatasetEditor(registry, d);
-		//showPS((JDialog) cpe);
-	}
 	
 	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
@@ -237,24 +157,32 @@ class DataManagerUIF
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
-		createNewMenu();
-		menuBar.add(newMenu);
+		menuBar.add(createNewMenu());
+		menuBar.add(createImportMenu());
 		return menuBar;
 	}
 	
 	/** Creates the <code>newMenu</code>. */
-	private void createNewMenu()
+	private JMenu createNewMenu()
 	{
-		newMenu = new JMenu("New...");
+		JMenu newMenu = new JMenu("New...");
 		JMenuItem menuItem = new JMenuItem("Project");
 		control.attachItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
 		newMenu.add(menuItem);
 		menuItem = new JMenuItem("Dataset");
 		control.attachItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
 		newMenu.add(menuItem);
-		menuItem = new JMenuItem("Image");
+		return newMenu;
+	}
+	
+	/** Creates the <code>importMenu</code>. */
+	private JMenu createImportMenu()
+	{
+		JMenu menu = new JMenu("Import");
+		JMenuItem menuItem = new JMenuItem("Image");
 		control.attachItemListener(menuItem, DataManagerCtrl.IMAGE_ITEM);
-		newMenu.add(menuItem);
+		menu.add(menuItem);
+		return menu;
 	}
 	
 }

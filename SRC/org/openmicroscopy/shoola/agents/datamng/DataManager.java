@@ -105,6 +105,8 @@ public class DataManager
 	
 	public static final int			ROW_NAME_FIELD = 25;
 	
+	public static final int			SELECT_COLUMN_WIDTH = 15;
+	
 	public static final Dimension	HBOX = new Dimension(10, 0),
 									VBOX = new Dimension(0, 10);
 	public static final Dimension	VP_DIM = new Dimension(200, 70);
@@ -179,6 +181,8 @@ public class DataManager
             control.showProperties(((ViewImageInfo) e).getImageInfo());
     }
 
+	Registry getRegistry() { return registry; }
+	
 	/**
 	 * Return the list of all image summaries that belong to the user
 	 * but which are not in the specified dataset.

@@ -41,6 +41,13 @@ import javax.swing.event.InternalFrameListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.image.ImageEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.image.ImportImageEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.project.CreateProjectEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.project.ProjectEditor;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -48,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -110,19 +118,22 @@ public class DataManagerCtrl
 	void showProperties(DataObject target)
 	{
 		DataManagerUIF presentation = abstraction.getPresentation();
+		Registry registry = abstraction.getRegistry();
 		if (target == null)    return;
 		if (target instanceof ProjectSummary) {
 			ProjectData project = abstraction.getProject(
 									((ProjectSummary) target).getID());
-			presentation.showProjectPS(project);     
+			UIUtilities.centerAndShow(new ProjectEditor(registry, this, 
+										project));     
 		} else if (target instanceof DatasetSummary) {
 			DatasetData dataset = abstraction.getDataset(
 									((DatasetSummary) target).getID());											
-			presentation.showDatasetPS(dataset);
+			UIUtilities.centerAndShow(new DatasetEditor(registry, this, 
+										dataset));
 		} else if (target instanceof ImageSummary) {
 			ImageData image = abstraction.getImage(
 									((ImageSummary) target).getID());
-			presentation.showImagePS(image);
+			UIUtilities.centerAndShow(new ImageEditor(registry, this, image));
 		}
 	}
 	
@@ -166,7 +177,9 @@ public class DataManagerCtrl
 					break;
 				case DATASET_ITEM:
 					createDataset();
-					break;	   	
+					break;	
+				case IMAGE_ITEM:
+					importImage();   	
 			}
 		} catch(NumberFormatException nfe) {  
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -184,21 +197,31 @@ public class DataManagerCtrl
 		}  		
 	}	
 	
-	/** Forward event to the {@link DataManagerUIF presentation}. */
+	/** Bring up the corresponding editor. */
 	void createProject()
 	{
-		DataManagerUIF presentation = abstraction.getPresentation();
 		List datasets = abstraction.getUserDatasets();
-		presentation.showCreateProject(new ProjectData(), datasets);
+		UIUtilities.centerAndShow(new CreateProjectEditor(
+									abstraction.getRegistry(), this,
+									new ProjectData(), datasets));
 	}
 
-	/** Forward event to the {@link DataManagerUIF presentation}. */
+	/** Bring up the corresponding editor. */
 	void createDataset()
 	{	
-		DataManagerUIF presentation = abstraction.getPresentation();
 		List projects = abstraction.getUserProjects();
 		List images = abstraction.getUserImages();
-		presentation.showCreateDataset(new DatasetData(), projects, images);
+		UIUtilities.centerAndShow(new CreateDatasetEditor(
+									abstraction.getRegistry(), this,
+									new DatasetData(), projects, images));
+	}
+	
+	/** Bring up the corresponding editor. */
+	void importImage()
+	{
+		List datasets = abstraction.getUserDatasets();
+		UIUtilities.centerAndShow(new ImportImageEditor(
+								abstraction.getRegistry(), this, datasets));
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
