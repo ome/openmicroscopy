@@ -20,13 +20,5 @@
         <include>**/*Test.java</include>
       </includes>
     </unitTest>
-    <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 </project>
