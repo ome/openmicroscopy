@@ -2,10 +2,10 @@
 <container>
    <services>
      <structuredEntry name="/services/OMEIS" type = "OMEIS">
-       <url>http://serverhost:8080/standalone/server</url>
+       <url>http://valewalker.openmicroscopy.org.uk/cgi-bin/omeis</url>
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-       <url>http://runemaster.openmicroscopy.org.uk:8002/</url>
+       <url>http://valewalker.openmicroscopy.org.uk:8002/</url>
      </structuredEntry>
    </services>
    <agents>
@@ -19,11 +19,24 @@
          directory. -->
          <config>dm.xml</config>
        </agent>
-	  <agent>
-		<name>Browser</name>
-		<class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class>
-		<config>browser.xml</config>
-	  </agent>
+ 	<agent>
+         <name>Viewer</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>viewer.xml</config>
+       </agent>
+	<agent>
+         <name>Renderer</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.rnd.RenderingAgt</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>rnd.xml</config>
+       </agent>
      </structuredEntry>
    </agents>
    <resources>
