@@ -61,9 +61,9 @@ import org.openmicroscopy.shoola.env.event.EventBus;
  */
 public class BrowserAgent implements Agent, AgentEventListener
 {
-    private List controllers;
     private Registry registry;
     private EventBus eventBus;
+    private BrowserEnvironment env;
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -71,12 +71,7 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public BrowserAgent()
     {
-        /* 
-         * TODO: initialize browser agent (initialize controller, initialize data
-         * agent, register with event bus, etc; figure out if this goes in
-         * activate() instead
-         */
-        controllers = new ArrayList();
+        env = BrowserEnvironment.getInstance();
     }
     
     /**
@@ -119,26 +114,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         // TODO: extract registry settings from context
         // TODO: when this method goes live from JM/Andrea, uncomment
         // this.eventBus = ctx.getEventBus();
-    }
-
-    /**
-     * Returns a reference to the browser controller at the specified index.
-     * 
-     * @param index The index of the browser to access.
-     * @return The browser controller.
-     */
-    public BrowserController getBrowser(int index)
-    {
-        return (BrowserController) controllers.get(index);
-    }
-
-    /**
-     * Returns the number of active browser windows.
-     * @return See above.
-     */
-    public int getBrowserCount()
-    {
-        return controllers.size();
     }
 
     /**
