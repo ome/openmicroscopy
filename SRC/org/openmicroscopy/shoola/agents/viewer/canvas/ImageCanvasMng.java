@@ -115,10 +115,7 @@ public class ImageCanvasMng
     public void setMagFactorLens(double f)
     {
         magFactorLens = f;
-        if (view.getLens() != null) {
-            view.resetLens();
-            view.repaint();
-        }
+        if (view.getLens() != null) drawLens(anchor);
     }
     
     public void setClick(boolean b) { click = b; }

@@ -68,12 +68,12 @@ public class ToolBar
     private LensBar                 lensBar;
     
     public ToolBar(Registry registry, ImageInspectorManager manager, 
-                    double magFactor)
+                    double magFactor, int w, int h)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         putClientProperty("JToolBar.isRollover", new Boolean(true));
         zoomBar = new ZoomBar(registry, manager, magFactor);
-        lensBar = new LensBar(registry, manager);
+        lensBar = new LensBar(registry, manager, w, h);
         add(zoomBar);
         add(Box.createRigidArea(HBOX));
         add(new JSeparator(JSeparator.HORIZONTAL));

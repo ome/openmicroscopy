@@ -96,6 +96,8 @@ public class LensBarMng
     /** Action command ID: pick a color. */
     private static final int        COLOR_SELECT = 4;
     
+    private int                     maxWidth;
+    
     private double                  magFactor;
     
     private int                     width;
@@ -104,12 +106,13 @@ public class LensBarMng
     
     private ImageInspectorManager   control;
     
-    public LensBarMng(LensBar view, ImageInspectorManager control)
+    public LensBarMng(LensBar view, ImageInspectorManager control, int w, int h)
     {
         this.view = view;
         this.control = control;
         magFactor = ViewerUIF.DEFAULT_MAG;
         width = ViewerUIF.DEFAULT_WIDTH;
+        setMaxWidth(w, h);
     }
 
     public void setLensEnabled(boolean b)
@@ -132,16 +135,10 @@ public class LensBarMng
     void attachListeners()
     {
         //button
-        JButton sizePlus = view.getSizePlus(), sizeMinus = view.getSizeMinus(), 
-                magPlus = view.getMagPlus(), magMinus = view.getMagMinus();
-        sizePlus.addActionListener(this);
-        sizePlus.setActionCommand(""+SIZE_PLUS);
-        sizeMinus.addActionListener(this);
-        sizeMinus.setActionCommand(""+SIZE_MINUS); 
-        magPlus.addActionListener(this);
-        magPlus.setActionCommand(""+MAG_PLUS);
-        magMinus.addActionListener(this);
-        magMinus.setActionCommand(""+MAG_MINUS);
+        attachButtonListeners(view.getSizePlus(), SIZE_PLUS);
+        attachButtonListeners(view.getSizeMinus(), SIZE_MINUS);
+        attachButtonListeners(view.getMagPlus(), MAG_PLUS);
+        attachButtonListeners(view.getMagMinus(), MAG_MINUS);
         //ComboBox
         JComboBox box = view.getColors();
         box.addActionListener(this);
@@ -180,10 +177,8 @@ public class LensBarMng
         Object source = e.getSource();
         boolean b = false;
         if (e.getStateChange() == ItemEvent.SELECTED) b = true;
-        if (source == view.getOnOff())
-            control.setLensOnOff(b);
-        else if (source == view.getPin())
-            control.setPin(b);
+        if (source == view.getOnOff()) control.setLensOnOff(b);
+        else if (source == view.getPin()) control.setPin(b);
         else if (source == view.getPainting()) {
             // grab the color.
             int index = view.getColors().getSelectedIndex();
@@ -225,9 +220,22 @@ public class LensBarMng
     private void incrementWidth()
     {
         width += incrementWidth;
-        if (width > ViewerUIF.MAX_WITH) width = ViewerUIF.MAX_WITH;
+        if (width > maxWidth) width = maxWidth;
         control.setLensWidth(width);
-     }
+    }
+    
+    private void setMaxWidth(int w, int h)
+    {
+        int min = Math.min(w, h);
+        maxWidth = min/3;
+    }
+    
+    /** Attach listener to a JButton. */
+    private void attachButtonListeners(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
     
 }
 

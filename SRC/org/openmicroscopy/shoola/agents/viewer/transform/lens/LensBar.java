@@ -108,10 +108,10 @@ public class LensBar
     
     private Registry                registry;
     
-    public LensBar(Registry registry, ImageInspectorManager mng)
+    public LensBar(Registry registry, ImageInspectorManager mng, int w, int h)
     {
         this.registry = registry;
-        manager = new LensBarMng(this, mng);
+        manager = new LensBarMng(this, mng, w, h);
         initComponents();
         manager.attachListeners();
         buildGUI();

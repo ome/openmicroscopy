@@ -74,10 +74,11 @@ public class ImageInspector
     
     JScrollPane                     scroll;
     
-    public ImageInspector(ViewerCtrl control, ImageCanvas canvas, double magFactor)
+    public ImageInspector(ViewerCtrl control, ImageCanvas canvas, 
+                        double magFactor, int w, int h)
     {
         super(control.getReferenceFrame(), "Image inspector");
-        init(control, canvas, magFactor);
+        init(control, canvas, magFactor, w, h);
         setJMenuBar(menuBar);
         buildGUI();
         pack();
@@ -86,7 +87,8 @@ public class ImageInspector
     public ImageInspectorManager getManager() { return manager; }
     
     /** Initializes the components. */
-    private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor)
+    private void init(ViewerCtrl control, ImageCanvas canvas, double magFactor, 
+                        int w, int h)
     {
         Registry reg = control.getRegistry();
         manager = new ImageInspectorManager(this, control, magFactor);
@@ -94,7 +96,7 @@ public class ImageInspector
         manager.setImageDimension(img.getWidth(), img.getHeight());
         manager.setCanvas(canvas);
         menuBar = new MenuBar(manager, magFactor);
-        toolBar = new ToolBar(reg, manager, magFactor);
+        toolBar = new ToolBar(reg, manager, magFactor, w, h);
     }
     
     /** Build and lay out the GUI. */

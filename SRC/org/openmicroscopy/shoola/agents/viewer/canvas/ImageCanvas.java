@@ -115,6 +115,7 @@ public class ImageCanvas
     {
         if (lensImage == null || displayImage == null) return null;
         int widthNew = (int) (manager.getWidth()/manager.getMagFactorLens());
+        lensImage = itMng.buildDisplayImage(lensImage);
         return ImageFactory.getImagePinOnSide(displayImage, lensImage, 
                 xTopCorner, yTopCorner, widthNew, widthNew, painting, c);
     }
@@ -135,6 +136,7 @@ public class ImageCanvas
     public BufferedImage getPinOnImage()
     {
         if (lensImage == null || displayImage == null) return null;
+        lensImage = itMng.buildDisplayImage(lensImage);
         return ImageFactory.getImagePinOn(displayImage, lensImage, 
                                 xLens-ViewerUIF.START, yLens-ViewerUIF.START);
     }
@@ -143,6 +145,7 @@ public class ImageCanvas
     public BufferedImage getPinImage()
     {
         if (lensImage == null) return null;
+        lensImage = itMng.buildDisplayImage(lensImage);
         return ImageFactory.getImage(lensImage);
     }
     
@@ -240,12 +243,14 @@ public class ImageCanvas
     {
         xLens = p.x-lensWidth/2;
         yLens = p.y-lensWidth/2;        
-        int w = (int) (lensWidth/f);
-        xTopCorner = p.x-w;
-        yTopCorner = p.y-w;
-        BufferedImage img = ImageFactory.getImage(displayImage, xTopCorner, 
-                                            yTopCorner, w, w, painting, c);
-        lensImage = itMng.buildDisplayImage(img, f);
+        int w = (int) (lensWidth/(2*f));
+        xTopCorner = p.x-ViewerUIF.START-w;
+        yTopCorner = p.y-ViewerUIF.START-w;
+        int x = (int) ((p.x-ViewerUIF.START)*f)-lensWidth/2;
+        int y = (int) ((p.y-ViewerUIF.START)*f)-lensWidth/2;
+        BufferedImage img = itMng.buildDisplayImage(displayImage, f);
+        lensImage = ImageFactory.getImage(img, x,  y, lensWidth, lensWidth, 
+                                            painting, c);
         repaint();
     }
     

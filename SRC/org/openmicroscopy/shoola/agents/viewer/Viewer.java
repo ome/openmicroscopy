@@ -150,6 +150,10 @@ public class Viewer
         return renderingControl.getPixelsDims();
     }
     
+    int getImageWidth() { return curImage.getWidth(); }
+    
+    int getImageHeight() { return curImage.getHeight(); }
+    
     int getCurPixelsID() { return curPixelsID; } 
     
     /** Default timepoint. */

@@ -383,7 +383,8 @@ public class ViewerCtrl
     {
         if (imageInspector == null)
             imageInspector = new ImageInspector(this, presentation.getCanvas(), 
-                                            magFactor);
+                             magFactor, abstraction.getImageWidth(), 
+                             abstraction.getImageHeight());
         presentation.getCanvas().getManager().setClick(true);
         UIUtilities.centerAndShow(imageInspector);
         if (roiOnOff) imageInspector.getManager().setLensEnabled(false);
