@@ -73,7 +73,7 @@ class PlaneSlicingDialog
 {
 	
 	private static final String			TEXT = 
-										"Highlight a specific gray-level range";
+									"Highlight a specific gray-level range.";
 		
 	private static final String[]   	RANGE;
 
@@ -88,7 +88,7 @@ class PlaneSlicingDialog
 		RANGE[PlaneSlicingDialogManager.B_SEVEN] = "7-bit plane";         
 	}
 	
-	private static final HashMap			rBitPlanes;
+	private static final HashMap		rBitPlanes;
 	
 	static {
 		rBitPlanes = new HashMap();

@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;

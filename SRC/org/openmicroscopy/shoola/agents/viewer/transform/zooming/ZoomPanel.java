@@ -82,6 +82,7 @@ public class ZoomPanel
 	public ZoomPanel(ImageInspectorManager manager)
 	{
 		this.manager = manager;
+		setDoubleBuffered(true);
 		setBackground(Viewer.BACKGROUND_COLOR); 
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
 		isInit = true;

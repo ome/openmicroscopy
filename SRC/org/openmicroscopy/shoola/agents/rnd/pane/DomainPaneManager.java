@@ -176,7 +176,7 @@ class DomainPaneManager
 	
 	/** 
 	 * Set the curve coefficient and forward event to 
-	 * @see QuantumPaneManager#setStrategy.
+	 * {@link QuantumPaneManager#setStrategy}.
 	 * 
 	 * @param value		slider's value.
 	 */
@@ -192,7 +192,7 @@ class DomainPaneManager
 	
 	/**
 	 * Modify the bit resolution.
-	 * Forward event to @see QuantumPaneManager#setStrategy.
+	 * Forward event to {@link QuantumPaneManager#setStrategy}.
 	 * 
 	 * @param v		slider's value in the range 1-8.
 	 */
@@ -207,7 +207,7 @@ class DomainPaneManager
 	
 	/** 
 	 * Select a family.
-	 * Forward event to @see QuantumPaneManager#setStrategy.
+	 * Forward event to {@link QuantumPaneManager#setStrategy}.
 	 * 
 	 * @param family    family index.
 	 */  

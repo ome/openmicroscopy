@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
