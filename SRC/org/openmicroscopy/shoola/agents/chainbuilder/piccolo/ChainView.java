@@ -359,13 +359,13 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		ModuleView fromPMod = from.getModuleView();
 		ModuleView toPMod = to.getModuleView();
 			
-		if (fromPMod == null || toPMod ==null) 
-				return;
+		if (fromPMod == null || toPMod ==null)  {
+			return;
+		}
 			
 		ChainFormalInputData input = (ChainFormalInputData)link.getToInput();
 		ChainFormalOutputData output = (ChainFormalOutputData) 
 			link.getFromOutput();
-		
 		
 		FormalInput inputPNode = toPMod.getFormalInputNode(input);
 		FormalOutput outputPNode = fromPMod.getFormalOutputNode(output);
@@ -380,7 +380,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 				adjustLink(link,from,to,newLinkNode,modLink);
 			adjustVerticalExtents(newLinkNode.getGlobalFullBounds());
 			adjustVerticalExtents(modLink.getGlobalFullBounds());
-		} 	
+		} 
 	}
 	
 	protected ParamLink getParamLink(FormalInput inputPNode,
