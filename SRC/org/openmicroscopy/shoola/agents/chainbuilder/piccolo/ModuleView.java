@@ -452,6 +452,11 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		super.paint(aPaintContext);
 	} 
 	
+	// can only link modules if the parameters are visible
+	public boolean isLinkable() {
+		return labelNodes.getVisible();
+	}
+	
 	/**
 	 * Set the color of the module if it is highlighted.
 	 * @param v true if the module is highlighted, else false
