@@ -44,6 +44,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -70,7 +72,8 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  */
  
 
-public class DatasetNode extends GenericBox implements MouseableNode {
+public class DatasetNode extends GenericBox implements MouseableNode, 
+	BrowserNodeWithToolTip {
 	
 	/**
 	 * The dataset of interest
@@ -132,22 +135,22 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	 */
 	public void layoutImages(double width,double height) {
 		
-		
 		removeAllChildren();
 		// initial starting point
 		double x=Constants.DATASET_IMAGE_GAP;
-		double y= 0;
+		double y= Constants.DATASET_IMAGE_GAP;
 		
 		// add the name label and move down.
+		/*
 		nameLabel = new ScalableDatasetLabel(dataset,width);
-		addChild(nameLabel);
+		addChild(nameLabel); 
 		nameLabel.setOffset(x,y);
-		y+= nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP;
+		y+= nameLabel.getBounds().getHeight()+Constants.DATASET_IMAGE_GAP; */
 		
 		
 		Collection imageCollection = dataset.getImages();
 		double totalArea = buildImages(imageCollection,x,y);
-	
+		
 		// calculate remaining height
 		double effectiveHeight = height -y;
 		double effectiveWidth = width;
@@ -160,10 +163,12 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		double scaledWidth = scalefactor*effectiveWidth;
 		double scaledHeight = scalefactor*effectiveHeight;
 		
+		
 		// layout the images in this space
 		if (imageCollection != null && imageCollection.size() > 0) {
 			y = arrangeImages(scaledWidth,scaledHeight);
 		}
+		
 		double imagesHeight = y-imageTop;
 	
 		// update height
@@ -192,7 +197,9 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		//	maxWidth = nameLabel.getBounds().getWidth();
 			
 		// adjust the name label to fit.
+		/*
 		nameLabel.resetWidth(maxWidth);
+		*/
 				
 		setExtent(width,height);
 	}
@@ -434,5 +441,19 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	}
 	
 	public void mouseDoubleClicked(GenericEventHandler handler,PInputEvent e) {
+	}
+	
+	/**
+	 * The shorter tooltip contains simply the name of the image.
+	 */
+	public PNode getShortToolTip() {
+		PText text  = new PText(dataset.getName());
+		text.setFont(Constants.TOOLTIP_FONT);
+		text.setPickable(false);
+		return text;
+	}
+	
+	public PNode getFullToolTip() {
+		return getShortToolTip();
 	}
 }
