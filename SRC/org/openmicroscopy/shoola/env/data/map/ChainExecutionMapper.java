@@ -111,6 +111,7 @@ public class ChainExecutionMapper
 				
 		criteria.addFilter("experimenter_id",new Integer(userID));
 		criteria.addFilter("dataset.owner_id",new Integer(userID));
+		criteria.addFilter("dataset.name", "NOT LIKE", "ImportSet");
 		return criteria;
 	}
 
