@@ -80,7 +80,7 @@ final class LoggerInit
 	 */
 	String getName()
 	{
-		return "Starting Logger";
+		return "Starting Log Service";
 	}
 	
 	/** 
@@ -98,7 +98,7 @@ final class LoggerInit
 		throws StartupException
 	{		
 		Registry reg = container.getRegistry();
-		Logger	logger = LoggerFactory.makeNew();
+		Logger	logger = LoggerFactory.makeNew(container);
 		RegistryFactory.linkLogger(logger, reg);
 	}
 	
