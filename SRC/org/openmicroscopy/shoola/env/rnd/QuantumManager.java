@@ -36,11 +36,13 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsGlobalStatsEntry;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
- * 
+ * Manages the strategy objects for each wavelength.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,40 +60,57 @@ class QuantumManager
     /** Number of wavelengths. */
 	private int						sizeW;
 
+	/** 
+	 * Contains a strategy object for each wavelength.
+	 * Indexed according to the wavelength indeces in the <i>OME</i> 5D pixels
+	 * file.
+	 */
 	private QuantumStrategy[]     	wavesStg;
     
-	QuantumManager()
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param sizeW		The number of wavelengths.
+     */
+	QuantumManager(int sizeW)
 	{
-		//sizeW = d.sizeW;
+		this.sizeW = sizeW;
 		wavesStg = new QuantumStrategy[sizeW];          
 	}
     
     /**
-     * Set a strategy.
-     * @param qd	
+     * Creates and configures an appropriate strategy for each wavelength.
+     * The previous window interval settings of each wavelength are retained
+     * by the new strategy.
+     * 
+     * @param qd	The quantum definition which dictates what strategy to use.
+     * @param stats	For each wavelength, it contains the global minimum and
+     * 				maximum of the wavelength stack across time.	
      */
-	void setStrategy(QuantumDef qd)
+	void initStrategies(QuantumDef qd, PixelsStats stats)
 	{
-		if (qd == null) return;
-		QuantumStrategy     stg;
-		//ImgAgent imgAgent = (ImgAgent)AgentsManager.getAgent(ImgAgent.class);
-		//ImgGlobalStatsEntry globalStatsEntry;
+		QuantumStrategy stg;
+		PixelsGlobalStatsEntry wGlobal;
+		Comparable gMin, gMax;
 		for (int w = 0; w < sizeW; ++w) {
-				stg = QuantumFactory.getStrategy(qd);
-				//globalStatsEntry = imgAgent.getGlobalStats(w);
-				//stg.setExtent(new Integer(globalStatsEntry.globalMin), 
-				//					new Integer(globalStatsEntry.globalMax));
-				if (wavesStg[w] != null)
-					stg.setWindow(wavesStg[w].getWindowStart(),
-								wavesStg[w].getWindowEnd());
-					wavesStg[w] = stg;
+			stg = QuantumFactory.getStrategy(qd);
+			wGlobal = stats.getGlobalEntry(w);
+			gMin = wGlobal.getGlobalMin();
+			gMax = wGlobal.getGlobalMax();
+			stg.setExtent(gMin, gMax);
+			if (wavesStg[w] == null)	stg.setWindow(gMin, gMax);
+			else 
+				stg.setWindow(wavesStg[w].getWindowStart(),
+									wavesStg[w].getWindowEnd());
+			wavesStg[w] = stg;
 		}
 	}
     
     /** 
-     * Retrieves a the stratgy of the specified wavelength.
+     * Retrieves the configured stratgy for the specified wavelength.
      * 
-     * @param w		wavelength index.
+     * @param w		The wavelength index in the <i>OME</i> 5D pixels file.
      */
 	QuantumStrategy getStrategyFor(int w)
 	{
