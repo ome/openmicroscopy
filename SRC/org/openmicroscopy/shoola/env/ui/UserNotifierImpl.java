@@ -47,7 +47,8 @@ import javax.swing.JOptionPane;
  * @since OME2.2
  */
 public class UserNotifierImpl 
-    implements UserNotifier {
+    implements UserNotifier
+{
     
     private static final String     DEFAULT_ERROR_TITLE = "Error";
     private static final String     DEFAULT_ERROR_SUMMARY = "An error occurred";    

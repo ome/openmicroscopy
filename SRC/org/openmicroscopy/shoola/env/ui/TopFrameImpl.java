@@ -30,16 +30,20 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-// Java imports
+//Java imports
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
 
 /** 
  *
@@ -83,10 +87,17 @@ public class TopFrameImpl
     private JMenu           fileMenu, viewMenu, helpMenu;
 	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
-    
-    public TopFrameImpl()
+    /** Reference to the singleton {@link Container}. */ 
+    private Container       container;
+    /**
+     * Creates a new Instance of {@link TopFrameImpl}
+     *
+     * @param container Reference to the singleton {@link Container}. 
+     */ 
+    public TopFrameImpl(Container container)
     {
         super("Open Microscopy Environment");
+        this.container = container;
         //make sure we have nice window decorations
         JFrame.setDefaultLookAndFeelDecorated(true);  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -153,7 +164,7 @@ public class TopFrameImpl
 	*/
     private void addToMenuFile(JMenuItem menuItem)
     {
-        Container popMenu = fileMenu.getPopupMenu();
+        JComponent popMenu = fileMenu.getPopupMenu();
         Component[] list = popMenu.getComponents();
         Component lastOne = list[list.length-1];
         fileMenu.add(menuItem);

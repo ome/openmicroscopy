@@ -29,11 +29,14 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
+
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
 
 /** 
  * Factory for the various windows and widgets used within the container.
@@ -59,5 +62,26 @@ public class UIFactory
 	{
 		return null;
 	}
-
+	/**
+	 * Creates a new empty {@link TopFrame}.
+	 * 
+	 * @param c	Reference to the singleton {@link Container}.
+	 * @return	See above.
+	 */
+	public static TopFrame makeNewTopFrame(Container c)
+	{
+		return new TopFrameImpl(c);
+	}
+	/**
+	 * Creates a new empty {@link UserNotifier}.
+	 * 
+	 * @param c	Reference to the {@link TopFrame}. 
+	 * @return	The splash screen.
+	 */
+	public static UserNotifier makeNewUserNotifier(TopFrame tf)
+	{
+		return new UserNotifierImpl((TopFrameImpl) tf);
+	}
+	
+	
 }
