@@ -30,11 +30,14 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * For all Agents
@@ -85,7 +88,10 @@ final class AgentsInit
 	void execute() 
 		throws StartupException
 	{
-		// TODO Auto-generated method stub
+		Registry reg = container.getRegistry();
+		List listAgents = (List) reg.lookup("/agents");
+		Iterator i;
+		// TODO: finish
 
 	}
 
