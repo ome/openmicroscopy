@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Java imports
 import java.awt.Image;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -59,7 +58,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 public class BrowserImageSummary  extends ImageSummary
 {
 	/** A hash for associating thumbnails with BrowserImageSummary objects */
-	private static HashMap imageThumbnailMap = new HashMap();
+	private static MatchMapper imageThumbnailMap = new MatchMapper();
 	 
 	/** The thumbnail for this image */
 	private Image thumb;
@@ -73,7 +72,9 @@ public class BrowserImageSummary  extends ImageSummary
 	public DataObject makeNew() { return new BrowserImageSummary(); }
 
 	public void addThumbnail(Thumbnail thumb) {
-		Vector thumbs;
+		
+		imageThumbnailMap.addMatch(getID(),thumb);
+		/*Vector thumbs;
 		Integer id = new Integer(getID());
 		Object obj = imageThumbnailMap.get(id);
 		if (obj == null) {
@@ -82,7 +83,7 @@ public class BrowserImageSummary  extends ImageSummary
 		else
 			thumbs = (Vector) obj;
 		thumbs.add(thumb);
-		imageThumbnailMap.put(id,thumbs);
+		imageThumbnailMap.put(id,thumbs);*/
 	}
 	
 	//to prevent re-entrant loops
@@ -94,9 +95,10 @@ public class BrowserImageSummary  extends ImageSummary
 			 return;
 		 // so each of the setHighlighted() calls don't lead to a call back here
 		 reentrant = true;
-			 Vector thumbs = (Vector) imageThumbnailMap.get(new Integer(getID()));
+		   
+	     Vector thumbs = imageThumbnailMap.getMatches(getID());
 		 if (thumbs == null)
-		 	return; // no matching things to higlight.
+		 	return; // no matching things to higlight. 
 		 Iterator iter = thumbs.iterator();
 		 
 		 Thumbnail thumb;
