@@ -442,6 +442,7 @@ class STSAdapter
         }
         catch(RemoteServerErrorException rsee)
         {
+            rsee.printStackTrace();
             throw new DSAccessException("Can't retrieve data",rsee);
         }
         
@@ -539,13 +540,13 @@ class STSAdapter
         criteria.addWantedField(":all:");
         
         criteria.addWantedField("semantic_type");
-        criteria.addWantedField("semantic_type","elements");
-        criteria.addWantedField("semantic_type.elements","id");
-        criteria.addWantedField("semantic_type.elements","name");
-        criteria.addWantedField("semantic_type.elements","data_column");
-        criteria.addWantedField("semantic_type.elements.data_column","id");
-        criteria.addWantedField("semantic_type.elements.data_column","sql_type");
-        criteria.addWantedField("semantic_type.elements.data_column","reference_type");
+        criteria.addWantedField("semantic_type","semantic_elements");
+        criteria.addWantedField("semantic_type.semantic_elements","id");
+        criteria.addWantedField("semantic_type.semantic_elements","name");
+        criteria.addWantedField("semantic_type.semantic_elements","data_column");
+        criteria.addWantedField("semantic_type.semantic_elements.data_column","id");
+        criteria.addWantedField("semantic_type.semantic_elements.data_column","sql_type");
+        criteria.addWantedField("semantic_type.semantic_elements.data_column","reference_type");
         
         if(granularity.equals(DATASET_GRANULARITY))
         {
@@ -595,14 +596,14 @@ class STSAdapter
         // all non-references; has-ones with just ID's; no has-manys
         criteria.addWantedField(":all:");
         
-        criteria.addWantedField("semantic_type");
+        /*criteria.addWantedField("semantic_type");
         criteria.addWantedField("semantic_type","elements");
         criteria.addWantedField("semantic_type.elements","id");
         criteria.addWantedField("semantic_type.elements","name");
         criteria.addWantedField("semantic_type.elements","data_column");
         criteria.addWantedField("semantic_type.elements.data_column","id");
         criteria.addWantedField("semantic_type.elements.data_column","sql_type");
-        criteria.addWantedField("semantic_type.elements.data_column","reference_type");
+        criteria.addWantedField("semantic_type.elements.data_column","reference_type");*/
 
         if(granularity.equals(DATASET_GRANULARITY))
         {
@@ -644,20 +645,20 @@ class STSAdapter
         criteria.addWantedField("name");
         criteria.addWantedField("description");
         
-        criteria.addWantedField("elements");
-        criteria.addWantedField("elements","id");
-        criteria.addWantedField("elements","name");
-        criteria.addWantedField("elements","description");
-        criteria.addWantedField("elements","data_column");
+        criteria.addWantedField("semantic_elements");
+        criteria.addWantedField("semantic_elements","id");
+        criteria.addWantedField("semantic_elements","name");
+        criteria.addWantedField("semantic_elements","description");
+        criteria.addWantedField("semantic_elements","data_column");
         
-        criteria.addWantedField("elements.data_column","id");
-        criteria.addWantedField("elements.data_column","column_name");
-        criteria.addWantedField("elements.data_column","sql_type");
-        criteria.addWantedField("elements.data_column","reference_type");
-        criteria.addWantedField("elements.data_column","data_table");
+        criteria.addWantedField("semantic_elements.data_column","id");
+        criteria.addWantedField("semantic_elements.data_column","column_name");
+        criteria.addWantedField("semantic_elements.data_column","sql_type");
+        criteria.addWantedField("semantic_elements.data_column","reference_type");
+        criteria.addWantedField("semantic_elements.data_column","data_table");
         
-        criteria.addWantedField("elements.data_column.data_table","id");
-        criteria.addWantedField("elements.data_column.data_table","table_name");
+        criteria.addWantedField("semantic_elements.data_column.data_table","id");
+        criteria.addWantedField("semantic_elements.data_column.data_table","table_name");
         
         criteria.addFilter("granularity",granularity);
         return criteria;
