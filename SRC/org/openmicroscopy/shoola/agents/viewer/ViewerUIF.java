@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.viewer;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -98,17 +97,6 @@ public class ViewerUIF
 		buildGUI();
 		//set the size and position the window.
 		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
-	}
-	
-	/** 
-	 * Menu item to add to the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
-	 */
-	JMenuItem getViewMenuItem()
-	{
-		JMenuItem menuItem = new JMenuItem("Viewer2D");
-		control.setMenuItemListener(menuItem, ViewerCtrl.V_VISIBLE);
-		return menuItem;
 	}
 	
 	/** 

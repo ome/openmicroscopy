@@ -30,17 +30,24 @@
 package org.openmicroscopy.shoola.agents.viewer;
 
 
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import javax.swing.JMenuItem;
+
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
+import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 
@@ -61,20 +68,26 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
 public class Viewer
 	implements Agent, AgentEventListener, EventBus
 {
-	private PixelsDimensions	pixelsDims;
-	
+		
 	/** Reference to the {@link Registry}. */
 	private Registry			registry;
 	
 	private ViewerUIF			presentation;
 	private ViewerCtrl			control;
 	private TopFrame			topFrame;
+	private RenderingControl	renderingControl;
+	
+	private int					curImageID, curPixelsID;
+	
+	private JMenuItem 			viewItem;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
-	{       
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
+	{   //TODO: add control. 
+		if (presentation != null) {  
+			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+			presentation.setVisible(true);
+		}
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -86,14 +99,12 @@ public class Viewer
 	public void setContext(Registry ctx) 
 	{
 		registry = ctx;
-		//TO be removed
-		control = new ViewerCtrl(this);
-		presentation = new ViewerUIF(control, registry);
+		register(this, ImageLoaded.class);
+		register(this, ImageRendered.class);
+		
 		topFrame = registry.getTopFrame();
-		topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
-
-		//register(this, ImageLoaded.class);
-		//register(this, imageRendered.class);
+		viewItem = getViewMenuItem();
+		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -114,33 +125,76 @@ public class Viewer
 	
 	PixelsDimensions getPixelsDims()
 	{
-		if (pixelsDims == null) 
-			pixelsDims = new PixelsDimensions(200, 200, 10, 2, 20);
-		return pixelsDims;
+		return renderingControl.getPixelsDims();
 	}
 	
 	int getDefaultT()
 	{
-		return 0;
+		return renderingControl.getDefaultT();
 	}
 	
 	int getDefaultZ()
 	{
-		return 10;
+		return renderingControl.getDefaultZ();
 	}
 	
-	//fired an event.
 	void onPlaneSelected(int z, int t)
 	{
+		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
+		def.setZ(z);
+		RenderImage event = new RenderImage(curPixelsID, def);
+		registry.getEventBus().post(event);	
 	}
+	
 	/** Implement as specified by {@link AgentEventListener}. */
 	public void eventFired(AgentEvent e) 
 	{
-		//if (e instanceof ImageLoaded)
-		//else if (e instanceof ImageRendered)
+		if (e instanceof ImageLoaded)
+			handleImageLoaded((ImageLoaded) e);
+		else if (e instanceof ImageRendered)
+			handleImageRendered((ImageRendered) e);
 	}
-
-
+	
+	private void handleImageLoaded(ImageLoaded response)
+	{
+		LoadImage request = (LoadImage) response.getACT();
+		renderingControl = response.getProxy();
+		buildPresentation();
+		curImageID = request.getImageID();
+		curPixelsID = request.getPixelsID();
+		RenderImage event = new RenderImage(curPixelsID);
+		registry.getEventBus().post(event);
+	}
+	
+	private void handleImageRendered(ImageRendered response)
+	{
+		presentation.setImage(response.getRenderedImage());
+	}
+	
+	private void buildPresentation()
+	{
+		control = new ViewerCtrl(this);
+		presentation = new ViewerUIF(control, registry);
+		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
+		viewItem.setEnabled(true);
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		presentation.setVisible(true);
+		
+	}
+	
+	/** 
+	 * Menu item to add to the 
+	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
+	 */
+	JMenuItem getViewMenuItem()
+	{
+		JMenuItem menuItem = new JMenuItem("Viewer");
+		menuItem.setEnabled(false);
+		return menuItem;
+	}
+	
+	
+	
 	/** Implement as specified by {@link EventBus}. */ 
 	public void register(AgentEventListener subscriber, Class event) 
 	{
