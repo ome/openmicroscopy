@@ -108,10 +108,11 @@ class ImageInfoPane
 	{
         private NumberFormat    nf = NumberFormat.getInstance();
         
-        private final int rows = 8;
+        private final int rows = 9;
         
 		private final String[]    
-		fieldNames = {" Size X", " Size Y", " Pixel size X", " Pixel size Y",
+		fieldNames = {" Size X", " Size Y", " Pixel size X (in \u00B5)", 
+                    " Pixel size Y (in \u00B5)", " Pixel size Z (in \u00B5)", 
                     " Sections", " Timepoints", " Emission wavelength", 
                     " Pixel type"};
 						
@@ -127,9 +128,10 @@ class ImageInfoPane
 				data[1] = ""+px.getSizeY();
                 data[2] = nf.format(px.getPixelSizeX());
                 data[3] = nf.format(px.getPixelSizeY());
-				data[4] = ""+px.getSizeZ();
-				data[5] = ""+px.getSizeT();
-                data[7] = ""+px.getPixelType();
+                data[4] = nf.format(px.getPixelSizeZ());
+				data[5] = ""+px.getSizeZ();
+				data[6] = ""+px.getSizeT();
+                data[8] = ""+px.getPixelType();
 				
                 String listChannels = "";
                 int[] channels = imgData.getChannels();
@@ -146,7 +148,7 @@ class ImageInfoPane
                         else listChannels += ""+i;
                     }
                 }
-                data[6] = listChannels;
+                data[7] = listChannels;
 			}		
 		}
 
