@@ -264,7 +264,8 @@ public class ChainDataManager extends DataManager {
 							acProto,neProto,anProto,mProto,meProto);
 				buildExecutionHashes(chainExecutions);
 				ChainExecutionsLoadedEvent event = new
-					ChainExecutionsLoadedEvent(executionsByDatasetID);
+					ChainExecutionsLoadedEvent(executionsByDatasetID,
+							executionsByChainID,chainExecutionHashesByID);
 				registry.getEventBus().post(event);
 			} catch(DSAccessException dsae) {
 				String s = "Can't retrieve user's chains.";
