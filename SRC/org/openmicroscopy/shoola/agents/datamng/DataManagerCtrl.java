@@ -34,17 +34,18 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.AbstractButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.editors.category.CategoryEditor;
-import org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup.CreateEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.category.CreateCategoryEditor;
+import org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup.CreateGroupEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup.GroupEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.CreateDatasetEditor;
 import org.openmicroscopy.shoola.agents.datamng.editors.dataset.DatasetEditor;
@@ -94,8 +95,10 @@ public class DataManagerCtrl
 	/** ID used to handle the importImages event. */
 	static final int			IMAGE_ITEM = 2;
     
-    /** ID used to handle the create CategoryGroup and Category event. */
-    static final int            CREATE_CG = 3;
+    /** ID used to handle the create CategoryGroup event. */
+    static final int            CREATE_GROUP = 3;
+    
+    static final int            CREATE_CATEGORY = 4;
     
 	private DataManager			abstraction;
 	
@@ -124,8 +127,11 @@ public class DataManagerCtrl
                     createDataset(); break; 
                 case IMAGE_ITEM:
                     showImagesImporter();  break;
-                case CREATE_CG:
-                    createCG();  
+                case CREATE_GROUP:
+                    createGroup(); break;
+                case CREATE_CATEGORY:
+                    createCategory();
+                    
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
@@ -181,7 +187,7 @@ public class DataManagerCtrl
 	{
 		abstraction.updateImage(id, nameChange);
 	}
-	
+    
     /** Return the abstraction. */
     DataManager getAbstraction() {return abstraction; }
     
@@ -245,7 +251,7 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    List getUserImages()
+    public List getUserImages()
     { 
         try {
             return abstraction.getUserImages();
@@ -329,10 +335,10 @@ public class DataManagerCtrl
     {   
         try {
             List projects = abstraction.getUserProjects();
-            List images = abstraction.getUserImages();
+            //List images = abstraction.getUserImages();
             UIUtilities.centerAndShow(new CreateDatasetEditor(
                                         abstraction.getRegistry(), this,
-                                        new DatasetData(), projects, images));
+                                        new DatasetData(), projects));
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's datasets.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -392,21 +398,29 @@ public class DataManagerCtrl
         //Post an event 
     }
 
-    /** Create a new categoryGroup. */
-    void createCG()
+    /** Create a new Category. */
+    void createCategory()
     {
         try {
-            List l = abstraction.getUserImages();
-            //Prepare the data
-            Object[] r = getData(abstraction.getCategoryGroups());
-            UIUtilities.centerAndShow(new CreateEditor(this, 
-                    (CategoryGroupData[]) r[0], (CategorySummary[]) r[1], l));
+            List groups = abstraction.getCategoryGroups();
+            if (groups == null || groups.size() == 0) {
+                UserNotifier un = abstraction.getRegistry().getUserNotifier();
+                un.notifyInfo("Create a category", 
+                        "You must create a group first.");
+            }
+            UIUtilities.centerAndShow(new CreateCategoryEditor(this, groups));
         } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category groups.";
+            String s = "Can't retrieve user's categoryGroup.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae); 
+                    "Failure", s, dsae);   
         } 
+    }
+    
+    /** Create a new categoryGroup. */
+    void createGroup()
+    {
+        UIUtilities.centerAndShow(new CreateGroupEditor(this));
     }
 
     /** Retrieve all categoryGroups. */
@@ -422,70 +436,80 @@ public class DataManagerCtrl
         } 
         return null;
     }
-    
-    /** List of existing categories not in the current group. */
-    public List getCategoriesDiff(CategoryGroupData model)
+
+    /** Retrieve all the images contained in the specified category. */
+    public List getImagesInCategory(int categoryID)
     {
         try {
-            List categories = model.getCategories();
-            List allCategories = abstraction.getCategories();
-            List results = new ArrayList();
-            results.addAll(allCategories);
-            Iterator i = allCategories.iterator(), j;
-            CategorySummary cs, csAll;
-            while (i.hasNext()) {
-                csAll = (CategorySummary) i.next();
-                j = categories.iterator();
-                while (j.hasNext()) {
-                    cs = (CategorySummary) j.next();
-                    if (cs.getID() == csAll.getID())
-                        results.remove(csAll);
-                }
-            }
-            return results;
+            CategoryData model = abstraction.getCategoryData(categoryID);
+            return model.getImages();
         } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category groups.";
+            String s = "Can't retrieve the category.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
-        return null;
+        return new ArrayList();
     }
-
-
-    public List getCategoryImagesDiff(List images)
+    
+    /** 
+     * List of existing categories not in the current group. 
+     * Only, the categories containing images not already in the group
+     * will be displayed.
+     */
+    public List getCategoriesNotInGroup(CategoryGroupData group)
     {
         try {
-            List allImages = abstraction.getUserImages();
-            List results = new ArrayList();
-            results.addAll(allImages);
-            Iterator i = allImages.iterator(), j;
-            ImageSummary is, isAll;
-            while (i.hasNext()) {
-                isAll = (ImageSummary) i.next();
-                j = images.iterator();
-                while (j.hasNext()) {
-                    is = (ImageSummary) j.next();
-                    if (is.getID() == isAll.getID())
-                        results.remove(isAll);
-                }
-            }
-            return results;
+            return abstraction.retrieveCategoriesNotInGroup(group);
         } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category groups.";
+            String s = "Can't retrieve the category.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
-        return null;
+        return new ArrayList();
+        /*
+        List categories = new ArrayList();
+        try {
+            
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the categories.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return categories;
+        */
+    }
+
+    /** 
+     * Return the images belonging to the user not contained in the
+     * specified CategoryGroupgroup.
+     * 
+     * @param group     corresponding data object.
+     * @return  list of {@link ImageSummary}s.
+     */
+    public List getImagesNotInGroup(CategoryGroupData group)
+    {
+        try {
+            return abstraction.retrieveImagesNotInGroup(group);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the category.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return new ArrayList();
     }
     
+    /** Forward event to the {@link DataManager} abstraction. */
     public void updateCategoryGroup(CategoryGroupData model, List toAdd, 
                                     boolean nameChange)
     {
         abstraction.updateCategoryGroup(model, toAdd, nameChange);
     }
 
+    /** Forward event to the {@link DataManager} abstraction. */
     public void updateCategory(CategoryData model, List imgsToRemove, 
                                 List imgsToAdd, boolean nameChange)
     {
@@ -493,7 +517,7 @@ public class DataManagerCtrl
     }
     
     /** Create a new group and existing datasets. */
-    public void createNewGroup(String name, String description)
+    public void saveNewGroup(String name, String description)
     {
         CategoryGroupData cgd = new CategoryGroupData();
         cgd.setName(name);
@@ -502,96 +526,15 @@ public class DataManagerCtrl
     }
     
     /** Create a new group and a new category. */
-    public void createNews(String nGroup, String nCategory, String dGroup, 
-                            String dCategory, List images)
-    {
-        CategoryGroupData cgd = new CategoryGroupData();
-        cgd.setName(nGroup);
-        cgd.setDescription(dGroup);
-        CategoryData cd = new CategoryData();
-        cd.setName(nCategory);
-        cd.setDescription(dCategory);
-        cd.setCategoryGroup(cgd);
-        abstraction.createCategory(cd, images);
-    }
-    
-    /** Create a new category linked to an existing group. */
-    public void createNewCategory(CategoryGroupData data, String name, 
-                                    String description, List images)
+    public void createNewCategory(CategoryGroupData group, String name, 
+                                String description, List images)
     {
         CategoryData cd = new CategoryData();
         cd.setName(name);
         cd.setDescription(description);
-        cd.setCategoryGroup(data);
+        cd.setCategoryGroup(group);
         abstraction.createCategory(cd, images);
     }
-    
-    /** Retrieve all the images contained in the specified category. */
-    public List getImagesInCategory(int categoryID)
-    {
-        return getImages(abstraction.getCategoryData(categoryID));
-    }
-    
-    public List getImages(CategoryData model)
-    {
-        Map classifications = model.getClassifications();
-        Iterator i = classifications.keySet().iterator();
-        List results = new ArrayList();
-        while (i.hasNext())
-            results.add(i.next());
-        return results;
-    }
-    
-    /** Prepare the data for the GUI. */
-    private Object[] getData(List l)
-    {
-        Object[] results = new Object[2];
-        CategoryGroupData[] data; 
-        CategorySummary[] summaries;
-        if (l != null) {
-            Iterator i = l.iterator();
-            List categories = new ArrayList();
-            data = new CategoryGroupData[l.size()];
-            int index = 0;
-            CategoryGroupData cgd;
-            CategorySummary cs;
-            Iterator j;
-            while (i.hasNext()) {
-                cgd = (CategoryGroupData) i.next();
-                data[index] = cgd;
-                if (cgd.getCategories() != null) {
-                    j = cgd.getCategories().iterator();
-                    while (j.hasNext()) {
-                        cs = (CategorySummary) j.next();
-                        if (!categories.contains(cs))
-                            categories.add(cs);
-                    }
-                }
-                index++; 
-            }
-            summaries = getSummary(categories);
-        } else {
-            data = new CategoryGroupData[0];
-            summaries = new CategorySummary[0];
-        }
-        results[0] = data;
-        results[1] = summaries;
-        return results;
-    }
-    
-    private CategorySummary[] getSummary(List l)
-    {
-        CategorySummary[] data;
-        if (l != null && l.size() > 0) {
-            Iterator i = l.iterator();
-            data = new CategorySummary[l.size()];
-            int index = 0;
-            while (i.hasNext()) {
-                data[index] = (CategorySummary) i.next();
-                index++; 
-            }
-        } else data = new CategorySummary[0];  
-        return data;
-    }
-    
+
+
 }

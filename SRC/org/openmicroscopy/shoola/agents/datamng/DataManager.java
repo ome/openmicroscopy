@@ -39,10 +39,10 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
-import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
+import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -103,12 +103,6 @@ public class DataManager
 
 	/** All user's datasets. */
 	private List					datasetSummaries;
-
-    /** List of all categoryGroups. */
-    private List                    categoryGroups;
-    
-    /** List of all categories. */
-    private List                    categories;
     
 	/** Creates a new instance. */
 	public DataManager() {}
@@ -123,15 +117,14 @@ public class DataManager
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-		EventBus bus = registry.getEventBus();
-        bus.register(this, ViewImageInfo.class);
-        bus.register(this, ServiceActivationResponse.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
 		datasetSummaries = new ArrayList();
 		projectSummaries = new ArrayList();
-        categoryGroups = new ArrayList();
-        categories = new ArrayList();
+        
+        EventBus bus = registry.getEventBus();
+        bus.register(this, ViewImageInfo.class);
+        bus.register(this, ServiceActivationResponse.class);
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -155,13 +148,13 @@ public class DataManager
 
 	Registry getRegistry() { return registry; }
 	
-	/** Rebuild the Tree if the connection is succesful. */
+	/** Rebuild the Tree if the connection is succesfull. */
 	void handleSAR(ServiceActivationResponse response)
 	{
 		if (response.isActivationSuccessful() && presentation != null) 
 			presentation.rebuildTree();
 	}
-	
+    
 	/**
 	 * Import a list of images into the specified dataset.
 	 * 
@@ -312,16 +305,16 @@ public class DataManager
 	List getUserImages()
         throws DSAccessException
 	{
-		List images = new ArrayList();
+        List userImages = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			images = dms.retrieveUserImages();
+			userImages = dms.retrieveUserImages();
 		}catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
 		} 
-		return images;
+		return userImages;
 	}
 
 	/**
@@ -335,7 +328,8 @@ public class DataManager
 		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			images = dms.retrieveImages(datasetID);
+			//images = dms.retrieveImages(datasetID);
+            images = dms.retrieveImagesWithAnnotations(datasetID);
 		} catch(DSAccessException dsae) {
 			String s = "Can't retrieve images in the dataset " +
 						"with ID: "+datasetID+".";
@@ -678,49 +672,60 @@ public class DataManager
     List getCategoryGroups()
         throws DSAccessException
     {
-        //if (categoryGroups.size() == 0) {
-            try { 
-                SemanticTypesService sts = registry.getSemanticTypesService();
-                categoryGroups = sts.retrieveCategoryGroups();  
-            } catch(DSOutOfServiceException dsose) {
-                ServiceActivationRequest 
-                request = new ServiceActivationRequest(
-                                    ServiceActivationRequest.DATA_SERVICES);
-                registry.getEventBus().post(request);
-            }
-        //}
+        List categoryGroups = new ArrayList();
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            categoryGroups = sts.retrieveCategoryGroups();  
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
         return categoryGroups;
     }
-    
-    /** Retrieve all categories. */
-    List getCategories()
+
+    /** Retrieve all images not classified in the specified group. */
+    List retrieveImagesNotInGroup(CategoryGroupData group)
         throws DSAccessException
     {
-        //if (categories.size() == 0) {
-            try { 
-                SemanticTypesService sts = registry.getSemanticTypesService();
-                categoryGroups = sts.retrieveCategories();
-            } catch(DSOutOfServiceException dsose) {
-                ServiceActivationRequest 
-                request = new ServiceActivationRequest(
-                                    ServiceActivationRequest.DATA_SERVICES);
-                registry.getEventBus().post(request);
-            }
-        //}
-        return categories;
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveImagesNotInGroup(group);
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
+    }
+    
+    /** Retrieve all categories in the specified group, the categories
+     * don't contain images already in the group. */
+    List retrieveCategoriesNotInGroup(CategoryGroupData group)
+        throws DSAccessException
+    {
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveCategoriesNotInGroup(group);
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
     }
     
     CategoryData getCategoryData(int id)
+        throws DSAccessException
     {
         CategoryData cd = new CategoryData();
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            cd = sts.retrieveCategory(id);
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category with ID: "+id+".";
-            registry.getLogger().error(this, s+" Error: "+dsae);
-            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-                                                    dsae);
+            //cd = sts.retrieveCategory(id);
+            cd = sts.retrieveCategoryWithIAnnotations(id);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -736,20 +741,14 @@ public class DataManager
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
             sts.createCategoryGroup(data);
-            if (categoryGroups.size() != 0) {
-                categoryGroups.add(data);  //local copy
-                presentation.addNewGroupToTree(data);  //update tree
-            } else {
-                getCategoryGroups(); 
-                presentation.rebuildClassificationTree();
-            } 
-
+            presentation.rebuildClassificationTree();
             UserNotifier un = registry.getUserNotifier();
             IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo("Create group", "A new group has now been created.", 
+            un.notifyInfo("Create categoryGroup", 
+                    "A new categoryGroup has now been created.", 
                     im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsae) {
-            String s = "Can't create a new category group.";
+            String s = "Can't create a new categoryGroup.";
             registry.getLogger().error(this, s+" Error: "+dsae);
             registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
                                                     dsae);

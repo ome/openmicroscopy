@@ -68,36 +68,38 @@ public class DataManagerUIF
 	extends TopWindow
 {
     
-    public static final Color       STEELBLUE = new Color(0x4682B4);
+    public static final Color               STEELBLUE = new Color(0x4682B4);
 
     /** Width of the editor dialog window. */
-    public static final int         EDITOR_WIDTH = 500;
+    public static final int                 EDITOR_WIDTH = 500;
     
     /** Height of the editor dialog window. */
-    public static final int         EDITOR_HEIGHT = 500;
+    public static final int                 EDITOR_HEIGHT = 500;
     
     /** Width of the "add" window. */
-    public static final int         ADD_WIN_WIDTH = 400;
+    public static final int                 ADD_WIN_WIDTH = 400;
     
     /** Height of the "add" window. */
-    public static final int         ADD_WIN_HEIGHT = 400;
+    public static final int                 ADD_WIN_HEIGHT = 400;
         
-    public static final Dimension   DIM_SCROLL_TABLE = new Dimension(40, 60);
+    public static final Dimension           DIM_SCROLL_TABLE = 
+                                                new Dimension(40, 60);
     
-    public static final Dimension   DIM_SCROLL_NAME = new Dimension(40, 25);
+    public static final Dimension           DIM_SCROLL_NAME = 
+                                                new Dimension(40, 25);
     
-    public static final int         ROW_TABLE_HEIGHT = 60;
+    public static final int                 ROW_TABLE_HEIGHT = 60;
     
-    public static final int         ROW_NAME_FIELD = 25;
+    public static final int                 ROW_NAME_FIELD = 25;
     
-    public static final int         SELECT_COLUMN_WIDTH = 15;
+    public static final int                 SELECT_COLUMN_WIDTH = 15;
     
-    public static final Dimension   HBOX = new Dimension(10, 0),
-                                    VBOX = new Dimension(0, 10);
-    public static final Dimension   VP_DIM = new Dimension(200, 70);
+    public static final Dimension           HBOX = new Dimension(10, 0),
+                                            VBOX = new Dimension(0, 10);
+    public static final Dimension           VP_DIM = new Dimension(200, 70);
     
-    private static final String     HIERARCHY = "Hierarchy", 
-                                    CLASSIFIER = "Classifier";
+    private static final String             HIERARCHY = "Hierarchy", 
+                                            CLASSIFIER = "Classifier";
     
     JMenu                                   hierarchyMenu, classifierMenu;
     
@@ -140,7 +142,7 @@ public class DataManagerUIF
 		buildGUI(new ToolBar(control, registry));
 		pack();	
 	}
-
+    
 	/** Forward event to {@link ExplorerPaneManager}. */
 	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
 	
@@ -263,9 +265,13 @@ public class DataManagerUIF
     private JMenu createClassifierMenu()
     {
         classifierMenu = new JMenu(CLASSIFIER);
-        JMenuItem menuItem = new JMenuItem("New Group and Category", 
-                            im.getIcon(IconManager.CREATE_CG));
-        control.attachItemListener(menuItem, DataManagerCtrl.CREATE_CG);
+        JMenuItem menuItem = new JMenuItem("New Group", 
+                            im.getIcon(IconManager.CREATE_GROUP));
+        control.attachItemListener(menuItem, DataManagerCtrl.CREATE_GROUP);
+        classifierMenu.add(menuItem);
+        menuItem = new JMenuItem("New Category", 
+                    im.getIcon(IconManager.CREATE_CATEGORY));
+        control.attachItemListener(menuItem, DataManagerCtrl.CREATE_CATEGORY);
         classifierMenu.add(menuItem);
         return classifierMenu;
     }
