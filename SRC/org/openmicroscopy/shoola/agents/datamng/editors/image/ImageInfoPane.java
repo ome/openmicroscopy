@@ -97,11 +97,11 @@ class ImageInfoPane
 	}
 	
 	/** 
-	 * A <code>6x2</code> table model to view owner summary.
+	 * A <code>9x2</code> table model to view image information.
 	 * The first column contains the property names 
-	 * (id, first name, last name, e-mail, institution, group id, group name)
+	 * (size X, size Y, Pixel size X, Pixel size Y, Pixel size Z, Sections, 
+     * Timepoints, Emission wavelength, Pixel type)
 	 * and the second column holds the corresponding values. 
-	 * For the time being, values aren't marked as editable. 
 	 */
 	private class InfoTableModel 
 		extends AbstractTableModel 

@@ -563,8 +563,6 @@ public class ViewerCtrl
         if (!roiOnOff) {
             presentation.getBottomBar().resetMessage(BottomBar.LENS);
             presentation.removeCanvasFromLayer(presentation.getDrawingCanvas());
-            //presentation.addCanvasToLayer(
-            //        presentation.getLensCanvas(), ViewerUIF.LENS_LEVEL); 
             presentation.getDrawingCanvas().setOnOff(false);
         } else {
             presentation.getBottomBar().resetMessage(BottomBar.ANNOTATE);
@@ -572,9 +570,6 @@ public class ViewerCtrl
             presentation.getDrawingCanvas().setOnOff(true);
             presentation.addCanvasToLayer(
                     presentation.getDrawingCanvas(), ViewerUIF.ROI_LEVEL); 
-            
-            //presentation.removeCanvasFromLayer(presentation.getLensCanvas());
-            //presentation.resetLens();
         }
         if (imageInspector != null) 
             imageInspector.getManager().setLensEnabled(!b);
@@ -586,7 +581,7 @@ public class ViewerCtrl
         drawingArea.setBounds(x, y, w, h);
         if (roiOnOff) paintDrawing();    
     }
-
+    
     void setAnnotationText(String text)
     {
         if (text != null)
