@@ -36,6 +36,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -46,6 +49,7 @@ import javax.swing.JMenuItem;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.IconFactory;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -73,10 +77,13 @@ public class TopFrameImpl
     static final int        FILE = 0;
     static final int        VIEW = 1;
     static final int        HELP = 2;
-    static final int        EXIT = 3;
-    
-	/** the 3 available menus. */    
-    private JMenu           fileMenu, viewMenu, helpMenu;
+	static final int        CONNECT = 3;
+	static final int        EXIT = 4;
+	static final int        OMEDS = 5;
+	static final int        OMEIS = 6;
+	
+	/** the 4 available menus. */    
+    private JMenu           fileMenu, viewMenu, helpMenu, connectMenu;
     
 	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
@@ -93,10 +100,13 @@ public class TopFrameImpl
     {
         super("Open Microscopy Environment");
         this.container = container;
+        
         //make sure we have nice window decorations
         JFrame.setDefaultLookAndFeelDecorated(true);  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // TODO: add icon
+        
+		ImageIcon ome = loadImageIcon();
+		setIconImage(ome.getImage());
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
         getContentPane().add(desktop);
@@ -143,6 +153,12 @@ public class TopFrameImpl
             switch (cmd) {
                 case EXIT:
                   //TODO: do something
+                  break;
+                case OMEDS:
+                	connectToOMEDS();
+                	break;
+                case OMEIS:
+					connectToOMEIS();	
             }        
         } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
                 throw nfe;  //just to be on the safe side...
@@ -160,6 +176,25 @@ public class TopFrameImpl
     	setVisible(true);
     }
     
+    /**Connect to omeDS. */
+    //TODO: implement method
+    private void connectToOMEDS()
+    {
+    }
+    
+	/**Connect to omeDS. */
+	//TODO: implement method
+	private void connectToOMEIS()
+   	{
+   	}
+	
+	private ImageIcon loadImageIcon()
+	{
+		IconFactory factory = (IconFactory) 
+			container.getRegistry().lookup("/resources/icons/DefaultFactory");
+		Icon icon = factory.getIcon("OME16.png");
+		return (ImageIcon) icon;
+	}
 	/** 
 	* Adds the specified menuItem to the container at the position n-1. 
 	* 
@@ -174,15 +209,17 @@ public class TopFrameImpl
         fileMenu.add(lastOne);
     }
     
-	/** Initializes the 3 menus and add them to the menuBar. */
+	/** Initializes the 4 menus and add them to the menuBar. */
     private JMenuBar createMenuBar()
     {
         JMenuBar menuBar = new JMenuBar(); 
         createFileMenu();
+        createConnectMenu();
         viewMenu = new JMenu("View");
         helpMenu = new JMenu("Help");
         menuBar.add(fileMenu);
         menuBar.add(viewMenu);
+        menuBar.add(connectMenu);
         menuBar.add(helpMenu);
         return menuBar;
     }
@@ -196,7 +233,21 @@ public class TopFrameImpl
         menuItem.addActionListener(this);
         fileMenu.add(menuItem);
     }
-
+    
+	/** Initializes the connectMenu. */
+	private void createConnectMenu()
+	{
+		connectMenu = new JMenu("Connect");
+		JMenuItem menuItem = new JMenuItem("OMEDS");
+		menuItem.setActionCommand(""+OMEDS);
+		menuItem.addActionListener(this);
+		connectMenu.add(menuItem);
+		menuItem = new JMenuItem("OMEIS");
+		menuItem.setActionCommand(""+OMEIS);
+		menuItem.addActionListener(this);
+		connectMenu.add(menuItem);
+	}
+	
 	/** 
 	* Retrieves the specified menu. 
 	* 
