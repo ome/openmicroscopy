@@ -303,6 +303,18 @@ public class BrowserView extends PCanvas
         }
     }
     
+    /**
+     * Respond to a paint method change by repainting
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#paintMethodsChanged()
+     */
+    public void paintMethodsChanged()
+    {
+        repaint();
+    }
+
+
+    
     // TODO: retrofit to groups
     public void updateThumbnails()
     {

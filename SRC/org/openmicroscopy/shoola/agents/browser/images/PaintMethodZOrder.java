@@ -233,4 +233,33 @@ public class PaintMethodZOrder
             bottomToTop.add(index, m);
         }
     }
+    
+    /**
+     * Removes the paint method at the specified index from the
+     * current order.
+     * @param index The index of the paint method to remove.
+     */
+    public void removePaintMethod(int index)
+    {
+        if(index < 0 || index > bottomToTop.size() - 1)
+        {
+            return;
+        }
+        else
+        {
+            bottomToTop.remove(index);
+        }
+    }
+    
+    /**
+     * Removes the specified paint method from the order.
+     * @param m The paint method to remove.
+     */
+    public void removePaintMethod(PaintMethod m)
+    {
+        if(m != null)
+        {
+            bottomToTop.remove(m);
+        }
+    }
 }

@@ -62,4 +62,11 @@ public interface BrowserModelListener
      * @param mode The new mode of the model.
      */
     public void modeChanged(String className, BrowserMode mode);
+    
+    /**
+     * Instructs the view to repaint, as the underlying thumbnail drawing
+     * methods have changed.
+     *
+     */
+    public void paintMethodsChanged();
 }
