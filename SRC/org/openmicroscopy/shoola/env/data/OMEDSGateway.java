@@ -46,6 +46,7 @@ import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
 import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.UserState;
+import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
 import org.openmicroscopy.ds.st.Experimenter;
