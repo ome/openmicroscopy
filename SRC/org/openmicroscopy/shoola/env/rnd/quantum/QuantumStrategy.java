@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
@@ -73,7 +74,9 @@ public abstract class QuantumStrategy
 	private Comparable      		windowEnd;
 	
 	/** Reference to a quantumDef object. */
-	protected final QuantumDef      qDef;                  
+	protected final QuantumDef      qDef;   
+	
+	protected QuantumMap			valueMapper;               
 
 	protected QuantumStrategy(QuantumDef qd)
 	{
@@ -96,11 +99,10 @@ public abstract class QuantumStrategy
 		boolean     b = false;
 		if (globalMin != null && globalMax != null && 
 			0 < globalMax.compareTo(globalMin)) {
-	
-			/*
+				
 			switch (qDef.pixelType) { 
-				case Pixels.INT8:
-				case Pixels.UINT8:
+				case DataSink.INT8:
+				case DataSink.UINT8:
 					if (globalMin instanceof Integer && 
 						globalMax instanceof Integer) {
 						int m = ((Integer) globalMin).intValue(),
@@ -108,8 +110,8 @@ public abstract class QuantumStrategy
 						if (m < M && M-m < 0x100)  b = true; 
 					}
 					break;
-				case Pixels.INT16:
-				case Pixels.UINT16:
+				case DataSink.INT16:
+				case DataSink.UINT16:
 					if (globalMin instanceof Integer && 
 						globalMax instanceof Integer) {
 						int m = ((Integer) globalMin).intValue(),
@@ -117,7 +119,7 @@ public abstract class QuantumStrategy
 						if (m < M && M-m < 0x10000)  b = true; 
 					}
 					break;
-				case Pixels.INT32:
+				case DataSink.INT32:
 					if (globalMin instanceof Integer &&
 						globalMax instanceof Integer) {
 						int m = ((Integer) globalMin).intValue(),
@@ -125,7 +127,7 @@ public abstract class QuantumStrategy
 						if (m < M && M-m < 0x100000000L)  b = true; 
 					}
 					break;
-				case Pixels.UINT32:
+				case DataSink.UINT32:
 					if (globalMin instanceof Long &&
 						globalMax instanceof Long) {
 						long m = ((Long) globalMin).longValue(),
@@ -134,13 +136,12 @@ public abstract class QuantumStrategy
 					}
 					break;
 				//TODO: checking all when we support these types
+				/*
 				case Pixels.BIT:
 				case Pixels.FLOAT:  
-				case Pixels.DOUBLE:
-				case Pixels.COMPLEX:
-				case Pixels.DOUBLE_COMPLEX: break;
+				case Pixels.DOUBLE: break;
+				*/
 			}
-			*/
 		}
 		if (!b)
 			throw new IllegalArgumentException("Pixel interval not consistent");
@@ -176,6 +177,11 @@ public abstract class QuantumStrategy
 		windowStart = start;
 		windowEnd = end;
 		onWindowChange();
+	}
+	
+	void setMap(QuantumMap qMap)
+	{
+		valueMapper = qMap;
 	}
 	
 	/** Returns the globalMin. */

@@ -113,16 +113,16 @@ public class QuantumFactory
 				qMap = new ExponentialMap(); 
 		}
 		if (qMap == null)
-			throw new IllegalArgumentException("Unsupportedtransformation");
-		strg = getQuantization(qd, qMap);
+			throw new IllegalArgumentException("Unsupported transformation");
+		strg = getQuantization(qd);
+		strg.setMap(qMap);
 		if (strg == null)
 			throw new IllegalArgumentException("Unsupported strategy");
 		return strg;
 	}
     
     /** Retrieve a {@link QuantumStrategy}. */
-	private static QuantumStrategy getQuantization(QuantumDef qd, 
-				QuantumMap qMap)
+	private static QuantumStrategy getQuantization(QuantumDef qd)
 	{
 		QuantumStrategy     qs = null;
 		switch (qd.pixelType) {
@@ -130,7 +130,7 @@ public class QuantumFactory
 			case DataSink.UINT8:
 			case DataSink.INT16:
 			case DataSink.UINT16:
-				qs = new Quantization_8_16_bit(qd, qMap);
+				qs = new Quantization_8_16_bit(qd);
 				break;
 			case DataSink.INT32:  //TODO when we support these types
 			case DataSink.UINT32:
