@@ -31,21 +31,17 @@ package org.openmicroscopy.shoola.agents.executions.ui.model;
 
 //Java imports
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
+//import java.util.LinkedHashMap;
 import java.util.Iterator;
-
-import java.util.Vector;
 import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.LongRangeSlider;
-import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
+
 
 
 /** 
@@ -68,74 +64,28 @@ public class ExecutionsModel {
 	
 	private int currentOrder;
 	
-	private LinkedHashMap execsByDataset;
-	private LinkedHashMap execsByChain;
-	private Vector sortedExecs;
+	//private LinkedHashMap execsByDataset;
+	//private LinkedHashMap execsByChain;
+	private Collection sortedExecs;
 	private BoundedLongRangeModel model= null;
 	
-	private String datasetNames[];
-	private String chainNames[];
 	
 	private GridModel gm;
 	
+	private ChainExecutions chainExecutions;
+	
 	public ExecutionsModel(ChainExecutionsLoadedEvent event) {
-		this.execsByDataset = event.getChainExecutionsByDatasetID();
-		this.execsByChain = event.getChainExecutionsByChainID();
-		
-		LinkedHashMap byID = event.getExecutionsByID();
-		sortedExecs = new Vector(byID.values());
-		Collections.sort(sortedExecs);
-		getDatasetNames();
-		getChainNames();
-	}
-	
-	// execs by dataset is a hash on dataset ids. each value is a list of
-	// executions for the given dataset. Probably should be wrapped in
-	// its own class. someday.
-	
-	private void getDatasetNames(){
-		int sz = execsByDataset.keySet().size();
-		datasetNames = new String[sz];
-		Iterator iter = execsByDataset.keySet().iterator();
-		int i = 0;
-		
-		while (iter.hasNext()) {
-			Object obj = iter.next();
-			Collection exs = (Collection) execsByDataset.get(obj);
-			Iterator iter2 = exs.iterator();
-			obj = iter2.next();
-			ChainExecutionData exec = (ChainExecutionData) obj;
-		    DatasetData ds = exec.getDataset();
-			datasetNames[i++] = ds.getName();	
-			
-		}
-	
-	}
-	
-	public void getChainNames() {
-		int sz = execsByChain.keySet().size();
-		chainNames = new String[sz];
-		Iterator iter = execsByChain.keySet().iterator();
-		int i = 0;
-		
-		while (iter.hasNext()) {
-			Object obj = iter.next();
-			Collection exs = (Collection) execsByChain.get(obj);
-			Iterator iter2 = exs.iterator();
-			ChainExecutionData exec = (ChainExecutionData) iter2.next();
-		     AnalysisChainData chain = exec.getChain();
-			chainNames[i++] = chain.getName();	
-		}
+		chainExecutions = event.getChainExecutions();
+		//this.execsByDataset = event.getChainExecutionsByDatasetID();
+		//this.execsByChain = event.getChainExecutionsByChainID();		
+		sortedExecs = chainExecutions.getExecutions();
 	}
 	
 	public BoundedLongRangeModel getRangeModel() {
 		if (model == null) {
-			ChainExecutionData exec;
-			exec = (ChainExecutionData) sortedExecs.firstElement();
-			Date start = exec.getDate();
-			exec  = (ChainExecutionData) sortedExecs.lastElement();
-			Date end = exec.getDate();
-			model= new BoundedLongRangeModel(start.getTime(),end.getTime());
+			long start = chainExecutions.getStartTime();
+			long end = chainExecutions.getEndTime();
+			model= new BoundedLongRangeModel(start,end);
 		}
 		return model;
 	}
@@ -157,20 +107,17 @@ public class ExecutionsModel {
 	
 	
 	public void resetRangeProperties() {
-		ChainExecutionData exec;
-		exec = (ChainExecutionData) sortedExecs.firstElement();
-		Date start = exec.getDate();
-		exec  = (ChainExecutionData) sortedExecs.lastElement();
-		Date end = exec.getDate();
-		model.setProperties(start.getTime(),end.getTime());
+		long start = chainExecutions.getStartTime();
+		long end = chainExecutions.getEndTime();
+		model.setProperties(start,end);
 	}
 
 	public int getChainCount() {
-		return execsByChain.keySet().size();
+		return chainExecutions.getChainCount();
 	}
 	
 	public int getDatasetCount() {
-		return execsByDataset.keySet().size();
+		return chainExecutions.getDatasetCount();
 	}
 	// either do executions by dataset, and then by chain within datasets.
 	// either way, entries go from row 1...|chains| * |datasets|
@@ -208,16 +155,10 @@ public class ExecutionsModel {
 	
 	public String getMajorRowLabel(int count) {
 		if (currentOrder == DATASET_ORDER) {
-			if (count < datasetNames.length)
-				return datasetNames[count];
-			else
-				return null;
+			return chainExecutions.getDatasetName(count);
 		}
 		else {
-			if (count < chainNames.length) 
-				return chainNames[count];
-			else
-				return null;
+			return chainExecutions.getChainName(count);
 		}
 	}
 		
@@ -246,29 +187,14 @@ public class ExecutionsModel {
 	}
 	
 	private int getChainIndex(ChainExecutionData exec) {
-		int id = exec.getChain().getID();
-		return getIndex(id,execsByChain);
+		return chainExecutions.getChainIndex(exec);
 	}
 	
 	
 	private int getDatasetIndex(ChainExecutionData exec) {
-		int id = exec.getDataset().getID();
-		return getIndex(id,execsByDataset);
+		return chainExecutions.getDatasetIndex(exec);
 	}
-	
-	
-	
-	private int getIndex(int id,LinkedHashMap execHash) {
-		int index = 0;
-		Iterator iter = execHash.keySet().iterator();
-		while (iter.hasNext()) {
-			Integer ID = (Integer) iter.next();
-			if (ID.intValue() == id)
-				return index;
-			index++;
-		}
-		return -1;
-	}
+
 	
 	public void addChangeListener(ChangeListener listener) {
 		model.addChangeListener(listener);
