@@ -29,11 +29,14 @@
 
 package org.openmicroscopy.shoola.env.log;
 
+
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
 
 /** 
  * A factory for the {@link Logger}. 
@@ -53,14 +56,39 @@ package org.openmicroscopy.shoola.env.log;
 public class LoggerFactory
 {
 
+	/** 
+	 * Name of the log directory.
+	 * The path to the log directory is the absolute path to the installation
+	 * directory followed by the value of this field. 
+	 */
+	public static final String		LOG_DIR = "log";
+	
+	/** 
+	 * Name of the log file.
+	 * The log file is contained in the log directory.  Under exceptional
+	 * circumstances, it could be located under the installation directory &151;
+	 * this can only happen if someone fiddled with the structure of the
+	 * install directory.  
+	 */
+	public static final String		LOG_FILE = "shoola.log";
+	
+	
 	/**
-	 * Creates a new empty {@link Logger}.
+	 * Creates a new {@link Logger}.
 	 * 
 	 * @return	See above.
 	 */
-	public static Logger makeNew()
+	public static Logger makeNew(Container c)
 	{
-		return new LoggerImpl();
+		//NB: this can't be called outside of container b/c agents have no refs
+		//to the singleton container. So we can be sure this method is going to
+		//create services just once.
+		if (c == null)	return null;
+		File logDir = new File(c.getHomeDir(), LOG_DIR), logFile;
+		logDir.mkdir();
+		if (logDir.isDirectory())	logFile = new File(logDir, LOG_FILE);
+		else	logFile = new File(c.getHomeDir(), LOG_FILE);
+		return new LoggerImpl(logFile.getAbsolutePath());
 	}
 
 }

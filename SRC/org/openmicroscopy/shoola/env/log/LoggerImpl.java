@@ -33,7 +33,10 @@ package org.openmicroscopy.shoola.env.log;
 //Java imports
 
 //Third-party libraries
-import org.apache.log4j.Category;
+import java.util.Properties;
+
+import org.apache.log4j.PropertyConfigurator;
+
 //Application-internal dependencies
 
 /** 
@@ -56,51 +59,83 @@ public class LoggerImpl
     implements Logger
 {
     
-    public LoggerImpl() {}
+    /**
+     * Returns the <i>Log4j</i> logger for the specified object.
+     * 
+     * @param target	The object that is issuing the log message.  If 
+     * 					<code>null</code>, then the root logger is returned.
+     * @return A logger for the specified object.
+     */
+    private org.apache.log4j.Logger getAdaptee(Object target)
+    { 
+		if (target != null) 
+			return org.apache.log4j.Logger.getLogger(
+												target.getClass().getName());
+		return org.apache.log4j.Logger.getRootLogger();
+    }
+    
+    /**
+     * Initializes Log4j.
+     * 
+     * @param absFile	The absolute pathname of the log file.
+     */
+    public LoggerImpl(String absFile)
+    {
+    	Properties config = new Properties();
+    	
+    	//Define the base appender.
+		config.put("log4j.appender.BASE", 
+					"org.apache.log4j.RollingFileAppender");
+		config.put("log4j.appender.BASE.File", 
+					absFile);
+		config.put("log4j.appender.BASE.MaxFileSize", 
+					"100KB");  //Maximum size that the output file is allowed
+							//to reach before being rolled over to backup files.
+		config.put("log4j.appender.BASE.MaxBackupIndex", 
+					"1");  //Maximum number of backup files to keep around.	
+					
+    	//Define its output layout.
+		config.put("log4j.appender.BASE.layout", 
+					"org.apache.log4j.PatternLayout");
+    	config.put("log4j.appender.BASE.layout.ConversionPattern", 
+					"%r %p [thread: %t][class: %c] - %m%n%n");
+		
+		//Set the the root logger level and appender.
+		config.put("log4j.rootLogger", 
+					"debug, BASE");
+		
+		//Do configuration.
+		PropertyConfigurator.configure(config);
+    }
     
 	/** Implemented as specified by {@link Logger}. */     
     public void debug(Object c, String logMsg)
     {
-        Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
-        else category = Category.getRoot();
-        category.debug(logMsg);
+		getAdaptee(c).debug(logMsg);
     }
     
 	/** Implemented as specified by {@link Logger}. */ 
     public void error(Object c, String logMsg)
     {
-        Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
-        else category = Category.getRoot();
-        category.error(logMsg);
+		getAdaptee(c).error(logMsg);
     }
     
 	/** Implemented as specified by {@link Logger}.*/ 
     public void fatal(Object c, String logMsg)
     {
-        Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
-        else category = Category.getRoot();
-        category.fatal(logMsg);
+		getAdaptee(c).fatal(logMsg);
     }
     
 	/** Implemented as specified by {@link Logger}. */ 
     public void info(Object c, String logMsg)
     {
-        Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
-        else category = Category.getRoot();
-        category.info(logMsg);
+		getAdaptee(c).info(logMsg);
     }
     
 	/** Implemented as specified by {@link Logger}. */ 
     public void warn(Object c, String logMsg)
     {
-        Category category = null;
-        if (c != null) category = Category.getInstance(c.getClass().getName());
-        else category = Category.getRoot();
-        category.warn(logMsg);
+		getAdaptee(c).warn(logMsg);
     }
   
 }
