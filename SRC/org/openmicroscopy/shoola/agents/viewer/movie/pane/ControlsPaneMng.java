@@ -105,22 +105,22 @@ class ControlsPaneMng
     /** Attach the listeners. */
     private void attachListeners()
     {
-        JTextField editor = view.getEditor();
+        JTextField editor = view.editor;
         editor.addActionListener(this);
         editor.setActionCommand(""+EDITOR_CMD);
         
         //JButton
-        attachButtonListener(view.getPlay(), PLAY_CMD);
-        attachButtonListener(view.getPause(), PAUSE_CMD);
-        attachButtonListener(view.getStop(), STOP_CMD);
+        attachButtonListener(view.play, PLAY_CMD);
+        attachButtonListener(view.pause, PAUSE_CMD);
+        attachButtonListener(view.stop, STOP_CMD);
         
         //JComboBox
-        JComboBox box = view.getMovieType();
+        JComboBox box = view.movieType;
         box.setActionCommand(""+MOVIE_TYPE_CMD); 
         box.addActionListener(this);
         
         //JSpinner
-        view.getFPS().addChangeListener(this);
+        view.fps.addChangeListener(this);
     }
     
     /** Attach listener and setActionCommand to a JButton.*/
@@ -133,9 +133,8 @@ class ControlsPaneMng
     /** Handle events fired by JButtons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = -1;
         try {
-            index = Integer.parseInt(e.getActionCommand());
+            int index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case PLAY_CMD:
                     handlePlay(); break;
@@ -146,19 +145,20 @@ class ControlsPaneMng
                 case EDITOR_CMD:
                     editorActionHandler(); break; 
                 case MOVIE_TYPE_CMD:
-                    JComboBox box = (JComboBox) e.getSource();
-                    playerUIMng.setMovieType(box.getSelectedIndex()); break;
+                    playerUIMng.setMovieType(
+                            ((JComboBox) e.getSource()).getSelectedIndex()); 
+                    break;
             }
         } catch(NumberFormatException nfe) { 
-            throw new Error("Invalid Action ID "+index, nfe); 
+            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe); 
         } 
     }
     
     /** Handle events fired by the spinner. */
     public void stateChanged(ChangeEvent e)
     {
-        int v = ((Integer) view.getFPS().getValue()).intValue();
-        view.getEditor().setText(""+v);
+        int v = ((Integer) view.fps.getValue()).intValue();
+        view.editor.setText(""+v);
         if (v != curRate) synchSpinner(v);
     }
     
@@ -170,8 +170,8 @@ class ControlsPaneMng
      */
     public void focusLost(FocusEvent e)
     {
-        String edit = view.getEditor().getText(), ed = ""+curRate;
-        if (edit == null || !edit.equals(ed)) view.getEditor().setText(ed);
+        String edit = view.editor.getText(), ed = ""+curRate;
+        if (edit == null || !edit.equals(ed)) view.editor.setText(ed);
     }
     
     /** 
@@ -182,19 +182,19 @@ class ControlsPaneMng
 
     private void handlePlay()
     {
-        view.getPlay().setBorderPainted(true);
+        view.play.setBorderPainted(true);
         playerUIMng.play();
     }
     
     private void handlePause()
     {
-        view.getPlay().setBorderPainted(false);
+        view.play.setBorderPainted(false);
         playerUIMng.pause(); 
     }
     
     private void handleStop()
     {
-        view.getPlay().setBorderPainted(false);
+        view.play.setBorderPainted(false);
         playerUIMng.stop();
     }
     
@@ -207,8 +207,8 @@ class ControlsPaneMng
     private void synchSpinner(int val)
     { 
         curRate = val;
-        view.getFPS().setValue(new Integer(val));  
-        view.getEditor().setText(""+val);
+        view.fps.setValue(new Integer(val));  
+        view.editor.setText(""+val);
         playerUIMng.setTimerDelay(curRate); 
     } 
     
@@ -226,7 +226,7 @@ class ControlsPaneMng
         boolean valid = false;
         int val = Player.FPS_MIN;
         try {
-            val = Integer.parseInt(view.getEditor().getText());
+            val = Integer.parseInt(view.editor.getText());
             if (Player.FPS_MIN <= val && val <= maxValue) {
                 valid = true;
             } else if (val < Player.FPS_MIN) {
@@ -239,10 +239,11 @@ class ControlsPaneMng
         } catch(NumberFormatException nfe) {}
         if (valid) synchSpinner(val);  
         else {
-            view.getEditor().selectAll();
+            view.editor.selectAll();
             UserNotifier un = registry.getUserNotifier();
             un.notifyInfo("Invalid value", "Please enter a value " +
                     "between "+Player.FPS_MIN+" and "+maxValue);
         }
     } 
+    
 }

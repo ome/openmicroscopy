@@ -79,19 +79,18 @@ public class ControlsPane
     private static final String[]   selections;
     
     /** Movie controls. */
-    private JButton                 play, stop, pause;
+    JButton                         play, stop, pause;
     
     /** Allows user t specify the movie playback rate in frames per second. */
-    private JSpinner                fps;
+    JSpinner                        fps;
 
     /** To define new editor for JSpinner (due to JSpinner bug). */
-    private JTextField              editor;
+    JTextField                      editor;
     
+    JComboBox                       movieType;
     /** Border of the pressed button. */
     private Border                  pressedBorder;
-    
-    private JComboBox               movieType;
-    
+
     private ControlsPaneMng         manager;
     
     static {
@@ -118,18 +117,6 @@ public class ControlsPane
     }
     
     ControlsPaneMng getManager() { return manager; }
-    
-    JSpinner getFPS() { return fps; }
-
-    JTextField getEditor() { return editor; }
-    
-    JButton getPlay() { return play; }
-    
-    JButton getStop() { return stop; }
-    
-    JButton getPause() { return pause; }
-    
-    JComboBox getMovieType() { return movieType; }
     
     /** Initialize the GUI components. */
     private void initComponents(Registry registry, int max, int init, 
