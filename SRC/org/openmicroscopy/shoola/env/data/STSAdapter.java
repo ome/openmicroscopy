@@ -427,7 +427,7 @@ class STSAdapter
     public List retrieveCategoryGroups()
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria();
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1);
         List l = 
             (List) gateway.retrieveListSTSData("CategoryGroup", c);
         List result = new ArrayList();
@@ -469,12 +469,28 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInGroup(int groupID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(groupID);
+        CategoryGroup group = 
+            (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+        if (group != null) {
+            UserCredentials uc = (UserCredentials)
+                registry.lookup(LookupNames.USER_CREDENTIALS);
+            CategoryGroupData data = 
+                CategoryMapper.fillCategoryGroup(group, uc.getUserID());
+            if (data != null) return retrieveImagesNotInGroup(data);
+        }
+        return new ArrayList();
+    }
+
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
         //List of categorySummary objects
         List result = new ArrayList();
-        System.out.println(group.getID());
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
                         group.getID());
         List l = (List) gateway.retrieveListSTSData("Category", c);

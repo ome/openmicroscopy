@@ -321,6 +321,7 @@ public interface SemanticTypesService
      * 
      * @param group specified {@link CategoryGroupData}.
      * @return list of {@link CategorySummary}s.
+     * 
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
@@ -331,54 +332,98 @@ public interface SemanticTypesService
     /** 
      * Retrieve a list of images not contained in the specified group.
      * 
-     * @param group specified {@link CategoryGroupData}.
-     * @return list of {@link ImageSummary}s.
+     * @param group     specified {@link CategoryGroupData}.
      * 
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @return list of {@link ImageSummary}s not contained in the 
+     *          specified group.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public List retrieveImagesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException;
 
+    public List retrieveImagesNotInGroup(int groupID)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Retrieve the category.
+     * Retrieve the information about the specified category.
+     * Build the corresponding {@link CategoryData} object.
+     * 
+     * @param id of the specified category. 
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public CategoryData retrieveCategory(int id)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Retrieve the category.
+     * Retrieve the {@link CategoryData} object corresponding
+     * to the specified category. In that case, each {@link ImageSummary}
+     * corresponding to an image within the category is linked to an 
+     * {@link AnnotationData annotation}.
+     * 
+     * @param id of the specified category. 
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public CategoryData retrieveCategoryWithIAnnotations(int id)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Create a new category group.s
+     * Create a new CategoryGroup.
+     * 
+     * @param data  {@link CategoryGroupData} object. 
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public void createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException; 
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Create a new category group.s
+     * Create a new Category.
+     * 
+     * @param data  {@link CategoryData} object. 
+     * @param images List of images to classify.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public void createCategory(CategoryData data, List images)
         throws DSOutOfServiceException, DSAccessException; 
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Create a new category group.s
+     * Update an existing CategoryGroup.
+     * 
+     * @param data  {@link CategoryGroupData} object. 
+     * @param categoriesToAdd List of categories to add.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public void updateCategoryGroup(CategoryGroupData data, 
                                     List categoriesToAdd)
         throws DSOutOfServiceException, DSAccessException; 
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Create a new category group.s
+     * Update an existing Category.
+     * 
+     * @param data  {@link CategoryData} object. 
+     * @param imgsToRemove List of images to declassify.
+     * @param imgsToAdd List of images to classify.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public void updateCategory(CategoryData data, List imgsToRemove, 
                                 List imgsToAdd)
