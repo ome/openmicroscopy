@@ -112,7 +112,7 @@ This template is handles a section element
 						<tr>
 							<td width="100%" height="90%" valign="top">
 								<!-- Navigation links. -->
-								<table width="100%" height="5%" border="0">
+								<table width="100%" height="20" border="0">
 									<tr>
 										<td class="navigation" valing="middle">
 											<a name="{@name}"/>
