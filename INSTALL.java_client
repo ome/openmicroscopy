@@ -20,6 +20,7 @@ After doing this, your directory should contain:
 * A "config" directory.
 * A "lib" directory.
 * A "shoola.jar" file.
+* A startup script for Windows, Unix and MacOS X
 
 Locate the "container.xml" file within the "config" directory and edit this
 file to specify the URL to the OME Data Server (OMEDS).  All you have to do
@@ -36,17 +37,6 @@ the actual OMEDS URL in use at your site.
 ____________________
 Running The Software
 
-Double-click on the "shoola.jar" file within the installation directory.
-A splash screen will pop up.  Enter your OME user name and password, then
-press the log in button.  Enjoy OME!
-
-* NOTE: On several platforms the JRE install bundle configures the operating
-system so that ".jar" files are automatically executed following a mouse action
-on the file within the desktop environment.  However, you might not have such
-bindings in place.  In this case, you will have to open a terminal window and
-move into the installation directory.  Then issue the following command:
-
-	java -jar shoola.jar
- 
-
-
+Double-click on the startup script (for example "shoola_windows.bat") file
+within the installation directory.  A splash screen will pop up.  Enter your
+OME user name and password, then press the log in button.  Enjoy OME!
