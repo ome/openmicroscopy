@@ -68,12 +68,24 @@ public class IconManager
 	
 	/** ID of the warning icon. */
 	public static final int     WARNING = 3;
-		
+
+	/** ID of the help icon. */
+	public static final int		HELP = 4;
+	
+	/** ID of the connect to DS icon. */
+	public static final int		CONNECT_DS = 5;
+	
+	/** ID of the connect to IS icon. */
+	public static final int		CONNECT_IS = 6;
+	
+	/** ID of the exit icon. */
+	public static final int		EXIT = 7;
+				
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 4;
+	private static int          MAX_ID = 7;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -84,6 +96,10 @@ public class IconManager
 		relPaths[INFO] = "information16.png";
 		relPaths[ERROR] = "information16.png"; 
 		relPaths[WARNING] = "information16.png";
+		relPaths[HELP] = "information16.png";
+		relPaths[CONNECT_DS] = "information16.png";
+		relPaths[CONNECT_IS] = "information16.png";
+		relPaths[EXIT] = "information16.png";
 	}
 	
 	/**
@@ -122,7 +138,8 @@ public class IconManager
 		icons = new Icon[MAX_ID+1];
 	}
 
-	/** Retrieves the icon specified by the icon <code>ID</code>.
+	/** 
+	 * Retrieves the icon specified by the icon <code>ID</code>.
 	 *
 	 * @param   ID    Must be one of the IDs defined by this class.
 	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.
