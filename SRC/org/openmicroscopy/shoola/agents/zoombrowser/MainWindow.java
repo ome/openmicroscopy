@@ -41,6 +41,7 @@ import javax.swing.JSplitPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ModuleLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.ProjectSelectionCanvas;
@@ -105,6 +106,7 @@ public class MainWindow
 		
 		final DatasetLoader dl = new DatasetLoader(dataManager,browser,group);
 		final ProjectLoader pl = new ProjectLoader(dataManager,v,group);
+		final ModuleLoader ml = new ModuleLoader(dataManager,group);
 		group.setAllLoadersAdded();
 		
 		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,v,browser);
