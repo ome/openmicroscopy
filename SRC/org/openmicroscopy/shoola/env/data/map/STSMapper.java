@@ -304,4 +304,58 @@ public class STSMapper
 	    return c;
 	}
    	
+	public static Criteria buildTrajectoryCriteriaWithMEXs(List mexes)
+	{
+	    if (mexes == null || mexes.size() == 0) return null;
+	    Criteria c = new Criteria();
+
+	    // all non-references; has-ones with just ID's; no has-manys
+	    c.addWantedField("id");
+	    c.addWantedField("Name");
+	    c.addWantedField("TotalDistance");
+	    c.addWantedField("AverageVelocity");
+	    c.addWantedField("TrajectoryEntries");
+	    
+	    c.addWantedField("TrajectoryEntries","Order");
+	    c.addWantedField("TrajectoryEntries","DeltaX");
+	    c.addWantedField("TrajectoryEntries","DeltaY");
+	    c.addWantedField("TrajectoryEntries","DeltaZ");
+	    c.addWantedField("TrajectoryEntries","Distance");
+	    c.addWantedField("TrajectoryEntries","Velocity");
+	    
+	    // how to get features?
+		   
+		c.addFilter("module_execution_id", "IN", mexes);
+	    return c;
+	}
+	
+	public static Criteria buildTrajectoryEntryCriteriaWithMEXs(List mexes)
+	{
+	    if (mexes == null || mexes.size() == 0) return null;
+	    Criteria c = new Criteria();
+
+	    // all non-references; has-ones with just ID's; no has-manys
+	    c.addWantedField("id");
+	    
+	    c.addWantedField("Order");
+	    c.addWantedField("DeltaX");
+	    c.addWantedField("DeltaY");
+	    c.addWantedField("DeltaZ");
+	    c.addWantedField("Distance");
+	    c.addWantedField("Velocity");
+	    c.addWantedField("Trajectory");
+	    c.addWantedField("feature");
+	    
+	    c.addWantedField("Trajectory","id");
+	    c.addWantedField("Trajectory","Name");
+	    c.addWantedField("Trajectory","TotalDistance");
+	    c.addWantedField("Trajectory","AverageVelocity");
+	    c.addWantedField("feature","id");
+	    c.addWantedField("feature","image");
+	    c.addWantedField("feature.image","id");
+	    // how to get features?
+		   
+		c.addFilter("module_execution_id", "IN", mexes);
+	    return c;
+	}
 }
