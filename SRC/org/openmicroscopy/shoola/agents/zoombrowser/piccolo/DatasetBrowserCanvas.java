@@ -57,7 +57,8 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
+import org.openmicroscopy.shoola.agents.zoombrowser.ui.MainWindow;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -144,9 +145,12 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	
 	private int width,height;
 	
-	public DatasetBrowserCanvas(MainWindow mainWindow) {
+	private Registry registry;
+	
+	public DatasetBrowserCanvas(MainWindow mainWindow,Registry registry) {
 		super();
 		this.mainWindow = mainWindow;
+		this.registry = registry;
 		layer = getLayer();
 		
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
@@ -471,7 +475,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public void layoutContents() {
 		
-		eventHandler = new DatasetBrowserEventHandler(this);
+		eventHandler = new DatasetBrowserEventHandler(this,registry);
 		// layout treemaps
 		arrangeDisplay(allDatasets);
 		doLayout(allDatasets);
