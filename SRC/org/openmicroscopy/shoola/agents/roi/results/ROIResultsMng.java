@@ -32,16 +32,17 @@ package org.openmicroscopy.shoola.agents.roi.results;
 //Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Iterator;
-import java.util.List;
 
-import org.openmicroscopy.shoola.agents.roi.results.pane.ResultsPerROIPane;
-
+import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
+import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
+import org.openmicroscopy.shoola.agents.roi.results.pane.ResultsPerROIPane;
+import org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPane;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * 
@@ -62,22 +63,24 @@ public class ROIResultsMng
     
     private ROIResults          view;
     
-    private int                 algorithmIndex;
+    private ROIAgtCtrl          control;
     
-    public ROIResultsMng(ROIResults view)
+    public ROIResultsMng(ROIResults view, ROIAgtCtrl control)
     {
         this.view = view;
+        this.control = control;
         attachListeners();
     }
 
-    public void setAlgorithmIndex(int index) 
+    public Registry getRegistry() { return control.getRegistry(); }
+    
+    public ROIAgtUIF getReferenceFrame() { return control.getReferenceFrame(); }
+    
+    public int getAnalyzedChannel(int index)
     {
-        algorithmIndex = index;
-        //MUST BE ONE OF THE INDEX DEFINED IN ROIAgtUIF
+        return control.getAnalyzedChannel(index);
     }
-    
-    public String[] getChannels() { return null; }
-    
+   
     /** Handle the close event. */
     public void handleClose()
     {
@@ -85,10 +88,16 @@ public class ROIResultsMng
         view.dispose();
     }
     
-    public void channelSelectedForROI(int viewIndex, int channelIndex)
+    public void showResultsForROI(int viewIndex, int index)
     {
         ResultsPerROIPane 
             roiPane = (ResultsPerROIPane) view.roiPaneList.get(viewIndex);
+        JComponent c = roiPane.getComponent();
+        if (c instanceof StatsResultsPane) {
+            ((StatsResultsPane) c).showResultsForChannel(
+                        control.getAnalyzedChannel(index));
+        }
+        //roiPane.showResultsForChannel(control.getAnalyzedChannel(index));
         // retrieve data according channelIndex and algoIndex
     }
     
@@ -99,7 +108,5 @@ public class ROIResultsMng
             public void windowClosing(WindowEvent we) { handleClose(); }
         });
     }
-    
-    
-    
+ 
 }
