@@ -19,6 +19,10 @@
          directory. -->
          <config>dm.xml</config>
        </agent>
+	  <agent>
+		<name>Browser</name>
+		<class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class>
+	  </agent>
      </structuredEntry>
    </agents>
    <resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agent name="Browser">
+  <resources>
+	<iconFactories>
+	  <!-- nothing in here yet, because I haven't specified it. -->
+	</iconFactories>
+	<fonts>
+	  <!-- nothing in here yet, because I also haven't specified it. -->
+	</fonts>
+  </resources>
+</agent>
