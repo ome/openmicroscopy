@@ -249,6 +249,7 @@
            deprecation="${deprecation}"
            debug="${debug}"
            debuglevel="${debuglevel}">
+      <exclude name="**/spots/**/*.java" unless="j3d"/>
       <classpath>
         <fileset dir="${lib}" includes="**/*.jar"/>
       </classpath>
