@@ -69,7 +69,7 @@ public class LongRangeSlider extends JComponent implements MouseListener,
 	 */
 	public LongRangeSlider(BoundedLongRangeModel model) {
 		this.model = model;
-		model.addChangeListener(this);
+		model.addListener(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}

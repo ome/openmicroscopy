@@ -100,7 +100,7 @@ public class ExecutionsModel {
 		if (gm == null) {
 			gm = new GridModel(this,model.getMinimum(),model.getMaximum(),
 					getLastRowIndex());
-			model.addChangeListener(gm);
+			model.addListener(gm);
 		}
 		return gm;
 	}
@@ -201,7 +201,7 @@ public class ExecutionsModel {
 
 	
 	public void addChangeListener(ChangeListener listener) {
-		model.addChangeListener(listener);
+		model.addListener(listener);
 	}
 	
 	public boolean isInRange(long time) {

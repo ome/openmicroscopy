@@ -56,7 +56,7 @@ import javax.swing.event.EventListenerList;
 
 public class BoundedLongRangeModel {
 	
-    private EventListenerList listenerList = new EventListenerList();
+    private EventListenerList listeners = new EventListenerList();
 
     private transient ChangeEvent changeEvent = null;
 
@@ -163,25 +163,20 @@ public class BoundedLongRangeModel {
     }
 
 
-    public void addChangeListener(ChangeListener l) {
-        listenerList.add(ChangeListener.class, l);
+    public void addListener(ChangeListener l) {
+        listeners.add(ChangeListener.class, l);
     }
     
 
-    public void removeChangeListener(ChangeListener l) {
-        listenerList.remove(ChangeListener.class, l);
-    }
-
-
     private void fireChange() 
     {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -=2 ) {
-            if (listeners[i] == ChangeListener.class) {
+        Object[] targets = listeners.getListenerList();
+        for (int i = targets.length - 2; i >= 0; i -=2 ) {
+            if (targets[i] == ChangeListener.class) {
                 if (changeEvent == null) {
                     changeEvent = new ChangeEvent(this);
                 }
-                ((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
+                ((ChangeListener)targets[i+1]).stateChanged(changeEvent);
             }          
         }
     }   
