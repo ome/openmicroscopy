@@ -81,7 +81,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 
 public abstract class FormalParameter extends PNode implements 
-	NodeEventListener, Comparable, MouseableNode {
+	NodeEventListener, Comparable, MouseableNode, ParameterLabelNode {
 	
 	/**
 	 * Some generic display parameters
@@ -521,5 +521,9 @@ public abstract class FormalParameter extends PNode implements
 		int myID = mySt.getID();
 		int otherID = otherSt.getID();
 		return (myID==otherID);
+	}
+	
+	public void setOffset(float x,float y) {
+		super.setOffset((double) x,(double) y);
 	}
 }
