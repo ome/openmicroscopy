@@ -46,6 +46,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
 
@@ -144,18 +145,19 @@ public class PaletteModuleView extends SingleModuleView {
 		return link;
 	}
 	
-	public void mousePopup(GenericEventHandler handler) {
-		PaletteChainView view = getChainViewParent();
-		((ChainPaletteEventHandler) handler).animateToNode(view);
-		((ChainPaletteEventHandler) handler).setLastEntered(view);
+	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
+		ChainBox cb = getChainBoxParent();
+		if (cb != null)
+			cb.mousePopup(handler,e);
 	}
 	
-	public void mouseClicked(GenericEventHandler handler) {
-		((ChainPaletteEventHandler) handler).animateToBounds(getZoomInBounds());
-		((ChainPaletteEventHandler) handler).setLastEntered(this);
+	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
+		ChainBox cb = getChainBoxParent();
+		if (cb != null)
+			cb.mouseClicked(handler,e);
 	}
 	
-	public void mouseEntered(GenericEventHandler handler) {
+	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		setAllHighlights(true);
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
 	}
