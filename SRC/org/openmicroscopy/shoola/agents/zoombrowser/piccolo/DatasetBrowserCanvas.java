@@ -327,8 +327,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		
 		eventHandler = new DatasetBrowserEventHandler(this,registry);
 		// layout treemaps
-	//	arrangeDisplay(allDatasets);
-		doLayout(allDatasets);
+		if (allDatasets.size() > 0)
+			doLayout(allDatasets);
 	}
 	
 	public void completeInitialization() {
