@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-                xmlns:redirect="org.apache.xalan.lib.Redirect" 
-                version="1.0" extension-element-prefixes="redirect">
+                version="1.0"
+                xmlns:redirect="xalan://org.apache.xalan.lib.Redirect"
+                extension-element-prefixes="redirect">
 
 <xsl:output method="html" indent="yes" doctype-public="--//W3C//DTD HTML 4.01 Transitional//EN"/>
 
