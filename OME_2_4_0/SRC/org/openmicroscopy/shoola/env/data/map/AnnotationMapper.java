@@ -160,6 +160,7 @@ public class AnnotationMapper
         }
         return map;
     }
+    
     /** Fill in the corresponding Annotation object. */
     public static void fillImageAnnotations(List l, Map map)
     {
@@ -179,7 +180,55 @@ public class AnnotationMapper
         Object[] results = getImageAnnotation(annotation);
         return (AnnotationData) results[0];
     }
+
+    /** 
+     * Given a list of {@link DatasetAnnotation}, 
+     * fill the corresponding map. 
+     */
+    public static void fillDatasetAnnotations(List l, Map map)
+    {
+        Iterator i = l.iterator();
+        List list;
+        Object[] results;
+        while (i.hasNext()) {
+            results = getDatasetAnnotation((DatasetAnnotation) i.next());
+            list = new ArrayList();
+            list.add(results[0]);
+            map.put(results[1], list);
+        }
+    }
     
+    public static AnnotationData fillDatasetAnnotation(DatasetAnnotation 
+                                                        annotation)
+    {
+        Object[] results = getDatasetAnnotation(annotation);
+        return (AnnotationData) results[0];
+    }
+
+    /** Fill in the AnnotationData object. */
+    private static Object[] getDatasetAnnotation(DatasetAnnotation annotation)
+    {
+        Object[] results = new Object[2];
+        AnnotationData data;
+        if (annotation != null) {
+            Timestamp time = null;
+            ModuleExecution mex = annotation.getModuleExecution();
+            if (mex.getTimestamp() != null)
+                time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
+            else time = PrimitiveTypesMapper.getDefaultTimestamp();
+            Experimenter experimenter = mex.getExperimenter();
+            int ownerID = experimenter.getID();
+            data = new AnnotationData(annotation.getID(), ownerID, time);
+            data.setAnnotation(annotation.getContent());
+            data.setOwnerFirstName(experimenter.getFirstName());
+            data.setOwnerLastName(experimenter.getLastName());
+            results[0] = data;
+            results[1] = new Integer(ownerID);
+        }
+        return results;
+    }
+     
+    /** Fill in the AnnotationData object. */
     private static Object[] getImageAnnotation(ImageAnnotation annotation)
     {
         Object[] results = new Object[2];
@@ -206,51 +255,6 @@ public class AnnotationMapper
             results[0] = data;
             results[1] = new Integer(ownerID);
         }
-        return results;
-        
+        return results;  
     }
-    
-   
-    public static void fillDatasetAnnotations(List l, Map map)
-    {
-        Iterator i = l.iterator();
-        List list;
-        Object[] results;
-        while (i.hasNext()) {
-            results = getDatasetAnnotation((DatasetAnnotation) i.next());
-            list = new ArrayList();
-            list.add(results[0]);
-            map.put(results[1], list);
-        }
-    }
-    
-    public static AnnotationData fillDatasetAnnotation(DatasetAnnotation 
-                                                        annotation)
-    {
-        Object[] results = getDatasetAnnotation(annotation);
-        return (AnnotationData) results[0];
-    }
-
-    private static Object[] getDatasetAnnotation(DatasetAnnotation annotation)
-    {
-        Object[] results = new Object[2];
-        AnnotationData data;
-        if (annotation != null) {
-            Timestamp time = null;
-            ModuleExecution mex = annotation.getModuleExecution();
-            if (mex.getTimestamp() != null)
-                time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
-            else time = PrimitiveTypesMapper.getDefaultTimestamp();
-            Experimenter experimenter = mex.getExperimenter();
-            int ownerID = experimenter.getID();
-            data = new AnnotationData(annotation.getID(), ownerID, time);
-            data.setAnnotation(annotation.getContent());
-            data.setOwnerFirstName(experimenter.getFirstName());
-            data.setOwnerLastName(experimenter.getLastName());
-            results[0] = data;
-            results[1] = new Integer(ownerID);
-        }
-        return results;
-    }
-     
 }

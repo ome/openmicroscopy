@@ -128,6 +128,39 @@ public class CategoryMapper
         return c;
     }
     
+    public static Criteria buildExtendedCategoryGroupCriteria(int groupID)
+    {
+        Criteria c = buildCategoryGroupCriteria(groupID);
+        c.addWantedField("Name");
+        c.addWantedField("Description");
+        c.addWantedField("CategoryList");
+        c.addWantedField("module_execution");
+        
+        c.addWantedField("CategoryList", "Name");
+        c.addWantedField("CategoryList", "ClassificationList");
+        
+        c.addWantedField("CategoryList.ClassificationList", "Valid");
+        c.addWantedField("CategoryList.ClassificationList", "image");
+        
+        c.addWantedField("CategoryList", "module_execution");
+        c.addWantedField("CategoryList.module_execution", "experimenter");
+
+        
+        c.addWantedField("CategoryList.ClassificationList", "module_execution");
+        
+        c.addWantedField("CategoryList.ClassificationList.module_execution", 
+                            "experimenter");
+        //Specify which fields we want for the owner.
+        //group mex
+        c.addWantedField("module_execution", "experimenter");
+
+        if (groupID != -1) c.addFilter("id", new Integer(groupID));
+        return c;
+    }
+    
+    
+    
+    
     /** Build the criteria for the retrieveCategories() method. */
     public static Criteria buildCategoryWithClassificationsCriteria(int groupID)
     {
