@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorPair
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorPairFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -40,56 +40,62 @@ import java.awt.Color;
 import org.openmicroscopy.ds.st.Category;
 
 /**
- * An object that contains a classification and a specified color that
- * represents it.
+ * A class that generates colors for different categories.  Right now, this
+ * supports up to 32 different identifiable index colors; after that, it just
+ * starts picking colors at random to use.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ColorPair
+public class ColorPairFactory
 {
-    private Color color;
-    private Category category;
-    /**
-     * Create a color pair.
-     * @param classificationName The name of the classification.
-     * @param color The color bound to that classification.
-     */
-    public ColorPair(Category category, Color color)
+    private int currentIndex;
+    private final Color[] indexColors =
     {
-        if(category == null || color == null)
+        Color.red, Color.blue, Color.green, Color.yellow,
+        Color.cyan,Color.magenta,Color.orange,Color.pink,
+ 
+        new Color(0,128,255),new Color(255,0,128),
+        new Color(128,0,255),new Color(0,255,128),
+        new Color(128,255,255),new Color(255,255,128),
+        new Color(128,128,255),new Color(255,128,128),
+        
+        new Color(128,0,0),new Color(0,0,128),
+        new Color(0,128,0),new Color(128,128,0),
+        new Color(0,128,128),new Color(128,0,128),
+        new Color(128,64,0),new Color(128,64,128),
+        
+        new Color(0,64,128),new Color(128,0,64),
+        new Color(64,0,128),new Color(0,128,64),
+        new Color(64,128,128),new Color(128,128,64),
+        new Color(128,64,64),new Color(64,64,128)
+    };
+    
+    public ColorPairFactory()
+    {
+        currentIndex = 0;
+    }
+    
+    public ColorPair getColorPair(Category category)
+    {
+        if(category == null) { return null;}
+        if(currentIndex >= 31)
         {
-            throw new IllegalArgumentException("Null arguments");
+            return new ColorPair(category,pickRandomColor());
         }
-        this.color = color;
-        this.category = category;
-    }
-    
-    public Color getColor()
-    {
-        return color;
-    }
-    
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setColor(Color color)
-    {
-        if(color != null)
+        else
         {
-            this.color = color;
+            return new ColorPair(category,indexColors[currentIndex++]);
         }
     }
     
-    public void setCategory(Category category)
+    private Color pickRandomColor()
     {
-        if(category != null)
-        {
-            this.category = category;
-        }
+        int red = (int)Math.round(Math.random()*255);
+        int green = (int)Math.round(Math.random()*255);
+        int blue = (int)Math.round(Math.random()*255);
+        return new Color(red,green,blue);
     }
 }

@@ -35,8 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.SystemColor;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -72,12 +72,13 @@ public class ColorCellRenderer extends ColorBoxLabel
         else
         {
             ColorPair cp = (ColorPair)value;
-            setText(cp.getName());
+            setText(cp.getCategory().getName());
             setBoxColor(cp.getColor());
         }
         if(isSelected)
         {
-            setBackground(new Color(51,153,255));
+            setBackground(SystemColor.textHighlight);
+            setForeground(SystemColor.textHighlightText);
         }
         else
         {
@@ -85,7 +86,8 @@ public class ColorCellRenderer extends ColorBoxLabel
         }
         if(hasFocus)
         {
-            setBorder(BorderFactory.createLineBorder(Color.blue,2));
+            setBorder(BorderFactory.createLineBorder(
+                   SystemColor.activeCaptionBorder,2));
         }
         else
         {

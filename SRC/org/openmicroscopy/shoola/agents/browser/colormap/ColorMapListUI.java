@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorPair
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapListUI
  *
  *------------------------------------------------------------------------------
  *
@@ -35,61 +35,23 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
-import java.awt.Color;
+import javax.swing.JList;
+import javax.swing.JPanel;
 
-import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.CategoryGroup;
 
 /**
- * An object that contains a classification and a specified color that
- * represents it.
+ * The UI widget which contains the color list.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ColorPair
+public class ColorMapListUI extends JPanel
 {
-    private Color color;
-    private Category category;
-    /**
-     * Create a color pair.
-     * @param classificationName The name of the classification.
-     * @param color The color bound to that classification.
-     */
-    public ColorPair(Category category, Color color)
-    {
-        if(category == null || color == null)
-        {
-            throw new IllegalArgumentException("Null arguments");
-        }
-        this.color = color;
-        this.category = category;
-    }
+    private CategoryGroup categoryGroup;
+    private JList categoryListUI;
     
-    public Color getColor()
-    {
-        return color;
-    }
-    
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setColor(Color color)
-    {
-        if(color != null)
-        {
-            this.color = color;
-        }
-    }
-    
-    public void setCategory(Category category)
-    {
-        if(category != null)
-        {
-            this.category = category;
-        }
-    }
+    // TODO finish
 }

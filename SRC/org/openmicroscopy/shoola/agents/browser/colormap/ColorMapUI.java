@@ -35,7 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.FlowLayout;
+
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.openmicroscopy.ds.st.CategoryGroup;
 
 /**
  * The UI for the colormap.
@@ -46,22 +54,67 @@ import javax.swing.JInternalFrame;
  * @since OME2.2
  */
 public class ColorMapUI extends JInternalFrame
-                        implements ColorMapModelListener
+                        implements ColorMapModelListener,
+                                   ColorMapGroupListener
 {
     private ColorMapModel model;
+    private ColorMapGroupBar groupBar;
+    private ColorMapListUI listUI;
+    
+    public ColorMapUI()
+    {
+        init();
+    }
+    
+    public ColorMapUI(ColorMapModel model)
+    {
+        this.model = model;
+        init();
+        groupBar.setCategoryTree(model.getTree());
+    }
+    
+    public void init()
+    {
+        groupBar = new ColorMapGroupBar();
+        groupBar.addListener(this);
+    }
+    
+    public void reset()
+    {
+        // TODO perform reset operation here
+    }
     
     /**
      * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModelListener#modelChanged(org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModel)
      */
     public void modelChanged(ColorMapModel model)
     {
-        this.model = model;
-        
+        // TODO Auto-generated method stub
+
     }
     
-    public void reset()
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupSelected(org.openmicroscopy.ds.st.CategoryGroup)
+     */
+    public void groupSelected(CategoryGroup group)
     {
-        // TODO perform reset operation here
+        // TODO change List UI
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener#groupsDeselected()
+     */
+    public void groupsDeselected()
+    {
+        // TODO change List UI
+    }
+    
+    private void buildUI()
+    {
+        Container container = getContentPane();
+        
+        container.setLayout(new BorderLayout(2,2));
+        container.add(groupBar,BorderLayout.NORTH);
     }
 
 }

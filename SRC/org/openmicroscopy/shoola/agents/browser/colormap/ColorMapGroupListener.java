@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorPair
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapGroupListener
  *
  *------------------------------------------------------------------------------
  *
@@ -35,61 +35,19 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
-import java.awt.Color;
-
-import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.ds.st.CategoryGroup;
 
 /**
- * An object that contains a classification and a specified color that
- * represents it.
+ * Specifies a listener for changing category groups.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ColorPair
+public interface ColorMapGroupListener
 {
-    private Color color;
-    private Category category;
-    /**
-     * Create a color pair.
-     * @param classificationName The name of the classification.
-     * @param color The color bound to that classification.
-     */
-    public ColorPair(Category category, Color color)
-    {
-        if(category == null || color == null)
-        {
-            throw new IllegalArgumentException("Null arguments");
-        }
-        this.color = color;
-        this.category = category;
-    }
+    public void groupSelected(CategoryGroup group);
     
-    public Color getColor()
-    {
-        return color;
-    }
-    
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setColor(Color color)
-    {
-        if(color != null)
-        {
-            this.color = color;
-        }
-    }
-    
-    public void setCategory(Category category)
-    {
-        if(category != null)
-        {
-            this.category = category;
-        }
-    }
+    public void groupsDeselected();
 }

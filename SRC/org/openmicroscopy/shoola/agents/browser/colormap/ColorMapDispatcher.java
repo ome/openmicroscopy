@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.colormap.ColorPair
+ * org.openmicroscopy.shoola.agents.browser.colormap.ColorMapDispatcher
  *
  *------------------------------------------------------------------------------
  *
@@ -35,61 +35,24 @@
  */
 package org.openmicroscopy.shoola.agents.browser.colormap;
 
-import java.awt.Color;
-
-import org.openmicroscopy.ds.st.Category;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 
 /**
- * An object that contains a classification and a specified color that
- * represents it.
+ * Manages paint methods for the color map and dispatches instructions
+ * to the various components of the color map and browser.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ColorPair
+public class ColorMapDispatcher
 {
-    private Color color;
-    private Category category;
-    /**
-     * Create a color pair.
-     * @param classificationName The name of the classification.
-     * @param color The color bound to that classification.
-     */
-    public ColorPair(Category category, Color color)
-    {
-        if(category == null || color == null)
-        {
-            throw new IllegalArgumentException("Null arguments");
-        }
-        this.color = color;
-        this.category = category;
-    }
+    private ColorMapModel model;
+    private PaintMethod currentMethod = null;
     
-    public Color getColor()
+    public ColorMapDispatcher(ColorMapModel model)
     {
-        return color;
-    }
-    
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setColor(Color color)
-    {
-        if(color != null)
-        {
-            this.color = color;
-        }
-    }
-    
-    public void setCategory(Category category)
-    {
-        if(category != null)
-        {
-            this.category = category;
-        }
+        this.model = model;
     }
 }
