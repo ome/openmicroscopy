@@ -39,6 +39,7 @@
 package org.openmicroscopy.shoola.util.ui.piccolo;
 
 //Java imports
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.awt.Graphics2D;
@@ -70,25 +71,16 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 
 	
 	private Color colors[]=Constants.BORDER_COLORS;
+	private static final int RECT_COUNT=5;
+	private static final double SCALE_MULTIPLIER=2;
+	private static final double SCALE_THRESHOLD=1;
+	private static final double STROKE_MAX=75;
 
 	private double area = 0.0;
 	private PText label = null;
 	
-	private double x;
-	private double y;
-	private double w;
-	private double h;
-	
-	
-	
-	private Rectangle2D rects[] = {
-			new Rectangle2D.Double(),
-			new Rectangle2D.Double(),
-			new Rectangle2D.Double(),
-			new Rectangle2D.Double(),
-			new Rectangle2D.Double(),
-	};
-	
+	private Rectangle2D rect = new Rectangle2D.Double();
+		
 	public GenericBox() {
 		this(0,0,0,0);
 	}
@@ -99,10 +91,6 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	
 	public GenericBox(float x,float y,float w,float h) {
 		super();
-		this.x=x;
-		this.y=y;
-		this.w=w;
-		this.h=h;
 		setBounds(x,y,w,h);
 	}
 	
@@ -131,43 +119,47 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	 * @param height the new height
 	 */
 	public void setExtent(double width,double height) {
-		this.w =  width;
-		this.h = height;
-		setBounds(x,y,w,h);
+		PBounds b = getBounds();
+		setBounds(b.getX(),b.getY(),width,height);
 	}
-	
-	public boolean setBounds(double x,double y,double w,double h) {
-		double halfStroke = Constants.STROKE_WIDTH/2;
-		double rX = x+halfStroke;
-		double rY=y+halfStroke;
-		double rW =w-Constants.STROKE_WIDTH;
-		double rH =h-Constants.STROKE_WIDTH;
-		for (int i = 0; i <rects.length; i++) {
-			rects[i].setFrame(rX,rY,rW,rH);
-			rX +=Constants.STROKE_WIDTH;
-			rY+=Constants.STROKE_WIDTH;
-			rW-=2*Constants.STROKE_WIDTH;
-			rH-=2*Constants.STROKE_WIDTH;
-			
-		}		
 		
-		return super.setBounds(x,y,w,h);
-	}
-	
 	public void paint(PPaintContext aPaintContext) {
 		Graphics2D g = (Graphics2D) aPaintContext.getGraphics();
 		
 		g.setStroke(Constants.BORDER_STROKE);
-		for (int i = 0; i < rects.length;  i++) {
-			g.setPaint(colors[i]);
-			g.draw(rects[i]);
-		}
-		
-		if (getPaint() != null) {
-			g.setPaint(getPaint());
-			g.fill(rects[rects.length-1]);
-		}
+		double scale = aPaintContext.getScale();
+		drawRects(g,scale);
 	}
+	
+	private void drawRects(Graphics2D g,double scale) {
+		PBounds b = getBounds();
+		
+		
+		double strokeWidth = Constants.STROKE_WIDTH;
+		if (scale < SCALE_THRESHOLD) 
+			strokeWidth = strokeWidth/(SCALE_MULTIPLIER*scale);
+	
+		if (strokeWidth > STROKE_MAX)
+			strokeWidth = STROKE_MAX;
+		
+		double halfStroke = strokeWidth/2;
+		double rX = b.getX()+halfStroke;
+		double rY=b.getY()+halfStroke;
+		double rW =b.getWidth()-strokeWidth;
+		double rH =b.getHeight()-strokeWidth;
+	
+		for (int i = 0; i <RECT_COUNT; i++) {
+			g.setPaint(colors[i]);
+			rect.setFrame(rX,rY,rW,rH);
+			g.setStroke(new BasicStroke((int) strokeWidth));
+			g.draw(rect);
+			rX +=strokeWidth;
+			rY+=strokeWidth;
+			rW-=2*strokeWidth;
+			rH-=2*strokeWidth;	
+		}		
+	}
+	
 	
 	/**
 	 * Add a node containing a textual label
@@ -189,7 +181,8 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	public int compareTo(Object o) {
 		if (o instanceof SortableBufferedObject) {
 			SortableBufferedObject node = (SortableBufferedObject) o;
-			double myArea = h*w;
+			PBounds b = getFullBoundsReference();
+			double myArea = b.getHeight()*b.getWidth();
 			PBounds bounds = node.getBufferedBounds();
 			double nodeArea = bounds.getHeight()*bounds.getWidth();
 			int res =(int) (myArea-nodeArea);
