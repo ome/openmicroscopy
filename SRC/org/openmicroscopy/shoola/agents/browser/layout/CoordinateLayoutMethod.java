@@ -39,6 +39,7 @@
 package org.openmicroscopy.shoola.agents.browser.layout;
 
 import java.awt.geom.Point2D;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,6 +94,27 @@ public class CoordinateLayoutMethod implements LayoutMethod
       positionMap.put(t,point);
     }
   }
+  
+  /**
+   * Returns the coordinates of each specified thumbnail.  If a thumbnail does
+   * not have a coordinate, it will not be included in the map.
+   * 
+   * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoints(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+   */
+  public Map getAnchorPoints(Thumbnail[] ts)
+  {
+    Map returnMap = new HashMap();
+    for(int i=0;i<ts.length;i++)
+    {
+      Point2D point = (Point2D)positionMap.get(ts[i]);
+      if(point != null)
+      {
+        returnMap.put(ts[i],point);
+      }
+    }
+    return Collections.unmodifiableMap(returnMap);
+  }
+
   
   /**
    * Removes the thumbnail from the method and unloads its coordinate.

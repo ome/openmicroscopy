@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod
+ * org.openmicroscopy.shoola.agents.browser.layout.AbstractOrderedLayoutMethod
  *
  *------------------------------------------------------------------------------
  *
@@ -38,37 +38,53 @@
  */
 package org.openmicroscopy.shoola.agents.browser.layout;
 
-import java.awt.geom.Point2D;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
- * Interface for a method that lays out thumbnails.
- * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since 2.2
  */
-public interface LayoutMethod
+public abstract class AbstractOrderedLayoutMethod implements LayoutMethod
 {
   /**
-   * Returns the position of the thumbnail in its relative container.  This
-   * is appropriate if the layout method maintains some model state.
-   * 
-   * @param t The thumbnail for which to determine the position.
-   * @return The assigned position of the thumbnail.
+   * The comparator that orders the thumbnails.
    */
-  public Point2D getAnchorPoint(Thumbnail t);
+  protected LayoutComparator comparator;
   
   /**
-   * Returns a map with the thumbnail keys mapped to their specified
-   * positions.  This is good if the layout method has no state, and the
-   * layout is computed at runtime.
-   * 
-   * @param ts The array of thumbnails to place.
-   * @return A map mapping the thumbnails to their specified locations.
+   * Returns the ordered list of thumbnails based on the comparator.
+   * @param ts The thumbnails to order.
+   * @return Those same thumbnails, placed in layout order.
    */
-  public Map getAnchorPoints(Thumbnail[] ts);
+  protected List getThumbnailOrder(Thumbnail[] ts)
+  {
+    if(comparator == null)
+    {
+      return Arrays.asList(ts);
+    }
+    else
+    {
+      List thumbnailList = Arrays.asList(ts);
+      Collections.sort(thumbnailList,comparator);
+      return thumbnailList;
+    }
+  }
+  
+  /**
+   * Constructs a layout method that orders thumbnails by the specified
+   * comparison criteria.
+   * 
+   * @param comparator The comparator that will order the thumbnails.
+   */
+  protected AbstractOrderedLayoutMethod(LayoutComparator comparator)
+  {
+    this.comparator = comparator;
+  }
+
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod
+ * org.openmicroscopy.shoola.agents.browser.layout.LayoutComparator
  *
  *------------------------------------------------------------------------------
  *
@@ -38,37 +38,43 @@
  */
 package org.openmicroscopy.shoola.agents.browser.layout;
 
-import java.awt.geom.Point2D;
-import java.util.Map;
+import java.util.Comparator;
 
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
- * Interface for a method that lays out thumbnails.
- * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
- * @since 2.2
+ * @version
+ * @since
  */
-public interface LayoutMethod
+public abstract class LayoutComparator implements Comparator
 {
   /**
-   * Returns the position of the thumbnail in its relative container.  This
-   * is appropriate if the layout method maintains some model state.
+   * overrides the Comparator method to sort thumbnails.
    * 
-   * @param t The thumbnail for which to determine the position.
-   * @return The assigned position of the thumbnail.
+   * @return see compareThumbnails.
    */
-  public Point2D getAnchorPoint(Thumbnail t);
+  public int compare(Object o1, Object o2)
+  {
+    if(o1 instanceof Thumbnail && o2 instanceof Thumbnail)
+    {
+      return compareThumbnails((Thumbnail)o1,(Thumbnail)o2);
+    }
+    else return 0;
+  }
   
   /**
-   * Returns a map with the thumbnail keys mapped to their specified
-   * positions.  This is good if the layout method has no state, and the
-   * layout is computed at runtime.
+   * Returns whether or not a thumbnail should be laid out before another
+   * thumbnail. If the first should be placed before the second, this method
+   * returns -1.  If they are placed at the same time (which hopefully will
+   * only happen if the two thumbnails are the same), this method returns 0.  If
+   * the first should be placed after the second, this method will return 1.
    * 
-   * @param ts The array of thumbnails to place.
-   * @return A map mapping the thumbnails to their specified locations.
+   * @param t1 The first thumbnail to compare.
+   * @param t2 The second thumbnail to compare.
+   * @return See above.
+   * @see java.util.Comparator#compare(java.lang.Object,java.lang.Object)
    */
-  public Map getAnchorPoints(Thumbnail[] ts);
+  public abstract int compareThumbnails(Thumbnail t1, Thumbnail t2);
 }
