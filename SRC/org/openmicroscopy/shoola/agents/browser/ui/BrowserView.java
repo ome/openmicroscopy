@@ -310,6 +310,10 @@ public class BrowserView extends PCanvas
         double width = dim.getWidth();
         double height = dim.getHeight();
         double scale = getCamera().getViewScale();
+        double viewWidth = getCamera().getViewBounds().getWidth();
+        double viewHeight = getCamera().getViewBounds().getHeight();
+        double viewCenterX = getCamera().getViewBounds().getCenterX();
+        double viewCenterY = getCamera().getViewBounds().getCenterY();
         
         double scaleX = 0;
         double scaleY = 0;
@@ -318,11 +322,19 @@ public class BrowserView extends PCanvas
         System.err.println("dim:"+width+","+height);
         if(width/zoomLevel < footprint.getWidth())
         {
-            scaleX = getCamera().getViewBounds().getCenterX();
+            scaleX = viewCenterX;
+            if((viewCenterX - (scale/zoomLevel)*viewWidth/2) < 0)
+            {
+                scaleX = 0;
+            }
         }
         if(height/zoomLevel < footprint.getHeight())
         {
-            scaleY = getCamera().getViewBounds().getCenterY();
+            scaleY = viewCenterY;
+            if((viewCenterY - (scale/zoomLevel)*viewWidth/2) < 0)
+            {
+                scaleY = 0;
+            }
         }
         System.err.println("scaleX="+scaleX+", scaleY="+scaleY);
         getCamera().scaleViewAboutPoint(zoomLevel/scale,scaleX,scaleY);

@@ -40,8 +40,13 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.beans.PropertyVetoException;
 
+import javax.swing.BoundedRangeModel;
+import javax.swing.Box;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -123,11 +128,113 @@ public class BrowserInternalFrame extends JInternalFrame
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
         
-        JScrollPane scrollPane = new JScrollPane();
-        JScrollBar horizontalBar = new JScrollBar();
+        final JScrollBar horizontalBar =
+            new JScrollBar(JScrollBar.HORIZONTAL);
+            
+        final JScrollBar verticalBar =
+            new JScrollBar(JScrollBar.VERTICAL);
         
+        embeddedView.getViewCamera().addCameraListener(new CameraListener()
+        {
+            /* (non-Javadoc)
+             * @see org.openmicroscopy.shoola.agents.browser.ui.CameraListener#cameraBoundsChanged(double, double, double, double, double, double)
+             */
+            public void cameraBoundsChanged(double valueX, double valueY,
+                                            double extentX, double extentY,
+                                            double width, double height)
+            {
+                int iX = (int)Math.round(valueX);
+                int iY = (int)Math.round(valueY);
+                int iEX = (int)Math.round(extentX);
+                int iEY = (int)Math.round(extentY);
+                int iW = (int)Math.round(width);
+                int iH = (int)Math.round(height);
+                
+                
+                System.err.println("bounds: ["+iX+","+iY+","+iEX+","
+                                             +iEY+","+iW+","+iH+"]");
+                
+                BoundedRangeModel horizModel = horizontalBar.getModel();
+                BoundedRangeModel vertModel = verticalBar.getModel();
+                
+                if(iEX+iX > iW) horizontalBar.setEnabled(false);
+                else
+                {
+                    horizontalBar.setEnabled(true);
+                    if(iW != horizModel.getMaximum() ||
+                       iEX != horizModel.getExtent())
+                    {
+                        BoundedRangeModel hModel =
+                            new DefaultBoundedRangeModel(iX,iEX,0,iW);
+                        horizontalBar.setModel(hModel);
+                    }
+                    else
+                    {
+                        horizModel.setValue(iX);
+                    }
+                }
+                
+                if(iEY+iY > iH) verticalBar.setEnabled(false);
+                else
+                {
+                    verticalBar.setEnabled(true);
+                    if(iH != vertModel.getMaximum() ||
+                       iEY != vertModel.getExtent())
+                    {
+                        BoundedRangeModel vModel =
+                            new DefaultBoundedRangeModel(iY,iEY,0,iH);
+                        verticalBar.setModel(vModel);
+                    }
+                    else
+                    {
+                        horizModel.setValue(iY);
+                    }
+                }
+
+            }
+        });
+
+        horizontalBar.setEnabled(false);
+        horizontalBar.setModel(new DefaultBoundedRangeModel(0,0,0,0));
+        horizontalBar.addAdjustmentListener(new AdjustmentListener()
+        {
+            public void adjustmentValueChanged(AdjustmentEvent e)
+            {
+                int value = e.getValue();
+                embeddedView.getViewCamera().setX(value);
+            }
+
+        });
         
-        container.add(embeddedView,BorderLayout.CENTER);
+        verticalBar.setEnabled(false);
+        verticalBar.setModel(new DefaultBoundedRangeModel(0,0,0,0));
+        verticalBar.addAdjustmentListener(new AdjustmentListener()
+        {
+            public void adjustmentValueChanged(AdjustmentEvent e)
+            {
+                int value = e.getValue();
+                embeddedView.getViewCamera().setY(value);
+            }
+
+        });
+        
+        JPanel fakeScrollPane = new JPanel();
+        JPanel verticalPanel = new JPanel();
+        verticalPanel.setLayout(new BorderLayout());
+        verticalPanel.add(embeddedView,BorderLayout.CENTER);
+        verticalPanel.add(verticalBar,BorderLayout.EAST);
+        
+        JPanel horizontalPanel = new JPanel();
+        horizontalPanel.setLayout(new BorderLayout());
+        horizontalPanel.add(horizontalBar,BorderLayout.CENTER);
+        horizontalPanel.add(Box.createHorizontalStrut(verticalBar.getPreferredSize().width),
+                            BorderLayout.EAST);
+        
+        verticalPanel.add(horizontalPanel,BorderLayout.SOUTH);
+        
+        fakeScrollPane.setLayout(new BorderLayout());
+        fakeScrollPane.add(verticalPanel,BorderLayout.CENTER);
+        container.add(fakeScrollPane,BorderLayout.CENTER);
         container.add(toolbarPanel,BorderLayout.NORTH);
         if(controller.getStatusView() != null)
         {

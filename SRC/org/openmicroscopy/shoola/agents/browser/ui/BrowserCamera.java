@@ -94,6 +94,8 @@ public class BrowserCamera implements RegionSensitive,
     private Set palettes;
     private List panNodeList;
     
+    private Set boundsListeners;
+    
     private PLayer paletteLayer;
     private PLayer panNodeLayer;
     
@@ -129,6 +131,20 @@ public class BrowserCamera implements RegionSensitive,
                     System.err.println(camera.getViewScale());
                     System.err.println("offset="+camera.getViewBounds().getX()+
                                        ","+camera.getViewBounds().getY());
+                    
+                    double x = camera.getViewBounds().getX();
+                    double y = camera.getViewBounds().getY();
+                    double extentX = camera.getViewBounds().getWidth();
+                    double extentY = camera.getViewBounds().getHeight();
+                    double width = activeRegion.getWidth();
+                    double height = activeRegion.getHeight();
+                    
+                    for(Iterator iter = boundsListeners.iterator(); iter.hasNext();)
+                    {
+                        CameraListener listener = (CameraListener)iter.next();
+                        listener.cameraBoundsChanged(x,y,extentX,extentY,
+                                                     width,height);
+                    }
                 }
             }
 
@@ -150,6 +166,7 @@ public class BrowserCamera implements RegionSensitive,
         panNodeList = new ArrayList();
         palettes = new HashSet();
         lastLocations = new HashMap();
+        boundsListeners = new HashSet();
         
         Map paletteMap = model.getPalettes();
         
@@ -183,6 +200,58 @@ public class BrowserCamera implements RegionSensitive,
         
         palettes.add(palette);
         camera.addChild(palette);
+    }
+    
+    /**
+     * Adds a camera listener.
+     * @param listener
+     */
+    public void addCameraListener(CameraListener listener)
+    {
+        if(listener != null)
+        {
+            boundsListeners.add(listener);
+        }
+    }
+    
+    /**
+     * Removes a camera listener.
+     * @param listener
+     */
+    public void removeCameraListener(CameraListener listener)
+    {
+        if(listener != null)
+        {
+            boundsListeners.remove(listener);
+        }
+    }
+    
+    public double getX()
+    {
+        return camera.getViewBounds().getX();
+    }
+    
+    public double getY()
+    {
+        return camera.getViewBounds().getY();
+    }
+    
+    /**
+     * NOTE: Doesn't error check.
+     * @param value
+     */
+    public void setX(double value)
+    {
+        camera.translateView(getX()-value,0);
+    }
+    
+    /**
+     * NOTE: Doesn't error check.
+     * @param value
+     */
+    public void setY(double value)
+    {
+        camera.translateView(getY()-value,0);
     }
     
     /**
