@@ -46,7 +46,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericBox;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
 
 /** 
  * A {@link Generic Box} with a name

@@ -67,12 +67,11 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleSelection;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModuleTreeNode;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
-import 
-	org.openmicroscopy.shoola.agents.zoombrowser.piccolo.SortableBufferedObject;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
 /** 

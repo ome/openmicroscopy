@@ -70,13 +70,13 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 

@@ -53,12 +53,12 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericBox;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericEventHandler;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 

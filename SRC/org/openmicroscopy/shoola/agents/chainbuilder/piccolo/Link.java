@@ -57,7 +57,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A Piccolo node for links between inputs and outputs. Link extends

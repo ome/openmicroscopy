@@ -40,11 +40,11 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindowGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
 
 
 /** 

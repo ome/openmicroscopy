@@ -52,12 +52,12 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericEventHandler;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * Nodes for displaying module inputs and outputs. Currently, all

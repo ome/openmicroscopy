@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ChainFrame;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainFlavor;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleFlavor;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 /** 

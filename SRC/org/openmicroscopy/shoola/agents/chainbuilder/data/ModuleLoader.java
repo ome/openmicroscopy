@@ -40,11 +40,11 @@ import java.util.Vector;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentLoader;
 
 
 

@@ -45,7 +45,7 @@ import java.awt.geom.Point2D;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 /** 
  * A Piccolo node for links between directly between two formal parameter.
  *

@@ -42,10 +42,10 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentLoader;
 
 /** 
  * A {@link ComponentContentLoader} subclass for loading chains.

@@ -36,10 +36,10 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.FormalInput;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.MatchMapper;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.data.MatchMapper;
 
 /** 
  * An extension of 

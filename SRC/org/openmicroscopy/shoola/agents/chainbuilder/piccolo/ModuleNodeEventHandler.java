@@ -46,8 +46,8 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericZoomEventHandler;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
 
 
 

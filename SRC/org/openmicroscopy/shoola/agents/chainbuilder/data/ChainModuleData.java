@@ -37,9 +37,9 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
+import org.openmicroscopy.shoola.util.data.MatchMapper;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.MatchMapper;
 
 /** 
  * An extension of 

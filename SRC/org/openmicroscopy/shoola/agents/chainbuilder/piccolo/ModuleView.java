@@ -67,14 +67,12 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.GenericEventHandler;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.MouseableNode;
-import
-	 org.openmicroscopy.shoola.agents.zoombrowser.piccolo.
-	 		SortableBufferedObject;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
 /** 

@@ -44,7 +44,7 @@ import java.awt.geom.Point2D;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /** 
  * A Piccolo widget indicating a control point for a selected {@link Link}

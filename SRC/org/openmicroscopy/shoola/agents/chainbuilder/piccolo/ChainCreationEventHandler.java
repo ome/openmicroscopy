@@ -61,8 +61,8 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 
 

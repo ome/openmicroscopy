@@ -48,7 +48,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
 
 /**
  * Nodes for displaying Formal Inputs to OME Modules

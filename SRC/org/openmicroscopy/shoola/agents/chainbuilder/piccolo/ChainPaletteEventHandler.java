@@ -49,9 +49,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.zoombrowser.ChainBuilderAgent
+ * org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent
  *
  *------------------------------------------------------------------------------
  *

@@ -50,10 +50,10 @@ import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ToolTipHandler;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.util.ui.piccolo.PConstants;
+import org.openmicroscopy.shoola.util.ui.piccolo.ToolTipHandler;
 
 /** 
  *
