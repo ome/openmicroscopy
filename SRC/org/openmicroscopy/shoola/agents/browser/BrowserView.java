@@ -46,8 +46,6 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 
 import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.PImage;
-import edu.umd.cs.piccolo.nodes.PText;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the

@@ -113,7 +113,6 @@ public class BrowserModel
      */
     public void addThumbnail(Thumbnail thumb)
     {
-        System.err.println("thumb: "+thumb.toString());
         if(thumb != null)
         {
             thumbnailSet.add(thumb);
