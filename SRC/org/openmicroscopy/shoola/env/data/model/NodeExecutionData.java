@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
+import java.util.Date;
 
 //Third-party libraries
 
@@ -56,6 +57,7 @@ public class NodeExecutionData implements DataObject
 	private AnalysisNodeData analysisNode;
 	private ModuleExecutionData moduleExecution;
 	
+	private Date date;
 	
 	public NodeExecutionData() {}
 	
@@ -87,6 +89,10 @@ public class NodeExecutionData implements DataObject
 		return moduleExecution;
 	}
 	
+	public Date getDate() {
+		return date;
+	}
+	
 	public void setID(int i) {
 		id = i;
 	}
@@ -101,5 +107,9 @@ public class NodeExecutionData implements DataObject
 	
 	public void setModuleExecution(ModuleExecutionData moduleExecution) {
 		this.moduleExecution = moduleExecution;
+	}
+	
+	public void setDate(Date date) {
+		this.date = date;
 	}
 }

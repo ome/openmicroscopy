@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
+import java.util.Date;
 import java.util.List;
 
 //Third-party libraries
@@ -65,6 +66,7 @@ public class ModuleExecutionData implements DataObject
 	private List inputs;
 	private boolean virtual;
 	
+	private Date date;
 	
 	public ModuleExecutionData() {}
 	
@@ -138,6 +140,10 @@ public class ModuleExecutionData implements DataObject
 		return totalTime;
 	}
 	
+	public Date getDate() {
+		return date;
+	}
+	
 	public boolean isVirtual() {
 		return virtual;
 	}
@@ -183,5 +189,9 @@ public class ModuleExecutionData implements DataObject
 	
 	public void setVirtual(boolean virtual) {
 		this.virtual = virtual;
+	}
+	
+	public void setDate(Date date) {
+		this.date = date;
 	}
 }
