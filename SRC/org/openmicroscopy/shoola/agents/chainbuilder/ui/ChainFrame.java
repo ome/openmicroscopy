@@ -30,13 +30,22 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 
 //Java imports
-
+import java.awt.Component;
+import java.awt.Container; 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainCreationCanvas;
+import org.openmicroscopy.shoola.env.config.IconFactory;
 
 /** 
  * An example of a top-level window that inherits from {@link TopWindow}.
@@ -56,15 +65,74 @@ public class ChainFrame extends JFrame {
 	
 	/** the canvas that holds the chain */
 	private ChainCreationCanvas canvas;
-	public ChainFrame(int index,ChainDataManager manager) {
+	
+	/** the save button */
+	private JButton save;
+	
+	/** the ui manager  */
+	private UIManager uiManager;
+	/** the chain data manager */
+	private ChainDataManager manager;
+	
+	public ChainFrame(int index,final ChainDataManager manager,CmdTable cmdTable,
+			final UIManager uiManager) {
 		super("New OME Chain: "+index);
+		
+		this.manager = manager;
+		this.uiManager = uiManager;
+		
+		Container container = getContentPane();
 		canvas  = new ChainCreationCanvas(this,manager);
-		getContentPane().add(canvas);
+		
+//		container. setLayout(new BorderLayout());
+		container.setLayout(new BoxLayout(container,BoxLayout.Y_AXIS));
+		// create tool bar.
+		JToolBar  tb = new JToolBar();
+		tb.setLayout(new BoxLayout(tb,BoxLayout.X_AXIS));
+		IconFactory icons = manager.getIconFactory();
+		Icon saveIcon = icons.getIcon("save.png");
+		if (saveIcon != null)
+			save = new JButton(saveIcon);
+		else 
+			save = new JButton("save chain");
+		save.addActionListener
+			(cmdTable.lookupActionListener("save chain"));
+		save.setAlignmentX(Component.LEFT_ALIGNMENT);
+		tb.setFloatable(false);
+		tb.add(save);
+		tb.setAlignmentX(Component.LEFT_ALIGNMENT);
+		setSaveEnabled(false);
+		container.add(tb);
+		canvas.setAlignmentX(Component.LEFT_ALIGNMENT);
+		container.add(canvas);
+		addWindowListener(new WindowAdapter() {
+			public void windowActivated(WindowEvent e) {
+				ChainFrame c = (ChainFrame) e.getWindow();
+				uiManager.setCurrentChainFrame(c);
+			}
+		});
 		pack();
 		show();
+		
+		tb.setMaximumSize(tb.getSize());
+		tb.setPreferredSize(tb.getSize());
+		tb.setMinimumSize(tb.getSize());
+	}
+	
+	public void save() {
+		ChainSaveFrame saveFrame = new ChainSaveFrame(this,manager);
+		saveFrame.show();
+	}
+	
+	public void completeSave(String name,String desc) {
+		canvas.save(name,desc);
 	}
 	
 	public void setSaveEnabled(boolean v) {
-		// TODO: Implement
+		save.setEnabled(v);
+	}
+	
+	public void updateChainPalette(LayoutChainData chain) {
+		uiManager.updateChainPalette(chain);
 	}
 }
