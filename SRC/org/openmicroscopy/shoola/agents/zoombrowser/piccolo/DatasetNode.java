@@ -161,7 +161,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		double scaledHeight = scalefactor*effectiveHeight;
 		
 		// layout the images in this space
-		if (imageCollection.size() > 0) {
+		if (imageCollection != null && imageCollection.size() > 0) {
 			y = arrangeImages(scaledWidth,scaledHeight);
 		}
 		double imagesHeight = y-imageTop;
@@ -174,7 +174,8 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 	
 		
 		// turn that scale into a scale ratio
-		if (scaleEffective == 0 || imageCollection.size() == 0)
+		if (scaleEffective == 0 || imageCollection == null ||
+				imageCollection.size() == 0)
 			scaleEffective = 1; 
 		double scaleRatio = 1/scaleEffective;
 		// adjust the max width
@@ -186,9 +187,9 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 			images.setScale(scaleRatio);
 					
 		// if necessary, adjust width to hold the dataset's name label
-		if (imageCollection.size() == 0 && 
-			maxWidth < nameLabel.getBounds().getWidth())
-			maxWidth = nameLabel.getBounds().getWidth();
+		//if ((imageCollection == null || imageCollection.size() == 0) && 
+		//	maxWidth < nameLabel.getBounds().getWidth())
+		//	maxWidth = nameLabel.getBounds().getWidth();
 			
 		// adjust the name label to fit.
 		nameLabel.resetWidth(maxWidth);
@@ -212,7 +213,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		Thumbnail thumb;
 		PBounds b;
 		int rowCount = 0;
-		if (imageCollection.size() > 0) { 
+		if (imageCollection != null && imageCollection.size() > 0) { 
 			// if there are images 
 			images = new DatasetImagesNode();
 			addChild(images);
