@@ -433,5 +433,37 @@ public class NullPixels
         
 
     }
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.ds.st.Pixels#getDisplayOptionsList()
+     */
+    public List getDisplayOptionsList()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.ds.st.Pixels#countDisplayOptionsList()
+     */
+    public int countDisplayOptionsList()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.ds.st.Pixels#getPixelChannelComponentList()
+     */
+    public List getPixelChannelComponentList()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.ds.st.Pixels#countPixelChannelComponentList()
+     */
+    public int countPixelChannelComponentList()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }
