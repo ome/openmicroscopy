@@ -135,6 +135,10 @@ public class Classifier implements Agent, AgentEventListener
         registry.getEventBus().register(this,ClassifyImages.class);
         registry.getEventBus().register(this,ReclassifyImage.class);
         registry.getEventBus().register(this,ReclassifyImages.class);
+        
+        // BUG 117 FIX
+        registry.getEventBus().register(this,DeclassifyImage.class);
+        registry.getEventBus().register(this,DeclassifyImages.class);
     }
     
     /**

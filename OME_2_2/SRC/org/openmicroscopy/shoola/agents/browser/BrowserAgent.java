@@ -76,6 +76,8 @@ import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
 import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
@@ -1383,6 +1385,35 @@ public class BrowserAgent implements Agent, AgentEventListener
         List classificationList = Arrays.asList(modified);
         ReclassifyImages classifyEvent =
             new ReclassifyImages(classificationList);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
+        eventBus.post(classifyEvent);
+    }
+    
+    /**
+     * Invalidates the classification (over a certain category) of a single image.
+     * (BUG 117 FIX)
+     * @param invalidClassification The classification to "erase."
+     */
+    public void declassifyImage(Classification invalidClassification)
+    {
+        if(invalidClassification == null) return;
+        DeclassifyImage classifyEvent =
+            new DeclassifyImage(invalidClassification);
+        classifyEvent.setCompletionHandler(new ClassificationHandler());
+        eventBus.post(classifyEvent);
+    }
+    
+    /**
+     * Invalidates the specified classifications, usually of multiple images.
+     * (BUG 117 FIX)
+     * @param invalid The classifications to "erase."
+     */
+    public void declassifyImages(Classification[] invalid)
+    {
+        if(invalid == null || invalid.length == 0) return;
+        List classificationList = Arrays.asList(invalid);
+        DeclassifyImages classifyEvent =
+            new DeclassifyImages(classificationList);
         classifyEvent.setCompletionHandler(new ClassificationHandler());
         eventBus.post(classifyEvent);
     }

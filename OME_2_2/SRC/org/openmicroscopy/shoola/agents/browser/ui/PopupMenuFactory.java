@@ -122,6 +122,7 @@ public class PopupMenuFactory
         
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem infoItem = new JMenuItem("View Info");
+        JMenuItem declassifyItem = new JMenuItem("Declassify");
         Set selectedSet = model.getSelectedImages();
         
         if(selectedSet.size() == 1)

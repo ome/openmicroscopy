@@ -53,6 +53,8 @@ import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
@@ -76,7 +78,10 @@ public class ClassificationHandler implements CompletionHandler
         if(!(request instanceof ClassifyImage) &&
            !(request instanceof ClassifyImages) &&
            !(request instanceof ReclassifyImage) &&
-           !(request instanceof ReclassifyImages))
+           !(request instanceof ReclassifyImages) &&
+           // BUG 117 FIX
+           !(request instanceof DeclassifyImage) &&
+           !(request instanceof DeclassifyImages))
         {
             throw new IllegalArgumentException("Cannot handle this message");
         }
