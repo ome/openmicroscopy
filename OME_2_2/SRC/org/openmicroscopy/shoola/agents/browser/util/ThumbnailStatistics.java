@@ -45,14 +45,14 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 
 /**
- * Gets the min and max of a scalar attribute element over a list of attributes.
+ * Gets statistics about attribute elements over a list of thumbnails.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
-public class RangeChecker
+public class ThumbnailStatistics
 {
     /**
      * Gets the min/max over an array of attributes.
@@ -137,5 +137,28 @@ public class RangeChecker
         Attribute[] attrs = new Attribute[attributeList.size()];
         attributeList.toArray(attrs);
         return getMinMax(attrs,elementName);
+    }
+    
+    /**
+     * Returns an array of thumbnails, ordered in (rank) order of the particular
+     * specified element.  If the value of that element is the same for two
+     * particular thumbnails, will order by ID (some constraint as AttributeComparator).
+     * If any of the thumbnails do not have a specified value, they will not be
+     * returned in the return list (TODO: is this the right thing to do?)
+     * 
+     * @param thumbnails The list of thumbnails to sort.
+     * @param attributeName The name of the attribute to query, which contains the
+     *                      element to sort the thumbnails by.
+     * @param elementName The name of the element to sort by.
+     * @return An list of thumbnails ordered in correspondence to the value of the
+     *         specified element.
+     * @throws IllegalArgumentException If any of the parameters are null.
+     */
+    public static Thumbnail[] sortByValue(Thumbnail[] thumbnails,
+                                          String attributeName,
+                                          String elementName)
+        throws IllegalArgumentException
+    {
+        
     }
 }

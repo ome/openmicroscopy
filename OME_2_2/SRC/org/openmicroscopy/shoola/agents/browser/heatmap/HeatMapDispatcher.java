@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
-import org.openmicroscopy.shoola.agents.browser.util.RangeChecker;
+import org.openmicroscopy.shoola.agents.browser.util.ThumbnailStatistics;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
@@ -214,7 +214,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         List thumbnails = browserModel.getThumbnails();
         Thumbnail[] ts = new Thumbnail[thumbnails.size()];
         thumbnails.toArray(ts);
-        double[] stats = RangeChecker.getGlobalMinMax(ts,attribute,elementName);
+        double[] stats = ThumbnailStatistics.getGlobalMinMax(ts,attribute,elementName);
         gradient.setMin(stats[0]);
         gradient.setMax(stats[1]);
         recalibrateScale();
