@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 
 //Third-party libraries
@@ -40,6 +41,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
+import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
@@ -182,6 +184,11 @@ final class SplashScreenInit
 		} catch (Exception e) {
 			//Ignore, the user will be prompted to log in when they try
 			//to access their remote data.
+			//no other option b/c of xmlrpc
+			TopFrame topFrame = reg.getTopFrame();
+			JMenuItem item = 
+				topFrame.getItemFromMenu(TopFrame.CONNECT, TopFrame.OMEDS);
+			item.setEnabled(true);
 		}
 	
 		splashScreen.close();
