@@ -51,5 +51,7 @@ package org.openmicroscopy.shoola.env.rnd;
  */
 public interface MethodCall 
 {
+	
 	public void doCall();
+	
 }

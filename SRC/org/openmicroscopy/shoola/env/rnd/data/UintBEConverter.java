@@ -59,6 +59,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 public class UintBEConverter
 	extends BytesConverter
 { 
+	
 	/**
 	 * We consider every byte value as a digit in base 2^8 =B. 
 	 * This means that the numeric value is given by 

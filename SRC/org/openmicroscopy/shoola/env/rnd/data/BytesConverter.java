@@ -70,6 +70,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
  */
 abstract class BytesConverter
 {
+	
 	/** 
 	 * Factory method to return an appropriate converter, depending on pixel 
 	 * type and endianness.

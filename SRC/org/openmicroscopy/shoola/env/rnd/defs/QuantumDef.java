@@ -52,6 +52,7 @@ package org.openmicroscopy.shoola.env.rnd.defs;
  */
 public class QuantumDef
 {
+	
     /** 
      * Identifies a family of maps. 
      * One of the constants defined by 

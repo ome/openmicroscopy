@@ -51,6 +51,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  */
 public class PixelsStatsEntry
 {
+	
 	/** Minimum pixel intensity of the stack. */
 	public final double		min;
 	

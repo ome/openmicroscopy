@@ -29,10 +29,9 @@
 
 package org.openmicroscopy.shoola.env.data.map;
 
-
-
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +43,10 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.ds.st.LogicalChannel;
+import org.openmicroscopy.ds.st.PixelChannelComponent;
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -206,6 +208,7 @@ public class ImageMapper
 	}
 	
 	/**
+	 * Fill in the image summary object.
 	 * @param images
 	 * @param iProto
 	 * @return
@@ -234,6 +237,49 @@ public class ImageMapper
 		return imagesList;
 	}
 	
+	/**
+	 * 
+	 * @param ciList		PixelChannelComponent list.
+	 * @param lcList		LogicalChannel List.
+	 * @return
+	 */
+	public static ChannelData[] fillImageChannelData(List ciList, List lcList)
+	{
+		PixelChannelComponent pcc;
+		Iterator k = ciList.iterator();
+		HashMap lcIndexes = new HashMap();
+		while (k.hasNext()) {
+			pcc = (PixelChannelComponent) k.next();
+			lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
+								new Integer(pcc.getIndex().intValue()));
+		}
+		LogicalChannel lc;
+		int index;
+		Iterator i = lcList.iterator();
+		int nanometer, excitation;
+		ChannelData[] channelData = new ChannelData[lcList.size()];
+		while (i.hasNext()) {
+			lc = (LogicalChannel) i.next();
+			index = 
+				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
+			nanometer = lc.getEmissionWavelength().intValue();
+			if (lc.getExcitationWavelength() == null) 
+				excitation = nanometer;
+			else 
+				excitation = lc.getExcitationWavelength().intValue();
+	
+			channelData[index] = new ChannelData(lc.getID(), index, 
+									lc.getEmissionWavelength().intValue(),
+									lc.getPhotometricInterpretation(), 
+									excitation, lc.getFluor());
+		}
+		return channelData;
+	}
+	
+	/** 
+	 * Fill in the PixelDescription object.
+	 * @return List of pixelDescription object.
+	 */ 
 	private static List fillPixels(Pixels px)
 	{
 		List pixels = new ArrayList();

@@ -55,9 +55,13 @@ import java.util.List;
 public class ProjectSummary
 	implements DataObject
 {
-
+	/** Project's id. */
 	private int		id;
+	
+	/** Project's name. */
 	private String	name;
+	
+	/** List of dataset summary objects. */
 	private List	datasets;
 	
 	public ProjectSummary() {}
@@ -68,43 +72,20 @@ public class ProjectSummary
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew()
-	{
-		return new ProjectSummary();
-	}
+	public DataObject makeNew() { return new ProjectSummary(); }
 	
-	public String toString() 
-	{
-		return name;
-	}
-	public int getID()
-	{
-		return id;
-	}
+	public String toString() { return name; }
+	
+	public int getID() { return id; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getName() { return name; }
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+	public void setName(String name) { this.name = name; }
+	
+	public List getDatasets() { return datasets; }
 
-	public List getDatasets()
-	{
-		return datasets;
-	}
-
-	public void setDatasets(List datasets)
-	{
-		this.datasets = datasets;
-	}
+	public void setDatasets(List datasets) { this.datasets = datasets; }
 
 }

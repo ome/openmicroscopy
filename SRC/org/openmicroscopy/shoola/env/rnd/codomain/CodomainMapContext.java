@@ -53,6 +53,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
  */
 public abstract class CodomainMapContext
 {
+	
 	/** Lower bound of the codomain interval. */
 	protected int intervalStart;
 	

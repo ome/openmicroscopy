@@ -52,13 +52,11 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 class IdentityMap
 	implements CodomainMap
 {
+	
 	/**Required by I/F but not needed in our case. */
 	public void setContext(CodomainMapContext cxt) {}
 
 	/** Implemented as specified in {@link CodomainMap}. */
-	public int transform(int x)
-	{
-		return x;
-	}
+	public int transform(int x) { return x; }
 
 }

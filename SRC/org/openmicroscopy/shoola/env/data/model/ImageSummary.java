@@ -52,6 +52,7 @@ package org.openmicroscopy.shoola.env.data.model;
 public class ImageSummary
 	implements DataObject
 {
+	
 	/** image's id. */
 	private int		id;
 	
@@ -88,54 +89,27 @@ public class ImageSummary
     }
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew()
-	{
-		return new ImageSummary();
-	}
+	public DataObject makeNew() { return new ImageSummary(); }
 	
-	public String toString()
-	{
-		return name;
-	}
+	public String toString() { return name; }
 	
-	public int getID()
-	{
-		return id;
-	}
+	public int getID() { return id; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getName() { return name; }
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+	public void setName(String name) { this.name = name; }
 
-    public PixelsDescription getDefaultPixels()
-    {
-        return defaultPixels;
-    }
+    public PixelsDescription getDefaultPixels() { return defaultPixels; }
     
     public void setDefaultPixels(PixelsDescription pxd)
     {
         this.defaultPixels = pxd;
     }
 
-	public int[] getPixelsIDs()
-	{
-		return pixelsIDs;
-	}
+	public int[] getPixelsIDs() { return pixelsIDs; }
 
-	public void setPixelsIDs(int[] pixelsIDs)
-	{
-		this.pixelsIDs = pixelsIDs;
-	}
+	public void setPixelsIDs(int[] pixelsIDs) { this.pixelsIDs = pixelsIDs; }
 
 }

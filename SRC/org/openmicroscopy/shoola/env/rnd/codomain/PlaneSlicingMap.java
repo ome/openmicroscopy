@@ -62,6 +62,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 class PlaneSlicingMap
 	implements CodomainMap
 {
+	
 	private PlaneSlicingContext	psCtx;
 
 	/** 

@@ -51,6 +51,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  */
 public class PixelsGlobalStatsEntry 
 {
+	
 	/** Minimum of all minima. */
 	public final double  globalMin;
 	

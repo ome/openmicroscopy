@@ -66,6 +66,7 @@ import java.util.List;
  */
 public class CodomainChain
 {
+	
 	/** 
 	 * Maximum value (<code>255</code>) allowed for the upper bound of the 
 	 * codomain interval.

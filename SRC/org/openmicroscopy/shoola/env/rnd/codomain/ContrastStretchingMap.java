@@ -57,6 +57,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 class ContrastStretchingMap
 	implements CodomainMap
 {
+	
 	private ContrastStretchingContext csCtx;
 	
 	/** Implemented as specified in {@link CodomainMap}. */

@@ -213,8 +213,7 @@ public class ProjectMapper
 			ps = (ProjectSummary) pProto.makeNew();
 			ps.setID(p.getID());
 			ps.setName(p.getName());
-			
-			//For each d in project.datasets...
+
 			j = p.getDatasets().iterator();
 			datasets = new ArrayList();
 			while (j.hasNext()) {
@@ -243,7 +242,7 @@ public class ProjectMapper
 		return projectsList;
 	}
 	
-	/** */
+	/** Fill in a project data object.*/
 	public static List fillNewProject(Project p, List datasets, 
 										ProjectSummary pProto)
 	{

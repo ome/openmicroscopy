@@ -57,7 +57,8 @@ package org.openmicroscopy.shoola.env.rnd.data;
  * @since OME2.2
  */
 public class UintLEConverter 
-	extends BytesConverter {
+	extends BytesConverter
+{
     
 	/** 
 	* Carries out the job according to the contract specified by 

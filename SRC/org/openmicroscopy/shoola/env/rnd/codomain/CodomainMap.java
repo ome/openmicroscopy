@@ -60,6 +60,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
  */
 public interface CodomainMap
 {
+	
 	/**
 	 * Sets the parameters used to write the equation of the specified
 	 * codomain transformation. 

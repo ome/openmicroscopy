@@ -157,30 +157,15 @@ public class PlaneSlicingContext
 		return copy;
 	}
 	
-	public int getPlanePrevious()
-	{
-		return planePrevious;
-	}
+	public int getPlanePrevious() { return planePrevious; }
 
-	public int getPlaneSelected()
-	{
-		return planeSelected;
-	}
+	public int getPlaneSelected() { return planeSelected; }
 	
-	public boolean IsConstant()
-	{
-		return constant;
-	}
+	public boolean IsConstant() { return constant; }
 	
-	public int getLowerLimit() 
-	{
-		return lowerLimit;
-	}
+	public int getLowerLimit() { return lowerLimit; }
 
-	public int getUpperLimit()
-	{
-		return upperLimit;
-	}
+	public int getUpperLimit() { return upperLimit; }
 	
 	/** 
 	 * Set the limits.
@@ -222,10 +207,7 @@ public class PlaneSlicingContext
 		this.planeSelected = planeSelected;
 	}
 	
-	public void setConstant(boolean b) 
-	{
-		constant = b;
-	}
+	public void setConstant(boolean b) { constant = b; }
 	
 	/** Verify if bitPlane is one the contants defined above. */
 	private void verifyBitPlanes(int bitPlane)

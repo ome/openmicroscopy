@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
  */
 public class QuantumFactory
 {
+	
 	/** Bit-depth 1Bit = 2^1-1. */
 	public static final int   DEPTH_1BIT = 1;
 	

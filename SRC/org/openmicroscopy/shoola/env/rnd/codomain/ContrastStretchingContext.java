@@ -204,55 +204,25 @@ public class ContrastStretchingContext
 		yEnd = ye;
 	}
 	
-	public int getXEnd()
-	{
-		return xEnd;
-	}
+	public int getXEnd() { return xEnd; }
 
-	public int getXStart()
-	{
-		return xStart;
-	}
+	public int getXStart() { return xStart; }
 
-	public int getYEnd()
-	{
-		return yEnd;
-	}
+	public int getYEnd() { return yEnd; }
 
-	public int getYStart() 
-	{
-		return yStart;
-	}
+	public int getYStart() { return yStart; }
 
-	public double getA0() 
-	{
-		return a0;
-	}
+	public double getA0() { return a0; }
 
-	public double getA1()
-	{
-		return a1;
-	}
+	public double getA1() { return a1; }
 
-	public double getA2()
-	{
-		return a2;
-	}
+	public double getA2() { return a2; }
 
-	public double getB0()
-	{
-		return b0;
-	}
+	public double getB0() { return b0; }
 
-	public double getB1() 
-	{
-		return b1;
-	}
+	public double getB1() { return b1; }
 
-	public double getB2()
-	{
-		return b2;
-	}
+	public double getB2() { return b2; }
 	
 }
 

@@ -108,73 +108,37 @@ public class ImageData
 		return defaultPixels;
 	}
 	
-	public String getDescription()
-	{
-		return description;
-	}
+	public String getDescription() { return description; }
 
-	public int getID()
-	{
-		return id;
-	}
+	public int getID() { return id; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getName() { return name; }
 
-	public String getOwnerEmail()
-	{
-		return ownerEmail;
-	}
+	public String getOwnerEmail() { return ownerEmail; }
 
-	public String getOwnerFirstName()
-	{
-		return ownerFirstName;
-	}
+	public String getOwnerFirstName() { return ownerFirstName; }
 
-	public int getOwnerGroupID()
-	{
-		return ownerGroupID;
-	}
+	public int getOwnerGroupID() { return ownerGroupID; }
 
-	public String getOwnerGroupName()
-	{
-		return ownerGroupName;
-	}
+	public String getOwnerGroupName() { return ownerGroupName; }
 
-	public int getOwnerID()
-	{
-		return ownerID;
-	}
+	public int getOwnerID() { return ownerID; }
 
-	public String getOwnerInstitution()
-	{
-		return ownerInstitution;
-	}
+	public String getOwnerInstitution() { return ownerInstitution; }
 
-	public String getOwnerLastName() 
-	{
-		return ownerLastName;
-	}
+	public String getOwnerLastName() { return ownerLastName; }
 
 	public void setDescription(String description)
 	{
 		this.description = description;
 	}
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+	public void setName(String name) { this.name = name; }
 
 	public void setOwnerEmail(String ownerEmail)
-	{
+	{ 
 		this.ownerEmail = ownerEmail;
 	}
 
@@ -193,10 +157,7 @@ public class ImageData
 		this.ownerGroupName = ownerGroupName;
 	}
 
-	public void setOwnerID(int ownerID)
-	{
-		this.ownerID = ownerID;
-	}
+	public void setOwnerID(int ownerID) { this.ownerID = ownerID; }
 
 	public void setOwnerInstitution(String ownerInstitution)
 	{
@@ -208,44 +169,20 @@ public class ImageData
 		this.ownerLastName = ownerLastName;
 	}
 
-	public String getCreated()
-	{
-		return created;
-	}
+	public String getCreated() { return created; }
 
-	public String getInserted()
-	{
-		return inserted;
-	}
+	public String getInserted() { return inserted; }
 
-	public void setCreated(String created)
-	{
-		this.created = created;
-	}
+	public void setCreated(String created) { this.created = created; }
 
-	public void setInserted(String inserted)
-	{
-		this.inserted = inserted;
-	}
+	public void setInserted(String inserted) { this.inserted = inserted; }
 
-	public List getPixels()
-	{
-		return pixels;
-	}
+	public List getPixels() { return pixels; }
 
-	public void setPixels(List pixels)
-	{
-		this.pixels = pixels;
-	}
+	public void setPixels(List pixels) { this.pixels = pixels; }
 
-	public List getDatasets()
-	{
-		return datasets;
-	}
+	public List getDatasets() { return datasets; }
 
-	public void setDatasets(List datasets)
-	{
-		this.datasets = datasets;
-	}
+	public void setDatasets(List datasets) { this.datasets = datasets; }
 
 }

@@ -74,8 +74,7 @@ public class LogMessage
 	
 	/** Wraps {@link #message} to provide writing and buffering capabilities. */
 	private PrintWriter		formatter;
-	
-	
+		
 	/**
 	 * Creates a new empty message.
 	 */
@@ -101,26 +100,13 @@ public class LogMessage
 	 * 
 	 * @param s	The text to add.
 	 */	
-	public void writeln(String s)
-	{
-		formatter.println(s);
-	}
+	public void writeln(String s) { formatter.println(s); }
 	
-	/**
-	 * Terminates the current line.
-	 */	
-	public void writeln()
-	{
-		formatter.println();
-	}
+	/** Terminates the current line. */	
+	public void writeln() { formatter.println(); }
 	
-	/**
-	 * Appends a tabulation to the current message's content.
-	 */	
-	public void writetab()
-	{
-		formatter.print(TAB);
-	}
+	/** Appends a tabulation to the current message's content. */	
+	public void writetab() { formatter.print(TAB); }
 	
 	/**
 	 * Appends the specified number of tabulations to the current message's

@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
  */
 public class PixelsMapper
 {
+	
 	//TODO: to be modified
 	public static Criteria buildPixelsCriteria(int imageID)
 	{
@@ -80,9 +81,7 @@ public class PixelsMapper
 		return criteria;
 	}
 	
-	/**
-	 * Put the server data into the corresponding client object.
-	 */
+	/** Put the server data into the corresponding client object. */
 	public static void fillPixelsDescription(Pixels px, 
 											PixelsDescription pdProto)
 	{

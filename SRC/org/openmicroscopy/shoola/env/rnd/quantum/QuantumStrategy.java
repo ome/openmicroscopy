@@ -130,12 +130,12 @@ public abstract class QuantumStrategy
 						if (m < M && M-m < 0x100000000L)  b = true; 
 					}
 					break;
-				//TODO: checking all when we support these types
-				/*
-				case Pixels.BIT:
-				case Pixels.FLOAT:  
-				case Pixels.DOUBLE: break;
-				*/
+					//TODO: checking all when we support these types
+					/*
+					case Pixels.BIT:
+					case Pixels.FLOAT:  
+					case Pixels.DOUBLE: break;
+					*/
 			}
 		}
 		if (!b)

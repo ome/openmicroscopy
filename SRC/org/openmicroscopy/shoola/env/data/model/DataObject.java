@@ -51,5 +51,7 @@ package org.openmicroscopy.shoola.env.data.model;
  */
 public interface DataObject
 {
+	
 	public DataObject makeNew();
+	
 }

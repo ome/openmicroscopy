@@ -67,4 +67,5 @@ class Plane2DSelected
 	void setCurZ(int z) { curZ = z; }
 	void setCurT(int t) { curT = t; }
 	void setPlane(Plane2D p) { plane = p; }
+	
 }

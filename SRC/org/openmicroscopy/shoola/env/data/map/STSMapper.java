@@ -29,10 +29,6 @@
 
 package org.openmicroscopy.shoola.env.data.map;
 
-
-
-
-
 //Java imports
 import java.util.Arrays;
 import java.util.HashMap;
@@ -112,7 +108,7 @@ public class STSMapper
 	}
 	
 	/** 
-	 * 
+	 *
 	 * @param granularity
 	 * @param targetIDs
 	 * @return
@@ -216,7 +212,6 @@ public class STSMapper
 												 Number[] targetIDs)
 	{
 		if (targetIDs == null || targetIDs.length == 0) return null;
-		//TODO: check if needed
 		Criteria c = new Criteria();
     
 		// all non-references; has-ones with just ID's; no has-manys

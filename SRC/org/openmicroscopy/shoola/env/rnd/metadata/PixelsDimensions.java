@@ -51,6 +51,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  */
 public class PixelsDimensions
 {
+	
 	/** Number of pixels on the X-axis. */
 	public final int    sizeX;
 	

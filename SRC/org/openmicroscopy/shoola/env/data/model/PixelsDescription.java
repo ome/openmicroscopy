@@ -53,6 +53,7 @@ import org.openmicroscopy.ds.st.Pixels;
 public class PixelsDescription
 	implements DataObject
 {
+	
 	/** Attribute_id in DB. */
 	private int		id;
 	
@@ -146,109 +147,55 @@ public class PixelsDescription
     }
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew()
-	{
-		return new PixelsDescription();
-	}
+	public DataObject makeNew() { return new PixelsDescription(); }
 	
-	public int getSizeC()
-	{
-		return sizeC;
-	}
+	public int getSizeC() { return sizeC; }
 
-	public int getSizeT()
-	{
-		return sizeT;
-	}
+	public int getSizeT() { return sizeT; }
 
-	public int getSizeX()
-	{
-		return sizeX;
-	}
+	public int getSizeX() { return sizeX; }
 
-	public int getSizeY()
-	{
-		return sizeY;
-	}
+	public int getSizeY() { return sizeY; }
 
-	public int getSizeZ()
-	{
-		return sizeZ;
-	}
+	public int getSizeZ() { return sizeZ; }
 
-	public void setSizeC(int sizeC)
-	{
-		this.sizeC = sizeC;
-	}
+	public void setSizeC(int sizeC) { this.sizeC = sizeC; }
 
-	public void setSizeT(int sizeT)
-	{
-		this.sizeT = sizeT;
-	}
+	public void setSizeT(int sizeT) { this.sizeT = sizeT; }
 
-	public void setSizeX(int sizeX)
-	{
-		this.sizeX = sizeX;
-	}
+	public void setSizeX(int sizeX) { this.sizeX = sizeX; }
 
-	public void setSizeY(int sizeY)
-	{
-		this.sizeY = sizeY;
-	}
+	public void setSizeY(int sizeY) { this.sizeY = sizeY; }
 
-	public void setSizeZ(int sizeZ)
-	{
-		this.sizeZ = sizeZ;
-	}
+	public void setSizeZ(int sizeZ) { this.sizeZ = sizeZ; }
 
-	public String getImageServerUrl()
-	{
-		return imageServerURL;
-	}
+	public String getImageServerUrl() { return imageServerURL; }
 
 	public void setImageServerUrl(String imageServerURL)
 	{
 		this.imageServerURL = imageServerURL;
 	}
 
-	public int getID()
-	{
-		return id;
-	}
+	public int getID() { return id; }
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public long getImageServerID()
-	{
-		return imageServerID;
-	}
+	public long getImageServerID() { return imageServerID; }
 
 	public void setImageServerID(long imageServerID)
 	{
 		this.imageServerID = imageServerID;
 	}
     
-    public Pixels getPixels()
-    {
-        return backingPixels;
-    }
+    public Pixels getPixels() { return backingPixels; }
     
     public void setPixels(Pixels pixels)
     {
         if (pixels != null) this.backingPixels = pixels;
     }
 
-	public String getPixelType() 
-	{
-		return pixelType;
-	}
+	public String getPixelType() { return pixelType; }
 
-	public void setPixelType(String type)
-	{
-		pixelType = type;
-	}
+	public void setPixelType(String type) { pixelType = type; }
 
 }

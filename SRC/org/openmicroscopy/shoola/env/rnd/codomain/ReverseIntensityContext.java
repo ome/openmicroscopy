@@ -63,18 +63,12 @@ public class ReverseIntensityContext
 	 * Implemented as specified by superclass.
 	 * @see CodomainMapContext#buildContext()
 	 */
-	CodomainMap getCodomainMap() 
-	{
-		return new ReverseIntensityMap();
-	}
+	CodomainMap getCodomainMap() { return new ReverseIntensityMap(); }
 
 	/** 
 	 * Implemented as specified by superclass.
 	 * @see CodomainMapContext#buildContext()
 	 */
-	public CodomainMapContext copy() 
-	{
-		return this;  //Stateless object.
-	}
+	public CodomainMapContext copy() { return this; } //Stateless object.
 	
 }

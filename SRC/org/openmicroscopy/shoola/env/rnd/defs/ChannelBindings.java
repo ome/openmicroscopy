@@ -53,6 +53,7 @@ package org.openmicroscopy.shoola.env.rnd.defs;
  */
 public class ChannelBindings
 {
+	
 	/** Color range. */
 	private static final int	COLOR_MIN = 0, COLOR_MAX = 255;
 	

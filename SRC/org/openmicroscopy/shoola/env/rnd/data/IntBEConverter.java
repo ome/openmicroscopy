@@ -57,6 +57,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 public class IntBEConverter
 	extends BytesConverter
 {
+	
 	/**
 	 * The above probably deserves a quick explanation. We consider every byte
 	 * value as a digit in base 2^8 = B. This means that the original value, 

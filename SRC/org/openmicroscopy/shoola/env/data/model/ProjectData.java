@@ -55,11 +55,11 @@ import java.util.List;
 public class ProjectData
 	implements DataObject
 {
+
 	private int 		id;
 	private String 		name;
 	private String 		description;
 	private int 		ownerID;
-	//private String	ownerOmeName;
 	private String		ownerFirstName;
 	private String		ownerLastName;
 	private String		ownerEmail;
@@ -90,75 +90,36 @@ public class ProjectData
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew()
-	{
-		return new ProjectData();
-	}
+	public DataObject makeNew() { return new ProjectData(); }
 
-	public List getDatasets()
-	{
-		return datasets;
-	}
+	public List getDatasets() { return datasets; }
 
-	public String getDescription()
-	{
-		return description;
-	}
+	public String getDescription() { return description; }
 
-	public int getID()
-	{
-		return id;
-	}
+	public int getID() { return id; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getName() { return name; }
 
-	public String getOwnerEmail()
-	{
-		return ownerEmail;
-	}
+	public String getOwnerEmail() { return ownerEmail; }
 
-	public int getOwnerGroupID()
-	{
-		return ownerGroupID;
-	}
+	public int getOwnerGroupID() { return ownerGroupID; }
 
-	public String getOwnerGroupName()
-	{
-		return ownerGroupName;
-	}
+	public String getOwnerGroupName() { return ownerGroupName; }
 
-	public int getOwnerID()
-	{
-		return ownerID;
-	}
+	public int getOwnerID() { return ownerID; }
 
-	public String getOwnerInstitution()
-	{
-		return ownerInstitution;
-	}
+	public String getOwnerInstitution() { return ownerInstitution; }
 
-	public void setDatasets(List datasets)
-	{
-		this.datasets = datasets;
-	}
+	public void setDatasets(List datasets) { this.datasets = datasets; }
 
 	public void setDescription(String description)
 	{
 		this.description = description;
 	}
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+	public void setName(String name) { this.name = name; }
 
 	public void setOwnerEmail(String ownerEmail)
 	{
@@ -175,26 +136,16 @@ public class ProjectData
 		this.ownerGroupName = ownerGroupName;
 	}
 
-	public void setOwnerID(int ownerID)
-	{
-		this.ownerID = ownerID;
-	}
+	public void setOwnerID(int ownerID) { this.ownerID = ownerID; }
 
 	public void setOwnerInstitution(String ownerInstitution)
 	{
 		this.ownerInstitution = ownerInstitution;
 	}
 
-	public String getOwnerFirstName()
-	{
-		return ownerFirstName;
-	}
+	public String getOwnerFirstName() { return ownerFirstName; }
 
-	public String getOwnerLastName()
-	{
-		return ownerLastName;
-	}
-
+	public String getOwnerLastName() { return ownerLastName; }
 
 	public void setOwnerFirstName(String ownerFirstName)
 	{

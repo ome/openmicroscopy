@@ -57,6 +57,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 class ReverseIntensityMap 
 	implements CodomainMap
 {
+	
 	CodomainMapContext	ctx;
 	
 	/** Implemented as specified in {@link CodomainMap}. */
@@ -66,10 +67,7 @@ class ReverseIntensityMap
 	}
 
 	/** Implemented as specified in {@link CodomainMap}. */
-	public int transform(int x)
-	{
-		return ctx.intervalEnd-x;
-	}
+	public int transform(int x) { return ctx.intervalEnd-x; }
 
 }
 

@@ -51,6 +51,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
  */
 interface QuantumMap
 {
+	
 	/** 
 	 * Map the inputValue. 
 	 *

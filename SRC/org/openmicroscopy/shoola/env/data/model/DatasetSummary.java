@@ -52,8 +52,11 @@ package org.openmicroscopy.shoola.env.data.model;
 public class DatasetSummary
 	implements DataObject
 {
-
+	
+	/** Dataset's id. */
 	private int		id;
+	
+	/** Dataset's name. */
 	private String	name;
 	
 	public DatasetSummary() {}
@@ -65,33 +68,16 @@ public class DatasetSummary
 	}
 
 	/** Required by the DataObject interface. */
-	public DataObject makeNew()
-	{
-		return new DatasetSummary();
-	}
+	public DataObject makeNew() { return new DatasetSummary(); }
 	
-	public String toString()
-	{
-		return name;
-	}
-	public int getID()
-	{
-		return id;
-	}
+	public String toString() { return name;}
+	
+	public int getID() { return id; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getName() { return name; }
 
-	public void setID(int id)
-	{
-		this.id = id;
-	}
+	public void setID(int id) { this.id = id; }
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
+	public void setName(String name) { this.name = name; }
 
 }

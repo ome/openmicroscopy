@@ -53,6 +53,7 @@ package org.openmicroscopy.shoola.env.rnd.defs;
  */
 public class PlaneDef
 {
+	
 	/** Select a XY-plane. */
 	public static final int		XY = 0 ;
 	

@@ -51,6 +51,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  */
 public class PixelsStats
 {
+	
 	private PixelsStatsEntry[][] 		stats;
 	private PixelsGlobalStatsEntry[] 	globalStats;
     
