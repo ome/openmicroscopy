@@ -35,7 +35,8 @@ default:zeroFollowGroup
 
 default:Attribute
       a       owl:Class ;
-      rdfs:comment "Attributes are containers of raw information (and other attributes) attached to leaves."^^<http://www.w3.org/2001/XMLSchema#string> .
+      rdfs:comment "Attributes are containers of raw information (and other attributes) attached to leaves."^^<http://www.w3.org/2001/XMLSchema#string> ;
+      rdfs:subClassOf default:OMEObject .
 
 default:sizeC
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
@@ -60,12 +61,12 @@ default:Image
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:owner
+                owl:onProperty default:defaultPixels
               ] ;
       rdfs:subClassOf
               [ a       owl:Restriction ;
                 owl:minCardinality "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
-                owl:onProperty default:defaultPixels
+                owl:onProperty default:owner
               ] .
 
 default:defaultPixels
@@ -305,12 +306,6 @@ default:sizeY
       rdfs:range <http://www.w3.org/2001/XMLSchema#int> ;
       rdfs:subPropertyOf default:size .
 
-default:sumaryFollowGroup
-      a       default:FollowGroup ;
-      default:description "Defines the minimum informaton for types"^^<http://www.w3.org/2001/XMLSchema#string> ;
-      default:follows default:firstContainerFollow ;
-      default:label "SummaryFollowGroup"^^<http://www.w3.org/2001/XMLSchema#string> .
-
 default:pixelType
       a       owl:DatatypeProperty , owl:FunctionalProperty ;
       rdfs:domain default:Pixels ;
@@ -495,6 +490,12 @@ default:firstContainerFollow
 default:Chain
       a       owl:Class ;
       rdfs:subClassOf default:AnalysisComponent .
+
+default:summaryFollowGroup
+      a       default:FollowGroup ;
+      default:description "Defines the minimum informaton for types"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      default:follows default:firstContainerFollow ;
+      default:label "SummaryFollowGroup"^^<http://www.w3.org/2001/XMLSchema#string> .
 
 default:sizeZ
       a       owl:FunctionalProperty , owl:DatatypeProperty ;
