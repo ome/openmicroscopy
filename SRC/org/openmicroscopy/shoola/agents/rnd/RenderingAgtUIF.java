@@ -145,7 +145,8 @@ class RenderingAgtUIF
 		modelPane.removeAll();
 		modelPane = pane;
 		modelPane.buildComponent();
-		tabs.insertTab("Model", null, modelPane, null, POS_M);	
+		tabs.insertTab("Model", null, modelPane, null, POS_M);
+		tabs.setSelectedIndex(POS_M);	
 	}
 	
 	/** Initialize the components. */

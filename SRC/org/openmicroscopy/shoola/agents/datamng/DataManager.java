@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JCheckBoxMenuItem;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -103,6 +105,8 @@ public class DataManager
 	/** Reference to the topFrame. */
 	private TopFrame				topFrame;
 	
+	private JCheckBoxMenuItem		viewItem;
+	
 	/** 
 	 * All user's projects. 
 	 * That represents all user's data rooted by project objects. 
@@ -136,8 +140,10 @@ public class DataManager
 		registry = ctx;
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
+		control.attachListener();
 		topFrame = registry.getTopFrame();
-		topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
+		viewItem = getViewMenuItem();
+		topFrame.addToMenu(TopFrame.VIEW, viewItem);
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -554,8 +560,12 @@ public class DataManager
 	/** Display the widget. */
 	void showPresentation()
 	{
+		topFrame.removeFromDesktop(presentation);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
+		try {
+			presentation.setClosed(false);
+		} catch (Exception e) {}
+		presentation.setVisible(true);	
 	}
 	
 	/** Pop up the presentation. */
@@ -565,6 +575,22 @@ public class DataManager
 		try {
 			presentation.setIcon(false);
 		} catch (Exception e) {}	
+	}
+	
+	/** Select the menuItem. */
+	void setMenuSelection(boolean b)
+	{
+		viewItem.setSelected(b); 
+	}
+	
+	/** 
+	 * Menu item to add into the 
+	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
+	private JCheckBoxMenuItem getViewMenuItem()
+	{
+		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager");
+		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
+		return menuItem;
 	}
 	
 }

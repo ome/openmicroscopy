@@ -159,16 +159,6 @@ class DataManagerUIF
 		explPane.getManager().addNewDatasetToTree(projects);
 	}
 	
-	/** 
-	 * Menu item to add into the 
-	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar. */
-	JMenuItem getViewMenuItem()
-	{
-		JMenuItem menuItem = new JMenuItem("DataManager");
-		control.setMenuItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
-		return menuItem;
-	}
-	
 	/**
 	 * Returns the menu displayed for nodes in the tree.
 	 * 

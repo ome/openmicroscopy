@@ -35,6 +35,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JMenuItem;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
@@ -62,7 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 public class DataManagerCtrl
-	implements ActionListener
+	implements ActionListener, InternalFrameListener
 {
 	/**ID sed to handle events. */
 	static final int			DM_VISIBLE = 0;
@@ -75,6 +77,15 @@ public class DataManagerCtrl
 	DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
+	}
+	
+	/** 
+	 * Attach an InternalFrameListener to the 
+	 * {@link ViewerUIF presentaion}.
+	 */
+	void attachListener() 
+	{
+		abstraction.getPresentation().addInternalFrameListener(this);
 	}
 	
 	/** 
@@ -169,8 +180,8 @@ public class DataManagerCtrl
 		if (presentation != null) {
 			if (presentation.isClosed()) abstraction.showPresentation();	
 			if (presentation.isIcon()) abstraction.deiconifyPresentation();	
-		}  
-			
+			abstraction.setMenuSelection(true);
+		}  		
 	}	
 	
 	/** Forward event to the presentation {@link DataManagerUIF}. */
@@ -220,4 +231,46 @@ public class DataManagerCtrl
 		abstraction.updateImage(id, nameChange);
 	}
 	
+
+	/** Select the checkBox in menu. */
+	public void internalFrameOpened(InternalFrameEvent e)
+	{
+		abstraction.setMenuSelection(true);
+	}
+	
+	/** De-select the checkBox in menu. */
+	public void internalFrameClosing(InternalFrameEvent e)
+	{
+		abstraction.setMenuSelection(false);
+	}
+
+	/** De-select the checkBox in menu. */
+	public void internalFrameClosed(InternalFrameEvent e) 
+	{
+		abstraction.setMenuSelection(false);
+	}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameDeiconified(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameIconified(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameActivated(InternalFrameEvent e) {}
 }

@@ -32,7 +32,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
@@ -80,7 +80,7 @@ public class Viewer
 	private int					curImageID, curPixelsID;
 	private BufferedImage		curImage;
 	
-	private JMenuItem 			viewItem;
+	private JCheckBoxMenuItem	viewItem;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate() {}
@@ -105,17 +105,6 @@ public class Viewer
 	public boolean canTerminate() 
 	{
 		return true;
-	}
-
-	/** Display the presentation. */
-	void showPresentation()
-	{
-		topFrame.removeFromDesktop(presentation);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
-		try {
-			presentation.setClosed(false);
-		} catch (Exception e) {}	
 	}
 
 	ViewerUIF getPresentation()
@@ -192,13 +181,30 @@ public class Viewer
 		presentation.setImage(curImage);
 	}
 	
+	/** Select the menuItem. */
+	void setMenuSelection(boolean b)
+	{
+		viewItem.setSelected(b); 
+	}
+	
+	/** Display the presentation. */
+	void showPresentation()
+	{
+		topFrame.removeFromDesktop(presentation);
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		try {
+			presentation.setClosed(false);
+		} catch (Exception e) {}
+		presentation.setVisible(true);	
+	}
+
 	/** Pop up the presentation. */
 	void deiconifyPresentation()
 	{
 		topFrame.deiconifyFrame(presentation);
 		try {
 			presentation.setIcon(false);
-		} catch (Exception e) {}	
+		} catch (Exception e) {}
 	}
 	
 	/** Build the GUI. */
@@ -206,6 +212,7 @@ public class Viewer
 	{
 		control = new ViewerCtrl(this);
 		presentation = new ViewerUIF(control, registry);
+		control.attachListener();
 		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
 		viewItem.setEnabled(true);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
@@ -216,9 +223,9 @@ public class Viewer
 	 * Menu item to add to the 
 	 * {@link org.openmicroscopy.shoola.env.ui.TopFrame} menu bar.
 	 */
-	JMenuItem getViewMenuItem()
+	private JCheckBoxMenuItem getViewMenuItem()
 	{
-		JMenuItem menuItem = new JMenuItem("Viewer");
+		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Viewer");
 		menuItem.setEnabled(false);
 		return menuItem;
 	}

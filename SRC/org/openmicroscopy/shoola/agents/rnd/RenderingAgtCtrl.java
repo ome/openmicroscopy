@@ -35,6 +35,8 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
@@ -64,7 +66,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
  * @since OME2.2
  */
 public class RenderingAgtCtrl
-	implements ActionListener
+	implements ActionListener, InternalFrameListener
 {
 
 	/** Action command ID to display the {@link GreyScalePane}. */
@@ -82,7 +84,7 @@ public class RenderingAgtCtrl
 	/** Action command ID to display the Rendering frame. */
 	static final int		R_VISIBLE = 5;
 	
-	private boolean 		active;
+	private boolean 		displayed;
 	
 	private HashMap 		renderersPool;
 	
@@ -91,8 +93,22 @@ public class RenderingAgtCtrl
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
 		this.abstraction = abstraction;
-		active = false;
+		displayed = false;
 		renderersPool = new HashMap();
+	}
+	
+	/** 
+	 * Attach an InternalFrameListener to the 
+	 * {@link RenderingAgtUIF presentaion}.
+	 */
+	void attachListener()
+	{
+		abstraction.getPresentation().addInternalFrameListener(this);
+	}
+	
+	void setDisplayed(boolean b)
+	{
+		displayed = b;
 	}
 	
 	/** 
@@ -340,14 +356,58 @@ public class RenderingAgtCtrl
 	private void showPresentation()
 	{
 		RenderingAgtUIF presentation = abstraction.getPresentation();
-		if (presentation != null)
-			if (active) {
+		if (presentation != null) {
+			if (displayed) {
 				if (presentation.isClosed()) abstraction.displayPresentation();
 				if (presentation.isIcon()) abstraction.deiconifyPresentation();
 			} else {
 				abstraction.showPresentation();	
 			}
-			active = true;	
+			abstraction.setMenuSelection(true);
+			displayed = true;	
+		}
 	}
+	
+	/** Select the checkBox in menu. */
+	public void internalFrameOpened(InternalFrameEvent e)
+	{
+		abstraction.setMenuSelection(true);
+	}
+	
+	/** De-select the checkBox in menu. */
+	public void internalFrameClosing(InternalFrameEvent e)
+	{
+		abstraction.setMenuSelection(false);
+	}
+
+	/** De-select the checkBox in menu. */
+	public void internalFrameClosed(InternalFrameEvent e) 
+	{
+		abstraction.setMenuSelection(false);
+	}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameDeiconified(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameIconified(InternalFrameEvent e) {}
+
+	/** 
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void internalFrameActivated(InternalFrameEvent e) {}
 	
 }

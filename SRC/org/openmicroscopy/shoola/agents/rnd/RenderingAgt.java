@@ -29,11 +29,9 @@
 
 package org.openmicroscopy.shoola.agents.rnd;
 
-
-
 //Java imports
 import java.awt.Rectangle;
-import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
@@ -93,7 +91,7 @@ public class RenderingAgt
 	/** Reference to the topFrame. */
 	private TopFrame			topFrame;
 	
-	private JMenuItem 			viewItem;
+	private JCheckBoxMenuItem	viewItem;
 	
 	private int					curImageID, curPixelsID;
 	
@@ -156,11 +154,26 @@ public class RenderingAgt
 		curPixelsID = request.getPixelsID();
 	}
 	
+	/** Select the menuItem. */
+	void setMenuSelection(boolean b)
+	{
+		viewItem.setSelected(b); 
+	}
+	
+	/** Menu item to add to the {@link TopFrame} menu bar. */
+	private JCheckBoxMenuItem getViewMenuItem()
+	{
+		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Rendering");
+		menuItem.setEnabled(false);
+		return menuItem;
+	}
+	
 	/** Build the presentation. */
 	private void buildPresentation()
 	{
 		control  = new RenderingAgtCtrl(this);
 		presentation = new RenderingAgtUIF(control, registry);
+		control.attachListener();
 		control.setMenuItemListener(viewItem, RenderingAgtCtrl.R_VISIBLE);
 		viewItem.setEnabled(true);
 	}
@@ -183,18 +196,11 @@ public class RenderingAgt
 		buildPresentation();
 		if (displayed) {
 			presentation.setBounds(bounds);
+			control.setDisplayed(true);
 			displayed = true;
 			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 			presentation.setVisible(true);	
 		}	
-	}
-	
-	/** Menu item to add to the {@link TopFrame} menu bar. */
-	JMenuItem getViewMenuItem()
-	{
-		JMenuItem menuItem = new JMenuItem("Rendering");
-		menuItem.setEnabled(false);
-		return menuItem;
 	}
 	
 	/** Implement as specified by {@link EventBus}. */
@@ -236,7 +242,7 @@ public class RenderingAgt
 	/** Display the widget when it has been closed. */
 	void displayPresentation()
 	{
-		topFrame.removeFromDesktop(presentation);
+		//topFrame.removeFromDesktop(presentation);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
 		try {
