@@ -35,7 +35,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -72,11 +71,6 @@ public class ChainPaletteWindow extends JFrame  {
 	/** Chain canvas */
 	private ChainPaletteCanvas chainCanvas;
 	
-	private JButton zoom;
-	private JButton pan;
-	
-	private ChainPaletteOverviewWindow overview;
-
 	public ChainPaletteWindow(ChainDataManager dataManager) {
 		super(TITLE);
 		this.dataManager = dataManager;
@@ -84,9 +78,9 @@ public class ChainPaletteWindow extends JFrame  {
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 	}
 	
-	public void setOverview(ChainPaletteOverviewWindow overview) {
+	/*public void setOverview(ChainPaletteOverviewWindow overview) {
 		this.overview = overview;
-	}
+	}*/
 	
 	public void buildGUI() {
 		Container content = getContentPane();

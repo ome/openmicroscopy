@@ -73,7 +73,6 @@ public class ModulePaletteModuleView extends SingleModuleView {
 	}
 		
 	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
-		ModuleNodeEventHandler modHandler = (ModuleNodeEventHandler) handler;
 		showDetails();
 		moveUp();
 		super.mouseEntered(handler,e);

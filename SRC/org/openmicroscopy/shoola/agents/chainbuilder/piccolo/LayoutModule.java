@@ -61,7 +61,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 public class LayoutModule extends ModuleView {
 
 	private static double DUMMY_HEIGHT = 50;	
-	private static float VGAP=50f;
+	
 	
 	double x=0,y=0;
 	double height = 0;

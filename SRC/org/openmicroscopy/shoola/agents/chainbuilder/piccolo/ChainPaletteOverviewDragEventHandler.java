@@ -43,13 +43,11 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java Imports
-import java.awt.geom.Rectangle2D;
 
 //Third-party libraries
 
 
 import edu.umd.cs.piccolo.nodes.PPath;
-import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PDimension;
 import edu.umd.cs.piccolo.event.PDragEventHandler;
@@ -73,16 +71,13 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
 
 	private static final double BOUNDARY=30;
-	private Rectangle2D overBounds;
 	private PPath viewRect;
 	private ChainPaletteOverviewCanvas overviewCanvas;
-	private PCamera camera;
 	
 	public ChainPaletteOverviewDragEventHandler
 		(ChainPaletteOverviewCanvas overviewCanvas) {
 		super();
 		this.overviewCanvas = overviewCanvas;
-		camera = overviewCanvas.getCamera();
 		viewRect =overviewCanvas.getViewRect();
 	}
 

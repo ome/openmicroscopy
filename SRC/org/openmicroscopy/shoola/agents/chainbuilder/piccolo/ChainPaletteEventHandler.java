@@ -142,14 +142,14 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		else if (node instanceof PaletteModuleView) {
 			PaletteModuleView mod = (PaletteModuleView) node;
 			PaletteChainView chainView = mod.getChainViewParent();
-			if (chainView != null);
+			if (chainView != null)
 				setSelectedChain(chainView);
 		}
 	}
 	
 	private void setSelectedChain(ChainView chain) {
 		if (chain != null && chain.getChain() != null) {
-			((ChainPaletteCanvas) canvas).setDraggingChain(chain.getChain());;
+			((ChainPaletteCanvas) canvas).setDraggingChain(chain.getChain());
 		}
 		
 	}

@@ -130,7 +130,6 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		chainLayer.addChild(name);
 		name.setOffset(HGAP,VGAP*3);
 		
-		double width = name.getGlobalFullBounds().getWidth();
 		//		 one VGAP below + 3 above
 		y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*2); 
 		
@@ -148,10 +147,8 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		y += owner.getHeight()+VGAP*5;
 				
 		chainLayer.addChild(chainView);
-		float xoff = HGAP*2;
 		chainView.setOffset(HGAP*2,y);
 		double scale = chainView.getScale();
-		double yoff = chainView.getHeight()*scale;
 		y += chainView.getHeight()*scale+VGAP; 
 		double newWidth =chainView.getWidth()*scale;	
 		setExtent(newWidth+HGAP*2,y);

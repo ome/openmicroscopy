@@ -68,16 +68,12 @@ public class CmdTable {
 	
 	protected Hashtable actionMap;
 	
-	/** The main window that we're part of */
-	private UIManager uiManager;
-	
 	/**
 	 * 
 	 * @param c the {@link Controller} object for the current instance
 	 */
 	public CmdTable(final UIManager uiManager) {
 		
-		this.uiManager = uiManager;
 		actionMap = new Hashtable();
 			
 		actionMap.put("new chain",new ActionListener() {

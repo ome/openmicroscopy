@@ -122,7 +122,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	private float x=0;  /// was HGAP
 	private float y = 0;
 	private float top=0;
-	private float xInit;
 	
 	/**
 	 *A record of which nodes are in which layers
@@ -193,7 +192,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		nodeLayers = new NodeLayers(layers);
 		
 		for (int i=layers-1; i >=0; i--) {
-			Vector v = drawLayer(i);
+			Collection v = drawLayer(i);
 			nodeLayers.addLayer(v,i);
 			float height = getLayerHeight(v);
 			if (height > chainHeight)
@@ -207,7 +206,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * @param layerNumber
 	 * @return a list containing the nodes in the layer
 	 */
-	private Vector drawLayer(int layerNumber) {
+	private Collection drawLayer(int layerNumber) {
 		
 		Vector v = new Vector();
 		int layerSize=layering.getLayerSize(layerNumber);
@@ -288,7 +287,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	private void layoutNodes() {
 		int layerCount = layering.getLayerCount();
 		for (int i = layerCount-1; i >= 0; i--) {
-			Vector v=  nodeLayers.getLayer(i);
+			Collection v=  nodeLayers.getLayer(i);
 			// set the x position for the current layer
 			float origX = x;
 			
@@ -310,7 +309,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * 
 	 * @param v
 	 */
-	private double layoutLayer(Vector v) {
+	private double layoutLayer(Collection v) {
 		int size = v.size();
 		double layerWidth = 0;
 		// iterate out to find height
@@ -337,7 +336,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * @param v a layer
 	 * @return the height of the layer
 	 */
-	private float getLayerHeight(Vector v) {
+	private float getLayerHeight(Collection v) {
 		float total = 0;
 		Iterator iter = v.iterator();
 		ModuleView mod;
@@ -430,7 +429,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 		// the first new point goes at j=1, then j=2, etc
 	
 		for (int i = from.getLayer()-1, j = 1; i > to.getLayer();i--,j++) {
-			adjustLink(LayoutLinkData,from,to,link,modLink,i,j);
+			adjustLink(LayoutLinkData,link,modLink,i,j);
 		}
 	}
 	
@@ -445,8 +444,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * @param j index of the new point to be added. (1 for the first point,
 	 * 	then 2, etc.
 	 */
-	private void adjustLink(LayoutLinkData layoutLinkData,LayoutNodeData from,LayoutNodeData to,
-			ParamLink link, ModuleLink modLink,int i, int j) {
+	private void adjustLink(LayoutLinkData layoutLinkData,ParamLink link, ModuleLink modLink,int i, int j) {
 		
 		
 		//find appropriate node
@@ -511,19 +509,19 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * @since 	OME2.1	
 	 */
 	class NodeLayers {
-		private Vector[] nodeLayers;
+		private Collection[] nodeLayers;
 		private float[] layerXPositions;
 		
 		public NodeLayers(int size) {
-			nodeLayers = new Vector[size];
+			nodeLayers = new Collection[size];
 			layerXPositions = new float[size];
 		}
 		
-		public void addLayer(Vector v,int i) {
+		public void addLayer(Collection v,int i) {
 			nodeLayers[i]=v;
 		}
 		
-		public Vector getLayer(int i) {
+		public Collection getLayer(int i) {
 			return nodeLayers[i];
 		}
 		

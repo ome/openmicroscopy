@@ -96,8 +96,6 @@ public class UIManager
 	/** is this the first time the windows are being shown?*/
 	private boolean firstShowing = true;
 	
-	/** icon factory */
-	private IconFactory icons;
 	
 	/** the current chain frame */
 	private ChainFrame currentChainFrame;

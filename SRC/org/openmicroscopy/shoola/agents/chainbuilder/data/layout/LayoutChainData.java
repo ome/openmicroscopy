@@ -36,12 +36,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureError;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainStructureErrors;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.CircularChainError;
@@ -90,12 +91,13 @@ public class LayoutChainData  extends AnalysisChainData
 	private boolean hasCycles = false;
 	
 	/** lists of all of unbound inputs and outputs */
-	private Vector unboundInputs = new Vector();
-	private Vector unboundOutputs = new Vector();
+	private Collection unboundInputs = new Vector();
+	private Collection unboundOutputs = new Vector();
 
 	/** hash maps of input links and output links */
-	private HashMap inputLinkMap = null;
-	private HashMap outputLinkMap = null;
+	private Map inputLinkMap = null;
+	private Map outputLinkMap = null;
+	
 	public void layout() {
 		validateChainStructure();
 		getUnbounded();
@@ -192,7 +194,7 @@ public class LayoutChainData  extends AnalysisChainData
 		}
 	}
 	
-	private void addLinkToHash(HashMap inputs,LayoutLinkData link,
+	private void addLinkToHash(Map inputs,LayoutLinkData link,
 			FormalParameterData inp,LayoutNodeData node) {
 	HashMap nodeMap;
 		Integer nodeId;
@@ -262,7 +264,7 @@ public class LayoutChainData  extends AnalysisChainData
 		hasCycles = false;
 	}
 	
-	private boolean hasInLinks(LayoutNodeData node,Vector links) {
+	private boolean hasInLinks(LayoutNodeData node,Collection links) {
 		Iterator iter = links.iterator();
 		LayoutLinkData link;
 		while (iter.hasNext()) {
@@ -274,7 +276,7 @@ public class LayoutChainData  extends AnalysisChainData
 		return false;
 	}
 	
-	private Vector getOutLinks(LayoutNodeData node,Vector links) {
+	private Vector getOutLinks(LayoutNodeData node,Collection links) {
 		Iterator iter = links.iterator();
 		LayoutLinkData link;
 		Vector res = null;
@@ -347,8 +349,8 @@ public class LayoutChainData  extends AnalysisChainData
 	 * that we're building
 	 *
 	 */
-	private void getUnbounded(LayoutNodeData node,List params,HashMap linkMap,
-			Vector unbounded) {
+	private void getUnbounded(LayoutNodeData node,List params,Map linkMap,
+			Collection unbounded) {
 		Iterator iter = params.iterator();
 		FormalParameterData param;
 		while (iter.hasNext()) {
@@ -377,7 +379,7 @@ public class LayoutChainData  extends AnalysisChainData
 		}
 	}
 	
-	private void dumpUnbounded(Vector unbounded) {
+	/*private void dumpUnbounded(Vector unbounded) {
 		if (unbounded.size() > 5 ) {
 			System.err.println("..."+unbounded.size()+" unbounded");
 			return;
@@ -388,17 +390,17 @@ public class LayoutChainData  extends AnalysisChainData
 			p = (UnboundedParameter) iter.next();
 			System.err.println("..param.."+p.getParam().getName()+", node.."+p.getNode().getID());
 		}
-	}
+	}*/
 	
-	public Vector getUnboundInputs() {
+	public List getUnboundInputs() {
 		return getParamList(unboundInputs); 
 	}
 	
-	public Vector getUnboundOutputs() {
+	public List getUnboundOutputs() {
 		return getParamList(unboundOutputs);
 	}
 	
-	private Vector getParamList(Vector unbounds) {
+	private List getParamList(Collection unbounds) {
 		Iterator iter = unbounds.iterator();
 		Vector res = new Vector();
 		while (iter.hasNext()){
@@ -569,7 +571,7 @@ public class LayoutChainData  extends AnalysisChainData
 	 * @param newLinks the new successors of that node.
 	 */
 	private void makeProperLink(GraphLayoutNode node,LayoutLink link,int i,
-		HashSet newLinks) {
+		Set newLinks) {
 		// we know node is at i.
 		
 		GraphLayoutNode to = link.getToNode();
@@ -760,20 +762,20 @@ public class LayoutChainData  extends AnalysisChainData
 	}
 	
 	
-	private void dumpChain() {
+	/*private void dumpChain() {
 		System.err.println("dumping layers for chain ..."+getName());
 	 	dumpLayers();
 		System.err.println("...dumping nodes..");
 		dumpNodes();
 		System.err.println("...dumping Links...");
 		dumpLinks();
-	}
+	}*/
 	
 	/**
 	 * Debug code to print the layers.
 	 *
 	 */
-	private void dumpLayers() {
+	/*private void dumpLayers() {
 		System.err.println("Chain is "+getName());
 		int count = layering.getLayerCount();
 		for (int i =0; i < count; i++) {
@@ -838,7 +840,7 @@ public class LayoutChainData  extends AnalysisChainData
 		}
 		else
 			System.err.println("dummy node...");	
-	}
+	}*/
 	
 	public int compareTo(Object o) {
 		if (o instanceof LayoutChainData) {

@@ -67,10 +67,7 @@ public class ModuleTreeNode extends DefaultMutableTreeNode {
 	/** the name of the node */
 	private String name;
 
-	/**
-	 * It's also got an ID. - defaults to -1, meaning not an ome object
-	 */
-	private int id=-1;
+	
 
 
 	/**
@@ -87,7 +84,6 @@ public class ModuleTreeNode extends DefaultMutableTreeNode {
 	public ModuleTreeNode(String s,int id) {
 		super();
 		name = s;
-		this.id = id;
 	}
 
 	public ModuleTreeNode(String s) {

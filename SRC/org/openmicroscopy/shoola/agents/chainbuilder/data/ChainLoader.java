@@ -42,8 +42,8 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
-import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
-import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+//import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
+//import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.util.data.ContentGroup;
 import org.openmicroscopy.shoola.util.data.ContentLoader;
 
@@ -105,7 +105,6 @@ public class ChainLoader extends ContentLoader
 		while (iter.hasNext()) {
 			LayoutNodeData node = (LayoutNodeData) iter.next();
 			reconcileNode(node);
-			Integer id = new Integer(node.getID());
 		}
 	}
 	
@@ -119,7 +118,7 @@ public class ChainLoader extends ContentLoader
 	
 	
 	
-	private void dumpChains() {
+	/*private void dumpChains() {
 		LayoutChainData chain;
 		if (chains == null)
 			return;
@@ -185,5 +184,5 @@ public class ChainLoader extends ContentLoader
 		System.err.println(".... to input"+link.getToInput().getID()+
 			", st .."+link.getToInput().getSemanticType().getID());
 		
-	}
+	}*/
 }

@@ -42,7 +42,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 //Java imports
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.HashSet;
+import java.util.Set;
  
 //Third-party libraries
 
@@ -71,7 +71,7 @@ public interface GraphLayoutNode {
 	
 	public Iterator predLinkIterator();
 	
-	public void setSuccLinks(HashSet newLinks);
+	public void setSuccLinks(Set newLinks);
 	
 	public void addSuccLink(LayoutLink link);
 	

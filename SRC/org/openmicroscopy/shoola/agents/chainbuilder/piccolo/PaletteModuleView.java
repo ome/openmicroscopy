@@ -50,14 +50,13 @@ import java.util.Iterator;
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainNodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
-import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
@@ -99,19 +98,19 @@ public class PaletteModuleView extends SingleModuleView {
 	 * The main constructor 
 	 * @param module The OME Module being represented
 	 */
-	public PaletteModuleView(AnalysisNodeData node,Collection nexes) {
+	public PaletteModuleView(AnalysisNodeData node,Collection nexes,int maxCount) {
 		super((ChainModuleData) node.getModule());
 		showDetails();
 		labelNodes.setPickable(false);
 		if (nexes != null && nexes.size() > 0)
-			addNexes(nexes);
+			addNexes(nexes,maxCount);
 	}
 	
 	/**
 	 * Add the widgets for the individual mexes.
 	 * @param mexes
 	 */
-	private void addNexes(Collection nexes) {
+	private void addNexes(Collection nexes,int maxCount) {
 		
 		// set up the mex node
 		double x = 0;
@@ -122,12 +121,12 @@ public class PaletteModuleView extends SingleModuleView {
 		addChild(nexNode);
 		
 		// add the mexes.
-		NodeExecutionData nex;
+		ChainNodeExecutionData nex;
 		Iterator iter = nexes.iterator();
 		NexView view;
 		
 		while (iter.hasNext()) {
-			nex = (NodeExecutionData) iter.next();
+			nex = (ChainNodeExecutionData) iter.next();
 			view = new NexView(nex);
 			nexNode.addChild(view);
 			if (x + view.getWidth() > width) {
@@ -206,13 +205,6 @@ public class PaletteModuleView extends SingleModuleView {
 	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		setAllHighlights(true);
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
-	}
-	
-	private PBounds getZoomInBounds() {
-		PBounds b = getGlobalBounds();
-		double buf = getGlobalScale()*60;
-		return new PBounds(b.getX()-buf,b.getY()-buf,
-				b.getWidth()+buf*2,b.getHeight()*2);
 	}
 	
 }

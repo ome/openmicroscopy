@@ -185,7 +185,7 @@ public class ModulePaletteWindow
 		tb.setFloatable(false);
 		tb.add(newChain);
 		content.add(tb,BorderLayout.NORTH);
-		moduleCanvas = new ModulePaletteCanvas(this);
+		moduleCanvas = new ModulePaletteCanvas();
 		moduleCanvas.setContents(modData);
 		long start;
 		if (ChainBuilderAgent.DEBUG_TIMING)
@@ -345,8 +345,8 @@ public class ModulePaletteWindow
 			topWindowManager = manager;
 			ContentGroup group = new ContentGroup(this);
 			modLoader = new ModuleLoader(dataManager,group);
-			ChainExecutionLoader execLoader = new ChainExecutionLoader(dataManager,group);
-			ChainLoader chainLoader = new ChainLoader(dataManager,group);
+			new ChainExecutionLoader(dataManager,group); // must execute this, but don't need the poitner to it.ê
+			new ChainLoader(dataManager,group);
 			
 			group.setAllLoadersAdded();
 			dataState = LOADING;

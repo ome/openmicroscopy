@@ -98,24 +98,15 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 	private static final float TOP=20f;
 	private static final float LEFT=20f;
 	private static final float VGAP=10f;
-	private static final float NAME_INSET=20;
 	private static final float ROW_GAP=3.0f;
 	
 	
 
-	/**
-	 * The initial magnification of the  canvas
-	 */
-	private static float INIT_SCALE=1.0f;
 	
 	/**
 	 * The layer for the canvas. 
 	 */
 	private PLayer layer;
-	
-	
-	/** The main window that this is part of */
-	private ModulePaletteWindow main;
 	
 	/** The data describing the modules */
 	private ModulesData modData;
@@ -135,10 +126,9 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
     
   
 		
-	public ModulePaletteCanvas(ModulePaletteWindow main) {
+	public ModulePaletteCanvas() {
 		
 		super();
-		this.main = main;
 		layer = getLayer();
 		
 		setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING);
@@ -320,9 +310,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 		float y =TOP;
 		Vector curStrip = new Vector();
 		SortableBufferedObject box;
-		float x = LEFT;
 		Object obj=null;
-		PBounds b;
 		double childrenCountRoot = Math.sqrt(node.getChildrenCount());
 	
 		// if the node is a categorybox, skip over the label	

@@ -112,13 +112,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	 */
 	private static float VGAP=20f;
 	
-	/** 
-	 * Horizonal space betwen chains
-	 * 
-	 */
-	private static float HGAP=40f;
-	
-	
 	/**
 	 * Scengraph layer for the canvas.
 	 */
@@ -233,7 +226,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		// the current chain
 		
 		
-		LayoutChainData chain;
 		PaletteChainView view;
 		
 		Collection chains = dataManager.getChains();
@@ -450,7 +442,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	 * it's too difficult to figure.  
 	 */
 	private void placeChainInNewRow(ChainBox box) {
-		float height = 0;
 		
 		float width = (float)box.getWidth();
 		y+=rowHeight;

@@ -74,17 +74,16 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 public class PaletteChainView extends ChainView {
 	
 	private Registry registry;
- 
-	private ChainCompoundModuleView compoundView;
 	
-	private boolean showingFull = false;
+	private transient ChainExecutionsByNodeID executions;
 	
-	private ChainExecutionsByNodeID executions;
+	private transient int maxExecCount;
 	
 	public PaletteChainView(LayoutChainData chain,ChainDataManager dataManager) {
 		super(chain);
 		this.registry = dataManager.getRegistry();
 		this.executions = dataManager.getChainExecutionsByChainID(chain.getID());
+		maxExecCount = dataManager.getMaxNodeExecutionCount();
 		drawChain();
 		setPickable(false);
 	}	
@@ -106,8 +105,7 @@ public class PaletteChainView extends ChainView {
 		Collection nexes = null;
 		if (executions != null)
 			nexes = executions.getNexes(node);
-		PaletteModuleView moduleView = 
-			new PaletteModuleView(node,nexes);
+		PaletteModuleView moduleView = new PaletteModuleView(node,nexes,maxExecCount);
 		//find the execution here..
 		return moduleView;
 	}
@@ -127,20 +125,7 @@ public class PaletteChainView extends ChainView {
 		return null; 
 	}
 			
-	//	 if this chain is in a chainbox - which would then be the grandparent
-	// return a chain box that is the enclosing grandparent
-	private ChainBox getParentChainBox() {
-		PNode parent = getParent();
-		if (parent == null)
-			return null;
-		parent = parent.getParent();
-		if (parent == null)
-			return null;
-		if (parent instanceof ChainBox)
-			return ((ChainBox) parent);
-		else 
-			return null;
-	}
+	
 	
 	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
 		ChainPaletteEventHandler chainHandler = (ChainPaletteEventHandler) handler;

@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import 
 	 org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainPaletteOverviewCanvas;
 
@@ -64,22 +62,16 @@ public class ChainPaletteOverviewWindow extends JFrame  {
 	private static final String TITLE="Overview";
 	
 	public static final int SIDE=150;
-	/** Data manager*/
-	private ChainDataManager dataManager;
 	
 	/** Chain canvas */
 	private ChainPaletteOverviewCanvas overviewCanvas;
 	
 	/** the chain window we're tied to */
 	private ChainPaletteWindow palette;
-	private JButton zoom;
-	private JButton pan;
-
+	
 	public ChainPaletteOverviewWindow(ChainPaletteWindow palette) {
 		super(TITLE);
 		this.palette = palette;
-		if (palette != null)
-			palette.setOverview(this);
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setResizable(false);

@@ -36,7 +36,7 @@ import edu.umd.cs.piccolo.nodes.PPath;
 
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainNodeExecutionData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
@@ -52,11 +52,12 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  */
 public class NexView extends PPath {
 	
-	private NodeExecutionData nex;
+	private ChainNodeExecutionData nex;
 
-	public NexView(NodeExecutionData nex) {
+	public NexView(ChainNodeExecutionData nex) {
 		super();
 		this.nex =nex;
+		nex.setNexView(this);
 		// set path
 		setPathToRectangle(0,0,Constants.NEX_SIDE,Constants.NEX_SIDE);
 		setPaint(Constants.NEX_COLOR);

@@ -40,6 +40,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
  
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
@@ -65,7 +66,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 public class ChainStructureErrors {
 	
-	private Vector errors;
+	private Collection errors;
 	private AnalysisChainData chain;
 	
 	public ChainStructureErrors(AnalysisChainData chain) {
@@ -78,7 +79,7 @@ public class ChainStructureErrors {
 		errors.add(error);
 	}
 	
-	public void addErrors(Vector newErrors) {
+	public void addErrors(Collection newErrors) {
 		if (errors == null)
 			errors = new Vector();
 		errors.addAll(newErrors);

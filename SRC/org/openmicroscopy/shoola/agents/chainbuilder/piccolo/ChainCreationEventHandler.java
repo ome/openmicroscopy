@@ -174,7 +174,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * The last parameter node and last module node that we entered
 	 */
 	private FormalParameter lastParameterEntered;
-	private ModuleView lastModuleEntered;
 	
 	/**
 	 * The {@link LinkSelectionTarget} that was selected to start the 
@@ -187,10 +186,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	private LinkLayer linkLayer;
 	
-	/**
-	 * The start of the a link in progress
-	 */
-	private Point2D.Float linkStart = new Point2D.Float();
 	
 	/**
 	 * The origin of a link that is being created
@@ -210,7 +205,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	/**
 	 * When multiple links are being created, a list of the links in progress
 	 */
-	private Vector links = new Vector();
+	private Collection links = new Vector();
 	
 	/**
 	 * The currently selected module
@@ -690,7 +685,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			mousePressedModule(node);
 
 		if (linkState == LINKING_PARAMS)
-			mousePressedLinkingParams(node,e);
+			mousePressedLinkingParams(e);
 		else if (linkState == LINKING_MODULES)
 			mousePressedLinkingModules(node,e);
 		else if (linkState == NOT_LINKING) 
@@ -698,7 +693,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		else if (linkState == LINK_CHANGING_POINT)
 			mousePressedChangingPoint(node,e);
 		else if (linkState == LINKING_MODULE_TARGETS)
-			mousePressedLinkingModuleTargets(node,e);
+			mousePressedLinkingModuleTargets(e);
 		else {
 			if (ChainBuilderAgent.DEBUG > 3)
 				System.err.println("mouse pressed..setting link state to not linking..");
@@ -756,7 +751,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param node the link that for the pressed event
 	 * @param e the pressed event
 	 */
-	private void mousePressedLinkingParams(PNode node,PInputEvent e) {
+	private void mousePressedLinkingParams(PInputEvent e) {
 		//System.err.println("mouse pressed linking params "+e);
 		
 		if (e.getClickCount() ==2) {
@@ -786,7 +781,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * @param node the link that for the pressed event
 	 * @param e the pressed event
 	 */
-	private void mousePressedLinkingModuleTargets(PNode node,PInputEvent e) {
+	private void mousePressedLinkingModuleTargets(PInputEvent e) {
 		if (ChainBuilderAgent.DEBUG >3)
 			System.err.println("mouse pressed linking module targets "+e);
 		PNode n = e.getPickedNode();
@@ -1216,7 +1211,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			    	
 	
 
-	private boolean hasInLinks(ModuleView module,Vector links) {
+	private boolean hasInLinks(ModuleView module,Collection links) {
 		Iterator iter = links.iterator();
 		ParamLink link;
 		while (iter.hasNext()) {
@@ -1228,7 +1223,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		return false;
 	}
 	
-	private Vector getOutLinks(ModuleView module,Vector links) {
+	private Vector getOutLinks(ModuleView module,Collection links) {
 		Iterator iter = links.iterator();
 		ParamLink link;
 		Vector res = null;

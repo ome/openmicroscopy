@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
+import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,7 +40,6 @@ import java.util.Vector;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
-import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 
 /** 
@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 */
 public class ChainExecutionsByNodeID {
 	
-	private HashMap map = null;
+	private Map map = null;
 	
 	public ChainExecutionsByNodeID(Collection execs) {
 		if (execs == null) 
@@ -80,20 +80,20 @@ public class ChainExecutionsByNodeID {
 	 * and the module execution
 	 */
 	private void addChainExecution(ChainExecutionData exec) {
-		NodeExecutionData nodeExec;
+		ChainNodeExecutionData nodeExec;
 		
 		Collection nodeExecs = exec.getNodeExecutions();
 		if (nodeExecs == null) 
 			return;
 		Iterator iter = nodeExecs.iterator();
 		while (iter.hasNext()) {
-			nodeExec = (NodeExecutionData) iter.next();
+			nodeExec = (ChainNodeExecutionData) iter.next();
 			addNodeExecution(nodeExec);
 		}
 	}
 	
 	/** add the individual node execution */
-	private void addNodeExecution(NodeExecutionData exec) {
+	private void addNodeExecution(ChainNodeExecutionData exec) {
 		AnalysisNodeData node = exec.getAnalysisNode();
 		Integer id = new Integer(node.getID());
 		
@@ -110,24 +110,24 @@ public class ChainExecutionsByNodeID {
 	}
 	
 	/** 
-	 * Get the list of mexes for a node with a given id
+	 * Get the list of nexes for a node with a given id
 	 * @param id
 	 * @return
 	 */
-	public Vector getNexes(int id) {
+	public Collection getNexes(int id) {
 		if (!hasExecs())
 			return null;
 		Object obj = map.get(new Integer(id));
 		if (obj == null)
 			return null;
-		return (Vector) obj;
+		return (Collection) obj;
 	}
 	
 	/****
-	 * Get the list of mexes for a given module
+	 * Get the list of nexes for a given module
 	 * @return
 	 */
-	public Vector getNexes(AnalysisNodeData node) {
+	public Collection getNexes(AnalysisNodeData node) {
 		return getNexes(node.getID());
 	}
 	

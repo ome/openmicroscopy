@@ -77,11 +77,6 @@ public abstract class Link extends  PPath implements NodeEventListener {
 	
 	
 
-	/**
-	 * 
-	 *  degree for splines.
-	 **/
-	private static final int DEGREE = 3;
 	
 	/** 
 	 * The list of points in the link
@@ -267,10 +262,6 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		double width =w2;
 		double step = 1./width;
 		double t = step;
-		float x;
-		float y;
-		double newx=0;
-		double newy=0;
 		
 		double[] pxi = new double[n];
 		double[] pyi = new double[n];

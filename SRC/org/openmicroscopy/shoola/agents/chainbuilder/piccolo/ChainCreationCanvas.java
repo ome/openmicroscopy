@@ -122,10 +122,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 	 */
 	private ChainCreationEventHandler handler;
 	
-	/**
-	 * DataTransfer bookkeeping
-	 */
-	private DropTarget dropTarget = null;
+
 	
 	/**
 	 * The frame contaiing this canvas
@@ -161,7 +158,8 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		addInputEventListener(handler);
 		
 		// data transfer support
-		dropTarget = new DropTarget(this,this);
+		// need to create this object, but don't need to keep it around.
+		new DropTarget(this,this);
 		
 		// set magnification
 		final PCamera camera = getCamera();

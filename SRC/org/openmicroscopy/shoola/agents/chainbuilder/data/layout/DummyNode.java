@@ -43,6 +43,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -80,10 +81,10 @@ public class DummyNode implements GraphLayoutNode {
 	 * Store the successors and predecessors, along with appropriate links
 	 * in Hashes.
 	 */
-	protected HashSet succLinks = new HashSet();
-	protected HashSet predLinks = new HashSet();
-	protected HashSet succs  = new HashSet();
-	protected HashSet preds = new HashSet();
+	protected Set succLinks = new HashSet();
+	protected Set predLinks = new HashSet();
+	protected Set succs  = new HashSet();
+	protected Set preds = new HashSet();
 	
 	
 	private ModuleView mod = null;
@@ -180,7 +181,7 @@ public class DummyNode implements GraphLayoutNode {
 	
 	
 	
-	public void setSuccLinks(HashSet links) {
+	public void setSuccLinks(Set links) {
 		succLinks = links;
 	}
 	

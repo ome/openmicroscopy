@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 import javax.swing.event.EventListenerList;
@@ -106,17 +107,13 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 * Some static constants for convenience.
 	 */
 	
-	private static final float DEFAULT_WIDTH=80;
-	private static final float DEFAULT_HEIGHT=50;
 	private static final float DEFAULT_ARC_WIDTH=10.0f;
 	private static final float DEFAULT_ARC_HEIGHT=10.0f;
 	private static final float NAME_LABEL_OFFSET=5.0f;
 	private static final float NAME_SPACING=10.0f;
 	public static final float PARAMETER_SPACING=3.0f;
-	private static final float HORIZONTAL_GAP =5.0f;
 	private static final float ALIGNMENT_BUFFER=30;
     private static final float NAME_MAG=1;
-	private static final float ZOOM_MAG=2;
 	private static final float LAST_ST_BUFFER=5f;
 	private static final float BOTTOM_GAP=30;
 	
@@ -148,11 +145,6 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	private float width=0;
 	
 	private float noLabelHeight;
-	private float noLabelWidth;
-	/**
-	 * The Width of the name node.
-	 */
-	private float nameWidth=0;
 	
 	/**
 	 *  The node that will contain nodes for each of the formal parameters
@@ -229,10 +221,6 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		zoomName.setPickable(false);
 		zoomName.setConstrainWidthToTextWidth(false); 
 		
-		double zwidth;
-		double zheight;
-		//float scale = ZOOM_MAG;
-		//zoomName.setScale(scale);
 		overview.addChild(zoomName);	
 		zoomName.setBounds(new PBounds(NAME_LABEL_OFFSET,NAME_LABEL_OFFSET,
 				width-2*NAME_LABEL_OFFSET,height));
@@ -691,7 +679,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 * can be link origins. These parameters are identified via
 	 * 	a {@link PNodeFilter}
 	 */
-	public TreeSet getInputParameters() {
+	public Set getInputParameters() {
 		PNodeFilter inputFilter = new PNodeFilter() {
 			public boolean accept(PNode aNode) {
 				// want only those things that are inputs.
@@ -715,7 +703,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 * don't have incoming linksThese parameters are identified via
 	 * 	a {@link PNodeFilter}
 	 */
-	public TreeSet getUnlinkedInputParameters() {
+	public Set getUnlinkedInputParameters() {
 		PNodeFilter inputFilter = new PNodeFilter() {
 			public boolean accept(PNode aNode) {
 				// want only those things that are inputs.
@@ -819,7 +807,6 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	
 	private float getLargestNameHeight() {
 		if (maxNameHeight == 0f) {
-			String longest = ChainModuleData.getLongestName();
 			name = new PText(getName());
 			name.setFont(Constants.NAME_FONT);
 			name.setScale(NAME_MAG);
@@ -834,7 +821,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 * @return a sorted list of all of the output parameters. These parameters 
 	 * are identified via a {@link PNodeFilter}
 	 */
-	public TreeSet getOutputParameters() {
+	public Set getOutputParameters() {
 		PNodeFilter outputFilter = new PNodeFilter() {
 			public boolean accept(PNode aNode) {
 				return (aNode instanceof FormalOutput);
@@ -851,7 +838,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 * @return a sorted list of all of the input parameters. These parameters 
 	 * are identified via a {@link PNodeFilter}
 	 */
-	public TreeSet getAllInputParameters() {
+	public Set getAllInputParameters() {
 		PNodeFilter inputFilter = new PNodeFilter() {
 			public boolean accept(PNode aNode) {
 				return (aNode instanceof FormalInput);

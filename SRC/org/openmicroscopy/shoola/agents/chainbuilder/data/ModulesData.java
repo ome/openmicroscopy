@@ -30,8 +30,10 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
-import java.util.Vector;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Vector;
+
 
 //Third-party libraries
 
@@ -56,8 +58,8 @@ import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
  */
 public class ModulesData
 {
-	private Vector uncategorizedModules = new Vector();
-	private Vector rootModuleCategories = new Vector();
+	private Collection uncategorizedModules = new Vector();
+	private Collection rootModuleCategories = new Vector();
 	
 	public ModulesData() {
 	}

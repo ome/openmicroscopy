@@ -146,7 +146,6 @@ public class ChainCompoundModuleView extends ModuleView {
 	}
 	
 	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
-		ChainPaletteEventHandler modHandler = (ChainPaletteEventHandler) handler;
 		showDetails();
 		moveUp();
 		super.mouseEntered(handler,e);

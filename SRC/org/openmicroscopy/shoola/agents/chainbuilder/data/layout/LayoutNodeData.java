@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 //Java imports
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 
 //Third-party libraries
@@ -77,10 +78,10 @@ public class LayoutNodeData  extends AnalysisNodeData
 	 * Store the successors and predecessors, along with appropriate links
 	 * in Hashes.
 	 */
-	protected HashSet succLinks = new HashSet();
-	protected HashSet predLinks = new HashSet();
-	protected HashSet succs  = new HashSet();
-	protected HashSet preds = new HashSet();
+	protected Set succLinks = new HashSet();
+	protected Set predLinks = new HashSet();
+	protected Set succs  = new HashSet();
+	protected Set preds = new HashSet();
 		
 	public LayoutNodeData() {}
 	
@@ -234,7 +235,7 @@ public class LayoutNodeData  extends AnalysisNodeData
 
 
 
-	public void setSuccLinks(HashSet links) {
+	public void setSuccLinks(Set links) {
 		succLinks = links;
 	}
 

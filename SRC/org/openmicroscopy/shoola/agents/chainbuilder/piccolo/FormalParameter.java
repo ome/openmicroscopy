@@ -41,6 +41,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 import java.awt.geom.Point2D;
 import javax.swing.event.EventListenerList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -110,12 +111,12 @@ public abstract class FormalParameter extends PNode implements
 	/**
 	 * A list of {@link FormalParameter} object that this one is linked to
 	 */
-	protected  Vector linkedTo = new Vector();
+	protected Vector linkedTo = new Vector();
 	
 	/**
 	 * A list of {@link PLinks} involving this parameter
 	 */
-	protected Vector links = new Vector();
+	protected Collection links = new Vector();
 	 
 	 /**
 	  * True if a link to this parameter can be added
@@ -434,12 +435,10 @@ public abstract class FormalParameter extends PNode implements
 	}
 	
 	public float getLabelWidth() {
-		PBounds b = labelNode.getFullBoundsReference();
 		return (float) labelNode.getFullBoundsReference().getWidth();	
 	}
 	
 	public float getLabelHeight() {
-		PBounds b = labelNode.getFullBoundsReference();
 		return (float) labelNode.getFullBoundsReference().getHeight()
 			*HEIGHT_PORTION;
 	}
