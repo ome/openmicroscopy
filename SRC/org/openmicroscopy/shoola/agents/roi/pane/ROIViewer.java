@@ -34,11 +34,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -52,6 +55,7 @@ import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
 import org.openmicroscopy.shoola.agents.roi.canvas.ROIImageCanvas;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -79,6 +83,16 @@ public class ROIViewer
 
     private static final String     MAX_LETTER = "1000%";
     
+    static final int                PIXELS = 0, REAL = 1, MAX = 1;
+    
+    private static final String[]   UNITS;
+    
+    static {
+        UNITS = new String[MAX+1];
+        UNITS[PIXELS] = "pixels";
+        //UNIT
+    }
+    
     private boolean                 active;
     
     JButton                         magPlus, magMinus, magFit;
@@ -88,6 +102,10 @@ public class ROIViewer
     JLayeredPane                    layer;
     
     JTextField                      magText;
+    
+    JComboBox                       units;
+    
+    private JLabel                  xyInfo, whInfo;
     
     private ROIImageCanvas          roiCanvas;
     
@@ -107,8 +125,23 @@ public class ROIViewer
         setTitle("ROI #"+index);
     }
     
-    public void setImage(BufferedImage img)
+    public void resetMagnificationFactor()
     {
+        mng.resetMagnificationFactor();
+    }
+    
+    //NOTE: pa copy of the original drawn on screen. 
+    public void setImage(BufferedImage img, PlaneArea pa)
+    {
+        if (pa == null)
+            setWHInfo(0, 0);
+        else {
+            Rectangle r = pa.getBounds();
+            setXYInfo(r.x, r.y);
+            setWHInfo(r.width, r.height);
+            //Set the bounds for the clip
+            pa.setBounds(0, 0, r.width, r.height);
+        }
         if (!active) {
             if (img != null) {
                 setComponentsSize((int) (img.getWidth()*mng.getFactor()),
@@ -116,7 +149,7 @@ public class ROIViewer
                 active = true;
             }
         }
-        roiCanvas.paintImage(img); 
+        roiCanvas.paintImage(img, pa); 
     }
     
     void magnify(double f)
@@ -129,13 +162,32 @@ public class ROIViewer
         roiCanvas.magnify(f);
     }
     
-    void setComponentsSize(int w, int h)
+    private void setComponentsSize(int w, int h)
     {
         Dimension d = new Dimension(w, h);
         roiCanvas.setPreferredSize(d);
         roiCanvas.setSize(d);
         layer.setPreferredSize(d);
         layer.setSize(d);
+    }
+    
+    private void setXYInfo(int x, int y)
+    {
+        String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
+        html += "<td>x:<br>y:</td>";
+        html += "<td align=right>"+x+"<br>"+y+"</td>";
+        html += "</tr></table><html>";
+        xyInfo.setText(html);
+
+    }
+    
+    void setWHInfo(int w, int h)
+    {
+        String  html = "<html><table colspan=0 rowspan=0 border=0><tr>";
+        html += "<td>width:<br>height:</td>";
+        html += "<td align=right>"+w+"<br>"+h+"</td>";
+        html += "</tr></table><html>";
+        whInfo.setText(html);
     }
     
     private void initComponents(IconManager im)
@@ -155,6 +207,14 @@ public class ROIViewer
         magFit = new JButton(im.getIcon(IconManager.ZOOM_FIT));
         magFit.setToolTipText(
             UIUtilities.formatToolTipText("Reset."));
+        units = new JComboBox(UNITS);
+        units.setToolTipText(
+                UIUtilities.formatToolTipText("Reset."));
+        xyInfo = new JLabel();
+        setXYInfo(0, 0);
+        whInfo = new JLabel();
+        setWHInfo(0, 0);
+        
     }
     
     private void buildGUI(ROIViewerMng mng)
@@ -168,6 +228,7 @@ public class ROIViewer
         scrollPane = new JScrollPane(layer);
         container.add(buildBar(), BorderLayout.NORTH);
         container.add(scrollPane, BorderLayout.CENTER);
+        container.add(buildBottomBar(), BorderLayout.SOUTH);
     }
     
     private JPanel buildBar()
@@ -187,10 +248,23 @@ public class ROIViewer
         bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
         bar.add(magMinus);
         bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
-        bar.add(magFit);
-        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
         bar.add(magPlus);
+        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
+        bar.add(magFit);
         return bar;
     }
     
+    private JPanel buildBottomBar()
+    {
+        JPanel p = new JPanel(), textPanel = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.X_AXIS));
+        textPanel.add(xyInfo);
+        textPanel.add(Box.createRigidArea(ROIAgtUIF.HBOX));
+        textPanel.add(whInfo);
+        p.add(UIUtilities.buildComponentPanel(units));
+        p.add(Box.createRigidArea(ROIAgtUIF.HBOX));
+        p.add(textPanel);
+        return UIUtilities.buildComponentPanel(p);
+    }
 }

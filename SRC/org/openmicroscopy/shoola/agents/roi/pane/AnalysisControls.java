@@ -111,7 +111,18 @@ public class AnalysisControls
     public void removeROI5D(int index)
     {
         DefaultListModel model = (DefaultListModel) listROI.getModel();
-        model.remove(index);
+        int j;
+        String data[] = new String[model.getSize()-1];
+        for (int i = 0; i < model.getSize(); i++) {
+            if (i > index) {
+                j = i-1;
+                data[j] = new String("#"+j);
+            } else if (i < index) data[i] = new String("#"+i);
+        }
+        ExtendedDefaultListModel newModel = new ExtendedDefaultListModel(data);
+        //listROI.removeListSelectionListener(manager);
+        listROI.setModel(newModel);
+        //listROI.addListSelectionListener(manager);
     }
     
     public AnalysisControlsMng getManager() { return manager; }
@@ -172,7 +183,7 @@ public class AnalysisControls
         gridbag.setConstraints(label, c);
         p.add(label);
         scrollPane = new JScrollPane(listROI);
-        scrollPane.setPreferredSize(dimScroll);
+        scrollPane.setPreferredSize(MIN_SCROLL);
         c.gridx = 1;
         gridbag.setConstraints(scrollPane, c);
         p.add(scrollPane);

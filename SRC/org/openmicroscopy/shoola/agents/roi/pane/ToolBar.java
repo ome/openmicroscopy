@@ -101,12 +101,27 @@ public class ToolBar
     }
     
     /** Remove element from the list. */
-    public void removeROI5D()
+    public void removeROI5D(int index)
     {
         DefaultComboBoxModel model = (DefaultComboBoxModel) listROI.getModel();
-        model.removeElement(model.getSelectedItem());
-        if (model.getSize() == 0) setControlButtonsEnabled(false);
-        else setControlButtonsEnabled(true);
+        int j;
+        String data[] = new String[model.getSize()-1];
+        for (int i = 0; i < model.getSize(); i++) {
+            if (i > index) {
+                j = i-1;
+                data[j] = new String("#"+j);
+            } else if (i < index) data[i] = new String("#"+i);
+        }
+        boolean b = false;
+        DefaultComboBoxModel newModel = new DefaultComboBoxModel(data);
+        listROI.removeActionListener(manager);
+        listROI.setModel(newModel);
+        if (newModel.getSize() != 0) {
+            b = true;
+            listROI.setSelectedIndex(newModel.getSize()-1);
+        }
+        listROI.addActionListener(manager);
+        setControlButtonsEnabled(b);
         createROI.setEnabled(true);
     }
     

@@ -56,10 +56,10 @@ class EraseDialog
     extends OptionsDialog
 {
     
-    private static final String     TITLE = "Erase 5D-selection";
+    private static final String     TITLE = "Erase 4D-selection";
     
     private static final String     MESSAGE = "Do you really want to erase " +
-            "the selected 5D-selection?";
+            "the selected 4D-selection?";
     
     private ToolBarMng              manager;
     

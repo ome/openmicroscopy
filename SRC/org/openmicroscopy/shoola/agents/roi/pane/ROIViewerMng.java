@@ -68,13 +68,13 @@ public class ROIViewerMng
     
     private ROIViewer               view;
     
-    private double                  factor;
-    
+    private double                  factor, oldFactor;
     
     public ROIViewerMng(ROIViewer view)
     {
         this.view = view;
         factor = MIN_MAG;
+        oldFactor = MIN_MAG;
         attachListeners();
     }
 
@@ -84,6 +84,16 @@ public class ROIViewerMng
     }
     
     public double getFactor() { return factor; }
+    
+    public double getOldFactor() { return oldFactor; }
+    
+    void resetMagnificationFactor()
+    {
+        oldFactor = MIN_MAG;
+        factor = MIN_MAG;    
+        String s = ""+(int)(factor*100)+"%";
+        view.magText.setText(s);
+    }
     
     private void attachListeners()
     {
@@ -118,17 +128,21 @@ public class ROIViewerMng
     
     private void resetMagFactor()
     {
+        oldFactor = factor;
         factor = MIN_MAG;
+        //oldFactor = MIN_MAG;
         magnify();
     }
     private void incrementMagFactor()
     {
+        oldFactor = factor;
         factor += incrementMag; 
         magnify();
     }
     
     private void decrementMagFactor()
     {
+        oldFactor = factor;
         factor -= incrementMag;
         if (factor < MIN_MAG) factor = MIN_MAG;
         magnify();

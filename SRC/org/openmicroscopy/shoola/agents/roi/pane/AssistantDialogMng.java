@@ -67,9 +67,9 @@ public class AssistantDialogMng
 {
     
     /** Action ID, to copy segment. */
-    private static final int        COPY = 0, COPY_STACK = 1, UNDO = 2,
-                                    START_T = 3, END_T = 4, CLOSE = 5,
-                                    COPY_SEGMENT = 6, ERASE= 7;
+    private static final int        COPY = 0, COPY_STACK = 1, 
+                                    START_T = 2, END_T = 3, CLOSE = 4,
+                                    COPY_SEGMENT = 5, ERASE= 6;
 
     private static final String     MSG = "To copy across Z, select two " +
             "points in the same column. To copy across T, select two " +
@@ -92,14 +92,7 @@ public class AssistantDialogMng
         this.control = control;
         curStart = 0;
         curEnd = maxT;
-    }
-    
-    void setDefault(int z, int t, Color c)
-    {
-        setSelectedColor(c);
-        oldRow = oldColumn = -1;
-        curRow = z;
-        curColumn = t;
+        setDefaultLocation();
     }
     
     /** 
@@ -138,36 +131,45 @@ public class AssistantDialogMng
                     closeWidget(); break;
                 case ERASE:
                     removeSelected(); break;
-                case UNDO:
-                    setDefaultLocation();
-                    colorAllCells(AssistantDialog.DEFAULT_COLOR); 
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }
     }
-   
+
+    //void setDefault(int z, int t, Color c)
+    //{
+     //   setSelectedColor(c);
+        //oldRow = oldColumn = -1;
+        //curRow = z;
+        //curColumn = t;
+    //}
+    
     void removeCurrentPlane(int z, int t)
     {
         int row = view.table.getRowCount()-1-z;
-        curColumn = t;
-        setPlaneColor(row, t, AssistantDialog.DEFAULT_COLOR);
-        curRow = oldRow;
-        curColumn = oldColumn;
-        if (curRow != -1 && curColumn != -1)
-            setPlaneColor(curRow, curColumn, selectedColor);
+        //curColumn = t;
+        setPlaneColor(row, t, AssistantDialog.DEFAULT_COLOR, false);
+        setDefaultLocation();
+        //curRow = oldRow;
+        //curColumn = oldColumn;
         view.table.repaint();
     }
     
     void setCurrentPlane(int z, int t)
     {
-        curRow = view.table.getRowCount()-1-z;
-        curColumn = t;
-        ColoredLabel 
-        cl = (ColoredLabel) (view.table.getValueAt(curRow, curColumn));
-        cl.setBackground(selectedColor);
+        //curRow = view.table.getRowCount()-1-z;
+        //curColumn = t;
+        setDefaultLocation();
+        setPlaneColor(view.table.getRowCount()-1-z, t, alphaSelectedColor, 
+                    true);
+        //paintTable(curRow, curColumn);
         view.table.repaint();
     }
+    
+    Color getAlphaSelectedColor() { return alphaSelectedColor; }
+    
+    Color getSelectedColor() { return selectedColor; }
     
     /** Set the color of the selected cell. */
     void setSelectedColor(Color c)
@@ -181,42 +183,37 @@ public class AssistantDialogMng
                                    c.getBlue(), 100);
        } 
    }
-   
-   Color getAlphaSelectedColor() { return alphaSelectedColor; }
-   
-   Color getSelectedColor() { return selectedColor; }
-   
-   /** Attach listeners to the GUI component. */
-   void attachListeners()
-   {
-       attachFieldListeners(view.startT, START_T);
-       attachFieldListeners(view.endT, END_T);
-       attachButtonListeners(view.close, CLOSE);
-       attachButtonListeners(view.copy, COPY);
-       attachButtonListeners(view.copyStack, COPY_STACK);
-       attachButtonListeners(view.copySegment, COPY_SEGMENT);
-       attachButtonListeners(view.undo, UNDO);
-       attachButtonListeners(view.erase, ERASE);
-       view.table.addMouseListener(new MouseAdapter() {
-           public void mousePressed(MouseEvent e) { onClick(); }
-       });
-   }
-
-   /** Attach listener to a JButton. */
-   private void attachButtonListeners(AbstractButton button, int id)
-   {
-       button.setActionCommand(""+id);
-       button.addActionListener(this); 
-   }
   
-   /** Attach listeners to a JField. */
-   private void attachFieldListeners(JTextField field, int id)
-   {
-       field.setActionCommand(""+id);  
-       field.addActionListener(this);
-       field.addFocusListener(this);
-   }
+    /** Attach listeners to the GUI component. */
+    void attachListeners()
+    {
+        attachFieldListeners(view.startT, START_T);
+        attachFieldListeners(view.endT, END_T);
+        attachButtonListeners(view.close, CLOSE);
+        attachButtonListeners(view.copy, COPY);
+        attachButtonListeners(view.copyStack, COPY_STACK);
+        attachButtonListeners(view.copySegment, COPY_SEGMENT);
+        attachButtonListeners(view.erase, ERASE);
+        view.table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) { onClick(); }
+        });
+    }
+
+    /** Attach listener to a JButton. */
+    private void attachButtonListeners(AbstractButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this); 
+    }
    
+    /** Attach listeners to a JField. */
+    private void attachFieldListeners(JTextField field, int id)
+    {
+        field.setActionCommand(""+id);  
+        field.addActionListener(this);
+        field.addFocusListener(this);
+    }
+    
    /** Handle mouse pressed event. */
    private void onClick()
    {
@@ -268,13 +265,6 @@ public class AssistantDialogMng
                "Please enter a value between "+ valStart+" and "+numColumns);
        } else curEnd = val;
    }
-
-   /** Close the widget. */
-   private void closeWidget()
-   {
-       view.dispose();
-       view.setVisible(false);
-   }
    
    /** Copy the PlaneArea from last selected 2D-plane onto the new 2D-plane. */
    private void copy()
@@ -286,9 +276,10 @@ public class AssistantDialogMng
            int rows = view.table.getRowCount()-1;
            //old must have a selection.
            PlaneArea pa = control.getPlaneArea(rows-oldRow, oldColumn);
-           if (pa != null)
+           if (pa != null) {
                control.copyPlaneArea(pa, rows-curRow, curColumn);
-           else {
+               setCurrentPlane(rows-curRow, curColumn);
+           } else {
                UserNotifier un = control.getRegistry().getUserNotifier();
                un.notifyInfo("Invalid selection", "No ROI on selected plane."); 
            }
@@ -310,48 +301,37 @@ public class AssistantDialogMng
    /** Copy interval across time. */
    private void copyAcrossT()
    {
-       int xMin = oldColumn, xMax = curColumn;
+       int from = oldColumn, to = curColumn;
        int z = view.table.getRowCount()-1-curRow;
-       int from = xMin, to = xMax;
-       if (xMax < xMin) {
-           xMax = oldColumn;
-           xMin = curColumn;
-           from = xMax;
-           to = xMin;
+       if (to < from) {
+           from = curColumn;
+           to = oldColumn;
        }
        PlaneArea pa = control.getPlaneArea(z, from);
        if (pa == null) pa = control.getPlaneArea(z, to);
        if (pa != null) {
-           ColoredLabel cl;
-           for (int i = xMin+1; i < xMax; i++) {
-               cl = ((ColoredLabel) (view.table.getValueAt(curRow, i)));
-               cl.setBackground(alphaSelectedColor);
-           } 
-           view.table.repaint();
            control.copyAcrossT(pa, from, to, z);
-       } else {
-           UserNotifier un = control.getRegistry().getUserNotifier();
-           un.notifyInfo("Invalid selection", "No ROI on selected plane " +
-                   "("+z+","+from+") or ("+z+","+to+")."); 
-           //remove the two selected planes.
-           setPlaneColor(oldRow, oldColumn, AssistantDialog.DEFAULT_COLOR);
-           setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
-           view.table.repaint();
-           setDefaultLocation();
-           
-       }
+           PlaneArea paNew;
+           for (int j = from; j <= to; j++) {
+               paNew = control.getPlaneArea(z, j);
+               setCellColor(paNew, curRow, j);
+           }
+           view.table.repaint(); 
+       } else
+           handleSelectionError("No ROI on selected plane ("+z+","+from+
+                                   ") or ("+z+","+to+").");
    }
    
    /** Copy interval across sections. */
    private void copyAcrossZ()
    {
        int xMin = oldRow, xMax = curRow;
-       int rows = view.table.getRowCount();
+       int rows = view.table.getRowCount()-1;
        if (xMax < xMin) {
            xMax = oldRow;
            xMin = curRow;
        }
-       int from = rows-xMin-1, to = rows-xMax-1;
+       int from = rows-xMin, to = rows-xMax;
        if (from > to) {
            int s = from;
            from = to;
@@ -360,23 +340,17 @@ public class AssistantDialogMng
        PlaneArea pa = control.getPlaneArea(from, curColumn);
        if (pa == null) pa = control.getPlaneArea(to, curColumn);
        if (pa != null) {
-           ColoredLabel cl;
-           for (int i = xMin+1; i < xMax; i++) {
-               cl = ((ColoredLabel) (view.table.getValueAt(i, curColumn)));
-               cl.setBackground(alphaSelectedColor);
+           control.copyAcrossZ(pa, from, to, curColumn);
+           PlaneArea paNew;
+           int z;
+           for (int i = xMin; i <= xMax; i++) {
+               z = rows-i;
+               paNew = control.getPlaneArea(z, curColumn);
+               setCellColor(paNew, i, curColumn);
            }
            view.table.repaint();
-           control.copyAcrossZ(pa, from, to, curColumn);
-       } else {
-           UserNotifier un = control.getRegistry().getUserNotifier();
-           un.notifyInfo("Invalid selection", "No ROI on selected plane " +
-                "("+from+","+curColumn+") or ("+to+","+curColumn+")."); 
-           //remove the two selected planes.
-           setPlaneColor(oldRow, oldColumn, AssistantDialog.DEFAULT_COLOR);
-           setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
-           view.table.repaint();
-           setDefaultLocation();
-       }
+       } else handleSelectionError("No ROI on selected plane ("+from+","
+                           +curColumn+") or ("+to+","+curColumn+").");
    }
    
    /** Copy a selected stack across time. */
@@ -389,6 +363,10 @@ public class AssistantDialogMng
        else copyStackEndsTimepoints(from, to);
    }
    
+   /** 
+    * Copy stack for timepoints between <code>from</code> 
+    * and <code>to</code>.
+    */
    private void copyStackAllTimepoints(int from, int to)
    {
        int numbRows = view.table.getRowCount()-1;
@@ -405,6 +383,7 @@ public class AssistantDialogMng
        view.table.repaint();
    }
 
+   /** Copy stack from timepoint <code>from</code> into <code>to</code>. */
    private void copyStackEndsTimepoints(int from, int to)
    {
        control.copyStack(from, to);
@@ -423,6 +402,7 @@ public class AssistantDialogMng
    private void setCellColor(PlaneArea pa, int i, int j)
    {
        ColoredLabel cl = (ColoredLabel) (view.table.getValueAt(i, j));
+       cl.setDraw(pa != null);
        if (pa != null)
            cl.setBackground(alphaSelectedColor);
        else cl.setBackground(AssistantDialog.DEFAULT_COLOR);
@@ -431,40 +411,26 @@ public class AssistantDialogMng
    /** Remove the selected plane from the selection. */
    private void removeSelected()
    {
+       System.out.println(curRow+" "+curColumn);
        if (curRow != -1 && curColumn != -1) {
            int z = view.table.getRowCount()-1-curRow;
            control.removePlaneArea(z, curColumn);
-           setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR);
-           curRow = oldRow;
-           curColumn = oldColumn;
-           if (curRow != -1 && curColumn != -1)
-               setPlaneColor(curRow, curColumn, selectedColor);
+           setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR, 
+                       false);
            view.table.repaint();
-       }
+       } 
+       setDefaultLocation();
    }
-   
-   private void setPlaneColor(int row, int column, Color c)
+  
+   /** Set the color of a cell. */
+   private void setPlaneColor(int row, int column, Color c, boolean b)
    {
        ColoredLabel 
            cl = (ColoredLabel) (view.table.getValueAt(row, column));
+       cl.setDraw(b);
        cl.setBackground(c);
    }
-   
-   /** Color all the cells. */
-   private void colorAllCells(Color c)
-   {
-       int numbRows = view.table.getRowCount(), 
-           numColumns = view.table.getColumnCount();
-       ColoredLabel cl;
-       for (int i = 0; i < numbRows; i++) {
-           for (int j = 0; j < numColumns; j++) {
-               cl = (ColoredLabel) (view.table.getValueAt(i, j));
-               cl.setBackground(c);
-           }
-       }
-       view.table.repaint();
-   }
-   
+
    /** Paint the table according to the selected cell. */
    private void paintTable(int row, int column)
    {
@@ -476,11 +442,31 @@ public class AssistantDialogMng
                cl = (ColoredLabel) (view.table.getValueAt(i, j));
                if (cl.getBackground() != AssistantDialog.DEFAULT_COLOR) 
                    cl.setBackground(alphaSelectedColor);
-               if (row == i && column == j)  
+               if (row == i && column == j) 
                    cl.setBackground(selectedColor);
            }
        }
        view.table.repaint();
+   }
+
+   /** Close the widget. */
+   private void closeWidget()
+   {
+       view.dispose();
+       view.setVisible(false);
+   }
+
+   /** Display message and reset the color. */
+   private void handleSelectionError(String msg)
+   {
+       UserNotifier un = control.getRegistry().getUserNotifier();
+       un.notifyInfo("Invalid selection", msg); 
+       //remove the two selected planes.
+       setPlaneColor(oldRow, oldColumn, AssistantDialog.DEFAULT_COLOR, 
+               false);
+       setPlaneColor(curRow, curColumn, AssistantDialog.DEFAULT_COLOR, false);
+       view.table.repaint();
+       setDefaultLocation();
    }
    
    private void setDefaultLocation()
@@ -488,7 +474,7 @@ public class AssistantDialogMng
        oldRow = oldColumn = -1;
        curRow = curColumn = -1;
    }
-
+   
    /** 
     * Required by I/F but not actually needed in our case, no op 
     * implementation.

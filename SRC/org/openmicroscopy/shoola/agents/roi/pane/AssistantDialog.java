@@ -103,8 +103,7 @@ public class AssistantDialog
 
     private JScrollPane             scrollPane;
 
-    JButton                         copy, copySegment, copyStack, undo, close,
-                                    erase;
+    JButton                         copy, copySegment, copyStack, close, erase;
 
     JTextField                      startT, endT;
 
@@ -118,32 +117,31 @@ public class AssistantDialog
     AssistantDialogMng              manager;
     
     public AssistantDialog(ROIAgtCtrl control, int numRows, int numColumns,
-                           ScreenROI roi, int z, int t)
+                           ScreenROI roi)
     {
         super(control.getReferenceFrame());
         manager = new AssistantDialogMng(this, control, numColumns-1);
-        manager.setDefault(numRows-1-z, t, roi.getAreaColor());
-        initComponents(IconManager.getInstance(control.getRegistry()), 
-                    numRows, numColumns, z, t, roi);
-        buildComponent(numRows, roi, z, t);
+        manager.setSelectedColor(roi.getAreaColor());
+        initComponents(IconManager.getInstance(control.getRegistry()), numRows, 
+                    numColumns, roi);
+        buildComponent(roi);
         manager.attachListeners();
         buildGUI((""+numRows).length());
         pack();
     }
     
-    public void buildComponent(int numRows, ScreenROI roi, int z, int t)
+    public void buildComponent(ScreenROI roi)
     {
-        manager.setDefault(numRows-1-z, t, roi.getAreaColor());
+        manager.setSelectedColor(roi.getAreaColor());
         table.buildTableData(roi.getLogicalROI(), 
-                manager.getAlphaSelectedColor(), manager.getSelectedColor(), 
-                z, t);
+                            manager.getAlphaSelectedColor());
         table.repaint();
         setTitle(TITLE+""+roi.getIndex());
     }
     
     /** Initializes the GUI components. */
     private void initComponents(IconManager im, int numRows, int numColumns, 
-                                int z, int t, ScreenROI roi)
+                                ScreenROI roi)
     {
         allTimepoints = new JRadioButton("Timepoints from start to end");
         finalTimepoints = new JRadioButton("Only start and end timepoints");
@@ -165,9 +163,6 @@ public class AssistantDialog
         copyStack.setToolTipText(
                 UIUtilities.formatToolTipText("Copy the selected stack " +
                         "across time."));
-        undo = new JButton(im.getIcon(IconManager.UNDO));
-        undo.setToolTipText(
-                UIUtilities.formatToolTipText("Erase selections."));
         erase = new JButton(im.getIcon(IconManager.ERASE));
         erase.setToolTipText(
                 UIUtilities.formatToolTipText("Erase the current selection."));
@@ -178,8 +173,7 @@ public class AssistantDialog
         
         //Initialize the table
         table = new ColoredCellTable(numRows, numColumns, roi.getLogicalROI(), 
-                manager.getAlphaSelectedColor(), manager.getSelectedColor(),
-                z, t);
+                manager.getAlphaSelectedColor());
         JList rowHeader = new JList(new HeaderListModel(numRows));
         if (numRows > MAX) rowHeader.setFixedCellWidth(WIDTH_MAX);
         else rowHeader.setFixedCellWidth(WIDTH_MIN);
@@ -198,7 +192,7 @@ public class AssistantDialog
         Container container = getContentPane();
         ReferenceFramePanel rfp = new ReferenceFramePanel("t", "z", "0");
         rfp.setBackground(Color.white);
-        TitlePanel tp = new TitlePanel("Analysis Assistant", MSG, rfp);
+        TitlePanel tp = new TitlePanel("ROI selection Assistant", MSG, rfp);
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.add(tp);
         container.add(Box.createRigidArea(VBOX));
@@ -284,8 +278,6 @@ public class AssistantDialog
         bar.add(copySegment);
         bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
         bar.add(erase);
-        //bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
-        //bar.add(undo);
         bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
         bar.add(close);
         return bar;

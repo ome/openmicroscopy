@@ -72,20 +72,19 @@ public class ColoredCellTable
     private Object[][]          data;
     
     public ColoredCellTable(int numRows, int numColumns, ROI4D logicalROI, 
-                            Color alphaColor, Color color, int z, int t)
+                            Color alphaColor)
     {
         super(numRows, numColumns);
         this.numRows = numRows;
         this.numColumns = numColumns;
         data = new Object[numRows][numColumns];
-        buildTableData(logicalROI, alphaColor, color, z, t);
+        buildTableData(logicalROI, alphaColor);
         setModel(new ColoredLabelTableModel(data, numColumns));
         setTableLayout();
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF); //Big table
     }
     
-    public void buildTableData(ROI4D logicalROI, Color alphaColor, Color color, 
-                            int z, int curT)
+    public void buildTableData(ROI4D logicalROI, Color alphaColor)
     {
         ColoredLabel label;
         String text;
@@ -99,9 +98,10 @@ public class ColoredCellTable
                 label.setToolTipText(UIUtilities.formatToolTipText(text));
                 //Check plane
                 c = AnalysisControls.DEFAULT_COLOR;
+                label.setDraw(false);
                 if (logicalROI.getPlaneArea(t, j) != null) {
-                    if (t == z && curT == j) c = color;
-                    else c = alphaColor;
+                    c = alphaColor;
+                    label.setDraw(true);
                 }
                 label.setBackground(c);
                 data[i][j] = label;

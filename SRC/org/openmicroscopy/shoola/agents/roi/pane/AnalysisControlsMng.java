@@ -59,13 +59,13 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
  * @since OME2.2
  */
 public class AnalysisControlsMng
-    implements ActionListener, ListSelectionListener 
+    implements ActionListener
 {
 
     /** Action command ID. */
     private static final int    ANALYSE_STATS = 0;
     
-    private List                selectedChannels;
+    private List                selectedChannels, selectedROIs;
     
     /** Reference to the {@link MoviePane view}. */
     private AnalysisControls    view;
@@ -77,6 +77,7 @@ public class AnalysisControlsMng
         this.view = view;
         this.control = control;
         selectedChannels = new ArrayList();
+        selectedROIs = new ArrayList();
     }
     
     public List getSelectedChannels() { return selectedChannels; }
@@ -86,28 +87,15 @@ public class AnalysisControlsMng
     {
         attachButtonListeners(view.analyseStats, ANALYSE_STATS);
         ListSelectionModel model = view.listChannels.getSelectionModel();
-        model.addListSelectionListener(this);
+        model.addListSelectionListener(new ChannelListSelection());
+        model = view.listROI.getSelectionModel();
+        model.addListSelectionListener(new ROIListSelection());
     }
 
     private void attachButtonListeners(JButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
-    }
-    
-    /** Handle multiSelection list. */
-    public void valueChanged(ListSelectionEvent e)
-    {
-        ListSelectionModel model = (ListSelectionModel) e.getSource();
-        if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) {
-            // Find out which indexes are selected.
-            selectedChannels.removeAll(selectedChannels);
-            int minIndex = model.getMinSelectionIndex(),
-                maxIndex = model.getMaxSelectionIndex();
-            for (int i = minIndex; i <= maxIndex; i++)
-                if (model.isSelectedIndex(i))
-                    selectedChannels.add(new Integer(i)); 
-        } 
     }
 
     /** Handle events fired by JTextFields. */
@@ -117,7 +105,8 @@ public class AnalysisControlsMng
         try {
             switch (index) {
                 case ANALYSE_STATS:
-                    control.analyseStats();
+                    control.computeROIStatistics(selectedChannels, 
+                                                selectedROIs);
                     break;
             }
         } catch(NumberFormatException nfe) { 
@@ -125,5 +114,43 @@ public class AnalysisControlsMng
         }
     }
 
+    
+    private final class ChannelListSelection 
+        implements ListSelectionListener
+    {
+
+        /** Implemented as specified by the interface. */
+        public void valueChanged(ListSelectionEvent e)
+        {
+            ListSelectionModel model = (ListSelectionModel) e.getSource();
+            if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) 
+                handleListSelection(selectedChannels, model);
+        }
+    }
+    
+    private final class ROIListSelection 
+        implements ListSelectionListener
+    {
+    
+        /** Implemented as specified by the interface. */
+        public void valueChanged(ListSelectionEvent e)
+        {
+            ListSelectionModel model = (ListSelectionModel) e.getSource();
+            if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) 
+                handleListSelection(selectedROIs, model);
+        }
+    }
+
+    /** Retrieves the selected ROIs. */
+    private void handleListSelection(List list, ListSelectionModel model)
+    {
+        list.removeAll(list);
+        int minIndex = model.getMinSelectionIndex(),
+            maxIndex = model.getMaxSelectionIndex();
+        for (int i = minIndex; i <= maxIndex; i++)
+            if (model.isSelectedIndex(i))
+                list.add(new Integer(i));
+    }
+    
 }
 

@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -93,9 +94,9 @@ public class ToolBarMng
         return b;
     }
     
-    public void setROIImage(BufferedImage img)
+    public void setROIImage(BufferedImage img, PlaneArea pa)
     {
-        if (viewer != null) viewer.setImage(img);
+        if (viewer != null) viewer.setImage(img, pa);
     }
     
     public void removeCurrentPlane(int z, int t)
@@ -112,13 +113,12 @@ public class ToolBarMng
     
     void refreshDialogs(int index)
     {
-        if (assistant != null) {
-            assistant.buildComponent(maxZ, control.getScreenROI(), 
-                             control.getCurrentZ(), control.getCurrentT());
-        }
+        if (assistant != null)
+            assistant.buildComponent(control.getScreenROI());
         if (viewer != null) {
             viewer.setWidgetName(index);
-            viewer.setImage(control.getROIImage());
+            viewer.resetMagnificationFactor();
+            viewer.setImage(control.getROIImage(), control.getClip());
         }
     }
     
@@ -156,8 +156,7 @@ public class ToolBarMng
     {
         if (assistant == null) 
             assistant = new AssistantDialog(control, maxZ, maxT, 
-                    control.getScreenROI(), control.getCurrentZ(), 
-                    control.getCurrentT());
+                                            control.getScreenROI());
         UIUtilities.centerAndShow(assistant);
     }
     
@@ -166,7 +165,7 @@ public class ToolBarMng
         if (viewer == null) {
             ScreenROI roi = control.getScreenROI();
             viewer = new ROIViewer(control, roi.getIndex());
-            viewer.setImage(control.getROIImage());
+            viewer.setImage(control.getROIImage(), control.getClip());
         } 
         UIUtilities.centerAndShow(viewer);
     }
@@ -174,6 +173,7 @@ public class ToolBarMng
     private void handleErase()
     {
         //Bring up a notification dialog.
+        //TO BE MODIFIED
         IconManager im = IconManager.getInstance(control.getRegistry());
         EraseDialog dialog = new EraseDialog(this, control.getReferenceFrame(), 
                             im.getIcon(IconManager.QUESTION));
@@ -181,7 +181,23 @@ public class ToolBarMng
         UIUtilities.centerAndShow(dialog);
     }
     
-    void eraseROI() { control.removeROI5D(); }
+    void eraseROI()
+    { 
+        control.removeROI5D(); 
+        closeDialogs();
+    }
+    
+    private void closeDialogs()
+    {
+        if (assistant != null) {
+            assistant.dispose();
+            assistant = null;
+        }
+        if (viewer != null) {
+            viewer.dispose();
+            viewer = null;
+        }
+    }
     
     /** Attach listeners to the GUI components. */
     private void attachListeners()
