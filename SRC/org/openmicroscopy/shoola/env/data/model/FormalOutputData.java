@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.FormalOutputData
  *
  *------------------------------------------------------------------------------
  *
@@ -30,14 +30,13 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * A module category object
+ * Module Formal outputs
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -49,51 +48,33 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public class FormalOutputData
+	extends FormalParameterData
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
 	
-	
-	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
+	private String featureTag;
 						
+	
+	public FormalOutputData() {};
+	
+	public FormalOutputData(int id, String name, String description,
+			ModuleData module,boolean isOptional,boolean isList,
+			SemanticTypeData semanticType,String featureTag) 
 	{
-		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+		super(id,name,description,module,isOptional,isList,semanticType);
+		this.featureTag = featureTag;
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
+	public DataObject makeNew() { return new FormalOutputData(); }
 
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
-	}
 	
-	public List getChildCategories() {
-		return childCategories;
-	}
-	
-	public List getModules() { return modules; }
-
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
-	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
+	public String getFeatureTag() {
+		return featureTag;
 	}
 
+	public void setFeatureTag(String featureTag) {
+		this.featureTag = featureTag;
+	}
 }

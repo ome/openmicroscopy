@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.OMEDataObject
  *
  *------------------------------------------------------------------------------
  *
@@ -30,14 +30,13 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * A module category object
+ * superclass for ome data objects
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -49,51 +48,42 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public abstract class OMEDataObject
+	implements DataObject
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
+	private int 				id;
+	private String 				name;
+	private String				description;
 	
 	
-	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
 						
+	
+	public OMEDataObject() {}
+	
+	public OMEDataObject(int id, String name, String description) 
 	{
-		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+		this.id = id;
+		this.name = name;
+		this.description = description;	
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
+	public abstract DataObject makeNew();
 
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
-	}
-	
-	public List getChildCategories() {
-		return childCategories;
-	}
-	
-	public List getModules() { return modules; }
+	public String getDescription() { return description; }
 
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
-	}
+	public int getID() { return id; }
+
+	public String getName() { return name; }
 	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
-	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
+			
+	public void setDescription(String description)
+	{
+		this.description = description;
 	}
 
+	public void setID(int id) { this.id = id; }
+
+	public void setName(String name) { this.name = name; }
 }

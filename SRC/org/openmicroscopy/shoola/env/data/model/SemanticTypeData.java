@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.SemanticTypeData
  *
  *------------------------------------------------------------------------------
  *
@@ -49,51 +49,35 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public class SemanticTypeData extends OMEDataObject
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
+	private List 				elements;
+	private String				granularity;
+		
+	public SemanticTypeData() {}
 	
-	
-	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
-						
+	public SemanticTypeData(int id, String name, String description, 
+						List elements,String granularity) 
 	{
 		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+		this.elements = elements;
+		this.granularity = granularity;
+		
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
-
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
+	public DataObject makeNew() { return new SemanticTypeData(); }
+	
+	public List getElements() { return elements; }
+	
+	public String getGranularity() { return granularity; }
+	
+	public void setElements(List elements) {
+		this.elements = elements;
 	}
 	
-	public List getChildCategories() {
-		return childCategories;
+	public void setGranularity(String granularity) {
+		this.granularity = granularity;
 	}
-	
-	public List getModules() { return modules; }
-
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
-	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
-	}
-
 }

@@ -38,27 +38,41 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
+import org.openmicroscopy.ds.dto.AnalysisChain;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
+import org.openmicroscopy.ds.dto.Module;
+import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
+import org.openmicroscopy.shoola.env.data.map.ModuleMapper;
+import org.openmicroscopy.shoola.env.data.map.ModuleCategoryMapper;
 import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
 import org.openmicroscopy.shoola.env.data.map.UserMapper;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
+import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -88,7 +102,8 @@ class DMSAdapter
 		this.gateway = gateway;
 		this.registry = registry;
 	}
-	
+
+
 	/** 
 	 * Retrieves the user's ID. 
 	 * This method is called when we connect cf. 
@@ -261,24 +276,34 @@ class DMSAdapter
 		return retrieveDataset(id, null);
 	}
 	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveImages(int datasetID, ImageSummary retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Create a new dataObject if none provided.
+		//Object used as prototype.
+		if (retVal == null) retVal = new ImageSummary();
+		//Define the criteria by which the object graph is pulled out.
+		Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
+
+		//Load the graph defined by criteria.
+		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
+
+		//List of image summary object.
+		List images = null;
+
+		if (dataset != null)
+		//Put the server data into the corresponding client object.
+		images = DatasetMapper.fillListImages(dataset, retVal);
+
+		return images;
+	}
+	
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveImages(int datasetID)
 		throws DSOutOfServiceException, DSAccessException
     {
-		//Define the criteria by which the object graph is pulled out.
-    	Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
-
-		//Load the graph defined by criteria.
-		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
-	  	
-	  	//List of image summary object.
-	  	List images = null;
-	  	
-	  	if (dataset != null)
-			//Put the server data into the corresponding client object.
-	  		images = DatasetMapper.fillListImages(dataset);
-	  		
-	  	return images;
+		return retrieveImages(datasetID, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -323,6 +348,107 @@ class DMSAdapter
 												retVal);
 		return retVal;
 	}
+	
+
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveModules(ModuleData mProto,ModuleCategoryData mcProto,
+					FormalInputData finProto,FormalOutputData foutProto,
+					SemanticTypeData stProto)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (mProto == null)    mProto = new ModuleData();
+		if (mcProto == null)   mcProto = new ModuleCategoryData();		
+		if (finProto == null)  finProto = new FormalInputData();
+		if (foutProto == null) foutProto = new FormalOutputData();
+		if (stProto == null)   stProto = new SemanticTypeData();
+		
+		// Define the criteria by which the object graph is pulled out
+		Criteria c = ModuleMapper.buildModulesCriteria();
+		
+		// Load the graph defined by the criteria
+		List modules = (List) gateway.retrieveListData(Module.class,c);
+		
+		List moduleDS = null;
+		if (modules != null) 
+			moduleDS = ModuleMapper.fillModules(modules,mProto,mcProto,
+				finProto,foutProto,stProto);
+		return moduleDS;
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveModules()
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return retrieveModules(null,null,null,null,null);
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveModuleCategories(ModuleCategoryData mcProto,
+					ModuleData mProto)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (mcProto == null)   mcProto = new ModuleCategoryData();
+		if (mProto == null)    mProto = new ModuleData();
+				
+		// Define the criteria by which the object graph is pulled out
+		Criteria c = ModuleCategoryMapper.buildModuleCategoriesCriteria();
+	
+		// Load the graph defined by the criteria
+		List categories = 
+			(List) gateway.retrieveListData(ModuleCategory.class,c);
+	
+		List categoryDS = null;
+		if (categories != null) 
+			categoryDS = 
+				ModuleCategoryMapper.fillModuleCategories(categories,
+						mcProto,mProto);
+		return categoryDS;
+	}
+
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveModuleCategories()
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return retrieveModuleCategories(null,null);
+	}
+	
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveChains(AnalysisChainData acProto,AnalysisLinkData
+			alProto,AnalysisNodeData anProto,ModuleData modProto,
+			FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (acProto == null)    acProto = new AnalysisChainData();
+		if (alProto == null)    alProto = new AnalysisLinkData();		
+		if (anProto == null)    anProto = new AnalysisNodeData();
+		if (modProto == null) 	modProto = new ModuleData();
+		if (finProto == null)   finProto = new FormalInputData();
+		if (foutProto == null)  foutProto = new FormalOutputData();
+		if (stProto == null)    stProto = new SemanticTypeData();
+		
+		// Define the criteria by which the object graph is pulled out
+		Criteria c = AnalysisChainMapper.buildChainCriteria();
+	
+		// Load the graph defined by the criteria
+		List chains = (List) gateway.retrieveListData(AnalysisChain.class,c);
+	
+		List chainsDS = null;
+		if (chains != null) 
+			chainsDS = AnalysisChainMapper.fillChains(chains,acProto,
+				alProto,anProto,modProto,finProto,foutProto,stProto);
+		return chainsDS;
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveChains() 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return retrieveChains(null,null,null,null,null,null,null);
+	}
+	
+	
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal, 
@@ -382,7 +508,7 @@ class DMSAdapter
 		if (pIds.size() != 0) gateway.addDatasetToProjects(d.getID(), pIds);
 		if (iIds.size() != 0) gateway.addImagesToDataset(d.getID(), iIds);
 		
-		//fill in the proto
+		//fill up the proto
 		dProto.setID(d.getID());
 		dProto.setName(d.getName());
 		return dProto;

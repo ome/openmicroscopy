@@ -35,16 +35,23 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.FormalInputData;
+import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.ModuleData;
+import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-
+import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 /** 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,6 +69,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 public interface DataManagementService
 {
+	
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
@@ -242,6 +250,21 @@ public interface DataManagementService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Retrieve all images linked to a given dataset.
+	 * Create, if none provided, a DataObject and fill it up with
+	 * data retrieved from an OMEDS Image object.
+	 * 
+	 * @param id		imageID.
+	 * @param iProto	DataObject used as a prototype.
+	 * @return image data object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.  
+	 */
+	public List retrieveImages(int datasetID, ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException;
+		
+	/**
 	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
 	 * to a pixels set.
 	 * 
@@ -255,6 +278,109 @@ public interface DataManagementService
 	public PixelsDescription retrievePixels(int pixelsID, int imageID)
 		throws DSOutOfServiceException, DSAccessException;
 		
+	/**
+	 * Retrieve all of the system's analysis modules
+	 * Create, if none provided, new protos and fill them up
+	 * with data retrieved from OMEDS Modules objects.
+	 * Each project proto object is linked to a list of dataset proto 
+	 * objects.
+	 * 
+	 * @param mProto	module proto.
+	 * @param mcProto	module category proto.
+	 * @param finProto	formal input proto
+	 * @param foutProto	formal output proto
+	 * @param stProto	Semantic type proto
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	public List retrieveModules(ModuleData mProto,ModuleCategoryData
+			mcProto,FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto)
+		throws DSOutOfServiceException, DSAccessException;
+  								
+	/**
+	 * Retrieve all of the system's analysis modules categories
+	 * Create a list of module category data DataObjects filled up with 
+	 * data retrieved from OMEDS module objects.
+	 * Each module category object is linked to a lists of modules
+	 * 
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveModuleCategories()
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Retrieve all of the system's analysis modules categories
+	 * Create a list of module category data DataObjects filled up with 
+	 * data retrieved from OMEDS module objects.
+	 * Each module category object is linked to a lists of modules
+	 *
+	 * @param mcProto	module category proto. 
+	 * @param mProto	module proto.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	public List retrieveModuleCategories(ModuleCategoryData mcProto,
+					ModuleData mProto)
+		throws DSOutOfServiceException, DSAccessException;
+								
+	/**
+	 * Retrieve all of the system's analysis modules
+	 * 
+	 * Create a list of module data DataObjects filled up with 
+	 * data retrieved from OMEDS module objects.
+	 * Each module object is linked to a lists of formal inputs 
+	 * and formal outputs.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveModules()
+		throws DSOutOfServiceException, DSAccessException;	
+	
+	/**
+	 * Retrieve all of the system's analysis chains
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveChains(AnalysisChainData acProto,AnalysisLinkData
+			alProto,AnalysisNodeData anProto,ModuleData modProto,
+			FormalInputData finProto,FormalOutputData foutProto,
+			SemanticTypeData stProto) 
+		throws DSOutOfServiceException,DSAccessException;
+		
+		
+	/**
+	 * Retrieve all of the system's analysis chains
+	 * 
+	 * Create a list of chain data DataObjects filled up with 
+	 * data retrieved from OMEDS chain objects.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	public List retrieveChains() 
+		throws DSOutOfServiceException,DSAccessException;
+			
 	/**
 	 * Create a new project.
 	 * 
@@ -271,8 +397,10 @@ public interface DataManagementService
 	/**
 	 * Create a new dataset.
 	 * 
-	 * @param projectSummaries	List of project summary object.
-	 * @param retVal			DataObject
+	 * @param projectSummaries	List of project summary objects.
+	 * @param imageSummaries	List of image summary objects.
+	 * @param retVal			DataObject to fill up.
+	 * @param dProto			DataObject prototype.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
@@ -370,5 +498,5 @@ public interface DataManagementService
 	 */
 	public void updateChannelData(ChannelData retVal)	
 		throws DSOutOfServiceException, DSAccessException;
-		
+	
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.FormalParameterData
  *
  *------------------------------------------------------------------------------
  *
@@ -30,14 +30,13 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * A module category object
+ * Module Formal Inputs
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -49,51 +48,64 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public class FormalParameterData extends OMEDataObject
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
+	private ModuleData			module;
+	private boolean 			isOptional;
+	private boolean 			isList;
+	private SemanticTypeData	semanticType;
 	
-	
-	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
 						
+	
+	public FormalParameterData() {}
+	
+	public FormalParameterData(int id, String name, String description,ModuleData
+			module,boolean isOptional,boolean isList,SemanticTypeData 
+			semanticType) 
 	{
 		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+		this.module = module;
+		this.isOptional = isOptional;
+		this.isList = isList;
+		this.semanticType = semanticType;
+	
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
+	public DataObject makeNew() { return new FormalParameterData(); }
+	
+	
+	public boolean isOptional() {
+		return isOptional;
+	}
 
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
+	public ModuleData getModule() {
+		return module;
 	}
-	
-	public List getChildCategories() {
-		return childCategories;
-	}
-	
-	public List getModules() { return modules; }
 
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
+	public SemanticTypeData getSemanticType() {
+		return semanticType;
 	}
 	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
+	public boolean isList() {
+		return isList;
 	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
+
+	public void setList(boolean isList) {
+		this.isList = isList;
+	}
+
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
+	}
+
+	public void setModule(ModuleData module) {
+		this.module = module;
+	}
+
+	public void setSemanticType(SemanticTypeData semanticType) {
+		this.semanticType = semanticType;
 	}
 
 }

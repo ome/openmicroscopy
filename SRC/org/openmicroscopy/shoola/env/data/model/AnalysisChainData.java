@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.AnalysisChainData
  *
  *------------------------------------------------------------------------------
  *
@@ -37,7 +37,7 @@ import java.util.List;
 //Application-internal dependencies
 
 /** 
- * A module category object
+ * An analysis chain object
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -49,51 +49,61 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public class AnalysisChainData
+	extends OMEDataObject
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
+	private List				links;
+	private List 				nodes;
+	private boolean 			isLocked;
+	private String 				owner;
 	
 	
+	public AnalysisChainData() {}
 	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
-						
+	public AnalysisChainData(int id, String name, String description,
+		List links,List nodes,boolean isLocked,String owner) 
 	{
 		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+		this.links = links;
+		this.nodes = nodes;
+		this.isLocked = isLocked;
+		this.owner = owner;
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
+	public DataObject makeNew() { return new AnalysisChainData(); }
 
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
-	}
-	
-	public List getChildCategories() {
-		return childCategories;
-	}
-	
-	public List getModules() { return modules; }
 
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
-	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
+	public List getLinks() {
+		return links;
 	}
 
+	public List getNodes() {
+		return nodes;
+	}
+	
+	public boolean getIsLocked() {
+		return isLocked;
+	}
+	
+	public String getOwner() {
+		return owner;
+	}
+		
+	public void setLinks(List links) {
+		this.links = links;
+	}
+	
+	public void setNodes(List nodes) {
+		this.nodes = nodes;
+	} 
+	
+	public void setIsLocked(boolean isLocked) {
+		this.isLocked =isLocked;
+	}
+	
+	public void setOwner(String owner) {
+		this.owner = owner;
+	} 
 }

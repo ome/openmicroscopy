@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ModuleCategoryData
+ * org.openmicroscopy.shoola.env.data.model.AnalysisLinkData
  *
  *------------------------------------------------------------------------------
  *
@@ -30,14 +30,13 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * A module category object
+ * An analysis chain link object
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -49,51 +48,79 @@ import java.util.List;
  * </small>
  * @since OME2.2
  */
-public class ModuleCategoryData extends OMEDataObject
+public class AnalysisLinkData implements DataObject
 {
 
-	private ModuleCategoryData 	parentCategory;
-	private List 				childCategories;
-	private List				modules;
+	private int id;
+	private AnalysisChainData chain;
+	private AnalysisNodeData fromNode;
+	private FormalOutputData fromOutput;
+	private AnalysisNodeData toNode;
+	private FormalInputData toInput;
 	
+	public AnalysisLinkData() {}
 	
-	
-	public ModuleCategoryData() {}
-	
-	public ModuleCategoryData(int id, String name, String description, 
-						ModuleCategoryData parentCategory,
-						List childCategories,List modules) 
-						
-	{
-		super(id,name,description);
-		this.parentCategory = parentCategory;
-		this.childCategories = childCategories;
-		this.modules = modules;
+	public AnalysisLinkData(int id,AnalysisChainData chain,AnalysisNodeData 
+		fromNode,FormalOutputData fromOutput,AnalysisNodeData toNode,
+		FormalInputData toInput) 
+	{	
+		this.id = id;
+		this.chain = chain;
+		this.fromNode = fromNode;
+		this.fromOutput = fromOutput;
+		this.toNode = toNode;
+		this.toInput = toInput;
 	}
 	
 	/** Required by the DataObject interface. */
-	public DataObject makeNew() { return new ModuleCategoryData(); }
-
-	public ModuleCategoryData getParentCategory() {
-		return parentCategory;
-	}
+	public DataObject makeNew() { return new AnalysisLinkData(); }
 	
-	public List getChildCategories() {
-		return childCategories;
-	}
-	
-	public List getModules() { return modules; }
-
-	public void setParentCategory(ModuleCategoryData parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-	
-	public void setChildCategories(List childCategories){
-		this.childCategories=childCategories;
-	}
-	
-	public void setModules(List modules) {
-		this.modules = modules;
+	public AnalysisChainData getChain() {
+		return chain;
 	}
 
+	public int getID() {
+		return id;
+	}
+
+	public AnalysisNodeData getFromNode() {
+		return fromNode;
+	}
+
+	public FormalOutputData getFromOutput() {
+		return fromOutput;
+	}
+
+	public FormalInputData getToInput() {
+		return toInput;
+	}
+
+	public AnalysisNodeData getToNode() {
+		return toNode;
+	}
+
+	
+	public void setChain(AnalysisChainData data) {
+		chain = data;
+	}
+
+	public void setID(int i) {
+		id = i;
+	}
+	
+	public void setFromNode(AnalysisNodeData data) {
+		fromNode = data;
+	}
+
+	public void setFromOutput(FormalOutputData data) {
+		fromOutput = data;
+	}
+
+	public void setToInput(FormalInputData data) {
+		toInput = data;
+	}
+
+	public void setToNode(AnalysisNodeData data) {
+		toNode = data;
+	}
 }
