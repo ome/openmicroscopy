@@ -59,10 +59,7 @@ public class PNGFilter
 	/** Possible format extensions. */
 	public static final String 	PNG = "png";
 	
-	public String getDescription()
-	{
-		return PNG;
-	}
+	public String getDescription() { return PNG; }
 		
 	public boolean accept(File f)
 	{

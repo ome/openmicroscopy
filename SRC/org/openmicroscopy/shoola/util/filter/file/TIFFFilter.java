@@ -56,16 +56,14 @@ import javax.swing.filechooser.FileFilter;
 public class TIFFFilter
 	extends FileFilter
 {
+	
 	/** Possible format extensions. */
 	public static final String 	TIFF = "tiff";
 	public static final String 	TIF = "tif";
 	
 	private String description = TIF;
 		
-	public String getDescription()
-	{
-		return description;
-	}
+	public String getDescription() { return description; }
 		
 	public boolean accept(File f)
 	{

@@ -42,6 +42,10 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 
 /** 
  * 
@@ -58,7 +62,7 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
  * @since OME2.2
  */
 public class ImageInspector
-	extends JDialog
+	extends JDialog implements AgentEventListener
 {
 	
 	/** Maximum width of the window. */
@@ -74,11 +78,9 @@ public class ImageInspector
 	private ZoomPanel				zoomPanel;
 	
 	JScrollPane scroll;
-	
 	public ImageInspector(ViewerCtrl control)
 	{
-		super(control.getReferenceFrame(), "Image Inspector", true);
-		manager = new ImageInspectorManager(this, control.getBufferedImage());
+		super(control.getReferenceFrame(), "Image Inspector");
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();
@@ -88,10 +90,15 @@ public class ImageInspector
 	/** Initializes the components. */
 	private void init(ViewerCtrl control)
 	{
-		zoomPanel = new ZoomPanel(control.getBufferedImage());
+		//register for the ImageRendered event.
+		Registry reg = control.getRegistry();
+		reg.getEventBus().register(this, ImageRendered.class);
+		manager = new ImageInspectorManager(this);
+		manager.setBufferedImage(control.getBufferedImage());
+		zoomPanel = new ZoomPanel(manager);
 		manager.setZoomPanel(zoomPanel);
 		menuBar = new MenuBar(manager);
-		toolBar = new ToolBar(control.getRegistry(), manager);
+		toolBar = new ToolBar(reg, manager);
 	}
 	
 	/** Build and lay out the GUI. */
@@ -102,5 +109,18 @@ public class ImageInspector
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(scroll, BorderLayout.CENTER);
 	}
+
+	/** Implement as specified by {@link AgentEventListener}. */
+	public void eventFired(AgentEvent e)
+	{
+		if (e instanceof ImageRendered)	handleImageRendered((ImageRendered) e);
+	}
+	
+	/** Handle event @see ImageRendered. */
+	private void handleImageRendered(ImageRendered response)
+	{
+		manager.setBufferedImage(response.getRenderedImage());
+		manager.zoom();
+	} 
 	
 }

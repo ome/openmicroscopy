@@ -146,12 +146,14 @@ public class ToolBarManager
 	
 	public void setMaxT(int t) { maxT = t; }
 	
+	/** Update the TField when a new timepoint is selected using the slider. */
 	public void onTChange(int t)
 	{
 		curT = t;
 		view.getTField().setText(""+t);
 	}
 	
+	/** Update the ZField when a z-section is selected using the slider. */
 	public void onZChange(int z)
 	{
 		curZ = z;

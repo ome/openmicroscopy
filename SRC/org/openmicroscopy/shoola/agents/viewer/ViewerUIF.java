@@ -121,11 +121,8 @@ public class ViewerUIF
 	
 	public ToolBar getToolBar() { return toolBar; } 
 	
-	/** Set the title of the Image. */
-	void setImageName(String imageName)
-	{
-		setTitle(imageName);
-	}
+	/** Display the name of the image in the title. */
+	void setImageName(String imageName) { setTitle(imageName); }
 	
 	/** Reset the default values for timepoint and z-section in the stack; */
 	void setDefaultZT(int t, int z, int sizeT, int sizeZ)

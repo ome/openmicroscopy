@@ -65,10 +65,7 @@ public class JPEGFilter
 	
 	private String description = JPEG;
 		
-	public String getDescription()
-	{
-		return description;
-	}
+	public String getDescription() { return description; }
 		
 	public boolean accept(File f)
 	{

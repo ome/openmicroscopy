@@ -67,29 +67,24 @@ public class ZoomPanel
 	extends JPanel
 {
 	
-	/** The BufferedImage to zoom. */	
-	private BufferedImage 		image;
-	
-	/** Width and height. */
-	private int					imageWidth, imageHeight;
+	/** Reference to the manager. */	
+	private ImageInspectorManager	manager;
 	
 	/** Location of the image. */
-	private int					x, y;
+	private int						x, y;
 	
 	/** Zoom level. */
-	private double				magFactor;
+	private double					magFactor;
 	 
-	public ZoomPanel(BufferedImage image)
+	public ZoomPanel(ImageInspectorManager manager)
 	{
+		this.manager = manager;
 		setBackground(Viewer.BACKGROUND_COLOR); 
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
-		this.image = image;
-		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
 	}
  
  	/** 
- 	 * Zoom the image. 
+ 	 * Paint the zoomed image. 
  	 * 
  	 * @param level		zoom level, value between 
  	 * 					{@link ImageInspectorManager#MIN_ZOOM_LEVEL} and
@@ -110,6 +105,7 @@ public class ZoomPanel
 	public void paint(Graphics g)
 	{
 		super.paintComponent(g);
+		BufferedImage image = manager.getBufferedImage();
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
@@ -119,7 +115,8 @@ public class ZoomPanel
 		g2D.setColor(Color.black);
 		AffineTransform at = new AffineTransform();
 		at.scale(magFactor, magFactor);
-		BufferedImage bimg = new BufferedImage(imageWidth, imageHeight,
+		BufferedImage bimg = new BufferedImage(image.getWidth(),
+												image.getHeight(),
 												BufferedImage.TYPE_INT_RGB);
 		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
 		rop.filter(image, bimg);

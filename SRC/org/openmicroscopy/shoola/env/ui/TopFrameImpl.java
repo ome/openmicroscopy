@@ -242,6 +242,7 @@ public class TopFrameImpl
 	{
 		connectMenu = new JMenu("Connect");
 		JMenuItem menuItem = new JMenuItem("OMEDS");
+		menuItem.setEnabled(false);
 		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEDS);
 		connectMenu.add(menuItem);
 	}
@@ -300,6 +301,7 @@ public class TopFrameImpl
 		connectToolBar.setFloatable(false);
 		IconManager im = IconManager.getInstance(container.getRegistry());
 		JButton connectDS = new JButton(im.getIcon(IconManager.CONNECT_DS));
+		connectDS.setEnabled(false);
 		manager.attachComponentListener(connectDS, TopFrameImplManager.OMEDS);
 		connectDS.setToolTipText(
 			UIUtilities.formatToolTipText("Connect to OME DataService."));
