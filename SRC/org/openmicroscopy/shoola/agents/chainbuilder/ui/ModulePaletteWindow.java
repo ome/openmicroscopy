@@ -64,13 +64,10 @@ import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
- * An example of a top-level window that inherits from {@link TopWindow}.
+ * A top level window containing analysis modules that might be used in a chain
  * 
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
