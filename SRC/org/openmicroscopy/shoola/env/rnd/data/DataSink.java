@@ -267,19 +267,41 @@ public class DataSink
 		//if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
 		//	fillStack(pDef.getT());
 		//To be restored.
+		/*
+		curPlaneDef = pDef;
+		BytesConverter strategy = 
+						BytesConverter.getConverter(pixelType, BIG_ENDIAN);
+		return createPlane(stack[w], strategy);
+		*/
+		// tempo *hack*, should be removed
 		Integer index = new Integer(w);
-		Plane2D curPlane2D = (Plane2D) planes.get(index);
-		if (curPlane2D == null || curPlaneDef.getT() != pDef.getT() ||
-			curPlaneDef.getZ() != pDef.getZ())	{
+		Plane2D plane = null;
+		Plane2DSelected p2DSelected = (Plane2DSelected) planes.get(index);
+		
+		if (p2DSelected == null) {
 			curPlaneDef = pDef;
 			BytesConverter strategy = 
 							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-			//return createPlane(stack[w], strategy);
-			//Replaced by this *temporary* hack:
-			curPlane2D = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 
-			planes.put(index, curPlane2D);	
+			plane = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy);
+
+			planes.put(index, 
+						new Plane2DSelected(plane, pDef.getZ(), pDef.getT()));
+		} else {
+			if (p2DSelected.curZ != pDef.getZ() || 
+				p2DSelected.curT != pDef.getT()) {
+				curPlaneDef = pDef;
+				BytesConverter strategy = 
+							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
+				plane = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy);
+				p2DSelected.setCurT(pDef.getT());
+				p2DSelected.setCurZ(pDef.getZ());
+				p2DSelected.setPlane(plane);
+				planes.put(index, p2DSelected);
+			} else {
+				plane = p2DSelected.plane;
+			}
 		}
-		return curPlane2D;
+		return plane;
 	}
 
 }
