@@ -65,6 +65,9 @@ public class ChainFormalOutputData  extends FormalOutputData
 	 */
 	private static MatchMapper outputMatches = new MatchMapper();
 	
+	/** the longest string associated with an  input */
+	private static ChainFormalOutputData longestOutput;
+	
 	public static List getOutputsForType(SemanticTypeData std) {
 		if (std !=null) 
 			return outputMatches.getMatches(std.getID());
@@ -72,6 +75,9 @@ public class ChainFormalOutputData  extends FormalOutputData
 			return null;
 	} 
 	
+	public static ChainFormalOutputData getLongestOutput() {
+		return longestOutput;
+	}
 	
 	public ChainFormalOutputData() {}
 	
@@ -99,5 +105,11 @@ public class ChainFormalOutputData  extends FormalOutputData
 			return -1;
 		ChainFormalOutputData d = (ChainFormalOutputData) o;
 		return getID()-d.getID();
+	}
+	
+	public void setName(String name ) {
+		super.setName(name);
+		if (longestOutput == null ||name.length() > longestOutput.getName().length())
+			longestOutput = this;
 	}
 }
