@@ -36,11 +36,13 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIStats;
 
 /** 
  * 
@@ -60,16 +62,29 @@ public class StatsResultsPane
     extends JPanel
 {
     
+    public static final String[]   zAndtFieldNames = {"Z", "T", "Min", "Max", 
+                                                "Mean", "StD", "Area", "Sum"};
+    
     StatsTable                      table;
     
     private StatsResultsPaneMng     manager;
     
-    public StatsResultsPane(ROIResultsMng mng, Object[][] data, Icon up, 
-                            Icon down)
+    public StatsResultsPane(ROIResultsMng mng, ROIStats stats, int sizeT, 
+                            int sizeZ, int channel, int l, Icon up, Icon down)
     {
-        manager = new StatsResultsPaneMng(this, mng);
-        table = new StatsTable(data, manager.getFieldsNames(), up, down);
-        buildGUI(new BottomBar(manager));
+        manager = new StatsResultsPaneMng(this, mng, sizeT, sizeZ, stats, l);
+        table = new StatsTable(manager.getData(channel), up, down);
+        buildGUI(new BottomBar(manager, mng.getRegistry()));
+    }
+    
+    public void showResultsForChannel(int channel)
+    {
+        table.setTableData(manager.getData(channel));
+    }
+    
+    AbstractTableModel getTableModel()
+    { 
+        return (AbstractTableModel) table.getModel();
     }
     
     /** Build and lay out the GUI. */

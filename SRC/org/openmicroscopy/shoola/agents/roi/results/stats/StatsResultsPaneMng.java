@@ -29,14 +29,22 @@
 
 package org.openmicroscopy.shoola.agents.roi.results.stats;
 
-import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
+
 
 
 //Java imports
+import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
+import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
+import org.openmicroscopy.shoola.agents.roi.results.stats.saver.ROISaver;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIPlaneStats;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIStats;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -52,102 +60,65 @@ import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
  * </small>
  * @since OME2.2
  */
-class StatsResultsPaneMng
+public class StatsResultsPaneMng
 {
-    
-    /** Action ID to identify the fieldNames for the table. */
-    static final int                ZFIELD = 0, TFIELD = 1, ZTFIELD = 2, 
-                                    ZANDTFIELD = 3;
-    
-    private static final String[]   zFieldNames = {"Z", "Min", "Max", "Mean",
-                                                    "Sigma"};
-
-    private static final String[]   tFieldNames = {"T", "Min", "Max", "Mean",
-                                                    "Sigma"};
-
-    private static final String[]   zAndtFieldNames = {"Z", "T", "Min", "Max", 
-                                                    "Mean", "Sigma"};
-
-    private static final String[]   ztFieldNames =  {"Min", "Max", "Mean", 
-                                                    "Sigma"};
-
+ 
     private StatsResultsPane        view;
-    
-    private int                     aggregationIndex;
     
     private ROIResultsMng           mng;
     
-    StatsResultsPaneMng(StatsResultsPane view, ROIResultsMng mng)
+    private ROIStats                stats;
+    
+    private int                     sizeT, sizeZ;
+
+    private int                     lengthStats;
+    
+    public StatsResultsPaneMng(StatsResultsPane view, ROIResultsMng mng, 
+                                int sizeT, int sizeZ, ROIStats stats, 
+                                int numChannel)
     {
         this.view = view;
+        this.sizeZ = sizeZ;
+        this.sizeT = sizeT;
         this.mng = mng;
-        aggregationIndex = ZANDTFIELD;
+        this.stats = stats;
+        lengthStats = stats.getSize()/numChannel;
+    }
+
+    public AbstractTableModel getTableModel() { return view.getTableModel(); }
+    
+    public Registry getRegistry() { return mng.getRegistry(); }
+    
+    public ROIAgtUIF getReferenceFrame() { return mng.getReferenceFrame(); }
+    
+    void saveTable() 
+    {
+        UIUtilities.centerAndShow(new ROISaver(this));
     }
     
-    int getAggregationIndex() { return aggregationIndex; }
-    
-    /** Aggregate results on Z. */
-    void aggregateOnZ()
+    Object[][] getData(int channel)
     {
-        aggregationIndex = ZFIELD;
-        resetTable();
-    }
-    
-    /** Aggregate results on T. */
-    void aggregateOnT()
-    {
-        aggregationIndex = TFIELD; 
-        resetTable();
-    }
-    
-    /** Aggregate results on Z and T. */
-    void aggregateOnZAndT()
-    {
-        aggregationIndex = ZTFIELD; 
-        resetTable();
-        
-    }
-    
-    void displayZandT()
-    {
-        aggregationIndex = ZANDTFIELD;
-        resetTable();
-    }
-    
-    private void resetTable()
-    {
-        //need to retrieve the data
-        view.table.initTable(setDefault(), getFieldsNames());
-    }
-    
-    String[] getFieldsNames()
-    {
-        String[] names = zAndtFieldNames;
-        switch (aggregationIndex) {
-            case ZFIELD:
-                names = zFieldNames;
-                break;
-            case TFIELD:
-                names = tFieldNames;
-                break;
-            case ZTFIELD:
-                names = ztFieldNames; 
-            break;
-            case ZANDTFIELD:
-                names = zAndtFieldNames; 
+        Object[][] data = 
+           new Object[lengthStats][StatsResultsPane.zAndtFieldNames.length];
+        ROIPlaneStats p;
+        int c = 0;
+        for (int t = 0; t < sizeT; t++) {
+            for (int z = 0; z < sizeZ; z++) {
+                p = stats.getPlaneStats(z, channel, t);
+                if (p != null) {
+                    data[c][0] = new Integer(z);
+                    data[c][1] = new Integer(t);
+                    data[c][2] = new Double(p.getMin());
+                    data[c][3] = new Double(p.getMax());
+                    data[c][4] = new Double(p.getMean());
+                    data[c][5] = new Double(p.getStandardDeviation());
+                    data[c][6] = new Integer(p.getPointsCount());
+                    data[c][7] = new Double(p.getSum());
+                    c++;
+                }
+            }
         }
-        return names;
-    }
-    
-    /** Reset the table in the viewPort. */
-    private String[][] setDefault()
-    {
-        String[][] data =  new String[2][10];
-        for (int i = 0; i < data.length; i++) {
-            data[0][i] = ""+100*(i+1);
-            data[1][i] = ""+50*(i+1);
-        }
-        return data;                        
+        return data;
     }
 
 }

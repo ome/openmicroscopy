@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 //Java imports
+import java.text.NumberFormat;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -61,24 +62,37 @@ class StatsTable
     extends JTable
 {
     
-    private Icon    up, down;
+    /**Icon displayed in the table header. */
+    private Icon            up, down;
     
-    StatsTable(Object[][] data, String[] fieldNames, Icon up, Icon down)
+    private TableSorter     sorter;
+    
+    private NumberFormat    nf;
+    
+    StatsTable(Object[][] data, Icon up, Icon down)
     {
         this.up = up;
         this.down = down;
-        initTable(data, fieldNames);
+        nf = NumberFormat.getInstance();
+        initTable(data);
+    }
+    
+    void setTableData(Object[][] data)
+    {
+        StatsTableModel model = new StatsTableModel(data);
+        sorter.setModel(model);
+        repaint();
     }
     
     /** Initializes the table. */
-    void initTable(Object[][] data, String[] fieldNames)
+    void initTable(Object[][] data)
     {
-        StatsTableModel model = new StatsTableModel(data, fieldNames);
-        TableSorter sorter = new TableSorter(model); 
+        StatsTableModel model = new StatsTableModel(data);
+        sorter = new TableSorter(model); 
         setModel(sorter);
         sorter.addMouseListenerToHeaderInTable(this);
         sorter.sortByColumn(0);     // default
-        setTableLayout(fieldNames);
+        setTableLayout(StatsResultsPane.zAndtFieldNames);
     }
     
     /** Set the table layout. */
@@ -102,15 +116,14 @@ class StatsTable
     {
         
         /** Columns' header. */
-        private String[]    fieldNames;
+        private String[]    fieldNames = StatsResultsPane.zAndtFieldNames;
         
         /** Data to be displayed. */
         private Object[][]  data;
         
-        StatsTableModel(Object[][] data, String[] fieldNames)
-        {
+        StatsTableModel(Object[][] data)
+        { 
             this.data = data;
-            this.fieldNames = fieldNames;
         }
         
         public String getColumnName(int col) { return fieldNames[col]; }
@@ -119,7 +132,10 @@ class StatsTable
         
         public int getRowCount() { return data.length; }
         
-        public Object getValueAt(int row, int col) { return data[row][col]; }
+        public Object getValueAt(int row, int col)
+        { 
+            return nf.format(data[row][col]); 
+        }
         
         public boolean isCellEditable(int row, int col) { return false; }
         

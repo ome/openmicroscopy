@@ -32,8 +32,7 @@ package org.openmicroscopy.shoola.agents.roi.results.stats;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JRadioButton;
+import javax.swing.JButton;
 
 //Third-party libraries
 
@@ -57,17 +56,8 @@ class BottomBarMng
     implements ActionListener
 {
     
-    /** Action ID, aggregate on Z. */
-    private static final int        Z = 0;
-    
-    /** Action ID, aggregate on T. */
-    private static final int        T = 1;
-    
-    /** Action ID, aggregate on Z and T. */
-    private static final int        ZT = 2;
-    
-    /** Action ID, display results for both Z and T. */
-    private static final int        ZANDT = 3;
+    /** Action command ID. */
+    private static final int        SAVE = 0;
     
     private BottomBar               view;
     
@@ -83,14 +73,11 @@ class BottomBarMng
     /** Attach Listeners. */
     private void attachListeners()
     {
-        attachButtonListeners(view.zButton, Z);
-        attachButtonListeners(view.tButton, T);
-        attachButtonListeners(view.ztButton, ZT);
-        attachButtonListeners(view.zAndtButton, ZANDT);
+        attachButtonListeners(view.save, SAVE);
     }
 
     /** Attach a {@link ActionListener listener} to a button. */
-    private void attachButtonListeners(JRadioButton button, int id)
+    private void attachButtonListeners(JButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id); 
@@ -102,14 +89,8 @@ class BottomBarMng
         int index = Integer.parseInt(e.getActionCommand());
         try {
             switch (index) {
-                case Z:
-                    mng.aggregateOnZ(); break;
-                case T:
-                    mng.aggregateOnT(); break;
-                case ZT:
-                    mng.aggregateOnZAndT(); break;
-                case ZANDT:
-                    mng.displayZandT();
+                case SAVE:
+                    mng.saveTable(); break;
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 

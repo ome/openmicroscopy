@@ -75,6 +75,8 @@ public class ResultsPerROIPane
     
     private ResultsPerROIPaneMng    manager;
     
+    private JComponent              component;
+    
     public ResultsPerROIPane(int viewIndex, ROIResultsMng mng, 
                             String[] listChannels, String title, 
                             String annotation)
@@ -86,9 +88,18 @@ public class ResultsPerROIPane
     
     ResultsPerROIPaneMng getManager() { return manager; }
     
+    public JComponent getComponent() { return component; }
+    
     public void addToContainer(JComponent component)
     {
+        this.component = component;
         add(component);
+        repaint();
+    }
+    
+    public void removeComponentFromContainer()
+    {
+        remove(component);
         repaint();
     }
     

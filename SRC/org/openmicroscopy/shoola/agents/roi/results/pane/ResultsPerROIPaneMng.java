@@ -86,7 +86,7 @@ class ResultsPerROIPaneMng
         try {
             switch (index) {
                 case CHANNEL:
-                    mng.channelSelectedForROI(viewIndex, 
+                    mng.showResultsForROI(viewIndex, 
                             view.channels.getSelectedIndex());
             }
         } catch(NumberFormatException nfe) { 

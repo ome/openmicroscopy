@@ -30,15 +30,17 @@
 package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 //Java imports
-import java.awt.BorderLayout;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
+import java.awt.FlowLayout;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -59,46 +61,41 @@ class BottomBar
     extends JPanel
 {
     
-    JRadioButton zButton, tButton, ztButton, zAndtButton;
+    JButton         save;
     
-    BottomBar(StatsResultsPaneMng mng)
+    BottomBar(StatsResultsPaneMng mng, Registry reg)
     {
-        initComponents(mng.getAggregationIndex());
+        initComponents(IconManager.getInstance(reg));
         new BottomBarMng(this, mng);
         buildGUI();
     }
     
     /** Initializes the components. */
-    void initComponents(int index)
+    void initComponents(IconManager im)
     {
-        ButtonGroup group = new ButtonGroup();
-        zAndtButton = new JRadioButton("display results for Z and T.");
-        zAndtButton.setSelected(index == StatsResultsPaneMng.ZANDTFIELD);
-        group.add(zAndtButton);
-        zButton = new JRadioButton("on Z");
-        zButton.setSelected(index == StatsResultsPaneMng.ZFIELD);
-        group.add(zButton);
-        tButton = new JRadioButton("on T");
-        tButton.setSelected(index == StatsResultsPaneMng.TFIELD);
-        group.add(tButton);
-        ztButton = new JRadioButton("both Z and T");
-        ztButton.setSelected(index == StatsResultsPaneMng.ZTFIELD);
-        group.add(ztButton); 
+        save = new JButton();
+        save = new JButton(im.getIcon(IconManager.SAVE));
+        save.setToolTipText(
+                UIUtilities.formatToolTipText("Save the result as a " +
+                                            "Text file."));
     }
     
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
-        JPanel radioPanel = new JPanel();
-        radioPanel.add(zButton);
-        radioPanel.add(tButton);
-        radioPanel.add(ztButton);
-        radioPanel.add(zAndtButton);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(
-                UIUtilities.setTextFont(" Aggregate Results")), 
-                BorderLayout.NORTH);
-        add(UIUtilities.buildComponentPanel(radioPanel), BorderLayout.CENTER); 
+        setLayout(new FlowLayout(FlowLayout.RIGHT));
+        JPanel p = new JPanel();
+        p.add(buildBar());
+        add(p); 
     }
     
+    private JToolBar buildBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setBorder(BorderFactory.createEtchedBorder());
+        bar.setFloatable(true);
+        bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+        bar.add(save);
+        return bar;
+    }
 }
