@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.chainbuilder.piccolo.MexView;
+ * org.openmicroscopy.shoola.agents.chainbuilder.piccolo.NexView;
  *
  *------------------------------------------------------------------------------
  *
@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
- * A Piccolo widget Module Executions
+ * A Piccolo widget for Node Executions
  *
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -50,11 +50,11 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  */
-public class MexView extends PPath {
+public class NexView extends PPath {
 	
 	private ModuleExecutionData mex;
 
-	public MexView(ModuleExecutionData mex) {
+	public NexView(ModuleExecutionData mex) {
 		super();
 		this.mex =mex;
 		// set path
