@@ -35,10 +35,13 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
-import java.util.HashMap;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.Map;
 
 /**
+ * A repository of commonly used paint methods.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
@@ -46,41 +49,17 @@ import java.util.Map;
  */
 public class PaintMethods
 {
-    private Map methodMap;
-    private static PaintMethods methods;
-
-    private PaintMethods()
+    public static final PaintMethod DRAW_NAME_METHOD = new AbstractPaintMethod()
     {
-        methodMap = new HashMap();
-    }
-
-    public static PaintMethods getInstance()
-    {
-        if (methods == null)
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.images.PaintMethod#paint(java.awt.Graphics, org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+         */
+        public void paint(Graphics2D g, Thumbnail t)
         {
-            methods = new PaintMethods();
+            // dummy method for now
+            g.drawString("I",4,4);
         }
-        return methods;
-    }
 
-    public void put(String key, PaintMethod method)
-    {
-        if (key == null || method == null)
-        {
-            return;
-        }
-        methodMap.put(key, method);
-    }
-
-    public PaintMethod get(String key)
-    {
-        return (PaintMethod) methodMap.get(key);
-    }
-
-    public PaintMethod remove(String key)
-    {
-        PaintMethod method = get(key);
-        methodMap.remove(key);
-        return method;
-    }
+    };
+    
 }

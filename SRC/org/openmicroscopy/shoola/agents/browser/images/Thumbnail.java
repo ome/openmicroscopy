@@ -146,6 +146,7 @@ public class Thumbnail extends PImage
     public void setPaintMethodZOrder(PaintMethodZOrder order)
     {
         this.defaultZOrder = order;
+        repaint();
     }
     
     /**

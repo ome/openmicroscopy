@@ -81,7 +81,25 @@ public class BIcon extends PNode implements MouseOverSensitive,
     protected boolean sticky = false;
     protected boolean activated = false; // only relevant if sticky
     
+    /**
+     * The actions to currently execute, and always execute if the icon
+     * does not maintain sticky state.
+     */
     protected MouseDownActions mouseDownActions;
+    
+    /**
+     * The actions to execute when the icon is in the activated state.
+     */
+    protected MouseDownActions activatedActions;
+    
+    /**
+     * The actions to execute when the icon is in the deactivated state.
+     */
+    protected MouseDownActions deactivatedActions;
+    
+    /**
+     * The action to take when the user mouses over the icon.
+     */
     protected MouseOverActions mouseOverActions;
     
     protected boolean tooltipWaiting;
@@ -95,6 +113,8 @@ public class BIcon extends PNode implements MouseOverSensitive,
     {
         mouseDownActions = new MouseDownActions();
         mouseOverActions = new MouseOverActions();
+        activatedActions = new MouseDownActions();
+        deactivatedActions = new MouseDownActions();
     }
     
     private PNode getTooltipNode(double offsetX, double offsetY)
@@ -197,9 +217,13 @@ public class BIcon extends PNode implements MouseOverSensitive,
     /**
      * Constructs a text icon with the specified string.
      * @param text The string to show in the icon.
+     * @param sticky Whether or not this state is sticky; that is, whether or
+     *               not this icon represents a state that can be activated
+     *               and deactivated. 
      */
-    public BIcon(String text)
+    public BIcon(String text, boolean sticky)
     {
+        this.sticky = sticky;
         init();
         presentationNode = new PText(text);
         // TODO set font
@@ -213,9 +237,14 @@ public class BIcon extends PNode implements MouseOverSensitive,
      * supports image+text icons and glyph-based icons.
      * 
      * @param childNode The node to embed in this icon.
+     * @param sticky Whether or not this state is sticky; that is, whether or
+     *               not this icon represents a state that can be activated
+     *               and deactivated. 
      */
-    public BIcon(PNode childNode)
+    public BIcon(PNode childNode, boolean sticky)
     {
+        this.sticky = sticky;
+        init();
         this.presentationNode = childNode;
         addChild(presentationNode);
         placeNode(presentationNode);
@@ -254,11 +283,20 @@ public class BIcon extends PNode implements MouseOverSensitive,
     /**
      * Sets the activation state of the icon (only valid if the icon is
      * sticky)
-     * @param activated
+     * @param activated Which state to put the icon in.
      */
     public void setActivated(boolean activated)
     {
         this.activated = activated;
+        if(activated)
+        {
+            mouseDownActions = activatedActions;
+        }
+        else
+        {
+            mouseDownActions = deactivatedActions;
+        }
+        
     }
     
     /********************* INHERITED INTERFACE METHODS *********************/
@@ -336,13 +374,53 @@ public class BIcon extends PNode implements MouseOverSensitive,
     }
     
     /**
+     * Sets the mouse actions (both activated, deactivated, or the default
+     * if the icon does not have sticky state) to the specified actions.
+     * 
      * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
      */
     public void setMouseDownActions(MouseDownActions actions)
     {
         if(actions != null)
         {
+            deactivatedActions = actions;
+            activatedActions = actions;
             mouseDownActions = actions;
+        }
+    }
+    
+    /**
+     * A BIcon, if sticky, may be in an activated or deactivated state.  If
+     * that is true, it is likely the case that two different actions should
+     * be taken dependent on whether the icon is activated or not.  The
+     * activated action is the action to take when the icon is currently
+     * activated, and the deactivated action is the action to take when the
+     * icon is currently deactivated.  If either action set is null, the
+     * assignment will be ignored.
+     * 
+     * @param activatedActions See above.
+     * @param deactivatedActions See above.
+     */
+    public void setMouseDownStickyActions(MouseDownActions activatedActions,
+                                          MouseDownActions deactivatedActions)
+    {
+        if(activatedActions != null)
+        {
+            this.activatedActions = activatedActions;
+        }
+        if(deactivatedActions != null)
+        {
+            this.deactivatedActions = deactivatedActions;
+        }
+        
+        // make assignment now
+        if(activated)
+        {
+            this.mouseDownActions = this.activatedActions;
+        }
+        else
+        {
+            this.mouseDownActions = this.deactivatedActions;
         }
     }
     

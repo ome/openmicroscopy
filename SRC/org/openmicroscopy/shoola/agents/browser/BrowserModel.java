@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.util.*;
 
 import org.openmicroscopy.is.CompositingSettings;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
@@ -317,6 +318,71 @@ public class BrowserModel
                 BrowserModelListener bml = (BrowserModelListener)iter.next();
                 bml.modeChanged(modeClassName,mode);
             }
+        }
+    }
+    
+    /**
+     * Adds a paint method that will be applied to all thumbnails in the
+     * model.  For example, adding the paint method which paints a thumbnail's
+     * name will cause the name to be rendered on all thumbnails.
+     * 
+     * IMPL NOTE: Simplified accessor to z order; adds to top (default).
+     * Might be a smart idea to add the bottom method to, or index methods as
+     * in PaintMethodZOrder, but I think this will do the job for now.
+     * 
+     * @param m The paint method to add (to the top)
+     */
+    public void addPaintMethod(PaintMethod m)
+    {
+        if(m == null)
+        {
+            return;
+        }
+        annotationModel.addMethodToTop(m); // TODO: make change here?
+        
+        updatePaintMethods();
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            BrowserModelListener bml =
+                (BrowserModelListener)iter.next();
+            bml.paintMethodsChanged();
+        }
+    }
+    
+    /**
+     * Removes a paint method from the ordering in the model.  For example,
+     * removing the paint method which paints a thumbnail's name will prevent
+     * the name from being rendered on all thumbnails in the model.
+     * 
+     * @param m The paint method to deactivate.
+     */
+    public void removePaintMethod(PaintMethod m)
+    {
+        if(m == null)
+        {
+            return;
+        }
+        boolean changed = annotationModel.removePaintMethod(m);
+        
+        if(changed)
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserModelListener bml =
+                    (BrowserModelListener)iter.next();
+                
+                bml.paintMethodsChanged();
+            }
+        }
+    }
+    
+    // applies the current z order to all thumbnails in the model.
+    private void updatePaintMethods()
+    {
+        for(Iterator iter = thumbnailSet.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.setPaintMethodZOrder(annotationModel);
         }
     }
 

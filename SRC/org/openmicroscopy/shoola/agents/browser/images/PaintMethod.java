@@ -35,7 +35,7 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 /**
  * Specifies how an overlay gets painted on a thumbnail.  Uses the thumbnail
@@ -55,5 +55,5 @@ public interface PaintMethod
      * @param g The canvas to draw to.
      * @param t The thumbnail to draw.
      */
-    public void paint(Graphics g, Thumbnail t);
+    public void paint(Graphics2D g, Thumbnail t);
 }

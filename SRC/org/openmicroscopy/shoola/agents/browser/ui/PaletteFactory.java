@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 
 /**
  * Makes the appropriate palettes for each browser window.
@@ -62,13 +63,13 @@ public class PaletteFactory
     public static BPalette getMainPalette(final BrowserModel backingModel,
                                           final BrowserTopModel model)
     {
-        if(model == null)
+        if(model == null || backingModel == null)
         {
             return null;
         }
         
         BPalette palette = new BPalette(model,"Modes");
-        BIcon defaultIcon = new BIcon("Normal");
+        BIcon defaultIcon = new BIcon("Normal",false);
         MouseDownActions defaultActions = new MouseDownActions();
         
         // add the default select icon (finally, piecing together the reusable
@@ -84,7 +85,7 @@ public class PaletteFactory
         
         
         // add the annotate mode select icon
-        BIcon annotateIcon = new BIcon("Annotate");
+        BIcon annotateIcon = new BIcon("Annotate",false);
         MouseDownActions annotateActions = new MouseDownActions();
         PiccoloAction annotateSelectAction =
             PiccoloActionFactory.getModeChangeAction(backingModel,
@@ -97,7 +98,7 @@ public class PaletteFactory
         
         
         // add the classify mode select icon
-        BIcon classifyIcon = new BIcon("Classify");
+        BIcon classifyIcon = new BIcon("Classify",false);
         MouseDownActions classifyActions = new MouseDownActions();
         PiccoloAction classifySelectAction =
             PiccoloActionFactory.getModeChangeAction(backingModel,
@@ -110,7 +111,7 @@ public class PaletteFactory
         
         
         // add the graph mode select icon
-        BIcon graphIcon = new BIcon("Graph");
+        BIcon graphIcon = new BIcon("Graph",false);
         MouseDownActions graphActions = new MouseDownActions();
         PiccoloAction graphSelectAction =
             PiccoloActionFactory.getModeChangeAction(backingModel,
@@ -126,6 +127,42 @@ public class PaletteFactory
         palette.addIcon(annotateIcon);
         palette.addIcon(classifyIcon);
         palette.addIcon(graphIcon);
+        return palette;
+    }
+    
+    public static BPalette getPaintModePalette(final BrowserModel backingModel,
+                                               final BrowserTopModel model)
+    {
+        if(backingModel == null || model == null)
+        {
+            return null;
+        }
+        
+        BPalette palette = new BPalette(model, "Overlays");
+        BIcon nameIcon = new BIcon("Name",true);
+        MouseDownActions activatedActions = new MouseDownActions();
+        MouseDownActions deactivatedActions = new MouseDownActions();
+        
+        PiccoloAction nameModeOnAction =
+            PiccoloActionFactory.getAddPaintMethodAction(backingModel,
+                                                 PaintMethods.DRAW_NAME_METHOD);
+                                                 
+        PiccoloAction nameModeOffAction =
+            PiccoloActionFactory.getRemovePaintMethodAction(backingModel,
+                                                 PaintMethods.DRAW_NAME_METHOD);
+        
+        // turn off if on
+        activatedActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                             nameModeOffAction);
+                                             
+        // turn on if off
+        deactivatedActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                               nameModeOnAction);
+        
+        nameIcon.setMouseDownStickyActions(activatedActions,
+                                           deactivatedActions);
+                                           
+        palette.addIcon(nameIcon);
         return palette;
     }
 }

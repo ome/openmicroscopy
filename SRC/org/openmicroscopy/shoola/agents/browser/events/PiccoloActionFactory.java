@@ -37,8 +37,8 @@
 package org.openmicroscopy.shoola.agents.browser.events;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
-import org.openmicroscopy.shoola.agents.browser.BrowserModeClass;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -76,6 +76,54 @@ public class PiccoloActionFactory
                 target.setCurrentMode(familyName,mode);
             }
 
+        };
+        return action;
+    }
+    
+    /**
+     * Generates an add paint method action.
+     * @param target The browser model to change.
+     * @param method The (overlay) paint method to add.
+     * @return The action which executes this paint method inclusion.
+     */
+    public static PiccoloAction getAddPaintMethodAction(final BrowserModel target,
+                                                        final PaintMethod method)
+    {
+        if(target == null || method == null)
+        {
+            return null;
+        }
+        
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                target.addPaintMethod(method);
+            }
+        };
+        return action;
+    }
+    
+    /**
+     * Generates a remove paint method action.
+     * @param target The browser model to change.
+     * @param method The (overlay) paint method to remove.
+     * @return The action which executes this paint method exclusion.
+     */
+    public static PiccoloAction getRemovePaintMethodAction(final BrowserModel target,
+                                                           final PaintMethod method)
+    {
+        if(target == null || method == null)
+        {
+            return null;
+        }
+        
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                target.removePaintMethod(method);
+            }
         };
         return action;
     }

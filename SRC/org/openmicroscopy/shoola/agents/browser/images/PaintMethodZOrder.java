@@ -254,12 +254,15 @@ public class PaintMethodZOrder
     /**
      * Removes the specified paint method from the order.
      * @param m The paint method to remove.
+     * @return Whether or not a change was actually made to the model.
      */
-    public void removePaintMethod(PaintMethod m)
+    public boolean removePaintMethod(PaintMethod m)
     {
-        if(m != null)
+        if(m != null && bottomToTop.contains(m))
         {
             bottomToTop.remove(m);
+            return true;
         }
+        else return false;
     }
 }
