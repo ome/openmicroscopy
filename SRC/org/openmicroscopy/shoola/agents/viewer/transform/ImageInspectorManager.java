@@ -38,13 +38,13 @@ import java.awt.event.WindowEvent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.agents.viewer.transform.lens.LensBarMng;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * 
@@ -126,9 +126,9 @@ public class ImageInspectorManager
         control.setPaintingLens(b, c); 
     }
     
-    public void sharpenImage() { control.filterImage(ImageFactory.SHARPEN); }
+    public void sharpenImage() { control.filterImage(Factory.SHARPEN); }
     
-    public void lowPassImage() { control.filterImage(ImageFactory.LOW_PASS); }
+    public void lowPassImage() { control.filterImage(Factory.LOW_PASS); }
     
     public void undoFiltering() { control.undoFiltering(); }
     
@@ -159,7 +159,7 @@ public class ImageInspectorManager
         int w = (int) (imageWidth*level)+2*ViewerUIF.START;
         int h = (int) (imageHeight*level)+2*ViewerUIF.START;
         control.setSizePaintedComponents(new Dimension(w, h));
-        control.setMagFactor(level);
+        //control.setMagFactor(level);
         canvas.paintImage(level, w, h); 
     }
  

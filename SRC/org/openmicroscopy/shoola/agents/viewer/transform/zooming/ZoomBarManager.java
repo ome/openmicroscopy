@@ -99,14 +99,16 @@ public class ZoomBarManager
         zoomField.addFocusListener(this);
         
         //button
-        JButton zoomIn = view.getZoomIn(), zoomOut = view.getZoomOut(), 
-                zoomFit = view.getZoomFit();
-        zoomIn.addActionListener(this);
-        zoomIn.setActionCommand(""+ZOOM_IN_CMD);
-        zoomOut.addActionListener(this);
-        zoomOut.setActionCommand(""+ZOOM_OUT_CMD); 
-        zoomFit.addActionListener(this);
-        zoomFit.setActionCommand(""+ZOOM_FIT_CMD);
+        attachButtonListener(view.getZoomIn(), ZOOM_IN_CMD);
+        attachButtonListener(view.getZoomOut(), ZOOM_OUT_CMD);
+        attachButtonListener(view.getZoomFit(), ZOOM_FIT_CMD);
+    }
+    
+    /** Attach listener and setActionCommand to a JButton.*/
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this);  
     }
     
     /** Handle event fired by button. */

@@ -44,7 +44,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
-import org.openmicroscopy.shoola.agents.viewer.Viewer;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -122,9 +122,9 @@ public class ZoomBar
         zoomFit.setToolTipText(
             UIUtilities.formatToolTipText("Reset."));
         zoomField = new JTextField(s, MAX_LETTER.length());
-        zoomField.setForeground(Viewer.STEELBLUE);
+        zoomField.setForeground(ViewerUIF.STEELBLUE);
         zoomField.setToolTipText(
-            UIUtilities.formatToolTipText("zooming percentage."));  
+            UIUtilities.formatToolTipText("Zooming percentage."));  
     }   
 
     /** Build and lay out the GUI. */

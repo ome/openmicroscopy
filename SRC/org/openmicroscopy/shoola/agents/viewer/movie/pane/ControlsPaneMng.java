@@ -110,14 +110,9 @@ class ControlsPaneMng
         editor.setActionCommand(""+EDITOR_CMD);
         
         //JButton
-        JButton play = view.getPlay(), stop = view.getStop(), 
-                pause = view.getPause();
-        play.setActionCommand(""+PLAY_CMD);
-        play.addActionListener(this);
-        pause.setActionCommand(""+PAUSE_CMD);
-        pause.addActionListener(this);
-        stop.setActionCommand(""+STOP_CMD); 
-        stop.addActionListener(this);
+        attachButtonListener(view.getPlay(), PLAY_CMD);
+        attachButtonListener(view.getPause(), PAUSE_CMD);
+        attachButtonListener(view.getStop(), STOP_CMD);
         
         //JComboBox
         JComboBox box = view.getMovieType();
@@ -126,6 +121,13 @@ class ControlsPaneMng
         
         //JSpinner
         view.getFPS().addChangeListener(this);
+    }
+    
+    /** Attach listener and setActionCommand to a JButton.*/
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this);  
     }
     
     /** Handle events fired by JButtons. */

@@ -46,8 +46,7 @@ import javax.swing.JTextField;
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.viewer.Viewer;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.movie.Player;
 import org.openmicroscopy.shoola.agents.viewer.movie.defs.MovieSettings;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -69,7 +68,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class MoviePane
-extends JPanel
+    extends JPanel
 {
 
     private GraphicSlider           sliderT, sliderZ;
@@ -150,21 +149,21 @@ extends JPanel
     {
         movieStartT = new JTextField(""+settings.getStartT(), 
                                     (""+maxT).length());
-        movieStartT.setForeground(Viewer.STEELBLUE);
+        movieStartT.setForeground(ViewerUIF.STEELBLUE);
         movieStartT.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the starting value."));
         movieEndT = new JTextField(""+settings.getEndT(), (""+maxT).length());
-        movieEndT.setForeground(Viewer.STEELBLUE);
+        movieEndT.setForeground(ViewerUIF.STEELBLUE);
         movieEndT.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the end value."));
         
         movieStartZ = new JTextField(""+settings.getStartZ(), 
                                     (""+maxZ).length());
-        movieStartZ.setForeground(Viewer.STEELBLUE);
+        movieStartZ.setForeground(ViewerUIF.STEELBLUE);
         movieStartZ.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the starting value."));
         movieEndZ = new JTextField(""+settings.getEndZ(), (""+maxZ).length());
-        movieEndZ.setForeground(Viewer.STEELBLUE);
+        movieEndZ.setForeground(ViewerUIF.STEELBLUE);
         movieEndZ.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the end value."));
         if (maxZ == 0) setFieldsEnabled(true, false);

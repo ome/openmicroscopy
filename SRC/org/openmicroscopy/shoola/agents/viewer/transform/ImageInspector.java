@@ -33,7 +33,9 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -67,7 +69,10 @@ public class ImageInspector
                                     ZOOM_DEFAULT = 1.0,
                                     ZOOM_INCREMENT = 0.25;
     
+    /** Reference to the {@link ToolBar}. */
     ToolBar                         toolBar;
+    
+    /** Reference to the {@link MenuBar}. */
     MenuBar                         menuBar;
 
     private ImageInspectorManager   manager;
@@ -103,7 +108,15 @@ public class ImageInspector
     private void buildGUI()
     {
         setResizable(false);
-        getContentPane().add(toolBar, BorderLayout.NORTH);
+        getContentPane().add(buildMain(), BorderLayout.NORTH);
+    }
+    
+    private JPanel buildMain()
+    {
+        JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        p.add(toolBar);
+        return p;
     }
 
 }
