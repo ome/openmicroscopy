@@ -37,6 +37,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -45,6 +47,8 @@ import org.openmicroscopy.shoola.agents.viewer.movie.Player;
 import org.openmicroscopy.shoola.agents.viewer.movie.defs.MovieSettings;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.GraphicSlider;
+import org.openmicroscopy.shoola.util.ui.events.ChangeEventSlider;
 
 
 
@@ -63,7 +67,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @since OME2.2
  */
 class MoviePaneMng
-    implements ActionListener, FocusListener
+    implements ActionListener, FocusListener, ChangeListener
 {
     
     /** Action command ID. */
@@ -81,8 +85,6 @@ class MoviePaneMng
     
     private int                 max, maxT, maxZ;
     
-    private GraphicSliderMng    gsZMng, gsTMng;
-    
     private int                 movieIndex;
     
     private JTextField          startTField, startZField, endTField, endZField;
@@ -93,7 +95,7 @@ class MoviePaneMng
     private PlayerUIMng         playerUIMng;
     
     private Registry            registry;
-    
+
     MoviePaneMng(MoviePane view, PlayerUIMng playerUIMng, Registry registry,
                 int maxT, int maxZ, MovieSettings settings)
     {
@@ -109,7 +111,7 @@ class MoviePaneMng
         curEndZ = settings.getEndZ();
         movieIndex = settings.getMovieIndex();
     }
-    
+
     /** Attach listeners. */
     void attachListeners()
     {
@@ -136,38 +138,90 @@ class MoviePaneMng
         movieZ.setActionCommand(""+Player.MOVIE_Z);
         movieT.addActionListener(this);
         movieT.setActionCommand(""+Player.MOVIE_T);
+        
+        view.getSliderT().addChangeListener(this);
+        view.getSliderZ().addChangeListener(this);
     }
     
-    void setSlidersMng(GraphicSliderMng gsZMng, GraphicSliderMng gsTMng)
+    /** Handle graphicSlider stateChanged. */
+    public void stateChanged(ChangeEvent e)
     {
-        this.gsZMng = gsZMng;
-        this.gsTMng = gsTMng;
+        GraphicSlider source = (GraphicSlider) e.getSource();
+        if (source == view.getSliderT()) 
+            handleSliderTStateChanged((ChangeEventSlider) e);
+        else handleSliderZStateChanged((ChangeEventSlider) e);
     }
     
-    void setMovieStart(int v) 
+    /** Handle events fired by JTextFields. */
+    public void actionPerformed(ActionEvent e)
     {
-        if (movieIndex == Player.MOVIE_T){
-            curStartT = v;
-            startTField.setText(""+v);
-        } else if (movieIndex == Player.MOVIE_Z) {
-            curStartZ = v;
-            startZField.setText(""+v);
+        int index = Integer.parseInt(e.getActionCommand());
+        try {
+            switch (index) {
+                case START_T:
+                    movieStartActionHandler(startTField, endTField);
+                    break;
+                case END_T:
+                    movieEndActionHandler(startTField, endTField); 
+                    break;
+                case START_Z:
+                    movieStartActionHandler(startZField, endZField); 
+                    break;
+                case END_Z:
+                    movieEndActionHandler(startZField, endZField);
+                    break;
+                case Player.MOVIE_T:
+                case Player.MOVIE_Z:
+                    handleIndexChanged(index);
+                    break;
+            }
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
         }
-        playerUIMng.setStartMovie(v);
+    }
+    
+    /** 
+     * Handles the lost of focus on the timepoint text field.
+     * If focus is lost while editing, then we don't consider the text 
+     * currently displayed in the text field and we reset it to the current
+     * value.
+     */
+    public void focusLost(FocusEvent e)
+    {
+        String start = ""+curStartT, end = ""+curEndT;
+        String startVal = startTField.getText(), endVal = endTField.getText();
+        JTextField startField = startTField, endField = endTField;
+        if (movieIndex == Player.MOVIE_Z) {
+            start = ""+curStartZ;
+            end = ""+curEndZ;
+            startVal = startZField.getText();
+            endVal = endZField.getText();
+            startField = startZField;
+            endField = endZField;
+        }
+        
+        if (startVal == null || !startVal.equals(start))
+            startField.setText(start);        
+        if (endVal == null || !endVal.equals(end)) 
+            endField.setText(end);
     }
 
-    void setMovieEnd(int v) 
+    private void handleSliderTStateChanged(ChangeEventSlider e)
     {
-        if (movieIndex == Player.MOVIE_T){
-            curEndT = v;
-            endTField.setText(""+v);
-        } else if (movieIndex == Player.MOVIE_Z) {
-            curEndZ = v;
-            endZField.setText(""+v);
-        }
-        playerUIMng.setEndMovie(v);
+        if (e.isStart())
+            setMovieStart(view.getSliderT().getStartValue());
+        else
+            setMovieEnd(view.getSliderT().getEndValue());
     }
     
+    private void handleSliderZStateChanged(ChangeEventSlider e)
+    {
+        if (e.isStart())
+            setMovieStart(view.getSliderZ().getStartValue());
+        else
+            setMovieEnd(view.getSliderZ().getEndValue());
+    }
+
     private void handleIndexChanged(int index)
     {
         if (maxT == 0) {
@@ -192,20 +246,44 @@ class MoviePaneMng
         int end = Integer.parseInt(endTField.getText());
         if (movieIndex == Player.MOVIE_T) {
             max = maxT;
-            view.getSliderT().attachListeners();
-            view.getSliderZ().removeListeners();
+            view.getSliderT().attachMouseListeners();
+            view.getSliderZ().removeMouseListeners();
             setTFieldsEnabled(true);
             setZFieldsEnabled(false); 
         } else {
             start = Integer.parseInt(startZField.getText());
             end = Integer.parseInt(endZField.getText());
             max = maxZ;
-            view.getSliderT().removeListeners();
-            view.getSliderZ().attachListeners();
+            view.getSliderT().removeMouseListeners();
+            view.getSliderZ().attachMouseListeners();
             setTFieldsEnabled(false);
             setZFieldsEnabled(true);
         }
         playerUIMng.setIndex(movieIndex, max, start, end);
+    }
+
+    private void setMovieStart(int v) 
+    {
+        if (movieIndex == Player.MOVIE_T){
+            curStartT = v;
+            startTField.setText(""+v);
+        } else if (movieIndex == Player.MOVIE_Z) {
+            curStartZ = v;
+            startZField.setText(""+v);
+        }
+        playerUIMng.setStartMovie(v);
+    }
+
+    private void setMovieEnd(int v) 
+    {
+        if (movieIndex == Player.MOVIE_T){
+            curEndT = v;
+            endTField.setText(""+v);
+        } else if (movieIndex == Player.MOVIE_Z) {
+            curEndZ = v;
+            endZField.setText(""+v);
+        }
+        playerUIMng.setEndMovie(v);
     }
     
     private void setZFieldsEnabled(boolean b)
@@ -213,7 +291,7 @@ class MoviePaneMng
         startZField.setEnabled(b);
         endZField.setEnabled(b);
     }
-    
+
     private void setTFieldsEnabled(boolean b)
     {
         startTField.setEnabled(b);
@@ -245,15 +323,14 @@ class MoviePaneMng
         } else {
             if (movieIndex == Player.MOVIE_T) {
                 curStartT = val;
-                gsTMng.setStart(val);
+                view.getSliderT().setStartValue(val);
             } else {
                 curStartZ = val;
-                gsZMng.setStart(val);
+                view.getSliderZ().setStartValue(val);
             }
-            playerUIMng.setStartMovie(val);
         } 
     }
-    
+
     /** 
      * Handles the action event fired by the end text field when the user 
      * enters some text. 
@@ -279,67 +356,12 @@ class MoviePaneMng
         } else {
             if (movieIndex == Player.MOVIE_T) {
                 curEndT = val;
-                gsTMng.setEnd(val);
+                view.getSliderT().setEndValue(val);
             } else {
                 curEndZ = val;
-                gsZMng.setEnd(val);
+                view.getSliderZ().setEndValue(val);
             }
-            playerUIMng.setEndMovie(val);
         } 
-    }
-    
-    /** Handle events fired by JTextFields. */
-    public void actionPerformed(ActionEvent e)
-    {
-        int index = Integer.parseInt(e.getActionCommand());
-        try {
-            switch (index) {
-                case START_T:
-                    movieStartActionHandler(startTField, endTField);
-                    break;
-                case END_T:
-                    movieEndActionHandler(startTField, endTField); 
-                    break;
-                case START_Z:
-                    movieStartActionHandler(startZField, endZField); 
-                    break;
-                case END_Z:
-                    movieEndActionHandler(startZField, endZField);
-                    break;
-                case Player.MOVIE_T:
-                case Player.MOVIE_Z:
-                    handleIndexChanged(index);
-                    break;
-            }
-        } catch(NumberFormatException nfe) { 
-            throw new Error("Invalid Action ID "+index, nfe); 
-        }
-    }
-
-    /** 
-     * Handles the lost of focus on the timepoint text field.
-     * If focus is lost while editing, then we don't consider the text 
-     * currently displayed in the text field and we reset it to the current
-     * value.
-     */
-    public void focusLost(FocusEvent e)
-    {
-        String start = ""+curStartT, end = ""+curEndT;
-        String startVal = startTField.getText(), endVal = endTField.getText();
-        JTextField startField = startTField, endField = endTField;
-        if (movieIndex == Player.MOVIE_Z) {
-            start = ""+curStartZ;
-            end = ""+curEndZ;
-            startVal = startZField.getText();
-            endVal = endZField.getText();
-            startField = startZField;
-            endField = endZField;
-        }
-        
-        if (startVal == null || !startVal.equals(start))
-            startField.setText(start);        
-        if (endVal == null || !endVal.equals(end)) 
-            endField.setText(end);
     }
     
     /** 
@@ -347,5 +369,5 @@ class MoviePaneMng
      * implementation.
      */ 
     public void focusGained(FocusEvent e) {}
-    
+
 }

@@ -31,15 +31,12 @@ package org.openmicroscopy.shoola.agents.viewer.movie.pane;
 
 //Java imports
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -54,6 +51,7 @@ import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.movie.Player;
 import org.openmicroscopy.shoola.agents.viewer.movie.defs.MovieSettings;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.GraphicSlider;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -71,9 +69,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class MoviePane
-    extends JPanel
+extends JPanel
 {
-    
+
     private GraphicSlider           sliderT, sliderZ;
     
     /** TextField with the start (resp. end) value. */
@@ -86,7 +84,7 @@ class MoviePane
     
     /** Width of a caracter. */
     private int                     txtWidth;
-    
+
     private MoviePaneMng            manager;
     
     MoviePane(PlayerUIMng playerMng, Registry registry, int maxT, 
@@ -102,28 +100,28 @@ class MoviePane
     }
     
     GraphicSlider getSliderZ() { return sliderZ; }
-    
+
     GraphicSlider getSliderT() { return sliderT; }
     
     JTextField getMovieStartT() { return movieStartT; }
-
+    
     JTextField getMovieEndT() { return movieEndT; }
     
     JTextField getMovieStartZ() { return movieStartZ; }
-
-    JTextField getMovieEndZ() { return movieEndZ; }
     
+    JTextField getMovieEndZ() { return movieEndZ; }
+
     JRadioButton getMovieZ() { return movieZ; }
     
     JRadioButton getMovieT() { return movieT; }
-    
+
     /** Initializes the slider. */
     private void initComponents(int maxT, int maxZ, MovieSettings settings)
     {
-        sliderT = new GraphicSlider(manager, maxT, settings.getStartT(), 
-                                    settings.getEndT() );
+        sliderT = new GraphicSlider(maxT, settings.getStartT(), 
+                                    settings.getEndT());
         sliderT.setBackground(getBackground());
-        sliderZ = new GraphicSlider(manager, maxZ, settings.getStartZ(),
+        sliderZ = new GraphicSlider(maxZ, settings.getStartZ(),
                                     settings.getEndZ());
         sliderZ.setBackground(getBackground());
         sliderZ.setKnobColor(new Color(0, 255, 0, 90));
@@ -133,13 +131,12 @@ class MoviePane
         ButtonGroup group = new ButtonGroup();
         group.add(movieZ);
         group.add(movieT); 
-        manager.setSlidersMng(sliderZ.getManager(), sliderT.getManager());
         if (maxT == 0) {
-            sliderZ.attachListeners();
+            sliderZ.attachMouseListeners();
             movieZ.setSelected(true);
             movieT.setSelected(false);
         } else {
-            sliderT.attachListeners();
+            sliderT.attachMouseListeners();
             movieT.setSelected(true);
             movieZ.setSelected(false);
         } 
@@ -147,7 +144,7 @@ class MoviePane
             movieZ.setSelected(true);
         else movieT.setSelected(true);
     }
-    
+
     /** Initializes the text Fields displaying the current values. */
     private void initFields(int maxT, int maxZ, MovieSettings settings)
     {
@@ -177,7 +174,7 @@ class MoviePane
             else setFieldsEnabled(true, false);
         }
     }
-    
+
     private void setFieldsEnabled(boolean forT, boolean forZ)
     {
         movieStartZ.setEnabled(forZ);
@@ -185,7 +182,7 @@ class MoviePane
         movieStartT.setEnabled(forT);
         movieEndT.setEnabled(forT); 
     }
-    
+
     private JPanel buildControlsMoviePanel(int length, JTextField start, 
                                             JTextField end)
     {
@@ -205,7 +202,7 @@ class MoviePane
         c.gridx = 1;
         c.ipadx = x;
         c.weightx = 0.5;
-        JPanel msp = buildComponentPanel(start);
+        JPanel msp = UIUtilities.buildComponentPanel(start);
         gridbag.setConstraints(msp, c);
         p.add(msp);
         c.gridx = 2;
@@ -217,41 +214,32 @@ class MoviePane
         c.gridx = 3;
         c.ipadx = x;
         c.weightx = 0.5;
-        msp = buildComponentPanel(end);
+        msp = UIUtilities.buildComponentPanel(end);
         gridbag.setConstraints(msp, c);
         p.add(msp);
         return p; 
     }
 
-    /** Wrap a JComponent in a JPanel. */
-    private JPanel buildComponentPanel(JComponent component)
-    {
-        JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT));
-        p.add(component);
-        return p;
-    }
-    
     /** Initializes the width of the text. */
     private void initTxtWidth()
     {
         FontMetrics metrics = getFontMetrics(getFont());
         txtWidth = metrics.charWidth('m');
     }
-    
+
     private JPanel buildGroupPanel(GraphicSlider slider, JRadioButton button,
                                     JPanel controls)
     {
         JPanel p = new JPanel(), group = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(slider);
+        p.add(slider.getUI());
         p.add(controls);
         group.setLayout(new BoxLayout(group, BoxLayout.X_AXIS));
         group.add(button);
         group.add(p);
         return group;
     }
-    
+
     /** Build and lay out the GUI. */
     private void buildGUI(int maxT, int maxZ)
     {
@@ -266,6 +254,6 @@ class MoviePane
         add(p);
         add(new JSeparator());
     }
-    
+
 }
 
