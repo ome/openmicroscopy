@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -614,12 +615,13 @@ public class DataManager
 	}
 	
     /** Retrieve the current user last name. */
-    String getUserLastName()
+    String getUserName()
     {
         String name = "";
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            name = dms.getUserDetails().getUserLastName();
+            UserDetails details = dms.getUserDetails();
+            name = details.getUserFirstName()+" "+details.getUserLastName();
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user details.";
             registry.getLogger().error(this, s+" Error: "+dsae);

@@ -301,16 +301,6 @@ public class ClassifierPaneManager
         }
         setNodeVisible(gNode, root);                            
     }
-    
-    /**
-     * Add a new category to the tree.
-     * 
-     * @param l     .
-     */
-    void addNewCategoryToTree(CategorySummary cs) 
-    {
-        
-    }
 
     /**
      * Create and add an image's node to the category node.

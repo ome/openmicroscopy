@@ -208,8 +208,9 @@ public class ToolBarManager
     /** Handle events fired byt text field and buttons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case T_FIELD_CMD:
                     tFieldActionHandler(); break;

@@ -39,6 +39,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -80,7 +81,7 @@ public class DrawingCanvas
 
     private DrawingCanvasMng            manager;
     
-    private boolean                     onOff, textOnOff;
+    private boolean                     textOnOff, onOff; 
     
     List                                listSPA;
     

@@ -159,14 +159,14 @@ public class ImageInspectorManager
         int w = (int) (imageWidth*level)+2*ViewerUIF.START;
         int h = (int) (imageHeight*level)+2*ViewerUIF.START;
         control.setSizePaintedComponents(new Dimension(w, h));
-        //control.setMagFactor(level);
         canvas.paintImage(level, w, h); 
     }
  
     /** Handle windowClosing event. */
     private void onClosing()
     {
-        canvas.getManager().resetDefault(false);
+        control.setLensDefault(false);
+        view.toolBar.getLensBar().setDefault();
         view.dispose();
     }
     

@@ -133,8 +133,9 @@ class ControlsPaneMng
     /** Handle events fired by JButtons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case PLAY_CMD:
                     handlePlay(); break;

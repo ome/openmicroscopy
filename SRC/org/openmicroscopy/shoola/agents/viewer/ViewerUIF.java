@@ -39,6 +39,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
@@ -53,6 +54,7 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
+import org.openmicroscopy.shoola.agents.viewer.canvas.LensCanvas;
 import org.openmicroscopy.shoola.agents.viewer.controls.BottomBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
@@ -62,7 +64,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * View of the {@link Viewer} Agent.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -123,6 +125,9 @@ public class ViewerUIF
     /** Drawing canvas displayed on top of the {@link ImageCanvas canvas}. */
     private DrawingCanvas           drawingCanvas;
     
+    /** Lens canvas displayed on top of the {@link ImageCanvas canvas}. */
+    private LensCanvas              lensCanvas;
+    
     /** z-slider and t-slider. */
     private JSlider                 tSlider, zSlider;
     
@@ -162,6 +167,8 @@ public class ViewerUIF
         buildGUI();
     }
     
+    public LensCanvas getLensCanvas() { return lensCanvas; }
+    
     public DrawingCanvas getDrawingCanvas() { return drawingCanvas; }
     
     public ImageCanvas getCanvas() { return canvas; }
@@ -182,7 +189,7 @@ public class ViewerUIF
     void resetLens() 
     {
         canvas.resetLens();
-        canvas.repaint();
+        //canvas.repaint();
     }
     
     /** Reset the zoomLevel to {@link ImageInspector#ZOOM_DEFAULT}. */
@@ -247,17 +254,15 @@ public class ViewerUIF
     }
     
     /** Add the {@link drawingCanvas} to the layer. */
-    void addCanvasToLayer()
+    void addCanvasToLayer(JComponent component, int level)
     {
-        layer.add(drawingCanvas, new Integer(ROI_LEVEL));
-        drawingCanvas.setOnOff(true);
+        layer.add(component, new Integer(level));
     }
     
     /** Remove the {@link drawingCanvas} from the layer. */
-    void removeCanvasFromLayer()
+    void removeCanvasFromLayer(JComponent component)
     {
-        drawingCanvas.setOnOff(false);
-        layer.remove(drawingCanvas);
+        layer.remove(component);
         layer.repaint();
     }
 
@@ -265,8 +270,10 @@ public class ViewerUIF
     {
         layer = new JLayeredPane();
         drawingCanvas = new DrawingCanvas();
-        canvas = new ImageCanvas(this, control);
-        layer.add(canvas, new Integer(IMAGE_LEVEL));
+        lensCanvas = new LensCanvas();
+        canvas = new ImageCanvas(this, control, lensCanvas);
+        addCanvasToLayer(canvas, IMAGE_LEVEL);
+        //addCanvasToLayer(lensCanvas, LENS_LEVEL);
         scrollPane = new JScrollPane(layer);
     }
     
@@ -334,7 +341,7 @@ public class ViewerUIF
         viewer3DItem.setEnabled(maxZ != 0);
         //menu.add(viewer3DItem);
         movieItem = new JMenuItem("Movie", im.getIcon(IconManager.MOVIE));
-        control.attachItemListener(menuItem, ViewerCtrl.MOVIE);
+        control.attachItemListener(movieItem, ViewerCtrl.MOVIE);
         menu.add(movieItem);
         menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
         control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
@@ -350,6 +357,7 @@ public class ViewerUIF
      * Those buttons are managed by the superclass, we only have to specify
      * what they should look like.
      */
+    /*
     private void configureDisplayButtons()
     {
         configureQuickLaunchBtn(im.getIcon(IconManager.VIEWER), 
@@ -357,7 +365,7 @@ public class ViewerUIF
         configureWinMenuEntry("Viewer ", 
                             im.getIcon(IconManager.VIEWER));
     }
-    
+    */
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
@@ -367,7 +375,7 @@ public class ViewerUIF
         container.add(scrollPane, BorderLayout.CENTER);
         container.add(bottomBar, BorderLayout.SOUTH);
         //Configure the display buttons in the TaskBar.
-        configureDisplayButtons();
+        //configureDisplayButtons();
     }
     
     /** Build and lay out a panel with slider and scrollpane. */

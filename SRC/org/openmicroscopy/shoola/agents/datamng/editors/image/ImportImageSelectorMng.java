@@ -152,8 +152,9 @@ class ImportImageSelectorMng
 	/** Handle event fired by buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = Integer.parseInt(e.getActionCommand());
+		int index = -1;
 		try {
+            index = Integer.parseInt(e.getActionCommand());
 			switch (index) { 
 				case IMPORT:
 					importImages(); break;

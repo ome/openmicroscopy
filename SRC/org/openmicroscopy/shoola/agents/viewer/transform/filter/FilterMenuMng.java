@@ -78,8 +78,9 @@ class FilterMenuMng
     /** Handle events fired by menuItem. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case SHARPEN:
                     control.sharpenImage();

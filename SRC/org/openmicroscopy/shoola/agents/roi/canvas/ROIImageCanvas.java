@@ -153,8 +153,6 @@ public class ROIImageCanvas
             p.scale(manager.getFactor());
             g2.setClip(p);
         }
-        //g2.setClip(clip);
-        
         g2.drawImage(displayedImage, null, 0, 0); 
         return newImage;
     }

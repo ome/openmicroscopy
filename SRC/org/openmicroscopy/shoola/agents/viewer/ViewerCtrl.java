@@ -102,10 +102,7 @@ public class ViewerCtrl
     
     /** Slider to control z-section selection and timepoint. */
     private JSlider                 tSlider, zSlider;
-    
-    /** zooming factor. */
-    //private double                  magFactor;
-    
+
     /** Drawing area for the purpose of the ROI. */
     private Rectangle               drawingArea;
     
@@ -143,12 +140,15 @@ public class ViewerCtrl
         this.presentation = presentation;
     }
 
-    /** The non- modal dialogs are removed when a new image is selected. */
+    /** The non-modal dialogs are removed when a new image is selected. */
     void disposeDialogs()
     {
         if (moviePlayer != null) moviePlayer.dispose();
         if (imageInspector != null) imageInspector.dispose();
-        setRoiOnOff(false);
+        roiOnOff = false;
+        presentation.removeCanvasFromLayer(presentation.getDrawingCanvas());
+        presentation.getBottomBar().resetMessage(BottomBar.LENS);
+        presentation.getDrawingCanvas().setOnOff(true);
         moviePlayer = null;
         imageInspector = null;
         movieSettings = null;
@@ -418,7 +418,6 @@ public class ViewerCtrl
             abstraction.setModel(model);
             v3D.dispose();
         }
-        //abstraction.showViewer3D();
     }
 
     /** Bring up the image inspector widget. */
@@ -430,7 +429,8 @@ public class ViewerCtrl
                              abstraction.getImageHeight());
         presentation.getCanvas().getManager().setClick(true);
         UIUtilities.centerAndShow(imageInspector);
-        if (roiOnOff) imageInspector.getManager().setLensEnabled(false);
+        if (roiOnOff) 
+            imageInspector.getManager().setLensEnabled(false);
     }
 
     /** Bring up the rendering widget. */
@@ -506,12 +506,18 @@ public class ViewerCtrl
     {
         ImageCanvasMng lcMng = presentation.getCanvas().getManager();
         lcMng.setOnOff(b);
+        if (b)
+            presentation.addCanvasToLayer(
+                    presentation.getLensCanvas(), ViewerUIF.LENS_LEVEL); 
+        else
+            presentation.removeCanvasFromLayer(
+                    presentation.getLensCanvas());   
     }
 
     /** Pin the lens image. */
     public void setPinLens(boolean b)
     {
-        ImageCanvasMng lcMng = presentation.getCanvas().getManager();
+        ImageCanvasMng lcMng = presentation.getCanvas().getManager();  
         lcMng.setPin(b);
     }
 
@@ -522,12 +528,16 @@ public class ViewerCtrl
         lcMng.setPainting(b, c);
     }
     
+    public void setLensDefault(boolean b)
+    {
+        ImageCanvasMng lcMng = presentation.getCanvas().getManager();
+        lcMng.setDefault(b);
+    }
     /** Apply sharpen or low pass filter. */
     public void filterImage(float[] filter)
     {
         ImageCanvas canvas = presentation.getCanvas();
         canvas.filterImage(filter);
-        //abstraction.affineTransformChanged(iat.copy());
     }
 
     public void undoFiltering() 
@@ -550,21 +560,28 @@ public class ViewerCtrl
     public void setRoiOnOff(boolean b)
     {
         roiOnOff = b;
-        if (!roiOnOff){
+        if (!roiOnOff) {
             presentation.getBottomBar().resetMessage(BottomBar.LENS);
-            presentation.removeCanvasFromLayer();
+            presentation.removeCanvasFromLayer(presentation.getDrawingCanvas());
+            //presentation.addCanvasToLayer(
+            //        presentation.getLensCanvas(), ViewerUIF.LENS_LEVEL); 
+            presentation.getDrawingCanvas().setOnOff(false);
         } else {
             presentation.getBottomBar().resetMessage(BottomBar.ANNOTATE);
             paintDrawing();
-            presentation.addCanvasToLayer(); 
-            presentation.resetLens();
+            presentation.getDrawingCanvas().setOnOff(true);
+            presentation.addCanvasToLayer(
+                    presentation.getDrawingCanvas(), ViewerUIF.ROI_LEVEL); 
+            
+            //presentation.removeCanvasFromLayer(presentation.getLensCanvas());
+            //presentation.resetLens();
         }
         if (imageInspector != null) 
             imageInspector.getManager().setLensEnabled(!b);
     }
 
-    /** Set the bounds of the drawing canvas. */
-    public void setDrawingArea(int x, int y, int w, int h)
+    /** Set the bounds of the drawing canvas and of the lens' canvas. */
+    public void setImageArea(int x, int y, int w, int h)
     {
         drawingArea.setBounds(x, y, w, h);
         if (roiOnOff) paintDrawing();    
@@ -590,15 +607,13 @@ public class ViewerCtrl
         int index = Player.MOVIE_T;
         if (maxT == 0) index = Player.MOVIE_Z;
         movieSettings = new MovieSettings(0, maxZ, 0, maxT, Player.LOOP, index, 
-                                            Player.FPS_INIT);
-        
+                                            Player.FPS_INIT);   
     }
 
     /** Close the window and all related agents. */
     private void onWindowClose()
     {
         //Post an event to close roi.
-        //if (roiOnOff) abstraction.addRoiCanvas(false);
         setRoiOnOff(false);
         abstraction.removeViewerRelatedAgents();
     }

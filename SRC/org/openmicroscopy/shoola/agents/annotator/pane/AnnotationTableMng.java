@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.annotator.pane;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -91,12 +89,16 @@ class AnnotationTableMng
     /** Handle events fired by the buttons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
-        if (view.creation) control.viewImage();
-        else {
-            AnnotationData data = view.getAnnotationData(index);
-            control.viewImage(data.getTheZ(), data.getTheT());
-        }
+        try {
+            int index = Integer.parseInt(e.getActionCommand());
+            if (view.creation) control.viewImage();
+            else {
+                AnnotationData data = view.getAnnotationData(index);
+                control.viewImage(data.getTheZ(), data.getTheT());
+            }
+        } catch(NumberFormatException nfe) {  
+            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
+        } 
     }
 
     /** Required by  the {@link DocumentListener interface}. */

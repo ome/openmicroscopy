@@ -95,8 +95,10 @@ public class StatsResultsPane
         zAndtFieldNames[SUM] = "Sum";
     }
     
+    /** Table to display the results of the ROI. */
     StatsTable                      table;
     
+    /** Controls tool bar. */
     BottomBar                       bar;
     
     JScrollPane                     scrollPane;
@@ -164,4 +166,5 @@ public class StatsResultsPane
             h = ROIAgtUIF.MAX_SCROLLPANE_HEIGHT;
         scrollPane.setPreferredSize(new Dimension(d.width, h));
     }
+    
 }

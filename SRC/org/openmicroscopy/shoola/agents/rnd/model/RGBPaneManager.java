@@ -116,8 +116,9 @@ class RGBPaneManager
 	public void actionPerformed(ActionEvent e)
 	{
 		Object component = e.getSource();
-		int index = Integer.parseInt(e.getActionCommand());
+		int index = -1;
 		try {
+            index = Integer.parseInt(e.getActionCommand());
 			if (component instanceof ColoredButton) 
 				UIUtilities.centerAndShow(new ColorSelector(view, 
 										eventManager.getRGBA(index), index));

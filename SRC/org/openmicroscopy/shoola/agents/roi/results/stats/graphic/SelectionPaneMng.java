@@ -85,8 +85,9 @@ class SelectionPaneMng
     public void actionPerformed(ActionEvent e)
     {
         Object component = e.getSource();
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             if (component instanceof ColoredButton) {
                 ColoredButton b = (ColoredButton) component;
                 coloredButtons.put(new Integer(index), b);

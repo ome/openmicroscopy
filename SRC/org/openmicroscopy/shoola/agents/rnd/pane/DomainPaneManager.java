@@ -209,9 +209,9 @@ class DomainPaneManager
     /** Handles events fired  by the JComboBoxes and the JButtons. */
     public void actionPerformed(ActionEvent e)
     {
-        String s = e.getActionCommand();
-        int index = Integer.parseInt(s);
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) { 
                 case FAMILY:
                     JComboBox cbx = (JComboBox) e.getSource();

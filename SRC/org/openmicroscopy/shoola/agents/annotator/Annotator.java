@@ -26,13 +26,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
-/*------------------------------------------------------------------------------
- *
- * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
- *
- *------------------------------------------------------------------------------
- */
  
 package org.openmicroscopy.shoola.agents.annotator;
 
@@ -95,7 +88,14 @@ public class Annotator
     /** Annotation constants. */
     public static final int             DATASET = 0, IMAGE = 1;
 	
-    private static final String         MSG = "The annotation has been saved.";
+    private static final String         MSG_CREATED = 
+                                        "The annotation has been created.";
+    
+    private static final String         MSG_UPDATE = 
+                                        "The annotation has been updated.";
+    
+    private static final String         MSG_DELETE = 
+                                        "The annotation has been deleted.";
     
     /** Reference to the {@link RenderingControl}. */
     private RenderingControl            renderingControl;
@@ -195,34 +195,9 @@ public class Annotator
         if (annotationIndex == IMAGE) {
             loadImage();
             //Agent listens to ImageLoaded event, this implies that 
-            //the renderingContol != null
+            //the renderingContol != null iff not modal dialog
             renderImage(); 
         }
-    }
-    
-    /** Post an event to load the specific event. */
-    private void loadImage()
-    {
-        LoadImage request = new LoadImage(annotatedImageID, pixelsID, 
-                                            objectName);
-        registry.getEventBus().post(request);   
-    }
-    
-    private void renderImage(int z, int t)
-    {
-        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
-        def.setZ(z);
-        renderingControl.setDefaultZ(z);
-        renderingControl.setDefaultT(t);
-        registry.getEventBus().post(new RenderImage(pixelsID, def));  
-    }
-    
-    private void renderImage()
-    {
-        PlaneDef def = new PlaneDef(PlaneDef.XY, 
-                            renderingControl.getDefaultT());
-        def.setZ(renderingControl.getDefaultZ());
-        registry.getEventBus().post(new RenderImage(pixelsID, def));  
     }
     
     /**
@@ -237,20 +212,21 @@ public class Annotator
             SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
-                    title = "Dataset annotation updated";
-                    sts.updateDatasetAnnotation(data);
+                    title = "Update dataset annotation";
+                    sts.updateDatasetAnnotation(data, annotatedDatasetID);
                     //Eventually post a DatasetAnnotation event.
                     break;
                 case IMAGE:
-                    title = "Image annotation updated";
+                    title = "Update image annotation";
                     setDataToSave(data, saveIndex);
-                    sts.updateImageAnnotation(data);
+                    sts.updateImageAnnotation(data, annotatedImageID);
                     //Eventually post a ImageAnnotation event.
                     break;
             }
             UserNotifier un = registry.getUserNotifier();
             IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo(title, MSG, im.getIcon(IconManager.SEND_TO_DB));
+            un.notifyInfo(title, MSG_UPDATE, 
+                        im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
@@ -274,12 +250,12 @@ public class Annotator
             SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
-                    title = "Dataset annotation created";
+                    title = "Create dataset annotation";
                     sts.createDatasetAnnotation(annotatedDatasetID, annotation);
                     //Eventually post a ImageAnnotation event.
                     break;
                 case IMAGE:
-                    title = "Image annotation created";
+                    title = "Create image annotation";
                     int theZ = AnnotationData.DEFAULT;
                     int theT = AnnotationData.DEFAULT;
                     if (renderingControl != null && saveIndex == SAVEWITHRS &&
@@ -295,7 +271,8 @@ public class Annotator
             }
             UserNotifier un = registry.getUserNotifier();
             IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo(title, MSG, im.getIcon(IconManager.SEND_TO_DB));
+            un.notifyInfo(title, MSG_CREATED, 
+                            im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
@@ -308,38 +285,29 @@ public class Annotator
     }
     
     /** 
-     * Create an ImageAnnotationData object to save in the DB. 
-     * Note that if we previously save theZ and theT, and we only want 
-     * to update the annotation, we have to press the save button.
-     */
-    private void setDataToSave(AnnotationData data, int saveIndex)
-    {
-        if (saveIndex == SAVEWITHRS && renderingControl != null && 
-                annotatedImageID == viewImageID)
-        {
-            data.setTheT(renderingControl.getDefaultT());
-            data.setTheZ(renderingControl.getDefaultZ());
-            renderingControl.saveCurrentSettings();
-        }
-    }
-    
-    /** 
      * Delete the specified annotation.
      * 
      * @param data  annotation to delete.
      */
     void delete(AnnotationData data)
     {
+        String title = "";
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
             switch (annotationIndex) {
                 case DATASET:
+                    title = "Delete dataset annotation";
                     sts.removeDatasetAnnotation(data);
                     break;
                 case IMAGE:
+                    title = "Delete image annotation";
                     sts.removeImageAnnotation(data);
                     break;
             }
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo(title, MSG_DELETE, 
+                            im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
@@ -393,6 +361,48 @@ public class Annotator
     
     int getAnnotationIndex() { return annotationIndex; }
     
+    /** Handle the event @see ImageLoaded. */
+    private void handleImageLoaded(ImageLoaded response)
+    {
+        renderingControl = response.getProxy();  
+        LoadImage request = (LoadImage) response.getACT();
+        viewImageID = request.getImageID();
+        if (viewImageID != annotatedImageID) close();
+    }
+    
+    /** Handle the event @see AnnotateImage. */
+    private void handleAnnotateImage(AnnotateImage response)
+    {
+        if (annotatedImageID == response.getID()) {
+            bringToFront();
+            return;
+        }
+        close();
+        annotationIndex = IMAGE;
+        annotatedImageID = response.getID();
+        pixelsID = response.getPixelsID();
+        objectName = response.getName();
+        //retrieve the annotation associated to the image.
+        if (getImageAnnotations(response.getID()) != null)
+            showAnnotationDialog();
+    }
+    
+    /** Handle the event @see AnnotateDataset. */
+    private void handleAnnotateDataset(AnnotateDataset response)
+    {
+        if (annotatedDatasetID == response.getID()) {
+            bringToFront();
+            return;
+        }
+        close();
+        annotationIndex = DATASET;
+        annotatedDatasetID = response.getID();
+        objectName = response.getName();
+        //retrieve the annotation associated to the dataset
+        if (getDatasetAnnotations(response.getID()) != null) 
+            showAnnotationDialog();
+    }
+
     /**
      * Retrieve all the annotations of the specified image.
      * 
@@ -456,48 +466,6 @@ public class Annotator
         }
         return ud;
     }
-    
-    /** Handle the event @see ImageLoaded. */
-    private void handleImageLoaded(ImageLoaded response)
-    {
-        renderingControl = response.getProxy();  
-        LoadImage request = (LoadImage) response.getACT();
-        viewImageID = request.getImageID();
-        if (viewImageID != annotatedImageID) close();
-    }
-    
-    /** Handle the event @see AnnotateImage. */
-    private void handleAnnotateImage(AnnotateImage response)
-    {
-        if (annotatedImageID == response.getID()) {
-            bringToFront();
-            return;
-        }
-        close();
-        annotationIndex = IMAGE;
-        annotatedImageID = response.getID();
-        pixelsID = response.getPixelsID();
-        objectName = response.getName();
-        //retrieve the annotation associated to the image.
-        if (getImageAnnotations(response.getID()) != null)
-            showAnnotationDialog();
-    }
-    
-    /** Handle the event @see AnnotateDataset. */
-    private void handleAnnotateDataset(AnnotateDataset response)
-    {
-        if (annotatedDatasetID == response.getID()) {
-            bringToFront();
-            return;
-        }
-        close();
-        annotationIndex = DATASET;
-        annotatedDatasetID = response.getID();
-        objectName = response.getName();
-        //retrieve the annotation associated to the dataset
-        if (getDatasetAnnotations(response.getID()) != null) 
-            showAnnotationDialog();
-    }
 
     /** Bring up the dialog. */
     private void showAnnotationDialog()
@@ -540,7 +508,7 @@ public class Annotator
                 annotators[0] = ud.getUserLastName();
                 selectedIndex = 0;
             }
-        } else {    // user in the least
+        } else {    // user in the list
             if (owners.length >= 2) {   //at least two
                 annotators = new String[owners.length+1];
                 for (int j = 0; j < owners.length; j++) 
@@ -560,4 +528,55 @@ public class Annotator
         UIUtilities.centerAndShow(presentation);
     }
 
+    
+    /** Post an event to load the specific event. */
+    private void loadImage()
+    {
+        LoadImage request = new LoadImage(annotatedImageID, pixelsID, 
+                                            objectName);
+        registry.getEventBus().post(request);   
+    }
+    
+    /** 
+     * Post an event to render the image at the specified section and timepoint.
+     * 
+     * @param z     z-section.
+     * @param t     timepoint.
+     */
+    private void renderImage(int z, int t)
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
+        def.setZ(z);
+        renderingControl.setDefaultZ(z);
+        renderingControl.setDefaultT(t);
+        registry.getEventBus().post(new RenderImage(pixelsID, def));  
+    }
+    
+    /** 
+     * Post an event to render the image at the current section and timepoint. 
+     */
+    private void renderImage()
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, 
+                            renderingControl.getDefaultT());
+        def.setZ(renderingControl.getDefaultZ());
+        registry.getEventBus().post(new RenderImage(pixelsID, def));  
+    }
+    
+    
+    /** 
+     * Create an ImageAnnotationData object to save in the DB. 
+     * Note that if we previously save theZ and theT, and we only want 
+     * to update the annotation, we have to press the save button.
+     */
+    private void setDataToSave(AnnotationData data, int saveIndex)
+    {
+        if (saveIndex == SAVEWITHRS && renderingControl != null && 
+                annotatedImageID == viewImageID)
+        {
+            data.setTheT(renderingControl.getDefaultT());
+            data.setTheZ(renderingControl.getDefaultZ());
+            renderingControl.saveCurrentSettings();
+        }
+    }
 }

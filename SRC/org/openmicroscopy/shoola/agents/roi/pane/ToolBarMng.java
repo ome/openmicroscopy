@@ -138,8 +138,9 @@ public class ToolBarMng
     /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case CREATE_ROI:
                     control.createROI5D(); break;

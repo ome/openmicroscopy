@@ -115,8 +115,9 @@ class PaintingControlsMng
     /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case RECTANGLE:
                     setType(ROIFactory.RECTANGLE); break;

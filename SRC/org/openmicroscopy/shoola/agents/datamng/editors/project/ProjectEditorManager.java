@@ -149,8 +149,9 @@ class ProjectEditorManager
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = Integer.parseInt(e.getActionCommand());
+		int index = -1;
 		try {
+            index = Integer.parseInt(e.getActionCommand());
 			switch (index) { 
 				case SAVE:
 					save(); break;

@@ -86,8 +86,9 @@ class ControlsBarMng
     /** Handle events fired by JButtons and JComboBox. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case CLOSE:
                     mng.handleClose(); break;

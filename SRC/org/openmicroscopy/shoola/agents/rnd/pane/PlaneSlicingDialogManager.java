@@ -187,9 +187,9 @@ class PlaneSlicingDialogManager
 	/** Handles event fired by the radio button and the comboBox. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = e.getActionCommand();
-		int index = Integer.parseInt(s);
+		int index = -1;
 		try {
+            index = Integer.parseInt(e.getActionCommand());
 			switch(index) { 
 				case RANGE:
 					JComboBox cbx = (JComboBox) e.getSource();

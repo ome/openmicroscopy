@@ -56,21 +56,22 @@ public class ImageData
 	implements DataObject
 {
 
-	private int 		id;
-	private String 		name;
-	private String 		description;
-	private Timestamp	inserted;
-	private Timestamp	created;
-	private int 		ownerID;
-	private String		ownerFirstName;
-	private String		ownerLastName;
-	private String		ownerEmail;
-	private String		ownerInstitution;
-	private int 		ownerGroupID;
-	private String		ownerGroupName;
-	private List		pixels;
-	private List		datasets;
-	
+	private int        id;
+	private String     name;
+	private String     description;
+	private Timestamp  inserted;
+	private Timestamp  created;
+	private int        ownerID;
+	private String     ownerFirstName;
+	private String     ownerLastName;
+	private String     ownerEmail;
+	private String     ownerInstitution;
+	private int        ownerGroupID;
+	private String     ownerGroupName;
+	private List       pixels;
+	private List       datasets;
+	private int[]      channels;
+    
 	public ImageData() {}
 
 	public ImageData(int id, String name, String description, 
@@ -187,4 +188,8 @@ public class ImageData
 
 	public void setDatasets(List datasets) { this.datasets = datasets; }
 
+    public int[] getChannels() { return channels; }
+    
+    public void setChannels(int[] channels) { this.channels = channels; }
+    
 }

@@ -95,7 +95,8 @@ class ToolBar
         createGAndC = new JButton(
                 im.getIcon(IconManager.CREATE_CG));
         createGAndC.setToolTipText(
-                UIUtilities.formatToolTipText("Create a new category group."));
+                UIUtilities.formatToolTipText("Create a new " +
+                        "category group and/or category."));
 	}
     
 	/** Build and lay out the explorer toolBar. */

@@ -74,15 +74,15 @@ public class AnnotationPaneMng
     public void actionPerformed(ActionEvent e)
     {
         String s = e.getActionCommand();
-        int index = Integer.parseInt(s);
         try {
+            int index = Integer.parseInt(s);
             switch (index) { 
                 case OWNER:
                     JComboBox box = (JComboBox) e.getSource();
                     setOwner(box.getSelectedIndex());
             }
         } catch(NumberFormatException nfe) {  
-            throw new Error("Invalid Action ID "+index, nfe);
+            throw new Error("Invalid Action ID "+s, nfe);
         } 
     }
     

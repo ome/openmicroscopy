@@ -91,8 +91,9 @@ class ROIEditorMng
     /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) { 
                 case SAVE:
                     save(); break;
@@ -114,7 +115,7 @@ class ROIEditorMng
         else
             control.saveROI5DDescription(view.nameArea.getText(), 
                     view.annotationArea.getText(), view.getColorSelected(i));
-        closeWidget();
+        cancel();
     }
     
     /** Close the window. */
@@ -123,12 +124,5 @@ class ROIEditorMng
         view.setVisible(false);
         view.dispose();
     }
-    
-    /** Dispose and close. */
-    private void closeWidget()
-    {
-        view.setVisible(false);
-        view.dispose();
-    }
-    
+
 }

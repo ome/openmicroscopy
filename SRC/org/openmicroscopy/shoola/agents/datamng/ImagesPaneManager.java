@@ -131,20 +131,19 @@ class ImagesPaneManager
 			public void mousePressed(MouseEvent e) { onClick(e); }
 			public void mouseReleased(MouseEvent e) { onClick(e); }
 		});
-		
 	}
 
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = Integer.parseInt(e.getActionCommand());
 		try {
+            int index = Integer.parseInt(e.getActionCommand());
 			switch (index) { 
 				case LOAD:
 					loadImages(); break;
 			}
 		} catch(NumberFormatException nfe) {
-			throw new Error("Invalid Action ID "+index, nfe);
+			throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
 		} 
 	}
 

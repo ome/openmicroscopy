@@ -84,8 +84,9 @@ class GreyScalePaneManager
 	public void actionPerformed(ActionEvent e)
 	{
 		Object obj = e.getSource();
-		int index = Integer.parseInt(e.getActionCommand());
+		int index = -1;
 		try {
+            index = Integer.parseInt(e.getActionCommand());
 			if (obj instanceof JRadioButton) {
 				eventManager.setActive(index); 
 			} else 

@@ -115,8 +115,8 @@ public class DataManagerCtrl
     /**Handles event fired by menu. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
         try {
+            int index = Integer.parseInt(e.getActionCommand());
             switch (index) { 
                 case PROJECT_ITEM:
                     createProject(); break;
@@ -125,11 +125,10 @@ public class DataManagerCtrl
                 case IMAGE_ITEM:
                     showImagesImporter();  break;
                 case CREATE_CG:
-                    createCG();
-                    
+                    createCG();  
             }
         } catch(NumberFormatException nfe) {  
-            throw new Error("Invalid Action ID "+index, nfe);
+            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
         } 
     }
 	
@@ -377,7 +376,7 @@ public class DataManagerCtrl
     }
     
     /** Forward to the {@link DataManager abstraction}. */
-    String getUserLastName() { return abstraction.getUserLastName(); }
+    String getUserName() { return abstraction.getUserName(); }
 
     
     //Category manager

@@ -480,8 +480,7 @@ public class ROIAgt
     private void handleDisplayViewerRelatedAgents(DisplayViewerRelatedAgent 
                                                     response)
     {
-        if (!response.isOnOff() && presentation != null) 
-            removePresentation();
+        if (!response.isOnOff())    removePresentation();
     }
     
     /** Handle the event @see ImageRendered. */
@@ -532,6 +531,7 @@ public class ROIAgt
         if (response.getDrawingCanvas() != null) { //close window
             if (control.getDrawingCanvas() == null)
                 control.setDrawingCanvas(response.getDrawingCanvas());
+            if (presentation == null) buildPresentation();
             presentation.deIconify();
         } else removePresentation();
     }
@@ -539,7 +539,8 @@ public class ROIAgt
     /** Handle the event @see AddROICanvas. */
     private void handleAddROICanvas(AddROICanvas response)
     {
-        if (response.isOnOff()) presentation.deIconify();
+        if (response.isOnOff()) 
+            presentation.deIconify();
     }
 
     private void handleROIAnalysisResults(ROIAnalysisResults response)
@@ -590,7 +591,7 @@ public class ROIAgt
      */
     private void removePresentation()
     {
-        presentation.dispose();
+        if (presentation != null) presentation.dispose();
         presentation = null;
     }
     

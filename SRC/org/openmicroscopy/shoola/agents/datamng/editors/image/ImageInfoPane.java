@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 //Java imports
 import java.awt.GridLayout;
+import java.text.NumberFormat;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -43,6 +45,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
 /** 
@@ -103,29 +106,53 @@ class ImageInfoPane
 	private class InfoTableModel 
 		extends AbstractTableModel 
 	{
+        private NumberFormat    nf = NumberFormat.getInstance();
+        
+        private final int rows = 8;
+        
 		private final String[]    
-		fieldNames = {" Size X", " Size Y", " Sections", " Timepoints",
-					 " Channels", " Pixel type"};
+		fieldNames = {" Size X", " Size Y", " Pixel size X", " Pixel size Y",
+                    " Sections", " Timepoints", " Emission wavelength", 
+                    " Pixel type"};
 						
-		PixelsDescription px = manager.getImageData().getDefaultPixels();
-						
-		private Object[] data = new Object[6];
+        ImageData imgData = manager.getImageData();
+		PixelsDescription px = imgData.getDefaultPixels();
+		
+		private Object[] data = new Object[rows];
 		
 		private InfoTableModel()
 		{
 			if (px != null) {
 				data[0] = ""+px.getSizeX();
 				data[1] = ""+px.getSizeY();
-				data[2] = ""+px.getSizeZ();
-				data[3] = ""+px.getSizeT();
-				data[4] = ""+px.getSizeC();
-				data[5] = ""+px.getPixelType();
+                data[2] = nf.format(px.getPixelSizeX());
+                data[3] = nf.format(px.getPixelSizeY());
+				data[4] = ""+px.getSizeZ();
+				data[5] = ""+px.getSizeT();
+                data[7] = ""+px.getPixelType();
+				
+                String listChannels = "";
+                int[] channels = imgData.getChannels();
+				if (channels != null) {
+                    for (int i = 0; i < channels.length; i++) {
+                        if (i <= channels.length-2)
+                            listChannels += ""+channels[i]+", ";
+                        else listChannels += ""+channels[i];
+                    }
+                } else {
+                    for (int i = 0; i < px.getSizeC(); i++) {
+                        if (i <= px.getSizeC()-2)
+                            listChannels += ""+i+", ";
+                        else listChannels += ""+i;
+                    }
+                }
+                data[6] = listChannels;
 			}		
 		}
 
 		public int getColumnCount() { return 2; }
 
-		public int getRowCount() { return 6; }
+		public int getRowCount() { return rows; }
 
 		public Object getValueAt(int row, int col) 
 		{

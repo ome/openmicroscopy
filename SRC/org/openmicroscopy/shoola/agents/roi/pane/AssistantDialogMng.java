@@ -178,8 +178,9 @@ public class AssistantDialogMng
     /** Handle events fired by JButtons. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case START_T:
                     handleStartChange(); break;

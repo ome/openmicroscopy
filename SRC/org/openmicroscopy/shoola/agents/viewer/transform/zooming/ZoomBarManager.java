@@ -114,8 +114,9 @@ public class ZoomBarManager
     /** Handle event fired by button. */
     public void actionPerformed(ActionEvent e) 
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case ZOOM_FIELD_CMD:
                     zoomFieldActionHandler(); break;

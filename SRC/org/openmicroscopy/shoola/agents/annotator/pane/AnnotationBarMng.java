@@ -77,8 +77,8 @@ class AnnotationBarMng
     /** Handle events fired by JButton. */
     public void actionPerformed(ActionEvent e)
     {
-        int index = Integer.parseInt(e.getActionCommand());
         try {
+            int index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case SAVE:
                      control.save(Annotator.SAVE); break;
@@ -90,7 +90,7 @@ class AnnotationBarMng
                     control.save(Annotator.SAVEWITHRS); break;   
             }
         } catch(NumberFormatException nfe) {
-            throw new Error("Invalid Action ID "+index, nfe);
+            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
         }
     }
     
