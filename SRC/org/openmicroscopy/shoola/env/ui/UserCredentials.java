@@ -89,6 +89,16 @@ public class UserCredentials
 	}
 	
 	/**
+	 * Clears out the credentials and make sure that they're not filled in.
+	 * 
+	 */
+	synchronized void clear() {
+		this.userName= null;
+		this.password = null;
+		isFilledIn = false;
+	}
+	
+	/**
 	 * Waits until the user's credentials have been filled in and then
 	 * returns this object.
 	 * The caller can then invoke the getter methods to retrieve the
