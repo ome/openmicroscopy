@@ -194,7 +194,7 @@ public class MetadataSource
 					gMax = max;
 				} else {
 					gMin = Math.min(gMin, min);
-					gMax = Math.min(gMax, max);
+					gMax = Math.max(gMax, max);
 				}
 				ps.setEntry(w, t, min, max, s.geometricMean[w][t],
 							s.geometricSigma[w][t]); 
