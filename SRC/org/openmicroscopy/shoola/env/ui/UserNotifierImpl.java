@@ -30,15 +30,17 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import javax.swing.Icon;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.DetailedNotificationDialog;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 
 /** 
- * Implements the {@link UserNotifier} interface.
- * 
+ * Implements the {@link UserNotifier} interface. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,163 +58,127 @@ public class UserNotifierImpl
     implements UserNotifier
 {
 	
-    /** Default Title of the error Dialog window. */
+    /** Default title for the error dialog. */
     private static final String     DEFAULT_ERROR_TITLE = "Error";
+ 
+	/** Default title for the warning dialog. */	
+	private static final String     DEFAULT_WARNING_TITLE = "Warning";
+											
+	/** Default title for the info dialog. */														    
+    private static final String     DEFAULT_INFO_TITLE = "Information";
     
-	/** Default error summary. */
-    private static final String     DEFAULT_ERROR_SUMMARY = "Sorry, an error " +
-    														"occurred";
-	/** Default Title of the info Dialog window. */														    
-    private static final String     DEFAULT_INFO_TITLE = "Info";
+    /**
+     * This is the common parent frame that we use to build every notification
+     * dialog.
+     * We don't use the one already provided by <i>Swing</i> because we need
+     * to set the <i>OME</i> icon in the title bar, so that notifcation dialogs
+     * can inherit it.
+     */
+    private static JFrame			SHARED_FRAME = null;
     
-	/** Default info message summary. */
-    private static final String     DEFAULT_INFO_MESSAGE = "Message Info";
-    
-	/** Default Title of the warning Dialog window. */	
-    private static final String     DEFAULT_WARNING_TITLE = "Warning";
-    
-	/** Default warning  message summary. */
-    private static final String     DEFAULT_WARNING_MESSAGE = "Message Warning";
-    
-    /** Reference to the topFrame. */
-    private TopFrameImpl            topFrame;
-    
-	/** Reference to the registry. */
-    private Registry				reg;
     
     /** 
-     * Creates an empty constructor. 
-     * Required to display error message which occured at init time.
+     * Creates a new instance.
      */
-    public UserNotifierImpl() {}
-    
-    /** 
-     * Creates a new instance of UserNotifierImpl. 
-     * 
-     * @param topFrame	reference to the 
-     * 					{@link TopFrameImpl TopFrameImplemenation}.
-     * @param reg		reference to the {@link Registry}.
-     */
-    public UserNotifierImpl(TopFrameImpl topFrame, Registry reg)
+    UserNotifierImpl()
     {
-        this.topFrame = topFrame;
-        this.reg = reg;
-    }
-    
-    public void notifyInitError(String title, String summary, Exception detail)
-    {
-		if (title == null || title.length() == 0)
-			title = DEFAULT_ERROR_TITLE;
-		StringBuffer buf = new StringBuffer();
-		if (summary == null || summary.length() == 0)   
-			buf.append(DEFAULT_ERROR_SUMMARY);
-		else    buf.append(summary);
-		String  d = detail == null ? null : detail.getCause().getMessage();
-		showMessageInitDialog(title, buf.toString(), d);
+    	if (SHARED_FRAME == null) {
+			SHARED_FRAME = new JFrame();
+			SHARED_FRAME.setIconImage(IconManager.getOMEImageIcon());
+    	}
     }
     
 	/** Implemented as specified by {@link UserNotifier}. */     
-	public void notifyInitError(String title, String summary)
+	public void notifyError(String title, String summary)
 	{
-		notifyInitError(title, summary, null);
+		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		showNotificationDialog(title, summary, 
+								IconManager.getDefaultErrorIcon());
 	}
 	
 	/** Implemented as specified by {@link UserNotifier}. */       
-    public void notifyError(String title, String summary, Exception detail)
+    public void notifyError(String title, String summary, Throwable detail)
     {
-        if (title == null || title.length() == 0)
-            title = DEFAULT_ERROR_TITLE;
-        StringBuffer buf = new StringBuffer();
-        if (summary == null || summary.length() == 0)   
-            buf.append(DEFAULT_ERROR_SUMMARY);
-        else    buf.append(summary);
-        
-        String  d = detail == null ? null : detail.getCause().getMessage();
-		showMessageDialog(title, buf.toString(), d, IconManager.ERROR);
+		notifyError(title, summary, 
+						detail == null ? null : detail.getMessage());
     }
     
 	/** Implemented as specified by {@link UserNotifier}. */     
-    public void notifyError(String title, String summary)
-    {
-        notifyError(title, summary, null);
-    }
-    
-	/** Implemented as specified by {@link UserNotifier}. */ 
-    public void notifyInfo(String title, String message)
-    {  
-        if (title == null || title.length() == 0)
-            title = DEFAULT_INFO_TITLE;
-        StringBuffer buf = new StringBuffer();
-        if (message == null || message.length() == 0)   
-            buf.append(DEFAULT_INFO_MESSAGE);
-        else    buf.append(message);
-		showMessageDialog(title, buf.toString(), IconManager.INFO);
-    }
-    
-	/** Implemented as specified by {@link UserNotifier}. */ 
-    public void notifyWarning(String title, String message)
-    {
-        if (title == null || title.length() == 0)
-            title = DEFAULT_WARNING_TITLE;
-        StringBuffer buf = new StringBuffer();
-        if (message == null || message.length()==0)   
-            buf.append(DEFAULT_WARNING_MESSAGE);
-        else    buf.append(message);
-        showMessageDialog(title, buf.toString(), IconManager.WARNING);
-    }
-       
-	/**
-	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
-	 * summary, icon.
-	 * 
-	 * @param title			dialog window title.	
-	 * @param summary		message's summary.
-	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
-	 */
-	private void showMessageDialog(String title, String summary, int iconID)
-	{	
-		UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title, summary, 
-								iconID));
-	}
-	
-	/**
-	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
-	 * summary, icon.
-	 * 
-	 * @param title			dialog window title.	
-	 * @param summary		message's summary.
-	 * @param detail		message's details. 
-	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
-	 */
-	private void showMessageDialog(String title, String summary, 
-									String detail, int iconID)
-	{		
-		if (detail == null) 
-			UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title, 
-								summary, iconID));
-		else 	
-			UIFactory.showEditor(new UserNotifierDialog(reg, topFrame, title,
-								summary, detail, iconID)); 
-	}
-	
-	/**
-	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
-	 * summary, icon.
-	 * 
-	 * @param title			dialog window title.	
-	 * @param summary		message's summary.
-	 * @param detail		message's details. 
-	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
-	 */
-	private void showMessageInitDialog(String title, String summary, 
-									String detail)
+	public void notifyError(String title, String summary, String detail)
 	{
-		if (detail == null)
-			UIFactory.showEditor(new UserNotifierDialog(title, summary, 
-								UIFactory.ERROR));
-		if (detail != null)	
-			UIFactory.showEditor(new UserNotifierDialog(title, summary, detail, 
-								UIFactory.ERROR));		 
+		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		showDetailedNotificationDialog(title, summary, 
+										IconManager.getDefaultErrorIcon(),
+										detail);
+	}
+    
+	/** Implemented as specified by {@link UserNotifier}. */ 
+	public void notifyWarning(String title, String message)
+	{
+		if (title == null || title.length() == 0)
+			title = DEFAULT_WARNING_TITLE;
+		showNotificationDialog(title, message, 
+								IconManager.getDefaultWarnIcon());
+	}
+	
+	/** Implemented as specified by {@link UserNotifier}. */ 
+	public void notifyWarning(String title, String summary, String detail) 
+	{
+		if (title == null || title.length() == 0)
+			title = DEFAULT_WARNING_TITLE;
+		showDetailedNotificationDialog(title, summary, 
+										IconManager.getDefaultWarnIcon(),
+										detail);
+	}
+    
+	/** Implemented as specified by {@link UserNotifier}. */ 
+	public void notifyWarning(String title, String summary, Throwable detail) 
+	{
+		notifyWarning(title, summary, 
+						detail == null ? null : detail.getMessage());
+	}
+
+	/** Implemented as specified by {@link UserNotifier}. */ 
+	public void notifyInfo(String title, String message)
+	{  
+		if (title == null || title.length() == 0)
+			title = DEFAULT_INFO_TITLE;
+		showNotificationDialog(title, message, 
+								IconManager.getDefaultInfoIcon());
+	}
+    
+    /**
+     * Brings up a notification dialog.
+     * 
+     * @param title		The dialog title.
+     * @param message	The dialog message.
+     * @param icon		The icon to show by the message.
+     */
+    private void showNotificationDialog(String title, String message, Icon icon)
+    {
+		NotificationDialog dialog = new NotificationDialog(
+												SHARED_FRAME, title, message, 
+												icon);
+		//TODO: position at center of screen.
+		dialog.open();
+    }
+    
+	/**
+	 * Brings up a detailed notification dialog.
+	 * 
+	 * @param title		The dialog title.
+	 * @param message	The dialog message.
+	 * @param icon		The icon to show by the message.
+	 * @param detail	The detailed message.
+	 */
+	private void showDetailedNotificationDialog(String title, String message, 
+												Icon icon, String detail)
+	{
+		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
+												SHARED_FRAME, title, message, 
+												icon, detail);
+		//TODO: position at center of screen.
+		dialog.open();
 	}
 	
 }
