@@ -122,7 +122,6 @@ public class Thumbnail extends PImage implements BufferedObject,
 	 */
 	public void setHighlighted(boolean v) {
 	
-		
 		// Show highlighted path.
 		if (v == true) {
 			if (highlightRect == null) 
@@ -132,7 +131,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 		else {
 			if (highlightRect != null && isAncestorOf(highlightRect))
 					removeChild(highlightRect);
-			highlightRect = null;
+			//highlightRect = null;
 		}
 		image.highlightThumbnails(v);
 	}
@@ -228,7 +227,7 @@ public class Thumbnail extends PImage implements BufferedObject,
  	 * @param v true if highlighted. else false. 
  	 * 	See {@link DatasetImagesNode}  for descriptions of these levels
  	 */
-	public void setZoomingHalo(boolean v) {
+	private void setZoomingHalo(boolean v) {
 		//	ok. if I'm under a pdatasetimages node, setup the halo
 		DatasetImagesNode pin = getDatasetImagesNode();
 		if (pin != null)
@@ -240,9 +239,14 @@ public class Thumbnail extends PImage implements BufferedObject,
 	 *  to set the highlight on this node and then the halo.
 	 * @param v
 	 */
+	
+	private boolean haloHighlighted = false;
 	public void setHighlightedWithHalo(boolean v) {
-		setHighlighted(v);
-		setZoomingHalo(v);
+		if (v != haloHighlighted) {
+			setHighlighted(v);
+			setZoomingHalo(v);
+			haloHighlighted = v;
+		}
 	}
 	
 	/**
@@ -268,11 +272,13 @@ public class Thumbnail extends PImage implements BufferedObject,
 	}
 	
 	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
-		setHighlightedWithHalo(true);
+		if (haloHighlighted == false)
+			setHighlightedWithHalo(true);
 	}
 	
 	public void mouseExited(GenericEventHandler handler,PInputEvent e) {
-		setHighlightedWithHalo(false);
+		if (haloHighlighted == true)
+			setHighlightedWithHalo(false);
 	}
 	
 	public void mouseClicked(GenericEventHandler handler,PInputEvent e) {
