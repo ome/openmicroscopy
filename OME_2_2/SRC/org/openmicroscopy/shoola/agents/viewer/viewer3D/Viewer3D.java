@@ -111,8 +111,6 @@ public class Viewer3D
     
     private JScrollPane             scrollPane;
     
-    private int                     model;
-    
     private boolean                 visible;
     
     private PlaneDef                defXY, defXZ, defZY;
@@ -124,7 +122,7 @@ public class Viewer3D
 
     private int                     sizeZ;
     
-    public Viewer3D(ViewerCtrl control, int sizeZ)
+    public Viewer3D(ViewerCtrl control, int sizeZ, int model)
     {
         super(control.getReferenceFrame(),"", true);
         this.sizeZ = sizeZ;
@@ -132,10 +130,8 @@ public class Viewer3D
         curZ = control.getDefaultZ();
         registry = control.getRegistry();
         visible = false;
-        init();
+        init(model);
     }
-    
-    int getModel() { return model; }
     
     int getCurZ() { return curZ; }
     
@@ -194,11 +190,10 @@ public class Viewer3D
     }
     
     /** Initialize the components. */
-    private void init()
+    private void init(int model)
     {
         registry.getEventBus().register(this, Image3DRendered.class);
-        manager = new Viewer3DManager(this, control);
-        model = control.getModel();
+        manager = new Viewer3DManager(this, control, model);
         control.setModel(RenderingDef.GS);
         onPlaneSelected(0, 0);
     }

@@ -67,10 +67,15 @@ public class Viewer3DManager
     
     private ViewerCtrl      control;
     
-    public Viewer3DManager(Viewer3D view, ViewerCtrl control)
+    /** Color model before 3D view. */
+    private int             previousModel;
+    
+    public Viewer3DManager(Viewer3D view, ViewerCtrl control, int previousModel)
     {
         this.view = view;
         this.control = control;
+        this.previousModel = previousModel;
+        System.out.println("model: "+previousModel);
         attachListener();
     }
     
@@ -168,7 +173,7 @@ public class Viewer3DManager
     /** Reset the color model and planeDef. */
     void onClosing()
     {
-        control.synchPlaneSelected(view.getCurZ());
+        control.synchPlaneSelected(view.getCurZ(), previousModel);
         view.dispose();
     }
     

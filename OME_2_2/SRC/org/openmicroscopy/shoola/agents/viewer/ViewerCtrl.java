@@ -93,6 +93,8 @@ public class ViewerCtrl
     /** zooming factor. */
     private double              magFactor;
     
+    private int                 currentModel;
+    
     /** 
      * Util object to retrieve the movie settings if the movie widget has been
      * brought up and re-open.
@@ -109,8 +111,6 @@ public class ViewerCtrl
 	
 	private ProgressNotifier 	progressNotifier;
 
-    
-    
 	public ViewerCtrl(Viewer abstraction)
 	{
 		this.abstraction = abstraction;
@@ -214,10 +214,17 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 
-	public void synchPlaneSelected(int z)
+    /** 
+     * 
+     * @param z                 z-section selected.
+     * @param previousModel     color model set before the 3D view.
+     */
+	public void synchPlaneSelected(int z, int previousModel)
     {
         resetZSlider(z);
         resetZField(z);
+        System.out.println("control model: "+previousModel);
+        abstraction.setModel(previousModel);
         abstraction.onPlaneSelected(z);
     }
 	
@@ -311,7 +318,8 @@ public class ViewerCtrl
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
-		Viewer3D v3D = new Viewer3D(this, abstraction.getPixelsDims().sizeZ);
+		Viewer3D v3D = new Viewer3D(this, abstraction.getPixelsDims().sizeZ,
+                            abstraction.getModel());
 		if (v3D.isVisible()) UIUtilities.centerAndShow(v3D);
 	}
 	
