@@ -30,21 +30,17 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.awt.Image;
-import java.net.URL;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Provides the icons used by the container.
- * <p>This is an utility primarily meant to serve the other classes in this
+ * <p>This is an utility only meant to serve the other classes in this
  * package.  The icons are normally retrieved by first calling the 
  * {@link #getInstance(Registry) getInstance} method and then the 
  * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
@@ -59,9 +55,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * arbitrary time during initialization).  For this reason, some class methods
  * are available to retrieve the icons needed by those components in a way that
  * is independent from the container's initialization procedure.</p>
- * <p>Finally, as the <i>OME</i> icon is virtually needed for every title-bar,
- * a public class method is exposed to retrieve it &#151; so agents needn't
- * include that icon in their graphics bundle.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,13 +68,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 public class IconManager
+	extends AbstractIconManager
 {
-	
-	/** 
-	 * The <i>OME</i> logo to be used for title-bars.
-	 * We cache it as this icon is used in basically every top-level UI.
-	 */
-	private static final Icon		OME_ICON = createIcon("graphx/OME16.png");
 	
 	/** The pathname, relative to this class, of the splash screen. */
 	private static final String		SPLASH_SCREEN = "graphx/splash.jpg";
@@ -153,27 +141,6 @@ public class IconManager
 	
 	
 	/**
-	 * Returns the <i>OME</i> logo to be used for title-bars.
-	 * 
-	 * @return See above.
-	 */
-	public static Image getOMEImageIcon()
-	{
-		//This type cast is OK, see implementation of createIcon.
-		return ((ImageIcon) OME_ICON).getImage();
-	}
-	
-	/**
-	 * Returns the <i>OME</i> logo.
-	 * 
-	 * @return See above.
-	 */
-	public static Icon getOMEIcon()
-	{
-		return OME_ICON;
-	}
-	
-	/**
 	 * Returns the splash screen.
 	 * 
 	 * @return See above.
@@ -233,21 +200,6 @@ public class IconManager
 		return createIcon(DEFAULT_INFO_ICON_PATH);
 	}
 	
-	/** 
-	 * Utility factory method to create an icon from a file.
-	 *
-	 * @param path    The path of the icon file relative to this class.
-	 * @return  An instance of {@link javax.swing.Icon Icon} or
-	 * 			<code>null</code> if the path was invalid.
-	 */
-	private static Icon createIcon(String path)
-	{
-		URL location = IconManager.class.getResource(path);
-		ImageIcon icon = null;
-		if (location != null)	icon = new ImageIcon(location);
-		return icon;
-	}
-	
 	/**
 	 * Returns the <code>IconManager</code> object. 
 	 * 
@@ -259,12 +211,6 @@ public class IconManager
 		return singleton;
 	}
 	
-	/**
-	 * The factory retrieved from the container's configuration.
-	 * It can instantiate any icon whose file is contaied in the container's
-	 * graphics bundle.
-	 */
-	private IconFactory 	factory;
 	
 	/**
 	 * Creates a new instance and configures the parameters.
@@ -273,33 +219,7 @@ public class IconManager
 	 */
 	private IconManager(Registry registry)
 	{
-		factory = (IconFactory) registry.lookup(LookupNames.ICONS_FACTORY);
-		if (factory == null) {
-			String summary = "Can't retrieve container's icons. ";
-			StringBuffer buf = new StringBuffer();
-			buf.append("The container's configuration file is probably ");
-			buf.append("corrupted.  Please make sure that it contains an ");
-			buf.append("entry for the icon factory: ");
-			buf.append(LookupNames.ICONS_FACTORY);
-			buf.append(".");			
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyWarning(null, summary, buf.toString());
-			registry.getLogger().warn(this, summary + buf.toString());
-		}
-	}
-
-	/** 
-	 * Retrieves the icon specified by the icon <code>id</code>.
-	 *
-	 * @param   id    Must be one of the ID's defined by this class.
-	 * @return  The specified icon or <code>null</code> if the icon couldn't
-	 * 			be retrieved or if <code>id</code> is not one of the ID's
-	 * 			defined by this class.
-	 */    
-	Icon getIcon(int id)
-	{
-		if (factory == null || id < 0 || MAX_ID < id)	return null;
-		return factory.getIcon(relPaths[id]);
+		super(registry, LookupNames.ICONS_FACTORY, relPaths);
 	}
 	
 }
