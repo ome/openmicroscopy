@@ -265,8 +265,8 @@ public class ViewerCtrl
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
-		UIUtilities.centerAndShow(new Viewer3D(this, 
-									abstraction.getPixelsDims().sizeZ));
+		Viewer3D v3D = new Viewer3D(this, abstraction.getPixelsDims().sizeZ);
+		if (v3D.isVisible()) UIUtilities.centerAndShow(v3D);
 	}
 	
 	/** Bring up the image inspector widget. */

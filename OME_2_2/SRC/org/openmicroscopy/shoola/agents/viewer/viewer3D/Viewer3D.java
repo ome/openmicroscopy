@@ -123,17 +123,21 @@ public class Viewer3D
 	
 	private Registry				registry;
 
+	private int						sizeZ;
 	
 	public Viewer3D(ViewerCtrl control, int sizeZ)
 	{
 		super(control.getReferenceFrame(),"", true);
+		this.sizeZ = sizeZ;
 		this.control = control;
 		curZ = control.getDefaultZ();
 		registry = control.getRegistry();
 		visible = false;
-		init(sizeZ);
-		buildGUI();
+		init();
+		//buildGUI();
 	}
+	
+	public boolean isVisible() { return visible; }
 	
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
@@ -188,18 +192,18 @@ public class Viewer3D
 	}
 	
 	/** Initialize components. */
-	private void init(int sizeZ)
+	private void init()
 	{
 		registry.getEventBus().register(this, Image3DRendered.class);
 		manager = new Viewer3DManager(this);
 		model = control.getModel();
-		initComponents(sizeZ);
+		//initComponents(sizeZ);
 		control.setModel(RenderingDef.GS);
 		onPlaneSelected(0, 0);
 	}
 
 	/** Initialize the GUI components. */
-	private void initComponents(int sizeZ)
+	private void initComponents()
 	{
 		contents = new JLayeredPane();
 		backPanel = new JPanel();
@@ -240,16 +244,28 @@ public class Viewer3D
 		BufferedImage	xzImage = response.getRenderedXZImage(),
 						yzImage = response.getRenderedZYImage(),
 						xyImage = response.getRenderedXYImage();
-		if (xyImage == null) {
+		if (xzImage != null && yzImage != null) {
+			if (!visible) {
+				initComponents();
+				buildGUI();
+			} 
+			setImages(xzImage, yzImage, xyImage);
+		} else onClosing();
+	}
+	
+	void setImages(BufferedImage xzImage, BufferedImage yzImage, 
+					BufferedImage xyImage)
+	{
+		if (xyImage == null)
 			manager.setImages(xzImage, yzImage);	
-		} else {
+		else {
 			if (!visible){
-				 manager.setImages(xyImage, xzImage, yzImage); 
-				 visible = true;
+				manager.setImages(xyImage, xzImage, yzImage); 
+				visible = true;
 			} else manager.resetImages(xyImage, xzImage, yzImage);
 		}
 	}
-	
+						
 	/** Reset values. */
 	void onClosing()
 	{
