@@ -81,6 +81,7 @@ public class TIFFEncoder
 			bpsSize = TIFFEncoderCst.BPS_DATA_SIZE;
 		}
 		scaleSize = TIFFEncoderCst.SCALE_DATA_SIZE;
+        writeScale();
 		int size = TIFFEncoderCst.IMAGE_START-
 					(TIFFEncoderCst.HDR_SIZE+ifdSize+bpsSize+scaleSize);
 		output.write(new byte[size]); // force image to start at offset 768
@@ -208,9 +209,9 @@ public class TIFFEncoder
 			j = bytesWritten/3;
 			//TIFF save as BRG and not RGB.
 			for (i = 0; i < count; i += 3) {
-				buffer[i]   = blue[j];	//blue
-				buffer[i+1] = red[j];	//red
-				buffer[i+2] = green[j];	//green
+                buffer[i]   = red[j];
+                buffer[i+1] = green[j];
+                buffer[i+2] = blue[j];
 				j++;
 			}
 			output.write(buffer, 0, count);
@@ -237,4 +238,18 @@ public class TIFFEncoder
 		output.write(colorTable16);
 	}
 
+    private void writeScale()
+        throws IOException
+    {
+        double xscale = 1.0/imageWidth;
+        double yscale = 1.0/imageHeight;
+        double scale = 1000000.0;
+        if (xscale>1000.0) scale = 1000.0;
+        output.writeInt((int)(xscale*scale));
+        output.writeInt((int)scale);
+        output.writeInt((int)(yscale*scale));
+        output.writeInt((int)scale);
+    
+    }
+    
 }
