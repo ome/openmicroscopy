@@ -333,6 +333,10 @@ public class Annotator
             Point point = requestEvent.getSpecifiedLocation();
             tif.setBounds(point.x,point.y,tif.getWidth(),tif.getHeight());
         }
+        else
+        {
+            // TODO center on screen.
+        }
         tif.show();
     }
     
