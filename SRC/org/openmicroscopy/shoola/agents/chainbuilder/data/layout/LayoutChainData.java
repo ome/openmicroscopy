@@ -101,8 +101,10 @@ public class LayoutChainData  extends AnalysisChainData
 		getUnbounded();
 		initNodes();
 		layerNodes();
+//		layering.flattenLayers();
 		makeProper();
 		reduceCrossings();
+	
 		cleanupNodes();
 		//dumpChain();
 		// clear out link maps so they can be garbabe collected
@@ -420,6 +422,9 @@ public class LayoutChainData  extends AnalysisChainData
 			node.buildLinkLists();
 		}
 	}
+	
+	
+	
 	
 	/**
 	 * Iterate over the nodes, cleaning up auxiliary structures that are needed
@@ -759,6 +764,7 @@ public class LayoutChainData  extends AnalysisChainData
 		}
 	}
 	
+	
 	/**
 	 * 
 	 * @return the object containing the layering for the Chain
@@ -767,13 +773,6 @@ public class LayoutChainData  extends AnalysisChainData
 		return layering;
 	}
 	
-	/**
-	 * Set the layering to be null, so it can be gc'ed..
-	 *
-	 */
-	 public void clearLayering() {
-	 	layering = null;
-	 }
 	
 	private void dumpChain() {
 		System.err.println("dumping layers for chain ..."+getName());
@@ -961,6 +960,53 @@ public class LayoutChainData  extends AnalysisChainData
 		public void setNode(int layerNumber,int n,GraphLayoutNode node) {
 			Vector v = getLayer(layerNumber);
 			v.setElementAt(node,n);
+		}
+		
+		public void flattenLayers() {
+			Vector newLayers = new Vector();
+			int count = getLayerCount();
+			int curLayer = 0;
+			for (int i= 0; i < count; i++) {
+				Vector layer = getLayer(i);
+				if (layer.size() > count/2) {
+					splitLayer(curLayer,layer,newLayers);
+					curLayer +=2;
+				}
+				else {
+					newLayers.add(layer);
+					// set layer of nodes
+					Iterator iter2 = layer.iterator();
+					while (iter2.hasNext()) {
+						GraphLayoutNode node = (GraphLayoutNode) iter2.next();
+						node.setLayer(curLayer);
+					}
+					curLayer++;
+				}
+			}	
+			layers = newLayers;
+		}
+		
+		// split the contents of layer into two new vectors and place both in dest
+		private void splitLayer(int curLayer,Vector layer,Vector dest) {
+			Vector l1  = new Vector();
+			Vector l2  = new Vector();
+			int next = curLayer+1;
+			Vector nextLayer = l1;
+			Iterator iter = layer.iterator();
+			while (iter.hasNext()){
+				GraphLayoutNode node = (GraphLayoutNode) iter.next();
+				nextLayer.add(node);
+				if (nextLayer == l1) {
+					nextLayer = l2;
+					node.setLayer(curLayer);
+				}
+				else { 
+					nextLayer = l1;
+					node.setLayer(next);
+				}
+			}
+			dest.add(l1);
+			dest.add(l2);
 		}
 	}
 	
