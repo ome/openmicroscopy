@@ -50,13 +50,13 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Appliaction-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
+import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-
 
 
 
@@ -287,10 +287,13 @@ public class Thumbnail extends PImage implements BufferedObject,
 	public void viewImage(Registry registry) {
 		int id = image.getID();
 		int[] pxSets = image.getPixelsIDs();
-		String name = image.getName();
-		
-		System.err.println("loading image.."+name);
+		String name =image.getName();
 		LoadImage request = new LoadImage(id, pxSets[0], name);
 		registry.getEventBus().post(request);	
+	}
+	
+	public void viewImageInfo(Registry registry) {
+		ViewImageInfo request  = new ViewImageInfo(image);
+		registry.getEventBus().post(request);
 	}
 }
