@@ -91,6 +91,15 @@ public class ToolBarManager
 	/** Action command ID to be used with the z-section text field. */
 	private static final int					Z_FIELD_CMD = 7;
 	
+	/** Action command ID to be used with the saveAs button. */
+	private static final int   					SAVEAS_CMD = 8;
+	
+	/** Action command ID to be used with the pause button. */
+	private static final int   					PAUSE_CMD = 9;
+
+	/** Action command ID to be used with the forward button. */
+	private static final int   					FORWARD_CMD = 10;
+	
 	private int									curT, maxT, curR;
 	private int									curZ, maxZ;
 	
@@ -127,7 +136,8 @@ public class ToolBarManager
 		//button
 		JButton	play = view.getPlay(), stop = view.getStop(), 
 				rewind = view.getRewind(), render = view.getRender(), 
-				inspector = view.getInspector();
+				inspector = view.getInspector(), saveAs = view.getSaveAs(), 
+				pause = view.getPause(), forward = view.getForward();
 		play.setActionCommand(""+PLAY_CMD);
 		play.addActionListener(this);
 		stop.setActionCommand(""+STOP_CMD); 
@@ -138,6 +148,12 @@ public class ToolBarManager
 		render.addActionListener(this);
 		inspector.setActionCommand(""+INSPECTOR_CMD);
 		inspector.addActionListener(this);
+		saveAs.setActionCommand(""+SAVEAS_CMD);
+		saveAs.addActionListener(this);
+		pause.setActionCommand(""+PAUSE_CMD);
+		pause.addActionListener(this);
+		forward.setActionCommand(""+FORWARD_CMD);
+		forward.addActionListener(this);
 		//spinner
 		view.getFPS().addChangeListener(this);
 	}
@@ -263,21 +279,21 @@ public class ToolBarManager
 		try {
 		    switch (index) {
 				case T_FIELD_CMD:
-					tFieldActionHandler();
-				   	break;
+					tFieldActionHandler(); break;
 				case Z_FIELD_CMD:
-					zFieldActionHandler();
-					break;
+					zFieldActionHandler(); break;
 				case RENDER_CMD:
-					control.showRendering();
-					break;
+					control.showRendering(); break;
 				case INSPECTOR_CMD:
-					control.showInspector();
-					break;
+					control.showInspector(); break;
+				case SAVEAS_CMD:
+					control.showImageSaver(); break;
 				/*
 			   	case PLAY_CMD:  //not implemented yet
 			   	case STOP_CMD:  //not implemented yet
 			   	case REWIND_CMD:  //not implemented yet
+			   	case FORWARD_CMD:
+			   	case PAUSE_CMD:
 			   	case EDITOR_CMD:
 					editorActionHandler();
 				   	break;

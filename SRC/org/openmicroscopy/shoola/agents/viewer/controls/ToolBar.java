@@ -73,6 +73,9 @@ public class ToolBar
 	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
+	/** Bring up the save image widget. */
+	private JButton					saveAs;
+	
 	/** Bring up the  image inspector widget. */
 	private JButton					inspector;
 																																							
@@ -80,7 +83,7 @@ public class ToolBar
 	private JButton					render;
 	
 	/** Buttons to control the playback of time movie. */
-	private JButton         		play, stop, rewind; 
+	private JButton         		play, stop, rewind, pause, forward; 
 	
 	/** Allows user t specify the movie playback rate in frames per second. */
 	private JSpinner        		fps;
@@ -106,6 +109,8 @@ public class ToolBar
 		buildToolBar();
 	}
 	
+	public JButton getSaveAs() { return saveAs; }
+
 	public JLabel getZLabel() { return zLabel; }
 	
 	public JLabel getTLabel() { return tLabel; }
@@ -121,6 +126,10 @@ public class ToolBar
 	public JButton getRender() { return render; }
 
 	public JButton getRewind() { return rewind; }
+	
+	public JButton getPause() { return pause; }
+	
+	public JButton getForward() { return forward; }
 
 	public JButton getStop() { return stop; }
 
@@ -135,6 +144,10 @@ public class ToolBar
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
+		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
+		saveAs.setToolTipText(
+			UIUtilities.formatToolTipText("Bring up the save image window."));
+			
 		inspector  =  new JButton(im.getIcon(IconManager.INSPECTOR));
 		inspector.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the inspector panel."));
@@ -143,12 +156,19 @@ public class ToolBar
 			UIUtilities.formatToolTipText("Bring up the rendering panel."));	
 		play = new JButton(im.getIcon(IconManager.MOVIE));
 		play.setToolTipText(
-			UIUtilities.formatToolTipText("Play movie from current timepoint."));
+		UIUtilities.formatToolTipText("Play movie from current timepoint."));
 		stop = new JButton(im.getIcon(IconManager.STOP));
 		stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie."));
 		rewind = new JButton(im.getIcon(IconManager.REWIND));
 	  	rewind.setToolTipText(
-	  		UIUtilities.formatToolTipText("Go to first timepoint."));
+	  		UIUtilities.formatToolTipText("Go to the first timepoint."));
+		forward = new JButton(im.getIcon(IconManager.FORWARD));
+		forward.setToolTipText(
+			UIUtilities.formatToolTipText("Go to the last timepoint."));	
+		pause = new JButton(im.getIcon(IconManager.PLAYER_PAUSE));
+		pause.setToolTipText(
+			UIUtilities.formatToolTipText("Stop the movie."));
+					
 	  	//Spinner timepoint granularity is 1, so must be stepSize
 	  	//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
 	  	fps = new JSpinner(new SpinnerNumberModel(12, 12, 12, 1));
@@ -164,8 +184,11 @@ public class ToolBar
 		play.setEnabled(b);
 		rewind.setEnabled(b);
 		stop.setEnabled(b);
+		pause.setEnabled(b);
+		forward.setEnabled(b);
 		fps.setEnabled(b);
 		editor.setEnabled(b);
+		
 	}
 	
 	/** 
@@ -229,6 +252,8 @@ public class ToolBar
 		tb.add(render);
 		tb.addSeparator();
 		tb.add(inspector);
+		tb.addSeparator();
+		tb.add(saveAs);
 		return tb;
 	}
 	
@@ -238,8 +263,10 @@ public class ToolBar
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 		tb.add(play);
+		tb.add(pause);
 		tb.add(stop);
 		tb.add(rewind);
+		tb.add(forward);
 		tb.addSeparator();
 		JLabel label = new JLabel(" Rate ");
 		tb.add(label);
