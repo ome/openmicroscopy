@@ -1035,17 +1035,17 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         if(t == null) return;
         ThumbnailDataModel tdm = t.getModel();
-        int imageID = tdm.getID();
-        annotateImage(imageID);
+        ImageSummary summary = tdm.getImageInformation();
+        annotateImage(summary);
     }
     
     /**
      * Use the Annotator to annotate the image with the specified ID.
      * @param imageID The ID of the image to annotate.
      */
-    public void annotateImage(int imageID)
+    public void annotateImage(ImageSummary imageInfo)
     {
-        AnnotateImage event = new AnnotateImage(imageID);
+        AnnotateImage event = new AnnotateImage(imageInfo);
         
         // makes sure correct response occurs
         event.setCompletionHandler(new AnnotateImageHandler());

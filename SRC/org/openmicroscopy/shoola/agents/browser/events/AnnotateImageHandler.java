@@ -82,7 +82,7 @@ public class AnnotateImageHandler implements CompletionHandler
         
         // check all active and update annotation where applicable
         List browsers = manager.getAllBrowsers();
-        Integer imageID = new Integer(ai.getImageID());
+        Integer imageID = new Integer(ai.getImageInfo().getID());
         
         // nothing doing (haven't specified how to delete annotations yet TODO)
         if(ia.getAnnotation() == null) return;

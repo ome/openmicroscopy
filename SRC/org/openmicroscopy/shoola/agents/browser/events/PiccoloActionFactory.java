@@ -225,6 +225,27 @@ public class PiccoloActionFactory
     }
     
     /**
+     * Creates an action, that, when executed, will trigger the annotation
+     * dialog for this particular image shown in this thumbnail.
+     * @param t The thumbnail to annotate (current image being annotated)
+     * @return A PiccoloAction that wraps the appropriate Annotator trigger
+     *         code in an execute() statement.
+     */
+    public static PiccoloAction getAnnotateImageAction(final Thumbnail t)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.annotateImage(t);
+            }
+        };
+        return action;
+    }
+    
+    /**
      * Creates an action, that, when exected, will trigger a zoom-to-fit
      * command.
      * @param model The browser to affect.

@@ -111,6 +111,18 @@ public class PopupMenuFactory
         });
         menu.add(infoItem);
         
+        JMenuItem annotateItem = new JMenuItem("Annotate");
+        annotateItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                PiccoloAction action =
+                    PiccoloActionFactory.getAnnotateImageAction(t);
+                action.execute();
+            }
+        });
+        menu.add(annotateItem);
+        
         return menu;
     }
     
