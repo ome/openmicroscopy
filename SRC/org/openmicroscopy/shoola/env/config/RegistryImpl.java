@@ -37,6 +37,7 @@ import java.util.HashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -100,12 +101,20 @@ class RegistryImpl
     }
 	/** Implemented as specified by {@link Registry}. */
 	public DataManagementService getDataManagementService()
+        throws NotLoggedInException
 	{
+        if (dms == null)
+            throw new NotLoggedInException("Not logged into data server");
+
 		return dms;
 	}
 	/** Implemented as specified by {@link Registry}. */
 	public SemanticTypesService getSemanticTypesService()
+        throws NotLoggedInException
 	{
+        if (sts == null)
+            throw new NotLoggedInException("Not logged into data server");
+
 		return sts;
 	}
 	/** Implemented as specified by {@link Registry}. */

@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
@@ -83,13 +84,15 @@ public interface Registry
     * 
     * @return See above.
     */
-   	public DataManagementService getDataManagementService();
+   	public DataManagementService getDataManagementService()
+        throws NotLoggedInException;
    	/**
    	* Returns the {@link SemanticTypesService} registered.
    	* 
    	* @return See above.
    	*/
-   	public SemanticTypesService getSemanticTypesService();	
+    public SemanticTypesService getSemanticTypesService()
+        throws NotLoggedInException;
    	/**
    	* Returns the {@link Logger} registered.
    	* 
