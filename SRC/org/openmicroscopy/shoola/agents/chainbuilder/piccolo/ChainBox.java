@@ -192,6 +192,32 @@ public class ChainBox extends GenericBox implements MouseableNode
 		}
 	}
 	
+	public void centerChain() {
+		// get my extent
+		PBounds b = getBounds();
+		double boxWidth = b.getWidth();
+		double boxHeight = b.getHeight();
+		
+		// get chain's extent
+		double chainWidth = chainView.getWidth();
+		double chainHeight = chainView.getHeight();
+		// set offset of chain to be in center.
+		
+		// topmost part of where chain goes
+		float y = (float) (name.getGlobalFullBounds().getHeight()+VGAP*3);
+		
+		double boxVertRange = boxHeight -y;
+		
+		// width
+		double xCenter = boxWidth/2;
+		double newX = xCenter-chainWidth/2;
+		
+		// height
+		double yCenter = y+boxVertRange/2;
+		double newY = yCenter-chainHeight/2;
+		chainView.setOffset(newX,newY);
+	}
+	
 	private void addLockedIndicator() {
 		PBounds b = getFullBoundsReference();
 		PText locked = new PText("Locked");
