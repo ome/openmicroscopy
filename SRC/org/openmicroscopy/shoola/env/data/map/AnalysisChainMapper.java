@@ -117,6 +117,9 @@ public class AnalysisChainMapper
 		criteria.addWantedField("links.from_output","semantic_type");
 		criteria.addWantedField("links.to_input","semantic_type");
 		
+		criteria.addWantedField("links.from_output","name");
+		criteria.addWantedField("links.to_input","name");
+			
 		criteria.addWantedField("links.from_output.semantic_type","id");
 		criteria.addWantedField("links.to_input.semantic_type","id");
 		criteria.addWantedField("links.from_output.semantic_type","name");
@@ -230,6 +233,7 @@ public class AnalysisChainMapper
 			fout = al.getFromOutput();
 			foutData = (FormalOutputData) foutProto.makeNew();
 			foutData.setID(fout.getID());
+			foutData.setName(fout.getName());
 			st = fout.getSemanticType();
 			if (st != null) {
 				stData = getSemanticTypeData(st,stProto);
@@ -248,6 +252,7 @@ public class AnalysisChainMapper
 			fin = al.getToInput();
 			finData = (FormalInputData) finProto.makeNew();
 			finData.setID(fin.getID());
+			finData.setName(fin.getName());
 			st = fin.getSemanticType();
 			if (st!= null) {
 				stData = getSemanticTypeData(st,stProto);
