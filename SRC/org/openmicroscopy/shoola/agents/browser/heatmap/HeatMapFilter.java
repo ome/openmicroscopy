@@ -38,7 +38,6 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 
@@ -66,13 +65,15 @@ public class HeatMapFilter
         
         SemanticTypeTree.TreeNode root = tree.getRootNode();
         List dfsQueue = new ArrayList();
+        dfsQueue.add(root);
         
         while(dfsQueue.size() > 0)
         {
             SemanticTypeTree.TreeNode node =
                 (SemanticTypeTree.TreeNode)dfsQueue.get(0);
+            dfsQueue.remove(node);
             
-            Set children = node.getChildren();
+            List children = new ArrayList(node.getChildren());
             for(Iterator iter = children.iterator(); iter.hasNext();)
             {
                 Object o = iter.next();
@@ -90,6 +91,10 @@ public class HeatMapFilter
                         // pruning right here
                         node.removeChild(eNode);
                     }
+                }
+                else if(o instanceof SemanticTypeTree.TypeNode)
+                {
+                    dfsQueue.add(o);
                 }
             }
         }

@@ -51,6 +51,7 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapUI;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
@@ -872,7 +873,9 @@ public class BrowserAgent implements Agent, AgentEventListener
         SemanticType[] types = new SemanticType[relevantTypes.size()];
         relevantTypes.toArray(types);
         targetModel.setRelevantTypes(types);
-        // HeatMapModel hmm = new HeatMapModel(targetModel);
+        /*HeatMapModel hmm = new HeatMapModel(targetModel);
+        HeatMapUI ui = new HeatMapUI(hmm);
+        ui.show();*/
     }
     
     // keeps track of the time-consuming loader threads.
@@ -1033,6 +1036,31 @@ public class BrowserAgent implements Agent, AgentEventListener
             System.err.println("could not load composite thumbnail");
             return null;
         }
+    }
+    
+    /**
+     * Loads the semantic type with the given name.
+     * @param typeName
+     * @return
+     */
+    public SemanticType loadTypeInformation(String typeName)
+    {
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        try
+        {
+            return sts.retrieveSemanticType(typeName);
+        }
+        catch(DSOutOfServiceException dso)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Connection Error",dso.getMessage(),dso);
+        }
+        catch(DSAccessException dsa)
+        {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
+        return null; // fallback case
     }
     
     /**

@@ -126,13 +126,15 @@ public class DataElementType
            sqlName.equalsIgnoreCase("uint8") ||
            sqlName.equalsIgnoreCase("int8") ||
            sqlName.equalsIgnoreCase("uint16") ||
-           sqlName.equalsIgnoreCase("int16"))
+           sqlName.equalsIgnoreCase("int16") ||
+           sqlName.equalsIgnoreCase("integer"))
         {
             return DataElementType.INT;
         }
         else if(sqlName.equalsIgnoreCase("long") ||
                 sqlName.equalsIgnoreCase("uint32") ||
-                sqlName.equalsIgnoreCase("int32"))
+                sqlName.equalsIgnoreCase("int32") ||
+                sqlName.equalsIgnoreCase("bigint"))
         {
             return DataElementType.LONG;
         }

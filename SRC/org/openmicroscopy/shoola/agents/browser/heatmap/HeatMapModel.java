@@ -35,7 +35,10 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
@@ -54,6 +57,8 @@ public class HeatMapModel
     
     private SemanticTypeTree treeModel;
     
+    private Set modelListeners;
+    
     /**
      * Creates an initial heat map model for the particular browser agent.
      * Picks out the scalar values for display (and classifications)
@@ -66,6 +71,7 @@ public class HeatMapModel
     public HeatMapModel(BrowserModel source)
     {
         this.source = source;
+        modelListeners = new HashSet();
         updateTreeModel();
     }
     
@@ -74,10 +80,35 @@ public class HeatMapModel
         return source;
     }
     
+    /**
+     * Gets the backing ST model.
+     * @return
+     */
+    public SemanticTypeTree getModel()
+    {
+        return treeModel;
+    }
+    
     public void setInfoSource(BrowserModel source)
     {
         this.source = source; 
         updateTreeModel();
+    }
+    
+    public void addListener(HeatMapModelListener listener)
+    {
+        if(listener != null)
+        {
+            modelListeners.add(listener);
+        }
+    }
+    
+    public void removeListener(HeatMapModelListener listener)
+    {
+        if(listener != null)
+        {
+            modelListeners.remove(listener);
+        }
     }
     
     private void updateTreeModel()
@@ -92,5 +123,12 @@ public class HeatMapModel
         typesList.toArray(types);
         treeModel = new SemanticTypeTree(source.getDataset().getName()+
                                          " Attributes",types);
+        HeatMapFilter.filter(treeModel);
+        
+        for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+        {
+            HeatMapModelListener listener = (HeatMapModelListener)iter.next();
+            listener.modelChanged(treeModel);
+        }
     }
 }

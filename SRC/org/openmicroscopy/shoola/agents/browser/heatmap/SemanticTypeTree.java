@@ -42,8 +42,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.openmicroscopy.ds.DataException;
 import org.openmicroscopy.ds.dto.SemanticElement;
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
+import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.datamodel.DataElementType;
 
 /**
@@ -82,6 +85,9 @@ public class SemanticTypeTree
      */
     public SemanticTypeTree(String rootName, SemanticType[] types)
     {
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserAgent agent = env.getBrowserAgent();
+        
         root = new TreeNode(rootName);
         List dfsQueue = new ArrayList();
         
@@ -95,6 +101,8 @@ public class SemanticTypeTree
             {
                 SemanticType type = types[i];
                 TypeNode node = new TypeNode(type);
+                root.addChild(node);
+                node.setParent(root);
                 dfsQueue.add(node);
             }
         }
@@ -104,7 +112,18 @@ public class SemanticTypeTree
             dfsQueue.remove(0);
             SemanticType st = node.getType();
             System.err.println("workin' on " + st.getName());
-            List elements = st.getElements();
+            List elements = null;
+            
+            try
+            {
+                elements = st.getElements();
+            }
+            catch(DataException dex)
+            {
+                st = agent.loadTypeInformation(st.getName());
+                node.setType(st);
+                elements = st.getElements();
+            }
             
             // right now, don't hit the DB to go deeper
             for(Iterator iter = elements.iterator(); iter.hasNext();)
@@ -120,11 +139,16 @@ public class SemanticTypeTree
                 fqName = fqName + element.getDataColumn().getColumnName();
                 if(det == DataElementType.ATTRIBUTE)
                 {
-                    SemanticType childType = element.getSemanticType();
-                    TypeNode typeNode = new TypeNode(childType);
+                    SemanticType childType = element.getDataColumn().getReferenceType();
+                    TypeNode typeNode = new TypeNode(element.getName(),childType);
                     typeNode.setFQName(fqName);
                     node.addChild(typeNode);
-                    dfsQueue.add(typeNode);
+                    typeNode.setParent(node);
+                    if(node.depth() < 2)
+                    {
+                        dfsQueue.add(typeNode);
+                    }
+                    System.err.println(node.getName() +" adding " + typeNode.getName());
                 }
                 else
                 {
@@ -163,6 +187,13 @@ public class SemanticTypeTree
         public TypeNode(SemanticType type)
         {
             super(type.getName());
+            this.content = type;
+            children = new HashSet();
+        }
+        
+        public TypeNode(String name, SemanticType type)
+        {
+            super(name + " [" + type.getName() + "]");
             this.content = type;
             children = new HashSet();
         }
@@ -207,6 +238,7 @@ public class SemanticTypeTree
      */
     static class TreeNode
     {
+        protected TreeNode parent;
         protected Set children;
         protected String name;
         protected String fqName; // fully qualified name
@@ -261,6 +293,39 @@ public class SemanticTypeTree
             {
                 children.remove(node);
             }
+        }
+        
+        public TreeNode getParent()
+        {
+            return parent;
+        }
+        
+        public int depth()
+        {
+            TreeNode node = parent;
+            int depth = 0;
+            while(node != null)
+            {
+                node = node.getParent();
+                depth++;
+            }
+            return depth;
+        }
+        
+        public void setParent(TreeNode parent)
+        {
+            if(this == parent)
+            {
+                System.err.println("[TreeNode]: Don't try to make a cycle...");
+                return;
+            }
+            this.parent = parent;
+        }
+        
+        // makes display in JTree easier.
+        public String toString()
+        {
+            return name;
         }
     }
 }
