@@ -346,6 +346,7 @@ public class BrowserMenuBar extends JMenuBar
     private JMenu createCategoryLayoutMenu()
     {
         JMenu groupMenu = new JMenu("Arrange by Phenotype");
+        /*
         final CategoryTree tree = actionTarget.getCategoryTree();
         List groups = tree.getCategoryGroups();
         for(Iterator iter = groups.iterator(); iter.hasNext();)
@@ -368,6 +369,7 @@ public class BrowserMenuBar extends JMenuBar
             groupMenu.add(item);
         }
         menuItemMap.put(new Integer(LAYOUT_CATEGORY_ITEM),groupMenu);
+        */
         return groupMenu;
     }
     

@@ -49,8 +49,6 @@ import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
-import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
-import org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.ds.dto.SemanticType;
@@ -82,8 +80,10 @@ import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
-import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
+import org.openmicroscopy.shoola.agents.events.annotator.ImageAnnotated;
+import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.*;
@@ -444,8 +444,8 @@ public class BrowserAgent implements Agent, AgentEventListener
             
             writeStatusImmediately(status,"Retrieving classification information from DB...");
             classificationMap = new HashMap();
-            List classificationList =
-                    sts.retrieveImageClassifications(idList,datasetModel.getID());
+            List classificationList = null;
+                    //sts.retrieveImageClassifications(idList,datasetModel.getID());
             if(classificationList != null)
             {
                 for(Iterator iter = classificationList.iterator(); iter.hasNext();)

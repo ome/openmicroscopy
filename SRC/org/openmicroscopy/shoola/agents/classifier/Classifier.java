@@ -469,13 +469,14 @@ public class Classifier implements Agent, AgentEventListener
     public List getClassifications(int imageID, int datasetID)
     {
         List classifications = null;
+        /*
         try
         {
             SemanticTypesService sts = registry.getSemanticTypesService();
             List dummyList = new ArrayList();
             dummyList.add(new Integer(imageID));
-            classifications =
-                sts.retrieveImageClassifications(dummyList,datasetID);
+            //classifications =
+             //   sts.retrieveImageClassifications(dummyList,datasetID);
         }
         catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
@@ -486,6 +487,7 @@ public class Classifier implements Agent, AgentEventListener
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return classifications;
     }
     

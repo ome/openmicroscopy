@@ -268,7 +268,7 @@ public class BrowserModel
     public void setCategoryTree(CategoryTree tree)
     {
         this.categoryTree = tree;
-        fireModelUpdated();
+        //fireModelUpdated();
     }
     
     public double getAverageWidth()
