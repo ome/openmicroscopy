@@ -127,11 +127,7 @@ public class BrowserCamera implements RegionSensitive,
             {
                 // oh, this is a ticky-tack hack right here
                 if(e.getPropertyName().equals("viewTransform"))
-                {
-                    System.err.println(camera.getViewScale());
-                    System.err.println("offset="+camera.getViewBounds().getX()+
-                                       ","+camera.getViewBounds().getY());
-                    
+                {   
                     double x = camera.getViewBounds().getX();
                     double y = camera.getViewBounds().getY();
                     double extentX = camera.getViewBounds().getWidth();
@@ -242,6 +238,7 @@ public class BrowserCamera implements RegionSensitive,
      */
     public void setX(double value)
     {
+        System.err.println("setX: "+value);
         camera.translateView(getX()-value,0);
     }
     
@@ -251,7 +248,8 @@ public class BrowserCamera implements RegionSensitive,
      */
     public void setY(double value)
     {
-        camera.translateView(getY()-value,0);
+        System.err.println("setY: "+value);
+        camera.translateView(0,getY()-value);
     }
     
     /**

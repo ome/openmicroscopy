@@ -50,6 +50,7 @@ import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JSlider;
@@ -128,6 +129,8 @@ public class BrowserInternalFrame extends JInternalFrame
         toolbarPanel.add(zoomButton);
         toolbarPanel.add(optionsButton);
         
+        final JLabel minZoomLabel = new JLabel("10%");
+        final JLabel maxZoomLabel = new JLabel("200%");
         final JSlider slider = new JSlider(new DefaultBoundedRangeModel(100,10,10,200));
         slider.setPaintLabels(true);
         slider.addChangeListener(new ChangeListener()
@@ -147,12 +150,12 @@ public class BrowserInternalFrame extends JInternalFrame
         {
             public void minZoomLevelChanged(double level)
             {
-                System.err.println("minzoom change: "+level);
                 int val = (int)Math.round(level*100);
                 if(slider.getValue() < val)
                 {
                     slider.setValue(val);
                 }
+                minZoomLabel.setText(String.valueOf(val)+"%");
                 slider.setMinimum(val);
             }
             
@@ -163,12 +166,12 @@ public class BrowserInternalFrame extends JInternalFrame
                 {
                     slider.setValue(val);
                 }
+                maxZoomLabel.setText(String.valueOf(val)+"%");
                 slider.setMaximum(val);
             }
             
             public void zoomLevelChanged(double level)
             {
-                System.err.println("zoom changed: "+level);
                 if(!slider.getValueIsAdjusting())
                 {
                     int val = (int)Math.round(level*100);
@@ -177,7 +180,9 @@ public class BrowserInternalFrame extends JInternalFrame
             }
         });
         
+        toolbarPanel.add(minZoomLabel);
         toolbarPanel.add(slider);
+        toolbarPanel.add(maxZoomLabel);
 
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
@@ -203,10 +208,6 @@ public class BrowserInternalFrame extends JInternalFrame
                 int iEY = (int)Math.round(extentY);
                 int iW = (int)Math.round(width);
                 int iH = (int)Math.round(height);
-                
-                
-                System.err.println("bounds: ["+iX+","+iY+","+iEX+","
-                                             +iEY+","+iW+","+iH+"]");
                 
                 BoundedRangeModel horizModel = horizontalBar.getModel();
                 BoundedRangeModel vertModel = verticalBar.getModel();
@@ -241,7 +242,7 @@ public class BrowserInternalFrame extends JInternalFrame
                     }
                     else
                     {
-                        horizModel.setValue(iY);
+                        vertModel.setValue(iY);
                     }
                 }
 

@@ -348,8 +348,6 @@ public class BrowserView extends PCanvas
         double scaleX = 0;
         double scaleY = 0;
         
-        System.err.println(footprint.getWidth()+","+footprint.getWidth());
-        System.err.println("dim:"+width+","+height);
         if(width/zoomLevel < footprint.getWidth())
         {
             scaleX = viewCenterX;
@@ -361,7 +359,7 @@ public class BrowserView extends PCanvas
         if(height/zoomLevel < footprint.getHeight())
         {
             scaleY = viewCenterY;
-            if((viewCenterY - (scale/zoomLevel)*viewWidth/2) < 0)
+            if((viewCenterY - (scale/zoomLevel)*viewHeight/2) < 0)
             {
                 scaleY = 0;
             }
@@ -632,7 +630,6 @@ public class BrowserView extends PCanvas
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
         if(scaleToShow)
-        
         {
             if((xRatio < 1 || yRatio < 1) &&
                (xRatio != 0 && yRatio != 0))
@@ -657,8 +654,6 @@ public class BrowserView extends PCanvas
             rs.setActiveRegion(footprint);
         }
         
-        System.err.println(footprint);
-        System.err.println("Dim: "+width+","+height);
         overlayCamera.cameraResized(new Rectangle2D.Double(0,0,width,height));
         
         for(Iterator iter = zoomParamListeners.iterator(); iter.hasNext();)
