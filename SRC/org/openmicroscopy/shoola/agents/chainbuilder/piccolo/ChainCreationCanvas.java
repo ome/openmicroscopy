@@ -284,12 +284,13 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		if (errors != null) 
 			errors.display();
 		
-		getCamera().localToGlobal(location);
+		//		 determine the corect point
+		getCamera().localToView(location);
 		float x = (float) location.getX();
 		float y = (float) location.getY();
 		ChainView p = new ChainCreationChainView(chain);
-		layer.addChild(p);
-		p.setOffset(x,y);
+		addChain(p,x,y);
+		
 		PBounds b = layer.getFullBounds();
 		PBounds newb = new PBounds(b.getX()-Constants.BORDER,	
 			b.getY()-Constants.BORDER,
@@ -307,6 +308,28 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				handler.setModulesDisplayMode();
 			}
 		});
+	}
+	
+	/**
+	 * To add a chain to the canvas, we add the chain, 
+	 * and then we reparent all nodes - first modules, then links
+	 * to have our layer as a parent. This guarantees that all Modules and 
+	 * links are under the correct parents.
+	 * @param chain
+	 */
+	private void addChain(ChainView chain,float x,float y) {
+		layer.addChild(chain);
+		/// put it in the right place
+		chain.setOffset(x,y);
+		Collection modules = chain.getModuleViews();
+		Iterator iter = modules.iterator();
+		while (iter.hasNext()) {
+			ModuleView mod = (ModuleView) iter.next();
+			mod.reparent(layer);
+		}
+		linkLayer.reparentLinks(chain.getLinkLayer());
+		// once we've reparented linnks and nodes, don't need chain anymore.
+		layer.removeChild(chain);
 	}
 	
 	
@@ -452,4 +475,11 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		frame.setStatusLabel(label);
 	}
 
+	public void showModuleLinks() {
+		linkLayer.showModuleLinks();
+	}
+	
+	public void showParamLinks() {
+		linkLayer.showParamLinks();
+	}
  }
