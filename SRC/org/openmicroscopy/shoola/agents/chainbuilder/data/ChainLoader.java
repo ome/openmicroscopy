@@ -42,10 +42,8 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ComponentContentLoader;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
-
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 
@@ -61,16 +59,16 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
  * </small>
  * @since OME2.2
  */
-public class ChainLoader extends ComponentContentLoader
+public class ChainLoader extends ContentLoader
 {
 	private Collection chains = null;
 	
 	/** a hash storing the chain nodes that we find */
 	private HashMap analysisNodes = new HashMap();
 	
-	public ChainLoader(final ChainDataManager dataManager,
-			ContentComponent component,final ContentGroup group) {
-		super(dataManager,component,group);
+	public ChainLoader(final ChainDataManager dataManager,final ContentGroup group) {
+		super(dataManager,group);
+		start();
 	}	
 	
 	/**

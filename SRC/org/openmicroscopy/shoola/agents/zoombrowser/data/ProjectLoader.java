@@ -37,8 +37,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
-import org.openmicroscopy.shoola.agents.zoombrowser.
-	piccolo.ContentComponent;
+//import org.openmicroscopy.shoola.agents.zoombrowser.
+//	piccolo.ContentComponent;
 
 
 /** 
@@ -53,13 +53,12 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
  * </small>
  * @since OME2.2
  */
-public class ProjectLoader extends ComponentContentLoader
+public class ProjectLoader extends ContentLoader
 {
 	
-	public ProjectLoader(final DataManager dataManager,
-			final ContentComponent component,
-			final ContentGroup group) {
-		super(dataManager,component,group);
+	public ProjectLoader(final DataManager dataManager,final ContentGroup group) {
+		super(dataManager,group);
+		start();
 	}	
 	
 	/**

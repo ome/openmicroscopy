@@ -37,12 +37,11 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
-import org.openmicroscopy.shoola.agents.zoombrowser.
-	piccolo.ContentComponent;
+
 
 
 /** 
- * A {@link ComponentContentLoader} subclass for loading projects.
+ * A {@link ContentLoader} subclass for loading projects.
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -53,19 +52,18 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
  * </small>
  * @since OME2.2
  */
-public class DatasetLoader extends ComponentContentLoader
+public class DatasetLoader extends ContentLoader
 {
 	
-	public DatasetLoader(final DataManager dataManager,
-			final ContentComponent component,
-			final ContentGroup group) {
-		super(dataManager,component,group);
+	public DatasetLoader(final DataManager dataManager,final ContentGroup group) {
+		super(dataManager,group);
+		start();
 	}	
 	
 	/**
 	 * Do the work
 	 */
 	public Object getContents() {
-		return dataManager.getDatasetsWithImages();
+		return dataManager.getDatasets();
 	}
 }

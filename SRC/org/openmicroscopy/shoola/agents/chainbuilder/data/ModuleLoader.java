@@ -40,10 +40,8 @@ import java.util.Vector;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ComponentContentLoader;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ContentGroup;
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
-
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
@@ -62,14 +60,14 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
  * </small>
  * @since OME2.2
  */
-public class ModuleLoader extends ComponentContentLoader
+public class ModuleLoader extends ContentLoader
 {
 	private ModulesData modData;
 	
 	public ModuleLoader(final ChainDataManager dataManager,
-			ContentComponent component,
 			final ContentGroup group) {
-		super(dataManager,component,group);
+		super(dataManager,group);
+		start();
 	}	
 	
 	/**
