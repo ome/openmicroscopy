@@ -53,7 +53,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
+ * @author <br>Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @version 2.2.1
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
@@ -86,6 +88,29 @@ public class Environment
 	{
 		return container.getHomeDir();
 	}
+    
+    /**
+     * Returns the graphical mode of the application.  If this returns
+     * true, then the application is currently running in taskbar (multi-
+     * frame) mode.  If not, the application is running in internal frame
+     * mode.  The TaskBar will be the central locus of UI control in the
+     * first; the TopFrame in the latter.  This value is determined by
+     * the /services/TASKBAR/on parameter in container.xml.
+     * 
+     * NB: This was the cleanest way for me to signal to the agent.  If
+     * we come up with a mechanism that is Shoola-wide for assigning
+     * windows, we can get rid of this; but for now, in order to make
+     * both on/off work, this is the simplest way.  If we decide on/off
+     * isn't necessary, then screw it.
+     * 
+     * @return Whether or not the application is running with a taskbar.
+     */
+    public boolean getTaskbarMode()
+    {
+        Boolean taskbarMode =
+            (Boolean)container.getRegistry().lookup("/services/TASKBAR/on");
+        return taskbarMode.booleanValue();
+    }
 	
 	/**
 	 * Resolves the specified pathname against the installation directory.
