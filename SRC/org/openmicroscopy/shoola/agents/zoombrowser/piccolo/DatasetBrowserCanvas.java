@@ -466,7 +466,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	public void respondToDatasetLoad(BrowserDatasetData dataset) {
 		setRolloverDataset(dataset);
 		eventHandler.resetZoomLevel();
-		if (dataset.getNode() != null)
+		
+		if (dataset != null && dataset.getNode() != null)
 			eventHandler.animateToNode(dataset.getNode());
 		setSelectedDataset(dataset);
 	}
