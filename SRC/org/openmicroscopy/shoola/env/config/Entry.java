@@ -148,13 +148,12 @@ abstract class Entry
 	 *
 	 * @return String   the content of the <code>name</code> attribute.
 	 */  
-    public String getName()
+    String getName()
     {
         return name;
     }
     
     abstract Object getValue();
     protected abstract void setContent(Node node);
-    abstract void setContent(Object content);
     
 }

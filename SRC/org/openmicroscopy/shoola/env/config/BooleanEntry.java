@@ -69,13 +69,6 @@ class BooleanEntry
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
-	void setContent(Object content)
-	{
-		if (content instanceof Boolean)		value = (Boolean) content;
-		throw new IllegalArgumentException(
-								"This entry can only be created from cfg file");
-	}
-    
 	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
