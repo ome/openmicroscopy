@@ -131,7 +131,7 @@ final class AgentsInit
 			configFile = agentClass.getResource(info.getConfigPath());
 			
 			//Create the agent's registry.
-			reg = RegistryFactory.makeNew(configFile.getPath());
+			reg = createAgentsRegistry(configFile);
 			
 			//Fill up info. (Recall that this object is already in the
 			//agents list within the container's registry.)
@@ -141,6 +141,24 @@ final class AgentsInit
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);
 		}
+	}
+	
+	private Registry createAgentsRegistry(URL configFile)
+		throws Exception
+	{
+		Registry agentReg = RegistryFactory.makeNew(configFile.getPath()),
+					containerReg = container.getRegistry();
+		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
+		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
+		RegistryFactory.linkDMS(containerReg.getDataManagementService(),
+								agentReg);
+		RegistryFactory.linkSTS(containerReg.getSemanticTypesService(),
+								agentReg);
+		RegistryFactory.linkTopFrame(containerReg.getTopFrame(), agentReg);
+		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
+											agentReg);
+		//TODO: Link Image Service when ready.
+		return agentReg;
 	}
 
 }
