@@ -109,7 +109,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		PCamera camera=canvas.getCamera();
 		//double curScale = camera.getScale();
 		//curScale *= scale;
-		System.err.println("old scale is "+camera.getViewScale());
 		Point2D pos = e.getPosition();
 		camera.scaleViewAboutPoint(scale,pos.getX(),pos.getY());
 	}
