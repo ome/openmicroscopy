@@ -170,4 +170,23 @@ public class DataManagerCtrl
 	{
 		abstraction.createDataset(projects, images, dd);
 	}
+	
+	/**Forward event to the abstraction {@link DataManager}. */
+	public void updateProject(ProjectData pd, boolean nameChange)
+	{
+		abstraction.updateProject(pd, nameChange);
+	}
+	
+	/**Forward event to the abstraction {@link DataManager}. */
+	public void updateDataset(DatasetData dd, boolean nameChange)
+	{
+		abstraction.updateDataset(dd, nameChange);
+	}
+	
+	/**Forward event to the abstraction {@link DataManager}. */
+	public void updateImage(ImageData id, boolean nameChange)
+	{
+		abstraction.updateImage(id, nameChange);
+	}
+	
 }

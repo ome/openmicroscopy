@@ -33,8 +33,12 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -46,6 +50,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
@@ -79,6 +84,10 @@ class ExplorerPaneManager
 	/** Root of the tree. */
 	private DefaultMutableTreeNode  root;
 	
+	
+	private Map						cDNodes;
+	private Map						imagesInDataset;
+	
 	/** store all the treeExpansion listeners in an array. */
 	private TreeExpansionListener[] listeners;
 	
@@ -86,6 +95,8 @@ class ExplorerPaneManager
 	{
 		this.view = view;
 		this.agentCtrl = agentCtrl;
+		cDNodes = new TreeMap();
+		imagesInDataset = new TreeMap();
 		initListeners();
 	}
 	
@@ -112,6 +123,104 @@ class ExplorerPaneManager
 			}
 		}
 		return root;
+	}
+	
+	
+	
+	/** Update a project already displayed in the tree. */
+	void updateProjectInTree()
+	{
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		DefaultMutableTreeNode pNode;
+		root.removeAllChildren();
+												
+		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		if (pSummaries != null) {
+			Iterator j = pSummaries.iterator();
+			ProjectSummary ps;
+			while (j.hasNext()) {
+				ps = (ProjectSummary) j.next();
+				pNode = new DefaultMutableTreeNode(ps);
+				treeModel.insertNodeInto(pNode, root, root.getChildCount());
+				setNodeVisible(pNode, root);
+				addDatasetsToProject(ps, pNode, treeModel);
+			}
+		}
+		treeModel.reload();
+	}
+	
+	/** Update a dataset already displayed in the tree. */
+	void updateDatasetInTree()
+	{	
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		DefaultMutableTreeNode pNode;
+		root.removeAllChildren();
+															
+		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
+		if (pSummaries != null) {
+			Iterator j = pSummaries.iterator();
+			ProjectSummary ps;
+			while (j.hasNext()) {
+				ps = (ProjectSummary) j.next();
+				pNode = new DefaultMutableTreeNode(ps);
+				treeModel.insertNodeInto(pNode, root, root.getChildCount());
+				setNodeVisible(pNode, root);
+				addDatasetsToProject(ps, pNode, treeModel);
+			}
+		}
+		treeModel.reload();
+	}
+	
+	/** 
+	 * Update image data in the Tree.
+	 * If the image is displayed in several expanded datasets, the image data
+	 * node will also be updated.
+	 */
+	void updateImageInTree(ImageData id)
+	{
+		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+		Iterator i = cDNodes.keySet().iterator();
+		Iterator j;
+		DefaultMutableTreeNode dNode;
+		List dNodes, images;
+		Integer datasetID;
+		//First update the images in list of expanded datasets.
+		updateImagesInDataset(id);
+		//Then update the tree.
+		while (i.hasNext()) {
+			datasetID = (Integer) i.next();
+			images = (List) imagesInDataset.get(datasetID);
+			dNodes = (List) cDNodes.get(datasetID);
+			j = dNodes.iterator();
+			while (j.hasNext()) {
+				dNode = (DefaultMutableTreeNode) j.next();
+				dNode.removeAllChildren();
+				addImagesToDataset(images, dNode); 
+				treeModel.reload(dNode);
+			}
+		}
+	}
+	
+	/** 
+	 * Update the map of expanded datasets.
+	 */
+	private void updateImagesInDataset(ImageData id)
+	{
+		Iterator i = imagesInDataset.keySet().iterator();
+		Iterator j;
+		List images;
+		ImageSummary is;
+		while (i.hasNext()) {
+			images = (List) imagesInDataset.get((Integer) i.next());
+			j = images.iterator();
+			while (j.hasNext()) {
+				is = (ImageSummary) j.next();
+				if (is.getID() == id.getID()) {
+					is.setName(id.getName());
+					break;
+				}
+			}
+		}
 	}
 	
 	/** 
@@ -142,17 +251,13 @@ class ExplorerPaneManager
 	}
 	
 	/**
-	 * 
-	 * @param projectSummaries	List of project summaries the new dataset has 
-	 * 							to be added.
-	 * @param ds		Dataset summary object to add.
+	 * Add a new dataset.
 	 */
 	void addNewDatasetToTree() 
 	{
 		DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
 		DefaultMutableTreeNode pNode;
-		root.removeAllChildren();
-																
+		root.removeAllChildren();														
 		List pSummaries = agentCtrl.getAbstraction().getUserProjects();
 		if (pSummaries != null) {
 			Iterator j = pSummaries.iterator();
@@ -163,6 +268,8 @@ class ExplorerPaneManager
 				treeModel.insertNodeInto(pNode, root, root.getChildCount());
 				setNodeVisible(pNode, root);
 				addDatasetsToProject(ps, pNode, treeModel);
+				Object[] o = pNode.getUserObjectPath();
+				System.out.println(o.length);
 			}
 		}
 		treeModel.reload();
@@ -271,15 +378,19 @@ class ExplorerPaneManager
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
 										path.getLastPathComponent();
 		Object  usrObject = node.getUserObject();
+		
+		//dataset summary node
 		if (usrObject instanceof DatasetSummary) {
 			DatasetSummary ds = (DatasetSummary) usrObject;
+			Integer datasetID = new Integer(ds.getID());
 			node.removeAllChildren();
 			if (isExpanding) {
 				List list = agentCtrl.getAbstraction().getImages(ds.getID());
 				//TODO: loading will never be displayed b/c we are in the
 				// same thread.
 				if (list.size() != 0) {
-					 addImagesToDataset(list, node); 
+					addNodesToDatasetMaps(datasetID, node, list);
+					addImagesToDataset(list, node); 	
 				} else {
 					DefaultMutableTreeNode childNode = 
 											new DefaultMutableTreeNode(EMPTY);
@@ -287,12 +398,39 @@ class ExplorerPaneManager
 											node.getChildCount());						
 				}
 			} else {
+				removeNodesFromDatasetMaps(datasetID, node);
 				DefaultMutableTreeNode childNode = 
 						new DefaultMutableTreeNode(LOADING);
 				treeModel.insertNodeInto(childNode, node, node.getChildCount());		
 			}
 			treeModel.reload((TreeNode) node);
-		} 
+		}
+	}
+
+	/** Remove the specified node from the dataset maps. */
+	private void removeNodesFromDatasetMaps(Integer datasetID,
+											DefaultMutableTreeNode node)
+	{
+		List nodes = (List) cDNodes.get(datasetID);
+		if (nodes != null) {
+			nodes.remove(node);
+			if (nodes.size() == 0) {
+				imagesInDataset.remove(datasetID);
+				cDNodes.remove(datasetID);
+			} else cDNodes.put(datasetID, nodes);
+		}						
+	}
+	
+	/** Add the specified node to the dataset maps. */
+	private void addNodesToDatasetMaps(Integer datasetID, 
+										DefaultMutableTreeNode node,
+										List images)
+	{
+		List lNodes = (List) cDNodes.get(datasetID);
+		if (lNodes == null) lNodes = new ArrayList();
+		lNodes.add(node);
+		cDNodes.put(datasetID, lNodes);
+		imagesInDataset.put(datasetID, images);
 	}
 	
 	/** 

@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -77,6 +79,14 @@ public class DataManager
 	/** Height of the editor dialog window. */
 	public static final int			EDITOR_HEIGHT = 300;
 	
+	public static final Dimension	DIM_SCROLL_TABLE = new Dimension(40, 60);
+	
+	public static final Dimension	DIM_SCROLL_NAME = new Dimension(40, 30);
+	
+	public static final int			ROW_TABLE_HEIGHT = 60;
+	
+	public static final int			ROW_NAME_FIELD = 30;
+	
 	/** Reference to the registry. */
 	private Registry				registry;
 	
@@ -98,7 +108,7 @@ public class DataManager
 
 	/** All user's datasets. */
 	private List					datasetSummaries;
-	
+
 	/** 
 	 * Creates a new instance.
 	 */
@@ -123,7 +133,7 @@ public class DataManager
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
 		topFrame = registry.getTopFrame();
-		topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem()); 
+		topFrame.addToMenu(TopFrame.VIEW, presentation.getViewMenuItem());
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -136,7 +146,7 @@ public class DataManager
     {
     	return presentation;
     }
-
+	
 	/**
 	 * Returns all projects which belong to the current user.
 	 * Each project is linked to its datasets.
@@ -235,7 +245,7 @@ public class DataManager
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
-		} 
+		}
 		return images;
 		
 	}
@@ -338,8 +348,9 @@ public class DataManager
 	/**
 	 * Create a new dataset.
 	 * 
-	 * @param projects	list of project summaries.
-	 * @param images	list of image summaries.
+	 * @param projects	list of project summaries, projects to which 
+	 * 					the dataset will be added.
+	 * @param images	list of image summaries, images in the new dataset.
 	 * @param dd		dataset data object.
 	 */
 	void createDataset(List projects, List images, DatasetData dd)
@@ -366,6 +377,143 @@ public class DataManager
 		// forward event to the presentation.
 		if (projects != null) 
 			presentation.addNewDatasetToTree();
+	}
+	
+	/**
+	 * Update a specified project.
+	 * 
+	 * @param pd	Project data object.
+	 */
+	void updateProject(ProjectData pd, boolean nameChange)
+	{
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			dms.updateProject(pd);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to update the specified project "+pd, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		//update the presentation and the project summary contained in the 
+		// projectSummaries list accordingly.
+		updatePSList(pd);
+		if (nameChange) presentation.updateProjectInTree();
+	}
+	
+	/** 
+	 * Update the corresponding project summary object contained in the 
+	 * projectSummaries list. The method is called when a project has been 
+	 * updated.
+	 * 
+	 * @param pd	Modified project data object.
+	 */
+	private void updatePSList(ProjectData pd)
+	{
+		Iterator i = projectSummaries.iterator();
+		ProjectSummary ps;
+		while (i.hasNext()) {
+			ps = (ProjectSummary) i.next();
+			if (ps.getID() ==  pd.getID()) {
+				ps.setName(pd.getName());
+				ps.setDatasets(pd.getDatasets());
+				break;
+			}	
+		}
+	}
+	
+	/**
+	 * Update a specified dataset.
+	 * 
+	 * @param dd	Dataset data object.
+	 */
+	void updateDataset(DatasetData dd, boolean nameChange)
+	{
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			dms.updateDataset(dd);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to update the specified dataset "+dd, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		//update the presentation and the dataset summary contained in the 
+		//datasetSummaries list accordingly.
+		if (datasetSummaries != null) updateDSList(dd);
+		updateDatasetInPS(dd);
+		if (nameChange) presentation.updateDatasetInTree();
+	}
+	
+	/** 
+	 * Update datasetSummary object in projectSummaries.
+	 * Method called when a dataset has been updated.
+	 * 
+	 * @param dd	Modified dataset data object.
+	 */
+	private void updateDatasetInPS(DatasetData dd)
+	{
+		Iterator i = projectSummaries.iterator();
+		ProjectSummary ps;
+		Iterator j;
+		DatasetSummary ds;
+		while (i.hasNext()) {
+			ps = (ProjectSummary) i.next();
+			j = ps.getDatasets().iterator();
+			while (j.hasNext()) {
+				ds = (DatasetSummary) j.next();
+				if(ds.getID() == dd.getID()) {
+					ds.setName(dd.getName());
+					break;
+				}
+					
+			}
+		}
+	}
+	
+	/** 
+	 * Update the corresponding dataset summary object contained in the 
+	 * datasetSummaries list. The method is called when a dataset has been 
+	 * updated.
+	 * @param dd	Modified dataset data object.
+	 * 
+	 */
+	private void updateDSList(DatasetData dd)
+	{
+		Iterator i = datasetSummaries.iterator();
+		DatasetSummary ds;
+		while (i.hasNext()) {
+			ds = (DatasetSummary) i.next();
+			if (ds.getID() ==  dd.getID()) {
+				ds.setName(dd.getName());
+				break;
+			}	
+		}
+	}
+	
+	/**
+	 * Update a specified image.
+	 * 
+	 * @param dd	Image data object.
+	 */
+	void updateImage(ImageData id, boolean nameChange)
+	{
+		try { 
+			DataManagementService dms = registry.getDataManagementService();
+			dms.updateImage(id);
+		} catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+				"Unable to update the specified image "+id, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			// pop up login window
+			throw new RuntimeException(dsose);
+		} 
+		if (nameChange) presentation.updateImageInTree(id);
 	}
 	
 }
