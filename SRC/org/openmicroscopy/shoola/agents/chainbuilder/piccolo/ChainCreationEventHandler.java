@@ -53,6 +53,8 @@ import java.util.Vector;
 import javax.swing.Timer;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
+import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -133,20 +135,22 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * An error message for multiple links 
 	 */
 	private static final String MULT_LINKS =
-		"A Formal Input can only be connected to one Formal Output";
+		"A Formal Input can only be connected to one Formal Output.";
 	
 	private static final String NO_CYCLES = 
-		"Chains cannot contain cycles";
+		"Chains cannot contain cycles.";
 	
 	private static final String NO_INPUT_INPUT_LINKS =
-		"Module inputs cannot be linked to each other";
+		"Module inputs cannot be linked to each other.";
 	
 	private static final String NO_OUTPUT_OUTPUT_LINKS =
-		"Module outputs cannot be linked to each other";
+		"Module outputs cannot be linked to each other.";
 	
 	private static final String NO_SELF_MODULE_LINKS = 
-		"A Module cannot be linked to itself";
+		"A Module cannot be linked to itself.";
 	
+	private static final String NO_MULTIPLE_MODULE_LINKS = 
+		"A link between these modules already exists.";
 	/**
 	 * The distance between links when multiple links between two modules
 	 * are created.
@@ -291,6 +295,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			super.drag(e);
 			e.setHandled(true);
 		}
+		setModulesDisplayMode();
 		
 	}
 	
@@ -328,14 +333,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
 			((ModuleLinkTarget) node).setParametersHighlighted(true);
-			//ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
-		     //mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
-		else if (node instanceof ModuleView && linkState == NOT_LINKING) {
-			ModuleView mod = (ModuleView) node;
-			// highlight all matching params..
-			mod.setModulesHighlighted(true);
+		else if (node instanceof SingleModuleView && linkState == NOT_LINKING) {
+			SingleModuleView mod = (SingleModuleView) node;
 			mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
@@ -352,7 +353,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 */
 	public void mouseExited(PInputEvent e) {
 		PNode node = e.getPickedNode();
-		//System.err.println("exiting..."+node);
 		lastParameterEntered = null;
 		//System.err.println("last parameter entered cleared");
 		if (node instanceof FormalParameter) {
@@ -371,8 +371,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			e.setHandled(true);
 		}
 
-		else if (node instanceof ModuleView && linkState == NOT_LINKING) {
-			ModuleView mod = (ModuleView) node;
+		else if (node instanceof SingleModuleView && linkState == NOT_LINKING) {
+			SingleModuleView mod = (SingleModuleView) node;
 			mod.setAllHighlights(false);
 			e.setHandled(true);
 		}
@@ -487,10 +487,21 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			BufferedObject mod = (BufferedObject) node;
 			PCamera camera = canvas.getCamera();
 			if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount()==1) {
-				//System.err.println("zooming in on node...");
+				//System.err.println("zooming in on node..."+node);
 				PBounds b = mod.getBufferedBounds();
-				camera.animateViewToCenterBounds(b,true,
-					Constants.ANIMATION_DELAY);
+				//System.err.println("camera view scale was "+camera.getViewScale());
+				PActivity activity = camera.animateViewToCenterBounds(b,true,
+							Constants.ANIMATION_DELAY);
+				activity.setDelegate(new PActivityDelegate() {
+					public void activityStarted(PActivity activity) {				
+					}
+					public void activityStepped(PActivity activity) {				
+					}
+					public void activityFinished(PActivity activity) {
+						setModulesDisplayMode();
+					}
+				});
+				
 			}
 			else if (e.isControlDown() || (mask & MouseEvent.BUTTON3_MASK)==1) {
 				//System.err.println("canvas right click..");
@@ -501,11 +512,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		// otherwise, must be a camera, or a chain. either way, zoom in/out
 		//if (! (node instanceof PCamera))
 		//	return;
-		
-		if (e.isShiftDown()) {
+		else if (e.isShiftDown()) {
 			//System.err.println("zoomed with shhift..");
 			PBounds b = canvas.getBufferedBounds();
 			canvas.getCamera().animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);
+			setModulesDisplayMode();
 			e.setHandled(true);
 		}
 		else {
@@ -550,9 +561,37 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		curScale *= scale;
 		Point2D pos = e.getPosition();
 		camera.scaleViewAboutPoint(curScale,pos.getX(),pos.getY());
+		setModulesDisplayMode();
 		e.setHandled(true);
 	}
-
+	
+	/****
+	 * set the modules to make sure that they are showing detail or overview,
+	 * according to scale.
+	 */
+	public void setModulesDisplayMode() {
+		Collection mods = canvas.findModules();
+		Iterator iter = mods.iterator();
+		ModuleView mod; 
+		PCamera camera=canvas.getCamera();
+		double curScale = camera.getViewScale();
+		boolean showingOverview = false;
+		if (curScale< Constants.SCALE_THRESHOLD) {
+			showingOverview = true;
+		}	
+		iter = mods.iterator(); 
+		while (iter.hasNext()) {
+			mod = (ModuleView)iter.next();
+			if (showingOverview == true) {
+				mod.showOverview();
+			}
+			else {
+				mod.showDetails();
+			}
+		}
+	}
+	
+	
 	
 	/***
 	 * Several cases of what to do when we have a mouse pressed event
@@ -705,7 +744,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	private void mousePressedLinkingModuleTargets(PNode node,PInputEvent e) {
 		//System.err.println("mouse pressed linking module targets "+e);
 		PNode n = e.getPickedNode();
-		//System.err.println("on  node..."+n);
 		if (e.getClickCount() ==2) {
 			cancelModuleTargetLink();
 			//System.err.println("mouse pressed linking params. setting to linking cancellation");
@@ -714,11 +752,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		else if (!(n instanceof ModuleLinkTarget)) { // we're on canvas.
 			Point2D pos = e.getPosition();
-		//	System.err.println("...adding intermediate point to module links..");
 			moduleLink.setIntermediatePoint((float) pos.getX(),(float) pos.getY());
 		}
 		else if (moduleLinkOriginTarget != null) {
-			//System.err.println("... finishing modulelinkorigintarget...");
 			finishModuleTargetLink((ModuleLinkTarget) n);
 			postLinkCompletion = true;
 		}
@@ -872,6 +908,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cancelModuleTargetLink();
 		    return;
 		}
+		else if (linkLayer.
+				findModuleLink(n.getModuleView(),
+						moduleLinkOriginTarget.getModuleView()) != null) {
+			canvas.setStatusLabel(NO_MULTIPLE_MODULE_LINKS);
+			cancelModuleTargetLink();
+			return;
+		}
+			
 	//	System.err.println("finishing module target link");
 		// ok. now, create links and make sure we have no cycles.
 		// get inputs & get outputs
@@ -884,18 +928,17 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (finishModuleTargetLink(params1,params2) == false) {
 			cancelModuleTargetLink();
 			return;
-		}
-		
+		}		
 		if (foundCycle() == true) {
 			canvas.setStatusLabel(NO_CYCLES);
 			cancelModuleTargetLink();
 		}
 		else {
+			
 			cleanUpModuleTargetLink();
 		}
 		moduleLinkOriginTarget = null;
 		linkState = NOT_LINKING;
-	
 	}
 	
 	
@@ -1273,6 +1316,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			PBounds b = canvas.getBufferedBounds();
 			PCamera camera =canvas.getCamera();
 			camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);	
+			setModulesDisplayMode();
 		}
 		else {
 			double scaleFactor = 1/Constants.SCALE_FACTOR;
