@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
@@ -52,7 +50,7 @@ import javax.swing.JMenuItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.IconFactory;
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -197,18 +195,20 @@ public class TopFrameImpl
         }
     }
     
-	/** Connect to OMEDS. */
+	/** Post an event to connect to OMEDS. */
 	private void connectToOMEDS()
 	{
-		LoginOMEDS loginDS = new LoginOMEDS(container);
-		showLogin(loginDS);
+		ServiceActivationRequest request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+		container.getRegistry().getEventBus().post(request);
 	}
     
 	/** Connect to OMEIS. */
 	private void connectToOMEIS()
 	{
-		LoginOMEIS loginIS = new LoginOMEIS(container);
-		showLogin(loginIS);
+		//LoginOMEIS loginIS = new LoginOMEIS(container);
+		//showLogin(loginIS);
+		//TODO: post an event
 	}
     
 	/**
@@ -221,25 +221,6 @@ public class TopFrameImpl
 				  screenSize.height - INSET*2);
     	setVisible(true);
     }
-    
-	/** 
-	 * Sizes, centers and brings up the specified login dialog.
-	 *
-	 * @param   editor	The editor dialog.
-	 */
-	private void showLogin(JDialog editor)
-	{
-		//editor.pack();
-		Registry registry = container.getRegistry();
-		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)   offsetX = 0;
-		if (offsetY < 0)   offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
-	}
 
 	/** 
 	* Adds the specified menuItem to the container at the position n-1. 
@@ -286,7 +267,6 @@ public class TopFrameImpl
 		connectMenu = new JMenu("Connect");
 		JMenuItem menuItem = new JMenuItem("OMEDS");
 		menuItem.setActionCommand(""+OMEDS);
-		menuItem.setEnabled(false);
 		menuItem.addActionListener(this);
 		connectMenu.add(menuItem);
 		menuItem = new JMenuItem("OMEIS");

@@ -52,7 +52,8 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 
 /** 
  * 
@@ -71,6 +72,7 @@ import org.openmicroscopy.shoola.env.Container;
 public class LoginOMEDS
 	extends JDialog
 {
+	
 	/** The width of the window. */
 	private static final int		WIN_W = 200;  
 	
@@ -100,10 +102,6 @@ public class LoginOMEDS
 	 */
 	private static final Dimension	PANEL_DIM = new Dimension(130, 15);
 	
-											
-	/** Reference to the container. */
-	private Container				container;
-	
 	/** Text field to enter the login user name. */
 	JTextField      				user;
 
@@ -113,25 +111,30 @@ public class LoginOMEDS
 	/** Login button. */
 	JButton     					login;
 	
-	LoginOMEDS(Container container)
+	private LoginOMEDSManager		manager;
+	
+	public LoginOMEDS(Registry registry, DataServicesFactory dsf)
 	{
-		super((JFrame) container.getRegistry().getTopFrame().getFrame(), true);
-		this.container = container;
-		LoginOMEDSManager manager = new LoginOMEDSManager(container, this);
-		initLoginFields();
+		super((JFrame) registry.getTopFrame().getFrame(), "Login", true);
+		manager = new LoginOMEDSManager(registry, dsf, this);
+		initLoginFields(registry);
 		initLoginButton();
 		buildGUI();
 		manager.initListeners();
 		setSize(WIN_W, WIN_H);
 	}
-		
+	
+	public LoginOMEDSManager getManager()
+	{
+		return manager;
+	}
+	
 	/** 
 	 * Creates and initializes the login fields.
 	 */
-	private void initLoginFields()
+	private void initLoginFields(Registry registry)
 	{
-		Font font = (Font) 
-					container.getRegistry().lookup("/resources/fonts/Titles");
+		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		user = new JTextField();
 		user.setFont(font);
 		user.setForeground(FONT_COLOR);

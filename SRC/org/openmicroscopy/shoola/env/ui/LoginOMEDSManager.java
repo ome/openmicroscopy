@@ -37,7 +37,6 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -56,12 +55,20 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
  * </small>
  * @since OME2.2
  */
-class LoginOMEDSManager
+public class LoginOMEDSManager
 	implements ActionListener
 {
 
-	/** Reference to the container. */
-	private Container 			container;
+	/**
+	 * Tells whether or not the orignal service activation request succeded.
+	 */
+	private boolean				activationSuccessful;
+	
+	/** Reference to the registry. */
+	private Registry			registry;
+	
+	/** Reference to the DataServicesFactory. */
+	private DataServicesFactory	dsf;
 	
 	/** Reference to the view. */
 	private LoginOMEDS			view;
@@ -72,9 +79,11 @@ class LoginOMEDSManager
 	 * @param container		Reference to the container.
 	 * @param view			Reference to the view.
 	 */
-	LoginOMEDSManager(Container container, LoginOMEDS view)
+	LoginOMEDSManager(Registry registry, DataServicesFactory dsf,
+					LoginOMEDS view)
 	{
-		this.container = container;
+		this.registry = registry;
+		this.dsf = dsf;
 		this.view = view;
 	}
 	
@@ -86,6 +95,11 @@ class LoginOMEDSManager
 		view.login.addActionListener(this);
 	}
 
+	public boolean isActivationSuccessful()
+	{
+		return activationSuccessful;
+	}
+	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
@@ -97,11 +111,11 @@ class LoginOMEDSManager
 		buf.append(view.pass.getPassword());
 		String  usr = view.user.getText(), psw = buf.toString();
 		if (usr == null || usr.length() == 0) {
-			UserNotifier un = container.getRegistry().getUserNotifier();
+			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Login Incomplete", "Please enter a user name");
 		} else {
 			if (psw == null || psw.length() == 0) {
-				UserNotifier un = container.getRegistry().getUserNotifier();
+				UserNotifier un = registry.getUserNotifier();
 				un.notifyError("Login Incomplete", "Please enter a password");
 			} else connect(usr, psw);
 		}
@@ -115,22 +129,21 @@ class LoginOMEDSManager
 	*/
 	private void connect(String usr, String psw) 
 	{
-		Registry registry = container.getRegistry();
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		uc.set(usr, psw);
 		//Now try to connect to OMEDS.
 		try { 
-			DataServicesFactory factory = 
-								DataServicesFactory.getInstance(container);
-			factory.connect();
+			dsf.connect();
+			activationSuccessful = true;
 		} catch (Exception e) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Login to OMEDS Incomplete", 
 							"Cannot connect to the server. Please try later.",
 							e);
+			activationSuccessful = false;
 		}
 		view.dispose();
 	}
-	
+
 }
