@@ -137,7 +137,12 @@ public class Initializer
 		
 		//TODO: Image Service
 		
+		//NB: this will be removed after transitioning to the TaskBar.
 		task = new TopFrameInit(container);
+		task.configure();
+		processingQueue.add(task);
+		
+		task = new TaskBarInit(container);
 		task.configure();
 		processingQueue.add(task);
 		
