@@ -174,6 +174,7 @@ class DatasetImagesDiffPane
 		//datasets table
 		imagesTM = new ImagesTableModel();
 		JTable t = new JTable(imagesTM);
+		
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -194,7 +195,6 @@ class DatasetImagesDiffPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		
 		private final String[]	columnNames = {"Name", "Add"};
 		private final Object[]	images = manager.getImagesDiff().toArray();
 		private Object[][] 		data = new Object[images.length][2];
@@ -220,12 +220,7 @@ class DatasetImagesDiffPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{

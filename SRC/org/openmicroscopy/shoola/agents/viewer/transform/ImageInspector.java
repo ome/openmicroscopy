@@ -80,6 +80,7 @@ public class ImageInspector
 	{
 		//super(control.getReferenceFrame(), "Image Inspector");
 		initFrame(IconManager.getInstance(control.getRegistry()));
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();

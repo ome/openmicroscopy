@@ -91,6 +91,8 @@ public class CreateDatasetEditor
 		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);
 	}
 	
+	Registry getRegistry() { return registry; }
+	
 	/** Return the {@link CreateDatasetEditorManager manager} of the widget. */
 	CreateDatasetEditorManager getManager() { return manager; }
 	

@@ -74,18 +74,19 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class DatasetImagesPane
 	extends JPanel
 {
-							
+						
 	/** Reference to the manager. */
-	private DatasetEditorManager 	manager;
+	private DatasetEditorManager 			manager;
 	
-	private JButton					removeButton, resetButton, 
-									removeToAddButton, resetToAddButton;
+	private JButton							removeButton, resetButton, 
+											removeToAddButton, resetToAddButton;
 	
-	private JPanel					tablePanel, buttonsPanel, buttonsToAddPanel;
+	private JPanel							tablePanel, buttonsPanel,
+											buttonsToAddPanel;
 	
-	private ImagesTableModel 		imagesTM;
+	private ImagesTableModel 				imagesTM;
 	
-	private List					imagesToAdd;
+	private List							imagesToAdd;
 	
 	DatasetImagesPane(DatasetEditorManager manager)
 	{
@@ -354,12 +355,7 @@ class DatasetImagesPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 
 		public void setValueAt(Object value, int row, int col)
 		{

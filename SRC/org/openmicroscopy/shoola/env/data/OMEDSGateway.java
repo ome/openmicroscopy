@@ -52,6 +52,7 @@ import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
 import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.is.ImageServerException;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -80,8 +81,7 @@ class OMEDSGateway
 	 * Tells whether we're currently connected and logged into <i>OMEDS</i>.
 	 */
 	private boolean			connected;
-	
-	
+		
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -105,6 +105,9 @@ class OMEDSGateway
 			connected = false;
 			throw new DSOutOfServiceException("Failed to log in.", e);
 		} else if (e instanceof RemoteServerErrorException) {
+			throw new DSAccessException(contextMessage, e);
+		} else if (e instanceof ImageServerException) {
+			//tempo, throw by pixelsFactory.
 			throw new DSAccessException(contextMessage, e);
 		} else {
 			//This should never be reached.  If so, there's a bug in the 
@@ -198,10 +201,7 @@ class OMEDSGateway
 	 * 
 	 * @return	<code>true</code> if connected, <code>false</code> otherwise.
 	 */
-	boolean isConnected()
-	{
-		return connected;
-	}
+	boolean isConnected() { return connected; }
 	
 	DataFactory getDataFactory()
 	{
@@ -509,6 +509,6 @@ class OMEDSGateway
 								printList(attributes)+").");
 		}
     }
-	
+    
 }
 

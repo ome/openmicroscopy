@@ -130,6 +130,8 @@ public class CreateDatasetEditorManager
 		isName = false;
 	}
 	
+	CreateDatasetEditor getView() { return view; }
+	
 	DatasetData getDatasetData() { return model; }
 	
 	List getProjects() { return projects; }

@@ -67,13 +67,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class CreateDatasetImagesPane
 	extends JPanel
 {
-
+	
 	/** Reference to the manager. */
-	private CreateDatasetEditorManager	manager;
+	private CreateDatasetEditorManager		manager;
 
-	private JButton						selectButton;
-	private JButton						resetButton;
-	private ImagesTableModel 			imagesTM;
+	private JButton							selectButton;
+	private JButton							resetButton;
+	
+	private ImagesTableModel 				imagesTM;
 	
 	CreateDatasetImagesPane(CreateDatasetEditorManager manager)
 	{
@@ -125,9 +126,10 @@ class CreateDatasetImagesPane
 	  	
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 	  
-		//datasets table
+		//images table
 		imagesTM = new ImagesTableModel();
 		JTable t = new JTable(imagesTM);
+
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -138,7 +140,7 @@ class CreateDatasetImagesPane
 		
 		return p;
 	}
-	
+
 	/** 
 	 * A <code>3</code>-column table model to view the summary of 
 	 * image to add to a new dataset.
@@ -149,8 +151,7 @@ class CreateDatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		
-		private final String[] columnNames = {"Name", "Select"};
+		private final String[]		columnNames = {"Name", "Select"};
 		private final Object[] images = manager.getImages().toArray();
 		private Object[][] data = new Object[images.length][2];
 
@@ -175,12 +176,7 @@ class CreateDatasetImagesPane
 
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 	
-		public boolean isCellEditable(int row, int col)
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable;
-		}
+		public boolean isCellEditable(int row, int col) {  return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{

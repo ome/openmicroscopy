@@ -103,21 +103,20 @@ class DatasetOwnerPane
 		extends AbstractTableModel 
 	{
 		private final String[]    
-		fieldNames = {" ID", " First Name", " Last Name", " E-mail", 
-						" Institution", " Group ID", " Group Name"};
+		fieldNames = {" First Name", " Last Name", " E-mail", 
+						" Institution", " Group Name"};
 						
 		DatasetData dd = manager.getDatasetData();
-		private Object[] data = {""+dd.getOwnerID(), dd.getOwnerFirstName(),
+		private Object[] data = {dd.getOwnerFirstName(),
 								dd.getOwnerLastName(), dd.getOwnerEmail(),
-								dd.getOwnerInstitution(),
-								""+dd.getOwnerGroupID(), dd.getOwnerGroupName()
+								dd.getOwnerInstitution(), dd.getOwnerGroupName()
 								};
 								
 		private OwnerTableModel() {}
 	
 		public int getColumnCount() { return 2; }
 	
-		public int getRowCount() { return 7; }
+		public int getRowCount() { return 5; }
 	
 		public Object getValueAt(int row, int col) 
 		{

@@ -98,6 +98,7 @@ public class ImageMapper
 		//Specify which fields we want for the image.
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
+		criteria.addWantedField("created");
 		
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("default_pixels");
@@ -229,6 +230,7 @@ public class ImageMapper
 			is.setID(img.getID());
 			is.setName(img.getName());
 			is.setPixelsIDs(fillListPixelsID(px));
+			is.setDate(img.getCreated());
 			//is.setImageServerPixelsID(fillListPixelsID(px));
 			//Add the images to the list of returned images
 			imagesList.add(is);
