@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.ui.BoundedPanHandler.java
+ * org.openmicroscopy.shoola.agents.browser.ui.BoundedDragPanHandler.java
  *
  *------------------------------------------------------------------------------
  *
@@ -55,7 +55,7 @@ import edu.umd.cs.piccolo.util.PDimension;
  * @version 2.2
  * @since OME2.2
  */
-public class BoundedPanHandler extends PPanEventHandler
+public class BoundedDragPanHandler extends PPanEventHandler
                                implements RegionSensitive
 {
     protected Rectangle2D bounds;
@@ -88,7 +88,7 @@ public class BoundedPanHandler extends PPanEventHandler
      * 
      * @param region The region in which to bound panning.
      */
-    public BoundedPanHandler(Rectangle2D region)
+    public BoundedDragPanHandler(Rectangle2D region)
     {
         if(region == null)
         {

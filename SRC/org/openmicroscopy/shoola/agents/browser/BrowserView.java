@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BoundedPanHandler;
+import org.openmicroscopy.shoola.agents.browser.ui.BoundedDragPanHandler;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
@@ -87,7 +87,7 @@ public class BrowserView extends PCanvas
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
         
-        panHandler = new BoundedPanHandler(null);
+        panHandler = new BoundedDragPanHandler(null);
         addInputEventListener(panHandler);
     }
 
