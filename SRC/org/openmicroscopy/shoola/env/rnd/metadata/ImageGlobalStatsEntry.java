@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.metadata.ImgStatsEntry
+ * org.openmicroscopy.shoola.env.rnd.metadata.ImageGlobalStatsEntry
  *
  *------------------------------------------------------------------------------
  *
@@ -49,24 +49,25 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  * </small>
  * @since OME2.2
  */
-public class ImageStatsEntry
+public class ImageGlobalStatsEntry 
 {
-	/** Minimum pixel intensity of the stack. */
-	public final int  min;
+	/** Minimum of all minima. */
+	public final int  globalMin;
 	
-	/** Mmaximum pixel intensity of the stack.*/
-	public final int  max;
+	/** Maximum of all maxima. */
+	public final int  globalMax;
     
-	/** 
-	 * Creates a new object to store the passed stats entry.
-	 *
-	 * @param   min  minimum pixel intensity of the stack.
-	 * @param   max  maximum pixel intensity of the stack.
-	 */  
-	public ImageStatsEntry(int min, int max)
-	{       
-		this.min = min;
-		this.max = max;
+   /** 
+    * Creates a new object to store the passed stats entry.
+	*
+	* @param   globalMin  minimum of all minima.
+	* @param   globalMax  maximum of all maxima.
+	*/   
+   
+	public ImageGlobalStatsEntry(int globalMin, int globalMax)
+	{
+		this.globalMin = globalMin;
+		this.globalMax = globalMax;
 	}
-	
+    
 }

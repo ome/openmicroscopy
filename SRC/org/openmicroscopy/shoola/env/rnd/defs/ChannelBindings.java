@@ -53,23 +53,27 @@ package org.openmicroscopy.shoola.env.rnd.defs;
  */
 public class ChannelBindings
 {
+	/** Color range. */
+	private static final int	COLOR_MIN = 0;
+	private static final int	COLOR_MAX = 255;
+	
 	/** Index of the wavelength. */
-	public int 		index;
+	private int 				index;
 	
 	/** The lower bound of the pixel intensity interval. */
-	public int 		inputStart;
+	private int 				inputStart;
 	
 	/** The upper bound of the pixel intensity interval. */
-	public int 		inputEnd;
+	private int 				inputEnd;
 	
 	/** Color associated to the wavelength. */
-	public int[] 	rgba;
+	private int[] 				rgba;
 	
 	/** 
 	*<code>true</code> if the wavelength has to mapped, 
 	*<code>false</code> otherwise.
 	*/
-	public boolean	active;
+	private boolean				active;
 	
 	public ChannelBindings(int index, int inputStart, int inputEnd, int[] rgba,
 						  boolean active)
@@ -77,8 +81,68 @@ public class ChannelBindings
 		this.index = index;
 		this.inputStart = inputStart;
 		this.inputEnd = inputEnd;
-		this.rgba = rgba;
 		this.active = active;
+		setRGBA(rgba);
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+
+	public int getIndex()
+	{
+		return index;
+	}
+
+	public int getInputEnd()
+	{
+		return inputEnd;
+	}
+
+	public int getInputStart()
+	{
+		return inputStart;
+	}
+
+	public int[] getRGBA() 
+	{
+		return rgba;
+	}
+
+	public void setActive(boolean active)
+	{
+		this.active = active;
+	}
+
+	//TODO: checks done in QuantumStrategy.
+	public void setInputWindow(int start, int end)
+	{
+		inputStart = start;
+		inputEnd = end;
+	}
+
+	public void setRGBA(int[] rgba)
+	{
+		verifyColorInput(rgba);
+		this.rgba = rgba;
+	}
+	
+	/** Verify the color components. */
+	private void verifyColorInput(int[] rgba)
+	{
+		if (rgba == null)
+			throw new IllegalArgumentException("no color specified " +
+												"for this channel");
+		if (rgba.length != 4)
+			throw new IllegalArgumentException("4 components must be " +
+									"specified");
+									
+		for (int i = 0; i < rgba.length; i++) {
+			if (rgba[i] < COLOR_MIN || rgba[i] > COLOR_MAX)
+				throw new IllegalArgumentException("Value must be in the " +
+												"range 0 255");
+		}
 	}
 	
 }

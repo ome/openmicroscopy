@@ -57,7 +57,7 @@ public class ImageDimensions
 	/** Number of pixels on the Y-axis. */
 	public final int    sizeY;
 	
-	/** Size of image stack, that is number of XY-planes. */
+	/** Size of image stack i.e. number of XY-planes. */
 	public final int    sizeZ;
 	
 	/** Number of wavelengths in the image. */

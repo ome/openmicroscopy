@@ -55,10 +55,13 @@ import java.util.Map;
 public class CodomainMapDef
 {
 	/** Constrast stretching transformation. */
-	public static final int		CS = 0;
+	public static final int		CONTRAST_STRETCHING = 0;
 	
 	/** Plane slicing transformation. */
-	public static final int		PS = 1;
+	public static final int		PLANE_SLICING = 1;
+	
+	/** Reverse intensity transformation. */
+	public static final int		REVERSE_INTENSITY = 2;
 	
 	/** Identifies a transformation. One of the constants defined above. */
 	public final int 			type;
@@ -67,8 +70,27 @@ public class CodomainMapDef
 	
 	public CodomainMapDef(int type, Map params)
 	{
+		verifyType(type);
 		this.type = type;
 		this.params = params;
+	}
+	
+	/** Overrides the equals method. */
+	public boolean equals(Object object)
+	{
+		boolean b = false;
+		if (object instanceof CodomainMapDef) {
+			CodomainMapDef cmd = (CodomainMapDef) object;
+			b = (cmd.type == type) ;
+		}
+		return b;
+	}
+	
+	private void verifyType(int t)
+	{
+		if (t != CONTRAST_STRETCHING && t != PLANE_SLICING && 
+			t != PLANE_SLICING)  
+			throw new IllegalArgumentException("Unsupported codomain type");
 	}
 	
 }

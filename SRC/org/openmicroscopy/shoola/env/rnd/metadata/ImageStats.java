@@ -49,6 +49,38 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
  * </small>
  * @since OME2.2
  */
-public class ImageStats {
+public class ImageStats
+{
+	private ImageStatsEntry[][] imageStats;
+	private ImageGlobalStatsEntry[] imageGlobalStats;
+    
+	ImageStats(int sizeW, int sizeT)
+	{
+		imageStats = new ImageStatsEntry[sizeW][sizeT];
+		imageGlobalStats = new ImageGlobalStatsEntry[sizeW];
+	}
 
+	public ImageStatsEntry getEntry(int w, int t)
+	{
+		return imageStats[w][t];       
+	}
+
+	void setEntry(int w, int t, int min, int max)
+	{
+		if (imageGlobalStats[w] != null) {
+			int globalMin = Math.min(imageGlobalStats[w].globalMin, min);
+			int globalMax = Math.max(imageGlobalStats[w].globalMax, max);
+			imageGlobalStats[w] = new ImageGlobalStatsEntry(globalMin, 
+									globalMax);
+		} else { 
+			imageGlobalStats[w] = new ImageGlobalStatsEntry(min, max);
+		}
+		imageStats[w][t] = new ImageStatsEntry(min, max);
+	}
+
+	public ImageGlobalStatsEntry getGlobalEntry(int w)
+	{
+		return imageGlobalStats[w];
+	}
+	
 }

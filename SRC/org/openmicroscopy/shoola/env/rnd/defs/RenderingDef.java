@@ -29,9 +29,10 @@
 
 package org.openmicroscopy.shoola.env.rnd.defs;
 
-import java.util.List;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -56,7 +57,7 @@ import java.util.List;
 public class RenderingDef
 {
 
-	/** GrayScale model. */
+	/** GreyScale model. */
 	public static final int 	GS = 0;
 	
 	/** RGB model. */
@@ -72,15 +73,88 @@ public class RenderingDef
 	public final int 			defaultT;
 	
 	/** One the constants defined above. */
-	public final int 			model;
+	public int 					model;
 	
-	public List					channelBindings;
+	public ChannelBindings[]	channelBindings;
 	
-	public RenderingDef(int defaultZ, int defaultT, int model)
+	public List					codomainMapDefs;
+	
+	public QuantumDef			qDef;
+
+	public RenderingDef(int defaultZ, int defaultT, 
+						ChannelBindings[] channelBindings)
 	{
 		this.defaultZ = defaultZ;
 		this.defaultT = defaultT;
-		this.model = model;
+		this.channelBindings = channelBindings;
+		verifyChannelBindings();
+		codomainMapDefs = new ArrayList();
 	}
 	
+	/** only one codomain transformation of the same type. */
+	public void addCodomainMapDef(CodomainMapDef cmd)
+	{
+		if (!codomainMapDefs.contains(cmd))
+			codomainMapDefs.add(cmd);
+	}
+	
+	public void removeCodomainMapDef(CodomainMapDef cmd)
+	{
+		codomainMapDefs.remove(cmd);
+	}
+	
+	/**
+	 * Update a codomain transformation context if it has already been selected.
+	 * 
+	 * @param cmd CodomainMapDef to be updated.
+	 */
+	public void updateCodomainMapDef(CodomainMapDef cmd)
+	{
+		int index = codomainMapDefs.indexOf(cmd);
+		if (index != -1) codomainMapDefs.set(index, cmd);
+	}
+	
+	/** Set the model. One of the constant defined above.*/
+	public void setModel(int model)
+	{
+		verifyModel(model);
+		this.model = model;
+		
+	}
+
+	public void setQuantumDef(QuantumDef qDef)
+	{
+		verifyQuantumDef(qDef);
+		this.qDef = qDef;
+	}
+
+	/**
+	 * Retrieve the information associated to a specified wavelength.
+	 * 
+	 * @param index		wavelength index in OME 5D-file.
+	 * @return
+	 */
+	public ChannelBindings getChannelBindings(int index)
+	{
+		if (index < 0 || index >= channelBindings.length)
+			throw new IllegalArgumentException("Wavelength index not valid.");
+		return channelBindings[index];
+	}
+
+	private void verifyQuantumDef(QuantumDef qDef)
+	{
+		if (qDef == null)
+			throw new IllegalArgumentException("No quantum strategy selected.");
+	}
+	private void verifyChannelBindings()
+	{
+		if (channelBindings == null)
+			throw new IllegalArgumentException("Image without wavelength.");
+	}
+	
+	private void verifyModel(int m)
+	{
+		if (m != GS && m != RGB && m != HSB)  
+			throw new IllegalArgumentException("Unsupported model type");
+	}
 }
