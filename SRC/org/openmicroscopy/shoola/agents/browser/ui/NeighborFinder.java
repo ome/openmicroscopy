@@ -79,7 +79,6 @@ public class NeighborFinder
         Thumbnail closest = null;
         double distance = Double.POSITIVE_INFINITY;
         
-        System.err.println(rect);
         for(int i=0;i<set.length;i++)
         {
             if(rect.contains(set[i].getOffset()))
@@ -130,7 +129,6 @@ public class NeighborFinder
         Thumbnail closest = null;
         double distance = Double.POSITIVE_INFINITY;
         
-        System.err.println(rect);
         for(int i=0;i<set.length;i++)
         {
             if(rect.contains(set[i].getOffset()))
@@ -178,7 +176,6 @@ public class NeighborFinder
         Thumbnail closest = null;
         double distance = Double.POSITIVE_INFINITY;
         
-        System.err.println(rect);
         for(int i=0;i<set.length;i++)
         {
             if(rect.contains(set[i].getOffset()))
@@ -225,7 +222,6 @@ public class NeighborFinder
         Thumbnail closest = null;
         double distance = Double.POSITIVE_INFINITY;
         
-        System.err.println(rect);
         for(int i=0;i<set.length;i++)
         {
             if(rect.contains(set[i].getOffset()))

@@ -206,11 +206,9 @@ public class ColorMapGroupBar extends JPanel
         {
             if(arg0.getStateChange() == ItemEvent.SELECTED)
             {
-                System.err.println("item selected");
                 int index = comboBox.getSelectedIndex()-1;
                 if(index == -1) return;
                 CategoryGroup group = categoryTree.getCategoryGroup(index);
-                System.err.println("Selected group: "+group.getName());
                 notifyListeners(group);
             }
             if(arg0.getStateChange() == ItemEvent.DESELECTED)

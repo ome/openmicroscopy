@@ -71,7 +71,6 @@ public class CommonFocusAdapter extends FocusAdapter
      */
     public void focusGained(FocusEvent event)
     {
-        System.err.println("FOCUS GAINED");
         BrowserManager manager = env.getBrowserManager();
         manager.setActiveBrowser(wrapper);
     } 

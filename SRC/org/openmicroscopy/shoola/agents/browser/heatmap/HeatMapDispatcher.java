@@ -209,7 +209,6 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     
     private void analyzeInformation(String attribute, String elementName)
     {
-        System.err.println("analyze: ["+attribute+","+elementName+"]");
         BrowserModel browserModel = model.getInfoSource();
         List thumbnails = browserModel.getThumbnails();
         Thumbnail[] ts = new Thumbnail[thumbnails.size()];

@@ -1099,7 +1099,6 @@ public class BrowserView extends PCanvas
                 }
                 else if(modifiers == PiccoloModifiers.POPUP)
                 {
-                    System.err.println("multiple mouse click occurred.");
                 }
             }
             else

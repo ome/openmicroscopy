@@ -71,7 +71,6 @@ public class CategoryChangeHandler implements CompletionHandler
             return;
         }
         
-        System.err.println("handling complete in CCH");
         LoadCategories lc = (LoadCategories)request;
         CategoriesChanged cc = (CategoriesChanged)response;
         
@@ -81,7 +80,6 @@ public class CategoryChangeHandler implements CompletionHandler
         BrowserManager manager = env.getBrowserManager();
         List browserList = manager.getAllBrowsers();
         
-        System.err.println("checking browsers");
         for(Iterator iter = browserList.iterator(); iter.hasNext();)
         {
             UIWrapper wrapper = (UIWrapper)iter.next();
@@ -90,7 +88,6 @@ public class CategoryChangeHandler implements CompletionHandler
             int browserID = model.getDataset().getID();
             if(browserID == cc.getDatasetID())
             {
-                System.err.println("found browser");
                 BrowserAgent agent = env.getBrowserAgent();
                 model.setCategoryTree(agent.loadCategoryTree(browserID));
                 model.fireModelUpdated();

@@ -1297,8 +1297,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         ClassifyImages classifyEvent = new ClassifyImages(imageIDs,category);
         classifyEvent.setCompletionHandler(new ClassificationHandler());
-        System.err.println("about to post event: "+category.getName() + "(" +
-                           imageIDs.length + ")");
         eventBus.post(classifyEvent);
     }
     
@@ -1365,7 +1363,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
         else if(e instanceof CategoriesChanged)
         {
-            System.err.println("cc event retrieved");
             CategoriesChanged event = (CategoriesChanged)e;
             event.complete();
         }

@@ -111,7 +111,6 @@ public class SemanticTypeTree
             TypeNode node = (TypeNode)dfsQueue.get(0);
             dfsQueue.remove(0);
             SemanticType st = node.getType();
-            System.err.println("workin' on " + st.getName());
             List elements = null;
             
             try
@@ -154,7 +153,6 @@ public class SemanticTypeTree
                     {
                         dfsQueue.add(typeNode);
                     }
-                    System.err.println(node.getName() +" adding " + typeNode.getName());
                 }
                 else
                 {

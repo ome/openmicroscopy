@@ -82,7 +82,6 @@ public class ColorMapDispatcher implements ColorMapCategoryListener,
     {
         if(group != null)
         {
-            System.err.println("group select received by dispatch");
             CategoryTree tree = sourceModel.getTree();
             List categories = tree.getCategories(group);
             if(categories != null && categories.size() > 0)

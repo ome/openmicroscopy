@@ -122,7 +122,6 @@ public class ColorMapUI extends JInternalFrame
      */
     public void modelUpdated(ColorMapModel model)
     {
-        System.err.println("redraw");
         dispatch.fireRedraw();
     }
 

@@ -103,14 +103,11 @@ public class ImageAnnotationNode extends ResponsiveNode
     
     public void respondMouseEnter(PInputEvent event)
     {
-        System.err.println(event.getPickedNode());
-        System.err.println("mouse enter");
+        // do nothing
     }
     
     public void respondMouseExit(PInputEvent event)
     {
-        System.err.println(event.getPickedNode());
-        System.err.println("mouse exit");
         if(getParent() != null)
         {
             getParent().removeChild(this);
@@ -143,7 +140,6 @@ public class ImageAnnotationNode extends ResponsiveNode
     
     public void paint(PPaintContext context)
     {
-        System.err.println("paint annotation node");
         Graphics2D g2 = context.getGraphics();
         g2.setPaint(annotationColor);
         g2.fill(getBounds().getBounds2D());
@@ -156,20 +152,14 @@ public class ImageAnnotationNode extends ResponsiveNode
         // line break method for displaying text
         Point pen = new Point(5,5);
         
-        System.err.println("getting FRC");
         FontRenderContext frc = g2.getFontRenderContext();
         AttributedString text = new AttributedString(annotation.getContent());
         
-        System.err.println("getting FM");
         FontMetrics fm = g2.getFontMetrics(annotationFont);
-        System.err.println("getting ellipse width");
         float ellipsesWidth = (float)fm.getStringBounds("...",g2).getWidth();
-        
-        System.err.println("create measurer");
         LineBreakMeasurer measurer = new LineBreakMeasurer(text.getIterator(),frc);
-        
         boolean overVertical = false;
-        System.err.println("entering linebreak loop");
+        
         while(measurer.getPosition() < annotation.getContent().length()
               && !overVertical)
         {
@@ -197,6 +187,5 @@ public class ImageAnnotationNode extends ResponsiveNode
                 pen.y += layout.getDescent() + layout.getLeading();
             }
         }
-        System.err.println("exiting linebreak loop");
     }
 }

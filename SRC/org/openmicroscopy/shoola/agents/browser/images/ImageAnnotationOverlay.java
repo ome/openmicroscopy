@@ -82,7 +82,6 @@ public class ImageAnnotationOverlay extends OverlayNode
         {
             public void execute(PInputEvent e)
             {
-                System.err.println("executing...");
                 AttributeMap map = parent.getModel().getAttributeMap();
                 ImageAnnotation ia = 
                     (ImageAnnotation)map.getAttribute("ImageAnnotation");

@@ -215,12 +215,10 @@ public final class AttributeMap
                 Attribute att = (Attribute)attributeList.get(i);
                 if(att.getID() == attribute.getID())
                 {
-                    System.err.println("replace attribute");
                     attributeList.set(i,attribute);
                     return;
                 }
             }
-            System.err.println("add attribute");
             attributeList.add(attribute);
         }
         else

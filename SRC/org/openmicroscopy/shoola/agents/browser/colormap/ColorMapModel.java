@@ -87,7 +87,6 @@ public class ColorMapModel
     
     public void fireUpdated()
     {
-        System.err.println("notify");
         notifyUpdate();
     }
     
@@ -121,7 +120,6 @@ public class ColorMapModel
     {
         for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
         {
-            System.err.println("notifying");
             ColorMapModelListener listener =
                 (ColorMapModelListener)iter.next();
             listener.modelUpdated(this);

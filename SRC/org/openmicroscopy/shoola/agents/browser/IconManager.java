@@ -204,8 +204,7 @@ public class IconManager
             }
             catch(Exception e)
             {
-                System.err.println("problem");
-                throw new RuntimeException("Couldn't create the browser icon" +
+               throw new RuntimeException("Couldn't create the browser icon" +
                     " manager.");
             }
         }
