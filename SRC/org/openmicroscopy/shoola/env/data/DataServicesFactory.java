@@ -95,7 +95,7 @@ public class DataServicesFactory
 		
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
-		sts = new STSAdapter(gateway, registry);
+		sts = new STSAdapter(gateway);
         ps = new PixelsServiceAdapter(gateway.getDataFactory(), registry);
 	}
 	
