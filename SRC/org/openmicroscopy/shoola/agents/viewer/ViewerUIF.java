@@ -93,6 +93,8 @@ public class ViewerUIF
 	/** Movie menu. */
 	private JMenu					movieMenu;
 	
+	private JMenuItem				viewer3DItem;
+	
 	private ViewerCtrl 				control;
 	
 	private Registry				registry;
@@ -115,7 +117,7 @@ public class ViewerUIF
 		int maxZ = pxsDims.sizeZ-1;
 		int t = defaultT;
 		int z = defaultZ;
-		setJMenuBar(createMenuBar(maxT));
+		setJMenuBar(createMenuBar(maxT, maxZ));
 		toolBar = new ToolBar(control, registry, maxT, t, maxZ, z);
 		initSliders(maxT, t, maxZ, z);
 		buildGUI();
@@ -147,6 +149,9 @@ public class ViewerUIF
 		toolBar.getZLabel().setText("/"+maxZ);
 		toolBar.getTLabel().setText("/"+maxT);
 		resetSliders(maxT, t, maxZ, z);
+		
+		toolBar.getViewer3D().setEnabled(maxZ != 0);
+		viewer3DItem.setEnabled(maxZ != 0);
 		boolean b;
 		if (maxT == 0) b = false;
 		else b = true;
@@ -225,11 +230,11 @@ public class ViewerUIF
 	}
 	
 	/** Create a menu. */
-	private JMenuBar createMenuBar(int maxT)
+	private JMenuBar createMenuBar(int maxT, int maxZ)
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		createMovieMenu(maxT);
-		menuBar.add(createControlMenu());
+		menuBar.add(createControlsMenu(maxZ));
 		menuBar.add(movieMenu);
 		return menuBar;
 	}
@@ -266,7 +271,7 @@ public class ViewerUIF
 	}
 	
 	/** Create the control Menu. */
-	private JMenu createControlMenu()
+	private JMenu createControlsMenu(int maxZ)
 	{
 		JMenu menu = new JMenu("Controls");
 		JMenuItem menuItem = new JMenuItem("Rendering", 
@@ -277,10 +282,11 @@ public class ViewerUIF
 									im.getIcon(IconManager.INSPECTOR));
 		control.attachItemListener(menuItem, ViewerCtrl.INSPECTOR);
 		menu.add(menuItem);
-		menuItem = new JMenuItem("3D view", 
+		viewer3DItem = new JMenuItem("3D view", 
 						im.getIcon(IconManager.VIEWER3D));
-		control.attachItemListener(menuItem, ViewerCtrl.VIEWER3D);
-		menu.add(menuItem);
+		control.attachItemListener(viewer3DItem, ViewerCtrl.VIEWER3D);
+		viewer3DItem.setEnabled(maxZ != 0);
+		menu.add(viewer3DItem);
 		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);

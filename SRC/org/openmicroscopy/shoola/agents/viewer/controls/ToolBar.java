@@ -118,7 +118,7 @@ public class ToolBar
 							int sizeZ, int t, int z)
 	{
 		initTxtWidth();
-		initMovieComponents(registry, sizeT-1);
+		initComponents(registry, sizeT-1, sizeZ-1);
 		initTextFields(t, z, sizeT, sizeZ);
 		manager = new ToolBarManager(control, this, sizeT, t, sizeZ, z);
 		manager.attachListeners();
@@ -157,15 +157,15 @@ public class ToolBar
 
 	public ToolBarManager getManager() { return manager; }
 	
-	/** Initialize the movie components. */
-	private void initMovieComponents(Registry registry, int maxT)
+	/** Initialize the buttons components. */
+	private void initComponents(Registry registry, int maxT, int maxZ)
 	{
 		//buttons
 		IconManager im = IconManager.getInstance(registry);
 		viewer3D = new JButton(im.getIcon(IconManager.VIEWER3D));
 		viewer3D.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the image3D viewer."));
-			
+		viewer3D.setEnabled(maxZ ==0);	
 		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
 		saveAs.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the save image window."));
