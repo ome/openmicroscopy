@@ -63,5 +63,12 @@ public class LookupNames
 	public static final String OMEIS = "/services/OMEIS";
 	
 	public static final String LOOK_N_FEEL = "LookAndFeel";	
-
+	
+	public static final String ICONS_FACTORY = 
+											"/resources/icons/DefaultFactory";
+	
+	public static final String LOG_ON = "/services/LOG/on";
+	public static final String LOG_DIR = "/services/LOG/dir";
+	public static final String LOG_FILE = "/services/LOG/file";
+	
 }
