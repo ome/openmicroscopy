@@ -43,6 +43,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
@@ -89,8 +90,27 @@ public class BPalette extends PNode
         final BPalette refCopy = this;
         this.paletteName = name;
         titleBar = new TitleBar(name);
+        iconBar = new IconBar(measuredWidth);
         addChild(titleBar);
-        setBounds(titleBar.getBounds());
+        titleBar.addChild(iconBar); // cheap way to get the whole thing to move
+        iconBar.setOffset(0,titleBar.getHeight());
+        // sets the bounds
+        setBounds(0,0,measuredWidth,titleBar.getHeight()+iconBar.getHeight());
+    }
+    
+    public void addIcon(BIcon icon)
+    {
+        iconBar.addIcon(icon);
+    }
+    
+    public void removeIcon(BIcon icon)
+    {
+        iconBar.removeIcon(icon);
+    }
+    
+    public void setMaxWidth(int width)
+    {
+        iconBar.setMaxWidth(width);
     }
     
     /**
@@ -99,47 +119,118 @@ public class BPalette extends PNode
     class IconBar extends PNode
     {
         private int maxWidth;
-        private double observedWidth;
-        private double currentXOffset; // simplistic LM for now
-        private double currentYOffset; // simplistic LM for now
+        private Color backgroundColor;
+        private int currentHeight = 20;
         
-        // bad assumption, but I'll have it now: assuming all icons to be
-        // added will be of the same height.
-        
+        /**
+         * Constructs an icon bar with a maximum specified width.
+         * @param maxWidth The width of the icon bar.
+         */
         public IconBar(int maxWidth)
         {
-            observedWidth = 0;
             this.maxWidth = maxWidth;
+            backgroundColor = new Color(153,153,153,128);
+            setBounds(getX(),getY(),maxWidth,currentHeight);
         }
         
+        /**
+         * Adds an icon to the bar.
+         * @param icon The icon to add.
+         */
         public void addIcon(BIcon icon)
         {
             addChild(icon);
-            if(icon.getWidth() + currentXOffset > maxWidth)
+            layoutChildren();
+        }
+        
+        /**
+         * Removes an icon from the bar.
+         * @param icon The icon to remove.
+         */
+        public void removeIcon(BIcon icon)
+        {
+            removeChild(icon);
+            layoutChildren();
+        }
+        
+        /**
+         * Sets the maximum width of the palette (in pixels)  Specifying a
+         * negative number will lift the maxWidth restriction and let icons
+         * flow out horizontally unrestricted.
+         * 
+         * @param width The maximum width of the palette.
+         */
+        public void setMaxWidth(int width)
+        {
+            setBounds(getX(),getY(),width,getHeight());
+            maxWidth = width;
+            layoutChildren();
+        }
+        
+        /**
+         * Overrides the PNode's layoutChildren() method to make sure all
+         * the icons fit in the area of maximum space.
+         */
+        public void layoutChildren()
+        {
+            int currentOffsetX = 2;
+            int currentOffsetY = 2;
+            boolean firstPlaced = false;
+            int maxHeight = 0; // simplistic LM for now
+            Iterator iter = getChildrenIterator();
+            for(int i=0;i<getChildrenCount();i++)
             {
-                currentYOffset += icon.getHeight();
-                icon.setOffset(0,currentYOffset);
-                currentXOffset += icon.getWidth();
+                PNode node = getChild(i);
+                if(!firstPlaced && node.getWidth() > maxWidth)
+                {
+                    // craptastic error condition, just place the thing
+                    setMaxWidth((int)Math.ceil(node.getWidth()));
+                    maxHeight = (int)Math.ceil(node.getHeight());
+                    node.setOffset(currentOffsetX,currentOffsetY);
+                    currentOffsetY += maxHeight+2;
+                    currentOffsetX = 2;
+                }
+                else if(!firstPlaced)
+                {
+                    firstPlaced = true;
+                    node.setOffset(currentOffsetX,currentOffsetY);
+                    maxHeight = (int)Math.ceil(node.getHeight());
+                    currentOffsetX += Math.ceil(node.getWidth())+2;
+                }
+                else
+                {
+                    if(currentOffsetX + node.getWidth() > maxWidth)
+                    {
+                        currentOffsetY += maxHeight+2;
+                        maxHeight = 0;
+                        firstPlaced = false;
+                        currentOffsetX = 2;
+                        i--; // break and repeat
+                    }
+                    else
+                    {
+                        if(node.getWidth() > maxHeight)
+                        {
+                            maxHeight = (int)Math.ceil(node.getHeight());
+                        }
+                        node.setOffset(currentOffsetX,currentOffsetY);
+                        currentOffsetX += (int)Math.ceil(node.getWidth())+2;
+                    }
+                }
             }
-            else
-            {
-                icon.setOffset(currentXOffset,currentYOffset);
-                currentXOffset += icon.getWidth();
-            }
+            setBounds(getX(),getY(),maxWidth,currentOffsetY+maxHeight+4);
+        }
+        
+        public void paint(PPaintContext context)
+        {
+             Graphics2D graphics = context.getGraphics();
+             Paint oldPaint = graphics.getPaint();
+             graphics.setPaint(backgroundColor);
+             graphics.fill(getBounds().getBounds2D());
+             graphics.setPaint(oldPaint);
         }
     }
-    
-    /**
-     * Sets the maximum width of the palette (in pixels)  Specifying a
-     * negative number will lift the maxWidth restriction and let icons
-     * flow out horizontally unrestricted.
-     * 
-     * @param width The maximum width of the palette.
-     */
-    public void setMaxWidth(int width)
-    {
-        this.maxWidth = width;
-    }
+   
     
     class TitleBar extends PNode implements MouseDragSensitive
     {
@@ -162,7 +253,7 @@ public class BPalette extends PNode
             setBounds(bounds);
             titleName = name;
             
-            backgroundColor = new Color(102,102,102,128);
+            backgroundColor = new Color(0,51,153,128);
             titleNode = new PText(name);
             titleNode.setPaint(Color.white);
             titleNode.setFont(titleFont);
