@@ -57,24 +57,41 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class UserNotifierImpl 
     implements UserNotifier
 {
-    
+    /** Default Title of the error Dialog window. */
     private static final String     DEFAULT_ERROR_TITLE = "Error";
+    
+	/** Default error summary. */
     private static final String     DEFAULT_ERROR_SUMMARY = "Sorry, an error " +
-    														"occurred";    
+    														"occurred";
+	/** Default Title of the info Dialog window. */														    
     private static final String     DEFAULT_INFO_TITLE = "Info";
+    
+	/** Default info message summary. */
     private static final String     DEFAULT_INFO_MESSAGE = "Message Info";
+    
+	/** Default Title of the warning Dialog window. */	
     private static final String     DEFAULT_WARNING_TITLE = "Warning";
-    private static final String     DEFAULT_WARNING_MESSAGE = "Message Warning"; 
+    
+	/** Default warning  message summary. */
+    private static final String     DEFAULT_WARNING_MESSAGE = "Message Warning";
+    
+    /** Reference to the topFrame. */
     private TopFrameImpl            topFrame;
+    
+	/** Reference to the registry. */
     private Registry				reg;
-    /** Creates a new instance of UserNotifierImpl. */
+    
+    /** Creates a new instance of UserNotifierImpl. 
+     * 
+     * @param topFrame	reference to the 
+     * 					{@link TopFrameImpl TopFrameImplemenation}.
+     * @param reg		reference to the {@link Registry}.
+     */
     public UserNotifierImpl(TopFrameImpl topFrame, Registry reg)
     {
         this.topFrame = topFrame;
         this.reg = reg;
     }
-    // TODO: to be modified. Display message using a JDialog:
-    // will implement code soon
     
 	/** Implemented as specified by {@link UserNotifier}. */       
     public void notifyError(String title, String summary, Exception detail)
@@ -131,7 +148,7 @@ public class UserNotifierImpl
 	 * summary, icon.
 	 * 
 	 * @param title			dialog window title.	
-	 * @param summary		message.
+	 * @param summary		message's summary.
 	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
 	 */
 	private void showMessageDialog(String title, String summary, int iconID)
@@ -144,7 +161,7 @@ public class UserNotifierImpl
 	 * summary, icon.
 	 * 
 	 * @param title			dialog window title.	
-	 * @param summary		message.
+	 * @param summary		message's summary.
 	 * @param detail		message's details. 
 	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
 	 */
@@ -154,7 +171,8 @@ public class UserNotifierImpl
 		if (detail == null) 
 			new UserNotifierDialog(reg, topFrame, title, summary, iconID);
 		else	
-			new UserNotifierDialog(reg, topFrame, title, summary, detail, iconID); 
+			new UserNotifierDialog(reg, topFrame, title, summary, detail, 
+									iconID); 
 	}
 	
 }
