@@ -115,11 +115,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 */
 	private static float CURVE_OFFSET=25f;
 	
-	/** 
-	 * The width of the current layer
-	 */ 
-	private float layerWidth;
-	
 	/**
 	 * Some parameters of the stateo f the display
 	 */
@@ -293,8 +288,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			Vector v=  nodeLayers.getLayer(i);
 			// set the x position for the current layer
 			float origX = x;
-			layerWidth = 0;
-			layoutLayer(v);
+			
+			double layerWidth= layoutLayer(v);
 			x += layerWidth+HGAP;
 			float mid = (origX+x)/2;
 			nodeLayers.setXPosition(i,mid);
@@ -312,9 +307,9 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 	 * 
 	 * @param v
 	 */
-	private void layoutLayer(Vector v) {
+	private double layoutLayer(Vector v) {
 		int size = v.size();
-		
+		double layerWidth = 0;
 		// iterate out to find height
 		float height = getLayerHeight(v);
 		float remainder = chainHeight - height;
@@ -329,7 +324,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode,
 			y+= (float) mod.getHeight()+VGAP;
 			if (mod.getWidth() > layerWidth)
 				layerWidth = (float) mod.getBounds().getWidth();
-		}		
+		}
+		return layerWidth;
 	}
 	
 	/**
