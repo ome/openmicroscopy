@@ -38,9 +38,9 @@ package org.openmicroscopy.shoola.env.ui;
 /** 
  * Declares the interface to which the splash screen component has to
  * conform. 
- * The implementation component has to serve both as start up screen to provide
- * the user with feedback about the state of the initialization procedure and
- * as a login dialog to collect the user's credentials. 
+ * <p>The implementation component has to serve both as start up screen to
+ * provide the user with feedback about the state of the initialization
+ * procedure and as a login dialog to collect the user's credentials.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +60,13 @@ public interface SplashScreen
 	public void open();
 	
 	/**
+	 * Gets the component ready for garbage collecion.
 	 * Closes the splash screen window and disposes of it.
+	 * Also releases any other resource.  Clients shouldn't attempt to
+	 * use the splash screen component after invoking this method.
+	 * <p>This call is asynchronous, that is, the caller can proceed straight
+	 * after invocation without having to wait for this method to be actually
+	 * executed.</p>
 	 */
 	public void close();
 	
@@ -69,6 +75,9 @@ public interface SplashScreen
 	 * performed.
 	 * This method is guaranteed to be called before the first invocation
 	 * of {@link #updateProgress(String, int) updateProgress()}.
+	 * <p>This call is asynchronous, that is, the caller can proceed straight
+	 * after invocation without having to wait for this method to be actually
+	 * executed.</p>
 	 *  
 	 * @param value	The total number of tasks.
 	 */
@@ -77,6 +86,9 @@ public interface SplashScreen
 	/**
 	 * Updates the display to the current state of the initialization
 	 * procedure.
+	 * <p>This call is asynchronous, that is, the caller can proceed straight
+	 * after invocation without having to wait for this method to be actually
+	 * executed.</p>
 	 * 
 	 * @param task	The name of the initialization task that is about to
 	 * 				be executed.
@@ -85,19 +97,11 @@ public interface SplashScreen
 	public void updateProgress(String task, int count);
 	
 	/**
-	 * Returns the user name.
+	 * Returns the login credentials of the user.
+	 * Blocks the caller until the credentials have been entered.
 	 * 
-	 * @return	The user name or <code>null</code> if that hasn't been
-	 * 			entered yet.
+	 * @return	The user's credentials for logging into OME.
 	 */
-	public String getUserName();
-	
-	/**
-	 * Returns the password.
-	 * 
-	 * @return	The password or <code>null</code> if that hasn't been
-	 * 			entered yet.
-	 */
-	public String getPassword();
+	public UserCredentials getUserCredentials();
 	
 }
