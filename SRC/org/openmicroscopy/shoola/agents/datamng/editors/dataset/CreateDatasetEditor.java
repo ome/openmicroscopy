@@ -77,12 +77,12 @@ public class CreateDatasetEditor
 	private CreateDatasetEditorManager     manager;
 	
 	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
-								DatasetData model, List projects, List images)
+								DatasetData model, List projects)
 	{
 		super(control.getReferenceFrame(), true);
 		this.registry = registry;
-		manager = new CreateDatasetEditorManager(this, control, model, projects,
-												images);
+		manager = new CreateDatasetEditorManager(this, control, model, 
+                                                projects);
 		creationPane = new CreateDatasetPane();
 		projectsPane = new CreateDatasetProjectsPane(manager);
 		imagesPane = new CreateDatasetImagesPane(manager);
@@ -130,31 +130,43 @@ public class CreateDatasetEditor
 	 * Returns the cancel button displayed in {@link CreateDatasetImagesPane}.
 	 */
 	JButton getResetImageButton() { return imagesPane.resetButton; }
+    
+    /** 
+     * Returns the showImages button displayed 
+     * in {@link CreateDatasetImagesPane}.
+     */
+    JButton getShowImagesButton() { return imagesPane.showImages; }
 	
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
 	void selectAllProjects()
 	{
-		projectsPane.setSelection(new Boolean(true));
+		projectsPane.setSelection(Boolean.TRUE);
 	}
 
 	/** Forward event to the pane {@link CreateDatasetProjectsPane}. */
 	void resetSelectionProject()
 	{
-		projectsPane.setSelection(new Boolean(false));
+		projectsPane.setSelection(Boolean.FALSE);
 	}
 	
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
 	void selectAllImages()
 	{
-		imagesPane.setSelection(new Boolean(true));
+		imagesPane.setSelection(Boolean.TRUE);
 	}
 
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
 	void resetSelectionImage()
 	{
-		imagesPane.setSelection(new Boolean(false));
+		imagesPane.setSelection(Boolean.FALSE);
 	}
-	
+    
+	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
+    void showImages(List images)
+    {
+        imagesPane.showImages(images);
+    }
+    
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{

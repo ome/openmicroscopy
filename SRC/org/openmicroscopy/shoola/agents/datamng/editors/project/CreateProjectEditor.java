@@ -120,13 +120,13 @@ public class CreateProjectEditor
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
 	void selectAll()
 	{
-		datasetsPane.setSelection(new Boolean(true));
+		datasetsPane.setSelection(Boolean.TRUE);
 	}
 	
 	/** Forward event to the pane {@link CreateProjectDatasetsPane}. */
 	void cancelSelection()
 	{
-		datasetsPane.setSelection(new Boolean(false));
+		datasetsPane.setSelection(Boolean.FALSE);
 	}
 	
 	/** Build and lay out the GUI. */

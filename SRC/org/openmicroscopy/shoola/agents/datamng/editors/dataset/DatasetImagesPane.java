@@ -267,7 +267,7 @@ class DatasetImagesPane
 		{
 			for (int i = 0; i < images.length; i++) {
 				data[i][0] = ((ImageSummary) images[i]).getName();
-				data[i][1] = new Boolean(false);
+				data[i][1] = Boolean.FALSE;
 			}
 		}
 	

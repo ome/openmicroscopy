@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.GridLayout;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -40,7 +40,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -85,18 +84,22 @@ class CreateDatasetImagesPane
 		columnNames[SELECT] = "Select";
 	}
 		
+    JButton                                selectButton, resetButton, 
+                                            showImages;
+    
 	/** Reference to the manager. */
 	private CreateDatasetEditorManager     manager;
 
-	JButton                                selectButton, resetButton;
-	
 	private ImagesTableModel               imagesTM;
 	
 	private TableSorter                    sorter;
 	
+    private JPanel                          componentsPanel;
+    
 	CreateDatasetImagesPane(CreateDatasetEditorManager manager)
 	{
 		this.manager = manager;
+        initComponents();
 		buildGUI();
 	}
 
@@ -107,56 +110,100 @@ class CreateDatasetImagesPane
 		for (int i = 0; i < imagesTM.getRowCount(); i++)
 				imagesTM.setValueAt(val, i, countCol); 
 	}
-	
+
+    /** Rebuild the component to display the existing images. */ 
+    void showImages(List images)
+    {
+        removeAll();
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        add(componentsPanel);
+        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        if (images != null && images.size() != 0) {
+            add(buildImagesPanel(images));
+            setButtonsEnabled(true);
+        }
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+    }
+
+    /** Set the buttons enabled. */
+    private void setButtonsEnabled(boolean b)
+    {
+        selectButton.setEnabled(b);
+        resetButton.setEnabled(b);
+        showImages.setEnabled(!b);
+    }
+    
+    /** Initializes the components. */
+    private void initComponents()
+    {
+        //select button
+        selectButton = new JButton("Select All");
+        selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        selectButton.setToolTipText(
+            UIUtilities.formatToolTipText("Select all images."));
+        
+        //cancel button
+        resetButton = new JButton("Reset");
+        resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        resetButton.setToolTipText(
+            UIUtilities.formatToolTipText("Cancel selection."));
+        
+        //ShowImages button
+        showImages = new JButton("Show images");
+        showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        showImages.setToolTipText(
+            UIUtilities.formatToolTipText("Show list of imported images."));
+        setButtonsEnabled(false);
+    }
+    
+    
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		setLayout(new GridLayout(1, 1));
-		add(buildDatasetsPanel());
-		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
-		setBorder(b);
-	}
-	
-	private JPanel buildDatasetsPanel()
-	{
-		//select button
-		selectButton = new JButton("Select All");
-		selectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		selectButton.setToolTipText(
-			UIUtilities.formatToolTipText("Select all images."));
-		//cancel button
-		resetButton = new JButton("Reset");
-		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		resetButton.setToolTipText(
-			UIUtilities.formatToolTipText("Cancel selection."));
-		JPanel controls = new JPanel(), p = new JPanel();
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(resetButton);
-		controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		controls.add(selectButton);
-		controls.setOpaque(false); //make panel transparent
-	  	
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-	  
-		//images table
-		imagesTM = new ImagesTableModel();
-		JTable t = new JTable();
-		sorter = new TableSorter(imagesTM);  
-		t.setModel(sorter);
-		sorter.addMouseListenerToHeaderInTable(t);
-		setTableLayout(t);
-		
-		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		t.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
-		//wrap table in a scroll pane and add it to the panel
-		JScrollPane sp = new JScrollPane(t);
-		p.add(sp);
-		p.add(Box.createRigidArea(DataManagerUIF.VBOX));
-		p.add(controls);
-		
-		return p;
+        buildComponentsPanel();
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        add(componentsPanel);
+        add(Box.createRigidArea(DataManagerUIF.VBOX));
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 	}
 
+    /** Display the buttons in a JPanel. */
+    private void buildComponentsPanel()
+    {
+        componentsPanel = new JPanel();
+        componentsPanel.setLayout(new BoxLayout(componentsPanel, 
+                                    BoxLayout.X_AXIS));
+        componentsPanel.add(resetButton);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(selectButton);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(showImages);
+        componentsPanel.setOpaque(false); //make panel transparent
+    }
+    
+    /** Build panel with table containing the images to add. */
+    private JPanel buildImagesPanel(List images)
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        //images table
+        imagesTM = new ImagesTableModel(images);
+        JTable table = new JTable();
+        sorter = new TableSorter(imagesTM);  
+        table.setModel(sorter);
+        sorter.addMouseListenerToHeaderInTable(table);
+        setTableLayout(table);
+        table.setBackground(DataManagerUIF.STEELBLUE);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setPreferredScrollableViewportSize(DataManagerUIF.VP_DIM);
+        //wrap table in a scroll pane and add it to the panel
+        JScrollPane pane = new JScrollPane(table);
+        p.add(pane);
+        return p;
+    }
+    
 	/** Set icons in the tableHeader. */
 	private void setTableLayout(JTable table)
 	{
@@ -191,11 +238,13 @@ class CreateDatasetImagesPane
 	private class ImagesTableModel
 		extends AbstractTableModel
 	{
-		private final Object[]	images = manager.getImages().toArray();
-		private Object[][]		data = new Object[images.length][2];
+		private Object[]      images;
+		private Object[][]    data;
 
-		private ImagesTableModel()
+		private ImagesTableModel(List imgs)
 		{
+            images = imgs.toArray();
+            data = new Object[images.length][2];
 			for (int i = 0; i < images.length; i++) {
 				data[i][0] = (ImageSummary) images[i];
 				data[i][1] = new Boolean(false);

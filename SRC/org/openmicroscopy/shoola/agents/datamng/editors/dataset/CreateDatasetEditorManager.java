@@ -74,14 +74,13 @@ public class CreateDatasetEditorManager
 	private static final int		SELECT_IMAGE = 3;
 	private static final int		RESET_SELECTION_IMAGE = 4;
 	private static final int		CANCEL = 5;
+    private static final int        SHOW_IMAGES = 6;
 	
 	private CreateDatasetEditor 	view;
 	private DatasetData 			model;
 	private DataManagerCtrl			control;
 	
 	private List					projects;
-	
-	private List					images;
 	
 	/** List of images to be added. */
 	private List					imagesToAdd;
@@ -93,14 +92,12 @@ public class CreateDatasetEditorManager
 	
 	public CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl control,
-									  DatasetData model, List projects,
-									  List images)
+									  DatasetData model, List projects)
 	{
 		this.control = control;
 		this.view = view;
 		this.model = model;
 		this.projects = projects;
-		this.images = images;
 		imagesToAdd = new ArrayList();
 		projectsToAdd = new ArrayList();
 		isName = false;
@@ -111,8 +108,6 @@ public class CreateDatasetEditorManager
 	DatasetData getDatasetData() { return model; }
 	
 	List getProjects() { return projects; }
-	
-	List getImages() { return images; }
 		
 	/** Initializes the listeners. */
 	void initListeners()
@@ -125,6 +120,7 @@ public class CreateDatasetEditorManager
         attachButtonListener(view.getSelectImageButton(), SELECT_IMAGE);
         attachButtonListener(view.getResetImageButton(), 
                                 RESET_SELECTION_IMAGE);
+        attachButtonListener(view.getShowImagesButton(), SHOW_IMAGES);
 		JTextArea nameField = view.getNameArea();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -156,7 +152,9 @@ public class CreateDatasetEditorManager
 				case SELECT_IMAGE:
 					selectImage(); break;
 				case RESET_SELECTION_IMAGE:
-					resetSelectionImage();
+					resetSelectionImage(); break;
+                case SHOW_IMAGES:
+                    view.showImages(control.getUserImages());;
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -242,7 +240,7 @@ public class CreateDatasetEditorManager
         view.getSelectButton().setEnabled(true);
 		view.resetSelectionImage();
 	}
-	
+    
 	/** Require by I/F. */
 	public void changedUpdate(DocumentEvent e)
 	{ 
@@ -261,7 +259,7 @@ public class CreateDatasetEditorManager
         view.getSaveButton().setEnabled(isName);
 	}
 	
-	/** Tells that the name has been modified. */
+	/** Indicates that the name has been modified. */
 	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
@@ -286,6 +284,6 @@ public class CreateDatasetEditorManager
 	 * Required by I/F but not actually needed in our case, no op 
 	 * implementation.
 	 */ 
-	public void mouseReleased(MouseEvent e){}
+	public void mouseReleased(MouseEvent e) {}
 	
 }
