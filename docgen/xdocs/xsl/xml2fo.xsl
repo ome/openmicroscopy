@@ -29,10 +29,9 @@ Here we declare the document scope variable
 </xsl:variable>
 
 <xsl:variable name="generate-section-numbers">
-<xsl:choose>
-<xsl:when test="$dfi/generate-section-numbers  = 'no'">no</xsl:when>
-<xsl:otherwise>yes</xsl:otherwise>
-</xsl:choose>
+<xsl:call-template name="onOff">
+<xsl:with-param name="content" select="$dfi/generate-section-numbers"/>
+</xsl:call-template>
 </xsl:variable>
 
 <!-- E: COMMON VARIABLES -->
@@ -147,10 +146,15 @@ from here
 			<!-- layout for the body part -->
 			<fo:region-body margin-top="{substring-before($header-height, 'pt')+1}pt" margin-bottom="50pt"/>
 
+
+
 			<xsl:if test="not($supress-coverpage-header = 'yes')">
 				<!-- layout for the header part -->
 				<fo:region-before margin-top="10pt" extent="{$header-height}"/>
 			</xsl:if>
+
+			
+			<!-- layout for the footer part -->
 			
 			<xsl:if test="not($supress-coverpage-header = 'yes')">
 				<!-- layout for the footer part -->
@@ -1548,15 +1552,15 @@ attribute based on that.
 <xsl:param name="item"/>
 <xsl:variable name="name">
 <xsl:call-template name="to-lower-case">
-	<xsl:with-param name="str" select="substring-before($item, ':')"/>
+<xsl:with-param name="str" select="substring-before($item, ':')"/>
 </xsl:call-template>
 </xsl:variable>
 <xsl:variable name="value">
 <xsl:call-template name="to-lower-case">
-	<xsl:with-param name="str" select="substring-after($item, ':')"/>
+<xsl:with-param name="str" select="substring-after($item, ':')"/>
 </xsl:call-template>
 </xsl:variable>
-	<xsl:attribute name="{$name}">
+<xsl:attribute name="{$name}">
 <xsl:value-of select="$value"/>
 </xsl:attribute>
 </xsl:template>
@@ -1582,9 +1586,9 @@ This template gets the align attribute.
 <xsl:variable name="alignment" select="translate($align, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"/> 
 <xsl:attribute name="text-align">
 <xsl:choose>
-		<xsl:when test="$alignment = 'right'">end</xsl:when>
-		<xsl:when test="$alignment = 'center'">center</xsl:when>
-		<xsl:otherwise>start</xsl:otherwise>
+<xsl:when test="$alignment = 'right'">end</xsl:when>
+<xsl:when test="$alignment = 'center'">center</xsl:when>
+<xsl:otherwise>start</xsl:otherwise>
 </xsl:choose>
 </xsl:attribute>
 </xsl:if>
@@ -1624,7 +1628,6 @@ Template to get the section level.
 <xsl:value-of select="$level"/>
 </xsl:for-each>
 </xsl:template>
-<!-- E: SECTION FUNCTIONS -->
 
 <!-- B: STRING FUNCTIONS -->
 <!-- common space characters -->
