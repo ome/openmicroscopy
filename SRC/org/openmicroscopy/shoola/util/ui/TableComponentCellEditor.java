@@ -90,7 +90,8 @@ public class TableComponentCellEditor
 		return true;
 	}
 	
-	public boolean shouldSelectCell(EventObject anEvent) {
+	public boolean shouldSelectCell(EventObject anEvent)
+	{
 		if (editorComponent != null && anEvent instanceof MouseEvent
 			&& ((MouseEvent) anEvent).getID() == MouseEvent.MOUSE_PRESSED)
 		{
@@ -178,7 +179,7 @@ public class TableComponentCellEditor
 	// implements javax.swing.table.TableCellEditor
 	public Component getTableCellEditorComponent(JTable table, Object value,
 		boolean isSelected, int row, int column)
-		{
+	{
 		editorComponent = (JComponent)value;
 		container = table;
 		return editorComponent;
