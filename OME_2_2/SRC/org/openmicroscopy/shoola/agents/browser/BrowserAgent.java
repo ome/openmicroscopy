@@ -466,6 +466,20 @@ public class BrowserAgent implements Agent, AgentEventListener
                 un.notifyError("Database Error","Invalid Dataset ID specified.");
                 return false;
             }
+            
+            // empty list... processing unnecessary.
+            if(imageList.size() == 0)
+            {
+                Runnable emptyTask = new Runnable()
+                {
+                    public void run()
+                    {
+                        status.setLeftText("Dataset contains no images.");
+                    }
+                };
+                SwingUtilities.invokeLater(emptyTask);
+                return true;
+            }
 
             Collections.sort(imageList,idComparator);
             List idList = new ArrayList();
@@ -496,10 +510,14 @@ public class BrowserAgent implements Agent, AgentEventListener
             writeStatusImmediately(status,"Retrieving annotation information from DB...");
             annotationList = sts.retrieveImageAttributes("ImageAnnotation",idList);
             annotationMap = new HashMap();
-            for(Iterator iter = annotationList.iterator(); iter.hasNext();)
+            
+            if(annotationList != null)
             {
-                ImageAnnotation ia = (ImageAnnotation)iter.next();
-                annotationMap.put(new Integer(ia.getImage().getID()),ia);
+                for(Iterator iter = annotationList.iterator(); iter.hasNext();)
+                {
+                    ImageAnnotation ia = (ImageAnnotation)iter.next();
+                    annotationMap.put(new Integer(ia.getImage().getID()),ia);
+                }
             }
             writeStatusImmediately(status,"Loading in category types...");
             model.setCategoryTree(loadCategoryTree(datasetModel.getID()));
@@ -508,20 +526,23 @@ public class BrowserAgent implements Agent, AgentEventListener
             classificationMap = new HashMap();
             List classificationList =
                     sts.retrieveImageClassifications(idList,datasetModel.getID());
-            for(Iterator iter = classificationList.iterator(); iter.hasNext();)
+            if(classificationList != null)
             {
-                Classification c = (Classification)iter.next();
-                List cList =
-                    (List)classificationMap.get(new Integer(c.getImage().getID()));
-                if(cList == null)
+                for(Iterator iter = classificationList.iterator(); iter.hasNext();)
                 {
-                    cList = new ArrayList();
-                    cList.add(c);
-                    classificationMap.put(new Integer(c.getImage().getID()),cList);
-                }
-                else
-                {
-                    cList.add(c);
+                    Classification c = (Classification)iter.next();
+                    List cList =
+                        (List)classificationMap.get(new Integer(c.getImage().getID()));
+                    if(cList == null)
+                    {
+                        cList = new ArrayList();
+                        cList.add(c);
+                        classificationMap.put(new Integer(c.getImage().getID()),cList);
+                    }
+                    else
+                    {
+                        cList.add(c);
+                    }
                 }
             }
             ColorMapModel cmm = new ColorMapModel(model);
