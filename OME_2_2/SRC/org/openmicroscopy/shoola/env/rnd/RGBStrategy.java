@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
- * 
+ * Transforms a plane within a given pixels set into an RGB image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,13 +84,26 @@ class RGBStrategy
 	
 	private Renderer	renderer;
 	
-	BufferedImage render(Renderer ctx)
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#getImageSize()
+     */
+    int getImageSize(PlaneDef pd, PixelsDimensions dims)
+    {
+        initAxesSize(pd, dims);
+        return sizeX1*sizeX2*3;
+    }
+    
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+    BufferedImage render(Renderer ctx, PlaneDef planeDef)
 		throws DataSourceException, QuantizationException
 	{
 		//Set the context and retrieve rendering settings.
 		renderer = ctx;
 		PixelsDimensions dims = renderer.getPixelsDims();
-		PlaneDef planeDef = renderer.getPlaneDef();
 		RenderingDef rndDef = renderer.getRenderingDef();
 		QuantumManager qManager = renderer.getQuantumManager();
 		DataSink dSink = renderer.getDataSink();

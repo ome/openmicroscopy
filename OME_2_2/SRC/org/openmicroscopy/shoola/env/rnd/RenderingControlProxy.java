@@ -46,7 +46,10 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
- * 
+ * UI-side implementation of the {@link RenderingControl} interface.
+ * Transforms method calls into execution requests, which then posts on the 
+ * event bus.  Keeps in sync the local copy of the rendering settings, so 
+ * reads are made against this copy.  Runs in the Swing thread.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

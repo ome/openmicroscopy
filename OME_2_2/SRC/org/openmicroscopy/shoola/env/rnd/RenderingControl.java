@@ -40,7 +40,9 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 
 /** 
- * 
+ * A facade to a given rendering environment for the UI benefit.
+ * Allows to tune and read the rendering settings (set/get quantum, set/get 
+ * channel, and so on).  Also allows to save the current settings.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

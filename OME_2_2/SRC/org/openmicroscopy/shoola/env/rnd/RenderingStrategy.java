@@ -37,12 +37,22 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
+import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 
 /** 
- * 
+ * Defines how to encapsulate a specific rendering algorithm. 
+ * <p>Subclasses realize a given algorithm by implementing the 
+ * {@link #render(Renderer, PlaneDef) render} method.  The image is rendered
+ * according to the current settings in the rendering context which is accessed
+ * through a {@link Renderer} object representing the rendering environment.</p>
+ * <p>The {@link #makeNew(int) makeNew} factory method allows to select a
+ * concrete strategy depending on on how transformed data is to be mapped into
+ * a color space.</p>
  *
+ * @see Renderer
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -57,6 +67,16 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 abstract class RenderingStrategy
 {
 	
+    /**
+     * Factory method to retrieve a concrete strategy.
+     * The strategy is selected according to the model that dictates how 
+     * transformed raw data is to be mapped into a color space.  This model
+     * is identified by the passed argument.
+     * 
+     * @param model Identifies the color space model.  One of the constants
+     *              defined by {@link RenderingDef}.
+     * @return  A strategy suitable for the specified model.
+     */
 	static RenderingStrategy makeNew(int model)
 	{
 		RenderingStrategy strategy = null;
@@ -82,7 +102,48 @@ abstract class RenderingStrategy
 		return strategy;
 	}
 	
-	abstract BufferedImage render(Renderer ctx) 
+    
+    /**
+     * Encapsulates a specific rendering algorithm. 
+     * The image is rendered according to the current settings hold by the
+     * <code>ctx</code> argument.
+     * Typically, active wavelenghts are processed by first quantizing the 
+     * wavelenght data in the plane selected by <code>pd</code> &#151; the 
+     * quantum strategy is retrieved from the {@link QuantumManager} (accessed
+     * through the <code>ctx</code> object) and the actual data from the 
+     * {@link org.openmicroscopy.shoola.env.rnd.data.DataSink DataSink} (again, 
+     * retrieved through <code>ctx</code>).
+     * Then the codomain transformations are applied &#151; by calling the 
+     * transform method of the 
+     * {@link org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain chain}
+     * hold by <code>ctx</code>.  Transformed wavelenght data is finally packed
+     * into a {@link BufferedImage} taking into account the color bindings
+     * defined by the rendering context.
+     * 
+     * @param ctx   Represents the rendering environment.
+     * @param pd    Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *              or <i>Z</i> axes.
+     * @return  An image rendered according to the current settings hold by
+     *          <code>ctx</code>.
+     * @throws DataSourceException  If an error occurred while accessing the
+     *                              pixels raw data.
+     * @throws QuantizationException If an error occurred while quantizing the
+     *                                  pixels raw data.
+     */
+	abstract BufferedImage render(Renderer ctx, PlaneDef pd) 
 		throws DataSourceException, QuantizationException;
+    
+    /**
+     * Returns the size, in bytes, of the {@link BufferedImage} that would be
+     * rendered from the plane selected by <code>pd</code> in a pixels set 
+     * having dimensions <code>dims</code>.
+     * 
+     * @param pd    Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *              or <i>Z</i> axes.
+     * @param dims  The dimensions of the pixels set containing the plane
+     *              selected by <code>pd</code>. 
+     * @return  See above.
+     */
+    abstract int getImageSize(PlaneDef pd, PixelsDimensions dims);
 	
 }

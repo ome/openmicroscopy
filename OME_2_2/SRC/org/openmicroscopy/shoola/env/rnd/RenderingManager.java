@@ -36,8 +36,11 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
@@ -46,7 +49,8 @@ import org.openmicroscopy.shoola.util.concur.tasks.Future;
 import org.openmicroscopy.shoola.util.concur.tasks.Invocation;
 
 /** 
- * 
+ * Manages requests to render a plane within a given pixels set and
+ * also rendering-related activities such as caching.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,61 +65,54 @@ import org.openmicroscopy.shoola.util.concur.tasks.Invocation;
  */
 class RenderingManager
 {
-
-    private final Renderer        renderer;
-    private PlaneDef        curPlaneDef;
-    private final Future[] stackCache;
-    private final CmdProcessor    cmdProcessor;
     
-    private class RenderXYPlane
-        implements Invocation
+    /**
+     * Factory method to create a new manager to handle the the given pixels 
+     * set within the specified image.
+     * 
+     * @param engine    Reference to the rendering engine.
+     *                  Mustn't be <code>null</code>.
+     * @param imageID   The id of the image the pixels set belongs to.
+     * @param pixelsID  The id of the pixels set.
+     * @throws MetadataSourceException If an error occurs while retrieving
+     *                                  data from <i>OMEDS</i>.
+     */
+    static RenderingManager makeNew(RenderingEngine engine, 
+                                    int imageID, int pixelsID)
+        throws MetadataSourceException
     {
-        final Renderer rnd;
-        RenderXYPlane(int z) {
-            PlaneDef planeDef = new PlaneDef(PlaneDef.XY, curPlaneDef.getT());
-            planeDef.setZ(z);
-            rnd = renderer.makeShallowCopy(planeDef);
-        }
-        public Object call() throws Exception {
-long start = System.currentTimeMillis();
-Object ret = rnd.render();
-System.err.println("Plane "+rnd.getPlaneDef().getZ()+" rendered in: "+(System.currentTimeMillis()-start));
-return ret;
-            //return rnd.render();  //Uses plane def set in constuctor.
-        }
-    }
-    
-    
-    private void clearCache()
-    {
-        for (int i = 0; i < stackCache.length; ++i)
-            if (stackCache[i] != null) {  //Cancel and discard any ongoing.
-                stackCache[i].cancelExecution();
-                stackCache[i] = null;
-            }
-    }
-    
-    private void updatePlaneDef(PlaneDef newDef)
-    {
-        //Passed argument will be null the very first time a RenderImage 
-        //request is made.  Just grab the default one that will be used
-        //by the renderer. 
-        if (newDef == null) newDef = renderer.getPlaneDef();
+        //First off, create a renderer.  This factory method will load
+        //all needed metadata too and check engine != null.  No need to
+        //check ID's, if they're wrong OMEDS will complain loudly.
+        Renderer r = Renderer.makeNew(imageID, pixelsID, engine);
         
-        //Clear cache if user's moving to a different timepoint.
-        if (curPlaneDef != null && curPlaneDef.getT() != newDef.getT())
-            clearCache();
-        
-        //Set the current definition.
-        curPlaneDef = newDef;
+        //Now that we have a fully initialized renderer, we can create
+        //its manager.
+        return new RenderingManager(r, engine);
     }
     
-    private BufferedImage extractXYImage(int z)
+    /**
+     * Extracts the image result of an asynchronous rendering operation.
+     * We attempt to retrieve the actual image the {@link Future} is 
+     * representing, possibly blocking until the image has been rendered.  
+     * If the image couldn't be rendered, we just rethrow the cause of the 
+     * error.
+     * 
+     * @param f    A handle to an asynchronous invocation of the 
+     *              {@link Renderer#render() render} method on a 
+     *              {@link Renderer} object.
+     * @return The rendered image.
+     * @throws DataSourceException If an error occurred while fetching image 
+     *                              data.
+     * @throws QuantizationException If an error occurred while rendering.
+     */
+    static BufferedImage extractXYImage(Future f)
         throws DataSourceException, QuantizationException
-    { //We assume z is in the right range.  This is checked by renderXYPlane.              
+    {
+        if (f == null) throw new NullPointerException("No future.");
         BufferedImage plane = null;
         try {
-            plane = (BufferedImage) stackCache[z].getResult();
+            plane = (BufferedImage) f.getResult();
         } catch (ExecException ee) {
             Throwable cause = ee.getCause();
             if (cause instanceof DataSourceException)
@@ -134,42 +131,189 @@ return ret;
         return plane;
     }
     
-    RenderingManager(Renderer r, CmdProcessor cp)
-    {
-        if (r == null) throw new NullPointerException("No renderer.");
-        if (cp == null) throw new NullPointerException("No command processor."); 
-        renderer = r;
-        cmdProcessor = cp;
-        PixelsDimensions dims = renderer.getPixelsDims();
-        stackCache = new Future[dims.sizeZ];
+    
+    /** Handles requests to render planes within our pixels set. */
+    private final Renderer          renderer;
+    
+    /** Back-link to the rendering engine. */
+    private final RenderingEngine   engine;
+    
+    /**
+     * Keeps track of the XY planes that have been rendered and tries to guess 
+     * the next ones that will be requested.
+     */
+    private NavigationHistory       history;
+    
+    /** 
+     * Caches XY images that have been rendered or futures to (said) images 
+     * that are being/have been rendered asynchronously.
+     */
+    private ImageFutureCache        cache;
+                 
+    /**
+     * Utility innner class to encapsulate a rendering operation into a service
+     * and run it asynchronously.
+     * The plane to render is specified to the constructor and the renderer is
+     * the one in use within its enclosing class.  This means the same renderer
+     * is shared by all instances of this class.  The implication is that more
+     * than one thread could be calling the render method at the same time.
+     * Remarkably a rendering operation only reads the state of the renderering
+     * environment and retrieves plane data through the renderer's data sink 
+     * &#151; this latter operation is thread-safe.  So every time the state of
+     * the rendering environment is changed (the action is initiated by the GUI
+     * and runs within the Swing thread) any ongoing asynchronous operation will
+     * be exposed to a variety of problems &#151; ranging from staleness of
+     * values in lookup tables to indexes out of bounds in said tables to
+     * null pointers.  Fortunately, we can simply ignore all this.  In fact, the
+     * result could either be an invalid image (the operation read inconsistent
+     * values) or an exception.  Either way, the future that represents the 
+     * operation will never be accessed: every time a property in the rendering
+     * environment changes, the onRenderingPropChange method is eventually 
+     * called.  This method clears the cache, which, in turn, discards any
+     * future that was added &#151; futures are added to the cache once returned
+     * by this class' doCall method.
+     */
+    private class AsyncRenderOp implements Invocation {
+        final Renderer rnd = renderer;
+        final PlaneDef pd;
+        AsyncRenderOp(PlaneDef pd) { this.pd = pd; }
+        Future doCall() {
+            CmdProcessor proc = engine.getCmdProcessor();
+            return proc.exec(this);
+        }
+        public Object call() throws Exception { return rnd.render(pd); }
     }
     
-    BufferedImage renderXYPlane(PlaneDef pd)
+    
+    /**
+     * Creates a new manager to handle the the given pixels set within the 
+     * specified image.
+     * 
+     * @param engine    Reference to the rendering engine.
+     * @param imageID   The id of the image the pixels set belongs to.
+     * @param pixelsID  The id of the pixels set.
+     */
+    private RenderingManager(Renderer renderer, RenderingEngine engine)
+    {
+        this.renderer = renderer;
+        this.engine = engine; 
+        
+        //Create the navigation history.
+        PixelsDimensions dims = renderer.getPixelsDims();
+        history = new NavigationHistory(2, dims.sizeZ, dims.sizeT);
+        //NOTE: When we have a smarter navigation history that actually 
+        //takes more than two entries into account when making predictions,
+        //we'll have to specify a suitable history size.
+        
+        //Create the XY images cache.
+        clearCache();  //Will work fine b/c we've already built history.
+    }
+    
+    /**
+     * Clears the current {@link #cache} (if any) and creates an empty new one.
+     */
+    private void clearCache()
+    {
+        if (cache != null)  //Called after initialization, clear previous one.
+            cache.clear();
+        
+        int CACHE_SIZE = 100*1024*1024,  //TODO: get from reg.
+            imgSz = renderer.getImageSize(new PlaneDef(PlaneDef.XY, 0));
+        //NOTE: imgSz depends on rendering strategy.  However, every time
+        //the setModel method is called, the onRenderingPropChange method
+        //is eventually called too.  B/c onRenderingPropChange calls this
+        //method, the cache is rebuilt with the (possibly) new image size.
+    
+        cache = new ImageFutureCache(CACHE_SIZE, imgSz, history);
+    }
+    
+    private BufferedImage handleXYRendering(PlaneDef pd)
         throws DataSourceException, QuantizationException
     {
-        updatePlaneDef(pd);
-        //if (pd == null) return renderer.render();
-        //return renderer.render(pd);
+        //First off see if the image is in the cache.  If the image is being
+        //rendered, wait until the asynchronous operation terminates.
+        BufferedImage img = cache.extract(pd);
+        if (img == null) {  
+            //The image is not in cache and is not being rendered either.
+            //Render in the caller's thread.  So, as in the case above, we
+            //have the caller wait.  This works as a back-pressure measure
+            //to avoid resource exhaustion.
+            img = renderer.render(pd); 
+            cache.add(pd, img);
+        }
+        //Add to history.  So the current move will always be the last
+        //plane that was requested and sucessfully rendered.
+        history.addMove(pd);
         
-        int minZ = Math.max(curPlaneDef.getZ()-0, 0),
-            maxZ = Math.min(curPlaneDef.getZ()+0, stackCache.length-1);
-//long start = System.currentTimeMillis();
-        for (int z = minZ; z <= maxZ; ++z) 
-            if (stackCache[z] == null) 
-                stackCache[z] = cmdProcessor.exec(new RenderXYPlane(z));
-//System.out.println("Threads spwaned in: "+(System.currentTimeMillis()-start));
-//start = System.currentTimeMillis();
-//BufferedImage ret = extractXYImage(curPlaneDef.getZ());
-//System.out.println("Image extracted in: "+(System.currentTimeMillis()-start));
-//return ret;
-        return extractXYImage(curPlaneDef.getZ());
+        //Try to guess the next moves and start an asynchronous rendering
+        //operation for each of those moves.  Handles are added to the cache
+        //so that if the next call to this method requests an image that is
+        //being rendered asynchronously, we don't start a new operation and
+        //we have the caller wait for the ongoing one to complete instead.
+        int MAX_MOVES = 3;  //TODO: get from registry.
+        PlaneDef[] nextMoves = history.guessNextMoves(MAX_MOVES);
+        for (int i = 0; i < nextMoves.length; i++) {
+            if (!cache.contains(nextMoves[i])) {
+                AsyncRenderOp op = new AsyncRenderOp(nextMoves[i]);
+                cache.add(nextMoves[i], op.doCall());  //Adds a Future.
+            }
+        }
+        
+        //Finally return the requested image.
+        return img;
     }
     
+    /**
+     * Renders the data selected by <code>pd</code> according to the current
+     * rendering settings.
+     * The passed argument selects a plane orthogonal to one of the <i>X</i>, 
+     * <i>Y</i>, or <i>Z</i> axes.  How many wavelengths are rendered and
+     * what color model is used depends on the current rendering settings.
+     * 
+     * @param pd    Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *              or <i>Z</i> axes.  If <code>null</code>, then the default
+     *              plane is rendered.
+     * @return  A buffered image ready to be displayed on screen.
+     * @throws DataSourceException If an error occured while trying to pull out
+     *                              data from the pixels data repository.
+     * @throws QuantizationException If an error occurred while quantizing the
+     *                                  pixels raw data.
+     */
+    BufferedImage renderPlane(PlaneDef pd) 
+        throws DataSourceException, QuantizationException
+    {
+        if (pd == null) pd = renderer.getDefaultPlaneDef();
+        if (pd.getSlice() == PlaneDef.XY) return handleXYRendering(pd);
+        //Else it's a XZ or ZY plane, which requires the whole stack to be 
+        //in memory.  The data sink will take care of it when the renderer
+        //will request the plane data.
+        return renderer.render(pd);
+    }
+    
+    
+    /**
+     * Creates a proxy to access the rendering environment.
+     * 
+     * @return  See above.
+     */
+    RenderingControlProxy createRenderingControlProxy()
+    {
+        RenderingDef original = renderer.getRenderingDef(), copy;
+        copy = original.copy();
+        EventBus eventBus = RenderingEngine.getRegistry().getEventBus();
+        RenderingControlImpl facade = new RenderingControlImpl(renderer);
+        return new RenderingControlProxy(facade, copy, eventBus);
+    }
+    
+    /**
+     * Clears all images in cache as they're no longer valid.
+     * In fact, the rendering context has changed and the 
+     * {@link RenderingEngine} has called this method to notify
+     * us about that.
+     */
     void onRenderingPropChange()
     {
-//long start = System.currentTimeMillis();
         clearCache();
-//System.out.println("Stack cleared in: "+(System.currentTimeMillis()-start));
     }
     
 }
