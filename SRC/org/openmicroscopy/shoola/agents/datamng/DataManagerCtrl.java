@@ -181,6 +181,10 @@ public class DataManagerCtrl
 			if (presentation.isClosed()) abstraction.showPresentation();	
 			if (presentation.isIcon()) abstraction.deiconifyPresentation();	
 			abstraction.setMenuSelection(true);
+			//Activate the Frame.
+			try {
+				presentation.setSelected(true);
+			} catch (Exception e) {}
 		}  		
 	}	
 	

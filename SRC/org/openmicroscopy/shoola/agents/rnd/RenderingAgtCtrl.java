@@ -364,6 +364,10 @@ public class RenderingAgtCtrl
 				abstraction.showPresentation();	
 			}
 			abstraction.setMenuSelection(true);
+			//Activate the Frame.
+  			try {
+	  			presentation.setSelected(true);
+  			} catch (Exception e) {}
 			displayed = true;	
 		}
 	}
