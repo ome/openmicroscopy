@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -142,6 +143,8 @@ public class RenderingEngine
 			} catch (DataSourceException dse) {
 				hanldeException("Can't load pixels data. Pixels id: "+
 													request.getPixelsID(), dse);
+			} catch (QuantizationException qee) {
+				hanldeException("Can' render the specified image", qee);
 			}
 		}
 	}

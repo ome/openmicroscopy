@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsGlobalStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
@@ -80,8 +81,7 @@ class Renderer
 	private CodomainChain		codomainChain;
 
 	private RenderingEngine		engine;	
-	
-	
+		
 	/** 
 	 * Helper method to create the default settings if none is available.
 	 * In this case we use a grayscale model to map the first wavelength in
@@ -203,7 +203,7 @@ class Renderer
 	 * 								data from the pixels data repository.
 	 */
 	BufferedImage render(PlaneDef pd)
-		throws DataSourceException
+		throws DataSourceException, QuantizationException
 	{
 		if (pd == null)
 			throw new NullPointerException("No plane definition.");
@@ -223,45 +223,24 @@ class Renderer
 	 * 								data from the pixels data repository.
 	 */
 	BufferedImage render()
-		throws DataSourceException
+		throws DataSourceException, QuantizationException
 	{
 		//Note that planeDef can never be null.
 		return renderingStrategy.render(this);
 	}
 
-	PixelsDimensions getPixelsDims()
-	{
-		return pixelsDims;
-	}
+	PixelsDimensions getPixelsDims() { return pixelsDims; }
 
-	PixelsStats getPixelsStats()
-	{
-		return pixelsStats;
-	}
+	PixelsStats getPixelsStats() { return pixelsStats; }
 
-	PlaneDef getPlaneDef()
-	{
-		return planeDef;
-	}
+	PlaneDef getPlaneDef() { return planeDef; }
 
-	RenderingDef getRenderingDef()
-	{
-		return renderingDef;
-	}
+	RenderingDef getRenderingDef() { return renderingDef; }
 
-	QuantumManager getQuantumManager()
-	{
-		return quantumManager;
-	}
+	QuantumManager getQuantumManager() { return quantumManager; }
 
-	DataSink getDataSink()
-	{
-		return dataSink;
-	}
+	DataSink getDataSink() { return dataSink; }
 
-	CodomainChain getCodomainChain()
-	{
-		return codomainChain;
-	}
+	CodomainChain getCodomainChain() { return codomainChain; }
 
 }

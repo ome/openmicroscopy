@@ -112,10 +112,7 @@ class QuantumManager
      * 
      * @param w		The wavelength index in the <i>OME</i> 5D pixels file.
      */
-	QuantumStrategy getStrategyFor(int w)
-	{
-		return wavesStg[w];
-	}
+	QuantumStrategy getStrategyFor(int w) { return wavesStg[w]; }
     
 }
 

@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 
 /** 
  * 
@@ -59,7 +60,7 @@ abstract class RenderingStrategy
 	static RenderingStrategy makeNew(int model)
 	{
 		RenderingStrategy strategy = null;
-		switch(model) {
+		switch (model) {
 			case RenderingDef.GS:
 				strategy = new GreyScaleStrategy();
 				break;
@@ -74,6 +75,7 @@ abstract class RenderingStrategy
 		return strategy;
 	}
 	
-	abstract BufferedImage render(Renderer ctx) throws DataSourceException;
+	abstract BufferedImage render(Renderer ctx) 
+		throws DataSourceException, QuantizationException;
 	
 }
