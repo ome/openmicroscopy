@@ -147,7 +147,7 @@ final class SplashScreenInit
 	 */
 	public void onExecute(String taskName)
 	{
-		splashScreen.updateProgress(taskName, doneTasks++);
+		splashScreen.updateProgress(taskName);
 		//NOTE: post increment b/c this task hasn't been executed yet.
 	}
 
@@ -157,7 +157,7 @@ final class SplashScreenInit
 	public void onEnd()
 	{
 		//Last update with total number of tasks executed.
-		splashScreen.updateProgress("", doneTasks);
+		splashScreen.updateProgress("");
 		
 		//Wait until the user enters their credentials for logging into OME.
 		UserCredentials uc = splashScreen.getUserCredentials();
