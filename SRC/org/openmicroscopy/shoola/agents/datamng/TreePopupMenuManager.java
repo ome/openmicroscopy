@@ -100,12 +100,19 @@ class TreePopupMenuManager
 		target = t;
 		if (target != null) {
 			view.properties.setEnabled(true);
-			view.browse.setEnabled((target instanceof DatasetSummary));
+			view.browse.setEnabled(!(target instanceof ImageSummary));
 			view.view.setEnabled((target instanceof ImageSummary));
 			view.annotate.setEnabled(!(target instanceof ProjectSummary));
 			view.importImg.setEnabled((target instanceof DatasetSummary));
             view.refresh.setEnabled(!(target instanceof ImageSummary));
-		} else view.properties.setEnabled(false);
+		} else {//root node.
+            view.properties.setEnabled(false);
+            view.browse.setEnabled(true);
+            view.view.setEnabled(false);
+            view.annotate.setEnabled(false);
+            view.importImg.setEnabled(false);
+            view.refresh.setEnabled(true);
+        }
 	}
     
 	/** 
@@ -122,14 +129,20 @@ class TreePopupMenuManager
 			else if (src == view.view && target instanceof ImageSummary)       
 				agentCtrl.viewImage(((ImageSummary) target));
 			else if (src == view.browse && target instanceof DatasetSummary)
-				agentCtrl.viewDataset(((DatasetSummary) target));
+				agentCtrl.browseDataset(((DatasetSummary) target));
+            else if (src == view.browse && target instanceof ProjectSummary)
+                agentCtrl.browseProject(((ProjectSummary) target));
 			else if (src == view.annotate)
 				agentCtrl.annotate(target);
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
             else if (src == view.refresh) agentCtrl.refresh(target);
-		} else if (target == null && src == view.refresh)
-            agentCtrl.refresh(DataManagerCtrl.EXPLORER);
+		} else { //root node
+            if (src == view.refresh) 
+                agentCtrl.refresh(DataManagerCtrl.EXPLORER);
+            else if (src == view.browse) 
+                agentCtrl.browseRoot();  
+        }
 		view.setVisible(false);
 	}
 	

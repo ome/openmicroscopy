@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -178,9 +177,9 @@ public class DataManager
     }
     
     /** Refresh the categorySummary. */
-    void refreshCategory(CategorySummary cs)
+    void refreshCategory(CategoryData data)
     {
-        if (presentation != null) presentation.refreshCategory(cs);
+        if (presentation != null) presentation.refreshCategory(data);
     }
     
 	/** Refresh the all tree. */
@@ -857,7 +856,7 @@ public class DataManager
 	 * 
 	 * @param datasetID		The id of the dataset.
 	 */
-	void viewDataset(int datasetID)
+	void browseDataset(DatasetSummary ds)
 	{
         getRegistry().getUserNotifier().notifyInfo("Browser", 
                 "Sorry, not yet implemented ");  
@@ -865,6 +864,16 @@ public class DataManager
 		//registry.getEventBus().post(request);	
 	}
 
+    void browseProject(ProjectSummary ps)
+    {
+        
+    }
+    
+    void browseRoot()
+    {
+        
+    }
+    
 	/**
 	 * Posts a request to view the given pixels set within the image.
 	 * 
@@ -894,6 +903,16 @@ public class DataManager
         }      
     }
 
+    void browseCategoryGroup(CategoryGroupData data)
+    {
+        
+    }
+    
+    void browseCategory(CategoryData data)
+    {
+        
+    }
+    
     /** Retrieve all categoryGroups. */
     List getCategoryGroups()
         throws DSAccessException
@@ -922,7 +941,6 @@ public class DataManager
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            //return sts.retrieveImagesNotInGroup(group);
             return sts.retrieveImagesNotInCategoryGroup(group.getID());
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
@@ -1142,7 +1160,7 @@ public class DataManager
         }
         return new ArrayList();
     }
-    
+    /*
     CategoryData getCategoryData(int id)
         throws DSAccessException
     {
@@ -1157,7 +1175,7 @@ public class DataManager
         } 
         return new CategoryData();
     }
-
+*/
     /** Create a new category group. */
     void createCategoryGroup(CategoryGroupData data)
     {

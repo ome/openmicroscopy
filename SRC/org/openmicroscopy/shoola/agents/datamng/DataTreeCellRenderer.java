@@ -41,8 +41,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -136,7 +136,7 @@ class DataTreeCellRenderer
             }
             else if (usrObject instanceof CategoryGroupData) 
                 id = CATEGORY_GROUP_ICON;
-            else if (usrObject instanceof CategorySummary) id = CATEGORY_ICON;
+            else if (usrObject instanceof CategoryData) id = CATEGORY_ICON;
 			else if (usrObject instanceof String) id = NO_ICON;
 		}
 		return id;

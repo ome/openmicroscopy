@@ -42,8 +42,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
@@ -107,7 +107,7 @@ public class ClassifierPane
         if (node != null) {
             Object  usrObj = node.getUserObject();
             if (usrObj instanceof CategoryGroupData || 
-                usrObj instanceof CategorySummary ||
+                usrObj instanceof CategoryData ||
                 usrObj instanceof ImageSummary)
                 target = (DataObject) usrObj;
         }

@@ -49,7 +49,7 @@ import javax.swing.table.AbstractTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
@@ -228,7 +228,7 @@ class GroupCategoriesPane
 		private CategoriesTableModel()
 		{
 			for (int i = 0; i < categories.length; i++) {
-                data[i][0] = ((CategorySummary) categories[i]).getName();
+                data[i][0] = ((CategoryData) categories[i]).getName();
                 data[i][1] = Boolean.FALSE;
             }
 		}
@@ -270,9 +270,9 @@ class GroupCategoriesPane
         
         private CategoriesAddTableModel()
         {
-            CategorySummary is;
+            CategoryData is;
             for (int i = 0; i < categories.length; i++) {
-                is = (CategorySummary) categories[i];
+                is = (CategoryData) categories[i];
                 data[i][0] = is.getName();
                 data[i][1] = new Boolean(imgs.contains(is));
             }
@@ -298,7 +298,7 @@ class GroupCategoriesPane
             data[row][col] = value;
             fireTableCellUpdated(row, col);
             manager.setToAddToRemove(((Boolean) value).booleanValue(),
-                                    (CategorySummary) categories[row]);
+                                    (CategoryData) categories[row]);
         }
     }
     

@@ -54,7 +54,7 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
@@ -248,7 +248,7 @@ class GroupCategoriesDiffPane
         private CategoriesTableModel()
         {
             for (int i = 0; i < categories.length; i++) {
-                data[i][0] = (CategorySummary) categories[i];
+                data[i][0] = (CategoryData) categories[i];
                 data[i][1] = new Boolean(false);
             }
         }
@@ -271,9 +271,9 @@ class GroupCategoriesDiffPane
         public void setValueAt(Object value, int row, int col)
         {   
             data[row][col] = value;
-            CategorySummary cd = (CategorySummary) sorter.getValueAt(row, NAME);
             fireTableCellUpdated(row, col);
-            manager.addCategory(((Boolean) value).booleanValue(), cd);
+            manager.addCategory(((Boolean) value).booleanValue(), 
+                    (CategoryData) sorter.getValueAt(row, NAME));
         }
     }
 

@@ -36,8 +36,8 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
@@ -111,9 +111,9 @@ class ClassifierPopupMenuMng
             else if (src == view.view && target instanceof ImageSummary)       
                 control.viewImage(((ImageSummary) target));
             else if (src == view.view && target instanceof CategoryGroupData)       
-                control.viewCategoryGroup(((CategoryGroupData) target));
-            else if (src == view.view && target instanceof CategorySummary)       
-                control.viewCategory(((CategorySummary) target));
+                control.browseCategoryGroup(((CategoryGroupData) target));
+            else if (src == view.view && target instanceof CategoryData)       
+                control.browseCategory(((CategoryData) target));
             else if (src == view.annotate) control.annotate(target);
             else if (src == view.refresh) control.refresh(target);
         } else if (target == null && src == view.refresh)

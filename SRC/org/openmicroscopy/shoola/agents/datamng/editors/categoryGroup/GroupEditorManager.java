@@ -47,8 +47,8 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -184,9 +184,9 @@ class GroupEditorManager
     void addCategoriesSelection(List l)
     {
         Iterator i = l.iterator();
-        CategorySummary cd;
+        CategoryData cd;
         while (i.hasNext()) {
-            cd = (CategorySummary) i.next();
+            cd = (CategoryData) i.next();
             if (!categoriesToAdd.contains(cd)) categoriesToAdd.add(cd);
         }
         view.rebuildComponent();
@@ -200,7 +200,7 @@ class GroupEditorManager
      *                  false otherwise.
      * @param cd        category to add or remove
      */
-    void setToAddToRemove(boolean value, CategorySummary cd) 
+    void setToAddToRemove(boolean value, CategoryData cd) 
     {
         if (value) categoriesToAddToRemove.add(cd); 
         else {
@@ -229,10 +229,10 @@ class GroupEditorManager
     private void removeAdded()
     {
         Iterator i = categoriesToAddToRemove.iterator();
-        CategorySummary cd;
+        CategoryData cd;
     
         while (i.hasNext()) {
-            cd = (CategorySummary) i.next();
+            cd = (CategoryData) i.next();
             categoriesToAdd.remove(cd);
             if (dialog != null) dialog.getManager().setSelected(true, cd);
         }

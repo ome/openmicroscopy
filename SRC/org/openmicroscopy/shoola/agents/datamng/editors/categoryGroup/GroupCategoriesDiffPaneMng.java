@@ -38,10 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 
 /** 
  * 
@@ -121,7 +122,7 @@ class GroupCategoriesDiffPaneMng
 		} 
 	}
 	
-	void setSelected(boolean value, CategorySummary cd)
+	void setSelected(boolean value, CategoryData cd)
 	{
 		if (value) categoriesDiff.add(cd);
 		else categoriesDiff.remove(cd);
@@ -144,7 +145,7 @@ class GroupCategoriesDiffPaneMng
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void addCategory(boolean value, CategorySummary cd) 
+	void addCategory(boolean value, CategoryData cd) 
 	{
 		if (value)	{
 			if (!categoriesToAdd.contains(cd))	categoriesToAdd.add(cd);

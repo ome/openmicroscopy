@@ -48,8 +48,8 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -142,11 +142,9 @@ public class ClassifierPaneManager
     {
         List l = g.getCategories();
         Iterator dIter = l.iterator();
-        CategorySummary cd;
         DefaultMutableTreeNode cNode;
         while (dIter.hasNext()) {
-            cd = (CategorySummary) dIter.next();
-            cNode = new DefaultMutableTreeNode(cd);
+            cNode = new DefaultMutableTreeNode(dIter.next());
             treeModel.insertNodeInto(cNode, gNode, gNode.getChildCount());
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
                                     cNode, cNode.getChildCount());
@@ -205,12 +203,11 @@ public class ClassifierPaneManager
                             boolean isVisible)
     {
         Iterator i = l.iterator();
-        CategorySummary cd;
+        //CategorySummary cd;
         DefaultMutableTreeNode cNode;
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         while (i.hasNext()) {
-            cd = (CategorySummary) i.next();
-            cNode = new DefaultMutableTreeNode(cd);
+            cNode = new DefaultMutableTreeNode(i.next());
             treeModel.insertNodeInto(cNode, gNode, gNode.getChildCount());
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
                                                 cNode, cNode.getChildCount());
@@ -290,10 +287,8 @@ public class ClassifierPaneManager
         if (l != null) {
             Iterator i = l.iterator();
             DefaultMutableTreeNode cNode;
-            CategorySummary cd;
             while (i.hasNext()) {
-                cd = (CategorySummary) i.next();
-                cNode = new DefaultMutableTreeNode(cd);
+                cNode = new DefaultMutableTreeNode(i.next());
                 cNode.add(new DefaultMutableTreeNode(LOADING));
                 gNode.add(cNode);
             }
@@ -385,8 +380,8 @@ public class ClassifierPaneManager
         Object usrObject = node.getUserObject();
         //category node
         //dataset summary node
-        if (usrObject instanceof CategorySummary) {
-            categoryNodeNavigation((CategorySummary) usrObject, node, 
+        if (usrObject instanceof CategoryData) {
+            categoryNodeNavigation((CategoryData) usrObject, node, 
                                     isExpanding);
         } else if (usrObject instanceof CategoryGroupData) {
             control.setSelectedCategoryGroup(
@@ -397,17 +392,17 @@ public class ClassifierPaneManager
     }
     
     /** Refresh the specified category. */
-    void refreshCategoryInTree(CategorySummary cs)
+    void refreshCategoryInTree(CategoryData data)
     {
         //no category node expanded
         if (cNodes.size() == 0) return;
-        List nodes = (List) cNodes.get(new Integer(cs.getID()));
-        //The dataset hasn't been expanded, in this case, we do nothing
+        List nodes = (List) cNodes.get(new Integer(data.getID()));
+        //The category hasn't been expanded, in this case, we do nothing
         if (nodes == null) return;
         Iterator i = nodes.iterator();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode node;   
-        List images = control.getImagesInCategory(cs.getID());
+        List images = data.getImages();
         while (i.hasNext()) {
             node = (DefaultMutableTreeNode) i.next();
             node.removeAllChildren();
@@ -457,15 +452,15 @@ public class ClassifierPaneManager
      * @param node          Node which fired event.
      * @param isExpanding   True is the node is expanded false otherwise.
      */
-    private void categoryNodeNavigation(CategorySummary cs, 
+    private void categoryNodeNavigation(CategoryData data, 
                                         DefaultMutableTreeNode node, 
                                         boolean isExpanding)
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        Integer id = new Integer(cs.getID());
+        Integer id = new Integer(data.getID());
         node.removeAllChildren();
         if (isExpanding) {
-            List list = control.getImagesInCategory(cs.getID());
+            List list = data.getImages();
            
             //TODO: loading will never be displayed b/c we are in the
             // same thread.

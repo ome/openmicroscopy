@@ -45,8 +45,8 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -152,9 +152,9 @@ public class DataManagerUIF
 	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
 	
     /** Forward event to {@link classifierPaneManager}. */
-    void refreshCategory(CategorySummary cs)
+    void refreshCategory(CategoryData data)
     {
-        classifierPane.getManager().refreshCategoryInTree(cs);
+        classifierPane.getManager().refreshCategoryInTree(data);
     }
     
     /** Forward event to {@link classifierPaneManager}. */

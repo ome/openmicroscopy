@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -98,13 +97,15 @@ public class DataManagerCtrl
     
     static final int            CREATE_CATEGORY = 4;
     
+    /** ID used to handle the refresh Hierarchy tree action. */
     static final int            EXPLORER = 100;
     
+    /** ID used to handle the refresh CategroyGroup tree action. */
     static final int            CLASSIFIER = 101;
+
+    public static final int     IMAGES_FOR_PDI = 300;
     
-    public static final int     IMAGES_FOR_PDI = 102;
-    
-    public static final int     IMAGES_FOR_CGI = 103;
+    public static final int     IMAGES_FOR_CGI = 301;
     
 	private DataManager			abstraction;
 	
@@ -350,11 +351,9 @@ public class DataManagerCtrl
             } else if (target instanceof CategoryGroupData) {
                 UIUtilities.centerAndShow(new GroupEditor(registry, this, 
                                 (CategoryGroupData) target));
-            } else if (target instanceof CategorySummary) {
-                CategoryData cd = abstraction.getCategoryData(
-                        ((CategorySummary) target).getID());
+            } else if (target instanceof CategoryData) {
                 UIUtilities.centerAndShow(new CategoryEditor(registry, this, 
-                                        cd));
+                        (CategoryData) target));
             }
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve the specified target.";
@@ -374,8 +373,8 @@ public class DataManagerCtrl
             abstraction.refresh((DatasetSummary) target);
         else if (target instanceof CategoryGroupData)
             abstraction.refreshCategoryGroups();
-        else if (target instanceof CategorySummary)
-            abstraction.refreshCategory((CategorySummary) target);
+        else if (target instanceof CategoryData)
+            abstraction.refreshCategory((CategoryData) target);
     }
     
     void refresh(int index)
@@ -427,9 +426,21 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    void viewDataset(DatasetSummary ds)
+    void browseDataset(DatasetSummary ds)
     { 
-        abstraction.viewDataset(ds.getID());
+        abstraction.browseDataset(ds);
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    void browseProject(ProjectSummary ps)
+    { 
+        abstraction.browseProject(ps);
+    }
+    
+    /** Forward the call to the {@link DataManager abstraction}. */
+    void browseRoot()
+    { 
+        abstraction.browseRoot();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
@@ -494,13 +505,6 @@ public class DataManagerCtrl
         } 
     }
     
-    /** Attach listener to a menuItem or a button. */
-    void attachItemListener(AbstractButton item, int id)
-    {
-        item.setActionCommand(""+id);
-        item.addActionListener(this);
-    }
-    
     /** Forward to the {@link DataManager abstraction}. */
     String getUserName() { return abstraction.getUserName(); }
 
@@ -516,15 +520,15 @@ public class DataManagerCtrl
     }
     
     /** Forward to the {@link DataManager abstraction}. */
-    void viewCategoryGroup(CategoryGroupData data)
+    void browseCategoryGroup(CategoryGroupData data)
     {
-       //Post an event 
+       abstraction.browseCategoryGroup(data);
     }
 
     /** Forward to the {@link DataManager abstraction}. */
-    void viewCategory(CategorySummary data)
+    void browseCategory(CategoryData data)
     {
-        //Post an event 
+        abstraction.browseCategory(data); 
     }
 
     /** Create a new Category. */
@@ -568,21 +572,6 @@ public class DataManagerCtrl
         return new ArrayList();
     }
 
-    /** Retrieve all the images contained in the specified category. */
-    public List getImagesInCategory(int id)
-    {
-        try {
-            CategoryData model = abstraction.getCategoryData(id);
-            return model.getImages();
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the category.";
-            getRegistry().getLogger().error(this, s+" Error: "+dsae);
-            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae); 
-        } 
-        return new ArrayList();
-    }
-    
     /** 
      * List of existing categories not in the current group. 
      * Only, the categories containing images not already in the group
@@ -725,4 +714,11 @@ public class DataManagerCtrl
         abstraction.createCategory(cd, images);
     }
 
+    /** Attach listener to a menuItem or a button. */
+    void attachItemListener(AbstractButton item, int id)
+    {
+        item.setActionCommand(""+id);
+        item.addActionListener(this);
+    }
+    
 }
