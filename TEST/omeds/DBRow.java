@@ -30,7 +30,6 @@
 package omeds;
 
 //Java imports
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 //Third-party libraries
@@ -53,7 +52,7 @@ import java.sql.PreparedStatement;
  */
 public abstract class DBRow
 {
-	private static String	DELETE_STM = "DELETE FROM ? WHERE ? = ?";
+	private String DELETE_STM;
 	
 	private int 			id;
 	
@@ -71,10 +70,9 @@ public abstract class DBRow
 		throws Exception
 	{
 		DBManager dbm = DBManager.getInstance();
+		DELETE_STM = "DELETE FROM "+getTableName()+" WHERE "+getIDColumnName()+
+						"="+id;
 		PreparedStatement ps = dbm.getPreparedStatement(DELETE_STM);
-		ps.setString(1, getTableName());	
-		ps.setString(2, getIDColumnName());
-		ps.setInt(3, id);
 		ps.execute();
 		ps.close();
 	}

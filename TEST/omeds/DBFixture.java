@@ -61,7 +61,7 @@ import java.util.Stack;
  */
 public class DBFixture
 {
-	private static String		MAX_ID_QUERY = "SELECT MAX(project_id) FROM projects";
+	private String MAX_ID_QUERY;
 	
 	/** Queue to order the tasks to be executed. */
 	private List				processingQueue;
@@ -70,6 +70,7 @@ public class DBFixture
 	private Stack				doneCommands;
 
 	private Map					idGenerationMap;
+	
 	/**
 	 * Creates a new instance.
 	 */
@@ -86,6 +87,7 @@ public class DBFixture
 		processingQueue.add(row);
 	}
 	
+	/** Inserts data in DB. */
 	final void load()
 		throws Exception
 	{
@@ -106,6 +108,7 @@ public class DBFixture
 		} 
 	}
 	
+	/** Removes data inserted for testing. */
 	final void unload()
 		throws Exception
 	{
@@ -130,9 +133,9 @@ public class DBFixture
 		Integer id = (Integer) idGenerationMap.get(row.getClass());
 		if (id == null) {
 			DBManager dbm = DBManager.getInstance();
+			MAX_ID_QUERY = "SELECT MAX("+row.getIDColumnName()+ 
+							") FROM "+row.getTableName();
 			PreparedStatement ps = dbm.getPreparedStatement(MAX_ID_QUERY);
-			//ps.setString(1, row.getIDColumnName());
-			//ps.setString(2, row.getTableName());
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			id = new Integer(rs.getInt(1));	
