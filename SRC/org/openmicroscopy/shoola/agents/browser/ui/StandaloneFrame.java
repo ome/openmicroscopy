@@ -39,9 +39,10 @@ import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-
 import javax.swing.JFrame;
 
+
+import org.openmicroscopy.shoola.env.ui.ManageableTopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -52,7 +53,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @version 2.2.1
  * @since OME2.2.1
  */
-public abstract class StandaloneFrame extends JFrame
+public abstract class StandaloneFrame extends ManageableTopWindow
                                       implements UIWrapper
 {
     /**

@@ -39,7 +39,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,6 +52,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainCreationCanvas;
 import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.ui.ManageableTopWindow;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
@@ -67,7 +67,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * </smalbl>
  * @since OME2.2
  */
-public class ChainFrame extends JFrame implements ActionListener {
+public class ChainFrame extends ManageableTopWindow implements ActionListener {
 	
 
 	/** the lifetime of a status label */
