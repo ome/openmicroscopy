@@ -80,7 +80,8 @@ public class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 		if (lastEntered != null) { 
 			lastEntered.setParamsHighlighted(false);
 			ChainModuleData mod = lastEntered.getModule();
-			mod.setModulesHighlighted(false);
+			if (mod != null)
+				mod.setModulesHighlighted(false);
 		}
 		lastEntered = null;
 	}	
