@@ -35,13 +35,11 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 
 /**
@@ -62,7 +60,7 @@ public class ThumbnailDataModel
     /**
      * The set of attributes in the data model.
      */
-    protected Map attributeMap;
+    protected AttributeMap attributeMap;
 
     /**
      * Creates a data model with the backing ImageData information and an
@@ -81,7 +79,7 @@ public class ThumbnailDataModel
                 " in ThumbnailDataModel(ImageData)");
         }
         imageData = basicData;
-        attributeMap = new HashMap();
+        attributeMap = new AttributeMap();
     }
 
     /**
@@ -93,7 +91,7 @@ public class ThumbnailDataModel
      * @param attributeMap The specified set of String-to-Attribute mappings.
      * @throws IllegalArgumentException if basicData is null.
      */
-    public ThumbnailDataModel(ImageData basicData, Map attributeMap)
+    public ThumbnailDataModel(ImageData basicData, AttributeMap attributeMap)
     {
         if(basicData == null)
         {
@@ -104,16 +102,21 @@ public class ThumbnailDataModel
         
         if(attributeMap == null)
         {
-            this.attributeMap = new HashMap();
+            this.attributeMap = new AttributeMap();
         }
         else // deep copy
         {
-            this.attributeMap = new HashMap();
-            for(Iterator iter = attributeMap.keySet().iterator();
+            this.attributeMap = new AttributeMap();
+            for(Iterator iter = attributeMap.getValidTypeNames().iterator();
                 iter.hasNext();)
             {
-                Object key = iter.next();
-                this.attributeMap.put(key,attributeMap.get(key));
+                String key = (String)iter.next();
+                List attributes = (List)attributeMap.getAttributes(key);
+                for(Iterator iter2 = attributes.iterator(); iter2.hasNext();)
+                {
+                    Attribute attr = (Attribute)iter2.next();
+                    this.attributeMap.putAttribute(attr);
+                }
             }
         }
     }
@@ -146,66 +149,22 @@ public class ThumbnailDataModel
     }
 
     /**
-     * Returns the set of valid keys for attributes in this thumbnail.
+     * Gets the backing attribute map for this image/thumbnail.
+     * @return An attribute map for this data model.
+     */
+    public AttributeMap getAttributeMap()
+    {
+        return attributeMap;
+    }
+
+    /**
+     * Sets the backing attribute map for this image/thumbnail to the
+     * particular mapping.
      * 
-     * @return See above.
-     */
-    public Set getKeyStrings()
+     * @param attributeMap The map to use (can be null).
+     */    
+    public void setAttributeMap(AttributeMap attributeMap)
     {
-        return Collections.unmodifiableSet(attributeMap.keySet());
-    }
-
-    /**
-     * Gets the attribute with the specified name.
-     * 
-     * @param key The name of the attribute.
-     * @return The attribute with the specified name.
-     */
-    public Attribute getAttribute(String key)
-    {
-        if (key != null)
-        {
-            return (Attribute) attributeMap.get(key);
-        }
-        else
-            return null;
-    }
-
-    /**
-     * Binds the name to the specified Attribute in the data model.
-     * Will have no effect if either parameter is null.
-     * @param key The name of the attribute.
-     * @param attribute The attribute to bind.
-     */
-    public void setAttribute(String key, Attribute attribute)
-    {
-        if (key == null || attribute == null)
-        {
-            return;
-        }
-        else
-        {
-            attributeMap.put(key, attribute);
-        }
-    }
-
-    /**
-     * Unbinds (and returns) the Attribute previously bound to
-     * the specified name.
-     * @param key The attribute to remove.
-     * @return The removed attribute, or null if none existed.
-     */
-    public Attribute removeAttribute(String key)
-    {
-        if (attributeMap.containsKey(key))
-        {
-            Attribute attr = (Attribute) attributeMap.get(key);
-            attributeMap.remove(key);
-            return attr;
-        }
-        else
-        {
-            return null;
-        }
+        this.attributeMap = attributeMap;
     }
 }
