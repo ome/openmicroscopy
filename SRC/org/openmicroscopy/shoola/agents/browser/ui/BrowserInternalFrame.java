@@ -82,6 +82,10 @@ public class BrowserInternalFrame extends JInternalFrame
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
         container.add(embeddedView,BorderLayout.CENTER);
+        if(controller.getStatusView() != null)
+        {
+            container.add(controller.getStatusView(),BorderLayout.SOUTH);
+        }
         this.addFocusListener(new CommonFocusAdapter(this));
 
     }

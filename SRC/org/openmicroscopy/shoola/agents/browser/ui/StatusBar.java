@@ -37,6 +37,7 @@
 package org.openmicroscopy.shoola.agents.browser.ui;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.Timer;
@@ -98,11 +99,14 @@ public final class StatusBar extends JPanel
         setLayout(new GridLayout(1,2,4,4));
         
         JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         JPanel rightPanel = new JPanel();
-        rightPanel.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
+        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
         leftPanel.add(leftLabel);
         rightPanel.add(rightLabel);
+        
+        revertToFontDefaults();
         
         add(leftPanel);
         add(rightPanel);
@@ -164,6 +168,10 @@ public final class StatusBar extends JPanel
         }
     }
     
+    /**
+     * Sets the left (persistent) color to the specified hue.
+     * @param color The color to set.
+     */
     public void setLeftColor(Color color)
     {
         if(color != null)
@@ -174,12 +182,27 @@ public final class StatusBar extends JPanel
     }
     
     /**
+     * Sets the right (persistent) color to the specified hue.
+     * @param color The color to set.
+     */
+    public void setRightColor(Color color)
+    {
+        if(color != null)
+        {
+            persistentRightColor = color;
+            rightLabel.setForeground(persistentRightColor);
+        }
+    }
+    
+    /**
      * Reverts to the default font.
      */
     public void revertToFontDefaults()
     {
         setLeftFont(defaultFont);
         setRightFont(defaultFont);
+        setLeftColor(defaultColor);
+        setRightColor(defaultColor);
     }
     
     /**

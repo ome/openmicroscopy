@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel;
 import org.openmicroscopy.shoola.agents.browser.layout.PlateLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
+import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
@@ -85,6 +86,8 @@ public class LocalBrowserTest
         BrowserView view = new BrowserView(bm,model);
         
         BrowserController controller = new BrowserController(bm,view);
+        StatusBar bar = new StatusBar();
+        controller.setStatusView(bar);
         
 		BrowserInternalFrame bif = new BrowserInternalFrame(controller);
 		gui.addBrowser(bif);
