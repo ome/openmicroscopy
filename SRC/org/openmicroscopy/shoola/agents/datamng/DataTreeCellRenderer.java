@@ -41,6 +41,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -62,18 +64,23 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 class DataTreeCellRenderer
 	extends DefaultTreeCellRenderer
 {
+    
 	/** ID used to select the appropriated icon. */
-	static final int    			ROOT_ICON = 0;   
-	static final int    			PROJECT_ICON = 1;
-	static final int    			DATASET_ICON = 2;
-	static final int    			IMAGE_ICON = 3;
-	static final int    			NO_ICON = 4; 
+	static final int    			    ROOT_ICON = 0;   
+	static final int    			    PROJECT_ICON = 1;
+	static final int    			    DATASET_ICON = 2;
+	static final int    			    IMAGE_ICON = 3;
+    static final int                    CATEGORY_GROUP_ICON = 4;
+    static final int                    CATEGORY_ICON = 5;
+	static final int                    NO_ICON = 6; 
 	
-	private Registry	registry;
+	private Registry	                registry;
+    
 	DataTreeCellRenderer(Registry registry)
 	{
 		this.registry = registry;
 	}
+    
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 						boolean sel, boolean expanded, boolean leaf,
 						int row, boolean hasFocus)
@@ -92,6 +99,10 @@ class DataTreeCellRenderer
 					setIcon(im.getIcon(IconManager.DATASET)); break;
 				case IMAGE_ICON:
 					setIcon(im.getIcon(IconManager.IMAGE)); break;
+                case CATEGORY_ICON:
+                    setIcon(im.getIcon(IconManager.CATEGORY)); break;
+                case CATEGORY_GROUP_ICON:
+                    setIcon(im.getIcon(IconManager.CATEGORY_GROUP)); break;
 				case NO_ICON:
 					setIcon(null);
 			}									
@@ -110,6 +121,9 @@ class DataTreeCellRenderer
 			if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;
 			else if (usrObject instanceof DatasetSummary) id = DATASET_ICON;
 			else if (usrObject instanceof ImageSummary) id = IMAGE_ICON;
+            else if (usrObject instanceof CategoryGroupData) 
+                id = CATEGORY_GROUP_ICON;
+            else if (usrObject instanceof CategorySummary) id = CATEGORY_ICON;
 			else if (usrObject instanceof String) id = NO_ICON;
 		}
 		return id;

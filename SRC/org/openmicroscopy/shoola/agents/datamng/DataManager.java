@@ -48,8 +48,12 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -100,6 +104,12 @@ public class DataManager
 	/** All user's datasets. */
 	private List					datasetSummaries;
 
+    /** List of all categoryGroups. */
+    private List                    categoryGroups;
+    
+    /** List of all categories. */
+    private List                    categories;
+    
 	/** Creates a new instance. */
 	public DataManager() {}
     
@@ -118,9 +128,10 @@ public class DataManager
         bus.register(this, ServiceActivationResponse.class);
 		control = new DataManagerCtrl(this);
 		presentation = new DataManagerUIF(control, registry);
-		//control.attachListener();
 		datasetSummaries = new ArrayList();
 		projectSummaries = new ArrayList();
+        categoryGroups = new ArrayList();
+        categories = new ArrayList();
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -181,17 +192,25 @@ public class DataManager
 	 */
 	List getImagesDiff(DatasetData data)
 	{
-		List imagesDiff = getUserImages();
-		List images = data.getImages();
-		ImageSummary is, isg;
-		for (int j = 0; j < imagesDiff.size(); j++) {
-			isg = (ImageSummary) imagesDiff.get(j);
-			Iterator i = images.iterator();
-			while (i.hasNext()) {
-				is = (ImageSummary) i.next();
-				if (is.getID() == isg.getID())	imagesDiff.remove(isg); 
-			}
-		}
+		List imagesDiff = new ArrayList();
+        try {
+            imagesDiff = getUserImages();
+            List images = data.getImages();
+            ImageSummary is, isg;
+            for (int j = 0; j < imagesDiff.size(); j++) {
+                isg = (ImageSummary) imagesDiff.get(j);
+                Iterator i = images.iterator();
+                while (i.hasNext()) {
+                    is = (ImageSummary) i.next();
+                    if (is.getID() == isg.getID())  imagesDiff.remove(isg); 
+                }
+            }
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
 		return imagesDiff;
 	}
 	
@@ -205,22 +224,30 @@ public class DataManager
 	List getDatasetsDiff(ProjectData data)
 	{
 		List datasetsDiff = new ArrayList();
-		List datasetsAll = getUserDatasets();
-		List datasets = data.getDatasets();
-		DatasetSummary ds, dsg;
-		Iterator j = datasetsAll.iterator();
-		while (j.hasNext()) {
-			dsg = (DatasetSummary) j.next();
-			Iterator i = datasets.iterator();
-			datasetsDiff.add(dsg);
-			while (i.hasNext()) {
-				ds = (DatasetSummary) i.next();
-				if (ds.getID() == dsg.getID()) {
-					datasetsDiff.remove(dsg);
-					break;
-				} 
-			}	
-		}
+        try {
+            List datasetsAll = getUserDatasets();
+            List datasets = data.getDatasets();
+            DatasetSummary ds, dsg;
+            Iterator j = datasetsAll.iterator();
+            Iterator i;
+            while (j.hasNext()) {
+                dsg = (DatasetSummary) j.next();
+                i = datasets.iterator();
+                datasetsDiff.add(dsg);
+                while (i.hasNext()) {
+                    ds = (DatasetSummary) i.next();
+                    if (ds.getID() == dsg.getID()) {
+                        datasetsDiff.remove(dsg);
+                        break;
+                    } 
+                }   
+            }  
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's projects or images.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
 		return datasetsDiff;
 	}
 	
@@ -234,16 +261,12 @@ public class DataManager
 	 * @return  A list of project summary objects. 
 	 */
 	List getUserProjects()
+        throws DSAccessException
 	{
 		if (projectSummaries.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				projectSummaries = dms.retrieveUserProjects();
-			} catch(DSAccessException dsae) {
-				String s = "Can't retrieve user's projects.";
-				registry.getLogger().error(this, s+" Error: "+dsae);
-				registry.getUserNotifier().notifyError("Data Retrieval Failure",
-														s, dsae);	
 			} catch(DSOutOfServiceException dsose) {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
@@ -263,16 +286,12 @@ public class DataManager
 	 * @return  A list of dataset summary objects. 
 	 */
 	List getUserDatasets()
+        throws DSAccessException
 	{
 		if (datasetSummaries.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				datasetSummaries = dms.retrieveUserDatasets();
-			} catch(DSAccessException dsae) {
-				String s = "Can't retrieve user's datasets.";
-				registry.getLogger().error(this, s+" Error: "+dsae);
-				registry.getUserNotifier().notifyError("Data Retrieval Failure",
-														s, dsae);
 			} catch(DSOutOfServiceException dsose) {	
 				ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -291,17 +310,13 @@ public class DataManager
 	 * @return  A list of image summary objects. 
 	 */
 	List getUserImages()
+        throws DSAccessException
 	{
 		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			images = dms.retrieveUserImages();
-		} catch(DSAccessException dsae) {
-			String s = "Can't retrieve user's images.";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-													dsae);
-		} catch(DSOutOfServiceException dsose) {	
+		}catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
@@ -342,16 +357,12 @@ public class DataManager
 	 * @return projectData object.
 	 */
 	ProjectData getProject(int projectID)
-	{
+	    throws DSAccessException
+    {
 		ProjectData project = new ProjectData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.retrieveProject(projectID);
-		} catch(DSAccessException dsae) {
-			String s = "Can't retrieve the project with ID: "+projectID+".";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure", s, 
-													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -367,16 +378,12 @@ public class DataManager
 	 * @return projectData object.
 	 */
 	DatasetData getDataset(int datasetID)
+        throws DSAccessException
 	{
 		DatasetData dataset = new DatasetData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dataset = dms.retrieveDataset(datasetID);
-		} catch(DSAccessException dsae) {
-			String s = "Can't retrieve the dataset with ID: "+datasetID+".";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -392,16 +399,12 @@ public class DataManager
 	 * @return imageData object.
 	 */
 	ImageData getImage(int imageID)
+        throws DSAccessException
 	{
 		ImageData image = new ImageData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			image = dms.retrieveImage(imageID);
-		} catch(DSAccessException dsae) {
-			String s = "Unable to retrieve the image with ID: "+imageID+".";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-													dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -428,6 +431,11 @@ public class DataManager
 				getUserProjects(); 
 				presentation.rebuildTree();
 			} 
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Create project", "A new project "+pd.getName()+
+                        " has been created.", 
+                        im.getIcon(IconManager.SEND_TO_DB));
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the project: "+pd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -465,6 +473,11 @@ public class DataManager
 				if (projects != null ) 
 					presentation.addNewDatasetToTree(projects);	
 			} else  presentation.rebuildTree();
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Create dataset", "A new dataset "+dd.getName()+
+                        " has been created.", 
+                        im.getIcon(IconManager.SEND_TO_DB));
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the dataset: "+dd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -510,28 +523,6 @@ public class DataManager
 		} 	
 	}
 	
-	/** 
-	 * Update the corresponding project summary object contained in the 
-	 * projectSummaries list. The method is called when a project has been 
-	 * updated.
-	 * 
-	 * @param pd	Modified project data object.
-	 */
-	private void updatePSList(ProjectData pd)
-	{
-		//TODO need to be modified.
-		Iterator i = projectSummaries.iterator();
-		ProjectSummary ps;
-		while (i.hasNext()) {
-			ps = (ProjectSummary) i.next();
-			if (ps.getID() ==  pd.getID()) {
-				ps.setName(pd.getName());
-				ps.setDatasets(pd.getDatasets());
-				break;
-			}	
-		}
-	}
-	
 	/**
 	 * Update a specified dataset.
 	 * 
@@ -566,49 +557,6 @@ public class DataManager
 		} 
 	}
 	
-	/** 
-	 * Update datasetSummary object in projectSummaries.
-	 * Method called when a dataset has been updated.
-	 * 
-	 * @param dd	Modified dataset data object.
-	 */
-	private void updateDatasetInPS(DatasetData dd)
-	{
-		Iterator i = projectSummaries.iterator();
-		ProjectSummary ps;
-		DatasetSummary ds;
-		while (i.hasNext()) {
-			ps = (ProjectSummary) i.next();
-			Iterator j = ps.getDatasets().iterator();
-			while (j.hasNext()) {
-				ds = (DatasetSummary) j.next();
-				if (ds.getID() == dd.getID()) {
-					ds.setName(dd.getName());
-					break;
-				}		
-			}
-		}
-	}
-	
-	/** 
-	 * Update the corresponding dataset summary object contained in the 
-	 * datasetSummaries list. The method is called when a dataset has been 
-	 * updated.
-	 * @param dd	Modified dataset data object.
-	 * 
-	 */
-	private void updateDSList(DatasetData dd)
-	{
-		Iterator i = datasetSummaries.iterator();
-		DatasetSummary ds;
-		while (i.hasNext()) {
-			ds = (DatasetSummary) i.next();
-			if (ds.getID() ==  dd.getID()) {
-				ds.setName(dd.getName());
-				break;
-			}	
-		}
-	}
 	
 	/**
 	 * Update a specified image.
@@ -666,13 +614,25 @@ public class DataManager
 		} 	
 	}
 	
-	/** Synchronize the 2 views displaying image data. */
-	private void synchImagesView(ImageSummary is) 
-	{
-		presentation.updateImageInTree(is);
-		presentation.updateImageInTable(is);
-	}
-	
+    /** Retrieve the current user last name. */
+    String getUserLastName()
+    {
+        String name = "";
+        try { 
+            DataManagementService dms = registry.getDataManagementService();
+            name = dms.getUserDetails().getUserLastName();
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user details.";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }  
+        return name;
+    }
 	
 	/**
 	 * Posts a request to view all images in the specified dataset.
@@ -697,30 +657,7 @@ public class DataManager
 		LoadImage request = new LoadImage(imageID, pixelsID, imageName);
 		registry.getEventBus().post(request);	
 	}
-	
-	/** Display the widget. */
-	/*
-	void showPresentation()
-	{
-		topFrame.removeFromDesktop(presentation);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		try {
-			presentation.setClosed(false);
-		} catch (Exception e) {}	
-		presentation.setVisible(true);	
-	}
-	*/
-	
-	/** Pop up the presentation. */
-	/*
-	void deiconifyPresentation()
-	{
-		topFrame.deiconifyFrame(presentation);
-		try {
-			presentation.setIcon(false);
-		} catch (Exception e) {}
-	}
-	*/
+
 	/** Select the menuItem. */
 	//void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
@@ -735,5 +672,236 @@ public class DataManager
 	{
 		registry.getEventBus().post(new AnnotateImage(id, name, pixelsID));
 	}
-	
+    
+    /** Retrieve all categoryGroups. */
+    List getCategoryGroups()
+        throws DSAccessException
+    {
+        //if (categoryGroups.size() == 0) {
+            try { 
+                SemanticTypesService sts = registry.getSemanticTypesService();
+                categoryGroups = sts.retrieveCategoryGroups();  
+            } catch(DSOutOfServiceException dsose) {
+                ServiceActivationRequest 
+                request = new ServiceActivationRequest(
+                                    ServiceActivationRequest.DATA_SERVICES);
+                registry.getEventBus().post(request);
+            }
+        //}
+        return categoryGroups;
+    }
+    
+    /** Retrieve all categories. */
+    List getCategories()
+        throws DSAccessException
+    {
+        //if (categories.size() == 0) {
+            try { 
+                SemanticTypesService sts = registry.getSemanticTypesService();
+                categoryGroups = sts.retrieveCategories();
+            } catch(DSOutOfServiceException dsose) {
+                ServiceActivationRequest 
+                request = new ServiceActivationRequest(
+                                    ServiceActivationRequest.DATA_SERVICES);
+                registry.getEventBus().post(request);
+            }
+        //}
+        return categories;
+    }
+    
+    CategoryData getCategoryData(int id)
+    {
+        CategoryData cd = new CategoryData();
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            cd = sts.retrieveCategory(id);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the category with ID: "+id+".";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        } 
+        return cd;
+    }
+
+    /** Create a new category group. */
+    void createCategoryGroup(CategoryGroupData data)
+    {
+        if (data == null) return;
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            sts.createCategoryGroup(data);
+            if (categoryGroups.size() != 0) {
+                categoryGroups.add(data);  //local copy
+                presentation.addNewGroupToTree(data);  //update tree
+            } else {
+                getCategoryGroups(); 
+                presentation.rebuildClassificationTree();
+            } 
+
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Create group", "A new group has now been created.", 
+                    im.getIcon(IconManager.SEND_TO_DB));
+        } catch(DSAccessException dsae) {
+            String s = "Can't create a new category group.";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+    }
+    
+    /** Create a new category group. */
+    void createCategory(CategoryData data, List images)
+    {
+        if (data == null) return;
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            sts.createCategory(data, images);
+            presentation.rebuildClassificationTree();
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Create category", "A new category has now been " +
+                    "created.", im.getIcon(IconManager.SEND_TO_DB));
+        } catch(DSAccessException dsae) {
+            String s = "Can't create a new category.";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+    }
+     
+    /**Update an existing category group. */
+    void updateCategoryGroup(CategoryGroupData data, List categoriesToAdd, 
+            boolean nameChange)
+    {
+        if (data == null || categoriesToAdd == null) return;
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            sts.updateCategoryGroup(data, categoriesToAdd);
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Update category group", "The specified group has " +
+                    "now been updated.", im.getIcon(IconManager.SEND_TO_DB));
+        } catch(DSAccessException dsae) {
+            String s = "Can't create a new category.";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+    }
+    
+    /**Update an existing category group. */
+    void updateCategory(CategoryData data, List imgsToRemove, List imgsToAdd, 
+                        boolean nameChange)
+    {
+        if (data == null || imgsToRemove == null || imgsToAdd == null) return;
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            sts.updateCategory(data, imgsToRemove, imgsToAdd);
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo("Update category", "The specified category has " +
+                    "now been updated.", im.getIcon(IconManager.SEND_TO_DB));
+        } catch(DSAccessException dsae) {
+            String s = "Can't update the specified category.";
+            registry.getLogger().error(this, s+" Error: "+dsae);
+            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
+                                                    dsae);
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+    }
+    
+    /** 
+     * Update datasetSummary object in projectSummaries.
+     * Method called when a dataset has been updated.
+     * 
+     * @param dd    Modified dataset data object.
+     */
+    private void updateDatasetInPS(DatasetData dd)
+    {
+        Iterator i = projectSummaries.iterator();
+        ProjectSummary ps;
+        DatasetSummary ds;
+        while (i.hasNext()) {
+            ps = (ProjectSummary) i.next();
+            Iterator j = ps.getDatasets().iterator();
+            while (j.hasNext()) {
+                ds = (DatasetSummary) j.next();
+                if (ds.getID() == dd.getID()) {
+                    ds.setName(dd.getName());
+                    break;
+                }       
+            }
+        }
+    }
+    
+    /** 
+     * Update the corresponding dataset summary object contained in the 
+     * datasetSummaries list. The method is called when a dataset has been 
+     * updated.
+     * @param dd    Modified dataset data object.
+     * 
+     */
+    private void updateDSList(DatasetData dd)
+    {
+        Iterator i = datasetSummaries.iterator();
+        DatasetSummary ds;
+        while (i.hasNext()) {
+            ds = (DatasetSummary) i.next();
+            if (ds.getID() ==  dd.getID()) {
+                ds.setName(dd.getName());
+                break;
+            }   
+        }
+    }
+    
+    /** Synchronize the 2 views displaying image data. */
+    private void synchImagesView(ImageSummary is) 
+    {
+        presentation.updateImageInTree(is);
+        presentation.updateImageInTable(is);
+    }
+    
+    /** 
+     * Update the corresponding project summary object contained in the 
+     * projectSummaries list. The method is called when a project has been 
+     * updated.
+     * 
+     * @param pd    Modified project data object.
+     */
+    private void updatePSList(ProjectData pd)
+    {
+        //TODO need to be modified.
+        Iterator i = projectSummaries.iterator();
+        ProjectSummary ps;
+        while (i.hasNext()) {
+            ps = (ProjectSummary) i.next();
+            if (ps.getID() ==  pd.getID()) {
+                ps.setName(pd.getName());
+                ps.setDatasets(pd.getDatasets());
+                break;
+            }   
+        }
+    }
+
 }

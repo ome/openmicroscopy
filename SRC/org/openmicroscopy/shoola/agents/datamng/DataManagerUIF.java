@@ -45,6 +45,7 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -95,6 +96,11 @@ public class DataManagerUIF
                                     VBOX = new Dimension(0, 10);
     public static final Dimension   VP_DIM = new Dimension(200, 70);
     
+    private static final String     HIERARCHY = "Hierarchy", 
+                                    CLASSIFIER = "Classifier";
+    
+    JMenu                                   hierarchyMenu, classifierMenu;
+    
 	/** 
 	 * UI component to view a summary of the user's data
 	 * and to mark the currently viewed image. 
@@ -104,15 +110,20 @@ public class DataManagerUIF
 	/** List of image summary object. */
 	private ImagesPane						imgPane;
 	
+    private ClassifierPane                  classifierPane;
+    
 	/** Reference to the regisry. */
 	private Registry						registry;
 	
 	/** Reference to the control component. */
 	private DataManagerCtrl					control;
 	
-	/** On-request menu displayed for nodes in the tree. */
+	/** On-request menu displayed for nodes in the hierarchy tree. */
 	private TreePopupMenu					popupMenu;
 	
+    /** On-request menu displayed for nodes in the classifier tree. */
+    private ClassifierPopupMenu             classifierPopupMenu;
+    
 	private IconManager 					im;
 	
 	public DataManagerUIF(DataManagerCtrl control, Registry registry)
@@ -123,7 +134,9 @@ public class DataManagerUIF
 		im = IconManager.getInstance(registry);
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
+        classifierPopupMenu = new ClassifierPopupMenu(control, registry);
 		imgPane = new ImagesPane(control, registry);
+        classifierPane = new ClassifierPane(control, registry);
 		buildGUI(new ToolBar(control, registry));
 		pack();	
 	}
@@ -164,8 +177,20 @@ public class DataManagerUIF
 		explPane.getManager().addNewDatasetToTree(projects);
 	}
 	
+    /** Forward event to {@link ExplorerPaneManager}. */
+    void rebuildClassificationTree() { classifierPane.getManager().rebuildTree(); }
+    
+    /** Forward event to {@link ClassifierPaneManager}. */
+    void addNewGroupToTree(CategoryGroupData data)
+    {
+        classifierPane.getManager().addNewGroupToTree(data);
+    }
+    
 	/** Return the menu displayed for nodes in the tree. */
 	TreePopupMenu getPopupMenu() { return popupMenu; }
+    
+    /** Return the menu displayed for nodes in the tree. */
+    ClassifierPopupMenu getClassifierPopupMenu() { return classifierPopupMenu; }
 	
 	/**
 	 * Specifies icons, text, and tooltips for the display buttons in the
@@ -189,8 +214,10 @@ public class DataManagerUIF
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");					
-		tabs.addTab("Hierarchy", im.getIcon(IconManager.EXPLORER), explPane);
+		tabs.addTab(HIERARCHY, im.getIcon(IconManager.EXPLORER), explPane);
 		tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imgPane);
+        tabs.addTab(CLASSIFIER, im.getIcon(IconManager.EXPLORER), 
+                        classifierPane);
 		tabs.setFont(font);
 		tabs.setForeground(STEELBLUE);
 		tabs.setSelectedComponent(explPane);
@@ -211,26 +238,38 @@ public class DataManagerUIF
 	private JMenuBar createMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar(); 
-		menuBar.add(createNewMenu());
+		menuBar.add(createHierarchyMenu());
+        menuBar.add(createClassifierMenu());
 		//menuBar.add(createImportMenu());
 		return menuBar;
 	}
 	
 	/** Creates the <code>newMenu</code>. */
-	private JMenu createNewMenu()
+	private JMenu createHierarchyMenu()
 	{
-		JMenu newMenu = new JMenu("New...");
-		JMenuItem menuItem = new JMenuItem("Project", 
+		hierarchyMenu = new JMenu(HIERARCHY);
+		JMenuItem menuItem = new JMenuItem("New Project", 
 							im.getIcon(IconManager.CREATE_PROJECT));
 		control.attachItemListener(menuItem, DataManagerCtrl.PROJECT_ITEM);
-		newMenu.add(menuItem);
-		menuItem = new JMenuItem("Dataset", 
+		hierarchyMenu.add(menuItem);
+		menuItem = new JMenuItem("New Dataset", 
 							im.getIcon(IconManager.CREATE_DATASET));
 		control.attachItemListener(menuItem, DataManagerCtrl.DATASET_ITEM);
-		newMenu.add(menuItem);
-		return newMenu;
+		hierarchyMenu.add(menuItem);
+		return hierarchyMenu;
 	}
 	
+    /** Creates the <code>newMenu</code>. */
+    private JMenu createClassifierMenu()
+    {
+        classifierMenu = new JMenu(CLASSIFIER);
+        JMenuItem menuItem = new JMenuItem("New Group and Category", 
+                            im.getIcon(IconManager.CREATE_CG));
+        control.attachItemListener(menuItem, DataManagerCtrl.CREATE_CG);
+        classifierMenu.add(menuItem);
+        return classifierMenu;
+    }
+    
 	/** Creates the <code>importMenu</code>. */
 	/*
 	private JMenu createImportMenu()
@@ -243,4 +282,5 @@ public class DataManagerUIF
 		return menu;
 	}
 	*/
+    
 }
