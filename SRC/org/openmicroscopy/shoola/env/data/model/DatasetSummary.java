@@ -63,13 +63,17 @@ public class DatasetSummary
 		this.id = id;
 		this.name = name;
 	}
-	
+
 	/** Required by the DataObject interface. */
 	public DataObject makeNew()
 	{
 		return new DatasetSummary();
 	}
-
+	
+	public String toString()
+	{
+		return name;
+	}
 	public int getID()
 	{
 		return id;

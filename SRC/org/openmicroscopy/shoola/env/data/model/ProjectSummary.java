@@ -72,8 +72,12 @@ public class ProjectSummary
 	{
 		return new ProjectSummary();
 	}
-
-	public int getId()
+	
+	public String toString() 
+	{
+		return name;
+	}
+	public int getID()
 	{
 		return id;
 	}
@@ -83,7 +87,7 @@ public class ProjectSummary
 		return name;
 	}
 
-	public void setId(int id)
+	public void setID(int id)
 	{
 		this.id = id;
 	}

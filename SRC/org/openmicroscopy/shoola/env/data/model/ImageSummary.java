@@ -69,8 +69,12 @@ public class ImageSummary
 	{
 		return new ImageSummary();
 	}
+	public String toString()
+	{
+		return name;
+	}
 	
-	public int getId()
+	public int getID()
 	{
 		return id;
 	}
@@ -80,7 +84,7 @@ public class ImageSummary
 		return name;
 	}
 
-	public void setId(int id)
+	public void setID(int id)
 	{
 		this.id = id;
 	}

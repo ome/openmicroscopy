@@ -88,6 +88,7 @@ public class ProjectMapper
 		
 		//Retrieve the user's projects.
 		criteria.addFilter("owner_id", new Integer(userID));
+		
 		return criteria;
 	}
 	
@@ -192,7 +193,7 @@ public class ProjectMapper
 			
 			//Make a new DataObject and fill it up.
 			ps = (ProjectSummary) pProto.makeNew();
-			ps.setId(p.getID());
+			ps.setID(p.getID());
 			ps.setName(p.getName());
 			
 			//For each d in project.datasets...
