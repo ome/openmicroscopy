@@ -49,6 +49,7 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -95,8 +96,6 @@ class CategoryEditorManager
 	private boolean                    nameChange, isName;
 	
 	private CategoryImagesDiffPane     dialog;
-
-    private List                        images;
     
     CategoryEditorManager(CategoryEditor view, DataManagerCtrl control,
                             CategoryData model)
@@ -109,10 +108,9 @@ class CategoryEditorManager
 		imagesToRemove = new ArrayList();
 		imagesToAdd = new ArrayList();
 		imagesToAddToRemove = new ArrayList();
-        images =  control.getImages(model);
 	}
 	
-	List getImages() { return images; }
+	List getImages() { return model.getImages(); }
 	
 	List getImagesToAdd() { return imagesToAdd; }
 	
@@ -179,9 +177,14 @@ class CategoryEditorManager
 	private void showImagesSelection()
 	{
 		if (dialog == null) {
-			List imagesDiff = control.getCategoryImagesDiff(images);
-            if (imagesDiff != null)
-                dialog = new CategoryImagesDiffPane(this, imagesDiff);
+			List images = control.getImagesNotInGroup(model.getCategoryGroup());
+            if (images != null)
+                dialog = new CategoryImagesDiffPane(this, images);
+            else {
+                UserNotifier un = control.getRegistry().getUserNotifier();
+                un.notifyInfo("Image Selection", "no image to add to the " +
+                        "selected category.");
+            }
 		} else {
 			dialog.remove(dialog.getContents());
 			dialog.buildGUI();
@@ -217,9 +220,8 @@ class CategoryEditorManager
 		if (value)
 				imagesToAddToRemove.add(is); 
 		else {
-			if (imagesToAddToRemove.contains(is)) {
-				imagesToAddToRemove.remove(is);
-			}	
+			if (imagesToAddToRemove.contains(is))
+                imagesToAddToRemove.remove(is);
 		} 
 	}
 	
@@ -235,8 +237,7 @@ class CategoryEditorManager
 	{
 		if (value) {
 			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
-		}
-		else 	imagesToRemove.remove(is);
+		} else 	imagesToRemove.remove(is);
 		view.getSaveButton().setEnabled(true);
 	}
 

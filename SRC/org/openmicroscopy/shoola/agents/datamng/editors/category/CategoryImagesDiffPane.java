@@ -104,7 +104,7 @@ class CategoryImagesDiffPane
 	
 	CategoryImagesDiffPane(CategoryEditorManager control, List imagesDiff)
 	{
-		super(control.getView(), "List of exiting images", true);
+		super(control.getView(), "List of existing images", true);
 		this.control = control;
 		im = IconManager.getInstance(control.getView().getRegistry());
 		initButtons(imagesDiff);
@@ -119,7 +119,7 @@ class CategoryImagesDiffPane
 	
 	JPanel getContents() { return contents; }
 	
-	/** Select or not all datasets. */
+	/** Select or not all images. */
 	void setSelection(Object val)
 	{
 		int countCol = imagesTM.getColumnCount()-1;

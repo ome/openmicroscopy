@@ -86,7 +86,7 @@ class CategoryEditorBar
 		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Close without saving."));
-		addButton = new JButton("Add images");
+		addButton = new JButton("Show images");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		addButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add images to the category."));	
