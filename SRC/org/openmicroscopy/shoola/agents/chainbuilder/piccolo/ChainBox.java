@@ -228,6 +228,7 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 
 	public void mouseClicked(GenericEventHandler handler) {
+		System.err.println("click in chain box...");
 		((ChainPaletteEventHandler) handler).animateToNode(this);
 		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
 		((ChainPaletteEventHandler) handler).hideLastChainView();
@@ -278,7 +279,6 @@ public class ChainBox extends GenericBox implements MouseableNode
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
-		System.err.println("right click on chain box");
 		PNode p = getParent();
 		if (p instanceof BufferedObject)  
 			((ChainPaletteEventHandler) handler).animateToNode(p);	
