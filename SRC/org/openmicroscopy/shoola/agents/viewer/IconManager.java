@@ -103,12 +103,15 @@ public class IconManager
 	
 	/** ID of the save_image_as big icon. */
 	public static final int		SAVEAS_BIG = 13;
+	
+	/** ID of the save_image_as big icon. */
+	public static final int		VIEWER3D = 14;
 
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 13;
+	private static int          MAX_ID = 14;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -128,6 +131,7 @@ public class IconManager
 		relPaths[FORWARD] = "nuvola_player_fwd16.png";
 		relPaths[QUESTION] = "nuvola_filetypes32.png";
 		relPaths[SAVEAS_BIG] = "nuvola_filesaveas48.png";
+		relPaths[VIEWER3D] = "nuvola_kalzium16.png";
 	}
 	
 	/** The sole instance. */
