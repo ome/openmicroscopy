@@ -118,7 +118,8 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
     
     public void newAnnotation(String annotation)
     {
-        ImageAnnotation annotation = annotator.
+        ImageAnnotation ia = annotator.createImageAnnotation(annotation);
+        annotationList.add(ia);
     }
     
     public void setAnnotation(int annotationIndex, String content)
@@ -134,9 +135,8 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
      */
     public boolean save()
     {
-        // TODO save to DB
+        annotator.updateImageAnnotations(annotationList);
         ImageAnnotated annotated = new ImageAnnotated(requestEvent);
-        
         // TODO support multiple
         if(annotationList.size() > 0)
         {

@@ -185,6 +185,17 @@ public class Annotator implements Agent, AgentEventListener
         newAnnotation.setContent(content);
         return newAnnotation;
     }
+    
+    /**
+     * Updates the annotations in the DB through the STS (controllers that
+     * save annotations should call this)
+     * @param annotations
+     */
+    void updateImageAnnotations(List annotations)
+    {
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        sts.updateUserInputAttributes(annotations);
+    }
 
     /**
      * Retrieve the dataset annotation information from the database.
