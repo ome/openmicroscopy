@@ -41,13 +41,16 @@ import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
+import org.openmicroscopy.shoola.env.data.map.STSMapper;
 import org.openmicroscopy.shoola.env.data.map.UserMapper;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -98,7 +101,7 @@ class DMSAdapter
 		return gateway.getCurrentUser(c).getID();
 	}
     
-    /**Implemented as specified in {@link DataManagementService}. */
+    /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
     								DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
@@ -127,14 +130,14 @@ class DMSAdapter
     	return projectsDS;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects()
 		throws DSOutOfServiceException, DSAccessException
     {
     	return retrieveUserProjects(null, null);
     }
     
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserDatasets(DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
 	{	
@@ -161,14 +164,14 @@ class DMSAdapter
 		return datasetsDS;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserDatasets()
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveUserDatasets(null);
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserImages(ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException								
 	{	
@@ -195,13 +198,13 @@ class DMSAdapter
 		return imagesDS;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserImages()
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveUserImages(null);
 	}
-    /**Implemented as specified in {@link DataManagementService}. */
+    /** Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
@@ -222,14 +225,14 @@ class DMSAdapter
     	return retVal;
     }
     
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectData retrieveProject(int id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveProject(id, null);
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
     public DatasetData retrieveDataset(int id, DatasetData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
@@ -250,14 +253,14 @@ class DMSAdapter
     	return retVal;
     }
     
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public DatasetData retrieveDataset(int id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveDataset(id, null);
 	}
 	
-    /**Implemented as specified in {@link DataManagementService}. */
+    /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveImages(int datasetID)
 		throws DSOutOfServiceException, DSAccessException
     {
@@ -277,7 +280,7 @@ class DMSAdapter
 	  	return images;
     }
     
-    /**Implemented as specified in {@link DataManagementService}. */
+    /** Implemented as specified in {@link DataManagementService}. */
     public ImageData retrieveImage(int id, ImageData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
@@ -297,14 +300,14 @@ class DMSAdapter
   		return retVal;	  
     }
     
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public ImageData retrieveImage(int id) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveImage(id, null);
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public PixelsDescription retrievePixels(int pixelsID, int imageID)
 			throws DSOutOfServiceException, DSAccessException
 	{
@@ -320,7 +323,7 @@ class DMSAdapter
 		return retVal;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal, 
 										ProjectSummary pProto)
 		throws DSOutOfServiceException, DSAccessException
@@ -342,7 +345,7 @@ class DMSAdapter
 		return pProto;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public DatasetSummary createDataset(List projectSummaries,
 										List imageSummaries,
 										DatasetData retVal, 
@@ -384,14 +387,14 @@ class DMSAdapter
 		return dProto;
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return createProject(retVal, null);
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public DatasetSummary createDataset(List projectSummaries,
 										List imageSummaries, 
 										DatasetData retVal)
@@ -400,7 +403,7 @@ class DMSAdapter
 		return createDataset(projectSummaries, imageSummaries, retVal, null);
 	}
 
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
     public void updateProject(ProjectData retVal, List dsToRemove,
     								 List dsToAdd)
 		throws DSOutOfServiceException, DSAccessException
@@ -443,7 +446,7 @@ class DMSAdapter
 		}
     }
     
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public void updateDataset(DatasetData retVal, List isToRemove, 
 									List isToAdd)
 		throws DSOutOfServiceException, DSAccessException
@@ -485,7 +488,7 @@ class DMSAdapter
 		}
 	}
 	
-	/**Implemented as specified in {@link DataManagementService}. */
+	/** Implemented as specified in {@link DataManagementService}. */
 	public void updateImage(ImageData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -497,4 +500,36 @@ class DMSAdapter
   		}
 	}
 
+	/** Implemented as specified in {@link DataManagementService}. */
+	public ChannelData[] getChannelData(int imageID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+								STSMapper.IMAGE_GRANULARITY, imageID);
+		List ciList = 
+			(List) gateway.retrieveListSTSData("PixelChannelComponent", c);
+		
+		List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
+		
+		return ImageMapper.fillImageChannelData(ciList, lcList);
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public void updateChannelData(ChannelData retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+								STSMapper.GLOBAL_GRANULARITY, retVal.getID());
+		LogicalChannel lc =  (LogicalChannel) 
+				(LogicalChannel) gateway.retrieveSTSData("LogicalChannel", c);
+				
+		//update the LogicalChannel object
+		lc.setExcitationWavelength(new Integer(retVal.getExcitation()));
+		lc.setFluor(retVal.getFluor());
+		lc.setPhotometricInterpretation(retVal.getInterpretation());
+		List l = new ArrayList();
+		l.add(lc);
+		gateway.updateAttributes(l);
+	}
+	
 }

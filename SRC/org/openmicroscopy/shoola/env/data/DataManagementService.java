@@ -35,6 +35,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -331,7 +332,7 @@ public interface DataManagementService
 	 */
 	public void updateDataset(DatasetData retVal, List isToRemove, 
 									List isToAdd)
-			throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 			
 	/**
 	 * Update a specified image.
@@ -342,6 +343,29 @@ public interface DataManagementService
 	 * 		   update data from OMEDS service.  
 	 */
 	public void updateImage(ImageData retVal)
-			throws DSOutOfServiceException, DSAccessException;
-				
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieve the data associated to the channels of a specified image.
+	 * 
+	 * @param imageID		image's ID.
+	 * @return retVal		List of channelData objects.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public ChannelData[] getChannelData(int imageID)
+		throws DSOutOfServiceException, DSAccessException;	
+	
+	/**
+	 * Update a specified channelData.
+	 * 
+	 * @param retVal		ChannelData object to update.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public void updateChannelData(ChannelData retVal)	
+		throws DSOutOfServiceException, DSAccessException;
+		
 }
