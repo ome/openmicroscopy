@@ -70,9 +70,9 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  	 * {@link Link}, objects of this class always have start being the output
  	 * and end being the input
  	 */
- 	private ModuleView start;
+ 	private ModuleView start = null;
  	
- 	private ModuleView end;
+ 	private ModuleView end = null;
  	
  
  	/**
@@ -107,11 +107,38 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  		}
  	}
  	
+ 	/**
+ 	 * constructor for when we're creating links at the module view
+ 	 */
+ 	public ModuleLink(LinkLayer layer,ModuleLinkTarget originTarget) {
+ 		super();
+ 		setLinkLayer(layer);
+ 		setTarget(originTarget);
+ 		
+ 		linkLayer.addModuleLink(this);
+ 	}
+ 	
+ 	public void setTarget(ModuleLinkTarget target) {
+ 		if (target.isInputLinkTarget()) {
+ 			this.end = target.getModuleView();
+ 			setEndPoint();
+ 			end.addNodeEventListener(this);
+ 		}
+ 		else {
+ 			this.start = target.getModuleView();
+ 			setStartPoint();
+ 			start.addNodeEventListener(this);	
+ 		}
+ 	}
  	public LinkTarget getStartLinkTarget() {
+ 		if (start == null)
+ 			return null;
  		return start.getOutputLinkTarget();
  	}
  	
  	public LinkTarget getEndLinkTarget() {
+ 		if (end == null)
+ 			return null;
  		return end.getInputLinkTarget();
  	}
  	
@@ -119,15 +146,28 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  		Point2D point = getStartLinkTarget().getCenter();
  		globalToLocal(point);
  		
- 		setStartCoords((float) point.getX(),(float) point.getY()); 	
+ 		super.setStartCoords((float) point.getX(),(float) point.getY()); 	
  	}
  	
 	private void setEndPoint() {
 		Point2D point = getEndLinkTarget().getCenter();
 		globalToLocal(point);
 		
-		setEndCoords((float) point.getX()-Constants.LINK_BULB_RADIUS,
+		super.setEndCoords((float) point.getX()-Constants.LINK_BULB_RADIUS,
 			(float) point.getY());
+	}
+	
+	public void setIntermediatePoint(float x,float y) {
+		// if we're adding to the end , just add points on to end count
+	    // as in super
+		if (end == null)
+			super.setIntermediatePoint(x,y);
+		else { // in this case, we're going back from input to output.
+			// must insert point accordingly.
+			points.add(0,new Point2D.Float(x,y));
+			updateBounds();
+			pointCount++;
+		}
 	}
 	
 	/**
@@ -176,9 +216,30 @@ import org.openmicroscopy.shoola.util.ui.Constants;
 	 */
 	public void remove() {
 		super.remove();
-		getStartLinkTarget().setSelected(false);
-		getEndLinkTarget().setSelected(false);
+		LinkTarget target = getStartLinkTarget();
+		if (target != null)
+			target.setSelected(false);
+		target = getEndLinkTarget();
+		if (target != null)
+			target.setSelected(false);
 		if (linkLayer!= null)
 			linkLayer.removeParamLinks(this);
+	}
+	
+	public void setEndCoords(float x,float y) {
+		// if start is null, we want to set the coords of the strat ofthe link
+		// otherwise, set the coo
+		if (start == null) {
+			if (points.size() == 1) {// only one point now
+				points.add(0,new Point2D.Float(x,y)); // so add start
+				pointCount++;
+			}
+			else {
+				points.set(0,new Point2D.Float(x,y));
+			}
+			updateBounds();
+		}
+		else
+			super.setEndCoords(x,y);
 	}
  }
