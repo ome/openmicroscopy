@@ -3,47 +3,48 @@
   <title>Build Tool</title>
 </head>
 <body>
-<p>The build tool is a jar file named <i>build</i> and kept under the <i>build</i> 
-  directory. Its purpose is to run a build without requiring Ant to be installed and 
-  configured. The way it works is actually trivial. It contains a single class, <code>Builder</code>, 
-  which is also the main class and whose <code>main</code> method simply forwards 
-  the command line arguments to Ant. The manifest file links all the jar files under 
-  the <i>build/tools</i> directory -- as a result, when the <i>build</i> file 
-  is run, the JVM classpath will contain all those jars. Besides the external libraries 
-  discussed in the previous sections, the <i>tools</i> directory also contains the 
-  Ant core jars and the Ant jars for the optional tasks that we use as well as the 
-  Sun JDK tools jar.</p>
-<p>So the command <code>java -jar build</code> will result in invoking Ant with whatever 
-  arguments follow <code>build</code> on the command line and with a classpath set 
-  to contain all the jar files under <i>build/tools</i>. Because the classpath contains 
-  all Ant core and optional libraries, all the external libraries, and the JDK tools, 
-  all is effectively needed to run a build is a JRE -- as opposite to a whole JDK, 
-  Ant, and all external libraries.</p>
-<p>Even though including the JDK tools allows to build without a JDK, there's a remarkable 
-  downside: the classes in the <i>build</i> jar have to be compiled under 1.4 and 
-  the JDK tools jar has to be updated every time a new JDK is released. Failure to 
-  do that will result in the impossibility to run the <code>compile</code> target 
-  if a JRE with a newer version than the JDK tools is used.</p>
+<p>The build tool is a Java program that invokes Ant to process the master build file. 
+  Its purpose is to run a build without requiring Ant to be installed and configured. 
+  It's composed of just one source file -- <i>build.java</i>, which is located in 
+  the <i>build/tools</i> directory. The build tool loads the Ant core and all the 
+  other libraries dynamically from the <i>tools</i> directory, prepares a suitable 
+  environment, and then invokes Ant with whatever arguments were supplied on the command 
+  line.</p>
+<p>Besides the external libraries discussed in the previous sections, the <i>tools</i> 
+  directory also contains the Ant core jars and the Ant jars for the optional tasks 
+  that we use. So the command <code>java build</code> will result in invoking Ant 
+  with whatever arguments follow <code>build</code> on the command line and with a 
+  classpath set to contain all the jar files under <i>build/tools</i>. Because the 
+  classpath contains all Ant core and optional libraries and all the external libraries, 
+  all that is effectively needed to run a build is a JDK -- as opposite to a whole 
+  Ant installation with all external libraries.</p>
 <div class="noteFrame">
   <div class="noteLabel">Note</div>
-  <div class="noteContent">Compiling <code>Builder</code> under 1.4 ensures that the 
-    <i>build</i> jar can be run by 1.4 JREs -- if you compile it for 1.5, then a 1.4 
-    JRE won't be able to load it. Having the latest JDK tools ensures that the compiler 
-    (in the JDK tools) will never find a class on its classpath with a class file 
-    version (the Class File Format is discussed in the VM spec) newer than the compiler 
-    version. To clarify, assume the following scenario. A JRE 1.5 is used to run the 
-    build and the version of the JDK tools is 1.4. Now, the JRE bootclasspath will 
-    contain classes whose (major) version is 49 but the compiler can only deal with 
-    classes whose (major) version is 48 at most. So when trying to compile a class 
-    the compiler will find an <code>Object</code> class (from the bootclasspath) whose 
-    version is 49.0 and will error.</div>
+  <div class="noteContent">
+    <p>Default compilation tasks in Ant require the <i>Sun</i> JDK tools. Those ship 
+      with Sun JDKs and are contained in the <i>lib/tools.jar</i>. If you have a JDK 
+      from another vendor (or just a plain JRE), the Sun JDK tools might not be available, 
+      in which case compilation of Shoola would fail. To fix this, proceed as follows:</p>
+	<ul>
+      <li>Make sure the Sun JDK tools are not available to the JVM you will use to 
+        invoke the Build Tool. Just run <code>Java build compile</code>; if it fails 
+        the Sun JDK tools are not available.</li>
+      <li>Download the Sun JDK tools jar file into <i>build/tools</i>/. Make sure 
+        the version of the JDK tools is the same as the one of the JVM that you will 
+        use to invoke the build tool. (Failure to comply may result in compilation 
+        errors due to class file version incompatibilities.)</li>
+    </ul>
+    <p>It's important to verify that the JDK tools are not available before dropping 
+      another copy into our <i>tools</i> directory. In fact, if the JDK tools are 
+      already available, adding a copy under <i>tools</i> would result in having two 
+      sets of JDK tools classes on the classpath. As you can imagine, some nasty runtime 
+      behavior could originate from that if the JDK tools have different versions.</p>
+  </div>
 </div>
-<p>The <code>Builder</code> class and the <i>build</i> jar itself are generated by 
-  an Ant build file: the <i>build.xml</i> file under the <i>build/tools</i> directory. 
-  You can refer to the inline documentation in this file for further details on the 
-  build tool. One thing to keep in mind is that the <i>build</i> jar has to be regenerated 
-  every time a new library is added to the <i>tools</i> directory. In fact, the manifest 
-  file has to be updated to link to the new library.</p>
+<p>The <code>build</code> class file is generated by an Ant build file: the <i>build.xml</i> 
+  file under the <i>build/tools</i> directory. You can refer to the inline documentation 
+  in this file for further details on the build tool. Also the <i>build.java</i> source 
+  file is thoroughly documented if you need to explore the implementation details.</p>
 <p>&#160;</p>
 <div class="noteFrame">
   <div class="noteLabel">Note</div>
