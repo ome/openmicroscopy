@@ -42,6 +42,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
@@ -49,6 +51,9 @@ import javax.swing.table.AbstractTableModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.TableHeaderTextAndIcon;
+import org.openmicroscopy.shoola.util.ui.TableIconRenderer;
+import org.openmicroscopy.shoola.util.ui.TableSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -70,10 +75,23 @@ class DatasetImagesDiffPane
 	extends JDialog
 {
 	
+	/** Action id. */
+	private static final int				NAME = 0, SELECT = 1;
+			
+	protected static final String[]			columnNames;
+	
+	static {
+		columnNames  = new String[2];
+		columnNames[NAME] = "Name";
+		columnNames[SELECT] = "Select";
+	}
+	
 	private JButton							selectButton, cancelButton, 
 											saveButton;
 											
 	private ImagesTableModel 				imagesTM;
+	
+	private TableSorter 					sorter;
 	
 	/** Reference to the control of the main widget. */
 	private DatasetEditorManager 			control;
@@ -173,7 +191,11 @@ class DatasetImagesDiffPane
 		
 		//datasets table
 		imagesTM = new ImagesTableModel();
-		JTable t = new JTable(imagesTM);
+		JTable t = new JTable();
+		sorter = new TableSorter(imagesTM);  
+		t.setModel(sorter);
+		sorter.addMouseListenerToHeaderInTable(t);
+		setTableLayout(t);
 		
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
@@ -185,7 +207,29 @@ class DatasetImagesDiffPane
 		p.add(Box.createRigidArea(DataManager.VBOX));
 		return p;
 	}
-	
+
+	/** Set icons in the tableHeader. */
+	private void setTableLayout(JTable table)
+	{
+		IconManager im = IconManager.getInstance(
+							control.getView().getRegistry());
+		TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
+		TableColumnModel tcm = table.getTableHeader().getColumnModel();
+		TableColumn tc = tcm.getColumn(NAME);
+		tc.setHeaderRenderer(iconHeaderRenderer);
+		TableHeaderTextAndIcon 
+		txt = new TableHeaderTextAndIcon(columnNames[NAME], 
+				im.getIcon(IconManager.ORDER_BY_NAME), 
+				"Order images by name.");
+		tc.setHeaderValue(txt);
+		tc = tcm.getColumn(SELECT);
+		tc.setHeaderRenderer(iconHeaderRenderer); 
+		txt = new TableHeaderTextAndIcon(columnNames[SELECT], 
+				im.getIcon(IconManager.ORDER_BY_SELECTED), 
+				"Order by selected images.");
+		tc.setHeaderValue(txt);
+	}
+		
 	/** 
 	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets contained in the project.
@@ -202,7 +246,7 @@ class DatasetImagesDiffPane
 		private ImagesTableModel()
 		{
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = ((ImageSummary) images[i]).getName();
+				data[i][0] = (ImageSummary) images[i];
 				data[i][1] = new Boolean(false);
 			}
 		}
@@ -226,8 +270,8 @@ class DatasetImagesDiffPane
 		{
 			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			manager.addImage(((Boolean) value).booleanValue(), 
-							(ImageSummary) images[row]);
+			ImageSummary is = (ImageSummary) sorter.getValueAt(row, NAME);
+			manager.addImage(((Boolean) value).booleanValue(), is);
 		}
 	}
 	

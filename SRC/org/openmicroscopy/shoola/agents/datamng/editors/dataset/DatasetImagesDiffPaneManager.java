@@ -148,7 +148,7 @@ class DatasetImagesDiffPaneManager
 	void addImage(boolean value, ImageSummary is) 
 	{
 		if (value) {
-			if (!imagesToAdd.contains(is))imagesToAdd.add(is); 
+			if (!imagesToAdd.contains(is))	imagesToAdd.add(is); 
 		} else 	imagesToAdd.remove(is);
 	}
 	
@@ -162,6 +162,7 @@ class DatasetImagesDiffPaneManager
 				
 			buttonsEnabled(imagesDiff.size() != 0);
 			control.addImagesSelection(imagesToAdd);
+			imagesToAdd.removeAll(imagesToAdd);
 		}
 		view.setVisible(false);
 	}
