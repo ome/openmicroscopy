@@ -76,7 +76,7 @@ public class ImagesCanvas
 	private static final int	LENGTH_SQRT = (int) (LENGTH*(Math.sqrt(2.0))/2);
 	
 	/** Coordinate of the origin. */
-	private int					x, y;
+	private int					xOrigin, yOrigin;
 	
 	/** width of the ZYimage+Viewer3D.SPACE+XYimage */
 	private int					imagesWidth;
@@ -91,10 +91,14 @@ public class ImagesCanvas
 		this.view = view;
 		this.manager = manager;
 		setBackground(Viewer3D.BACKGROUND_COLOR); 
-		x = Viewer3D.SPACE;
-		y = Viewer3D.SPACE;
+		xOrigin = Viewer3D.SPACE;
+		yOrigin = Viewer3D.SPACE;
 	}
 
+	public int getXOrigin() { return xOrigin; }
+	
+	public int getYOrigin() { return yOrigin; }
+	
 	/** Display the 3 buffered Images. */
 	public void paintImages(int XYimageWidth, int ZYimageWidth, 
 							int XYimageHeight)
@@ -119,45 +123,50 @@ public class ImagesCanvas
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight()/4;
 		setLocation();
-		manager.setDrawingArea(x, y);
+		manager.setDrawingArea(xOrigin, yOrigin);
 		paintFrame(g2D, hFont);
 		paintXYFrame(g2D, hFont);
 		paintXZFrame(g2D, hFont);
 		paintZYFrame(g2D, hFont);
-		g2D.drawImage(manager.getXZimage(), null, x+space, y);
-		g2D.drawImage(manager.getZYimage(), null, x,  y+space);
-		g2D.drawImage(manager.getXYimage(), null, x+space, y+space);
+		g2D.drawImage(manager.getXZimage(), null, xOrigin+space, yOrigin);
+		g2D.drawImage(manager.getZYimage(), null, xOrigin, yOrigin+space);
+		g2D.drawImage(manager.getXYimage(), null, xOrigin+space, yOrigin+space);
 	}
 
 	/** Paint the frame. */
 	private void paintFrame(Graphics2D g2D, int hFont)
 	{
 		//x-axis
-		g2D.drawLine(x, y, x+LENGTH, y);
-		g2D.drawLine(x+LENGTH-ARROW, y-ARROW, x+LENGTH, y);
-		g2D.drawLine(x+LENGTH-ARROW, y+ARROW, x+LENGTH, y);
+		g2D.drawLine(xOrigin, yOrigin, xOrigin+LENGTH, yOrigin);
+		g2D.drawLine(xOrigin+LENGTH-ARROW, yOrigin-ARROW, xOrigin+LENGTH, 
+					yOrigin);
+		g2D.drawLine(xOrigin+LENGTH-ARROW, yOrigin+ARROW, xOrigin+LENGTH, 
+					yOrigin);
 		//y-axis
-		g2D.drawLine(x, y, x, y+LENGTH);
-		g2D.drawLine(x-ARROW, y+LENGTH-ARROW, x, y+LENGTH);
-		g2D.drawLine(x+ARROW, y+LENGTH-ARROW, x, y+LENGTH);
+		g2D.drawLine(xOrigin, yOrigin, xOrigin, yOrigin+LENGTH);
+		g2D.drawLine(xOrigin-ARROW, yOrigin+LENGTH-ARROW, xOrigin, 
+					yOrigin+LENGTH);
+		g2D.drawLine(xOrigin+ARROW, yOrigin+LENGTH-ARROW, xOrigin, 
+					yOrigin+LENGTH);
 		//z-axis
-		g2D.drawLine(x, y, x-LENGTH_SQRT, y+LENGTH_SQRT);
-		g2D.drawLine(x-LENGTH_SQRT, y+LENGTH_SQRT-5, x-LENGTH_SQRT, 
-					y+LENGTH_SQRT);
-		g2D.drawLine(x-LENGTH_SQRT+5, y+LENGTH_SQRT, x-LENGTH_SQRT, 
-					y+LENGTH_SQRT);
-		g2D.drawString("o", x-hFont, y-hFont);
-		g2D.drawString("x", x+LENGTH/2, y-hFont);
-		g2D.drawString("y", x+2*hFont, y+LENGTH-hFont);	
-		g2D.drawString("z", x-LENGTH/2-hFont, y+LENGTH/4);
+		g2D.drawLine(xOrigin, yOrigin, xOrigin-LENGTH_SQRT, 
+						yOrigin+LENGTH_SQRT);
+		g2D.drawLine(xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT-5, 
+					xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT);
+		g2D.drawLine(xOrigin-LENGTH_SQRT+5, yOrigin+LENGTH_SQRT, 
+					xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT);
+		g2D.drawString("o", xOrigin-hFont, yOrigin-hFont);
+		g2D.drawString("x", xOrigin+LENGTH/2, yOrigin-hFont);
+		g2D.drawString("y", xOrigin+2*hFont, yOrigin+LENGTH-hFont);	
+		g2D.drawString("z", xOrigin-LENGTH/2-hFont, yOrigin+LENGTH/4);
 	}
 	
 	/** Paint the XZ-frame. */
 	private void paintXZFrame(Graphics2D g2D, int hFont)
 	{
 		//x-axis
-		int x1 = x+space-ORIGIN;
-		int y1 = y-ORIGIN;
+		int x1 = xOrigin+space-ORIGIN;
+		int y1 = yOrigin-ORIGIN;
 		g2D.drawLine(x1, y1, x1+LENGTH, y1);
 		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
 		g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
@@ -176,8 +185,8 @@ public class ImagesCanvas
 	private void paintXYFrame(Graphics2D g2D, int hFont)
 	{
 		//x-axis
-		int x1 = space+x-ORIGIN;
-		int y1 = space+y-ORIGIN;
+		int x1 = space+xOrigin-ORIGIN;
+		int y1 = space+yOrigin-ORIGIN;
 		g2D.drawLine(x1, y1, x1+LENGTH, y1);
 		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
 		g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
@@ -195,8 +204,8 @@ public class ImagesCanvas
 	/** Paint the ZY-frame. */
 	private void paintZYFrame(Graphics2D g2D, int hFont)
 	{
-		int x1 = x-ORIGIN;
-		int y1 = space+y-ORIGIN;
+		int x1 = xOrigin-ORIGIN;
+		int y1 = space+yOrigin-ORIGIN;
 		//x-axis
 		g2D.drawLine(x1, y1, x1+LENGTH, y1);
 		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
@@ -215,10 +224,10 @@ public class ImagesCanvas
 	private void setLocation()
 	{
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
-		x = (int) (r.width-imagesWidth)/2;
-		y = (int) (r.height-imagesHeight)/2;
-		if (x < Viewer3D.SPACE) x = Viewer3D.SPACE;
-		if (y < Viewer3D.SPACE) y = Viewer3D.SPACE;
+		xOrigin = (int) (r.width-imagesWidth)/2;
+		yOrigin = (int) (r.height-imagesHeight)/2;
+		if (xOrigin < Viewer3D.SPACE) xOrigin = Viewer3D.SPACE;
+		if (yOrigin < Viewer3D.SPACE) yOrigin = Viewer3D.SPACE;
 	}		
 	
 }

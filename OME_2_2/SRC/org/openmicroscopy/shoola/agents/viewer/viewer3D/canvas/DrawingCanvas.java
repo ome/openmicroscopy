@@ -91,6 +91,8 @@ public class DrawingCanvas
 		linesShown = false;
 		setOpaque(false);
 		currentPointXY = new Point(0, 0);
+		currentPointXZ = new Point(0, 0);
+		currentPointZY = new Point(0, 0);
 	}
 	
 	public DrawingCanvasMng getManager() { return manager; }
@@ -105,10 +107,8 @@ public class DrawingCanvas
 		this.y = y;
 		this.zWidth = zWidth;
 		int v = (zWidth*defaultZ/maxZ);
-		if (currentPointXZ == null) 
-			currentPointXZ = new Point(0, v+control.getYOrigin());
-		if (currentPointZY == null)
-			currentPointZY = new Point(v+control.getXOrigin(), 0);
+		currentPointXZ.y = v+control.getYOrigin();
+		currentPointZY.x = v+control.getXOrigin();
 	}
 	
 	/** Erases current shape, if any. */

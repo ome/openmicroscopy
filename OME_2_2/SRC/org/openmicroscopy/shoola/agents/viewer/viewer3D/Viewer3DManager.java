@@ -77,9 +77,6 @@ public class Viewer3DManager
 	/** coordinates of the top-left corner of the XY-image. */
 	private int				xMain, yMain;
 	
-	/** Coordinates of the origin. */
-	private int				xOrigin, yOrigin;
-	
 	public Viewer3DManager(Viewer3D view)
 	{
 		this.view = view;
@@ -151,10 +148,10 @@ public class Viewer3DManager
 	}
 	
 	/** X-coordinate of the origin of the frame. */
-	public int getXOrigin() { return xOrigin; }
+	public int getXOrigin() { return canvas.getXOrigin(); }
 	
 	/** Y-ccordinate of the origin of the frame. */
-	public int getYOrigin() { return yOrigin; }
+	public int getYOrigin() { return canvas.getYOrigin(); }
 	
 	/**
 	 * A point has been selected on the XYImage. a new XZImage and ZYImage
@@ -177,8 +174,8 @@ public class Viewer3DManager
 	 */
 	public void onXZPlaneSelected(int x, int z)
 	{
-		view.onPlaneSelected(z-yOrigin, 
-							x-xOrigin-Viewer3D.SPACE-ZYimage.getWidth(),
+		view.onPlaneSelected(z-getYOrigin(), 
+							x-getXOrigin()-Viewer3D.SPACE-ZYimage.getWidth(),
 							Viewer3D.XZ);
 	}
 	
@@ -191,8 +188,8 @@ public class Viewer3DManager
 	 */
 	public void onZYPlaneSelected(int z, int y)
 	{
-		view.onPlaneSelected(z-xOrigin, 
-							y-Viewer3D.SPACE-XZimage.getHeight()-yOrigin,
+		view.onPlaneSelected(z-getXOrigin(), 
+							y-Viewer3D.SPACE-XZimage.getHeight()-getYOrigin(),
 							Viewer3D.ZY);
 	}
 	
@@ -204,8 +201,6 @@ public class Viewer3DManager
 	 */
 	public void setDrawingArea(int x, int y)
 	{
-		xOrigin = x;
-		yOrigin = y;
 		JLayeredPane contents = view.contents;
 		JPanel back = view.backPanel;
 		Dimension d = new Dimension(x+xMax, y+yMax);
@@ -215,6 +210,7 @@ public class Viewer3DManager
 		back.setSize(d);
 		DrawingCanvasMng dm = drawing.getManager();
 		xMain = x+ZYimage.getWidth()+Viewer3D.SPACE;
+		System.out.println(x);
 		yMain = y+XZimage.getHeight()+Viewer3D.SPACE;
 		drawing.setDrawingDimension(XYimage.getWidth(), XYimage.getHeight(), 
 									ZYimage.getWidth(), xMain, yMain);
