@@ -39,6 +39,8 @@ import java.awt.event.WindowEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvasMng;
+import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
+import org.openmicroscopy.shoola.agents.roi.editor.ROIEditor;
 import org.openmicroscopy.shoola.agents.roi.util.ROIStats;
 import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -148,7 +150,8 @@ public class ROIAgtCtrl
     /** Erase all shapes. */
     public void eraseAll()
     {
-        drawingCanvas.getManager().eraseAll();    
+        drawingCanvas.getManager().eraseAll();
+        setAnnotation(null);
     }
   
     public void undoErase() 
@@ -160,19 +163,44 @@ public class ROIAgtCtrl
     public void erase()
     {
         DrawingCanvasMng mng = drawingCanvas.getManager();
-        if (mng.getCurrentROI() != null) mng.erase(); 
+        ROIShape roi = mng.getCurrentROI();
+        if (roi != null && roi.getAnnotation() != null && 
+                mng.isAnnotationOnOff()) {
+            setAnnotation(null);
+        }
+        if (roi != null) mng.erase(); 
     }
     
     /** Draw or not the ROI selections. */
-    public void onOffDrawing(boolean b)
-    {
-        abstraction.onOffDrawing(b); 
-    }
+    public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
     
-    /** Draw or not the ROI selections. */
+    /** Draw or not the label. */
     public void onOffText(boolean b)
     {
         drawingCanvas.getManager().setTextOnOff(b); 
+    }
+    
+    public boolean isOnOffAnnotation() 
+    {
+        return drawingCanvas.getManager().isAnnotationOnOff();
+    }
+    
+    public void onOffAnnotation(boolean b)
+    {
+        drawingCanvas.getManager().setAnnotationOnOff(b); 
+        if (!b) setAnnotation(null);
+    }
+    
+    /** Bring up the editor modal widget. */
+    public void annotateROI(ROIShape roi)
+    {
+        UIUtilities.centerAndShow(new ROIEditor(this, roi));
+    }
+    
+    /** Set the text of the annotation. */
+    public void setAnnotation(String txt)
+    {
+        abstraction.setAnnotation(txt);
     }
     
     public void analyse()
@@ -182,7 +210,7 @@ public class ROIAgtCtrl
         //need to retrieveROI from canvas
     }
     
-    
+    /** Return the results of the ROI. */
     public String[][] getROIStats()
     {
         String[][] stats = new String[2][8];

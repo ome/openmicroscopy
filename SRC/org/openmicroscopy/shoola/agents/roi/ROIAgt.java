@@ -40,6 +40,7 @@ import java.awt.Color;
 
 import org.openmicroscopy.shoola.agents.roi.defs.ROISettings;
 import org.openmicroscopy.shoola.agents.roi.events.AddROICanvas;
+import org.openmicroscopy.shoola.agents.roi.events.AnnotateROI;
 import org.openmicroscopy.shoola.agents.roi.events.DisplayROI;
 import org.openmicroscopy.shoola.agents.roi.events.IATChanged;
 import org.openmicroscopy.shoola.env.Agent;
@@ -98,7 +99,7 @@ public class ROIAgt
     
     private String[]                channels;
     
-    private boolean                 drawOnOff, canvasUp, postedAdd;
+    private boolean                 drawOnOff, canvasUp;
     
     private ROISettings             roiSettings;
     
@@ -147,8 +148,12 @@ public class ROIAgt
     void onOffDrawing(boolean b)
     {
         drawOnOff = b;
-        postedAdd = true;
         registry.getEventBus().post(new AddROICanvas(b));
+    }
+    
+    void setAnnotation(String txt)
+    {
+        registry.getEventBus().post(new AnnotateROI(txt));
     }
     
     /** Handle the event @see IATChanged. */
@@ -192,14 +197,8 @@ public class ROIAgt
     private void handleAddROICanvas(AddROICanvas response)
     {
         if (response.isOnOff()) bringUpPresentation();
-        else if (!postedAdd) closePresentation();
-        postedAdd = false;
-    }
-    
-    private void closePresentation()
-    {
-        setDrawOnOff(true);
-        presentation.dispose();
+        //else if (!postedAdd) closePresentation();
+        //postedAdd = false;
     }
     
     private void bringUpPresentation()

@@ -96,11 +96,13 @@ public class IconManager
     
     public static final int     QUESTION = 13;
     
+    public static final int     ANNOTATE_BIG = 14;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 13;
+    private static int          MAX_ID = 14;
   
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -118,7 +120,8 @@ public class IconManager
         relPaths[ROISHEET_BIG] = "nuvola_spreadsheet48.png";
         relPaths[SAVEAS_BIG] = "nuvola_filesaveas48.png";
         relPaths[UNDO_ERASE] = "eclipse_clear_co16.png";
-        relPaths[QUESTION] = "eclipse_clear_co16.png";
+        relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[ANNOTATE_BIG] = "nuvola_template_source48.png";
     }
       
     /** The sole instance. */
