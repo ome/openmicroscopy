@@ -37,6 +37,14 @@
    *        into a PDF.
    *   + docs.xml2mhtml.file: The XSLT file to transform an AurigaDoc XML file
    *        into a multi-page HTML document.
+   *   + docs.xdocs.start.dir: The path, relative to ${base.docgen.xdocs.dir},
+   *        specifying the root of the tree containing the xdoc directories.
+   *   + docs.xdocs.src.dir: Absolute path to the root of the tree containing 
+   *        the xdoc directories.
+   *
+   * NOTE: You can override ${docs.xdocs.start.dir} (typically from the command
+   *       line) to have the xdocs target generate only a subset of all xml
+   *       docs.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="docs.dir" location="${build.dir}/docs" />
   <property name="docs.javadoc.dir" location="${docs.dir}/javadoc" /> 
@@ -45,8 +53,10 @@
   <property name="docs.xml2fo.file" 
             location="${base.docgen.xdocs.xsl.dir}/xml2fo.xsl" /> 
   <property name="docs.xml2mhtml.file" 
-            location="${base.docgen.xdocs.xsl.dir}/xml2mhtml.xsl" />   
-   
+            location="${base.docgen.xdocs.xsl.dir}/xml2mhtml.xsl" />
+  <property name="docs.xdocs.start.dir" value="docs" /> 
+  <property name="docs.xdocs.src.dir" 
+            location="${base.docgen.xdocs.dir}/${docs.xdocs.start.dir}" /> 
 
 
   
@@ -96,13 +106,14 @@
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Generates project documentation under ${docs.dir}.
    * This target produces a PDF/HTML documentation set for every xdoc 
-   * directory found under ${base.docgen.xdocs.dir}/docs.  The whole directory
-   * tree is scanned to detect directories containing a 'doc.xml' file.  Each of 
-   * those directories is taken to be an xdoc directory, that is one containing
-   * an XML/HTML set of files that haveto be transformed into PDF and HTML.
+   * directory found under ${docs.xdocs.src.dir}.  The whole directory
+   * tree is scanned to detect directories containing a 'doc.xml' file.
+   * Each of those directories is taken to be an xdoc directory, that is 
+   * one containing an XML/HTML set of files that haveto be transformed 
+   * into PDF and HTML.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="xdocs" depends="docs-init">
-    <xdoc srcdir="${base.docgen.xdocs.dir}/docs"
+    <xdoc srcdir="${docs.xdocs.src.dir}"
           destdir="${docs.dir}"
           auriga="${docs.xml2ad.file}" 
           fo="${docs.xml2fo.file}" 
