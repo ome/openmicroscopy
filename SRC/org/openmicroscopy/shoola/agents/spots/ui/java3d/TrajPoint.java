@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.spots.ui.java3d;
 import com.sun.j3d.utils.picking.PickTool;
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.Node;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Vector3d;
@@ -74,7 +73,7 @@ public class TrajPoint extends TrajShape {
 		this.pt = pt;
 		this.extents = extents;
 		getGeometry(BOX_SIDE);
-		PickTool.setCapabilities((Node)shape,PickTool.INTERSECT_FULL);
+		PickTool.setCapabilities(shape,PickTool.INTERSECT_FULL);
 		
 		shape.setAppearance(app);
 	 	// 	make a transform to translate it
