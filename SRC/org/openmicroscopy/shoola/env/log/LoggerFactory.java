@@ -32,11 +32,15 @@ package org.openmicroscopy.shoola.env.log;
 
 //Java imports
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * A factory for the {@link Logger}. 
@@ -52,25 +56,13 @@ import org.openmicroscopy.shoola.env.Container;
  * </small>
  * @since OME2.2
  */
-
 public class LoggerFactory
 {
-
-	/** 
-	 * Name of the log directory.
-	 * The path to the log directory is the absolute path to the installation
-	 * directory followed by the value of this field. 
-	 */
-	public static final String		LOG_DIR = "log";
 	
-	/** 
-	 * Name of the log file.
-	 * The log file is contained in the log directory.  Under exceptional
-	 * circumstances, it could be located under the installation directory &151;
-	 * this can only happen if someone fiddled with the structure of the
-	 * install directory.  
+	/**
+	 * The name of the log configuration file in the config directory.
 	 */
-	public static final String		LOG_FILE = "shoola.log";
+	public static final String		LOG_CONFIG_FILE = "log4j.config";
 	
 	
 	/**
@@ -84,15 +76,31 @@ public class LoggerFactory
 		//to the singleton container. So we can be sure this method is going to
 		//create services just once.
 		if (c == null)	return null;
-		String off = (String) c.getRegistry().lookup("/services/LOG");
-		if ("OFF".equalsIgnoreCase(off))	return makeNoOpLogger();
-		File logDir = new File(c.getHomeDir(), LOG_DIR), logFile;
+		
+		//If logging is off, then we return the no-op adapter.
+		Registry reg = c.getRegistry();
+		Boolean isLoggingOn = (Boolean) reg.lookup(LookupNames.LOG_ON);
+		if (!isLoggingOn.booleanValue())	return makeNoOpLogger();
+		
+		//Ok we have to log, so try and read the config file.
+		Properties config = loadConfig(c.resolveConfigFile(LOG_CONFIG_FILE));
+		if (config == null)	return makeNoOpLogger();	
+		
+		//We have a config file, set up log4j.
+		String logDirName = (String) reg.lookup(LookupNames.LOG_DIR),
+				logFileName = (String) reg.lookup(LookupNames.LOG_FILE);
+		File logDir = new File(c.getHomeDir(), logDirName), logFile;
 		logDir.mkdir();
-		if (logDir.isDirectory())	logFile = new File(logDir, LOG_FILE);
-		else	logFile = new File(c.getHomeDir(), LOG_FILE);
-		return new LoggerImpl(logFile.getAbsolutePath());
+		if (logDir.isDirectory())	logFile = new File(logDir, logFileName);
+		else	logFile = new File(c.getHomeDir(), logFileName);
+		return new LoggerImpl(config, logFile.getAbsolutePath());
 	}
 	
+	/**
+	 * Creates a no-op implementation of {@link Logger}.
+	 * 
+	 * @return See above.
+	 */
 	private static Logger makeNoOpLogger()
 	{
 		return new Logger() {
@@ -102,6 +110,25 @@ public class LoggerFactory
 			public void info(Object c, String logMsg) {}
 			public void warn(Object c, String logMsg) {}
 		};
+	}
+	
+	/**
+	 * Reads in the specified file as a property object.
+	 * 
+	 * @param file	Absolute pathname to the file.
+	 * @return	The content of the file as a property object or
+	 * 			<code>null</code> if an error occured.
+	 */
+	private static Properties loadConfig(String file)
+	{
+		Properties config = new Properties();
+		try { 
+			FileInputStream fis = new FileInputStream(file);
+			config.load(fis);
+		} catch (Exception e) {
+			return null;
+		}
+		return config;
 	}
 
 }
