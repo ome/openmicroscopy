@@ -54,7 +54,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
+import org.openmicroscopy.shoola.agents.zoombrowser.ui.MainWindow;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
