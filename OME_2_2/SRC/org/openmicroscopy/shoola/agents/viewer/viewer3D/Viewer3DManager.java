@@ -75,7 +75,6 @@ public class Viewer3DManager
         this.view = view;
         this.control = control;
         this.previousModel = previousModel;
-        System.out.println("model: "+previousModel);
         attachListener();
     }
     

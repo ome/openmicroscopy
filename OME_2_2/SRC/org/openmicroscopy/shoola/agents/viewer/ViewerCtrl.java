@@ -93,8 +93,6 @@ public class ViewerCtrl
     /** zooming factor. */
     private double              magFactor;
     
-    private int                 currentModel;
-    
     /** 
      * Util object to retrieve the movie settings if the movie widget has been
      * brought up and re-open.
@@ -223,7 +221,6 @@ public class ViewerCtrl
     {
         resetZSlider(z);
         resetZField(z);
-        System.out.println("control model: "+previousModel);
         abstraction.setModel(previousModel);
         abstraction.onPlaneSelected(z);
     }
