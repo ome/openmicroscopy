@@ -36,7 +36,6 @@ import java.awt.Frame;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -74,7 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public abstract class TopWindow
-	extends JFrame
+	extends ManageableTopWindow
 {
 	
 	/** 
@@ -205,4 +204,11 @@ public abstract class TopWindow
 		taskBar.removeFromToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 	}
 	
+	/**
+	 * A call for post-processing after the window is shown
+	 * 
+	 */
+	 public void postHandleDisplay() {
+	 	
+	 }
 }

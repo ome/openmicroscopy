@@ -110,7 +110,7 @@ public class TopWindowManager
 
 
 	/** The managed window. */
-	private JFrame				window;
+	private ManageableTopWindow	window;
 	
 	/**
 	 * The set of buttons that have to trigger a Display event whenever clicked.
@@ -167,7 +167,7 @@ public class TopWindowManager
 	}
 	
 	/**
-	 * Hanldes the <i>Display</i> event.
+	 * Handles the <i>Display</i> event.
 	 * A <i>Display</i> event is caused by a call to set the {@link #window} 
 	 * visible (<code>window.setVisible(true)</code>) or a click on any of the 
 	 * {@link #displayButtons}.
@@ -176,19 +176,32 @@ public class TopWindowManager
 	{
 		if (state == ON_SCREEN)	toForeground();
 		else {  //DISPLAYABLE or UNLINKED.
-			setOnScreen();
-			toForeground();
-			state = ON_SCREEN;
-			
-			//NOTE: setOnScreen() shows the window on screen, which will
-			//eventually cause another call to componentShown() and, in turn,
-			//another call to this method.  However, the state is now ON_SCREEN
-			//so we just invoke toForeground().  This could be avoided if we
-			//kept track of the fg/bg state of the window as well, but it would
-			//make the implementation more complex.  As an extra call to
-			//toForeground() is harmless, we favour an easier implementation
-			//over logic soundness.
+			window.preHandleDisplay(this); 
+		
 		}
+	}
+	
+	/** 
+	 * 
+	 * Continues handling of the display - does the actual work after the window 
+	 * says that it is ready. should be called via a callback from
+	 * (<code>window.preHandleDisplay(this)</code>)
+	 *
+	 */
+	public void continueHandleDisplay() {
+		setOnScreen();
+		toForeground();
+		window.postHandleDisplay();
+		state = ON_SCREEN;
+		
+		//NOTE: setOnScreen() shows the window on screen, which will
+		//eventually cause another call to componentShown() and, in turn,
+		//another call to this method.  However, the state is now ON_SCREEN
+		//so we just invoke toForeground().  This could be avoided if we
+		//kept track of the fg/bg state of the window as well, but it would
+		//make the implementation more complex.  As an extra call to
+		//toForeground() is harmless, we favour an easier implementation
+		//over logic soundness.
 	}
 	
 	/**
@@ -246,7 +259,8 @@ public class TopWindowManager
 	 * 							Display event whenever clicked.  Pass  
 	 * 							<code>null</code> if there are no such buttons.
 	 */
-	public TopWindowManager(JFrame window, AbstractButton[]	displayButtons) 
+	public TopWindowManager(ManageableTopWindow window,
+			AbstractButton[]	displayButtons) 
 	{
 		if (window == null)	throw new NullPointerException("No window.");
 		this.window = window;

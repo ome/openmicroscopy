@@ -116,7 +116,7 @@ public class TopWindowGroup
 	 * @return	A record-like class containing the display buttons and the
 	 * 			manager for <code>window</code>.
 	 */
-	private WindowConfig makeConfigFor(JFrame window)
+	private WindowConfig makeConfigFor(ManageableTopWindow window)
 	{
 		WindowConfig cfg = new WindowConfig();
 		cfg.winSubMenuEntry = new JMenuItem();
@@ -209,7 +209,7 @@ public class TopWindowGroup
 	 * @param name		The text label for the display buttons.
 	 * @param icon		The icon for the display buttons.
 	 */
-	public void add(JFrame window, String name, Icon icon)
+	public void add(ManageableTopWindow window, String name, Icon icon)
 	{
 		if (window == null)	return;
 		if (name == null || name.length() == 0)
