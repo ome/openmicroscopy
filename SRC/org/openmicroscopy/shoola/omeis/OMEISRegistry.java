@@ -68,12 +68,6 @@ public class OMEISRegistry
         if (type == null)
             throw new ActivationException(
                     "No activator defined for the requested service.");
-        //Class activatorClass = type.getClass(), 
-        //        activatorInterface = ServiceActivator.class;
-        //if (!activatorInterface.isAssignableFrom(activatorClass))
-        //    throw new ActivationException(
-        //        "Invalid activator bound to the requested service: "+
-        //        activatorClass+" doesn't implement ServiceActivator.");
         ServiceActivator activator = null;
         try {
             Class activatorClass = (Class) type;
