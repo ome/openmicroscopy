@@ -447,10 +447,33 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 
 	public void mouseEntered(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
+		ChainBox cb = getParentChainBox();
+		if (cb != null)
+			cb.mouseEntered(handler);
 	}
 
+	// let the grandparent handle the event. otherwise, clear last enetered.
 	public void mouseExited(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).setLastEntered(null);
+		ChainBox cb = getParentChainBox();
+		if (cb != null)
+			cb.mouseExited(handler);
+	
+	}
+	
+	//	 if this chain is in a chainbox - which would then be the grandparent
+	// return a chain box that is the enclosing grandparent
+	private ChainBox getParentChainBox() {
+		PNode parent = getParent();
+		if (parent == null)
+			return null;
+		parent = parent.getParent();
+		if (parent == null)
+			return null;
+		if (parent instanceof ChainBox)
+			return ((ChainBox) parent);
+		else 
+			return null;
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
