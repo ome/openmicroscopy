@@ -55,7 +55,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.browser.layout.QuantumTreemap;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.ui.MainWindow;
@@ -457,7 +457,7 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 	}
 	
 	public void selectAnalysisChain(AnalysisChainData chain) {
-		ChainExecutions chainExecutions = mainWindow.getChainExecutions();
+		ExecutionsData chainExecutions = mainWindow.getChainExecutions();
 		if (chainExecutions == null)
 			return;
 		
