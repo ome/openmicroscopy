@@ -50,9 +50,11 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
+import org.openmicroscopy.shoola.agents.browser.ui.BoundedPanHandler;
+import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
+import edu.umd.cs.piccolo.event.PPanEventHandler;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -71,6 +73,8 @@ public class BrowserView extends PCanvas
     private BrowserEnvironment env;
     private Map layoutMap;
     private Rectangle2D footprint;
+    
+    private PPanEventHandler panHandler;
 
     private void init()
     {
@@ -82,6 +86,9 @@ public class BrowserView extends PCanvas
         // here we disable zoom/pan (TODO: save for later, reinstate on mode)
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
+        
+        panHandler = new BoundedPanHandler(null);
+        addInputEventListener(panHandler);
     }
 
     /**
@@ -171,6 +178,14 @@ public class BrowserView extends PCanvas
         // for some reason, setting setViewScale(0) screws things up
         // in a big way.
         
+        getCamera().setViewScale(0.5);
+        
+        if(panHandler instanceof RegionSensitive)
+        {
+            ((RegionSensitive)panHandler).setActiveRegion(footprint);
+        }
+        
+        /*
         if((xRatio < 1 || yRatio < 1) &&
            (xRatio != 0 && yRatio != 0))
         {
@@ -181,6 +196,7 @@ public class BrowserView extends PCanvas
         {
             getCamera().setViewScale(1);
         }
+        */
     }
 
     /**
