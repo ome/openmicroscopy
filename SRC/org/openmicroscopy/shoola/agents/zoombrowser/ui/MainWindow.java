@@ -145,14 +145,17 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		Border lowered = BorderFactory.createLoweredBevelBorder();
 		Border compound = BorderFactory.createCompoundBorder(raised,lowered);
 		Border fullBorder = BorderFactory.createCompoundBorder(empty,compound);
+		
+		
 		datasetBrowser = new DatasetBrowserCanvas(this,dataManager.getRegistry());
 		projectBrowser = new ProjectSelectionCanvas(this);
-		
 		datasetBrowser.setContents(dataManager.getDatasets());
 		projectBrowser.setContents(dataManager.getProjects());
+		
 		projectBrowser.layoutContents();
 		projectBrowser.completeInitialization();
-		
+	
+  
 		JPanel projectsPanel = new JPanel();
 		projectsPanel.setBorder(
 				BorderFactory.createTitledBorder(fullBorder,"Projects"));
@@ -171,9 +174,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		pack();
 		datasetBrowser.layoutContents();
 		datasetBrowser.completeInitialization();
-		
+	
+	
 		addComponentListener(this);
-		enableButtons(true);
 	}
 	
 	
@@ -195,7 +198,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		
 		configureDisplayButtons();
 		
-		enableButtons(true);
+		//enableButtons(true);
 	}
 		
 	
@@ -279,7 +282,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		if (dataState == NOT_LOADED) {
 			topWindowManager = manager;
 			ContentGroup group = new ContentGroup(this);
-			
 			final DatasetLoader dl = new DatasetLoader(dataManager,group);
 			final ProjectLoader pl = new ProjectLoader(dataManager,group);
 			group.setAllLoadersAdded();
