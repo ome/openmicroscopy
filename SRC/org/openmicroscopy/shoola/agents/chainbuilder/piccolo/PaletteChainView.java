@@ -43,7 +43,9 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import edu.umd.cs.piccolo.PLayer;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.activities.PInterpolatingActivity;
+import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PUtil;
 
 //Application-internal dependencies
@@ -86,7 +88,10 @@ public class PaletteChainView extends ChainView {
 		addChild(compoundView);
 		scaleFullView();
 		setBounds(getUnionOfChildrenBounds(null));
+		fullLayer.setPickable(false);
+		fullLayer.setChildrenPickable(true);
 	}	
+	
 	
 	/** 
 	 * Scale the view of the full chain to occupy the space in which
@@ -98,11 +103,11 @@ public class PaletteChainView extends ChainView {
 	 *
 	 */
 	private void scaleFullView() {
-		double compoundHeight = getHeight();
-		double compoundWidth = getWidth();
+		double compoundHeight = compoundView.getHeight();
+		double compoundWidth = compoundView.getWidth();
 		
-		double fullHeight = fullLayer.getGlobalFullBounds().getHeight();
-		double fullWidth = fullLayer.getGlobalFullBounds().getWidth();
+		double fullHeight = fullLayer.getFullBounds().getHeight();
+		double fullWidth = fullLayer.getFullBounds().getWidth();
 		double widthRatio = compoundWidth/fullWidth;
 		double heightRatio = compoundHeight/fullHeight;
 		double newScale = heightRatio;
@@ -116,6 +121,12 @@ public class PaletteChainView extends ChainView {
 	}
 	protected ModuleView getModuleView(ChainModuleData mod) {
 		return new PaletteModuleView(mod);
+	}
+	
+	protected PBounds getChainDetailBounds() {
+		PBounds b= fullLayer.getGlobalFullBounds(); 
+		return new PBounds(b.getX()-Constants.BORDER,b.getY()-Constants.BORDER,
+				b.getWidth()+2*Constants.BORDER,b.getHeight()+2*Constants.BORDER);
 	}
 	
 	protected ParamLink getParamLink(FormalInput inputPNode,
@@ -171,9 +182,8 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
-		((ModuleNodeEventHandler) handler).animateToNode(this);
+		((ModuleNodeEventHandler) handler).animateToBounds(getChainDetailBounds());
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
-		showFullView(false);
 	}	
 	
 	/**
@@ -188,50 +198,43 @@ public class PaletteChainView extends ChainView {
 			((ChainPaletteEventHandler) handler).setLastChainView(this);
 	}
 	
-	public void showFullView(boolean b) {
+	public PActivity showFullView(boolean b) {
 		showingFull = b;
-		// compound becomes transparent,
-		// layer becomes opaque
-		boolean layerVisible = true;
-		// if it's false, switch 
-		if (b == false) {
-			layerVisible=false;
+		TransparencyActivity a1;
+		if (b ==true)  {
+			compoundView.setPickable(false);
+			a1 = new TransparencyActivity(fullLayer,compoundView);
+			
 		}
-		TransparencyActivity a1 = new TransparencyActivity(fullLayer,layerVisible);
-		TransparencyActivity a2 = new TransparencyActivity(compoundView,
-				!layerVisible);
-		addActivity(a1);
-		addActivity(a2);
-
+		else {
+			compoundView.setPickable(true);
+			a1 = new TransparencyActivity(compoundView,fullLayer);
+		}
+		getRoot().getActivityScheduler().addActivity(a1);
+		return a1;
 	}
 	
 	public void hide() {
 		showFullView(false);
+		compoundView.showOverview();
 	}
 	
-	public double getHeight() {
-		return compoundView.getHeight();
-	}
-	
-	public double getWidth() {
-		return compoundView.getWidth();
-	}
-	
+
 	private class TransparencyActivity extends PInterpolatingActivity {
 		
 		private float INVISIBLE=0.0f;
 		private float VISIBLE=1.0f;
 		private PNode p;
+		private PNode q;
 		private float trans;
 		private float source;
 		
-		TransparencyActivity(PNode p,boolean  visible) {
+		TransparencyActivity(PNode p,PNode q) {
 			super(Constants.TRANSPARENCY_DELAY,PUtil.DEFAULT_ACTIVITY_STEP_RATE);
 			this.p = p;
-			if (visible == true)
-				trans = VISIBLE;
-			else
-				trans = INVISIBLE;
+			this.q = q;
+			source = 0.0f;
+			trans = 1.0f;
 		}
 		
 		protected void activityStarted() {
@@ -243,17 +246,20 @@ public class PaletteChainView extends ChainView {
 		public void setRelativeTargetValue(float zeroToOne) {
 			float newTrans = source + (zeroToOne * (trans - source));
 			p.setTransparency(newTrans);
+			q.setTransparency(1-newTrans);
 		}
 		
 		public void activityFinished() {
-			if (trans == INVISIBLE) {
-				p.setVisible(false);
-				p.setPickable(false);
-			}
-			else {
-				p.setPickable(true);
-			}
+			q.setVisible(false);
+			super.activityFinished();
 		}
 	}
 	
+	public double getHeight() { 
+		return compoundView.getHeight();
+	}
+	
+	public double getWidth() {
+		return compoundView.getWidth();
+	}
 }
