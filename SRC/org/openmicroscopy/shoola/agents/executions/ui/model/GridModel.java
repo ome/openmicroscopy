@@ -71,6 +71,9 @@ public class GridModel implements ChangeListener {
 	public static final int LABEL_BUFFER=10;
 	public static final int LABEL_WIDTH=LABEL_SIZE-LABEL_BUFFER;
 	public static final int GRID_OFFSET=15;
+	public static final int LEFT_GAP=GRID_OFFSET+LABEL_SIZE;
+	public static final int RIGHT_GAP = 2*GRID_OFFSET;
+	public static final int BOTTOM_GAP=2*GRID_OFFSET;
 	private static final Color AXIS_COLOR= new Color(150,150,240);
 	public static final int DOT_SIDE=4;
 	public static final float AXIS_STROKE_WIDTH=2.0f;
@@ -86,21 +89,27 @@ public class GridModel implements ChangeListener {
 	private long min;
 	private long max;
 	
-	/** dimensions of the canvas in question */
-	private int gridWidth;
-	private int gridHeight;
-
 	
-	/** start points for drawing */
+	
+	
+	/** start and end points for drawing. these are adjusted to make sure
+	 * that we have space for dots, so that dots don't go outside of axis.
+	 */
 	private int xStart;
 	private int yStart;
 	
+	private int xEnd;
 	
 	private int xStartAxis;
 	private int xEndAxis;	
 	private int yStartAxis;
 	private int yEndAxis;
 	
+	private int axisWidth;
+
+	private int gridWidth;
+	private int axisHeight;
+
 	/** # of rows */
 	private int rowCount;
 	
@@ -127,31 +136,48 @@ public class GridModel implements ChangeListener {
 	
 	public void setDimensions(int canvasWidth,int canvasHeight) {
 		
-		// axes are GRID_OFFSET away from left and bottom. 
-		// remember, in window's coordinate system, (0,0) is upper-left,
-		// so canvasHeight is y-coord of window bottom.
-		xStartAxis = GRID_OFFSET+LABEL_SIZE;
-		yStartAxis = canvasHeight-2*GRID_OFFSET;
+		// First, horizontal parameters.
+		// axes are LEFT_GAP away from left, to
+		// account for label space and general buffer.
 		
-		//need a buffer at top as well as bottom, 
-		//left as well as right.
+		xStartAxis = LEFT_GAP;
+		
+		// in order to make sure that dots don't hit axis, we actually
+		// start a bit to the right of the axis.
+		
+		xStart = xStartAxis+DOT_SIDE;
+		
+		// end of the axis leaves some empty space on the right.
+		// on OS X, this accounts for the window-resize icon on the
+		// lower right corner.
+		xEndAxis = canvasWidth - RIGHT_GAP;
+		
+		// axis width goes between start and end of axis.
+		axisWidth = xEndAxis-xStartAxis;
+		
+		// last position for drawing a dot is to the left of the
+		// axis end. This way, the dot never goes to the right of the axis.
+		xEnd = xEndAxis-DOT_SIDE;
+		
+		// grid space is the range of values that can be the left coordinate
+		// of a dot.
+		gridWidth = xEnd-xStart;
+		
+		
+		// y values increase as we go down screen. Leave a buffer at the
+		// bottom of window.
+		yStartAxis = canvasHeight-BOTTOM_GAP;
+		
 		// plus, we need to account for the fact that
 		// the dots for the executions are drawn from x,y being the 
 		// upper-left. Thus, to make all dots stay above axes, 
 		// we move the start higher up by DOT_SIDE
-	
-		
-		xStart = xStartAxis+DOT_SIDE;
 		yStart = yStartAxis-2*DOT_SIDE;
 		
-		// we also need a buffer on the right, 
-		// and the end of the horizontal axis to extend past the 
-		// right side of the right-most dot
-		xEndAxis = canvasWidth - 2*GRID_OFFSET;
-		yEndAxis = GRID_OFFSET; // leave buffer at top
+		// we also need a buffer on the top 
+		yEndAxis = GRID_OFFSET; 
 		
-		gridWidth = xEndAxis-xStart-DOT_SIDE;
-		gridHeight = yStartAxis-yEndAxis;
+		axisHeight = yStartAxis-yEndAxis;
 		buildRowDecorations();
 		buildHorizHashes();
 	}
@@ -166,13 +192,13 @@ public class GridModel implements ChangeListener {
 	
 	public float getVertCoord(int y) {
 		float ratio = ((float) y)/((float) rowCount);
-		float res  =  yStart-ratio*gridHeight;
+		float res  =  yStart-ratio*axisHeight;
 		return res;
 	}
 	
 	public long getTime(int xCoord) {
 		float offset = xCoord-xStart;
-		float ratio = offset/(xEndAxis-xStartAxis);
+		float ratio = offset/gridWidth;
 		return (long) (min+ratio*(max-min));
 	}
 	
@@ -207,11 +233,10 @@ public class GridModel implements ChangeListener {
 		// remember, y increases as we go down the screen,
 		// so yStartAxis is larger value.
 		rowDecorations = new Vector();
-		double ratio = ((double)gridHeight)/((double) stripeCount);
+		double ratio = ((double)axisHeight)/((double) stripeCount);
 		int stripeSize = (int) Math.ceil(ratio);
 		
 		int xStart = xStartAxis+(int)AXIS_STROKE_WIDTH;
-		int width  = xEndAxis-xStartAxis;
 		Color color = Constants.ALT_BACKGROUND_COLOR;
 		int count = 0;
 		int height = stripeSize;
@@ -227,7 +252,7 @@ public class GridModel implements ChangeListener {
 			}
 			String label = model.getMajorRowLabel(count);
 			AxisRowDecoration decor = new
-				AxisRowDecoration(xStart,top,width,height,color,label);
+				AxisRowDecoration(xStart,top,axisWidth,height,color,label);
 			rowDecorations.add(decor);
 			
 			// alternate colors
@@ -258,15 +283,14 @@ public class GridModel implements ChangeListener {
 		axisHashes = new Vector();
 		int hashBottom = yStartAxis+HASH_LENGTH;
 		
-		int width = xEndAxis-xStartAxis;
 		
 		// how many hashes do we have?
 		// want to have them a certain spacing apart,
 		// but also want to have a limit on the number.
-		int count = (int) Math.floor(width/HASH_SPACE);
+		int count = (int) Math.floor(axisWidth/HASH_SPACE);
 		if (count > HASH_COUNT)
 			count = HASH_COUNT;
-		int spacing = (int) Math.floor(width/count);
+		int spacing = (int) Math.floor(axisWidth/count);
 		int x;
 		int labelCount = 0;
 		for(x =xStartAxis; x <= xEndAxis-spacing; x+= spacing) {
