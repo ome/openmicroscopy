@@ -151,7 +151,7 @@ public class ToolBar
         viewer3D = new JButton(im.getIcon(IconManager.VIEWER3D));
         viewer3D.setToolTipText(
             UIUtilities.formatToolTipText("Bring up the image3D viewer."));
-        viewer3D.setEnabled(maxZ == 0); 
+        viewer3D.setEnabled(maxZ != 0); 
         saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
         saveAs.setToolTipText(
             UIUtilities.formatToolTipText("Bring up the save image window."));  
@@ -161,14 +161,13 @@ public class ToolBar
         render =  new JButton(im.getIcon(IconManager.RENDER));
         render.setToolTipText(
             UIUtilities.formatToolTipText("Bring up the rendering panel."));
-        
         movie = new JButton(im.getIcon(IconManager.MOVIE));
         movie.setToolTipText(
             UIUtilities.formatToolTipText("Bring up the movie panel."));
+        movie.setEnabled(maxT != 0 || maxZ != 0);
         roi = new JButton(im.getIcon(IconManager.ROI));
         roi.setToolTipText(
                 UIUtilities.formatToolTipText("Bring up the roi panel.")); 
-        if (maxT == 0 && maxZ == 0) movie.setEnabled(false); 
     }
 
     /** 
@@ -180,7 +179,6 @@ public class ToolBar
         zLabel = new JLabel("/"+maxZ);
         tLabel = new JLabel("/"+maxT);
         tField = new JTextField(""+t, (""+maxT).length());
-        //if (maxT == 0) tField.setEditable(false);
         tField.setEditable(maxT != 0);
         tField.setForeground(Viewer.STEELBLUE);
         tField.setToolTipText(
@@ -189,7 +187,6 @@ public class ToolBar
         zField.setForeground(Viewer.STEELBLUE);
         zField.setToolTipText(
             UIUtilities.formatToolTipText("Enter a Z point"));
-        //if (maxZ-1 == 0) zField.setEditable(maxZ != 0);
         zField.setEditable(maxZ != 0);
         ztPanel = textFieldsPanel((""+maxZ).length(), (""+maxT).length());
     }

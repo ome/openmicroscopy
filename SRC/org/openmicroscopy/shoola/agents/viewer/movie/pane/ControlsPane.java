@@ -99,7 +99,7 @@ public class ControlsPane
         selections[Player.LOOP] = "Loop";
         selections[Player.BACKWARD] = "Backward";
         selections[Player.FORWARD] = "Forward";
-        selections[Player.PINGPONG] = "Pong-Ping";  
+        selections[Player.PINGPONG] = "Round trip";  
     }
     
     /**

@@ -78,6 +78,7 @@ class MoviePaneMng
     
     /** Action command ID. */
     private static final int    START_Z = 2;
+    
     /** Action command ID. */
     private static final int    END_Z = 3;
     
@@ -110,6 +111,7 @@ class MoviePaneMng
         curStartZ = settings.getStartZ();
         curEndZ = settings.getEndZ();
         movieIndex = settings.getMovieIndex();
+        if (movieIndex == Player.MOVIE_Z) max = maxZ;
     }
 
     /** Attach listeners. */
@@ -120,18 +122,10 @@ class MoviePaneMng
         endTField = view.getMovieEndT();
         startZField = view.getMovieStartZ();
         endZField = view.getMovieEndZ();
-        startTField.setActionCommand(""+START_T);  
-        startTField.addActionListener(this);
-        startTField.addFocusListener(this);
-        endTField.setActionCommand(""+END_T);  
-        endTField.addActionListener(this);
-        endTField.addFocusListener(this);
-        startZField.setActionCommand(""+START_Z);  
-        startZField.addActionListener(this);
-        startZField.addFocusListener(this);
-        endZField.setActionCommand(""+END_Z);  
-        endZField.addActionListener(this);
-        endZField.addFocusListener(this);
+        attachFieldListeners(startTField, START_T);
+        attachFieldListeners(endTField, END_T);
+        attachFieldListeners(startZField, START_Z);
+        attachFieldListeners(endZField, END_Z);
         //RadioButton
         JRadioButton movieZ = view.getMovieZ(), movieT = view.getMovieT();
         movieZ.addActionListener(this);
@@ -141,6 +135,13 @@ class MoviePaneMng
         
         view.getSliderT().addChangeListener(this);
         view.getSliderZ().addChangeListener(this);
+    }
+    
+    private void attachFieldListeners(JTextField field, int id)
+    {
+        field.setActionCommand(""+id);  
+        field.addActionListener(this);
+        field.addFocusListener(this);
     }
     
     /** Handle graphicSlider stateChanged. */

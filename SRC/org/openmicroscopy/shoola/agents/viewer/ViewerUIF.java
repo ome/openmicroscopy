@@ -177,14 +177,16 @@ public class ViewerUIF
         toolBar.getZLabel().setText("/"+maxZ);
         toolBar.getTLabel().setText("/"+maxT);
         resetSliders(maxT, t, maxZ, z);
-        boolean bT = false, bZ = false;
+        boolean bT = false, bZ = false, bZT = false;
         if (maxT != 0) bT = true;
         if (maxZ != 0) bZ = true;
         toolBar.getTField().setEditable(bT);
         toolBar.getZField().setEditable(bZ);
         toolBar.getViewer3D().setEnabled(bZ);
+        if (bT || bZ) bZT = true;
         viewer3DItem.setEnabled(bZ);
-        if (bZ && bT) movieItem.setEnabled(true);
+        toolBar.getMovie().setEnabled(bZT);
+        movieItem.setEnabled(bZT);
     }
     
     /**
