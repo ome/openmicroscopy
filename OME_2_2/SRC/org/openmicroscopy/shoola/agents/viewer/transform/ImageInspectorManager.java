@@ -43,6 +43,10 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
+import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 
 /** 
  * 
@@ -59,6 +63,7 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
  * @since OME2.2
  */
 public class ImageInspectorManager
+	implements AgentEventListener
 {
 
 	/** Default zoom level. */
@@ -88,9 +93,26 @@ public class ImageInspectorManager
 	{
 		this.view = view;
 		this.control = control;
+		control.getRegistry().getEventBus().register(this, ImageRendered.class);
 		curZoomLevel = ZOOM_DEFAULT;
 		attachListener();
 	}
+	
+	/** Implement as specified by {@link AgentEventListener}. */
+	public void eventFired(AgentEvent e)
+	{
+		if (e instanceof ImageRendered)	handleImageRendered((ImageRendered) e);
+	}
+	
+	/** Handle event @see ImageRendered. */
+	private void handleImageRendered(ImageRendered response)
+	{
+		RenderImage request = (RenderImage) response.getACT();
+		if (!request.isMovie()) {
+			setBufferedImage(response.getRenderedImage());
+			zoom();
+		}
+	} 
 	
 	/** Attach a window listener to the dialog. */
 	private void attachListener()
@@ -123,10 +145,7 @@ public class ImageInspectorManager
 		control.showImageSaver(zoomPanel.getZoomImage());
 	}
 	
-	void setZoomPanel(ZoomPanel zoomPanel)
-	{
-		this.zoomPanel = zoomPanel;
-	}
+	void setZoomPanel(ZoomPanel zoomPanel) { this.zoomPanel = zoomPanel; }
 	
 	/** 
 	 * Set the bufferedimage

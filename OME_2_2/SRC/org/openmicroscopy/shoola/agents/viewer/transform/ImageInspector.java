@@ -45,9 +45,6 @@ import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 
 /** 
  * 
@@ -64,7 +61,7 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
  * @since OME2.2
  */
 public class ImageInspector
-	extends JDialog implements AgentEventListener
+	extends JDialog
 {
 		
 	ToolBar 						toolBar;
@@ -88,9 +85,7 @@ public class ImageInspector
 	/** Initializes the components. */
 	private void init(ViewerCtrl control)
 	{
-		//register for the ImageRendered event.
 		Registry reg = control.getRegistry();
-		reg.getEventBus().register(this, ImageRendered.class);
 		manager = new ImageInspectorManager(this, control);
 		BufferedImage img = control.getBufferedImage();
 		manager.setBufferedImage(img);
@@ -108,22 +103,7 @@ public class ImageInspector
 		scroll.setBackground(Viewer.BACKGROUND_COLOR);
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(scroll, BorderLayout.CENTER);
-		
 	}
-
-	/** Implement as specified by {@link AgentEventListener}. */
-	public void eventFired(AgentEvent e)
-	{
-		if (e instanceof ImageRendered)	handleImageRendered((ImageRendered) e);
-	}
-	
-	/** Handle event @see ImageRendered. */
-	private void handleImageRendered(ImageRendered response)
-	{
-		manager.setBufferedImage(response.getRenderedImage());
-		manager.zoom();
-	} 
-	
 	
 	/** Set the size of the window w.r.t the size of the screen. */
 	private void setWindowSize(int w, int h)
@@ -140,10 +120,9 @@ public class ImageInspector
 	/** Add a rigid area to the toolBar. */
 	private void setTBSize(int w)
 	{
-		Dimension d = toolBar.getSize();
-		int dw = d.width;
-		if (w-dw>0)
-			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));		
+		int diff = w-toolBar.getSize().width;
+		if (diff > 0)
+			toolBar.add(Box.createRigidArea(new Dimension(diff, 1)));		
 	}
 	
 }
