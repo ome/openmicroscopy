@@ -58,6 +58,7 @@ import java.io.IOException;
  */
 public class TIFFEncoder
 {
+	
 	public static final String	FORMAT_EXTENSION = "tiff";
 								
 	private DataOutputStream	output;
@@ -160,7 +161,6 @@ public class TIFFEncoder
 			writeEntry(TIFFEncoderCst.BITS_PER_SAMPLE,  3, 1, bitsPerSample);
 		}
 			
-		
 		writeEntry(TIFFEncoderCst.PHOTO_INTERP, 3, 1, photoInterp);
 		writeEntry(TIFFEncoderCst.STRIP_OFFSETS, 4, 1,
 					TIFFEncoderCst.IMAGE_START);
@@ -197,8 +197,8 @@ public class TIFFEncoder
 		int count = imageWidth*24;		//3*8
 		byte[] buffer = new byte[count];
 		int i, j;
-		DataBufferByte bufferByte = 
-						(DataBufferByte) image.getRaster().getDataBuffer();
+		DataBufferByte 
+		bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
 		//model chosen			
 		byte[] red = bufferByte.getData(TIFFEncoderCst.RED_BAND);
 		byte[] green = bufferByte.getData(TIFFEncoderCst.GREEN_BAND);
@@ -217,6 +217,25 @@ public class TIFFEncoder
 			output.write(buffer, 0, count);
 			bytesWritten += count;
 		}
+		writeColorMap(red, green, blue);
 	}    
+	
+	
+	/** Write color palette following the image. */
+	private void writeColorMap(byte[] red, byte[] green, byte[] blue)
+		throws IOException
+	{
+		byte[] colorTable16 = new byte[TIFFEncoderCst.MAP_SIZE*2];
+		int j = 0;
+		int max = 251;
+		if (red.length < max) max = red.length;
+		for (int i = 0 ; i < 251; i++) {
+			colorTable16[j] = red[i];
+			colorTable16[512+j] = green[i];
+			colorTable16[1024+j] = blue[i];
+			j += 2;
+		}
+		output.write(colorTable16);
+	}
 
 }
