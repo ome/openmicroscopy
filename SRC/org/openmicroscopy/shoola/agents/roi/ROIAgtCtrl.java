@@ -208,8 +208,8 @@ public class ROIAgtCtrl
     /** Return the results of the ROI. */
     public String[][] getROIStats()
     {
-        String[][] stats = new String[2][8];
-        for (int i = 0; i < 8; i++) {
+        String[][] stats = new String[2][9];
+        for (int i = 0; i < 9; i++) {
             stats[0][i] = ""+i;
             stats[1][i] = ""+2*i;
         }

@@ -40,7 +40,7 @@ import java.awt.geom.Ellipse2D;
 //Application-internal dependencies
 
 /** 
- * Utility class to build shape.
+ * Utility class to build shapes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,6 +60,9 @@ public class ROIFactory
     public static final int     RECTANGLE = 0;
     
     public static final int     ELLIPSE = 1;
+    
+    /** Size of the rectangle to handle resizing event. */
+    public static final int     SIZE = 2;
     
     /** Build a shape according to the specified type. */
     public static Shape makeShape(Point anchor, Point p, int shapeType)
@@ -122,6 +125,21 @@ public class ROIFactory
                 p.y = r.y+r.height/2-l;
         } 
         return p;
+    }
+    
+    /** Build a rectangle to resize the shape. */
+    public static Shape getVerticalArea(int x, int y, int height)
+    {
+        Rectangle r = new Rectangle();
+        r.setBounds(x-SIZE, y, 2*SIZE, y+height);
+        return r;
+    }
+    
+    public static Shape getHorizontalArea(int x, int y, int width)
+    {
+        Rectangle r = new Rectangle();
+        r.setBounds(x, y-SIZE, x+width, 2*SIZE);
+        return r;
     }
     
 }
