@@ -33,8 +33,10 @@ package org.openmicroscopy.shoola.env.data.map;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -167,41 +169,57 @@ public class ProjectMapper
 	/**
 	 * Create list of project summary objects.
 	 * 
-	 * @param projects	list of project graph.
+	 * @param projects	OMEDS.
 	 * @param pProto	
 	 * @param dProto
-	 * @return list of project summary objects.
+	 * @return 
 	 */
 	public static List fillUserProjects(List projects, ProjectSummary pProto, 
 										DatasetSummary dProto)
 	{
-		//Create the project summary list
-		List projectsList = new ArrayList();
+		Map	datasetsMap = new HashMap();
+		List projectsList = new ArrayList();  //The returned summary list.
 		Iterator i = projects.iterator();
 		ProjectSummary ps;
 		Project p;
 		DatasetSummary ds;
 		Dataset d;
 		
+		//For each p in projects...
 		while (i.hasNext()) {
 			p = (Project) i.next();
+			
+			//Make a new DataObject and fill it up.
 			ps = (ProjectSummary) pProto.makeNew();
-			//Fill in the data coming from Project
 			ps.setId(p.getID());
 			ps.setName(p.getName());
+			
+			//For each d in project.datasets...
 			Iterator j = p.getDatasets().iterator();
 			List datasets = new ArrayList();
 			while (j.hasNext()) {
 				d = (Dataset) j.next();
-				ds = (DatasetSummary) dProto.makeNew();	
-				//Fill in the data coming from Dataset.			
-				ds.setID(d.getID());
-				ds.setName(d.getName());
-				datasets.add(ds);
+				int id = d.getID();
+				ds = (DatasetSummary) datasetsMap.get(new Integer(id));
+				if (ds == null) {
+					//Make a new DataObject and fill it up.
+					ds = (DatasetSummary) dProto.makeNew();		
+					ds.setID(id);
+					ds.setName(d.getName());
+					datasetsMap.put(new Integer(id), ds);
+				}  //else we have already created this object.
+				
+				//Add the dataset to this project's list.
+				datasets.add(ds);	
 			}
+			
+			//Link the datasets to this project.
 			ps.setDatasets(datasets);
+			
+			//Add the project to the list of returned projects.
 			projectsList.add(ps);
 		}
+		
 		return projectsList;
 	}
 	

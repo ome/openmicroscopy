@@ -61,7 +61,24 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  */
 public class DatasetMapper
 {
-
+	/**
+	 * Create the criteria by which the object graph is pulled out.
+	 * Criteria linked to retrieveImages.
+	 * 
+	 * @return 
+	 */
+	public static Criteria buildImagesCriteria()
+	{
+		Criteria criteria = new Criteria();
+		
+		//Specify which fields we want for the images.
+		criteria.addWantedField("images");
+		criteria.addWantedField("images", "id");
+		criteria.addWantedField("images", "name");
+		
+		return criteria;
+	}
+	
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria linked to retrieveDataset.
@@ -71,7 +88,7 @@ public class DatasetMapper
 	{
 		Criteria criteria = new Criteria();
 
-		//Specify which fields we want for the project.
+		//Specify which fields we want for the dataset.
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		criteria.addWantedField("description");
@@ -99,8 +116,8 @@ public class DatasetMapper
 	
 	/** Fill in the dataset data object. 
 	 * 
-	 * @param dataset	dataset graph.
-	 * @param empty		dataset data to fill in.
+	 * @param dataset	OMEDS dataset object.
+	 * @param empty		dataset data to fill up.
 	 * 
 	 */
 	public static void fillDataset(Dataset dataset, DatasetData empty)
@@ -125,7 +142,7 @@ public class DatasetMapper
 		empty.setOwnerGroupID(group.getID());
 		empty.setOwnerGroupName(group.getName());
 		
-		//Create the dataset summary list.
+		//Create the image summary list.
 		List images = new ArrayList();
 		Iterator i = dataset.getImages().iterator();
 		Image img;
@@ -135,5 +152,23 @@ public class DatasetMapper
 		}
 		empty.setDatasets(images);	
 	}
-
+	
+	/**
+	 * Creates the image summary list.
+	 * 
+	 * @param dataset	OMEDS dataset object.
+	 * @return list of image summary objects.
+	 */
+	public static List fillListImages(Dataset dataset)
+	{
+		List images = new ArrayList();
+		Iterator i = dataset.getImages().iterator();
+		Image image;
+		while (i.hasNext()) {
+			image = (Image) i.next();
+			images.add(new ImageSummary(image.getID(), image.getName()));
+		}
+		return images;
+	}
+	
 }
