@@ -149,7 +149,7 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		this.layering = chain.getLayering();
 
 		
-		LinkLayer linkLayer = new LinkLayer();
+		LinkLayer linkLayer = getLinkLayer();
 		addChild(fullLayer);
 		fullLayer.addChild(linkLayer);
 		
@@ -159,11 +159,14 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 		//clear it out so it can be garbage-collected
 		nodeLayers = null;
 		linkLayer.moveToFront();
+		fullLayer.setBounds(fullLayer.getUnionOfChildrenBounds(null));
 		setBounds(getUnionOfChildrenBounds(null));
 		
 	}
 	
-	
+	protected LinkLayer getLinkLayer() {
+		return new LinkLayer();
+	}
 		
 	public PBounds getBufferedBounds() {
 		PBounds b = getGlobalFullBounds();
@@ -245,6 +248,9 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 			ChainModuleData mod = (ChainModuleData) ((LayoutNodeData) node).getModule();
 			mNode = getModuleView(mod);
 			mod.addModuleNode(mNode);
+			mNode.showDetails();
+			// must show detail and overview of each node for links to be drawn
+			// correctly
 			fullLayer.addChild(mNode);
 		}
 		node.setModuleView(mNode);
@@ -301,9 +307,8 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 			
 			ModuleView mod = (ModuleView) iter.next();
 			mod.setOffset(x,y);
-			adjustVerticalExtents(mod.getGlobalFullBounds());
 			y+= (float) mod.getHeight()+VGAP;
-			if (mod.getBounds().getWidth() > layerWidth)
+			if (mod.getWidth() > layerWidth)
 				layerWidth = (float) mod.getBounds().getWidth();
 		}		
 	}
