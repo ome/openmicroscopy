@@ -30,7 +30,7 @@
 package org.openmicroscopy.shoola.agents.spots;
 
 //Java imports
-
+import javax.swing.JOptionPane;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -104,6 +104,14 @@ public class Spots  implements Agent, AgentEventListener
 		ChainExecutionData exec = event.getChainExecution();
 		System.err.println("viewing spots for execution..."+exec.getID());
 		SpotsTrajectorySet trajectories = new SpotsTrajectorySet(registry,exec);
+		
+		if (trajectories.isEmpty()) {
+			JOptionPane.showMessageDialog(null,
+					"There are no results from this execution that can be displayed",
+					"No Trajectories",JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		
 		SpotsWindow window = new SpotsWindow(registry,trajectories);
 	}
 
