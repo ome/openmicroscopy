@@ -84,9 +84,13 @@ class RegistryImpl
     }
     
 	/**  Implemented as specified by {@link Registry}. */
-	public void bind(String name, Object obj)
+	public void bind(String name, Object value)
 	{
-		entriesMap.put(name, obj);
+		if (name != null) {
+			ObjectEntry entry = new ObjectEntry(name);
+			entry.setContent(value);
+			entriesMap.put(name, entry);
+		}
 	}
 	
 	/** Implemented as specified by {@link Registry}. */
