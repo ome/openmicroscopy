@@ -30,8 +30,9 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 //Third-party libraries
@@ -62,10 +63,10 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
  */
 public class ChainLoader extends ComponentContentLoader
 {
-	private List chains = null;
+	private Collection chains = null;
 	
-	/** a list storing the chain nodes that we find */
-	private ArrayList analysisNodes = new ArrayList();
+	/** a hash storing the chain nodes that we find */
+	private HashMap analysisNodes = new HashMap();
 	
 	public ChainLoader(final ChainDataManager dataManager,
 			ContentComponent component,final ContentGroup group) {
@@ -78,7 +79,6 @@ public class ChainLoader extends ComponentContentLoader
 	public Object getContents() {
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (chains == null)  {
-			System.err.println("calling get chains..");
 			chains = chainDataManager.getChains();
 			
 		}
@@ -100,12 +100,13 @@ public class ChainLoader extends ComponentContentLoader
 	 *
 	 */
 	private void reconcileChain(LayoutChainData chain) {
-		List nodes = chain.getNodes();
+		Collection nodes = chain.getNodes();
 		Iterator iter = nodes.iterator();
 		while (iter.hasNext()) {
 			LayoutNodeData node = (LayoutNodeData) iter.next();
 			reconcileNode(node);
-			analysisNodes.add(node);
+			Integer id = new Integer(node.getID());
+			analysisNodes.put(id,node);
 		}
 	}
 	
@@ -113,7 +114,7 @@ public class ChainLoader extends ComponentContentLoader
 	
 		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		int id = node.getModule().getID();
-		ChainModuleData mod = chainDataManager.getModule(id);
+		ChainModuleData mod = (ChainModuleData) chainDataManager.getModule(id);
 		node.setModule(mod);
 	}
 	
@@ -142,7 +143,7 @@ public class ChainLoader extends ComponentContentLoader
 	}	
 	
 	private static void dumpNodes(LayoutChainData chain) {
-		List nodes = chain.getNodes();
+		Collection nodes = chain.getNodes();
 		Iterator iter = nodes.iterator();
 		AnalysisNodeData analysisNode;
 		while (iter.hasNext()) {
@@ -156,16 +157,16 @@ public class ChainLoader extends ComponentContentLoader
 		System.err.println("... module "+analysisNode.getModule().getID()+
 			") "+analysisNode.getModule().getName());
 		
-		List inputs = analysisNode.getInputLinks();
+		Collection inputs = analysisNode.getInputLinks();
 		System.err.println("Input links...");
 		dumpLinks(inputs);
 		
-		List outputs = analysisNode.getOutputLinks();
+		Collection outputs = analysisNode.getOutputLinks();
 		System.err.println("Output links...");
 		dumpLinks(outputs);
 	}
 	
-	private static void dumpLinks(List links) {
+	private static void dumpLinks(Collection links) {
 		if (links == null)
 			return;
 		Iterator iter = links.iterator();

@@ -30,9 +30,10 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
-import java.util.List;
-import java.util.Vector;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Vector;
+
 
 //Third-party libraries
 
@@ -76,10 +77,11 @@ public class ModuleLoader extends ComponentContentLoader
 	 */
 	public Object getContents() {
 		
+		ChainDataManager chainDataManager = (ChainDataManager) dataManager;
 		if (modData == null) {
 			modData = new ModulesData();
-			List mods = dataManager.getModules();
-			List cats = dataManager.getModuleCategories();
+			Collection mods = chainDataManager.getModules();
+			Collection cats = chainDataManager.getModuleCategories();
 			
 			
 			// find uncategorized modules
@@ -113,7 +115,7 @@ public class ModuleLoader extends ComponentContentLoader
 	 * @param cat
 	 * @param mods
 	 */
-	private void findCategoryModules(ModuleCategoryData cat,List mods) {
+	private void findCategoryModules(ModuleCategoryData cat,Collection mods) {
 		
 		int id  = cat.getID();
 		ModuleCategoryData modCat;
@@ -134,7 +136,7 @@ public class ModuleLoader extends ComponentContentLoader
 	 * @param cat the category for which we're building up the children
 	 * @param cats the list of catgegories
 	 */
-	public void findCategoryChildren(ModuleCategoryData cat,List cats) {
+	public void findCategoryChildren(ModuleCategoryData cat,Collection cats) {
 		int id = cat.getID();
 		ModuleCategoryData modCat;
 		ModuleCategoryData parent;
@@ -169,7 +171,7 @@ public class ModuleLoader extends ComponentContentLoader
 		while (iter.hasNext()) {
 			ModuleCategoryData m = (ModuleCategoryData) iter.next();
 			dumpCategory(m);
-			List children = m.getChildCategories();
+			Collection children = m.getChildCategories();
 			if (children != null && children.size() > 0)
 				dumpChildCategories(children);
 		}
@@ -185,7 +187,7 @@ public class ModuleLoader extends ComponentContentLoader
 		dumpParams(params);*/
 	}
 	
-	private void dumpParams(List params) {
+	private void dumpParams(Collection params) {
 		Iterator iter = params.iterator();
 		while (iter.hasNext()) {
 			FormalParameterData f = (FormalParameterData) iter.next();
@@ -204,7 +206,7 @@ public class ModuleLoader extends ComponentContentLoader
 	private void dumpCategory(ModuleCategoryData m) {
 		System.err.println("\nCategory..."+m.getName());
 		ChainModuleData mod;
-		List mods = m.getModules();
+		Collection mods = m.getModules();
 		if (mods != null) {
 			Iterator iter2 = mods.iterator();
 			while (iter2.hasNext()) {
@@ -214,7 +216,7 @@ public class ModuleLoader extends ComponentContentLoader
 		} 	
 	}
 	
-	private void dumpChildCategories(List children) {
+	private void dumpChildCategories(Collection children) {
 		System.err.println("\nchild categories...");
 		Iterator iter = children.iterator();
 		ModuleCategoryData m;

@@ -30,7 +30,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data;
 
 //Java imports
-import java.util.List;
+import java.util.Collection;
 import java.util.Iterator;
 
 //Third-party libraries
@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
  */
 public class ChainExecutionLoader extends ContentLoader
 {
-	private List chainExecutions = null;
+	private Collection chainExecutions = null;
 	
 	public ChainExecutionLoader(final ChainDataManager dataManager,
 			final ContentGroup group) {
@@ -73,13 +73,11 @@ public class ChainExecutionLoader extends ContentLoader
 	 */
 	public Object getContents() {
 		if (chainExecutions == null)  {
-			System.err.println("calling get chains..");
 			chainExecutions = ((ChainDataManager) dataManager).getChainExecutions();
-			
 		}
 		// reconcile
 		reconcileExecutions();
-		dumpExecutions();
+	//	dumpExecutions();
 		return chainExecutions;
 	}
 	
@@ -104,7 +102,7 @@ public class ChainExecutionLoader extends ContentLoader
 	}
 	
 	public void reconcileNodeExecutions(ChainExecutionData chainExecution) {
-		List nodeExecs = chainExecution.getNodeExecutions();
+		Collection nodeExecs = chainExecution.getNodeExecutions();
 		if (nodeExecs == null || nodeExecs.size() == 0)
 			return;
 		NodeExecutionData ne;
@@ -144,7 +142,7 @@ public class ChainExecutionLoader extends ContentLoader
 	}
 	
 	private void dumpNodeExecutions(ChainExecutionData exec) {
-		List nodeExecs = exec.getNodeExecutions();
+		Collection nodeExecs = exec.getNodeExecutions();
 		if (nodeExecs == null || nodeExecs.size() == 0)
 			return;
 		NodeExecutionData ne;

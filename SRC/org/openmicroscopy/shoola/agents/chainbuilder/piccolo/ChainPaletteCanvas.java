@@ -50,9 +50,9 @@ import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceAdapter;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.Dimension;
-import java.util.List;
-import java.util.Iterator;
 import java.util.Collection;
+import java.util.Iterator;
+
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PCamera;
@@ -70,10 +70,6 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
-/*import org.openmicroscopy.vis.chains.SelectionState;
-import org.openmicroscopy.vis.chains.events.SelectionEvent; 
-import org.openmicroscopy.vis.chains.events.SelectionEventListener; */
-
 
 
 /** 
@@ -132,7 +128,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 	
 	/** The chains */
-	private List chains;
+	private Collection chains;
 	/** 
 	 * Listener for drag events
 	 */
@@ -184,7 +180,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 	
 	public void setContents(Object obj) {
-		chains = (List) obj;
+		chains = (Collection) obj;
 	}
 	
 	public void layoutContents() {
