@@ -78,7 +78,7 @@ class GraphicsRepresentationManager
 	/** Used to control mouse pressed and dragged events. */					
 	private boolean                 dragging;
 	
-	/** Rectangles used to listen the cursors. */
+	/** Rectangles used to listen the knobs. */
 	private Rectangle               boxStart, boxEnd, boxOutputStart,
 									boxOutputEnd;
 	
@@ -93,7 +93,7 @@ class GraphicsRepresentationManager
 	private GraphicsRepresentation	view;
 	
 	/** 
-	 * Family selected one of the constants defined by {@link QuantumFactory}. 
+	 * Family selected, one of the constants defined by {@link QuantumFactory}. 
 	 */
 	private int 					type;
 	
@@ -120,7 +120,7 @@ class GraphicsRepresentationManager
 	
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumPaneManager}.
+	 * The method is invoked by the control {@link QuantumPaneManager}.
 	 * 
 	 * @param value	real input value.
 	 */
@@ -134,7 +134,7 @@ class GraphicsRepresentationManager
 
 	/**
 	 * Resize the input window.
-	 * The method is called by the control {@link QuantumPaneManager}.
+	 * The method is invoked by the control {@link QuantumPaneManager}.
 	 * 
 	 * @param v	real input value.
 	 */
@@ -196,7 +196,7 @@ class GraphicsRepresentationManager
         return (int) (a*(x-b));
     }
 	
-	/** Handles events fired the cursors. */
+	/** Handles events fired the knobs. */
 	public void mousePressed(MouseEvent e)
 	{
 		Point p = e.getPoint();
@@ -236,7 +236,7 @@ class GraphicsRepresentationManager
 		 }  //else dragging already in progress 
 	}
 	
-	/** Handles events fired the cursors. */    
+	/** Handles events fired the knobs. */    
 	public void mouseDragged(MouseEvent e)
 	{
 		Point   p = e.getPoint();
@@ -308,7 +308,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** 
-	 * Sets the type. 
+	 * Set the type. 
 	 *
 	 * @param t     family index.
 	 * @param x     MaxEndX value.
@@ -320,7 +320,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** 
-	 * Sets  the MaxEndX value that is used to control the cursors.
+	 * Set the MaxEndX value that is used to control the knobs.
 	 *
 	 * @param x value.
 	 */    
@@ -330,7 +330,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** 
-	 * Sizes the rectangle used to listen to the outpuStart cursor.
+	 * Sizes the rectangle used to listen to the outpuStart knob.
 	 *
 	 * @param y     y-coordinate.
 	 */ 
@@ -338,7 +338,7 @@ class GraphicsRepresentationManager
 	{
 		maxStartOutputY = y-triangleW;
 		boxOutputStart.setBounds(0, y-triangleW, leftBorder-triangleW-1,
-										 length);
+										 2*length);
 	}
 	
 	/** 
@@ -349,7 +349,8 @@ class GraphicsRepresentationManager
 	private void setOutputEndBox(int y)
 	{
 		minEndOutputY = y+triangleW;
-		boxOutputEnd.setBounds(0, y-triangleW, leftBorder-triangleW-1, length);
+		boxOutputEnd.setBounds(0, y-triangleW, leftBorder-triangleW-1, 
+								2*length);
 	}
 	
 	/** 
@@ -360,7 +361,7 @@ class GraphicsRepresentationManager
 	void setInputStartBox(int x)
 	{
 		maxStartX = x+triangleW;
-		boxStart.setBounds(x-triangleW, tS+triangleW+1, length, bottomBorder);
+		boxStart.setBounds(x-triangleW, tS+triangleW+1, 2*length, bottomBorder);
 	}
 	
 	/** 
@@ -371,7 +372,7 @@ class GraphicsRepresentationManager
 	void setInputEndBox(int x)
 	{
 		minEndX = x-triangleW;
-		boxEnd.setBounds(x-triangleW, tS+triangleW+1, length, bottomBorder);
+		boxEnd.setBounds(x-triangleW, tS+triangleW+1, 2*length, bottomBorder);
 	}
 	
 	/** 

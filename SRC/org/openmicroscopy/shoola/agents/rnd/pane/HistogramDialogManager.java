@@ -78,7 +78,7 @@ class HistogramDialogManager
    	
    	private int                     maxStartInputY, minEndInputY;
    	
-   	/** Rectangle used to listen to the cursors. */
+   	/** Rectangle used to listen to the knobs. */
    	private Rectangle               boxInputStart, boxInputEnd;
    	
    	/** Used to control mouse pressed and dragged events. */
@@ -104,7 +104,7 @@ class HistogramDialogManager
 	 */
 	void initRectangles(int yStart, int yEnd)
 	{
-		//Size the rectangle used to control the OutputWindow cursor
+		//Size the rectangle used to control the OutputWindow knobs
 		boxInputStart = new Rectangle(lS, yStart-triangleW, rightBorder, 
 										length);
 		boxInputEnd = new Rectangle(lS, yEnd-triangleW, rightBorder, length);
@@ -172,7 +172,7 @@ class HistogramDialogManager
 		view.getHistogramPanel().updateInputEnd(gv, v);
 	} 
 	
-	/** Handles events fired the graphics cursors. */
+	/** Handles events fired the graphics knobs. */
 	public void mousePressed(MouseEvent e)
 	{
 		Point p = e.getPoint();
@@ -187,7 +187,7 @@ class HistogramDialogManager
 		 }  //else dragging already in progress 
 	}
 	
-	/** Handles events fired the graphics cursors. */    
+	/** Handles events fired the graphics knobs. */    
 	public void mouseDragged(MouseEvent e)
 	{
 		Point p = e.getPoint();

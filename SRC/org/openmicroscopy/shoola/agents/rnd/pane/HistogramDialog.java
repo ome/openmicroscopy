@@ -90,7 +90,6 @@ class HistogramDialog
 	/** Build and layout the GUI. */
 	void buildGUI()
 	{
-		//histogramPanel.setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
 		super.getContentPane().add(histogramPanel);
 		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
 		setResizable(false);

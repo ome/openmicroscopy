@@ -87,7 +87,7 @@ class GraphicsRepresentation
 								lS2 = leftBorder+square/2;
 								
 	/** cursor triangle. */							
-	static final int			triangleW = 7, triangleH = 8;
+	static final int			triangleW = 10, triangleH = 11;
 	
 	/** Range values for LINEAR graphics type. */						   
 	static final int			INIT = 10, MIN = 1, MAX = 40,
@@ -99,19 +99,19 @@ class GraphicsRepresentation
 	/** output range values. */
 	static final int            outputRange = 255;		
 		
-	/** Color of the inputStart cursor. */
+	/** Color of the inputStart knob. */
 	static final Color			iStartColor = Color.RED;
 	
-	/** Color of the inputStart cursor. */
+	/** Color of the inputStart knob. */
 	static final Color			iEndColor = Color.YELLOW;
 	
 	/** Color of the lines. */
 	private static final Color	lineColor = Color.RED;
 	
-	/** Color of the output startCursor. */
+	/** Color of the outputStart knob. */
 	private static final Color	ostartColor = Color.BLACK;
 	
-	/** Color of the output endCursor. */
+	/** Color of the outputEnd knob. */
 	private static final Color	oendColor = Color.GRAY;
 	
 	/** Axis color. */
@@ -136,12 +136,12 @@ class GraphicsRepresentation
 								
    	private boolean				reverseIntensity;
 
-	/** Input cursor coordinates. */
+	/** Input knob coordinates. */
    	private int					xStart1, xStart2, xStart3, yStart1, yStart2, 
    								yStart3,
 								xEnd1, xEnd2, xEnd3, yEnd1, yEnd2, yEnd3;
 								
-	/** Output cursor coordinates. */
+	/** Output knob coordinates. */
 	private int				   	xStartOutput1, xStartOutput2, xStartOutput3, 
 								yStartOutput1, yStartOutput2, yStartOutput3,
 								xEndOutput1, xEndOutput2, xEndOutput3,
@@ -203,7 +203,7 @@ class GraphicsRepresentation
 	 * Sets the defaults for the <code>LINEAR</code> type 
 	 * (i.e. linear, polynomial, logarithmic).
 	 * Sets the location of the five control points and the position
-	 * of the cursors
+	 * of the knobs.
 	 *
 	 * @param inputStart        inputWindow start, real value.
 	 * @param inputEnd          inputWindow end, real value.
@@ -221,15 +221,15 @@ class GraphicsRepresentation
 		xStart = setInputGraphics(inputStart, square); 
 		xEnd = setInputGraphics(inputEnd, square);
 		
-		//Size the rectangles used to control cursor.
-		//Input Cursor.
-		setCursorStart((int) xStart);
-		setCursorEnd((int) xEnd);
+		//Size the rectangles used to control knobs.
+		//Input knob.
+		setKnobStart((int) xStart);
+		setKnobEnd((int) xEnd);
 		manager.setInputRectangles((int) xStart, (int) xEnd);
 		
-		//Output cursor.
-		setCursorOutputStart(leftBorder-10, (int) yStart);
-		setCursorOutputEnd(leftBorder-10, (int) topBorder);
+		//Output knob.
+		setKnobOutputStart(leftBorder-10, (int) yStart);
+		setKnobOutputEnd(leftBorder-10, (int) topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd);
 		        
 		//Control points location.
@@ -244,7 +244,7 @@ class GraphicsRepresentation
 			staticEndPt.setLocation((double) lS, yEnd);
 			endPt.setLocation(xEnd, yEnd);
 		}
-		// draw curve
+		//draw curve
 		int k;
 		if (qDef.family == QuantumFactory.LINEAR) k = INIT;
 		else if (qDef.family == QuantumFactory.LOGARITHMIC) k = MIN;
@@ -255,7 +255,7 @@ class GraphicsRepresentation
 	/** 
 	 * Sets the defaults for the <code>EXPONENTIAL</code> family.
 	 * Set the location of the five control points and the position
-	 * of the cursors.
+	 * of the knobs.
 	 *
 	 * @param inputStart        inputWindow start, real value.
 	 * @param inputEnd          inputWindow end, real value.
@@ -272,11 +272,11 @@ class GraphicsRepresentation
 		yStart = setOuputGraphics(qDef.cdStart);
 		yEnd = setOuputGraphics(qDef.cdEnd);
 
-		//output cursor
-		setCursorOutputStart(leftBorder-10,(int) yStart);
-		setCursorOutputEnd(leftBorder-10, (int) topBorder);
+		//output knob
+		setKnobOutputStart(leftBorder-10,(int) yStart);
+		setKnobOutputEnd(leftBorder-10, (int) topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd); 
-		
+
 		if (k == INIT) {
 			if (reverseIntensity) {
 				 xStaticStart = (double) lS2;
@@ -316,8 +316,8 @@ class GraphicsRepresentation
 		staticEndPt.setLocation(xStaticEnd, yEnd);
 		xStart = setInputGraphics(inputStart, range);
 		xEnd = setInputGraphics(inputEnd, range);
-		setCursorStart((int) xStart);
-		setCursorEnd((int) xEnd);
+		setKnobStart((int) xStart);
+		setKnobEnd((int) xEnd);
 		
 		manager.setInputRectangles((int) xStart, (int) xEnd);
 		if (reverseIntensity) {
@@ -334,7 +334,6 @@ class GraphicsRepresentation
 		manager.setMaxEndX(xControl);
 		repaintCurve();     
 	}  
-
 	
 	/** 
 	 * Resets the control points locations. 
@@ -393,21 +392,21 @@ class GraphicsRepresentation
 		endPt.setLocation(xEnd, endPt.getY());
 		startPt.setLocation(xStart, startPt.getY());
 		
-		//Set Cursor location
+		//Set knob location
 		if (reverseIntensity) {
-			setCursorStart((int) xEnd);
-			setCursorEnd((int) xStart);
+			setKnobStart((int) xEnd);
+			setKnobEnd((int) xStart);
 			manager.setInputRectangles((int) xEnd, (int) xStart);
 		} else {
-			setCursorStart((int) xStart);
-			setCursorEnd((int) xEnd);
+			setKnobStart((int) xStart);
+			setKnobEnd((int) xEnd);
 			manager.setInputRectangles((int) xStart, (int) xEnd);
 		}       
 	}
 	
 	/** 
 	 * Resets the start and End maximum value and positions the inputWindow 
-	 * cursors. 
+	 * knobs. 
 	 * This method is called when a new wavelength is specified.
 	 *
 	 * @param min			minimum value for the selected wavelength.
@@ -429,7 +428,7 @@ class GraphicsRepresentation
 	  
 	/** 
 	 * Positions the control points. 
-	 * The method is called when the family specified falls into 
+	 * The method is invoked when the family specified falls into 
 	 * the graphical <code>LINEAR</code> type.
 	 *
 	 * @param k     curveCoefficient.
@@ -469,7 +468,7 @@ class GraphicsRepresentation
 	
 	/** 
 	 * Positions the control points. 
-	 * The method is called when the family specified falls into 
+	 * The method is invoked when the family specified falls into 
 	 * the <code>EXPONENTIAL</code> type.
 	 *
 	 * @param k     curveCoefficient.
@@ -502,14 +501,14 @@ class GraphicsRepresentation
 				controlPt.setLocation(x-diffEnd, endPt.getY());
 				staticStartPt.setLocation(x, staticStartPt.getY());
 				manager.setInputEndBox((int) (x-diffEnd));
-				setCursorEnd((int) (x-diffEnd));     
+				setKnobEnd((int) (x-diffEnd));     
 			} else {
 				diffEnd = staticEndPt.getX()-endPt.getX();
 				endPt.setLocation(x-diffEnd, endPt.getY()); 
 				controlPt.setLocation(x-diffEnd, startPt.getY());
 				staticEndPt.setLocation(x, staticEndPt.getY());
 				manager.setInputEndBox((int) (x-diffEnd));
-				setCursorEnd((int) (x-diffEnd));
+				setKnobEnd((int) (x-diffEnd));
 			}
 			range = (int) x-leftBorder;
 			manager.setMaxEndX(xControl);
@@ -533,8 +532,8 @@ class GraphicsRepresentation
 		reverseIntensity = b;
 		yEnd = endPt.getY();
 		yStart = startPt.getY();
-		setCursorOutputStart((int) yStart);
-		setCursorOutputEnd((int) yEnd);
+		setKnobOutputStart((int) yStart);
+		setKnobOutputEnd((int) yEnd);
 		manager.setOutputRectangles((int) yStart, (int) yEnd);
 		xStaticStart = staticStartPt.getX();
 		xStart = startPt.getX();
@@ -567,7 +566,7 @@ class GraphicsRepresentation
 	
 	/** 
 	 * Modifies the control point positions and positions the 
-	 * InputStart cursor. Method called when the position is modified
+	 * InputStart knob. Method invoked when the position is modified
 	 * using the HistogramPanel.
 	 *
 	 * @param  x    x-coordinate.
@@ -590,7 +589,7 @@ class GraphicsRepresentation
 		if (x <= limit) { 
 			xStartMax = x;
 			b = false;
-			setCursorStart(x);
+			setKnobStart(x);
 			if (reverseIntensity) endPt.setLocation((double) x, endPt.getY());
 			else startPt.setLocation((double) x, startPt.getY());
 			if (type == QuantumFactory.EXPONENTIAL) repaintCurve();
@@ -601,7 +600,7 @@ class GraphicsRepresentation
 	
 	/** 
 	 * Modifies the control point position and positions the 
-	 * InputEnd cursor. Method called when the position is modified
+	 * InputEnd knob. The method is invoked when the position is modified
 	 * using the HistogramPanel.
 	 *
 	 * @param  x    x-coordinate.
@@ -622,7 +621,7 @@ class GraphicsRepresentation
 		if (reverseIntensity) limit = (int) endPt.getX()-triangleW;
 		else limit = (int) startPt.getX()+triangleW;
 		if (x >= limit) {
-			setCursorEnd(x);
+			setKnobEnd(x);
 			b = false;
 			if (reverseIntensity) 
 					startPt.setLocation((double) x, startPt.getY());
@@ -640,14 +639,14 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Modifies the position of the outputStart cursor.
+	 * Modifies the position of the outputStart knob.
 	 *
 	 * @param y		y-coordinate.
 	 */
 	void updateOutputStart(int y)
 	{
 		controlOutputStart = y-topBorder;
-		setCursorOutputStart(y);
+		setKnobOutputStart(y);
 		startPt.setLocation(startPt.getX(), (double) y);
 		staticStartPt.setLocation(staticStartPt.getX(), (double) y);
 		if (type == QuantumFactory.EXPONENTIAL) {
@@ -661,14 +660,14 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Modifies the position of the outputEnd cursor.
+	 * Modifies the position of the outputEnd knob.
 	 *
 	 * @param y     y-coordinate.
 	 */
 	void updateOutputEnd(int y)
 	{
 		controlOutputEnd = y-topBorder;
-		setCursorOutputEnd(y);
+		setKnobOutputEnd(y);
 		endPt.setLocation(endPt.getX(), (double) y);
 		staticEndPt.setLocation(staticEndPt.getX(), (double) y);
 		setControlLocation(coefficient);
@@ -705,9 +704,9 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Modifies the control points positions and positions the cursors 
+	 * Modifies the control points positions and positions the knobs 
 	 * InputStart/InpuEnd accordingly.
-	 * The method is called when a new wavelength is specified. 
+	 * The method is invoked when a new wavelength is specified. 
 	 *
 	 * @param  xStart	xStart-coordinate.
 	 * @param  xEnd		xEnd-coordinate.
@@ -715,8 +714,8 @@ class GraphicsRepresentation
 	private void updateInputStartAndEnd(int xStart, int xEnd)
 	{
 		xStartMax = xStart;
-		setCursorEnd(xEnd);
-		setCursorStart(xStart);
+		setKnobEnd(xEnd);
+		setKnobStart(xStart);
 		if (reverseIntensity) {
 			endPt.setLocation((double) xStart, endPt.getY());
 			startPt.setLocation((double) xEnd, startPt.getY());
@@ -759,11 +758,11 @@ class GraphicsRepresentation
 	}
 
 	/** 
-	 * Positions the inputStart cursor, x-coordinate location.
+	 * Positions the inputStart knob, x-coordinate location.
 	 *
 	 * @param x     x-coordinate.
 	 */
-	private void setCursorStart(int x)
+	private void setKnobStart(int x)
 	{  
 		xStart1 = x;
 		xStart2 = x-triangleW;
@@ -771,11 +770,11 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the inputEnd cursor, x-coordinate location.
+	 * Positions the inputEnd knob, x-coordinate location.
 	 *
 	 * @param x     x-coordinate.
 	 */
-	private void setCursorEnd(int x)
+	private void setKnobEnd(int x)
 	{
 		xEnd1 = x;
 		xEnd2 = x-triangleW;
@@ -783,11 +782,11 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the inputStart/End cursor, y-coordinate location.
+	 * Positions the inputStart/End knobs, y-coordinate location.
 	 *
 	 * @param y     y-coordinate.
 	 */     
-	private void setCursorStartEndY(int y)
+	private void setKnobStartEndY(int y)
 	{
 		yStart1 = y;
 		yStart2 = y+triangleH;
@@ -798,12 +797,12 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the outputStart cursor.
+	 * Positions the outputStart knob.
 	 *
 	 * @param x     x-coordinate.
 	 * @param y     y-coordinate.
 	 */    
-	private void setCursorOutputStart(int x, int y)
+	private void setKnobOutputStart(int x, int y)
 	{  
 		xStartOutput1 = x;
 		xStartOutput2 = x-triangleH;
@@ -814,12 +813,12 @@ class GraphicsRepresentation
 	} 
 	
 	/** 
-	 * Positions the outputEnd cursor.
+	 * Positions the outputEnd knob.
 	 *
 	 * @param x     x-coordinate.
 	 * @param y     y-coordinate.
 	 */        
-	private void setCursorOutputEnd(int x, int y)
+	private void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
 		xEndOutput2 = x-triangleH;
@@ -830,11 +829,11 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the outputStart cursor, y-coordinate location.
+	 * Positions the outputStart knob, y-coordinate location.
 	 *
 	 * @param y     y-coordinate.
 	 */  
-	private void setCursorOutputStart(int y)
+	private void setKnobOutputStart(int y)
 	{
 		yStartOutput1 = y;
 		yStartOutput2 = y-triangleW;
@@ -842,11 +841,11 @@ class GraphicsRepresentation
 	}
 	
 	/** 
-	 * Positions the outputEnd cursor, y-coordinate location.
+	 * Positions the outputEnd knob, y-coordinate location.
 	 *
 	 * @param y     y-coordinate.
 	 */
-	private void setCursorOutputEnd(int y)
+	private void setKnobOutputEnd(int y)
 	{
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
@@ -854,7 +853,7 @@ class GraphicsRepresentation
 	}
 	
 	/**
-	 * Method called when the family type is EXPONENTIAL.
+	 * Method invoked when the family type is EXPONENTIAL.
 	 *
 	 */
 	private void repaintCurve()
@@ -885,13 +884,12 @@ class GraphicsRepresentation
 		int wInput = (int) rInput.getWidth();
 		int hInput = (int) rInput.getHeight();
 	
-		setCursorStartEndY(tS+hStart+5);
-		int extra;
+		setKnobStartEndY(tS+hStart+5);
+		int extra = 0;
 		if (type == QuantumFactory.EXPONENTIAL) extra = hStart/2;
-		else extra = 0;
 		//Grid
 		AffineTransform transform = new AffineTransform();
-		// 140/10 = 14 then middle = 14/2
+		//140/10 = 14 then middle = 14/2
 		transform.translate(leftBorder+70, topBorder+70); 
 		transform.scale(1, -1);
 		transform.scale(10, 10);       
@@ -914,7 +912,7 @@ class GraphicsRepresentation
 		g2D.drawLine(leftBorder, topBorder-8, leftBorder+3, topBorder-5);
 		g2D.drawLine(leftBorder-5, topBorder, leftBorder, topBorder);
 		
-		// x-axis
+		//x-axis
 		g2D.drawLine(leftBorder-5, tS, lS+8, tS);
 		g2D.drawLine(lS+5, tS-3, lS+8, tS);
 		g2D.drawLine(lS+5, tS+3, lS+8, tS);
@@ -928,7 +926,7 @@ class GraphicsRepresentation
 		g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
 		g2D.drawString(curEnd, lS2+10, hFont+tS+bottomBorder+2*hInput);
 		
-		// input cursor start
+		//inputStart knob
 		int xStartPoints[] = {xStart1, xStart2, xStart3};
 		int yStartPoints[] = {yStart1+extra, yStart2+extra, yStart3+extra};
 		GeneralPath filledPolygonStart = new GeneralPath();
@@ -939,7 +937,7 @@ class GraphicsRepresentation
 		g2D.setColor(iStartColor);
 		g2D.fill(filledPolygonStart);
 		
-		//input  cursor end 
+		//inputEnd knob
 		int xEndPoints[] = {xEnd1, xEnd2, xEnd3};
 		int yEndPoints[] = {yEnd1+extra, yEnd2+extra, yEnd3+extra};
 		GeneralPath filledPolygonEnd = new GeneralPath();
@@ -951,7 +949,7 @@ class GraphicsRepresentation
 		g2D.setColor(iEndColor);
 		g2D.fill(filledPolygonEnd);
 		
-		// cursor start output
+		//outputStart knob
 		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 
 									xStartOutput3};
 		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, 
@@ -966,7 +964,7 @@ class GraphicsRepresentation
 		g2D.setColor(ostartColor);
 		g2D.fill(filledPolygonStartOutput);
 		
-		//cursor outputend. 
+		//outputEnd knob. 
 		int xEndOutputPoints[] = {xEndOutput1, xEndOutput2, xEndOutput3};
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();
@@ -979,12 +977,12 @@ class GraphicsRepresentation
 		g2D.fill(filledPolygonEndOutput); 
 		g2D.setColor(lineColor);
 		g2D.setStroke(new BasicStroke(1.5f));
-		// draw line
+		//draw line
 		g2D.drawLine((int) staticStartPt.getX(), (int) staticStartPt.getY(), 
 					(int) startPt.getX(), (int) startPt.getY());
 		g2D.drawLine((int) endPt.getX(), (int) endPt.getY(),
 					(int) staticEndPt.getX(), (int) staticEndPt.getY());
-		// draw curve
+		//draw curve
 		g2D.draw(quad);
 	}
 	

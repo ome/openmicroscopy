@@ -69,7 +69,7 @@ class HistogramPanel
 									bottomBorder = 30, rightBorder = 40, 
 									window = 10, heightStat = 200, 
 									widthStat = 300,
-									triangleW = 7, triangleH = 8,
+									triangleW = 10, triangleH = 11,
 									lS = leftBorder+widthStat,
 									tS = topBorder+heightStat;
 	 
@@ -129,15 +129,15 @@ class HistogramPanel
 		setWindowLimits(mini, maxi);
 		setInputWindow(startReal, endReal);
 		
-		// control output window
+		//control output window
 		controlOutputStart = yStart;
 		heightStart = tS-yStart; 
 		heightEnd = yEnd-topBorder;
 		controlOutputEnd = yEnd;
 		
-		//output cursor
-		setCursorOutputStart(lS+10, yStart);
-		setCursorOutputEnd(lS+10, yEnd);
+		//output knob
+		setKnobOutputStart(lS+10, yStart);
+		setKnobOutputEnd(lS+10, yEnd);
 		super.repaint();
 	}
 
@@ -164,12 +164,12 @@ class HistogramPanel
 	}
 	
 	/**
-	 * Position the outputStart cursor.
+	 * Position the outputStart knob.
 	 *
 	 * @param x     x-coordinate.
 	 * @param y     y-coordinate.
 	 */
-	void setCursorOutputStart(int x, int y)
+	void setKnobOutputStart(int x, int y)
 	{  
 		xStartOutput1 = x;
 		xStartOutput2 = x+triangleH;
@@ -180,12 +180,12 @@ class HistogramPanel
 	}
 	
 	/**
-	 * Position the outputEnd cursor.
+	 * Position the outputEnd knob.
 	 *
 	 * @param x     x-coordinate.
 	 * @param y     y-coordinate.
 	 */    
-	void setCursorOutputEnd(int x, int y)
+	void setKnobOutputEnd(int x, int y)
 	{
 		xEndOutput1 = x;
 		xEndOutput2 = x+triangleH;
@@ -196,11 +196,11 @@ class HistogramPanel
 	}
 	
 	/** 
-	 * Sets the y-coordinate of the outputStart cursor.
+	 * Sets the y-coordinate of the outputStart knob.
 	 *
 	 * @param y     y-coordinate.
 	 */    
-	void updateStartOutputCursor(int y)
+	void updateStartOutputKnob(int y)
 	{
 		yStartOutput1 = y;
 		yStartOutput2 = y-triangleW;
@@ -208,11 +208,11 @@ class HistogramPanel
 	}
 	
 	/** 
-	 * Sets the y-coordinate of the outputEnd cursor.
+	 * Sets the y-coordinate of the outputEnd knob.
 	 *
 	 * @param y     y-coordinate.
 	 */ 
-	void updateEndOutputCursor(int y)
+	void updateEndOutputKnob(int y)
 	{
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
@@ -220,7 +220,7 @@ class HistogramPanel
 	}
 	
 	/** 
-	 * Reset the location of the outputStart cursor
+	 * Reset the location of the outputStart knob
 	 * and display the real value that corresponds to the location.
 	 *
 	 * @param y         y-coordinate.
@@ -231,12 +231,12 @@ class HistogramPanel
 		controlOutputStart = y;
 		heightStart = tS-y;
 		curMin = "start: "+yReal;
-		updateStartOutputCursor(y);
+		updateStartOutputKnob(y);
 		super.repaint();
 	}
 	
 	/** 
-	 * Reset the location of the outputEnd cursor
+	 * Reset the location of the outputEnd knob
 	 * and display the real value that corresponds to the location.
 	 *
 	 * @param y         y-coordinate.
@@ -247,7 +247,7 @@ class HistogramPanel
 		controlOutputEnd = y;
 		heightEnd = y-topBorder;
 		curMax = "end: "+yReal;
-		updateEndOutputCursor(y);
+		updateEndOutputKnob(y);
 		super.repaint();
 	}
 	
@@ -314,7 +314,7 @@ class HistogramPanel
 		g2D.drawString("timepoint", leftBorder+widthStat/2-wInput/2, 
 						tS+hFont+5);
 						
-		// cursor start output
+		//knob start output
 		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, xStartOutput3};
 		int yStartOutputPoints[] = {yStartOutput1, yStartOutput2, yStartOutput3};
 		GeneralPath filledPolygonStartOutput = new GeneralPath();
@@ -330,7 +330,7 @@ class HistogramPanel
 		g2D.drawString(curMin, 10, tS-hStart-hFont-window); 
 		g2D.fill(filledPolygonStartOutput);
 		
-		// cursor end output
+		//knob end output
 		int xEndOutputPoints[] = {xEndOutput1, xEndOutput2, xEndOutput3};
 		int yEndOutputPoints[] = {yEndOutput1, yEndOutput2, yEndOutput3};
 		GeneralPath filledPolygonEndOutput = new GeneralPath();
@@ -342,7 +342,7 @@ class HistogramPanel
 		g2D.setColor(endColor);
 		g2D.drawString(curMax, 10, topBorder+hEnd+hFont+window);    
 		g2D.fill(filledPolygonEndOutput);      
-		// paint histogram
+		//paint histogram
 		g2D.setColor(binColor);
 		g2D.drawString("Pixel", 5, topBorder+heightStat/2);
 		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
@@ -372,7 +372,7 @@ class HistogramPanel
 										topBorder, widthStat, heightEnd);
 		g2D.fill(endOutput);
 		
-		// start rectangle 
+		//start rectangle 
 		Rectangle2D startOutput = new Rectangle2D.Double(leftBorder, 
 									controlOutputStart, widthStat, heightStart);
 		g2D.fill(startOutput);
