@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.roi.canvas;
 
 
 //Java imports
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -67,22 +68,33 @@ public class DrawingCanvas
     extends JComponent
 {
 
-    private static final int        LENGTH = 6;
+    private static final int            ALPHA = 150;
     
-    private static final Color      squareColor = Color.LIGHT_GRAY;
+    /** Basic stroke. */
+    private static final BasicStroke    stroke = new BasicStroke(1.0f);
+    private static final float          dash1[] = {3.0f};
+    private static final BasicStroke    dashed = new BasicStroke(1.0f, 
+                                                      BasicStroke.CAP_SQUARE, 
+                                                      BasicStroke.JOIN_MITER, 
+                                                      3.0f, dash1, 0.0f);
+    
+    /** Color of the annotate square. */
+    private static final Color          squareColor = Color.LIGHT_GRAY;
+    
+    private Rectangle2D                 square;
+    
+    private static final int            LENGTH = 6;
 
-    private DrawingCanvasMng        manager;
+    private DrawingCanvasMng            manager;
     
-    private Shape                   currentShape;
+    private Shape                       currentShape;
     
-    private boolean                 onOff, textOnOff;
-
-    private Rectangle2D             square;           
+    private boolean                     onOff, textOnOff;
     
     /** Index of the ROI selected. */
-    private int                     indexSelected;
+    private int                         indexSelected;
     
-    private double                  magFactor;
+    private double                      magFactor;
     
     public DrawingCanvas()
     {
@@ -90,12 +102,12 @@ public class DrawingCanvas
         square = new Rectangle2D.Double(0, 0, LENGTH, LENGTH);
         manager = new DrawingCanvasMng(this);
     }
-
-    public void setTextOnOff(boolean b) { textOnOff = b; }
     
-    public void setOnOff(boolean b) { onOff = b; }
+    void setTextOnOff(boolean b) { textOnOff = b; }
     
-    public boolean getOnOff() { return onOff; }
+    void setOnOff(boolean b) { onOff = b; }
+    
+    boolean getOnOff() { return onOff; }
     
     public DrawingCanvasMng getManager() { return manager; }
     
@@ -104,6 +116,12 @@ public class DrawingCanvas
     {
         currentShape = roi;
         indexSelected = -1;
+        repaint();
+    }
+    
+    void moveAndDraw(Shape roi)
+    {
+        currentShape = roi;
         repaint();
     }
     
@@ -145,28 +163,36 @@ public class DrawingCanvas
         Shape s;
         Rectangle r;
         magFactor = manager.getCurrentImageAffineTransform().getMagFactor();
+        boolean onOff = manager.isAnnotationOnOff();
         while (i.hasNext()) {
             roi = (ROIShape) i.next();
             setShapeBounds(roi);
             s = roi.getShape();
-            g2D.setColor(roi.getLineColor());
-            g2D.draw(s);
             r = s.getBounds();
+            g2D.setStroke(dashed);
+            g2D.setColor(alphaColor(roi.getLineColor()));
+            if (roi.getIndex() == indexSelected) {
+                g2D.setStroke(stroke);
+                g2D.setColor(roi.getLineColor());
+            }
+            g2D.draw(s);
+            //draw label
             if (textOnOff) {
                 Point p = ROIFactory.setLabelLocation(s, roi.getShapeType(), 
                                                         LENGTH);
-                g2D.drawString(roi.getText(), p.x, p.y);
+                g2D.drawString(roi.getLabel(), p.x, p.y);
             }
-            if (roi.getIndex() == indexSelected) {
-                
+            //draw square to indicate that the selection has been annotated.
+            if (roi.getAnnotation() != null && onOff) {
                 square.setRect(r.x-LENGTH/2, r.y+r.height/2-LENGTH/2, LENGTH,
-                                LENGTH);
+                        LENGTH);
                 g2D.setPaint(squareColor);
                 g2D.fill(square);
             }
         }
     }
     
+    /** Set the bounds of the shape according to the magFactor. */
     private void setShapeBounds(ROIShape roi)
     {
         Shape shape = roi.getShape();
@@ -174,12 +200,17 @@ public class DrawingCanvas
         double factor = roi.getAffineTransform().getMagFactor();
         int shapeType = roi.getShapeType();
         double coeff = magFactor/factor;
-        
         ROIFactory.setShapeBounds(shape, shapeType, (int) (r.x*coeff), 
                                 (int) (r.y*coeff), (int) (r.width*coeff), 
                                 (int) (r.height*coeff));
         roi.getAffineTransform().setMagFactor(magFactor);
         roi.setShape(shape);
+    }
+    
+    /** Add an alpha component to the selected color. */
+    private Color alphaColor(Color c) 
+    {
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), ALPHA);
     }
     
 }

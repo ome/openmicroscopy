@@ -85,6 +85,9 @@ public class DrawingCanvasMng
     /** Control to handle pressed event. */
     private boolean             pressed;
     
+    /** Control to display annotation info. */
+    private boolean             annotationOnOff;
+    
     /** Control to handle ROI moved. */
     private boolean             moving;
     
@@ -109,7 +112,7 @@ public class DrawingCanvasMng
     private int                 xControl, yControl;
     
     private boolean             erase, eraseAll;
-    
+
     public DrawingCanvasMng(DrawingCanvas view)
     {
         this.view = view;
@@ -124,6 +127,8 @@ public class DrawingCanvasMng
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
     }
+    
+    public boolean isAnnotationOnOff() { return annotationOnOff; }
     
     /** Set the drawing area. */
     public void setDrawingArea(Rectangle area)
@@ -160,12 +165,20 @@ public class DrawingCanvasMng
     
     public void setControl(ROIAgtCtrl control) { this.control = control; }
     
+    public void setOnOff(boolean b) { view.setOnOff(b); }
+    
     public void setTextOnOff(boolean b)
     {
         view.setTextOnOff(b);
         view.repaint();
     }
     
+    public void setAnnotationOnOff(boolean b)
+    {
+        annotationOnOff = b;
+        view.repaint();
+    }
+   
     public ROIShape getCurrentROI() { return currentROI; }
     
     /** Restore the erase roi. */
@@ -179,49 +192,7 @@ public class DrawingCanvasMng
             else if (eraseAll && roi != null) undoEraseAll(roi);
         }
     }
-    
-    private void undoEraseOne(ROIShape roi)
-    {
-        int index = roi.getIndex();
-        Iterator i = listROI.iterator();
-        ROIShape r;
-        int j;
-        while (i.hasNext()) {
-            r = (ROIShape) i.next();
-            j = r.getIndex();
-            if (j >= index) {
-                j++;
-                r.setIndex(j);
-                r.setText("#"+j);
-            }
-        }
-        listROI.add(roi);
-        listROIErase.remove(roi);
-        currentROI = roi;
-        currentShape = roi.getShape();
-        if (listROIErase.size() == 0) erase = false;
-        view.setIndexSelected(index);
-    }
-    
-    private void undoEraseAll(ROIShape roi)
-    {
-        int n = listROIErase.size();
-        Iterator i = listROI.iterator();
-        ROIShape r;
-        while (i.hasNext()) {
-            r = (ROIShape) i.next();
-            r.setIndex(n);
-            r.setText("#"+n);
-            n++;
-        }
-        listROI.addAll(listROIErase);
-        listROIErase.removeAll(listROIErase);
-        currentROI = roi;
-        currentShape = roi.getShape();
-        eraseAll = false;
-        view.setIndexSelected(roi.getIndex());
-    }
-    
+
     /** Remove the current ROI. */
     public void erase()
     {
@@ -240,7 +211,7 @@ public class DrawingCanvasMng
             if (j > index) {
                 j--;
                 roi.setIndex(j);
-                roi.setText("#"+j);
+                roi.setLabel("#"+j);
             }
         }
         //Select the last ROI if any left.
@@ -254,7 +225,6 @@ public class DrawingCanvasMng
             currentShape = null;
             view.erase(); 
         }
-        
     }
     
     /** Remove all ROIs. */
@@ -295,15 +265,9 @@ public class DrawingCanvasMng
     /** Mouse pressed event. */
     public void mousePressed(MouseEvent e)
     {
-        Point p = new Point(e.getPoint());
-        if (!dragging && drawingArea.contains(p)) {
-            pressed = true;
-            dragging = true;
-            currentROI = null;
-            currentShape = null;
-            anchor = p;
-            handleMousePressed(p);
-         }
+        Point p = e.getPoint();
+        if (!dragging && drawingArea.contains(p)) 
+            handleMousePressed(p, e.getClickCount());
     }
 
     /** Mouse dragged event. */
@@ -332,9 +296,82 @@ public class DrawingCanvasMng
         pressed = false;
     }
     
-    /** Erase or not the selected shape. */
-    private void handleMousePressed(Point p)
+    /** Handle mouse moved event on existing ROIShape. */
+    public void mouseMoved(MouseEvent e)
     {
+        if (annotationOnOff) {
+            Iterator i = listROI.iterator();
+            ROIShape roi;
+            Shape s;
+            String txt;
+            dragging = false;
+            control.setAnnotation(null);
+            while (i.hasNext()) {
+                roi = (ROIShape) (i.next());
+                txt = roi.getAnnotation();
+                s = roi.getShape();
+                if (s.contains(e.getPoint())){
+                    if (txt != null &&  txt.length() != 0)
+                        txt = roi.getLabel()+" "+txt;
+                    else txt = null;
+                    control.setAnnotation(txt);
+                } 
+            }     
+        }
+    }
+    
+    /** Restore the last erased shape if the erase button was pressed. */
+    private void undoEraseOne(ROIShape roi)
+    {
+        int index = roi.getIndex();
+        Iterator i = listROI.iterator();
+        ROIShape r;
+        int j;
+        while (i.hasNext()) {
+            r = (ROIShape) i.next();
+            j = r.getIndex();
+            if (j >= index) {
+                j++;
+                r.setIndex(j);
+                r.setLabel("#"+j);
+            }
+        }
+        listROI.add(roi);
+        listROIErase.remove(roi);
+        currentROI = roi;
+        currentShape = roi.getShape();
+        if (listROIErase.size() == 0) erase = false;
+        view.setIndexSelected(index);
+    }
+    
+    /** Restore the last erased shapes if the eraseAll button was pressed. */
+    private void undoEraseAll(ROIShape roi)
+    {
+        int n = listROIErase.size();
+        Iterator i = listROI.iterator();
+        ROIShape r;
+        while (i.hasNext()) {
+            r = (ROIShape) i.next();
+            r.setIndex(n);
+            r.setLabel("#"+n);
+            n++;
+        }
+        listROI.addAll(listROIErase);
+        listROIErase.removeAll(listROIErase);
+        currentROI = roi;
+        currentShape = roi.getShape();
+        eraseAll = false;
+        view.setIndexSelected(roi.getIndex());
+    }
+    
+    /** Erase or not the selected shape. */
+    private void handleMousePressed(Point p, int clickCount)
+    {
+        pressed = true;
+        dragging = true;
+        currentROI = null;
+        currentShape = null;
+        anchor = p;
         Iterator i = listROI.iterator();
         ROIShape roi;
         Shape s;
@@ -348,6 +385,7 @@ public class DrawingCanvasMng
                 xControl = r.x;
                 yControl = r.y;
                 view.setIndexSelected(roi.getIndex());
+                if (clickCount == 2) control.annotateROI(roi);
             }
         }
     }
@@ -400,11 +438,11 @@ public class DrawingCanvasMng
             ROIFactory.setShapeBounds(currentShape, currentROI.getShapeType(), 
                                         x , y, w, h);
             moving = true;
-            view.draw(currentShape); 
+            view.moveAndDraw(currentShape); 
         }
     }
     
-    /** Check if when we move the shape, the shape is still in the drawingArea. */
+    /** Check if the shape is still in the drawingArea. */
     private boolean areaValid(int x, int y, int w, int h)
     {
         boolean b = true;
@@ -437,18 +475,12 @@ public class DrawingCanvasMng
      * no op implementation.
      */   
     public void mouseEntered(MouseEvent e) {}
-
+    
     /** 
      * Required by I/F but not actually needed in our case,
      * no op implementation.
      */   
     public void mouseExited(MouseEvent e) {}
-
-    /** 
-     * Required by I/F but not actually needed in our case,
-     * no op implementation.
-     */   
-    public void mouseMoved(MouseEvent e) {}
-
+   
 }
 
