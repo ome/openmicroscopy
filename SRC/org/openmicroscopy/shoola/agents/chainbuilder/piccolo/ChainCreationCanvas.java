@@ -273,7 +273,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		getCamera().localToGlobal(location);
 		float x = (float) location.getX();
 		float y = (float) location.getY();
-		ChainView p = new ChainView(chain,false);
+		ChainView p = new ChainView(chain);
 		layer.addChild(p);
 		p.setOffset(x,y);
 		PBounds b = layer.getFullBounds();
