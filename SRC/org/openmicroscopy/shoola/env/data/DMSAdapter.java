@@ -300,14 +300,6 @@ class DMSAdapter
 			//Put the server data into the corresponding client object.
 	  		images = DatasetMapper.fillListImages(dataset);
 	  		
-	  	//can be null.
-	  	/*
-	  	try {
-			Thread.sleep(1500);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		*/
 	  	return images;
     }
     
@@ -361,16 +353,13 @@ class DMSAdapter
 	{
 		//Make a new proto if none was provided.
 		if (pProto == null) pProto = new ProjectSummary();
-		/*
+		
 		Project p = (Project) createNewData(Project.class);
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
 		updateData(p);
 		ProjectMapper.fillNewProject(p, pProto);
-		*/
-		pProto.setID(104);
-		pProto.setName(retVal.getName());
-		pProto.setDatasets(retVal.getDatasets());
+
 		return pProto;
 	}
 	
@@ -383,15 +372,13 @@ class DMSAdapter
 	{
 		//Make a new proto if none was provided.
 		if (dProto == null) dProto = new DatasetSummary();
-		/*
+
 		Dataset d = (Dataset) createNewData(Dataset.class);
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
 		updateData(d);
 		DatasetMapper.fillNewDataset(d, dProto);
-		*/
-		dProto.setID(104);
-		dProto.setName(retVal.getName());
+
 		return dProto;
 	}
 	
@@ -415,41 +402,35 @@ class DMSAdapter
     public void updateProject(ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
-		//Comments b/c of OMEDS status
-		/*
 		Project p = (Project) createNewData(Project.class);
 		p.setID(retVal.getID());
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
 		updateData(p);
-		*/
+		
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateDataset(DatasetData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//Comments b/c of OMEDS status
-		/*
 		Dataset d = (Dataset) createNewData(Dataset.class);
 		d.setID(retVal.getID());
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
 		updateData(d);
-		*/
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateImage(ImageData retVal)
 	{
-		//Comments b/c of OMEDS status
-  		/*
+		/*
   		Image i = (Image) createNewData(Image.class);
   		i.setID(retVal.getID());
   		i.setName(retVal.getName());
   		i.setDescription(retVal.getDescription());
   		updateData(i);
-  		*/
+		*/
 	}
 	
 	/**
