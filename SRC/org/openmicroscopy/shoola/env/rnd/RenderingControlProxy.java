@@ -87,11 +87,12 @@ class RenderingControlProxy
 	public void setModel(final int model)
 	{
 		rndDefCopy.setModel(model);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setModel(model);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
@@ -120,11 +121,12 @@ class RenderingControlProxy
 		newQd = new QuantumDef(family, qd.pixelType, coefficient, 
 										qd.cdStart, qd.cdEnd, bitResolution);
 		rndDefCopy.setQuantumDef(newQd);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setQuantumStrategy(family, coefficient, bitResolution);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
@@ -143,12 +145,13 @@ class RenderingControlProxy
 			mapCtx = (CodomainMapContext) i.next();
 			mapCtx.setCodomain(start, end);
 		}
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setCodomainInterval(start, end);
 			}
 		};
-		eventBus.post(rpc);
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
+		eventBus.post(rpc);	
 	}
 
 	public QuantumDef getQuantumDef() 
@@ -164,12 +167,13 @@ class RenderingControlProxy
 		
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		cb[w].setInputWindow(start, end);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setChannelWindow(w, start, end);
 			}
 		};
-		eventBus.post(rpc);
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
+		eventBus.post(rpc);	
 	}
 
 	public Comparable getChannelWindowStart(int w) 
@@ -189,11 +193,12 @@ class RenderingControlProxy
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		cb[w].setRGBA(red, green, blue, alpha);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setRGBA(w, red, green, blue, alpha);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
@@ -207,11 +212,12 @@ class RenderingControlProxy
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		cb[w].setActive(active);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.setActive(w, active);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
@@ -224,42 +230,46 @@ class RenderingControlProxy
 	public void addCodomainMap(final CodomainMapContext mapCtx) 
 	{
 		rndDefCopy.addCodomainMapCtx(mapCtx);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.addCodomainMap(mapCtx);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
 	public void updateCodomainMap(final CodomainMapContext mapCtx) 
 	{
 		rndDefCopy.updateCodomainMapCtx(mapCtx);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.updateCodomainMap(mapCtx);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
 	public void removeCodomainMap(final CodomainMapContext mapCtx) {
 		rndDefCopy.removeCodomainMapCtx(mapCtx);
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.removeCodomainMap(mapCtx);
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
 	public void saveCurrentSettings() 
 	{
-		RenderingPropChange rpc = new RenderingPropChange() {
-			public void doUpdate() { 
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
 				servant.saveCurrentSettings();
 			}
 		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
