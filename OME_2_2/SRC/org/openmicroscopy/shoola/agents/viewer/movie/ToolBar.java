@@ -195,7 +195,7 @@ class ToolBar
 	{
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
-		bar.add(saveAs);
+		//bar.add(saveAs);
 		//movie controls.
 		bar.add(play);
 		bar.add(pause);
