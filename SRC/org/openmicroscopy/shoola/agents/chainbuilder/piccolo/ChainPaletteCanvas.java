@@ -50,6 +50,7 @@ import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceAdapter;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.Dimension;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -239,16 +240,17 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 					placeChain(box);
 				}
 			}
-			else
-				System.err.println("Chain .. "+chain.getName()+
-						" has cycles -ignoring");
 		}
 		// fix up the last row.
-		adjustHeights();
+		row.setHeight(rowHeight);
+		rows.add(row);
+		adjustSizes();
 	}
 	
 	// keep track of what was in row that was just finished.
-	private ArrayList curRow = new ArrayList();
+	private ArrayList rows = new ArrayList();
+	private RowInfo row = new RowInfo();
+	
 	private void placeChain(ChainBox box) {
 			
 		float height = 0;
@@ -268,30 +270,20 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			if (x > maxRowWidth)
 				maxRowWidth = x;
 			x = 0;
-			adjustHeights();
+			row.setHeight(rowHeight);
+			rows.add(row);
 			y+= rowHeight;
 			rowHeight = height;
-			curRow.clear();
+			row = new RowInfo();
 		}
 		
 		box.setOffset(x,y);
 		x+=box.getWidth();
 		count++;
-		curRow.add(box);
+		row.addBox(box);
 	}
 	
-	// adjust the heights 
-	private void adjustHeights() {
-		System.err.println("adjusting row height to "+rowHeight);
-		Iterator iter = curRow.iterator();
-		ChainBox box;
-		while (iter.hasNext()) {
-			box = (ChainBox) iter.next();
-			box.setHeight(rowHeight);
-			
-		}
-		
-	}
+	
 	
 	private ChainBox buildChain(LayoutChainData chain) {
 		if (chain.getNodes().size() == 0) 
@@ -310,8 +302,19 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		if (box != null)  {
 			placeChain(box);
 			// fix up last row
-			adjustHeights();
+			row.setHeight(rowHeight);
+			rows.add(row);
+			adjustSizes();
 			scaleToSize();
+		}
+		
+	}
+	
+	private void adjustSizes() {
+		Iterator iter = rows.iterator();
+		while (iter.hasNext()) {
+			RowInfo row = (RowInfo) iter.next();
+			row.adjustSize(maxRowWidth);
 		}
 	}
 
@@ -489,6 +492,53 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			return true;
 		}
 	}
+    
+    private class RowInfo {
+    		
+    		private ArrayList boxes = new ArrayList();
+    		private float height;
+    		private float width = 0;
+    		
+    		private RowInfo() {
+    			
+    		}
+    		
+    		private void addBox(ChainBox box) {
+    			boxes.add(box);
+    			width += box.getWidth();
+    		}
+    		
+    		
+    		private void setHeight(float height) {
+    			this.height = height;
+    		}
+    		
+    		private void adjustSize(float maxWidth) {
+    			
+    			// find difference between maxWidth and rowWidth;
+    			float horizSpace = maxWidth -width;
+    			float padding = 0;
+    			if (horizSpace > 0) 
+    				padding = horizSpace/boxes.size();
+    			float boxWidth;
+    			Iterator iter = boxes.iterator();
+    			ChainBox box;
+    			float x = 0;
+    			while (iter.hasNext()) {
+    				box =(ChainBox) iter.next();
+    				box.setHeight(height);
+    				boxWidth = (float)box.getWidth();
+    				if (padding > 0) {
+    					boxWidth += padding;
+    					box.setWidth(boxWidth);
+    				}
+    				Point2D pt  = box.getOffset();
+    				box.setOffset(x,pt.getY());
+    				box.centerChain();
+    				x += boxWidth;
+    			}
+    		}
+    }
 	
  
     
