@@ -69,7 +69,7 @@ public class TestDSCallAdapter
     public void testUpdate()
     {
         //Set up expected calls.
-        DSCallFeedbackEvent fe = new DSCallFeedbackEvent(0, null);
+        DSCallFeedbackEvent fe = new DSCallFeedbackEvent(0, null, null);
         target.update(fe);
         
         //Transition mock to verification mode.

@@ -70,6 +70,9 @@ public class DSCallFeedbackEvent
      */
     private final String  status;
     
+    /** The result (if any) of the call. */
+    private final Object  partialResult;
+    
     
     /**
      * Creates a new instance.
@@ -79,11 +82,15 @@ public class DSCallFeedbackEvent
      *                          is not available.
      * @param status A textual description of the current state of the call.
      *                  Pass <code>null</code> if not available.
+     * @param partialResult Any partial result of the computation that can be
+     *                      used by the invoker.
      */
-    public DSCallFeedbackEvent(int percentDone, String status)
+    public DSCallFeedbackEvent(int percentDone, String status, 
+                                Object partialResult)
     {
         this.percentDone = percentDone;
         this.status = status;
+        this.partialResult = partialResult;
         setStateChange(this);
     }
     
@@ -105,5 +112,26 @@ public class DSCallFeedbackEvent
      * @return See above.
      */
     public String getStatus() { return status; }
+    
+    /**
+     * Returns any partial result of the computation that was available at
+     * the time this event was fired.
+     * If not <code>null</code>, the object returned by this method can be
+     * casted to a more suitable type as documented by the call.
+     * 
+     * @return Any partial result.
+     * @see #hasPartialResult()
+     */
+    public Object getPartialResult() { return partialResult; }
+    
+    /**
+     * Tells whether a partial result of the computation was available at
+     * the time this event was fired.
+     * 
+     * @return <code>true</code> if a partial result is available, 
+     *          <code>false</code> otherwise.
+     * @see #getPartialResult()
+     */
+    public boolean hasPartialResult() { return (partialResult != null); }
     
 }

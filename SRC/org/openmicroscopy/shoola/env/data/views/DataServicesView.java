@@ -86,7 +86,9 @@ package org.openmicroscopy.shoola.env.data.views;
  * completion, <code>100</code> for the last feedback event, which will always 
  * have its status field set to <code>null</code> &#151; note that a <code>null
  * </code> status is also possible for the previous events if no description
- * was available at the time the event was fired.</p>
+ * was available at the time the event was fired.<br>
+ * Moreover, any partial resutl that the computation makes available will be 
+ * packed into the feedback event.</p>
  * <p>It's important to keep in mind that the computation may not run to 
  * completion &#151; either because of an exception within the computation or
  * because the agent {@link CallHandle#cancel() cancels} execution.  In both 

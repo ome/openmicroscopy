@@ -60,6 +60,9 @@ public class FakeBatchCallTree
     extends BatchCallTree
 {
     
+    //Increased every time getPartialResult() is called.
+    private int                 partResCount;
+    
     //Default processor the tree will work with.
     //Can be set to something different if needed.
     private CmdProcessor        processor = new SyncProcessor();
@@ -113,6 +116,16 @@ public class FakeBatchCallTree
         for (int i = 1; i < 6; ++i)
             totalCount += L[i].getDoCallCount();
         return new Integer(totalCount);
+    }
+
+    /* (non-Javadoc)
+     * @see BatchCallTree#getPartialResult()
+     * 
+     * Returns 1, 2, ...
+     */
+    protected Object getPartialResult()
+    {
+        return new Integer(++partResCount);
     }
     
     //Called internally by the tree w/in exec().

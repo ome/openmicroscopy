@@ -47,8 +47,8 @@ import org.openmicroscopy.shoola.util.concur.tasks.ExecMonitor;
  * <p>This class is abstract, it requires subclasses to actually 
  * {@link #buildTree() build} the tree and provide the result of the computation
  * after the tree has been {@link #exec(AgentEventListener) executed}.  A tree
- * represents a coarse grained task to carry out within the data services and
- * usually maps to a single call in a data services view.</p>  
+ * represents a coarse-grained task to carry out within the data services and
+ * maps to a single call in a data services view.</p>  
  * <p>A <code>BatchCallTree</code> object can't be 
  * {@link #exec(AgentEventListener) executed} more than once &#151; any such
  * attempt would result in an exception being thrown.  So you have to discard
@@ -97,6 +97,10 @@ abstract class BatchCallTree
      * marks it as executed.
      * This method will return <code>false</code> (not executed) only the first
      * time it is invoked and then <code>true</code> (executed) thereafter.
+     * The purpose of this method is to make sure the tree is executed at most 
+     * once by one thread.  This is always the case if each view's method 
+     * creates a <i>new</i> tree upon each call, but we check anyway to prevent 
+     * nasty safety failures if they don't (this would be a <i>bug</i>).
      * 
      * @return The current {@link #executed execution} state.
      */
@@ -106,10 +110,10 @@ abstract class BatchCallTree
         executed = true;
         return currentState;
     }
-    //NOTE: This method is sync in order to avoid problems in the case the UI
-    //spawns a separate thread to call a method w/in a view and at the same
-    //time the same method is being called by the UI thread.  This condition
-    //can never arise if the UI avoids to spawn threads altogether.
+    //NOTE: This method is sync in order to avoid problems in the case both the
+    //following conditions are met:
+    // * A view's method uses a BatchCallTree object which is not method-scoped.
+    // * The UI spawns two threads to call that method.
     
     /**
      * Counts the actual calls.
@@ -217,6 +221,11 @@ abstract class BatchCallTree
      * <p>As hinted above, call results have to be stored in a place accessible
      * to this object.  This is because a concrete <code>BatchCallTree</code> is
      * responsible for providing the final result of the computation.</p>
+     * <p>It is imperative that a subclass never let escape references to the 
+     * nodes that were added to the tree during the invocation of this method.
+     * Ideally, nodes would be created, added, and de-referenced within the 
+     * scope of this method.  Failure to comply would result in safety issues.
+     * </p>
      * 
      * @see BatchCall
      * @see CompositeBatchCall
@@ -232,7 +241,25 @@ abstract class BatchCallTree
      * result of the whole execution.  
      * 
      * @return The final result of the computation.
+     * @see #getPartialResult()
      */
     protected abstract Object getResult();
+    
+    /**
+     * Useful for subclasses that want to make partial results available to
+     * the invoker.
+     * As the tree computation proceeds, this method will be called after each
+     * leaf node is executed and whatever is returned will be packed into a
+     * feedback event.
+     * As a example, a tree that retrieves all thumbnails in a dataset could
+     * return the lastly retrieved thumbnail.  This would give the invoker the
+     * possibility to display the thumbnails progressively as feedback events
+     * are received.  
+     * Most subclasses don't need this extra feature, so we provide a default
+     * no-op implementation.
+     * 
+     * @return <code>null</code>.
+     */
+    protected Object getPartialResult() { return null; }
     
 }

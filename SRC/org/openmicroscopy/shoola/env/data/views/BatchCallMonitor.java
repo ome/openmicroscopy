@@ -61,7 +61,9 @@ import org.openmicroscopy.shoola.util.concur.tasks.ExecMonitor;
  * event, which will always have its status field set to <code>null</code> as no
  * call is to be executed next &#151; note that a <code>null</code> status is 
  * also possible for the previous events if the corresponding call has no 
- * description.</p>
+ * description.<br>
+ * Moreover, any partial {@link BatchCallTree#getPartialResult() result} that 
+ * the tree makes available will be packed into the feedback event.</p>
  * <p>It's important to keep in mind that the tree's computation may not run
  * to completion &#151; either because a leaf call raises an exception or
  * or because the client {@link CallHandle#cancel() cancels} execution.  In 
@@ -159,11 +161,13 @@ class BatchCallMonitor
         BatchCall curCall = tree.getCurCall();
         DSCallFeedbackEvent feedback;
         if (curCall != null)
-            feedback = new DSCallFeedbackEvent(perc, curCall.getDescription());
+            feedback = new DSCallFeedbackEvent(perc, curCall.getDescription(),
+                                                tree.getPartialResult());
         else
             //Computation has finished regularly.  B/c update is always called
             //*after* doStep, we have no curCall.
-            feedback = new DSCallFeedbackEvent(100, null);
+            feedback = new DSCallFeedbackEvent(100, null,
+                                                tree.getPartialResult());
         deliver(feedback);
     }
 
