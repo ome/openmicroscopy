@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.pane.AnalysisSelectionPane
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,24 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.roi.pane;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.agents.roi.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -51,17 +60,43 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+class AnalysisSelectionPane
+    extends JPanel
 {
 
-    private String annotation;
+    private static final Dimension      HBOX = new Dimension(5, 0);
     
-    public AnnotateROI(String annotation)
+    JButton                             analyse;
+    
+    AnalysisSelectionPane(Registry registry)
     {
-        this.annotation = annotation;
+        initComponents(IconManager.getInstance(registry));
+        buildGUI();
     }
     
-    public String getAnnotation() { return annotation; }
+    private void initComponents(IconManager im)
+    {
+        analyse = new JButton(im.getIcon(IconManager.ANALYSE));
+        analyse.setToolTipText(
+                UIUtilities.formatToolTipText("Analyze data."));
+    }
+    
+    /** Build and lay out the GUI. */
+    private void buildGUI()
+    {
+        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
+        add(buildButtonsBar());
+    }
+
+    /** Build a toolBar with buttons. */
+    private JToolBar buildButtonsBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+        bar.add(Box.createRigidArea(HBOX));
+        bar.add(analyse);
+        return bar;
+    }
     
 }

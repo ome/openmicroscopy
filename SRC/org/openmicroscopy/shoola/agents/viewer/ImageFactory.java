@@ -32,23 +32,15 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
-import java.awt.image.ConvolveOp;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.Kernel;
 import java.awt.image.Raster;
-import java.awt.image.RescaleOp;
 
 //Third-party libraries
 
@@ -70,18 +62,7 @@ import java.awt.image.RescaleOp;
  */
 public class ImageFactory
 {
-    
-    /** Sharpen filter. */
-    public static final float[] SHARPEN = {
-            0.f, -1.f,  0.f,
-            -1.f,  5.f, -1.f,
-            0.f, -1.f,  0.f};
-    
-    /** Low pass filter. */
-    public static final float[] LOW_PASS = {
-            0.1f, 0.1f, 0.1f,   
-            0.1f, 0.2f, 0.1f,
-            0.1f, 0.1f, 0.1f};
+
     
     /** Default color components. */
     private static final int RED = 255, GREEN = 0, BLUE = 0; 
@@ -242,8 +223,8 @@ public class ImageFactory
      * @return      A bufferedImage with dataBufferByte as dataBuffer, 
      *              b/c of the implementation of the TIFFEncoder.
      */
-    public static BufferedImage getImage(BufferedImage img, int x1, 
-                int y1, int sizeX, int sizeY, boolean painting, Color c)
+    public static BufferedImage getImage(BufferedImage img, int x1, int y1, 
+                                int sizeX, int sizeY, boolean painting, Color c)
     {
         if (painting && c == null) c = Color.RED;
         int sizeX1 = img.getWidth();
@@ -346,56 +327,6 @@ public class ImageFactory
         return new BufferedImage(ccm, 
                 Raster.createWritableRaster(csm, buffer, null), false, null);
     }
-    
-    /** 
-     * Zoom in or out the selected BufferedImage.
-     * 
-     * @param img       BufferedImage to zoom in or out.
-     * @param level     magnification factor.
-     * @param at        Affine transform
-     * @param w         extra space, necessary b/c of the lens option.         
-     * @return          The zoomed bufferedImage.
-     */
-    public static BufferedImage magnifyImage(BufferedImage img, 
-            double level, 
-           AffineTransform at, int w)
-    {
-        int width = img.getWidth(), height = img.getHeight();
-        BufferedImage bimg = new BufferedImage(width, height, 
-                                                BufferedImage.TYPE_INT_RGB);
-        RescaleOp rop = new RescaleOp(1, 0.0f, null);
-        rop.filter(img, bimg);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-                                AffineTransformOp.TYPE_BILINEAR); 
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*level)+w, 
-                                            (int) (height*level)+w,
-                                            BufferedImage.TYPE_INT_RGB);
-        Graphics2D bigGc = rescaleBuff.createGraphics();
-        bigGc.setRenderingHint(RenderingHints.KEY_RENDERING,
-                                RenderingHints.VALUE_RENDER_QUALITY);
-        bigGc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        bigGc.drawImage(bimg, biop, 0, 0);
-        return rescaleBuff;
-    } 
-    
-    /** Apply a sharpen filter or a low_pass filter. */
-    public static BufferedImage convolveImage(BufferedImage img, 
-                                              float[] filter)
-    {
-        int width = img.getWidth(), height = img.getHeight();
-        BufferedImage bimg = new BufferedImage(width, height, 
-                                                BufferedImage.TYPE_INT_RGB);
-        RescaleOp rop = new RescaleOp(1, 0.0f, null);
-        rop.filter(img, bimg);  // copy the original one
-        Kernel kernel = new Kernel(3, 3, filter);
-        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP,
-                                        null);
-        BufferedImage finalImg = new BufferedImage(width, height,
-                                    BufferedImage.TYPE_INT_RGB);
-        cop.filter(bimg, finalImg);
-        return finalImg;
-    }
-    
+
 }
 

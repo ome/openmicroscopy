@@ -32,12 +32,13 @@ package org.openmicroscopy.shoola.agents.roi;
 //Java imports
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.math.geom2D.EllipseArea;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
+import org.openmicroscopy.shoola.util.math.geom2D.RectangleArea;
 
 /** 
  * Utility class to build shapes.
@@ -62,10 +63,10 @@ public class ROIFactory
     public static final int     ELLIPSE = 1;
     
     /** Size of the rectangle to handle resizing event. */
-    public static final int     SIZE = 2;
+    public static final int     SIZE = 4;
     
-    /** Build a shape according to the specified type. */
-    public static Shape makeShape(Point anchor, Point p, int shapeType)
+    /** Return a {@link PlaneArea} according to the shapeType. */
+    public static PlaneArea makeShape(Point anchor, Point p, int shapeType)
     {
         if (anchor == null || p == null) return null;
         int topLeftX = Math.min(anchor.x, p.x), 
@@ -75,71 +76,37 @@ public class ROIFactory
         return makeShape(shapeType, topLeftX, topLeftY, width, height);
     }
     
-    /** Build a shape according to the specified type. */
-    public static Shape makeShape(int shapeType, int x, int y, int width, 
-            int height)
+    /** Return a {@link PlaneArea} according to the shapeType. */
+    public static PlaneArea makeShape(int shapeType, int x, int y, int width, 
+                                    int height)
     {
-        Shape s = null;
+        PlaneArea area = null;
         switch (shapeType) {
             case RECTANGLE:
-                s = new Rectangle(x, y, width, height);
+                area = new RectangleArea(x, y, width, height);  
                 break;
             case ELLIPSE:
-                s = new Ellipse2D.Float(x, y, width, height);
+                area = new EllipseArea(x, y, width, height);      
         }
-        return s; 
+        return area; 
     }
     
-    /** Reset the bounds of the specified shape. */
-    public static void setShapeBounds(Shape s, int shapeType, int x, int y, 
-                                        int width, int height) 
+    /** 
+     * Build a rectangle containing the vertical border of the PlaneArea 
+     * drawn on screen. 
+     */
+    public static Rectangle getVerticalControlArea(int x, int y, int height)
     {
-        if (s != null) {
-            switch (shapeType) {
-                case RECTANGLE:
-                    Rectangle r = (Rectangle) s;
-                    r.setBounds(x, y, width, height);
-                    s = r;
-                    break;
-                case ELLIPSE:
-                    Ellipse2D.Float e = (Ellipse2D.Float) s;
-                    e.setFrame(x, y, width, height);
-                    s =  e;
-            } 
-        }   
-    } 
-
-    /** Set the location of the label. */
-    public static Point setLabelLocation(Shape s, int shapeType, int l)
-    {
-        Point p = new Point(0, 0);
-        if (s == null) return p;
-        Rectangle r = s.getBounds();
-        switch (shapeType) {
-            case RECTANGLE:
-                p.x = r.x-l/2;
-                p.y = r.y-l/2;
-                break;
-            case ELLIPSE:
-                p.x = r.x-3*l/2;
-                p.y = r.y+r.height/2-l;
-        } 
-        return p;
+        return new Rectangle(x-SIZE, y, 2*SIZE, y+height);
     }
     
-    /** Build a rectangle to resize the shape. */
-    public static Shape getVerticalArea(int x, int y, int height)
+    /** 
+     * Build a rectangle containing the horizontal border of the PlaneArea 
+     * drawn on screen. 
+     */
+    public static Rectangle getHorizontalControlArea(int x, int y, int width)
     {
-        Rectangle r = new Rectangle();
-        r.setBounds(x-SIZE, y, 2*SIZE, y+height);
-        return r;
-    }
-    
-    public static Shape getHorizontalArea(int x, int y, int width)
-    {
-        Rectangle r = new Rectangle();
-        r.setBounds(x, y-SIZE, x+width, 2*SIZE);
-        return r;
+        return new Rectangle(x, y-SIZE, x+width, 2*SIZE);
     }
     
 }

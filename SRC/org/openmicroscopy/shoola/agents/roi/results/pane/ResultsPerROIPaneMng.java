@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.defs.ROISettings
+ * org.openmicroscopy.shoola.agents.roi.results.pane.ResultsPerROIMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,14 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.defs;
-
+package org.openmicroscopy.shoola.agents.roi.results.pane;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 
 /** 
  * 
@@ -50,54 +52,46 @@ package org.openmicroscopy.shoola.agents.roi.defs;
  * </small>
  * @since OME2.2
  */
-public class ROISettings
+class ResultsPerROIPaneMng
+    implements ActionListener
 {
     
-    private int startZ;
+    private static final int    CHANNEL = 0;
     
-    private int endZ;
+    private ResultsPerROIPane   view;
     
-    private int startT;
+    private int                 viewIndex;
     
-    private int endT;
-
-    private boolean zSelected, tSelected, ztSelected;
+    private ROIResultsMng       mng;
     
-    public ROISettings(int startZ, int endZ, int startT, int endT) 
+    ResultsPerROIPaneMng(ResultsPerROIPane view, ROIResultsMng mng, 
+                        int viewIndex)
     {
-        this.startZ = startZ;
-        this.endZ = endZ;
-        this.startT = startT;
-        this.endT = endT;
-        ztSelected = true;
+        this.view = view;
+        this.viewIndex = viewIndex;
+        this.mng = mng;
+        attachListeners();
+    }
+    
+    private void attachListeners()
+    {
+        view.channels.addActionListener(this);
+        view.channels.setActionCommand(""+CHANNEL);
     }
 
-    public boolean isZSelected() { return zSelected; }
-    
-    public boolean isTSelected() { return tSelected; }
-    
-    public boolean isZTSelected() { return ztSelected; }
-    
-    public void setZSelected(boolean b) { zSelected = b; }
-    
-    public void setTSelected(boolean b) { tSelected = b; }
-    
-    public void setZTSelected(boolean b) { ztSelected = b; }
-    
-    public int getEndT() { return endT; }
-
-    public int getEndZ() { return endZ; }
-
-    public int getStartT() { return startT; }
-
-    public int getStartZ() { return startZ; }
-
-    public void setStartZ(int v) { startZ = v; }
-    
-    public void setStartT(int v) { startT = v; }
-    
-    public void setEndZ(int v) { endZ = v; }
-    
-    public void setEndT(int v) { endT = v; }
+    /** Handle events. ONLY comboBox but eventually the Annotation??*/
+    public void actionPerformed(ActionEvent e)
+    {
+        int index = Integer.parseInt(e.getActionCommand());
+        try {
+            switch (index) {
+                case CHANNEL:
+                    mng.channelSelectedForROI(viewIndex, 
+                            view.channels.getSelectedIndex());
+            }
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
+        }   
+    }
     
 }

@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -77,6 +78,25 @@ public class ViewerUIF
     extends TopWindow
 {
 
+    
+    /** position of the canvas in the layer. */
+    public static final int         IMAGE_LEVEL = 0, LENS_LEVEL = 1, 
+                                    ROI_LEVEL = 2;
+    
+    public static final int         ANNOTATE_LEVEL = 3;
+    
+    /** Background color. */
+    public static final Color       BACKGROUND_COLOR = new Color(204, 204, 255);
+    
+    public static final Color       STEELBLUE = new Color(0x4682B4);
+    
+    public static final Dimension   TOOLBAR_DIMENSION = new Dimension(20, 300);
+
+    /** Dimension of the separator between the toolBars. */
+    public static final Dimension   SEPARATOR_END = new Dimension(100, 0);
+    
+    public static final Dimension   SEPARATOR = new Dimension(15, 0);
+    
     /** Lens constant. */
     /** Constant to fix the width of the Lens. */
     public static final int         MAX_WITH = 100, DEFAULT_WIDTH = 60,
@@ -220,14 +240,14 @@ public class ViewerUIF
     /** Add the {@link drawingCanvas} to the layer. */
     void addCanvasToLayer()
     {
-        layer.add(drawingCanvas, new Integer(Viewer.ROI_LEVEL));
-        drawingCanvas.getManager().setOnOff(true);
+        layer.add(drawingCanvas, new Integer(ROI_LEVEL));
+        drawingCanvas.setOnOff(true);
     }
     
     /** Remove the {@link drawingCanvas} from the layer. */
     void removeCanvasFromLayer()
     {
-        drawingCanvas.getManager().setOnOff(false);
+        drawingCanvas.setOnOff(false);
         layer.remove(drawingCanvas);
         layer.repaint();
     }
@@ -327,7 +347,7 @@ public class ViewerUIF
         layer = new JLayeredPane();
         drawingCanvas = new DrawingCanvas();
         canvas = new ImageCanvas(this, control);
-        layer.add(canvas, new Integer(Viewer.IMAGE_LEVEL));
+        layer.add(canvas, new Integer(IMAGE_LEVEL));
         scrollPane = new JScrollPane(layer);
         container.add(toolBar, BorderLayout.NORTH);
         container.add(buildMain(), BorderLayout.WEST);

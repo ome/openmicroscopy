@@ -32,25 +32,34 @@ package org.openmicroscopy.shoola.agents.roi.editor;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.table.TableColumn;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
-import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
+import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.table.TableComponent;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
+import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 
 /** 
  * 
@@ -70,58 +79,127 @@ public class ROIEditor
     extends JDialog
 {
     
-    private static final Dimension  AREA = new Dimension(300, 150), 
-                                    HBOX = new Dimension(10, 0);
+    public static final int             NAME = 0, ANNOTATION = 1, COLOR = 2, 
+                                        MAX = 2;
     
-    JTextArea   annotationArea;
+    /** Selection of line color for the ROI. */
+    static final int                    RED = 0;
+    static final int                    GREEN = 1;
+    static final int                    BLUE = 2;
+    static final int                    CYAN = 3;
+    static final int                    MAGENTA = 4;
+    static final int                    ORANGE = 5;
+    static final int                    PINK = 6;
+    static final int                    YELLOW = 7;
     
-    JButton     save, cancel;
+    static final int                    MAX_COLOR = 7;
     
-    public ROIEditor(ROIAgtCtrl control, ROIShape roi)
+    private static final String         NEW_MSG = "Describe the new " +
+                                                "4D-Selection.";
+    
+    private static final String         MSG = "Annotate 4D-Selection #";
+    /** Selection of colors. */
+    private static final String[]       selection;
+    
+    private static final Color[]        colorSelection;
+    
+    static {
+        selection = new String[MAX_COLOR+1];
+        selection[RED] = "Red";
+        selection[GREEN] = "Green";
+        selection[BLUE] = "Blue";
+        selection[CYAN] = "Cyan";
+        selection[MAGENTA] = "Magenta";
+        selection[ORANGE] = "Orange";
+        selection[PINK] = "Pink";
+        selection[YELLOW] = "Yellow";
+        
+        colorSelection = new Color[MAX_COLOR+1];
+        colorSelection[RED] = Color.RED;
+        colorSelection[GREEN] = Color.GREEN;
+        colorSelection[BLUE] = Color.BLUE;
+        colorSelection[CYAN] = Color.CYAN;
+        colorSelection[MAGENTA] = Color.MAGENTA;
+        colorSelection[ORANGE] = Color.ORANGE;
+        colorSelection[PINK] = Color.PINK;
+        colorSelection[YELLOW] = Color.YELLOW;
+    }
+
+    MultilineLabel                  annotationArea;
+    
+    JTextField                      nameArea;  
+    
+    JButton                         save, cancel;
+    
+    JComboBox                       colors;
+    
+    public ROIEditor(ROIAgtCtrl control, String name, String annotation, 
+                    int index)
     {
         super(control.getReferenceFrame(), "ROI Edit", true);
         IconManager im = IconManager.getInstance(control.getRegistry());
-        initComponents(roi.getAnnotation(), im);
-        new ROIEditorMng(this, control, roi);
-        buildGUI(im, roi.getLabel());
-        pack();
+        initComponents(annotation, name, im);
+        new ROIEditorMng(this, control, index);
+        buildGUI(im, index);
+        setSize(ROIAgtUIF.EDITOR_WIDTH, ROIAgtUIF.EDITOR_HEIGHT);
     }
     
+    Color getColorSelected(int i) { return colorSelection[i]; }  
+    
     /** Initializes the components. */
-    private void initComponents(String annotation, IconManager im)
+    private void initComponents(String annotation, String name, IconManager im)
     {
-        annotationArea = new JTextArea();
-        annotationArea.setLineWrap(true);
-        annotationArea.setWrapStyleWord(true);
-        annotationArea.setText(annotation);
+        nameArea = new JTextField(name);
+        nameArea.setForeground(ROIAgtUIF.STEELBLUE);
+        nameArea.setEditable(true);
+        annotationArea = new MultilineLabel(annotation);
+        annotationArea.setForeground(ROIAgtUIF.STEELBLUE);
+        annotationArea.setEditable(true);
         cancel = new JButton(im.getIcon(IconManager.CLOSE));
         save = new JButton(im.getIcon(IconManager.SAVE));
         cancel.setToolTipText(
                 UIUtilities.formatToolTipText("Close the window."));
         save.setToolTipText(
                 UIUtilities.formatToolTipText("Save the annotation.")); 
-        save.setEnabled(false);
+        colors = new JComboBox(selection);
+        colors.setToolTipText(
+                UIUtilities.formatToolTipText("Pick a color for the shape."));
     }
-    
+
     /** Build and lay out the GUI. */
-    private void buildGUI(IconManager im, String txt)
+    private void buildGUI(IconManager im, int index)
     {
-        TitlePanel tp = new TitlePanel("ROI Editor", 
-                        "Annotate the selection: "+txt, 
+        String s;
+        if (index == -1) s = NEW_MSG;
+        else s = MSG+index;
+        TitlePanel tp = new TitlePanel("ROI Editor", s, 
                         im.getIcon(IconManager.ANNOTATE_BIG));
         getContentPane().setLayout(new BorderLayout(0, 0));
         getContentPane().add(tp, BorderLayout.NORTH);
-        getContentPane().add(buildAreaPane(), BorderLayout.CENTER);
+        getContentPane().add(buildFieldsPane(), BorderLayout.CENTER);
         getContentPane().add(buildBar(), BorderLayout.SOUTH);
     }
     
-    /** Put the text area in a JScrollPane. */
-    private JScrollPane buildAreaPane()
+    private JPanel buildFieldsPane()
     {
-        JScrollPane pane = new JScrollPane(annotationArea);
-        pane.setPreferredSize(AREA);
-        pane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        return pane;
+        JPanel p = new JPanel(), all = new JPanel();
+        all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
+        all.add(buildTable());
+        all.add(buildBoxPanel());
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(all);
+        p.setOpaque(false);
+        return p;
+    }
+
+    private JPanel buildBoxPanel()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        JLabel l = new JLabel("Shape color ");
+        p.add(l);
+        p.add(UIUtilities.buildComponentPanel(colors));
+        return p;
     }
     
     /** Build toolBar with JButtons. */
@@ -132,7 +210,7 @@ public class ROIEditor
         bar.setFloatable(true);
         bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
         bar.add(save);
-        bar.add(Box.createRigidArea(HBOX));
+        bar.add(Box.createRigidArea(ROIAgtUIF.HBOX));
         bar.add(cancel);
         JPanel p = new JPanel();
         p.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -140,4 +218,41 @@ public class ROIEditor
         return p;
     }
     
+    /** 
+     * A <code>2x2</code> table model to view dataset summary.
+     * The first column contains the property names (name, description)
+     * and the second column holds the corresponding values. 
+     * <code>name</code> and <code>description</code> values
+     * are marked as editable.
+     */
+    private TableComponent buildTable()
+    {
+        TableComponent table = new TableComponent(2, 2);
+        setTableLayout(table);
+        // Labels
+        JLabel label = new JLabel(" Name");
+        table.setValueAt(label, 0, 0);
+        label = new JLabel(" Annotation");
+        table.setValueAt(label, 1, 0);
+        table.setValueAt(nameArea, 0, 1);  
+        JScrollPane scrollPane  = new JScrollPane(annotationArea);
+        scrollPane.setPreferredSize(ROIAgtUIF.DIM_SCROLL);
+        table.setValueAt(scrollPane, 1, 1);
+        return table;
+    }
+    
+    /** Set the layout of the table. */
+    private void setTableLayout(TableComponent table)
+    {
+        table.setTableHeader(null);
+        table.setRowHeight(1, ROIAgtUIF.ROW_TABLE_HEIGHT);
+        table.setRowHeight(0, ROIAgtUIF.ROW_NAME_FIELD);
+        TableColumn col = table.getColumnModel().getColumn(1);
+        col.setPreferredWidth(ROIAgtUIF.COLUMN_WIDTH);
+        table.setDefaultRenderer(JComponent.class, 
+                                new TableComponentCellRenderer());
+        table.setDefaultEditor(JComponent.class, 
+                                new TableComponentCellEditor());
+    }
+
 }

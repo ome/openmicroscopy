@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPane
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,20 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 
 //Java imports
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 
 /** 
  * 
@@ -51,17 +56,29 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+public class StatsResultsPane
+    extends JPanel
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    StatsTable                      table;
+    
+    private StatsResultsPaneMng     manager;
+    
+    public StatsResultsPane(ROIResultsMng mng, Object[][] data, Icon up, 
+                            Icon down)
     {
-        this.annotation = annotation;
+        manager = new StatsResultsPaneMng(this, mng);
+        table = new StatsTable(data, manager.getFieldsNames(), up, down);
+        buildGUI(new BottomBar(manager));
     }
     
-    public String getAnnotation() { return annotation; }
+    /** Build and lay out the GUI. */
+    private void buildGUI(BottomBar bar)
+    {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        add(new JScrollPane(table));
+        add(bar);
+    }
     
 }

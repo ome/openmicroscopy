@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.ChangeIAT
+ * org.openmicroscopy.shoola.agents.roi.pane.AnalysisSelectionPaneMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,9 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
-
-
+package org.openmicroscopy.shoola.agents.roi.pane;
 
 
 //Java imports
@@ -37,8 +35,6 @@ package org.openmicroscopy.shoola.agents.roi.events;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * 
@@ -54,20 +50,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class IATChanged
-    extends RequestEvent
+public class AnalysisSelectionPaneMng
 {
-    
-    private ImageAffineTransform imageAffineTransform;
-    
-    public IATChanged(ImageAffineTransform imageAffineTransform)
-    {
-        this.imageAffineTransform = imageAffineTransform;
-    }
-    
-    public ImageAffineTransform getAffineTransform()
-    {
-        return imageAffineTransform;
-    }
-    
+
 }

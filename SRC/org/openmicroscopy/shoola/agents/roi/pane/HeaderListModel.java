@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * ui.table.HeaderListModel
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,9 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.roi.pane;
+
+import javax.swing.AbstractListModel;
 
 
 //Java imports
@@ -35,7 +37,6 @@ package org.openmicroscopy.shoola.agents.roi.events;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * 
@@ -51,17 +52,21 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+public class HeaderListModel
+    extends AbstractListModel
 {
 
-    private String annotation;
+    private String[] headers;
     
-    public AnnotateROI(String annotation)
+    public HeaderListModel(int n)
     {
-        this.annotation = annotation;
+        headers = new String[n];
+        for (int i = 0; i < n; i++) 
+            headers[i] = ""+(n-i-1);
     }
     
-    public String getAnnotation() { return annotation; }
+    public int getSize(){ return headers.length; }
+    
+    public Object getElementAt(int index) { return headers[index]; }
     
 }

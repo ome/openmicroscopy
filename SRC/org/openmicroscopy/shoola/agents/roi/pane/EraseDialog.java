@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.pane.EraseDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
-
+package org.openmicroscopy.shoola.agents.roi.pane;
 
 //Java imports
+import javax.swing.Icon;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.util.ui.OptionsDialog;
 
 /** 
  * 
@@ -51,17 +52,24 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+class EraseDialog
+    extends OptionsDialog
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    private static final String     TITLE = "Erase 5D-selection";
+    
+    private static final String     MESSAGE = "Do you really want to erase " +
+            "the selected 5D-selection?";
+    
+    private ToolBarMng              manager;
+    
+    EraseDialog(ToolBarMng manager, JFrame owner, Icon i)
     {
-        this.annotation = annotation;
+        super(owner, TITLE, MESSAGE, i);
+        this.manager = manager;
     }
     
-    public String getAnnotation() { return annotation; }
+    /** Overrides the {@link #onYesSelection() onYesSelection} method. */
+    protected void onYesSelection() { manager.eraseROI(); }
     
 }

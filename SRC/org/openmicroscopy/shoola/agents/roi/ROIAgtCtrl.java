@@ -31,19 +31,27 @@ package org.openmicroscopy.shoola.agents.roi;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvasMng;
-import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
+import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
+import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
 import org.openmicroscopy.shoola.agents.roi.editor.ROIEditor;
-import org.openmicroscopy.shoola.agents.roi.util.ROIStats;
-import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+import org.openmicroscopy.shoola.agents.roi.pane.AnalysisControlsMng;
+import org.openmicroscopy.shoola.agents.roi.pane.ToolBar;
+import org.openmicroscopy.shoola.agents.roi.pane.ToolBarMng;
+import org.openmicroscopy.shoola.agents.roi.results.ROIResults;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -62,18 +70,21 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 */
 public class ROIAgtCtrl
 {
-  
+
     private ROIAgt                  abstraction;
   
     private ROIAgtUIF               presentation;
     
     private DrawingCanvas           drawingCanvas;
     
-    private ImageAffineTransform    imgAffineTransform;
+    private String                  newName, newAnnotation;
+    
+    private Color                   newColor;
     
     ROIAgtCtrl(ROIAgt abstraction)
     {
         this.abstraction = abstraction;  
+        setDefaultsNew();
     }
   
     /** Attach a window listener. */
@@ -84,14 +95,303 @@ public class ROIAgtCtrl
         });
     }
 
-    void setDefault()
+    public BufferedImage getROIImage()
     {
-        drawingCanvas.getManager().setDefault();
+        BufferedImage roiImg = null;
+        int index = presentation.getToolBar().getSelectedIndex();
+        ScreenPlaneArea spa = drawingCanvas.getScreenPlaneArea(index);
+        if (spa != null) {
+            PlaneArea pa = spa.getPlaneArea();
+            if (pa != null) {
+                Rectangle r = pa.getBounds();
+                BufferedImage image = abstraction.getImageOnScreen();
+                if (image != null) //to be on the save-side, shouldn't happen
+                roiImg = image.getSubimage(r.x, r.y, r.width, r.height);
+            }
+        }
+        return roiImg;
     }
     
-    void setImageAffineTransform(ImageAffineTransform iat)
+    /** Invoke when resize or move. */
+    public void setROIThumbnail(int x, int y, int w, int h)
     {
-        imgAffineTransform = iat;
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        if (tbm.isViewerOn()) {
+            BufferedImage image = abstraction.getImageOnScreen();
+            if (image != null) //to be on the save-side, shouldn't happen
+                tbm.setROIImage(image.getSubimage(x, y, w, h));
+        }
+    }
+    
+    private void setROIThumbnail()
+    {
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        if (tbm.isViewerOn()) tbm.setROIImage(getROIImage());
+    }
+
+    /** Set the new shape selection for the current 5D-selection. */
+    public void setPlaneArea(PlaneArea pa)
+    {
+        int currentIndex = presentation.getToolBar().getSelectedIndex();
+        int z = getCurrentZ(), t = getCurrentT();
+        presentation.getToolBar().getManager().setCurrentPlane(z, t);
+        abstraction.setPlaneArea(pa, currentIndex);
+    }
+    
+    /** Get the shape selection of the current 5D-selection. */
+    public PlaneArea getPlaneArea(int z, int t)
+    {
+        int currentIndex = presentation.getToolBar().getSelectedIndex();
+        return abstraction.getPlaneArea(z, t, currentIndex);
+    }
+    
+    public int getCurrentZ() { return abstraction.getCurrentZ(); }
+    
+    public int getCurrentT() { return abstraction.getCurrentT(); }
+    
+    public ScreenROI getScreenROI()
+    {
+        int currentIndex = presentation.getToolBar().getSelectedIndex();
+        return abstraction.getScreenROI(currentIndex);
+    }
+    
+    /** ADD comments. */
+    public void setROI5DDescription(String name, String annotation, Color c)
+    {
+        newName = name;
+        newAnnotation = annotation;
+        newColor = c;
+    }
+
+    /** ADD comments. */
+    public void saveROI5DDescription(String name, String annotation, Color c)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        ScreenROI roi = abstraction.getScreenROI(index);
+        Color oldColor = roi.getAreaColor();
+        roi.setAnnotation(annotation);
+        roi.setName(name);
+        roi.setAreaColor(c);
+        if (oldColor != c) {
+            ScreenPlaneArea spa = drawingCanvas.getScreenPlaneArea(index);
+            spa.setAreaColor(c);
+            drawingCanvas.repaint();
+        }
+    }
+    
+    /** Create an ROI5D object and update the different views. */
+    public void createROI5D()
+    {
+        //Bring up the ROIEditor.
+        UIUtilities.centerAndShow(new ROIEditor(this, "", "", -1));
+        if (newColor != null && newName != null && newAnnotation != null) {
+            ToolBar tb = presentation.getToolBar();
+            int index = tb.getListModelSize();
+            abstraction.createScreenROI(index, newName, newAnnotation, 
+                                        newColor);
+            //create a ScreenObject.
+            drawingCanvas.addSPAToCanvas(
+                    new ScreenPlaneArea(index, null, newColor));
+            //update the view;
+            tb.addROI5D(index);
+            presentation.getAnalysisControls().addROI5D(index);
+            DrawingCanvasMng dcm = drawingCanvas.getManager();
+            dcm.setDefault(index, newColor, ROIAgtUIF.CONSTRUCTING);
+            presentation.getPaintingControls().paintButton(dcm.getShapeType());
+            newColor = null;
+            newName = null;
+            newAnnotation = null;
+        }
+    }
+    
+    /** Erase the current ROI5D object and update the different views. */
+    public void removeROI5D()
+    {
+        ToolBar tb = presentation.getToolBar();
+        int index = tb.getSelectedIndex();
+        tb.removeROI5D();
+        presentation.getAnalysisControls().removeROI5D(index);
+        //remove the dialog Assistant and ROIViewer.
+    }
+
+    public void showROIEditor()
+    {
+        ScreenROI roi = getScreenROI();
+        UIUtilities.centerAndShow(new ROIEditor(this, roi.getName(), 
+                roi.getAnnotation(), roi.getIndex())); 
+    }
+    
+    /** Draw or not the label. */
+    public void onOffText(boolean b)
+    {
+        drawingCanvas.setTextOnOff(b); 
+    }
+
+    public void displayROIDescription(int index)
+    {
+        abstraction.displayROIDescription(index);
+    }
+    
+    public void setSelectedIndex(int index)
+    {
+        //int curIndex = presentation.getToolBar().getSelectedIndex();
+        //if (curIndex != index) {
+        presentation.getToolBar().setSelectedROIIndex(index);
+        drawingCanvas.setSelectedIndex(index);
+        PlaneArea pa = getPlaneArea(getCurrentZ(), getCurrentT());
+        ScreenROI roi = getScreenROI();
+        int state = ROIAgtUIF.NOT_ACTIVE_STATE;
+        if (pa == null) state =  ROIAgtUIF.CONSTRUCTING;
+        drawingCanvas.getManager().setDefault(roi.getIndex(), 
+                roi.getAreaColor(), state);
+        //}
+    }
+    
+    /** Erase all the {@link PlaneArea planeAreas}. */
+    public void removeAllPlaneAreas()
+    {
+        abstraction.removeAllPlaneAreas();
+        drawingCanvas.clearPreviousView();
+        drawingCanvas.repaint();
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        tbm.removeCurrentPlane(getCurrentZ(), getCurrentT());
+        ScreenROI roi = getScreenROI();
+        drawingCanvas.getManager().setDefault(roi.getIndex(), 
+                roi.getAreaColor(), ROIAgtUIF.CONSTRUCTING);
+        setROIThumbnail();
+    }
+    
+    /** Erase the current {@link PlaneArea}, call by the paitingControls. */
+    public void removePlaneArea()
+    {
+        removePlaneArea(getCurrentZ(), getCurrentT());
+        ToolBarMng tbm = presentation.getToolBar().getManager();
+        tbm.removeCurrentPlane(getCurrentZ(), getCurrentT());
+    }
+    
+    /** Erase the current {@link PlaneArea}, call by the Assistant. */
+    public void removePlaneArea(int z, int t)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyPlaneArea(null, index, z, t);
+        if (z == getCurrentZ() && t == getCurrentT()) {
+            drawingCanvas.removeSPAFromCanvas(index);
+            drawingCanvas.repaint();
+            ScreenROI roi = getScreenROI();
+            drawingCanvas.getManager().setDefault(roi.getIndex(), 
+                    roi.getAreaColor(), ROIAgtUIF.CONSTRUCTING);
+            setROIThumbnail();
+        }
+    }
+    
+    public void copyPlaneArea(PlaneArea pa, int newZ, int newT)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyPlaneArea(pa, index, newZ, newT);
+        if (newT == getCurrentT() && newZ == getCurrentZ()) {
+            PlaneArea p = abstraction.getPlaneArea(newZ, newT, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
+    public void copyAcrossZ(PlaneArea pa, int from, int to, int t)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyAcrossZ(pa, index, from, to, t);
+        //Need to refresh the view.
+        int z = getCurrentZ();
+        if (t == getCurrentT() && (z >= from || z <= to)) {
+            PlaneArea p = abstraction.getPlaneArea(z, t, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
+    public void copyAcrossT(PlaneArea pa, int from, int to, int z)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyAcrossT(pa, index, from, to, z);
+        int t = getCurrentT();
+        if (z == getCurrentZ() && (t >= from || t <= to)) {
+            PlaneArea p = abstraction.getPlaneArea(z, t, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
+    public void copyStackAcrossT(int from, int to)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyStackAcrossT(index, from, to);
+        int t = getCurrentT();
+        if (t >= from || t <= to) {
+            PlaneArea p = abstraction.getPlaneArea(getCurrentZ(), t, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
+    public void copyStack(int from, int to)
+    {
+        int index = presentation.getToolBar().getSelectedIndex();
+        abstraction.copyStack(index, from, to);
+        int t = getCurrentT();
+        if (t == from || t == to) {
+            PlaneArea p = abstraction.getPlaneArea(getCurrentZ(), t, index);
+            p.scale(abstraction.getMagFactor());
+            drawingCanvas.setPlaneArea(p, index);
+        }
+    }
+    
+    /** 
+     * Return the buffered image dispplayed in the 
+     * {@link org.openmicroscopy.shoola.agents.viewer.Viewer}. 
+     */
+    public BufferedImage getImageOnScreen()
+    {
+        return abstraction.getImageOnScreen();
+    }
+    
+    /** Repaint the {@link PlaneArea}s */
+    void magnifyScreenROIs(double f)
+    {
+        drawingCanvas.magnifyPlaneAreas(f);
+        setROIThumbnail();
+    }
+    
+    /** Paint screen ROI on screen only invoke when a new Image is rendered. */
+    void paintScreenROIs(int currentZ, int currentT, double magFactor)
+    {
+        //clear previous view
+        drawingCanvas.clearPreviousView();
+        int index = presentation.getToolBar().getSelectedIndex(); 
+        Iterator i = abstraction.getListScreenROI().values().iterator();
+        ScreenROI roi;
+        PlaneArea pa;
+        ScreenPlaneArea spa;
+        while (i.hasNext()) {
+            roi = (ScreenROI) i.next();
+            pa = roi.getLogicalROI().getPlaneArea(currentZ, currentT);
+            if (pa != null) {
+                pa.scale(magFactor);
+                spa = drawingCanvas.getScreenPlaneArea(roi.getIndex());
+                spa.setPlaneArea(pa);
+            } else {
+                //We have a 4D-ROI but no planeArea
+                if (index == roi.getIndex())
+                    drawingCanvas.getManager().setDefault(index, 
+                            roi.getAreaColor(), ROIAgtUIF.CONSTRUCTING);
+            }
+        }
+        drawingCanvas.repaint();
+        setROIThumbnail();
+    } 
+
+    private void paintScreenROIs()
+    {
+        paintScreenROIs(getCurrentZ(), getCurrentT(), 
+                abstraction.getMagFactor());
     }
     
     void setPresentation(ROIAgtUIF presentation)
@@ -106,102 +406,51 @@ public class ROIAgtCtrl
         drawingCanvas.getManager().setControl(this);
     }
     
-    void repaintDrawingCanvas() 
-    {
-        drawingCanvas.repaint();
-    }
-    
     DrawingCanvas getDrawingCanvas() { return drawingCanvas; }
     
     public ROIAgtUIF getReferenceFrame() { return presentation; }
     
     public Registry getRegistry() { return abstraction.getRegistry(); }
-    
-    public ImageAffineTransform getImageAffineTransform()
-    { 
-        return imgAffineTransform;
-    }
-    
+
     public String[] getChannels()
     {
         return abstraction.getChannels();
     }
-    
+
     public void setType(int type)
     {    
         drawingCanvas.getManager().setType(type);
     }
-  
-    public void setLineColor(Color lineColor)
-    {
-        drawingCanvas.getManager().setLineColor(lineColor);
-    }
-    
-    public void setChannelIndex(int index)
-    {
-        drawingCanvas.getManager().setChannelIndex(index);
-    }
-    
-    /** Erase all shapes. */
-    public void eraseAll()
-    {
-        drawingCanvas.getManager().eraseAll();
-        setAnnotation(null);
-    }
-  
-    public void undoErase() 
-    {
-        drawingCanvas.getManager().undoErase();
-    }
-    
-    /** Erase the current shape. */
-    public void erase()
-    {
-        DrawingCanvasMng mng = drawingCanvas.getManager();
-        ROIShape roi = mng.getCurrentROI();
-        if (roi != null && roi.getAnnotation() != null && 
-                mng.isAnnotationOnOff()) {
-            setAnnotation(null);
-        }
-        if (roi != null) mng.erase(); 
-    }
     
     /** Draw or not the ROI selections. */
     public void onOffDrawing(boolean b) { abstraction.onOffDrawing(b); }
-    
-    /** Draw or not the label. */
-    public void onOffText(boolean b)
+
+    /** Analyse data. */
+    public void analyseStats()
     {
-        drawingCanvas.getManager().setTextOnOff(b); 
+        /*
+        AnalysisControlsMng
+            mng = presentation.getAnalysisControls().getManager();
+        List selectedChannels = mng.getSelectedChannels();
+        List selectedROI = abstraction.getListROI();
+        if (selectedChannels.size() != 0 && selectedROI.size() != 0) 
+            retrieveAnalyseContext(mng, selectedROI);
+        else {
+            String msg = "No ROI selected.";
+            if (selectedChannels.size() == 0) msg = "No channel selected.";
+            if (selectedChannels.size() == 0 && selectedROI.size() == 0)
+                msg = "No channel and ROI selected.";
+            UserNotifier un = getRegistry().getUserNotifier();
+            un.notifyInfo("Invalid selection", msg);   
+        }  
+        */
     }
     
-    public boolean isOnOffAnnotation() 
-    {
-        return drawingCanvas.getManager().isAnnotationOnOff();
-    }
-    
-    public void onOffAnnotation(boolean b)
-    {
-        drawingCanvas.getManager().setAnnotationOnOff(b); 
-        if (!b) setAnnotation(null);
-    }
-    
-    /** Bring up the editor modal widget. */
-    public void annotateROI(ROIShape roi)
-    {
-        UIUtilities.centerAndShow(new ROIEditor(this, roi));
-    }
-    
-    /** Set the text of the annotation. */
-    public void setAnnotation(String txt)
-    {
-        abstraction.setAnnotation(txt);
-    }
-    
-    public void analyse()
+    private void retrieveAnalyseContext(AnalysisControlsMng mng, 
+                                        List selectedROI)
     {
         //Test
-        UIUtilities.centerAndShow(new ROIStats(this, abstraction.getRegistry()));
+        UIUtilities.centerAndShow(new ROIResults(this, abstraction.getRegistry()));
         //need to retrieveROI from canvas
     }
     
@@ -220,8 +469,14 @@ public class ROIAgtCtrl
     private void onClosing()
     {
         abstraction.onOffDrawing(false);
-        abstraction.setDrawOnOff(true);
         presentation.dispose();
+    }
+    
+    private void setDefaultsNew()
+    {
+        newName = null;
+        newAnnotation = null;
+        newColor = null;
     }
     
 }

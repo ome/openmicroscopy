@@ -35,7 +35,6 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 
 //Third-party libraries
 
@@ -57,7 +56,7 @@ import org.openmicroscopy.shoola.agents.roi.ROIFactory;
  * </small>
  * @since OME2.2
  */
-class ControlsManager
+class PaintingControlsMng
     implements ActionListener
 {
     
@@ -67,41 +66,25 @@ class ControlsManager
     /** Action command ID for the eraseALL button. */
     static final int            ERASE_ALL = 1;
     
-    /** Action ID to restore the last erased shapes. */
-    static final int            UNDO_ERASE = 2;
-    
     /** Action command ID for the rectangle button. */
-    private static final int    RECTANGLE = 3;
+    private static final int    RECTANGLE = 2;
     
     /** Action command ID for the ellipse button. */
-    private static final int    ELLIPSE = 4;
-    
-    /** Action command ID for the analyse button. */
-    private static final int    ANALYSE = 5;
+    private static final int    ELLIPSE = 3;
     
     /** Action command ID for the checkBox. */
-    private static final int    TEXT_ON_OFF = 6;
-    
-    /** Action command ID for the checkBox. */
-    private static final int    ANNOTATION_ON_OFF = 7;
-    
-    /** Action command ID for the checkBox. */
-    private static final int    COLOR = 8;
-    
-    /** Action command ID for the checkBox. */
-    private static final int    CHANNEL = 9;
-
+    private static final int    TEXT_ON_OFF = 4;
+   
     private ROIAgtCtrl          control;
     
-    private Controls             view;
+    private PaintingControls    view;
     
-    ControlsManager(Controls view, ROIAgtCtrl control)
+    PaintingControlsMng(PaintingControls view, ROIAgtCtrl control)
     {
         this.view = view;
         this.control = control;
-        //attachListeners();
     }
-    
+
     /** Attach listener to a menu Item. */
     void attachItemListener(AbstractButton item, int id)
     {
@@ -112,30 +95,23 @@ class ControlsManager
     /** Attach listeners to buttons, comboBox and checkbox. */
     void attachListeners()
     {
-        JButton rectangle = view.getRectangle(), ellipse = view.getEllipse(),
-                analyze = view.getAnalyse();
-        rectangle.setActionCommand(""+RECTANGLE);
-        rectangle.addActionListener(this);
-        ellipse.setActionCommand(""+ELLIPSE);
-        ellipse.addActionListener(this); 
-        analyze.setActionCommand(""+ANALYSE);
-        analyze.addActionListener(this);
-        //ComboBox
-        JComboBox colorsBox = view.getColors(), 
-                channelsBox = view.getChannels();
-        colorsBox.addActionListener(this);
-        colorsBox.setActionCommand(""+COLOR);
-        channelsBox.addActionListener(this);
-        channelsBox.setActionCommand(""+CHANNEL);
-        //Box
-        JCheckBox  textOnOff = view.getTextOnOff(), 
-                    annotationOnOff = view.getAnnotationOnOff();
-        textOnOff.addActionListener(this);
-        textOnOff.setActionCommand(""+TEXT_ON_OFF);
-        annotationOnOff.addActionListener(this);
-        annotationOnOff.setActionCommand(""+ANNOTATION_ON_OFF);
+        attachButtonListener(view.rectangle, RECTANGLE);
+        attachButtonListener(view.ellipse, ELLIPSE);
+        attachCheckBoxListener(view.textOnOff, TEXT_ON_OFF);
     }
 
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this);
+    }
+    
+    private void attachCheckBoxListener(JCheckBox box, int id)
+    {
+        box.addActionListener(this);
+        box.setActionCommand(""+id);
+    }
+    
     /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
@@ -143,41 +119,19 @@ class ControlsManager
         try {
             switch (index) {
                 case RECTANGLE:
-                    setType(ROIFactory.RECTANGLE, true); break;
+                    setType(ROIFactory.RECTANGLE); break;
                 case ELLIPSE:
-                    setType(ROIFactory.ELLIPSE, false); break;
+                    setType(ROIFactory.ELLIPSE); break;
                 case ERASE:
-                    control.erase(); break;
+                    control.removePlaneArea(); break;
                 case ERASE_ALL:
-                    control.eraseAll(); break;
+                    control.removeAllPlaneAreas(); break;
                 case TEXT_ON_OFF:
-                    handleOnOffText(e); break;
-                case ANNOTATION_ON_OFF:
-                    handleOnOffAnnotation(e); break;    
-                case COLOR:
-                    handleColor(e); break;
-                case CHANNEL:
-                    handleChannel(e); break;
-                case ANALYSE:
-                    control.analyse(); break;
-                case UNDO_ERASE:
-                    control.undoErase();
+                    handleOnOffText(e); break;   
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }
-    }
-    
-    private void handleChannel(ActionEvent e)
-    {
-        JComboBox box = (JComboBox) e.getSource();
-        control.setChannelIndex(box.getSelectedIndex());
-    }
-    
-    private void handleColor(ActionEvent e)
-    {
-        JComboBox box = (JComboBox) e.getSource();
-        control.setLineColor(view.getColorSelected(box.getSelectedIndex()));
     }
     
     private void handleOnOffText(ActionEvent e)
@@ -186,22 +140,10 @@ class ControlsManager
         control.onOffText(box.isSelected());
     }
     
-    private void handleOnOffAnnotation(ActionEvent e)
+    private void setType(int type)
     {
-        JCheckBox box = (JCheckBox) e.getSource();
-        control.onOffAnnotation(box.isSelected());
-    }
-    
-    private void setType(int type, boolean b)
-    {
-        paintedDrawingButtons(b);
+        view.paintButton(type);
         control.setType(type);
     }
-    
-    private void paintedDrawingButtons(boolean b)
-    {
-       view.getRectangle().setBorderPainted(b);
-       view.getEllipse().setBorderPainted(!b);
-    }
-    
+
 }

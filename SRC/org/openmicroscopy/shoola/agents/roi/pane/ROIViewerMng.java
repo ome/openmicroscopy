@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.editor.ROIEditorMng
+ * org.openmicroscopy.shoola.agents.roi.pane.ROIViewerMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,18 +27,18 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.editor;
+package org.openmicroscopy.shoola.agents.roi.pane;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 //Third-party libraries
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
+//Application-internal dependencies;
 
 /** 
  * 
@@ -54,81 +54,91 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
  * </small>
  * @since OME2.2
  */
-class ROIEditorMng
+public class ROIViewerMng
     implements ActionListener
 {
+    /** Constant to fix the magFactor for the Lens. */
+    public static final double      MIN_MAG = 1.0;
     
-    /** Action commands ID. */
-    private static final int SAVE = 0, CANCEL = 1;
+    /** Action ID. */
+    private static final int        MAG_PLUS = 0, MAG_MINUS = 1, 
+                                    MAG_FIT = 2;
     
-    private ROIEditor       view;
+    private static final double     incrementMag = 0.5;
     
-    private ROIAgtCtrl      control;
+    private ROIViewer               view;
     
-    private int             index;
+    private double                  factor;
     
-    ROIEditorMng(ROIEditor view, ROIAgtCtrl control, int index)
+    
+    public ROIViewerMng(ROIViewer view)
     {
         this.view = view;
-        this.control = control;
-        this.index = index;
+        factor = MIN_MAG;
         attachListeners();
     }
-    
-    /** Attach the listeners. */
-    void attachListeners()
+
+    public Rectangle getViewportBounds() 
     {
-        attachButtonsListener(view.save, SAVE);
-        attachButtonsListener(view.cancel, CANCEL);
+        return view.scrollPane.getViewportBorderBounds();
     }
     
-    private void attachButtonsListener(JButton button, int id)
+    public double getFactor() { return factor; }
+    
+    private void attachListeners()
+    {
+        attachButtonListener(view.magPlus, MAG_PLUS);
+        attachButtonListener(view.magMinus, MAG_MINUS);
+        attachButtonListener(view.magFit, MAG_FIT);
+    }
+    
+    private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
     }
-    
+
     /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
         int index = Integer.parseInt(e.getActionCommand());
         try {
-            switch (index) { 
-                case SAVE:
-                    save(); break;
-                case CANCEL:
-                    cancel(); break;
+            switch (index) {
+                case MAG_PLUS:
+                    incrementMagFactor(); break;
+                case MAG_MINUS:
+                    decrementMagFactor(); break;
+                case MAG_FIT:
+                    resetMagFactor();     
             }
-        } catch(NumberFormatException nfe) {
-            throw new Error("Invalid Action ID "+index, nfe);
-        } 
-    }
-
-    /** Save the annotation. */
-    private void save()
-    {
-        int i = view.colors.getSelectedIndex();
-        if (index == -1)
-            control.setROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        else
-            control.saveROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        closeWidget();
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
+        }
     }
     
-    /** Close the window. */
-    private void cancel()
+    private void resetMagFactor()
     {
-        view.setVisible(false);
-        view.dispose();
+        factor = MIN_MAG;
+        magnify();
+    }
+    private void incrementMagFactor()
+    {
+        factor += incrementMag; 
+        magnify();
     }
     
-    /** Dispose and close. */
-    private void closeWidget()
+    private void decrementMagFactor()
     {
-        view.setVisible(false);
-        view.dispose();
+        factor -= incrementMag;
+        if (factor < MIN_MAG) factor = MIN_MAG;
+        magnify();
+    }
+    
+    private void magnify()
+    {
+        view.magnify(factor);
+        String s = ""+(int)(factor*100)+"%";
+        view.magText.setText(s);
     }
     
 }

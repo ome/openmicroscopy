@@ -107,33 +107,17 @@ public class ToolBarManager
     void attachListeners()
     {
         //textfield
-        JTextField tField = view.getTField(), zField = view.getZField();
-        tField.setActionCommand(""+T_FIELD_CMD);  
-        tField.addActionListener(this);
-        tField.addFocusListener(this);
-        zField.setActionCommand(""+Z_FIELD_CMD);  
-        zField.addActionListener(this);
-        zField.addFocusListener(this);
-    
+        attachFieldListener(view.getTField(), T_FIELD_CMD);
+        attachFieldListener(view.getZField(), Z_FIELD_CMD);
         //button
-        JButton render = view.getRender(), inspector = view.getInspector(),
-                saveAs = view.getSaveAs(), viewer3D = view.getViewer3D(),
-                movie = view.getMovie(), roi = view.getROI();
-        
-        movie.setActionCommand(""+MOVIE_CMD);
-        movie.addActionListener(this);  
-        render.setActionCommand(""+RENDER_CMD);
-        render.addActionListener(this);
-        inspector.setActionCommand(""+INSPECTOR_CMD);
-        inspector.addActionListener(this);
-        saveAs.setActionCommand(""+SAVEAS_CMD);
-        saveAs.addActionListener(this);
-        viewer3D.setActionCommand(""+VIEWER3D_CMD);
-        viewer3D.addActionListener(this);
-        roi.setActionCommand(""+ROI_CMD);
-        roi.addActionListener(this);
+        attachButtonListener(view.getMovie(), MOVIE_CMD);
+        attachButtonListener(view.getRender(), RENDER_CMD);
+        attachButtonListener(view.getInspector(), INSPECTOR_CMD);
+        attachButtonListener(view.getSaveAs(), SAVEAS_CMD);
+        attachButtonListener(view.getViewer3D(), VIEWER3D_CMD);
+        attachButtonListener(view.getROI(), ROI_CMD);
     }
-
+    
     public void setMaxZ(int z) { maxZ = z; }
     
     public void setMaxT(int t) { maxT = t; }
@@ -150,6 +134,21 @@ public class ToolBarManager
     {
         curZ = z;
         view.getZField().setText(""+z);
+    }
+    
+    /** Attach listener and setActionCommand to a JTextField. */
+    private void attachFieldListener(JTextField field, int id)
+    {
+        field.setActionCommand(""+id);  
+        field.addActionListener(this);
+        field.addFocusListener(this);
+    }
+    
+    /** Attach listener and setActionCommand to a JButton.*/
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.setActionCommand(""+id);
+        button.addActionListener(this);  
     }
     
     /** 
@@ -223,7 +222,7 @@ public class ToolBarManager
                 case MOVIE_CMD:
                     control.showMovie(); break; 
                 case ROI_CMD:
-                    control.showROI(); break;
+                    control.showROI();
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.editor.ROIEditorMng
+ * org.openmicroscopy.shoola.agents.roi.results.pane.BottomBarMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,18 +27,17 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.editor;
-
+package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
+
+import javax.swing.JRadioButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 
 /** 
  * 
@@ -54,81 +53,67 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
  * </small>
  * @since OME2.2
  */
-class ROIEditorMng
+class BottomBarMng
     implements ActionListener
 {
     
-    /** Action commands ID. */
-    private static final int SAVE = 0, CANCEL = 1;
+    /** Action ID, aggregate on Z. */
+    private static final int        Z = 0;
     
-    private ROIEditor       view;
+    /** Action ID, aggregate on T. */
+    private static final int        T = 1;
     
-    private ROIAgtCtrl      control;
+    /** Action ID, aggregate on Z and T. */
+    private static final int        ZT = 2;
     
-    private int             index;
+    /** Action ID, display results for both Z and T. */
+    private static final int        ZANDT = 3;
     
-    ROIEditorMng(ROIEditor view, ROIAgtCtrl control, int index)
+    private BottomBar               view;
+    
+    private StatsResultsPaneMng     mng;
+    
+    BottomBarMng(BottomBar view, StatsResultsPaneMng mng)
     {
         this.view = view;
-        this.control = control;
-        this.index = index;
+        this.mng = mng;
         attachListeners();
     }
     
-    /** Attach the listeners. */
-    void attachListeners()
+    /** Attach Listeners. */
+    private void attachListeners()
     {
-        attachButtonsListener(view.save, SAVE);
-        attachButtonsListener(view.cancel, CANCEL);
+        attachButtonListeners(view.zButton, Z);
+        attachButtonListeners(view.tButton, T);
+        attachButtonListeners(view.ztButton, ZT);
+        attachButtonListeners(view.zAndtButton, ZANDT);
     }
-    
-    private void attachButtonsListener(JButton button, int id)
+
+    /** Attach a {@link ActionListener listener} to a button. */
+    private void attachButtonListeners(JRadioButton button, int id)
     {
         button.addActionListener(this);
-        button.setActionCommand(""+id);
+        button.setActionCommand(""+id); 
     }
     
-    /** Handle events fired by buttons. */
+    /** Handle radioButton events. */
     public void actionPerformed(ActionEvent e)
     {
         int index = Integer.parseInt(e.getActionCommand());
         try {
-            switch (index) { 
-                case SAVE:
-                    save(); break;
-                case CANCEL:
-                    cancel(); break;
+            switch (index) {
+                case Z:
+                    mng.aggregateOnZ(); break;
+                case T:
+                    mng.aggregateOnT(); break;
+                case ZT:
+                    mng.aggregateOnZAndT(); break;
+                case ZANDT:
+                    mng.displayZandT();
             }
-        } catch(NumberFormatException nfe) {
-            throw new Error("Invalid Action ID "+index, nfe);
-        } 
-    }
-
-    /** Save the annotation. */
-    private void save()
-    {
-        int i = view.colors.getSelectedIndex();
-        if (index == -1)
-            control.setROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        else
-            control.saveROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        closeWidget();
-    }
-    
-    /** Close the window. */
-    private void cancel()
-    {
-        view.setVisible(false);
-        view.dispose();
-    }
-    
-    /** Dispose and close. */
-    private void closeWidget()
-    {
-        view.setVisible(false);
-        view.dispose();
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
+        }   
     }
     
 }

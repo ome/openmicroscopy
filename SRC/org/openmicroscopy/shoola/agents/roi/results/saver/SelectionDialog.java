@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.results.util.SelectionDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.roi.results.saver;
 
 
 //Java imports
+import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.util.ui.OptionsDialog;
 
 /** 
  * 
@@ -51,17 +52,36 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+class SelectionDialog
+    extends OptionsDialog
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    /** Reference to the manager. */                         
+    private ROISaverMng        manager;
+
+    protected String                format, fileName, message;
+    
+    SelectionDialog (ROISaverMng manager, String format, 
+                        String fileName, String message, Icon messageIcon) 
     {
-        this.annotation = annotation;
+        super(manager.getView(), ROISaver.TITLE, ROISaver.MESSAGE, 
+                messageIcon);
+        this.manager = manager;
+        this.format = format;
+        this.fileName = fileName;
+        this.message = message;
+    }
+
+    /** overrides the {@link #onNoSelection() onNoSelection} method. */
+    protected void onNoSelection() { manager.setDisplay(true); }
+    
+    /** overrides the {@link #onYesSelection() onYesSelection} method. */
+    protected void onYesSelection()
+    {
+        manager.setDisplay(false);
+        manager.saveROIResult(format, fileName, message);
+        manager.disposeView();
     }
     
-    public String getAnnotation() { return annotation; }
-    
 }
+

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.defs.ROIStats
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,9 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.roi.defs;
+
+import java.util.List;
 
 
 //Java imports
@@ -35,7 +37,6 @@ package org.openmicroscopy.shoola.agents.roi.events;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * 
@@ -51,17 +52,32 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+public class ROIStats
 {
-
-    private String annotation;
+    /** Number associated to the selection. */
+    private int         index;
     
-    public AnnotateROI(String annotation)
+    private String      annotation;
+    
+    private Object[][]  data;
+
+    private String[]    channels;
+
+    public ROIStats(int index, String annotation, String[] channels)
     {
+        this.index = index;
         this.annotation = annotation;
+        this.channels = channels;
     }
     
+    public int getIndex() { return index; }
+    
     public String getAnnotation() { return annotation; }
+    
+    public void setData(Object[][] l) { data = l; }
+    
+    public Object[][] getData() { return data; }
+    
+    public String[] getChannels() { return channels; }
     
 }

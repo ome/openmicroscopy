@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,21 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
-
+package org.openmicroscopy.shoola.agents.roi.results;
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.roi.results.pane.ResultsPerROIPane;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+
 
 /** 
  * 
@@ -51,17 +57,49 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+public class ROIResultsMng
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    private ROIResults          view;
+    
+    private int                 algorithmIndex;
+    
+    public ROIResultsMng(ROIResults view)
     {
-        this.annotation = annotation;
+        this.view = view;
+        attachListeners();
+    }
+
+    public void setAlgorithmIndex(int index) 
+    {
+        algorithmIndex = index;
+        //MUST BE ONE OF THE INDEX DEFINED IN ROIAgtUIF
     }
     
-    public String getAnnotation() { return annotation; }
+    public String[] getChannels() { return null; }
+    
+    /** Handle the close event. */
+    public void handleClose()
+    {
+        view.setVisible(false);
+        view.dispose();
+    }
+    
+    public void channelSelectedForROI(int viewIndex, int channelIndex)
+    {
+        ResultsPerROIPane 
+            roiPane = (ResultsPerROIPane) view.roiPaneList.get(viewIndex);
+        // retrieve data according channelIndex and algoIndex
+    }
+    
+    /** Attach listeners. */
+    private void attachListeners()
+    {
+        view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { handleClose(); }
+        });
+    }
+    
+    
     
 }

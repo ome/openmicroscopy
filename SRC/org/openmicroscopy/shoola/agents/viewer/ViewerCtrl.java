@@ -103,7 +103,7 @@ public class ViewerCtrl
     private JSlider                 tSlider, zSlider;
     
     /** zooming factor. */
-    private double                  magFactor;
+    //private double                  magFactor;
     
     /** Drawing area for the purpose of the ROI. */
     private Rectangle               drawingArea;
@@ -121,21 +121,20 @@ public class ViewerCtrl
     
     private Player                  moviePlayer;
 
-    private ImageInspector         imageInspector;
+    private ImageInspector          imageInspector;
     
-    private Viewer                 abstraction;
+    private Viewer                  abstraction;
     
-    private ViewerUIF              presentation;
+    private ViewerUIF               presentation;
     
-    private ProgressNotifier       progressNotifier;
+    private ProgressNotifier        progressNotifier;
     
     public ViewerCtrl(Viewer abstraction)
     {
         this.abstraction = abstraction;
-        magFactor = ImageInspector.ZOOM_DEFAULT;
         drawingArea = new Rectangle();
         iat = new ImageAffineTransform();
-        iat.setMagFactor(magFactor);
+        iat.setMagFactor(ImageInspector.ZOOM_DEFAULT);
     }
     
     void setPresentation(ViewerUIF presentation)
@@ -152,7 +151,7 @@ public class ViewerCtrl
         moviePlayer = null;
         imageInspector = null;
         movieSettings = null;
-        magFactor = ImageInspector.ZOOM_DEFAULT;
+        iat.setMagFactor(ImageInspector.ZOOM_DEFAULT);
         //Need to remove the drawing canvas. and erase all color.
         // will post an even to kill the ROIAgt.
     }
@@ -383,7 +382,7 @@ public class ViewerCtrl
     {
         if (imageInspector == null)
             imageInspector = new ImageInspector(this, presentation.getCanvas(), 
-                             magFactor, abstraction.getImageWidth(), 
+                             iat.getMagFactor(), abstraction.getImageWidth(), 
                              abstraction.getImageHeight());
         presentation.getCanvas().getManager().setClick(true);
         UIUtilities.centerAndShow(imageInspector);
@@ -418,13 +417,14 @@ public class ViewerCtrl
      * Value sets to {@link ImageInspector#DEFAULT_ZOOM} when a new 5Dimage is 
      * selected.
      */
-    public void setMagFactor(double v)
-    { 
-        magFactor = v;
-        iat.setMagFactor(v);
-        abstraction.affineTransformChanged(iat.copy());
+    public void imageDisplayedUpdated(BufferedImage img, double level)
+    {
+        iat.setMagFactor(level);
+        abstraction.imageDisplayedUpdated(iat, img);   
     }
-
+    
+    ImageAffineTransform getImageAffineTransform() { return iat; }
+    
     /** 
      * Cache the movie settings when the widget is closed.
      * Reset to <code>null</code> when a new image is selected.
@@ -483,9 +483,9 @@ public class ViewerCtrl
     {
         ImageCanvas canvas = presentation.getCanvas();
         canvas.filterImage(filter);
+        //abstraction.affineTransformChanged(iat.copy());
     }
 
-    
     public void undoFiltering() 
     {
         ImageCanvas canvas = presentation.getCanvas();

@@ -98,11 +98,35 @@ public class IconManager
     
     public static final int     ANNOTATE_BIG = 14;
     
+    public static final int     UP = 15;
+    
+    public static final int     DOWN = 16;
+    
+    public static final int     UNDO = 18;
+    
+    public static final int     CREATE_ROI = 19;
+    
+    public static final int     ASSISTANT = 20;
+    
+    public static final int     COPY = 21;
+    
+    public static final int     COPY_STACK = 22;
+    
+    public static final int     COPY_SEGMENT = 23;
+    
+    public static final int     ZOOM_IN = 24;
+    
+    public static final int     ZOOM_OUT = 25;
+    
+    public static final int     ZOOM_FIT = 26;
+    
+    public static final int     VIEWER = 27;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 14;
+    private static int          MAX_ID = 27;
   
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -122,6 +146,18 @@ public class IconManager
         relPaths[UNDO_ERASE] = "eclipse_clear_co16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[ANNOTATE_BIG] = "nuvola_template_source48.png";
+        relPaths[UP] = "nuvola_up16.png";
+        relPaths[DOWN] = "nuvola_down16.png";
+        relPaths[UNDO] = "nuvola_undo16.png";
+        relPaths[ASSISTANT] = "openOffice_stock_form-table-control-16.png";
+        relPaths[COPY] = "nuvola_editcopy16.png";
+        relPaths[COPY_STACK] = "openOffice_stock_3d-perspective-16.png";
+        relPaths[CREATE_ROI] = "nuvola_kpovmodeler16.png";
+        relPaths[COPY_SEGMENT] = "nuvola_editpaste16.png";
+        relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
+        relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
+        relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
+        relPaths[VIEWER] = "ome_eye16.png";
     }
       
     /** The sole instance. */

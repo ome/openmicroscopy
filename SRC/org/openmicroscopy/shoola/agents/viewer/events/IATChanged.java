@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.viewer.events.ChangeIAT
  *
  *------------------------------------------------------------------------------
  *
@@ -27,14 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
+package org.openmicroscopy.shoola.agents.viewer.events;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -51,17 +53,28 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
+public class IATChanged
     extends RequestEvent
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    private ImageAffineTransform    imageAffineTransform;
+    
+    private BufferedImage           imageDisplayed;
+    
+    public IATChanged(ImageAffineTransform imageAffineTransform, 
+                        BufferedImage img)
     {
-        this.annotation = annotation;
+        this.imageAffineTransform = imageAffineTransform;
+        imageDisplayed = img;
     }
     
-    public String getAnnotation() { return annotation; }
+    public ImageAffineTransform getAffineTransform()
+    {
+        return imageAffineTransform;
+    }
     
+    public BufferedImage getImageDisplayed() 
+    {
+        return imageDisplayed;
+    }
 }

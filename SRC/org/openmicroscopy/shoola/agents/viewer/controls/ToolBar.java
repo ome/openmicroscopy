@@ -48,7 +48,7 @@ import javax.swing.SwingConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
-import org.openmicroscopy.shoola.agents.viewer.Viewer;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -180,11 +180,11 @@ public class ToolBar
         tLabel = new JLabel("/"+maxT);
         tField = new JTextField(""+t, (""+maxT).length());
         tField.setEditable(maxT != 0);
-        tField.setForeground(Viewer.STEELBLUE);
+        tField.setForeground(ViewerUIF.STEELBLUE);
         tField.setToolTipText(
             UIUtilities.formatToolTipText("Enter a timepoint."));
         zField = new JTextField(""+z, (""+maxZ).length());
-        zField.setForeground(Viewer.STEELBLUE);
+        zField.setForeground(ViewerUIF.STEELBLUE);
         zField.setToolTipText(
             UIUtilities.formatToolTipText("Enter a Z point"));
         zField.setEditable(maxZ != 0);

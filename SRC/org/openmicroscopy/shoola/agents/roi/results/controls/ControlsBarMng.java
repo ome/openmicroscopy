@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.editor.ROIEditorMng
+ * org.openmicroscopy.shoola.agents.roi.results.controls.ControlsBarMng
  *
  *------------------------------------------------------------------------------
  *
@@ -27,18 +27,19 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.editor;
-
+package org.openmicroscopy.shoola.agents.roi.results.controls;
 
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
+
+import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
 
 /** 
  * 
@@ -54,81 +55,61 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtCtrl;
  * </small>
  * @since OME2.2
  */
-class ROIEditorMng
+class ControlsBarMng
     implements ActionListener
 {
     
-    /** Action commands ID. */
-    private static final int SAVE = 0, CANCEL = 1;
+    /** Action ID to close the window. */
+    private static final int    CLOSE = 0;
     
-    private ROIEditor       view;
+    /** Action ID to save the data. */
+    private static final int    SAVE = 1;
+
+    private ControlsBar         view;
     
-    private ROIAgtCtrl      control;
+    private ROIResultsMng       mng;
     
-    private int             index;
-    
-    ROIEditorMng(ROIEditor view, ROIAgtCtrl control, int index)
+    ControlsBarMng(ControlsBar view, ROIResultsMng mng)
     {
         this.view = view;
-        this.control = control;
-        this.index = index;
+        this.mng = mng;
         attachListeners();
     }
     
-    /** Attach the listeners. */
-    void attachListeners()
+    /** Attach listeners. */
+    private void attachListeners()
     {
-        attachButtonsListener(view.save, SAVE);
-        attachButtonsListener(view.cancel, CANCEL);
+        attachButtonListener(view.cancel, CLOSE);
+        attachButtonListener(view.save, SAVE);
     }
-    
-    private void attachButtonsListener(JButton button, int id)
+ 
+    /** Attach a listener to the specified button. */
+    private void attachButtonListener(JButton button, int id)
     {
-        button.addActionListener(this);
         button.setActionCommand(""+id);
+        button.addActionListener(this);
     }
     
-    /** Handle events fired by buttons. */
+    /** Handle events fired by JButtons and JComboBox. */
     public void actionPerformed(ActionEvent e)
     {
         int index = Integer.parseInt(e.getActionCommand());
         try {
-            switch (index) { 
+            switch (index) {
+                case CLOSE:
+                    mng.handleClose(); break;
                 case SAVE:
-                    save(); break;
-                case CANCEL:
-                    cancel(); break;
+                    handleSave(); break;
             }
-        } catch(NumberFormatException nfe) {
-            throw new Error("Invalid Action ID "+index, nfe);
-        } 
-    }
-
-    /** Save the annotation. */
-    private void save()
-    {
-        int i = view.colors.getSelectedIndex();
-        if (index == -1)
-            control.setROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        else
-            control.saveROI5DDescription(view.nameArea.getText(), 
-                    view.annotationArea.getText(), view.getColorSelected(i));
-        closeWidget();
+        } catch(NumberFormatException nfe) { 
+            throw new Error("Invalid Action ID "+index, nfe); 
+        }   
     }
     
-    /** Close the window. */
-    private void cancel()
+    /** Handle the save event. */
+    private void handleSave()
     {
-        view.setVisible(false);
-        view.dispose();
-    }
-    
-    /** Dispose and close. */
-    private void closeWidget()
-    {
-        view.setVisible(false);
-        view.dispose();
+        //UIUtilities.centerAndShow(new ROIStatsSaver(this, control));
     }
     
 }

@@ -32,14 +32,15 @@ package org.openmicroscopy.shoola.agents.roi;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.defs.ROISettings;
-import org.openmicroscopy.shoola.agents.roi.pane.Controls;
-import org.openmicroscopy.shoola.agents.roi.pane.SlidersPane;
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.agents.roi.pane.PaintingControls;
+import org.openmicroscopy.shoola.agents.roi.pane.AnalysisControls;
+import org.openmicroscopy.shoola.agents.roi.pane.ToolBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
@@ -60,26 +61,68 @@ public class ROIAgtUIF
     extends TopWindow
 {
 
-    private Controls        controls;
+    public static final int             NOT_ACTIVE_STATE = 0, MOVING = 1,
+                                        CONSTRUCTING = 2, RESIZING = 3;
     
-    private SlidersPane     slidersPane;
+    public static final Color           STEELBLUE = new Color(0x4682B4);
     
-    ROIAgtUIF(ROIAgtCtrl control, Registry registry, String imageName, int maxT,
-                int maxZ, ROISettings settings)
+    public static final int             INDEX_T = 0, INDEX_Z = 1, INDEX_ZT = 2;
+    
+    public static final Dimension       BOX = new Dimension(10, 16), 
+                                        HBOX = new Dimension(5, 0),
+                                        VBOX = new Dimension(0, 5),
+                                        DIM_SCROLL = new Dimension(40, 60);
+
+    public static final int             ROW_TABLE_HEIGHT = 40, 
+                                        ROW_NAME_FIELD = 25,
+                                        EDITOR_WIDTH = 300,
+                                        EDITOR_HEIGHT = 250,
+                                        COLUMN_WIDTH = 200;
+
+    public static final int             STATS = 0;
+    public static final int             TEST = 1;
+    public static final int             MAX = 1;
+    
+    public static final String[]        listAlgorithms;
+    
+    static {
+        listAlgorithms = new String[MAX+1];
+        listAlgorithms[STATS] = "Stats";
+        listAlgorithms[TEST] = "TEST";
+    }
+    
+    /** Reference to the painting panel. */
+    private PaintingControls        paintingControls;
+    
+    /** Reference to the analysisControls panel. */
+    private AnalysisControls        analysisControls;
+    
+    private ToolBar                 toolBar;
+    
+    ROIAgtUIF(ROIAgtCtrl control, String imageName, int maxT, int maxZ)
     {
         super("ROI "+imageName);
-        controls = new Controls(control, registry);
-        slidersPane = new SlidersPane(registry, maxT, maxZ, settings);
+        String[] data = {}; //TODO RETRIEVE FROM abstraction
+        toolBar = new ToolBar(control, maxT, maxZ, data);
+        paintingControls = new PaintingControls(control);
+        analysisControls = new AnalysisControls(control, data);
         buildGUI();
         pack();
     }
+    
+    ToolBar getToolBar() { return toolBar; }
+    
+    PaintingControls getPaintingControls() { return paintingControls; }
+    
+    AnalysisControls getAnalysisControls() { return analysisControls; }
     
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
         getContentPane().setLayout(new BorderLayout(0, 0));
-        getContentPane().add(controls, BorderLayout.NORTH); 
-        getContentPane().add(slidersPane, BorderLayout.CENTER); 
+        getContentPane().add(toolBar, BorderLayout.NORTH); 
+        getContentPane().add(paintingControls, BorderLayout.CENTER); 
+        getContentPane().add(analysisControls, BorderLayout.SOUTH); 
     }
 
 }

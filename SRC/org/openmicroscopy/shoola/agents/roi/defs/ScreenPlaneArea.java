@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.events.AnnotateROI
+ * org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea
  *
  *------------------------------------------------------------------------------
  *
@@ -27,15 +27,15 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.roi.events;
-
+package org.openmicroscopy.shoola.agents.roi.defs;
 
 //Java imports
+import java.awt.Color;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 /** 
  * 
@@ -51,17 +51,30 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class AnnotateROI
-    extends RequestEvent
+public class ScreenPlaneArea
 {
-
-    private String annotation;
     
-    public AnnotateROI(String annotation)
+    private int         index;
+    
+    private PlaneArea   planeArea;
+    
+    private Color       areaColor;
+    
+    public ScreenPlaneArea(int index, PlaneArea planeArea, Color areaColor)
     {
-        this.annotation = annotation;
+        this.index = index;
+        this.planeArea = planeArea;
+        this.areaColor = areaColor;
     }
     
-    public String getAnnotation() { return annotation; }
+    public int getIndex() { return index; }
+    
+    public PlaneArea getPlaneArea() { return planeArea; }
+    
+    public Color getAreaColor() { return areaColor; }
+
+    public void setPlaneArea(PlaneArea pa) { planeArea = pa; }
+    
+    public void setAreaColor(Color c) { areaColor = c; }
     
 }

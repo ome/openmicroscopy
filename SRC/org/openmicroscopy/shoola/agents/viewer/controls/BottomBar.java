@@ -60,7 +60,7 @@ public class BottomBar
     
     public static final int ANNOTATE = 0, EDIT = 1,  LENS = 2;
     
-    private static final String ROI_ANNOTATE = "Double click to annotate. ";
+    private static final String ROI_ANNOTATE = "ROI";
     
     private static final String ROI_EDIT = "Double click to edit. " ;
     

@@ -35,10 +35,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
@@ -46,9 +44,8 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.ROIFactory;
-import org.openmicroscopy.shoola.agents.roi.defs.ROIShape;
-
+import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 /** 
  * 
@@ -70,6 +67,8 @@ public class DrawingCanvas
 
     private static final int            ALPHA = 150;
     
+    private static final int            LENGTH = 6;
+    
     /** Basic stroke. */
     private static final BasicStroke    stroke = new BasicStroke(1.0f);
     private static final float          dash1[] = {3.0f};
@@ -77,134 +76,139 @@ public class DrawingCanvas
                                                       BasicStroke.CAP_SQUARE, 
                                                       BasicStroke.JOIN_MITER, 
                                                       3.0f, dash1, 0.0f);
-    
-    /** Color of the annotate square. */
-    private static final Color          squareColor = Color.LIGHT_GRAY;
-    
-    private Rectangle2D                 square;
-    
-    private static final int            LENGTH = 6;
 
     private DrawingCanvasMng            manager;
     
-    private Shape                       currentShape;
-    
     private boolean                     onOff, textOnOff;
     
-    /** Index of the ROI selected. */
-    private int                         indexSelected;
+    List                                listSPA;
     
-    private double                      magFactor;
+    /** Index of the ROI selected. */
+    int                                 indexSelected;
     
     public DrawingCanvas()
     {
         indexSelected = -1;
-        square = new Rectangle2D.Double(0, 0, LENGTH, LENGTH);
+        textOnOff = false;
+        listSPA = new ArrayList();
         manager = new DrawingCanvasMng(this);
     }
     
-    void setTextOnOff(boolean b) { textOnOff = b; }
-    
-    void setOnOff(boolean b) { onOff = b; }
-    
-    boolean getOnOff() { return onOff; }
-    
     public DrawingCanvasMng getManager() { return manager; }
     
-    /** Draw the specified shape on the canvas. */
-    void draw(Shape roi)
+    public void setOnOff(boolean b) { onOff = b; }
+    
+    public void setTextOnOff(boolean b)
     {
-        currentShape = roi;
-        indexSelected = -1;
+        textOnOff = b;
         repaint();
     }
-    
-    void moveAndDraw(Shape roi)
+
+    public void setSelectedIndex(int index)
     {
-        currentShape = roi;
-        repaint();
-    }
-    
-    void setIndexSelected(int index)
-    {
-        currentShape = null;
         indexSelected = index;
         repaint();
+    }
+    
+    public void addSPAToCanvas(ScreenPlaneArea spa)
+    {
+        listSPA.add(spa);
+    }
+    
+    public void removeSPAFromCanvas(int index)
+    {
+        ((ScreenPlaneArea) listSPA.get(index)).setPlaneArea(null);
+        repaint();
+    }
+    
+    public void clearPreviousView()
+    {
+        //listSPA.removeAll(listSPA);
+        Iterator i = listSPA.iterator();
+        ScreenPlaneArea spa;
+        while (i.hasNext()) {
+            spa = (ScreenPlaneArea) i.next();
+            spa.setPlaneArea(null);
+        }
+    }
+    
+    public ScreenPlaneArea getScreenPlaneArea(int index)
+    {
+        if (index >= listSPA.size() || index <0) return null;
+        return ((ScreenPlaneArea) listSPA.get(index));
+    }
+    
+    public void magnifyPlaneAreas(double f)
+    {
+        Iterator i = listSPA.iterator();
+        ScreenPlaneArea spa;
+        PlaneArea pa;
+        while (i.hasNext()) {
+            spa = (ScreenPlaneArea) i.next();
+            pa = spa.getPlaneArea();
+            if (pa != null) {
+                pa.scale(f);
+                spa.setPlaneArea(pa);
+            }
+        }
+        repaint();
+    }
+    
+    public void setPlaneArea(PlaneArea pa, int index)
+    {
+        ((ScreenPlaneArea) listSPA.get(index)).setPlaneArea(pa);
+        repaint();
+    }
+    
+    void setPlaneArea(PlaneArea pa)
+    {
+         ((ScreenPlaneArea) listSPA.get(indexSelected)).setPlaneArea(pa);
     }
     
     /** Erase selection, the current one or all. */
     void erase()
     {
-        currentShape = null;
         repaint();
     }
     
     /** Overrides the paintComponent method. */
     public void paintComponent(Graphics g)
     {
-        if (onOff) paintROI((Graphics2D) g);
-    }
-    
-    private void paintROI(Graphics2D g2D)
-    {
-        if (currentShape != null) {
-            g2D.setColor(manager.getLineColor());
-            g2D.draw(currentShape);
+        if (onOff) {
+            Graphics2D g2D = (Graphics2D) g;
+            if (manager.planeArea != null) {
+                g2D.setColor(manager.lineColor);
+                g2D.draw(manager.planeArea);
+            }
+            paintCollection(g2D);
         }
-        List l = manager.getListROI();
-        if (l.size()>0) paintROICollection(g2D, l);
     }
     
-    /** Paint the existing ROI if any. */
-    private void paintROICollection(Graphics2D g2D, List l)
+    /** Paint the existing {@link PlaneArea}s if any. */
+    private void paintCollection(Graphics2D g2D)
     {
-        Iterator i = l.iterator();
-        ROIShape roi;
-        Shape s;
+        Iterator i = listSPA.iterator();
+        ScreenPlaneArea spa;
+        PlaneArea pa;
         Rectangle r;
-        magFactor = manager.getCurrentImageAffineTransform().getMagFactor();
-        boolean onOff = manager.isAnnotationOnOff();
         while (i.hasNext()) {
-            roi = (ROIShape) i.next();
-            setShapeBounds(roi);
-            s = roi.getShape();
-            r = s.getBounds();
-            g2D.setStroke(dashed);
-            g2D.setColor(alphaColor(roi.getLineColor()));
-            if (roi.getIndex() == indexSelected) {
-                g2D.setStroke(stroke);
-                g2D.setColor(roi.getLineColor());
-            }
-            g2D.draw(s);
-            //draw label
-            if (textOnOff) {
-                Point p = ROIFactory.setLabelLocation(s, roi.getShapeType(), 
-                                                        LENGTH);
-                g2D.drawString(roi.getLabel(), p.x, p.y);
-            }
-            //draw square to indicate that the selection has been annotated.
-            if (roi.getAnnotation() != null && onOff) {
-                square.setRect(r.x-LENGTH/2, r.y+r.height/2-LENGTH/2, LENGTH,
-                        LENGTH);
-                g2D.setPaint(squareColor);
-                g2D.fill(square);
+            spa = (ScreenPlaneArea) i.next();
+            pa = spa.getPlaneArea();
+            if (pa != null) {
+                r = pa.getBounds();
+                g2D.setStroke(dashed);
+                g2D.setColor(alphaColor(spa.getAreaColor()));
+                if (spa.getIndex() == indexSelected) {
+                    g2D.setStroke(stroke);
+                    g2D.setColor(spa.getAreaColor());
+                }
+                g2D.draw(pa);
+                //draw label
+                if (textOnOff)
+                    g2D.drawString("#"+spa.getIndex(),  r.x-LENGTH/2, 
+                            r.y-LENGTH/2);
             }
         }
-    }
-    
-    /** Set the bounds of the shape according to the magFactor. */
-    private void setShapeBounds(ROIShape roi)
-    {
-        Shape shape = roi.getShape();
-        Rectangle r = shape.getBounds();
-        double factor = roi.getAffineTransform().getMagFactor();
-        int shapeType = roi.getShapeType();
-        double coeff = magFactor/factor;
-        ROIFactory.setShapeBounds(shape, shapeType, (int) (r.x*coeff), 
-                                (int) (r.y*coeff), (int) (r.width*coeff), 
-                                (int) (r.height*coeff));
-        roi.getAffineTransform().setMagFactor(magFactor);
-        roi.setShape(shape);
     }
     
     /** Add an alpha component to the selected color. */
