@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.classifier.events.LoadCategories
+ * org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged
  *
  *------------------------------------------------------------------------------
  *
@@ -36,38 +36,39 @@
 package org.openmicroscopy.shoola.agents.classifier.events;
 
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /**
+ * Response event to changing the list of categories/phenotypes.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class LoadCategories extends RequestEvent
+public class CategoriesChanged extends ResponseEvent
 {
-    /**
-     * The ID of the dataset.
-     */
     private int datasetID;
-    
+    private boolean actualChange = false;
     /**
-     * The name of the dataset (might not be used.)
+     * Only need to call this to signal a change-- only need to specify a
+     * dataset.
+     * 
+     * @param re
      */
-    private String name;
-    
-    /**
-     * Creates a new LoadCategories request object.
-     * @param datasetID The ID of the dataset to load categories from.
-     * @param datasetName The name of the dataset.
-     */
-    public LoadCategories(int datasetID, String datasetName)
+    public CategoriesChanged(RequestEvent re)
     {
-        this.datasetID = datasetID;
-        this.name = datasetName;
+        super(re);
+        if(!(re instanceof LoadCategories)) {
+            throw new IllegalArgumentException("LoadCategories required as" +
+                " RequestEvent ACT");
+        }
+        LoadCategories categories = (LoadCategories)re;
+        datasetID = categories.getDatasetID();
     }
     
     /**
-     * Returns the ID of the dataset to load categories from.
+     * Returns the ID of the dataset this response event pertains to.
      * @return See above.
      */
     public int getDatasetID()
@@ -76,11 +77,20 @@ public class LoadCategories extends RequestEvent
     }
     
     /**
-     * Returns the name of the dataset.
-     * @return See above.
+     * Returns whether or not the category configuration was actually modified.
+     * @return
      */
-    public String getName()
+    public boolean isDirty()
     {
-        return name;
+        return actualChange;
+    }
+    
+    /**
+     * Sets whether or not the category configuration was actually modified.
+     * @param isChanged
+     */
+    public void setDirty(boolean isChanged)
+    {
+        this.actualChange = isChanged;
     }
 }

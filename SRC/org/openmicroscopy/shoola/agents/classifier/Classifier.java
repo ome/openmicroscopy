@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -422,6 +423,14 @@ public class Classifier implements Agent, AgentEventListener
         activeControls.add(cc);
         CategoryUI ui = new CategoryUI(cc,registry);
         ui.show();
+    }
+    
+    public void respondWithEvent(ResponseEvent re)
+    {
+        if(re != null)
+        {
+            registry.getEventBus().post(re);
+        }
     }
     
     public void close(CategoryCtrl control)

@@ -46,6 +46,7 @@ import javax.swing.JOptionPane;
 
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
+import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 
 /**
@@ -85,8 +86,9 @@ public class CategoryCtrl
         }
         
         this.classifier = classifier;
-        this.datasetID = triggerEvent.getID();
+        this.datasetID = triggerEvent.getDatasetID();
         this.datasetName = triggerEvent.getName();
+        this.loadEvent = triggerEvent;
         
         categoryGroupList = new ArrayList();
         categoryGroupMap = new HashMap();
@@ -222,6 +224,7 @@ public class CategoryCtrl
         // first, check for any new or changed groups
         List changedGroupList = new ArrayList();
         List newGroupList = new ArrayList();
+        boolean actualChange = false;
         for(Iterator iter = categoryGroupChangeMap.keySet().iterator();
             iter.hasNext();)
         {
@@ -238,10 +241,12 @@ public class CategoryCtrl
         }
         if(newGroupList.size() > 0)
         {
+            actualChange = true;
             classifier.commitNewAttributes(newGroupList);
         }
         if(changedGroupList.size() > 0)
         {
+            actualChange = true;
             classifier.updateAttributes(changedGroupList);
         }
         
@@ -265,13 +270,20 @@ public class CategoryCtrl
         
         if(newCategoryList.size() > 0)
         {
+            actualChange = true;
             classifier.commitNewAttributes(newCategoryList);
         }
         if(changedCategoryList.size() > 0)
         {
+            actualChange = true;
             classifier.updateAttributes(changedCategoryList);
         }
         
+        CategoriesChanged cc = new CategoriesChanged(loadEvent);
+        if(actualChange) cc.setDirty(true);
+        else cc.setDirty(false);
+        
+        classifier.respondWithEvent(cc);
         setSaved(true);
         return true;
     }
