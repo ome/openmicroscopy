@@ -276,7 +276,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		while (iter.hasNext()) {
 			chain = (LayoutChainData) iter.next();
 			if (!chain.hasCycles()) {
-				view = new PaletteChainView(chain,dataManager.getRegistry());
+				view =	new PaletteChainView(chain,dataManager);
 				views.add(view);
 			}
 		}
@@ -407,7 +407,7 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	
 	public void displayNewChain(LayoutChainData chain) {
 		PaletteChainView chainView = new 
-			PaletteChainView(chain,dataManager.getRegistry());
+			PaletteChainView(chain,dataManager);
 		ChainBox box = buildChain(chainView);
 		if (box != null)  {
 			placeChainInNewRow(box);
