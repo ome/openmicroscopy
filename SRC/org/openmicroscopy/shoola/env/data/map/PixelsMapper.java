@@ -119,6 +119,15 @@ public class PixelsMapper
         return c;
     }
     
+    public static Criteria buildBasicLogicalChannelCriteria(String g, int id)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("EmissionWavelength");
+        String column = (String) STSMapper.granularities.get(g);
+        if (column != null) c.addFilter(column, new Integer(id));
+        return c;
+    }
+    
 	/** Put the server data into the corresponding client object. */
 	public static void fillPixelsDescription(Pixels px, 
 											PixelsDescription pdProto)
@@ -139,7 +148,7 @@ public class PixelsMapper
 		pdProto.setPixels(px);
 	}
 	
-    public static void fillPixelsDescription(Dimensions pixelDim, 
+    public static void fillPixelsDimensions(Dimensions pixelDim, 
                                     PixelsDescription pdProto)
     {
         if (pixelDim.getPixelSizeX() != null)

@@ -41,6 +41,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
+import org.openmicroscopy.ds.dto.ModuleExecution;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.ImageAnnotation;
@@ -81,25 +82,10 @@ public class AnnotationMapper
     public static Criteria buildBasicCriteria(String g, int id)
     {
         Criteria c = new Criteria();
-        fillBasic(c, g, id);
-        return c;
-    }
-    
-    public static Criteria buildBasicImageCriteria(String g, int id)
-    {
-        Criteria c = new Criteria();
-        fillBasic(c, g, id);
-        c.addWantedField("TheZ");
-        c.addWantedField("TheT");
-        return c;
-    }
-    
-    private static void fillBasic(Criteria c, String g, int id)
-    {
         c.addWantedField("Valid");
-        c.addWantedField("Content");
         String column = (String) STSMapper.granularities.get(g);
         if (column != null) c.addFilter(column, new Integer(id));
+        return c;
     }
     
     public static Criteria buildDatasetAnnotationCriteria(int datasetID)
@@ -114,12 +100,13 @@ public class AnnotationMapper
     {
         //c.addWantedField("id");
         c.addWantedField("Content");
-        c.addWantedField("Timestamp");
-        c.addWantedField("Experimenter");
+        c.addWantedField("module_execution");
+        c.addWantedField("module_execution", "timestamp");
+        c.addWantedField("module_execution", "experimenter");
         //Specify which fields we want for the owner.
-        c.addWantedField("Experimenter", "id");
-        c.addWantedField("Experimenter", "FirstName");
-        c.addWantedField("Experimenter", "LastName");
+        c.addWantedField("module_execution.experimenter", "id");
+        c.addWantedField("module_execution.experimenter", "FirstName");
+        c.addWantedField("module_execution.experimenter", "LastName");
         c.addFilter("Valid", Boolean.TRUE);
     }
     
@@ -132,12 +119,14 @@ public class AnnotationMapper
         List list;
         Timestamp time = null;
         Experimenter experimenter;
+        ModuleExecution mex;
         while (i.hasNext()) {
             imgA = (ImageAnnotation) i.next();
             list = new ArrayList();
-            if (imgA.getTimestamp() != null)
-                time = new Timestamp(imgA.getTimestamp().longValue());
-            else time = getTimestamp();
+            mex = imgA.getModuleExecution();
+            if (mex.getTimestamp() != null)
+                time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
+            else time = PrimitiveTypesMapper.getDefaultTimestamp();
             experimenter = imgA.getExperimenter();
             ownerID = experimenter.getID();
             data = new AnnotationData(imgA.getID(), ownerID, time);
@@ -157,32 +146,28 @@ public class AnnotationMapper
     public static void fillDatasetAnnotations(List l, Map map)
     {
         Iterator i = l.iterator();
-        DatasetAnnotation imgA;
+        DatasetAnnotation da;
         AnnotationData data;
         int ownerID;
         List list;
         Timestamp time = null;
+        ModuleExecution mex;
         while (i.hasNext()) {
-            imgA = (DatasetAnnotation) i.next();
+            da = (DatasetAnnotation) i.next();
             list = new ArrayList();
-            if (imgA.getTimestamp() != null)
-                time = new Timestamp(imgA.getTimestamp().longValue());
-            else time = getTimestamp();
-            Experimenter experimenter = imgA.getExperimenter();
+            mex = da.getModuleExecution();
+            if (mex.getTimestamp() != null)
+                time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
+            else time = PrimitiveTypesMapper.getDefaultTimestamp();
+            Experimenter experimenter = mex.getExperimenter();
             ownerID = experimenter.getID();
-            data = new AnnotationData(imgA.getID(), ownerID, time);
-            data.setAnnotation(imgA.getContent());
+            data = new AnnotationData(da.getID(), ownerID, time);
+            data.setAnnotation(da.getContent());
             data.setOwnerFirstName(experimenter.getFirstName());
             data.setOwnerLastName(experimenter.getLastName());
             list.add(data);
             map.put(new Integer(ownerID), list);
         }
     }
-    
-    public static Timestamp getTimestamp()
-    {
-        java.util.Date today = new java.util.Date();
-        return new Timestamp(today.getTime());
-    }
-    
+       
 }

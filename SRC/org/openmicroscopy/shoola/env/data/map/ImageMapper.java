@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.data.map;
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -211,8 +210,9 @@ public class ImageMapper
 		empty.setID(image.getID());
 		empty.setName(image.getName());
 		empty.setDescription(image.getDescription());
-		empty.setCreated(Timestamp.valueOf(image.getCreated()));
-		empty.setInserted(Timestamp.valueOf(image.getInserted()));
+		empty.setCreated(PrimitiveTypesMapper.getTimestamp(image.getCreated()));
+		empty.setInserted(
+                PrimitiveTypesMapper.getTimestamp(image.getInserted()));
 		
 		//Fill in the data coming from Experimenter.
 		Experimenter owner = image.getOwner();
@@ -310,6 +310,24 @@ public class ImageMapper
 		return channelData;
 	}
 
+    public static int[] fillImageChannels(List lcList)
+    {
+        int[] channels = new int[lcList.size()];
+        Iterator i = lcList.iterator();
+        LogicalChannel lc;
+        int nanometer;
+        int index = 0;
+        while (i.hasNext()) {
+            lc = (LogicalChannel) i.next();
+            if (lc.getEmissionWavelength() == null) 
+                nanometer = index;
+            else
+                nanometer = lc.getEmissionWavelength().intValue();
+            channels[index] = nanometer;
+            index++;
+        }
+        return channels;
+    }
 
     /** Fill in a renderingDef object. */
 	public static RenderingDef fillInRenderingDef(List rsList, int pixelType, 
@@ -441,7 +459,7 @@ public class ImageMapper
         is.setID(img.getID());
         is.setName(img.getName());
         is.setPixelsIDs(fillListPixelsID(px));
-        is.setDate(Timestamp.valueOf(img.getCreated()));
+        is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
         //is.setImageServerPixelsID(fillListPixelsID(px));
         return is;
     }
