@@ -61,6 +61,9 @@ public class AxisRowDecoration {
 	private int y;
 	private int width;
 	private int height;
+	private int labelHeight;
+	private int xLabel;
+	private int yLabel;
 	private Color color;
 	private String label;
 	
@@ -90,22 +93,30 @@ public class AxisRowDecoration {
 	private void drawText(Graphics2D g) {
 		if (label == null) 
 			return;
-		Font oldFont = g.getFont();
-		
-		g.setFont(ExecutionsCanvas.LABELFONT);
 		FontMetrics metrics = g.getFontMetrics(ExecutionsCanvas.LABELFONT);
 		
 		// trim width
 		String displayLabel = trimLabel(g,metrics);
+		drawString(g,displayLabel);
+		
+	}
+	
+	private void drawString(Graphics2D g,String text) {
+		Font oldFont = g.getFont();
+		
+		g.setFont(ExecutionsCanvas.LABELFONT);
+		
+		FontMetrics metrics = g.getFontMetrics(ExecutionsCanvas.LABELFONT);
 		
 		// find x,y
-		int xLabel = x - GridModel.LABEL_SIZE;
+		xLabel = x - GridModel.LABEL_SIZE;
 	
-		int labelHeight = metrics.getHeight();
-		int yLabel = (int) (y+height/2+labelHeight/2);
+		labelHeight = metrics.getHeight();
+		
+		yLabel = (int) (y+height/2-labelHeight/2);
 		
 		//draw
-		g.drawString(displayLabel,xLabel,yLabel);
+		g.drawString(text,xLabel,yLabel);
 		g.setFont(oldFont);
 	}
 	
@@ -115,5 +126,19 @@ public class AxisRowDecoration {
 			res = res.substring(0,res.length()-1);
 		}
 		return res;
+	}
+	
+	// can't do straight intersects call here, as we're dealing with a line
+	public boolean isAt(int moveX,int moveY) {
+		if ( moveY < y || moveY > y+height)
+			return false;
+		
+		if (moveX < xLabel || moveX > xLabel+GridModel.LABEL_SIZE)
+			return false;
+		return true;
+	}
+	
+	public void drawFull(Graphics2D g) {
+		drawString(g,label);
 	}
 }
