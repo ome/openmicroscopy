@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
@@ -79,8 +78,6 @@ public class Classifier implements Agent, AgentEventListener
     private static final String CLASSIFICATION = "Classification";
     
     private Registry registry;
-    
-    private TopFrame topFrame;
     
     private List activeControls;
     
@@ -129,7 +126,6 @@ public class Classifier implements Agent, AgentEventListener
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
-        topFrame = registry.getTopFrame();
         registry.getEventBus().register(this,LoadCategories.class);
         registry.getEventBus().register(this,ClassifyImage.class);
         registry.getEventBus().register(this,ClassifyImages.class);

@@ -35,8 +35,6 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
-import java.beans.PropertyVetoException;
-
 import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
@@ -44,10 +42,10 @@ import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.agents.browser.ui.InternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * Internal frame implementation of the browser manager.
+ * (deprecated-- internal frame should not appear in 2.2.1)
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
@@ -88,8 +86,10 @@ public class BrowserManagerIFImpl extends BrowserManager
         activeWindow = bif;
         browserList.add(bif);
         
+        /*
         TopFrame tf = registry.getTopFrame();
         tf.addToDesktop(bif,TopFrame.PALETTE_LAYER);
+        */
         Icon windowIcon = iconManager.getSmallIcon(IconManager.BROWSER);
         bif.setFrameIcon(windowIcon);
         bif.setClosable(true);
@@ -113,8 +113,10 @@ public class BrowserManagerIFImpl extends BrowserManager
             browserList.remove(bif);
             BrowserEnvironment env = BrowserEnvironment.getInstance();
             env.getBrowserAgent().interruptThread(browser.getController());
+            /*
             TopFrame tf = registry.getTopFrame();
             tf.removeFromDesktop(bif);
+            */
         }
     }
     
@@ -182,6 +184,7 @@ public class BrowserManagerIFImpl extends BrowserManager
         {
             return;
         }
+        /*
         TopFrame tf = registry.getTopFrame();
         if(!iFrame.isShowing())
         {
@@ -195,7 +198,7 @@ public class BrowserManagerIFImpl extends BrowserManager
                 iFrame.setSelected(true);
             }
             catch(PropertyVetoException e) {}
-        }
+        }*/
     }
     
     /**
@@ -208,7 +211,9 @@ public class BrowserManagerIFImpl extends BrowserManager
     {
         InternalFrame iFrame = (InternalFrame)staticWindowMap.get(windowKey);
         staticWindowMap.remove(windowKey);
+        /*
         TopFrame tf = registry.getTopFrame();
         tf.removeFromDesktop(iFrame);
+        */
     }
 }

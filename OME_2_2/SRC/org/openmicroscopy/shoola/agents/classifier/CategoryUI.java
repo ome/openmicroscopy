@@ -70,7 +70,6 @@ import javax.swing.event.ListSelectionListener;
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * The UI for displaying lists of categories for a particular dataset.
@@ -83,7 +82,6 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
 public class CategoryUI extends JDialog
 {
     private Registry registry;
-    private TopFrame topFrame;
     private CategoryCtrl controller;
     
     private JList groupList = new JList();
@@ -154,10 +152,9 @@ public class CategoryUI extends JDialog
     
     public CategoryUI(CategoryCtrl control, Registry registry)
     {
-        super(registry.getTopFrame().getFrame());
+        super(registry.getTaskBar().getFrame());
         setTitle("Categories: "+control.getDatasetName());
         refCopy = this; // my everpresent inner class hack
-        this.topFrame = registry.getTopFrame();
         if(control == null || registry == null)
         {
             throw new IllegalArgumentException("Parameters cannot be null.");
@@ -216,7 +213,7 @@ public class CategoryUI extends JDialog
         
         buildGroupList();
         buildGUI();
-        setLocationRelativeTo(topFrame.getFrame());
+        setLocationRelativeTo(registry.getTaskBar().getFrame());
         pack();
     }
     

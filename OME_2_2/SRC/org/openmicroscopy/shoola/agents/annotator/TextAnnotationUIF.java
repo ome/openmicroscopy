@@ -60,7 +60,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * The UIF for a text annotation, not the UIF for other semantic types and
@@ -75,8 +74,6 @@ public class TextAnnotationUIF extends JDialog
                                implements DocumentListener
 {
     private Registry registry;
-    
-    private TopFrame topFrame;
     
     private AnnotationCtrl controller;
     private JTextArea annotationArea;
@@ -93,9 +90,8 @@ public class TextAnnotationUIF extends JDialog
      */
     public TextAnnotationUIF(AnnotationCtrl control, Registry registry)
     {
-        super(registry.getTopFrame().getFrame());
+        super(registry.getTaskBar().getFrame());
         // TODO more precise set bounds
-        this.topFrame = registry.getTopFrame();
         if(control == null || registry == null)
         {
             throw new IllegalArgumentException("No null arguments permitted.");

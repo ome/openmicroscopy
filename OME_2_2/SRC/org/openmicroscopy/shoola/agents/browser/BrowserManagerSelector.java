@@ -35,8 +35,6 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
-import org.openmicroscopy.shoola.env.Environment;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /**
@@ -60,13 +58,7 @@ public class BrowserManagerSelector
         {
             return null;
         }
-        Environment env = (Environment)registry.lookup(LookupNames.ENV);
-        // in taskbar mode.  return the standalone frame browser manager.
-        if(env.getTaskbarMode())
-        {
-            return new BrowserManagerSFImpl(registry);
-        }
-        // in internal frame mode.  return the internal frame browser manager.
-        else return new BrowserManagerIFImpl(registry);
+        // BUG 306: now, only standalone frame used
+        return new BrowserManagerSFImpl(registry);
     }
 }

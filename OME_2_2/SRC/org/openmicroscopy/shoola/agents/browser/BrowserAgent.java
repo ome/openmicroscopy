@@ -92,7 +92,6 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.*;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
@@ -1309,16 +1308,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     public SemanticTypesService getSemanticTypesService()
     {
         return registry.getSemanticTypesService();
-    }
-    
-    /**
-     * Returns a reference to the top frame (TODO: maybe hide desired functions
-     * behind the BA, as above)
-     * @return A reference to the TopFrame, the overarching container of Shoola.
-     */
-    public TopFrame getTopFrame()
-    {
-        return registry.getTopFrame();
     }
     
     //  loads the image types from the database.

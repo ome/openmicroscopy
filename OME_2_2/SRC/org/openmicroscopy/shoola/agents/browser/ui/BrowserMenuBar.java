@@ -66,7 +66,6 @@ import org.openmicroscopy.shoola.agents.browser.layout.CategoryGroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.QuantumGroupLayoutMethod;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * The menu bar for each browser internal frame or frame (should we decide
@@ -314,7 +313,6 @@ public class BrowserMenuBar extends JMenuBar
     {
         final BrowserEnvironment env = BrowserEnvironment.getInstance();
         final BrowserAgent agent = env.getBrowserAgent();
-        final TopFrame tf = agent.getTopFrame();
         
         JMenuItem categoryItem = new JMenuItem("Edit Phenotypes");
         categoryItem.addActionListener(new ActionListener()

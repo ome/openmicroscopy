@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
@@ -77,8 +76,6 @@ public class Annotator
 	private static final String			ANNOT_I = "ImageAnnotation";
 	
     private Registry registry;
-    
-    private TopFrame topFrame;
     
     private List activeControls;
     
@@ -154,8 +151,7 @@ public class Annotator
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
-        topFrame = registry.getTopFrame();
-		registry.getEventBus().register(this, AnnotateImage.class);
+        registry.getEventBus().register(this, AnnotateImage.class);
     }
     
     /**
