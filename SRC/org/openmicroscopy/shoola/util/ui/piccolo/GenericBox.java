@@ -65,19 +65,9 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  */
 public class GenericBox extends PNode implements SortableBufferedObject {
 	
-	private static final Color BORDER_COLORS[] = {
-			PConstants.BORDER_OUTER,
-			PConstants.BORDER_MIDDLE,
-			PConstants.BORDER_INNER,
-	};
+
 	
-	private static final Color HIGHLIGHT_COLORS[] = {
-			PConstants.HIGHLIGHT_COLOR_OUTER,
-			PConstants.HIGHLIGHT_COLOR_MIDDLE,
-			PConstants.HIGHLIGHT_COLOR_INNER,
-	};
-	
-	private Color colors[]=BORDER_COLORS;
+	private Color colors[]=PConstants.BORDER_COLORS;
 
 	private double area = 0.0;
 	private PText label = null;
@@ -90,6 +80,8 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	
 	
 	private Rectangle2D rects[] = {
+			new Rectangle2D.Double(),
+			new Rectangle2D.Double(),
 			new Rectangle2D.Double(),
 			new Rectangle2D.Double(),
 			new Rectangle2D.Double(),
@@ -143,10 +135,11 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 	}
 	
 	public boolean setBounds(double x,double y,double w,double h) {
-		double rX = x;
-		double rY=y;
-		double rW =w;
-		double rH =h;
+		double halfStroke = PConstants.STROKE_WIDTH/2;
+		double rX = x+halfStroke;
+		double rY=y+halfStroke;
+		double rW =w-PConstants.STROKE_WIDTH;
+		double rH =h-PConstants.STROKE_WIDTH;
 		for (int i = 0; i <rects.length; i++) {
 			rects[i].setFrame(rX,rY,rW,rH);
 			rX +=PConstants.STROKE_WIDTH;
@@ -214,9 +207,9 @@ public class GenericBox extends PNode implements SortableBufferedObject {
 		
 	public void setHighlighted(boolean v) {
 		if (v == true) 
-			colors = HIGHLIGHT_COLORS;
+			colors = PConstants.HIGHLIGHT_COLORS;
 		else
-			colors = BORDER_COLORS;
+			colors = PConstants.BORDER_COLORS;
 		repaint();
 	}
 } 
