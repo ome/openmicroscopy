@@ -36,14 +36,22 @@
 package org.openmicroscopy.shoola.agents.browser;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
+import org.openmicroscopy.shoola.agents.browser.layout.NumColsLayoutMethod;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
@@ -56,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -105,6 +114,9 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public static final String THUMBNAIL_HEIGHT_KEY =
         "/agents/browser/config/thumbnailHeight";
+        
+    public static final String DUMMY_DATASET_KEY =
+        "/agents/browser/config/dummyDataset";
 
     /**
      * Initialize the browser controller and register the OMEBrowerAgent with
@@ -124,9 +136,7 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void activate()
     {
-        // for now, do nothing; wait until triggered to load
-        // this will be different if there's save info in the context file
-        
+        env.setBrowserManager(new BrowserManager());
     }
     
     /**
@@ -169,10 +179,23 @@ public class BrowserAgent implements Agent, AgentEventListener
         Integer thumbWidth = (Integer)registry.lookup(THUMBNAIL_WIDTH_KEY);
         Integer thumbHeight = (Integer)registry.lookup(THUMBNAIL_HEIGHT_KEY);
         
-        this.thumbnailWidth = thumbWidth.intValue();
-        this.thumbnailHeight = thumbHeight.intValue();
+        this.thumbnailWidth = 120;//thumbWidth.intValue();
+        this.thumbnailHeight = 120;//thumbHeight.intValue();
         
         eventBus.register(this,LoadDataset.class);
+        
+        JMenuItem testItem = new JMenuItem("Browser");
+        testItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                Integer dummyID = (Integer)registry.lookup(DUMMY_DATASET_KEY);
+                loadDataset(dummyID.intValue());
+            }
+        });
+        
+        tf.addToMenu(TopFrame.VIEW,testItem);
+        testItem.setEnabled(true);
     }
     
     /**
@@ -215,22 +238,27 @@ public class BrowserAgent implements Agent, AgentEventListener
             return false; // REEEEE-JECTED.
         }
         
-        BrowserModel model = new BrowserModel(datasetModel);
-        BrowserTopModel topModel = new BrowserTopModel();
-        BrowserView view = new BrowserView(model,topModel);
-        BrowserController controller = new BrowserController(model,view);
+        final BrowserModel model = new BrowserModel(datasetModel);
+        model.setLayoutMethod(new NumColsLayoutMethod(8));
+        final BrowserTopModel topModel = new BrowserTopModel();
+        final BrowserView view = new BrowserView(model,topModel);
+        final BrowserController controller = new BrowserController(model,view);
         controller.setStatusView(new StatusBar());
         
         env.getBrowserManager().addBrowser(controller);
         BrowserInternalFrame bif = new BrowserInternalFrame(controller);
         
-        tf.addToDesktop(bif,TopFrame.DEFAULT_LAYER);
+        tf.addToDesktop(bif,TopFrame.PALETTE_LAYER);
+        bif.setClosable(true);
+        bif.setIconifiable(true);
+        bif.setMaximizable(true);
+        bif.setResizable(true);
         bif.show();
         
-        DataManagementService dms =
+        final DataManagementService dms =
             registry.getDataManagementService();
             
-        PixelsService ps =
+        final PixelsService ps =
             registry.getPixelsService();
         
         // we're just going to assume that the DatasetData object does not
@@ -238,11 +266,56 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         // always initialized as long as catch blocks return false
         List imageList;
+        Comparator idComparator = new Comparator()
+        {
+            public int compare(Object arg0, Object arg1)
+            {
+                if(arg0 == null)
+                {
+                    return -1;
+                }
+                
+                if(arg1 == null)
+                {
+                    return 1;
+                }
+                
+                if(!(arg0 instanceof ImageSummary) ||
+                   !(arg1 instanceof ImageSummary))
+                {
+                    return 0;
+                }
+                
+                ImageSummary is1 = (ImageSummary)arg0;
+                ImageSummary is2 = (ImageSummary)arg1;
+                
+                if(is1.getID() < is2.getID())
+                {
+                    return -1;
+                }
+                else if(is1.getID() == is2.getID())
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        };
+        
         try
         {
             // will this order by image ID?
             // should I explicitly order by another parameter?
             imageList = dms.retrieveImages(datasetModel.getID());
+            Collections.sort(imageList,idComparator);
+            if(imageList == null)
+            {
+                UserNotifier un = registry.getUserNotifier();
+                un.notifyError("Database Error","Invalid Dataset ID specified.");
+                return false;
+            }
         }
         catch(DSOutOfServiceException dso)
         {
@@ -257,41 +330,65 @@ public class BrowserAgent implements Agent, AgentEventListener
             return false;
         }
         
-        StatusBar status = controller.getStatusView();
-        status.processStarted(imageList.size());
+        final StatusBar status = controller.getStatusView();
+        status.processStarted(imageList.size());    
         
-        int count = 1;
-        int total = imageList.size();
         // see imageList initialization note above
-        for(Iterator iter = imageList.iterator(); iter.hasNext();)
-        {
-            ImageData data = (ImageData)iter.next();
-            Pixels pix = data.getDefaultPixels().getPixels();
-            try
-            {
-                Image image = ps.getThumbnail(pix,thumbnailWidth,thumbnailHeight);
-                ThumbnailDataModel tdm = new ThumbnailDataModel(data);
-                // TODO: figure out strategy for adding attributes.  do it here?
-                Thumbnail t = new Thumbnail(image,tdm);
-                model.addThumbnail(t);
-                String message =
-                    ProgressMessageFormatter.format("Loaded image %n of %t...",
-                                                    count,total);
-                status.processAdvanced(message);
-                count++;
-            }
-            catch(ImageServerException ise)
-            {
-                UserNotifier un = registry.getUserNotifier();
-                un.notifyError("ImageServer Error",ise.getMessage(),ise);
-                status.processFailed("Error loading images.");
-                return false;
-            }
-        }
+        final List refList = Collections.unmodifiableList(imageList);
         
-        status.processSucceeded("All images loaded.");
+        Thread loader = new Thread()
+        {
+            public void run()
+            {
+                int count = 1;
+                int total = refList.size();
+                for(Iterator iter = refList.iterator(); iter.hasNext();)
+                {
+                    ImageSummary summary = (ImageSummary)iter.next();
+                    try
+                    {
+                        Pixels pix = summary.getDefaultPixels().getPixels();
+                        Image image = ps.getThumbnail(pix);
+                        ImageData data = new ImageData();
+                        data.setID(pix.getID());
+                        ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                        // TODO: figure out strategy for adding attributes.  do it here?
+                        final Thumbnail t = new Thumbnail(image,tdm);
+                        
+                        final int theCount = count;
+                        final int theTotal = total;
+                        Runnable addTask = new Runnable()
+                        {
+                            public void run()
+                            {
+                                System.err.println("adding pix "+t.getModel().getID());
+                                model.addThumbnail(t);
+                                String message =
+                                    ProgressMessageFormatter.format("Loaded image %n of %t...",
+                                                            theCount,theTotal);
+                                status.processAdvanced(message);
+                            }
+                        };
+                        SwingUtilities.invokeLater(addTask);
+                        count++;
+                    }
+                    catch(ImageServerException ise)
+                    {
+                        UserNotifier un = registry.getUserNotifier();
+                        un.notifyError("ImageServer Error",ise.getMessage(),ise);
+                        status.processFailed("Error loading images.");
+                        return;
+                    }
+                }
+                
+                status.processSucceeded("All images loaded.");
+                return;
+            }
+        };
+        loader.start();
         return true;
     }
+        
     
     /**
      * Gets the valid image types for the particular dataset.

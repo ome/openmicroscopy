@@ -405,6 +405,7 @@ public class BrowserView extends PCanvas
         
         // TODO: determine case (mode) in which this doesn't happen
         updateConstraints();
+        repaint();
     }
     
     /**

@@ -74,7 +74,7 @@ public class PixelsServiceAdapter
         }
         this.factory = factory;
         this.registry = registry;
-        
+        System.err.println("SK:"+factory.getSessionKey());
         this.pixelsFactory = new PixelsFactory(factory);
     }
     
@@ -207,6 +207,11 @@ public class PixelsServiceAdapter
     
     public Image getThumbnail(Pixels pixels, int sizeX, int sizeY) throws ImageServerException
     {
+        System.err.println("SK:"+factory.getSessionKey());
+        System.err.print("pixels: " + pixels + " ");
+        System.err.println("[ID="+pixels.getID()+
+                           ",isID="+pixels.getImageServerID()+
+                           ",isURL="+pixels.getRepository().getImageServerURL()+"]");
         return pixelsFactory.getThumbnail(pixels,sizeX,sizeY);
     }
 

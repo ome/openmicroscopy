@@ -63,6 +63,11 @@ public class ImageSummary
 	 * The first element of the array always contains the default pixels.
 	 */
 	private int[]	imageServerPixelsID;
+    
+    /**
+     * The default pixels of the image.
+     */
+    private PixelsDescription defaultPixels;
 	
 	public ImageSummary() {}
 	
@@ -72,6 +77,15 @@ public class ImageSummary
 		this.name = name;
 		this.imageServerPixelsID = imageServerPixelsID;
 	}
+    
+    public ImageSummary(int id, String name, int[] imageServerPixelsID,
+                        PixelsDescription defaultPixels)
+    {
+        this.id  = id;
+        this.name = name;
+        this.imageServerPixelsID = imageServerPixelsID;
+        this.defaultPixels = defaultPixels;
+    }
 	
 	/** Required by the DataObject interface. */
 	public DataObject makeNew()
@@ -114,5 +128,15 @@ public class ImageSummary
 	{
 		this.imageServerPixelsID = imageServerPixelsID;
 	}
+    
+    public PixelsDescription getDefaultPixels()
+    {
+        return defaultPixels;
+    }
+    
+    public void setDefaultPixels(PixelsDescription pxd)
+    {
+        this.defaultPixels = pxd;
+    }
 
 }

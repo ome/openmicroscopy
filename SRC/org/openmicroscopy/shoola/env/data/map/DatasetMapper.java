@@ -46,6 +46,7 @@ import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
 /** 
  * 
@@ -100,6 +101,9 @@ public class DatasetMapper
 		
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
+        criteria.addWantedField("images.default_pixels", "Repository");
+        criteria.addWantedField("images.default_pixels.Repository","ImageServerURL");
+        criteria.addOrderBy("id");
 		
 		return criteria;
 	}
@@ -139,6 +143,9 @@ public class DatasetMapper
 		
 		//Specify which fields we want for the pixels.
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
+        criteria.addWantedField("images.default_pixels", "Repository");
+        criteria.addWantedField("images.default_pixels.Repository","ImageServerURL");
+        criteria.addOrderBy("id");
 		
 		criteria.addFilter("id", new Integer(id));
 		
@@ -179,7 +186,8 @@ public class DatasetMapper
 		while (i.hasNext()) {
 			img = (Image) i.next();
 			images.add(new ImageSummary(img.getID(), img.getName(), 
-						fillListPixelsID(img)));
+						fillListPixelsID(img),
+                        fillDefaultPixels(img.getDefaultPixels())));
 		}
 		empty.setImages(images);	
 	}
@@ -200,7 +208,8 @@ public class DatasetMapper
 		while (i.hasNext()) {
 			image = (Image) i.next();
 			images.add(new ImageSummary(image.getID(), image.getName(),
-						fillListPixelsID(image)));
+						fillListPixelsID(image),
+                        fillDefaultPixels(image.getDefaultPixels())));
 		}
 		return images;
 	}
@@ -252,5 +261,24 @@ public class DatasetMapper
 			ids[0] = (px.getImageServerID()).intValue();
 	  	return ids;
 	}
+    
+    private static PixelsDescription fillDefaultPixels(Pixels px)
+    {
+        System.err.println(px.getID());
+        System.err.println(px.getImageServerID());
+        System.err.println(px.getRepository().getImageServerURL());
+        PixelsDescription pxd = new PixelsDescription();
+        pxd.setID(px.getID());
+        if(px.getImageServerID() != null)
+        {
+            pxd.setImageServerID(px.getImageServerID().longValue());
+        }
+        if(px.getRepository().getImageServerURL() != null)
+        {
+            pxd.setImageServerUrl(px.getRepository().getImageServerURL());
+        }
+        pxd.setPixels(px);
+        return pxd;
+    }
 	
 }
