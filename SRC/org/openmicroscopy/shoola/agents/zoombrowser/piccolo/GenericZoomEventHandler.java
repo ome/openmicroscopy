@@ -89,7 +89,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	
 	/**
 	 * If the mouse is single-clicked on a buffered node (either a 
-	 * {@link PCategoryBox}, or a {@link PModule}, zoom to center it.
+	 * {@link CategoryBox}, or a {@link ModuleView}, zoom to center it.
 	 * If the mouse is clicked on the layer or on the {@link PCamera},
 	 * zoom to center the entire canvas.
 	 * 
@@ -105,7 +105,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		if (mask == MouseEvent.BUTTON1_MASK && e.getClickCount() == 1) {
 			
 			if (node instanceof MouseableNode) {
-				((MouseableNode) node).mouseClicked();
+				((MouseableNode) node).mouseClicked(this);
 			}
 			else if (node instanceof BufferedObject) {
 				animateToNode(node);
@@ -137,14 +137,14 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		postPopup = true;
 		PNode node = e.getPickedNode();
 		if (node instanceof MouseableNode) {
-			((MouseableNode) node).mousePopup();
+			((MouseableNode) node).mousePopup(this);
 		}
 		else {
 			PNode p = node.getParent();
 			if (p instanceof BufferedObject) {
 				animateToNode(p);		
 			} else if (isBackgroundClick(node) || isBackgroundClick(p)) {
-				animateToCanvasBounds();
+				handleBackgroundClick();
 			}
 		}
 		e.setHandled(true);
@@ -159,7 +159,7 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 		animateToBounds(canvas.getBufferedBounds());
 	}
 	
-	protected void animateToNode(PNode node) {
+	public void animateToNode(PNode node) {
 		if (node instanceof BufferedObject) {
 			animateToBufferedObject((BufferedObject) node);
 		}
