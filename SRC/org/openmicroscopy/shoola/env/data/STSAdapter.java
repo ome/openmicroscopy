@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ClassificationData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -436,7 +435,8 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroups()
+    public List retrieveCategoryGroups(CategoryGroupData gProto, 
+                    CategoryData cProto)
         throws DSOutOfServiceException, DSAccessException
     {
         //Retrieve the user ID.
@@ -446,9 +446,20 @@ class STSAdapter
                                         uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
         List result = new ArrayList();
-        if (l != null || l.size() > 0)
-            CategoryMapper.fillCategoryGroup(l, result, uc.getUserID());
+        if (l != null || l.size() > 0) {
+            if (gProto == null) gProto = new CategoryGroupData();
+            if (cProto == null) cProto = new CategoryData();
+            CategoryMapper.fillCategoryGroup(gProto, cProto, l, result, 
+                    uc.getUserID());
+        }  
         return result;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategoryGroups()
+        throws DSOutOfServiceException, DSAccessException
+    {
+       return retrieveCategoryGroups(null, null);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -457,12 +468,12 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategorySummary cs;
+        CategoryData data;
         Iterator k;
         Object obj;
         while (i.hasNext()) {
-            cs = (CategorySummary) i.next();
-            k = cs.getImages().iterator();
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -482,9 +493,11 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
+                            CategoryData cProto, int catGroupID)
         throws DSOutOfServiceException, DSAccessException
     {
+
         UserCredentials uc = (UserCredentials)
         registry.lookup(LookupNames.USER_CREDENTIALS);
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
@@ -492,11 +505,22 @@ class STSAdapter
         CategoryGroup group = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (group != null) {
-            CategoryGroupData data = CategoryMapper.fillCategoryGroup(group, 
-                                            uc.getUserID());
+            if (gProto == null) gProto = new CategoryGroupData();
+            if (cProto == null) cProto = new CategoryData();
+            CategoryGroupData 
+                data = CategoryMapper.fillCategoryGroup(
+                    gProto, cProto, group, uc.getUserID());
             if (data != null) return retrieveImagesNotInCategoryGroup(data);
         }
         return new ArrayList();
+    }
+    
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInCategoryGroup(int catGroupID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesNotInCategoryGroup(null, null, catGroupID);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -506,12 +530,12 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategorySummary cs;
+        CategoryData data;
         Iterator k;
         Object obj;
         while (i.hasNext()) {
-            cs = (CategorySummary) i.next();
-            k = cs.getImages().iterator();
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -537,7 +561,7 @@ class STSAdapter
     {
         return retrieveImagesInUserDatasetsNotInCategoryGroup(group, null);
     }
-    
+
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInUserDatasetsNotInCategoryGroup(
             CategoryGroupData group, List datasetIDs)
@@ -545,12 +569,12 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategorySummary cs;
+        CategoryData data;
         Iterator k;
         Object obj;
         while (i.hasNext()) {
-            cs = (CategorySummary) i.next();
-            k = cs.getImages().iterator();
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -582,12 +606,12 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategorySummary cs;
+        CategoryData data;
         Iterator k;
         Object obj;
         while (i.hasNext()) {
-            cs = (CategorySummary) i.next();
-            k = cs.getImages().iterator();
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -607,9 +631,13 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group, 
+                        CategoryData cProto)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (group == null)
+            throw new IllegalArgumentException("CategoryGroupData cannot" +
+                    "be null");
         UserCredentials uc = (UserCredentials)
             registry.lookup(LookupNames.USER_CREDENTIALS);
         //List of categorySummary objects
@@ -618,25 +646,21 @@ class STSAdapter
                         group.getID(), uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
         
-        if (l != null || l.size() > 0)
-            CategoryMapper.fillCategoryWithClassifications(l, result, group);
+        if (l != null || l.size() > 0) {
+            if (cProto == null) cProto = new CategoryData();
+            CategoryMapper.fillCategoryWithClassifications(cProto, l, result, 
+                                                            group);
+        }
         return result;
     }
-
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public CategoryData retrieveCategory(int id)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return getCategory(id, false);
-    }
-
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public CategoryData retrieveCategoryWithIAnnotations(int id)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return getCategory(id, true);
-    }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveCategoriesNotInGroup(group, null);
+    }
+
     /** Implemented as specified in {@link SemanticTypesService}. */
     public void createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
@@ -1034,46 +1058,6 @@ class STSAdapter
         category.setDescription(data.getDescription());
         category.setCategoryGroup(group);
         return category;
-    }
-    
-    /** 
-     * Build a {@link CategoryData} object. 
-     * 
-     * @param id                id of the category to retrieve.
-     * @param groupData         CategoryGroupData containing the category.
-     * @param withAnnotation    flag to retrieve or not the annotation 
-     *                          associated to an image in the specified 
-     *                          category.
-     */
-    private CategoryData getCategory(int id, boolean withAnnotation)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
-        //Retrieve the specified category.
-        Criteria c = CategoryMapper.buildClassificationCriteria(id);
-        Category category = (Category) gateway.retrieveSTSData("Category", c);
-        CategoryData model = new CategoryData();
-        if (category != null) CategoryMapper.fillCategory(category, model, 
-                                                        uc.getUserID());
-        if (withAnnotation) {
-            List imgs = model.getImages();
-            if (imgs.size() != 0) {       //i.e. some classifications
-                List ids = new ArrayList();
-                Iterator i = imgs.iterator();
-                while (i.hasNext()) 
-                    ids.add(new Integer(((ImageSummary) i.next()).getID()));
-                
-                c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
-                                                            uc.getUserID());
-                List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
-                                                        c);
-                CategoryMapper.fillImageAnnotationInCategory(
-                        model.getClassifications(), l);
-            }
-        }
-        return model;
     }
     
 }

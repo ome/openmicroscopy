@@ -203,6 +203,8 @@ public class HierarchyMapper
         Collection unclassifiedImages = mapIS.values();
         List classifiedImages = new ArrayList();
         List categoriesList;
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
         while (i.hasNext()) {
             classification = (Classification) i.next();
             f = CategoryMapper.CONFIDENCE;
@@ -221,7 +223,7 @@ public class HierarchyMapper
             gModel = (CategoryGroupData) groupMap.get(groupID);
             //Create CategoryGroupData
             if (gModel == null) {
-                gModel = CategoryMapper.buildCategoryGroup(group);
+                gModel = CategoryMapper.buildCategoryGroup(gProto, group);
                 gModel.setCategories(new ArrayList());
                 groupMap.put(groupID, gModel);
             }
@@ -230,7 +232,8 @@ public class HierarchyMapper
             cModel = (CategoryData) categoryMap.get(categoryID);
             //Create CategoryData
             if (cModel == null) {
-                cModel = CategoryMapper.buildCategoryData(category, gModel);
+                cModel = CategoryMapper.buildCategoryData(cProto, category, 
+                                                        gModel);
                 cModel.setClassifications(new HashMap());
                 categoryMap.put(categoryID, cModel);
                 gModel.getCategories();

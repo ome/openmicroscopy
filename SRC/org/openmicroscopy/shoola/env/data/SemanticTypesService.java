@@ -318,6 +318,10 @@ public interface SemanticTypesService
     public List retrieveCategoryGroups()
         throws DSOutOfServiceException, DSAccessException;  
     
+    public List retrieveCategoryGroups(CategoryGroupData gProto, 
+            CategoryData cProto)
+        throws DSOutOfServiceException, DSAccessException;
+
     /** 
      * Retrieve the categories not contained in the specified group, and 
      * containing images which aren't in the categories linked to the group.
@@ -331,6 +335,10 @@ public interface SemanticTypesService
      */ 
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group, 
+                                            CategoryData cProto)
+        throws DSOutOfServiceException, DSAccessException;
     
     /** 
      * Retrieve a list of images owned by the current user but
@@ -351,6 +359,10 @@ public interface SemanticTypesService
     public List retrieveImagesNotInCategoryGroup(int catGroupID)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
+            CategoryData cProto, int catGroupID)
+        throws DSOutOfServiceException, DSAccessException;
+
     /** 
      * Retrieve a list of images owned by members of the user's group but
      * not contained in the specified category group.
@@ -416,9 +428,10 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
+    /*
     public CategoryData retrieveCategory(int id)
         throws DSOutOfServiceException, DSAccessException;
-    
+    */
     /** 
      * Retrieve the {@link CategoryData} object corresponding
      * to the specified category. In that case, each {@link ImageSummary}
@@ -431,9 +444,10 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
+    /*
     public CategoryData retrieveCategoryWithIAnnotations(int id)
         throws DSOutOfServiceException, DSAccessException;
-    
+    */
     /** 
      * Create a new CategoryGroup.
      * 
