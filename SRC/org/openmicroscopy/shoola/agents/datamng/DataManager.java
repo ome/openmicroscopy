@@ -170,6 +170,8 @@ public class DataManager
 		viewButton = getViewButton(icon);
 		topFrame.addToToolBar(TopFrame.VIEW_TB, viewButton);
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
+		datasetSummaries = new ArrayList();
+		projectSummaries = new ArrayList();
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -198,9 +200,6 @@ public class DataManager
 	{
 		if (response.isActivationSuccessful() && presentation != null) 
 			presentation.rebuildTree();
-		else if (!response.isActivationSuccessful())
-			registry.getEventBus().post(new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES));
 	}
 	
 	/**
@@ -279,7 +278,7 @@ public class DataManager
 	 */
 	List getUserProjects()
 	{
-		if (projectSummaries == null) {
+		if (projectSummaries.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				projectSummaries = dms.retrieveUserProjects();
@@ -308,7 +307,7 @@ public class DataManager
 	 */
 	List getUserDatasets()
 	{
-		if (datasetSummaries == null) {
+		if (datasetSummaries.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				datasetSummaries = dms.retrieveUserDatasets();
@@ -336,7 +335,7 @@ public class DataManager
 	 */
 	List getUserImages()
 	{
-		List images = null;
+		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			images = dms.retrieveUserImages();
@@ -361,7 +360,7 @@ public class DataManager
 	 */
 	List getImages(int datasetID) 
 	{
-		List images = null;
+		List images = new ArrayList();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			images = dms.retrieveImages(datasetID);
@@ -387,7 +386,7 @@ public class DataManager
 	 */
 	ProjectData getProject(int projectID)
 	{
-		ProjectData project = null;
+		ProjectData project = new ProjectData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.retrieveProject(projectID);
@@ -412,7 +411,7 @@ public class DataManager
 	 */
 	DatasetData getDataset(int datasetID)
 	{
-		DatasetData dataset = null;
+		DatasetData dataset = new DatasetData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dataset = dms.retrieveDataset(datasetID);
@@ -437,7 +436,7 @@ public class DataManager
 	 */
 	ImageData getImage(int imageID)
 	{
-		ImageData image = null;
+		ImageData image = new ImageData();
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			image = dms.retrieveImage(imageID);
@@ -465,10 +464,13 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.createProject(pd);
-			if (projectSummaries == null) projectSummaries = new ArrayList();
-			projectSummaries.add(project);
-			// forward event to the presentation.
-			presentation.addNewProjectToTree(project);	
+			if (projectSummaries.size() != 0) {
+				projectSummaries.add(project);	//local copy
+				presentation.addNewProjectToTree(project);	//update tree
+			} else {
+				getUserProjects(); 
+				presentation.rebuildTree();
+			} 
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the project: "+pd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -495,16 +497,19 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dataset = dms.createDataset(projects, images, dd);
-			if (datasetSummaries == null) datasetSummaries = new ArrayList();
-			datasetSummaries.add(dataset);
+			if (datasetSummaries.size() !=0) getUserDatasets();
+			else datasetSummaries.add(dataset); //local copy.
 			ProjectSummary ps;
 			for (int i = 0; i < projects.size(); i++) {
 				ps = (ProjectSummary) projects.get(i);
 				ps.getDatasets().add(dataset);	
 			}
-			// forward event to the presentation.
-			if (projects != null) 
-				presentation.addNewDatasetToTree(projects);		
+			if (presentation.isTreeLoaded()) {
+				if (projects != null ) 
+					presentation.addNewDatasetToTree(projects);	
+			} else  presentation.rebuildTree();
+				
+				
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the dataset: "+dd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
@@ -583,7 +588,7 @@ public class DataManager
 			dms.updateDataset(dd, isToRemove, isToAdd);
 			//update the presentation and the dataset summary contained in the 
 			//datasetSummaries list accordingly.
-			if (datasetSummaries != null) updateDSList(dd);
+			if (datasetSummaries.size() != 0) updateDSList(dd);
 			updateDatasetInPS(dd);
 			if (nameChange) presentation.updateDatasetInTree();
 		} catch(DSAccessException dsae) {
@@ -710,10 +715,7 @@ public class DataManager
 	}
 	
 	/** Select the menuItem. */
-	void setMenuSelection(boolean b)
-	{
-		viewItem.setSelected(b); 
-	}
+	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
 	/** Post an {@link AnnotateDataset} event. */
 	void annotateDataset(int id, String name)
@@ -733,7 +735,6 @@ public class DataManager
 	 */
 	private JCheckBoxMenuItem getViewMenuItem(Icon icon)
 	{
-		IconManager im = IconManager.getInstance(registry);
 		JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("DataManager", icon);
 		control.attachItemListener(menuItem, DataManagerCtrl.DM_VISIBLE);
 		return menuItem;
@@ -742,7 +743,6 @@ public class DataManager
 	/** Create the view button. */
 	private JButton getViewButton(Icon icon)
 	{
-		IconManager im = IconManager.getInstance(registry);
 		JButton b = new JButton(icon);
 		b.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the dataManager."));

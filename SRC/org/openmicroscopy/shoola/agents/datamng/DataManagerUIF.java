@@ -110,7 +110,10 @@ class DataManagerUIF
 	}
 
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void rebuildTree() {explPane.getManager().buildTree();}
+	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
+	
+	/** Forward event to {@link ExplorerPaneManager}. */
+	void rebuildTree() { explPane.getManager().rebuildTree(); }
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
 	void updateProjectInTree() { explPane.getManager().updateProjectInTree(); }
