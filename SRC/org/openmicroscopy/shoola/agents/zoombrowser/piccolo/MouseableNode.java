@@ -67,6 +67,8 @@ public interface MouseableNode {
 	
 	public void mouseClicked();
 	
+	public void mouseDoubleClicked();
+	
 	public void mousePopup();
 		
 }
