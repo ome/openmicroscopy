@@ -75,7 +75,7 @@ public class ImageCanvas
 
     private static final int            LENGTH2 = 2*ViewerUIF.LENGTH;
     
-    private BufferedImage               displayImage;
+    private BufferedImage               displayImage, zoomForLens;
     
     /** The original bufferedImage to display. */   
     private BufferedImage               image;
@@ -310,8 +310,13 @@ public class ImageCanvas
     void paintLensImage(double f, Point p, int lensWidth, boolean painting, 
                         Color c)
     {
-        lensCanvas.paintLensImage(f, p, lensWidth, painting, c, 
-                    itMng.buildDisplayImage(displayImage, f));
+        if (getLens() == null) {
+            zoomForLens = itMng.buildDisplayImage(displayImage, f);
+            lensCanvas.paintLensImage(f, p, lensWidth, painting, c, 
+                                    zoomForLens);
+        } else 
+            lensCanvas.paintLensImage(f, p, lensWidth, painting, c, 
+                                    zoomForLens);
     }
     
     /** Return the lens image. */

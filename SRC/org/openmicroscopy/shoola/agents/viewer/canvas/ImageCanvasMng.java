@@ -115,7 +115,9 @@ public class ImageCanvasMng
     public void setMagFactorLens(double f)
     {
         magFactorLens = f;
-        if (view.getLens() != null) drawLens(anchor);
+        view.resetLens();
+        if (anchor != null) drawLens(anchor);
+        //if (view.getLens() != null) drawLens(anchor);
     }
     
     public void setClick(boolean b) { click = b; }
@@ -128,7 +130,6 @@ public class ImageCanvasMng
         pin = b;
         painting = b;
         view.resetLens();
-        //view.repaint();
     }
     
     /** Set the width of the lens. */
@@ -153,10 +154,9 @@ public class ImageCanvasMng
         pin = b;
         if (pin && anchor != null)
             drawLens(anchor);
-        else if (!pin) {
+        else if (!pin)
             view.resetLens();
-            view.repaint();
-        }
+            //view.repaint();
     }
     
     public void setPainting(boolean b, Color c)
@@ -199,7 +199,7 @@ public class ImageCanvasMng
         dragging = false;
         if (onOff && !pin) {
             view.resetLens();
-            view.repaint();  
+            //view.repaint();  
         }
     }
     
