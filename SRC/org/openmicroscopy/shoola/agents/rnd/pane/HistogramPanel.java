@@ -40,11 +40,10 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 
 /** 
  * 
@@ -63,15 +62,16 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 class HistogramPanel
 	extends JPanel
 {
-	static final int            WIDTH = 420, HEIGHT = 250;
-	static final int			topBorder = 20, leftBorder = 80, 
-								bottomBorder = 30, rightBorder = 40, 
-								window = 10, heightStat = 200, widthStat = 300,
-								triangleW = 7, triangleH = 8,
-								lS = leftBorder+widthStat,
-								tS = topBorder+heightStat;
-								
- 
+	
+	/** Graphic constant. */
+	static final int            	WIDTH = 420, HEIGHT = 250;
+	static final int				topBorder = 20, leftBorder = 80, 
+									bottomBorder = 30, rightBorder = 40, 
+									window = 10, heightStat = 200, 
+									widthStat = 300,
+									triangleW = 7, triangleH = 8,
+									lS = leftBorder+widthStat,
+									tS = topBorder+heightStat;
 	 
 	/** Color of the Histogram bins. */
 	private static final Color  	binColor = Color.BLUE;
@@ -348,7 +348,6 @@ class HistogramPanel
 		g2D.drawString("intensity", 5, topBorder+heightStat/2+hEnd+5);
 		PixelsStatsEntry entry;
 		int min, max;
-		System.out.println("l: "+histogramData.length);
 		int[] bin = new int[histogramData.length];
 		for (int i = 0; i < histogramData.length; i++) {
 			entry = histogramData[i];
@@ -357,11 +356,9 @@ class HistogramPanel
 			bin[i] = max;
 			g2D.fillRect(leftBorder+i*sizeBin, max, sizeBin, min-max); 
 		}
-		
 		g2D.setColor(axeColor);
 		int y, x;
 		for (int i = 0; i < histogramData.length; i++) {
-			 //y = (int) histogramData[i].max;
 			 y = bin[i];
 			 x = leftBorder+(i+1)*sizeBin;
 			 g2D.drawLine(x, y, x, topBorder+heightStat+5);
