@@ -205,7 +205,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		
 		// create the name and position it.
 		name = new PText(module.getName());
-		
+		name.setGreekThreshold(0);
 		name.setFont(Constants.NAME_FONT);
 		name.setPickable(false);
 		name.setScale(NAME_MAG);
@@ -224,7 +224,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		float linkTargetHeight = height;
 		
 		// add the input link target
-		inputLinkTarget = new LinkTarget();
+		inputLinkTarget = getLinkTarget();
 		linkTargets.addChild(inputLinkTarget);
 		inputLinkTarget.setOffset(-Constants.LINK_TARGET_HALF_SIZE,height);
 				
@@ -248,7 +248,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		setStroke(Constants.MODULE_STROKE);
 		
 		// add the other target
-		outputLinkTarget = new LinkTarget();
+		outputLinkTarget = getLinkTarget();
 		linkTargets.addChild(outputLinkTarget);
 		outputLinkTarget.setOffset(width-Constants.LINK_TARGET_HALF_SIZE,
 			linkTargetHeight);
@@ -256,9 +256,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		buildMagnifiedLabel();
 	}
 	
+	protected LinkTarget getLinkTarget() {
+		return new LinkTarget();
+	}
+	
 	private void buildMagnifiedLabel() {
 		// set up the magnified version of the module name
 		zoomName = new PText(module.getName());
+		zoomName.setGreekThreshold(0);
 		zoomName.setFont(Constants.NAME_FONT);
 		zoomName.setPickable(false);
 		zoomName.setConstrainWidthToTextWidth(false); 
@@ -349,7 +354,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 				// add them to label nodes, 
 				// and store max width
 				paramIn = (ChainFormalInputData) inputs.get(i);
-				inp = new FormalInput(this,paramIn);
+				inp = getFormalInput(paramIn);
 				labelNodes.addChild(inp);
 				inSet.add(inp);
 				if (inp.getLabelWidth() > maxInputWidth)
@@ -357,7 +362,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			}
 			if (i < outSize) {
 				paramOut = (ChainFormalOutputData) outputs.get(i);
-				outp = new FormalOutput(this,paramOut);
+				outp = getFormalOutput(paramOut);
 				labelNodes.addChild(outp);
 				outSet.add(outp);
 				if (outp.getLabelWidth() > maxOutputWidth)
@@ -409,6 +414,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			else
 				height+=outHeight; 
 		}
+	}
+	
+	protected FormalInput getFormalInput(ChainFormalInputData paramIn) {
+		return new FormalInput(this,paramIn);
+	}
+	
+	protected FormalOutput getFormalOutput(ChainFormalOutputData paramOut) {
+		return new FormalOutput(this,paramOut);
 	}
 	
 	/**
@@ -614,6 +627,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	private FormalParameter getMatchingParameterNode(final Class clazz,
 		FormalParameterData target) {
 		
+		if (labelNodes == null) 
+			return null;
+		
 		Iterator iter = labelNodes.getChildrenIterator();
 		FormalParameter p;
 		FormalParameterData param;
@@ -762,5 +778,4 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		if (p instanceof BufferedObject)  
 			((ModuleNodeEventHandler) handler).animateToNode(p);	
 	}
-
 }
