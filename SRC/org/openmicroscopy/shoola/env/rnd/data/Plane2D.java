@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
  * 
@@ -51,37 +52,32 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
  * </small>
  * @since OME2.2
  */
-public class Plane2D
-{
-	/** Number of pixels on the X1 axis. */
-	private int     	sizeX1;
+public abstract class Plane2D
+{  
 	
-	/** Number of pixels on the X2 axis. */
-	private int     	sizeX2;   
-
-	/** Reference to a plane def. */
-	private PlaneDef	pDef;
+	private BytesConverter strategy;
+	private byte[]		wavelengthStack;
+	protected PlaneDef	planeDef;
+	protected int		bytesPerPixel;
+	protected PixelsDimensions dims;
 	
 
-	Plane2D(PlaneDef pDef, int sizeX1, int sizeX2)
+	protected Plane2D(PlaneDef pDef, PixelsDimensions dims, int bytesPerPixel, 
+						byte[] wavelengthStack, BytesConverter strategy)
 	{
-		this.pDef = pDef;
-		this.sizeX1 = sizeX1;
-		this.sizeX2 = sizeX2;
+		this.planeDef = pDef;
+		this.dims = dims;
+		this.bytesPerPixel = bytesPerPixel;
+		this.wavelengthStack = wavelengthStack;
+		this.strategy = strategy;
 	}
 	
-	/** 
-	* Retrieves the PixelValue of a given point in a Plane2D.
-	*
-	* @param x1		x1-coordinate of the pixel.
-	* @param x2     x2-coordinate of the pixel.
-	* @return	Object related to the selected BytesConverter strategy
-	*/
+	protected abstract int calculateOffset(int x1, int x2);
 
 	public Object getPixelValue(int x1, int x2)
 	{
-		int offset;
-		return null;
+		int offset = calculateOffset(x1, x2);
+		return strategy.pack(wavelengthStack, offset, bytesPerPixel);
 	}
 	
 }

@@ -37,14 +37,17 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
- * The image data. 
+ * Encapsulates access to the image raw data. 
  * Contains the logic to interpret a linear byte array as a 5D array. 
  * Knows how to extract a 2D-plane from the 5D array, but delegates to the 
  * specified 2D-Plane the retrieval of pixel values. 
- *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,11 +62,6 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
  */
 public class DataSink
 {
-	/** Minimum value assigned to the dimension order constants. */
-	private static int  		MIN_DIM_ORDER = 0;
-	
-	/** Minimum value assigned to the dimension order constants. */
-	private static int			MAX_DIM_ORDER = 5;
     
 	/** Identifies the type used to store pixel values. */
 	public static final int    	BIT = 0;
@@ -127,6 +125,8 @@ public class DataSink
 		pixelTypesMap.put("DOUBLE", new Integer(DOUBLE));
 	}
 	
+	private static final boolean	BIG_ENDIAN = true;
+	
 	/**
 	 * Utility method to convert a pixel type string-identifier into the
 	 * corresponding constant defined by this class.
@@ -145,48 +145,63 @@ public class DataSink
 	}
 	
 
-	/** The ID of the pixels data. */
-	private int      			ID;
+	/** The id of the pixels set. */
+	private Pixels      			pixelsID;
+	//TODO: this should be turned into int!
 	
-	/** 
-	* The order in which pixels are stored. Must be one of the constants 
-	* defined by this class.
-	*/
-	private int         		dimOrder;
-	
-	/** 
-	* The type used to store pixel values. Must be one of the constants 
-	* defined by this class.
-	*/
-	private int         		pixelType;
-	
-	/** 
-	 * Whether or not multi-byte pixels values are stored in big endian order.
+	/**
+	 * The type used to store pixel values. One of the constants defined by
+	 * this class.
 	 */
-	private boolean     		isBigEndian;
+	private int         		pixelType;
     
-	/** 
-	* Creates a new object to deal with the image data.
- 	*
- 	* @param ID  			The id of the pixel data.
- 	* @param dimOrder		The order in which pixels are stored. 
- 	* 						Must be one of the constants defined by this class.  
- 	* @param pixelType  	The type used to store pixel values. 
- 	* 						Must be one of the constants defined by this class.
- 	* @param isBigEndian	Whether or not multi-byte pixels values are stored 
- 	* 						in big endian order.
- 	*/
-	DataSink(int ID, int dimOrder, int pixelType, boolean isBigEndian)
+    private PixelsDimensions 	dims;
+    private PlaneDef			curPlaneDef;
+    private PixelsService 		source;
+    
+    private byte[][]			stack;
+    
+    
+    
+    private void fillStack(int t)
+		throws DataSourceException
+    {
+    	int stackSize = (dims.sizeX * dims.sizeY * dims.sizeZ);
+    	stack = new byte[dims.sizeW][];
+    	try {
+			for (int w = 0; w < dims.sizeW; ++w) {
+				stack[w] = source.getStack(pixelsID, w, t, BIG_ENDIAN);
+				if (stack[w].length != stackSize)
+					throw new DataSourceException(
+						"Wrong stack size: "+stack[w].length);
+			}	
+		} catch (ImageServerException ise) {
+			throw new DataSourceException("Can't retrieve pixels data.", ise);
+		}
+    }
+    
+	/**
+	 * Creates a new object to deal with the image data.
+	 * 
+	 * @param pixelsID		The id of the pixels set.
+	 * @param pixelType		The type used to store pixel values. 
+	 * 						Must be one of the constants defined by this class.
+	 * @param dims			The pixels dimensions.
+	 * @param source		The gateway to the raw data.
+	 */
+	public DataSink(Pixels pixelsID, int pixelType, PixelsDimensions dims, 
+													PixelsService source)
 	{
-		if (ID == 0) throw new IllegalArgumentException();
-		if (dimOrder < MIN_DIM_ORDER  ||  MAX_DIM_ORDER < dimOrder)
-			throw new IllegalArgumentException("Invalid dimension order");
 		if (pixelType < MIN_PIX_TYPE  ||  MAX_PIX_TYPE < pixelType)
 			throw new IllegalArgumentException("Invalid pixel type");
-		this.ID = ID;
-		this.dimOrder = dimOrder;
+		if (dims == null)	throw new NullPointerException("No dimensions.");
+		if (source == null)	throw new NullPointerException("No source.");
+		this.pixelsID = pixelsID;
 		this.pixelType = pixelType;
-		this.isBigEndian = isBigEndian;
+		this.dims = dims;
+		this.curPlaneDef = null;
+		this.source = source;
+		stack = new byte[dims.sizeW][];
 	}
 
 	/** Retrieves the Pixels type */
@@ -196,9 +211,37 @@ public class DataSink
 	}
 	
 	/** Builds a plane2D. */
-	public Plane2D getPlane2D(PlaneDef pDef, int index, int sizeX1, int sizeX2)
+	public Plane2D getPlane2D(PlaneDef pDef, int w)
+		throws DataSourceException
 	{
-		return new Plane2D(pDef, sizeX1, sizeX2);
+		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
+			fillStack(pDef.getT());
+		curPlaneDef = pDef;
+		BytesConverter strategy = 
+							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
+		return createPlane(stack[w], strategy);
+	}
+	
+	private Plane2D createPlane(byte[] wavelengthStack, BytesConverter strategy)
+	{
+		Plane2D plane = null;
+		switch (curPlaneDef.getSlice()) {
+			case PlaneDef.XY:
+				plane = new XYPlane(curPlaneDef, dims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+				break;
+			case PlaneDef.XZ:
+				plane = new XZPlane(curPlaneDef, dims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+				break;
+			case PlaneDef.YZ:
+				plane = new YZPlane(curPlaneDef, dims, 
+									BYTES_PER_PIXEL[pixelType],
+									wavelengthStack, strategy);
+		}
+		return plane;
 	}
 
 }
