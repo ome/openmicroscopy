@@ -29,9 +29,7 @@
 
 package org.openmicroscopy.shoola.agents.roi.events;
 
-import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
-import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+
 
 
 //Java imports
@@ -39,6 +37,9 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
+import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * 
