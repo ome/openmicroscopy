@@ -161,7 +161,8 @@ public class DataSink
     
     private byte[][]			stack;
     
-    private Plane2D				curPlane2D;
+    //Hack due to current status: should be removed. 
+    private HashMap				planes;
     
     private void fillStack(int t)
 		throws DataSourceException
@@ -253,6 +254,7 @@ public class DataSink
 		this.curPlaneDef = null;
 		this.source = source;
 		stack = new byte[dims.sizeW][];
+		planes = new HashMap();
 	}
 
 	/** Retrieves the Pixels type. */
@@ -265,6 +267,8 @@ public class DataSink
 		//if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
 		//	fillStack(pDef.getT());
 		//To be restored.
+		Integer index = new Integer(w);
+		Plane2D curPlane2D = (Plane2D) planes.get(index);
 		if (curPlane2D == null || curPlaneDef.getT() != pDef.getT() ||
 			curPlaneDef.getZ() != pDef.getZ())	{
 			curPlaneDef = pDef;
@@ -272,7 +276,8 @@ public class DataSink
 							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
 			//return createPlane(stack[w], strategy);
 			//Replaced by this *temporary* hack:
-			curPlane2D = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 	
+			curPlane2D = makeXYPlane(pDef.getZ(), w, pDef.getT(), strategy); 
+			planes.put(index, curPlane2D);	
 		}
 		return curPlane2D;
 	}
