@@ -341,7 +341,7 @@ class STSAdapter
         Criteria c = AnnotationMapper.buildImageAnnotationCriteria(imageID);
         List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
         TreeMap map = new TreeMap();
-        if (l != null || l.size() > 0) 
+        if (l != null && l.size() > 0) 
             AnnotationMapper.fillImageAnnotations(l, map);
         return map;
     }
@@ -353,7 +353,7 @@ class STSAdapter
         Criteria c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetID);
         List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
         TreeMap map = new TreeMap();
-        if (l != null || l.size() > 0) 
+        if (l != null && l.size() > 0) 
             AnnotationMapper.fillDatasetAnnotations(l, map);
         return map;
     }
@@ -451,7 +451,7 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInGroup(CategoryGroupData group)
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
         Iterator i = group.getCategories().iterator();
@@ -481,10 +481,10 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInGroup(int groupID)
+    public List retrieveImagesNotInCategoryGroup(int catGroupID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(groupID);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID);
         CategoryGroup group = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (group != null) {
@@ -492,11 +492,104 @@ class STSAdapter
                 registry.lookup(LookupNames.USER_CREDENTIALS);
             CategoryGroupData data = 
                 CategoryMapper.fillCategoryGroup(group, uc.getUserID());
-            if (data != null) return retrieveImagesNotInGroup(data);
+            if (data != null) return retrieveImagesNotInCategoryGroup(data);
         }
         return new ArrayList();
     }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInUserGroupNotInCategoryGroup(
+            CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = group.getCategories().iterator();
+        Map ids = new HashMap();
+        CategorySummary cs;
+        Iterator k;
+        Object obj;
+        while (i.hasNext()) {
+            cs = (CategorySummary) i.next();
+            k = cs.getImages().iterator();
+            while (k.hasNext()) {
+                obj = k.next(); //Integer
+                ids.put(obj, obj);
+            }  
+        }
+        List images = new ArrayList();
+        List userImages = 
+            registry.getDataManagementService().retrieveImagesInUserGroup();
+        Iterator j = userImages.iterator();
+        ImageSummary is;
+        while (j.hasNext()) {
+            is = (ImageSummary) j.next();
+            if (!ids.containsKey(new Integer(is.getID())))
+                images.add(is);
+        }
+        return images;
+    }
 
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = group.getCategories().iterator();
+        Map ids = new HashMap();
+        CategorySummary cs;
+        Iterator k;
+        Object obj;
+        while (i.hasNext()) {
+            cs = (CategorySummary) i.next();
+            k = cs.getImages().iterator();
+            while (k.hasNext()) {
+                obj = k.next(); //Integer
+                ids.put(obj, obj);
+            }  
+        }
+        List images = new ArrayList();
+        List userImages = 
+            registry.getDataManagementService().retrieveImagesInUserDatasets();
+        Iterator j = userImages.iterator();
+        ImageSummary is;
+        while (j.hasNext()) {
+            is = (ImageSummary) j.next();
+            if (!ids.containsKey(new Integer(is.getID())))
+                images.add(is);
+        }
+        return images;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInSystemNotInCategoryGroup(
+            CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        Iterator i = group.getCategories().iterator();
+        Map ids = new HashMap();
+        CategorySummary cs;
+        Iterator k;
+        Object obj;
+        while (i.hasNext()) {
+            cs = (CategorySummary) i.next();
+            k = cs.getImages().iterator();
+            while (k.hasNext()) {
+                obj = k.next(); //Integer
+                ids.put(obj, obj);
+            }  
+        }
+        List images = new ArrayList();
+        List userImages = 
+            registry.getDataManagementService().retrieveImagesInSystem();
+        Iterator j = userImages.iterator();
+        ImageSummary is;
+        while (j.hasNext()) {
+            is = (ImageSummary) j.next();
+            if (!ids.containsKey(new Integer(is.getID())))
+                images.add(is);
+        }
+        return images;
+    }
+    
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
@@ -622,22 +715,35 @@ class STSAdapter
         category.setDescription(data.getDescription());
         List toUpdate = new ArrayList(), newAttributes = new ArrayList();
         toUpdate.add(category);
-        Map classifications = data.getClassifications();    
+        //Map classifications = data.getClassifications();    
+        Map classifications = data.getImageClassifications();
         ClassificationData cData;
         Classification classification;
+        //Images to declassify
         if (imgsToRemove != null) {
             Iterator i = imgsToRemove.iterator();
+            List l;
+            Iterator k;
+            ImageSummary is;
             while (i.hasNext()) {
-                cData = (ClassificationData) classifications.get(i.next());
-                c = CategoryMapper.buildBasicClassificationCriteria(
-                        cData.getID());
-                classification = 
-                    (Classification) gateway.retrieveSTSData("Classification", 
-                                                                c);
-                classification.setValid(Boolean.FALSE);
-                toUpdate.add(classification);
+                is = (ImageSummary) i.next();
+                l = (List) classifications.get(new Integer(is.getID()));
+                if (l != null) {
+                    k = l.iterator();
+                    while(k.hasNext()) {
+                        cData = (ClassificationData) k.next();
+                        c = CategoryMapper.buildBasicClassificationCriteria(
+                                cData.getID());
+                        classification = (Classification) 
+                            gateway.retrieveSTSData("Classification", c);
+                        classification.setValid(Boolean.FALSE);
+                        toUpdate.add(classification);
+                    }
+                }  
             }     
         }
+        
+        //Images to classify
         if (imgsToAdd != null) {
             Iterator j = imgsToAdd.iterator();
             Object[] results;

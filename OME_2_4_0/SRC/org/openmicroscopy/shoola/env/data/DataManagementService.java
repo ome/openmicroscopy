@@ -264,7 +264,7 @@ public interface DataManagementService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public List retrieveUserGroupImages()
+    public List retrieveImagesInUserGroup()
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -277,7 +277,7 @@ public interface DataManagementService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public List retrieveUserGroupImages(ImageSummary iProto)
+    public List retrieveImagesInUserGroup(ImageSummary iProto)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
