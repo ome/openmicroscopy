@@ -119,9 +119,26 @@ public class ChainCompoundModuleView extends ModuleView {
 		return null;
 	}
 	
+	private ChainBox getChainBox() {
+		PNode parent=this;
+		do {
+			parent = parent.getParent();
+			if (parent instanceof ChainBox) {
+				return (ChainBox) parent;
+			}
+		} while (parent != null);
+		return null;
+	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		PaletteChainView chainView = getChainView();
 		chainView.zoomToFullView(handler);
 	}
+	
+	public void mousePopup(GenericEventHandler handler) {
+		PNode p = getChainBox();
+		if (p != null) {
+			((ModuleNodeEventHandler) handler).animateToNode(p);
+		}
+	}	
 }
