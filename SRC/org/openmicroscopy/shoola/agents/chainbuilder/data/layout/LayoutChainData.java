@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
  * @since OME2.2
  */
 public class LayoutChainData  extends AnalysisChainData
+	implements Comparable
 {
 		
 	/** Static parameters for layout */
@@ -488,6 +489,15 @@ public class LayoutChainData  extends AnalysisChainData
 				node.getPosInLayer());
 		} 
 	}
+	
+	public int compareTo(Object o) {
+		if (o instanceof LayoutChainData) {
+			int id = ((LayoutChainData) o).getID();
+			return getID()-id;
+		}
+		else
+			return 1;
+	}
 	/**
 	 * An auxiliary class to hold layering information
  	 */
@@ -596,4 +606,5 @@ public class LayoutChainData  extends AnalysisChainData
 		}
 	}
 
+	
 }
