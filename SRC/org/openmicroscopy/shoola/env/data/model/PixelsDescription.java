@@ -55,16 +55,30 @@ public class PixelsDescription
 {
 	/** Attribute_id in DB. */
 	private int		id;
+	
+	/** OMEIS pixels ID. */
 	private long	imageServerID;
+	
+	/** Number of pixels on the X-axis. */
 	private int 	sizeX;
+	
+	/** Number of pixels on the Y-axis. */
 	private int 	sizeY;
+	
+	/** Number of pixels on the Z-axis. */
 	private int 	sizeZ;
+	
+	/** Number of wavelengths in the OME image. */
 	private int 	sizeC;
+	
+	/** Number of timepoints in the OME image. */ 
 	private int 	sizeT;
-	private int 	bitsPerPixel;
+	
 	private String	pixelType;
+	
 	private String	imageServerURL;
     
+    //shouldn't be stored.
     private Pixels  backingPixels;
 	
 	public PixelsDescription() {}
@@ -77,7 +91,7 @@ public class PixelsDescription
      */
     public PixelsDescription(Pixels pixels)
     {
-        if(pixels == null)
+        if (pixels == null)
         {
             throw new IllegalArgumentException("Null pixels parameter");
         }
@@ -89,13 +103,12 @@ public class PixelsDescription
         this.sizeZ = pixels.getSizeZ().intValue();
         this.sizeC = pixels.getSizeC().intValue();
         this.sizeT = pixels.getSizeT().intValue();
-        this.bitsPerPixel = pixels.getBitsPerPixel().intValue();
         this.imageServerURL = pixels.getRepository().getImageServerURL();
         this.backingPixels = pixels;
     }
 	
 	public PixelsDescription(int id, long imageServerID, int sizeX, int sizeY, 
-							int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
+							int sizeZ, int sizeC, int sizeT, 
 							String imageServerURL)
 	{
 		this.id = id;
@@ -105,7 +118,6 @@ public class PixelsDescription
 		this.sizeZ = sizeZ;
 		this.sizeC = sizeC;
 		this.sizeT = sizeT;
-		this.bitsPerPixel = bitsPerPixel;
 		this.imageServerURL = imageServerURL;	
 	}
     
@@ -125,11 +137,11 @@ public class PixelsDescription
      * @param pixels
      */
     public PixelsDescription(int id, long imageServerID, int sizeX, int sizeY,
-                             int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
+                             int sizeZ, int sizeC, int sizeT,
                              String imageServerURL, Pixels pixels)
     {
-        this(id,imageServerID,sizeX,sizeY,sizeZ,sizeC,sizeT,bitsPerPixel,
-             imageServerURL);
+        this(id, imageServerID, sizeX, sizeY, sizeZ, sizeC, sizeT,
+        	imageServerURL);
         this.backingPixels = pixels;
     }
 	
@@ -137,11 +149,6 @@ public class PixelsDescription
 	public DataObject makeNew()
 	{
 		return new PixelsDescription();
-	}
-	
-	public int getBitsPerPixel()
-	{
-		return bitsPerPixel;
 	}
 	
 	public int getSizeC()
@@ -167,11 +174,6 @@ public class PixelsDescription
 	public int getSizeZ()
 	{
 		return sizeZ;
-	}
-
-	public void setBitsPerPixel(int bitsPerPixel)
-	{
-		this.bitsPerPixel = bitsPerPixel;
 	}
 
 	public void setSizeC(int sizeC)
@@ -236,10 +238,7 @@ public class PixelsDescription
     
     public void setPixels(Pixels pixels)
     {
-        if(pixels != null)
-        {
-            this.backingPixels = pixels;
-        }
+        if (pixels != null) this.backingPixels = pixels;
     }
 
 	public String getPixelType() 
