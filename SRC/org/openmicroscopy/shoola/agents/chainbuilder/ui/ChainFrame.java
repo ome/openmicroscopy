@@ -29,16 +29,23 @@
 
 package org.openmicroscopy.shoola.agents.chainbuilder.ui;
 
-//Java imports
+//Java import
 import java.awt.Component;
-import java.awt.Container; 
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.Timer;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -46,6 +53,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ChainCreationCanvas;
 import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
  * An example of a top-level window that inherits from {@link TopWindow}.
@@ -59,10 +67,14 @@ import org.openmicroscopy.shoola.env.config.IconFactory;
  * </smalbl>
  * @since OME2.2
  */
-public class ChainFrame extends JFrame {
+public class ChainFrame extends JFrame implements ActionListener {
 	
 
+	/** the lifetime of a status label */
+	private static final int MSG_LIFETIME =3000;
 	
+	/*** status label should take width of whole screen.*/
+	private static final int MAX_WIDTH=1000;
 	/** the canvas that holds the chain */
 	private ChainCreationCanvas canvas;
 	
@@ -74,6 +86,17 @@ public class ChainFrame extends JFrame {
 	/** the chain data manager */
 	private ChainDataManager manager;
 	
+	/** 
+	 * A status label for feedback regarding problems during the chain creation
+	 * process
+	 */
+	private JLabel statusLabel;
+	
+	/**
+	 * A timer for killing the status label
+	 */
+	private final Timer timer = new Timer(MSG_LIFETIME,this);
+	
 	public ChainFrame(int index,final ChainDataManager manager,CmdTable cmdTable,
 			final UIManager uiManager) {
 		super("New OME Chain: "+index);
@@ -84,7 +107,6 @@ public class ChainFrame extends JFrame {
 		Container container = getContentPane();
 		canvas  = new ChainCreationCanvas(this,manager);
 		
-//		container. setLayout(new BorderLayout());
 		container.setLayout(new BoxLayout(container,BoxLayout.Y_AXIS));
 		// create tool bar.
 		JToolBar  tb = new JToolBar();
@@ -105,6 +127,19 @@ public class ChainFrame extends JFrame {
 		container.add(tb);
 		canvas.setAlignmentX(Component.LEFT_ALIGNMENT);
 		container.add(canvas);
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel,BoxLayout.X_AXIS));
+		panel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+		statusLabel = new JLabel();
+		statusLabel.setBackground(Constants.CANVAS_BACKGROUND_COLOR);
+		statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		statusLabel.setFont(Constants.SMALL_TOOLTIP_FONT);
+		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panel.add(statusLabel);
+		
+		
+		container.add(panel);
 		addWindowListener(new WindowAdapter() {
 			public void windowActivated(WindowEvent e) {
 				ChainFrame c = (ChainFrame) e.getWindow();
@@ -115,8 +150,11 @@ public class ChainFrame extends JFrame {
 		show();
 		
 		tb.setMaximumSize(tb.getSize());
-		tb.setPreferredSize(tb.getSize());
-		tb.setMinimumSize(tb.getSize());
+	//	tb.setPreferredSize(tb.getSize());
+		//tb.setMinimumSize(tb.getSize());
+		Dimension d  = new Dimension(MAX_WIDTH,panel.getHeight());
+		
+		statusLabel.setMaximumSize(d);
 	}
 	
 	public void save() {
@@ -134,5 +172,17 @@ public class ChainFrame extends JFrame {
 	
 	public void updateChainPalette(LayoutChainData chain) {
 		uiManager.updateChainPalette(chain);
+	}
+	
+	public void setStatusLabel(String label) {
+		statusLabel.setText(label);
+		if (timer.isRunning())
+			timer.restart();
+		else
+			timer.start();
+	}
+	
+	public void actionPerformed(ActionEvent e ) {
+		statusLabel.setText("");
 	}
 }
