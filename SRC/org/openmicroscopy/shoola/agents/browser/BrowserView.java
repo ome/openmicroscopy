@@ -71,14 +71,29 @@ import edu.umd.cs.piccolo.PCanvas;
 public class BrowserView extends PCanvas
                          implements BrowserModelListener, ProgressListener
 {
+    // The backing browser model.
     private BrowserModel browserModel;
+    
+    // The backing browser overlay model.
     private BrowserTopModel overlayModel;
+    
+    // The browser overlay view.
     private BrowserCamera overlayCamera;
+    
+    // The environment (contains registry, etc.)
     private BrowserEnvironment env;
+    
+    // The layout map for thumbnails (maps thumbnails to offsets)
     private Map layoutMap;
+    
+    // The footprint taken up, in pixels at 100% zoom, of the entire
+    // set of thumbnails.
     private Rectangle2D footprint;
     
+    // Keeps track of all embedded HoverSensitive objects.
     private Set hoverSensitive;
+    
+    // Keeps track of all embedded RegionSensitive objects.
     private Set regionSensitive;
 
     /**
@@ -101,6 +116,7 @@ public class BrowserView extends PCanvas
             init(overlayModel);
             
             List thumbnailList = browserModel.getThumbnails();
+            
             for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
             {
                 getLayer().addChild((Thumbnail)iter.next());
