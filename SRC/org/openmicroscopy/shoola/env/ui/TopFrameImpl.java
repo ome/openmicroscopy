@@ -35,8 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -52,7 +50,6 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 
 /** 
  * Implements the {@link TopFrame} interface
@@ -71,22 +68,11 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 
 public class TopFrameImpl 
     extends JFrame 
-    implements TopFrame, ActionListener
+    implements TopFrame
 {
 	
 	/** Constant used to size and positions the topFrame. */
 	static final int				INSET = 100;
-	
-	/** 
-	 * ID to handle action command and position the menu Item 
-	 * in the connectMenu.
-	 */ 
-	static final int        		OMEDS = TopFrame.OMEDS;
-	static final int        		OMEIS = TopFrame.OMEIS;
-	
-	/** Action command ID. */ 
-	private static final int        EXIT_APP = 10;
-	private static final int		HELPME = 11;
 	
 	private static final Dimension	BAR_SEPARATOR = new Dimension(15, 0);
 	
@@ -103,6 +89,9 @@ public class TopFrameImpl
     /** Reference to the singleton {@link Container}. */ 
     private Container      			container;
     
+	/** Reference to the {@link TopFrameImplManager manager}. */ 
+    private TopFrameImplManager		manager;
+    
     /**
      * Creates a new Instance of {@link TopFrameImpl}
      *
@@ -112,7 +101,7 @@ public class TopFrameImpl
     {
         super("Open Microscopy Environment");
         this.container = container;
-        
+        manager = new TopFrameImplManager(this, container);
         //make sure we have nice window decorations
         JFrame.setDefaultLookAndFeelDecorated(true);  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -188,53 +177,6 @@ public class TopFrameImpl
     {
 		desktop.getDesktopManager().deiconifyFrame(frame);
     }
-
-	/** 
-	 * Handles the <code>EXIT<code> event fired by the fileMenu.
-	 * 
-	 * Required by the ActionListener interface. 
-	 */ 
-    public void actionPerformed(ActionEvent e)
-    {
-        try {
-            int cmd = Integer.parseInt(e.getActionCommand());
-            // just in case we need to handle other events
-            switch (cmd) {
-                case EXIT_APP:
-					System.exit(0);	//TODO: shut down container.
-                  	break;
-                case OMEDS:
-                	connectToOMEDS();	break;
-                case OMEIS:
-					connectToOMEIS(); break;
-                case HELPME:
-                	help(); break;
-                default: break;
-            }        
-        } catch(NumberFormatException nfe) {
-                throw nfe;  //just to be on the safe side...
-        }
-    }
-    
-	/** Post an event to connect to OMEDS. */
-	private void connectToOMEDS()
-	{
-		ServiceActivationRequest request = new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES);
-		container.getRegistry().getEventBus().post(request);
-	}
-    
-	/** Connect to OMEIS. */
-	private void connectToOMEIS()
-	{
-		//LoginOMEIS loginIS = new LoginOMEIS(container);
-		//showLogin(loginIS);
-		//TODO: post an event
-	}
-    
-    private void help()
-    {
-    }
     
 	/** Pops up the top frame window. */
     public void open()
@@ -246,10 +188,10 @@ public class TopFrameImpl
     }
 
 	/** 
-	* Adds the specified menuItem to the container at the position n-1. 
-	* 
-	* @param menuItem       menuItem to add.
-	*/
+	 * Adds the specified menuItem to the container at the position n-1. 
+	 * 
+	 * @param menuItem       menuItem to add.
+	 */
     private void addToMenuFile(JMenuItem menuItem)
     {
         JComponent popMenu = fileMenu.getPopupMenu();
@@ -265,8 +207,9 @@ public class TopFrameImpl
         JMenuBar menuBar = new JMenuBar(); 
         createFileMenu();
         createConnectMenu();
+        createHelpMenu();
         viewMenu = new JMenu("Window");
-        helpMenu = new JMenu("Help");
+       
         menuBar.add(fileMenu);
         menuBar.add(connectMenu);
 		menuBar.add(viewMenu);
@@ -274,28 +217,34 @@ public class TopFrameImpl
         return menuBar;
     }
     
-	/** Initializes the fileMenu. */
+	/** Initializes the <code>helpMenu</code>. */
+    private void createHelpMenu()
+    {
+		helpMenu = new JMenu("Help");
+		JMenuItem menuItem = new JMenuItem("help");
+		manager.attachComponentListener(menuItem, TopFrameImplManager.HELPME);
+		helpMenu.add(menuItem);
+    }
+    
+	/** Initializes the <code>fileMenu</code>. */
     private void createFileMenu()
     {
         fileMenu = new JMenu("File");
         JMenuItem menuItem = new JMenuItem("Exit");
-        menuItem.setActionCommand(""+EXIT_APP);
-        menuItem.addActionListener(this);
+        manager.attachComponentListener(menuItem, TopFrameImplManager.EXIT_APP);
         fileMenu.add(menuItem);
     }
     
-	/** Initializes the connectMenu. */
+	/** Initializes the <code>connectMenu</code>. */
 	private void createConnectMenu()
 	{
 		connectMenu = new JMenu("Connect");
 		JMenuItem menuItem = new JMenuItem("OMEDS");
-		menuItem.setActionCommand(""+OMEDS);
-		menuItem.addActionListener(this);
+		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEDS);
 		connectMenu.add(menuItem);
 		menuItem = new JMenuItem("OMEIS");
 		menuItem.setEnabled(false);
-		menuItem.setActionCommand(""+OMEIS);
-		menuItem.addActionListener(this);
+		manager.attachComponentListener(menuItem, TopFrameImplManager.OMEIS);
 		connectMenu.add(menuItem);
 	}
 	
@@ -327,8 +276,7 @@ public class TopFrameImpl
 		JButton help = new JButton(im.getIcon(IconManager.HELP));
 		help.setToolTipText(
 				UIFactory.formatToolTipText("Please help me."));
-		help.setActionCommand(""+HELPME);
-		help.addActionListener(this);		
+		manager.attachComponentListener(help, TopFrameImplManager.HELPME);	
 		helpToolBar.add(help);
 		helpToolBar.addSeparator();
 	}
@@ -342,8 +290,7 @@ public class TopFrameImpl
 		JButton exit = new JButton(im.getIcon(IconManager.EXIT));
 		exit.setToolTipText(
 			UIFactory.formatToolTipText("Exit the application."));
-		exit.setActionCommand(""+EXIT_APP);
-		exit.addActionListener(this);
+		manager.attachComponentListener(exit, TopFrameImplManager.EXIT_APP);
 		fileToolBar.add(exit);
 		fileToolBar.addSeparator();	
 	}
@@ -355,15 +302,16 @@ public class TopFrameImpl
 		connectToolBar.setFloatable(false);
 		IconManager im = IconManager.getInstance(container.getRegistry());
 		JButton connectDS = new JButton(im.getIcon(IconManager.CONNECT_DS));
-		connectDS.setActionCommand(""+OMEDS);
-		connectDS.addActionListener(this);
+		manager.attachComponentListener(connectDS, TopFrameImplManager.OMEDS);
 		connectDS.setToolTipText(
 			UIFactory.formatToolTipText("Connect to OME DataService."));
 		JButton connectIS = new JButton(im.getIcon(IconManager.CONNECT_IS));
+		connectIS.setEnabled(false);
 		connectIS.setToolTipText(
 			UIFactory.formatToolTipText("Connect to OME ImageService."));
-		connectIS.setActionCommand(""+OMEIS);
-		connectIS.addActionListener(this);	
+		manager.attachComponentListener(connectIS, TopFrameImplManager.OMEIS);
+		
+		//add buttons to toolBar
 		connectToolBar.add(connectDS);
 		connectToolBar.addSeparator();
 		connectToolBar.add(connectIS);
@@ -382,13 +330,11 @@ public class TopFrameImpl
         try {
             switch (menuType) {
                 case FILE:
-                    menu = fileMenu;
-                    break;
+                    menu = fileMenu; break;
                 case VIEW:
-                    menu = viewMenu;
-                    break;
+                    menu = viewMenu; break;
                 case HELP:
-                    menu = helpMenu;
+                    menu = helpMenu; break;
                 case CONNECT:
                 	menu = connectMenu;
             }// end switch  
