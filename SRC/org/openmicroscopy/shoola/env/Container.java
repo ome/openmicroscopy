@@ -73,11 +73,13 @@ public final class Container
 {
 
 	/** 
-	 * Points to the container's configuration file.
+	 * Points to the configuration directory.
 	 * The path is relative to the installation directory.
 	 */
-	public static final String		CONFIG_FILE = "config"+File.separator+
-													"/container.xml";
+	public static final String		CONFIG_DIR = "config";
+	
+	/** The name of the container's configuration file. */
+	public static final String		CONFIG_FILE = "container.xml";
 	
 	/**
 	 * The sole instance.
@@ -191,7 +193,22 @@ public final class Container
 	 */
 	public String getConfigFile() 
 	{
-		File f = new File(homeDir, CONFIG_FILE);
+		return resolveConfigFile(CONFIG_FILE);
+	}
+	
+	/**
+	 * Resolves <code>fileName</code> against the configuration directory.
+	 * 
+	 * @param fileName The name of a configuration file.
+	 * @return	Returns the absolute path to the specified file.
+	 */
+	public String resolveConfigFile(String fileName)
+	{
+		if (fileName == null)	throw new NullPointerException();
+		StringBuffer relPath = new StringBuffer(CONFIG_DIR);
+		relPath.append(File.separatorChar);
+		relPath.append(fileName);
+		File f = new File(homeDir, relPath.toString());
 		return f.getAbsolutePath();
 	}
 
