@@ -81,6 +81,8 @@ public class UserNotifierDialog
 	/** The height of the dialog window. */
 	private static final int		WIN_H = 150;
 	
+	private static final Dimension	D_WIN = new Dimension(WIN_W, WIN_H);
+	
 	/** Summary's Detail to display if requested. */
 	private String 					detail;
 	
@@ -115,7 +117,7 @@ public class UserNotifierDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
 		buildGUI(summary, iconID);	
 		pack();
-		setVisible(true);
+		//setVisible(true);
 	}
 	
 	/**
@@ -178,7 +180,7 @@ public class UserNotifierDialog
 		txtArea.setLineWrap(true);
 		txtArea.setWrapStyleWord(true);
 		JScrollPane scrollPane  = new JScrollPane(txtArea);
-		scrollPane.setPreferredSize(new Dimension(WIN_W, WIN_H));
+		scrollPane.setPreferredSize(D_WIN);
 		contentPane.add(scrollPane);
 		pack(); 
 	 }
@@ -191,7 +193,7 @@ public class UserNotifierDialog
 	 */
 	private void buildGUI(String summary, int iconID)
 	{
-		IconManager IM = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
 		JTextArea  label = new JTextArea(summary);
 		label.setLineWrap(true);
@@ -200,7 +202,7 @@ public class UserNotifierDialog
 		label.setEditable(false);
 		label.setOpaque(false);
 		
-		iconPanel.add(new JLabel(IM.getIcon(iconID)));
+		iconPanel.add(new JLabel(im.getIcon(iconID)));
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		content.setLayout(gridbag);
@@ -213,9 +215,8 @@ public class UserNotifierDialog
 		c.anchor = GridBagConstraints.EAST;
 		gridbag.setConstraints(label, c);
 		content.add(label);
-		Dimension d = new Dimension(WIN_W, WIN_H);
-		content.setPreferredSize(d);
-		content.setSize(d);
+		content.setPreferredSize(D_WIN);
+		content.setSize(D_WIN);
 		contentPane.add(content);
 	}
 	
@@ -228,7 +229,7 @@ public class UserNotifierDialog
 	 */
 	private void buildGUIWithButton(String summary, int iconID)
 	{
-		IconManager IM = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
 		JTextArea  label = new JTextArea(summary);
 		label.setLineWrap(true);
@@ -236,7 +237,7 @@ public class UserNotifierDialog
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		iconPanel.add(new JLabel(IM.getIcon(iconID)));
+		iconPanel.add(new JLabel(im.getIcon(iconID)));
 		button = new JButton("Details >>");
 		button.addActionListener(this);
 		GridBagLayout gridbag = new GridBagLayout();
@@ -251,13 +252,12 @@ public class UserNotifierDialog
 		c.anchor = GridBagConstraints.EAST;
 		gridbag.setConstraints(label, c);
 		content.add(label); 
-		c.insets = new Insets(10,0,0,0);  //top padding
+		c.insets = new Insets(10, 0, 0, 0);  //top padding
 		c.gridy = 1;
 		gridbag.setConstraints(button, c); 
 		content.add(button);
-		Dimension d = new Dimension(WIN_W, WIN_H);
-		content.setPreferredSize(d);
-		content.setSize(d);
+		content.setPreferredSize(D_WIN);
+		content.setSize(D_WIN);
 		contentPane.add(content);
 	}
 	

@@ -36,6 +36,10 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Rectangle;
+
+import javax.swing.JDialog;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -150,7 +154,8 @@ public class UserNotifierImpl
 	 */
 	private void showMessageDialog(String title, String summary, int iconID)
 	{	
-		new UserNotifierDialog(reg, topFrame, title, summary, iconID);
+		showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
+								iconID));
 	}
 	
 	/**
@@ -166,10 +171,28 @@ public class UserNotifierImpl
 									String detail, int iconID)
 	{
 		if (detail == null) 
-			new UserNotifierDialog(reg, topFrame, title, summary, iconID);
+			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
+								iconID));
 		else	
-			new UserNotifierDialog(reg, topFrame, title, summary, detail, 
-									iconID); 
+			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
+								detail, iconID)); 
+	}
+	
+	/** 
+	 * Sizes, centers and brings up the specified editor dialog.
+	 *
+	 * @param   editor	The editor dialog.
+	 */
+	private void showDialog(JDialog editor)
+	{
+		Rectangle   tfB = topFrame.getBounds(), 
+					psB = editor.getBounds();
+		int         offsetX = (tfB.width-psB.width)/2, 
+					offsetY = (tfB.height-psB.height)/2;
+		if (offsetX < 0)   offsetX = 0;
+		if (offsetY < 0)   offsetY = 0;
+		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
+		editor.setVisible(true);
 	}
 	
 }
