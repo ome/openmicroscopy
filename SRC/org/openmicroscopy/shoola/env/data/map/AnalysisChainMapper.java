@@ -120,7 +120,7 @@ public class AnalysisChainMapper
 		criteria.addWantedField("links.from_output.semantic_type","id");
 		criteria.addWantedField("links.to_input.semantic_type","id");
 		criteria.addWantedField("links.from_output.semantic_type","name");
-		criteria.addWantedField("links.to_input.semantic_type","name");
+		criteria.addWantedField("links.to_input.semantic_type","name"); 
 		return criteria;
 	}
 
