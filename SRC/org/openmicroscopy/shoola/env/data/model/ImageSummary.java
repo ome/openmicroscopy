@@ -59,11 +59,9 @@ public class ImageSummary
 	private String	name;
 	
 	/** 
-	 * The OMEIS id's of this image's pixels.
+	 * The id's of this image's pixels.
 	 * The first element of the array always contains the default pixels.
-	 */
-	private long[]	imageServerPixelsID;
-    
+	 */  
     private int[]	pixelsIDs;
     
     /**
