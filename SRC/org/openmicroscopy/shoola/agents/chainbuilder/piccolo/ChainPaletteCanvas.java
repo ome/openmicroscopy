@@ -50,12 +50,14 @@ import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceAdapter;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PCamera;
@@ -76,6 +78,7 @@ import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
+import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -84,6 +87,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.ButtonNode;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
 
 
@@ -173,6 +177,12 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	/** max width of a row */
 	private float maxRowWidth = 0;
 	
+	/** the pan button */
+	private ChainPalettePanButton panButton;
+	
+	/** the zoom button */
+	private ChainPaletteZoomButton zoomButton;
+	
 	public ChainPaletteCanvas(ChainDataManager dataManager) {
 		super();
 		this.dataManager = dataManager;
@@ -211,6 +221,26 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		PCamera camera = getCamera();
 		camera.addInputEventListener(new ChainbuilderToolTipHandler(camera));
 		
+		// build buttons
+		IconFactory icons = dataManager.getIconFactory();
+		Icon zoomIcon = icons.getIcon("zoomMode.png");
+		Icon zoomIconDisabled = icons.getIcon("zoomMode-disabled.png");
+		Icon panIcon = icons.getIcon("pan.png");
+		Icon panIconDisabled = icons.getIcon("pan-disabled.png");
+		
+		
+		Image panImage = ((ImageIcon) panIcon).getImage();
+		Image panDisabledImage = ((ImageIcon) panIconDisabled).getImage();
+		panButton = new ChainPalettePanButton(this,panImage,panDisabledImage);
+		panButton.addToCanvas(this);
+		panButton.setEnabled(true);
+		
+		Image zoomImage = ((ImageIcon) zoomIcon).getImage();
+		Image zoomDisabledImage = ((ImageIcon) zoomIconDisabled).getImage();
+		zoomButton = new ChainPaletteZoomButton(this,zoomImage,zoomDisabledImage);
+		zoomButton.addToCanvas(this);
+		zoomButton.setOffset(panButton.getWidth(),0);
+		zoomButton.setEnabled(false);
 		
 		dataManager.getRegistry().getEventBus().register(this,new Class[] {
 				MouseOverDataset.class, SelectDataset.class,
@@ -453,12 +483,16 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		panning = false;
 		removeInputEventListener(panHandler);
 		addInputEventListener(handler);
+		zoomButton.setEnabled(false);
+		panButton.setEnabled(true);
 	}
 	
 	public void setToPan() {
 		panning = true;
 		removeInputEventListener(handler);
 		addInputEventListener(panHandler);
+		zoomButton.setEnabled(true);
+		panButton.setEnabled(false);
 	}
 	
 	public void scaleToSize() {
@@ -669,6 +703,49 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
     		}
     }
 	
- 
+    private  class ChainPalettePanButton extends ButtonNode {
+    	
+	    	private ChainPaletteCanvas canvas;
+	
+	    	public ChainPalettePanButton(ChainPaletteCanvas canvas,Image enabled,
+	    			Image disabled) {
+	    		super(enabled,disabled);
+	    		this.canvas = canvas;
+	    	}
+	    	
+	    	public void doClick() {
+	    		canvas.setToPan();
+	    	}
+	    	
+	    	public void doPopup(){
+	    		
+	    	}
+	    	
+	    	public void setEnabled(boolean v) {
+	    		super.setEnabled(v);
+	    	}
+    }
     
+    private  class ChainPaletteZoomButton extends ButtonNode {
+    	
+	    	private ChainPaletteCanvas canvas;
+	
+	    	public ChainPaletteZoomButton(ChainPaletteCanvas canvas,Image enabled,
+	    			Image disabled) {
+	    		super(enabled,disabled);
+	    		this.canvas = canvas;
+	    	}
+	    	
+	    	public void doClick() {
+	    		canvas.setToZoom();
+	    	}
+	    	
+	    	public void doPopup(){
+	    		
+	    	}
+	    	
+	    	public void setEnabled(boolean v) {
+	    		super.setEnabled(v);
+	    	}
+    }
 }
