@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>Threading</title>
+</head>
+<body>
+<p>We now analyze the correctness of the design with respect to safety and liveness. 
+  We make use of confinement techniques to guarantee that only one thread will ever 
+  traverse and execute a call tree, as exemplified by the following diagram which 
+  describes the common invocation pattern:</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+  <tr>
+    <td align="center"><img src="images/threading.gif" width="700" height="560" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_8-1"><b>Fig 8-1</b></a>: Threading.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+</table>
+<p>Because of how the interaction is structured follows that any two threads can never 
+  share, at the same time, references to the command, monitor, and <code>BathCallTree</code> 
+  object (linked to the monitor). In fact, when the <code>CmdProcessor</code> has 
+  a thread execute the command, that thread will be the only one from which references 
+  to those objects are accessible. This means no locking is required to ensure safety 
+  and, because we have no locks, those objects can't suffer from liveness failures. 
+  However for this to work in practice, the implementation has to take great care 
+  in ensuring that:</p>
+<ul>
+  <li>Every method within a view follows the pattern outlined in the diagram.</li>
+  <li>An instance of a concrete subclass of <code>BatchCallTree</code> never lets 
+    escape references to the nodes that were added to the tree during the invocation 
+    of <code>buildTree()</code>. Ideally, nodes would be created, added, and de-referenced 
+    within <code>buildTree()</code>.</li>
+</ul>
+<p>&#160;</p>
+<p>The <code>BatchCallTree</code> explicitly checks at runtime that the first constraint 
+  is met &#151; it makes sure that one thread at most can ever invoke <code>exec()</code>, 
+  so to make it impossible for a view to recycle a <code>BatchCallTree</code> object 
+  across different calls. However, its subclasses are trusted to enforce the latter 
+  constraint. (The implementation can eventually be refined to check for that as well.)</p>
+<p>Because the monitor relays execution events to the observer (the <code>AgentEventListener</code> 
+  object specified by the agent) within the Swing event dispatching thread, whatever 
+  the actual implementation of the observer is not going to impact the safety and 
+  liveness properties discussed above. Also note that a view's method can be safely 
+  called concurrently from several threads &#151; although agents should avoid spawning 
+  threads, this is not going to be a problem because the <code>BatchCallTree</code> 
+  object is method-scoped. Finally, the returned call handle can be safely shared 
+  among different threads &#151; even though this is not something very useful for an 
+  agent to do.</p>
+<p>Even though objects from the underlying data services fall out of the scope of 
+  this discussion, we now point out safety issues that arise from their use in a multi-threaded 
+  environment. We saw that a call tree is basically private to the execution thread. 
+  However, the objects manipulated by the leaf nodes (which make the actual calls 
+  to the underlying data services) may not. Specifically, all calls to the data services 
+  that involve passing or obtaining pre-existing data objects are not safe &#151; basically 
+  all update/reload calls. This is because the data services rely on ome-java which 
+  is not completely thread-safe. Calls that obtain new data objects (data loading) 
+  are safe though.</p>
+<div class="noteFrame">
+  <div class="noteLabel"><b>Issue</b>: Thread-safety within ome-java.</div>
+  <div class="noteContent">Asses whether this library takes into account how multiple 
+    threads could concurrently affect the state of the objects it manipulates. If 
+    it doesn't, then it's not safe to use in a multi-threaded environment. For example, 
+    say agent A asynchronously calls an update method to remove dataset d1 from project 
+    p1, which also contains datasets d2. Meanwhile, agent B calls the same update 
+    method to remove all datasets from p1.<br/>
+    NOTE: If not completely thread-safe, an easy solution would be to use a queued 
+    command processor so that all calls to ome-java still happen in the background, 
+    but are serialized. However, this is sub-optimal if you have several long tasks 
+    that could be run concurrently &#151; for example loading all thumbnails in a 
+    dataset and retrieving all metadata in another dataset. Another option would be 
+    to have an agent always wait for the result of an async call before making another 
+    one. Sadly, this would only work if we keep all agent's data private to that agent, 
+    which would kind of go against object identity and caching.</div>
+</div>
+</body>
+</html>
