@@ -84,6 +84,7 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 	 */
 	public PNode setToolTipNode(PInputEvent event) {
 		PPath node = null;
+		
 		PNode n = event.getInputManager().getMouseOver().getPickedNode();
 		double scale = camera.getViewScale();
 		double y = 0;
@@ -92,7 +93,7 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 				ModuleView modView = (ModuleView) n;
 				ChainModuleData mod = modView.getModule();
 				String name = mod.getName();
-				String desc = mod.getDescription();
+				//String desc = mod.getDescription();
 				if (name.compareTo("") != 0) {
 					PText pt = new PText(name);
 					pt.setFont(font);
@@ -102,19 +103,20 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 					pt.setFont(font);
 					y += pt.getHeight();
 					
-					if (desc != null && desc.compareTo("") != 0 ) {
+					/*if (desc != null && desc.compareTo("") != 0 ) {
 						PText p = new PText(desc.trim());
 						node.addChild(p);
 						p.setFont(descFont);
 						p.setOffset(0,y);
 						y+=p.getHeight();				
-					}
+					}*/
 				}
 			}
 			if (node != null) {
 				node.setBounds(node.getUnionOfChildrenBounds(null));
 				node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 				node.setPaint(Constants.TOOLTIP_FILL_COLOR);
+				node.setPickable(false);
 			}
 			return node;
 		}
