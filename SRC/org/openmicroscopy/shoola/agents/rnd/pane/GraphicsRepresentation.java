@@ -911,6 +911,9 @@ class GraphicsRepresentation
         g2D.drawLine(lS+5, tS+3, lS+8, tS);
         g2D.drawLine(xControl, tS, xControl, tS+5);
         
+        //draw line with the same color.
+        g2D.drawLine(xEnd1, topBorder, xEnd1, tS);
+        
         //input interval
         g2D.drawString(start, leftBorder-wStart/2, tS+hFont);
         g2D.drawString(end, xControl-wEnd/2, hFont+tS+extra);
@@ -972,6 +975,7 @@ class GraphicsRepresentation
         g2D.setColor(oendColor);
         g2D.fill(filledPolygonEndOutput); 
         g2D.setColor(lineColor);
+     
         g2D.setStroke(new BasicStroke(1.5f));
         //draw line
         g2D.drawLine((int) staticStartPt.getX(), (int) staticStartPt.getY(), 
@@ -980,6 +984,7 @@ class GraphicsRepresentation
                     (int) staticEndPt.getX(), (int) staticEndPt.getY());
         //draw curve
         g2D.draw(quad);
+       
     }
 
     /** Paint the histogram. */
