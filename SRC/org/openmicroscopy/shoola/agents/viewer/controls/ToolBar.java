@@ -31,11 +31,15 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -45,6 +49,7 @@ import javax.swing.SpinnerNumberModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
+import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -67,11 +72,8 @@ public class ToolBar
 	extends JToolBar
 {
 	
-	private static final Color		STEELBLUE = new Color(0x4682B4);
-	
-	/** Dimension of the separator between the toolBars. */
-	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
-	private static final Dimension	SEPARATOR = new Dimension(15, 0);
+	/** Height of the JPanel which contains the textfield. */
+	private static final int		HEIGHT = 20;
 	
 	/** Bring up the save image widget. */
 	private JButton					saveAs;
@@ -97,11 +99,16 @@ public class ToolBar
 	/** Labels displaying the number of timepoints and of z-sections. */
 	private JLabel					zLabel, tLabel;
 	
+	private JPanel					zPanel, tPanel;
+	
 	private ToolBarManager			manager;
+	
+	private int 					txtWidth;
 	
 	public ToolBar(ViewerCtrl control, Registry registry, int sizeT,
 							int sizeZ, int t, int z)
 	{
+		initTxtWidth();
 		initMovieComponents(registry, sizeT-1);
 		initTextFields(t, z, sizeT, sizeZ);
 		manager = new ToolBarManager(control, this, sizeT, t, sizeZ, z);
@@ -187,8 +194,7 @@ public class ToolBar
 		pause.setEnabled(b);
 		forward.setEnabled(b);
 		fps.setEnabled(b);
-		editor.setEnabled(b);
-		
+		editor.setEnabled(b);	
 	}
 	
 	/** 
@@ -202,14 +208,19 @@ public class ToolBar
 		tField = new JTextField();
 		tField = new JTextField(""+t, (""+maxT).length());
 		if (maxT-1 == 0) tField.setEditable(false);
-		tField.setForeground(STEELBLUE);
+		tField.setForeground(Viewer.STEELBLUE);
 		tField.setToolTipText(
 			UIUtilities.formatToolTipText("Enter a timepoint."));
 		zField = new JTextField(""+z, (""+maxZ).length());
-		zField.setForeground(STEELBLUE);
+		zField.setForeground(Viewer.STEELBLUE);
 		zField.setToolTipText(
 			UIUtilities.formatToolTipText("Enter a Z point"));
 		if (maxZ-1 == 0) zField.setEditable(false);
+		
+		JLabel label = new JLabel(" Z ");
+		zPanel = TextFieldPanel(label, zField, zLabel, ("/"+maxZ).length());
+		label = new JLabel(" T ");
+		tPanel = TextFieldPanel(label, tField, tLabel, ("/"+maxT).length());
 	}
 	
 	/** Build the main tool bar. */
@@ -217,12 +228,12 @@ public class ToolBar
 	{
 		setFloatable(false);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		add(buildTextFieldBar());
-		addSeparator(SEPARATOR);
 		add(buildRenderingBar());
-		addSeparator(SEPARATOR);
+		addSeparator(Viewer.SEPARATOR);
 		add(buildMovieBar());
-		addSeparator(SEPARATOR_END);
+		addSeparator(Viewer.SEPARATOR);
+		add(buildTextFieldBar());
+		addSeparator(Viewer.SEPARATOR_END);
 	}
 	
 	/** Tool bar containing the textFields. */
@@ -230,18 +241,46 @@ public class ToolBar
 	{
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
-		JLabel label = new JLabel(" Z ");
-		label.setForeground(STEELBLUE);
-		tb.add(label);
-		tb.add(zField);
-		tb.add(zLabel);
+		tb.add(zPanel);
+		tb.add(tPanel);
 		tb.addSeparator();
-		label = new JLabel(" T ");
-		label.setForeground(STEELBLUE);
-		tb.add(label);
-		tb.add(tField);
-		tb.add(tLabel);
 		return tb;
+	}
+	
+	/** 
+	 * Build Panel with TextField to diplay in the toolBar. 
+	 * Use to control the size of the textField in the ToolBar.
+	 */
+	private JPanel TextFieldPanel(JLabel l, JTextField field, JLabel le, 
+					int length)
+	{
+		Insets insets = field.getInsets();
+		int y = insets.left+length*txtWidth+insets.right;
+		JPanel p = new JPanel(), pField = new JPanel(), 
+				pAll = new JPanel();
+		pField.setLayout(null);
+		Dimension d = new Dimension(y, HEIGHT);
+		pField.setPreferredSize(d);
+		pField.setSize(d);
+		field.setPreferredSize(d);
+		field.setSize(d);
+		pField.add(field);
+		
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(l);
+		p.add(pField);
+		p.add(le);
+		
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		pAll.setLayout(gridbag);
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		gridbag.setConstraints(p, c);
+		pAll.add(p);
+
+		return pAll;
 	}
 	
 	/** Tool bar containing the rendering buttons. */
@@ -250,10 +289,9 @@ public class ToolBar
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 		tb.add(render);
-		tb.addSeparator();
 		tb.add(inspector);
-		tb.addSeparator();
 		tb.add(saveAs);
+		tb.addSeparator();
 		return tb;
 	}
 	
@@ -267,11 +305,18 @@ public class ToolBar
 		tb.add(stop);
 		tb.add(rewind);
 		tb.add(forward);
-		tb.addSeparator();
 		JLabel label = new JLabel(" Rate ");
 		tb.add(label);
 		tb.add(fps);
+		tb.addSeparator();
 		return tb;
 	}
-		
+	
+	
+	private void initTxtWidth()
+	{
+		FontMetrics metrics = getFontMetrics(getFont());
+		txtWidth = metrics.charWidth('m');
+	}
+	
 }
