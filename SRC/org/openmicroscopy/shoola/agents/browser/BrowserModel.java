@@ -496,6 +496,10 @@ public class BrowserModel
     public void deselectAllThumbnails()
     {
         Thumbnail[] selected = new Thumbnail[selectedThumbnails.size()];
+        if(selected.length == 0)
+        {
+            return;
+        }
         
         selectedThumbnails.toArray(selected);
         selectedThumbnails.clear();

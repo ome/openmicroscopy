@@ -35,7 +35,10 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A repository of commonly used paint methods.
@@ -57,7 +60,21 @@ public class PaintMethods
             // dummy method for now
             g.drawString("I",4,4);
         }
-
+    };
+    
+    public static final PaintMethod DRAW_SELECT_METHOD = new AbstractPaintMethod()
+    {
+        /* (non-Javadoc)
+         * @see org.openmicroscopy.shoola.agents.browser.images.PaintMethod#paint(java.awt.Graphics2D, org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+         */
+        public void paint(Graphics2D g, Thumbnail t)
+        {
+            Rectangle2D bounds = t.getBounds().getBounds2D();
+            Paint oldPaint = g.getPaint();
+            g.setPaint(new Color(0,0,255,128));
+            g.fill(bounds);
+            g.setPaint(oldPaint);
+        }
     };
     
 }

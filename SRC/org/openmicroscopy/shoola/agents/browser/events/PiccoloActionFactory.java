@@ -36,6 +36,8 @@
  
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.awt.geom.Rectangle2D;
+
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
@@ -132,8 +134,9 @@ public class PiccoloActionFactory
     
     /**
      * Generates a select thumbnail action that depends on the mode of the
-     * @param target
-     * @return
+     * @param target The browser model to tie this action to.
+     * @return A select thumbnail action that will change the specified
+     *         BrowserModel.
      */
     public static PiccoloAction getSelectThumbnailAction(final BrowserModel target)
     {
@@ -163,6 +166,8 @@ public class PiccoloActionFactory
                     target.deselectAllThumbnails();                
                 }
                 target.selectThumbnail(t);
+
+                Rectangle2D bounds = t.getBounds().getBounds2D();
             }
         };
         return action;

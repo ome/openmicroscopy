@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
+import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -358,9 +359,11 @@ public class BrowserView extends PCanvas
      */
     public void thumbnailsSelected(Thumbnail[] thumbnails)
     {
-        // TODO change the action and paint for behaviors for the images;
-        // modify the selected region
-        System.err.println("Selection");
+        // here's the paint method assignment
+        for(int i=0;i<thumbnails.length;i++)
+        {
+            thumbnails[i].addMiddlePaintMethod(PaintMethods.DRAW_SELECT_METHOD);
+        }
     }
     
     /**
@@ -368,8 +371,11 @@ public class BrowserView extends PCanvas
      */
     public void thumbnailsDeselected(Thumbnail[] thumbnails)
     {
-        // TODO change the action and paint behaviors for the images;
-        // modify the selected region
+        // here's the paint method deassignment.
+        for(int i=0;i<thumbnails.length;i++)
+        {
+            thumbnails[i].removeMiddlePaintMethod(PaintMethods.DRAW_SELECT_METHOD);
+        }
     }
 
 
