@@ -134,10 +134,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	/** layers for full view */
 	protected PLayer fullLayer = new PLayer();
 	
-	/* bounds of the chain */
-	private PBounds chainBounds  = new PBounds();
-		
-
 	/**
 	 * 
 	 * @param chain		the chain to be drawn
@@ -383,8 +379,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 			ModuleLink modLink = getModuleLink(linkLayer,newLinkNode);
 			if (from.getLayer() > (to.getLayer()+1)) 
 				adjustLink(link,from,to,newLinkNode,modLink);
-			adjustVerticalExtents(newLinkNode.getGlobalFullBounds());
-			adjustVerticalExtents(modLink.getGlobalFullBounds());
 		} 
 	}
 	
@@ -448,17 +442,6 @@ public class ChainView extends PNode implements BufferedObject, MouseableNode {
 	}
 	
 	
-	public void adjustVerticalExtents(PBounds b) {
-		chainBounds.add(b);
-	}
-	
-	public double getHeight() { 
-		return chainBounds.getHeight();
-	}
-	
-	public double getWidth() {
-		return x;
-	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
 		((ModuleNodeEventHandler) handler).animateToNode(this);
