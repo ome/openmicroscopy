@@ -68,22 +68,25 @@ public class RenderingAgtCtrl
 {
 
 	/** Action command ID to display the {@link GreyScalePane}. */
-	static final int		GREY = RenderingDef.GS;
+	static final int				GREY = RenderingDef.GS;
 	
 	/** Action command ID to display the {@link RGBPane}. */
-	static final int		RGB = RenderingDef.RGB;
+	static final int				RGB = RenderingDef.RGB;
 	
 	/** Action command ID to display the {@link HSBPane}. */
-	static final int		HSB = RenderingDef.HSB;
-	
+	static final int				HSB = RenderingDef.HSB;
+
 	/** Action command ID. */
-	static final int		SAVE = 4;
+	static final int				SAVE = 4;
 	
-	private boolean 		displayed;
+	private boolean 				displayed;
 	
-	private HashMap 		renderersPool;
+	/** String corresponding to the specified model. */
+	private String					modelType;
 	
-	private RenderingAgt	abstraction;
+	private HashMap 				renderersPool;
+	
+	private RenderingAgt			abstraction;
 	
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
@@ -249,12 +252,23 @@ public class RenderingAgtCtrl
 		} 
 	}
 	
+	/** Save the image settings. */
+	public void saveDisplayOptions()
+	{
+		//TODO: implement method.
+	}
+	
 	/** Create the specified panel. */
 	public void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
 		abstraction.getPresentation().setModelPane(activate(c));
 		abstraction.setModel(i);
+	}
+	
+	String getModelType()
+	{
+		return modelType;
 	}
 	
 	/** Attach listener to a menu Item. */
@@ -300,20 +314,17 @@ public class RenderingAgtCtrl
 		switch (i) {
 			case GREY:
 				result = GreyScalePane.class;
+				modelType = "Grey";
 				break;
 			case HSB:
 				result = HSBPane.class;
+				modelType = "HSB";
 				break;
 			case RGB:
 				result = RGBPane.class;
+				modelType = "RGB";
 		}
 		return result;
-	}
-	
-	/** Save the image settings. */
-	public void saveDisplayOptions()
-	{
-		//TODO: implement method.
 	}
 	
 	/** Display or not the presentation. */

@@ -145,7 +145,8 @@ class RenderingAgtUIF
 		modelPane.removeAll();
 		modelPane = pane;
 		modelPane.buildComponent();
-		tabs.insertTab("Color Model", null, modelPane, null, POS_MODEL);
+		tabs.insertTab(control.getModelType()+" Model", null, modelPane, null, 
+						POS_MODEL);
 		tabs.setSelectedIndex(POS_MODEL);	
 	}
 
@@ -181,7 +182,8 @@ class RenderingAgtUIF
 												JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		tabs.insertTab("Mapping", null, mappingPanel, null, POS_MAPPING);
-		tabs.insertTab("Color Model", null, modelPane, null, POS_MODEL);
+		tabs.insertTab(control.getModelType()+" Model", null, modelPane, null, 
+						POS_MODEL);
 		tabs.insertTab("Options", null, quantumPane.getCodomainPane(), null, 
 									POS_CD);
 		
