@@ -102,7 +102,7 @@ class RenderingControlImpl
 		newQd = new QuantumDef(family, qd.pixelType, coefficient, 
 								qd.cdStart, qd.cdEnd, bitResolution);
 		rd.setQuantumDef(newQd);
-		renderer.makeQuantumManager();
+		renderer.updateQuantumManager();
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */

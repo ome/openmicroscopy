@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
  */
 class QuantumManager
 {
+	
     /** Number of wavelengths. */
 	private int						sizeW;
 
@@ -99,10 +100,11 @@ class QuantumManager
 			gMin = wGlobal.getGlobalMin();
 			gMax = wGlobal.getGlobalMax();
 			stg.setExtent(gMin, gMax);
-			if (wavesStg[w] == null)	stg.setWindow(gMin, gMax);
+			if (wavesStg[w] == null) stg.setWindow(gMin, gMax); 
 			else 
-				stg.setWindow(wavesStg[w].getWindowStart(),
-									wavesStg[w].getWindowEnd());
+				stg.setWindow(wavesStg[w].getWindowStart(), 
+								wavesStg[w].getWindowEnd());
+	
 			wavesStg[w] = stg;
 		}
 	}

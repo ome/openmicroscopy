@@ -180,13 +180,12 @@ class Renderer
 	}
 	
 	/**
-	 * Creates a {@link QuantumManager} and configures it according to the
+	 * Updates the {@link QuantumManager} and configures it according to the
 	 * current quantum definition.
 	 */
-	void makeQuantumManager()
+	void updateQuantumManager()
 	{
 		QuantumDef qd = renderingDef.getQuantumDef();
-		quantumManager = new QuantumManager(pixelsDims.sizeW);
 		quantumManager.initStrategies(qd, pixelsStats);
 	}
 	
