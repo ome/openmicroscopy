@@ -66,7 +66,10 @@ public class Constants {
 	/** default label color   */ 
     public static final Color DEFAULT_COLOR = Color.BLACK;
 	public static final Color DEFAULT_TEXT_COLOR = DEFAULT_COLOR;
+	public static final Color EXECUTION_SELECTED_FILL = new Color(255,124,124);
 	public static final Color SELECTED_FILL = new Color(145,174,255);
+
+
     public static final Color DEFAULT_FILL = new Color(182,209,255);
 	
    	/** default label font */
