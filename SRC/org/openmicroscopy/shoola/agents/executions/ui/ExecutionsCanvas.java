@@ -1,4 +1,5 @@
 /*
+ * 
  * org.openmicroscopy.shoola.agents.executions.ExecutionsCanvas
  *
  *------------------------------------------------------------------------------
@@ -31,19 +32,15 @@ package org.openmicroscopy.shoola.agents.executions.ui;
 
 //Java imports
 import java.awt.Dimension;
-
 import java.awt.event.MouseEvent;
 import java.awt.Font;
 import java.awt.FontMetrics;
-
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 import java.text.SimpleDateFormat;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
 import javax.swing.JPanel;
 
@@ -52,7 +49,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
@@ -69,7 +65,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * </smalbl>
  * @since OME2.2
  */
-public class ExecutionsCanvas extends JPanel implements ChangeListener, 
+public class ExecutionsCanvas extends JPanel implements 
 	MouseInputListener {
 	
 	public static final int WIDTH =300;
@@ -78,10 +74,6 @@ public class ExecutionsCanvas extends JPanel implements ChangeListener,
 	
 	private static Font tipFont = new Font("Helvetica",Font.PLAIN,10); 
 
-	
-	/* hashes of executions */
-	private ExecutionsModel model;
-	
 	/* the model of the grid */
 	private GridModel gridModel;
 	
@@ -100,11 +92,9 @@ public class ExecutionsCanvas extends JPanel implements ChangeListener,
 	public ExecutionsCanvas(ExecutionsModel model)
 	{
 		super();
-		this.model = model;
-		BoundedLongRangeModel blrm = model.getRangeModel();
-		blrm.addChangeListener(this);
-		gridModel = new GridModel(blrm.getMinimum(),blrm.getMaximum(),
-				model.getLastRowIndex());
+	//this.model = model;
+		gridModel = model.getGridModel();
+		gridModel.setCanvas(this);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
 		
 		// build execution views
@@ -125,17 +115,6 @@ public class ExecutionsCanvas extends JPanel implements ChangeListener,
 	
 	public Dimension getMinimumSize() {
 		return getPreferredSize();
-	}
-	
-	public void stateChanged(ChangeEvent e) {
-		if (!(e.getSource() instanceof BoundedLongRangeModel))
-			return;
-		BoundedLongRangeModel blrm = (BoundedLongRangeModel) e.getSource();
-		Date min = new Date(blrm.getMinimum());
-		Date max = new Date(blrm.getMaximum());
-		Date val = new Date(blrm.getValue());
-		Date endRange = new Date(blrm.getMax());
-		gridModel.setExtent(blrm.getMinimum(),blrm.getMaximum());
 	}
 	
 	public void setBounds(int x,int y,int w,int h) {
