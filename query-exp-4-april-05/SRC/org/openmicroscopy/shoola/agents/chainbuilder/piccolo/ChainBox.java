@@ -136,15 +136,16 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 		addLockedIndicator();
 		
 		// add ower name
-		PText owner = new PText(chain.getOwner());
-		owner.setFont(Constants.LABEL_FONT);
-		owner.setPickable(false);
-	
-		
-		chainLayer.addChild(owner);
-		owner.setScale(2);
-		owner.setOffset(x+HGAP,y+VGAP);
-		y += owner.getHeight()+VGAP*5;
+		if (chain.getOwner() != null) {
+		    PText owner = new PText(chain.getOwner());
+		    owner.setFont(Constants.LABEL_FONT);
+		    owner.setPickable(false);
+		    
+		    chainLayer.addChild(owner);
+		    owner.setScale(2);
+		    owner.setOffset(x+HGAP,y+VGAP);
+		    y += owner.getHeight()+VGAP*5;
+		}
 				
 		chainLayer.addChild(chainView);
 		chainView.setOffset(HGAP*2,y);
