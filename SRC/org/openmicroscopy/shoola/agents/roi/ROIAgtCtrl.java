@@ -358,8 +358,10 @@ public class ROIAgtCtrl
         abstraction.copyPlaneArea(pa, index, newZ, newT);
         if (newT == getCurrentT() && newZ == getCurrentZ()) {
             PlaneArea p = abstraction.getPlaneArea(newZ, newT, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index);
+            }
         }
     }
     
@@ -371,8 +373,10 @@ public class ROIAgtCtrl
         int z = getCurrentZ();
         if (t == getCurrentT() && (z >= from || z <= to)) {
             PlaneArea p = abstraction.getPlaneArea(z, t, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index); 
+            }
         }
     }
     
@@ -383,8 +387,10 @@ public class ROIAgtCtrl
         int t = getCurrentT();
         if (z == getCurrentZ() && (t >= from || t <= to)) {
             PlaneArea p = abstraction.getPlaneArea(z, t, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index);
+            }
         }
     }
     
@@ -396,8 +402,10 @@ public class ROIAgtCtrl
         abstraction.copyAcrossZAndT(pa, index, fromZ, toZ, fromT, toT);
         if ((z >= fromZ || z <= toZ) && (t >= fromT || t <= toT)) {
             PlaneArea p = abstraction.getPlaneArea(z, t, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index);
+            }
         }
     }
     
@@ -408,8 +416,10 @@ public class ROIAgtCtrl
         int t = getCurrentT();
         if (t >= from || t <= to) {
             PlaneArea p = abstraction.getPlaneArea(getCurrentZ(), t, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index);
+            }
         }
     }
     
@@ -420,8 +430,10 @@ public class ROIAgtCtrl
         int t = getCurrentT();
         if (t == from || t == to) {
             PlaneArea p = abstraction.getPlaneArea(getCurrentZ(), t, index);
-            p.scale(abstraction.getMagFactor());
-            drawingCanvas.setPlaneArea(p, index);
+            if (p != null) {
+                p.scale(abstraction.getMagFactor());
+                drawingCanvas.setPlaneArea(p, index);
+            }
         }
     }
     
