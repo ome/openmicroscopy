@@ -151,6 +151,13 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private static final String NO_MULTIPLE_MODULE_LINKS = 
 		"A link between these modules already exists.";
+	
+	private static final String TYPE_MISMATCH_ERROR = 
+		"Two parameters can only be linked if they have the same Semantic Type.";
+	
+	private static final String NO_LEGAL_MODULE_LINKS =
+		"There are no parameters in these modules that can be linked.";
+	
 	/**
 	 * The distance between links when multiple links between two modules
 	 * are created.
@@ -340,9 +347,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			mod.setAllHighlights(true);
 			e.setHandled(true);
 		}
-		else {
-			super.mouseEntered(e);
+		else if (node instanceof PCamera && 
+				lastParameterEntered != null) {
+				lastParameterEntered.setParamsHighlighted(false);
+				ModuleView mod = lastParameterEntered.getModuleView();
+				mod.setAllHighlights(false);
 		}
+		else
+			super.mouseEntered(e);
 	}
 	
 	/**
@@ -364,14 +376,12 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			}			
 			e.setHandled(true);
 		}
-		else if (node instanceof ModuleLinkTarget && linkState == NOT_LINKING) {
-			//ModuleView mod = ((ModuleLinkTarget) node).getModuleView();
-			//mod.setAllHighlights(false);
+		else if (node instanceof ModuleLinkTarget) {
 			((ModuleLinkTarget) node).setParametersHighlighted(false);
 			e.setHandled(true);
 		}
 
-		else if (node instanceof SingleModuleView && linkState == NOT_LINKING) {
+		else if (node instanceof SingleModuleView) {
 			SingleModuleView mod = (SingleModuleView) node;
 			mod.setAllHighlights(false);
 			e.setHandled(true);
@@ -621,10 +631,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		}
 		
 		super.mousePressed(e);
-		PNode node = e.getPickedNode();
-		
-		//System.err.println("mouse pressed on "+node+", state "+linkState);
-		
+		PNode node = e.getPickedNode();		
 		// clear off what was selected.
 		if (selectedLink != null && linkState != LINK_CHANGING_POINT) {
 		//	System.err.println("setting selected link to not be selected, in mousePressed");
@@ -674,7 +681,6 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (linkState != LINK_CHANGING_POINT) {
 			selectedLink = (Link) node;
 			selectedLink.setSelected(true);
-			//System.err.println("mousePressedLink. setting linkstate to not linking");
 			linkState = NOT_LINKING;
 		}
 	}
@@ -748,6 +754,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cancelModuleTargetLink();
 			//System.err.println("mouse pressed linking params. setting to linking cancellation");
 			linkState = LINKING_CANCELLATION;
+			postLinkCompletion = true;
+		}
+		else if (n instanceof ModuleView) {
+			finishModuleTargetLink((ModuleView) n);
 			postLinkCompletion = true;
 		}
 		else if (!(n instanceof ModuleLinkTarget)) { // we're on canvas.
@@ -926,6 +936,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		moduleLink.setTarget(n);
 		if (finishModuleTargetLink(params1,params2) == false) {
+			showNoLegalLinksBetwenModulesError();
 			cancelModuleTargetLink();
 			return;
 		}		
@@ -934,13 +945,64 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cancelModuleTargetLink();
 		}
 		else {
-			
+			moduleLink.setPickable(true);
 			cleanUpModuleTargetLink();
 		}
 		moduleLinkOriginTarget = null;
 		linkState = NOT_LINKING;
 	}
 	
+	
+	private void finishModuleTargetLink(ModuleView mod) {
+		//first, if input and output are the same, barf.
+		if (mod == moduleLinkOriginTarget.getModuleView()) {
+			showSelfLinkError();
+			cancelModuleTargetLink();
+			return;
+		}
+		else if (linkLayer.
+				findModuleLink(mod,moduleLinkOriginTarget.getModuleView()) != null) {
+			canvas.setStatusLabel(NO_MULTIPLE_MODULE_LINKS);
+			cancelModuleTargetLink();
+			return;
+		}
+			
+	//	System.err.println("finishing module target link");
+		// ok. now, create links and make sure we have no cycles.
+		// get inputs & get outputs
+		Collection  params1 = moduleLinkOriginTarget.getParameters();
+		Collection params2;
+		// get the paramters that the module link origin target can link to
+		// and the target in the module
+		if (moduleLinkOriginTarget.isInputLinkTarget()) {
+			params2 = mod.getOutputParameters();
+			//params2 and set target are the outputs of mod
+			moduleLink.setTarget(mod.getOutputLinkTarget());
+		}
+		else {
+			// params2 and set target are the inputs of mod
+			params2 = mod.getUnlinkedInputParameters();
+			moduleLink.setTarget(mod.getInputLinkTarget());
+		}
+
+		
+		
+		if (finishModuleTargetLink(params1,params2) == false) {
+			showNoLegalLinksBetwenModulesError();
+			cancelModuleTargetLink();
+			return;
+		}		
+		if (foundCycle() == true) {
+			canvas.setStatusLabel(NO_CYCLES);
+			cancelModuleTargetLink();
+		}
+		else {
+			moduleLink.setPickable(true);
+			cleanUpModuleTargetLink();
+		}
+		moduleLinkOriginTarget = null;
+		linkState = NOT_LINKING;
+	}
 	
 	private boolean finishModuleTargetLink(Collection params1,Collection params2) {
 		// foreach thing in params1, do something for everything in params2
@@ -1016,17 +1078,24 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cancelParamLink();
 		}
 		else if (lastParameterEntered.isLinkable() == true) {
-			//System.err.println("finishing link");
-			link.setEndParam(lastParameterEntered);
-			if (foundCycle() ==false) {
-				link.setPickable(true);
-				// add the {@link ModuleViewLink} between the modules
-				linkLayer.completeLink(link);
-				cleanUParamLink();
+			
+			if (linkOrigin.sameTypeAs(lastParameterEntered) ==false) {
+				showParamterTypeMisMatchError();
+				cancelParamLink();
 			}
 			else {
-				canvas.setStatusLabel(NO_CYCLES);
-				cancelParamLink();
+			//System.err.println("finishing link");
+				link.setEndParam(lastParameterEntered);
+				if (foundCycle() ==false) {
+					link.setPickable(true);
+					// 	add the {@link ModuleViewLink} between the modules
+					linkLayer.completeLink(link);
+					cleanUParamLink();
+				}
+				else {
+					canvas.setStatusLabel(NO_CYCLES);
+					cancelParamLink();
+				}
 			}
 		}
 		else {
@@ -1356,6 +1425,14 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	
 	private void showSelfLinkError() {
 		canvas.setStatusLabel(NO_SELF_MODULE_LINKS);
+	}
+	
+	private void showParamterTypeMisMatchError() {
+		canvas.setStatusLabel(TYPE_MISMATCH_ERROR);
+	}
+	
+	private void showNoLegalLinksBetwenModulesError() {
+		canvas.setStatusLabel(NO_LEGAL_MODULE_LINKS);
 	}
 
 	
