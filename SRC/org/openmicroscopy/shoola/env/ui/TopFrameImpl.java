@@ -62,21 +62,6 @@ public class TopFrameImpl
     extends JFrame 
     implements TopFrame, ActionListener
 {
-        
-	/** 
-	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
-	 * method to position a component on the bottommost layer of the application 
-	 * internal desktop.
-	 */
-    public static int       DEFAULT_LAYER = 0;
-	/** 
-	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
-	 * method to position a component on the palette layer of the application 
-	 * internal desktop.
-	 * The palette layer sits over the default layer. Useful for floating 
-	 * toolbars and palettes, so they can be positioned above other components. 
-	 */
-    public static int       PALETTE_LAYER = 1;
     
 	/** Action command ID. */    
     static final int        FILE = 0;
@@ -155,8 +140,13 @@ public class TopFrameImpl
         }
     }
     
-    // TODO: display desktop
-    public void open() {
+	/**
+	* Pops up the top frame window.
+	*/
+    public void open()
+    {
+    	pack();
+    	setVisible(true);
     }
     
 	/** 
@@ -221,6 +211,5 @@ public class TopFrameImpl
         }    
         return menu;
     }
-    
     
 }
