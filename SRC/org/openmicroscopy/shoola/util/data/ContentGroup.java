@@ -97,7 +97,6 @@ public class ContentGroup
 	private void completeWorkers() {
 		Iterator iter = completed.iterator();
 		ContentLoader loader;
-		ContentLoader comp;
 		
 		while (iter.hasNext()) {
 			loader = (ContentLoader) iter.next();
