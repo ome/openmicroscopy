@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.agents.zoombrowser.data;
 
 //Java imports
 
-import java.util.List;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -70,21 +68,12 @@ public abstract class ComponentContentLoader extends ContentLoader
 	 * Do the work
 	 */
 	public Object construct() {
-		List items = getContents();
+	    Object contents = getContents();
 		if (component != null) {
-			component.setContents(items);
+			component.setContents(contents);
 			component.layoutContents();
 		}
-		return items;
-	}
-	
-	public abstract List getContents();
-	
-	/**
-	 * handle finishing up 
-	 */
-	public void finished() {
-		group.finishLoader(this);
+		return contents;
 	}
 	
 	/**
