@@ -51,15 +51,49 @@ package org.openmicroscopy.shoola.agents.rnd.metadata;
  */
 public class ChannelData
 {
-	final int           		index;
-	public final int			nanometer;
-	public final String			info;
+	/** Attribute ID in DB. */
+	private final int		id;
+	
+	/** OME index of the channel. */
+	private final int		index;
+	
+	/** Emission wavelength in nanometer. */
+	private final int		nanometer;
+	
+	/** Excitation wavelength in nanometer. */
+	private int				excitation;
+	
+	/** Photometric interpretation. */
+	private String			interpretation;
     
-	public ChannelData(int index, int nanometer, String info)
+    /** */
+    private String			fluor;
+    
+	public ChannelData(int id, int index, int nanometer, String interpretation,
+						int excitation, String fluor)
 	{
-	   this.index = index;                               
-	   this.nanometer = nanometer;
-	   this.info = info;
+		this.id = id;
+		this.index = index;                               
+	   	this.nanometer = nanometer;
+	   	this.interpretation = interpretation;
+	   	this.excitation = excitation;
+	   	this.fluor = fluor;
 	}
-   
+	
+	public int getNanometer() { return nanometer; }
+	public int getID() { return id; }
+	public int getIndex() { return index; }
+	
+	public String getInterpretation() { return interpretation; }
+
+	public void setInterpretation(String string) { interpretation = string; }
+
+	public int getExcitation() {return excitation; }
+	
+	public String getFluor() { return fluor; }
+	
+	public void setExcitation(int excitation) { this.excitation = excitation; }
+
+	public void setFluor(String fluor) { this.fluor = fluor; }
+
 }
