@@ -98,8 +98,11 @@ public class ViewerUIF
 	private Registry				registry;
 	
 	private IconManager				im;
+	
 	private boolean					active;
 	
+	private JScrollPane 			scrollPane;
+
 	ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
 				int defaultT, int defaultZ)
 	{
@@ -143,6 +146,8 @@ public class ViewerUIF
 		if (maxT == 0) b = false;
 		else b = true;
 		//toolbar Movie controls.
+		toolBar.getPause().setEnabled(b);
+		toolBar.getForward().setEnabled(b);
 		toolBar.getRewind().setEnabled(b);
 		toolBar.getPlay().setEnabled(b);
 		toolBar.getStop().setEnabled(b);
@@ -202,18 +207,15 @@ public class ViewerUIF
 	 */
 	 void setImage(BufferedImage img)
 	 {
-		int w = img.getWidth();
-		int h = img.getHeight();
-		Dimension d = new Dimension(w, h);
+	 	int imageWidth = img.getWidth(), imageHeight  = img.getHeight();
+		Dimension d = new Dimension(imageWidth, imageHeight);
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
 		canvas.paintImage(img);
-		if (!active)
-			setWindowSize(w+2*EXTRA, h+2*EXTRA+2*toolBar.getHeight());
-	 	active = true;
-	 	revalidate();
+		canvas.revalidate();
+		setWindowSize(imageWidth+4*EXTRA, imageHeight+6*EXTRA); 
 	}
-
+	
 	/** Create a menu. */
 	private JMenuBar createMenuBar(int maxT)
 	{
@@ -282,7 +284,7 @@ public class ViewerUIF
 		canvas = new ImageCanvas();
 		contents = new JPanel();
 		buildContents();
-		JScrollPane scrollPane = new JScrollPane(contents);
+		scrollPane = new JScrollPane(contents);
 		container.add(scrollPane);
 		setFrameIcon(im.getIcon(IconManager.VIEWER));
 	}
@@ -317,10 +319,20 @@ public class ViewerUIF
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = 8*(screenSize.width/10);
-		int height = 9*(screenSize.height/10);
+		int height = 8*(screenSize.height/10);
 		if (w > width) w = width;
 		if (h > height) h = height;
+		setTBSize(w, h);
 		setSize(w, h);		
+	}
+	
+	private void setTBSize(int w, int h)
+	{
+		Dimension d = toolBar.getSize();
+		int wSeparator = w-3*d.width;
+		if (wSeparator > 0) {
+			toolBar.addSeparator();
+		}
 	}
 	
 }

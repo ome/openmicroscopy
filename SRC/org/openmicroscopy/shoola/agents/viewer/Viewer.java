@@ -32,8 +32,8 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -79,6 +79,12 @@ public class Viewer
 	public static final Color		BACKGROUND_COLOR = new Color(204, 204, 255);
 	
 	public static final Color		STEELBLUE = new Color(0x4682B4);
+	
+	public static final Dimension	TOOLBAR_DIMENSION = new Dimension(20, 300);
+	
+		/** Dimension of the separator between the toolBars. */
+	public static final Dimension	SEPARATOR_END = new Dimension(100, 0);
+	public static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	/** Reference to the {@link Registry}. */
 	private Registry			registry;
