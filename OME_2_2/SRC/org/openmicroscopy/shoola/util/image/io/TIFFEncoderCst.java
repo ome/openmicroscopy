@@ -75,10 +75,5 @@ class TIFFEncoderCst
 
 	//field type
 	static final int 	SHORT = 3;
-
-	//color band constants
-	static final int	RED_BAND = 0;
-	static final int	GREEN_BAND = 1;
-	static final int	BLUE_BAND = 2;
 														
 }

@@ -56,10 +56,9 @@ import java.io.IOException;
  * </small>
  * @since OME2.2
  */
-public class TIFFEncoder
+public class TIFFEncoder 
+	implements Encoder
 {
-	
-	public static final String	FORMAT_EXTENSION = "tiff";
 								
 	private DataOutputStream	output;
 	
@@ -69,16 +68,6 @@ public class TIFFEncoder
 	private int 				bitsPerSample, samplesPerPixel , nEntries , 
 								photoInterp, ifdSize, imageSize;
 	private int					imageWidth, imageHeight;
-	
-	public TIFFEncoder(BufferedImage image, DataOutputStream output)
-		throws IllegalArgumentException
-	{
-		checkColorModel(image);
-		checkOutput(output);
-		this.image = image;
-		this.output = output;
-		init();
-	}
 	
 	/** Save the image as an uncompressed big-endian TIFF. */
 	public void write()
@@ -96,6 +85,16 @@ public class TIFFEncoder
 					(TIFFEncoderCst.HDR_SIZE+ifdSize+bpsSize+scaleSize);
 		output.write(new byte[size]); // force image to start at offset 768
 		writeRGBPixels();
+	}
+	
+	public void initialization(BufferedImage image, DataOutputStream output)
+		throws IllegalArgumentException
+	{
+		checkColorModel(image);
+		checkOutput(output);
+		this.image = image;
+		this.output = output;
+		init();
 	}
 	
 	/** Initialize the values. */
@@ -200,9 +199,9 @@ public class TIFFEncoder
 		DataBufferByte 
 		bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
 		//model chosen			
-		byte[] red = bufferByte.getData(TIFFEncoderCst.RED_BAND);
-		byte[] green = bufferByte.getData(TIFFEncoderCst.GREEN_BAND);
-		byte[] blue = bufferByte.getData(TIFFEncoderCst.BLUE_BAND);
+		byte[] red = bufferByte.getData(EncoderUtils.RED_BAND);
+		byte[] green = bufferByte.getData(EncoderUtils.GREEN_BAND);
+		byte[] blue = bufferByte.getData(EncoderUtils.BLUE_BAND);
 		while (bytesWritten < size) {
 			if ((bytesWritten + count) > size)
 				count = size - bytesWritten;
