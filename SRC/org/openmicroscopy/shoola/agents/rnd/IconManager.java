@@ -96,11 +96,17 @@ public class IconManager
 	/** ID of the mapping icon. */
 	public static final int		MAPPING = 10;
 	
+	/** ID of the channel big icon. */
+	public static final int		CHANNEL_BIG = 11;	
+	
+	/** ID of the channel big icon. */
+	public static final int		CHANNEL = 12;	
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 10;
+	private static int          MAX_ID = 12;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -117,6 +123,8 @@ public class IconManager
 		relPaths[SAVE_SETTINGS] = "nuvola_filesave16.png";
 		relPaths[RENDER] = "render16.png";
 		relPaths[MAPPING] = "nuvola_kmplot16.png";
+		relPaths[CHANNEL_BIG] = "nuvola_log48.png";
+		relPaths[CHANNEL] = "nuvola_log16.png";
 	}
 	
 	/** The sole instance that provides. */

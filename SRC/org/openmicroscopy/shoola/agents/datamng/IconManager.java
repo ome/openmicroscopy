@@ -116,12 +116,30 @@ public class IconManager
 	
 	/** ID of the createDataset icon. */
 	public static final int		CREATE_DATASET = 17;	
+	
+	/** ID of the createproject big icon. */
+	public static final int		CREATE_PROJECT_BIG = 18;
+	
+	/** ID of the createDataset big icon. */
+	public static final int		CREATE_DATASET_BIG = 19;
+	
+	/** ID of the project big icon. */
+	public static final int		PROJECT_BIG = 20;
+	
+	/** ID of the dataset big icon. */
+	public static final int		DATASET_BIG = 21;
 		
+	/** ID of the image big icon. */
+	public static final int		IMAGE_BIG = 22;
+	
+	/** ID of the image big icon. */
+	public static final int		IMPORT_IMAGE_BIG = 23;	
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 17;
+	private static int          MAX_ID = 23;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -139,11 +157,17 @@ public class IconManager
 		relPaths[ANNOTATE] = "annotate16.png";
 		relPaths[DMANAGER] = "nuvola_file-manager16.png";
 		relPaths[ROOT] = "nuvola_trashcan_empty16.png";
-		relPaths[IMPORT_IMAGE] = "OpenOffice_stock_insert_image-16.png";
+		relPaths[IMPORT_IMAGE] = "nuvola_digikam16.png";
 		relPaths[OWNER] = "nuvola_kdmconfig16.png";
 		relPaths[EXPLORER] = "nuvola_kfind16.png";	
 		relPaths[CREATE_PROJECT] = "nuvola_filenew16.png";				
 		relPaths[CREATE_DATASET] = "nuvola_folder_new16.png";
+		relPaths[CREATE_PROJECT_BIG] = "nuvola_filenew48.png";
+		relPaths[CREATE_DATASET_BIG] = "nuvola_folder_new48.png";
+		relPaths[PROJECT_BIG] = "nuvola_document48.png";
+		relPaths[DATASET_BIG] = "nuvola_folder_image48.png";
+		relPaths[IMPORT_IMAGE_BIG] = "nuvola_digikam48.png";
+		relPaths[IMAGE_BIG] = "nuvola_image48.png";
 	}
 	
 	/** The sole instance. */
