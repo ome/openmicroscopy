@@ -75,7 +75,7 @@
   <property name="base.src.dir" location="SRC"/>
   <property name="base.test.dir" location="TEST"/> 
   <property name="base.test.lib.dir" location="${base.lib.dir}/test"/>
-  <property name="base.licensefile" location="LICENSE"/>
+  <property name="base.licensefile" location="legal/lgpl.txt"/>
   <property name="base.docgen.index.file" location="docgen/index.html"/> 
   <property name="base.docgen.javadoc.cssfile" 
             location="docgen/javadoc/stylesheet.css"/>
