@@ -29,8 +29,6 @@
 
 package org.openmicroscopy.shoola.env.rnd.codomain;
 
-import java.util.Map;
-
 //Java imports
 
 //Third-party libraries
@@ -54,14 +52,9 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-class PlaneSlicingContext
+public class PlaneSlicingContext
 	extends CodomainMapContext
 {
-	private static final String		LOWER_LIMIT = "lowerLimit";
-	private static final String		UPPER_LIMIT = "upperLimit";
-	private static final String		PLANE_SELECTED = "planeSelected";
-	private static final String		PLANE_PREVIOUS = "planePrevious";
-	private static final String		CONSTANT = "constant";
 	
 	/** bit-plane 0, corresponding value 2^1-1 . */
 	public static final int 		BIT_ZERO = 0;
@@ -117,15 +110,8 @@ class PlaneSlicingContext
 	 */
 	private boolean 				constant;
 	
-	/** Implemented as specified by {@link CodomainMapContext}. */
-	void updateFields(Map params)
-	{
-		lowerLimit = getValue((Integer) params.get(LOWER_LIMIT));
-		lowerLimit = getValue((Integer) params.get(UPPER_LIMIT));
-		planeSelected = getValue((Integer) params.get(PLANE_SELECTED));
-		planePrevious = getValue((Integer) params.get(PLANE_PREVIOUS));
-		constant = getValue((Boolean) params.get(CONSTANT));
-	}
+	
+	//TODO: constuctor.
 	
 	/** 
 	 * Method called if and only if isConstant == false. 
@@ -142,13 +128,39 @@ class PlaneSlicingContext
 	}
 	
 	/** 
-	 * Implemented as specified by {@link CodomainMapContext}.
-	 * Set the lowerLimit and upperLimit.
+	 * Implemented as specified by superclass.
+	 * Sets the lowerLimit and upperLimit.
+	 * 
+	 * @see CodomainMapContext#buildContext()
 	 */
-	public void onCodomainChange()
+	void buildContext() 
 	{
 		lowerLimit = intervalStart;
 		upperLimit = intervalEnd;
+	}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	CodomainMap getCodomainMap() 
+	{
+		return new PlaneSlicingMap();
+	}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	public CodomainMapContext copy() 
+	{
+		PlaneSlicingContext copy = new PlaneSlicingContext();
+		copy.upperLimit = upperLimit;
+		copy.lowerLimit = lowerLimit;
+		copy.planeSelected = planeSelected;
+		copy.planePrevious = planePrevious;
+		copy.constant = constant;
+		return copy;
 	}
 	
 	public int getPlanePrevious()
@@ -174,19 +186,6 @@ class PlaneSlicingContext
 	public int getUpperLimit()
 	{
 		return upperLimit;
-	}
-
-	/** Retrieve the value of the map. */
-	private int getValue(Integer value)
-	{
-		if (value == null) throw new RuntimeException("Key not found.");
-		return value.intValue();
-	}
-	
-	private boolean getValue(Boolean value)
-	{
-		if (value == null) throw new RuntimeException("Key not found.");
-		return value.booleanValue();
 	}
 	
 }

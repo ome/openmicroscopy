@@ -29,8 +29,6 @@
 
 package org.openmicroscopy.shoola.env.rnd.codomain;
 
-import java.util.Map;
-
 //Java imports
 
 //Third-party libraries
@@ -54,6 +52,29 @@ import java.util.Map;
 public class ReverseIntensityContext
 	extends CodomainMapContext
 {
-	void onCodomainChange() {}
-	void updateFields(Map fields) {}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	void buildContext() {}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	CodomainMap getCodomainMap() 
+	{
+		return new ReverseIntensityMap();
+	}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	public CodomainMapContext copy() 
+	{
+		return this;  //Stateless object.
+	}
+	
 }

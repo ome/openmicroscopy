@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 
 
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
@@ -57,14 +56,9 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-class ContrastStretchingContext
+public class ContrastStretchingContext
 	extends CodomainMapContext
 {
-	/** keys of the params map, value is an Integer. */
-	private static final String		X_START = "xStart";
-	private static final String		Y_START = "yStart";
-	private static final String		X_END = "xEnd";
-	private static final String		Y_END = "yEnd";
 	
 	/** x-coordinate of pStart. */
 	private int 					xStart;
@@ -87,25 +81,75 @@ class ContrastStretchingContext
 	/** coefficients of the third line with equation y = a2*x+b2. */
 	private double 					a2, b2;
 	
-	/** Implemented as specified by {@link CodomainMapContext}. */
-	void updateFields(Map params)
+	
+	/** Compute the coefficients of the first straight y = a0*x+b0.  */
+	private void setFirstLineCoefficient(int intervalStart)
 	{
-		xStart = getValue((Integer) params.get(X_START));
-		yStart = getValue((Integer) params.get(Y_START));
-		xEnd = getValue((Integer) params.get(X_END));
-		yEnd = getValue((Integer) params.get(Y_END));
-		onCodomainChange();
+		double r = xStart-intervalStart;
+		if (r == 0) a0 = 0;
+		else a0 = (yStart-intervalStart)/r;
+		b0 = intervalStart*(1-a0);
+	}
+	
+	/** Compute the coefficients of the first straight y = a0*x+b0.  */
+	private void setSecondLineCoefficient()
+	{
+		double r = xEnd-xStart;
+		//To be on the save side, shouldn't happen.
+		if (r == 0) a1 = 0;
+		else a1 = (yEnd-yStart)/r;
+		b1 = yStart-a1*xStart;
+	}
+	
+	/** Computes the coefficient of the first straight y = a0*x+b0.  */
+	private void setThirdLineCoefficient(int intervalEnd)
+	{
+		double r = intervalEnd-xEnd;
+		if (r == 0) a2 = 0;
+		else a2 = (intervalEnd-yEnd)/r;
+		b2 = intervalEnd*(1-a2);
 	}
 	
 	/** 
-	 * Implemented as specified by {@link CodomainMapContext}.
-	 * Calculate the equations of the lines.
-	 */ 
-	void onCodomainChange()
+	 * Implemented as specified by superclass.
+	 * Calculates the equations of the lines.
+	 * 
+	 * @see CodomainMapContext#buildContext()
+	 */
+	void buildContext() 
 	{
 		setFirstLineCoefficient(intervalStart);
 		setSecondLineCoefficient();
 		setThirdLineCoefficient(intervalEnd);
+	}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	CodomainMap getCodomainMap() 
+	{
+		return new ContrastStretchingMap();
+	}
+
+	/** 
+	 * Implemented as specified by superclass.
+	 * @see CodomainMapContext#buildContext()
+	 */
+	public CodomainMapContext copy() 
+	{
+		ContrastStretchingContext copy = new ContrastStretchingContext();
+		copy.xStart = xStart;
+		copy.yStart = yStart;
+		copy.xEnd = xEnd;
+		copy.yEnd = yEnd;
+		copy.a0 = a0;
+		copy.a1 = a1;
+		copy.a2 = a2;
+		copy.b0 = b0;
+		copy.b1 = b1;
+		copy.b2 = b2;
+		return copy;
 	}
 	
 	public int getXEnd()
@@ -156,41 +200,6 @@ class ContrastStretchingContext
 	public double getB2()
 	{
 		return b2;
-	}
-	
-	/** Compute the coefficients of the first straight y = a0*x+b0.  */
-	private void setFirstLineCoefficient(int intervalStart)
-	{
-		double r = xStart-intervalStart;
-		if (r == 0) a0 = 0;
-		else a0 = (yStart-intervalStart)/r;
-		b0 = intervalStart*(1-a0);
-	}
-	
-	/** Compute the coefficients of the first straight y = a0*x+b0.  */
-	private void setSecondLineCoefficient()
-	{
-		double r = xEnd-xStart;
-		//To be on the save side, shouldn't happen.
-		if (r == 0) a1 = 0;
-		else a1 = (yEnd-yStart)/r;
-		b1 = yStart-a1*xStart;
-	}
-	
-	/** Computes the coefficient of the first straight y = a0*x+b0.  */
-	private void setThirdLineCoefficient(int intervalEnd)
-	{
-		double r = intervalEnd-xEnd;
-		if (r == 0) a2 = 0;
-		else a2 = (intervalEnd-yEnd)/r;
-		b2 = intervalEnd*(1-a2);
-	}
-	
-	/** Retrieve the value of the map. */
-	private int getValue(Integer value)
-	{
-		if (value == null) throw new RuntimeException("Key not found.");
-		return value.intValue();
 	}
 	
 }
