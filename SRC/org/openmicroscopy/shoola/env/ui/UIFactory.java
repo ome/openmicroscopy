@@ -76,6 +76,18 @@ public class UIFactory
 	}
 	
 	/**
+	 * Creates the {@link TaskBar}.
+	 * 
+	 * @param c	Reference to the singleton {@link Container}.
+	 * @return	The {@link TaskBar}.
+	 */
+	public static TaskBar makeTaskBar(Container c)
+	{
+		TaskBarManager tbm = new TaskBarManager(c);
+		return tbm.getView();
+	}
+	
+	/**
 	 * Creates the {@link UserNotifier}.
 	 *
 	 * @return	The {@link UserNotifier}.
