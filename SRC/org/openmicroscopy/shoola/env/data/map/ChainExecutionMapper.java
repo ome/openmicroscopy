@@ -32,7 +32,10 @@ package org.openmicroscopy.shoola.env.data.map;
 
 
 //Java imports
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,7 +70,7 @@ import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
  * </small>
  * @since OME2.2
  */
-public class ChainExecutionMapper
+public class ChainExecutionMapper 
 {
 		
 	/** 
@@ -89,6 +92,7 @@ public class ChainExecutionMapper
 		
 		// stuff for dataset
 		criteria.addWantedField("dataset","id");
+		criteria.addWantedField("dataset","name");
 		
 		// stuff for chains
 		criteria.addWantedField("analysis_chain","id");
@@ -142,11 +146,12 @@ public class ChainExecutionMapper
 			exec = (ChainExecutionData) ceProto.makeNew();
 			exec.setID(e.getID());
 			exec.setTimestamp(e.getTimestamp());
-			
+			exec.setDate(getDate(e.getTimestamp()));
 			// dataset
 			d = e.getDataset();
 			ds = (DatasetData) dsProto.makeNew();
 			ds.setID(d.getID());
+			ds.setName(d.getName());
 			exec.setDataset(ds);
 			
 			//chain
@@ -182,13 +187,13 @@ public class ChainExecutionMapper
 			ne = (NodeExecution) i.next();
 			nodeExecution = (NodeExecutionData) neProto.makeNew();
 			nodeExecution.setID(ne.getID());
-			
 			// get the node 
 			n = ne.getNode();
 			analysisNode = (AnalysisNodeData) anProto.makeNew();
 			
 			// get the node's id.
 			analysisNode.setID(n.getID());
+			
 			
 			
 			nodeExecution.setAnalysisNode(analysisNode);
@@ -198,6 +203,7 @@ public class ChainExecutionMapper
 			moduleExecution.setID(me.getID());
 			moduleExecution.setStatus(me.getStatus());
 			moduleExecution.setTimestamp(me.getTimestamp());
+			moduleExecution.setDate(getDate(me.getTimestamp()));
 			nodeExecution.setModuleExecution(moduleExecution);
 	
 			nodeExecutionList.add(nodeExecution);
@@ -205,4 +211,35 @@ public class ChainExecutionMapper
 		
 		exec.setNodeExecutions(nodeExecutionList);
 	}
+	
+	private static Date getDate(String time) {
+		Date date=null;
+		String parsed =null;
+		ParsePosition pos = new ParsePosition(0);
+		
+		// this code is a bit sketchy. might be postgresql dependent.
+		// based in experience (not postgres docs), times can either look like
+		// 2004-01-29 21:49:45.50726 or 
+		// 2004-05-25 18:10:56-04
+		// for first case, throw out everything including and after last period
+		// otherwise, throw out everything including and after the dash.
+
+		int index = time.lastIndexOf(".");
+		if (index != -1) {
+			parsed = time.substring(0,index);
+		}
+		else {
+			index = time.lastIndexOf("-");
+			if (index != -1)
+				parsed = time.substring(0,index);
+		}
+		if (parsed != null) {
+			SimpleDateFormat format = new 
+				SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
+			date = format.parse(time,pos);
+		}
+		return date;
+	}
+	
+
 }
