@@ -7,11 +7,16 @@
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
        <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
      </structuredEntry>
-     <!-- Enable("ON")/disable("OFF") the Log Service. -->
-     <entry name = "/services/LOG">ON</entry>
+     <!-- Enables/disables the Log Service. -->
+     <entry name="/services/LOG/on" type="boolean">true</entry>
+     <!-- The directory where log files are kept. Path relative to the
+          installation directory. -->
+     <entry name="/services/LOG/dir">log</entry>
+     <!-- The name of the log file -->
+     <entry name="/services/LOG/file">shoola.log</entry>
    </services>
    <agents>
-     <structuredEntry name="/agents" type = "agents">
+     <structuredEntry name="/agents" type="agents">
        <agent>
          <name>Annotator</name>
          <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
@@ -22,11 +27,6 @@
          <class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class> 
          <config>browser.xml</config> 
        </agent>
-	  <agent>
-	    <name>Classifier</name>
-	    <class>org.openmicroscopy.shoola.agents.classifier.Classifier</class>
-	    <config>classifier.xml</config>
-	  </agent>
        <agent>
          <name>DataManager</name>
          <!-- The class tag specifies the FQN of the agent's class. --> 
