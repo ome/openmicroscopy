@@ -125,6 +125,10 @@ public class FormalInput extends FormalParameter {
 	 * @return true if this paramter can be the origin of a new link. 
 	 */ 
 	public boolean canBeLinkOrigin() {
-		return (linkedTo.size() == 0);
+		return (super.canBeLinkOrigin() && (linkedTo.size() == 0));
+	}
+	
+	public boolean isLinkable() {
+		return (linkedTo.size() ==0);
 	}
 }
