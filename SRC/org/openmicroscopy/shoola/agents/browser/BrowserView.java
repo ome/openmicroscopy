@@ -50,11 +50,11 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
-import org.openmicroscopy.shoola.agents.browser.ui.BoundedDragPanHandler;
+import org.openmicroscopy.shoola.agents.browser.ui.BoundedEdgePanHandler;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.event.PPanEventHandler;
+import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 
 /**
  * The view component of the top-level browser MVC architecture.  Where the
@@ -74,7 +74,7 @@ public class BrowserView extends PCanvas
     private Map layoutMap;
     private Rectangle2D footprint;
     
-    private PPanEventHandler panHandler;
+    private PBasicInputEventHandler panHandler;
 
     private void init()
     {
@@ -87,7 +87,7 @@ public class BrowserView extends PCanvas
         removeInputEventListener(getZoomEventHandler());
         removeInputEventListener(getPanEventHandler());
         
-        panHandler = new BoundedDragPanHandler(null);
+        panHandler = new BoundedEdgePanHandler();
         addInputEventListener(panHandler);
     }
 
