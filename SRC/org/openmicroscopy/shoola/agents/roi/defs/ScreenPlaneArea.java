@@ -77,4 +77,6 @@ public class ScreenPlaneArea
     
     public void setAreaColor(Color c) { areaColor = c; }
     
+    public void setIndex(int i) { index = i; }
+    
 }

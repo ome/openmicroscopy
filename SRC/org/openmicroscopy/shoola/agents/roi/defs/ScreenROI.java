@@ -37,6 +37,7 @@ import java.awt.Color;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.image.roi.ROI3D;
 import org.openmicroscopy.shoola.util.image.roi.ROI4D;
+import org.openmicroscopy.shoola.util.image.roi.ROI5D;
 import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 /** 
  * 
@@ -65,6 +66,8 @@ public class ScreenROI
     
     private ROI4D   logicalROI;
     
+    private ROI5D   actualROI;
+    
     public ScreenROI(int index,  String  name, String  annotation, 
                     Color areaColor, ROI4D logicalROI)
     {
@@ -78,6 +81,11 @@ public class ScreenROI
         this.annotation = annotation;
         this.logicalROI = logicalROI;
     }
+    
+    //tempo
+    public ROI5D getActualROI() { return actualROI; }
+    
+    public void setActualROI(ROI5D roi5D) { actualROI = roi5D; }
     
     public int getIndex() { return index; }
     
@@ -113,13 +121,14 @@ public class ScreenROI
     
     public void copyStackAcrossT(int from, int to, int sizeZ)
     {
-        ROI3D roi3D = logicalROI.getStack(from);
         PlaneArea pa;
+        ROI3D roi3D = logicalROI.getStack(from);
         for (int z = 0; z < sizeZ; z++) {
             pa = roi3D.getPlaneArea(z);
-            if (pa != null) {
-                for (int t = from+1; t <= to; t++) 
-                    roi3D.setPlaneArea((PlaneArea) (pa.copy()), t);
+            for (int t = from+1; t <= to; t++) {
+              if (pa != null)
+                  logicalROI.setPlaneArea(
+                          (PlaneArea) (pa.copy()), z, t);
             }
         }
     }
