@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.map;
 //Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,18 @@ public class AnnotationMapper
         c.addFilter("image_id", new Integer(imageID));
         return c;
     }
+
+    public static Criteria buildImageAnnotationCriteria(List ids)
+    {
+        Criteria c = new Criteria();
+        fillAnnotationCriteria(c);
+        c.addWantedField("TheZ");
+        c.addWantedField("TheT");
+        c.addWantedField("image");
+        c.addWantedField("image_id");
+        c.addFilter("image_id", "IN", ids);
+        return c;
+    }
     
     public static Criteria buildBasicCriteria(String g, int id)
     {
@@ -110,39 +123,71 @@ public class AnnotationMapper
         c.addFilter("Valid", Boolean.TRUE);
     }
     
+    public static Map reverseListAnnotations(List annotations, int userID)
+    {
+        Map map = new HashMap();
+        Iterator i = annotations.iterator();
+        ImageAnnotation annotation;
+        while (i.hasNext()) {
+            annotation = (ImageAnnotation) i.next();
+            if (userID == 
+                annotation.getModuleExecution().getExperimenter().getID())
+                map.put(new Integer(annotation.getImage().getID()), annotation);
+        }
+        return map;
+    }
+    
+    /** Fill in the corresponding Annotation object. */
     public static Map fillImageAnnotations(List l, TreeMap map)
     {
         Iterator i = l.iterator();
-        ImageAnnotation imgA;
-        AnnotationData data;
-        int ownerID;
         List list;
-        Timestamp time = null;
-        Experimenter experimenter;
-        ModuleExecution mex;
+        Object[] results;
         while (i.hasNext()) {
-            imgA = (ImageAnnotation) i.next();
+            results = getImageAnnotation((ImageAnnotation) i.next());
             list = new ArrayList();
-            mex = imgA.getModuleExecution();
+            list.add(results[0]);
+            map.put(results[1], list);
+        }
+        return map;
+    }
+    
+    public static AnnotationData fillImageAnnotation(ImageAnnotation annotation)
+    {
+        Object[] results = getImageAnnotation(annotation);
+        return (AnnotationData) results[0];
+    }
+    
+    private static Object[] getImageAnnotation(ImageAnnotation annotation)
+    {
+        Object[] results = new Object[2];
+        AnnotationData data;
+        if (annotation != null) {
+            int ownerID;
+            Timestamp time = null;
+            Experimenter experimenter;
+            ModuleExecution mex;
+            mex = annotation.getModuleExecution();
             if (mex.getTimestamp() != null)
                 time = PrimitiveTypesMapper.getTimestamp(mex.getTimestamp());
             else time = PrimitiveTypesMapper.getDefaultTimestamp();
             experimenter = mex.getExperimenter();
             ownerID = experimenter.getID();
-            data = new AnnotationData(imgA.getID(), ownerID, time);
-            data.setAnnotation(imgA.getContent());
+            data = new AnnotationData(annotation.getID(), ownerID, time);
+            data.setAnnotation(annotation.getContent());
             data.setOwnerFirstName(experimenter.getFirstName());
             data.setOwnerLastName(experimenter.getLastName());
-            if (imgA.getTheZ() != null)
-                data.setTheZ(imgA.getTheZ().intValue());
-            if (imgA.getTheT() != null)
-                data.setTheT(imgA.getTheT().intValue());
-            list.add(data);
-            map.put(new Integer(ownerID), list);
+            if (annotation.getTheZ() != null)
+                data.setTheZ(annotation.getTheZ().intValue());
+            if (annotation.getTheT() != null)
+                data.setTheT(annotation.getTheT().intValue());
+            results[0] = data;
+            results[1] = new Integer(ownerID);
         }
-        return map;
+        return results;
+        
     }
-
+    
     public static void fillDatasetAnnotations(List l, Map map)
     {
         Iterator i = l.iterator();

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.env.data.map;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -42,6 +43,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -311,6 +313,23 @@ public class DatasetMapper
 			empty.setImages(images);
 		}
 	}
+    
+    /** Build a list of imageID. */
+    public static List prepareListImagesID(Dataset dataset)
+    {
+        List ids = new ArrayList();
+        List imgs = dataset.getImages();
+        if (imgs != null && imgs.size() != 0) {
+            Iterator j = imgs.iterator();
+            Image image;
+            while (j.hasNext()) {
+                image = (Image) j.next();
+                ids.add(new Integer(image.getID()));
+            }
+        }
+        return ids;
+    }
+    
 	/**
 	 * Creates the image summary list.
 	 * 
@@ -338,6 +357,40 @@ public class DatasetMapper
 		return images;
 	}
 	
+    /**
+     * Creates the image summary list.
+     * 
+     * @param dataset   OMEDS dataset object.
+     * @param iProto    DataObject to fill up.
+     * @return list of image summary objects.
+     */
+    public static List fillListAnnotatedImages(Dataset dataset, 
+                                         ImageSummary iProto, List annotations, 
+                                         int userID)
+    {
+        List images = new ArrayList();
+        Iterator i = dataset.getImages().iterator();
+        Image image;
+        ImageSummary is;
+        int id;
+        Map ids = AnnotationMapper.reverseListAnnotations(annotations, userID);
+        while (i.hasNext()) {
+            image = (Image) i.next();
+            //Make a new DataObject and fill it up.
+            is = (ImageSummary) iProto.makeNew();
+            id = image.getID();
+            is.setAnnotation(AnnotationMapper.fillImageAnnotation(
+                    (ImageAnnotation) ids.get(new Integer(id))));
+            is.setID(id);
+            is.setName(image.getName());
+            is.setPixelsIDs(fillListPixelsID(image));
+            is.setDefaultPixels(fillDefaultPixels(image.getDefaultPixels()));
+            //Add the image summary object to the list.
+            images.add(is);
+        }
+        return images;
+    }
+    
 	/**
 	 * Create a list of dataset summary object.
 	 *
