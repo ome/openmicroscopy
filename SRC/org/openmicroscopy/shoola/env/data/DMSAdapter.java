@@ -77,9 +77,7 @@ class DMSAdapter
 	
 	private DataFactory		proxy;
 	private Registry		registry;
-	/**
-	 * 
-	 */
+
 	DMSAdapter(DataFactory proxy, Registry registry)
 	{
 		this.proxy = proxy;
@@ -97,7 +95,7 @@ class DMSAdapter
 	{
 		//Define the criteria by which the object graph is pulled out.
 		FieldsSpecification fs = new FieldsSpecification();
-		fs.addWantedField("id");
+		fs.addWantedField("experimenter");
 		
 		//Load the graph defined by criteria
 		UserState us = null;
@@ -113,7 +111,7 @@ class DMSAdapter
 												rsee);
 		} 
 		
-		return us.getID();
+		return us.getExperimenter().getID();
 	}
     
     /**Implemented as specified in {@link DataManagementService}. */
