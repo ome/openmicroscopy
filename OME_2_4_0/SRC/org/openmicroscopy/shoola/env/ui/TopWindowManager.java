@@ -44,12 +44,11 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Controller and model of a top window.
  * <p>This component is normally used with a window that is linked to the
- * {@link TaskBar} by means of one or more display-trigger buttons.  It keeps
+ * {@link TaskBar} by means of one or more display-trigger buttons. It keeps
  * track of the display state of its window and reacts to mouse clicks on the
  * display buttons accordingly.</p>
  * <p>The display state of the window is broken down as follows:
@@ -58,8 +57,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 		resource.</li>
  *   <li><i>Displayable</i>: The window is connected to a native peer, but
  * 		is not showing on screen.</li>
- *   <li><i>On Screen</i>: The window has been painted on screen.  This doesn't
- * 		necessarily imply a visible window.  It may be hidden behind other
+ *   <li><i>On Screen</i>: The window has been painted on screen. This doesn't
+ * 		necessarily imply a visible window. It may be hidden behind other
  * 		windows or may be iconified.</li>
  *  </ul>
  * </p>
@@ -68,7 +67,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * visible (<code>window.setVisible(true)</code>) or a click on any of the 
  * display buttons by showing the window at the center of the screen, possibly
  * on top of all other windows and making it the active window &#151; this
- * attempt might just partially succeed depending on the OS window manager.  If
+ * attempt might just partially succeed depending on the OS window manager. If
  * one of those events occur while the window is in the <i>On Screen</i> state,
  * a similar action is performed, but the window is restored to the previous 
  * screen location, which is not going to be, generally speaking, the
@@ -77,7 +76,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * restored to that location.</p>
  * <p>If the window is in either the <i>On Screen</i> or <i>Displayable</i>
  * state and its <code>dispose</code> method is invoked, then this controller
- * will set the window's state to <i>Unlinked</i>.  Notice that this could
+ * will set the window's state to <i>Unlinked</i>. Notice that this could
  * happen implicitely, for example if the window's default close operation is
  * set to {@link JFrame#DISPOSE_ON_CLOSE}.</p>
  * <p>Finally, while in the <i>On Screen</i> state, any event that causes the
@@ -130,9 +129,8 @@ public class TopWindowManager
 	private void setInitialState()
 	{
 		if (window.isDisplayable()) 
-			state = (window.isShowing() ? ON_SCREEN : DISPLAYABLE);
-		else 
-			state = UNLINKED;
+            state = (window.isShowing() ? ON_SCREEN : DISPLAYABLE);
+		else state = UNLINKED;
 	}
 	
 	/**
@@ -175,21 +173,19 @@ public class TopWindowManager
 	private void handleDisplay()
 	{
 		if (state == ON_SCREEN)	toForeground();
-		else {  //DISPLAYABLE or UNLINKED.
+		else   //DISPLAYABLE or UNLINKED.
 			window.preHandleDisplay(this); 
-		
-		}
 	}
 	
 	/** 
-	 * 
 	 * Continues handling of the display - does the actual work after the window 
 	 * says that it is ready. should be called via a callback from
 	 * (<code>window.preHandleDisplay(this)</code>)
 	 *
 	 */
-	public void continueHandleDisplay() {
-		setOnScreen();
+	public void continueHandleDisplay()
+    {
+		window.setOnScreen();
 		toForeground();
 		window.postHandleDisplay();
 		state = ON_SCREEN;
@@ -225,19 +221,7 @@ public class TopWindowManager
 	 * Handle the <i>Dispose</i> event.
 	 * This is caused by a call to the window's <code>dispose</code> method.
 	 */
-	private void handleDispose()
-	{
-		state = UNLINKED; 
-	}
-	
-	/**
-	 * Packs and shows the {@link #window} at the center of the screen.
-	 */
-	private void setOnScreen()
-	{
-		window.pack();
-		UIUtilities.centerAndShow(window);
-	}
+	private void handleDispose() { state = UNLINKED; }
 	
 	/**
 	 * Attempts to bring the {@link #window} on top of all other windows and
@@ -254,10 +238,10 @@ public class TopWindowManager
 	/**
 	 * Creates a new instance to manage the specified window.
 	 * 
-	 * @param window	The window to manage.
-	 * @param displayButtons	The set of buttons that have to trigger a
-	 * 							Display event whenever clicked.  Pass  
-	 * 							<code>null</code> if there are no such buttons.
+	 * @param window           The window to manage.
+	 * @param displayButtons   The set of buttons that have to trigger a
+     *                         Display event whenever clicked. Pass  
+	 * 						   <code>null</code> if there are no such buttons.
 	 */
 	public TopWindowManager(ManageableTopWindow window,
 			AbstractButton[]	displayButtons) 
@@ -271,9 +255,7 @@ public class TopWindowManager
 					actualButtons.add(displayButtons[i]);
 			this.displayButtons = new AbstractButton[actualButtons.size()];
 			actualButtons.toArray(this.displayButtons);		
-		} else {
-			this.displayButtons = new AbstractButton[0];
-		}
+		} else this.displayButtons = new AbstractButton[0];
 		setInitialState();
 		attachWindowListeners();
 		attachButtonsListeners();
@@ -285,9 +267,6 @@ public class TopWindowManager
 	 * @return One of the state identifiers defined by the static fields of
 	 * 			this class.
 	 */
-	public int getState()
-	{
-		return state;
-	}
+	public int getState() { return state; }
 
 }
