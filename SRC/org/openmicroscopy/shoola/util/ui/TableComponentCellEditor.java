@@ -155,11 +155,10 @@ public class TableComponentCellEditor
 		// Process the listeners last to first, notifying
 		// those that are interested in this event
 		for (int i = listeners.length-2; i >= 0; i-=2) {
-			if (listeners[i]==CellEditorListener.class) {
-				// Lazily create the event:
+			if (listeners[i] == CellEditorListener.class) {
 				if (changeEvent == null)
 					changeEvent = new ChangeEvent(this);
-				((CellEditorListener)listeners[i+1]).editingCanceled(
+				((CellEditorListener) listeners[i+1]).editingCanceled(
 															changeEvent);
 			}	       
 		}
@@ -180,7 +179,7 @@ public class TableComponentCellEditor
 	public Component getTableCellEditorComponent(JTable table, Object value,
 		boolean isSelected, int row, int column)
 	{
-		editorComponent = (JComponent)value;
+		editorComponent = (JComponent) value;
 		container = table;
 		return editorComponent;
 	}

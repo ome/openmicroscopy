@@ -62,15 +62,17 @@ public class TableComponent
 	{
 		super(row, col);
 	}
-	public TableCellRenderer getCellRenderer(int row, int column) {
+	
+	public TableCellRenderer getCellRenderer(int row, int column)
+	{
 		TableColumn tableColumn = getColumnModel().getColumn(column);
 		TableCellRenderer renderer = tableColumn.getCellRenderer();
 		if (renderer == null) {
 			Class c = getColumnClass(column);
-			if (c.equals(Object.class)){
-				Object o = getValueAt(row,column);
+			if (c.equals(Object.class)) {
+				Object o = getValueAt(row, column);
 				if (o != null)
-					c = getValueAt(row,column).getClass();
+					c = getValueAt(row, column).getClass();
 			}
 			renderer = getDefaultRenderer(c);
 		}
