@@ -162,7 +162,7 @@ public class ExecutionsModel {
 		Date start = exec.getDate();
 		exec  = (ChainExecutionData) sortedExecs.lastElement();
 		Date end = exec.getDate();
-		model.setRangeProperties(start.getTime(),end.getTime());
+		model.setProperties(start.getTime(),end.getTime());
 	}
 
 	public int getChainCount() {
@@ -238,7 +238,6 @@ public class ExecutionsModel {
 	
 	
 	public void setRenderingOrder(String choice) {
-		System.err.println("changing rendering order..");
 		for (int i = 0; i < modes.length; i++) {
 			if (choice.compareTo(modes[i]) == 0)
 				currentOrder = i;
