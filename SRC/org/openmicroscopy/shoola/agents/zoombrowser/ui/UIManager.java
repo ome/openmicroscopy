@@ -36,10 +36,8 @@ package org.openmicroscopy.shoola.agents.zoombrowser.ui;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
-import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
-import org.openmicroscopy.shoola.util.data.ContentGroup;
-import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
+
+
 
 /** 
  * Creates and controls the {@link MainWindow}.
@@ -59,7 +57,7 @@ import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
  * </small>
  * @since OME2.2
  */
-public class UIManager implements ContentGroupSubscriber
+public class UIManager 
 {
 	
 	private DataManager manager;
@@ -80,12 +78,6 @@ public class UIManager implements ContentGroupSubscriber
 		this.manager = manager;
 		
 		mainWindow = new MainWindow(manager);
-		ContentGroup group = new ContentGroup(this);
-		
-		final DatasetLoader dl = new DatasetLoader(manager,group);
-		final ProjectLoader pl = new ProjectLoader(manager,group);
-		group.setAllLoadersAdded();
-
 	}
 	
 
@@ -95,10 +87,5 @@ public class UIManager implements ContentGroupSubscriber
 	public void disposeUI()
 	{
 		mainWindow.dispose();
-	}
-	
-	public void contentComplete() {
-		if (manager.getDatasets() != null || manager.getProjects() != null)
-			mainWindow.buildGUI();
 	}
 }

@@ -57,14 +57,22 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutionLoader;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ModuleLoader;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ModulesData;
 import 
 	org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModulePaletteCanvas;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.TopWindowManager;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
+
 import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 /** 
  * A top level window containing analysis modules that might be used in a chain
@@ -78,7 +86,8 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * @since OME2.2
  */
 public class ModulePaletteWindow 
-	extends TopWindow implements TreeSelectionListener, ComponentListener
+	extends TopWindow implements TreeSelectionListener, ComponentListener, 
+		ContentGroupSubscriber
 {
 	
 	public static int SIDE=200;
@@ -92,6 +101,9 @@ public class ModulePaletteWindow
 	/** Cached reference to access the icons. */
 	private IconFactory icons;
 			
+	/* module data loader */
+	private ModuleLoader modLoader;
+	
 	/** The split pane in the window. */
 	private JSplitPane split;
 	
@@ -114,6 +126,9 @@ public class ModulePaletteWindow
 	private ChainModuleData lastModule;
 	
 	
+	/** the top window manager */
+	private TopWindowManager topWindowManager;
+	
 	/**
 	 * Creates a new instance.
 	 */
@@ -130,7 +145,7 @@ public class ModulePaletteWindow
 		icons = dataManager.getIconFactory();
 		
 		configureDisplayButtons();
-		enableButtons(false);
+		enableButtons(true);
 		
 	}
 	
@@ -178,7 +193,6 @@ public class ModulePaletteWindow
 				setVisible(false);
 			}
 		});
-		enableButtons(true);
 	}
 	
 	
@@ -305,6 +319,25 @@ public class ModulePaletteWindow
 	
 	public void componentShown(ComponentEvent e) {
 		uiManager.showWindows();
+	}
+	
+	public void preHandleDisplay(TopWindowManager manager) {
+		topWindowManager = manager;
+		ContentGroup group = new ContentGroup(this);
+		modLoader = new ModuleLoader(dataManager,group);
+		ChainExecutionLoader execLoader = new ChainExecutionLoader(dataManager,group);
+		ChainLoader chainLoader = new ChainLoader(dataManager,group);
+		
+		group.setAllLoadersAdded();
+	}
+	
+	public void contentComplete() {
+		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
+			buildGUI((ModulesData) modLoader.getContents());
+			uiManager.contentComplete();
+			topWindowManager.continueHandleDisplay();
+			topWindowManager = null;
+		}
 	}
 	
 }

@@ -55,6 +55,8 @@ import org.openmicroscopy.shoola.agents.events.SelectDataset;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.DatasetLoader;
+import org.openmicroscopy.shoola.agents.zoombrowser.data.ProjectLoader;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.
 	piccolo.ProjectSelectionCanvas;
@@ -65,7 +67,11 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.TopWindowManager;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.util.ui.Constants;
+
 
 /** 
  * A top-level window for a zoomable project browser 
@@ -79,7 +85,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * @since OME2.2
  */
 public class MainWindow extends TopWindow implements ComponentListener, 
-	AgentEventListener
+	AgentEventListener,  ContentGroupSubscriber
 {
 	
 	/** horizontal extent */
@@ -100,6 +106,9 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	
 	
 	private ChainExecutions chainExecutions;
+	
+	// the top window manager for this window
+	private TopWindowManager topWindowManager;
 	/**
 	 * Specifies names, icons, and tooltips for the quick-launch button and the
 	 * window menu entry in the task bar.
@@ -177,16 +186,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		
 		
 		configureDisplayButtons();
-		Registry registry = dataManager.getRegistry();
-		registry.getEventBus().register(this,
-				new Class[] { 
-					SelectAnalysisChain.class,
-					MouseOverAnalysisChain.class,
-					LoadChainExecutionsEvent.class,
-					MouseOverChainExecutionEvent.class,
-					SelectChainExecutionEvent.class,
-					LoadDataset.class});
-		enableButtons(false);
+		
+		enableButtons(true);
 	}
 		
 	
@@ -266,5 +267,32 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			datasetBrowser.scaleToSize();
 	}
 	
+	public void preHandleDisplay(TopWindowManager manager) {
+		System.err.println("button clicked for zoomable browser. eventually move loading code here..");
+		topWindowManager = manager;
+		ContentGroup group = new ContentGroup(this);
+		
+		final DatasetLoader dl = new DatasetLoader(dataManager,group);
+		final ProjectLoader pl = new ProjectLoader(dataManager,group);
+		group.setAllLoadersAdded();
+	}
+	
+	public void contentComplete() {
+		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
+			
+			Registry registry = dataManager.getRegistry();
+			registry.getEventBus().register(this,
+				new Class[] { 
+					SelectAnalysisChain.class,
+					MouseOverAnalysisChain.class,
+					LoadChainExecutionsEvent.class,
+					MouseOverChainExecutionEvent.class,
+					SelectChainExecutionEvent.class,
+					LoadDataset.class});
+			buildGUI();
+			topWindowManager.continueHandleDisplay();
+			topWindowManager = null;
+		}
+	}
 	
 }
