@@ -147,17 +147,56 @@ class DMSAdapter
 			//Put the server data into the corresponding client object.
     		projectsDS = ProjectMapper.fillUserProjects(projects, pProto, 
     													dProto);
-    	//can be null
-    	return projectsDS;
+		//can be null
+    		return projectsDS;
 	}
 	
-	/** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveUserProjects()
+    /** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserProjects()
 		throws DSOutOfServiceException, DSAccessException
     {
     	return retrieveUserProjects(null, null);
     }
-    
+    	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserProjectsWithDatasetData(ProjectSummary pProto,
+			DatasetData dProto)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Make new protos if none was provided.
+		if (pProto == null) pProto = new ProjectSummary();
+		if (dProto == null) dProto = new DatasetData();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List projects = (List) gateway.retrieveListData(Project.class, c);
+	  	
+		//List of project summary objects.
+		List projectsDS = null;
+		if (projects != null) 
+			//Put the server data into the corresponding client object.
+    		projectsDS = ProjectMapper.fillUserProjectsWithDatasetData(
+    					projects, pProto, dProto);
+    	//can be null
+    	return projectsDS;
+	
+	}
+
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveUserProjectsWithDatasetData()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return retrieveUserProjectsWithDatasetData(null, null);
+	}
+
+	
+	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserDatasets(DatasetSummary dProto)
 		throws DSOutOfServiceException, DSAccessException								
@@ -191,6 +230,39 @@ class DMSAdapter
 	{
 		return retrieveUserDatasets(null);
 	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserDatasets(DatasetData dProto,
+			ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException
+	{
+    		//    	Make a new proto if none was provided.
+		if (dProto == null) dProto = new DatasetData();
+		if (iProto == null) iProto = new ImageSummary();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria c = 
+			DatasetMapper.buildUserDatasetsCriteria(uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
+	  	
+		//List of dataset summary objects.
+		List datasetsDS = null;
+		if (datasets != null) 
+			//Put the server data into the corresponding client object.
+			datasetsDS = 
+				DatasetMapper.fillUserDatasets(datasets, dProto,iProto);
+    
+		//can be null
+		return datasetsDS;
+	}
+	
+    
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserImages(ImageSummary iProto)
@@ -455,14 +527,14 @@ class DMSAdapter
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
-			DatasetSummary dsProto,AnalysisChainData acProto,
+			DatasetData dsProto,AnalysisChainData acProto,
 			NodeExecutionData neProto,AnalysisNodeData anProto,
 			ModuleData mProto,ModuleExecutionData meProto) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 
 		if (ceProto == null)    ceProto = new ChainExecutionData();
-		if (dsProto == null)    dsProto = new DatasetSummary();		
+		if (dsProto == null)    dsProto = new DatasetData();		
 		if (acProto == null)    acProto = new AnalysisChainData();
 		if (neProto == null) 	   neProto = new NodeExecutionData();
 		if (anProto == null)    anProto = new AnalysisNodeData();

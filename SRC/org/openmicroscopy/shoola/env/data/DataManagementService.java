@@ -107,6 +107,40 @@ public interface DataManagementService
     
 	/**
 	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Project objects.
+	 * Each project proto object is linked to a list of dataset proto 
+	 * objects. Not that the dataset are dataset data objects, not dataset summary
+	 * 
+	 * @param pProto	project proto.
+	 * @param dProto	dataset proto.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+    public List retrieveUserProjectsWithDatasetData(ProjectSummary pProto, 
+    									DatasetData dProto)
+		throws DSOutOfServiceException, DSAccessException;
+    
+    
+    /**
+	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Project objects.
+	 * Each project proto object is linked to a list of dataset proto 
+	 * objects. Not that the dataset are dataset data objects, not dataset summary
+	 * 
+	 * @param pProto	project proto.
+	 * @param dProto	dataset proto.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+    public List retrieveUserProjectsWithDatasetData()
+		throws DSOutOfServiceException, DSAccessException;
+    
+	/**
+	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Dataset objects.
 	 * 
 	 * @param dProto	dataset proto.
@@ -131,6 +165,22 @@ public interface DataManagementService
     public List retrieveUserDatasets()
 		throws DSOutOfServiceException, DSAccessException;
      
+    /**
+	 * Create, if none provided, two new protos and fill them up
+	 * with data retrieved form OMEDS Dataset objects.
+	 * 
+	 * @param dProto	dataset proto
+	 * @param iProto image proto
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	public List retrieveUserDatasets(DatasetData dProto,
+				ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException;
+    								
+    
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Dataset objects.
@@ -396,7 +446,7 @@ public interface DataManagementService
 	 * retrieve data from OMEDS service. 
 	 */
 	public List retrieveChainExecutions(ChainExecutionData ceProto,
-			DatasetSummary dsProto,AnalysisChainData acProto,NodeExecutionData
+			DatasetData dsProto,AnalysisChainData acProto,NodeExecutionData
 			neProto,AnalysisNodeData anProto,ModuleData mProto,
 			ModuleExecutionData meProto) 
 		throws DSOutOfServiceException,DSAccessException;
