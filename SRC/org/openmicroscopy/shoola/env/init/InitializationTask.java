@@ -94,4 +94,15 @@ abstract class InitializationTask
 	 * @throws StartupException	If an error occurs.
 	 */
 	abstract void execute() throws StartupException;
+	
+	/**
+	 * Rolls back the initialization task.
+	 * This method is typically implemented by those tasks that require
+	 * to be undone if an error occurs during the initialization procedure --
+	 * this allows for the container to exit gracefully.  For example, the
+	 * data management service has to release any acquired network resources
+	 * before the program exits.
+	 */
+	abstract void rollback();
+	
 }

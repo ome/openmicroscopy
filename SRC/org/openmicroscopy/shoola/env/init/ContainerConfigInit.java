@@ -98,5 +98,12 @@ final class ContainerConfigInit
 										ce);
 		}
 	}
-
+	
+	/** 
+	 * Does nothing.
+	 * @see InitializationTask#rollback()
+	 */
+	void rollback() {}
+	
 }
+		

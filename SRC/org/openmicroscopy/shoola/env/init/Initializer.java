@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 //Third-party libraries
 
@@ -73,6 +74,9 @@ public class Initializer
 	/** The task that is currently processed. */
 	private InitializationTask	currentTask;
 	
+	/** The tasks that have currently been executed. */
+	private Stack				doneTasks;
+	
 	/** The notification set for initialization progress. */
 	private Set					initListeners;
 	
@@ -91,7 +95,8 @@ public class Initializer
 	public Initializer(Container c)
 	{
 		if (c == null)	throw new NullPointerException();
-		processingQueue = new ArrayList(); 
+		processingQueue = new ArrayList();
+		doneTasks = new Stack(); 
 		initListeners = new HashSet();
 		container = c;
 	}
@@ -127,6 +132,7 @@ public class Initializer
 			currentTask = (InitializationTask) i.next();
 			notifyExecute();  //Tell listeners we're about to exec a task.
 			currentTask.execute();
+			doneTasks.push(currentTask);  //For later rollback if needed.
 		}
 		
 		//Tell all listeners that we're finished.
@@ -140,6 +146,19 @@ public class Initializer
 		//Now control goes into container object, so this object won't be
 		//garbage collected until startService() returns, which may be on exit.
 		container.startService();
+	}
+	
+	/**
+	 * Rolls back all tasks that have been executed at the time this method
+	 * is invoked.
+	 */
+	public void rollback()
+	{
+		Iterator i = doneTasks.iterator();
+		while (i.hasNext()) {
+			InitializationTask task = (InitializationTask) i.next();
+			task.rollback();
+		}
 	}
 	
 	/**
