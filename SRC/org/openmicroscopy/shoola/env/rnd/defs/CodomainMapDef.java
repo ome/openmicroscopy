@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.rnd.defs;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //Third-party libraries
@@ -64,16 +66,47 @@ public class CodomainMapDef
 	public static final int		REVERSE_INTENSITY = 2;
 	
 	/** Identifies a transformation. One of the constants defined above. */
-	public final int 			type;
+	private int					type;
 	
-	public final Map 			params;
+	private Map					params;
 	
-	public CodomainMapDef(int type, Map params)
+	public CodomainMapDef(int type)
 	{
 		verifyType(type);
 		this.type = type;
-		this.params = params;
+		params = new HashMap();
 	}
+	
+	public void addParameter(String key, Integer value) 
+	{
+		if (key == null || value == null) 
+			throw new IllegalArgumentException("Cannot be null");
+		params.put(key, value);
+	}
+	
+	public void addParameter(String key, Boolean value) 
+	{
+		if (key == null || value == null) 
+			throw new IllegalArgumentException("Cannot be null");
+		params.put(key, value);
+	}
+	
+	public void addParameter(String key, Double value) 
+	{
+		if (key == null || value == null) 
+			throw new IllegalArgumentException("Cannot be null");
+		params.put(key, value);
+	}
+	
+	public void addParameter(String key, Float value) 
+	{
+		if (key == null || value == null) 
+			throw new IllegalArgumentException("Cannot be null");
+		params.put(key, value);
+	}
+	
+	/** Private empty constructor. */
+	private CodomainMapDef() {}
 	
 	/** Overrides the equals method. */
 	public boolean equals(Object object)
@@ -86,11 +119,37 @@ public class CodomainMapDef
 		return b;
 	}
 	
+	public Map getParams()
+	{
+		return params;
+	}
+
+	public int getType()
+	{
+		return type;
+	}
+	
+	CodomainMapDef copy()
+	{
+		CodomainMapDef cmd = new CodomainMapDef();
+		cmd.type = this.type;
+		Iterator i = params.keySet().iterator();
+		Map p = new HashMap();
+		while (i.hasNext()) {
+			String key = (String) i.next();
+			p.put(key, params.get(key));
+		}
+		cmd.params = p;
+		return cmd;
+	}
+	
+	/** Verify if the type is one of the constants defined previously. */
 	private void verifyType(int t)
 	{
 		if (t != CONTRAST_STRETCHING && t != PLANE_SLICING && 
 			t != PLANE_SLICING)  
 			throw new IllegalArgumentException("Unsupported codomain type");
 	}
-	
+
+
 }

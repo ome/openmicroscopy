@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.rnd.defs;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -88,7 +89,7 @@ public class RenderingDef
 			throw new IllegalArgumentException("No channel bindings.");
 		channelBindings = new ChannelBindings[cb.length];
 		for (int i = 0; i < cb.length; ++i) {
-			if(cb[i] == null)
+			if (cb[i] == null)
 				throw new IllegalArgumentException(
 											"No binding for wavelength: "+i);
 			if (cb[i].getIndex() != i)
@@ -109,6 +110,9 @@ public class RenderingDef
 		setChannelBindings(channelBindings);
 		codomainMapDefs = new ArrayList();
 	}
+	
+	/** empty constructor.*/
+	private RenderingDef() {}
 	
 	/** only one codomain transformation of the same type. */
 	public void addCodomainMapDef(CodomainMapDef cmd)
@@ -166,6 +170,11 @@ public class RenderingDef
 			copy[i] = channelBindings[i];
 		return copy;	
 	}
+
+	public List getCodomainMapDefs()
+	{
+		return codomainMapDefs;
+	}
 	
 	public int getDefaultZ()
 	{
@@ -177,4 +186,26 @@ public class RenderingDef
 		return defaultT;
 	}
 	
+	RenderingDef copy()
+	{
+		RenderingDef copy = new RenderingDef();
+		copy.defaultZ = this.defaultZ;
+		copy.defaultT = this.defaultT;
+		copy.qDef = this.qDef.copy();
+		ChannelBindings[] cb = new ChannelBindings[channelBindings.length];
+		for (int i = 0; i < channelBindings.length; i++)
+			cb[i] = channelBindings[i].copy();
+		copy.channelBindings = cb;
+		List list = new ArrayList();
+		Iterator j = codomainMapDefs.iterator();
+		CodomainMapDef cmdCopy;
+		while (j.hasNext()) {
+			cmdCopy = ((CodomainMapDef) j.next()).copy();
+			list.add(cmdCopy);
+		}
+		copy.codomainMapDefs = list;
+		return copy;
+	}
+
+
 }

@@ -93,6 +93,13 @@ public class QuantumDef
 		this.bitResolution = bitResolution;
 	}
 
+	/** Make a copy of the object. */
+	QuantumDef copy()
+	{	
+		return new QuantumDef(family, pixelType, curveCoefficient, cdStart, 
+							cdEnd, bitResolution);
+	}
+	
 }
 
 

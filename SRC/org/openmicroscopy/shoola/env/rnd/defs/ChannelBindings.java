@@ -54,8 +54,7 @@ package org.openmicroscopy.shoola.env.rnd.defs;
 public class ChannelBindings
 {
 	/** Color range. */
-	private static final int	COLOR_MIN = 0;
-	private static final int	COLOR_MAX = 255;
+	private static final int	COLOR_MIN = 0, COLOR_MAX = 255;
 	
 	/** Index of the wavelength. */
 	private int 				index;
@@ -87,6 +86,9 @@ public class ChannelBindings
 		this.active = active;
 	}
 
+	/** Private empty constructor. */
+	private ChannelBindings() {}
+	
 	public boolean isActive()
 	{
 		return active;
@@ -150,11 +152,29 @@ public class ChannelBindings
 		this.rgba[3] = rgba[3];
 	}
 	
+	
+	/** Make a copy of the object. */
+	ChannelBindings copy()
+	{
+		ChannelBindings cb = new ChannelBindings();
+		cb.index = this.index;
+		cb.active = this.active;
+		//Will work b/c the objects are read-only.
+		cb.inputStart = this.inputStart;
+		cb.inputEnd = this.inputEnd;
+		int[] colors = new int[rgba.length];
+		for (int i = 0; i < rgba.length; i++)
+			colors[i] = rgba[i];
+		cb.rgba = colors;
+		return cb;
+	}
+	
+	
 	/** Verify the color components. */
 	private void verifyColorComponent(int c)
 	{
 		if (c < COLOR_MIN || COLOR_MAX < c)
 			throw new IllegalArgumentException("Value must be in [0,255].");
 	}
-	
+
 }
