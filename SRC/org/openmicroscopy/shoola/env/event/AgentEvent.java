@@ -29,6 +29,12 @@
 
 package org.openmicroscopy.shoola.env.event;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * Ancestor of all classes that represent events.
  *

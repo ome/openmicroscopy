@@ -46,7 +46,8 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.shoola.env.Container;
 
 /** 
- *
+ * Implements the {@link TopFrame} interface
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -77,7 +78,7 @@ public class TopFrameImpl
 	 */
     public static int       PALETTE_LAYER = 1;
     
-	/**Action command ID. */    
+	/** Action command ID. */    
     static final int        FILE = 0;
     static final int        VIEW = 1;
     static final int        HELP = 2;
@@ -89,6 +90,7 @@ public class TopFrameImpl
     private JDesktopPane    desktop;
     /** Reference to the singleton {@link Container}. */ 
     private Container       container;
+    
     /**
      * Creates a new Instance of {@link TopFrameImpl}
      *
@@ -101,7 +103,7 @@ public class TopFrameImpl
         //make sure we have nice window decorations
         JFrame.setDefaultLookAndFeelDecorated(true);  
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // TODO add icon
+        // TODO: add icon
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
     }
@@ -146,7 +148,7 @@ public class TopFrameImpl
             // just in case we need to handle other events
             switch (cmd) {
                 case EXIT:
-                    // do something
+                  //TODO: do something
             }        
         } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
                 throw nfe;  //just to be on the safe side...
@@ -158,7 +160,7 @@ public class TopFrameImpl
     }
     
 	/** 
-	* Add the specified menuItem to the container at the position n-1. 
+	* Adds the specified menuItem to the container at the position n-1. 
 	* 
 	* @param menuItem       menuItem to add.
 	*/

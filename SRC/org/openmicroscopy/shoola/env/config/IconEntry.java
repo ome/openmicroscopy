@@ -38,6 +38,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Application-internal dependencies
+
 /**
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -84,7 +86,7 @@ class IconEntry
 	 */  
     Object getValue()
     {
-        URL     location = IconEntry.class.getResource(value);
+        URL location = IconEntry.class.getResource(value);
         if (location != null) {
             return new ImageIcon(location);
         } else {

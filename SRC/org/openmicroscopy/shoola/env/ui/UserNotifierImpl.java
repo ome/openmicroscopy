@@ -32,9 +32,13 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.JOptionPane;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
+
 /** 
- * Acts as a centralized place where errors are collected and then notified
- * to the user. 
+ * Implements the {@link UserNotifier} interface.
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -76,7 +80,7 @@ public class UserNotifierImpl
             buf.append(DEFAULT_ERROR_SUMMARY);
         else    buf.append(summary);
         String  d = detail == null ? null : detail.getMessage();
-        if (d!=null && d.length()!=0) {
+        if (d != null && d.length() != 0) {
             buf.append(":\n\n");
             buf.append(d);
         }

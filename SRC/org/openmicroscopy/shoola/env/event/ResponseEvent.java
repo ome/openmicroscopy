@@ -29,6 +29,12 @@
 
 package org.openmicroscopy.shoola.env.event;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * Generic to type to represent the completion of an asynchronous operation. 
  * A concrete subclass encapsulates the result of the operation.

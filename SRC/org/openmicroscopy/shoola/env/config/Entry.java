@@ -36,6 +36,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+//Application-internal dependencies
+
 /** 
  * Sits at the base of a hierarchy of classes that represent entries in 
  * configuration file.
@@ -128,8 +130,10 @@ abstract class Entry
 		try {
 			for (int i = 0; i < list.getLength(); ++i) {
 				Node na = list.item(i);
-				if (na.getNodeName() == NAME) ntp.name = na.getNodeValue();
-				else if (na.getNodeName() == TYPE)  ntp.type = na.getNodeValue();
+				if (na.getNodeName() == NAME) 
+					ntp.name = na.getNodeValue();
+				else if (na.getNodeName() == TYPE)  
+					ntp.type = na.getNodeValue();
 			}
 		} catch (DOMException dex) { throw new RuntimeException(dex); }
 		if (ntp.name == null || ntp.name.length() == 0)

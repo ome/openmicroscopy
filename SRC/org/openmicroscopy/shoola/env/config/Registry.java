@@ -29,6 +29,11 @@
 
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -75,8 +80,7 @@ public interface Registry
    	* 
    	* @return See above.
    	*/
-   	public SemanticTypesService getSemanticTypesService();
-   	//public PixelsService getPixelsServce();
+   	public SemanticTypesService getSemanticTypesService();	
    	/**
    	* Return the {@link Logger} registered.
    	* 
@@ -95,6 +99,11 @@ public interface Registry
    	* @return See above.
    	*/
    	public UserNotifier getUserNotifier();
-   
+	/**
+	* Return the {@link PixelsService} registered.
+	* 
+	* @return See above.
+	*/
+	//	public PixelsService getPixelsServce();
    
 }

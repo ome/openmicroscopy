@@ -37,6 +37,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Application-internal dependencies
+
 /** 
  *
  * 
@@ -77,7 +79,7 @@ class AgentsEntry
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
    
-	/**  Implemented as specified by {@link Entry}. */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return listAgents; 
@@ -93,9 +95,9 @@ class AgentsEntry
         if (node.hasChildNodes()) {
             AgentInfo agtInfo = new AgentInfo();
             NodeList childList = node.getChildNodes();
-            for (int i = 0; i<childList.getLength(); i++) {
+            for (int i = 0; i < childList.getLength(); i++) {
                 Node child = childList.item(i);
-                if (child.getNodeType()==Node.ELEMENT_NODE)
+                if (child.getNodeType()== Node.ELEMENT_NODE)
                         agtInfo.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());
             }

@@ -36,6 +36,8 @@ import java.util.Map;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Application-internal dependencies
+
 /**
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

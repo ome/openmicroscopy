@@ -29,8 +29,13 @@
 
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
 // Third-party libraries
 import org.w3c.dom.Node;
+
+//Application-internal dependencies
+
 
 /**
  *

@@ -38,6 +38,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Application-internal dependencies
+
 /**
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

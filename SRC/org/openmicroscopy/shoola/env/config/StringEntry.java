@@ -29,8 +29,13 @@
 
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
 // Third-party libraries
 import org.w3c.dom.Node;
+
+//Application-internal dependencies
+
 
 /**
  *
@@ -57,7 +62,7 @@ class StringEntry
     protected void setContent(Node node)
     { 
         try {
-            Node child = node.getFirstChild(); // has only one child
+            Node child = node.getFirstChild();
             value = child.getNodeValue();
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }

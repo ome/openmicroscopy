@@ -29,6 +29,13 @@
 
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
+
 /** 
  * Creates an Object which contains the informations on the font.
  *
@@ -66,7 +73,7 @@ class FontInfo
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
 	/** 
-	 * Return the value of the <code>family</code>.
+	 * Return the value of the <code>family</code> tag.
 	 *
 	 * @return String.
 	 */
@@ -75,7 +82,7 @@ class FontInfo
         return family;
     }
 	/** 
-	 * Return the value of the <code>size</code>.
+	 * Return the value of the <code>size</code> tag.
 	 *
 	 * @return Integer.
 	 */
@@ -84,7 +91,7 @@ class FontInfo
         return size;
     }
 	/** 
-	 * Return the value of the <code>style</code>.
+	 * Return the value of the <code>style</code> tag.
 	 *
 	 * @return String.
 	 */

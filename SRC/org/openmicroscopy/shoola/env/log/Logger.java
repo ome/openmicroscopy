@@ -30,10 +30,18 @@
 
 package org.openmicroscopy.shoola.env.log;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
- * Defines the operations available to any external class.
- *
+ * Interface defining the operations available to any external class. It's
+ * an adapter that makes use of log4j library to implement the operations by 
+ * the interface.
+ * Its methods transform an orginal call into a suitable call to the log4j
+ * library.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,11 +53,42 @@ package org.openmicroscopy.shoola.env.log;
  * @since OME2.2
  */
 
-public interface Logger {
+public interface Logger 
+{
+	/**
+	 * debug call.
+	 * 
+	 * @param c			Object that calls the {@link logger}.
+	 * @param logMsg	Message to display.
+	 */
     public void debug(Object c, String logMsg);
+	/**
+	 * error call.
+	 * 
+	 * @param c			Object that calls the {@link logger}.
+	 * @param logMsg	Message to display.
+	 */
     public void error(Object c, String logMsg);
+	/**
+	 * fatal call.
+	 * 
+	 * @param c			Object that calls the {@link logger}.
+	 * @param logMsg	Message to display.
+	 */
     public void fatal(Object c, String logMsg);
+	/**
+	* info call.
+	* 
+	* @param c			Object that calls the {@link logger}.
+	* @param logMsg		Message to display.
+	*/
     public void info(Object c, String logMsg);
+	/**
+	 * debug warn.
+	 * 
+	 * @param c			Object that calls the {@link logger}.
+	 * @param logMsg	Message to display.
+	 */
     public void warn(Object c, String logMsg);
     
     

@@ -30,6 +30,12 @@
 
 package org.openmicroscopy.shoola.env.event;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * The AgentEventListener interface represents a subscriber to the event bus,
  * it has to be implemented by all subscribers in order to register 

@@ -28,6 +28,12 @@
  */
 package org.openmicroscopy.shoola.env.config;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * Creates an object containing the Host's informations.
  *
@@ -63,7 +69,7 @@ class HostInfo
     }
     
 	/** 
-	 * Return the value of the <code>host</code>.
+	 * Return the value of the <code>host</code> tag.
 	 *
 	 * @return the above mentioned.
 	 */

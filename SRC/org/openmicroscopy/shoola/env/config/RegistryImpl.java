@@ -44,9 +44,9 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Implements the <code>Registry</code> interface. 
- * It maintains a map of
- * <code>Entry</code> objects which are keyed by their <code>name</code> 
- * attribute and represent entries in configuration file.
+ * It maintains a map of {@link Entry} objects which are keyed 
+ * by their <code>name</code> attribute and represent entries in 
+ * configuration file.
  * It also maintains references to the container's services into member fields,
  * this ensures <code>o(1)</code> access time.
  *
@@ -67,12 +67,13 @@ class RegistryImpl
     private HashMap             	entriesMap;
     private EventBus                eb;
     private DataManagementService   dms;
-    private SemanticTypesService    	sts;
+    private SemanticTypesService	sts;
+	private Logger             		logger;
+	private TopFrame                tf;
+   	private UserNotifier            un;
     //private PixelsService           ps;
     //private ImageService			is;
-    private Logger             		logger;
-    private TopFrame                tf;
-    private UserNotifier            un;
+   
     
     RegistryImpl()
     {
@@ -102,8 +103,6 @@ class RegistryImpl
 		return sts;
 	}
 	/** Implemented as specified by {@link Registry}. */
-	//public PixelsService getPixelsServices();
-	/** Implemented as specified by {@link Registry}. */
 	public Logger getLogService()
 	{
 		return logger;
@@ -118,9 +117,10 @@ class RegistryImpl
 	{
    		return un;
    	}
-   
+	/** Implemented as specified by {@link Registry}. */
+//	public PixelsService getPixelsServices();
 	/** 
-	* Add a new entry in the map.
+	* Add a new entry in the map of {@link Entry}.
 	* 
 	* @param e new Entry.
 	*/
@@ -128,7 +128,6 @@ class RegistryImpl
 	{
 		entriesMap.put(e.getName(), e);
    	}
-
 	/**
 	* Set the {@link EventBus}.
 	* 
@@ -165,7 +164,6 @@ class RegistryImpl
    	{
 		this.tf = tf;
    	}
-
 	/**
 	* Set the {@link Logger}.
 	* 
@@ -185,6 +183,5 @@ class RegistryImpl
 		this.un = un;
 	}
 
-		
-		
+			
 }

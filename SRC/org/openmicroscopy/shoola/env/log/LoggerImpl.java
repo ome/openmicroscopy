@@ -29,13 +29,15 @@
 
 package org.openmicroscopy.shoola.env.log;
 
-// Third-party libraries
+
+//Java imports
+
+//Third-party libraries
 import org.apache.log4j.Category;
+//Application-internal dependencies
 
 /** 
- * It is an adapter that makes use of the Log4j library to implement the 
- * operations defined by the interface <code>Logger</code>. 
- * Its methods transform the orginal call to a suitable call for Log4j.
+ * Implements the {@link logger} interface. 
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

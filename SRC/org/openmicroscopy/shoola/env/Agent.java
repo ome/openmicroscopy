@@ -28,9 +28,15 @@
  */
 
 package org.openmicroscopy.shoola.env;
+// Java Imports;
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 // App-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+
 
 /** The <code>Agent</code> interface plays the role of Separated interface, 
  * decoupling the container from knowledge of concrete agents.

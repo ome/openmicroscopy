@@ -83,7 +83,7 @@ public class StartupException
 	{
 		String originator = "unknown";
 		StackTraceElement[] stack = getStackTrace();
-		if (stack!=null || 0<stack.length)
+		if (stack != null || 0 < stack.length)
 			originator = stack[0].getClassName();
 		return originator;
 	}

@@ -29,6 +29,12 @@
 
 package org.openmicroscopy.shoola.env.event;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * Defines how client classes access the event bus service.
  *
@@ -52,11 +58,10 @@ public interface EventBus
 	 * An agent uses the register method in order to be notified  
 	 * of occurences of the specified event types.
 	 *
-	 * @param subscriber	AgentListener objet to add
-	 * @param events		list of classes that the subscriber registers for
+	 * @param subscriber	AgentListener objet to add.
+	 * @param events		list of classes that the subscriber registers for.
 	 */     
     public void register(AgentEventListener  subscriber, Class[] events);
-
 	/** 
 	 * Add the subscriber to the List.
 	 * An agent uses the register method in order to be notified  
@@ -66,7 +71,6 @@ public interface EventBus
 	 * @param event			a class. 
 	 */     
     public void register(AgentEventListener  subscriber, Class event);
-
 	/** 
 	 * Remove the subscriber to the List.
 	 *
@@ -74,7 +78,6 @@ public interface EventBus
 	 * @param events		list of classes. 
 	 */    
     public void remove(AgentEventListener  subscriber);
-    
 	/** 
 	 * Remove the subscriber to the List.
 	 *
@@ -82,7 +85,6 @@ public interface EventBus
 	 * @param event          a class.
 	 */     
     public void remove(AgentEventListener  subscriber, Class event);
-    
 	/** 
 	 * Remove the subscriber to the List.
 	 *

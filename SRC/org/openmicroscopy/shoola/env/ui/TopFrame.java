@@ -33,6 +33,10 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.Component;
 import javax.swing.JMenuItem;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -49,7 +53,7 @@ public interface TopFrame
  {
 
 	/** 
-	* Position a component on the layer of the application internal desktop.
+	* Positions a component on the layer of the application internal desktop.
 	* 
 	* @param    c			component to position.
 	* @param    position    specified position.
@@ -57,14 +61,14 @@ public interface TopFrame
     public void addToDesktop(Component c, int position);
     
 	/** 
-	* Remove a component form the application internal desktop.
+	* Removes a component form the application internal desktop.
 	* 
 	* @param   c component to be removed.
 	*/
     public void removeFromDesktop(Component c);
     
 	/** 
-	* Add a component to a specified menu. 
+	* Adds a component to a specified menu. 
 	*
 	* @param menuType  		ID which corresponds to specified menu.
 	* @param item         	component to be added.
@@ -72,7 +76,7 @@ public interface TopFrame
     public void addToMenu(int menuType, JMenuItem item);
     
 	/** 
-	* Remove a component from a specified menu. 
+	* Removes a component from a specified menu. 
 	*
 	* @param menuType  		ID which corresponds to specified menu.
 	* @param item         	component to be removed.

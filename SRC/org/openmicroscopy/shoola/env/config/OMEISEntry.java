@@ -31,11 +31,12 @@ package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
 
-
 // Third-party libraries
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+//Application-internal dependencies
 
 /**
  *

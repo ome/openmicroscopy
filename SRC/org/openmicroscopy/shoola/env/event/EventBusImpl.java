@@ -35,6 +35,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
  * Implements the<code>EventBus</code> interface, it is the pumping heart 

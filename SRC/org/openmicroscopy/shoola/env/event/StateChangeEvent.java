@@ -29,6 +29,12 @@
 
 package org.openmicroscopy.shoola.env.event;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
  * Abstract class from which agents derive concrete classes to represent static 
  * change notifications.

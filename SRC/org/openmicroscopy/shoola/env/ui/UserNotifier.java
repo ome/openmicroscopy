@@ -28,8 +28,16 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
+// Java Imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- *
+ * Acts as a centralized place where errors are collected and then notified 
+ * to the user. 
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -42,9 +50,32 @@ package org.openmicroscopy.shoola.env.ui;
 
 public interface UserNotifier
  {
+ 	/**
+ 	 * error notification.
+ 	 * 
+ 	 * @param title		title of the Dialog window.
+ 	 * @param summary	error's summary.
+ 	 * @param detail	error's details.
+ 	 */
     public void notifyError(String title, String summary, Exception detail);
+	/**
+	 * error notification.
+	 * 
+	 * @param title		title of the Dialog window.
+	 * @param summary	error's summary.* @param detail	error's details.
+	 */
     public void notifyError(String title, String message);
+	/**
+	 * 
+	 * @param title		title of the Dialog window.
+	 * @param message	info's message.
+	 */
     public void notifyInfo(String title, String message);
+    /**
+     * 
+     * @param title		title of the Dialog window.
+     * @param message	warning's message.
+     */
     public void notifyWarning(String title, String message);
 
     

@@ -40,6 +40,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Application-internal dependencies
+
+
 /**
  * In charge of parsing a configuration file.
  * Extracting entries 
