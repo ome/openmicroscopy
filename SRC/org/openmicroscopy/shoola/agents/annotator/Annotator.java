@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -183,12 +184,14 @@ public class Annotator
      * @param content The content to include in the annotation.
      * @return An ImageAnnotation attribute (DTO) with the embedded content.
      */
-    ImageAnnotation createImageAnnotation(String content)
+    ImageAnnotation createImageAnnotation(String content, int imageID)
     {
 		ImageAnnotation newAnnotation = null;
 		try { 
 			SemanticTypesService sts = registry.getSemanticTypesService();
-			newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I);
+            DataManagementService dms = registry.getDataManagementService();
+            
+			newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I,imageID);
 			newAnnotation.setContent(content);
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
@@ -197,18 +200,20 @@ public class Annotator
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
+            dsose.printStackTrace();
 			registry.getEventBus().post(request);
 		}
 		return newAnnotation;
     }
     
     /**
-     * Updates the annotations in the DB through the STS (controllers that
+     * Commits the annotations in the DB through the STS (controllers that
      * save annotations should call this)
      * @param annotations
      */
-    void updateImageAnnotations(List annotations)
+    void commitNewAnnotations(List annotations)
     {
+        if(annotations == null || annotations.size() == 0 ) return;
 		try { 
 			SemanticTypesService sts = registry.getSemanticTypesService();
 			sts.updateUserInputAttributes(annotations);
@@ -219,8 +224,28 @@ public class Annotator
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
+            dsose.printStackTrace();
 			registry.getEventBus().post(request);
 		}
+    }
+    
+    void updateAnnotations(List annotations)
+    {
+        if(annotations == null || annotations.size() == 0 ) return;
+        try {
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            sts.updateAttributes(annotations);
+        } catch(DSAccessException dsae) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Data Creation Failure", 
+                "Unable to update the semantic type ", dsae);
+                dsae.printStackTrace();
+        } catch(DSOutOfServiceException dsose) {    
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            dsose.printStackTrace();
+            registry.getEventBus().post(request);
+        }
     }
 
     /**

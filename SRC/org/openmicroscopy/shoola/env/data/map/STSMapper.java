@@ -129,6 +129,8 @@ public class STSMapper
 	   	c.addWantedField(":all:");
     
 	   	c.addWantedField("semantic_type");
+        c.addWantedField("semantic_type","name");
+        c.addWantedField("semantic_type","granularity");
 	   	c.addWantedField("semantic_type", "semantic_elements");
 	   	c.addWantedField("semantic_type.semantic_elements", "id");
 	   	c.addWantedField("semantic_type.semantic_elements", "name");
@@ -200,6 +202,7 @@ public class STSMapper
     
 		// all non-references; has-ones with just ID's; no has-manys
    		c.addWantedField(":all:");
+        c.addWantedField("semantic_type",":all:");
 		String column = (String) granularities.get(granularity);
 		if (column != null) c.addFilter(column, "IN", Arrays.asList(targetIDs));
 		return c;
@@ -244,6 +247,7 @@ public class STSMapper
 
    		c.addWantedField("id");
    		c.addWantedField("name");
+        c.addWantedField("granularity");
    		c.addWantedField("description");
 
    		c.addWantedField("semantic_elements");

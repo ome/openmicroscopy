@@ -211,15 +211,6 @@ public interface SemanticTypesService
         
     public Attribute createAttribute(String typeName, int objectID)
         throws DSOutOfServiceException, DSAccessException;
-    
-    /**
-     * Uses the AnnotationManager to update/create attributes that require
-     * some form of user input record, such as DatasetAnnotations,
-     * ImageAnnotations, Classifications, etc.
-     * @param attributes The list of attributes to add to the system.
-     */
-    public void updateUserInputAttributes(List attributes)
-		throws DSOutOfServiceException, DSAccessException;
 
     /**
      * Retrieves the attribute with the given SemanticType and specified
@@ -474,6 +465,22 @@ public interface SemanticTypesService
      * @see retrieveSemanticType(org.openmicroscopy.ds.dto.SemanticType)
      */
     public SemanticType retrieveSemanticType(String typeName)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * Uses the AnnotationManager to update/create attributes that require
+     * some form of user input record, such as DatasetAnnotations,
+     * ImageAnnotations, Classifications, etc.
+     * @param attributes The list of attributes to add to the system.
+     */
+    public void updateUserInputAttributes(List attributes)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Updates (already-created) attributes.
+     * @param attributes The list of attributes to update.
+     */
+    public void updateAttributes(List attributes)
         throws DSOutOfServiceException, DSAccessException;
     
 }

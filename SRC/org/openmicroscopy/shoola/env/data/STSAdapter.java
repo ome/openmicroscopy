@@ -510,8 +510,8 @@ class STSAdapter
     }
     
     /**
-     * Updates attributes that have some sort of user input associated with
-     * them, such as ImageAnnotation, DatasetAnnotation, Classification and
+     * Updates (new) attributes that have some sort of user input associated
+     * with them, such as ImageAnnotation, DatasetAnnotation, Classification and
      * others.  Each user input attribute has an associated ModuleExecution,
      * and updating these attributes requires the AnnotationManager for
      * proper database storage.
@@ -523,5 +523,14 @@ class STSAdapter
 	{
         gateway.annotateAttributesData(attributes);
     }
-
+    
+    /**
+     * Updates attributes that have already been created, regardless of
+     * creation method.
+     */
+    public void updateAttributes(List attributes)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        gateway.updateAttributes(attributes);
+    }
 }

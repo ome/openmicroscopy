@@ -251,7 +251,6 @@ class OMEDSGateway
         } catch (RemoteAuthenticationException rae) {
             throw new DSOutOfServiceException("Not logged in", rae);
         } catch (RemoteServerErrorException rsee) {
-            rsee.printStackTrace();
             throw new DSAccessException("Can't load data", rsee);
         } 
         return retVal;
@@ -309,7 +308,6 @@ class OMEDSGateway
 	   	} catch (RemoteAuthenticationException rae) {
 		   	throw new DSOutOfServiceException("Not logged in", rae);
 	   	} catch (RemoteServerErrorException rsee) {
-                rsee.printStackTrace();
 			throw new DSAccessException("Can't load data", rsee);
 	   	} 
 		return retVal;
@@ -338,7 +336,6 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-                rsee.printStackTrace();
 			throw new DSAccessException("Can't load data", rsee);
 		} 
 		return retVal;
@@ -366,7 +363,6 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
 			throw new DSOutOfServiceException("Not logged in", rae);
 		} catch (RemoteServerErrorException rsee) {
-                rsee.printStackTrace();
 			throw new DSAccessException("Can't load data", rsee);
 		} 
 		return retVal;
@@ -496,13 +492,14 @@ class OMEDSGateway
 		} 
 	}
 	
-	/** Annotate. */
+	/** Annotate. Each attribute in the list must be a newly-created
+     * attribute; otherwise, call updateAttributes() with that attribute
+     * as a member. */
 	void annotateAttributesData(List attributes)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-            System.err.println(attributes.get(0));
-			getAnnotationManager().annotateAttributes(attributes);
+            getAnnotationManager().annotateAttributes(attributes);
 		} catch (RemoteConnectionException rce) {
 			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
 		} catch (RemoteAuthenticationException rae) {
@@ -512,6 +509,22 @@ class OMEDSGateway
 			throw new DSAccessException("Can't load data", rsee);
 		} 
 	}
+    
+    /** Update attributes. */
+    void updateAttributes(List attributes)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            getDataFactory().updateList(attributes);
+        } catch(RemoteConnectionException rce) {
+            throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+        } catch (RemoteAuthenticationException rae) {
+            throw new DSOutOfServiceException("Not logged in", rae);
+        } catch (RemoteServerErrorException rsee) {
+            rsee.printStackTrace();
+            throw new DSAccessException("Can't load data", rsee);
+        }
+    }
 	
 }
 

@@ -37,6 +37,7 @@
 package org.openmicroscopy.shoola.agents.annotator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.ImageAnnotation;
@@ -76,6 +77,7 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
         this.imageID = triggeringEvent.getID();
         this.imageName = triggeringEvent.getName();
         this.requestEvent = triggeringEvent;
+        newAnnotationList = new ArrayList();
         
         List theList = annotator.getImageAnnotations(imageID);
         if(theList == null)
@@ -128,8 +130,8 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
     
     public void newAnnotation(String annotation)
     {
-        ImageAnnotation ia = annotator.createImageAnnotation(annotation);
-        annotationList.add(ia);
+        ImageAnnotation ia = annotator.createImageAnnotation(annotation,imageID);
+        newAnnotationList.add(ia);
     }
     
     public void setAnnotation(int annotationIndex, String content)
@@ -145,7 +147,15 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
      */
     public boolean save()
     {
-        annotator.updateImageAnnotations(annotationList);
+        annotator.commitNewAnnotations(newAnnotationList);
+        annotator.updateAnnotations(annotationList);
+        
+        for(Iterator iter = newAnnotationList.iterator(); iter.hasNext();)
+        {
+            annotationList.add(0,iter.next());
+        }
+        newAnnotationList.clear();
+        
         ImageAnnotated annotated = new ImageAnnotated(requestEvent);
         // TODO support multiple
         if(annotationList.size() > 0)

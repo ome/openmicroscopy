@@ -69,6 +69,11 @@ public abstract class AnnotationCtrl
     protected List annotationList;
     
     /**
+     * The list of newly-created annotations (as strings)
+     */
+    protected List newAnnotationList;
+    
+    /**
      * The list of attributes (excluding text annotations)
      */
     protected List attributeList;
