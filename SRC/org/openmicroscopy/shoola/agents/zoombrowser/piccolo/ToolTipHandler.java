@@ -87,7 +87,7 @@ public abstract class ToolTipHandler extends PBasicInputEventHandler {
 	 * Initializes the tool tip handler
 	 * @param camera the camera that will display the tooltip
 	 */
-	ToolTipHandler(PCamera camera) {
+	public ToolTipHandler(PCamera camera) {
 		this.camera = camera;
 		tooltip = new PPath();
 		tooltip.setPaint(PConstants.TOOLTIP_FILL_COLOR);
