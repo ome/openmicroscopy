@@ -56,6 +56,7 @@ public final class HeatMapUI extends JFrame
 {
     private HeatMapModel model;
     private HeatMapTreeUI treePanel;
+    private HeatMapGradientUI gradPanel;
     private String title;
     
     public HeatMapUI(HeatMapModel model)
@@ -69,6 +70,7 @@ public final class HeatMapUI extends JFrame
         model.addListener(this);
         
         treePanel = new HeatMapTreeUI(model.getModel());
+        gradPanel = new HeatMapGradientUI();
         buildUI();
     }
     
@@ -81,6 +83,11 @@ public final class HeatMapUI extends JFrame
         scrollPane.setPreferredSize(new Dimension(250,200));
         scrollPane.setSize(new Dimension(250,200));
         contentPane.add(scrollPane,BorderLayout.CENTER);
+        
+        gradPanel.setPreferredSize(new Dimension(250,100));
+        gradPanel.setSize(new Dimension(250,100));
+        gradPanel.setEnabled(false);
+        contentPane.add(gradPanel,BorderLayout.SOUTH);
         
         setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // change?
