@@ -109,7 +109,8 @@ public class EventBusImpl
                 ListIterator i = list.listIterator();
                 while (i.hasNext()) {
                     AgentEventListener listener = (AgentEventListener) i.next();
-                    if (listener != subscriber) list.addLast(subscriber);
+                    if (listener != subscriber) //list.addLast(subscriber);
+                    	i.add(subscriber);
                 }
             } else {
                 list = new LinkedList();
