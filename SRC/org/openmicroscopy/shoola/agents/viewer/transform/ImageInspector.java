@@ -33,12 +33,15 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
 import java.awt.BorderLayout;
-import javax.swing.JDialog;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
@@ -62,7 +65,7 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
  * @since OME2.2
  */
 public class ImageInspector
-	extends JDialog implements AgentEventListener
+	extends JFrame implements AgentEventListener
 {
 	
 	/** Maximum width of the window. */
@@ -80,11 +83,20 @@ public class ImageInspector
 	JScrollPane scroll;
 	public ImageInspector(ViewerCtrl control)
 	{
-		super(control.getReferenceFrame(), "Image Inspector");
+		//super(control.getReferenceFrame(), "Image Inspector");
+		initFrame(IconManager.getInstance(control.getRegistry()));
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();
 		setSize(WIN_W, WIN_H);
+	}
+	
+	/** Initializes the frame. */
+	private void initFrame(IconManager im)
+	{
+		setTitle("Image Inspector");
+		setIconImage(
+		((ImageIcon) im.getIcon(IconManager.INSPECTOR)).getImage());
 	}
 	
 	/** Initializes the components. */
