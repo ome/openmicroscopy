@@ -22,7 +22,7 @@ import org.w3c.dom.NodeList;
  * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  */
-class Parser{
+class Parser {
 
     private     Document    document;
     private     String      configFile;
@@ -88,7 +88,7 @@ class Parser{
         for (int k = 0; k<tagsEntry.length; ++k) {
             NodeList list = document.getElementsByTagName(tagsEntry[k]);
             int l = entriesTags.size();
-            for (int i = 0; i<list.getLength();++i) {
+            for (int i = 0; i<list.getLength(); ++i) {
                 Node n = list.item(i);
                 if (n.hasChildNodes()) entriesTags.add(k*l+i, n);
             }
