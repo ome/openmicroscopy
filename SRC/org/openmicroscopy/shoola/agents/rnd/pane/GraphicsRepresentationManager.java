@@ -82,6 +82,8 @@ class GraphicsRepresentationManager
     /** Used to control mouse pressed and dragged events. */                    
     private boolean                 dragging;
 
+    private boolean                 equalStartAndEnd;
+    
     /** Rectangles used to listen the knobs. */
     private Rectangle               boxStart, boxEnd, boxOutputStart,
                                     boxOutputEnd;
@@ -119,10 +121,7 @@ class GraphicsRepresentationManager
         boxOutputEnd = new Rectangle();
         maxEndX = leftBorder+square/2; //only used if type = exponential
         attachListeners();
-        inputStartKnob = false;
-        inputEndKnob = false;
-        outputStartKnob = false;
-        outputEndKnob = false;
+        setBooleanControls(false, false, false, false);
     }
 
     /** Attach listeners. */
@@ -132,6 +131,7 @@ class GraphicsRepresentationManager
         view.addMouseMotionListener(this);
     }
 
+    void setEqualStartAndEnd(boolean b) { equalStartAndEnd  = b; }
     /**
      * Resize the input window.
      * The method is invoked by the control {@link QuantumPaneManager}.
@@ -226,67 +226,24 @@ class GraphicsRepresentationManager
     public void mousePressed(MouseEvent e)
     {
         Point p = e.getPoint();
-        if (!dragging) {
+        if (!dragging && !equalStartAndEnd) {
             dragging = true;
             if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
                 p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
-                && type == QuantumFactory.EXPONENTIAL) {
-                int min = control.getGlobalMinimum();
-                int v = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min); 
-                inputEndKnob = true;
-                inputStartKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                curRealValue = v;               
-                //control.setInputWindowEnd(v);
-            }
+                && type == QuantumFactory.EXPONENTIAL) 
+                handleBoxEndExponential(p.x);      
             if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
-                p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
-                int min = control.getGlobalMinimum();
-                curRealValue = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min);
-                inputEndKnob = true;
-                inputStartKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                //synchronize the view.
-                control.setInputWindowEnd(curRealValue); 
-            }   
+                p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL)
+                handleBoxEnd(p.x);
             if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
-                p.x <= minEndX) {
-                int min = control.getGlobalMinimum();
-                curRealValue = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min);
-                inputStartKnob = true;  
-                inputEndKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                //synchronize the view.             
-                control.setInputWindowStart(curRealValue);
-            }
+                p.x <= minEndX)
+                handleBoxStart(p.x);
             if (boxOutputStart.contains(p) && p.y >= minEndOutputY &&
-                p.y <= tS) {
-                outputStartKnob = true;
-                inputEndKnob = false;
-                inputStartKnob = false;
-                outputEndKnob = false;
-        
-                curRealValue = convertGraphicsIntoReal(p.y-topBorder);
-                setOutputWindowStart(p.y);  //update the view.
-            }   
+                p.y <= tS)
+                handleBoxOutputStart(p.y); 
             if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY &&
-                p.y >= topBorder) {
-                outputEndKnob = true;
-                inputEndKnob = false;
-                inputStartKnob = false;
-                outputStartKnob = false;    
-                curRealValue =  convertGraphicsIntoReal(p.y-topBorder);
-                setOutputWindowEnd(p.y); //update the view. 
-            }   
+                p.y >= topBorder)
+                handleBoxOutputEnd(p.y);   
          }  //else dragging already in progress 
     }
 
@@ -294,62 +251,23 @@ class GraphicsRepresentationManager
     public void mouseDragged(MouseEvent e)
     {
         Point p = e.getPoint();
-        if (dragging) {
+        if (dragging && !equalStartAndEnd) {
             if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS && 
                 p.x >= maxStartX && p.x <= maxEndX && p.x >= absMin 
-                && type == QuantumFactory.EXPONENTIAL) {
-                int min = control.getGlobalMinimum();
-                curRealValue = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min); 
-                inputEndKnob = true;
-                inputStartKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                control.setInputWindowEnd(curRealValue);
-            }
+                && type == QuantumFactory.EXPONENTIAL)
+                handleBoxEndExponential(p.x);  
             if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
-                p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL) {
-                int min = control.getGlobalMinimum();
-                curRealValue = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min); 
-                inputEndKnob = true;
-                inputStartKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                control.setInputWindowEnd(curRealValue);
-            }
+                p.x >= maxStartX && type != QuantumFactory.EXPONENTIAL)
+                handleBoxEnd(p.x);
             if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
-                p.x <= minEndX) {
-                int min = control.getGlobalMinimum();
-                curRealValue = convertGraphicsIntoReal(p.x-leftBorder, 
-                                control.getGlobalMaximum()-min, 
-                                view.getInputGraphicsRange(), min);
-                inputStartKnob = true;
-                inputEndKnob = false;
-                outputEndKnob = false;
-                outputStartKnob = false;
-                control.setInputWindowStart(curRealValue);  
-            }   
+                p.x <= minEndX)
+                handleBoxStart(p.x);  
             if (boxOutputStart.contains(p) && p.y >= minEndOutputY 
-                && p.y <= tS) {
-                curRealValue = convertGraphicsIntoReal(p.y-topBorder);          
-                outputStartKnob = true;
-                inputStartKnob = false;
-                inputEndKnob = false;
-                outputEndKnob = false;
-                setOutputWindowStart(p.y);      
-            }
+                && p.y <= tS)
+                handleBoxOutputStart(p.y);
             if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY && 
-                p.y >= topBorder) {
-                curRealValue =  convertGraphicsIntoReal(p.y-topBorder);         
-                outputEndKnob = true;
-                inputStartKnob = false;
-                inputEndKnob = false;
-                outputStartKnob = false;
-                setOutputWindowEnd(p.y);
-            }   
+                p.y >= topBorder)
+                handleBoxOutputEnd(p.y);  
         }
     }
     
@@ -359,15 +277,75 @@ class GraphicsRepresentationManager
      */    
     public void mouseReleased(MouseEvent e)
     { 
-        if (inputStartKnob) control.setChannelWindowStart(curRealValue);
-        else if (inputEndKnob) control.setChannelWindowEnd(curRealValue);
-        else if (outputStartKnob) control.setCodomainLowerBound(curRealValue);
-        else if (outputEndKnob) control.setCodomainUpperBound(curRealValue);
-        dragging = false; 
-        inputStartKnob = false;
-        inputEndKnob = false;
-        outputStartKnob = false;
-        outputEndKnob = false;
+        if (!equalStartAndEnd) {
+            if (inputStartKnob) 
+                control.setChannelWindowStart(curRealValue);
+            else if (inputEndKnob) 
+                control.setChannelWindowEnd(curRealValue);
+            else if (outputStartKnob) 
+                control.setCodomainLowerBound(curRealValue);
+            else if (outputEndKnob) 
+                control.setCodomainUpperBound(curRealValue);
+            dragging = false; 
+            setBooleanControls(false, false, false, false);
+        }
+    }
+    
+    /** Handle the BoxEnd events if family == EXPONENTIAL. */
+    private void handleBoxEndExponential(int x)
+    {
+        int min = control.getGlobalMinimum();
+        curRealValue = convertGraphicsIntoReal(x-leftBorder, 
+                        control.getGlobalMaximum()-min, 
+                        view.getInputGraphicsRange(), min); 
+        setBooleanControls(false, true, false, false);
+        control.setInputWindowEnd(curRealValue);
+    }
+    
+    /** Handle the BoxEnd events if family != EXPONENTIAL. */
+    private void handleBoxEnd(int x)
+    {
+        int min = control.getGlobalMinimum();
+        curRealValue = convertGraphicsIntoReal(x-leftBorder, 
+                        control.getGlobalMaximum()-min, 
+                        view.getInputGraphicsRange(), min);
+        setBooleanControls(false, true, false, false);
+        control.setInputWindowEnd(curRealValue); 
+    }
+    
+    /** Handle the BoxStart events. */
+    private void handleBoxStart(int x)
+    {
+        int min = control.getGlobalMinimum();
+        curRealValue = convertGraphicsIntoReal(x-leftBorder, 
+                        control.getGlobalMaximum()-min, 
+                        view.getInputGraphicsRange(), min);
+        setBooleanControls(true, false, false, false);
+        control.setInputWindowStart(curRealValue); 
+    }
+    
+    /** Handle the BoxOutputStart events. */
+    private void handleBoxOutputStart(int y)
+    {
+        curRealValue = convertGraphicsIntoReal(y-topBorder);          
+        setBooleanControls(false, false, true, false);
+        setOutputWindowStart(y);  
+    }
+    
+    /** Handle the BoxOutputEnd events. */
+    private void handleBoxOutputEnd(int y)
+    {
+        curRealValue =  convertGraphicsIntoReal(y-topBorder);         
+        setBooleanControls(false, false, false, true);
+        setOutputWindowEnd(y);
+    }
+    
+    private void setBooleanControls(boolean a, boolean b, boolean c, boolean d)
+    {
+        inputStartKnob = a;
+        inputEndKnob = b;
+        outputStartKnob = c;
+        outputEndKnob = d;
     }
     
     /**
@@ -418,7 +396,6 @@ class GraphicsRepresentationManager
      */ 
     private void setOutputStartBox(int y)
     {
-        //maxStartOutputY = y-2*triangleW;
         maxStartOutputY = y-extraControl;
         boxOutputStart.setBounds(0, y-2*triangleW, leftBorder, 4*length);
     }
@@ -430,7 +407,6 @@ class GraphicsRepresentationManager
      */  
     private void setOutputEndBox(int y)
     {
-        //minEndOutputY = y+triangleW;
         minEndOutputY = y+extraControl;
         boxOutputEnd.setBounds(lS, y-triangleW, leftBorder, 4*length);
     }
@@ -442,7 +418,6 @@ class GraphicsRepresentationManager
      */
     void setInputStartBox(int x)
     {
-        //maxStartX = x+2*triangleW;
         maxStartX = x+extraControl;
         boxStart.setBounds(x-triangleW, tS+triangleW+1, 4*length, 
                             bottomBorder+bottomBorderSupp);
@@ -455,9 +430,6 @@ class GraphicsRepresentationManager
      */  
     void setInputEndBox(int x)
     {
-        //minEndX = x-2*triangleW;
-        //boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
-        //              bottomBorder+bottomBorderSupp);
         minEndX = x-extraControl;
         boxEnd.setBounds(x-2*triangleW, 0, 4*length, topBorder);
     }

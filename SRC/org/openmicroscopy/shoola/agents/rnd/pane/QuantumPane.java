@@ -102,7 +102,6 @@ public class QuantumPane
                                     INDEX);
         gRepresentation = new GraphicsRepresentation(manager, family, cc, 
                                 qDef.cdStart, qDef.cdEnd, mini, maxi, cbStats);
-        
         if (family == QuantumFactory.EXPONENTIAL)
              gRepresentation.setDefaultExponential(s, e);
         else gRepresentation.setDefaultLinear(s, e);

@@ -62,6 +62,8 @@ class HistogramDialogManager
 {
 
     /** Graphics constants. */
+    
+    
     private static final int        heightStat = HistogramPanel.heightStat,
                                     topBorder = HistogramPanel.topBorder,
                                     rightBorder = HistogramPanel.rightBorder,
@@ -73,7 +75,7 @@ class HistogramDialogManager
     private static final int        absEnd = topBorder+window, 
                                     absStart = tS-window;
     
-    private final int               tW = topBorder+window;
+    private static final int        tW = topBorder+window;
     
     private final int               extraControl = 4;
 
@@ -85,6 +87,8 @@ class HistogramDialogManager
     
     /** Control mouse pressed and dragged events. */
     private boolean                 dragging;
+    
+    private boolean                 equalStartAndEnd;
     
     private int                     curRealValue;
     
@@ -106,6 +110,8 @@ class HistogramDialogManager
         boxInputStart = new Rectangle();
         boxInputEnd = new Rectangle();
     }
+    
+    void setEqualStartAndEnd(boolean b) { equalStartAndEnd = b; }
     
     /** 
      * Initialize the rectangles which control the cursors.
@@ -140,7 +146,9 @@ class HistogramDialogManager
     {
         int b = control.getGlobalMinimum();
         int c = control.getGlobalMaximum();
-        double a = (double) rangeGraphics/(b-c);
+        int denom = 1;
+        if (b-c != 0) denom = b-c;
+        double a = (double) rangeGraphics/denom;
         return (int) (a*(x-c)+tW);
     }
 
@@ -190,22 +198,14 @@ class HistogramDialogManager
     public void mousePressed(MouseEvent e)
     {
         Point p = e.getPoint();
-        if (!dragging) {
+        if (!dragging && !equalStartAndEnd) {
             dragging = true;
             if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-                p.y <= absStart) {
-                inputStartKnob = true;
-                inputEndKnob = false;
-                curRealValue = convertGraphicsIntoReal(p.y);
-                control.setInputWindowStart(curRealValue);
-            } 
+                p.y <= absStart)
+                handleBoxStart(p.y);
             if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-                p.y >= absEnd) {
-                inputEndKnob = true;
-                inputStartKnob = false;
-                curRealValue = convertGraphicsIntoReal(p.y);
-                control.setInputWindowEnd(curRealValue);    
-            } 
+                p.y >= absEnd)
+                handleBoxEnd(p.y);
          }  //else dragging already in progress 
     }
 
@@ -213,34 +213,49 @@ class HistogramDialogManager
     public void mouseDragged(MouseEvent e)
     {
         Point p = e.getPoint();
-        if (dragging) {  
+        if (dragging && !equalStartAndEnd) {  
             if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-                p.y <= absStart) {
-                inputStartKnob = true;
-                inputEndKnob = false;
-                curRealValue = convertGraphicsIntoReal(p.y);
-                control.setInputWindowStart(curRealValue);  
-            }
+                p.y <= absStart)
+                handleBoxStart(p.y);
             if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-                p.y >= absEnd) {
-                inputEndKnob = true;
-                inputStartKnob = false;
-                curRealValue = convertGraphicsIntoReal(p.y);
-                control.setInputWindowEnd(curRealValue);
-            }
+                p.y >= absEnd)
+                handleBoxEnd(p.y);
         }
     }
 
     /** Resets the dragging control to false. */      
     public void mouseReleased(MouseEvent e)
     { 
-        if (inputStartKnob) control.setChannelWindowStart(curRealValue);
-        else if (inputEndKnob) control.setChannelWindowEnd(curRealValue);
-        dragging = false; 
-        inputStartKnob = false;
-        inputEndKnob = false;
+        if (!equalStartAndEnd) {
+            if (inputStartKnob) control.setChannelWindowStart(curRealValue);
+            else if (inputEndKnob) control.setChannelWindowEnd(curRealValue);
+            dragging = false; 
+            setBooleanControls(false, false);
+        }
     }
 
+    /** Handle boxStart events. */
+    private void handleBoxStart(int y)
+    {
+        curRealValue = convertGraphicsIntoReal(y);
+        control.setInputWindowStart(curRealValue); 
+        setBooleanControls(true, false);
+    }
+    
+    /** Handle boxEnd events. */
+    private void handleBoxEnd(int y)
+    {
+        curRealValue = convertGraphicsIntoReal(y);
+        control.setInputWindowEnd(curRealValue);
+        setBooleanControls(false, true);
+    }
+    
+    private void setBooleanControls(boolean a, boolean b)
+    {
+        inputStartKnob = a;
+        inputEndKnob = b;
+    }
+    
     /** 
      * Resizes the outputStart rectangle.
      *

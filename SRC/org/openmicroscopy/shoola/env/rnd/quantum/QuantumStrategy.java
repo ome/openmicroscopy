@@ -143,12 +143,12 @@ public abstract class QuantumStrategy
 	private void verifyInterval(double min, double max)
 	{
 		boolean b = false;
-		if (min < max) {
+		if (min <= max) {
 			switch (qDef.pixelType) { 
 				case DataSink.INT8:
 				case DataSink.UINT8:
 					int m8 = (int) min, M8 = (int) max;
-					if (m8 < M8 && M8-m8 < 0x100)  b = true; 
+					if (m8 <= M8 && M8-m8 < 0x100)  b = true; 
 					break;
 				case DataSink.INT16:
 				case DataSink.UINT16:
@@ -157,7 +157,7 @@ public abstract class QuantumStrategy
 				case DataSink.FLOAT:  
 				case DataSink.DOUBLE: 
 					int m16 = (int) min, M16 = (int) max;
-					if (m16 < M16 && M16-m16 < 0x10000)  b = true; 
+					if (m16 <= M16 && M16-m16 < 0x10000)  b = true; 
 					break;
 				/*
 				case DataSink.INT32:

@@ -223,8 +223,14 @@ class GraphicsRepresentation
         double yStart, yEnd, xStart, xEnd;
         yStart = setOuputGraphics(cdStart);
         yEnd = setOuputGraphics(cdEnd);
-        xStart = setInputGraphics(inputStart, square); 
-        xEnd = setInputGraphics(inputEnd, square);
+        if (inputStart == inputEnd) {
+            xStart = leftBorder;
+            xEnd = lS;
+        } else {
+            xStart = setInputGraphics(inputStart, square); 
+            xEnd = setInputGraphics(inputEnd, square);
+        }
+        manager.setEqualStartAndEnd(inputStart == inputEnd);
         //Size the rectangles used to control knobs.
         //Input knob.
         setKnobStart((int) xStart);
@@ -320,8 +326,14 @@ class GraphicsRepresentation
         }
         staticStartPt.setLocation(xStaticStart, yStart);
         staticEndPt.setLocation(xStaticEnd, yEnd);
-        xStart = setInputGraphics(inputStart, range);
-        xEnd = setInputGraphics(inputEnd, range);
+        if (inputStart == inputEnd) {
+            xStart = xStaticStart;
+            xEnd = xStaticEnd;
+        } else {
+            xStart = setInputGraphics(inputStart, range);
+            xEnd = setInputGraphics(inputEnd, range);
+        }
+        manager.setEqualStartAndEnd(inputStart == inputEnd);
         setKnobStart((int) xStart);
         setKnobEnd((int) xEnd);
         
@@ -424,6 +436,8 @@ class GraphicsRepresentation
     void setInputs(int min, int max, int xStart, int xEnd, int xRealStart,
                 int xRealEnd)
     {
+        if (xRealStart == xRealEnd) manager.setEqualStartAndEnd(true);
+        else manager.setEqualStartAndEnd(false);
         setInputWindow(min, max);
         setCurrentInputs(xRealStart, xRealEnd);
         minimum = min;
@@ -749,7 +763,8 @@ class GraphicsRepresentation
      */      
     private double setInputGraphics(int x, int r)
     {
-        double b = (double) r/(maximum-minimum);
+        double b = r;
+        if (maximum-minimum != 0) b = (double) r/(maximum-minimum);
         return (b*(x-minimum)+leftBorder); 
     }
     
@@ -895,8 +910,6 @@ class GraphicsRepresentation
         
         if (stats == null)  paintGrid(g2D);
         else paintBins(g2D);
-        
-        
         g2D.setColor(axisColor);
         
         //y-axis
@@ -932,11 +945,10 @@ class GraphicsRepresentation
         g2D.fill(filledPolygonStart);
         //curStart value
         g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
-        
-        
+
         //inputEnd knob
         int xEndPoints[] = {xEnd1, xEnd2, xEnd3};
-        int yEndPoints[] = {yEnd1+extra, yEnd2+extra, yEnd3+extra};
+        int yEndPoints[] = {yEnd1, yEnd2, yEnd3};
         GeneralPath filledPolygonEnd = new GeneralPath();
         filledPolygonEnd.moveTo(xEndPoints[0], yEndPoints[0]);
         for (int index = 1; index < xEndPoints.length; index++)

@@ -74,8 +74,15 @@ class HistogramDialog
 		super(control.getReferenceFrame(), "Histogram", false);
 		manager = new HistogramDialogManager(this, control);
 		int yStart, yEnd;
-		yStart = manager.convertRealIntoGraphics(start);
-		yEnd = manager.convertRealIntoGraphics(end);
+        if (start == end) {
+            yEnd = HistogramPanel.topBorder+HistogramPanel.window;
+            yStart = HistogramPanel.topBorder-HistogramPanel.window
+                    +HistogramPanel.heightStat;
+        } else {
+            yStart = manager.convertRealIntoGraphics(start);
+            yEnd = manager.convertRealIntoGraphics(end);
+        }
+        manager.setEqualStartAndEnd(start == end);
 		histogramPanel = new HistogramPanel(manager, mini, maxi, start, end, 
 											yStart, yEnd, histogramData);
 		manager.initRectangles(yStart, yEnd);										
