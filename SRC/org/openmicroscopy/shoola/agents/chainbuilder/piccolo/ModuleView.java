@@ -813,6 +813,10 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		invalidateFullBounds();
 	}
 	
+	public float getBodyWidth() {
+		return width;
+	}
+	
 	private float getLargestNameHeight() {
 		if (maxNameHeight == 0f) {
 			String longest = ChainModuleData.getLongestName();
