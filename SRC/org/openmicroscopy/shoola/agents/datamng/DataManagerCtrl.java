@@ -147,7 +147,7 @@ public class DataManagerCtrl
 		   int     index = Integer.parseInt(s);
 		   switch (index) { 
 		   		case DM_VISIBLE:
-					abstraction.activate();
+					showPresentation();
 					break;
 				case PROJECT_ITEM:
 					createProject();
@@ -161,6 +161,14 @@ public class DataManagerCtrl
 			   throw nfe;  //just to be on the safe side...
 		} 
 	}
+	
+	/** Display or not the presentation. */
+	private void showPresentation()
+	{
+		DataManagerUIF presentation = abstraction.getPresentation();
+		if (presentation != null && presentation.isClosed()) 
+			abstraction.showPresentation();	
+	}	
 	
 	/** Forward event to the presentation {@link DataManagerUIF}. */
 	private void createProject()

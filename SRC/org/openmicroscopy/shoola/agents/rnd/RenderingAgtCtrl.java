@@ -253,7 +253,7 @@ public class RenderingAgtCtrl
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case R_VISIBLE:
-					abstraction.showPresentation();
+					showPresentation();
 					break;
 				case SAVE:
 					saveDisplayOptions();
@@ -334,6 +334,19 @@ public class RenderingAgtCtrl
 	private void saveDisplayOptions()
 	{
 		//TODO: implement method.
+	}
+	
+	/** Display or not the presentation. */
+	private void showPresentation()
+	{
+		RenderingAgtUIF presentation = abstraction.getPresentation();
+		if (presentation != null)
+			if (active) {
+				if (presentation.isClosed()) abstraction.showPresentation();
+			} else {
+				abstraction.showPresentation();	
+			}
+			active = true;	
 	}
 	
 }

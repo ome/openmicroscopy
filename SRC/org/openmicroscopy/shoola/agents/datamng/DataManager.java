@@ -119,7 +119,7 @@ public class DataManager
     
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
-	{   
+	{	
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 		presentation.setVisible(true);
 	}
@@ -548,6 +548,12 @@ public class DataManager
 		LoadImage request = new LoadImage(imageID, pixelsID);
 		EventBus bus = registry.getEventBus();
 		bus.post(request);	
+	}
+	
+	void showPresentation()
+	{
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		presentation.setVisible(true);
 	}
 	
 }

@@ -66,11 +66,12 @@ public class ViewerUIF
 	extends JInternalFrame
 {
 	/** Width of the widget. */
-	private static final int 		WIN_WIDTH = 350;
+	private static final int 		WIN_WIDTH = 500;
 
 	/** Height of the widget. */
-	private static final int 		WIN_HEIGHT = 350;
+	private static final int 		WIN_HEIGHT = 500;
 
+	private static final int		EXTRA = 20;
 	/** Location x-coordinate. */
 	private static final int		X_LOCATION = 0;
 
@@ -95,8 +96,6 @@ public class ViewerUIF
 		this.registry = registry;
 		setJMenuBar(createMenuBar());
 		buildGUI();
-		//set the size and position the window.
-		setBounds(X_LOCATION, Y_LOCATION, WIN_WIDTH, WIN_HEIGHT);
 	}
 	
 	/** 
@@ -124,6 +123,11 @@ public class ViewerUIF
 	 void setImage(BufferedImage img)
 	 {
 		canvas.display(img);
+		int w = canvas.getIconWidth()+EXTRA;
+		int h = canvas.getIconHeight()+EXTRA;
+		if (w > WIN_WIDTH) w = WIN_WIDTH;
+		if (h > WIN_HEIGHT) h = WIN_HEIGHT;
+		setSize(w, h);
 		revalidate();
 	 }
 	   

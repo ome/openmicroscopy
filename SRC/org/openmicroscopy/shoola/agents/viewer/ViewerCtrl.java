@@ -141,7 +141,7 @@ public class ViewerCtrl
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case V_VISIBLE:
-					abstraction.showPresentation();
+					showPresentation();
 					break;
 				case CONTROL:
 					showControls();
@@ -153,6 +153,14 @@ public class ViewerCtrl
 		} catch(NumberFormatException nfe) {   
 			   throw nfe;  //just to be on the safe side...
 		} 
+	}
+	
+	/** Display or not the presentation. */
+	private void showPresentation()
+	{
+		ViewerUIF presentation = abstraction.getPresentation();
+		if (presentation != null && presentation.isClosed()) 
+			abstraction.showPresentation();	
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF}. */

@@ -83,9 +83,7 @@ public class Viewer
 	private JMenuItem 			viewItem;
 	
 	/** Implemented as specified by {@link Agent}. */
-	public void activate()
-	{ 
-	}
+	public void activate() {}
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void terminate()
@@ -112,10 +110,8 @@ public class Viewer
 
 	void showPresentation()
 	{
-		if (presentation != null) {  
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);
-		}
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		presentation.setVisible(true);
 	}
 
 	ViewerUIF getPresentation()

@@ -190,11 +190,8 @@ public class RenderingAgt
 	/** Display the widget. */
 	void showPresentation()
 	{
-		//TODO: add control. 
-		if (presentation != null) {  
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);
-		}
+		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+		presentation.setVisible(true);
 	}
 	
 	//TODO: retrieve data from DataManagerService.
