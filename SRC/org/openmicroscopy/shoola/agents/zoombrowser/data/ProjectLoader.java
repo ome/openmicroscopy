@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
 
 
 /** 
- * A {@link ContentLoader} subclass for loading projects.
+ * A {@link ComponentContentLoader} subclass for loading projects.
  * 
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -53,7 +53,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.
  * </small>
  * @since OME2.2
  */
-public class ProjectLoader extends ContentLoader
+public class ProjectLoader extends ComponentContentLoader
 {
 	
 	public ProjectLoader(final DataManager dataManager,
