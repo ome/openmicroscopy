@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
+import org.openmicroscopy.shoola.env.rnd.events.ResetPlaneDef;
 
 /** 
  * 
@@ -116,13 +117,13 @@ public class Viewer3D
 	
 	public Viewer3D(ViewerCtrl control)
 	{
-		super(control.getReferenceFrame(), "Image3D Viewer", true);
+		super(control.getReferenceFrame(),"", true);
 		this.control = control;
 		visible = false;
 		init();
 		buildGUI();
 	}
-
+	
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
 	/** 2D plane selected. */
@@ -141,9 +142,15 @@ public class Viewer3D
 			defXY.setZ(control.getDefaultZ());
 			visible = true;
 		} 
+		setWindowTitle(x, y);
 		registry.getEventBus().post(new RenderImage3D(curPixelsID, defXY, defXZ, 
-								defYZ));
-			
+								defYZ));		
+	}
+	
+	private void setWindowTitle(int x, int y)
+	{
+		String title = control.getCurImageName()+" [x = "+x+", y = "+y+"]";
+		setTitle(title);	
 	}
 	
 	private void init()
@@ -181,7 +188,6 @@ public class Viewer3D
 		Container container = getContentPane();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		container.add(scrollPane);
-		setVisible(true);
 	}
 
 	public void eventFired(AgentEvent e)
@@ -205,6 +211,13 @@ public class Viewer3D
 	void onClosing()
 	{
 		control.setModel(model);
+		Registry registry = control.getRegistry();
+		int t = control.getDefaultT();
+		
+		int curPixelsID = control.getCurPixelsID();
+		PlaneDef pd = new PlaneDef(PlaneDef.XY, t);
+		pd.setZ(control.getDefaultZ());
+		registry.getEventBus().post(new ResetPlaneDef(curPixelsID, pd));
 		dispose();
 	}
 	
