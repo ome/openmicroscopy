@@ -36,6 +36,11 @@
  
 package org.openmicroscopy.shoola.agents.classifier.events;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
@@ -51,13 +56,46 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
  */
 public class ImagesClassified extends ResponseEvent
 {
-    private int[] imageIDs;
-    private Classification[] classifications;
+    private Set classificationSet;
     
+    /**
+     * Creates an empty response for iterative construction.
+     * @param event
+     */
     public ImagesClassified(RequestEvent event)
     {
         super(event);
+        classificationSet = new HashSet();
     }
     
-    // TODO I screwed up.
+    public ImagesClassified(RequestEvent event, Collection classifications)
+    {
+        super(event);
+        if(classifications != null)
+        {
+            classificationSet = new HashSet(classifications);
+        }
+        else classificationSet = new HashSet();
+    }
+    
+    public void addClassification(Classification c)
+    {
+        if(c != null)
+        {
+            classificationSet.add(c);
+        }
+    }
+    
+    public void removeClassification(Classification c)
+    {
+        if(c != null)
+        {
+            classificationSet.remove(c);
+        }
+    }
+    
+    public Set getClassifications()
+    {
+        return Collections.unmodifiableSet(classificationSet);
+    }
 }

@@ -42,7 +42,11 @@ import java.util.List;
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
+import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -130,6 +134,26 @@ public class Classifier implements Agent, AgentEventListener
         if(e instanceof LoadCategories)
         {
             showCategoryDialog((LoadCategories)e);
+        }
+        else if(e instanceof ClassifyImage)
+        {
+            ClassifyImage ci = (ClassifyImage)e;
+            classifyImageNew(ci.getImageID(),ci.getCategory());
+        }
+        else if(e instanceof ClassifyImages)
+        {
+            ClassifyImages ci = (ClassifyImages)e;
+            classifyImageNew(ci.getImageIDs(),ci.getCategory());
+        }
+        else if(e instanceof ReclassifyImage)
+        {
+            ReclassifyImage ri = (ReclassifyImage)e;
+            reclassify(ri.getClassification());
+        }
+        else if(e instanceof ReclassifyImages)
+        {
+            ReclassifyImages ri = (ReclassifyImages)ri;
+            reclassify(ri.getClassifications());
         }
     }
     

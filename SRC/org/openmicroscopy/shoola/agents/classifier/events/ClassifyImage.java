@@ -57,4 +57,14 @@ public class ClassifyImage extends RequestEvent
         this.imageID = imageID;
         this.category = category;
     }
+    
+    public int getImageID()
+    {
+        return imageID;
+    }
+    
+    public Category getCategory()
+    {
+        return category;
+    }
 }

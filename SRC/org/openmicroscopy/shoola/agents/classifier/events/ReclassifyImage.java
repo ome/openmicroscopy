@@ -49,26 +49,14 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  */
 public class ReclassifyImage extends RequestEvent
 {
-    private int imageID;
     private Classification changed;
     
-    public ReclassifyImage(int imageID, Classification c)
+    public ReclassifyImage(Classification c)
     {
         // TODO replace with null classification until delete mechanism is
         // implemented
         if(c == null) throw new IllegalArgumentException("Invalid classification");
-        this.imageID = imageID;
         this.changed = c;
-    }
-    
-    /**
-     * Gets the ID the image pertains to (but, really, that should be
-     * embedded within the classification)
-     * @return
-     */
-    public int getImageID()
-    {
-        return imageID;
     }
     
     /**

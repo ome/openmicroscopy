@@ -36,6 +36,11 @@
  
 package org.openmicroscopy.shoola.agents.classifier.events;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
@@ -49,39 +54,43 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  */
 public class ReclassifyImages extends RequestEvent
 {
-    private int[] imageIDs;
-    private Classification changed;
+    // classfications already contain image refs, we don't need em
+    private List classificationList;
     
-    public ReclassifyImages(int[] imageIDs, Classification c)
+    // empty constructor, as to build the map iteratively
+    public ReclassifyImages()
     {
-        // TODO replace with null classification until delete mechanism is
-        // implemented
-        if(imageIDs == null || imageIDs.length == 0)
-            throw new IllegalArgumentException("No images to reclassify");
-        if(c == null) throw new IllegalArgumentException("Invalid classification");
-        this.imageIDs = new int[imageIDs.length];
-        System.arraycopy(imageIDs,0,this.imageIDs,0,imageIDs.length);
-        this.changed = c;
+        classificationList = new ArrayList();
     }
     
-    /**
-     * Gets the ID the image pertains to (but, really, that should be
-     * embedded within the classification)
-     * @return
-     */
-    public int[] getImageIDs()
+    public ReclassifyImages(Collection c)
     {
-        int[] returnVal = new int[imageIDs.length];
-        System.arraycopy(imageIDs,0,returnVal,0,imageIDs.length);
-        return returnVal;
+        if(c != null)
+        {
+            classificationList = new ArrayList(c);
+            Collections.sort(classificationList);
+        }
+        else classificationList = new ArrayList();
     }
     
-    /**
-     * Gets the new classification.
-     * @return See above.
-     */
-    public Classification getClassification()
+    public void addClassification(Classification c)
     {
-        return changed;
+        if(c != null)
+        {
+            classificationList.add(c);
+        }
+    }
+    
+    public void removeClassification(Classification c)
+    {
+        if(c != null)
+        {
+            classificationList.remove(c);
+        }
+    }
+    
+    public List getClassifications()
+    {
+        return Collections.unmodifiableList(classificationList);
     }
 }
