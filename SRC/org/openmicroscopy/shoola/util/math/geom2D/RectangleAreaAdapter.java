@@ -96,6 +96,17 @@ class RectangleAreaAdapter
                 if (contains(x, y)) vector.add(new PlanePoint(x, y));
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
+    
+    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    public boolean onBoundaries(double x, double y)
+    {
+        double xCorner = getX(), yCorner = getY();
+        double w = getWidth(), h = getHeight();
+        return ((x == xCorner && y >= yCorner && y <= yCorner+h) ||
+                (x == xCorner+w && y >= yCorner && y <= yCorner+h) ||
+                (y == yCorner && x >= xCorner && x <= xCorner+w) ||
+                (y == yCorner+h && x >= xCorner && x <= xCorner+w));
+    }
 
     /** 
      * Implemented as specified in the 

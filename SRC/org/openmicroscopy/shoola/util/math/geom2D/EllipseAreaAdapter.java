@@ -58,10 +58,11 @@ class EllipseAreaAdapter
     extends Ellipse2D.Float 
     implements PlaneArea
 {
-
+    
     EllipseAreaAdapter(float x, float y, float width, float height)
     {
         super(x, y, width, height);
+        
     }
 
     /** Implemented as specified in the {@link PlaneArea} I/F. */
@@ -90,6 +91,19 @@ class EllipseAreaAdapter
         setFrame(x, y, width, height); 
     }
 
+    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    public boolean onBoundaries(double x, double y)
+    {
+        double w = getWidth();
+        if (w <= 0.0) return false;
+        double normx = (x-getX())/w-0.5;
+        double h = getHeight();
+        if (h <= 0.0) return false;
+        double normy = (y-getY())/h-0.5;
+        double eq = normx * normx + normy * normy;
+        return (eq >= 0.23 && eq <= 0.25);
+    }
+    
     /** 
      * Implemented as specified in the 
      * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 

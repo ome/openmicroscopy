@@ -104,6 +104,13 @@ public class RectangleArea
         return adapter.getPoints();
     }
 
+    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    public boolean onBoundaries(double x, double y)
+    {
+        RectangleAreaAdapter adapter = (RectangleAreaAdapter) getBody();;
+        return adapter.onBoundaries(x, y);
+    }
+    
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y)
     {

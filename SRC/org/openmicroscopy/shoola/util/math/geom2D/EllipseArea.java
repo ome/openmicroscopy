@@ -90,6 +90,12 @@ public class EllipseArea
         return adapter.getPoints();
     }
 
+    public boolean onBoundaries(double x, double y)
+    {
+        EllipseAreaAdapter adapter = (EllipseAreaAdapter) getBody();
+        return adapter.onBoundaries(x, y);
+    }
+    
     /** Required by the {@link java.awt.Shape Shape} I/F. */
     public boolean contains(double x, double y)
     {

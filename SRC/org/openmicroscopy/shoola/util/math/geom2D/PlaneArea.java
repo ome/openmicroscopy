@@ -72,4 +72,7 @@ public interface PlaneArea
     /** Return an array of {@link PlanePoint} contained in the PlaneArea. */
     public PlanePoint[] getPoints();
     
+    /** Tests if a specified point is on the boundary of the PlaneArea. */
+    public boolean onBoundaries(double x, double y);
+    
 }
