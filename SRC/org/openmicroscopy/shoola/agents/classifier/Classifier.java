@@ -44,6 +44,7 @@ import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages;
@@ -116,6 +117,10 @@ public class Classifier implements Agent, AgentEventListener
         this.registry = ctx;
         topFrame = registry.getTopFrame();
         registry.getEventBus().register(this,LoadCategories.class);
+        registry.getEventBus().register(this,ClassifyImage.class);
+        registry.getEventBus().register(this,ClassifyImages.class);
+        registry.getEventBus().register(this,ReclassifyImage.class);
+        registry.getEventBus().register(this,ReclassifyImages.class);
     }
     
     /* (non-Javadoc)
@@ -138,26 +143,27 @@ public class Classifier implements Agent, AgentEventListener
         }
         else if(e instanceof ClassifyImage)
         {
+            System.err.println("received ClassifyImage");
             ClassifyImage ci = (ClassifyImage)e;
-            classifyImageNew(ci.getImageID(),ci.getCategory());
+            classifyImageNew(ci);
         }
         else if(e instanceof ClassifyImages)
         {
+            System.err.println("received ClassifyImages");
             ClassifyImages ci = (ClassifyImages)e;
-            classifyImageNew(ci.getImageIDs(),ci.getCategory());
+            classifyImageNew(ci);
         }
         else if(e instanceof ReclassifyImage)
         {
+            System.err.println("received ReclassifyImage");
             ReclassifyImage ri = (ReclassifyImage)e;
-            reclassify(ri.getClassification());
+            reclassify(ri);
         }
         else if(e instanceof ReclassifyImages)
         {
+            System.err.println("received ReclassifyImages");
             ReclassifyImages ri = (ReclassifyImages)e;
-            List classifierList = ri.getClassifications();
-            Classification[] attrs = new Classification[classifierList.size()];
-            classifierList.toArray(attrs);
-            reclassify(attrs);
+            reclassify(ri);
         }
     }
     
@@ -374,47 +380,83 @@ public class Classifier implements Agent, AgentEventListener
         return classifications;
     }
     
-    public void classifyImageNew(int imageID, Category category)
+    public void classifyImageNew(ClassifyImage event)
     {
-        if(category == null) return;
+        if(event == null || event.getCategory() == null) return;
+        Category category = event.getCategory();
+        int imageID = event.getImageID();
         Classification c = createClassification(category,imageID);
         List newList = new ArrayList();
         newList.add(c);
         commitNewAttributes(newList);
+        ImagesClassified response = new ImagesClassified(event);
+        response.addClassification(c);
+        registry.getEventBus().post(response);
     }
     
-    public void classifyImageNew(int[] imageIDs, Category category)
+    public void classifyImageNew(ClassifyImages event)
     {
-        if(category == null || imageIDs == null) return;
-        List newList = new ArrayList();
-        for(int i=0;i<imageIDs.length;i++)
-        {
-            newList.add(createClassification(category,imageIDs[i]));
-        }
-        commitNewAttributes(newList);
-    }
-    
-    public void reclassify(Classification updatedClassification)
-    {
-        if(updatedClassification == null) return;
-        List newList = new ArrayList();
-        newList.add(updatedClassification);
-        updateAttributes(newList);
-    }
-    
-    public void reclassify(Classification[] updatedClassifications)
-    {
-        if(updatedClassifications == null ||
-           updatedClassifications.length == 0)
+        if(event == null || event.getCategory() == null ||
+           event.getImageIDs() == null)
         {
             return;
         }
-        List updatedList = new ArrayList();
-        for(int i=0;i<updatedClassifications.length;i++)
+        Category category = event.getCategory();
+        int[] imageIDs = event.getImageIDs(); 
+        List newList = new ArrayList();
+        for(int i=0;i<imageIDs.length;i++)
         {
-            updatedList.add(updatedClassifications[i]);
+            System.err.println("adding classification ("+category.getName()+
+                               ", "+imageIDs[i]+")");
+            Classification c = createClassification(category,imageIDs[i]);
+            newList.add(c);
+            
+            // temp workaround
+            List tempList = new ArrayList();
+            tempList.add(c);
+            commitNewAttributes(tempList);
+        }
+        // see if this needs to be fixed commitNewAttributes(newList);
+        ImagesClassified response = new ImagesClassified(event);
+        for(int i=0;i<newList.size();i++)
+        {
+            response.addClassification((Classification)newList.get(i));
+        }
+        registry.getEventBus().post(response);
+    }
+    
+    public void reclassify(ReclassifyImage event)
+    {
+        if(event == null || event.getClassification() == null) return;
+        Classification updatedClassification = event.getClassification();
+        List newList = new ArrayList();
+        newList.add(updatedClassification);
+        updateAttributes(newList);
+        ImagesClassified response = new ImagesClassified(event);
+        response.addClassification(updatedClassification);
+        registry.getEventBus().post(response);
+    }
+    
+    public void reclassify(ReclassifyImages event)
+    {
+        if(event == null || event.getClassifications() == null ||
+           event.getClassifications().size() == 0)
+        {
+            return;
+        }
+        List updatedClassifications = event.getClassifications();
+        List updatedList = new ArrayList();
+        for(int i=0;i<updatedClassifications.size();i++)
+        {
+            updatedList.add(updatedClassifications.get(i));
         }
         updateAttributes(updatedList);
+        ImagesClassified response = new ImagesClassified(event);
+        for(int i=0;i<updatedClassifications.size();i++)
+        {
+            response.addClassification((Classification)updatedClassifications.get(i));
+        }
+        registry.getEventBus().post(response);
     }
     
     public void showCategoryDialog(LoadCategories requestEvent)

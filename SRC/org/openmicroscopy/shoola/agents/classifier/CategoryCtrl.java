@@ -283,6 +283,7 @@ public class CategoryCtrl
         if(actualChange) cc.setDirty(true);
         else cc.setDirty(false);
         
+        System.err.println("Responding with response");
         classifier.respondWithEvent(cc);
         setSaved(true);
         return true;

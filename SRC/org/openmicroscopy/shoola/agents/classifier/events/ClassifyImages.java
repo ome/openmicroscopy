@@ -58,6 +58,7 @@ public class ClassifyImages extends RequestEvent
             throw new IllegalArgumentException("Null or empty image set.");
             
         this.imageIDs = new int[imageIDs.length];
+        this.category = category;
         System.arraycopy(imageIDs,0,this.imageIDs,0,imageIDs.length);
     }
     

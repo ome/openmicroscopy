@@ -91,6 +91,7 @@ public class CategoriesChanged extends ResponseEvent
      */
     public void setDirty(boolean isChanged)
     {
+        System.err.println("dirty bit set");
         this.actualChange = isChanged;
     }
 }

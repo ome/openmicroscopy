@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.shoola.agents.classifier.AttributeComparator;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
@@ -68,7 +69,7 @@ public class ReclassifyImages extends RequestEvent
         if(c != null)
         {
             classificationList = new ArrayList(c);
-            Collections.sort(classificationList);
+            Collections.sort(classificationList,new AttributeComparator());
         }
         else classificationList = new ArrayList();
     }
