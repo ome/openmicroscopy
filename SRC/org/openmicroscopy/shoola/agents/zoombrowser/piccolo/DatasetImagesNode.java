@@ -48,10 +48,10 @@ import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.util.PBounds;
-import edu.umd.cs.piccolo.util.PPaintContext;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.Constants;
 
 /**
  * 
@@ -60,18 +60,18 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * depending on the scale. If the view is zoomed in to display the images up 
  * close, or if the dataset is selected - via click or mouse over -
  * individual thumbnails will be displayed. This display will allow users to 
- * mouse over thumbnails, see tooltips, and zoom in via a 
- * {@link ThumbnailSelectionHalo}, When datasets are shown at lower 
- * magnifications, or are deselected, an single image - essentially a screen
+ * mouse over thumbnails, see tooltips, and zoom in to higher resolution.
+ * When datasets are shown at lower magnifications, or are deselected,
+ * a single image - essentially a screen
  * shot of the view containing all of the images - is displayed instead.
  * This simplifies rendering (one image vs. n thumbnails) in those situtations 
  * where rendering all of the thumbnails would be cost-prohibitive and 
  * not particularly useful.
  * 
  * 
- * To support the zooming via the {@link ThumbnailSelectionHalo}, this node also
- * queries the thumbnail nodes to derive the bounds of the halo, and updates 
- * those bounds as the view zooms in and out.
+ * To support zooming, this node also  queries the thumbnail nodes
+ * to derive the bounds of the halo, and updates those bounds as
+ * the view zooms in and out. 
  * 
  *
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
@@ -112,7 +112,8 @@ public class DatasetImagesNode extends PNode  {
 	/**
 	 * the halo
 	 */
-	private ThumbnailSelectionHalo zoomHalo = new ThumbnailSelectionHalo();
+	//private ThumbnailSelectionHalo zoomHalo = new ThumbnailSelectionHalo();
+	private PBounds haloBounds;
 	
 	
 	/**
@@ -147,8 +148,6 @@ public class DatasetImagesNode extends PNode  {
 		super();	
 		addChild(imagesNode);
 		// the zoom halo is a separate child, rendered in front of other nodes.
-		addChild(zoomHalo);
-		zoomHalo.moveToFront();
 		setPickable(true);
 	}
 	
@@ -197,38 +196,7 @@ public class DatasetImagesNode extends PNode  {
 			thumbnailNode.moveToBack();
 		}
 	}
-        
-        
-	/**
-	 * If there is no icon node, this node is selected, or we're zoomed in
-	 * to a scale greater than SCALE_THRESHOLD, hide the icon image and show 
-	 * individual thumbnails.
-	 * 
-	 * Otherwise, show the icon image.
-	 *
-	 */
-	public void paint(PPaintContext aPaintContext) {
-                
-		if (thumbnailNode == null || selected == true || 
-						aPaintContext.getScale() > SCALE_THRESHOLD){
-			if (thumbnailNode != null) {
-							thumbnailNode.setVisible(false);
-							thumbnailNode.setPickable(false);
-			}
-			imagesNode.setVisible(true);
-			setPickable(true);
-		}
-		else {
-			// show images node
-			imagesNode.setVisible(false);
-			if (thumbnailNode != null) {
-							thumbnailNode.setVisible(true);
-							thumbnailNode.setPickable(true);        
-			}
-				setPickable(false);
-		}
-		super.paint(aPaintContext);
-	}	
+        	
 	
 	public void setSelected(boolean v) {
 		selected = v;
@@ -252,7 +220,6 @@ public class DatasetImagesNode extends PNode  {
 		// # of items that would fall within the halo
 		int size = radius*radius;
 	
-		zoomHalo.hide();
 		
 		// if flag is false or if the # of items that would fall within the halo
 		// is more than the size of the dataset, don't do anything
@@ -263,7 +230,6 @@ public class DatasetImagesNode extends PNode  {
 			// If this thumbnail is not  not already highlighted,
 			// calculate the bounds and show the halo
 			doHighlightThumbnail(thumb,radius);
-			zoomHalo.show();
 			currentHighlight = thumb;
 		}
 	}
@@ -284,30 +250,9 @@ public class DatasetImagesNode extends PNode  {
 		return (int) Math.floor(side/denom);
 	}
 	
-	/** 
-	 * To highlight a thumbail, get the bounds,  and update the halo path
-	 */
-	private void doHighlightThumbnail(Thumbnail thumb,int radius) {
-		// get index
-		PBounds b  = getHaloBounds(thumb,radius);
-		
-		zoomHalo.setPathTo(b);
-	}
 	
 	
-	/**
-	 * To get the halo bounds, find the index of the node in the list of 
-	 * children and build highlight bounds around it
-	 * @param thumb
-	 * @param radius
-	 * @return bounds of the highlight of the given radius around thumb
-	 */
-	private PBounds getHaloBounds(Thumbnail thumb,int radius) {
-		int index = imagesNode.indexOfChild(thumb);
-		PBounds b = getHighlight(index,radius);
 	
-		return b;
-	}
 	
 	/**
 	 * A shortcut to get the size of a row
@@ -319,19 +264,23 @@ public class DatasetImagesNode extends PNode  {
 		return v.intValue();
 	}
 	
+	
+
 	/**
-	 * To build the highlight, iterate over the range implied by the radius
+	 * To get the zooming bounds, find the index of the node in the list of 
+	 * children and build highlight bounds around it
+	 * * To build the highlight, iterate over the range implied by the radius
 	 * and add everythin in that region
-	 * 
-	 * @param index
+	 
+	 * @param thumb
 	 * @param radius
-	 * @return halo bounds around item index of the given radius
 	 */
-	private PBounds getHighlight(int index,int radius) {
+	private void doHighlightThumbnail(Thumbnail thumb,int radius) {
+		int index = imagesNode.indexOfChild(thumb);
 		calculatePosition(index);
 		PBounds b = new PBounds();
 		
-		//	build up bounds of zoomhalo
+		//	build up bounds of zooming
 		int lowRow = highlightRow-radius;
 		int highRow = highlightRow+radius;
 		
@@ -343,8 +292,11 @@ public class DatasetImagesNode extends PNode  {
 				addToHighlight(b,i,j);
 			}
 		}
-		
-		return b;
+		localToGlobal(b);
+		double scale = getGlobalScale();
+		double border = scale*(Constants.SMALL_BORDER+1);
+		haloBounds  = new PBounds(b.getX()-border,b.getY()-border,
+				b.getWidth()+2*border,b.getHeight()+2*border);
 	}
 	
 	/**
@@ -412,20 +364,26 @@ public class DatasetImagesNode extends PNode  {
 	 * @param level
 	 */
 	public void zoomInToHalo(Thumbnail thumb) {
-	
+		
+		
+		if (thumbnailNode != null) {
+			thumbnailNode.setVisible(false);
+			thumbnailNode.setPickable(false);
+		}
+		imagesNode.setVisible(true);
+		setPickable(true);
 		// get the zoom level	
 		int level = handler.getZoomLevel();
 	
 		
-		zoomHalo.hide();
 		int radius = getRadius(level);
 	
-		//	calculate the current halo
+		//	calculate the current zoom bounds
 		doHighlightThumbnail(thumb,radius);
 		
 		  
 	   	//zoom to it.
-		handler.animateToNode(zoomHalo);
+		handler.animateToBounds(haloBounds);
 		// update the level, If the current radius is zero and the
 		// next radius would be zero, then I have just zoomed in to a single
 		// node. In that case, don't advance level
@@ -450,6 +408,7 @@ public class DatasetImagesNode extends PNode  {
 	 * @return the new level
 	 */
 	public void zoomOutOfHalo(Thumbnail thumb) {
+		
 		// get the zoom level
 		int level = handler.getZoomLevel();
 		if (level <= 1) {
@@ -464,11 +423,10 @@ public class DatasetImagesNode extends PNode  {
 			int radius = getRadius(upperLevel);
 			if (radius > 0) {
 				// and calculate the halo for that level
-				zoomHalo.hide();
 				doHighlightThumbnail(thumb,radius);
 				// zooming into it. This has the net effect of zooming us out 
 				// by one step.
-				handler.animateToNode(zoomHalo);
+				handler.animateToBounds(haloBounds);
 			}
 		}	
 			
@@ -476,6 +434,13 @@ public class DatasetImagesNode extends PNode  {
 		level--;
 		if (level < 0)
 			level = 0;
+		
+		if (level == 0  && thumbnailNode != null) {
+				imagesNode.setVisible(false);
+				thumbnailNode.setVisible(true);
+				thumbnailNode.setPickable(true);
+				setPickable(false);
+		}
 		handler.setZoomLevel(level);		
 	}
 }
