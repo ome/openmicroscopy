@@ -74,10 +74,6 @@ public class TopFrameImpl
 	static final int		INSET = 100;
 	
 	/** Action command ID. */    
-    static final int        FILE = 0;
-    static final int        VIEW = 1;
-    static final int        HELP = 2;
-	static final int        CONNECT = 3;
 	static final int        EXIT = 4;
 	static final int        OMEDS = 5;
 	static final int        OMEIS = 6;
@@ -138,6 +134,12 @@ public class TopFrameImpl
     {
         JMenu menu = retrieveMenu(menuType);
         menu.remove(item);
+    }
+    
+	/** Implemented as specified by {@link TopFrame}. */ 
+    public JFrame getFrame()
+    {
+    	return this;
     }
     
 	/** 

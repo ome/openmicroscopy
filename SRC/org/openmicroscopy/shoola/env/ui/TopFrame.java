@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
 import java.awt.Component;
+
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -58,7 +60,7 @@ public interface TopFrame
 	 * method to position a component on the bottom most layer of the
 	 * application's internal desktop.
 	 */
-	public static int       DEFAULT_LAYER = 0;
+	public static final int       	DEFAULT_LAYER = 0;
 	
 	/** 
 	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
@@ -67,7 +69,13 @@ public interface TopFrame
 	 * The palette layer sits above the default layer. Useful for floating 
 	 * toolbars and palettes, so they can be positioned above other components. 
 	 */
-	public static int       PALETTE_LAYER = 1;
+	public static final int       	PALETTE_LAYER = 1;
+	
+	
+	public static final int        	FILE = 0;
+	public static final int        	VIEW = 1;
+	public static final int        	HELP = 2;
+	public static final int        	CONNECT = 3;
 	
 	/** 
 	* Positions a component on the layer of the application internal desktop.
@@ -105,4 +113,6 @@ public interface TopFrame
      */
     public void open();
     
+    /** Returns the presentation. */
+    public JFrame getFrame();
 }
