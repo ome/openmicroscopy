@@ -43,10 +43,18 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java Imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.PNode;
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+
+
 
 /** 
  * A {@link Generic Box} with a name
@@ -58,7 +66,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericBox;
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  */
-public class CategoryBox extends GenericBox {
+public class CategoryBox extends GenericBox implements MouseableNode {
 	
 	private ModuleCategoryData category;
 	
@@ -73,6 +81,44 @@ public class CategoryBox extends GenericBox {
 		else if (other != null && category != null && other.getID() == category.getID())
 			return true;
 		else return false;
+	}
+	 
+	public void mouseEntered(GenericEventHandler handler) {
+		((ModulePaletteEventHandler) handler).setLastCategoryBox(this);
+		setHighlighted(true);
+	}
+	
+	public void mouseExited(GenericEventHandler handler) {
+		((ModulePaletteEventHandler) handler).setLastCategoryBox(null);
+		setHighlighted(false);
+	}
+	
+	public void mouseClicked(GenericEventHandler handler) {
+		((ModuleNodeEventHandler) handler).animateToNode(this);
+	}
+	
+	public void mouseDoubleClicked(GenericEventHandler handler) {
+		
+	}
+	
+	public void mousePopup(GenericEventHandler handler) {
+		PNode p = getParent();
+		if (p instanceof BufferedObject) {
+			((ModuleNodeEventHandler) handler).animateToNode(p);		
+		} else {
+			((ModuleNodeEventHandler) handler).handleBackgroundClick();
+		}
+	}
+	
+	public PBounds getBufferedBounds() {
+		PBounds b = getGlobalFullBounds();
+		
+		PBounds p=  new PBounds(b.getX()-2*Constants.BORDER,
+				b.getY()-2*Constants.BORDER,
+				b.getWidth()+4*Constants.BORDER,
+				b.getHeight()+4*Constants.BORDER);
+		
+		return p;
 	}
 }
 
