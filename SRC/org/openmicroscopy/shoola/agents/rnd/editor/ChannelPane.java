@@ -42,7 +42,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
@@ -50,6 +49,7 @@ import javax.swing.border.Border;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -71,7 +71,8 @@ import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
 class ChannelPane
 	extends JPanel
 {
-	public static final Dimension			DIM_SCROLL_TABLE = 
+	private static final int				ROW_HEIGHT = 25;
+	private static final Dimension			DIM_SCROLL_TABLE = 
 													new Dimension(40, 60);
 	
 	private ChannelEditorManager			manager;
@@ -84,17 +85,11 @@ class ChannelPane
 		buildGUI();
 	}
 
-	JTextArea getInterpretationArea()
-	{
-		return interpretationArea;
-	}
+	JTextArea getInterpretationArea() { return interpretationArea; }
 	
-	JButton getSaveButton()
-	{
-		return saveButton;
-	}
+	JButton getSaveButton() { return saveButton; }
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		setLayout(new GridLayout(1, 1));
@@ -114,7 +109,8 @@ class ChannelPane
 		saveButton.setOpaque(false);
 		//suppress button press decoration
 		saveButton.setContentAreaFilled(false); 
-		saveButton.setToolTipText("Save data in the DB.");
+		saveButton.setToolTipText(
+			UIFactory.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
 
 		JPanel controls = new JPanel(), all = new JPanel();
@@ -148,10 +144,10 @@ class ChannelPane
 	* <code>name</code> and <code>description</code> values
 	* are marked as editable. 
 	*/
-	private JTable buildTable()
+	private TableComponent buildTable()
 	{
-		JTable table = new TableComponent(2, 2);
-		table.setTableHeader(null);
+		TableComponent table = new TableComponent(2, 2);
+		setTableLayout(table);
 		
 		// Labels
 		table.setValueAt(new JLabel(" Emission (in nano.) "), 0, 0);
@@ -170,13 +166,19 @@ class ChannelPane
 		JScrollPane scrollPane = new JScrollPane(interpretationArea);
 		scrollPane.setPreferredSize(DIM_SCROLL_TABLE);
 		table.setValueAt(scrollPane, 1, 1);
-
+					
+		return table;
+	}
+	
+	/** Set the layout of the table. */
+	private void setTableLayout(TableComponent table)
+	{
+		table.setTableHeader(null);
+		table.setRowHeight(ROW_HEIGHT);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
-								
-		return table;
 	}
 	
 }

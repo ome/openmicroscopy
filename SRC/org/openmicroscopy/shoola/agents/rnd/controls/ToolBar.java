@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.rnd.controls;
 
 //Java imports
 import java.awt.Dimension;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
@@ -43,6 +42,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -93,13 +93,17 @@ public class ToolBar
 	{
 		IconManager im = IconManager.getInstance(registry);
 		saveButton =  new JButton(im.getIcon(IconManager.SAVE_SETTINGS));
-		saveButton.setToolTipText("Save the settings in the DB.");
+		saveButton.setToolTipText(
+			UIFactory.formatToolTipText("Save the settings in the DB."));
 		greyButton =  new JButton(im.getIcon(IconManager.GREYSCALE));
-		greyButton.setToolTipText("Select the GreyScale color model.");
+		greyButton.setToolTipText(
+			UIFactory.formatToolTipText("Select the GreyScale color model."));
 		rgbButton =  new JButton(im.getIcon(IconManager.RGB));
-		rgbButton.setToolTipText("Select the RGB color model.");
+		rgbButton.setToolTipText(
+			UIFactory.formatToolTipText("Select the RGB color model."));
 		hsbButton =  new JButton(im.getIcon(IconManager.HSB));
-		hsbButton.setToolTipText("Select the HSB color model.");
+		hsbButton.setToolTipText(
+			UIFactory.formatToolTipText("Select the HSB color model."));
 	}
 	
 	/** Build and lay out the tool bar. */

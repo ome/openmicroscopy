@@ -61,15 +61,16 @@ import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 public class ChannelEditor
 	extends JDialog
 {
-	public static final Color   	STEELBLUE = new Color(0x4682B4);
+	
+	static final Color   			STEELBLUE = new Color(0x4682B4);
 
 	/** Width of the editor dialog window. */
-	public static final int			EDITOR_WIDTH = 300;
+	private static final int		EDITOR_WIDTH = 300;
 	
 	/** Height of the editor dialog window. */
-	public static final int			EDITOR_HEIGHT = 300;
+	private static final int		EDITOR_HEIGHT = 300;
 	
-	public static final int			EXTRA = 100;
+	private static final int		EXTRA = 100;
 	
 	private ChannelPane				channelPane;
 	
@@ -90,12 +91,10 @@ public class ChannelEditor
 		return channelPane.getInterpretationArea();
 	}
 
-	/** 
- 	 * Returns the save button displayed in {@link CreateDatasetPane}.
- 	 */
+	/** Returns the save button displayed in {@link CreateDatasetPane}. */
 	JButton getSaveButton() { return channelPane.getSaveButton();}
 	
-	/** Build and layout the GUI. */
+	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
 		//create and initialize the tabs
