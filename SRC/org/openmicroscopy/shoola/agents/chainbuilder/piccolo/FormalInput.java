@@ -122,10 +122,11 @@ public class FormalInput extends FormalParameter {
 	
 	/**
 	 * An input can only be an origin if there's noting linked to it.
+	 * and if it is visible - as determined by canBeLinkOrigin().
 	 * @return true if this paramter can be the origin of a new link. 
 	 */ 
 	public boolean canBeLinkOrigin() {
-		return (super.canBeLinkOrigin() && (linkedTo.size() == 0));
+		return (super.canBeLinkOrigin() && isLinkable());
 	}
 	
 	public boolean isLinkable() {
