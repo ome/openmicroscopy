@@ -233,7 +233,7 @@ class HistogramPanel
 		heightStart = tS-y;
 		curMin = "start: "+yReal;
 		updateStartOutputKnob(y);
-		super.repaint();
+		repaint();
 	}
 	
 	/** 
@@ -249,7 +249,7 @@ class HistogramPanel
 		heightEnd = y-topBorder;
 		curMax = "end: "+yReal;
 		updateEndOutputKnob(y);
-		super.repaint();
+		repaint();
 	}
 	
 	/** 

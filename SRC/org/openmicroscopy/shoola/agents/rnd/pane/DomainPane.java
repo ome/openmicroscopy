@@ -248,7 +248,7 @@ class DomainPane
 		table.setValueAt(wavelengths, 0, 1);
 		
 		//Second row.
-		label = new JLabel(" Transformation");
+		label = new JLabel(" Map");
 		table.setValueAt(label, 1, 0);
 		table.setValueAt(transformations, 1, 1);
 
