@@ -194,6 +194,9 @@ public interface SemanticTypesService
      */
     public Attribute createAttribute(SemanticType type)
 		throws DSOutOfServiceException, DSAccessException;
+        
+    public Attribute createAttribute(SemanticType type, int objectID)
+        throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Creates an attribute of the type with the specified name, so that you
@@ -204,6 +207,10 @@ public interface SemanticTypesService
      */
     public Attribute createAttribute(String typeName)
 		throws DSOutOfServiceException, DSAccessException;
+        
+        
+    public Attribute createAttribute(String typeName, int objectID)
+        throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Uses the AnnotationManager to update/create attributes that require

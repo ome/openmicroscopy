@@ -208,11 +208,23 @@ class STSAdapter
         return createAttribute(type.getName());
     }
     
+    public Attribute createAttribute(SemanticType type, int objectID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return createAttribute(type.getName(),objectID);
+    }
+    
     /** @see SemanticTypesService#createAttribute(String). */
     public Attribute createAttribute(String typeName)
 		throws DSOutOfServiceException, DSAccessException
     {
         return gateway.createNewData(typeName);
+    }
+    
+    public Attribute createAttribute(String typeName, int objectID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return gateway.createNewData(typeName,objectID);   
     }
     
     /**
