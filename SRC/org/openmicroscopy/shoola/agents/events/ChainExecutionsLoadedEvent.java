@@ -30,10 +30,11 @@
 package org.openmicroscopy.shoola.agents.events;
 
 //Java imports
-import java.util.LinkedHashMap;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 
 /** 
@@ -54,28 +55,16 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 
 public class ChainExecutionsLoadedEvent extends AgentEvent
 {
-    private LinkedHashMap executionsByChain;
-    private LinkedHashMap executionsByID;
-   
     
-    public ChainExecutionsLoadedEvent(LinkedHashMap executionsByDataset,
-    			LinkedHashMap executionsByChain,LinkedHashMap executionsByID) {
+    
+    public ChainExecutionsLoadedEvent(ChainExecutions chainExecutions) {
    		super();
-   		setSource(executionsByDataset);
-   		this.executionsByChain = executionsByChain;
-   		this.executionsByID = executionsByID;
-    }
+   		setSource(chainExecutions);
+   	}
  
-    public LinkedHashMap getChainExecutionsByDatasetID() {
-    	    return (LinkedHashMap) getSource();
-    }
     
-    public LinkedHashMap getChainExecutionsByChainID() {
-    		return executionsByChain;
-    }
-    
-    public LinkedHashMap getExecutionsByID() {
-    		return executionsByID;
+    public ChainExecutions getChainExecutions() {
+    		return (ChainExecutions) getSource();
     }
 }
 
