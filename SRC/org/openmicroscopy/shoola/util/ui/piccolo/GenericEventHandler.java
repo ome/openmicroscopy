@@ -76,7 +76,7 @@ public class GenericEventHandler extends PBasicInputEventHandler
 	/** is this event right after a popup */
 	protected boolean postPopup = false;
 	
-	GenericEventHandler() {
+	public GenericEventHandler() {
 		super();
 		
 	}
