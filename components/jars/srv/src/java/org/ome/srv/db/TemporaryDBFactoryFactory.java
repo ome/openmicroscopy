@@ -4,7 +4,7 @@
 package org.ome.srv.db;
 
 import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.jena.JenaServiceFactoryImpl;
+import org.ome.srv.db.jena.JenaStoreFactory;
 
 /**
  * this temporary factory factory is simply here to avoid undue complexity.
@@ -14,6 +14,6 @@ import org.ome.srv.db.jena.JenaServiceFactoryImpl;
  */
 public class TemporaryDBFactoryFactory {
 	public static ServiceFactory getServiceFactory() {
-		return new JenaServiceFactoryImpl();
+		return new JenaStoreFactory();
 	}
 }

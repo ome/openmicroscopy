@@ -3,9 +3,8 @@
  */
 package org.ome.cache.oscache;
 
-import org.ome.model.ILSObject;
-import org.ome.model.LSID;
 import org.ome.model.LSObject;
+import org.ome.model.LSID;
 import org.ome.cache.Cache;
 
 import com.opensymphony.oscache.base.NeedsRefreshException;
@@ -27,16 +26,16 @@ public class OSCache implements Cache {
 		admin=new GeneralCacheAdministrator();
 	}
 
-	public void put(LSID key, ILSObject obj){
+	public void put(LSID key, LSObject obj){
 		admin.putInCache(key.getURI(), obj);
 	}
 	
-	public ILSObject get(LSID key) {
+	public LSObject get(LSID key) {
 		 String myKey = key.getURI();
-		 ILSObject myValue = null;
+		 LSObject myValue = null;
 		 try {
 		     // Get from the cache
-		     myValue = (ILSObject) admin.getFromCache(myKey, -1);
+		     myValue = (LSObject) admin.getFromCache(myKey, -1);
 		 } catch (NeedsRefreshException nre) {
 		 	return null;
 		 }

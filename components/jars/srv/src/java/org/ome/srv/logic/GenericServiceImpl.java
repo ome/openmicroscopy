@@ -3,7 +3,6 @@
 */
 package org.ome.srv.logic;
 
-import org.ome.model.ILSObject;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.cache.CacheFactory;
@@ -27,7 +26,7 @@ public class GenericServiceImpl implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
 	 */
-	public void setLSOjbect(ILSObject obj) {
+	public void setLSOjbect(LSObject obj) {
 		// TODO Auto-generated method stub
 
 	}
@@ -35,7 +34,7 @@ public class GenericServiceImpl implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#updateLSObject(org.ome.LSObject)
 	 */
-	public void updateLSObject(ILSObject obj) {
+	public void updateLSObject(LSObject obj) {
 		// TODO Auto-generated method stub
 
 	}
@@ -43,7 +42,7 @@ public class GenericServiceImpl implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
 	 */
-	public ILSObject getLSObject(LSID lsid) {
+	public LSObject getLSObject(LSID lsid) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -51,7 +50,7 @@ public class GenericServiceImpl implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID, org.ome.texen.srv.PredicateGroup)
 	 */
-	public ILSObject getLSObject(LSID lsid, FollowGroup fg) {
+	public LSObject getLSObject(LSID lsid, FollowGroup fg) {
 		// TODO Auto-generated method stub
 		return null;
 	}

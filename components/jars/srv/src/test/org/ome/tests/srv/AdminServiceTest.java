@@ -10,10 +10,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.ome.model.ILSObject;
+import org.ome.model.IExperimenter;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.interfaces.AdministrationService;
+import org.ome.interfaces.ContainerService;
 import org.ome.interfaces.ServiceFactory;
 import org.ome.srv.db.TemporaryDBFactoryFactory;
 import org.ome.srv.db.jena.JenaAdministrationStore;
@@ -41,38 +42,10 @@ public class AdminServiceTest extends TestCase {
 		a = factory.getAdministrationService();
 	}
 	
-	public void testProjectsByExperimenter1() throws RemoteException, URISyntaxException{
-		List l = a.retrieveProjectsByExperimenter(new LSID(Vocabulary.NS+"Josh"));
-		for (Iterator iter = l.iterator(); iter.hasNext();) {
-			Object element = (Object) iter.next();
-			System.out.println(element);
-		}
-		assertTrue(l.size() > 0);
+	public void testExperimenter1() throws RemoteException, URISyntaxException{
+		IExperimenter l = (IExperimenter) a.getExperimenter(new LSID(Vocabulary.NS+"Josh"));
+		System.out.println(l);
+		assertTrue(l.getFirstName()!=null);
 	}
-	
-//	/** net/rmi implementation should return only I<Interface> implementations */
-//	public void testNetProjectsByExperimenterReturnsOnlyProjects() throws RemoteException, URISyntaxException{
-//		AdministrationService a = new org.ome.srv.net.rmi.RMIAdministrationFacade();
-//		List l = a.retrieveProjectsByExperimenter(new LSID(Vocabulary.NS+"Josh"));
-//		for (Iterator iter = l.iterator(); iter.hasNext();) {
-//			Object element = (Object) iter.next();
-//			assertTrue(element instanceof IProject);
-//		}
-//	}
-	
-	/** db implementation should return only LSObjects */
-	public void testDBProjectsByExperimenterReturnsOnlyLSObjects() throws RemoteException, URISyntaxException{
-		AdministrationService a = new org.ome.srv.db.jena.JenaAdministrationStore();
-		List l = a.retrieveProjectsByExperimenter(new LSID(Vocabulary.NS+"Josh"));
-		for (Iterator iter = l.iterator(); iter.hasNext();) {
-			Object element = (Object) iter.next();
-			assertTrue(element instanceof ILSObject);
-		}
-	}
-	
-//	public void testLogicProjectsByExperimentsReturnsOnlyProjects(){
-//		
-//	}
-
 	
 }

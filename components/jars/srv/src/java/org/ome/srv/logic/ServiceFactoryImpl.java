@@ -4,9 +4,11 @@
 package org.ome.srv.logic;
 
 import org.ome.interfaces.AdministrationService;
+import org.ome.interfaces.ContainerService;
 import org.ome.interfaces.GenericService;
 import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.ServiceFactory;
+import org.ome.srv.db.jena.JenaContainerStore;
 
 /**
  * @author josh
@@ -32,6 +34,13 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	 */
 	public FollowGroupService getFollowGroupService() {
 		return new FollowGroupServiceImpl();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.ServiceFactory#getContainerService()
+	 */
+	public ContainerService getContainerService() {
+		return new ContainerServiceImpl();
 	}
 
 	

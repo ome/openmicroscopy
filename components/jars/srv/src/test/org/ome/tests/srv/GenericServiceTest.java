@@ -10,7 +10,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.ome.model.ILSObject;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.interfaces.AdministrationService;
@@ -42,10 +41,10 @@ public class GenericServiceTest extends TestCase {
 	
 	public void testGetLSObject() throws URISyntaxException{
 		LSID l1 = new LSID("http://www.openmicroscopy.org/2005/OME.owl#proj1");
-		ILSObject o1 = g.getLSObject(l1);
+		LSObject o1 = g.getLSObject(l1);
 		assertTrue(o1!=null);
 
-		ILSObject o2 = g.getLSObject(new LSID("lsid:this_does_not_exist"));
+		LSObject o2 = g.getLSObject(new LSID("lsid:this_does_not_exist"));
 		assertTrue(o2==null);
 		
 	}

@@ -12,7 +12,7 @@ import org.ome.model.IFollowGroup;
 /**
  * @author josh
  */
-public class JenaFollowGroupService implements FollowGroupService {
+public class JenaFollowGroupStore implements FollowGroupService {
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.PredicateGroupService#getPredicateGroup(org.ome.LSID)

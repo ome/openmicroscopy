@@ -3,13 +3,7 @@
 */
 package org.ome.srv.db.jena;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.ome.model.Factory;
-import org.ome.model.ILSObject;
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
 import org.ome.interfaces.GenericService;
@@ -21,21 +15,16 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.rdql.Query;
-import com.hp.hpl.jena.rdql.QueryEngine;
-import com.hp.hpl.jena.rdql.QueryResults;
-import com.hp.hpl.jena.rdql.ResultBinding;
-import com.hp.hpl.jena.rdql.ResultBindingImpl;
 
 /**
  * @author josh
  */
-public class JenaGenericService implements GenericService {
+public class JenaGenericStore implements GenericService {
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
 	 */
-	public void setLSOjbect(ILSObject obj) {
+	public void setLSOjbect(LSObject obj) {
 		throw new RuntimeException("implement me");//FIXME
 
 	}
@@ -43,7 +32,7 @@ public class JenaGenericService implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#updateLSObject(org.ome.LSObject)
 	 */
-	public void updateLSObject(ILSObject obj) {
+	public void updateLSObject(LSObject obj) {
 		throw new RuntimeException("implement me");//FIXME
 
 	}
@@ -51,8 +40,8 @@ public class JenaGenericService implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID)
 	 */
-	public ILSObject getLSObject(LSID lsid) {
-		ILSObject lsobj = null;
+	public LSObject getLSObject(LSID lsid) {
+		LSObject lsobj = null;
 		Model m = JenaModelFactory.getModel();
 		
 		lsobj = Factory.make( lsid.getURI() );
@@ -69,7 +58,7 @@ public class JenaGenericService implements GenericService {
 				RDFNode obj = (RDFNode) iter2.nextStatement().getObject();
 				
 				if (obj.canAs(Resource.class)){
-					ILSObject child = null;
+					LSObject child = null;
 					child = Factory.make( ((Resource)obj).getURI() );
 					lsobj.put(pred.getURI(),child);
 				} else if (obj.canAs(Literal.class)){
@@ -87,7 +76,7 @@ public class JenaGenericService implements GenericService {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#getLSObject(org.ome.LSID, org.ome.texen.srv.PredicateGroup)
 	 */
-	public ILSObject getLSObject(LSID lsid, FollowGroup fg) {
+	public LSObject getLSObject(LSID lsid, FollowGroup fg) {
 		throw new RuntimeException("implement me");//FIXME	}
 	}
 }

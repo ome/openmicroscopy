@@ -4,6 +4,7 @@
 package org.ome.srv.db.jena;
 
 import org.ome.srv.db.Queries;
+import org.ome.model.IExperimenter;
 import org.ome.model.Vocabulary;
 import org.ome.model.IProject;
 
@@ -21,8 +22,7 @@ public class JenaQueries implements Queries {
 	
 	protected final static String projectsByExperimenterQueryString = "select ?project where "
 		+ "(?project " + "<"+ Vocabulary.owner  + "> ?exp ) ,"
-		+ "(?project " + "<"+ RDF.type.getURI() +"> <"	+ IProject.URI + "> ) "; 
- 
+		+ "(?project " + "<"+ RDF.type.getURI() +"> <"	+ IProject.URI + "> ) ";
 	
 	/**
 	 * @return Returns the statement.
@@ -56,4 +56,5 @@ public class JenaQueries implements Queries {
 	public static String getPredicate() {
 		return predicate;
 	}
+
 }
