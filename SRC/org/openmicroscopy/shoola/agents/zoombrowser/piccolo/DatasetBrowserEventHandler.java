@@ -40,14 +40,12 @@
 
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
-import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
-import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 //Java imports
 import java.awt.geom.Point2D;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -55,6 +53,9 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.ui.ThumbnailPopupMenu;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 /** 
  * An event handler for the {@link DatasetBrowserCanvas}. Handle zooming into
@@ -149,11 +150,11 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	}
 	
 	/** What happens when I click on the background? */
-	public  void handleBackgroundClick() {
+	public  PActivity handleBackgroundClick() {
 		// click on background clears selected dataset
 		canvas.setSelectedDataset(null);
 		zoomLevel =0;	
-		super.handleBackgroundClick();
+		return super.handleBackgroundClick();
 	}
 	
 	/**
