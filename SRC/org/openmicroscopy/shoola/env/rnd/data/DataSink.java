@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -101,12 +103,47 @@ public class DataSink
 	 * Indexed by type constants.
 	 */
 	private static int[]    	BYTES_PER_PIXEL = new int[MAX_PIX_TYPE]; 
-	
 	static {
 		BYTES_PER_PIXEL[INT8] = BYTES_PER_PIXEL[UINT8] = 1;
 		BYTES_PER_PIXEL[INT16] = BYTES_PER_PIXEL[UINT16] = 2;
 		//TODO: add the other pixel types when we support them
 	}
+	
+	/**
+	 * Maps a pixel type string identifier to the corresponding constant
+	 * defined by this class.
+	 */
+	private static Map			pixelTypesMap;
+	static {
+		pixelTypesMap = new HashMap();
+		pixelTypesMap.put("BIT", new Integer(BIT));
+		pixelTypesMap.put("INT8", new Integer(INT8));
+		pixelTypesMap.put("INT16", new Integer(INT16));
+		pixelTypesMap.put("INT32", new Integer(INT32));
+		pixelTypesMap.put("UINT8", new Integer(UINT8));
+		pixelTypesMap.put("UINT16", new Integer(UINT16));
+		pixelTypesMap.put("UINT32", new Integer(UINT32));
+		pixelTypesMap.put("FLOAT", new Integer(FLOAT));
+		pixelTypesMap.put("DOUBLE", new Integer(DOUBLE));
+	}
+	
+	/**
+	 * Utility method to convert a pixel type string-identifier into the
+	 * corresponding constant defined by this class.
+	 * 
+	 * @param type	The pixel type.  Must be a valid identifier (one out of
+	 * 				"BIT", "INT8", etc.) defined by the <i>OME</i> spec.
+	 * @return
+	 */
+	public static int getPixelTypeID(String type)
+	{
+		if (type == null)	throw new NullPointerException("No type.");
+		Integer id = (Integer) pixelTypesMap.get(type.toUpperCase());
+		if (id == null)
+			throw new IllegalArgumentException("Unsupported pixel type: "+type);
+		return id.intValue();
+	}
+	
 
 	/** The ID of the pixels data. */
 	private int      			ID;
