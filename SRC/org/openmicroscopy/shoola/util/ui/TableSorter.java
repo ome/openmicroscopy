@@ -134,8 +134,8 @@ public class TableSorter
 		double d1 = n1.doubleValue();
 		double d2 = n2.doubleValue();
 		int v = 0;
-		if (d1<d2) v = -1;
-		else if (d1>d2)	v = 1;
+		if (d1 < d2) v = -1;
+		else if (d1 > d2)	v = 1;
 		return v;
 	}
 	
@@ -145,8 +145,8 @@ public class TableSorter
 		long n1 = d1.getTime();
 		long n2 = d2.getTime();
 		int v = 0;
-		if (n1<n2) v = -1;
-		else if (n1>n2) v = 1;
+		if (n1 < n2) v = -1;
+		else if (n1 > n2) v = 1;
 		return v;
 	}
 	
@@ -235,7 +235,7 @@ public class TableSorter
 	// using it here is that, unlike qsort, it is stable.
 	public void shuttlesort(int from[], int to[], int low, int high)
 	{
-		if (high-low<2) return;
+		if (high-low < 2) return;
 		int middle = (low+high)/2;
 		shuttlesort(to, from, low, middle);
 		shuttlesort(to, from, middle, high);
