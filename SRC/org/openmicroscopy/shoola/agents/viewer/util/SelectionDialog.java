@@ -54,36 +54,34 @@ import org.openmicroscopy.shoola.util.ui.OptionsDialog;
  * @since OME2.2
  */
 class SelectionDialog
-	extends OptionsDialog
+    extends OptionsDialog
 {
-	
-	/** Reference to the parent. */							
-	private ImageSaver 				parentDialog;
+    
+    /** Reference to the parent. */                         
+    private ImageSaverMng           manager;
+    
+    protected String                format, fileName, message;
 
-	protected String				format, fileName, message;
-	
-	SelectionDialog (ImageSaver parentDialog, String format, String fileName, 
-					 String message, Icon messageIcon) 
-	{
-		super(parentDialog, ImageSaver.TITLE, ImageSaver.MESSAGE, 
-		messageIcon);
-		this.parentDialog = parentDialog;
-		this.format = format;
-		this.fileName = fileName;
-		this.message = message;
-	}
+    SelectionDialog (ImageSaverMng manager, String format, String fileName, 
+                     String message, Icon messageIcon) 
+    {
+        super(manager.getView(), ImageSaver.TITLE, ImageSaver.MESSAGE, 
+                messageIcon);
+        this.manager = manager;
+        this.format = format;
+        this.fileName = fileName;
+        this.message = message;
+    }
 
-	/** overrides the {@link #onNoSelection() onNoSelection} method. */
-	protected void onNoSelection() { parentDialog.isDisplay(true); }
-	
-	/** overrides the {@link #onYesSelection() onYesSelection} method. */
-	protected void onYesSelection()
-	{
-		parentDialog.isDisplay(false);
-		new SaveImage(parentDialog.getController().getRegistry(), format, 
-				parentDialog.getImageToSave(), fileName, message);
-		parentDialog.setVisible(false);
-		parentDialog.dispose();
-	}
-	
+    /** Overrides the {@link #onNoSelection() onNoSelection} method. */
+    protected void onNoSelection() { manager.setDisplay(true); }
+    
+    /** Overrides the {@link #onYesSelection() onYesSelection} method. */
+    protected void onYesSelection()
+    {
+        manager.setDisplay(false);
+        manager.saveImage(format, fileName, message);
+        manager.disposeView();
+    }
+
 }

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
@@ -59,59 +58,72 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ImageSaver
-	extends JDialog
+    extends JDialog
 {
-	
-	static final String			MESSAGE = "A file with the same name and " +
-										"extension already exists in " +
-										"this directory. Do you " +
-										"still want to save the image?";
-	
-	static final String			TITLE = "Save Image";
-	
-	static final String 		SUMMARY = "Save the currrent image as a " +
-											"tiff, png or jpeg.";
-											
-	/** Reference to the {@link ViewerCtrl controller}. */
-	private ViewerCtrl		controller;
+    
+    static final String         MESSAGE = "A file with the same name and " +
+                                        "extension already exists in " +
+                                        "this directory. Do you " +
+                                        "still want to save the image?";
+    
+    static final String         TITLE = "Save Image";
+    
+    static final String         SUMMARY = "Save the currrent image as a " +
+                                            "tiff, png or jpeg.";
+    
+    static final String         SAVE_AS = "Save the current image in the " +
+                                            "specified format.";
+    
+    static final String         MSG_DIR = "The image has been saved in \n";
+    
+    static final int            IMAGE = 0;
+    static final int            PIN_IMAGE = 1;
+    static final int            PIN_AND_IMAGE = 2;
+    static final int            PIN_ON_IMAGE = 3;
+    static final int            PIN_ON_SIDE = 4;
+    static final int            MAX_TYPE = 4;
 
-	private ImageChooser	chooser;
-	
-	private BufferedImage	imageToSave;
-	
-	public ImageSaver(ViewerCtrl controller, BufferedImage imageToSave)
-	{
-		super(controller.getReferenceFrame(), "Save image As", true);
-		this.controller = controller;
-		this.imageToSave = imageToSave;
-		buildGUI();
-		pack();
-		UIUtilities.centerAndShow(this);
-	}
+    ImageChooser                chooser;
+    
+    ImageSelection              selection;  
+    
+    private ImageSaverMng       manager;
+    
+    public ImageSaver(ViewerCtrl control)
+    {
+        super(control.getReferenceFrame(), "Save image As", true);
+        manager = new ImageSaverMng(this, control);
+        initComponents();
+        buildGUI(IconManager.getInstance(control.getRegistry()));
+        pack();
+        UIUtilities.centerAndShow(this);
+    }
 
-	void isDisplay(boolean b) { chooser.isDisplay(b); }
-	
-	ViewerCtrl getController() { return controller; }
-	
-	BufferedImage getImageToSave() { return imageToSave; }
-	
-	/** Build and layout the GUI. */
-	private void buildGUI()
-	{
-		IconManager im = IconManager.getInstance(controller.getRegistry());
-		getContentPane().setLayout(new BorderLayout(0, 0));
-		TitlePanel tp = new TitlePanel(TITLE, SUMMARY, 
-								im.getIcon(IconManager.SAVEAS_BIG));
-		chooser = new ImageChooser(this);			
-		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(chooser, BorderLayout.CENTER);
-		if (JDialog.isDefaultLookAndFeelDecorated()) {
-			boolean supportsWindowDecorations = 
-			UIManager.getLookAndFeel().getSupportsWindowDecorations();
-			if (supportsWindowDecorations)
-				getRootPane().setWindowDecorationStyle(
-							JRootPane.FILE_CHOOSER_DIALOG);
-		}
-	}
-		
+    void setDisplay(boolean b) { chooser.setDisplay(b); }
+    
+    private void initComponents()
+    {
+        chooser = new ImageChooser(manager);
+        selection = new ImageSelection();
+    }
+
+    /** Build and layout the GUI. */
+    private void buildGUI(IconManager im)
+    {
+        getContentPane().setLayout(new BorderLayout(0, 0));
+        TitlePanel tp = new TitlePanel(TITLE, SUMMARY, 
+                                im.getIcon(IconManager.SAVEAS_BIG));
+                    
+        getContentPane().add(tp, BorderLayout.NORTH);
+        getContentPane().add(chooser, BorderLayout.CENTER);
+        getContentPane().add(selection, BorderLayout.SOUTH);
+        if (JDialog.isDefaultLookAndFeelDecorated()) {
+            boolean supportsWindowDecorations = 
+            UIManager.getLookAndFeel().getSupportsWindowDecorations();
+            if (supportsWindowDecorations)
+                getRootPane().setWindowDecorationStyle(
+                            JRootPane.FILE_CHOOSER_DIALOG);
+        }
+    }
+    
 }

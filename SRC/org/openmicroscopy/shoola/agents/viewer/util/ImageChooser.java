@@ -39,7 +39,6 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -61,128 +60,110 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ImageChooser
-	extends JFileChooser
+    extends JFileChooser
 {
+    
+    /** Default extension format. */
+    private static final String     DEFAULT_FORMAT = TIFFFilter.TIF;
+    
+    private ImageSaverMng           manager;
 
-	private static final String		SAVE_AS = "Save the current image in the " +
-											"specified format.";
-	
-	/** Default extension format. */
-	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
-	
-	private IconManager				im;
-	
-	private ImageSaver 				parent;
-	
-	/** Display or not the fileChooser, when the dialog is shown. */
-	private boolean					display;
-	
-	public ImageChooser(ImageSaver parent)
-	{
-		this.parent = parent;
-		display = false;
-		im = IconManager.getInstance(parent.getController().getRegistry());
-		buildGUI();
-	}
-	
-	void isDisplay(boolean b) { display = b; }
-	
-	/** Build and layout the GUI. */
-	private void buildGUI()
-	{
-		setDialogType(SAVE_DIALOG);
-		setFileSelectionMode(FILES_ONLY);
-		BMPFilter bmpFilter = new BMPFilter();
-		setFileFilter(bmpFilter);
-		addChoosableFileFilter(bmpFilter); 
-		JPEGFilter jpegFilter = new JPEGFilter();
-		setFileFilter(jpegFilter);
-		addChoosableFileFilter(jpegFilter); 
-		PNGFilter pngFilter = new PNGFilter();
-		addChoosableFileFilter(pngFilter); 
-		setFileFilter(pngFilter);
-		TIFFFilter tiffFilter = new TIFFFilter();
-		setFileFilter(tiffFilter);
-		addChoosableFileFilter(tiffFilter); 
-		setAcceptAllFileFilterUsed(false);
-		setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
-		setApproveButtonText("Save as");
-	}
-	
-	/** Override the {@link #cancelSelection} method. */
-	public void cancelSelection()
-	{
-		parent.setVisible(false);
-		parent.dispose();
-	}
-	
-	/** Override the {@link #approveSelection} method. */
-	public void approveSelection()
-	{
-		File file = getSelectedFile();
-		if (file != null) {
-			String format = getFormat(getFileFilter());
-			String  fileName = file.getAbsolutePath()+"."+format, 
-					name = file.getName()+"."+format;
-			String message = "The image "+name+", has been saved in \n"
-							+getCurrentDirectory();
-			setSelection(format, fileName, message, 
-								getCurrentDirectory().listFiles());
-			setSelectedFile(null);
-			if (display) return;	// to check
-		}      
-		// No file selected, or file can be written - let OK action continue
-		super.approveSelection();
-	}
-	
-	/**
-	 * Retrieve the File format selected.
-	 * @param filter	filter specified.
-	 * @return See above.
-	 */
-	private String getFormat(FileFilter filter)
-	{
-		String format = DEFAULT_FORMAT;
-		if (filter instanceof JPEGFilter) 
-			format = JPEGFilter.JPG;
-		else if (filter instanceof TIFFFilter) 
-			format = TIFFFilter.TIF;
-		else if (filter instanceof PNGFilter) 
-			format = PNGFilter.PNG;
-		else if (filter instanceof BMPFilter) 
-			format = BMPFilter.BMP;
-		return format;
-	}
-	
-	/** 
-	 * Check if the fileName specified already exists if not the image is saved
-	 * in the specified format.
-	 * 
-	 * @param format		format selected <code>jpeg<code>, 
-	 * 						<code>png<code> or <code>tif<code>.
-	 * @param fileName		image's name.
-	 * @param message		message displayed after the image has been created.
-	 * @param list			lis of files in the current directory.
-	 */
-	private void setSelection(String format, String fileName, String message,
-								File[] list)
-	{
-		boolean exist = false;
-		for (int i = 0; i < list.length; i++)
-			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
-		
-		if (exist) {
-			SelectionDialog dialog = new SelectionDialog(parent, format,
-										fileName, message, 
-										im.getIcon(IconManager.QUESTION));
-			dialog.pack();	
-			UIUtilities.centerAndShow(dialog);
-		} else {
-			display = false;
-			new SaveImage(parent.getController().getRegistry(), format, 
-				parent.getImageToSave(), fileName, message);
-				cancelSelection();
-		}				
-	}
-	
+    /** Display or not the fileChooser, when the dialog is shown. */
+    private boolean                 display;
+    
+    public ImageChooser(ImageSaverMng manager)
+    {
+        this.manager = manager;
+        display = false;
+        buildGUI();
+    }
+
+    void setDisplay(boolean b) { display = b; }
+    
+    /** Build and lay out the GUI. */
+    private void buildGUI()
+    {
+        setDialogType(SAVE_DIALOG);
+        setFileSelectionMode(FILES_ONLY);
+        BMPFilter bmpFilter = new BMPFilter();
+        setFileFilter(bmpFilter);
+        addChoosableFileFilter(bmpFilter); 
+        JPEGFilter jpegFilter = new JPEGFilter();
+        setFileFilter(jpegFilter);
+        addChoosableFileFilter(jpegFilter); 
+        PNGFilter pngFilter = new PNGFilter();
+        addChoosableFileFilter(pngFilter); 
+        setFileFilter(pngFilter);
+        TIFFFilter tiffFilter = new TIFFFilter();
+        setFileFilter(tiffFilter);
+        addChoosableFileFilter(tiffFilter); 
+        setAcceptAllFileFilterUsed(false);
+        setApproveButtonToolTipText(
+                UIUtilities.formatToolTipText(ImageSaver.SAVE_AS));
+        setApproveButtonText("Save as");
+    }
+
+    /** Override the {@link #cancelSelection} method. */
+    public void cancelSelection() { manager.disposeView(); }
+    
+    /** Override the {@link #approveSelection} method. */
+    public void approveSelection()
+    {
+        File file = getSelectedFile();
+        if (file != null) {
+            String format = getFormat(getFileFilter());
+            String  fileName = file.getAbsolutePath();
+            String message = ImageSaver.MSG_DIR+""+getCurrentDirectory();
+            setSelection(format, fileName, message, 
+                                getCurrentDirectory().listFiles());
+            setSelectedFile(null);
+            if (display) return;    // to check
+        }      
+        // No file selected, or file can be written - let OK action continue
+        super.approveSelection();
+    }
+
+    /**
+     * Retrieve the File format selected.
+     * @param filter    filter specified.
+     * @return See above.
+     */
+    private String getFormat(FileFilter filter)
+    {
+        String format = DEFAULT_FORMAT;
+        if (filter instanceof JPEGFilter) 
+            format = JPEGFilter.JPG;
+        else if (filter instanceof TIFFFilter) 
+            format = TIFFFilter.TIF;
+        else if (filter instanceof PNGFilter) 
+            format = PNGFilter.PNG;
+        else if (filter instanceof BMPFilter) 
+            format = BMPFilter.BMP;
+        return format;
+    }
+    
+    /** 
+     * Check if the fileName specified already exists if not the image is saved
+     * in the specified format.
+     * 
+     * @param format        format selected <code>jpeg<code>, 
+     *                      <code>png<code> or <code>tif<code>.
+     * @param fileName      image's name.
+     * @param message       message displayed after the image has been created.
+     * @param list          lis of files in the current directory.
+     */
+    private void setSelection(String format, String fileName, String message,
+                                File[] list)
+    {
+        boolean exist = false;
+        for (int i = 0; i < list.length; i++)
+            if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
+        
+        if (!exist) {
+            display = false;
+            manager.saveImage(format, fileName, message);
+            cancelSelection(); 
+        } else manager.showSelectionDialog(format, fileName, message);      
+    }
+
 }
