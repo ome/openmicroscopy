@@ -75,8 +75,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  */
-public class ChainBox extends GenericBox implements MouseableNode 
-		/*,SelectionEventListener*/ {
+public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 
 	/**
@@ -228,10 +227,8 @@ public class ChainBox extends GenericBox implements MouseableNode
 	
 
 	public void mouseClicked(GenericEventHandler handler) {
-		System.err.println("click in chain box...");
 		((ChainPaletteEventHandler) handler).animateToNode(this);
 		((ChainPaletteEventHandler) handler).setLastEntered(chainView);
-		((ChainPaletteEventHandler) handler).hideLastChainView();
 		SelectAnalysisChain event = new SelectAnalysisChain(chainView.getChain());
 		registry.getEventBus().post(event); 
 	}
@@ -245,6 +242,15 @@ public class ChainBox extends GenericBox implements MouseableNode
 				b.getHeight()+4*Constants.BORDER);
 		
 		return p;
+	}
+	
+	public void mouseEntered(GenericEventHandler handler) {
+		chainView.setPickable(true);
+		((ChainPaletteEventHandler) handler).setLastHighlighted(this);
+		setHighlighted(true);
+		MouseOverAnalysisChain event = 
+			new MouseOverAnalysisChain(chainView.getChain());
+		registry.getEventBus().post(event);
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
@@ -261,17 +267,11 @@ public class ChainBox extends GenericBox implements MouseableNode
 		}
 	}
 
-	public void mouseEntered(GenericEventHandler handler) {
-		((ChainPaletteEventHandler) handler).setLastHighlighted(this);
-		setHighlighted(true);
-		MouseOverAnalysisChain event = 
-			new MouseOverAnalysisChain(chainView.getChain());
-		registry.getEventBus().post(event);
-	}
+
 
 	public void mouseExited(GenericEventHandler handler) {
+		chainView.setPickable(false);
 		((ChainPaletteEventHandler) handler).setLastHighlighted(null);
-		((ChainPaletteEventHandler) handler).hideLastChainView();
 		setHighlighted(false);
 		MouseOverAnalysisChain event = 
 			new MouseOverAnalysisChain(null);
@@ -284,7 +284,13 @@ public class ChainBox extends GenericBox implements MouseableNode
 			((ChainPaletteEventHandler) handler).animateToNode(p);	
 		else
 			((ChainPaletteEventHandler) handler).animateToCanvasBounds();
-		((ChainPaletteEventHandler) handler).hideLastChainView();
 	}	
+	
+	public PNode getToolTip() {
+		if (chainView != null)
+			return chainView.getToolTip();
+		else
+			return null;
+	}
 		
 }
