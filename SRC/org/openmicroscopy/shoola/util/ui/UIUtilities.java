@@ -32,12 +32,17 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
@@ -136,4 +141,22 @@ public class UIUtilities
 		return separator;
 	}
 	
+    /** Set the font of the string to bold. */
+    public static JLabel setTextFont(String s)
+    {
+        JLabel label = new JLabel(s);
+        Font font = label.getFont();
+        Font newFont = font.deriveFont(Font.BOLD);
+        label.setFont(newFont);
+        return label;
+    }
+    
+    /** Wrap a JComponent in a JPanel. */
+    public static JPanel buildComponentPanel(JComponent component)
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(component);
+        return p;
+    }
 }
