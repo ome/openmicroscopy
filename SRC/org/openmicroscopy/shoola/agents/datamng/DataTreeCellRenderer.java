@@ -72,7 +72,9 @@ class DataTreeCellRenderer
 	static final int    			    IMAGE_ICON = 3;
     static final int                    CATEGORY_GROUP_ICON = 4;
     static final int                    CATEGORY_ICON = 5;
-	static final int                    NO_ICON = 6; 
+    static final int                    ANNOTATED_DATASET_ICON = 6;
+    static final int                    ANNOTATED_IMAGE_ICON = 7;
+	static final int                    NO_ICON = 8; 
 	
 	private Registry	                registry;
     
@@ -103,6 +105,10 @@ class DataTreeCellRenderer
                     setIcon(im.getIcon(IconManager.CATEGORY)); break;
                 case CATEGORY_GROUP_ICON:
                     setIcon(im.getIcon(IconManager.CATEGORY_GROUP)); break;
+                case ANNOTATED_DATASET_ICON:
+                    setIcon(im.getIcon(IconManager.ANNOTATED_DATASET)); break;
+                case ANNOTATED_IMAGE_ICON:
+                    setIcon(im.getIcon(IconManager.ANNOTATED_IMAGE)); break;
 				case NO_ICON:
 					setIcon(null);
 			}									
@@ -119,8 +125,13 @@ class DataTreeCellRenderer
 		int id = ROOT_ICON;
 		if (node.getLevel() != 0) {
 			if (usrObject instanceof ProjectSummary)  id = PROJECT_ICON;
-			else if (usrObject instanceof DatasetSummary) id = DATASET_ICON;
-			else if (usrObject instanceof ImageSummary) id = IMAGE_ICON;
+			else if (usrObject instanceof DatasetSummary)
+                id = DATASET_ICON;
+			else if (usrObject instanceof ImageSummary) {
+               if (((ImageSummary) usrObject).getAnnotation() == null)
+                   id = IMAGE_ICON;
+               else id = ANNOTATED_IMAGE_ICON;
+            }
             else if (usrObject instanceof CategoryGroupData) 
                 id = CATEGORY_GROUP_ICON;
             else if (usrObject instanceof CategorySummary) id = CATEGORY_ICON;
