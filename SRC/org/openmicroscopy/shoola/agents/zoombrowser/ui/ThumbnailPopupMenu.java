@@ -40,10 +40,13 @@ import javax.swing.JPopupMenu;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
+import org.openmicroscopy.shoola.agents.events.ViewImageModuleExecutions;
 import 
    org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.Thumbnail;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 /** 
  * A popup window for a datasetbrowser canvas. 
  * 
@@ -63,6 +66,7 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 	private JMenuItem zoomItem;
 	private JMenuItem viewItem;
 	private JMenuItem viewImageInfoItem;
+	private JMenuItem viewImageExecutionsItem;
 	
 	private Thumbnail thumbnail;
 	
@@ -74,12 +78,23 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		zoomItem = new JMenuItem("Zoom out");
 		add(zoomItem);
 		zoomItem.addActionListener(this);
-		viewItem = new JMenuItem("View Image");
-		add(viewItem);
-		viewItem.addActionListener(this);
-		viewImageInfoItem = new JMenuItem("View Image Info");
-		viewImageInfoItem.addActionListener(this);
-		add(viewImageInfoItem);
+		if (registry.getEventBus().hasListenerFor(LoadImage.class)) {
+			viewItem = new JMenuItem("View Image");
+			add(viewItem);
+			viewItem.addActionListener(this);
+		}
+		if (registry.getEventBus().hasListenerFor(ViewImageInfo.class)) {			
+			viewImageInfoItem = new JMenuItem("View Image Info");
+			viewImageInfoItem.addActionListener(this);
+			add(viewImageInfoItem);
+		}
+		if (registry.getEventBus().
+				hasListenerFor(ViewImageModuleExecutions.class)) {
+			viewImageExecutionsItem = new JMenuItem("View Module Executions");
+			viewImageExecutionsItem.addActionListener(this);
+			add(viewImageExecutionsItem);
+	
+		}
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -89,9 +104,14 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 			thumbnail.zoomOutOfHalo();
 		}
 		else if (e.getSource() == viewItem) {
+			// sends loadImage event
 			thumbnail.viewImage(registry);
 		} else if (e.getSource() == viewImageInfoItem) {
+			// sends ViewImageInfo event
 			thumbnail.viewImageInfo(registry);
+		}
+		else if (e.getSource() == viewImageExecutionsItem) {
+			thumbnail.viewImageModuleExecutions(registry);
 		}
 	}
 	
