@@ -208,13 +208,18 @@ public abstract class QuantumStrategy
 	 */
 	public void setWindow(double start, double end)
 	{
-		verifyInterval(start, end);
 		if (start < globalMin || globalMax < end)
 			throw new IllegalArgumentException("Wrong interval definition");
+        verifyInterval(start, end);
 		windowStart = start;
 		windowEnd = end;
 		onWindowChange();
 	}
+    
+    /** 
+     * Set the selected family, one of the constants defined by 
+     * {@link QuantumFactory}, and the curve coefficient.
+     */
 	public void setMapping(int family, double k)
     {
         defineMapper(family);
@@ -222,6 +227,10 @@ public abstract class QuantumStrategy
         curveCoefficient = k;
     }
     
+    /** 
+     * Set the selected family, one of the constants defined by 
+     * {@link QuantumFactory}, and the curve coefficient.
+     */
     public void setQuantizationMap(int family, double k)
     {
         defineMapper(family);
