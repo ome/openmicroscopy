@@ -248,20 +248,18 @@ class Renderer
 											PixelsStats stats, int pixelType)
 	{
         QuantumDef qDef = new QuantumDef(pixelType, 0, 
-                          QuantumFactory.DEPTH_8BIT, QuantumFactory.DEPTH_8BIT,
-                          QuantumFactory.NOISE_REDUCTION);
+                          QuantumFactory.DEPTH_8BIT, QuantumFactory.DEPTH_8BIT);
 		ChannelBindings[] waves = new ChannelBindings[dims.sizeW];
 		PixelsGlobalStatsEntry wGlobal;
 		int[] rgb;
 		for (int w = 0; w < dims.sizeW; ++w) {
             wGlobal = stats.getGlobalEntry(w);
             rgb = setDefaultColor(w);
-            waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
-                                           wGlobal.getGlobalMax(), rgb[0], 
-                                           rgb[1], rgb[2], 255, false,
-                                           QuantumFactory.LINEAR, 1);
+            waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(), 
+                                        wGlobal.getGlobalMax(), rgb[0], rgb[1], 
+                                        rgb[2], 255, false, 
+                                        QuantumFactory.LINEAR, 1);
 		}
-		
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
 		return new RenderingDef(dims.sizeZ/2+dims.sizeZ%2-1, 0, 
 								RenderingDef.GS, qDef, waves);

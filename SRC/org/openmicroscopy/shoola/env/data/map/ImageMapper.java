@@ -301,7 +301,6 @@ public class ImageMapper
         //Default one.
         int cdStart = 0, cdEnd = QuantumFactory.DEPTH_8BIT;
         int bitResolution = QuantumFactory.DEPTH_8BIT;
-        boolean noiseReduction = QuantumFactory.NOISE_REDUCTION;
         ChannelBindings[] channelBindings = new ChannelBindings[list.size()];
 		int index = 0, z = 0, t = 0, model = RenderingDef.GS;
         double coeff = 1.0, dStart = 0, dEnd = 1;
@@ -346,7 +345,7 @@ public class ImageMapper
             index++;
 		}
         QuantumDef  qDef = new QuantumDef(pixelType, cdStart, cdEnd, 
-                                bitResolution, noiseReduction);
+                                bitResolution);
 		return new RenderingDef(z, t, model, qDef, channelBindings);	
 	}
 	

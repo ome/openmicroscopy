@@ -138,16 +138,15 @@ public class RenderingEngine
 			RenderingControlProxy proxy = 
                                     rndManager.createRenderingControlProxy();
 			ImageLoaded response = new ImageLoaded(request, proxy);
-			EventBus eventBus = registry.getEventBus();
+            EventBus eventBus = registry.getEventBus();
             eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-		} catch (MetadataSourceException mdse) {
+		} catch (MetadataSourceException mdse) { 
             handleException("Can't load image metadata. Image id: "+
 								request.getImageID(), mdse);
         } catch (DataSourceException dse) {
             handleException("Can't load image metadata. Image id: "+
                             request.getImageID(), dse);
-        }
-        
+        }   
 	}
 	
 	private void handleRenderImage(RenderImage request)

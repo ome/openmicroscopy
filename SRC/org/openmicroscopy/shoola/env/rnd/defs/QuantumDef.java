@@ -77,7 +77,7 @@ public class QuantumDef
      * If <code>true</code>, the values close to the min or max are map to 
      * a constant.
      */
-    public final boolean    noiseReduction; 
+    //public final boolean    noiseReduction; 
     
     /**
      * Creates a new instance.
@@ -91,14 +91,12 @@ public class QuantumDef
      *                      one of the constants defined by 
      *                      {@link QuantumFactory}.
      */
-	public QuantumDef(int pixelType, int cdStart, int cdEnd, int bitResolution,
-                    boolean noiseReduction)
+	public QuantumDef(int pixelType, int cdStart, int cdEnd, int bitResolution)
 	{ 
         this.pixelType = pixelType;
         this.cdStart = cdStart;
         this.cdEnd = cdEnd;
         this.bitResolution = bitResolution;
-        this.noiseReduction = noiseReduction;
 	}
 
 	/**
@@ -108,8 +106,7 @@ public class QuantumDef
 	 */
 	QuantumDef copy()
 	{	
-        return new QuantumDef(pixelType, cdStart, cdEnd, bitResolution, 
-                noiseReduction);
+        return new QuantumDef(pixelType, cdStart, cdEnd, bitResolution);
 	}
 	
 }

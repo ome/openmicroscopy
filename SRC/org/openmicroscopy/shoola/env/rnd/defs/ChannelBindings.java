@@ -88,6 +88,13 @@ public class ChannelBindings
     
     private double[]            stats;
     
+    /**
+     * Apply or not the algorithm to reduce the noise.
+     * If <code>true</code>, the values close to the min or max are map to 
+     * a constant.
+     */
+    private boolean             noiseReduction;
+    
     public ChannelBindings(int index, double inputStart, double inputEnd,
                             int red, int green, int blue, int alpha,
                             boolean active, int family, double curveCoefficient)
@@ -109,6 +116,10 @@ public class ChannelBindings
     
     public double[] getStats() { return stats; }
     
+    public void setNoiseReduction(boolean nr) { noiseReduction = nr; }
+    
+    public boolean getNoiseReduction() { return noiseReduction; }
+    
     public boolean isActive() { return active; }
     
     public int getIndex() { return index; }
@@ -129,10 +140,12 @@ public class ChannelBindings
     
     public double getCurveCoefficient() { return curveCoefficient; }
     
-    public void setQuantizationMap(int family, double curveCoefficient)
+    public void setQuantizationMap(int family, double curveCoefficient, 
+                                boolean noiseReduction)
     {
         this.family = family;
         this.curveCoefficient = curveCoefficient;
+        this.noiseReduction = noiseReduction;
     }
 
     public void setActive(boolean active) { this.active = active; }
@@ -183,6 +196,7 @@ public class ChannelBindings
         cb.inputEnd = this.inputEnd;
         cb.rgba = getRGBA();
         cb.stats = getStats();
+        cb.noiseReduction  = getNoiseReduction();
         return cb;
     }
     

@@ -105,12 +105,12 @@ class RenderingControlImpl
     public void setDefaultT(int t) { renderer.setDefaultT(t); }
     
 	/** Implemented as specified by {@link RenderingControl}. */
-	public void setQuantumStrategy(int bitResolution, boolean b)
+	public void setQuantumStrategy(int bitResolution)
     {
         RenderingDef rd = renderer.getRenderingDef();
         QuantumDef qd = rd.getQuantumDef(), newQd;
         newQd = new QuantumDef(qd.pixelType, qd.cdStart, qd.cdEnd,
-                            bitResolution, b);
+                            bitResolution);
         rd.setQuantumDef(newQd);
         renderer.updateQuantumManager();
     }
@@ -122,8 +122,7 @@ class RenderingControlImpl
         chain.setInterval(start, end);
         RenderingDef rd = renderer.getRenderingDef();
         QuantumDef qd = rd.getQuantumDef(), newQd;
-        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution,
-                                qd.noiseReduction);
+        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution);
         rd.setQuantumDef(newQd);
         CodomainMapContext mapCtx;
         Iterator i = rd.getCodomainChainDef().iterator();
@@ -149,12 +148,13 @@ class RenderingControlImpl
 	}
     
      /** Implemented as specified by {@link RenderingControl}. */
-    public void setQuantizationMap(int w, int family, double coefficient)
+    public void setQuantizationMap(int w, int family, double coefficient, 
+                                boolean noiseReduction)
     {
         QuantumStrategy qs = renderer.getQuantumManager().getStrategyFor(w);
-        qs.setQuantizationMap(family, coefficient);
+        qs.setQuantizationMap(family, coefficient, noiseReduction);
         ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
-        cb[w].setQuantizationMap(family, coefficient);
+        cb[w].setQuantizationMap(family, coefficient, noiseReduction);
     }
     
     /** Implemented as specified by {@link RenderingControl}. */
@@ -162,6 +162,13 @@ class RenderingControlImpl
     {
         ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
         return cb[w].getStats();
+    }
+    
+    /** Implemented as specified by {@link RenderingControl}. */
+    public boolean getChannelNoiseReduction(int w)
+    {
+        ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+        return cb[w].getNoiseReduction();
     }
     
     /** Implemented as specified by {@link RenderingControl}. */
@@ -258,8 +265,7 @@ class RenderingControlImpl
 	public void resetDefaults()
 	{
 	    //bitResolution <=> 255
-        setQuantumStrategy(QuantumFactory.DEPTH_8BIT, 
-                        QuantumFactory.NOISE_REDUCTION);
+        setQuantumStrategy(QuantumFactory.DEPTH_8BIT);
         setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
         ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
         PixelsStats stats = renderer.getPixelsStats();

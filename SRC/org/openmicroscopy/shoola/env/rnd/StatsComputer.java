@@ -64,12 +64,15 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
  */
 class StatsComputer
 {
+    
     /** Defines the number of sub-intervals. */
     private static final int    NB_BIN = 20; // >=3
     
     private static final int    EPSILON = 4;
     
     private static final double THRESHOLD = 0.99;
+    
+    private static final double NR_THRESHOLD = 0.95;
     
     static void computeStats(DataSink dataSink, MetadataSource source, 
                             ChannelBindings[] cBindings, PlaneDef planeDef, 
@@ -136,7 +139,6 @@ class StatsComputer
         double total = sizeX2*sizeX1;
         for (int i = 0; i < totals.length; i++) 
             stats[i] = totals[i]/total;
-        
         //Default, we assume that we have at least 3 sub-intervals.
         double start = bins[1], end = bins[NB_BIN];
         total = total-totals[0]-totals[NB_BIN-1];
@@ -146,9 +148,22 @@ class StatsComputer
         else
             start = accumulateMax(totals, bins, total, epsilon);
         wave.setStats(stats);
+        wave.setNoiseReduction(noiseReduction(stats));
         if (flag) wave.setInputWindow(start, end);
     }
 
+    private static boolean noiseReduction(double[] stats)
+    {
+        double sumMin = 0, sumMax = 0;
+        for (int i = 0; i < stats.length; i++) {
+            if (i < 2) sumMin += stats[i];
+            if (i >= stats.length-2) sumMax += stats[i];
+        }
+        boolean nr = true;
+        if (sumMin >= NR_THRESHOLD || sumMax >= NR_THRESHOLD) nr = false;
+        return nr;
+    }
+    
     /** Value accumulate closed to the Min. */
     private static double accumulateMin(int[] totals, double[] bins, 
                                         double total, double epsilon)

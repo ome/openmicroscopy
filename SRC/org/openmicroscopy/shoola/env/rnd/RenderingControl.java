@@ -73,13 +73,15 @@ public interface RenderingControl
     
 	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
 	//if not necessary.
-	public void setQuantumStrategy(int bitResolution, boolean b);
+	public void setQuantumStrategy(int bitResolution);
 	public void setCodomainInterval(int start, int end);
 	public QuantumDef getQuantumDef();
 	
 	//ChannelBindings[] elements' fields.
-    public void setQuantizationMap(int w, int family, double coefficient);
+    public void setQuantizationMap(int w, int family, double coefficient, 
+                                    boolean noiseReduction);
     public int getChannelFamily(int w);
+    public boolean getChannelNoiseReduction(int w);
     public double[] getChannelStats(int w);
     public double getChannelCurveCoefficient(int w);
 	public void setChannelWindow(int w, double start, double end);

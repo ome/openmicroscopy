@@ -83,6 +83,8 @@ public abstract class QuantumStrategy
     /** Selects a curve in the family. */
     private double                  curveCoefficient;
     
+    private boolean                 noiseReduction;
+    
 	/** Reference to a quantumDef object. */
 	protected final QuantumDef      qDef;   
 	
@@ -220,22 +222,24 @@ public abstract class QuantumStrategy
      * Set the selected family, one of the constants defined by 
      * {@link QuantumFactory}, and the curve coefficient.
      */
-	public void setMapping(int family, double k)
+	public void setMapping(int family, double k, boolean noiseReduction)
     {
         defineMapper(family);
         this.family = family;
         curveCoefficient = k;
+        this.noiseReduction = noiseReduction;
     }
     
     /** 
      * Set the selected family, one of the constants defined by 
      * {@link QuantumFactory}, and the curve coefficient.
      */
-    public void setQuantizationMap(int family, double k)
+    public void setQuantizationMap(int family, double k, boolean noiseReduction)
     {
         defineMapper(family);
         this.family = family;
         curveCoefficient = k;
+        this.noiseReduction = noiseReduction;
         onWindowChange();
     }
     
@@ -244,6 +248,8 @@ public abstract class QuantumStrategy
     int getFamily() { return family; }
     
     double getCurveCoefficient() { return curveCoefficient; }
+    
+    boolean getNoiseReduction() { return noiseReduction; }
     
 	/** Returns the globalMin. */
 	double getGlobalMin()

@@ -130,17 +130,17 @@ class RenderingControlProxy
 
 	public int getDefaultT() { return rndDefCopy.getDefaultT(); }
 
-	public void setQuantumStrategy(final int bitResolution, final boolean b)
+	public void setQuantumStrategy(final int bitResolution)
 	{
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
         QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
         newQd = new QuantumDef(qd.pixelType, qd.cdStart, qd.cdEnd, 
-                                bitResolution, b);
+                                bitResolution);
         rndDefCopy.setQuantumDef(newQd);
         MethodCall mCall = new MethodCall() {
             public void doCall() { 
-                servant.setQuantumStrategy(bitResolution, b);
+                servant.setQuantumStrategy(bitResolution);
             }
         };
         RenderingPropChange rpc = new RenderingPropChange(mCall);
@@ -152,8 +152,7 @@ class RenderingControlProxy
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
         QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
-        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution,
-                                qd.noiseReduction);
+        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution);
         rndDefCopy.setQuantumDef(newQd);
         CodomainMapContext mapCtx;
         Iterator i = rndDefCopy.getCodomainChainDef().iterator();
@@ -176,13 +175,14 @@ class RenderingControlProxy
 	}
 
 	public void setQuantizationMap(final int w, final int family, 
-             final double coefficient)
+             final double coefficient, final boolean noiseReduction)
 	{
 	    ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-	    cb[w].setQuantizationMap(family, coefficient);
+	    cb[w].setQuantizationMap(family, coefficient, noiseReduction);
 	    MethodCall mCall = new MethodCall() {
 	        public void doCall() { 
-	            servant.setQuantizationMap(w, family, coefficient);
+	            servant.setQuantizationMap(w, family, coefficient, 
+                        noiseReduction);
 	        }
 	    };
 	    RenderingPropChange rpc = new RenderingPropChange(mCall);
@@ -193,6 +193,12 @@ class RenderingControlProxy
     {
         ChannelBindings[] cb = rndDefCopy.getChannelBindings();
         return cb[w].getStats();
+    }
+    
+    public boolean getChannelNoiseReduction(int w)
+    {
+        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+        return cb[w].getNoiseReduction();
     }
     
     public int getChannelFamily(int w)
@@ -325,8 +331,7 @@ class RenderingControlProxy
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void resetDefaults()
 	{
-        setQuantumStrategy(QuantumFactory.DEPTH_8BIT, 
-                        QuantumFactory.NOISE_REDUCTION);
+        setQuantumStrategy(QuantumFactory.DEPTH_8BIT);
         setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
         
         ChannelBindings[] cb = rndDefCopy.getChannelBindings();

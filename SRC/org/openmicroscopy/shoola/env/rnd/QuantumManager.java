@@ -104,7 +104,8 @@ class QuantumManager
 			gMax = wGlobal.getGlobalMax();
 			stg.setExtent(gMin, gMax);
             stg.setMapping(waves[w].getFamily(), 
-                    waves[w].getCurveCoefficient());
+                    waves[w].getCurveCoefficient(), 
+                    waves[w].getNoiseReduction());
 			if (wavesStg[w] == null) stg.setWindow(waves[w].getInputStart(), 
 									waves[w].getInputEnd()); 
 			else 

@@ -118,7 +118,7 @@ public class Quantization_8_16_bit
         double decile = (max-min)/SUB_INT;
         double Q1 = min, Q9 = max;
         int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd;
-        if (qDef.noiseReduction) {
+        if (getNoiseReduction()) {
             v = EXTRA;
             extra = EXTRA;
             Q1 = min+decile;
