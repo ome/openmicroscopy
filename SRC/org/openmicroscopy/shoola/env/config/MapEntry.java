@@ -33,13 +33,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 // Third-party libraries
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 //Application-internal dependencies
 
 /**
- *
+ * Hanldes a <i>structuredEntry</i> of type <i>map</i>.
+ * Each tag within this entry defines a name-value pair, the name being the
+ * tag's name and the value the tag's content.  These name-value pairs are
+ * stored into a {@link Map} (keyed by names), which is then returned by the 
+ * {@link #getValue() getValue} method.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,20 +57,27 @@ import org.w3c.dom.NodeList;
  * </small>
  * @since OME2.2
  */
-
 class MapEntry 
     extends Entry
 {
     
-    private Map     tagsValues;
+	/** 
+	 * The contents of the entry.
+	 * The name of each contained tag is a key in the map and the tag's value
+	 * is the value associated to that key in the map.
+	 */
+    private Map     nameValuePairs;
     
+    
+	/** Creates a new instance. */
     MapEntry()
     {
-		tagsValues = new HashMap();
+		nameValuePairs = new HashMap();
     }
     
 	/** Implemented as specified by {@link Entry}. */    
-    protected void setContent(Node node)
+    protected void setContent(Node node) 
+    	throws ConfigException
     { 
         try {
             if (node.hasChildNodes()) {
@@ -73,14 +86,21 @@ class MapEntry
                 for (int i = 0; i < childList.getLength(); i++) {
                     child = childList.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE)
-                        tagsValues.put(child.getNodeName(), 
+                        nameValuePairs.put(child.getNodeName(), 
                                         child.getFirstChild().getNodeValue());
                 }
             }  
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+		} catch (DOMException dex) {
+			rethrow("Can't parse map entry, name: "+getName()+".", dex); 
+		}
     }
     
-	/** Implemented as specified by {@link Entry}. */  
-    Object getValue() { return tagsValues; }
+	/** 
+	 * Returns a map whose keys are the names of each tag within this 
+	 * <i>structuredEntry</i> and values are the corresponding tag values.
+	 * 
+	 * @return	See above.
+	 */   
+    Object getValue() { return nameValuePairs; }
     
 }

@@ -32,13 +32,17 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 
 //Third-party libraries
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 //Application-internal dependencies
 
 
 /**
- *
+ * Hanldes an <i>entry</i> of type <i>float</i>.
+ * The tag's value is stored into a {@link Float} object which is then
+ * returned by the {@link #getValue() getValue} method.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,20 +59,36 @@ class FloatEntry
     extends Entry
 {
     
+	/** The entry value. */
     private Float value;
     
+    
+	/** Creates a new instance. */
     FloatEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
+    	throws ConfigException
     { 
+		String cfgVal = null;
         try {
-            // has only one child
-            value = new Float(node.getFirstChild().getNodeValue());
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+			cfgVal = node.getFirstChild().getNodeValue();
+            value = new Float(cfgVal);
+		} catch (DOMException dex) { 
+			rethrow("Can't parse float entry, name: "+getName()+".", dex);
+		} catch (NumberFormatException nfe) {
+			rethrow(cfgVal+" is not a valid float, entry name: "+
+					getName()+".", nfe);
+		}
     }
     
-	/** Implemented as specified by {@link Entry}. */  
+	/**
+	 * Returns a {@link Float} object which represents the tag's content.
+	 * The double value wrapped by the returned object will be parsed as
+	 * specified by the {@link Float} class. 
+	 * 
+	 * @return	See above.
+	 */  
     Object getValue() { return value; }
     
 }

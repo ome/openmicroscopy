@@ -154,10 +154,35 @@ class Parser
                Entry entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }
+        } catch (ConfigException ce) {
+        	throw ce;
         } catch (Exception e) { 
-        	throw new ConfigException("An error occurred while attempting"+
-        								"to process: "+configFile, e); 
+        	rethrow(e);
         }   
+    }
+    
+    /**
+     * Wraps the original exception into a {@link ConfigException}, which is
+     * then re-thrown with an error message.
+     * 
+     * @param e	The original exception.
+     * @throws ConfigException	Wraps the original exception and contains an
+     * 							error message.
+     */
+    private void rethrow(Exception e)
+    	throws ConfigException
+    {
+		StringBuffer msg = new StringBuffer(
+							"An error occurred while attempting to process ");
+		msg.append(configFile);
+		msg.append(".");
+		String explanation = e.getMessage();
+		if (explanation != null && explanation.length() != 0) {
+			msg.append(" (");
+			msg.append(explanation);
+			msg.append(")");	
+		}
+		throw new ConfigException(msg.toString(), e); 
     }
     
 	/** 

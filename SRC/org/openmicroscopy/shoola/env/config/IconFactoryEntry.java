@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.config;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 import org.w3c.dom.DOMException;
@@ -41,7 +43,9 @@ import org.w3c.dom.NodeList;
 
 
 /** 
- * 
+ * Hanldes a <i>structuredEntry</i> of type <i>icons</i>.
+ * The content of the entry is used to build an {@link IconFactory} object,
+ * which is then returned by the {@link #getValue() getValue} method.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,35 +62,83 @@ class IconFactoryEntry
 	extends Entry
 {
 
+	/** 
+	 * The name of the tag, within this <i>structuredEntry</i>, that specifies
+	 * the location to use for building the {@link IconFactory} object.
+	 */
+	private static final String		LOCATION_TAG = "location";
+	
+	
+	/** Holds the contents of the entry. */
 	private String		location;
+	
+	/** The returned value built from {@link #location}. */
 	private IconFactory	factory;
 	
+	
+	/** Creates a new instance. */
 	IconFactoryEntry() {}
 	
-	/** Implemented as specified by {@link Entry}. */  
-	protected void setContent(Node node)
-	{ 
-		try {
-			//the node is supposed to have tags as children, 
-			//add control b/c we don't use a XMLSchema config
-			if (node.hasChildNodes()) {
-				NodeList childList = node.getChildNodes();
-				Node child;
-				for (int i = 0; i < childList.getLength(); i++) {
-					child = childList.item(i);
-					// only one element_node child.
-				   	if (child.getNodeType() == Node.ELEMENT_NODE) 
-						location = child.getFirstChild().getNodeValue();
-				}
-			}  
-		} catch (DOMException dex) { throw new RuntimeException(dex); }
-	}
-
-	/** Implemented as specified by {@link Entry}. */  
+	/** 
+	 * Returns a {@link IconFactory} object to handle all icons in the
+	 * location specified by the configuration entry.
+	 * 
+	 * @return	See above.
+	 */     
 	Object getValue()
 	{
 		if (factory == null) factory = new IconFactory(location);
 		return factory;
 	}
+	
+	/** Implemented as specified by {@link Entry}. */  
+	protected void setContent(Node node) 
+		throws ConfigException
+	{ 
+		try {
+			Map tags = extractValues(node);
+			location = (String) tags.get(LOCATION_TAG);
+		} catch (DOMException dex) { 
+			rethrow("Can't parse icons entry.", dex);
+		}
+	}
+	
+	/**
+	 * Extracts the values of the tags within the entry tag and puts them in
+	 * a map keyed by tag names.
+	 *  
+	 * @param entry	The <i>icons</i> entry tag.
+	 * @return A map whose keys are names of the tags within the entry and
+	 * 			values are the corresponding tag contents.
+	 * @throws DOMException If the entry contents couldn't be retrieved.
+	 * @throws ConfigException If the entry is not structured as expected.
+	 */
+	private Map extractValues(Node entry)
+		throws DOMException, ConfigException
+	{
+		if (entry.hasChildNodes()) {
+			Map tags = new HashMap();
+			NodeList children = entry.getChildNodes();
+			int n = children.getLength();
+			Node child;
+			while (0 < n) {
+				child = children.item(--n);
+				if (child.getNodeType() == Node.ELEMENT_NODE && 
+					LOCATION_TAG.equals(child.getNodeName())) {
+						tags.put(LOCATION_TAG, 
+									child.getFirstChild().getNodeValue());
+						return tags;
+					}
+			}
+		}
+		throw new ConfigException(
+			"The content of the icons structured entry is not valid.");
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files. 
+    
+	//NOTE: the method above could just return a string.  However, for the
+	//time being we keep it like that b/c in future we might add some other
+	//tags other than location to the icons entry.
 	
 }

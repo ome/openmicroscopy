@@ -38,7 +38,8 @@ import java.net.URL;
 //Application-internal dependencies
 
 /** 
- * Contents the information on OMEDS.
+ * Holds the configration information for the <i>OMEDS</i> entry in the
+ * container's configuration file.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,27 +52,38 @@ import java.net.URL;
  * </small>
  * @since OME2.2
  */
-
 public class OMEDSInfo
 {
+	
+	/** The <i>URL</i> to connect to <i>OMEDS</i>. */
+	private URL		serverAddress;
 
-	static final String		URL = "url";
-	private URL				serverAddress;
-
-	/** 
-	* Set the pair (name, value).
-	* 
-	* @param value		tag's value.
-	* @param tag		tag's name.
-	*/ 
-	void setValue(String value, String tag)
+	
+	/**
+	 * Creates a new instance.
+	 * This is the only costructor and has package visibility because instances
+	 * of this class can only be created (meaningfully) within this package.
+	 */
+	OMEDSInfo() {}
+	
+	/**
+	 * Parses and sets the <i>URL</i> to connect to <i>OMEDS</i>.
+	 * 
+	 * @param url	A string representing a valid <i>URL</i>.
+	 * @throws MalformedURLException If <code>url</code> specifies a malformed
+	 * 									<i>URL</i>.
+	 */
+	void setServerAddress(String url)
+		throws MalformedURLException
 	{  
-		try {
-			if (tag.equals(URL)) serverAddress = new URL(value);  
-		} catch (MalformedURLException ex) { throw new RuntimeException(ex); }
+		serverAddress = new URL(url);  
 	}
 	
-	/** Returns the content of the tag <code>url</code>. */
+	/**
+	 * Returns the <i>URL</i> to connect to <i>OMEDS</i>.
+	 * 
+	 * @return	See above.
+	 */
 	public URL getServerAddress() { return serverAddress; }
 
 }

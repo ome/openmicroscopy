@@ -163,7 +163,7 @@ abstract class Entry
             //Finally create the hanlder.
             entry = (Entry) handler.newInstance();
         } catch(Exception e) {
-        	throw new ConfigException("Can't instantiate tag's handler.", e); 
+        	rethrow(ntp, e);
         } 
         
         //Set name, but delegate value setting.
@@ -172,6 +172,29 @@ abstract class Entry
             
         return entry;
     }
+    
+	/**
+	 * Convenience method to wrap and re-throw an exception occurred while
+	 * trying to create a tag hanlder. 
+	 * Wraps the original exception into a {@link ConfigException}, which is
+	 * then re-thrown with an error message.
+	 * 
+	 * @param ntp The name and type of the tag.
+	 * @param e	The original exception
+	 * @throws ConfigException	Wraps the original exception and contains an
+	 * 							error message.
+	 */
+	private static void rethrow(NameTypePair ntp, Exception e)
+		throws ConfigException
+	{
+		StringBuffer msg = new StringBuffer(
+								"Can't instantiate tag's handler. Tag name: ");
+		msg.append(ntp.name);
+		msg.append(", type: ");
+		msg.append(ntp.type);
+		msg.append(".");        	
+		throw new ConfigException(msg.toString(), e); 
+	}
     
 	/** 
 	 * Retrieves the value of the <i>name</i> and <i>type</i> attributes.
@@ -216,14 +239,37 @@ abstract class Entry
 	/** The content of the <i>name</i> attribute. */
 	private String      name;
 	
-	/** 
-	 * Returns the content of the <i>name</i> attribute 
-	 * of a configuration entry.
-	 *
-	 * @return The content of the <i>name</i> attribute.
-	 */  
-    String getName() { return name; }
     
+	/**
+	 * Wraps the original exception into a {@link ConfigException}, which is
+	 * then re-thrown with an error message.
+	 * The error message will contain the specified context information plus
+	 * the message, if any, of the original exception. 
+	 * This method is used by subclasses to re-throw exceptions that may occur
+	 * during the process of parsing a tag and build an object in the 
+	 * {@link #setContent(Node) setContent} method.
+	 * 
+	 * @param message Some context information.
+	 * @param e	The original exception.
+	 * @throws ConfigException	Wraps the original exception and contains an
+	 * 							error message.
+	 */
+	protected void rethrow(String message, Exception e)
+		throws ConfigException
+	{
+		StringBuffer msg = new StringBuffer();
+		if (message == null || message.length() == 0)
+			msg.append("An error occurred.");
+		else	msg.append(message);
+		String explanation = e.getMessage();
+		if (explanation != null && explanation.length() != 0) {
+			msg.append(" (");
+			msg.append(explanation);
+			msg.append(")");	
+		}
+		throw new ConfigException(msg.toString(), e); 
+	}
+	
     /**
      * Subclasses implement this method to grab the tag’s content, which is
      * then used for building the object returned by the implementation of 
@@ -231,8 +277,11 @@ abstract class Entry
      * 
      * @param tag	DOM node representing either an <i>entry</i> or 
 	 * 				<i>structuredEntry</i> tag.
+	 * @throws ConfigException	If an error occurs in the process of 
+	 * 							transforming the configuration entry into an
+	 * 							object.
      */
-    protected abstract void setContent(Node tag);
+    protected abstract void setContent(Node tag) throws ConfigException;
     
     /**
      * Subclasses implement this method to return an object that represents the
@@ -241,5 +290,13 @@ abstract class Entry
      * @return See above.
      */
 	abstract Object getValue();
+	
+	/** 
+	 * Returns the content of the <i>name</i> attribute 
+	 * of a configuration entry.
+	 *
+	 * @return The content of the <i>name</i> attribute.
+	 */  
+	String getName() { return name; }
     
 }

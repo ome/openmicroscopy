@@ -32,13 +32,17 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 
 //Third-party libraries
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 //Application-internal dependencies
 
 
 /**
- *
+ * Hanldes an <i>entry</i> of type <i>boolean</i>.
+ * The tag's value is stored into a {@link Boolean} object which is then
+ * returned by the {@link #getValue() getValue} method.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -50,25 +54,36 @@ import org.w3c.dom.Node;
  * </small>
  * @since OME2.2
  */
-
 class BooleanEntry
     extends Entry
 {
     
+    /** The entry value. */
     private Boolean value;
     
+    
+    /** Creates a new instance. */
     BooleanEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */    
     protected void setContent(Node node)
+    	throws ConfigException
     { 
         try {
-        	// has only one child
             value = new Boolean(node.getFirstChild().getNodeValue());
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+        } catch (DOMException dex) { 
+			rethrow("Can't parse boolean entry, name: "+getName()+".", dex);
+        }
     }
     
-	/** Implemented as specified by {@link Entry}. */  
+	/**
+	 * Returns a {@link Boolean} object which represents the tag's content.
+	 * The boolean value wrapped by the returned object will be
+	 * <code>true</code> if, and only if, the tag's content equals the string
+	 * <i>"true"</i> (case insensitive match). 
+	 * 
+	 * @return	See above.
+	 */  
     Object getValue() { return value; }
     
     

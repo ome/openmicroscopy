@@ -32,13 +32,17 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 
 // Third-party libraries
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 //Application-internal dependencies
 
 
 /**
- *
+ * Hanldes an <i>entry</i> of type <i>string</i>.
+ * The tag's value is stored into a {@link String} object which is then
+ * returned by the {@link #getValue() getValue} method.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -50,23 +54,33 @@ import org.w3c.dom.Node;
  * </small>
  * @since OME2.2
  */
-
 class StringEntry
     extends Entry
 {
     
+	/** The entry value. */
     private String value;
     
+    
+	/** Creates a new instance. */
     StringEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */   
     protected void setContent(Node node)
+    	throws ConfigException
     { 
         try {
             value = node.getFirstChild().getNodeValue();
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+		} catch (DOMException dex) { 
+			rethrow("Can't parse string entry, name: "+getName()+".", dex);
+		}
     }
-	/** Implemented as specified by {@link Entry}. */   
+    
+	/**
+	 * Returns a {@link String} object which represents the tag's content.
+	 * 
+	 * @return	See above.
+	 */    
     Object getValue() { return value; }
        
 }

@@ -31,12 +31,16 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 
 //Third-party libraries
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 //Application-internal dependencies
 
 /**
- *
+ * Hanldes an <i>entry</i> of type <i>double</i>.
+ * The tag's value is stored into a {@link Double} object which is then
+ * returned by the {@link #getValue() getValue} method.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -48,25 +52,40 @@ import org.w3c.dom.Node;
  * </small>
  * @since OME2.2
  */
-
 class DoubleEntry
     extends Entry
 {
     
+	/** The entry value. */
     private Double value;
     
+    
+	/** Creates a new instance. */
     DoubleEntry() {}
     
 	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
+    	throws ConfigException
     { 
+        String cfgVal = null;
         try {
-            // has only one child
-            value = new Double(node.getFirstChild().getNodeValue());
-        } catch (Exception ex) { throw new RuntimeException(ex); }
+			cfgVal = node.getFirstChild().getNodeValue();
+            value = new Double(cfgVal);
+        } catch (DOMException dex) { 
+			rethrow("Can't parse double entry, name: "+getName()+".", dex);
+        } catch (NumberFormatException nfe) {
+			rethrow(cfgVal+" is not a valid double, entry name: "+
+					getName()+".", nfe);
+        }
     }
     
-	/** Implemented as specified by {@link Entry}. */  
+	/**
+	 * Returns a {@link Double} object which represents the tag's content.
+	 * The double value wrapped by the returned object will be parsed as
+	 * specified by the {@link Double} class. 
+	 * 
+	 * @return	See above.
+	 */  
     Object getValue() { return value; }   
     
 }

@@ -43,7 +43,9 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /**
- * Creates the font.
+ * Hanldes a <i>structuredEntry</i> of type <i>font</i>.
+ * The content of the entry is stored in a {@link Font} object, which is
+ * then returned by the {@link #getValue() getValue} method.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,85 +58,188 @@ import org.w3c.dom.NodeList;
  * </small>
  * @since OME2.2
  */
-
 class FontEntry
     extends Entry
 {
 	
-	private static Map fontStyle;
-	
+	/** 
+	 * Maps the supported font styles to the corresponding constants defined
+	 * by the {@link Font} class.
+	 */
+	private static Map 		FONT_STYLES;
 	static {
-		fontStyle = new HashMap();
-		fontStyle.put("plain", new Integer(Font.PLAIN));
-		fontStyle.put("italic", new Integer(Font.ITALIC));
-		fontStyle.put("bold", new Integer(Font.BOLD));	
+		FONT_STYLES = new HashMap();
+		FONT_STYLES.put("plain", new Integer(Font.PLAIN));
+		FONT_STYLES.put("italic", new Integer(Font.ITALIC));
+		FONT_STYLES.put("bold", new Integer(Font.BOLD));	
 	}
 	
-	/** tag's name. */
-	private static final String		NAME = "family", SIZE = "size", 
-									STYLE = "style";
-	/** Default size. */
-    private static int				DEFAULT_SIZE = 12; 
+	/** 
+	 * The name of the tag, within this <i>structuredEntry</i>, that is used
+	 * to specify the font's family.
+	 */
+	private static final String		FAMILY_TAG = "family";
+	
+	/** 
+	 * The name of the tag, within this <i>structuredEntry</i>, that is used
+	 * to specify the font's size.
+	 */
+	private static final String		SIZE_TAG = "size";
+	
+	/** 
+	 * The name of the tag, within this <i>structuredEntry</i>, that is used
+	 * to specify the font's style.
+	 */
+	private static final String		STYLE_TAG = "style";
+	
+	/** 
+	 * Default font size.
+	 * This is the value that we use to create a {@link Font} object if the 
+	 * <i>size</i> tag can't be parsed into an integer or if the parsed value
+	 * is not between the {@link #MIN_SIZE}, {@link #MAX_SIZE} interval. 
+	 */
+    private static final int		DEFAULT_SIZE = 12; 
     
-    /** Default style. */
-    private static int 				DEFAULT_STYLE = Font.PLAIN;
+    /** The minimum allowed font size. */
+	private static final int		MIN_SIZE =2;
+	
+	/** The maximum allowed font size. */
+	private static final int		MAX_SIZE = 20;
+	
+    /** 
+     * Id of the default font style. 
+     * This is the value that we use to create a {@link Font} object if the
+     * <i>style</i> tag doesn't specify one of the styles defined by
+     * {@link #FONT_STYLES}.
+     */
+    private static final int 		DEFAULT_STYLE = Font.PLAIN;
     
-    private static int				MAX_SIZE = 20, MIN_SIZE =2;
     
-    /** Font attributes. */
-    private static int 				size;
-    private static int 				style;
-    private static String 			name;
-    
-    
+	/** The font built from the configuration information. */
     private Font value;
     
+    
+	/** Creates a new instance. */
     FontEntry() {}
     
-	/** Implemented as specified by {@link Entry}. */  
-    protected void setContent(Node node) { 
-    	
-        try {
-            //the node is supposed to have tags as children, add control
-            //b/c we don't use yet a XMLSchema config
-            if (node.hasChildNodes()) {
-                NodeList childList = node.getChildNodes();
-				Node child;
-                for (int i = 0; i < childList.getLength(); i++) {
-                    child = childList.item(i);
-                    if (child.getNodeType() == Node.ELEMENT_NODE)  
-						setFontAttribute(child.getFirstChild().getNodeValue(), 
-                                child.getNodeName()) ;
-                }
-				value = new Font(name, style, size);   
-            } 
-        } catch (DOMException dex) { throw new RuntimeException(dex); }
-    }
-    
-	/** Implemented as specified by {@link Entry}. */  
-    Object getValue() { return value; }
-      
 	/** 
-	 * Initializes the fields to create the font.
+	 * Returns a {@link Font} object, built from the configuration information.
 	 * 
-	 * @param tagValue			tag's value.
-	 * @param tagName			tag's name.
+	 * @return	See above.
+	 */  
+	Object getValue() { return value; }
+	
+	/** Implemented as specified by {@link Entry}. */  
+    protected void setContent(Node node)
+    	throws ConfigException 
+    { 
+		try {
+			Map tags = extractValues(node);
+			value = new Font((String) tags.get(FAMILY_TAG),
+								getStyle(tags), getSize(tags));
+		} catch (DOMException dex) { 
+			rethrow("Can't parse font entry.", dex);
+		} 
+    }
+	
+	/**
+	 * Figures out what font size to use from the configuration information.
+	 * This method tries to parse the value of the size tag into an integer.
+	 * Failing that or if the parsed value is not between the {@link #MIN_SIZE},
+	 * {@link #MAX_SIZE} interval, then the {@link #DEFAULT_SIZE} is returned.
+	 * 
+	 * @param fontAttributes The pairs <i>(tag-name, tag-value)</i> built from
+	 * 						the tags contained within the entry tag.
+	 * @return See above.
 	 */
-	void setFontAttribute(String tagValue, String tagName)
+	private int getSize(Map fontAttributes)
 	{
-		if (tagName.equals(NAME)) name = tagValue;
-		else if (tagName.equals(SIZE)) {
-			try {
-				size = Integer.parseInt(tagValue);
-				if (size > MAX_SIZE || size <= MIN_SIZE) size = DEFAULT_SIZE; 
-			} catch (Exception e) {
-				size = DEFAULT_SIZE;
-			}
-		} else if (tagName.equals(STYLE)) {
-			Integer i = (Integer) fontStyle.get(tagValue);
-			if (i == null) style = DEFAULT_STYLE; 
-			else style = i.intValue();
-		}
+		String value = (String) fontAttributes.get(SIZE_TAG);
+		int size = DEFAULT_SIZE;
+		try {
+			size = Integer.parseInt(value);
+			if (size < MIN_SIZE || MAX_SIZE < size)	size = DEFAULT_SIZE;	
+		} catch (NumberFormatException nfe) {}
+		return size;
 	}
+	
+	/**
+	 * Figures out what font style to use from the configuration information.
+	 * 
+	 * @param fontAttributes The pairs <i>(tag-name, tag-value)</i> built from
+	 * 						the tags contained within the entry tag.
+	 * @return The id of the font style as defined in {@link #FONT_STYLES}. 
+	 * 			If the font style specified by the configuration entry doesn't
+	 * 			map to a style defined by {@link #FONT_STYLES}, then the 
+	 * 			{@link #DEFAULT_STYLE} is returned.
+	 */
+	private int getStyle(Map fontAttributes)
+	{
+		String value = (String) fontAttributes.get(STYLE_TAG);
+		int style = DEFAULT_STYLE;
+		Integer id = (Integer) FONT_STYLES.get(value);
+		if (id != null)		style = id.intValue();
+		return style;
+	}
+	
+	/**
+	 * Extracts the values of the tags within an <i>font</i> tag and puts them
+	 * in a map keyed by tag names.
+	 *  
+	 * @param entry	The <i>font</i> entry tag.
+	 * @return The pairs <i>(tag-name, tag-value)</i> built from the tags
+	 * 			contained within the <i>font</i> tag.
+	 * @throws DOMException If the entry contents couldn't be retrieved.
+	 * @throws ConfigException If the <i>font</i> tag is not structured as
+	 * 							expected.
+	 */
+	private Map extractValues(Node entry)
+		throws DOMException, ConfigException
+	{
+		Map tags = new HashMap();
+		if (entry.hasChildNodes()) {
+			NodeList children = entry.getChildNodes();
+			int n = children.getLength();
+			Node child;
+			while (0 < n) {
+				child = children.item(--n);
+				if (child.getNodeType() == Node.ELEMENT_NODE)
+					extractFontTag(child, tags); 
+			}
+		}
+		if (tags.keySet().size() != 3)
+			throw new ConfigException("Missing tags within font tag.");
+		return tags;
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files. 
+	
+	/**
+	 * Adds the given tag name and value to the passed map.
+	 * 
+	 * @param tag	A tag within the <i>font</i> tag.
+	 * @param values	The map containing the pairs 
+	 * 					<i>(tag-name, tag-value)</i> relative to the
+	 * 					<i>font</i> tag that contains <code>tag</code>.
+	 * @throws DOMException If the entry contents couldn't be retrieved.
+	 * @throws ConfigException If <code>tag</code> is not one of the tags that
+	 * 							we expect to be within an <i>font</i> tag.
+	 */
+	private void extractFontTag(Node tag, Map values) 
+		throws DOMException, ConfigException
+	{
+		String tagName = tag.getNodeName(),
+				tagValue = tag.getFirstChild().getNodeValue();
+		if (FAMILY_TAG.equals(tagName) || 
+			SIZE_TAG.equals(tagName) ||
+			STYLE_TAG.equals(tagName)) {
+				values.put(tagName, tagValue);
+				return;
+			}
+		throw new ConfigException(
+			"Unrecognized tag within the font entry: "+tagName);
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files.
 	
 }

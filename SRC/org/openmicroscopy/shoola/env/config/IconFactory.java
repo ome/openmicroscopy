@@ -46,7 +46,7 @@ import javax.swing.ImageIcon;
  * be anywhere within the application code and is specified in terms of a 
  * fully qualified package name.
  * <p>For example, the icons used by the code within the container are located
- * in the <code>org/openmicroscopy/shoola/env/ui/graphx</code>, so the
+ * in <code>org/openmicroscopy/shoola/env/ui/graphx</code>, so the
  * corresponding location has to be specified as
  * <code>org.openmicroscopy.shoola.env.ui.graphx</code> in the container's 
  * configuration file &#151; note that the contents of this directory will be
@@ -76,7 +76,8 @@ import javax.swing.ImageIcon;
 public class IconFactory
 {
 
-	/** Points to the directory specified by the <i>location</i> tag.
+	/** 
+	 * Points to the directory specified by the <i>location</i> tag.
 	 * The path is relative to the application classpath.
 	 */
 	private String location;
@@ -88,6 +89,7 @@ public class IconFactory
 	 */
 	IconFactory(String location)
 	{
+		location = (location == null ? "" : location);
 		this.location = "/"+location.replace('.', '/');
 	}
 
@@ -96,24 +98,18 @@ public class IconFactory
 	 * 
 	 * @param name	The file name.  Must be a valid name within the location
 	 * 				specified in the configuration file.
-	 * @return	An {@link Icon} object created from the image file.
+	 * @return	An {@link Icon} object created from the image file.  The return
+	 * 			value will be <code>null</code> if the file couldn't be found
+	 * 			or an image icon couldn't be created from the file.
 	 */
 	public Icon getIcon(String name)
 	{
 		ImageIcon icon = null;
-		if (location != null) {
-			try {
-				//TODO: check if it's going to work in a jar file.
-				String path = location + "/" + name;
-				URL url = IconFactory.class.getResource(path);
-				icon = new ImageIcon(url);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-				//TODO: handle properly.
-			} 
-		} else {
-			//TODO: errorMsg via logService
-		}
+		try {
+			String path = location+"/"+name;
+			URL url = IconFactory.class.getResource(path);
+			icon = new ImageIcon(url);
+		} catch (Exception e) {} 
 		return icon;
 	}
 

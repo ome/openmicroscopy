@@ -37,8 +37,8 @@ package org.openmicroscopy.shoola.env.config;
 import org.openmicroscopy.shoola.env.Agent;
 
 /** 
- * Holds the configration information for an agent entry in the container's
- * configuration file.
+ * Holds the configration information for an <i>agent</i> tag in the
+ * container's configuration file.
  * The content of each tag is stored by a member field.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,10 +55,6 @@ import org.openmicroscopy.shoola.env.Agent;
 public class AgentInfo 
 {
 	
-	static final String         NAME = "name", 
-								CLASS = "class", 
-								CONFIG = "config";
-	
 	/** The value of the <code>name</code> tag. */																									
     private String				name; 
     
@@ -72,22 +68,6 @@ public class AgentInfo
 	
 	private Registry			registry;
 	
-	/** 
-	 * Set the pair (name, value).
-	 * 
-	 * @param value		tag's value.
-	 * @param tag		tag's name.
-	 */
-    void setValue(String value, String tag)
-    {
-        try {
-            if (tag.equals(NAME))           name = value;
-            else if (tag.equals(CLASS))     agentClass = value;
-            else if (tag.equals(CONFIG))    configPath = value;
-        } catch (Exception ex) { 
-        	throw new RuntimeException(ex);  //TODO: proper exception handling 
-        }
-    }
     
 	/** Returns the value of the <code>name</code> tag. */
 	public String getName() { return name; }
@@ -109,5 +89,14 @@ public class AgentInfo
 	
 	/** Set the {@link Agent}. */
 	public void setAgent(Agent agent) { this.agent = agent; }
+	
+	/** Setter for the {@link #name} field. */
+	void setName(String name) { this.name = name; }
+	
+	/** Setter for the {@link #agentClass} field. */
+	void setAgentClass(String agentClass) { this.agentClass = agentClass; }
+
+	/** Setter for the {@link #configPath} field. */
+	void setConfigPath(String configPath) { this.configPath = configPath; }
 
 }
