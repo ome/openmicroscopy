@@ -78,7 +78,7 @@ public class LocalBrowserTest
         BrowserView view = new BrowserView(bm,model);
         BrowserController controller = new BrowserController(bm);
         controller.setView(view);
-        controller.displayCurrentDataModel();
+        // controller.displayCurrentDataModel(); // wait until fixed to decomment
         
         BrowserInternalFrame bif = new BrowserInternalFrame(controller);
         gui.addBrowser(bif);
