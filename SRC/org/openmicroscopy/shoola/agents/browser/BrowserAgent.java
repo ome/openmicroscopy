@@ -35,10 +35,15 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.awt.Image;
 import java.util.Iterator;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
 import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
@@ -51,7 +56,6 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -80,8 +84,8 @@ public class BrowserAgent implements Agent, AgentEventListener
     private TopFrame tf;
     
     private boolean useServerThumbs;
-    private int compositeWidth;
-    private int compositeHeight;
+    private int thumbnailWidth;
+    private int thumbnailHeight;
     
     /**
      * The XML key for getting the desired thumbnail extraction mode.
@@ -165,8 +169,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         Integer thumbWidth = (Integer)registry.lookup(THUMBNAIL_WIDTH_KEY);
         Integer thumbHeight = (Integer)registry.lookup(THUMBNAIL_HEIGHT_KEY);
         
-        this.compositeWidth = thumbWidth.intValue();
-        this.compositeHeight = thumbHeight.intValue();
+        this.thumbnailWidth = thumbWidth.intValue();
+        this.thumbnailHeight = thumbHeight.intValue();
         
         eventBus.register(this,LoadDataset.class);
     }
@@ -256,15 +260,36 @@ public class BrowserAgent implements Agent, AgentEventListener
         StatusBar status = controller.getStatusView();
         status.processStarted(imageList.size());
         
+        int count = 1;
+        int total = imageList.size();
         // see imageList initialization note above
         for(Iterator iter = imageList.iterator(); iter.hasNext();)
         {
             ImageData data = (ImageData)iter.next();
-            List pixels = data.getPixels();
-            Pixels pix = (Pixels)pixels.get(0); // is this right?
-            // figure out how to get default thumb composite info out
+            Pixels pix = data.getDefaultPixels().getPixels();
+            try
+            {
+                Image image = ps.getThumbnail(pix,thumbnailWidth,thumbnailHeight);
+                ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                // TODO: figure out strategy for adding attributes.  do it here?
+                Thumbnail t = new Thumbnail(image,tdm);
+                model.addThumbnail(t);
+                String message =
+                    ProgressMessageFormatter.format("Loaded image %n of %t...",
+                                                    count,total);
+                status.processAdvanced(message);
+                count++;
+            }
+            catch(ImageServerException ise)
+            {
+                UserNotifier un = registry.getUserNotifier();
+                un.notifyError("ImageServer Error",ise.getMessage(),ise);
+                status.processFailed("Error loading images.");
+                return false;
+            }
         }
         
+        status.processSucceeded("All images loaded.");
         return true;
     }
     
