@@ -39,7 +39,7 @@ package org.openmicroscopy.shoola.agents.browser.util;
  * A class that returns a boolean as to whether or not an object fulfills a
  * certain criteria.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * @version $Revision$ $Date$
  * @since 2.0
  */

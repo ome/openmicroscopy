@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
  * 
  * The BrowserAgent places the following events on the queue: (list)
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br><br>
  * <b>Internal Version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

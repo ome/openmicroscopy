@@ -45,7 +45,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * getModifiers() will return).  Also wraps the isPopupTrigger() in its own
  * bit.  This allows mapping from modifier combinations to actions.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

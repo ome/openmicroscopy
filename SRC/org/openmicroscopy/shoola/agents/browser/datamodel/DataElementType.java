@@ -39,7 +39,7 @@ package org.openmicroscopy.shoola.agents.browser.datamodel;
  * A typedef enum that indicates the type of an element in a DataAttribute
  * (or SemanticType, for that matter)
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

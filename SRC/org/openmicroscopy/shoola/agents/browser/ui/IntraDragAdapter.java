@@ -39,7 +39,7 @@ package org.openmicroscopy.shoola.agents.browser.ui;
  * A class to manage intra-frame drag events for both JInternalFrames and
  * JFrames (if possible)
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

@@ -61,7 +61,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * Represents a detachable palette overlay in a browser.  Icon nodes are added
  * in a horizontal position based on index.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

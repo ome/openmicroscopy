@@ -41,7 +41,7 @@ package org.openmicroscopy.shoola.agents.browser.ome;
 import org.openmicroscopy.shoola.agents.browser.MessageHandler;
 
 /**
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

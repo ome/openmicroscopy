@@ -39,7 +39,7 @@ package org.openmicroscopy.shoola.agents.browser.util;
  * An operator for the map method.
  * @see Filter(java.util.List,MapOperator)
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * @version $Revision$ $Date$
  * @since 2.0
  */

@@ -46,7 +46,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * base behavior.  Ideal if you need to attach a mode-specific event on top
  * of a normal event.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.browser.events.EventModeMap;
  * Singleton class which contains references to all universally referencable
  * browser components, such as the OMEBrowserAgent and OMEDataAgent.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

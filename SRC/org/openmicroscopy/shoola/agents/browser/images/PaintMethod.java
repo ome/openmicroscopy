@@ -41,7 +41,7 @@ import java.awt.Graphics;
  * Specifies how an overlay gets painted on a thumbnail.  Uses the thumbnail
  * to check the underlying model.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

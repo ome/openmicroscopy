@@ -39,7 +39,7 @@ package org.openmicroscopy.shoola.agents.browser.layout;
  * Defines a layout method for constraining thumbnails to be laid out in
  * a particular aspect ratio.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

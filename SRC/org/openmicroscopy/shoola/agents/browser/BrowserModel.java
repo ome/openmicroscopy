@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.agents.browser.layout.SingleGroupingMethod;
  * The backing data model for the browser (not including overlays) and
  * currently browsed set in the top browser component's MVC architecture.
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2

@@ -44,7 +44,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * the implementing class.  Otherwise, you can take advantage of action
  * reusability with the get/set action classes. 
  * 
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
