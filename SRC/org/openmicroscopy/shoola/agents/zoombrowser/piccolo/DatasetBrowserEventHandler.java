@@ -51,6 +51,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.ui.ThumbnailPopupMenu;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
@@ -174,6 +175,19 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	
 	public void resetZoomLevel() {
 		setZoomLevel(0);
+	}
+	
+	public DatasetNode getSelectedDatasetNode() {
+		BrowserDatasetData dataset = canvas.getSelectedDataset();
+		if (dataset == null)
+			return null;
+		else 
+			return dataset.getNode();
+	}
+	
+	public void animateToDatasetNode(DatasetNode node) {
+		animateToNode(node);
+		canvas.setSelectedDataset(node.getDataset());
 	}
 
 }
