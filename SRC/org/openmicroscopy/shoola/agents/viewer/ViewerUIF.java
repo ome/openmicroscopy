@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -87,7 +88,11 @@ public class ViewerUIF
 	/** z-slider and t-slider. */
 	private JSlider					tSlider, zSlider;
 	
+	/** Tool bar of the Agent. */
 	private ToolBar					toolBar;
+	
+	/** Movie menu. */
+	private JMenu					movieMenu;
 	
 	private ViewerCtrl 				control;
 	
@@ -100,12 +105,12 @@ public class ViewerUIF
 		setFrame();
 		this.control = control;
 		this.registry = registry;
-		setJMenuBar(createMenuBar());
 		PixelsDimensions pxsDims = control.getPixelsDims();
 		int maxT = pxsDims.sizeT-1;
 		int maxZ = pxsDims.sizeZ-1;
 		int t = control.getDefaultT();
 		int z = control.getDefaultZ();
+		setJMenuBar(createMenuBar(maxT));
 		toolBar = new ToolBar(control, registry, maxT, t, maxZ, z);
 		initSliders(maxT, t, maxZ, z);
 		buildGUI();
@@ -136,7 +141,23 @@ public class ViewerUIF
 		toolBar.getZLabel().setText("/"+maxZ);
 		toolBar.getTLabel().setText("/"+maxT);
 		resetSliders(maxT, t, maxZ, z);
+		boolean b;
+		if (maxT == 0) b = false;
+		else b = true;
+		//toolbar Movie controls.
+		toolBar.getRewind().setEnabled(b);
+		toolBar.getPlay().setEnabled(b);
+		toolBar.getStop().setEnabled(b);
+		toolBar.getFPS().setEnabled(b);
+		toolBar.getEditor().setEnabled(b);
 		toolBar.repaint();
+		//MovieMenu items
+		Component[] components = movieMenu.getMenuComponents();
+		Component c;
+		for (int i = 0; i < components.length; i++) {
+			c = components[i];
+			if (c instanceof JMenuItem) c.setEnabled(b);
+		}
 	}
 	
 	/** Set the internalFrame status. */
@@ -179,7 +200,7 @@ public class ViewerUIF
 	/**
 	 * Display the image in the viewer.
 	 * 
-	 * @param img	Buffered image to be displayed.
+	 * @param img	Buffered image to display.
 	 */
 	 void setImage(BufferedImage img)
 	 {
@@ -196,32 +217,35 @@ public class ViewerUIF
 	}
 
 	/** Create a menu. */
-	private JMenuBar createMenuBar()
+	private JMenuBar createMenuBar(int maxT)
 	{
 		JMenuBar menuBar = new JMenuBar(); 
+		createMovieMenu(maxT);
 		menuBar.add(createControlMenu());
-		menuBar.add(createMovieMenu());
+		menuBar.add(movieMenu);
 		return menuBar;
 	}
 
 	/** Create a Movie menu. */
-	private JMenu createMovieMenu()
+	private void createMovieMenu(int maxT)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		JMenu menu = new JMenu("Movie");
+		movieMenu = new JMenu("Movie");
 		JMenuItem menuItem = new JMenuItem("Play", 
 									im.getIcon(IconManager.MOVIE));
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
-		menu.add(menuItem);
+		menuItem.setEnabled(maxT != 0);
+		movieMenu.add(menuItem);
 		menuItem = new JMenuItem("Stop", 
 									im.getIcon(IconManager.STOP));
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_STOP);
-		menu.add(menuItem);
+		menuItem.setEnabled(maxT != 0);
+		movieMenu.add(menuItem);
 		menuItem = new JMenuItem("Rewind", 
 									im.getIcon(IconManager.REWIND));
+		menuItem.setEnabled(maxT != 0);
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_REWIND);
-		menu.add(menuItem);
-		return menu;
+		movieMenu.add(menuItem);
 	}
 	
 	/** Create the control Menu. */
