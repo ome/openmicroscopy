@@ -78,6 +78,7 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		zoomItem = new JMenuItem("Zoom out");
 		add(zoomItem);
 		zoomItem.addActionListener(this);
+		
 		if (registry.getEventBus().hasListenerFor(LoadImage.class)) {
 			viewItem = new JMenuItem("View Image");
 			add(viewItem);
@@ -115,8 +116,9 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		}
 	}
 	
-	public void popup(Thumbnail thumb,Point2D pt) {
+	public void popup(Thumbnail thumb,Point2D pt,boolean zoomable) {
 		thumbnail = thumb;
+		zoomItem.setEnabled(zoomable);
 		show(canvas,(int) pt.getX(),(int)pt.getY());
 	}
 }
