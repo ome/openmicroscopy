@@ -46,6 +46,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -243,7 +244,63 @@ public class ProjectMapper
 		
 		return projectsList;
 	}
-	
+
+	/**
+	 * Create list of project summary objects.
+	 * 
+	 * @param projects	OMEDS.
+	 * @param pProto	
+	 * @param dProto
+	 * @return 
+	 */
+	public static List fillUserProjectsWithDatasetData(List projects, 
+			ProjectSummary pProto, DatasetData dProto)
+	{
+		Map	datasetsMap = new HashMap();
+		List projectsList = new ArrayList();  //The returned summary list.
+		Iterator i = projects.iterator();
+		ProjectSummary ps;
+		Project p;
+		DatasetData ds;
+		Dataset d;
+		Iterator j;
+		List datasets;
+		//For each p in projects...
+		while (i.hasNext()) {
+			p = (Project) i.next();
+			
+			//Make a new DataObject and fill it up.
+			ps = (ProjectSummary) pProto.makeNew();
+			ps.setID(p.getID());
+			ps.setName(p.getName());
+
+			j = p.getDatasets().iterator();
+			datasets = new ArrayList();
+			while (j.hasNext()) {
+				d = (Dataset) j.next();
+				int id = d.getID();
+				ds = (DatasetData) datasetsMap.get(new Integer(id));
+				if (ds == null) {
+					//Make a new DataObject and fill it up.
+					ds = (DatasetData) dProto.makeNew();		
+					ds.setID(id);
+					ds.setName(d.getName());
+					datasetsMap.put(new Integer(id), ds);
+				}  //else we have already created this object.
+				
+				//Add the dataset to this project's list.
+				datasets.add(ds);	
+			}
+			
+			//Link the datasets to this project.
+			ps.setDatasets(datasets);
+			
+			//Add the project to the list of returned projects.
+			projectsList.add(ps);
+		}
+		
+		return projectsList;
+	}
 	/** Fill in a project data object.*/
 	public static List fillNewProject(Project p, List datasets, 
 										ProjectSummary pProto)
