@@ -56,7 +56,6 @@ package org.openmicroscopy.shoola.env.event;
  * </small>
  * @since OME2.2
  */
-
 public abstract class RequestEvent 
     extends AgentEvent
 {
@@ -70,7 +69,8 @@ public abstract class RequestEvent
     
     void handleCompletion(ResponseEvent response)
     {
-        completionHandler.handle(this, response);
+        if (completionHandler != null)
+        	completionHandler.handle(this, response);
     }
         
 }
