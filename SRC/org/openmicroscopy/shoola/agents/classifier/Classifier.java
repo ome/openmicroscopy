@@ -35,11 +35,14 @@
  */
 package org.openmicroscopy.shoola.agents.classifier;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -67,11 +70,16 @@ public class Classifier implements Agent, AgentEventListener
     private static final String CATEGORY_GROUP = "CategoryGroup";
     private static final String CLASSIFICATION = "Classification";
     
-    
-    
     private Registry registry;
     
     private TopFrame topFrame;
+    
+    private List activeControls;
+    
+    public Classifier()
+    {
+        activeControls = new ArrayList();
+    }
     
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.Agent#activate()
@@ -87,8 +95,12 @@ public class Classifier implements Agent, AgentEventListener
      */
     public boolean canTerminate()
     {
-        // TODO Auto-generated method stub
-        return false;
+        for(Iterator iter = activeControls.iterator(); iter.hasNext();)
+        {
+            CategoryCtrl ctrl = (CategoryCtrl)iter.next();
+            if(!ctrl.canExit()) return false;
+        }
+        return true;
     }
     
     /* (non-Javadoc)
@@ -98,6 +110,7 @@ public class Classifier implements Agent, AgentEventListener
     {
         this.registry = ctx;
         topFrame = registry.getTopFrame();
+        registry.getEventBus().register(this,LoadCategories.class);
     }
     
     /* (non-Javadoc)
@@ -114,8 +127,10 @@ public class Classifier implements Agent, AgentEventListener
      */
     public void eventFired(AgentEvent e)
     {
-        // TODO Auto-generated method stub
-
+        if(e instanceof LoadCategories)
+        {
+            showCategoryDialog((LoadCategories)e);
+        }
     }
     
     /**
@@ -219,44 +234,50 @@ public class Classifier implements Agent, AgentEventListener
         return classification;
     }
     
-    void commitNewAttributes(List attributes)
+    boolean commitNewAttributes(List attributes)
     {
         if(attributes == null || attributes.size() == 0)
         {
-            return;
+            return false;
         }
         try
         {    
             SemanticTypesService sts = registry.getSemanticTypesService();
             sts.updateUserInputAttributes(attributes);
+            return true;
         } catch(DSAccessException dsae) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Data Creation Failure", 
                 "Unable to update the semantic type ", dsae);
+            return false;
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             dsose.printStackTrace();
             registry.getEventBus().post(request);
+            return false;
         }
     }
     
-    void updateAttributes(List attributes)
+    boolean updateAttributes(List attributes)
     {
-        if(attributes == null || attributes.size() == 0 ) return;
+        if(attributes == null || attributes.size() == 0 ) return false;
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
             sts.updateAttributes(attributes);
+            return true;
         } catch(DSAccessException dsae) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Data Creation Failure", 
                 "Unable to update the semantic type ", dsae);
-                dsae.printStackTrace();
+            dsae.printStackTrace();
+            return false;
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             dsose.printStackTrace();
             registry.getEventBus().post(request);
+            return false;
         }
     }
     
@@ -323,5 +344,18 @@ public class Classifier implements Agent, AgentEventListener
             registry.getEventBus().post(request);
         }
         return classifications;
+    }
+    
+    public void showCategoryDialog(LoadCategories requestEvent)
+    {
+        CategoryCtrl cc = new CategoryCtrl(this,requestEvent);
+        activeControls.add(cc);
+        CategoryUI ui = new CategoryUI(cc,registry);
+        ui.show();
+    }
+    
+    public void close(CategoryCtrl control)
+    {
+        activeControls.remove(control);
     }
 }
