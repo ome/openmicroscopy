@@ -491,5 +491,7 @@ public interface SemanticTypesService
     
     public List retrieveTrajectoryEntriesByMEXs(List mexes) 
 		throws DSOutOfServiceException, DSAccessException;
-    
+ 
+    public List retrieveLocationsByFeatureID(List features)
+    		throws DSOutOfServiceException, DSAccessException;
 }

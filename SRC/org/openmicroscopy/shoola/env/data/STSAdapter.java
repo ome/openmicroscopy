@@ -592,4 +592,20 @@ class STSAdapter
 		Criteria c = STSMapper.buildTrajectoryEntryCriteriaWithMEXs(mexes);
 		return (List) gateway.retrieveListSTSData("TrajectoryEntry", c);
 	}
+    
+    public List retrieveLocationsByFeatureID(List features)
+		throws DSOutOfServiceException, DSAccessException {
+    		
+    		if (features == null || features.size() ==0 )
+			return null;
+    		
+	     // test to see if the List is all Integers here
+	     for (Iterator iter = features.iterator(); iter.hasNext();) {
+	     if (!(iter.next() instanceof Number))
+	        throw new IllegalArgumentException("Illegal ID type.");
+	     }
+	
+	     Criteria c = STSMapper.buildLocationCriteriaWithFeatures(features);
+	     return (List) gateway.retrieveListSTSData("Location", c);
+    }
 }
