@@ -67,7 +67,7 @@ public class RenderImage
      * default plane. 
 	 */
 	private PlaneDef	planeDef;
-	
+    
 	/**
 	 * Creates a request to render the current plane within the given
 	 * pixels set.
@@ -108,5 +108,5 @@ public class RenderImage
 	 * @return	See above.
 	 */
 	public PlaneDef getPlaneDef() { return planeDef; }
-	
+
 }
