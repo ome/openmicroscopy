@@ -203,7 +203,7 @@ public class Constants {
 	public static final Font LABEL_FONT  = new Font("Helvetica",Font.BOLD,18);
 	   
 	/* chain box font */
-	public static final Font CHAIN_BOX_FONT  = new Font("Helvetica",Font.BOLD,54);
+	public static final Font CHAIN_BOX_FONT  = new Font("Helvetica",Font.BOLD,96);
 	
 	/** 
 	 * Positional offsets for a category name in a {@link CategoryBox} in a 
