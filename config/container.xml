@@ -72,4 +72,12 @@
        </structuredEntry>
      </fonts>
    </resources>
+   <!-- This entry specifies what look and feel to use for the whole application.
+   The default value is system (case insensitive).  This will result in the
+   system's look and feel being loaded - the Mac L&F on Mac OS platforms, the
+   Windows L&F on Microsoft Windows platforms, etc.
+   Alternatively, you can specify one of the following:
+   com.birosoft.liquid.LiquidLookAndFeel: the Liquid look and feel.
+   javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.-->
+   <entry name="LookAndFeel">system</entry>
 </container>

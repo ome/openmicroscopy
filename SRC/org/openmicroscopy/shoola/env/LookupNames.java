@@ -60,6 +60,8 @@ public class LookupNames
 	
 	public static final String OMEDS = "/services/OMEDS";
 	
-	public static final String OMEIS = "/services/OMEIS";	
+	public static final String OMEIS = "/services/OMEIS";
+	
+	public static final String LOOK_N_FEEL = "LookAndFeel";	
 
 }
