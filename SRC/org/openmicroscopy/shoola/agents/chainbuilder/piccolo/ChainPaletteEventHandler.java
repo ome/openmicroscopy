@@ -92,13 +92,7 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	private void checkExit(ChainBox n,PInputEvent e) { 
 		PBounds b = n.getBounds();
 		Point2D pickedPos = e.getPositionRelativeTo(n);
-		double pickX =  pickedPos.getX();
-		double pickY =  pickedPos.getY();
-		
-		// it's only really an exit if I've gone outside of the bounds
-		// of the chainbox. Otherwise, I'm over one of the chain box's components
-		//if (pickX < 0 || pickX > b.getWidth() || pickY < 0 || pickY > 
-		//			b.getHeight()) {
+	
 		if (!b.contains(pickedPos)) {
 			super.mouseExited(e);
 		}
