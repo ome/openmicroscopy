@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainExecutions;
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
 import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
+import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
@@ -182,7 +183,8 @@ public class MainWindow extends TopWindow implements ComponentListener,
 					MouseOverAnalysisChain.class,
 					LoadChainExecutionsEvent.class,
 					MouseOverChainExecutionEvent.class,
-					SelectChainExecutionEvent.class});
+					SelectChainExecutionEvent.class,
+					LoadDataset.class});
 		enableButtons(false);
 	}
 		
@@ -233,6 +235,14 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		else if (e instanceof LoadChainExecutionsEvent) {
 			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
 			chainExecutions = event.getChainExecutions();
+		}
+		else if (e instanceof LoadDataset && datasetBrowser!= null) {
+			LoadDataset event = (LoadDataset) e;
+			// get the dataset
+			BrowserDatasetData dataset = 
+				dataManager.getDataset(event.getDatasetID());
+			// select it.
+			datasetBrowser.respondToDatasetLoad(dataset);
 		}
 	}
 	

@@ -62,6 +62,7 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 	private Registry registry;
 	private JMenuItem zoomItem;
 	private JMenuItem viewItem;
+	private JMenuItem viewImageInfoItem;
 	
 	private Thumbnail thumbnail;
 	
@@ -76,6 +77,9 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		viewItem = new JMenuItem("View Image");
 		add(viewItem);
 		viewItem.addActionListener(this);
+		viewImageInfoItem = new JMenuItem("View Image Info");
+		viewImageInfoItem.addActionListener(this);
+		add(viewImageInfoItem);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -86,6 +90,8 @@ public class ThumbnailPopupMenu extends JPopupMenu implements ActionListener
 		}
 		else if (e.getSource() == viewItem) {
 			thumbnail.viewImage(registry);
+		} else if (e.getSource() == viewImageInfoItem) {
+			thumbnail.viewImageInfo(registry);
 		}
 	}
 	
