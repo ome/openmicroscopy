@@ -107,7 +107,7 @@ class RegistryImpl
 		return sts;
 	}
 	/** Implemented as specified by {@link Registry}. */
-	public Logger getLogService()
+	public Logger getLogger()
 	{
 		return logger;
 	}

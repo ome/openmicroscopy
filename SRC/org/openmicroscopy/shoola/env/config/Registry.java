@@ -95,7 +95,7 @@ public interface Registry
    	* 
    	* @return See above.
    	*/
-	public Logger getLogService();
+	public Logger getLogger();
    	/**
    	* Returns the {@link TopFrame} registered.
    	* 
