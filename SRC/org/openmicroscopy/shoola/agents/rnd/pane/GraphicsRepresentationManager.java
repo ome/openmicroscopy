@@ -175,7 +175,12 @@ class GraphicsRepresentationManager
     int convertGraphicsIntoReal(int x, int rangeReal, int rangeGraphics, int b)
     {
         double a = (double) rangeReal/rangeGraphics;
-        return (int) (a*x+b);
+        int r = (int) (a*x+b);
+        int c = control.getGlobalMinimum();
+        int d = control.getGlobalMaximum();
+        if (r < c) r = c;
+        if (r > d) r = d;
+        return r;
     }
     
 	/** 

@@ -110,6 +110,7 @@ class HistogramPanel
 	private HistogramDialogManager	manager;
 	
 	/**
+	 * Creates a new instance.
 	 * 
 	 * @param mini		minimum value of the input window.
 	 * @param maxi		maximum value of the input window.
