@@ -74,7 +74,6 @@ public class ModuleCategoryMapper
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		criteria.addWantedField("description");
-		criteria.addWantedField("modules");
 		criteria.addWantedField("parent_category");
 	
 		//Specify which fields we want for the categories
