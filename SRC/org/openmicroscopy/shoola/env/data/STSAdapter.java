@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -50,14 +51,19 @@ import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.ImageAnnotation;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
+import org.openmicroscopy.shoola.env.data.map.HierarchyMapper;
 import org.openmicroscopy.shoola.env.data.map.STSMapper;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.CategorySummary;
 import org.openmicroscopy.shoola.env.data.model.ClassificationData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  *  @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -78,11 +84,16 @@ class STSAdapter
 	implements SemanticTypesService
 {
 
-    private OMEDSGateway 	      gateway;
+    /** Reference to the gateway. */
+    private OMEDSGateway        gateway;
     
-    public STSAdapter(OMEDSGateway gateway)
+    /** Reference to the registry. */
+    private Registry            registry;
+    
+    public STSAdapter(OMEDSGateway gateway, Registry registry)
     {
         this.gateway = gateway;
+        this.registry = registry;
     }
     
     /** @see SemanticTypesService#getAvailableGlobalTypes(). */
@@ -208,40 +219,6 @@ class STSAdapter
         return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
-	/**
-     * Returns a list of image classifications.  This distinction is necessary
-     * because image classifications must be filtered by the owner dataset of their
-     * respective categories.
-     * 
-     * @param imageIDs The IDs of the images to query.
-     * @param datasetID The ID of the dataset of the images.
-     * @return See above.
-     */
-    public List retrieveImageClassifications(List imageIDs, int datasetID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        /*
-        if (imageIDs == null || imageIDs.size() == 0)
-            return null;
-        
-        // test to see if the List is all Integers here
-        for (Iterator iter = imageIDs.iterator(); iter.hasNext();) {
-            if(!(iter.next() instanceof Number))
-                throw new IllegalArgumentException("Illegal ID type.");
-        }
-        
-        Integer[] ints = new Integer[imageIDs.size()];
-        imageIDs.toArray(ints);
-        
-        Criteria c = STSMapper.buildClassificationRetrieveCriteria(ints,datasetID);
-        
-        return (List) gateway.retrieveListSTSData(CLASSIFICATION_ST_TYPE, c);
-        
-        */
-        //Method will be removed
-        return null;
-    }
-
     /**
      * @see SemanticTypesService#retrieveSemanticType(
      * org.openmicroscopy.ds.dto.SemanticType).
@@ -454,41 +431,80 @@ class STSAdapter
         List l = 
             (List) gateway.retrieveListSTSData("CategoryGroup", c);
         List result = new ArrayList();
+        UserCredentials uc = (UserCredentials)
+            registry.lookup(LookupNames.USER_CREDENTIALS);
         if (l != null || l.size() > 0)
-            CategoryMapper.fillCategoryGroup(l, result);
+            CategoryMapper.fillCategoryGroup(l, result, uc.getUserID());
         return result;
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategories()
+    public List retrieveImagesNotInGroup(CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = group.getCategories().iterator();
+        Map ids = new HashMap();
+        CategorySummary cs;
+        Iterator k;
+        Object obj;
+        while (i.hasNext()) {
+            cs = (CategorySummary) i.next();
+            k = cs.getImages().iterator();
+            while (k.hasNext()) {
+                obj = k.next(); //Integer
+                ids.put(obj, obj);
+            }  
+        }
+        List images = new ArrayList();
+        List userImages = 
+            registry.getDataManagementService().retrieveUserImages();
+        Iterator j = userImages.iterator();
+        ImageSummary is;
+        while (j.hasNext()) {
+            is = (ImageSummary) j.next();
+            if (!ids.containsKey(new Integer(is.getID())))
+                images.add(is);
+        }
+        return images;
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
         //List of categorySummary objects
         List result = new ArrayList();
-        Criteria c = CategoryMapper.buildBasicCriteria(-1);
+        Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
+                        group.getID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
+        UserCredentials uc = (UserCredentials)
+            registry.lookup(LookupNames.USER_CREDENTIALS);
         if (l != null || l.size() > 0)
-            CategoryMapper.fillBasicCategory(l, result);
+            CategoryMapper.fillCategoryWithClassifications(l, result, group,
+                            uc.getUserID());
         return result;
     }
-    
+
     /** Implemented as specified in {@link SemanticTypesService}. */
     public CategoryData retrieveCategory(int id)
         throws DSOutOfServiceException, DSAccessException
     {
-        //Retrieve the specified category.
-        Criteria c = CategoryMapper.buildClassificationCriteria(id);
-        Category category = (Category) gateway.retrieveSTSData("Category", c);
-        CategoryData model = new CategoryData();
-        if (category != null) CategoryMapper.fillCategory(category, model);
-        return model;
+        return getCategory(id, false);
     }
 
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public CategoryData retrieveCategoryWithIAnnotations(int id)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return getCategory(id, true);
+    }
+    
     /** Implemented as specified in {@link SemanticTypesService}. */
     public void createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
     {
         List l = new ArrayList();
+        // Build a CategoryGroup object.
         l.add(buildCategoryGroup(data));
         gateway.annotateAttributesData(l);//to have a mex
     }
@@ -501,17 +517,10 @@ class STSAdapter
         if (parent == null) return;
         CategoryGroup cg;
         List newAttributes = new ArrayList(), oldAttributes = new ArrayList();
-        if (parent.getID() == -1) { //First create a new group
-            cg = buildCategoryGroup(parent);
-            //To be on the save-side b/c I don't know if the order is kept
-            //on the server side
-            newAttributes.add(cg);
-            gateway.annotateAttributesData(newAttributes);//to have a mex
-            newAttributes.removeAll(newAttributes);
-        } else {
-            Criteria c = STSMapper.buildBasicCriteria(parent.getID());
-            cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
-        }
+        //Retrieve the CategoryGroup object.
+        Criteria c = STSMapper.buildBasicCriteria(parent.getID());
+        cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+        //Build a Category object.
         Category category = buildCategory(data, cg);
         newAttributes.add(category);
         gateway.annotateAttributesData(newAttributes);//to have a mex
@@ -522,17 +531,18 @@ class STSAdapter
         Iterator j = images.iterator();
         Object[] results;
         while (j.hasNext()) {
+            //Build/Retrieve a Classification object
             results = buildClassification(category, 
                     ((ImageSummary) j.next()).getID());
             classification = (Classification) results[1];
-            //only solution to have a max
+            //only solution to have a mex
             if (((Boolean) results[0]).booleanValue()) { 
                 newAttributes.add(classification);
                 gateway.annotateAttributesData(newAttributes);
                 newAttributes.removeAll(newAttributes);
             } else oldAttributes.add(classification);
         }
-        if (oldAttributes.size() != 0) //to have a mex
+        if (oldAttributes.size() != 0) //update the existing classification
             gateway.updateAttributes(oldAttributes);
     }
     
@@ -591,7 +601,7 @@ class STSAdapter
             while (i.hasNext()) {
                 cData = (ClassificationData) classifications.get(i.next());
                 c = CategoryMapper.buildBasicClassificationCriteria(
-                                cData.getID());
+                        cData.getID());
                 classification = 
                     (Classification) gateway.retrieveSTSData("Classification", 
                                                                 c);
@@ -618,25 +628,40 @@ class STSAdapter
             gateway.annotateAttributesData(newAttributes);
         gateway.updateAttributes(toUpdate);
     }
-    
-    /** Return a list of CategoryData object. */
-    public Object[] retrieveImageClassifications(List imagesID)
+
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public Object[] retrieveICGHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (imagesID == null)  return null;
-        Criteria c = CategoryMapper.buildClassifiedImageCriteria(
-                (Number[]) imagesID.toArray());
+        if (imageSummaries == null)
+            throw new NullPointerException("List of imageSummaries " +
+                    "cannot be null");
+        if (imageSummaries.size() == 0)
+            throw new IllegalArgumentException("List of imageSummaries " +
+                    "cannot be of length 0");
+        Iterator i = imageSummaries.iterator();
+        ImageSummary is;
+        Map map = new HashMap();
+        List ids = new ArrayList();
+        Integer id;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            id = new Integer(is.getID());
+            map.put(id, is);
+            ids.add(id);
+        }
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids);
         List classifications = 
             (List) gateway.retrieveListSTSData("Classification", c);
-        //Return an array of length 2
-        // first: list of id of the unclassified images  
-        // second: List of categoryGroup object.
+        
         if (classifications == null) return null;
-        Object[] result = new Object[2];
-        CategoryMapper.fillClassifications(classifications , result, imagesID);                            
-        return result;
+        UserCredentials uc = (UserCredentials)
+                        registry.lookup(LookupNames.USER_CREDENTIALS);
+        
+        return HierarchyMapper.fillICGHierarchy(classifications, map, 
+                                                uc.getUserID());                            
     }
-
+    
     /** Create a basic attribute. */
     private Attribute createBasicAttribute(String typeName, Criteria c)
         throws DSOutOfServiceException, DSAccessException
@@ -644,8 +669,6 @@ class STSAdapter
         Attribute retVal = gateway.createNewData(typeName);
         String granularity = retVal.getSemanticType().getGranularity();
         //Build the criteria.
-        //Criteria c = STSMapper.buildBasicCriteria(objectID);
-        //Criteria c = STSMapper.buildCreateNew(granularity, objectID);
         if (granularity.equals(STSMapper.DATASET_GRANULARITY))
             retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
         else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
@@ -654,7 +677,7 @@ class STSAdapter
             retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
         return retVal; 
     }
-    
+
     /** Create a {@link Classification} attribute. */
     private Object[] buildClassification(Category category, int imgID)
         throws DSOutOfServiceException, DSAccessException 
@@ -677,6 +700,7 @@ class STSAdapter
         results[1] = classification;
         return results;
     }
+
     
     /** Create a CategoryGroup attribute. */
     private CategoryGroup buildCategoryGroup(CategoryGroupData data)
@@ -698,6 +722,43 @@ class STSAdapter
         category.setDescription(data.getDescription());
         category.setCategoryGroup(group);
         return category;
+    }
+    
+    /** 
+     * Build a {@link CategoryData} object. 
+     * 
+     * @param id                id of the category to retrieve.
+     * @param withAnnotation    flag to retrieve or not the annotation 
+     *                          associated to an image in the specified 
+     *                          category.
+     */
+    private CategoryData getCategory(int id, boolean withAnnotation)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the specified category.
+        Criteria c = CategoryMapper.buildClassificationCriteria(id);
+        Category category = (Category) gateway.retrieveSTSData("Category", c);
+        CategoryData model = new CategoryData();
+        if (category != null) CategoryMapper.fillCategory(category, model);
+        if (withAnnotation) {
+            List imgs = model.getImages();
+            if (imgs.size() != 0) {       //i.e. some classifications
+                List ids = new ArrayList();
+                Iterator i = imgs.iterator();
+                while (i.hasNext()) 
+                    ids.add(new Integer(((ImageSummary) i.next()).getID()));
+                
+                c = AnnotationMapper.buildImageAnnotationCriteria(ids);
+                List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
+                                                        c);
+                //Retrieve the user ID.
+                UserCredentials uc = (UserCredentials)
+                        registry.lookup(LookupNames.USER_CREDENTIALS);
+                CategoryMapper.fillImageAnnotationInCategory(
+                        model.getClassifications(), l, uc.getUserID());
+            }
+        }
+        return model;
     }
     
 }

@@ -102,24 +102,6 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
     
     /**
-     * Retrieves all the image classification ST objects belonging to the specified
-     * images, which should all be in the dataset with the specified ID.  The
-     * datasetID is needed to filter the returned classifications; images that
-     * belong to multiple datasets may have classification objects that are in the
-     * wrong context.
-     * @param imageIDs The IDs of the images to query.
-     * @param parentDatasetID The ID of the dataset to filter classifications by.
-     * @return A list of image classification STs (ordered by attribute ID) that
-     *         belong to the specified images, whose categories are bound to the
-     *         specified dataset.
-     * @throws DSOutOfServiceException If the user is not logged in or the
-     *                                 connection with the server is lost.
-     * @throws DSAccessException If there was a communication error.
-     */
-    public List retrieveImageClassifications(List imageIDs, int parentDatasetID)
-        throws DSOutOfServiceException, DSAccessException;
-    
-    /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to one of the images specified in the list below.
      * @param type The type to retrieve.
@@ -309,6 +291,22 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException; 
 
     //Category
+    /**
+     * Retrieves the all hierarchy Image-Category-Group passing a list of 
+     * {@link ImageSummary} objects.
+     * 
+     * @return an 2D-array:
+     *          first element: collection of unclassified 
+     *          {@link ImageSummary} objects.
+     *          second element: collection of {@link CategoryGroupData} objects.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public Object[] retrieveICGHierarchy(List imageSummaries)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /** 
      * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
      * Retrieve all category groups.
@@ -318,14 +316,30 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;  
     
     /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Retrieve all categories.
+     * Retrieve the categories not contained in the specified group, and 
+     * containing images which aren't in the categories linked to the group.
      * 
-     * @return list of {@link CategorySummary} object.
-     */
-    public List retrieveCategories()
-        throws DSOutOfServiceException, DSAccessException;  
+     * @param group specified {@link CategoryGroupData}.
+     * @return list of {@link CategorySummary}s.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */ 
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException; 
     
+    /** 
+     * Retrieve a list of images not contained in the specified group.
+     * 
+     * @param group specified {@link CategoryGroupData}.
+     * @return list of {@link ImageSummary}s.
+     * 
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List retrieveImagesNotInGroup(CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException;
+
     /** 
      * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
      * Retrieve the category.
@@ -335,13 +349,10 @@ public interface SemanticTypesService
     
     /** 
      * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Retrieve all the images within a specified category.
-     * 
-     * @param id    category's id.
-     * @return list of ImageSummary objects.
+     * Retrieve the category.
      */
-    //public List retrieveImagesInCategory(int id)
-    //    throws DSOutOfServiceException, DSAccessException; 
+    public CategoryData retrieveCategoryWithIAnnotations(int id)
+        throws DSOutOfServiceException, DSAccessException;
     
     /** 
      * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
@@ -371,10 +382,6 @@ public interface SemanticTypesService
      */
     public void updateCategory(CategoryData data, List imgsToRemove, 
                                 List imgsToAdd)
-        throws DSOutOfServiceException, DSAccessException;
-    
-    /** Return a list of CategoryData. */
-    public Object[] retrieveImageClassifications(List imageIDs)
         throws DSOutOfServiceException, DSAccessException;
     
 }
