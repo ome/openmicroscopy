@@ -49,5 +49,5 @@ public interface ReversibleBrowserAction extends BrowserAction
      * Cancel the event triggered by actionPerformed().
      *
      */
-    public void actionCancelled();
+    public void cancel();
 }

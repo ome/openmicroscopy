@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.events.MEHChangeListener
+ * org.openmicroscopy.shoola.agents.browser.events.ReversiblePiccoloAction
  *
  *------------------------------------------------------------------------------
  *
@@ -35,19 +35,34 @@
  */
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import edu.umd.cs.piccolo.event.PInputEvent;
+
 /**
+ * Represents a Piccolo-driven browser action that can be cancelled.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
-public interface MEHChangeListener
-{
-    public static final int DRAG_CHANGE = 1;
-    public static final int OVER_CHANGE = 2;
-    public static final int SELECT_CHANGE = 4;
-    public static final int KEY_CHANGE = 8;
-    public static final int WHEEL_CHANGE = 16;
-
-    public void eventListenerChanged(int changeType);
+public abstract class ReversiblePiccoloAction
+    extends PiccoloAction
+    implements ReversibleBrowserAction // this might be hairy inheritance
+{   
+    /**
+     * Override this method to cancel simple, atomic execution.
+     */
+    public void cancel()
+    {
+        // do nothing;
+    }
+    
+    /**
+     * Override this method to cancel a method, using the PInputEvent to
+     * get state.
+     * 
+     * @param e The parameters of the cancel.
+     */
+    public void cancel(PInputEvent e) {}
+    
 }

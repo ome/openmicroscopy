@@ -48,56 +48,26 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public interface MouseOverSensitive
 {
     /**
-     * Return the action executed when the mouse first travels over the
-     * object.
+     * Get the set of mouse over-action bindings.
      * @return See above.
      */
-    public PiccoloAction getMouseEnterAction();
+    public MouseOverActions getMouseOverActions();
     
     /**
-     * Return the action executed when the mouse exits over the
-     * object.
-     * @return See above.
+     * Set the set of mouse over-action bindings to the specified set.
+     * @param actions See above.
      */
-    public PiccoloAction getMouseExitAction();
-    
-    /**
-     * Return the action executed when the mouse hovers over the object
-     * (inclusion TBD)
-     * @return See above.
-     */
-    public PiccoloAction getMouseHoverAction();
-    
-    /**
-     * Sets the action executed when the mouse first travels over the
-     * object to the specified action.
-     * @param action See above.
-     */
-    public void setMouseEnterAction(PiccoloAction action);
-    
-    /**
-     * Sets the action executed when the mouse exits the
-     * object to the specified action.
-     * @param action See above.
-     */
-    public void setMouseExitAction(PiccoloAction action);
-    
-    /**
-     * Sets the action executed when the mouse is hovering over the
-     * object to the specified action.
-     * @param action See above.
-     */
-    public void setMouseHoverAction(PiccoloAction action);
+    public void setMouseOverActions(MouseOverActions actions);
     
     /**
      * Respond to a mouse over.
      * @param e The parameters of the mouse enter.
      */
-    public void mouseEntered(PInputEvent e);
+    public void respondMouseEnter(PInputEvent e);
     
     /**
      * Respond to a mouse exit.
      * @param e The parameters of the mouse exit.
      */
-    public void mouseExited(PInputEvent e);
+    public void respondMouseExit(PInputEvent e);
 }

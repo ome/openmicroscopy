@@ -48,6 +48,23 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public abstract class PiccoloAction implements BrowserAction
 {
     /**
+     * Specifies that no action should be taken.
+     */
+    public static PiccoloAction PNOOP_ACTION = new PiccoloAction()
+    {
+        public void execute()
+        {
+            // do nothing
+        }
+        
+        public void execute(PInputEvent e)
+        {
+            // do jack shite
+        }
+
+    };
+    
+    /**
      * Executes the action, independent of a PInputEvent.  Should be
      * overridden if to be used.
      */

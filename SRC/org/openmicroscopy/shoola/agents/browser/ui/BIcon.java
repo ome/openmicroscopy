@@ -291,7 +291,7 @@ public class BIcon extends PNode
             {
                 if(mouseOverAction instanceof ReversibleBrowserAction)
                 {
-                    ((ReversibleBrowserAction)mouseOverAction).actionCancelled();
+                    ((ReversibleBrowserAction)mouseOverAction).cancel();
                 }
             }
             e.setHandled(true);

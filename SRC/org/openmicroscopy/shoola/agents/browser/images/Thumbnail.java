@@ -38,8 +38,6 @@ package org.openmicroscopy.shoola.agents.browser.images;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailDataModel;
-import org.openmicroscopy.shoola.agents.browser.events.MEHChangeListener;
-import org.openmicroscopy.shoola.agents.browser.events.ModularEventHandler;
 
 import edu.umd.cs.piccolo.nodes.PImage;
 
@@ -51,7 +49,7 @@ import edu.umd.cs.piccolo.nodes.PImage;
  * @version 2.2
  * @since OME2.2
  */
-public class Thumbnail extends PImage implements MEHChangeListener
+public class Thumbnail extends PImage
 {
     /**
      * The base model of the thumbnail.
@@ -68,11 +66,6 @@ public class Thumbnail extends PImage implements MEHChangeListener
      * (impl: TreeSet)
      */
     protected Set paintMethods;
-
-    /**
-     * Defines the union of UI gestures for this thumbnail.
-     */
-    protected ModularEventHandler eventHandler;
 
     /**
      * Defines if this thumbnail is mip-mapped.
@@ -96,15 +89,6 @@ public class Thumbnail extends PImage implements MEHChangeListener
     {
         this.model = tdm;
         this.renderMethod = method;
-    }
-    // TODO: complete this code skeleton
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.browser.events.MEHChangeListener#eventListenerChanged(int)
-     */
-    public void eventListenerChanged(int changeType)
-    {
-        // TODO: rework event handler
     }
 
     /**

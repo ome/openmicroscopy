@@ -52,65 +52,33 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public interface MouseDownSensitive
 {
     /**
-     * Get the action to be executed (if any exists) when the node catches
-     * a mouse press (down) event.
-     * @return The action associated with mouse down.
+     * Returns the current set of mouse event-action bindings.
+     * @return See above.
      */
-    public PiccoloAction getPressBrowserAction();
+    public MouseDownActions getMouseDownActions();
     
     /**
-     * Get the action to be executed (if any exists) when the node catches
-     * a mouse release (up) event.
-     * @return The action associated with mouse up.
+     * Sets the set of mouse event-action bindings to the specified
+     * MouseDownActions set.
+     * @param actions See above.
      */
-    public PiccoloAction getReleaseBrowserAction();
-    
-    /**
-     * Get the action to be executed (if any exists) when the node catches
-     * a mouse click event.
-     * @return The action associated with a mouse click.
-     */
-    public PiccoloAction getClickBrowserAction();
-    
-    /**
-     * Sets the action to be executed when the node catches a mouse down
-     * event.
-     * 
-     * @param action The action associated with a mouse press.
-     */
-    public void setPressBrowserAction(PiccoloAction action);
-    
-    /**
-     * Sets the action to be executed when the node catches a mouse up
-     * event.
-     * 
-     * @param action The action associated with a mouse release.
-     */
-    public void setReleaseBrowserAction(PiccoloAction action);
-    
-    /**
-     * Sets the action to be executed when the node catches a mouse click
-     * event.
-     * 
-     * @param action The action associated with an atomic mouse click.
-     */
-    public void setClickBrowserAction(PiccoloAction action);
+    public void setMouseDownActions(MouseDownActions actions);
     
     /**
      * Respond to the mouse press.
      * @param event The event parameters.
      */
-    public void mousePressed(PInputEvent event);
+    public void respondMousePress(PInputEvent event);
     
     /**
      * Respond to the mouse release.
      * @param event The event parameters.
      */
-    public void mouseReleased(PInputEvent event);
+    public void respondMouseRelease(PInputEvent event);
     
     /**
      * Respond to the mouse click.
      * @param event The event parameters.
      */
-    public void mouseClicked(PInputEvent event);
+    public void respondMouseClick(PInputEvent event);
 }

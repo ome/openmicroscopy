@@ -48,61 +48,32 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 public interface MouseDragSensitive
 {
     /**
-     * Gets the action triggered when a drag is started.
+     * Return the set of drag event-to-action bindings.
      * @return See above.
      */
-    public PiccoloAction getStartDragAction();
+    public MouseDragActions getMouseDragActions();
     
     /**
-     * Gets the action triggered at each interval during a drag.
-     * @return See above.
+     * Set the set of drag event-to-action bindings to the specified set.
+     * @param e See above.
      */
-    public PiccoloAction getDragAction();
-    
-    /**
-     * Gets the action triggered at the end of a drag.
-     * @return See above.
-     */
-    public PiccoloAction getEndDragAction();
-    
-    /**
-     * Sets the action triggered when a drag is started to the specified
-     * action.
-     * @param action The action to establish on start-drag.
-     */
-    public void setStartDragAction(PiccoloAction action);
-    
-    /**
-     * Sets the action triggered when a drag is in progress to the
-     * specified action.
-     * 
-     * @param action The action to establish during the drag.
-     */
-    public void setDragAction(PiccoloAction action);
-    
-    /**
-     * Sets the action triggered when a drag completes to the specified
-     * action.
-     * 
-     * @param action The action to execute on end-drag.
-     */
-    public void setEndDragAction(PiccoloAction action);
+    public void setMouseDragActions(MouseDragActions actions);
     
     /**
      * React to drag start.
      * @param e The parameters of the drag start.
      */
-    public void startDrag(PInputEvent e);
+    public void respondStartDrag(PInputEvent e);
     
     /**
      * React to dragging.
      * @param e The parameters of the drag.
      */
-    public void drag(PInputEvent e);
+    public void respondDrag(PInputEvent e);
     
     /**
      * React to drag end.
      * @param e The parameters of the drag end.
      */
-    public void endDrag(PInputEvent e);
+    public void respondEndDrag(PInputEvent e);
 }
