@@ -11,6 +11,11 @@
    <agents>
      <structuredEntry name="/agents" type = "agents">
        <agent>
+         <name>Annotator</name>
+         <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
+         <config>annotator.xml</config>
+       </agent>
+       <agent>
          <name>Browser</name> 
          <class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class> 
          <config>browser.xml</config> 
