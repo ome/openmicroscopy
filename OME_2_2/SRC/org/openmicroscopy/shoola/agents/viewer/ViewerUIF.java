@@ -132,7 +132,7 @@ public class ViewerUIF
      * Return the bufferedImage displayed. 
      * Note that we save the zoomed image, not the original bufferedImage. 
      */
-    BufferedImage getDisplayedImage() { return canvas.getZoomImage(); }
+    BufferedImage getDisplayImage() { return canvas.getDisplayImage(); }
     
 	void setActive(boolean b) { active = b; }
 	

@@ -94,7 +94,7 @@ public class ImageCanvas
     /** Buffered image to filter. */
     private BufferedImage           bimg;
     
-    private BufferedImage           zoomImage;
+    private BufferedImage           displayImage;
     
 	/** The original bufferedImage to display. */	
 	private BufferedImage          image;
@@ -117,7 +117,7 @@ public class ImageCanvas
     { 
         magFactor = 1.0;
         image = null;
-        zoomImage = null;
+        displayImage = null;
     }
     
 	/** 
@@ -140,14 +140,14 @@ public class ImageCanvas
      * Create a bufferedImage with dataBufferByte as dataBuffer, 
      * b/c of the implementation of the TIFFEncoder.
      */
-    public BufferedImage getZoomImage()
+    public BufferedImage getDisplayImage()
     { 
         //Now we only need to tell Java2D how to handle the RGB buffer. 
-        int sizeX = zoomImage.getWidth();
-        int sizeY = zoomImage.getHeight();
+        int sizeX = displayImage.getWidth();
+        int sizeY = displayImage.getHeight();
         DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
-        DataBuffer dataBuf = zoomImage.getRaster().getDataBuffer();
-        ColorModel cm = zoomImage.getColorModel();
+        DataBuffer dataBuf = displayImage.getRaster().getDataBuffer();
+        ColorModel cm = displayImage.getColorModel();
         int v;
         for (int y = 0; y < sizeY; ++y) {
             for (int x = 0; x < sizeX; ++x) {
@@ -189,10 +189,10 @@ public class ImageCanvas
         RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
         rop.filter(image, bimg);
         biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        zoomImage =  new BufferedImage((int) (image.getWidth()*magFactor), 
+        displayImage =  new BufferedImage((int) (image.getWidth()*magFactor), 
                                     (int) (image.getHeight()*magFactor),
                             BufferedImage.TYPE_INT_RGB);
-        Graphics2D big = zoomImage.createGraphics();
+        Graphics2D big = displayImage.createGraphics();
         big.drawImage(bimg, biop, 0, 0);
         repaint();
     } 
@@ -210,8 +210,8 @@ public class ImageCanvas
 							RenderingHints.VALUE_RENDER_QUALITY);
 
 		g2D.setColor(Color.black);
-        if (zoomImage != null)
-            g2D.drawImage(zoomImage, null, ViewerUIF.START, ViewerUIF.START);
+        if (displayImage != null)
+            g2D.drawImage(displayImage, null, ViewerUIF.START, ViewerUIF.START);
 	}
 
 	/** Paint the XY-frame. */

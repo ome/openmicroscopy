@@ -350,7 +350,7 @@ public class ViewerCtrl
      */
 	public void showImageSaver()
 	{
-        BufferedImage image = presentation.getDisplayedImage();
+        BufferedImage image = presentation.getDisplayImage();
         if (image == null) {
             UserNotifier un = getRegistry().getUserNotifier();
             un.notifyError("Save image", "No current image displayed");
