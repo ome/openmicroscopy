@@ -71,8 +71,10 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
+import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -191,7 +193,8 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		camera.addInputEventListener(new ModulePaletteToolTipHandler(camera));
 		
 		dataManager.getRegistry().getEventBus().register(this,new Class[] {
-				MouseOverDataset.class, SelectDataset.class});
+				MouseOverDataset.class, SelectDataset.class,
+				MouseOverChainExecutionEvent.class});
 	}
 	
 	
@@ -340,7 +343,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			SelectionEvent.SET_SELECTED_DATASET;
 	}*/
 	
-	private ChainBox findChainBox(LayoutChainData chain) {
+	private ChainBox findChainBox(AnalysisChainData chain) {
 		ChainBoxFilter filter = new ChainBoxFilter(chain);
 		
 		// 	should only be one.
@@ -370,6 +373,11 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 			DatasetEvent event = (DatasetEvent) e;
 			DatasetData dataset = event.getDataset();
 			selectDataset(dataset);
+		}
+		else if (e instanceof MouseOverChainExecutionEvent) {
+			MouseOverChainExecutionEvent event = (MouseOverChainExecutionEvent) e;
+			ChainExecutionData exec = event.getChainExecution();
+			selectChainExecution(exec);
 		}
 	}
 	
@@ -408,12 +416,34 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		}
 		return false;
 	}
+	
+	private void selectChainExecution(ChainExecutionData exec) {
+		AnalysisChainData selChain = null;
+		if (exec != null) 
+			selChain = exec.getChain();
+	
+		//for each of them, if they have an execution, set Highlighted, or not.
+		Iterator iter = layer.getChildrenIterator();
+		while (iter.hasNext()) {
+			Object obj = iter.next();
+			if (obj instanceof ChainBox) {
+				ChainBox cb = (ChainBox) obj;
+				LayoutChainData chain = cb.getChain();
+				
+				if (selChain != null && selChain.getID() == chain.getID())
+					cb.setSelected(true);
+				else
+					cb.setSelected(false);
+			}
+		}
+		
+	}
 		
     private class ChainBoxFilter implements PNodeFilter {
 		
-		private final LayoutChainData chain;
+		private final AnalysisChainData chain;
 		
-		ChainBoxFilter(LayoutChainData chain) {
+		ChainBoxFilter(AnalysisChainData chain) {
 			this.chain = chain;	
 		}
 		public boolean accept(PNode node) {
