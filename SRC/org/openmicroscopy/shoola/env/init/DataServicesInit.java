@@ -37,18 +37,21 @@
 
 package org.openmicroscopy.shoola.env.init;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 
 /** 
- * Creates the {@link DataManagementService} and {@link
- * SemanticTypesService} and links them to the container's {@link
- * Registry}.
+ * Creates the {@link DataManagementService} and {@link SemanticTypesService}
+ * and links them to the container's {@link Registry}.
  *
  * @author Douglas Creager (dcreager@alum.mit.edu)
  * @version 2.2 <i>(Internal: $Revision$ $Date$)</i>
@@ -91,14 +94,12 @@ final class DataServicesInit
 	void execute()
 		throws StartupException
 	{
+		DataServicesFactory.createDataServices();
+		DataManagementService dms = DataServicesFactory.getDMS();
+		SemanticTypesService sts = DataServicesFactory.getSTS();
 		Registry reg = container.getRegistry();
-        try
-        {
-            DataServicesFactory.createDataServices(reg);
-        } catch (NotLoggedInException e) {
-            throw new StartupException("Could not log into data server"+
-                                       e.getMessage());
-        }
+		RegistryFactory.linkDMS(dms, reg);
+		RegistryFactory.linkSTS(sts, reg);
 	}
 	
 	/** 
