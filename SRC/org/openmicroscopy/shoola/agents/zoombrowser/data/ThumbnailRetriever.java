@@ -63,6 +63,7 @@ public class ThumbnailRetriever {
 	
 	private static final String CACHE_DIR="/.ome-vis-cache/";
 	private static final String IMAGE_DIR="/images";
+	private static final int IMAGE_SIZE=100;
 	
 	/** the registry that we'll use */
 	private Registry registry;
@@ -97,7 +98,8 @@ public class ThumbnailRetriever {
 		
 		long omeisID = image.getDefaultPixels().getImageServerID();
 
-		String imageFileName = new String("thumb-"+omeisID+".png");
+		String imageFileName;
+		imageFileName = new String("thumb-"+omeisID+".png");
 		File imageFile = new File(cachePath,imageFileName);
 		return imageFile;
 	}
@@ -116,6 +118,8 @@ public class ThumbnailRetriever {
 		return bufImage;
 	
 	}
+	
+	
 		
 	public BufferedImage getImage(BrowserImageSummary image) {
 		
@@ -132,7 +136,7 @@ public class ThumbnailRetriever {
 		try {
 			Pixels pix = image.getDefaultPixels().getPixels();
 			
-			im = ps.getThumbnail(pix);
+			im = ps.getThumbnail(pix,IMAGE_SIZE,IMAGE_SIZE);
 			
 			if (imageFile != null) {
 				// write to cache
