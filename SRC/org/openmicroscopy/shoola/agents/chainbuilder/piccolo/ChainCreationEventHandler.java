@@ -442,12 +442,11 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		if (e.isShiftDown()) {
 			PBounds b = canvas.getBufferedBounds();
-			//System.err.println("shift zoom");
 			canvas.getCamera().animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
 			e.setHandled(true);
 		}
 		else {
-			double scaleFactor = PConstants.SCALE_FACTOR; 
+			double scaleFactor = PConstants.SCALE_FACTOR;
 			if (e.isControlDown() || ((mask & MouseEvent.BUTTON3_MASK)==1)) {
 				scaleFactor = 1/scaleFactor;
 			}
