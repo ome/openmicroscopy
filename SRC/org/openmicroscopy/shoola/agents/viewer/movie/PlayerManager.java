@@ -42,8 +42,6 @@ import javax.swing.Timer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.movie.pane.PlayerUIMng;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 
 /** 
@@ -70,8 +68,6 @@ public class PlayerManager
     
 	private ViewerCtrl			control;
 	
-	private Registry			registry;	
-	
 	private int					delay;
     
 	private boolean				playing, pause, up;
@@ -92,7 +88,7 @@ public class PlayerManager
     
     private int                 index;
     
-    private int                 pixelsID;
+    //private int                 pixelsID;
     
     private PlayerUIMng         playerUIMng;
     
@@ -109,8 +105,6 @@ public class PlayerManager
 		this.control = control;
         setIndex(index, max, s, e);
         movieType = Player.LOOP;
-		registry = control.getRegistry();
-        pixelsID = control.getCurPixelsID();
 		playing = false;
         pause = false;
         up = true;
@@ -296,12 +290,8 @@ public class PlayerManager
         if (index == Player.MOVIE_Z) {
             t = curValue;
             z = v;
-            control.resetZField(v);
-        } else control.resetTField(v);
-        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
-        def.setZ(z);
-		RenderImage render = new RenderImage(pixelsID, def);
-		registry.getEventBus().post(render);	
+        }
+        control.renderImage(z, t);
 	}
 
     /** Window closed. */
