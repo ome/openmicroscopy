@@ -402,7 +402,6 @@ public class BrowserView extends PCanvas
         {
             getLayer().addChild((Thumbnail)iter.next());
         }
-        // TODO Auto-generated method stub
         updateThumbnails();
     }
     

@@ -55,7 +55,6 @@ public class PaintMethods
         public void paint(Graphics2D g, Thumbnail t)
         {
             // dummy method for now
-            System.err.println("paint");
             g.drawString("I",4,4);
         }
 
