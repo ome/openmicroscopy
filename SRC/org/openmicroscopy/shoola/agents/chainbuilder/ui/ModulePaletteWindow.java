@@ -123,7 +123,7 @@ public class ModulePaletteWindow
 		icons = dataManager.getIconFactory();
 		
 		configureDisplayButtons();
-	//	enableButtons(false);
+		enableButtons(false);
 		
 	}
 	
@@ -220,7 +220,6 @@ public class ModulePaletteWindow
 			moduleCanvas.highlightModule((ChainModuleData)node.getObject());
 		}
 		else if (node.getObject() instanceof ModuleCategoryData) {
-			//System.err.println("clicked on a category");
 			ModuleCategoryData mc = (ModuleCategoryData) node.getObject();
 			moduleCanvas.highlightCategory(mc.getName());
 		
