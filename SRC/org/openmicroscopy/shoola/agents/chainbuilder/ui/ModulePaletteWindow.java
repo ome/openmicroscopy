@@ -277,8 +277,11 @@ public class ModulePaletteWindow
 			moduleCanvas.unhighlightModules(lastModule);
 		}
 		if (node.isLeaf()) { // it's a module
-			lastModule = (ChainModuleData) node.getObject();
-			moduleCanvas.highlightModule(lastModule);
+			Object obj  = node.getObject();
+			if (obj != null && obj instanceof ChainModuleData) {
+				lastModule = (ChainModuleData) obj;
+				moduleCanvas.highlightModule(lastModule);
+			}
 		}
 		else if (node.getObject() instanceof ModuleCategoryData) {
 			lastModule = null;
