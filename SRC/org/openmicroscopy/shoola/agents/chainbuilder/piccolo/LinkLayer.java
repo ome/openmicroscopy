@@ -153,10 +153,12 @@ public class LinkLayer extends PLayer {
 		if (scale < Constants.SCALE_THRESHOLD) {
 			params.setVisible(false);
 			modules.setVisible(true);
+			modules.setPickable(true);
 		}
 		else {
 			params.setVisible(true);
 			modules.setVisible(false);
+			params.setPickable(true);
 		}
 	}
 
