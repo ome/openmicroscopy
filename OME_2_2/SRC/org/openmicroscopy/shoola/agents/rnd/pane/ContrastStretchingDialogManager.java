@@ -170,7 +170,7 @@ class ContrastStretchingDialogManager
 			}
 			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY
 				&& p.y >= topBorder) {
-				inputStartKnob = true;	
+				outputEndKnob = true;	
 				setOutputEnd(p.y);	
 			}	
 		}
@@ -213,10 +213,10 @@ class ContrastStretchingDialogManager
 			control.updateCodomainMap(ctx);
 		}
 		dragging = false;
-		inputStartKnob = true;
-		inputEndKnob = true;
-		outputStartKnob = true;
-		outputEndKnob = true;
+		inputStartKnob = false;
+		inputEndKnob = false;
+		outputStartKnob = false;
+		outputEndKnob = false;
 	}
 	
 	/** Modify the x-coordinate of the control startPoint. */
