@@ -37,11 +37,29 @@ package org.openmicroscopy.shoola.env.log;
 //Application-internal dependencies
 
 /** 
- * Interface defining the operations available to any external class. It's
- * an adapter that makes use of log4j library to implement the operations by 
- * the interface.
- * Its methods transform an orginal call into a suitable call to the log4j
- * library.
+ * Defines the log service interface.
+ * Operations are defined to log messages according the severity of the event:
+ * <ul>
+ *  <li><i>DEBUG</i>: all debug messages.</li>
+ *  <li><i>INFO</i>: regular log messages that inform about normal application
+ *  	workflow.</li>
+ *  <li><i>WARN</i>: messages emitted in case of abnormal or suspect
+ * 		application behavior.</li>
+ *  <li><i>ERROR</i>: all error conditions and failures that can be
+ * 		recovered.</li>
+ *  <li><i>FATAL</i>: severe failures that require the application to
+ * 		terminate.</li>
+ * <ul>
+ * <p>Every method takes in two parameters: the originator of the log message
+ * and the log message itself.  A configuration file (in the configuration
+ * directory under the installation directory) provides for fine-tuning of the
+ * log settings on a per-class basis.  Those settings include the choice of
+ * output locations and verbosity based on priority levels &#151;
+ * <i>DEBUG</i> has a lower priority than <i>INFO</i>, which, in turn, is
+ * lower priority than <i>WARN</i>, and so on.</p>
+ * <p>The implementation of the service is thread-safe.  Methods can be called
+ * from different threads without compromising the integrity of the log records.
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,44 +75,45 @@ package org.openmicroscopy.shoola.env.log;
 
 public interface Logger 
 {
+	
 	/**
-	 * debug call.
+	 * Logs a debug message.
 	 * 
-	 * @param c			Object that calls the {@link logger}.
-	 * @param logMsg	Message to display.
+	 * @param originator The originator of the message.
+	 * @param logMsg	The log message.
 	 */
-    public void debug(Object c, String logMsg);
+    public void debug(Object originator, String logMsg);
     
 	/**
-	 * error call.
+	 * Logs an info message.
 	 * 
-	 * @param c			Object that calls the {@link logger}.
-	 * @param logMsg	Message to display.
+	 * @param originator The originator of the message.
+	 * @param logMsg	The log message.
 	 */
-    public void error(Object c, String logMsg);
+    public void info(Object originator, String logMsg);
     
 	/**
-	 * fatal call.
+	 * Logs a warn message.
 	 * 
-	 * @param c			Object that calls the {@link logger}.
-	 * @param logMsg	Message to display.
+	 * @param originator The originator of the message.
+	 * @param logMsg	The log message.
 	 */
-    public void fatal(Object c, String logMsg);
+    public void warn(Object originator, String logMsg);
     
 	/**
-	* info call.
-	* 
-	* @param c			Object that calls the {@link logger}.
-	* @param logMsg		Message to display.
-	*/
-    public void info(Object c, String logMsg);
+	 * Logs an error message.
+	 * 
+	 * @param originator The originator of the message.
+	 * @param logMsg	The log message.
+	 */
+	public void error(Object originator, String logMsg);
     
 	/**
-	 * debug warn.
+	 * Logs a fatal message.
 	 * 
-	 * @param c			Object that calls the {@link logger}.
-	 * @param logMsg	Message to display.
+	 * @param originator The originator of the message.
+	 * @param logMsg	The log message.
 	 */
-    public void warn(Object c, String logMsg);
+	public void fatal(Object originator, String logMsg);
     
 }
