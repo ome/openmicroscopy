@@ -57,7 +57,7 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-public class ContrastStretchingContext
+class ContrastStretchingContext
 	extends CodomainMapContext
 {
 	/** keys of the params map, value is an Integer. */
@@ -88,19 +88,24 @@ public class ContrastStretchingContext
 	private double 					a2, b2;
 	
 	/** Implemented as specified by {@link CodomainMapContext}. */
-	public void updateParams(Map params)
+	void updateFields(Map params)
 	{
 		xStart = getValue((Integer) params.get(X_START));
 		yStart = getValue((Integer) params.get(Y_START));
 		xEnd = getValue((Integer) params.get(X_END));
 		yEnd = getValue((Integer) params.get(Y_END));
-		onChange();
+		onCodomainChange();
 	}
 	
-	/** Implemented as specified by {@link CodomainMapContext}. */
-	public void onCodomainChange()
+	/** 
+	 * Implemented as specified by {@link CodomainMapContext}.
+	 * Calculate the equations of the lines.
+	 */ 
+	void onCodomainChange()
 	{
-		onChange();
+		setFirstLineCoefficient(intervalStart);
+		setSecondLineCoefficient();
+		setThirdLineCoefficient(intervalEnd);
 	}
 	
 	public int getXEnd()
@@ -151,14 +156,6 @@ public class ContrastStretchingContext
 	public double getB2()
 	{
 		return b2;
-	}
-
-	/** Calculate the equations of the lines. */
-	private void onChange()
-	{
-		setFirstLineCoefficient(intervalStart);
-		setSecondLineCoefficient();
-		setThirdLineCoefficient(intervalEnd);
 	}
 	
 	/** Compute the coefficients of the first straight y = a0*x+b0.  */

@@ -52,13 +52,16 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-public abstract class CodomainMapContext
+abstract class CodomainMapContext
 {
+	/** Lower bound of the interval. */
 	protected int intervalStart;
+	
+	/** Upper bound of the interval. */
 	protected int intervalEnd;
 	
 	/** 
-	 * Set the codomain i.e. output interval subset of [0, 255].
+	 * Set the codomain i.e. sub-interval of [0, 255].
 	 * 
 	 * @param intervalStart
 	 * @param intervalEnd
@@ -70,9 +73,9 @@ public abstract class CodomainMapContext
 	}
 
 	/** Notify when the codomain interval changes. */
-	public abstract void onCodomainChange();
+	abstract void onCodomainChange();
 	
 	/** Initializes the context of the a specified codomain transformation. */
-	public abstract void updateParams(Map params);
+	abstract void updateFields(Map fields);
 	
 }

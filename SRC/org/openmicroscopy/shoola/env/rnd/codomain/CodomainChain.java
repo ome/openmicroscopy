@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.rnd.codomain;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -82,6 +83,7 @@ public class CodomainChain
 		
 	public CodomainChain(int start, int end)
 	{
+		verifyInterval(start, end);
 		intervalStart = start;
 		intervalEnd = end;
 		init();
@@ -159,10 +161,11 @@ public class CodomainChain
 		LUT = new int[intervalEnd-intervalStart];
 		CodomainMap cdm;
 		int v;
+		Iterator i = chains.iterator();
 		for (int x = intervalStart; x <= intervalEnd; ++x) {
 			v = x;
-			for (int i = 0; i < chains.size(); i++) {
-				cdm = (CodomainMap) chains.get(i);
+			while (i.hasNext()) {
+				cdm = (CodomainMap) i.next();
 				v = cdm.transform(v);
 			}
 			LUT[x-intervalStart] = v;	

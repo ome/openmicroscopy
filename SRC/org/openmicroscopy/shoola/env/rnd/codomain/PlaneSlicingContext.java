@@ -54,7 +54,7 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-public class PlaneSlicingContext
+class PlaneSlicingContext
 	extends CodomainMapContext
 {
 	private static final String		LOWER_LIMIT = "lowerLimit";
@@ -90,7 +90,6 @@ public class PlaneSlicingContext
 	/** bit-plane 8, corresponding value 2^8-1. */
 	public static final int 		BIT_EIGHT = 255;	
 	
-	
 	/** 
 	 * Constant level for bit-planes &gt; planeSelected w.r.t the 
 	 * higher-order bits.
@@ -119,7 +118,7 @@ public class PlaneSlicingContext
 	private boolean 				constant;
 	
 	/** Implemented as specified by {@link CodomainMapContext}. */
-	public void updateParams(Map params)
+	void updateFields(Map params)
 	{
 		lowerLimit = getValue((Integer) params.get(LOWER_LIMIT));
 		lowerLimit = getValue((Integer) params.get(UPPER_LIMIT));
@@ -136,7 +135,7 @@ public class PlaneSlicingContext
 	 * @param upperLevel		value (in [0, 255]) used to set
 	 * 							the level for bit-plane &gt; bit-plane selected.
 	 */
-	public void setLimits(int lowerLimit, int upperLimit)
+	void setLimits(int lowerLimit, int upperLimit)
 	{
 		this.lowerLimit = lowerLimit;
 		this.upperLimit = upperLimit;	
