@@ -67,9 +67,16 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.ModulePaletteWindow;
 import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ChainSelection;
+import org.openmicroscopy.shoola.agents.events.DatasetEvent;
+import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
+import org.openmicroscopy.shoola.agents.events.SelectDataset;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 
 /** 
@@ -86,7 +93,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.PConstants;
  */
 
 public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
-	   ContentComponent, DragGestureListener /*,  SelectionEventListener*/ {
+	   ContentComponent, DragGestureListener, AgentEventListener  {
 	
 	/***
 	 * Vertical space betwen chains
@@ -142,8 +149,12 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	/*** my event handler */
 	private ChainPaletteEventHandler handler;
 	
-	public ChainPaletteCanvas() {
+	/** my OME registry */
+	private Registry registry;
+	
+	public ChainPaletteCanvas(Registry registry) {
 		super();
+		this.registry = registry;
 		
 		//SelectionState.getState().addSelectionEventListener(this);
 		setBackground(PConstants.CANVAS_BACKGROUND_COLOR);
@@ -177,6 +188,9 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// setup tool tips.
 		PCamera camera = getCamera();
 		camera.addInputEventListener(new ModulePaletteToolTipHandler(camera));
+		
+		registry.getEventBus().register(this,new Class[] {
+				MouseOverDataset.class, SelectDataset.class});
 	}
 	
 	
@@ -224,7 +238,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		float height = 0;
 		
-		ChainBox box = new ChainBox(chain);
+		ChainBox box = new ChainBox(chain,registry);
 		layer.addChild(box);
 		box.moveToBack();
 		box.setOffset(x,y);
@@ -242,7 +256,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	
 
 	public void completeInitialization() {
-		handler = new ChainPaletteEventHandler(this); 
+		handler = new ChainPaletteEventHandler(this,registry); 
 		addInputEventListener(handler);
 	}
 	
@@ -339,6 +353,21 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
 	}
 	
+	public void eventFired(AgentEvent e) {
+		if (e instanceof DatasetEvent) {
+			DatasetEvent event = (DatasetEvent) e;
+			DatasetData dataset = event.getDataset();
+			if (dataset != null)
+				System.err.println("in chainbuilder.. dataset "+dataset.getID());
+			else 
+				System.err.println("in chainbuilder nulll dataset..");
+			if (event instanceof SelectDataset) 
+				System.err.println("..selected..");
+			else if (event instanceof MouseOverDataset)
+				System.err.println("..moused over..");
+		}
+	}
+	
 	private class ChainBoxFilter implements PNodeFilter {
 		
 		private final LayoutChainData chain;
@@ -357,20 +386,5 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		}
 	}
 	
-	/*public void clearExecutionList() {
-		if (executionList != null) {
-			layer.removeChild(executionList);
-			executionList = null;
-		}
-	}
-	public void showExecutionList(PDatasetLabelText dl) {
-		clearExecutionList();
-		executionList = dl.getExecutionList();
-		
-		
-		layer.addChild(executionList);
-		
-		PBounds b = dl.getGlobalFullBounds();
-		executionList.setOffset(b.getX(),b.getY()+b.getHeight());
-	}*/
+	
 }
