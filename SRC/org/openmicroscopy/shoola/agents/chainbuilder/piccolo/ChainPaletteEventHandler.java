@@ -158,12 +158,10 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			// In ChainPaletteCanvas,
 			// chain view has chain box as a grandparent. that's what we 
 			// want to zoom to
-			System.err.println("mouse clicked on chain view object");
 			PNode parent = n.getParent();
 			if (parent == null) 
 				return;
 			parent = parent.getParent();
-			System.err.println("zooming to parent..."+parent);
 			if (parent != null && parent instanceof MouseableNode)
 				((MouseableNode) parent).mouseClicked(this);		
 		}
