@@ -96,7 +96,7 @@ class BottomBar
         graphic = new JButton(im.getIcon(IconManager.GRAPHIC));
         graphic.setToolTipText(
                 UIUtilities.formatToolTipText("Present results in a " +
-                        "grapichal form."));
+                        "graphical form."));
         back = new JButton(im.getIcon(IconManager.BACK));
         back.setToolTipText(
         UIUtilities.formatToolTipText("Back to the table."));

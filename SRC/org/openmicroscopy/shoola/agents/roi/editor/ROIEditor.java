@@ -95,9 +95,9 @@ public class ROIEditor
     static final int                    MAX_COLOR = 7;
     
     private static final String         NEW_MSG = "Describe the new " +
-                                                "4D-Selection.";
+                                                "ROI.";
     
-    private static final String         MSG = "Annotate 4D-Selection #";
+    private static final String         MSG = "Annotate ROI #";
     /** Selection of colors. */
     private static final String[]       selection;
     
@@ -136,7 +136,7 @@ public class ROIEditor
     public ROIEditor(ROIAgtCtrl control, String name, String annotation, 
                     int index)
     {
-        super(control.getReferenceFrame(), "ROI Edit", true);
+        super(control.getReferenceFrame(), "ROI Editor", true);
         IconManager im = IconManager.getInstance(control.getRegistry());
         initComponents(annotation, name, im);
         new ROIEditorMng(this, control, index);

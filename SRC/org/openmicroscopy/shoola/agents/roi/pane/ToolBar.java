@@ -163,13 +163,13 @@ public class ToolBar
         UIUtilities.formatToolTipText("Bring up the assistant dialog."));
         createROI = new JButton(im.getIcon(IconManager.CREATE_ROI));
         createROI.setToolTipText(
-                UIUtilities.formatToolTipText("Create a 4D-selection."));
+                UIUtilities.formatToolTipText("Create an ROI."));
         eraseCurrentROI = new JButton(im.getIcon(IconManager.ERASE_ALL));
         eraseCurrentROI.setToolTipText(
-             UIUtilities.formatToolTipText("Erase the current 4D-selection."));
+             UIUtilities.formatToolTipText("Erase the current ROI."));
         listROI = new JComboBox(data);
         listROI.setToolTipText(
-           UIUtilities.formatToolTipText("Select the current 4D-selection."));
+           UIUtilities.formatToolTipText("Select the current ROI."));
         if (data.length == 0) {
             listROI.setEnabled(false);
             assistant.setEnabled(false);

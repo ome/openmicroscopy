@@ -278,10 +278,8 @@ public class AssistantDialogMng
             int z = numRows-1-curRow;
             control.removePlaneArea(z, curColumn);
             setSelectedCell(curRow, curColumn, ColoredLabel.NO_SHAPE);
-            view.table.repaint(curColumn*numColumns, curRow*numRows, cellWidth,
-                                    cellHeight);
+            cancel();
         } 
-        setDefaultLocation();
     }
     
     /** Cancel action. */

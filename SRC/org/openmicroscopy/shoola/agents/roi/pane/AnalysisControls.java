@@ -175,7 +175,7 @@ public class AnalysisControls
         Component box = Box.createRigidArea(VBOX);
         gridbag.setConstraints(box, c);
         p.add(box);
-        label = new JLabel("Select ROI ");
+        label = new JLabel("Select ROIs ");
         c.gridx = 0;
         c.gridy = 2;
         gridbag.setConstraints(label, c);

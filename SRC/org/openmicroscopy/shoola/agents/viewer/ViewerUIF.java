@@ -332,7 +332,7 @@ public class ViewerUIF
                         im.getIcon(IconManager.VIEWER3D));
         control.attachItemListener(viewer3DItem, ViewerCtrl.VIEWER3D);
         viewer3DItem.setEnabled(maxZ != 0);
-        menu.add(viewer3DItem);
+        //menu.add(viewer3DItem);
         movieItem = new JMenuItem("Movie", im.getIcon(IconManager.MOVIE));
         control.attachItemListener(menuItem, ViewerCtrl.MOVIE);
         menu.add(movieItem);
