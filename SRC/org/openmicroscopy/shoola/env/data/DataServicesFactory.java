@@ -119,7 +119,6 @@ public class DataServicesFactory
 			// must be modified
 			uc.setUserID(dms.getUserID());
 		} catch (Exception e) {
-			boolean silly = true;
 			//TODO: handle exception by throwing upper-level exception.
 		}
 	}

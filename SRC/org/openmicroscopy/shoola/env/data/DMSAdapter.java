@@ -38,6 +38,9 @@ import java.util.List;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.FieldsSpecification;
+import org.openmicroscopy.ds.RemoteAuthenticationException;
+import org.openmicroscopy.ds.RemoteConnectionException;
+import org.openmicroscopy.ds.RemoteServerErrorException;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
@@ -55,7 +58,8 @@ import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
- *
+ * Implements the {@link DataManagementService} interface.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -84,28 +88,38 @@ class DMSAdapter
 	
 	/** 
 	 * Retrieves the user's ID. 
+	 * This method is called when we connect cf. 
+	 * {@link DataServicesFactory#connect() connect}.
+	 * The userID is then retrieved using the {@link UserCredentials}.
 	 */
-	int getUserID()
+	int getUserID() 
+		throws DSOutOfServiceException, DSAccessException
 	{
-		//Make the criteria
+		//Define the criteria by which the object graph is pulled out.
 		FieldsSpecification fs = new FieldsSpecification();
 		fs.addWantedField("id");
+		
+		//Load the graph defined by criteria
 		UserState us = null;
+		
 		try {
 			us = (UserState) proxy.getUserState(fs);
-		} catch (Exception e) {
-		 // TODO: handle exception by throwing either NotLoggedInException
-		 //(broken connection, expired session) or ServiceUnavailableExc
-		 //(temp server failure, temp middleware failure).
-		 //throw new RuntimeException(e);
-
-		}
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+					throw new DSAccessException("Can't retrieve the user id",
+												rsee);
+		} 
+		
 		return us.getID();
 	}
     
     /**Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
     								DatasetSummary dProto)
+		throws DSOutOfServiceException, DSAccessException								
 	{	
 		//Make new protos if none was provided.
 		if (pProto == null) pProto = new ProjectSummary();
@@ -120,27 +134,29 @@ class DMSAdapter
 															uc.getUserID());
 
 		//Load the graph defined by criteria.
-		List projects = null;
-	  	try {
-			projects = (List) proxy.retrieveList(Project.class, criteria);
-	  	} catch (Exception e) {
-	  		
-		// TODO: handle exception by throwing either NotLoggedInException
-		//(broken connection, expired session) or ServiceUnavailableExc
-		//(temp server failure, temp middleware failure).
-	  	}
-    	
-    	return ProjectMapper.fillUserProjects(projects, pProto, dProto);
+		List projects = (List) retrieveListData(Project.class, criteria);
+	  	
+		//List of project summary objects.
+		List projectsDS = null;
+		if (projects != null) 
+			//Put the server data into the corresponding client object.
+    		projectsDS = ProjectMapper.fillUserProjects(projects, pProto, 
+    													dProto);
+    
+    	//can be null
+    	return projectsDS;
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects()
+		throws DSOutOfServiceException, DSAccessException
     {
     	return retrieveUserProjects(null, null);
     }
     
     /**Implemented as specified in {@link DataManagementService}. */
     public ProjectData retrieveProject(int id, ProjectData retVal)
+		throws DSOutOfServiceException, DSAccessException
     {
 		//Make a new retVal if none was provided.
 		if (retVal == null) retVal = new ProjectData();
@@ -148,34 +164,27 @@ class DMSAdapter
 		//Define the criteria by which the object graph is pulled out.
 		Criteria criteria = ProjectMapper.buildProjectCriteria();
 		
-		Project project = null;
-		
 		//Load the graph defined by criteria.
-		try {
-			project = (Project) proxy.load(Project.class, id, criteria);
-		} catch (Exception e) {
-		  // TODO: handle exception by throwing either NotLoggedInException
-		  //(broken connection, expired session) or ServiceUnavailableExc
-		  //(temp server failure, temp middleware failure).
-		}
+		Project project = (Project) loadData(Project.class, id, criteria);
 		
-		if (project == null) { // to be on the save side
-			// pop up a dialog
-		}
-		//Put the server data into the corresponding client object.
-		ProjectMapper.fillProject(project, retVal);
-		
+		if (project != null)
+			//Put the server data into the corresponding client object.
+			ProjectMapper.fillProject(project, retVal);
+			
+		//Can be an empty data object.
     	return retVal;
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public ProjectData retrieveProject(int id)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveProject(id, null);
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
     public DatasetData retrieveDataset(int id, DatasetData retVal)
+		throws DSOutOfServiceException, DSAccessException
     {
 		//Make a new retVal if none was provided.
 		if (retVal == null) retVal = new DatasetData();
@@ -183,54 +192,49 @@ class DMSAdapter
 		//Define the criteria by which the object graph is pulled out.
 		Criteria criteria = DatasetMapper.buildDatasetCriteria();
 	
-		Dataset dataset = null;
-	
 		//Load the graph defined by criteria.
-		try {
-			dataset = (Dataset) proxy.load(Dataset.class, id, criteria);
-		} catch (Exception e) {
-		  // TODO: handle exception by throwing either NotLoggedInException
-		  //(broken connection, expired session) or ServiceUnavailableExc
-		  //(temp server failure, temp middleware failure).
-		}
-	
-		if (dataset == null) { // to be on the save side
-			// pop up a dialog
-		}
-		//Put the server data into the corresponding client object.
-		DatasetMapper.fillDataset(dataset, retVal);
+		Dataset	dataset = (Dataset) loadData(Dataset.class, id, criteria);
+		
+		if (dataset != null)
+			//Put the server data into the corresponding client object.
+			DatasetMapper.fillDataset(dataset, retVal);
+			
+		//Can be an empty data object.	
     	return retVal;
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public DatasetData retrieveDataset(int id)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveDataset(id, null);
 	}
 	
     /**Implemented as specified in {@link DataManagementService}. */
     public List retrieveImages(int datasetID)
+		throws DSOutOfServiceException, DSAccessException
     {
+		//Define the criteria by which the object graph is pulled out.
     	Criteria criteria = DatasetMapper.buildImagesCriteria();
-    	
-    	Dataset dataset = null;
-		//Load the graph defined by criteria.
-		try {
-			dataset = (Dataset) proxy.load(Dataset.class, datasetID, criteria);
-	  	} catch (Exception e) {
-	 	 // TODO: handle exception by throwing either NotLoggedInException
-	  	//(broken connection, expired session) or ServiceUnavailableExc
-	  	//(temp server failure, temp middleware failure).
-	  	}
 
-	  	if (dataset == null) {	// to be on the save side
-	  		// pop up a dialog
-	  	}
-	  	return DatasetMapper.fillListImages(dataset);
+		//Load the graph defined by criteria.
+		Dataset	dataset = (Dataset) loadData(Dataset.class, datasetID, 
+											criteria);
+	  	
+	  	//List of image summary object.
+	  	List images = null;
+	  	
+	  	if (dataset != null)
+			//Put the server data into the corresponding client object.
+	  		images = DatasetMapper.fillListImages(dataset);
+	  		
+	  	//can be null.	
+	  	return images;
     }
     
     /**Implemented as specified in {@link DataManagementService}. */
-    public ImageData retrieveImage(int id, ImageData retVal) 
+    public ImageData retrieveImage(int id, ImageData retVal)
+		throws DSOutOfServiceException, DSAccessException
     {
 		//Make a new retVal if none was provided.
     	if (retVal == null) retVal = new ImageData();
@@ -238,29 +242,71 @@ class DMSAdapter
 		//Define the criteria by which the object graph is pulled out.
 		Criteria criteria = ImageMapper.buildImageCriteria();
 				
-		Image image = null;
 		//Load the graph defined by criteria.
-		try {
-	  		image = (Image) proxy.load(Image.class, id, criteria);
-  		} catch (Exception e) {
-		// TODO: handle exception by throwing either NotLoggedInException
-		//(broken connection, expired session) or ServiceUnavailableExc
-		//(temp server failure, temp middleware failure).
-  		}
-
-  		if (image == null) {	// to be on the save side
-	  	// pop up a dialog
-  		}
-  		//Put the server data into the corresponding client object.
-  		ImageMapper.fillImage(image, retVal);
-  		
+		Image image = (Image) loadData(Image.class, id, criteria);
+  		if (image != null)
+  			//Put the server data into the corresponding client object.
+  			ImageMapper.fillImage(image, retVal);
+  			
+  		//Can be an empty data object.
   		return retVal;	  
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public ImageData retrieveImage(int id) 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return retrieveImage(id, null);
 	}
     
+    /**
+     * Load the graph defined by the criteria.
+     * Wrap the call to the {@link DataFactory#load(Class, int, Criteria) load}
+     * method.
+     * 
+     * @param dto		targetClass, the core data type to count.
+     * @param id		filter by id .
+     * @param c			criteria by which the object graph is pulled out. 
+     */
+	private Object loadData(Class dto, int id, Criteria c) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		Object retVal = null;
+		try {
+			retVal = proxy.load(dto, id, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal;
+	}
+	
+	/**
+     * Retrieve the graph defined by the criteria.
+     * Wrap the call to the 
+     * {@link DataFactory#retrieveList(Class, int, Criteria) retrieve}
+     * method.
+     *  
+	 * @param dto		targetClass, the core data type to count.
+	 * @param c			criteria by which the object graph is pulled out.
+	 * @return
+	 */
+	private Object retrieveListData(Class dto, Criteria c) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Object retVal = null;
+		try {
+			retVal = proxy.retrieveList(dto, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't retrieve data", rsee);
+		} 
+		return retVal;
+	}
 }
