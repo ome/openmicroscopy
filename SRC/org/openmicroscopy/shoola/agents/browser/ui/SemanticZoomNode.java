@@ -36,12 +36,18 @@
  
 package org.openmicroscopy.shoola.agents.browser.ui;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.geom.Rectangle2D;
+
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
+import edu.umd.cs.piccolo.util.PPaintContext;
 
 /**
  * A node that represents the semantically zoomed node that appears when
@@ -57,6 +63,7 @@ public class SemanticZoomNode extends PImage
 {
     protected MouseOverActions mouseOverActions;
     protected Thumbnail parentThumbnail;
+    protected Rectangle2D border;
     
     /**
      * Makes the node from the specified thumbnail.
@@ -71,7 +78,10 @@ public class SemanticZoomNode extends PImage
                 "SemanticZoomNode");
         }
         parentThumbnail = parent;
-        
+        border = new Rectangle2D.Double(-4,-4,
+                                        parent.getBounds().getWidth()+8,
+                                        parent.getBounds().getHeight()+8);
+        setBounds(border);
     }
     
     /**
@@ -108,5 +118,19 @@ public class SemanticZoomNode extends PImage
     public void setMouseOverActions(MouseOverActions actions)
     {
         // do nothing
+    }
+    
+    /**
+     * Overrides paint() to draw the border, then draw the semantic node.
+     *
+     */
+    public void paint(PPaintContext context)
+    {
+        Graphics2D g2 = context.getGraphics();
+        Paint paint = g2.getPaint();
+        g2.setPaint(Color.yellow);
+        g2.fill(border);
+        g2.setPaint(paint);
+        g2.drawImage(getImage(),0,0,null);
     }
 }
