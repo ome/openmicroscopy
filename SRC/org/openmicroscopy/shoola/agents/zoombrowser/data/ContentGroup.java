@@ -36,7 +36,6 @@ import java.util.Iterator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.ContentComponent;
 
 /** 
  * A group of all of the SwingWorkers that are loading OME data.
@@ -90,12 +89,11 @@ public class ContentGroup
 	private void completeWorkers() {
 		Iterator iter = completed.iterator();
 		ContentLoader loader;
-		ContentComponent comp;
+		ContentLoader comp;
 		
 		while (iter.hasNext()) {
 			loader = (ContentLoader) iter.next();
-			comp = loader.getComponent();
-			comp.completeInitialization();	
+			loader.completeInitialization();	
 		}
 	}
 }
