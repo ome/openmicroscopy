@@ -1,7 +1,7 @@
 /*
  * Created on Feb 8, 2005
  */
-package org.ome.gen;
+package org.ome.utils;
 
 import com.hp.hpl.jena.ontology.OntProperty;
 

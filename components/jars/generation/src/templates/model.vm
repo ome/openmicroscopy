@@ -18,8 +18,6 @@ public class ${class.LocalName}
 {
 
 	public static final double ontologyVersion = $version ;
-	private HashMap oldValues = new HashMap();
-	private boolean clean = true;
 
 	public String getURI(){
 		return I${class.LocalName}.URI;
@@ -32,7 +30,7 @@ public class ${class.LocalName}
 	/** copy constructor FIXME now must have get an set logic matching!!! */
 	public $class.LocalName (LSObject lsObj){
 		super(lsObj.getLSID());
-		this.map=lsObj.getMap();
+		this.currentValues=lsObj.getMap();
 
 		#foreach( $p in $class.Predicates )
 	 	//-----------------------------------
@@ -40,6 +38,7 @@ public class ${class.LocalName}
 		#set ( $t = $p.Type )
 		#set ( $n = $p.LocalName )
 		this.set${util.uc(${p.LocalName})}(($t)lsObj.get("${p.URI}")); 
+		this.save();
 #end
 	}
 
@@ -48,18 +47,18 @@ public class ${class.LocalName}
 	// $p
 	#set ( $t = $p.Type )
 	#set ( $n = $p.LocalName )
-	$t $n ;
 	public $t get${util.uc(${n})}(){
-		return $n;
+		return ($t) currentValues.get("$p.URI");
 	}
+	
 	public boolean set${util.uc(${n})}($t value){
-		if (!oldValues.containsKey("$n")){
-		  oldValues.put("$n",this.get${util.uc(${n})}());
+		if (!oldValues.containsKey("$p.URI")){
+		  oldValues.put("$p.URI",this.get${util.uc(${n})}());
 		}
-		this.$n = value;
+		// VALIDATION
+		currentValues.put("$p.URI",value);
 		clean=false;
 		return true;
-
 	}
 #end
 
@@ -85,24 +84,22 @@ public class ${class.LocalName}
 	//=============================================
 	//=============================================
 
-	public void commit() 
+	public boolean save() 
 //	  throws UpddateConflictException, RMIException TODO
 {
-//		RemoteService.update(this);
-		clean=true;
+   		return super.save();
 	}
 
-	public void rollback(){
-		if (!clean){
+	public boolean reset(){
 #foreach( $p in $class.Predicates )
 #set ( $n = $p.LocalName )
 #set ( $t = $p.Type )
 		if (oldValues.containsKey("$n")){
-			this.$n = ($t) oldValues.get("$n");
-		}
+	   		this.set${util.uc(${n})}(($t) oldValues.get("$n")) ;
+	   		oldValues.remove("$n");
+	    }
 #end
-		}
-		clean=true;
+		return super.reset();
 	}
 }
 

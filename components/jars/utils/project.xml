@@ -3,33 +3,12 @@
   <extend>../../../project.xml</extend>
   <pomVersion>3</pomVersion>
   <repository/>
-  <id>${pom.groupId}-gen</id>
-  <name>OME OWL--&gt;Code Generation Library</name>
+  <id>${pom.groupId}-utils</id>
+  <name>OME Utility Library</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome.generation</package>
-  <description>Code to generate source code from OWL</description>
+  <package>org.ome.utils</package>
+  <description>Code to which may be used in any other project. Currently has Jena library dependencies, so be careful where you use it.</description>
   <dependencies>
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-utils</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>ant</groupId>
-      <artifactId>ant</artifactId>
-      <version>1.6.2</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>velocity</groupId>
-      <artifactId>velocity</artifactId>
-      <version>1.3</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
     <!--TODO cc needed? -->
     <dependency>
       <groupId>commons-collections</groupId>
@@ -132,20 +111,6 @@
         <exclude>**/NaughtyTest.java</exclude>
       </excludes>
     </unitTest>
-    <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.owl</include>
-          <include>*.properties</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-      <resource>
-        <directory>src/templates</directory>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
   </build>
 </project>
 

@@ -1,7 +1,7 @@
 /*
  * Created on Feb 7, 2005
  */
-package org.ome.gen;
+package org.ome.utils;
 
 /**
  * represents the information of an OWL property which will be used to generate code. 

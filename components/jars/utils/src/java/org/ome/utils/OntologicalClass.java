@@ -1,7 +1,7 @@
 /*
  * Created on Feb 7, 2005
  */
-package org.ome.gen;
+package org.ome.utils;
 
 import java.util.HashMap;
 import java.util.Iterator;

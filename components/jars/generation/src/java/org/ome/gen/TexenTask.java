@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.velocity.context.Context;
+import org.ome.utils.OntologicalClass;
+import org.ome.utils.OntologicalProperty;
+import org.ome.utils.Util;
 
 import com.hp.hpl.jena.ontology.MaxCardinalityRestriction;
 import com.hp.hpl.jena.ontology.MinCardinalityRestriction;
