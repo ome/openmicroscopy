@@ -132,6 +132,16 @@ public class DataServicesFactory
 		uc.setUserID(dms.getUserID());
 	}
 	
+	/**
+	 * Tells whether the communication channel to <i>OMEDS</i> is currently
+	 * connected.
+	 * This means that we have established a connection and have sucessfully
+	 * logged in.
+	 * 
+	 * @return	<code>true</code> if connected, <code>false</code> otherwise.
+	 */
+	public boolean isConnected() { return gateway.isConnected(); }
+	
 	public void shutdown() { gateway.logout(); }
 	
 }
