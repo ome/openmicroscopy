@@ -64,6 +64,9 @@ public class ChainFormalInputData  extends FormalInputData implements Comparable
 	 * 
 	 */
 	private static MatchMapper inputMatches = new MatchMapper();
+	
+	/** the longest string associated with an  input */
+	private static ChainFormalInputData longestInput;
 	 
 	public static List getInputsForType(SemanticTypeData std) {
 		if (std !=null) 
@@ -71,6 +74,11 @@ public class ChainFormalInputData  extends FormalInputData implements Comparable
 		else 
 			return null;
 	}
+	
+	public static ChainFormalInputData getLongestInput() {
+		return longestInput;
+	}
+	
 	
 	public ChainFormalInputData() {}
 	
@@ -100,4 +108,9 @@ public class ChainFormalInputData  extends FormalInputData implements Comparable
 		return getID()-d.getID();
 	}
 	
+	public void setName(String name ) {
+		super.setName(name);
+		if (longestInput == null || name.length() > longestInput.getName().length())
+			longestInput = this;
+	}
 }
