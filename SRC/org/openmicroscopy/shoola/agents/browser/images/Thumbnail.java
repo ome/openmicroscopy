@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.browser.images;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -107,8 +108,30 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
      * Defines the mouse over actions for this thumbnail.
      */
     protected MouseOverActions mouseOverActions;
+    
+    /**
+     * Defines a list of multiple thumbnails per site, if applicable.
+     */
+    protected List multipleThumbnailList;
+    
+    /**
+     * Defines a list of multiple models per site, if applicable.
+     */
+    protected List multipleModelList;
+    
+    /**
+     * Indicates that this thumbnail has multiple images.
+     */
+    protected boolean hasMultipleImages = false;
+    
+    /**
+     * Indicates the selected image/model index (for multiple-site images)
+     */
+    protected int multipleSelectedIndex = 0;
 
-
+    /**
+     * Initializes the thumbnail.
+     */
     protected void init()
     {
         backgroundPaintMethods = new ArrayList();
@@ -118,6 +141,17 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         mouseDownActions = new MouseDownActions();
         mouseOverActions = new MouseOverActions();
     }
+    
+    /**
+     * Initializes the thumbnail in multiple mode.
+     */
+    protected void initMultiple(Image[] images, ThumbnailDataModel[] models)
+    {
+        hasMultipleImages = true;
+        multipleThumbnailList = Arrays.asList(images);
+        multipleModelList = Arrays.asList(models);
+    }
+    
     /**
      * Constructs a thumbnail around this model (no renderer specified yet)
      * @param tdm The data model.
@@ -141,6 +175,32 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         super(thumbImage,false);
         init();
         this.model = tdm;
+    }
+    
+    /**
+     * Constructs a thumbnail with multiple backing images (for example, in
+     * a well layout with more than one image or set of pixels per location).
+     * The first image will be the default selected image.
+     * 
+     * @param thumbImages The images for the thumbnail location
+     * @param models The models for the respective images.
+     */
+    public Thumbnail(Image[] thumbImages, ThumbnailDataModel[] models)
+    {
+        super();
+        if(thumbImages == null || models == null
+           || thumbImages.length == 0 || models.length == 0)
+        {
+            throw new IllegalArgumentException("Parameters cannot be null or empty");
+        }
+        else if(thumbImages.length != models.length)
+        {
+            throw new IllegalArgumentException("Parameters must be of equal length");
+        }
+        setImage(thumbImages[0]);
+        init();
+        initMultiple(thumbImages,models);
+        setModel(models[0]);
     }
 
     /**
@@ -274,6 +334,101 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
         {
             foregroundPaintMethods.remove(p);
             repaint();
+        }
+    }
+    
+    /**
+     * Returns whether or not this thumbnail contains multiple images.
+     * @return See above.
+     */
+    public boolean isMultipleThumbnail()
+    {
+        return hasMultipleImages;
+    }
+    
+    /**
+     * Returns how many images this thumbnail has (in multiple mode).  If
+     * this thumbnail does not have multiple images, then the method will
+     * return -1.
+     * 
+     * @return The number of images this thumbnail has (in multi-mode)
+     */
+    public int getMultipleCount()
+    {
+        if(!hasMultipleImages)
+        {
+            return -1;
+        }
+        return multipleThumbnailList.size();
+    }
+    
+    /**
+     * Sets the visible image (in multiple mode) to the selected value.
+     * @param index The index of the image to make visible.
+     */
+    public void setMultipleImageIndex(int index)
+    {
+        if(!hasMultipleImages) return;
+        else
+        {
+            if(index < 0 || index >= multipleThumbnailList.size())
+            {
+                return;
+            }
+            else
+            {
+                multipleSelectedIndex = index;
+                setImage((Image)multipleThumbnailList.get(index));
+                setModel((ThumbnailDataModel)multipleModelList.get(index));
+                repaint();
+            }
+        }
+    }
+    
+    /**
+     * In multiple mode, go to the next image in the selection.  Will wrap
+     * around to the first if the last image is currently selected.
+     */
+    public void showNextImage()
+    {
+        if(!hasMultipleImages)
+        {
+            return;
+        }
+        else
+        {
+            if(multipleSelectedIndex == multipleThumbnailList.size()-1)
+            {
+                setMultipleImageIndex(0);
+            }
+            else
+            {
+                setMultipleImageIndex(++multipleSelectedIndex);
+            }
+        }
+    }
+    
+    /**
+     * In multiple mode, go to the previous image in the selection.  Will wrap
+     * around to the last if the first image is currently selected.
+     *
+     */
+    public void showPreviousImage()
+    {
+        if(!hasMultipleImages)
+        {
+            return;
+        }
+        else
+        {
+            if(multipleSelectedIndex == 0)
+            {
+                setMultipleImageIndex(multipleThumbnailList.size()-1);
+            }
+            else
+            {
+                setMultipleImageIndex(--multipleSelectedIndex);
+            }
         }
     }
     
