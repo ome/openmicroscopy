@@ -50,10 +50,13 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Appliaction-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
+
 
 
 
@@ -82,7 +85,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 	
 	public Thumbnail(BrowserImageSummary image) {
 		super();
-		setAccelerated(false);
+	//	setAccelerated(false);
 		this.image=image;
 		
 		Image im = image.getThumbnail();
@@ -150,7 +153,8 @@ public class Thumbnail extends PImage implements BufferedObject,
 		//	return null;
 		PNode n = new PNode();
 		Image im = getImage();
-		PImage imNode = new PImage(im,false);
+		PImage imNode = new PImage(); // had as second arg,false);
+		imNode.setImage(im);
 		n.addChild(imNode);
 		PPath p = new PPath();
 		//PText text  = new PText(image.getName());
@@ -278,5 +282,15 @@ public class Thumbnail extends PImage implements BufferedObject,
 	}
 	
 	public void mouseDoubleClicked(GenericEventHandler handler) {
+	}
+	
+	public void viewImage(Registry registry) {
+		int id = image.getID();
+		int[] pxSets = image.getPixelsIDs();
+		String name = image.getName();
+		
+		System.err.println("loading image.."+name);
+		LoadImage request = new LoadImage(id, pxSets[0], name);
+		registry.getEventBus().post(request);	
 	}
 }
