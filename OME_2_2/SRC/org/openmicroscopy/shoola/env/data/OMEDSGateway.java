@@ -47,6 +47,7 @@ import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.ServerVersion;
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.Dataset;
@@ -77,6 +78,11 @@ import org.openmicroscopy.is.PixelsFactory;
 class OMEDSGateway 
 {
 
+    private static final int    MAJOR_OMEDS_VERSION = 2, 
+                                MINOR_OMEDS_VERSION = 2,
+                                PATCH_OMEDS_VERSION = 1;
+    
+    private static final String MESSAGE = "The version of OMEDS must be 2.2.1";               
 	/**
 	 * The factory provided by the connection library to access the various
 	 * <i>OMEDS</i> services.
@@ -155,12 +161,13 @@ class OMEDSGateway
 	{
 		try {
 			proxiesFactory = DataServer.getDefaultServices(omedsAddress);
+            serverVersionCheck();
 		} catch (Exception e) {
 			String s = "Can't connect to OMEDS. URL not valid.";
 			throw new DSOutOfServiceException(s, e);
 		}
 	}
-	
+    
 	/**
 	 * Tries to connect to <i>OMEDS</i> and log in by using the supplied
 	 * credentials.
@@ -561,5 +568,24 @@ class OMEDSGateway
 		getRemoteImportManager().startRemoteImport(dataset, filesID);
 	}
 	
+    /** Check the version of OMEDS installed. */
+    private void serverVersionCheck()
+        throws DSOutOfServiceException
+    {
+        try {
+            RemoteCaller proxy = proxiesFactory.getRemoteCaller();
+            ServerVersion sv = proxy.getServerVersion();
+            if (sv.getMajorVersion() != MAJOR_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+            if (sv.getMinorVersion() != MINOR_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+            if (sv.getPatchVersion() != PATCH_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+        } catch (Exception e) {
+            String s = "Can't connect to OMEDS";
+            throw new DSOutOfServiceException(s, e);
+        }
+    }
+    
 }
 
