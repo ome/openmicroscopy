@@ -114,7 +114,13 @@ public interface SemanticTypesService
      * @throws DSAccessException If there was a communication error.
      */
     public int countDatasetAttributes(SemanticType type, int datasetID)
-        throws DSOutOfServiceException, DSAccessException;    
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see countDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public int countDatasetAttributes(String typeName, int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Counts the number of attributes of the given semantic type that
@@ -133,6 +139,12 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
+     * @see countImageAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public int countImageAttributes(String typeName, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
      * Counts the number of attributes of the given semantic type that
      * correspond to the feature with the specified ID.  If the answer is 0,
      * the client should not attempt to retrieve a list of attributes.
@@ -147,6 +159,12 @@ public interface SemanticTypesService
      */
     public int countFeatureAttributes(SemanticType type, int featureID)
         throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see countFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public int countFeatureAttributes(String typeName, int featureID)
+        throws DSOutOfServiceException, DSAccessException;
 
     /**
      * Retrieves the attribute with the given SemanticType and specified
@@ -158,6 +176,12 @@ public interface SemanticTypesService
      * @throws DSAccessException
      */
     public Attribute retrieveAttribute(SemanticType type, int attributeID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * @see retrieveAttribute(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public Attribute retrieveAttribute(String typeName, int attributeID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -175,6 +199,12 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
+     * @see retrieveDatasetAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public List retrieveDatasetAttributes(String typeName, int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to an image with the specified ID.
      * @param type The type of attribute to retrieve.
@@ -186,6 +216,12 @@ public interface SemanticTypesService
      * @throws DSAccessException If there was a communication error.
      */
     public List retrieveImageAttributes(SemanticType type, int imageID)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public List retrieveImageAttributes(String typeName, int imageID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -203,6 +239,12 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
+     * @see retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType,java.util.List)
+     */
+    public List retrieveImageAttributes(String typeName, List imageIDs)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
      * Retrieves all the Attributes with the given SemanticType that
      * belong to a feature with the specified ID.
      * @param type The type of attribute to retrieve.
@@ -215,6 +257,12 @@ public interface SemanticTypesService
      */
     public List retrieveFeatureAttributes(SemanticType type, int featureID)
         throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,int)
+     */
+    public List retrieveFeatureAttributes(String typeName, int featureID)
+        throws DSOutOfServiceException, DSAccessException;    
     
     /**
      * Retrieves all the Attributes with the given SemanticType that belong
@@ -229,6 +277,12 @@ public interface SemanticTypesService
      * @throws DSAccessException If there was a communication error.
      */
     public List retrieveFeatureAttributes(SemanticType type, List featureIDs)
+        throws DSOutOfServiceException, DSAccessException;
+        
+    /**
+     * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,java.util.List)
+     */
+    public List retrieveFeatureAttributes(String typeName, List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
     
 }
