@@ -88,6 +88,7 @@ class ImageChooser
 	/** Build and layout the GUI. */
 	private void buildGUI()
 	{
+		setDialogType(SAVE_DIALOG);
 		setFileSelectionMode(FILES_ONLY);
 		JPEGFilter jpegFilter = new JPEGFilter();
 		setFileFilter(jpegFilter);

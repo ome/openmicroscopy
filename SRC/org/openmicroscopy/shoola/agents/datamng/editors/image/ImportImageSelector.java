@@ -105,7 +105,7 @@ public class ImportImageSelector
 	/** Build and layout the GUI. */
 	private void buildGUI(IconManager im) 
 	{
-		getContentPane().setLayout(new BorderLayout(0, 0));
+		//getContentPane().setLayout(new BorderLayout(0, 0));
 		TitlePanel tp = new TitlePanel("Import Image", 
 								"Import new images in an existing dataset.", 
 								NOTE, im.getIcon(IconManager.IMPORT_IMAGE_BIG));			

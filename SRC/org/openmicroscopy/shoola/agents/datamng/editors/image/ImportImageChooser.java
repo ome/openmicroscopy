@@ -70,6 +70,7 @@ class ImportImageChooser
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+		setDialogType(SAVE_DIALOG);
 		setFileSelectionMode(FILES_ONLY); 
 		setMultiSelectionEnabled(true);
 		DVFilter dvFilter = new DVFilter();
