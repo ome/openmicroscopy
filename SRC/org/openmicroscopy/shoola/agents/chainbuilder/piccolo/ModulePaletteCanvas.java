@@ -48,6 +48,8 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -101,7 +103,40 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 	private static final float ROW_GAP=3.0f;
 	
 	
-
+	private static Comparator moduleComparator = new Comparator() {
+		public int compare(Object o1,Object o2) {
+			if (!(o1 instanceof ChainModuleData))
+				return -1;
+			if (!(o2 instanceof ChainModuleData))
+				return 1;
+			ChainModuleData c1 = (ChainModuleData) o1;
+			ChainModuleData c2 = (ChainModuleData) o2;
+			return c1.getName().compareToIgnoreCase(c2.getName());
+		}
+		public boolean equals(Object obj) {
+			return false;
+		}
+	};
+	
+	private static Comparator moduleCategoryComparator = new Comparator() {
+		public int compare(Object o1,Object o2) {
+			if (!(o1 instanceof ModuleCategoryData))
+				return -1;
+			if (!(o2 instanceof ModuleCategoryData))
+				return 1;
+			ModuleCategoryData cat1 =(ModuleCategoryData) o1;
+			ModuleCategoryData cat2 =(ModuleCategoryData) o2;
+			if (cat1.getName() == null || cat1.getName().length() == 0)
+				return 1;
+			if (cat2.getName() == null || cat2.getName().length() == 0)
+				return -1;
+			return cat1.getName().compareToIgnoreCase(cat2.getName());
+		}
+		public boolean equals(Object obj) {
+			return false;
+		}
+	};
+	
 	
 	/**
 	 * The layer for the canvas. 
@@ -174,7 +209,9 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 		layer.setVisible(false);
 		
 		// do root categories.
-		Iterator iter = modData.rootCategoriesIterator();
+		List rootCats = modData.rootCategories();
+		Collections.sort(rootCats,moduleCategoryComparator);
+		Iterator iter = rootCats.iterator();
 		while (iter.hasNext()) {
 			ModuleCategoryData cat = (ModuleCategoryData) iter.next();
 			displayModulesByCategory(layer,cat,treeNode);
@@ -186,7 +223,9 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 		// no category type for uncategorized
 		CategoryBox box =decorateCategory(layer,null);
 		displayCategoryName(box,ModuleTreeNode.UNCAT_NAME);
-		iter = modData.uncategorizedModulesIterator();
+		List uncats = modData.uncategorizedModules();
+		Collections.sort(uncats,moduleComparator);
+		iter = uncats.iterator();
 		ModuleTreeNode uncatNode = new ModuleTreeNode(ModuleTreeNode.UNCAT_NAME);
 		treeNode.add(uncatNode);
 		while (iter.hasNext()) {
@@ -226,6 +265,9 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 			ModuleTreeNode treeParent) {
 		// display all modules for this category
 		List mods = cat.getModules();
+		Collections.sort(mods,moduleComparator);
+		// ok. sort these.
+		
 		Iterator iter  = mods.iterator();
 
 		//decorate the category with a box.		
@@ -242,6 +284,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 
 		// recursively iterate over children categories.
 		List children = cat.getChildCategories();
+		Collections.sort(children,moduleCategoryComparator);
 		iter = children.iterator();
 		while (iter.hasNext()) {
 			ModuleCategoryData child = (ModuleCategoryData) iter.next();
