@@ -200,7 +200,7 @@ class ColorSelectorManager
 	 */
 	private void modifyAlpha(int value)
 	{
-		view.getAlphaField().setText(" Alpha: "+value);
+		view.getAlphaField().setText("Transparency: "+value);
 		curAlpha = (int) (value*2.55);
 		curColor = new Color(curColor.getRed(), curColor.getGreen(), 
 							curColor.getBlue(), curAlpha);	

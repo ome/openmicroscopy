@@ -73,9 +73,9 @@ class ColorSelector
 	
 	/** table constants. */
 	private static final int			ROW_HEIGHT = 25;
-	private static final int			WIDTH_ONE = 120;
+	private static final int			WIDTH_ONE = 140;
 	
-	private static final int			WIDTH_TWO = 120;
+	private static final int			WIDTH_TWO = 100;
 	private static final Dimension		SLIDER_PANEL = new Dimension(WIDTH_TWO,
 															ROW_HEIGHT);
 	
@@ -91,7 +91,7 @@ class ColorSelector
 	private static final int			TOP = 15;
 	private static final int			WBUTTON = 90;
 	
-	private static final int 			WIN_W = 310;
+	private static final int 			WIN_W = 350;
 	private static final int 			WIN_H = 140;
 	
 	private static final int			MAX_SLIDER = 100;
@@ -175,7 +175,7 @@ class ColorSelector
 		applyButton = new JButton("Apply");
 		cancelButton = new JButton("Cancel");
 		alphaSlider = new JSlider(JSlider.HORIZONTAL, 0, MAX_SLIDER, value);
-		alphaField = new JLabel(" Alpha: "+value);
+		alphaField = new JLabel("Transparency: "+value);
 		alphaField.setOpaque(false);
 		alphaSlider.setOpaque(false);
 		colorsList = new JComboBox(selection);

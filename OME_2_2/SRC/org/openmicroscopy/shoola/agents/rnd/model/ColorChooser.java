@@ -74,11 +74,11 @@ public class ColorChooser
 	private static final int			BORDER = 10;
 	private static final int			VSPACE = 10;
 	private static final int			HSPACE = 15;
-	private static final int 			WIN_W = 240;
+	private static final int 			WIN_W = 280;
 	private static final int 			WIN_H = 180;
 	private static final int			W_EXTRA = 30;
 	private static final int			H_EXTRA = 25;
-	private static final int			WLABEL = 40;
+	private static final int			WLABEL = 80;
 	
 	private static final int			WBUTTON = 90;
 	
@@ -241,7 +241,7 @@ public class ColorChooser
 	{
 		JPanel p = new JPanel();
 		p.setLayout(null);
-		JLabel label = new JLabel("RGB ");
+		JLabel label = new JLabel("RGB: ");
 		label.setBounds(0, 0, WIDTH_BOX, HEIGHT_BOX);
 		rArea.setBounds(WIDTH_BOX+BOX_SPACE, 0, WIDTH_BOX, HEIGHT_BOX);
 		gArea.setBounds(2*(WIDTH_BOX+BOX_SPACE), 0, WIDTH_BOX, HEIGHT_BOX);
@@ -259,18 +259,18 @@ public class ColorChooser
 	private JPanel buildAlphaPanel()
 	{
 		JPanel p = new JPanel();
-		JLabel label = new JLabel("Alpha ");
+		JLabel label = new JLabel("Transparency: ");
 		p.setLayout(null);
-		int size = ColorPalette.WIDTH_PANEL-2*WIDTH_BOX;
 		label.setBounds(0, 0, WLABEL, HEIGHT_BOX);
 		alphaTextField.setBounds(WLABEL, 0, WIDTH_BOX, HEIGHT_BOX);
-		alphaSlider.setBounds(WLABEL+WIDTH_BOX+2*BOX_SPACE, 0, size, 
-							HEIGHT_BOX);
+		alphaSlider.setBounds(WLABEL+WIDTH_BOX+2*BOX_SPACE, 0, 
+								ColorPalette.WIDTH_PANEL-HSPACE, HEIGHT_BOX);
 		p.add(label);
 		p.add(alphaTextField);
 		p.add(alphaSlider);
-		p.setBounds(4*BORDER, ColorPalette.HEIGHT_LP+HEIGHT_BOX+VSPACE, 
-					ColorPalette.WIDTH_PANEL+2*HSPACE, HEIGHT_BOX);			
+		p.setBounds(3*BORDER, ColorPalette.HEIGHT_LP+HEIGHT_BOX+VSPACE, 
+					ColorPalette.WIDTH_PANEL+2*HSPACE+WLABEL+WIDTH_BOX, 
+					HEIGHT_BOX);			
 		return p;
 	}
 	
@@ -283,7 +283,7 @@ public class ColorChooser
 		cancelButton.setBounds(WBUTTON+3, 0, WBUTTON, 20);
 		p.add(applyButton);
 		p.add(cancelButton);
-		p.setBounds(BORDER, ColorPalette.HEIGHT_LP+2*(HEIGHT_BOX+VSPACE),
+		p.setBounds(2*BORDER, ColorPalette.HEIGHT_LP+2*(HEIGHT_BOX+VSPACE),
 					220, HEIGHT_BOX);			
 		return p;
 	} 
