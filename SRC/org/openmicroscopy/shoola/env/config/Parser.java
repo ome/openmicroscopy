@@ -70,24 +70,24 @@ class Parser
         "entry",
         "structuredEntry",
     };
-/* creates an instance of Parser with one parameter
- *
- * @param configFile     configuration file (XML file)
- * @param registry      registryImpl         
- */
+	/** creates an instance of Parser with one parameter
+	 *
+	 * @param configFile     configuration file (XML file)
+	 * @param registry      registryImpl         
+	 */
     Parser(String configFile, RegistryImpl registry)
     { 
         this.configFile = configFile;
         this.registry = registry;
     }
     
-/* creates an instance of Parser with two parameters
- *  not useful now b/c no XMLSchema for configFile available
- *
- * @param  configFile                   configuration file (XML file)
- * @param configFileXMLSchema   XML schema linked to XML configuration file
- * @param registry                      registryImpl
- */    
+	/** creates an instance of Parser with two parameters
+	 *  not useful now b/c no XMLSchema for configFile available
+	 *
+	 * @param  configFile                   configuration file (XML file)
+	 * @param configFileXMLSchema   XML schema linked to XML configuration file
+	 * @param registry                      registryImpl
+	 */    
     Parser(String configFile, String configFileXMLSchema, RegistryImpl registry)
     {
         this.configFile = configFile;
@@ -96,9 +96,9 @@ class Parser
         validating = true;
     }
     
-/* Parse the XML configuration file and build a DOM tree 
- * 
- */
+	/** Parse the XML configuration file and build a DOM tree 
+	 * 
+	 */
     void parse()
     	throws ConfigException
     {
@@ -124,9 +124,9 @@ class Parser
         }   
     }
     
-/* retrieves the content of the  entry and structuredEntry tags.
- * Stores the DOM representation i.e. DOM node into an arrayList
- */
+	/** retrieves the content of the  entry and structuredEntry tags.
+	 * Stores the DOM representation i.e. DOM node into an arrayList
+	 */
     private void readConfigEntries()
     {
         entriesTags = new ArrayList();
@@ -139,8 +139,8 @@ class Parser
             }
         }
     }
-/* validate against the config schema not yet implemented
- */
+	/** validate against the config schema not yet implemented
+	 */
     private void validate()
     {
     }

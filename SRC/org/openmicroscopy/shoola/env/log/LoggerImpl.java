@@ -39,10 +39,10 @@ import org.apache.log4j.Category;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -54,8 +54,8 @@ public class LoggerImpl
     // TODO: configure log4j
     public LoggerImpl() {}
     
-/** Implemented as specified by {@link Logger}.
- */     
+	/** Implemented as specified by {@link Logger}.
+	 */     
     public void debug(Object c, String logMsg)
     {
         Category category = null;
@@ -64,8 +64,8 @@ public class LoggerImpl
         category.debug(logMsg);
     }
     
-/** Implemented as specified by {@link Logger}.
- */ 
+	/** Implemented as specified by {@link Logger}.
+	 */ 
     public void error(Object c, String logMsg)
     {
         Category category = null;
@@ -74,8 +74,8 @@ public class LoggerImpl
         category.error(logMsg);
     }
     
-/** Implemented as specified by {@link Logger}.
- */ 
+	/** Implemented as specified by {@link Logger}.
+	 */ 
     public void fatal(Object c, String logMsg)
     {
         Category category = null;
@@ -84,8 +84,8 @@ public class LoggerImpl
         category.fatal(logMsg);
     }
     
-/** Implemented as specified by {@link Logger}.
- */ 
+	/** Implemented as specified by {@link Logger}.
+	 */ 
     public void info(Object c, String logMsg)
     {
         Category category = null;
@@ -94,8 +94,8 @@ public class LoggerImpl
         category.info(logMsg);
     }
     
-/** Implemented as specified by {@link Logger}.
- */ 
+	/** Implemented as specified by {@link Logger}.
+	 */ 
     public void warn(Object c, String logMsg)
     {
         Category category = null;

@@ -43,10 +43,10 @@ import java.util.ListIterator;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -60,15 +60,15 @@ public class EventBusImpl
     private int                 state;
     private static final int    IDLE = 0, DISPATCHING = 1;   
     
-/** Creates a new instance of EventBusImpl */
+	/** Creates a new instance of EventBusImpl */
     public EventBusImpl()
     {
         eventQueue = new LinkedList();
         deMultiplexTable = new HashMap();
         state = IDLE;
     }    
-/** Implemented as specified by {@link EventBus}.
- */    
+	/** Implemented as specified by {@link EventBus}.
+	 */    
     public void register(AgentEventListener  subscriber, Class[] events)
     {
         for (int j=0; j<events.length; ++j) {
@@ -90,8 +90,8 @@ public class EventBusImpl
         }
     }
     
-/** Implemented as specified by {@link EventBus}.
- */    
+	/** Implemented as specified by {@link EventBus}.
+	 */    
     public void register(AgentEventListener  subscriber, Class event)
     {
         if (verifyInheritance(event)) { // check inheritance
@@ -109,8 +109,8 @@ public class EventBusImpl
             deMultiplexTable.put(event, list);
         }     
     }    
-/** Implemented as specified by {@link EventBus}.
- */    
+	/** Implemented as specified by {@link EventBus}.
+	 */    
     public void remove(AgentEventListener  subscriber, Class[] events)
     {
         for (int j=0; j<events.length; ++j) {
@@ -127,8 +127,8 @@ public class EventBusImpl
             }     
         }   
     }
-/** Implemented as specified by {@linkEventBus}.
- */ 
+	/** Implemented as specified by {@linkEventBus}.
+	 */ 
     public void remove(AgentEventListener  subscriber, Class event)
     {
         if (verifyInheritance(event)) { // check inheritance
@@ -143,8 +143,8 @@ public class EventBusImpl
         }     
     }
     
-/** Implemented as specified by {@linkEventBus}.
- */ 
+	/** Implemented as specified by {@linkEventBus}.
+	 */ 
     public void remove(AgentEventListener  subscriber)
     {
         Iterator   e = deMultiplexTable.keySet().iterator();
@@ -162,8 +162,8 @@ public class EventBusImpl
             } 
         }
     }    
-/** Implemented as specified by {@link EventBus}.
- */  
+	/** Implemented as specified by {@link EventBus}.
+	 */  
     public void post(AgentEvent e)
     {
         switch (state) {
@@ -180,7 +180,7 @@ public class EventBusImpl
         }
     }
     
-/** Dispatch the event */
+	/** Dispatch the event */
     private void dispatch()
     {
         // grab the first event posted
@@ -194,11 +194,11 @@ public class EventBusImpl
         }   
     }
     
-/** verify the inheritance of the class i.e. if the class inherits 
- * from AgentEvent class
- *
- * @param eventClass      class 
- */
+	/** verify the inheritance of the class i.e. if the class inherits 
+	 * from AgentEvent class
+	 *
+	 * @param eventClass      class 
+	 */
     private boolean verifyInheritance(Class eventClass)
     {
         Class agtEvent = AgentEvent.class;

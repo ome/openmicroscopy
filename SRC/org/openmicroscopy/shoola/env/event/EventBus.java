@@ -34,10 +34,10 @@ package org.openmicroscopy.shoola.env.event;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -46,52 +46,52 @@ public interface EventBus
 {
     
 
-/** Add the subscriber to the List
- * An agent uses the register method in order to be notified  
- * of occuremces of the specified event types
- *
- * @param subscriber     AgentListener objet to add
- * @param events          list of classes that the subscriber registers for
- */     
+	/** Add the subscriber to the List
+	 * An agent uses the register method in order to be notified  
+	 * of occuremces of the specified event types
+	 *
+	 * @param subscriber	AgentListener objet to add
+	 * @param events		list of classes that the subscriber registers for
+	 */     
     public void register(AgentEventListener  subscriber, Class[] events);
 
-/** Add the subscriber to the List
- * An agent uses the register method in order to be notified  
- * of occuremces of the specified event types
- *
- * @param subscriber    AgentListener objet to add
- * @param event          a class 
- */     
+	/** Add the subscriber to the List
+	 * An agent uses the register method in order to be notified  
+	 * of occuremces of the specified event types
+	 *
+	 * @param subscriber    AgentListener objet to add
+	 * @param event			a class 
+	 */     
     public void register(AgentEventListener  subscriber, Class event);
 
-/** Remove the subscriber to the List
- *
- * @param subscriber     AgentListener objet to remove
- * @param events          list of classes 
- */    
+	/** Remove the subscriber to the List
+	 *
+	 * @param subscriber	AgentListener objet to remove
+	 * @param events		list of classes 
+	 */    
     public void remove(AgentEventListener  subscriber);
     
-/** Remove the subscriber to the List
- *
- * @param subscriber     AgentListener objet to remove
- * @param event          a class
- */     
+	/** Remove the subscriber to the List
+	 *
+	 * @param subscriber     AgentListener objet to remove
+	 * @param event          a class
+	 */     
     public void remove(AgentEventListener  subscriber, Class event);
     
-/** Remove the subscriber to the List
- *
- * @param subscriber     AgentListener objet to remove
- * @param events          list of classes 
- */     
+	/** Remove the subscriber to the List
+	 *
+	 * @param subscriber	AgentListener objet to remove
+	 * @param events		list of classes 
+	 */     
     public void remove(AgentEventListener  subscriber, Class[] events);
     
-/** manages the event  i.e. fires an event and puts it on the EventBus so that 
- * it can be delivered to all subscribers that registered  in that type
- * of event.
- * 
- * @param e  AgentEvent to post
- *
- */ 
+	/** manages the event  i.e. fires an event and puts it on the EventBus 
+	 * so that it can be delivered to all subscribers that registered  in 
+	 * that type of event.
+	 * 
+	 * @param e  AgentEvent to post
+	 *
+	 */ 
     public void post(AgentEvent e);
     
     

@@ -37,10 +37,10 @@ package org.openmicroscopy.shoola.env.event;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -49,10 +49,10 @@ package org.openmicroscopy.shoola.env.event;
 public interface AgentEventListener
 {   
 
-/* Call back method  that the event bus invokes in order to dispatch an event
- *
- * @param e      AgentEvent to be dispatched
- */
+	/** Call back method  that the event bus invokes in order to dispatch an event
+	 *
+	 * @param e      AgentEvent to be dispatched
+	 */
     public void eventFired(AgentEvent e); 
     
     

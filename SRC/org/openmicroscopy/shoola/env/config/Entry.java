@@ -47,10 +47,10 @@ import org.w3c.dom.Node;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -58,10 +58,10 @@ import org.w3c.dom.Node;
 abstract class Entry
 {
     
-    static HashMap     contentHandlers;
-    static String      NAME = "name", TYPE = "type";
-    static String      ENTRY = "entry", STRUCT_ENTRY = "structuredEntry";
-    static String      DEFAULT_ENTRY = "string", DEFAULT_STRUCT_ENTRY ="map";
+    static HashMap     	contentHandlers;
+    static String      	NAME = "name", TYPE = "type",
+						ENTRY = "entry", STRUCT_ENTRY = "structuredEntry",
+						DEFAULT_ENTRY = "string", DEFAULT_STRUCT_ENTRY ="map";
     static {
         contentHandlers = new HashMap();
         contentHandlers.put("map", MapEntry.class);
@@ -83,13 +83,13 @@ abstract class Entry
     }
     private String      name;
     
-/* For a given entry or structuredEntry tag, creates a concrete 
- * <code>Entry</code> object to handle the conversion of the tag's content 
- * into an object
- *
- * @param n             DOM node representing the tag
- * @return Entry                    
- */  
+	/** For a given entry or structuredEntry tag, creates a concrete 
+	 * <code>Entry</code> object to handle the conversion of the tag's content 
+	 * into an object
+	 *
+	 * @param node             DOM node representing the tag
+	 * @return Entry                    
+	 */  
     
     static Entry createEntryFor(Node node)
     {
@@ -113,11 +113,11 @@ abstract class Entry
         return entry;
     }
     
-/* retrieves the value of the attributes name and type and initializes
- *
- * @param n    DOM node
- * @return NameTypePair
- */    
+	/** retrieves the value of the attributes name and type and initializes
+	 *
+	 * @param n    DOM node
+	 * @return NameTypePair
+	 */    
     private static NameTypePair retrieveEntryAttributes(Node n)
     {
         NameTypePair    ntp = new NameTypePair();
@@ -134,11 +134,11 @@ abstract class Entry
         return ntp;
     }
     
-/* returns the content of the <code>name</code> attribute 
- * of a configuration entry
- *
- * @return String   the content of the <code>name</code> attribute
- */  
+	/** returns the content of the <code>name</code> attribute 
+	 * of a configuration entry
+	 *
+	 * @return String   the content of the <code>name</code> attribute
+	 */  
     public String getName()
     {
         return name;

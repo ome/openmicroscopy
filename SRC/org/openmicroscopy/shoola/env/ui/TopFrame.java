@@ -37,41 +37,42 @@ import javax.swing.JMenuItem;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
-public interface TopFrame {
+public interface TopFrame
+ {
 
-/**  Position a component on the layer of the application internal desktop.
-* 
-* @param    c             component to position
-* @param    position    specified position
-*/    
+	/**  Position a component on the layer of the application internal desktop.
+	* 
+	* @param    c             component to position
+	* @param    position    specified position
+	*/    
     public void addToDesktop(Component c, int position);
     
-/* Remove a component form the application internal desktop
-* 
-* @param   c component to be removed
-*/
+	/** Remove a component form the application internal desktop
+	* 
+	* @param   c component to be removed
+	*/
     public void removeFromDesktop(Component c);
     
-/* add a component to a specified menu 
-*
-* @param menuType  ID which corresponds to specified menu
-* @param item         component to be added
-*/
+	/** add a component to a specified menu 
+	*
+	* @param menuType  ID which corresponds to specified menu
+	* @param item         component to be added
+	*/
     public void addToMenu(int menuType, JMenuItem item);
     
-/* remove a component from a specified menu 
-*
-* @param menuType  ID which corresponds to specified menu
-* @param item         component to be removed
-*/
+	/** remove a component from a specified menu 
+	*
+	* @param menuType  ID which corresponds to specified menu
+	* @param item         component to be removed
+	*/
     public void removeFromMenu(int menuType, JMenuItem item);
     
     

@@ -33,41 +33,46 @@ package org.openmicroscopy.shoola.env.config;
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
 
 class HostInfo
 {
-    
+	static final String PORT = "port", HOST = "host";
     String              host;
     Integer             port;
-    static final String PORT = "port", HOST = "host";
     
-    void setValue(String value, String tag) {
+	/** Set the pair (name, value)
+	* 
+	* @param value		tag's value
+	* @param tag		tag's name
+	*/    
+    void setValue(String value, String tag)
+     {
         try {
             if (tag.equals(PORT)) port = new Integer(value);  
             else if (tag.equals(HOST)) host = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
-/* return the value of the <code>host</code>
- *
- *@return the above mentioned
- */
+	/** return the value of the <code>host</code>
+	 *
+	 * @return the above mentioned
+	 */
     String getHost()
     {
         return host;
     }
     
-/* return the value of the <code>port</code> tag
- *
- *@return the above mentioned
- */
+	/** return the value of the <code>port</code> tag
+	 *
+	 * @return the above mentioned
+	 */
     Integer getPort()
     {
         return port;

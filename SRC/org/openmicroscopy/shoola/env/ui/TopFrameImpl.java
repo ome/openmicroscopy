@@ -45,10 +45,10 @@ import javax.swing.JMenuItem;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -58,28 +58,28 @@ public class TopFrameImpl
     implements TopFrame, ActionListener
 {
         
-/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
- * method to position a component on the bottommost layer of the application 
- * internal desktop.
- */
+	/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
+	 * method to position a component on the bottommost layer of the application 
+	 * internal desktop.
+	 */
     public static int       DEFAULT_LAYER = 0;
-/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
- * method to position a component on the palette layer of the application 
- * internal desktop.
- * The palette layer sits over the default layer. Useful for floating toolbars 
- * and palettes, so they can be positioned above other components. 
- */
+	/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
+	 * method to position a component on the palette layer of the application 
+	 * internal desktop.
+	 * The palette layer sits over the default layer. Useful for floating 
+	 * toolbars and palettes, so they can be positioned above other components. 
+	 */
     public static int       PALETTE_LAYER = 1;
     
-/*Action command ID */    
+	/**Action command ID */    
     static final int        FILE = 0;
     static final int        VIEW = 1;
     static final int        HELP = 2;
     static final int        EXIT = 3;
     
-/** the 3 available menus */    
+	/** the 3 available menus */    
     private JMenu           fileMenu, viewMenu, helpMenu;
-/** The application internal desktop. */ 
+	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
     
     public TopFrameImpl()
@@ -93,23 +93,23 @@ public class TopFrameImpl
         desktop = new JDesktopPane();
     }
     
-/** Implemented as specified by {@link UserNotifier}.
- */     
+	/** Implemented as specified by {@link UserNotifier}.
+	 */     
     public void addToDesktop(Component c, int position)
     {
         desktop.add(c, new Integer(position));
     }
     
-/** Implemented as specified by {@link UserNotifier}.
- */ 
+	/** Implemented as specified by {@link UserNotifier}.
+	 */ 
     public void removeFromDesktop(Component c)
     {
         desktop.remove(c);
         c.setVisible(false);
     }
     
-/** Implemented as specified by {@link UserNotifier}.
- */ 
+	/** Implemented as specified by {@link UserNotifier}.
+	 */ 
     public void addToMenu(int menuType, JMenuItem menuItem)
     {
         JMenu menu = retrieveMenu(menuType);
@@ -117,18 +117,18 @@ public class TopFrameImpl
         else menu.add(menuItem);
     }
     
-/** Implemented as specified by {@linkUserNotifier}.
- */ 
+	/** Implemented as specified by {@linkUserNotifier}.
+	 */ 
     public void removeFromMenu(int menuType, JMenuItem item)
     {
         JMenu menu = retrieveMenu(menuType);
         menu.remove(item);
     }
     
-/* handles the event EXIT fired by the fileMenu
- * 
- * Required by the ActionListener interface 
- */ 
+	/** handles the event EXIT fired by the fileMenu
+	 * 
+	 * Required by the ActionListener interface 
+	 */ 
     public void actionPerformed(ActionEvent e)
     {
         try {
@@ -147,10 +147,10 @@ public class TopFrameImpl
     public void open() {
     }
     
-/* Add the specified menuItem to the container at the position n-1 
-* 
-* @param menuItem       menuItem to add
-*/
+	/** Add the specified menuItem to the container at the position n-1 
+	* 
+	* @param menuItem       menuItem to add
+	*/
     private void addToMenuFile(JMenuItem menuItem)
     {
         Container popMenu = fileMenu.getPopupMenu();
@@ -160,7 +160,7 @@ public class TopFrameImpl
         fileMenu.add(lastOne);
     }
     
-/* Initializes the 3 menus and add them to the menuBar */
+	/** Initializes the 3 menus and add them to the menuBar */
     private JMenuBar createMenuBar()
     {
         JMenuBar menuBar = new JMenuBar(); 
@@ -173,7 +173,7 @@ public class TopFrameImpl
         return menuBar;
     }
     
-/* Initializes the fileMenu */
+	/** Initializes the fileMenu */
     private void createFileMenu()
     {
         fileMenu = new JMenu("File");
@@ -183,11 +183,11 @@ public class TopFrameImpl
         fileMenu.add(menuItem);
     }
 
-/* retrieves the specified menu 
-* 
-* @param  int  menuType
-* @return the above mentioned 
-*/    
+	/** retrieves the specified menu 
+	* 
+	* @param  int  menuType
+	* @return the above mentioned 
+	*/    
     private JMenu retrieveMenu(int menuType)
     {
         JMenu menu = null;
@@ -202,7 +202,7 @@ public class TopFrameImpl
                 case HELP:
                     menu = helpMenu;
             }// end switch  
-        } catch(NumberFormatException nfe) {  //impossible if IDs are set correctly 
+        } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
                 throw nfe;  //just to be on the safe side...
         }    
         return menu;

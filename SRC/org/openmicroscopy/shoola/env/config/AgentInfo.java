@@ -46,17 +46,17 @@ package org.openmicroscopy.shoola.env.config;
 class AgentInfo 
 {
 	static final String         NAME = "name", 
-									CLASS = "class", 
-									CONFIG = "config";
+								CLASS = "class", 
+								CONFIG = "config";
 	
 	/** The value of the <code>name</code> tag. */																									
-    private String		name; 
+    private String				name; 
     
 	/** The value of the <code>class</code> tag. */
-	private String		agentClass;
+	private String				agentClass;
 	
 	/** The value of the <code>config</code> tag. */
-	private String		configPath;
+	private String				configPath;
 	
     
     void setValue(String value, String tag)
