@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder; 
 import javax.xml.parsers.DocumentBuilderFactory;  
-import javax.xml.parsers.FactoryConfigurationError;  
-import javax.xml.parsers.ParserConfigurationException;
 
 //Third-party libraries
 import org.w3c.dom.Document;
@@ -50,10 +48,10 @@ import org.w3c.dom.NodeList;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
@@ -101,7 +99,8 @@ class Parser
 /* Parse the XML configuration file and build a DOM tree 
  * 
  */
-    private void parse()
+    void parse()
+    	throws ConfigException
     {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -119,7 +118,10 @@ class Parser
                Entry entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }
-        } catch (Exception e) { throw new RuntimeException(e); }   
+        } catch (Exception e) { 
+        	throw new ConfigException("An error occurred while attempting"+
+        								"to process: "+configFile, e); 
+        }   
     }
     
 /* retrieves the content of the  entry and structuredEntry tags.
