@@ -41,6 +41,7 @@ import java.util.Vector;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.dto.Feature;
+import org.openmicroscopy.ds.st.Extent;
 import org.openmicroscopy.ds.st.Location;
 import org.openmicroscopy.ds.st.Trajectory;
 import org.openmicroscopy.ds.st.TrajectoryEntry;
@@ -79,7 +80,7 @@ public class SpotsTrajectorySet
 	private float maxX=-Float.MAX_VALUE;
 	private float maxY=-Float.MAX_VALUE;
 	private float maxZ=-Float.MAX_VALUE;
-	private float maxSz=-Float.MAX_VALUE;
+	private int maxSz=-Integer.MIN_VALUE;
 	
 	private ChainExecutionData execution;
 	private Registry registry;
@@ -125,8 +126,12 @@ public class SpotsTrajectorySet
 		if (locations == null || locations.size() == 0)
 			return;
 	
+		// get extents
+		List extents = getExtents(featureList);
+		if (extents == null || locations.size() == 0) 
+			return;
 		
-		buildTrajectories(entries,locations);
+		buildTrajectories(entries,locations,extents);
 		//dumpTrajectories();
 	}
 	
@@ -195,7 +200,30 @@ public class SpotsTrajectorySet
         }
         return null;
 	}
+	
+	private List getExtents(List features) {
 		
+		SemanticTypesService sts = registry.getSemanticTypesService();
+		try {
+			List locations = 			
+				sts.retrieveExtentsByFeatureID(features);
+			System.err.println("# of trajectories..."+locations.size());
+			return locations;
+	   }
+	   catch(DSOutOfServiceException dso)
+        {
+            dso.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Connection Error",dso.getMessage(),dso);
+        }
+        catch(DSAccessException dsa)
+        {
+            dsa.printStackTrace();
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error",dsa.getMessage(),dsa);
+        }
+        return null;
+	}
 	private void dumpTrajectories() {
 		if (trajectories == null) return;
 		System.err.println("dumping trajectories...");
@@ -211,13 +239,14 @@ public class SpotsTrajectorySet
 		System.err.println("max z is "+getMaxZ());
 	}
 	
-	private void buildTrajectories(List entries,List locations) {
+	private void buildTrajectories(List entries,List locations,List extents) {
 		HashMap trajMap = new HashMap();
 		Iterator iter = entries.iterator();
 		while (iter.hasNext()) {
 			TrajectoryEntry te = (TrajectoryEntry) iter.next();
 			int feature = te.getFeature().getID();
 			Location loc = findLocation(feature,locations);
+			Extent ext = findExtent(feature,extents);
 			if (loc != null) { 
 				Trajectory t = te.getTrajectory();
 				Object obj = trajMap.get(t);
@@ -226,7 +255,7 @@ public class SpotsTrajectorySet
 					st = new SpotsTrajectory();
 				else 
 					st = (SpotsTrajectory)obj;
-				st.addPoint(te,loc);
+				st.addPoint(te,loc,ext);
 				
 				if (st.getMaxX() > maxX)
 					maxX = st.getMaxX();
@@ -234,6 +263,9 @@ public class SpotsTrajectorySet
 					maxY = st.getMaxY();
 				if (st.getMaxZ() > maxZ)
 					maxZ = st.getMaxZ();
+				// max size.
+				if (st.getMaxSz() > maxSz)
+					maxSz=st.getMaxSz();
 				
 				trajMap.put(t,st); 
 			}
@@ -247,6 +279,16 @@ public class SpotsTrajectorySet
 			Location loc = (Location) iter.next();
 			if (loc.getFeature().getID() == feature) 
 				return loc;
+		}
+		return null;
+	}
+	
+	private Extent findExtent(int feature,List extents) {
+		Iterator iter = extents.iterator();
+		while (iter.hasNext()) {
+			Extent ext = (Extent) iter.next();
+			if (ext.getFeature().getID() == feature) 
+				return ext;
 		}
 		return null;
 	}

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Extent;
 import org.openmicroscopy.ds.st.Location;
 import org.openmicroscopy.ds.st.Trajectory;
 import org.openmicroscopy.ds.st.TrajectoryEntry;
@@ -69,7 +70,6 @@ public class SpotsTrajectory {
 	
 	
 	private ArrayList entries = new ArrayList();
-	private float size=1.0f;
 	
 	// non-statics are particular to this trajectory
 	private float maxX =  -Float.MAX_VALUE;
@@ -80,6 +80,7 @@ public class SpotsTrajectory {
 	private float minZ =  Float.MAX_VALUE;
 
 
+	private int maxSz = Integer.MIN_VALUE;
 	
 	private float curMin=0.0f;
 	private float curMax=0.0f;
@@ -93,13 +94,13 @@ public class SpotsTrajectory {
 	}
 	
 	
-	public SpotsTrajectory(TrajectoryEntry entry,Location location) {
-		addPoint(entry,location);
+	public SpotsTrajectory(TrajectoryEntry entry,Location location,Extent extent) {
+		addPoint(entry,location,extent);
 	}
 	
-	public void addPoint(TrajectoryEntry entry,Location location) {
+	public void addPoint(TrajectoryEntry entry,Location location,Extent extent) {
 		trajectory = entry.getTrajectory();
-		SpotsTrajectoryEntry ste = new SpotsTrajectoryEntry(entry,location);
+		SpotsTrajectoryEntry ste = new SpotsTrajectoryEntry(entry,location,extent);
 		// where is this entry in the list
 		int order = entry.getOrder().intValue();
 		if (order > entries.size()) {
@@ -131,6 +132,9 @@ public class SpotsTrajectory {
 	
 		if (ste.getZ() < minZ) 
 			minZ=ste.getZ();
+		
+		if (ste.getSize() > maxSz)
+			maxSz = ste.getSize();
 	
 	}
 	
@@ -163,16 +167,6 @@ public class SpotsTrajectory {
 		return (SpotsTrajectoryEntry) entries.get(i);
 	}
 
-	
-	public float getSize() {
-		return size;
-	}
-	
-	public float getLogSize() {
-		return (float) Math.log(size);
-	}
-	
-	
 		
 	public float getMaxX() {
 		return maxX;
@@ -222,6 +216,10 @@ public class SpotsTrajectory {
 			default:
 				return -1;
 		}
+	}
+	
+	public int getMaxSz() {
+		return maxSz;
 	}
 
 

@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.spots.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Extent;
 import org.openmicroscopy.ds.st.Location;
 import org.openmicroscopy.ds.st.TrajectoryEntry;
 /** 
@@ -51,24 +52,40 @@ import org.openmicroscopy.ds.st.TrajectoryEntry;
 public class SpotsTrajectoryEntry {
 		
 	
-	private Location location;
 	private TrajectoryEntry entry;
 	
-	public SpotsTrajectoryEntry(TrajectoryEntry entry,Location location) {
+	private float x;
+	private float y;
+	private float z;
+	int size;
+	
+	public SpotsTrajectoryEntry(TrajectoryEntry entry,Location location,
+			Extent extent) {
 		this.entry = entry;
-		this.location = location;		
+		x = location.getTheX().floatValue();
+		y = location.getTheY().floatValue();
+		z = location.getTheZ().floatValue();
+		size = extent.getVolume().intValue();
 	}
 	
 	public float getX() {
-		return location.getTheX().floatValue();
+		return x;
 	}
 	
 	public float getY() {
-		return location.getTheY().floatValue();
+		return y; 
 	}
 	
 	public float getZ() {
-		return location.getTheZ().floatValue();
+		return z;
+	}
+	
+	public int getSize() {
+		return size;
+	}
+	
+	public float getLogSize() {
+		return (float) Math.log(getSize());
 	}
 	
 	public float getVal(int axis) {
