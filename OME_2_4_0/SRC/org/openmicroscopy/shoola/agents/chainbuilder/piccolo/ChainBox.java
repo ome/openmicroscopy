@@ -123,7 +123,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 		// add name
 		name = new ClickableName(chain.getName());
-		//name.setGreekThreshold(0);
+		name.setGreekThreshold(0);
 		name.setFont(Constants.CHAIN_BOX_FONT);
 		name.setPickable(true);
 		//name.setScale(MAX_NAME_SCALE);
@@ -249,6 +249,7 @@ public class ChainBox extends GenericBox implements MouseableNode, ToolTipNode{
 	
 	public void mouseEntered(GenericEventHandler handler,PInputEvent e) {
 		chainView.setPickable(true);
+		moveToFront();
 		((ChainPaletteEventHandler) handler).setLastHighlighted(this);
 		setHighlighted(true);
 		MouseOverAnalysisChain event = 
