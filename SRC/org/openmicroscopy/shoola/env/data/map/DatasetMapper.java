@@ -94,10 +94,40 @@ public class DatasetMapper
 		//Specify which fields we want for the dataset.
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
+		criteria.addWantedField("description");
+		criteria.addWantedField("owner");
+		criteria.addWantedField("images");
+
+		//Specify which fields we want for the owner.
+		criteria.addWantedField("owner", "id");
+		criteria.addWantedField("owner", "FirstName");
+		criteria.addWantedField("owner", "LastName");
+		criteria.addWantedField("owner", "Email");
+		criteria.addWantedField("owner", "Institution");
+		criteria.addWantedField("owner", "Group");
+
+		//Specify which fields we want for the owner's group.
+		criteria.addWantedField("owner.Group", "id");
+		criteria.addWantedField("owner.Group", "Name");
+
+		//Specify which fields we want for the images.
+		criteria.addWantedField("images", "id");
+		criteria.addWantedField("images", "name");
+		criteria.addWantedField("images", "default_pixels");
 		
+		//Specify which fields we want for the pixels.
+		criteria.addWantedField("images.default_pixels", "id"); 
+		criteria.addWantedField("images.default_pixels", "ImageServerID"); 
+		criteria.addWantedField("images.default_pixels", "Repository");
+		criteria.addWantedField("images.default_pixels.Repository",
+								"ImageServerURL");		
+
+
 		criteria.addFilter("owner_id", new Integer(userID));
 		criteria.addFilter("name", "NOT LIKE", "ImportSet");
 		criteria.addOrderBy("name");
+
+
 		return criteria;
 	}
 	
@@ -214,6 +244,53 @@ public class DatasetMapper
 		empty.setImages(images);	
 	}
 
+
+	/** Fill in the dataset data object. 
+	 * 
+	 * @param dataset	OMEDS dataset object.
+	 * @param empty		dataset data to fill up.
+	 * 
+	 */
+	public static void fillDataset(Dataset dataset, DatasetData empty,
+			ImageSummary iProto)
+	{
+		//Fill up the DataObject with the data coming from Project.
+		empty.setID(dataset.getID());
+		empty.setName(dataset.getName());
+		empty.setDescription(dataset.getDescription());
+				
+		//Fill up the DataObject with data coming from Experimenter.
+		Experimenter owner = dataset.getOwner();
+		empty.setOwnerID(owner.getID());
+		empty.setOwnerFirstName(owner.getFirstName());
+		empty.setOwnerLastName(owner.getLastName());
+		empty.setOwnerEmail(owner.getEmail());
+		empty.setOwnerInstitution(owner.getInstitution());
+		
+		//Fill up the DataObject with data coming from Group.
+		Group group = owner.getGroup();
+		empty.setOwnerGroupID(group.getID());
+		empty.setOwnerGroupName(group.getName());
+		
+		//Create the image summary list.
+		List images = new ArrayList();
+		List  dsImages = dataset.getImages();
+		
+		if (dsImages != null && dsImages.size() > 0) {
+			Iterator i = dsImages.iterator();
+			Image img;
+			while (i.hasNext()) {
+				img = (Image) i.next();
+				ImageSummary is = (ImageSummary) iProto.makeNew();
+				is.setID(img.getID());
+				is.setName(img.getName());
+				is.setPixelsIDs(fillListPixelsID(img));
+				is.setDefaultPixels(fillDefaultPixels(img.getDefaultPixels()));
+				images.add(is);
+			}
+			empty.setImages(images);
+		}
+	}
 	/**
 	 * Creates the image summary list.
 	 * 
@@ -286,8 +363,7 @@ public class DatasetMapper
 			d = (Dataset) i.next();
 			//Make a new DataObject and fill it up.
 			ds = (DatasetData) dProto.makeNew();
-			ds.setID(d.getID());
-			ds.setName(d.getName());
+			fillDataset(d,ds,iProto);
 			datasetsList.add(ds);
 		}
 		return datasetsList;
