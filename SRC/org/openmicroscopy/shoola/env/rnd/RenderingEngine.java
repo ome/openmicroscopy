@@ -77,6 +77,7 @@ public class RenderingEngine
 {
 
 	private static RenderingEngine		singleton;
+	private static Registry				registry;
 	
 	//NB: this can't be called outside of container b/c agents have no refs
 	//to the singleton container. So we can be sure this method is going to
@@ -85,17 +86,22 @@ public class RenderingEngine
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)	singleton = new RenderingEngine(c);
+		registry = c.getRegistry();
+		if (singleton == null)	singleton = new RenderingEngine();
 		return singleton;
 	}
 	
-	private Registry		registry;
+	
 	private Map				renderers;
 	
-	private RenderingEngine(Container c)
+	private RenderingEngine()
 	{
-		registry = c.getRegistry();
 		renderers = new HashMap();
+	}
+	
+	public static Registry getRegistry()
+	{
+		return registry;
 	}
 	
 	private void hanldeException(String message, Exception cause)

@@ -69,8 +69,11 @@ abstract class RenderingStrategy
 				strategy = new RGBStrategy();
 				break;
 			default:
-				throw new IllegalArgumentException(
-											"Wrong Rendering model identifier");
+				//set the GreyScaleStrategy as the default one
+				strategy = new GreyScaleStrategy();
+				RenderingEngine.getRegistry().getLogger().debug(
+							RenderingStrategy.class, 
+									"Wrong Rendering model identifier");
 		}
 		return strategy;
 	}

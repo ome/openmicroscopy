@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
@@ -111,9 +112,12 @@ public class QuantumFactory
 				break;
 			case EXPONENTIAL:
 				qMap = new ExponentialMap(); 
+				break;
+			default: 
+				qMap = new PolynomialMap();
+				RenderingEngine.getRegistry().getLogger().debug(
+					QuantumFactory.class, "Unsupported transformation");	
 		}
-		if (qMap == null)
-			throw new IllegalArgumentException("Unsupported transformation");
 		strg = getQuantization(qd);
 		strg.setMap(qMap);
 		if (strg == null)
