@@ -62,6 +62,8 @@ public class ExecutionView extends Ellipse2D.Float {
 	private GridModel gridModel;
 	private ExecutionsModel execsModel;
 	
+	private boolean highlighted;
+	
 	public ExecutionView(ChainExecutionData execution,GridModel gridModel,
 			ExecutionsModel execsModel) {
 		super();
@@ -70,16 +72,21 @@ public class ExecutionView extends Ellipse2D.Float {
 		this.execsModel = execsModel;
 	}
 	
+	
+	
 	public void paint(Graphics2D g,boolean current) {
 		long time = execution.getDate().getTime();
 		
 		if (execsModel.isInRange(time)) {
 		
 			Color oldColor = g.getColor();
-			if (current == false)
-				g.setColor(Constants.DEFAULT_COLOR);
-			else
+			if (current == true)
 				g.setColor(Constants.SELECTED_FILL);
+			else if (highlighted == true)
+				g.setColor(Constants.HIGHLIGHT_COLOR);
+			else
+				g.setColor(Constants.DEFAULT_COLOR);
+				
 			int x = (int) gridModel.getHorizCoord(time);
 			int y = (int) gridModel.getVertCoord(execsModel.getRow(execution));
 			setFrame(x,y,GridModel.DOT_SIDE,GridModel.DOT_SIDE);
@@ -98,6 +105,10 @@ public class ExecutionView extends Ellipse2D.Float {
 	
 	public ChainExecutionData getChainExecution() {
 		return execution;
+	}
+	
+	public void setHighlighted(boolean v) {
+		highlighted = v;
 	}
 }
 	
