@@ -82,12 +82,12 @@ class SplashScreenView
 	
 	/** Absolute positioning and size of the task name. */
 	private static final Rectangle	TASK_BOUNDS = 
-											new Rectangle(160, 200, 150, 15);
+											new Rectangle(110, 170, 200, 20);
 											//TODO: use font metrics.
 	
 	/** Absolute positioning and size of the progress bar. */
 	private static final Rectangle	PROGRESS_BOUNDS = 
-											new Rectangle(175, 220, 120, 15);
+											new Rectangle(95, 190, 200, 10);
 		
 	/** Absolute positioning and size of the user text field. */
 	private static final Rectangle	USER_BOUNDS = 
@@ -103,13 +103,15 @@ class SplashScreenView
 	
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
-										new Font("SansSerif", Font.PLAIN, 10);										
-	
+										new Font("SansSerif", Font.PLAIN, 10);
+	/** Font for progress bar label and text fields. */
+	private static final Font		FONT_TASK = 
+										new Font("SansSerif", Font.PLAIN, 8);										
 	/** The font color for the login text fields. */
 	private static final Color		FONT_COLOR = new Color(250, 100, 0);
 		
-		
-		
+	/** The font color for the login text fields. */
+	private static final Color		FONT_COLOR_TASK = new Color(102, 0, 204);	
 		
 	/** Text field to enter the login user name. */
 	JTextField      user;
@@ -174,8 +176,10 @@ class SplashScreenView
 	{
 		currentTask = new JLabel();
 		currentTask.setFont(FONT);
-		currentTask.setForeground(FONT_COLOR);
+		//currentTask.setForeground(FONT_COLOR);
+		currentTask.setForeground(FONT_COLOR_TASK);
 		progressBar = new JProgressBar();
+		progressBar.setFont(FONT_TASK);
 		progressBar.setStringPainted(true);
 	}
 	
