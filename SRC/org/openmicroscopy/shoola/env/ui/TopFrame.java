@@ -77,59 +77,81 @@ public interface TopFrame
 	public static final int        	HELP = 2;
 	public static final int        	CONNECT = 3;
 	
-	
+	/** ID corresponding to the a toolBar. */
+	public static final int			FILE_TB = 100;
+	public static final int			VIEW_TB = 101;
+	public static final int			CONNECT_TB = 102;
+	public static final int			HELP_TB = 103;
+				
 	public static final int			OMEDS = 0;
 	public static final int			OMEIS = 1; 
 	
+	
+	/**
+	 * Add a component to a toolBar.
+	 * 
+	 * @param tbType	ID corresponding to a toolBar.
+	 * @param c			component to add.
+	 *
+	 */
+	public void addToToolBar(int tbType, Component c);
+	
+	/**
+	 * Remove a component from a toolBar.
+	 * 
+	 * @param tbType	ID corresponding to a toolBar.
+	 * @param c			component to remove.
+	 */
+	public void removeFromToolBar( int tbType, Component c);
+	
 	/** 
-	* Positions a component on the layer of the application internal desktop.
-	* 
-	* @param    c			component to position.
-	* @param    position    specified position.
-	*/    
+	 * Positions a component on the layer of the application internal desktop.
+	 * 
+	 * @param    c			component to position.
+	 * @param    position	specified position.
+	 */    
     public void addToDesktop(Component c, int position);
     
 	/** 
-	* Removes a component form the application internal desktop.
-	* 
-	* @param   c component to be removed.
-	*/
+	 * Removes a component form the application internal desktop.
+	 * 
+	 * @param   c component to be removed.
+	 */
     public void removeFromDesktop(Component c);
     
 	/** 
-	* Adds a component to a specified menu. 
-	*
-	* @param menuType  		ID which corresponds to specified menu.
-	* @param item         	component to be added.
-	*/
+	 * Adds a component to a specified menu. 
+	 *
+	 * @param menuType  	ID which corresponds to a menu.
+	 * @param item         	component to be added.
+	 */
     public void addToMenu(int menuType, JMenuItem item);
     
 	/** 
-	* Removes a component from a specified menu. 
-	*
-	* @param menuType  		ID of specified menu.
-	* @param item         	component to be removed.
-	*/
+	 * Removes a component from a specified menu. 
+	 *
+	 * @param menuType		ID of specified menu.
+	 * @param item         	component to be removed.
+	 */
     public void removeFromMenu(int menuType, JMenuItem item);
     
     /** 
      * Retrieves an item in the specified menu.
      * 
-     * @param menuType		ID of the specified menu.
+     * @param menuType		ID of the menu.
      * @param itemPosition	position index of the item.
      * @return 	JMenuItem or <code>null</code> if there exists no item for 
      * 			the specified position
      */
     public JMenuItem getItemFromMenu(int menuType, int itemPosition);
     
-    /**
-     * Pops up the top frame window.
-     */
+    /** Pops up the top frame window. */
     public void open();
     
     /** Returns the presentation. */
     public JFrame getFrame();
     
+    /** Deiconify the internalFrame. */
 	public void deiconifyFrame(JInternalFrame frame);
 	
 }

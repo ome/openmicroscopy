@@ -31,12 +31,14 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -44,12 +46,12 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 
 /** 
@@ -73,26 +75,33 @@ public class TopFrameImpl
 {
 	
 	/** Constant used to size and positions the topFrame. */
-	static final int		INSET = 100;
+	static final int				INSET = 100;
 	
 	/** 
 	 * ID to handle action command and position the menu Item 
 	 * in the connectMenu.
 	 */ 
-	static final int        OMEDS = TopFrame.OMEDS;
-	static final int        OMEIS = TopFrame.OMEIS;
+	static final int        		OMEDS = TopFrame.OMEDS;
+	static final int        		OMEIS = TopFrame.OMEIS;
 	
 	/** Action command ID. */ 
-	static final int        EXIT = 10;
+	private static final int        EXIT_APP = 10;
+	private static final int		HELPME = 11;
+	
+	private static final Dimension	BAR_SEPARATOR = new Dimension(15, 0);
 	
 	/** the 4 available menus. */    
-    private JMenu           fileMenu, viewMenu, helpMenu, connectMenu;
+    private JMenu           		fileMenu, viewMenu, helpMenu, connectMenu;
     
+    /** The availabel toolBar. */
+    private JToolBar				fileToolBar, viewToolBar, connectToolBar, 
+    								helpToolBar;
+    						
 	/** The application internal desktop. */ 
-    private JDesktopPane    desktop;
+    private JDesktopPane    		desktop;
     
     /** Reference to the singleton {@link Container}. */ 
-    private Container       container;
+    private Container      			container;
     
     /**
      * Creates a new Instance of {@link TopFrameImpl}
@@ -109,15 +118,30 @@ public class TopFrameImpl
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        
         //ome icon.
-		IconFactory factory = (IconFactory) 
-			container.getRegistry().lookup("/resources/icons/DefaultFactory");
-		ImageIcon omeIcon = (ImageIcon) factory.getIcon("OME16.png");
+		IconManager im = IconManager.getInstance(container.getRegistry());
+		ImageIcon omeIcon = (ImageIcon) im.getIcon(IconManager.OME);
 		setIconImage(omeIcon.getImage());
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
-		getContentPane().add(desktop);
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(desktop, BorderLayout.CENTER);
     }
     
+	/** Implemented as specified by {@link TopFrame}. */  
+    public void addToToolBar(int tbType, Component c)
+    {
+    	JToolBar tb = retrieveToolBar(tbType);
+    	tb.add(c);
+    	tb.addSeparator();
+    }
+    
+	/** Implemented as specified by {@link TopFrame}. */  
+	public void removeFromToolBar(int tbType, Component c)
+	{
+		JToolBar tb = retrieveToolBar(tbType);
+		tb.remove(c);
+   	}
+   	
 	/** Implemented as specified by {@link TopFrame}. */     
     public void addToDesktop(Component c, int position)
     {
@@ -157,10 +181,7 @@ public class TopFrameImpl
     }
     
 	/** Implemented as specified by {@link TopFrame}. */ 
-    public JFrame getFrame()
-    {
-    	return this;
-    }
+    public JFrame getFrame() { return this; }
     
 	/** Implemented as specified by {@link TopFrame}. */ 
     public void deiconifyFrame(JInternalFrame frame)
@@ -179,15 +200,15 @@ public class TopFrameImpl
             int cmd = Integer.parseInt(e.getActionCommand());
             // just in case we need to handle other events
             switch (cmd) {
-                case EXIT:
+                case EXIT_APP:
 					System.exit(0);	//TODO: shut down container.
-                  break;
+                  	break;
                 case OMEDS:
-                	connectToOMEDS();
-                	break;
+                	connectToOMEDS();	break;
                 case OMEIS:
-					connectToOMEIS();
-                    break;
+					connectToOMEIS(); break;
+                case HELPME:
+                	help(); break;
                 default: break;
             }        
         } catch(NumberFormatException nfe) {
@@ -211,9 +232,11 @@ public class TopFrameImpl
 		//TODO: post an event
 	}
     
-	/**
-	* Pops up the top frame window.
-	*/
+    private void help()
+    {
+    }
+    
+	/** Pops up the top frame window. */
     public void open()
     {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -256,7 +279,7 @@ public class TopFrameImpl
     {
         fileMenu = new JMenu("File");
         JMenuItem menuItem = new JMenuItem("Exit");
-        menuItem.setActionCommand(""+EXIT);
+        menuItem.setActionCommand(""+EXIT_APP);
         menuItem.addActionListener(this);
         fileMenu.add(menuItem);
     }
@@ -276,12 +299,83 @@ public class TopFrameImpl
 		connectMenu.add(menuItem);
 	}
 	
+	/** Create the 4 toolBars contained in the main one. */
+	private JToolBar createToolBar()
+	{
+		JToolBar bar = new JToolBar();
+		viewToolBar = new JToolBar();
+		viewToolBar.setFloatable(false);
+		createHelpToolBar();
+		createFileToolBar();
+		createConnectToolBar();
+		bar.add(fileToolBar);
+		bar.addSeparator(BAR_SEPARATOR);
+		bar.add(connectToolBar);
+		bar.addSeparator(BAR_SEPARATOR);
+		bar.add(viewToolBar);
+		bar.addSeparator(BAR_SEPARATOR);
+		bar.add(helpToolBar);
+		return bar;
+	}
+	
+	/** Create the <code>help</code> toolbar. */
+	private void createHelpToolBar()
+	{
+		helpToolBar = new JToolBar();
+		helpToolBar.setFloatable(false);
+		IconManager im = IconManager.getInstance(container.getRegistry());
+		JButton help = new JButton(im.getIcon(IconManager.HELP));
+		help.setToolTipText(
+				UIFactory.formatToolTipText("Please help me."));
+		help.setActionCommand(""+HELPME);
+		help.addActionListener(this);		
+		helpToolBar.add(help);
+		helpToolBar.addSeparator();
+	}
+	
+	/** Create the <code>file</code> toolbar. */
+	private void createFileToolBar()
+	{
+		fileToolBar = new JToolBar();
+		fileToolBar.setFloatable(false);
+		IconManager im = IconManager.getInstance(container.getRegistry());
+		JButton exit = new JButton(im.getIcon(IconManager.EXIT));
+		exit.setToolTipText(
+			UIFactory.formatToolTipText("Exit the application."));
+		exit.setActionCommand(""+EXIT_APP);
+		exit.addActionListener(this);
+		fileToolBar.add(exit);
+		fileToolBar.addSeparator();	
+	}
+	
+	/** Create the <code>connect</code> toolbar. */
+	private void createConnectToolBar()
+	{
+		connectToolBar = new JToolBar();
+		connectToolBar.setFloatable(false);
+		IconManager im = IconManager.getInstance(container.getRegistry());
+		JButton connectDS = new JButton(im.getIcon(IconManager.CONNECT_DS));
+		connectDS.setActionCommand(""+OMEDS);
+		connectDS.addActionListener(this);
+		connectDS.setToolTipText(
+			UIFactory.formatToolTipText("Connect to OME DataService."));
+		JButton connectIS = new JButton(im.getIcon(IconManager.CONNECT_IS));
+		connectIS.setToolTipText(
+			UIFactory.formatToolTipText("Connect to OME ImageService."));
+		connectIS.setActionCommand(""+OMEIS);
+		connectIS.addActionListener(this);	
+		connectToolBar.add(connectDS);
+		connectToolBar.addSeparator();
+		connectToolBar.add(connectIS);
+		connectToolBar.addSeparator();
+	}
+	
 	/** 
-	* Retrieves the specified menu. 
-	* 
-	* @param  int  menuType.
-	* @return the above mentioned. 
-	*/    
+	 * Retrieves the specified menu. 
+	 * 
+	 * @param  menuType		menu ID.
+	 * @return the above mentioned. 
+	 */    
     private JMenu retrieveMenu(int menuType)
     {
         JMenu menu = null;
@@ -298,10 +392,36 @@ public class TopFrameImpl
                 case CONNECT:
                 	menu = connectMenu;
             }// end switch  
-        } catch(NumberFormatException nfe) {//impossible if IDs are set correctly 
+        } catch(NumberFormatException nfe) {
                 throw nfe;  //just to be on the safe side...
         }    
         return menu;
+    }
+    
+	/** 
+	 * Retrieves the specified toolBar. 
+	 * 
+	 * @param  tbType  toolbar ID.
+	 * @return the above mentioned. 
+	 */  
+    private JToolBar retrieveToolBar(int tbType)
+    {
+    	JToolBar tb = null;
+		try {
+			switch (tbType) {
+				case FILE_TB:
+					tb = fileToolBar; break;
+				case VIEW_TB:
+					tb = viewToolBar; break;
+				case HELP_TB:
+					tb = viewToolBar; break;
+				case CONNECT:
+					tb = connectToolBar;
+			}// end switch  
+		} catch(NumberFormatException nfe) {
+			throw nfe;  //just to be on the safe side...
+		}    
+    	return tb;
     }
     
 }
