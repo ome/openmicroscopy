@@ -35,8 +35,12 @@
  */
 package org.openmicroscopy.shoola.agents.browser.images;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
@@ -61,6 +65,11 @@ public class ThumbnailDataModel
      * The set of attributes in the data model.
      */
     protected AttributeMap attributeMap;
+    
+    /**
+     * The set of non-Attribute metadata associated with an image.
+     */
+    protected Map metadataMap;
 
     /**
      * Creates a data model with the backing ImageData information and an
@@ -80,6 +89,7 @@ public class ThumbnailDataModel
         }
         imageData = basicData;
         attributeMap = new AttributeMap();
+        metadataMap = new HashMap();
     }
 
     /**
@@ -99,6 +109,7 @@ public class ThumbnailDataModel
                 " in ThumbnailDataModel(ImageData,Map)");
         }
         imageData = basicData;
+        metadataMap = new HashMap();
         
         if(attributeMap == null)
         {
@@ -166,5 +177,43 @@ public class ThumbnailDataModel
     public void setAttributeMap(AttributeMap attributeMap)
     {
         this.attributeMap = attributeMap;
+    }
+    
+    /**
+     * Gets a value stored with the specified key.
+     * @param key The key of the value to retrieve.
+     * @return The value bound to the specified key; null if none exists.
+     */
+    public Object getValue(String key)
+    {
+        return metadataMap.get(key);
+    }
+    
+    /**
+     * Puts a value stored with the specified key to the specified value.
+     * @param key The key of a value to store.
+     * @param value The value to store.
+     */
+    public void setValue(String key, Object value)
+    {
+        if(key != null)
+        {
+            metadataMap.put(key,value);
+        }
+    }
+    
+    /**
+     * Returns a list of the valid metadata keys of the TDM.
+     * @return See above.
+     */
+    public List getValidKeys()
+    {
+        List keyList = new ArrayList();
+        for(Iterator iter = metadataMap.keySet().iterator(); iter.hasNext();)
+        {
+            keyList.add((String)iter.next());
+        }
+        Collections.sort(keyList);
+        return keyList;
     }
 }

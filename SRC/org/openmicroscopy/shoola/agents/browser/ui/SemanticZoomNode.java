@@ -41,13 +41,19 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
+import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
+import org.openmicroscopy.shoola.agents.browser.images.PaintShapeGenerator;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 
@@ -65,13 +71,17 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * @since OME2.2
  */
 public class SemanticZoomNode extends PImage
-                              implements MouseOverSensitive
+                              implements MouseOverSensitive,
+                                         MouseDownSensitive
 {
-    protected MouseOverActions mouseOverActions;
     protected Thumbnail parentThumbnail;
     protected Rectangle2D border;
     
     protected Font nameFont = new Font(null,Font.PLAIN,24);
+    protected Font multiFont = new Font(null,Font.BOLD,14);
+    
+    protected Shape prevImageShape = null;
+    protected Shape nextImageShape = null;
     
     private static boolean loadedCompositeInfo = false;
     
@@ -162,7 +172,32 @@ public class SemanticZoomNode extends PImage
         border = new Rectangle2D.Double(-4,-4,
                                         getImage().getWidth(null)+8,
                                         getImage().getHeight(null)+8);
+                                        
+        initOverlayShapes();
         setBounds(border);
+    }
+    
+    private void initOverlayShapes()
+    {
+        int width = getImage().getWidth(null);
+        int height = getImage().getHeight(null);
+        PaintShapeGenerator generator = PaintShapeGenerator.getInstance();
+        
+        if(multipleModeOn)
+        {
+            Shape prevShape = generator.getPrevImageShape();
+            Shape nextShape = generator.getNextImageShape();
+            
+            AffineTransform prevXForm =
+                AffineTransform.getTranslateInstance(5,height-prevShape.getBounds2D().getHeight()-5);
+            
+            AffineTransform nextXForm =
+                AffineTransform.getTranslateInstance(width-nextShape.getBounds2D().getWidth()-5,
+                                                     height-nextShape.getBounds2D().getHeight()-5);
+            
+            this.prevImageShape = prevXForm.createTransformedShape(prevShape);
+            this.nextImageShape = nextXForm.createTransformedShape(nextShape);
+        }
     }
     
     private static void loadSizeInfo()
@@ -241,6 +276,87 @@ public class SemanticZoomNode extends PImage
     
     /**
      * returns nothing.
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#getMouseDownActions()
+     */
+    public MouseDownActions getMouseDownActions()
+    {
+        return null;
+    }
+    
+    /**
+     * Responds based on overlay location.
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseClick(PInputEvent event)
+    {
+        System.err.println("click");
+        Point2D pos = event.getPositionRelativeTo(this);
+        System.err.println(pos);
+        if(prevImageShape != null)
+        {
+            if(prevImageShape.contains(pos))
+            {
+                System.err.println("got prev");
+                parentThumbnail.showPreviousImage();
+                setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
+                setBounds(border);
+                repaint();
+                return;
+            }
+        }
+        if(nextImageShape != null)
+        {
+            if(nextImageShape.contains(pos))
+            {
+                System.err.println("got next");
+                parentThumbnail.showNextImage();
+                setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
+                setBounds(border);
+                repaint();
+                return;
+            }
+        }
+    }
+    
+    /**
+     * Nothing yet.
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseDoubleClick(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseDoubleClick(PInputEvent event)
+    {
+        // TODO Auto-generated method stub
+    }
+    
+    /**
+     * Doesn't trigger anything.
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMousePress(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMousePress(PInputEvent event)
+    {
+        // don't do nothin'
+    }
+    
+    /**
+     * Doesn't trigger anything.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#respondMouseRelease(edu.umd.cs.piccolo.event.PInputEvent)
+     */
+    public void respondMouseRelease(PInputEvent event)
+    {
+        // don't do nothin'
+    }
+    
+    /**
+     * Doesn't do anything (no overriding)
+     * @see org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive#setMouseDownActions(org.openmicroscopy.shoola.agents.browser.events.MouseDownActions)
+     */
+    public void setMouseDownActions(MouseDownActions actions)
+    {
+        // don't do nothin'
+    }
+    
+    /**
+     * returns nothing.
      * @see org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive#getMouseOverActions()
      */
     public MouseOverActions getMouseOverActions()
@@ -282,12 +398,12 @@ public class SemanticZoomNode extends PImage
     public void paint(PPaintContext context)
     {
         Graphics2D g2 = context.getGraphics();
-        Paint paint = g2.getPaint();
+        Paint oldPaint = g2.getPaint();
         Font oldFont = g2.getFont();
         Color oldColor = g2.getColor();
         g2.setPaint(Color.yellow);
         g2.fill(border);
-        g2.setPaint(paint);
+        g2.setPaint(oldPaint);
         g2.drawImage(getImage(),0,0,null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
@@ -299,6 +415,32 @@ public class SemanticZoomNode extends PImage
         }
         g2.setFont(oldFont);
         g2.setColor(oldColor);
+        
+        if(multipleModeOn)
+        {
+            g2.setPaint(Color.yellow);
+            g2.setColor(Color.yellow);
+            String whichSelected =
+                (parentThumbnail.getMultipleImageIndex()+1)
+                + "/"
+                + (String.valueOf(parentThumbnail.getMultipleImageSize()));
+                
+            Rectangle2D selectedBounds =
+                g2.getFontMetrics(multiFont).getStringBounds(whichSelected,g2);
+            
+            Rectangle2D totalBounds =
+                getBounds().getBounds2D();
+                
+            g2.drawString(whichSelected,
+                          (float)((totalBounds.getWidth()-selectedBounds.getWidth())/2),
+                          (float)(totalBounds.getHeight()-selectedBounds.getHeight()-5));
+            
+            g2.fill(prevImageShape);
+            g2.fill(nextImageShape);
+            g2.setPaint(oldPaint);
+            g2.setColor(oldColor);
+            
+        }
         
         Rectangle2D bounds = getBounds().getBounds2D();
         

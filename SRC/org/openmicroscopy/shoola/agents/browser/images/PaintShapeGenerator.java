@@ -137,6 +137,26 @@ public final class PaintShapeGenerator
         return path;
     }
     
+    public Shape getPrevImageShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(12,0);
+        path.lineTo(0,12);
+        path.lineTo(12,24);
+        path.closePath();
+        return path;
+    }
+    
+    public Shape getNextImageShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0,0);
+        path.lineTo(12,12);
+        path.lineTo(0,24);
+        path.closePath();
+        return path;
+    }
+    
     /**
      * Get an instance of the PaintShapeGenerator.
      * @return See above.
