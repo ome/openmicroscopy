@@ -287,7 +287,7 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		getCamera().localToGlobal(location);
 		float x = (float) location.getX();
 		float y = (float) location.getY();
-		ChainView p = new ChainView(chain);
+		ChainView p = new ChainCreationChainView(chain);
 		layer.addChild(p);
 		p.setOffset(x,y);
 		PBounds b = layer.getFullBounds();
@@ -417,11 +417,20 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				link = (ParamLink) node; // add it somehow.
 				// get from output
 				FormalOutput output = link.getOutput();
+				
+				// this link is no good if no output
+				if (output == null)
+					continue;
 				FormalOutputData fromOutput = (FormalOutputData) 
 					output.getParameter();
 				
+				
 				// to input
 				FormalInput input = link.getInput();
+				
+				// link is no good if no input
+				if (input == null) 
+					continue;
 				FormalInputData toInput = (FormalInputData) 
 					input.getParameter();
 				
