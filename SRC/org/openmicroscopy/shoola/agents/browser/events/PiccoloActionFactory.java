@@ -191,4 +191,99 @@ public class PiccoloActionFactory
         };
         return action;
     }
+    
+    /**
+     * Creates an action, that, when exected, will trigger a zoom-to-fit
+     * command.
+     * @param model The browser to affect.
+     * @return The zoom-to-fit PiccoloAction.
+     */
+    public static PiccoloAction getZoomToFitAction(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
+                                     BrowserMode.ZOOM_TO_FIT_MODE);
+            }
+        };
+        return action;
+    };
+    
+    /**
+     * Creates an action, that, when exected, will trigger a zoom-to-actual
+     * command.
+     * @param model The browser to affect.
+     * @return The zoom-to-fit PiccoloAction.
+     */
+    public static PiccoloAction getZoomToActualAction(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
+                                     BrowserMode.ZOOM_ACTUAL_MODE);
+            }
+        };
+        return action;
+    };
+    
+    /**
+     * Creates an action, that, when exected, will trigger a zoom-to-50%
+     * command.
+     * @param model The browser to affect.
+     * @return The zoom-to-fit PiccoloAction.
+     */
+    public static PiccoloAction getZoomTo50Action(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
+                                     BrowserMode.ZOOM_50_MODE);
+            }
+        };
+        return action;
+    };
+    
+    /**
+     * Creates an action, that, when exected, will trigger a zoom-to-75%
+     * command.
+     * @param model The browser to affect.
+     * @return The zoom-to-fit PiccoloAction.
+     */
+    public static PiccoloAction getZoomTo75Action(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
+                                     BrowserMode.ZOOM_75_MODE);
+            }
+        };
+        return action;
+    };
+    
+    /**
+     * Creates an action, that, when exected, will trigger a zoom-to-200%
+     * command.
+     * @param model The browser to affect.
+     * @return The zoom-to-fit PiccoloAction.
+     */
+    public static PiccoloAction getZoomTo200Action(final BrowserModel model)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                model.setCurrentMode(BrowserModel.ZOOM_MODE_NAME,
+                                     BrowserMode.ZOOM_200_MODE);
+            }
+        };
+        return action;
+    };
 }

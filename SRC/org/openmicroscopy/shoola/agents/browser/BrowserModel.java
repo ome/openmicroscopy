@@ -84,6 +84,7 @@ public class BrowserModel
     private BrowserModeClass panActionClass;
     private BrowserModeClass majorUIModeClass;
     private BrowserModeClass selectModeClass;
+    private BrowserModeClass zoomModeClass;
     
     /**
      * Specifies the name of the browser mode class that governs the current
@@ -102,6 +103,12 @@ public class BrowserModel
      * selection state of the browser.
      */
     public static final String SELECT_MODE_NAME = "selectMode";
+    
+    /**
+     * Specifies the name of the browser mode class that governs the current
+     * zoom state of the browser.
+     */
+    public static final String ZOOM_MODE_NAME = "zoomMode";
     
 
     // common initialization routine
@@ -138,10 +145,20 @@ public class BrowserModel
                                                      BrowserMode.SELECTING_MODE,
                                                      BrowserMode.SELECTED_MODE},
                                  BrowserMode.UNSELECTED_MODE);
+                              
+        zoomModeClass =
+            new BrowserModeClass(ZOOM_MODE_NAME,
+                                 new BrowserMode[] { BrowserMode.ZOOM_TO_FIT_MODE,
+                                                     BrowserMode.ZOOM_50_MODE,
+                                                     BrowserMode.ZOOM_75_MODE,
+                                                     BrowserMode.ZOOM_ACTUAL_MODE,
+                                                     BrowserMode.ZOOM_200_MODE},
+                                 BrowserMode.ZOOM_TO_FIT_MODE);
         
         modeClassMap.put(PAN_MODE_NAME,panActionClass);
         modeClassMap.put(MAJOR_UI_MODE_NAME,majorUIModeClass);
         modeClassMap.put(SELECT_MODE_NAME,selectModeClass);
+        modeClassMap.put(ZOOM_MODE_NAME,zoomModeClass);
         
     }
 

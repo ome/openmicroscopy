@@ -165,4 +165,66 @@ public class PaletteFactory
         palette.addIcon(nameIcon);
         return palette;
     }
+    
+    public static BPalette getZoomPalette(final BrowserModel backingModel,
+                                          final BrowserTopModel model)
+    {
+        if(backingModel == null || model == null)
+        {
+            return null;
+        }
+        
+        BPalette palette = new BPalette(model,"Zoom");
+        BIcon toFitIcon = new BIcon("Fit",false);
+        MouseDownActions defaultActions = new MouseDownActions();
+        
+        PiccoloAction toFitAction =
+            PiccoloActionFactory.getZoomToFitAction(backingModel);
+        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                           toFitAction);
+        toFitIcon.setMouseDownActions(defaultActions);
+        palette.addIcon(toFitIcon);
+        
+        BIcon to50Icon = new BIcon("50%",false);
+        MouseDownActions to50Actions = new MouseDownActions();
+        
+        PiccoloAction to50Action =
+            PiccoloActionFactory.getZoomTo50Action(backingModel);
+        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                           to50Action);
+        to50Icon.setMouseDownActions(to50Actions);
+        palette.addIcon(to50Icon);
+        
+        BIcon to75Icon = new BIcon("75%",false);
+        MouseDownActions to75Actions = new MouseDownActions();
+        
+        PiccoloAction to75Action =
+            PiccoloActionFactory.getZoomTo75Action(backingModel);
+        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                           to75Action);
+        to75Icon.setMouseDownActions(to75Actions);
+        palette.addIcon(to75Icon);
+        
+        BIcon to100Icon = new BIcon("100%",false);
+        MouseDownActions to100Actions = new MouseDownActions();
+        
+        PiccoloAction toActualAction =
+            PiccoloActionFactory.getZoomToActualAction(backingModel);
+        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                           toActualAction);
+        to100Icon.setMouseDownActions(to100Actions);
+        palette.addIcon(to100Icon);
+        
+        BIcon to200Icon = new BIcon("200%",false);
+        MouseDownActions to200Actions = new MouseDownActions();
+        
+        PiccoloAction to200Action =
+            PiccoloActionFactory.getZoomTo200Action(backingModel);
+        defaultActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+                                           to200Action);
+        to50Icon.setMouseDownActions(to200Actions);
+        palette.addIcon(to200Icon);
+        
+        return palette;
+    }
 }

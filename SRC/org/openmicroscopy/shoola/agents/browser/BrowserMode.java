@@ -143,6 +143,31 @@ public class BrowserMode
      * Indicates that multiple objects have been selected.
      */
     public static final BrowserMode SELECTED_MODE = new BrowserMode(11);
+    
+    /**
+     * Indicates that the browser should zoom to fit the dataset.
+     */
+    public static final BrowserMode ZOOM_TO_FIT_MODE = DEFAULT_MODE;
+    
+    /**
+     * Indicates that the browser should zoom to 100%.
+     */
+    public static final BrowserMode ZOOM_ACTUAL_MODE = new BrowserMode(12);
+    
+    /**
+     * Indicates that the browser should zoom to 50%.
+     */
+    public static final BrowserMode ZOOM_50_MODE = new BrowserMode(13);
+    
+    /**
+     * Indicates that the browser should zoom to 75%.
+     */
+    public static final BrowserMode ZOOM_75_MODE = new BrowserMode(14);
+    
+    /**
+     * Indicates that the browser should zoom to 200%.
+     */
+    public static final BrowserMode ZOOM_200_MODE = new BrowserMode(15);
 
     /**
      * Returns the numerical value of the Browser (so that this enum can be

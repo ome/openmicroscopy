@@ -332,6 +332,30 @@ public class BrowserView extends PCanvas
                 repaint();
             }
         }
+        else if(className.equals(BrowserModel.ZOOM_MODE_NAME))
+        {
+            if(mode == BrowserMode.ZOOM_TO_FIT_MODE)
+            {
+                setZoomToScale();
+            }
+            else if(mode == BrowserMode.ZOOM_ACTUAL_MODE)
+            {
+                setZoomLevel(1);
+            }
+            else if(mode == BrowserMode.ZOOM_50_MODE)
+            {
+                setZoomLevel(0.5);
+            }
+            else if(mode == BrowserMode.ZOOM_75_MODE)
+            {
+                setZoomLevel(0.75);
+            }
+            else if(mode == BrowserMode.ZOOM_200_MODE)
+            {
+                setZoomLevel(2);
+            }
+        }
+        
     }
     
     /**
