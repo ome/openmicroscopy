@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.map;
 //Java imports
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 //Third-party libraries
 
@@ -288,6 +289,19 @@ public class STSMapper
 						   "reference_semantic_type", "name");
 
    		return c;
+	}
+	
+	
+	public static Criteria buildRetrieveCriteriaWithMEXs(List mexes)
+	{
+	    if (mexes == null || mexes.size() == 0) return null;
+	    Criteria c = new Criteria();
+
+	    // all non-references; has-ones with just ID's; no has-manys
+	    c.addWantedField(":all:");
+
+	    c.addFilter("module_execution_id", "IN", mexes);
+	    return c;
 	}
    	
 }
