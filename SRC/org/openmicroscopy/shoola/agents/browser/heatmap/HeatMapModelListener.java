@@ -46,5 +46,5 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
  */
 public interface HeatMapModelListener
 {
-    public void modelChanged(SemanticTypeTree tree);
+    public void modelChanged(HeatMapModel model);
 }

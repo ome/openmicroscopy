@@ -40,7 +40,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 
-import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
 /**
@@ -51,17 +51,31 @@ import javax.swing.JScrollPane;
  * @version 2.2
  * @since OME2.2
  */
-public final class HeatMapUI extends JFrame
+public final class HeatMapUI extends JInternalFrame
                              implements HeatMapModelListener
 {
     private HeatMapModel model;
     private HeatMapTreeUI treePanel;
     private HeatMapGradientUI gradPanel;
-    private String title;
     
+    /**
+     * Create an empty heat map UI.
+     */
+    public HeatMapUI()
+    {
+        super();
+        treePanel = new HeatMapTreeUI(null);
+        gradPanel = new HeatMapGradientUI();
+        buildUI();
+    }
+    
+    /**
+     * Create a heat map UI based on the specified model.
+     * @param model
+     */
     public HeatMapUI(HeatMapModel model)
     {
-        super("Compare Images");
+        super();
         if(model == null)
         {
             return;
@@ -72,6 +86,17 @@ public final class HeatMapUI extends JFrame
         treePanel = new HeatMapTreeUI(model.getModel());
         gradPanel = new HeatMapGradientUI();
         buildUI();
+    }
+    
+    /**
+     * Resets (clears) the current heat map.
+     */
+    public void reset()
+    {
+        model = null;
+        treePanel = new HeatMapTreeUI(null);
+        gradPanel = new HeatMapGradientUI();
+        repaint();
     }
     
     private void buildUI()
@@ -90,16 +115,18 @@ public final class HeatMapUI extends JFrame
         contentPane.add(gradPanel,BorderLayout.SOUTH);
         
         setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // change?
         pack();
     }
     
     /**
      * Responds to a model change.
      */
-    public void modelChanged(SemanticTypeTree tree)
+    public void modelChanged(HeatMapModel model)
     {
-        treePanel.setModel(tree);
+        if(model == null) return;
+        this.model = model;
+        treePanel.setModel(model.getModel());
+        gradPanel.setEnabled(false);
         repaint();
     }
 
