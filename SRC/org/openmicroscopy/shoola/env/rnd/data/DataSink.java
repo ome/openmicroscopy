@@ -215,8 +215,12 @@ public class DataSink
 	public Plane2D getPlane2D(PlaneDef pDef, int w)
 		throws DataSourceException
 	{
-		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
+		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT()) {
+			long time = System.currentTimeMillis();
 			fillStack(pDef.getT());
+			System.out.print(System.currentTimeMillis()-time);
+		}
+			
 		curPlaneDef = pDef;
 		BytesConverter strategy = 
 							BytesConverter.getConverter(pixelType, BIG_ENDIAN);
