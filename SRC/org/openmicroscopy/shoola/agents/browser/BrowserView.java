@@ -53,6 +53,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
+import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.layout.FootprintAnalyzer;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -209,6 +210,25 @@ public class BrowserView extends PCanvas
                     }
                 }
             }
+            
+            public void mouseMoved(PInputEvent e)
+            {
+                PPickPath pickPath = e.getPath();
+                PNode node;
+                while((node = pickPath.getPickedNode()) != null &&
+                    !e.isHandled())
+                {
+                    if(node instanceof MouseOverSensitive)
+                    {
+                        ((MouseOverSensitive)node).respondMouseEnter(e);
+                        e.setHandled(true);
+                    }
+                    else
+                    {
+                        pickPath.popNode(node);
+                    }
+                }
+            }
         });
         
         addInputEventListener(new PDragSequenceEventHandler()
@@ -220,6 +240,7 @@ public class BrowserView extends PCanvas
                 while((node = pickPath.getPickedNode()) != null &&
                       !e.isHandled())
                 {
+                    System.err.println(node);
                     if(node instanceof MouseDragSensitive)
                     {
                         ((MouseDragSensitive)node).respondDrag(e);

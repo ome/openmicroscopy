@@ -78,6 +78,9 @@ public class BIcon extends PNode implements MouseOverSensitive,
     protected int minWidth = 16; // minimum icon width
     protected int minHeight = 16; // minimum icon height
     
+    protected boolean sticky = false;
+    protected boolean activated = false; // only relevant if sticky
+    
     protected MouseDownActions mouseDownActions;
     protected MouseOverActions mouseOverActions;
     
@@ -176,9 +179,14 @@ public class BIcon extends PNode implements MouseOverSensitive,
     /**
      * Constructs an icon with the specified image.
      * @param imageIcon The image to show in the icon.
+     * @param tooltipText The text to show on mouse over.
+     * @param sticky Whether or not this state is sticky; that is, whether or
+     *               not this icon represents a state that can be activated
+     *               and deactivated.
      */
-    public BIcon(Image imageIcon, String tooltipText)
+    public BIcon(Image imageIcon, String tooltipText, boolean sticky)
     {
+        this.sticky = sticky;
         init();
         presentationNode = new PImage(imageIcon,true);
         addChild(presentationNode);
@@ -221,6 +229,36 @@ public class BIcon extends PNode implements MouseOverSensitive,
         Graphics2D g2 = context.getGraphics();
         g2.setColor(new Color(153,153,153));
         g2.draw(getBounds().getBounds2D());
+    }
+    
+    /**
+     * Returns whether or not the icon is sticky (can be activated
+     * and deactivated) 
+     * @return See above.
+     */
+    public boolean isSticky()
+    {
+        return sticky;
+    }
+    
+    /**
+     * Returns whether or not the icon is activated (only valid if the
+     * icon is sticky)
+     * @return See above.
+     */
+    public boolean isActivated()
+    {
+        return activated;
+    }
+    
+    /**
+     * Sets the activation state of the icon (only valid if the icon is
+     * sticky)
+     * @param activated
+     */
+    public void setActivated(boolean activated)
+    {
+        this.activated = activated;
     }
     
     /********************* INHERITED INTERFACE METHODS *********************/
