@@ -93,7 +93,7 @@ public class ExecutionsModel {
 	public GridModel getGridModel() {
 		if (model == null)
 			model = getRangeModel();
-		GridModel gm = new GridModel(model.getMinimum(),model.getMaximum(),
+		GridModel gm = new GridModel(this,model.getMinimum(),model.getMaximum(),
 				getLastRowIndex());
 		model.addChangeListener(gm);
 		return gm;
@@ -154,6 +154,20 @@ public class ExecutionsModel {
 		return chain*getDatasetCount()+dataset;
 	}
 	
+	public int getMajorRowCount() {
+		if (currentOrder == DATASET_ORDER) 
+			return getDatasetCount();
+		else
+			return getChainCount();
+	}
+	
+	public int getMinorRowCount() {
+		if (currentOrder == DATASET_ORDER)
+			return getChainCount();
+		else 
+			return getDatasetCount();
+	}
+	
 	public void setRenderingOrder(String choice) {
 		for (int i = 0; i < modes.length; i++) {
 			if (choice.compareTo(modes[i]) == 0)
@@ -171,6 +185,8 @@ public class ExecutionsModel {
 		int id = exec.getDataset().getID();
 		return getIndex(id,execsByDataset);
 	}
+	
+	
 	
 	private int getIndex(int id,HashMap execHash) {
 		int index = 0;
