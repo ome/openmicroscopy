@@ -100,6 +100,8 @@ public class RenderingEngine
 	}
 
 	private Map				renderers;
+    
+    private RenderingManager curRenderingManager;
 	
 	//Shared by all instances of DataSink.
 	private AsyncByteBuffer	stackBuffer;
@@ -144,7 +146,9 @@ public class RenderingEngine
 		try {
 			rnd.initialize();
 			renderers.put(new Integer(request.getPixelsID()), rnd);
-			//TODO: how do we figure when to remove? 
+			//TODO: how do we figure when to remove rnd?
+            curRenderingManager = new RenderingManager(rnd, cmdProcessor);
+          
 			RenderingDef original = rnd.getRenderingDef(), copy;
 			copy = original.copy();
 			EventBus eventBus = registry.getEventBus();
@@ -156,7 +160,7 @@ public class RenderingEngine
 		} catch (MetadataSourceException mse) {
 			hanldeException("Can't load image metadata. Image id: "+
 													request.getImageID(), mse);
-		}																
+        }
 	}
 	
 	private void handleRenderImage(RenderImage request)
@@ -168,8 +172,9 @@ public class RenderingEngine
 			try {
 				PlaneDef pd = request.getPlaneDef();
 				BufferedImage img;
-				if (pd == null)	img = rnd.render();
-				else	img = rnd.render(pd);
+				img = curRenderingManager.renderXYPlane(pd);
+                //if (pd == null)	img = rnd.render();
+				//else	img = rnd.render(pd);
 				ImageRendered response = new ImageRendered(request, img);
 				EventBus eventBus = registry.getEventBus();
 				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
@@ -218,13 +223,17 @@ public class RenderingEngine
 		Renderer rnd = (Renderer) renderers.get(
 											new Integer(request.getPixelsID()));
 		//TODO: if null, log?
-		if (rnd != null) rnd.resetPlaneDef(request.getPlaneDef());
-		
+		//if (rnd != null) rnd.resetPlaneDef(request.getPlaneDef());
+		if (rnd != null) {
+            rnd.resetPlaneDef(request.getPlaneDef());
+            curRenderingManager.onRenderingPropChange();
+        }
 	}
 	
 	private void handleRenderingPropChange(RenderingPropChange event)
 	{
 		event.doUpdate();
+        curRenderingManager.onRenderingPropChange();
 	}
 	
 	MetadataSource getMetadataSource(int imageID, int pixelsID)

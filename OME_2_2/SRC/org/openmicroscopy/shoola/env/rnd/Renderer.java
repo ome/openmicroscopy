@@ -137,6 +137,30 @@ class Renderer
 		}
 		return rgb;
 	}
+    
+    /** Only used to create shallow copies. */
+    private Renderer(int imageID, int pixelsID, long omeisPixelsID,
+                        PixelsDimensions pixelsDims, PixelsStats pixelsStats,
+                        RenderingDef renderingDef, PlaneDef planeDef,
+                        QuantumManager quantumManager, DataSink dataSink,
+                        RenderingStrategy renderingStrategy,
+                        CodomainChain codomainChain,
+                        RenderingEngine engine)
+    {
+        this.imageID = imageID;
+        this.pixelsID = pixelsID;
+        this.omeisPixelsID = omeisPixelsID;
+        this.pixelsDims = pixelsDims;
+        this.pixelsStats = pixelsStats;
+        this.renderingDef = renderingDef;
+        this.planeDef = planeDef;
+        this.quantumManager = quantumManager;
+        this.dataSink = dataSink;
+        this.renderingStrategy = renderingStrategy;
+        this.codomainChain = codomainChain;
+        this.engine = engine;
+    }
+    
 	/**
 	 * Creates a new instance to render the specified pixels set.
 	 * The {@link #initialize() initialize} method has to be called straight
@@ -256,6 +280,24 @@ class Renderer
 		//Note that planeDef can never be null.
 		return renderingStrategy.render(this);
 	}
+    
+    /**
+     * Makes a shallow copy of this objects.
+     * The returned new object shares all references with this object, except
+     * for the plane definition if the passed argument is not <code>null</code>.
+     * 
+     * @param pd A new plane definition for the copy or <code>null</code> to
+     *              have an exact shallow copy.
+     * @return A shallow copy of this object.
+     */
+    Renderer makeShallowCopy(PlaneDef pd)
+    {
+        return new Renderer(imageID, pixelsID, omeisPixelsID,
+                            pixelsDims, pixelsStats, renderingDef,
+                            (pd == null) ? planeDef : pd,
+                            quantumManager, dataSink, renderingStrategy,
+                            codomainChain, engine);
+    }
 
 	PixelsDimensions getPixelsDims() { return pixelsDims; }
 

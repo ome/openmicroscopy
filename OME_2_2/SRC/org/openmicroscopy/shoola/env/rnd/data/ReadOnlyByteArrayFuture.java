@@ -103,7 +103,10 @@ class ReadOnlyByteArrayFuture
             data = (ReadOnlyByteArray) dataFuture.getResult();
             dataFuture = null;  //Allow GC.
         } catch (InterruptedException ie) {
-            //Should never happen as we never interrupt Swing thread.
+            //This should never happen if rendering is done in the Swing thread,
+            //as we should never interrupt said thread.  If rendering is done
+            //in a separate thread (see RenderingManager), then this is caused
+            //by cancellation.  In this case the exception is irrelevant.
             throw new DataSourceException(ie);  
         } catch (ExecException ee) {
             throw new DataSourceException(ee);

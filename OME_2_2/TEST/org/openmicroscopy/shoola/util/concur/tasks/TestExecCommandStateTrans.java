@@ -92,9 +92,14 @@ public class TestExecCommandStateTrans
     
     public void setUp()
     {
+        NullExecMonitor rethrower = new NullExecMonitor() {
+            public void onAbort(Throwable cause) { 
+                throw new RuntimeException(cause);
+            }
+        };
         Future future = new Future();//Not in a legal state yet (two-step init).
         target = new ExecCommand(new TaskAdapter(new CancelTask()), 
-                new NullResultAssembler(), future, new NullExecMonitor());
+                new NullResultAssembler(), future, rethrower);
         future.setCommand(target);  //OK, init completed now.
         cancel = false;  //Only set to true in transitionToCancelled().
         nestedRun = false;  //true causes an Error when calling target.run().
@@ -196,9 +201,9 @@ public class TestExecCommandStateTrans
             fail("run() should error if dispatched more than once when "+
                     "the object is in the EXECUTING state.");
         } catch (RuntimeException re) {
-            //OK, expected.  The NullExecMonitor caught the Error when onAbort
-            //was called and re-threw a RuntimeException to wrap it.  Let's
-            //verify the original Error:
+            //OK, expected.  The NullExecMonitor (see setUp) caught the Error 
+            //when onAbort was called and re-threw a RuntimeException to wrap
+            //it.  Let's verify the original Error:
             assertTrue("run() should throw an Error if dispatched more than "+
                     "once when the object is in the EXECUTING state.", 
                     re.getCause() instanceof Error);

@@ -63,17 +63,8 @@ public class NullExecMonitor
     /** No-op implementation. */
     public void onCancel() {}
 
-    /**
-     * Wraps <code>cause</code> in a {@link RuntimeException} and re-throws.
-     * This is done so that uncaught exceptions occurred during the execution
-     * of a service won't be silently swallowed.
-     * 
-     * @param cause An uncaught exception occurred during service execution.
-     */
-    public void onAbort(Throwable cause) 
-    {
-        throw new RuntimeException(cause);
-    }
+    /** No-op implementation. */
+    public void onAbort(Throwable cause) {}
 
     /** No-op implementation. */
     public void onEnd(Object result) {}
