@@ -41,6 +41,7 @@ import junit.framework.TestCase;
 import org.openmicroscopy.ds.st.NullPixels;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.util.concur.BufferWriteException;
+import org.openmicroscopy.shoola.util.tests.common.MockInputStream;
 
 /** 
  * Regular unit test for {@link WStackFiller}.

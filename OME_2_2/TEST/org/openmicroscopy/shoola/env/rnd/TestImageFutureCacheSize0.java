@@ -38,6 +38,7 @@ import junit.framework.TestCase;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.concur.tasks.MockFuture;
+import org.openmicroscopy.shoola.util.tests.common.FakeBufferedImage;
 
 /** 
  * Unit test for {@link ImageFutureCache}.

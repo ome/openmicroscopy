@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd.data;
+package org.openmicroscopy.shoola.util.tests.common;
 
 
 //Java imports
@@ -71,7 +71,7 @@ public class MockInputStream
     private MockSupport     mockSupport;
     
     
-    MockInputStream()
+    public MockInputStream()
     {
         mockSupport = new MockSupport();
     }

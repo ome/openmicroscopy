@@ -68,7 +68,7 @@ class RenderingManager
 {
     
     /**
-     * Factory method to create a new manager to handle the the given pixels 
+     * Factory method to create a new manager to handle the given pixels 
      * set within the specified image.
      * 
      * @param engine    Reference to the rendering engine.
@@ -77,10 +77,12 @@ class RenderingManager
      * @param pixelsID  The id of the pixels set.
      * @throws MetadataSourceException If an error occurs while retrieving
      *                                  data from <i>OMEDS</i>.
+     * @throws DataSourceException If an error occurs while creating the 
+     *                              gateway to <i>OMEIS</i>.
      */
     static RenderingManager makeNew(RenderingEngine engine, 
                                     int imageID, int pixelsID)
-        throws MetadataSourceException
+        throws MetadataSourceException, DataSourceException
     {
         //First off, create a renderer.  This factory method will load
         //all needed metadata too and check engine != null.  No need to

@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
 import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.tests.common.FakeBufferedImage;
 
 /** 
  * Unit test for {@link ImageFutureCache}.

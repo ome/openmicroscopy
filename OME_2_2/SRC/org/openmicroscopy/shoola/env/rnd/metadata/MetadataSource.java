@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
@@ -44,7 +43,7 @@ import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
 /** 
- * Manages access to the metadata associated to a pixels set within a
+ * Manages access to the metadata associated with a pixels set within a
  * given image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -61,17 +60,32 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 public class MetadataSource
 {
 	
-	//TODO: to be removed, when PixelsService supports int pixelsID.
-	private Pixels				pixels;
-	
+    /**
+     * Factory method to create a new <code>MetadataSource</code> to handle
+     * access to the metadata associated with the specified pixels set within
+     * the given image.
+     *                 
+     * @param imageID   The id of the image the pixels set belongs to.
+     * @param pixelsID  The id of the pixels set.
+     * @param context   The container's registry.  Mustn't be <code>null</code>.
+     * @throws MetadataSourceException If an error occurs while retrieving
+     *                                  data from <i>OMEDS</i>.
+     */
+    public static MetadataSource makeNew(int imageID, int pixelsID, 
+                                            Registry context)
+        throws MetadataSourceException
+    {
+        if (context == null) throw new NullPointerException("No registry.");
+        MetadataSource source = new MetadataSource(imageID, pixelsID);
+        source.load(context);
+        return source;
+    }
+    
 	/** The id of the image this object is dealing with. */
 	private int					imageID;
 	
 	/** The id of the pixels set within the image. */
 	private int					pixelsID;
-	
-	/** The id of the pixels set under <i>OMEIS</i>.*/
-	private long				omeisPixelsID;
 	
 	/** The pixel type identifier, as defined by {@link DataSink}. */
 	private int					pixelType;
@@ -89,40 +103,79 @@ public class MetadataSource
 	private PixelsStats			pixelsStats;
 	
 	/**
-	 * The rendering settings (if any) associated to the pixels set.
+	 * The rendering settings (if any) associated with the pixels set.
 	 * These are specific to a given user.
 	 * If the metadata repository contains no such settings for the current
 	 * user, this field will be left <code>null<code>.
 	 */
 	private RenderingDef		displayOptions;
+    
+    /** The id of the pixels set under <i>OMEIS</i>. */
+    private long                omeisPixelsID;
+    
+    /** 
+     * A <i>URL</i> pointing to the <i>OMEIS</i> instance that manages the
+     * pixels set identified by {@link #omeisPixelsID}.
+     */
+    private String              omeisURL;	
 	
-	/** The container's registry. */
-	private Registry			context;	
 	
-	
-	/**
-	 * Creates a new instance to handle the pixels metadata.
-	 * A call to {@link #load()} will retrieve the metadata which can then be
-	 * accessed via the various <code>getXXX</code> methods.
-	 * 
-	 * @param imageID The id of the image whom the pixels set belongs to.
-	 * @param pixelsID The id of the pixels set.
-	 * @param context The container's registry.
-	 */
-	public MetadataSource(int imageID, int pixelsID, Registry context)
-	{
-		this.imageID = imageID;
-		this.pixelsID = pixelsID;
-		this.context = context;
-	}
+    /**
+     * Creates a new instance to handle the pixels metadata.
+     * A call to {@link #load()} will retrieve the metadata which can then be
+     * accessed via the various <code>getXXX</code> methods.
+     * 
+     * @param imageID   The id of the image whom the pixels set belongs to.
+     * @param pixelsID  The id of the pixels set.
+     */
+    private MetadataSource(int imageID, int pixelsID)
+    {
+        this.imageID = imageID;
+        this.pixelsID = pixelsID;
+    }
+    
+    /**
+     * Helper object to extract relevant statistic from the more general
+     * purpose stats stored in <i>OME</i>.
+     * 
+     * @param s The <i>OME</i> stats.
+     * @param d The dimensions of the pixels set.
+     * @return A {@link PixelsStats} object containing only the stats that
+     *          are relevant to the Rendering Engine.
+     */
+    private PixelsStats makeStats(StackStatistics s, PixelsDimensions d)
+    {
+        double gMin = 0;
+        double gMax = 1;
+        double min, max;
+        PixelsStats ps = new PixelsStats(d.sizeW, d.sizeT);
+        for (int w = 0; w < d.sizeW; w++) {
+            for (int t = 0; t < d.sizeT; t++) {
+                min = s.minimum[w][t];
+                max = s.maximum[w][t];
+                if (t == 0) {
+                    gMin = min;
+                    gMax = max;
+                } else {
+                    gMin = Math.min(gMin, min);
+                    gMax = Math.max(gMax, max);
+                }
+                
+                ps.setEntry(w, t, min, max); 
+            }
+            ps.setGlobalEntry(w, gMin, gMax);
+        }
+        return ps;
+    }
 	
 	/**
 	 * Loads metadata associated to the pixels set.
 	 * 
+     * @param context   The container's registry.
 	 * @throws MetadataSourceException If an error occurs while retrieving the
 	 * 									data from the source repository.
 	 */
-	public void load()
+	private void load(Registry context)
 		throws MetadataSourceException
 	{
 		DataManagementService dms = context.getDataManagementService();
@@ -130,64 +183,74 @@ public class MetadataSource
 		StackStatistics stackStats;
 		PixelsDescription desc;
 		try {
-			
-			desc = dms.retrievePixels(pixelsID, imageID);
-			stackStats = ps.getStackStatistics(desc.getPixels());
-			//TODO: tmp hack; stats have to be retrieved from STS and desc
-			//shouldn't contain Pixels.
-			omeisPixelsID = desc.getImageServerID();
+			//Retrieve pixels information.
+            desc = dms.retrievePixels(pixelsID, imageID);
 			pixelType = DataSink.getPixelTypeID(desc.getPixelType());
 			pixelsDims = new PixelsDimensions(desc.getSizeX(), desc.getSizeY(),
 											desc.getSizeZ(), desc.getSizeC(), 
 											desc.getSizeT());
-											
-			pixelsStats = makeStats(stackStats, pixelsDims);
-			pixels = desc.getPixels();  //TODO: to be removed.
-			//Retrieve user setting return null if no settings retrieved.
+			
+            //Retrieve pixels stats and create suitable objects to hold them.
+			//TODO: Stats have to be retrieved from STS, not from OMEIS.
+            stackStats = ps.getStackStatistics(desc.getPixels());
+            pixelsStats = makeStats(stackStats, pixelsDims);
+			
+			//Retrieve user settings (null if no settings available).
 			displayOptions = dms.retrieveRenderingSettings(pixelsID, imageID, 
 										pixelType);
+            
+            //Get parameters to locate pixels data.
+            omeisPixelsID = desc.getImageServerID();
+            omeisURL = desc.getImageServerUrl();
 		} catch (Exception e) {
 			throw new MetadataSourceException(
 				"Can't retrieve the pixels metadata.", e);
 		}
 	}
-
-	//TODO: to be removed.
-	public Pixels getPixels() { return pixels; }
 	
+    /**
+     * Returns the storage type of the pixels within the pixels set.
+     * 
+     * @return One of the constants defined by {@link DataSink}.
+     */
+    public int getPixelType() { return pixelType; }
+    
+    /**
+     * Returns the dimensions of the pixels set.
+     * 
+     * @return See above.
+     */
+    public PixelsDimensions getPixelsDims() { return pixelsDims; }
+
+    /**
+     * Returns various statistics calculated on the pixels set.
+     * 
+     * @return See above.
+     */
+    public PixelsStats getPixelsStats() { return pixelsStats; }
+    
+    /**
+     * Returns the rendering settings (if any) associated with the pixels set.
+     * These are specific to a given user.
+     *
+     * @return The rendering setting for the current user or <code>null</code>
+     *          if the metadata repository contains no such settings.
+     */
 	public RenderingDef getDisplayOptions() { return displayOptions; }
 
+    /**
+     * Returns the id of the pixels set under <i>OMEIS</i>.
+     * 
+     * @return  See above.
+     */
 	public long getOmeisPixelsID() { return omeisPixelsID; }
-
-	public PixelsDimensions getPixelsDims() { return pixelsDims; }
-
-	public PixelsStats getPixelsStats() { return pixelsStats; }
-
-	public int getPixelType() { return pixelType; }
-	
-	private PixelsStats makeStats(StackStatistics s, PixelsDimensions d)
-	{
-		double gMin = 0;
-		double gMax = 1;
-		double min, max;
-		PixelsStats ps = new PixelsStats(d.sizeW, d.sizeT);
-		for (int w = 0; w < d.sizeW; w++) {
-			for (int t = 0; t < d.sizeT; t++) {
-				min = s.minimum[w][t];
-				max = s.maximum[w][t];
-				if (t == 0) {
-					gMin = min;
-					gMax = max;
-				} else {
-					gMin = Math.min(gMin, min);
-					gMax = Math.max(gMax, max);
-				}
-				
-				ps.setEntry(w, t, min, max); 
-			}
-			ps.setGlobalEntry(w, gMin, gMax);
-		}
-		return ps;
-	}
+    
+    /**
+     * Returns a <i>URL</i> pointing to the <i>OMEIS</i> instance that manages 
+     * the pixels set.
+     * 
+     * @return See above.
+     */
+    public String getOmeisURL() { return omeisURL; }
 
 }

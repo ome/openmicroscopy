@@ -35,15 +35,12 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
@@ -53,11 +50,8 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
-import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
-import org.openmicroscopy.shoola.util.concur.AsyncByteBuffer;
 import org.openmicroscopy.shoola.util.concur.tasks.AsyncProcessor;
 import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
 
@@ -100,28 +94,25 @@ public class RenderingEngine
     static Registry getRegistry() { return registry; }
     
     
-    private RenderingManager rndManager;
-	
-	//Shared by all instances of DataSink.
-	private AsyncByteBuffer	stackBuffer;
+    private RenderingManager    rndManager;
     
-    //Used by DataSink and AsyncByteBuffer for async operation.
+    //Used by DataSink for async operation.
     private CmdProcessor        cmdProcessor;
 	
     
 	private RenderingEngine()
 	{
 		cmdProcessor = new AsyncProcessor();
-        Integer size = (Integer) registry.lookup(LookupNames.RE_STACK_BUF_SZ), 
-			blockSize = (Integer) registry.lookup(
-												LookupNames.RE_STACK_BLOCK_SZ);
-		int sz = size.intValue(), block = blockSize.intValue();
-		block = (0 < block ? block : 4096);
+        //Integer size = (Integer) registry.lookup(LookupNames.RE_STACK_BUF_SZ), 
+		//	blockSize = (Integer) registry.lookup(
+		//										LookupNames.RE_STACK_BLOCK_SZ);
+		//int sz = size.intValue(), block = blockSize.intValue();
+		//block = (0 < block ? block : 4096);
 		//if (0 < sz) 
 		//	stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
         //                                            cmdProcessor);
 		//else 
-			stackBuffer = new AsyncByteBuffer(1, 1);  
+			//stackBuffer = new AsyncByteBuffer(1, 1);  
             //Won't be used b/c we first check if we can cache a stack.
 	}
 	
@@ -146,15 +137,18 @@ public class RenderingEngine
 			ImageLoaded response = new ImageLoaded(request, proxy);
 			EventBus eventBus = registry.getEventBus();
             eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-		} catch (MetadataSourceException mse) {
+		} catch (MetadataSourceException mdse) {
 			hanldeException("Can't load image metadata. Image id: "+
-													request.getImageID(), mse);
+													request.getImageID(), mdse);
+        } catch (DataSourceException dse) {
+            hanldeException("Can't load image metadata. Image id: "+
+                            request.getImageID(), dse);
         }
 	}
 	
 	private void handleRenderImage(RenderImage request)
 	{
-		if (rndManager == null) return;  //TODO: if null, log?
+        if (rndManager == null) return;  //TODO: if null, log?
         try {
             PlaneDef pd = request.getPlaneDef();
             BufferedImage img = rndManager.renderPlane(pd);
@@ -200,20 +194,6 @@ public class RenderingEngine
 	{
 		event.doUpdate();
         rndManager.onRenderingPropChange();
-	}
-	
-	MetadataSource getMetadataSource(int imageID, int pixelsID)
-	{
-		return new MetadataSource(imageID, pixelsID, registry);
-	}
-	
-	DataSink getDataSink(Pixels pixelsID, int pixelType, PixelsDimensions dims) 
-	{
-		//TODO: TMP (and wrong if multiple pixels), do it properly when
-		//PixelsService supports int pixelsID instead of Pixels.
-		return new DataSink(pixelsID, pixelType, dims, 
-							registry.getPixelsService(), 
-                            stackBuffer, cmdProcessor);
 	}
     
     CmdProcessor getCmdProcessor() { return cmdProcessor; }

@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
@@ -100,14 +101,21 @@ class Renderer
      * @param engine    Reference to the rendering engine.  
      *                  Mustn't be <code>null</code>.
      * @throws MetadataSourceException If an error occurs while retrieving the
-     *                                  data from the source repository.
+     *                                  data from <i>OMEDS</i>.
+     * @throws DataSourceException If an error occurs while creating the 
+     *                              gateway to <i>OMEIS</i>.
      */
     static Renderer makeNew(int imageID, int pixelsID, RenderingEngine engine)
-        throws MetadataSourceException
+        throws MetadataSourceException, DataSourceException
     {
         if (engine == null) throw new NullPointerException("No engine.");
-        Renderer r = new Renderer(imageID, pixelsID);
-        r.initialize(engine);
+        Registry context = RenderingEngine.getRegistry();
+        MetadataSource source = 
+                            MetadataSource.makeNew(imageID, pixelsID, context);
+        DataSink sink = 
+                    DataSink.makeNew(source, engine.getCmdProcessor(), context);
+        Renderer r = new Renderer(imageID, pixelsID, sink);
+        r.initialize(source);
         return r;
     }
     
@@ -177,26 +185,23 @@ class Renderer
      * @param imageID   The id of the image the pixels set belongs to.
      * @param pixelsID  The id of the pixels set.
      */
-    private Renderer(int imageID, int pixelsID)
+    private Renderer(int imageID, int pixelsID, DataSink sink)
     {
         this.imageID = imageID;
         this.pixelsID = pixelsID;
+        this.dataSink = sink;
     }
     
     /**
      * Initializes the rendering environment, loads the pixels metadata and
      * the display options.
      * 
-     * @throws MetadataSourceException If an error occurs while retrieving the
-     *                                  data from the source repository.
+     * @param source    The pixels metadata source.
      */
-    private void initialize(RenderingEngine engine)
-        throws MetadataSourceException
+    private void initialize(MetadataSource source)
     {
-        //Load pixels metadata (create default display options if none 
-        //available)
-        MetadataSource source = engine.getMetadataSource(imageID, pixelsID);
-        source.load();
+        //Grab pixels metadata (create default display options if 
+        //none available).
         omeisPixelsID = source.getOmeisPixelsID();
         pixelsDims = source.getPixelsDims();
         pixelsStats = source.getPixelsStats();
@@ -214,10 +219,6 @@ class Renderer
         //Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd,
                                             renderingDef.getCodomainChainDef());
-        
-        //Cache a reference to the pixels source gateway. 
-        dataSink = engine.getDataSink(source.getPixels(),  //TODO: to be turned into int. 
-                                        source.getPixelType(), pixelsDims);
         
         //Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());

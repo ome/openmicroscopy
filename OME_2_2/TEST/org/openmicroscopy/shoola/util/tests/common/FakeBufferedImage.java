@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.rnd;
+package org.openmicroscopy.shoola.util.tests.common;
 
 
 //Java imports
@@ -54,11 +54,11 @@ import java.awt.image.BufferedImage;
  * @since OME2.2
  */
 public class FakeBufferedImage
-        extends BufferedImage
+    extends BufferedImage
 {
 
     
-    FakeBufferedImage()
+    public FakeBufferedImage()
     {
         super(2, 2, TYPE_BYTE_GRAY);
     }
