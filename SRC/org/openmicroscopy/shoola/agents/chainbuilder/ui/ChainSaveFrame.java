@@ -46,6 +46,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -69,8 +73,11 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ChainDataManager;
  * @version 2.1
  * @since OME2.1
  */
-public class ChainSaveFrame extends JFrame implements ActionListener {
+public class ChainSaveFrame extends JFrame implements ActionListener, FocusListener,
+	MouseListener{
 	
+	private static final String NAME_INFO ="Please enter a name for this chain.";
+	private static final String DESC_INFO ="Optional: please describe this chain";
 	private ChainFrame frame;
 	private JButton cancel;
 	private JButton save;
@@ -82,6 +89,13 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 	
 	/** the chain data manager */
 	private ChainDataManager manager;
+	
+	/** the label with the warning for a given field */
+	private JLabel warnLabel;
+	
+	/** other labels */
+	private JLabel nameLabel;
+	private JLabel desc;
 	/**
 	 * 
 	 * @param The {@link Chain Frame} that contains the chain being saved
@@ -111,11 +125,14 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 		namePanel.add(Box.createRigidArea(widthGap));
 		formPanel.add(namePanel);
 		
-		JLabel nameLabel = new JLabel("Name:");
+		nameLabel = new JLabel("Name:");
+		nameLabel.addMouseListener(this);
 		nameLabel.setAlignmentY(Component.TOP_ALIGNMENT);
 		namePanel.add(nameLabel);
 		namePanel.add(Box.createRigidArea(widthGap));
 		nameField = new JTextField(20);
+		nameField.addFocusListener(this);
+		nameField.addMouseListener(this);
 		nameField.setAlignmentY(Component.TOP_ALIGNMENT);
 		namePanel.add(nameField);
 		
@@ -125,19 +142,23 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 		descPanel.setLayout(new BoxLayout(descPanel,BoxLayout.X_AXIS));
 		formPanel.add(descPanel);		
 		descPanel.add(Box.createRigidArea(widthGap));
-		JLabel desc  = new JLabel("Description:");
+		desc  = new JLabel("Description:");
+		desc.addMouseListener(this);
 		desc.setAlignmentY(Component.TOP_ALIGNMENT);
 		descPanel.add(desc);
 		
 		descPanel.add(Box.createRigidArea(widthGap));
 		descField =  new JTextArea(5,20);
+		descField.addMouseListener(this);
+		descField.addFocusListener(this);
 		descField.setAlignmentY(Component.TOP_ALIGNMENT);
 		descPanel.add(descField);
 		
 		JPanel warnPanel = new JPanel();
-		JLabel warnLabel = new JLabel("Please specify a name for the new chain");
+		warnLabel = new JLabel(NAME_INFO);
 		warnPanel.add(warnLabel);
 		formPanel.add(warnPanel);
+		
 		
 		Dimension d = new Dimension((int) desc.getPreferredSize().getWidth(),
 			(int) nameLabel.getPreferredSize().getHeight());
@@ -161,6 +182,24 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 		pack();
 	}	
 	
+	public void focusGained(FocusEvent e) {
+		updateWarning(e.getComponent());
+	}
+		
+	
+	public void mouseEntered(MouseEvent e) {
+		updateWarning(e.getComponent());
+	}
+	
+	private void updateWarning(Component c) {
+		if (c ==nameField || c == nameLabel)
+			warnLabel.setText(NAME_INFO);
+		else if (c == descField || c == desc)
+			warnLabel.setText(DESC_INFO);
+		else 
+			warnLabel.setText("");
+	}
+	
 	/**
 	 * Processing of user selection of the buttons.
 	 * 
@@ -168,13 +207,23 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 	 */
 	public void actionPerformed(ActionEvent e) {
 		JButton src = (JButton) e.getSource();
+		boolean close = true;
 		if (src == save) {
-			processSave();
+			save.setEnabled(false);
+			cancel.setEnabled(false);
+			close = processSave();
+			
 		}
-		dispose();
+		if (close) 
+			dispose();
+		else {
+			save.setEnabled(true);
+			cancel.setEnabled(true);
+		}
 	}
 	
-	private void processSave() {
+	private boolean processSave() {
+		boolean res = false;
 		String name = nameField.getText();
 		if (name == null || name.length() == 0) {
 			String 
@@ -189,9 +238,33 @@ public class ChainSaveFrame extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this,warn,
 					"Each chain must have a unique name",
 					JOptionPane.WARNING_MESSAGE);
+			
 		}
-		else
+		else {
 			frame.completeSave(name,descField.getText());
+			res = true;
+		}
+		return res;
+	}
+	
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
+	}
+	
+	public void mousePressed(MouseEvent e) {
+		
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		
+	}
+
+	public void focusLost(FocusEvent e) {
+		
 	}
 	
 }
