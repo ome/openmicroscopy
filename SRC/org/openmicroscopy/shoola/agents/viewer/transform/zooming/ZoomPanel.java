@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 
 /** 
@@ -66,8 +67,6 @@ import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 public class ZoomPanel
 	extends JPanel
 {
-	/** Background color. */
-	private static final Color	BACKGROUND_COLOR = new Color(204, 204, 255);
 	
 	/** The BufferedImage to zoom. */	
 	private BufferedImage 		image;
@@ -83,13 +82,11 @@ public class ZoomPanel
 	 
 	public ZoomPanel(BufferedImage image)
 	{
-		setBackground(BACKGROUND_COLOR); 
+		setBackground(ImageInspector.BACKGROUND_COLOR); 
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
 		this.image = image;
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		x = 0;
-		y = 0;
 	}
  
  	/** 
@@ -102,11 +99,9 @@ public class ZoomPanel
  	 * @param y			y-coordinate.
  	 * 	
  	 */	
-	public void paintImage(double level, int x, int y)
+	public void paintImage(double level)
 	{
 		magFactor = level;
-		this.x = x;
-		this.y = y;
 		repaint();
 	} 
 
@@ -115,8 +110,7 @@ public class ZoomPanel
 	{
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
-		Rectangle d = getBounds();
-
+		setLocation();
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -130,9 +124,21 @@ public class ZoomPanel
 		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
 		rop.filter(image, bimg);
 		BufferedImageOp biop = new AffineTransformOp(at,
-										AffineTransformOp.TYPE_BILINEAR);
-		//g2D.fillRect(0, 0, d.width, d.height);	
+										AffineTransformOp.TYPE_BILINEAR);		//g2D.fillRect(0, 0, d.width, d.height);	
 		g2D.drawImage(bimg, biop, x, y);
+	}
+	
+	/** Set the coordinate of the top-left corner of the image. */
+	private void setLocation()
+	{
+		Rectangle d = getBounds();
+		System.out.println(d);
+		int w = (int) (imageWidth*magFactor);
+		int h = (int) (imageHeight*magFactor);
+		x = (int) (d.width-w)/2;
+		y = (int) (d.height-h)/2;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
 	}
 	
 }

@@ -106,27 +106,14 @@ public class ImageInspectorManager
 		zoomBar.getManager().setText(level);
 		ZoomMenu zoomMenu = view.menuBar.getZoomMenu();
 		zoomMenu.getManager().setItemSelected(level);
-		int w = (int) (imageWidth*level);
-	   	int h = (int) (imageHeight*level);
-	   	int x, y;
 	   	Dimension d;
-
-	   	if (level >= ZOOM_DEFAULT) {
-			x = 0;
-		   	y = 0;
-		   	w = (int) (imageWidth*level);
-		   	h = (int) (imageHeight*level);
-		   	d = new Dimension(w, h);
-	   	} else {
-		   	x = (int) (imageWidth*(ZOOM_DEFAULT-level))/2;
-		   	y = (int) (imageHeight*(ZOOM_DEFAULT-level))/2;
-			w = imageWidth;
-			h = imageHeight;
-		   	d = imageDim;
-		}
+	   	//if (level >= ZOOM_DEFAULT)
+		   	d = new Dimension((int) (imageWidth*level), 
+		   					(int) (imageHeight*level));
+	   //	else	d = imageDim;
 	   	zoomPanel.setPreferredSize(d);
 	   	zoomPanel.setSize(d);
-	   	zoomPanel.paintImage(level, x, y);
+	   	zoomPanel.paintImage(level);
 	}
 	
 }
