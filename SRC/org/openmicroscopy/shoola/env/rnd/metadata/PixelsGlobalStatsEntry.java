@@ -71,8 +71,8 @@ public class PixelsGlobalStatsEntry
 		this.globalMax = globalMax;
 	}
 	
-	public Comparable getGlobalMax() { return new Integer((int) globalMax); }
+	public double getGlobalMax() { return globalMax; }
 	
-	public Comparable getGlobalMin() { return new Integer((int) globalMin); }
+	public double getGlobalMin() { return globalMin; }
     
 }

@@ -199,7 +199,7 @@ class ImportImageSelectorMng
 	{
 		Iterator i = filesToRemove.iterator();
 		while (i.hasNext()) 
-			filesToImport.remove((File) i.next());
+			filesToImport.remove(i.next());
 			
 		if (filesToRemove.size() != 0) {
 			filesToRemove.removeAll(filesToRemove);

@@ -31,23 +31,18 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
-import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
 import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
 import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
@@ -55,11 +50,10 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
-import org.openmicroscopy.shoola.env.rnd.events.ResetPlaneDef;
-import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
+import org.openmicroscopy.shoola.util.concur.tasks.AsyncProcessor;
+import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
 
 /** 
  * 
@@ -81,6 +75,7 @@ public class RenderingEngine
 
 	private static RenderingEngine		singleton;
 	private static Registry				registry;
+
 	
 	//NB: this can't be called outside of container b/c agents have no refs
 	//to the singleton container. So we can be sure this method is going to
@@ -89,19 +84,37 @@ public class RenderingEngine
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		registry = c.getRegistry();
-		if (singleton == null)	singleton = new RenderingEngine();
+		if (singleton == null)	{
+            registry = c.getRegistry();
+            singleton = new RenderingEngine();
+        }
 		return singleton;
 	}
-
-	private Map				renderers;
+    
+    static Registry getRegistry() { return registry; }
+    
+    
+    private RenderingManager    rndManager;
+    
+    //Used by DataSink for async operation.
+    private CmdProcessor        cmdProcessor;
 	
+    
 	private RenderingEngine()
 	{
-		renderers = new HashMap();
+		cmdProcessor = new AsyncProcessor();
+        //Integer size = (Integer) registry.lookup(LookupNames.RE_STACK_BUF_SZ), 
+		//	blockSize = (Integer) registry.lookup(
+		//										LookupNames.RE_STACK_BLOCK_SZ);
+		//int sz = size.intValue(), block = blockSize.intValue();
+		//block = (0 < block ? block : 4096);
+		//if (0 < sz) 
+		//	stackBuffer = new AsyncByteBuffer(sz*1024*1024, block, 
+        //                                            cmdProcessor);
+		//else 
+			//stackBuffer = new AsyncByteBuffer(1, 1);  
+            //Won't be used b/c we first check if we can cache a stack.
 	}
-	
-	public static Registry getRegistry() { return registry; }
 	
 	private void hanldeException(String message, Exception cause)
 	{
@@ -116,106 +129,74 @@ public class RenderingEngine
 	
 	private void handleLoadImage(LoadImage request)
 	{
-		Renderer rnd = new Renderer(request.getImageID(), request.getPixelsID(),
-																		this);
 		try {
-			rnd.initialize();
-			renderers.put(new Integer(request.getPixelsID()), rnd);
-			//TODO: how do we figure when to remove? 
-			RenderingDef original = rnd.getRenderingDef(), copy;
-			copy = original.copy();
-			EventBus eventBus = registry.getEventBus();
-			RenderingControlImpl facade = new RenderingControlImpl(rnd);
-			RenderingControlProxy proxy =
-							new RenderingControlProxy(facade, copy, eventBus);
+            rndManager = RenderingManager.makeNew(this, 
+                                request.getImageID(), request.getPixelsID());
+			RenderingControlProxy proxy = 
+                                    rndManager.createRenderingControlProxy();
 			ImageLoaded response = new ImageLoaded(request, proxy);
-			eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-		} catch (MetadataSourceException mse) {
+			EventBus eventBus = registry.getEventBus();
+            eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
+		} catch (MetadataSourceException mdse) {
 			hanldeException("Can't load image metadata. Image id: "+
-													request.getImageID(), mse);
-		}																
+													request.getImageID(), mdse);
+        } catch (DataSourceException dse) {
+            hanldeException("Can't load image metadata. Image id: "+
+                            request.getImageID(), dse);
+        }
 	}
 	
 	private void handleRenderImage(RenderImage request)
 	{
-		Renderer rnd = (Renderer) renderers.get(
-											new Integer(request.getPixelsID()));
-		//TODO: if null, log?
-		if (rnd != null) {
-			try {
-				PlaneDef pd = request.getPlaneDef();
-				BufferedImage img;
-				if (pd == null)	img = rnd.render();
-				else	img = rnd.render(pd);
-				ImageRendered response = new ImageRendered(request, img);
-				EventBus eventBus = registry.getEventBus();
-				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-			} catch (DataSourceException dse) {
-				hanldeException("Can't load pixels data. Pixels id: "+
-													request.getPixelsID(), dse);
-			} catch (QuantizationException qee) {
-				//TODO: need to post an event to update the GUI.
-				hanldeException("Can't map the wavelength "
-								+qee.getWavelength(), qee);
-			}
-		}
+        if (rndManager == null) return;  //TODO: if null, log?
+        try {
+            PlaneDef pd = request.getPlaneDef();
+            BufferedImage img = rndManager.renderPlane(pd);
+            ImageRendered response = new ImageRendered(request, img);
+            EventBus eventBus = registry.getEventBus();
+            eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
+        } catch (DataSourceException dse) {
+            hanldeException("Can't load pixels data. Pixels id: "+
+                                                request.getPixelsID(), dse);
+        } catch (QuantizationException qee) {
+            //TODO: need to post an event to update the GUI.
+            hanldeException("Can't map the wavelength "
+                            +qee.getWavelength(), qee);
+        }
 	}
 	
 	private void handleRenderImage3D(RenderImage3D request)
 	{
-		Renderer rnd = (Renderer) renderers.get(
-											new Integer(request.getPixelsID()));
-		//TODO: if null, log?
-		if (rnd != null) {
-			try {
-				PlaneDef xyPD = request.getXYPlaneDef(), 
-							xzPD = request.getXZPlaneDef(),
-							zyPD = request.getZYPlaneDef();
-				BufferedImage xyPlane = null, xzPlane, zyPlane;
-				if (xyPD != null) xyPlane = rnd.render(xyPD);
-				xzPlane = rnd.render(xzPD);
-				zyPlane = rnd.render(zyPD);
-				Image3DRendered response = new Image3DRendered(request, 
-													xyPlane, xzPlane, zyPlane);
-				EventBus eventBus = registry.getEventBus();
-				eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
-			} catch (DataSourceException dse) {
-				hanldeException("Can't load pixels data. Pixels id: "+
-													request.getPixelsID(), dse);
-			} catch (QuantizationException qee) {
-				//TODO: need to post an event to update the GUI.
-				hanldeException("Can't map the wavelength "
-								+qee.getWavelength(), qee);
-			}
-		}
-	}
-	
-	private void handleResetPlaneDef(ResetPlaneDef request)
-	{
-		Renderer rnd = (Renderer) renderers.get(
-											new Integer(request.getPixelsID()));
-		//TODO: if null, log?
-		if (rnd != null) rnd.resetPlaneDef(request.getPlaneDef());
-		
+        if (rndManager == null) return;  //TODO: if null, log?
+        try {
+            PlaneDef xyPD = request.getXYPlaneDef(), 
+                        xzPD = request.getXZPlaneDef(),
+                        zyPD = request.getZYPlaneDef();
+            BufferedImage xyPlane = null, xzPlane, zyPlane;
+            if (xyPD != null) xyPlane = rndManager.renderPlane(xyPD);
+            xzPlane = rndManager.renderPlane(xzPD);
+            zyPlane = rndManager.renderPlane(zyPD);
+            Image3DRendered response = new Image3DRendered(request, 
+                                                xyPlane, xzPlane, zyPlane);
+            EventBus eventBus = registry.getEventBus();
+            eventBus.post(response);  //TODO: this has to be run w/in Swing thread.
+        } catch (DataSourceException dse) {
+            hanldeException("Can't load pixels data. Pixels id: "+
+                                                request.getPixelsID(), dse);
+        } catch (QuantizationException qee) {
+            //TODO: need to post an event to update the GUI.
+            hanldeException("Can't map the wavelength "
+                            +qee.getWavelength(), qee);
+        }
 	}
 	
 	private void handleRenderingPropChange(RenderingPropChange event)
 	{
 		event.doUpdate();
+        rndManager.onRenderingPropChange();
 	}
-	
-	MetadataSource getMetadataSource(int imageID, int pixelsID)
-	{
-		return new MetadataSource(imageID, pixelsID, registry);
-	}
-	
-	DataSink getDataSink(Pixels pixelsID, int pixelType, PixelsDimensions dims) 
-	{
-		//TODO: TMP (and wrong if multiple pixels), do it properly when
-		//PixelsService supports int pixelsID instead of Pixels.
-		return new DataSink(pixelsID, pixelType, dims, 
-							registry.getPixelsService());
-	}
+    
+    CmdProcessor getCmdProcessor() { return cmdProcessor; }
 	
 	public void activate()
 	{
@@ -224,7 +205,6 @@ public class RenderingEngine
 		eventBus.register(this, RenderImage.class);
 		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
-		eventBus.register(this, ResetPlaneDef.class);
 		//TODO: start event loop in its own thread.
 	}
 	
@@ -242,8 +222,6 @@ public class RenderingEngine
 			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
-		else if (e instanceof ResetPlaneDef)
-			handleResetPlaneDef((ResetPlaneDef) e);
 	}
 
 }

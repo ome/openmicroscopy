@@ -76,7 +76,9 @@ class GraphicsRepresentationManager
 	   								tS = topBorder+square,
 									length = 2*triangleW, 
 									absMin = leftBorder+20;
-									
+	
+    private static final int        extraControl = 2;
+    
 	/** Used to control mouse pressed and dragged events. */					
 	private boolean                 dragging;
 	
@@ -124,7 +126,7 @@ class GraphicsRepresentationManager
 	}
 	
 	/** Attach listeners. */
-	void attachListeners()
+	private void attachListeners()
 	{
 		view.addMouseListener(this);
 		view.addMouseMotionListener(this);
@@ -197,6 +199,11 @@ class GraphicsRepresentationManager
         return r;
     }
     
+	int convertGraphicsIntoReal(int x)
+	{
+			double a = (double) 255/square;
+			return (int) (255-a*x);
+	}
 	/** 
 	 * Converts a real value into a graphic value 
 	 * (equation of the form y = ax+b).
@@ -229,6 +236,9 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				inputEndKnob = true;
+				inputStartKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				curRealValue = v;				
 				//control.setInputWindowEnd(v);
 			}
@@ -239,6 +249,9 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);
 				inputEndKnob = true;
+				inputStartKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				//synchronize the view.
 				control.setInputWindowEnd(curRealValue); 
 			}	
@@ -249,21 +262,29 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);
 				inputStartKnob = true;	
+				inputEndKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				//synchronize the view.				
 				control.setInputWindowStart(curRealValue);
 			}
 			if (boxOutputStart.contains(p) && p.y >= minEndOutputY &&
 				p.y <= tS) {
 				outputStartKnob = true;
-				curRealValue = convertGraphicsIntoReal(p.y-topBorder, -255,
-												square, 255);
+				inputEndKnob = false;
+				inputStartKnob = false;
+				outputEndKnob = false;
+		
+				curRealValue = convertGraphicsIntoReal(p.y-topBorder);
 				setOutputWindowStart(p.y);	//update the view.
 			}	
 			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY &&
 				p.y >= topBorder) {
-				outputEndKnob = true;	
-				curRealValue =	convertGraphicsIntoReal(p.y-topBorder, -255, 
-												square, 255);
+				outputEndKnob = true;
+				inputEndKnob = false;
+				inputStartKnob = false;
+				outputStartKnob = false;	
+				curRealValue =	convertGraphicsIntoReal(p.y-topBorder);
 				setOutputWindowEnd(p.y); //update the view.	
 			}	
 		 }  //else dragging already in progress 
@@ -282,6 +303,9 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				inputEndKnob = true;
+				inputStartKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				control.setInputWindowEnd(curRealValue);
 			}
 			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS &&
@@ -291,6 +315,9 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);	
 				inputEndKnob = true;
+				inputStartKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				control.setInputWindowEnd(curRealValue);
 			}
 			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS &&
@@ -300,23 +327,29 @@ class GraphicsRepresentationManager
 								control.getGlobalMaximum()-min, 
 								view.getInputGraphicsRange(), min);
 				inputStartKnob = true;
+				inputEndKnob = false;
+				outputEndKnob = false;
+				outputStartKnob = false;
 				control.setInputWindowStart(curRealValue);	
 			}	
 			if (boxOutputStart.contains(p) && p.y >= minEndOutputY 
 				&& p.y <= tS) {
-				curRealValue = convertGraphicsIntoReal(p.y-topBorder, -255,
-								square, 255);
+				curRealValue = convertGraphicsIntoReal(p.y-topBorder);			
 				outputStartKnob = true;
-				setOutputWindowStart(p.y);
+				inputStartKnob = false;
+				inputEndKnob = false;
+				outputEndKnob = false;
+				setOutputWindowStart(p.y);		
 			}
 			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY && 
 				p.y >= topBorder) {
-				curRealValue =	convertGraphicsIntoReal(p.y-topBorder, -255, 
-								square, 255);
+				curRealValue =	convertGraphicsIntoReal(p.y-topBorder);			
 				outputEndKnob = true;
+				inputStartKnob = false;
+				inputEndKnob = false;
+				outputStartKnob = false;
 				setOutputWindowEnd(p.y);
-			}
-				
+			}	
 		}
 	}
 	
@@ -385,7 +418,8 @@ class GraphicsRepresentationManager
 	 */ 
 	private void setOutputStartBox(int y)
 	{
-		maxStartOutputY = y-2*triangleW;
+		//maxStartOutputY = y-2*triangleW;
+        maxStartOutputY = y-extraControl;
 		boxOutputStart.setBounds(0, y-2*triangleW, leftBorder, 4*length);
 	}
 	
@@ -396,8 +430,9 @@ class GraphicsRepresentationManager
 	 */  
 	private void setOutputEndBox(int y)
 	{
-		minEndOutputY = y+triangleW;
-		boxOutputEnd.setBounds(0, y-triangleW, leftBorder, 2*length);
+		//minEndOutputY = y+triangleW;
+        minEndOutputY = y+extraControl;
+		boxOutputEnd.setBounds(lS, y-triangleW, leftBorder, 4*length);
 	}
 	
 	/** 
@@ -407,7 +442,8 @@ class GraphicsRepresentationManager
 	 */
 	void setInputStartBox(int x)
 	{
-		maxStartX = x+2*triangleW;
+		//maxStartX = x+2*triangleW;
+		maxStartX = x+extraControl;
 		boxStart.setBounds(x-triangleW, tS+triangleW+1, 4*length, 
 							bottomBorder+bottomBorderSupp);
 	}
@@ -419,9 +455,11 @@ class GraphicsRepresentationManager
 	 */  
 	void setInputEndBox(int x)
 	{
-		minEndX = x-2*triangleW;
-		boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
-						bottomBorder+bottomBorderSupp);
+		//minEndX = x-2*triangleW;
+		//boxEnd.setBounds(x-2*triangleW, tS+triangleW+1, 4*length, 
+		//				bottomBorder+bottomBorderSupp);
+        minEndX = x-extraControl;
+        boxEnd.setBounds(x-2*triangleW, 0, 4*length, topBorder);
 	}
 	
 	/** 

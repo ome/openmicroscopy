@@ -33,7 +33,6 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -84,13 +83,13 @@ public class ProjectEditor
 	public ProjectEditor(Registry registry, DataManagerCtrl control,
 						 ProjectData model)
 	{
-		super((JFrame) registry.getTopFrame().getFrame(), true);
+		super(control.getReferenceFrame(), true);
 		this.registry = registry;
 		manager = new ProjectEditorManager(this, control, model);
-		generalPane = new ProjectGeneralPane(manager, registry);
+		generalPane = new ProjectGeneralPane(manager);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
-		bar = new ProjectEditorBar(manager);
+		bar = new ProjectEditorBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);

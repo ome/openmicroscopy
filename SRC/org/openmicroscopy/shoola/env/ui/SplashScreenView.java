@@ -85,12 +85,12 @@ class SplashScreenView
 	
 	/** Absolute positioning and size of the task name. */
 	private static final Rectangle	TASK_BOUNDS = 
-											new Rectangle(110, 170, 200, 20);
+											new Rectangle(110, 190, 200, 20);
 											//TODO: use font metrics.
 	
 	/** Absolute positioning and size of the progress bar. */
 	private static final Rectangle	PROGRESS_BOUNDS = 
-											new Rectangle(95, 190, 200, 10);
+											new Rectangle(95, 210, 200, 10);
 		
 	/** Absolute positioning and size of the user text field. */
 	private static final Rectangle	USER_BOUNDS = 

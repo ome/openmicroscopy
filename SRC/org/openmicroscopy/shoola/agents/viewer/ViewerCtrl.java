@@ -30,22 +30,22 @@
 package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
+import org.openmicroscopy.shoola.agents.viewer.movie.Player;
+import org.openmicroscopy.shoola.agents.viewer.movie.defs.MovieSettings;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.agents.viewer.util.ProgressNotifier;
@@ -69,36 +69,50 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ViewerCtrl
-	implements ActionListener, InternalFrameListener, ChangeListener
+	implements ActionListener, ChangeListener
 {
 	
-	/** Action Command ID. */
-	static final int			V_VISIBLE = 0;
+	/** Action command ID to bring up the rendering Agent. */
 	static final int			RENDERING = 1;
-	static final int			SAVE_AS = 2;
-	static final int			MOVIE_PLAY = 3;
-	static final int			MOVIE_STOP = 4;
-	static final int			MOVIE_REWIND = 5;
-	static final int			MOVIE_FORWARD = 6;
-	static final int			MOVIE_PAUSE = 7;
-	static final int			INSPECTOR = 8;
-	static final int			VIEWER3D = 9;
 	
+	/** Action command ID to bring up the saving widget. */
+	static final int			SAVE_AS = 2;
+	
+	/** Action Command ID to bring up the inspector (with zooming) widget. */
+	static final int			INSPECTOR = 3;
+	
+	/** Action command ID to bring up the viewer3D widget. */
+	static final int			VIEWER3D = 4;
+	
+    /** Action command ID to bring up the movie widget. */
+    public static final int     MOVIE = 5;
+
+	/** Slider to control z-section selection and timepoint. */
 	private JSlider				tSlider, zSlider;
+	
+    /** zooming factor. */
+    private double              magFactor;
+    
+    /** 
+     * Util object to retrieve the movie settings if the movie widget has been
+     * brought up and re-open.
+     */
+    private MovieSettings       movieSettings;
+    
+	private Player				moviePlayer;
+	
+	private ImageInspector		imageInspector;
 	
 	private Viewer				abstraction;
 	
 	private ViewerUIF			presentation;
 	
 	private ProgressNotifier 	progressNotifier;
-	
-	private int					curTMovie;
-	
-	private boolean				playing, playingForward, playingRewind;
-	
+
 	public ViewerCtrl(Viewer abstraction)
 	{
 		this.abstraction = abstraction;
+        magFactor = ImageInspector.ZOOM_DEFAULT;
 	}
 	
 	void setPresentation(ViewerUIF presentation)
@@ -106,17 +120,24 @@ public class ViewerCtrl
 		this.presentation = presentation;
 	}
 	
-	/** 
-	 * Attach an InternalFrameListener to the 
-	 * {@link ViewerUIF presentaion}.
-	 */
+	/** The non- modal dialogs are removed when a new image is selected. */
+	void disposeDialogs()
+	{
+		if (moviePlayer != null) moviePlayer.dispose();
+		if (imageInspector != null) imageInspector.dispose();
+		moviePlayer = null;
+		imageInspector = null;
+        movieSettings = null;
+        magFactor = ImageInspector.ZOOM_DEFAULT;
+	}
+	
+	/** Attach listeners. */
 	void attachListener() 
 	{
 		tSlider = presentation.getTSlider(); 
 		zSlider = presentation.getZSlider();
 		tSlider.addChangeListener(this);
 		zSlider.addChangeListener(this);
-		presentation.addInternalFrameListener(this);
 	}
 
 	/** Return the {@link Viewer abstraction}. */
@@ -130,9 +151,9 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
-	public JFrame getReferenceFrame()
+	public ViewerUIF getReferenceFrame()
 	{
-		return abstraction.getRegistry().getTopFrame().getFrame();
+		return presentation;
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
@@ -163,7 +184,7 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
-	public String getCurImageName(){ return abstraction.getCurImageName(); }
+	public String getCurImageName() { return abstraction.getCurImageName(); }
 	
 	/** Forward event to {@link Viewer abstraction}. */
 	public void onPlaneSelected(int z, int t)
@@ -177,10 +198,7 @@ public class ViewerCtrl
 	 */
 	public void onTChange(int z, int t)
 	{
-		//remove listener otherwise an event is fired.
-		tSlider.removeChangeListener(this);
-		tSlider.setValue(t);
-		tSlider.addChangeListener(this);
+        resetTSlider(t);
 		abstraction.onPlaneSelected(z, t);
 	}
 	
@@ -190,27 +208,58 @@ public class ViewerCtrl
 	 */
 	public void onZChange(int z, int t)
 	{
-		//remove listener otherwise an event is fired.
-		zSlider.removeChangeListener(this);
-		zSlider.setValue(z);
-		zSlider.addChangeListener(this);
+        resetZSlider(z);
 		abstraction.onPlaneSelected(z, t);
 	}
+
+    /** 
+     * 
+     * @param z                 z-section selected.
+     * @param previousModel     color model set before the 3D view.
+     */
+	public void synchPlaneSelected(int z, int previousModel)
+    {
+        resetZSlider(z);
+        resetZField(z);
+        abstraction.setModel(previousModel);
+        abstraction.onPlaneSelected(z);
+    }
 	
-	public void synchPlaneSelected(int z) 
-	{
-		zSlider.setValue(z);
-	}
-	
+    /** Remove listener otherwise an event is fired. */
+    public void resetZSlider(int z)
+    {
+        zSlider.removeChangeListener(this);
+        zSlider.setValue(z);
+        zSlider.addChangeListener(this);
+    }
+    
+    /** Remove listener otherwise an event is fired. */
+    public void resetTSlider(int t)
+    {
+        tSlider.removeChangeListener(this);
+        tSlider.setValue(t);
+        tSlider.addChangeListener(this);
+    }
+    
+    public void resetTField(int t)
+    {
+        ToolBarManager tbm = presentation.getToolBar().getManager();
+        tbm.onTChange(t); 
+    }
+    
+    public void resetZField(int z)
+    {
+        ToolBarManager tbm = presentation.getToolBar().getManager();
+        tbm.onZChange(z);
+    }
+    
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 		   switch (index) { 
-				case V_VISIBLE:
-					abstraction.setPresentation(); break;
 				case RENDERING:
 					showRendering(); break; 	
 				case SAVE_AS:
@@ -219,15 +268,8 @@ public class ViewerCtrl
 					showInspector(); break;
 				case VIEWER3D:
 					showImage3DViewer(); break;
-				//TODO: REMOVE COMMENTS
-				/*
-				case MOVIE_PLAY:
-					playMovie(); break;
-				case MOVIE_FORWARD:
-					playForward(); break;
-				case MOVIE_REWIND:
-					playRewind(); break;	
-				*/
+				case MOVIE:
+					showMovie(); break;
 		   }
 		} catch(NumberFormatException nfe) {   
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -246,68 +288,7 @@ public class ViewerCtrl
 		else  tbm.onZChange(valZ);
 		abstraction.onPlaneSelected(valZ, valT);
 	}
-	
-	/** Play a movie from start to end. */
-	public void playMovie()
-	{
-		if (!playingForward && !playingRewind) {
-			int start = Integer.parseInt(
-						presentation.getMovieStart().getText());
-			int end = Integer.parseInt(presentation.getMovieEnd().getText());
-			playing = true;
-			play(start, end);
-			playing = false;
-		}
-	}
-	
-	/** Play forward. */
-	public void playForward()
-	{
-		if (!playing && !playingRewind) {
-			playingForward = true;
-			int start = getDefaultT();
-			int end = Integer.parseInt(presentation.getMovieEnd().getText());
-			play(start, end);
-			playingForward = false;
-		}
-	}
-	
-	public void playRewind()
-	{
-		if (!playing && !playingForward) {
-			playingRewind = true;
-			int start = getDefaultT();
-			int end = Integer.parseInt(presentation.getMovieStart().getText());
-			play(start, end);
-			playingRewind = false;
-		}
-	}
-	
-	private void play(int start, int end)
-	{
-		int maxT = abstraction.getPixelsDims().sizeT-1;
-		checkInterval(start, end, maxT);
-		for (int i = start; i < end; i++) {
-			curTMovie = i;
-			tSlider.setValue(i);
-		}	
-	}
-	
-	/** To be on the save side. */
-	private void checkInterval(int s, int e, int maxT)
-	{
-		if (s < 0 || e > maxT) {
-			UserNotifier un = abstraction.getRegistry().getUserNotifier();
-			un.notifyInfo("Invalid interval", "Please reset an interval");
-		}
-	}
-	
-	/** Stop playing movie. */
-	public void stopMovie()
-	{
-		// to implement posting an event
-	}
-	
+
 	/** Bring up the progressNotifier dialog. */
 	void showProgressNotifier(String imageName)
 	{
@@ -321,17 +302,37 @@ public class ViewerCtrl
 		progressNotifier = null;
 	}
 	
+	/** Bring up the movie panel. */
+	public void showMovie()
+	{
+        int maxZ = abstraction.getPixelsDims().sizeZ-1;
+        int maxT = abstraction.getPixelsDims().sizeT-1;
+        if (movieSettings == null) initMovieSettings(maxZ, maxT);
+        if (moviePlayer == null)
+            moviePlayer = new Player(this, maxT, maxZ, movieSettings);
+		UIUtilities.centerAndShow(moviePlayer);
+	}
+	
 	/** Bring up the image3D viewer. */
 	public void showImage3DViewer()
 	{
-		UIUtilities.centerAndShow(new Viewer3D(this, 
-									abstraction.getPixelsDims().sizeZ));
+        int model = getModel();
+		Viewer3D v3D = new Viewer3D(this, abstraction.getPixelsDims().sizeZ,
+                            model);
+		if (v3D.isVisible()) UIUtilities.centerAndShow(v3D);
+        else { //TODO: tempo around before fix bug #321
+            abstraction.setModel(model);
+            v3D.dispose();
+        }
 	}
 	
 	/** Bring up the image inspector widget. */
 	public void showInspector()
 	{
-		UIUtilities.centerAndShow(new ImageInspector(this));
+        if (imageInspector == null)
+            imageInspector = new ImageInspector(this, presentation.getCanvas(), 
+                                            magFactor);
+		UIUtilities.centerAndShow(imageInspector);
 	}
 	
 	/** Bring up the rendering widget. */
@@ -345,56 +346,49 @@ public class ViewerCtrl
 	{
 		UIUtilities.centerAndShow(dialog);
 	}
-	
-	/** Bring up the file chooser. */
+    
+	/** 
+     * Bring up the Save widget and save the current displayed bufferedImage.
+     */
 	public void showImageSaver()
 	{
-		if (abstraction.getCurImage() == null) {
-			UserNotifier un = getRegistry().getUserNotifier();
-			un.notifyError("Save image", "No current image displayed");
-		} else	new ImageSaver(this);
-	}
-
-	/** Select the checkBox in menu. */
-	public void internalFrameOpened(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(true);
+        BufferedImage image = presentation.getDisplayImage();
+        if (image == null) {
+            UserNotifier un = getRegistry().getUserNotifier();
+            un.notifyError("Save image", "No current image displayed");
+        } else  new ImageSaver(this, image);
 	}
 	
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosing(InternalFrameEvent e)
-	{
-		abstraction.setMenuSelection(false);
-	}
-
-	/** De-select the checkBox in menu. */
-	public void internalFrameClosed(InternalFrameEvent e) 
-	{
-		abstraction.setMenuSelection(false);
-	}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeactivated(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameDeiconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameIconified(InternalFrameEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void internalFrameActivated(InternalFrameEvent e) {}
-	
+    /** 
+     * Set the magFactor. 
+     * Needed b/c the user can close the {@link ImageInspector} widget 
+     * and re-open it with the same image displayed on screen.
+     * Value sets to {@link ImageInspector#DEFAULT_ZOOM} when a new image is 
+     * selected.
+     */
+    public void setMagFactor(double v) { magFactor = v; }
+    
+    public void setMovieSettings(int startZ, int endZ, int startT, int endT,
+            int movieType, int index, int rate) 
+    {
+        if (movieSettings != null)
+            movieSettings.setAll(startZ, endZ, startT, endT, movieType, index, 
+                                rate);
+    }
+    
+    /** Forward event to {@link Viewer abstraction}. */
+    public void setSizePaintedComponents(Dimension d)
+    {
+        presentation.setSizePaintedComponents(d);
+    }
+    
+    private void initMovieSettings(int maxZ, int maxT)
+    {
+        int index = Player.MOVIE_T;
+        if (maxT == 0) index = Player.MOVIE_Z;
+        movieSettings = new MovieSettings(0, maxZ, 0, maxT, Player.LOOP, index, 
+                                            Player.FPS_INIT);
+        
+    }
+    
 }

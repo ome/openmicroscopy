@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -50,6 +51,7 @@ import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
 import org.openmicroscopy.shoola.env.data.map.ChainExecutionMapper;
@@ -81,6 +83,7 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -111,7 +114,6 @@ class DMSAdapter
 		this.registry = registry;
 	}
 
-
 	/** 
 	 * Retrieves the user's ID. 
 	 * This method is called when we connect cf. 
@@ -124,6 +126,12 @@ class DMSAdapter
 		Criteria c = UserMapper.getUserStateCriteria();
 		return gateway.getCurrentUser(c).getID();
 	}
+    
+     /** Implemented as specified in {@link DataManagementService}. */
+    public String getSessionKey()
+    {
+        return gateway.getSessionKey();
+    }
     
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserProjects(ProjectSummary pProto, 
@@ -151,7 +159,7 @@ class DMSAdapter
     		projectsDS = ProjectMapper.fillUserProjects(projects, pProto, 
     													dProto);
 		//can be null
-    		return projectsDS;
+    	return projectsDS;
 	}
 	
     /** Implemented as specified in {@link DataManagementService}. */
@@ -424,8 +432,7 @@ class DMSAdapter
 		Image img = (Image) gateway.retrieveData(Image.class, c);
 		if (img != null)
 			//Put the server data into the corresponding client object.
-			PixelsMapper.fillPixelsDescription((Pixels) img.getDefaultPixels(), 
-												retVal);
+			PixelsMapper.fillPixelsDescription(img.getDefaultPixels(), retVal);
 		return retVal;
 	}
 	
@@ -855,6 +862,24 @@ class DMSAdapter
 	}
 
 	/** Implemented as specified in {@link DataManagementService}. */
+	public void importImages(int datasetID, List images)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Criteria c = DatasetMapper.buildUpdateCriteria(datasetID);
+		Dataset d = (Dataset) gateway.retrieveData(Dataset.class, c);
+		Repository rep = gateway.getRepository();
+		List filesToImport = new ArrayList();
+		Iterator i = images.iterator();
+		Long ID;
+		while (i.hasNext()) {
+			ID = gateway.uploadFile(rep, (File) i.next());
+			if (ID != null) filesToImport.add(ID);
+		}
+		if (d != null && filesToImport.size() != 0) 
+			gateway.startImport(d, filesToImport);
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
 	public ChannelData[] getChannelData(int imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -864,8 +889,8 @@ class DMSAdapter
 			(List) gateway.retrieveListSTSData("PixelChannelComponent", c);
 		
 		List lcList = (List) gateway.retrieveListSTSData("LogicalChannel", c);
-		
-		return ImageMapper.fillImageChannelData(ciList, lcList);
+		if (ciList == null || lcList == null) return null;
+        return ImageMapper.fillImageChannelData(ciList, lcList);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -874,7 +899,7 @@ class DMSAdapter
 	{
 		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
 								STSMapper.GLOBAL_GRANULARITY, retVal.getID());
-		LogicalChannel lc =  (LogicalChannel) 
+		LogicalChannel lc = 
 				(LogicalChannel) gateway.retrieveSTSData("LogicalChannel", c);
 				
 		//update the LogicalChannel object
@@ -885,5 +910,79 @@ class DMSAdapter
 		l.add(lc);
 		gateway.updateAttributes(l);
 	}
+
+	/** Implemented as specified in {@link DataManagementService}. */
+	public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
+											int pixelType)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		RenderingDef displayOptions;
+		displayOptions = null;
+		/*
+		HAVE TO WRITE CRITERIA criteria with imageID +userID+ pixels
+		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+										STSMapper.IMAGE_GRANULARITY, imageID);
+		List rsList = 
+			(List) gateway.retrieveListSTSData("RenderingSettings", c);
+		// build new criteria
+		if (rsList != null && rsList.size() == 0)
+			displayOptions = ImageMapper.fillInRenderingDef(qs, pixelType);									
+		*/
+		return displayOptions;
+	}
 	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public void saveRenderingSettings(int pixelsID, int imageID,
+		RenderingDef rDef)
+		throws DSOutOfServiceException, DSAccessException
+	{ 
+		/*
+	
+		//HAVE TO WRITE CRITERIA criteria with imageID +userID+ pixels
+		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+										STSMapper.IMAGE_GRANULARITY, imageID);
+		List rsList = 
+			(List) gateway.retrieveListSTSData("RenderingSettings", c);
+		//List to save	
+		List l = new ArrayList();
+		RenderingSettings rs;
+		ChannelBindings[] channelBindings = rDef.getChannelBindings();
+		int z = rDef.getDefaultZ();
+		int t = rDef.getDefaultT();
+		int model = rDef.getModel();
+		QuantumDef qDef = rDef.getQuantumDef();
+		int family = qDef.family;
+		double coeff = qDef.curveCoefficient;
+		int cdStart = qDef.cdStart;
+		int cdEnd = qDef.cdEnd;
+		int bitResolution = qDef.bitResolution;
+		if (rsList == null && rsList.size() == 0) { // nothing previously saved
+			for (int i = 0; i < channelBindings.length; i++) {
+				rs = (RenderingSettings) 
+					gateway.createNewData("RenderingSettings");
+				ImageMapper.fillInRenderingSettings(z, t, model, family, 
+								coeff, cdStart, cdEnd, bitResolution, 
+								ChannelBindings[i], RenderingSettings rs);
+				l.add(rs);
+			}
+		} else {
+			Iterator j = rsList.iterator();
+			int k;
+			if (channelBindings.length != rsList.size()) 
+				throw new DSAccessException("Data retrieved from DB don't " +
+					"match the parameters passed.");
+			while (j.hasNext()) {
+				rs = (type) j.next();
+				k = rs.getTheC();
+				ImageMapper.fillInRenderingSettings(z, t, model, family, 
+							coeff, cdStart, cdEnd, bitResolution, 
+							ChannelBindings[k], RenderingSettings rs);
+				l.add(rs);
+			}
+		}
+		gateway.updateAttributes(l);
+		*/
+	}
+
 }

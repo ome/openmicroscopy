@@ -35,6 +35,8 @@
  */
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
+import org.openmicroscopy.shoola.agents.browser.datamodel.DisplayValueMode;
+
 /**
  * Abstract heat map mode with a string-based equals() constraint.
  * 
@@ -43,7 +45,7 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
  * @version 2.2
  * @since OME2.2
  */
-public abstract class AbstractHeatMapMode implements HeatMapMode
+public abstract class AbstractHeatMapMode implements DisplayValueMode
 {
     /**
      * Compares based on mode name & type.

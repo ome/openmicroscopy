@@ -46,12 +46,12 @@ import org.openmicroscopy.shoola.agents.browser.BrowserManager;
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.2
  * @since OME2.2
  */
 public class CommonFocusAdapter extends FocusAdapter
 {
-    private UIWrapper wrapper;
+    private BrowserWrapper wrapper;
     private BrowserEnvironment env;
     
     /**
@@ -59,7 +59,7 @@ public class CommonFocusAdapter extends FocusAdapter
      * controller wrapper.
      * @param wrapper The wrapper.
      */
-    public CommonFocusAdapter(UIWrapper wrapper)
+    public CommonFocusAdapter(BrowserWrapper wrapper)
     {
         this.wrapper = wrapper;
         env = BrowserEnvironment.getInstance();

@@ -44,17 +44,20 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class ReclassifyImage extends RequestEvent
 {
     private Classification changed;
     
+    /**
+     * Creates a reclassify-image event with the newly updated classification
+     * as the lone parameter.
+     * @param c The new (updated) classification.
+     */
     public ReclassifyImage(Classification c)
     {
-        // TODO replace with null classification until delete mechanism is
-        // implemented
         if(c == null) throw new IllegalArgumentException("Invalid classification");
         this.changed = c;
     }

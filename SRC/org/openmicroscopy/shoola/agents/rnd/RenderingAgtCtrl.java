@@ -34,7 +34,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.swing.Icon;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -45,6 +44,7 @@ import org.openmicroscopy.shoola.agents.rnd.model.HSBPane;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.model.RGBPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
+import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPaneManager;
 import org.openmicroscopy.shoola.env.InternalError;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
@@ -83,7 +83,8 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int				SAVE = 4;
 	
-	private boolean 				displayed;
+	/** Action command ID. */
+	static final int				RESET_DEFAULTS = 5;
 	
 	/** String corresponding to the specified model. */
 	private String					modelType;
@@ -94,6 +95,8 @@ public class RenderingAgtCtrl
 	
 	private RenderingAgtUIF			presentation;
 	
+	private QuantumPaneManager		qpManager;
+	
 	private Icon					modelIcon;
 	
 	private IconManager				im;
@@ -101,12 +104,25 @@ public class RenderingAgtCtrl
 	RenderingAgtCtrl(RenderingAgt abstraction)
 	{
 		this.abstraction = abstraction;
-		displayed = false;
+		//displayed = false;
 		renderersPool = new HashMap();
 		im = IconManager.getInstance(abstraction.getRegistry());
 	}
 
-	void setDisplayed(boolean b) { displayed = b; }
+	public void setQPManager(QuantumPaneManager qpManager)
+	{
+		this.qpManager = qpManager;
+	}
+	
+	/** 
+	 * I have to decide of an event to fire, 
+	 * when a new image is selected. Cannot keep all the dialogs modal.
+	 */
+	void disposeDialogs()
+	{
+		// forward event to the quantumManager.
+		if (qpManager != null) qpManager.disposeDialogs();
+	}
 	
 	void setPresentation(RenderingAgtUIF presentation)
 	{
@@ -117,9 +133,9 @@ public class RenderingAgtCtrl
 	RenderingAgt getAbstraction() { return abstraction; }
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public JFrame getReferenceFrame()
+	public RenderingAgtUIF getReferenceFrame()
 	{
-		return abstraction.getRegistry().getTopFrame().getFrame();
+		return presentation;
 	}
 	
 	/** Forward event to {@link RenderingAgtUIF presentation}. */
@@ -159,13 +175,13 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public Comparable getChannelWindowStart(int w)
+	public double getChannelWindowStart(int w)
 	{
 		return abstraction.getChannelWindowStart(w);
 	}
 
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public Comparable getChannelWindowEnd(int w)
+	public double getChannelWindowEnd(int w)
 	{
 		return abstraction.getChannelWindowEnd(w);
 	}
@@ -184,7 +200,8 @@ public class RenderingAgtCtrl
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
-	public void setActive(int w) { 
+	public void setActive(int w)
+	{ 
 		presentation.getQuantumPane().setSelectedWavelength(w);
 		presentation.getTabs().setSelectedIndex(RenderingAgtUIF.POS_MODEL);
 		abstraction.setActive(w); 
@@ -205,15 +222,13 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowStart(int w, int x)
 	{
-		//TODO: support other formats
-		abstraction.setChannelWindowStart(w, new Integer(x));
+		abstraction.setChannelWindowStart(w, x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
-		//TODO: support other formats
-		abstraction.setChannelWindowEnd(w, new Integer(x));
+		abstraction.setChannelWindowEnd(w, x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
@@ -274,8 +289,9 @@ public class RenderingAgtCtrl
 		try {
 		   switch (index) { 
 				case SAVE:
-					saveDisplayOptions();
-					break;
+					saveDisplayOptions(); break;
+				case RESET_DEFAULTS:
+					resetDefaults(); break;
 				case GREY:
 				case RGB:
 				case HSB:
@@ -287,17 +303,33 @@ public class RenderingAgtCtrl
 		} 
 	}
 	
+	/** Reset the default rendering settings. */
+	public void resetDefaults()
+	{
+		//update the rendering control.
+		abstraction.resetDefaults();
+		
+		//update the view.
+		qpManager.resetDefaults();
+		
+		//reset the model pane
+		QuantumPane qp = presentation.getQuantumPane();
+		qp.setSelectionWavelengthsEnable(false);
+		presentation.resetGUI(activate(getRendererClass(GREY)));
+	}
+	
+	
 	/** Save the image settings. */
 	public void saveDisplayOptions()
 	{
-		//TODO: implement method.
+		abstraction.saveDisplayOptions();
 	}
 	
 	/** Create the specified panel. */
 	public void activateRenderingModel(int i)
 	{
 		Class c = getRendererClass(i);
-		presentation.setModelPane(activate(c));
+		presentation.setModelPane(activate(c), true);
 		QuantumPane qp = presentation.getQuantumPane();
 		if (i == GREY) {
 			qp.setSelectionWavelengthsEnable(false);

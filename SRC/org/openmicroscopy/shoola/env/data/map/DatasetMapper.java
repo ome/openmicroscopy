@@ -101,8 +101,6 @@ public class DatasetMapper
 		return criteria;
 	}
 	
-	
-	
 	/**
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieveImages.
@@ -299,7 +297,7 @@ public class DatasetMapper
 	private static int[] fillListPixelsID(Image image)
 	{
 		int[] ids = new int[1];
-	  	Pixels px = (Pixels) image.getDefaultPixels();
+	  	Pixels px = image.getDefaultPixels();
 		ids[0] = px.getID();
 	  	return ids;
 	}

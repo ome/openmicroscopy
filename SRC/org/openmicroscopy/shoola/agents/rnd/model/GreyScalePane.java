@@ -73,7 +73,7 @@ public class GreyScalePane
 	
 	public GreyScalePane()
 	{ 
-		manager = new GreyScalePaneManager(this);
+		manager = new GreyScalePaneManager();
 	}
 	
 	/** Re-build the component. */

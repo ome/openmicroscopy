@@ -213,6 +213,20 @@ public class DataElementType
             return super.toString();
         }
     }
+    
+    /**
+     * Returns whether or not this data type represents a numerical value.
+     * @return See above.
+     */
+    public boolean isANumber()
+    {
+        if(this == INT || this == FLOAT ||
+           this == LONG || this == DOUBLE)
+        {
+            return true;
+        }
+        else return false;
+    }
 
     /**
      * Maintains the equals()/hashCode() contract.

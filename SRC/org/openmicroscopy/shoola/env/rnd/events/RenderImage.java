@@ -57,14 +57,14 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 public class RenderImage
 	extends RequestEvent
 {
-	
+
 	/** The ID of the pixels set. */
 	private int			pixelsID;
 		
 	/** 
 	 * Defines what data, within the pixels set, to render.
-	 * May be <code>null</code>, if this is a request to render the current
-	 * plane. 
+	 * May be <code>null</code>, if this is a request to render the 
+     * default plane. 
 	 */
 	private PlaneDef	planeDef;
 	
@@ -108,5 +108,5 @@ public class RenderImage
 	 * @return	See above.
 	 */
 	public PlaneDef getPlaneDef() { return planeDef; }
-
+	
 }

@@ -59,9 +59,9 @@ class MenuBar
 	
 	private ZoomMenu		zoomMenu;
 	
-	MenuBar(ImageInspectorManager manager)
+	MenuBar(ImageInspectorManager manager, double magFactor)
 	{
-		zoomMenu = new ZoomMenu(manager);
+		zoomMenu = new ZoomMenu(manager, magFactor);
 		add(zoomMenu);
 	}
 	

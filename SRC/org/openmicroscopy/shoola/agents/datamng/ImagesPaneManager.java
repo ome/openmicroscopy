@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Date;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -224,7 +225,7 @@ class ImagesPaneManager
 			for (int i = 0; i < images.length; i++) {
 				is = (ImageSummary) images[i];
 				data[i][NAME] = is;
-				data[i][DATE] = is.getDate(); 
+				data[i][DATE] = new Date(is.getDate().getTime()); 
 			}
 		}
 

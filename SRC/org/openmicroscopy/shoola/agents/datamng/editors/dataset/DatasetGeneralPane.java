@@ -43,7 +43,6 @@ import javax.swing.border.Border;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
@@ -69,15 +68,12 @@ class DatasetGeneralPane
 {
 	
 	private DatasetEditorManager	manager;
-	
-	private Registry				registry;
-	
+
 	private MultilineLabel			descriptionArea, nameField;
 	
-	DatasetGeneralPane(DatasetEditorManager manager, Registry registry)
+	DatasetGeneralPane(DatasetEditorManager manager)
 	{
 		this.manager = manager;
-		this.registry = registry;
 		buildGUI();
 	}
 

@@ -81,15 +81,6 @@ public final class AWTExceptionHanlder
 	}
 	
 	/**
-	 * Disables exception handling relay.
-	 * Only called by {@link AbnormalExitHandler}.
-	 */
-	static void unregister()
-	{
-		System.setProperty("sun.awt.exception.handler", "");
-	}
-	
-	/**
 	 * Creates a new instance.
 	 */
 	public AWTExceptionHanlder()

@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
- * 
+ * Transforms a plane within a given pixels set into an RGB image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,13 +84,26 @@ class RGBStrategy
 	
 	private Renderer	renderer;
 	
-	BufferedImage render(Renderer ctx)
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#getImageSize()
+     */
+    int getImageSize(PlaneDef pd, PixelsDimensions dims)
+    {
+        initAxesSize(pd, dims);
+        return sizeX1*sizeX2*3;
+    }
+    
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+    BufferedImage render(Renderer ctx, PlaneDef planeDef)
 		throws DataSourceException, QuantizationException
 	{
 		//Set the context and retrieve rendering settings.
 		renderer = ctx;
 		PixelsDimensions dims = renderer.getPixelsDims();
-		PlaneDef planeDef = renderer.getPlaneDef();
 		RenderingDef rndDef = renderer.getRenderingDef();
 		QuantumManager qManager = renderer.getQuantumManager();
 		DataSink dSink = renderer.getDataSink();
@@ -101,18 +114,22 @@ class RGBStrategy
 		initAxesSize(planeDef, dims);
 		DataBufferByte renderedDataBuf = new DataBufferByte(sizeX1*sizeX2, 3);
 		
-		//Process each active wavelength. 
-		Plane2D wData;
-		for (int i = 0; i < cBindings.length; i++) {
+		//First send asynchronous requests to retrieve needed planes.
+        Plane2D[] wData = new Plane2D[cBindings.length];
+        for (int w = 0; w < cBindings.length; w++) 
+            if (cBindings[w].isActive()) 
+                wData[w] = dSink.getPlane2D(planeDef, w);
+        
+		//Process each active wavelength.
+		for (int w = 0; w < cBindings.length; w++) {
 			//NOTE: RenderingDef enforces the constraint 
-			if (cBindings[i].isActive()) {
-				wData = dSink.getPlane2D(planeDef, i);
+			if (wData[w] != null) {
 				try {
-					renderWave(renderedDataBuf, wData, 
-								qManager.getStrategyFor(i), 
-								cBindings[i].getRGBA());
+					renderWave(renderedDataBuf, wData[w], 
+								qManager.getStrategyFor(w), 
+								cBindings[w].getRGBA());
 				} catch (QuantizationException e) {
-					e.setWavelength(i);
+					e.setWavelength(w);
 					throw e;
 				}
 			}
@@ -162,7 +179,7 @@ class RGBStrategy
 	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
 		QuantumStrategy qs, int[] rgba)
-		throws QuantizationException
+		throws DataSourceException, QuantizationException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v;

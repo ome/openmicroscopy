@@ -71,7 +71,7 @@ class HistogramDialog
 	HistogramDialog(QuantumPaneManager control, int mini, int maxi, 
 					int start, int end, PixelsStatsEntry[] histogramData)
 	{
-		super(control.getReferenceFrame(), "Histogram", true);
+		super(control.getReferenceFrame(), "Histogram", false);
 		manager = new HistogramDialogManager(this, control);
 		int yStart, yEnd;
 		yStart = manager.convertRealIntoGraphics(start);
@@ -98,7 +98,7 @@ class HistogramDialog
 										im.getIcon(IconManager.HISTOGRAM_BIG));
 		getContentPane().add(tp, BorderLayout.NORTH);
 		getContentPane().add(layeredPane, BorderLayout.CENTER);
-		setResizable(false);
+		//setResizable(false);
 		pack();
 	}
 	
@@ -110,7 +110,7 @@ class HistogramDialog
 	private	void buildLayeredPane()
 	{
 		layeredPane = new JLayeredPane();
-		layeredPane.setPreferredSize(new Dimension(HistogramPanel.WIDTH, 
+		layeredPane.setPreferredSize(new Dimension(histogramPanel.getWidthWin(), 
 									HistogramPanel.HEIGHT));
 		layeredPane.add(histogramPanel);
 	}

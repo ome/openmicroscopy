@@ -44,7 +44,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * Manager of the {@link ColorSelector} widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,7 +66,7 @@ class ColorSelectorManager
 	private static final int	APPLY = 101;
 	private static final int	CANCEL = 102;
 	
-	/** ID of the availabel colors.  */
+	/** ID of the available colors.  */
 	static final int 			RED = 0;
 	static final int 			GREEN = 1;
 	static final int 			BLUE = 2;
@@ -119,7 +119,7 @@ class ColorSelectorManager
 	/** Handle events fired by Combobox and buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 	   		switch (index) {
@@ -200,7 +200,7 @@ class ColorSelectorManager
 	 */
 	private void modifyAlpha(int value)
 	{
-		view.getAlphaField().setText(" Alpha: "+value);
+		view.getAlphaField().setText("Transparency: "+value);
 		curAlpha = (int) (value*2.55);
 		curColor = new Color(curColor.getRed(), curColor.getGreen(), 
 							curColor.getBlue(), curAlpha);	

@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -46,6 +45,7 @@ import javax.swing.JTabbedPane;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
  * 
@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 class DataManagerUIF
-	extends JInternalFrame
+	extends TopWindow
 {
 	
 	/** 
@@ -87,15 +87,13 @@ class DataManagerUIF
 	
 	DataManagerUIF(DataManagerCtrl control, Registry registry)
 	{
-		//name, resizable, closable, maximizable, iconifiable.
-		super("DataManager", true, true, true, true);
+		super("Data Manager", registry.getTaskBar());
 		this.registry = registry;
 		this.control = control;
 		im = IconManager.getInstance(registry);
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
 		imgPane = new ImagesPane(control, registry);
-		setJMenuBar(createMenuBar());
 		buildGUI(new ToolBar(control, registry));
 		pack();	
 	}
@@ -139,6 +137,20 @@ class DataManagerUIF
 	/** Return the menu displayed for nodes in the tree. */
 	TreePopupMenu getPopupMenu() { return popupMenu; }
 	
+	/**
+	 * Specifies icons, text, and tooltips for the display buttons in the
+	 * TaskBar.
+	 * Those buttons are managed by the superclass, we only have to specify
+	 * what they should look like.
+	 */
+	private void configureDisplayButtons()
+	{
+		configureQuickLaunchBtn(im.getIcon(IconManager.DMANAGER), 
+												"Bring up the Data Manager.");
+		configureWinMenuEntry("Data Manager", 
+							im.getIcon(IconManager.DMANAGER));
+	}
+
 	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
 	{
@@ -153,11 +165,16 @@ class DataManagerUIF
 		tabs.setForeground(DataManager.STEELBLUE);
 		tabs.setSelectedComponent(explPane);
 		
+		//Configure the display buttons in the TaskBar.
+		configureDisplayButtons();
+		
+		//Set the menubar, the content pane's layout and add components.
+		setJMenuBar(createMenuBar());
+
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(bar, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(im.getIcon(IconManager.DMANAGER));	
 	} 	
 	
 	/** Creates an internal menu. */

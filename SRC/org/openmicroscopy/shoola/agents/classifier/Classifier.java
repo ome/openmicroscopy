@@ -44,6 +44,8 @@ import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage;
 import org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImage;
+import org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImages;
 import org.openmicroscopy.shoola.agents.classifier.events.ImagesClassified;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage;
@@ -57,7 +59,6 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
@@ -67,7 +68,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class Classifier implements Agent, AgentEventListener
@@ -78,25 +79,31 @@ public class Classifier implements Agent, AgentEventListener
     
     private Registry registry;
     
-    private TopFrame topFrame;
-    
     private List activeControls;
     
+    /**
+     * Creates a Classifier agent.
+     */
     public Classifier()
     {
         activeControls = new ArrayList();
     }
     
-    /* (non-Javadoc)
+    /**
+     * Component does not require activation at this time.
      * @see org.openmicroscopy.shoola.env.Agent#activate()
      */
     public void activate()
     {
-        // TODO Auto-generated method stub
-
+        // nothing necessary
     }
     
-    /* (non-Javadoc)
+    /**
+     * Queries the agent to determine if the application can exit.  If there
+     * is an operation in the classifier in progress, this method will return
+     * false.  Otherwise, it will return true, and the agent can be shut down.
+     * 
+     * @return Whether or not the classifier is in a state of safe, expected exit.
      * @see org.openmicroscopy.shoola.env.Agent#canTerminate()
      */
     public boolean canTerminate()
@@ -109,31 +116,64 @@ public class Classifier implements Agent, AgentEventListener
         return true;
     }
     
-    /* (non-Javadoc)
+    /**
+     * Sets the application context of this agent and registers the agent to
+     * listen for certain application events.
+     * 
+     * @param ctx The Registry class containing application context.
      * @see org.openmicroscopy.shoola.env.Agent#setContext(org.openmicroscopy.shoola.env.config.Registry)
      */
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
-        topFrame = registry.getTopFrame();
         registry.getEventBus().register(this,LoadCategories.class);
         registry.getEventBus().register(this,ClassifyImage.class);
         registry.getEventBus().register(this,ClassifyImages.class);
         registry.getEventBus().register(this,ReclassifyImage.class);
         registry.getEventBus().register(this,ReclassifyImages.class);
+        
+        // BUG 117 FIX
+        registry.getEventBus().register(this,DeclassifyImage.class);
+        registry.getEventBus().register(this,DeclassifyImages.class);
     }
     
-    /* (non-Javadoc)
+    /**
+     * A non-saving termination condition (which will only be triggered if
+     * canTerminate() evaluates to true-- which will be false if there is
+     * pending unsaved information)
+     * 
      * @see org.openmicroscopy.shoola.env.Agent#terminate()
      */
     public void terminate()
     {
-        // TODO Auto-generated method stub
-
+        for(Iterator iter = activeControls.iterator(); iter.hasNext();)
+        {
+            CategoryCtrl ctrl = (CategoryCtrl)iter.next();
+            ctrl.close();
+        }
     }
     
-    /* (non-Javadoc)
+    /**
+     * Responds to events posted to the event bus.  The classifier should respond
+     * to the following events:
+     * 
+     * LoadCategories
+     * ClassifyImage
+     * ClassifyImages
+     * ReclassifyImage
+     * ReclassifyImages
+     * DeclassifyImage
+     * DeclassifyImages
+     * 
+     * @param e The event to respond to.
      * @see org.openmicroscopy.shoola.env.event.AgentEventListener#eventFired(org.openmicroscopy.shoola.env.event.AgentEvent)
+     * @see org.openmicroscopy.shoola.agents.classifier.events.LoadCategories
+     * @see org.openmicroscopy.shoola.agents.classifier.events.ClassifyImage
+     * @see org.openmicroscopy.shoola.agents.classifier.events.ClassifyImages
+     * @see org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage
+     * @see org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages
+     * @see org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImage
+     * @see org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImages
      */
     public void eventFired(AgentEvent e)
     {
@@ -143,36 +183,44 @@ public class Classifier implements Agent, AgentEventListener
         }
         else if(e instanceof ClassifyImage)
         {
-            System.err.println("received ClassifyImage");
             ClassifyImage ci = (ClassifyImage)e;
             classifyImageNew(ci);
         }
         else if(e instanceof ClassifyImages)
         {
-            System.err.println("received ClassifyImages");
             ClassifyImages ci = (ClassifyImages)e;
             classifyImageNew(ci);
         }
         else if(e instanceof ReclassifyImage)
         {
-            System.err.println("received ReclassifyImage");
             ReclassifyImage ri = (ReclassifyImage)e;
             reclassify(ri);
         }
         else if(e instanceof ReclassifyImages)
         {
-            System.err.println("received ReclassifyImages");
             ReclassifyImages ri = (ReclassifyImages)e;
             reclassify(ri);
+        }
+        else if(e instanceof DeclassifyImage)
+        {
+            DeclassifyImage di = (DeclassifyImage)e;
+            declassify(di);
+        }
+        else if(e instanceof DeclassifyImages)
+        {
+            DeclassifyImages di = (DeclassifyImages)e;
+            declassify(di);
         }
     }
     
     /**
-     * Creates a new category group (set of phenotypes)
-     * @param groupName
-     * @param description
-     * @param datasetID
-     * @return
+     * Creates a new category group (set of phenotypes) inside the database, and
+     * returns a Java data object corresponding to the new record.
+     * 
+     * @param groupName The name of the category group.
+     * @param description The description of the category group.
+     * @param datasetID The ID of the dataset to bind the group to.
+     * @return The CategoryGroup object (to be committed to the database)
      */
     CategoryGroup createCategoryGroup(String groupName,
                                       String description,
@@ -203,11 +251,16 @@ public class Classifier implements Agent, AgentEventListener
     }
     
     /**
-     * Creates a new category within a CategoryGroup.
-     * @param categoryName
-     * @param description
-     * @param datasetID
-     * @return
+     * Creates a new category within a CategoryGroup, issues a create in the
+     * remote database, and returns a Java data transfer object corresponding to
+     * the new record.
+     * 
+     * @param parent The parent CategoryGroup of the desired category.
+     * @param categoryName The name of the category.
+     * @param description A description of which images should be classified as
+     *                    members of that category.
+     * @param datasetID The dataset ID to bind the category to.
+     * @return A newly-created Category object (to be committed to the database)
      */
     Category createCategory(CategoryGroup parent,
                             String categoryName,
@@ -240,6 +293,14 @@ public class Classifier implements Agent, AgentEventListener
         return category;
     }
     
+    /**
+     * Creates a new Classification object, creates the record in the database, and
+     * returns a Java data object corresponding to the new record.
+     * 
+     * @param category The category the classification binds the image to.
+     * @param imageID The ID of the image to classify.
+     * @return A new Classification record (to be committed to the DB)
+     */
     Classification createClassification(Category category, int imageID)
     {
         Classification classification = null;
@@ -250,6 +311,7 @@ public class Classifier implements Agent, AgentEventListener
                 (Classification)sts.createAttribute(CLASSIFICATION,imageID);
             classification.setCategory(category);
             classification.setConfidence(new Float(1.0f));
+            classification.setValid(Boolean.TRUE);
         }
         catch(DSAccessException dsae)
         {
@@ -268,6 +330,15 @@ public class Classifier implements Agent, AgentEventListener
         return classification;
     }
     
+    /**
+     * Commits a list of newly created category groups, categories and
+     * classifications to the database.  The create family of methods trigger
+     * module executions at the database level but do not physically store the
+     * semantic type objects as records; this operation seals the deal.
+     * 
+     * @param attributes The list of new attributes to commit to the database.
+     * @return Whether or not the commit was successful.
+     */
     boolean commitNewAttributes(List attributes)
     {
         if(attributes == null || attributes.size() == 0)
@@ -293,6 +364,14 @@ public class Classifier implements Agent, AgentEventListener
         }
     }
     
+    /**
+     * Updates the attributes in the database.  Every attribute in the list should
+     * already have a database record; otherwise, the server will throw a remote
+     * error.
+     * 
+     * @param attributes A list of updated attributes to commit.
+     * @return Whether or not the update was successful.
+     */
     boolean updateAttributes(List attributes)
     {
         if(attributes == null || attributes.size() == 0 ) return false;
@@ -315,6 +394,12 @@ public class Classifier implements Agent, AgentEventListener
         }
     }
     
+    /**
+     * Returns a list of category groups that bound to the dataset with the
+     * specified ID.
+     * @param datasetID The ID of the dataset to filter category groups by.
+     * @return A list of category groups associated with the specified dataset.
+     */
     public List getCategoryGroups(int datasetID)
     {
         List categoryGroups = null;
@@ -338,6 +423,12 @@ public class Classifier implements Agent, AgentEventListener
     
     // likely much faster to piece together who belongs to whom locally (with
     // all categories available) than over wicked expensive (currently) DB call
+    /**
+     * Gets the categories bound to a specific dataset.
+     * 
+     * @param datasetID The ID of the dataset to retrieve categories from.
+     * @return A list of Category object bound to the specified dataset.
+     */
     public List getCategories(int datasetID)
     {
         List categories = null;
@@ -359,14 +450,23 @@ public class Classifier implements Agent, AgentEventListener
         return categories;
     }
     
-    public List getClassifications(int imageID)
+    /**
+     * Gets all the classifications pertaining to a specified image, with
+     * categories that are bound to the specified dataset.
+     * @param imageID The ID of the image to retrieve classifications from.
+     * @param datasetID The dataset used to filter classifications.
+     * @return See above.
+     */
+    public List getClassifications(int imageID, int datasetID)
     {
         List classifications = null;
         try
         {
             SemanticTypesService sts = registry.getSemanticTypesService();
+            List dummyList = new ArrayList();
+            dummyList.add(new Integer(imageID));
             classifications =
-                sts.retrieveImageAttributes(CLASSIFICATION,imageID);
+                sts.retrieveImageClassifications(dummyList,datasetID);
         }
         catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
@@ -380,7 +480,11 @@ public class Classifier implements Agent, AgentEventListener
         return classifications;
     }
     
-    public void classifyImageNew(ClassifyImage event)
+    /**
+     * Create a new classification in response to a ClassifyImage event.
+     * @param event The parameters of the new classification.
+     */
+    void classifyImageNew(ClassifyImage event)
     {
         if(event == null || event.getCategory() == null) return;
         Category category = event.getCategory();
@@ -391,10 +495,14 @@ public class Classifier implements Agent, AgentEventListener
         commitNewAttributes(newList);
         ImagesClassified response = new ImagesClassified(event);
         response.addClassification(c);
-        registry.getEventBus().post(response);
+        respondWithEvent(response);
     }
     
-    public void classifyImageNew(ClassifyImages event)
+    /**
+     * Create a set of new classifications in response to a ClassifyImages event.
+     * @param event The collection of new classifications.
+     */
+    void classifyImageNew(ClassifyImages event)
     {
         if(event == null || event.getCategory() == null ||
            event.getImageIDs() == null)
@@ -422,21 +530,31 @@ public class Classifier implements Agent, AgentEventListener
         {
             response.addClassification((Classification)newList.get(i));
         }
-        registry.getEventBus().post(response);
+        respondWithEvent(response);
     }
     
+    /**
+     * Reclassifies a particular image in response to a ReclassifyImage event.
+     * @param event The event to respond to.
+     */
     public void reclassify(ReclassifyImage event)
     {
         if(event == null || event.getClassification() == null) return;
         Classification updatedClassification = event.getClassification();
+        // if it was invalid before, set to valid (to be safe)
+        updatedClassification.setValid(Boolean.TRUE);
         List newList = new ArrayList();
         newList.add(updatedClassification);
         updateAttributes(newList);
         ImagesClassified response = new ImagesClassified(event);
         response.addClassification(updatedClassification);
-        registry.getEventBus().post(response);
+        respondWithEvent(response);
     }
     
+    /**
+     * Reclassifies several images in response to a ReclassifyImages event.
+     * @param event The event to respond to.
+     */
     public void reclassify(ReclassifyImages event)
     {
         if(event == null || event.getClassifications() == null ||
@@ -448,18 +566,75 @@ public class Classifier implements Agent, AgentEventListener
         List updatedList = new ArrayList();
         for(int i=0;i<updatedClassifications.size();i++)
         {
-            updatedList.add(updatedClassifications.get(i));
+            Classification classification =
+                (Classification)updatedClassifications.get(i);
+            // if it was invalid before, set to valid (to be safe)
+            classification.setValid(Boolean.TRUE);
+            updatedList.add(classification);
         }
         updateAttributes(updatedList);
         ImagesClassified response = new ImagesClassified(event);
-        for(int i=0;i<updatedClassifications.size();i++)
+        for(int i=0;i<updatedList.size();i++)
         {
-            response.addClassification((Classification)updatedClassifications.get(i));
+            response.addClassification((Classification)updatedList.get(i));
         }
-        registry.getEventBus().post(response);
+        respondWithEvent(response);
     }
     
-    public void showCategoryDialog(LoadCategories requestEvent)
+    /**
+     * Declassifies an image in response to a DeclassifyImage event.
+     * @param event The event to respond to.
+     */
+    public void declassify(DeclassifyImage event)
+    {
+        if(event == null || event.getClassification() == null)
+        {
+            return;
+        }
+        Classification invalidClassification = event.getClassification();
+        invalidClassification.setValid(Boolean.FALSE);
+        List newList = new ArrayList();
+        newList.add(invalidClassification);
+        updateAttributes(newList);
+        ImagesClassified response = new ImagesClassified(event);
+        response.addClassification(invalidClassification);
+        respondWithEvent(response);
+    }
+    
+    /**
+     * Declassifies an image in response to a DeclassifyImages event.
+     * @param event The event to respond to.
+     */
+    public void declassify(DeclassifyImages event)
+    {
+        if(event == null || event.getClassifications() == null ||
+           event.getClassifications().size() == 0)
+        {
+            return;
+        }
+        List invalidClassifications = event.getClassifications();
+        List updatedList = new ArrayList();
+        for(int i=0;i<invalidClassifications.size();i++)
+        {
+            Classification classification =
+                (Classification)invalidClassifications.get(i);
+            classification.setValid(Boolean.FALSE);
+            updatedList.add(classification);
+        }
+        updateAttributes(updatedList);
+        ImagesClassified response = new ImagesClassified(event);
+        for(int i=0;i<updatedList.size();i++)
+        {
+            response.addClassification((Classification)updatedList.get(i));
+        }
+        respondWithEvent(response);
+    }
+    
+    /**
+     * Prompt the edit/view categories dialog box in response to an event.
+     * @param requestEvent The event to respond to.
+     */
+    void showCategoryDialog(LoadCategories requestEvent)
     {
         CategoryCtrl cc = new CategoryCtrl(this,requestEvent);
         activeControls.add(cc);
@@ -467,7 +642,11 @@ public class Classifier implements Agent, AgentEventListener
         ui.show();
     }
     
-    public void respondWithEvent(ResponseEvent re)
+    /**
+     * Post a response event to the event bus.
+     * @param re The event to place on the bus.
+     */
+    void respondWithEvent(ResponseEvent re)
     {
         if(re != null)
         {
@@ -475,7 +654,11 @@ public class Classifier implements Agent, AgentEventListener
         }
     }
     
-    public void close(CategoryCtrl control)
+    /**
+     * Close the edit/load categories control box.
+     * @param control
+     */
+    void close(CategoryCtrl control)
     {
         activeControls.remove(control);
     }

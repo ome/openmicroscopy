@@ -35,7 +35,6 @@ import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -78,14 +77,14 @@ public class CreateDatasetEditor
 	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
 								DatasetData model, List projects, List images)
 	{
-		super((JFrame) registry.getTopFrame().getFrame(), true);
+		super(control.getReferenceFrame(), true);
 		this.registry = registry;
 		manager = new CreateDatasetEditorManager(this, control, model, projects,
 												images);
-		creationPane = new CreateDatasetPane(manager, registry);
+		creationPane = new CreateDatasetPane(manager);
 		projectsPane = new CreateDatasetProjectsPane(manager);
 		imagesPane = new CreateDatasetImagesPane(manager);
-		bar = new CreateDatasetEditorBar(manager);
+		bar = new CreateDatasetEditorBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH+100, DataManager.EDITOR_HEIGHT);

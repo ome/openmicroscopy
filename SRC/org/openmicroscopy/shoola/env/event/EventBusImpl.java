@@ -194,11 +194,10 @@ class EventBusImpl
 		//Percolate inheritance hierarchy.
 		while (eventClass != null) {   
 		    if (eventClass == agtEvent) {
-		        b = true ;
+		        b = true;
 		        break;
-		    } else {
-		        eventClass = eventClass.getSuperclass();
 		    }
+            eventClass = eventClass.getSuperclass();
 		} 
         return b;
     }

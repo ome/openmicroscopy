@@ -54,7 +54,8 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
 
-	public static final  String ENV ="/env";
+	public static final  String ENV = "/env";
+	
 	public static final	String USER_CREDENTIALS = "/user/credentials";
 	
 	public static final String AGENTS = "/agents";
@@ -71,5 +72,10 @@ public class LookupNames
 	public static final String LOG_ON = "/services/LOG/on";
 	public static final String LOG_DIR = "/services/LOG/dir";
 	public static final String LOG_FILE = "/services/LOG/file";
+	
+	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
+	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
+    public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
+    public static final String RE_MAX_PRE_FETCH = "/services/RE/maxPreFetch";
 	
 }

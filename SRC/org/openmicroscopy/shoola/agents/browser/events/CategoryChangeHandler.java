@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapModel;
-import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.agents.classifier.events.CategoriesChanged;
 import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.env.event.CompletionHandler;
@@ -82,7 +82,7 @@ public class CategoryChangeHandler implements CompletionHandler
         
         for(Iterator iter = browserList.iterator(); iter.hasNext();)
         {
-            UIWrapper wrapper = (UIWrapper)iter.next();
+            BrowserWrapper wrapper = (BrowserWrapper)iter.next();
             BrowserController controller = wrapper.getController();
             BrowserModel model = controller.getBrowserModel();
             int browserID = model.getDataset().getID();

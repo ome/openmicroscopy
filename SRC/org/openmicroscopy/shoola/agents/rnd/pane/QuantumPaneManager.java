@@ -31,12 +31,12 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  * </small>
  * @since OME2.2
  */
-class QuantumPaneManager
+public class QuantumPaneManager
 {	
 	
 	/** Reference to the {@link QuantumPane view}. */
@@ -65,10 +65,42 @@ class QuantumPaneManager
 	/** Reference to the {@link RenderingAgtCtrl eventManager}. */
 	private RenderingAgtCtrl	eventManager;
 	
-	QuantumPaneManager(RenderingAgtCtrl eventManager, QuantumPane view)
+	public QuantumPaneManager(RenderingAgtCtrl eventManager, QuantumPane view)
 	{
 		this.eventManager = eventManager;
 		this.view = view;
+	}
+	
+	/** Dispose all the dialog window. */
+	public void disposeDialogs()
+	{
+		DomainPaneManager dpm = view.getDomainPane().getManager();
+		dpm.disposeDialogs();
+	}
+	
+	/** Reset the rendering defaults.update the GUI*/
+	public void resetDefaults()
+	{
+		//DomainPane+Histogram
+		DomainPaneManager dpm = view.getDomainPane().getManager();
+		dpm.resetDefaults();
+		
+		//Codomain
+		CodomainPaneManager cpm = view.getCodomainPane().getManager();
+		cpm.resetDefaults();
+		
+		//Graphics representation
+		view.getGRPane().removeAll();
+		GraphicsRepresentation gr = view.getGRepresentation();
+		gr = null;
+		int mini = (int) eventManager.getGlobalChannelWindowStart(0);
+		int maxi = (int) eventManager.getGlobalChannelWindowEnd(0);
+		gr = new GraphicsRepresentation(this, QuantumFactory.LINEAR, 1.0, 0, 
+										255, mini, maxi);
+		gr.setReverseIntensity(false);
+		gr.setDefaultLinear(mini, maxi);
+		view.setGRepresentation(gr);
+		view.buildGRPane();
 	}
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
@@ -118,13 +150,13 @@ class QuantumPaneManager
 	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowStart(int w)
 	{
-		return ((Integer) eventManager.getChannelWindowStart(w)).intValue();
+		return (int) eventManager.getChannelWindowStart(w);
 	}
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
 	int getChannelWindowEnd(int w)
 	{
-		return ((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+		return (int) eventManager.getChannelWindowEnd(w);
 	}
 	
 	/** Forward event to {@link RenderingAgtCtrl}. */
@@ -189,12 +221,13 @@ class QuantumPaneManager
 		int mini = (int) eventManager.getGlobalChannelWindowStart(w);
 		int maxi = (int) eventManager.getGlobalChannelWindowEnd(w);
 		int s = 
-			((Integer) eventManager.getChannelWindowStart(w)).intValue();
+			(int) eventManager.getChannelWindowStart(w);
 		int e = 
-			((Integer) eventManager.getChannelWindowEnd(w)).intValue();
+			(int) eventManager.getChannelWindowEnd(w);
 		QuantumDef qDef = getQuantumDef();
-		gr = new GraphicsRepresentation(this, qDef, mini, maxi);
-		
+		gr = new GraphicsRepresentation(this, qDef.family, 
+				qDef.curveCoefficient, qDef.cdStart, qDef.cdEnd, mini, maxi);
+		gr.setReverseIntensity(view.getCodomainPane().getRI().isSelected());
 		if (qDef.family == QuantumFactory.EXPONENTIAL)
 			gr.setDefaultExponential(s, e);
 		else gr.setDefaultLinear(s, e);
@@ -218,7 +251,6 @@ class QuantumPaneManager
 		
 		grManager.setInputWindowStart(value, getGlobalChannelWindowStart(w),
 									getGlobalChannelWindowEnd(w));
-		//eventManager.setChannelWindowStart(w, value);
 	}
 	
 	void setInputWindowStart(int value) 
@@ -248,7 +280,6 @@ class QuantumPaneManager
 		dpManager.setInputWindowEnd(value);
 		grManager.setInputWindowEnd(value, getGlobalChannelWindowStart(w),
 									getGlobalChannelWindowEnd(w));	
-		//eventManager.setChannelWindowEnd(w,value);
 	}
 	
 	void setInputWindowEnd(int value) 
@@ -265,9 +296,9 @@ class QuantumPaneManager
 	}
 	
 	/** Retrieve the main Frame. */
-	JFrame getReferenceFrame()
+	RenderingAgtUIF getReferenceFrame()
 	{
-		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
+		return eventManager.getReferenceFrame();
 	}
 
 	RenderingAgtCtrl getEventManager() { return eventManager; }

@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -57,7 +56,6 @@ import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /** 
  * 
@@ -105,13 +103,10 @@ public class RenderingAgt
 	
 	private RenderingControl		renderingControl;
 	
-	/** Reference to the topFrame. */
-	private TopFrame				topFrame;
-	
+	/** Current image displayed: imageID and set of pixelsID. */
 	private int						curImageID, curPixelsID;
 	
-	private boolean					displayed;
-	
+	/** Allow or not to update the channel info. */ 
 	private boolean					canUpdate;
 	
 	/** Creates a new instance. */
@@ -131,7 +126,6 @@ public class RenderingAgt
 		EventBus bus = registry.getEventBus();
 		bus.register(this, ImageLoaded.class);
 		bus.register(this, DisplayRendering.class);
-		topFrame = registry.getTopFrame();
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -141,7 +135,7 @@ public class RenderingAgt
 	public void eventFired(AgentEvent e) 
 	{
 		if (e instanceof ImageLoaded) handleImageLoaded((ImageLoaded) e);	
-		else if (e instanceof DisplayRendering) bringUpPresentation();
+		else if (e instanceof DisplayRendering) presentation.deIconify();
 	}
 	
 	/** Render a new image when a control has been activated. */
@@ -162,14 +156,14 @@ public class RenderingAgt
 		curPixelsID = request.getPixelsID();
 		initChannelData();
 		if (presentation != null) removePresentation();
-		else buildPresentation();	
+		buildPresentation(request.getImageName());
 	}
 	
 	/** Build the presentation. */
-	private void buildPresentation()
+	private void buildPresentation(String imageName)
 	{
 		control  = new RenderingAgtCtrl(this);
-		presentation = new RenderingAgtUIF(control, registry);
+		presentation = new RenderingAgtUIF(control, registry, imageName);
 		control.setPresentation(presentation);
 	}
 	
@@ -181,20 +175,10 @@ public class RenderingAgt
 	 */
 	private void removePresentation()
 	{
-		if (presentation.isIcon()) topFrame.deiconifyFrame(presentation);
-		Rectangle bounds = presentation.getBounds();
-		if (presentation.isClosed()) displayed = false;
-		topFrame.removeFromDesktop(presentation);
+		control.disposeDialogs();
+		presentation.dispose();
 		control = null;
 		presentation = null;
-		buildPresentation();
-		if (displayed) {
-			presentation.setBounds(bounds);
-			control.setDisplayed(true);
-			displayed = true;
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);	
-		}	
 	}
 	
 	/** Return the {@link RenderingAgtUIF presentation}. */
@@ -202,49 +186,7 @@ public class RenderingAgt
 
 	/** Return a refence to the {@link Registry}. */
 	Registry getRegistry() { return registry; }
-	
-	/** Pop up the presentation. */
-	void deiconifyPresentation()
-	{
-		topFrame.deiconifyFrame(presentation);
-		try {
-			presentation.setIcon(false);
-		} catch (Exception e) {}	
-	}
-	
-	/** Display the widget. */
-	void showPresentation()
-	{
-		displayed = true;
-		topFrame.removeFromDesktop(presentation);
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);	
-	}
 
-	/** Display the widget when it has been closed. */
-	void displayPresentation()
-	{
-		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
-		try {
-			presentation.setClosed(false);
-		} catch (Exception e) {}
-	}
-	
-	/** Bring up the widget. */
-	private void bringUpPresentation()
-	{
-		if (presentation != null) {
-			if (displayed) {
-				if (presentation.isClosed()) displayPresentation();
-				if (presentation.isIcon()) deiconifyPresentation();
-			} else {
-				showPresentation();	
-				displayed = true;	
-			}
-		}
-	}
-	
 	/** 
 	 * The method is called when we can't retrieve the data from DB. 
 	 * In this case, the user can't update the channel data.
@@ -262,7 +204,12 @@ public class RenderingAgt
 		try {
 			DataManagementService ds = registry.getDataManagementService();
 			channelData = ds.getChannelData(curImageID); 
-			if (channelData.length != pxsDims.sizeW) defaultInitChannelData();
+            if (channelData == null) defaultInitChannelData();
+			else {
+                if (channelData.length != pxsDims.sizeW) 
+                    defaultInitChannelData();
+            }
+                
 		} catch(DSAccessException dsae) {
 			String s = "Can't retrieve the channel data for "+curImageID+".";
 			registry.getLogger().error(this, s+" Error: "+dsae); 
@@ -273,6 +220,7 @@ public class RenderingAgt
 			ServiceActivationRequest request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
 			registry.getEventBus().post(request);
+            defaultInitChannelData();
 		} 
 	}
 
@@ -374,7 +322,7 @@ public class RenderingAgt
 	/**
 	 * Return the minimum pixel intensities of a specified channel
 	 * across time.
-	 * @param w		OME index of the specified wavlength.
+	 * @param w		OME index of the specified wavelength.
 	 * @return
 	 */
 	double getGlobalChannelWindowStart(int w)
@@ -399,7 +347,7 @@ public class RenderingAgt
 	 * 
 	 * @param w		OME index of the specified wavlength.
 	 */
-	Comparable getChannelWindowStart(int w)
+	double getChannelWindowStart(int w)
 	{
 		return renderingControl.getChannelWindowStart(w);
 	}
@@ -410,9 +358,9 @@ public class RenderingAgt
 	 * @param w		OME index of the specified wavlength.
 	 * @param x		lower bound.
 	 */
-	void setChannelWindowStart(int w, Comparable x)
+	void setChannelWindowStart(int w, double x)
 	{
-		Comparable end = renderingControl.getChannelWindowEnd(w);
+		double end = renderingControl.getChannelWindowEnd(w);
 		renderingControl.setChannelWindow(w, x, end);
 		refreshImage();
 	}
@@ -423,7 +371,7 @@ public class RenderingAgt
 	 * 
 	 * @param w		OME index of the specified wavlength.
 	 */
-	Comparable getChannelWindowEnd(int w)
+	double getChannelWindowEnd(int w)
 	{
 		return renderingControl.getChannelWindowEnd(w);
 	}
@@ -434,9 +382,9 @@ public class RenderingAgt
 	 * @param w		OME index of the specified wavlength.
 	 * @param x		upper bound.
 	 */
-	void setChannelWindowEnd(int w, Comparable x)
+	void setChannelWindowEnd(int w, double x)
 	{
-		Comparable start = renderingControl.getChannelWindowStart(w);
+		double start = renderingControl.getChannelWindowStart(w);
 		renderingControl.setChannelWindow(w, start, x);
 		refreshImage();
 	}
@@ -528,4 +476,20 @@ public class RenderingAgt
 	
 	boolean isActive(int w) { return renderingControl.isActive(w); }
 
+	/** Reset the rendering engine defaults. */
+	void resetDefaults()
+	{
+		renderingControl.resetDefaults();
+		refreshImage();
+	}
+	
+	/** Save the rendering settings. */
+	void saveDisplayOptions()
+	{
+		renderingControl.saveCurrentSettings();
+		String msg = "The settings have now been saved, Note that the " +
+			"parameters set in \"options\" haven't been saved.";
+		registry.getUserNotifier().notifyInfo("Rendering", msg);
+	}
+	
 }

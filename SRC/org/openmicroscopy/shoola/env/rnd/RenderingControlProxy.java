@@ -43,9 +43,13 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
- * 
+ * UI-side implementation of the {@link RenderingControl} interface.
+ * Transforms method calls into execution requests, which then posts on the 
+ * event bus.  Keeps in sync the local copy of the rendering settings, so 
+ * reads are made against this copy.  Runs in the Swing thread.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -160,7 +164,7 @@ class RenderingControlProxy
 	}
 
 	public void setChannelWindow(final int w, 
-								final Comparable start, final Comparable end) 
+								final double start, final double end) 
 	{	
 		//TODO: this might go well w/ our copy, but then throw an exception
 		//in the servant. We need a future.
@@ -176,13 +180,13 @@ class RenderingControlProxy
 		eventBus.post(rpc);	
 	}
 
-	public Comparable getChannelWindowStart(int w) 
+	public double getChannelWindowStart(int w) 
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		return cb[w].getInputStart();
 	}
 
-	public Comparable getChannelWindowEnd(int w) 
+	public double getChannelWindowEnd(int w) 
 	{
 		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
 		return cb[w].getInputEnd();
@@ -251,7 +255,8 @@ class RenderingControlProxy
 		eventBus.post(rpc);
 	}
 
-	public void removeCodomainMap(final CodomainMapContext mapCtx) {
+	public void removeCodomainMap(final CodomainMapContext mapCtx)
+	{
 		rndDefCopy.removeCodomainMapCtx(mapCtx);
 		MethodCall mCall = new MethodCall() {
 			public void doCall() { 
@@ -261,16 +266,49 @@ class RenderingControlProxy
 		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
-
+	
 	public void saveCurrentSettings() 
 	{
 		MethodCall mCall = new MethodCall() {
 			public void doCall() { 
-				servant.saveCurrentSettings();
+				servant.saveCurrentSettings();	
 			}
 		};
 		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
 
+	/** Implemented as specified by {@link RenderingControl}. */
+	public void resetDefaults()
+	{
+		setQuantumStrategy(QuantumFactory.LINEAR, 1.0, 
+							QuantumFactory.DEPTH_8BIT);
+		setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
+		
+		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+		PixelsStats stats = servant.getPixelsStats();
+		for (int i = 0; i < cb.length; i++)
+				resetDefaultsChannel(i, stats);
+		rndDefCopy.remove();
+		setModel(RenderingDef.GS);
+		
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
+				servant.resetDefaults();
+			}
+		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
+		eventBus.post(rpc);
+	}
+	
+	/** Reset defaults for all wavelengths. */
+	private void resetDefaultsChannel(int w, PixelsStats stats)
+	{
+		setActive(w, w == 0);
+		double s = stats.getGlobalEntry(w).globalMin,
+		 		e = stats.getGlobalEntry(w).globalMax;
+		setChannelWindow(w, s, e);
+		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
+	}
+	
 }

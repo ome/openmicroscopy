@@ -71,7 +71,7 @@ public class QuantumPane
 												GraphicsRepresentation.width, 
 												GraphicsRepresentation.height);
 	/** Default index. */
-	private static final int		INDEX = 0;
+	static final int				INDEX = 0;
 	
 	private CodomainPane			codomainPane;
 	private DomainPane				domainPane;
@@ -86,16 +86,19 @@ public class QuantumPane
 	{
 		QuantumDef qDef = eventManager.getQuantumDef();
 		manager = new QuantumPaneManager(eventManager, this);
+		eventManager.setQPManager(manager);
 		int mini = (int) eventManager.getGlobalChannelWindowStart(INDEX);
 		int maxi = (int) eventManager.getGlobalChannelWindowEnd(INDEX);
 		int s = 
-			((Integer) eventManager.getChannelWindowStart(INDEX)).intValue();
+			(int) eventManager.getChannelWindowStart(INDEX);
 		int e = 
-			((Integer) eventManager.getChannelWindowEnd(INDEX)).intValue();
+			(int) eventManager.getChannelWindowEnd(INDEX);
 		codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
 		domainPane = new DomainPane(eventManager.getRegistry(), manager, 
 									eventManager.getChannelData(), qDef, INDEX);
-		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
+		gRepresentation = new GraphicsRepresentation(manager, qDef.family,
+						qDef.curveCoefficient, qDef.cdStart, qDef.cdEnd,
+						mini, maxi);
 		
 		if (qDef.family == QuantumFactory.EXPONENTIAL)
 			 gRepresentation.setDefaultExponential(s, e);
@@ -126,11 +129,15 @@ public class QuantumPane
 	
 	public JPanel getGRPane() { return grPane; }
 	
+	public QuantumPaneManager getManager() { return manager; }
+	
 	GraphicsRepresentation getGRepresentation() { return gRepresentation; }
-	
-	QuantumPaneManager getManager() { return manager; }
-	
-	void setGRepresentation(GraphicsRepresentation gr) { gRepresentation = gr;}
+
+	void setGRepresentation(GraphicsRepresentation gr)
+	{ 
+		gRepresentation = null;
+		gRepresentation = gr;
+	}
 
 	void buildGRPane()
 	{

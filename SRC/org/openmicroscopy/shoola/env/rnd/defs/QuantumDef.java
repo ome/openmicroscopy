@@ -34,10 +34,11 @@ package org.openmicroscopy.shoola.env.rnd.defs;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
- * Contain the parameters that apply to all wavelengths in the quantization
- * process.
+ * Defines the mapping context used during the quantization process.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,20 +56,17 @@ public class QuantumDef
 	
     /** 
      * Identifies a family of maps. 
-     * One of the constants defined by 
-     * {@link org.openmicroscopy.shoola.env.rnd.domain.QuantumFactory 
-     * QuantumFactory}.
+     * One of the constants defined by {@link QuantumFactory}.
      */
 	public final int       family;
 	
 	/** 
 	 * The storage type of image data.
-	 * One of the constants defined by 
-	 * {@link org.openmicroscopy.shoola.env.rnd.DataSink DataSink}.
+	 * One of the constants defined by {@link DataSink}.
 	 */
 	public final int       pixelType;
 	
-	/** Selects a curve in the family. */
+	/** Selects a curve in the {@link #family}. */
 	public final double    curveCoefficient;
 	
 	/** The lower bound of the codomain interval of the quantum map. */
@@ -77,17 +75,32 @@ public class QuantumDef
 	/** The upper bound of the codomain interval of the quantum map. */
 	public final int       cdEnd;
 	
-	/** 
-	* The rendered image depth. 
-	* One of the constants defined by 
-	* {@link org.openmicroscopy.shoola.env.rnd.domain.QuantumFactory 
-	* QuantumFactory}. */
+	/**
+     * The depth, in bits, of the rendered image. 
+     * One of the constants defined by {@link QuantumFactory}.
+     */ 
 	public final int       bitResolution;
 	
+    
+    /**
+     * Craetes a new instance.
+     * 
+     * @param family Identifies a family of maps.  Must be one of the constants
+     *                  defined by {@link QuantumFactory}.
+     * @param pixelType The storage type of image data.  Must be one of the 
+     *                  constants defined by {@link DataSink}.
+     * @param curveCoefficient Selects a curve in the <code>family</code>.
+     * @param cdStart The lower bound of the codomain interval of the 
+     *                  quantum map.
+     * @param cdEnd The upper bound of the codomain interval of the quantum map.
+     * @param bitResolution The depth, in bits, of the rendered image.  Must be
+     *                      one of the constants defined by 
+     *                      {@link QuantumFactory}.
+     */
 	public QuantumDef(int family, int pixelType, double curveCoefficient,
-				int cdStart, int cdEnd, int bitResolution)
+				        int cdStart, int cdEnd, int bitResolution)
 	{ 
-		this.family = family;
+        this.family = family;
 		this.pixelType = pixelType;
 		this.curveCoefficient = curveCoefficient;
 		this.cdStart = cdStart;
@@ -95,15 +108,15 @@ public class QuantumDef
 		this.bitResolution = bitResolution;
 	}
 
-	/** Make a copy of the object. */
+	/**
+     * Returns an exact copy of this object.
+     * 
+	 * @return See above.
+	 */
 	QuantumDef copy()
 	{	
-		return new QuantumDef(family, pixelType, curveCoefficient, cdStart, 
-							cdEnd, bitResolution);
+		return new QuantumDef(family, pixelType, curveCoefficient,
+                                cdStart, cdEnd, bitResolution);
 	}
 	
 }
-
-
-
-

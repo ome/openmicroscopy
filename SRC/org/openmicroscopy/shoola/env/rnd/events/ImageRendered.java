@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
 public class ImageRendered
 	extends ResponseEvent
 {
-
+	
 	/** The rendered pixels set. */
 	private BufferedImage	renderedImage;
 	

@@ -55,6 +55,8 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+
 /** 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -73,6 +75,14 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 public interface DataManagementService
 {
 	
+	
+    /**
+     * Returns the session key in use.
+     * 
+     * @return The current session key or <code>null</code> if not available.
+     */
+    public String getSessionKey();
+    
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
@@ -596,4 +606,47 @@ public interface DataManagementService
 	public void updateChannelData(ChannelData retVal)	
 		throws DSOutOfServiceException, DSAccessException;
 	
+	
+	/**
+	 * Import the specified image files into a dataset.
+	 * 
+	 * @param datasetID	ID of the dataset to import into.
+	 * @param images	list of image files to import.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void importImages(int datasetID, List images)	
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
+	/**
+	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+	 * Retrieve the setting for a specified image and specified set of pixels.
+	 * If not rendering settings found, return <code>null</code>.
+	 * 
+	 * @param pixelsID	set of pixels to take into account
+	 * @param imageID	imageID
+	 * @param pixelType	
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
+											int pixelType)
+		throws DSOutOfServiceException, DSAccessException;	
+	
+	/** 
+	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+	 * Save the rendering settings for the specifed image and set of pixels.
+	 * 
+	 * @param pixelsID
+	 * @param imageID
+	 * @param rDef
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void saveRenderingSettings(int pixelsID, int imageID, 
+									RenderingDef rDef)
+		throws DSOutOfServiceException, DSAccessException;	
+		
 }

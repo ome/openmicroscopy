@@ -118,6 +118,12 @@ class DomainPaneManager
 		button.setActionCommand(""+HISTOGRAM);
 	}
 
+	void disposeDialogs()
+	{
+		if (histogramDialog != null) histogramDialog.dispose();
+		histogramDialog = null;
+	}
+	
 	/**
 	 * Resize the input window, update the Histogram view if exists.
 	 * The method is called by the control {@link QuantumPaneManager}.
@@ -145,7 +151,7 @@ class DomainPaneManager
 	/** Handles events fired  by the JComboBoxes and the JButtons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 			switch (index) { 
@@ -229,7 +235,7 @@ class DomainPaneManager
 	 */
 	private void setWavelength(int w)
 	{
-		histogramDialog = null;
+		disposeDialogs();
 		control.setWavelength(w);
 	}
 
@@ -258,11 +264,40 @@ class DomainPaneManager
 	{
 		view.getGammaLabel().setText(" Gamma: "+(double) 
 											GraphicsRepresentation.INIT/10);
-		JSlider ccSlider = view.getGamma();
+		JSlider slider = view.getGamma();
 		//Remove temporarily the listener otherwise an event is fired.
-		ccSlider.removeChangeListener(this);
-		ccSlider.setValue(GraphicsRepresentation.INIT);
-		ccSlider.addChangeListener(this);
+		slider.removeChangeListener(this);
+		slider.setValue(GraphicsRepresentation.INIT);
+		slider.addChangeListener(this);
+	}
+	
+	/** Reset the default for the bit resolution. */
+	private void resetDefaultBitResolution()
+	{
+		JSlider slider = view.getBitResolution();
+		//Remove temporarily the listener otherwise an event is fired.
+		slider.removeChangeListener(this);
+		slider.setValue(DomainPane.DEPTH_END);
+		slider.addChangeListener(this);
+	}
+	
+	/** Reset transformations to linear. */
+	private void resetDefaultComboBox(JComboBox box, int index)
+	{
+		//Remove temporarily the listener otherwise an event is fired.
+		box.removeActionListener(this);
+		box.setSelectedIndex(index);
+		box.addActionListener(this);
+	}
+	
+	/** Reset the defaults settings. */
+	void resetDefaults()
+	{
+		resetDefaultGamma();
+		resetDefaultBitResolution();
+		resetDefaultComboBox(view.getTransformations(), QuantumFactory.LINEAR);
+		resetDefaultComboBox(view.getWavelengths(), 0);
+		histogramDialog = null;
 	}
 	
 }

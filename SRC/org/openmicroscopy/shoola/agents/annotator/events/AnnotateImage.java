@@ -45,6 +45,8 @@ import java.awt.Point;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
+ * An event signaling that the user wants to annotate a particular image.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
@@ -76,11 +78,19 @@ public class AnnotateImage
        this.name = name;
     }
 
+    /**
+     * Returns the ID of the image to be annotated.
+     * @return See above.
+     */
     public int getID()
     {
         return id;
     }
     
+    /**
+     * Returns the name of the image to be annotated.
+     * @return See above.
+     */
     public String getName()
     {
     	return name;
@@ -89,7 +99,7 @@ public class AnnotateImage
     /**
      * Returns whether or not this event specifies an annotator location;
      * that is, the onscreen point where the annotator should be launched.
-     * @return
+     * @return See above.
      */
     public boolean isLocationSpecified()
     {
@@ -98,7 +108,7 @@ public class AnnotateImage
     
     /**
      * Gets the desired popup location of the annotator.
-     * @return
+     * @return See above.
      */
     public Point getSpecifiedLocation()
     {
@@ -108,7 +118,7 @@ public class AnnotateImage
     /**
      * Sets the desired popup location of the annotator to the specified
      * location.
-     * @param pixelLocation
+     * @param pixelLocation See above.
      */
     public void setSpecifiedLocation(Point pixelLocation)
     {

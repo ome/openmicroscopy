@@ -86,7 +86,7 @@ class HSBPaneManager
 	/** Reference to the main frame, use to pop-up the dialog widget. */
 	JFrame getReferenceFrame()
 	{
-		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
+		return (eventManager.getRegistry().getTaskBar().getFrame());
 	}
 	
 	void setEventManager(RenderingAgtCtrl eventManager)
@@ -115,7 +115,7 @@ class HSBPaneManager
 	/** Handle events fired by component, */
 	public void actionPerformed(ActionEvent e)
 	{ 
-		Object component = (Object) e.getSource();
+		Object component = e.getSource();
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			if (component instanceof ColoredButton) 
@@ -133,7 +133,7 @@ class HSBPaneManager
 	public void itemStateChanged(ItemEvent e)
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
-		int w = Integer.parseInt((String) box.getActionCommand());
+		int w = Integer.parseInt(box.getActionCommand());
 		eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
 	}
 	

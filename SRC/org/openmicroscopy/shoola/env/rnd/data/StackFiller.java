@@ -34,13 +34,19 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.IOException;
+
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
+import org.openmicroscopy.shoola.util.concur.BufferWriteException;
+import org.openmicroscopy.shoola.util.concur.ByteBufferFiller;
 
 /** 
- * 
+ * Retrieves a whole pixels stack (all wavelengths) at a given timepoint.
+ * Implements {@link ByteBufferFiller} (so to retrieve the stack data in 
+ * incremental steps) by composing single {@link WStackFiller}s &#151; one
+ * for each wavelength stack. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,23 +59,90 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * </small>
  * @since OME2.2
  */
-interface StackFiller
+class StackFiller
+    implements ByteBufferFiller
 {
 
-	void configure(Pixels pixelsID, PixelsDimensions pixDims, 
-					int bytesPerPixel, PixelsService source)
-		throws DataSourceException;
-	
-	void fill(int t, boolean bigEndian) throws DataSourceException;
-	
-	void stop();
-	
-	boolean isPlaneDataAvailable(int z, int w);
-	
-	boolean isStackDataAvailable(int w);
-	
-	ReadOnlyByteArray getPlaneData(int z, int w);
-	
-	ReadOnlyByteArray getStackData(int w);
-			
+    /** Number of wavelengths in the pixels set. */
+    private final int             sizeW;
+    
+    /** Size of a wavelength stack within the pixels set. */
+    private final int             wStackSize;
+    
+    /** 
+     * The components of this composite &#151; <code>fillers[i]</code> fetches
+     * the stack of wavelength <code>i</code>.
+     */
+    private final WStackFiller[]  fillers;
+    
+    /** The wavelength whose data is currently being retrieved. */
+    private int     curW;
+    
+    
+    /**
+     * Creates a new instance to retrieve the stack at timepoint <code>t</code>.
+     * 
+     * @param source    The proxy to <i>OMEIS</i>. Mustn't be <code>null</code>.
+     * @param pixelsID  Identifies the pixels set. Mustn't be <code>null</code>.
+     * @param sizeW     Number of wavelengths.
+     * @param t         Timepoint.
+     * @param wStackSize The size of a single wavelength stack.
+     * @param bigEndian  Tells whether we should retrieve data in big-endian 
+     *                      order (<code>true</code>) or little-endian 
+     *                      (<code>false</code>).
+     */
+    StackFiller(PixelsService source, Pixels pixelsID, 
+            int sizeW, int t, int wStackSize, boolean bigEndian)
+    {
+        this.sizeW = sizeW;
+        this.wStackSize = wStackSize;
+        fillers = new WStackFiller[sizeW];
+        for (int w = 0; w < sizeW; ++w)
+            fillers[w] = new WStackFiller(source, pixelsID, w, 
+                                            t, wStackSize, bigEndian);
+        curW = 0;
+    }
+    
+    /**
+     * Retrieves the specified data segment within the pixels stack and
+     * writes it into <code>buffer</code>.
+     * Sticks to the contract specified by {@link ByteBufferFiller}.
+     * 
+     * @param buffer    The buffer to write to.
+     * @param offset    Start of the data segment.
+     * @param length    Maximum length of the data segment.
+     * @return  The number of bytes actually written or <code>-1</code> to 
+     *          indicate the end of the stream.
+     * @throws BufferWriteException If a stack overflow or underflow occurs.
+     *          Also thrown in the case of an {@link ImageServerException} 
+     *          or {@link IOException}.  The original exception is set in 
+     *          the cause field.
+     * @see ByteBufferFiller#write(byte[], int, int)
+     */
+    public int write(byte[] buffer, int offset, int length)
+        throws BufferWriteException
+    {
+        int writeLength = -1;
+        if (curW < sizeW) {
+            writeLength = fillers[curW].write(buffer, offset, length);
+            if (writeLength == -1) {
+                ++curW;
+                writeLength = 0;
+            }
+        }
+        return writeLength;
+    }
+    
+    /**
+     * Returns the size of a whole stack (all wavelengths) within the
+     * pixels set.
+     * 
+     * @return See above.
+     * @see ByteBufferFiller#getTotalLength()
+     */
+    public int getTotalLength() 
+    {
+        return (wStackSize * sizeW);
+    }
+    
 }

@@ -53,8 +53,9 @@ import org.openmicroscopy.shoola.util.ui.ColorPanel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
+
 /** 
- * 
+ * Select a color from a predefined list of colors.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,9 +74,9 @@ class ColorSelector
 	
 	/** table constants. */
 	private static final int			ROW_HEIGHT = 25;
-	private static final int			WIDTH_ONE = 120;
+	private static final int			WIDTH_ONE = 140;
 	
-	private static final int			WIDTH_TWO = 120;
+	private static final int			WIDTH_TWO = 100;
 	private static final Dimension		SLIDER_PANEL = new Dimension(WIDTH_TWO,
 															ROW_HEIGHT);
 	
@@ -91,14 +92,13 @@ class ColorSelector
 	private static final int			TOP = 15;
 	private static final int			WBUTTON = 90;
 	
-	private static final int 			WIN_W = 310;
+	private static final int 			WIN_W = 350;
 	private static final int 			WIN_H = 140;
 	
 	private static final int			MAX_SLIDER = 100;
 	private static final String[]  		selection;
 	
-	private static final int			DEFAULT_INDEX = 
-											ColorSelectorManager.RED;
+	
 	static {
 		selection = new String[ColorSelectorManager.MAX];
 		selection[ColorSelectorManager.BLACK] = "Black";
@@ -112,7 +112,10 @@ class ColorSelector
 		selection[ColorSelectorManager.PINK] = "Pink";
 		selection[ColorSelectorManager.YELLOW] = "Yellow";
 	}
-														
+			
+	/** Color index, default red. */
+	private int 						colorIndex = ColorSelectorManager.RED;	
+							
 	/** Slider to select the alpha component of the color. */
 	private JSlider						alphaSlider;
 	
@@ -133,11 +136,10 @@ class ColorSelector
 	ColorSelector(RGBPaneManager rgbManager, int[] rgba, int index)
 	{
 		super(rgbManager.getReferenceFrame(), "Color Selector", true);	
-		//Color c = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
-		Color c = new Color(255, 0, 0, rgba[3]);
+		Color c = initColor(rgba);
 		manager = new ColorSelectorManager(this, rgbManager, c, index);
 		initColorPanel(c);
-		initControls((int) (rgba[3]*100/255));
+		initControls((rgba[3]*100/255));
 		buildGUI();
 		manager.attachListeners();
 		Container contentPane = super.getContentPane(); 
@@ -159,6 +161,32 @@ class ColorSelector
 	
 	JSlider getAlphaSlider() { return alphaSlider; }
 	
+	private Color initColor(int rgba[])
+	{
+		Color  color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+		if (color.equals(Color.GREEN))
+			colorIndex = ColorSelectorManager.GREEN;
+		else if (color.equals(Color.BLUE)) 
+			colorIndex = ColorSelectorManager.BLUE;
+		else if (color.equals(Color.CYAN))
+			colorIndex = ColorSelectorManager.CYAN;
+		else if (color.equals(Color.MAGENTA))
+			colorIndex = ColorSelectorManager.MAGENTA;
+		else if (color.equals(Color.ORANGE))
+			colorIndex = ColorSelectorManager.ORANGE;
+		else if (color.equals(Color.PINK))
+			colorIndex = ColorSelectorManager.PINK;
+		else if (color.equals(Color.YELLOW))
+			colorIndex = ColorSelectorManager.YELLOW;
+		else if (color.equals(Color.BLACK))
+			colorIndex = ColorSelectorManager.BLACK;
+		else if (color.equals(Color.WHITE))
+			colorIndex = ColorSelectorManager.WHITE;
+		else //default RED
+			color = new Color(255, 0, 0, rgba[3]);
+		return color;
+	}
+	
 	/** Initialize the color preview. */
 	private void initColorPanel(Color c)
 	{
@@ -175,11 +203,11 @@ class ColorSelector
 		applyButton = new JButton("Apply");
 		cancelButton = new JButton("Cancel");
 		alphaSlider = new JSlider(JSlider.HORIZONTAL, 0, MAX_SLIDER, value);
-		alphaField = new JLabel(" Alpha: "+value);
+		alphaField = new JLabel("Transparency: "+value);
 		alphaField.setOpaque(false);
 		alphaSlider.setOpaque(false);
 		colorsList = new JComboBox(selection);
-		colorsList.setSelectedIndex(DEFAULT_INDEX);
+		colorsList.setSelectedIndex(colorIndex);
 	}
 	
 	/** Build and lay out the GUI. */

@@ -79,6 +79,9 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
     }
     
     /**
+     * Returns the description of the annotation in question.
+     * 
+     * @return See above.
      * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTargetDescription()
      */
     public String getTargetDescription()
@@ -86,12 +89,20 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
         return "Dataset " + datasetName;
     }
     
+    /**
+     * Returns the ID of the selected dataset.
+     * @return See above.
+     */
     public int getID()
     {
         return datasetID;
     }
     
     /**
+     * Get the list of textual annotations that are associated with
+     * the backing dataset.
+     * 
+     * @return See above.
      * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getTextAnnotations()
      */
     public List getTextAnnotations()
@@ -107,6 +118,9 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
     }
     
     /**
+     * Gets the textual annotation at the specified index (will most
+     * likely be 0, if there is a single annotation per dataset)
+     * 
      * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#getAnnotation(int)
      */
     public String getAnnotation(int index)
@@ -115,6 +129,9 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
     }
     
     /**
+     * Create a new annotation (but not yet commit it to the database)
+     * 
+     * @param annotation The new text annotation to create.
      * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#newAnnotation(java.lang.String)
      */
     public void newAnnotation(String annotation)
@@ -125,6 +142,11 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
     }
     
     /**
+     * Sets the annotation at the specified index in the annotation list
+     * to the specified value (again, the index is likely to be zero;
+     * neither the browser or data manager yet support display of
+     * multiple annotations per primitive)
+     * 
      * @see org.openmicroscopy.shoola.agents.annotator.AnnotationCtrl#setAnnotation(int, java.lang.String)
      */
     public void setAnnotation(int annotationIndex, String annotation)
@@ -134,6 +156,9 @@ public class DatasetAnnotationCtrl extends AnnotationCtrl
         da.setContent(annotation);
     }
 
+    /**
+     * Save the dataset annotation (not yet complete)
+     */
     public boolean save()
     {
         // TODO implement

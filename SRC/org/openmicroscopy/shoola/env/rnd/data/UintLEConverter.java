@@ -43,9 +43,8 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * <p>This class handles the conversion of unsigned little-endian integers 
  * of <code>1, 2</code> and <code>4</code>-byte length 
  * (bytes are assumed to be <code>8</code>-bit long). 
- * Integers of <code>1</code> and <code>2</code>-byte length are packed 
- * into an <code>Integer</code>, as <code>Long</code> is used for 
- * <code>4</code>-byte integers.</p>
+ * Integers of <code>1</code>,<code>2</code> and <code>4</code>-byte length are packed 
+ * into an <code>double</code>.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,7 +62,7 @@ public class UintLEConverter
 {
     
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(ReadOnlyByteArray data, int offset, int length)
+	public double pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		long r = 0, tmp;
 		for (int k = 0; k < length; ++k) {
@@ -85,8 +84,8 @@ public class UintLEConverter
 			 * shifts from LSB to MSB, regardless of endianness.
 			 */
 		}
-		if (length < 4) return new Integer((int) r);
-		return new Long(r);
+		//if (length < 4) return new Integer((int) r);
+		return r;
 	}
     
 }

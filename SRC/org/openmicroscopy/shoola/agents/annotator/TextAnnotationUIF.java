@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.AnnotatorUIF
+ * org.openmicroscopy.shoola.agents.annotator.TextAnnotationUIF
  *
  *------------------------------------------------------------------------------
  *
@@ -60,7 +60,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 
 /**
  * The UIF for a text annotation, not the UIF for other semantic types and
@@ -75,8 +74,6 @@ public class TextAnnotationUIF extends JDialog
                                implements DocumentListener
 {
     private Registry registry;
-    
-    private TopFrame topFrame;
     
     private AnnotationCtrl controller;
     private JTextArea annotationArea;
@@ -93,9 +90,8 @@ public class TextAnnotationUIF extends JDialog
      */
     public TextAnnotationUIF(AnnotationCtrl control, Registry registry)
     {
-        super(registry.getTopFrame().getFrame());
+        super(registry.getTaskBar().getFrame());
         // TODO more precise set bounds
-        this.topFrame = registry.getTopFrame();
         if(control == null || registry == null)
         {
             throw new IllegalArgumentException("No null arguments permitted.");
@@ -107,6 +103,7 @@ public class TextAnnotationUIF extends JDialog
         buildGUI();
     }
     
+    // build the UI.
     private void buildGUI()
     {
         setTitle("Edit Image Annotation");
@@ -243,6 +240,8 @@ public class TextAnnotationUIF extends JDialog
     }
     
     /**
+     * Responds to a change in the text field (by marking as changed).
+     * 
      * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
      */
     public void changedUpdate(DocumentEvent arg0)
@@ -252,6 +251,8 @@ public class TextAnnotationUIF extends JDialog
     }
     
     /**
+     * Responds to an insertion in the text field (by marking as changed).
+     * 
      * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
      */
     public void insertUpdate(DocumentEvent arg0)
@@ -261,6 +262,8 @@ public class TextAnnotationUIF extends JDialog
     }
     
     /**
+     * Responds to a deletion in the text field (by marking as changed).
+     * 
      * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
      */
     public void removeUpdate(DocumentEvent arg0)

@@ -104,6 +104,21 @@ public class ColorMapGroupBar extends JPanel
         repaint();
     }
     
+    /**
+     * Selects a category group for display.
+     * @param group The group to display.
+     */
+    public void selectGroup(CategoryGroup group)
+    {
+        if(group == null ||
+           !(categoryTree.getCategoryGroups().contains(group)))
+        {
+            System.err.println("Invalid group selected");
+            return;
+        }
+        notifyListeners(group);
+    }
+    
     public void init()
     {
         listenerSet = new HashSet();

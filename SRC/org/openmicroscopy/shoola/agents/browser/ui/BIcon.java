@@ -208,7 +208,8 @@ public class BIcon extends PNode implements MouseOverSensitive,
     {
         this.sticky = sticky;
         init();
-        presentationNode = new PImage(imageIcon); // was ",true);" as second
+        // presentationNode = new PImage(imageIcon,true); [BUG 257-- Piccolo 1.0]
+        presentationNode = new PImage(imageIcon);
         addChild(presentationNode);
         placeNode(presentationNode);
         this.tooltipText = tooltipText;

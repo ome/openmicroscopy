@@ -129,7 +129,8 @@ class TreePopupMenu
 									icons.getIcon(IconManager.PROPERTIES));
 		properties.setBorder(null);
 		properties.setFont((Font) config.lookup("/resources/fonts/Labels"));
-		properties.setForeground(DataManager.STEELBLUE);  
+		properties.setForeground(DataManager.STEELBLUE);
+		properties.setEnabled(false);    
 	}
 
 	/** Creates and initializes the view button. */

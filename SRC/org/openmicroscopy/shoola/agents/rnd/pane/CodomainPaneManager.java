@@ -114,7 +114,7 @@ class CodomainPaneManager
 	/** Handles events fired by the JButtons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 			switch (index) { 
@@ -201,6 +201,22 @@ class CodomainPaneManager
 		ctx.setCodomain(control.getCodomainStart(), control.getCodomainEnd());
 		ctx.setCoordinates(s, s, e, e);
 		return ctx;
+	}
+	
+	/** Reset the defaults. */
+	void resetDefaults()
+	{
+		JCheckBox ri = view.getRI(), cs = view.getCS(), ps = view.getPS();
+		setCheckBoxDefault(ri);
+		setCheckBoxDefault(cs);
+		setCheckBoxDefault(ps);
+	}
+	
+	private void setCheckBoxDefault(JCheckBox box)
+	{
+		box.removeActionListener(this);
+		box.setSelected(false);
+		box.addActionListener(this);
 	}
 	
 }

@@ -36,6 +36,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 //Third-party libraries
 
@@ -61,11 +63,8 @@ class HistogramDialogManager
 	
 	/** Graphics constants. */
 	private static final int		heightStat = HistogramPanel.heightStat,
-									widthStat = HistogramPanel.widthStat, 
 									topBorder = HistogramPanel.topBorder,
-									leftBorder = HistogramPanel.leftBorder,
 									rightBorder = HistogramPanel.rightBorder,
-									lS = leftBorder+widthStat, 
 									tS = topBorder+heightStat,
 									triangleW = HistogramPanel.triangleW,
 									length = 2*triangleW, 
@@ -76,6 +75,9 @@ class HistogramDialogManager
    	
    	private final int				tW = topBorder+window;
    	
+    private final int               extraControl = 4;
+    
+   	private int						lS;
    	private int                     maxStartInputY, minEndInputY;
    	
    	/** Rectangle used to listen to the knobs. */
@@ -101,6 +103,8 @@ class HistogramDialogManager
 		this.control = control;
 		inputStartKnob = false;
 		inputEndKnob = false;
+        boxInputStart = new Rectangle();
+        boxInputEnd = new Rectangle();
 	}
 	
 	/** 
@@ -111,14 +115,9 @@ class HistogramDialogManager
 	 */
 	void initRectangles(int yStart, int yEnd)
 	{
-		//Size the rectangle used to control the OutputWindow knobs
-		boxInputStart = new Rectangle(lS, yStart-2*triangleW, rightBorder, 
-										2*length);
-		boxInputEnd = new Rectangle(lS, yEnd-2*triangleW, rightBorder, 
-									2*length);
-		maxStartInputY = yStart-triangleW;
-		minEndInputY = yEnd+triangleW; 
-		
+		lS = HistogramPanel.leftBorder+view.getHistogramPanel().getWidthStat();
+        setInputStartBox(yStart);
+        setInputEndBox(yEnd);
 	}
 	
 	/** Attach the listeners. */
@@ -126,6 +125,9 @@ class HistogramDialogManager
 	{
 		view.getHistogramPanel().addMouseListener(this);
 		view.getHistogramPanel().addMouseMotionListener(this);
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) { view.dispose(); }
+		});
 	}
 	
 	/**
@@ -193,12 +195,14 @@ class HistogramDialogManager
 			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
 				p.y <= absStart) {
 				inputStartKnob = true;
+                inputEndKnob = false;
 				curRealValue = convertGraphicsIntoReal(p.y);
 				control.setInputWindowStart(curRealValue);
 			} 
 			if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
 				p.y >= absEnd) {
 				inputEndKnob = true;
+                inputStartKnob = false;
 				curRealValue = convertGraphicsIntoReal(p.y);
 				control.setInputWindowEnd(curRealValue);	
 			}
@@ -213,11 +217,15 @@ class HistogramDialogManager
 	   	if (dragging) {  
 			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
 				p.y <= absStart) {
+                inputStartKnob = true;
+                inputEndKnob = false;
 				curRealValue = convertGraphicsIntoReal(p.y);
 				control.setInputWindowStart(curRealValue);	
 			}
 		   	if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
 			   	p.y >= absEnd) {
+		   	    inputEndKnob = true;
+		   	    inputStartKnob = false;
 				curRealValue = convertGraphicsIntoReal(p.y);
 				control.setInputWindowEnd(curRealValue);
 			}
@@ -241,7 +249,8 @@ class HistogramDialogManager
 	 */    
     void setInputStartBox(int y)
     {
-        maxStartInputY = y-2*triangleW;
+        //maxStartInputY = y-2*triangleW;
+        maxStartInputY = y-extraControl;
         boxInputStart.setBounds(lS, y-2*triangleW, rightBorder, 2*length);
     }  
       
@@ -252,8 +261,11 @@ class HistogramDialogManager
 	 */ 
     void setInputEndBox(int y)
     {
-        minEndInputY = y+2*triangleW;
-        boxInputEnd.setBounds(lS, y-2*triangleW,  rightBorder, 2*length);
+        //minEndInputY = y+2*triangleW;
+        minEndInputY = y+extraControl;
+        //boxInputEnd.setBounds(lS, y-2*triangleW,  rightBorder, 2*length);
+        boxInputEnd.setBounds(HistogramPanel.leftBorder-2*triangleW, 
+                                y-2*triangleW, rightBorder, 2*length);
     }
 
 	/**

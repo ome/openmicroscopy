@@ -142,7 +142,10 @@ public class CategoryGroupingMethod extends CriteriaGroupingMethod
                 for(Iterator iter = classifications.iterator(); iter.hasNext();)
                 {
                     Classification cl = (Classification)iter.next();
-                    if(cl.getCategory().equals(c))
+                    // BUG 117 FIX: don't assign by category if the classification
+                    // is invalid.
+                    if(cl.getCategory().equals(c) &&
+                       (cl.isValid() == null || cl.isValid().booleanValue()))
                     {
                         return true;
                     }

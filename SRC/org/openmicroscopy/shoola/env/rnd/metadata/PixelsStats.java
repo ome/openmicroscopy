@@ -53,6 +53,7 @@ public class PixelsStats
 {
 	
 	private PixelsStatsEntry[][] 		stats;
+	
 	private PixelsGlobalStatsEntry[] 	globalStats;
     
 	PixelsStats(int sizeW, int sizeT)
@@ -63,18 +64,16 @@ public class PixelsStats
 
 	public PixelsStatsEntry getEntry(int w, int t) { return stats[w][t]; }
 
-	void setEntry(int w, int t, double min, double max, double gMean, 
-					double gSigma)
+	void setEntry(int w, int t, double min, double max)
 	{
-		stats[w][t] = new PixelsStatsEntry(min, max, gMean, gSigma);
+		stats[w][t] = new PixelsStatsEntry(min, max);
 	}
 
 	void setGlobalEntry(int w, double gMin, double gMax)
 	{
 		globalStats[w] = new PixelsGlobalStatsEntry(gMin, gMax);
 	}
-	
-	
+		
 	public PixelsGlobalStatsEntry getGlobalEntry(int w) 
 	{
 		return globalStats[w];

@@ -56,7 +56,7 @@ class ExponentialMap
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(int x, double k)
 	{
-		return Math.exp(Math.pow((double) x, k));
+		return Math.exp(Math.pow(x, k));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
@@ -68,7 +68,7 @@ class ExponentialMap
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(float x, double k)
 	{
-		return Math.exp(Math.pow((double) x, k));
+		return Math.exp(Math.pow(x, k));
 	}
 	
 }

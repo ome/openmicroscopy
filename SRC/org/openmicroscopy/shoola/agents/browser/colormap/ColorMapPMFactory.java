@@ -110,7 +110,9 @@ public class ColorMapPMFactory
                 {
                     Classification c = (Classification)iter.next();
                     Category cat = c.getCategory();
-                    if(cpm.getColor(cat) != null)
+                    // BUG 117 FIX: don't show color for declassified images.
+                    if(cpm.getColor(cat) != null &&
+                       (c.isValid() == null || c.isValid().booleanValue()))
                     {
                         Color col = cpm.getColor(cat);
                         Color newColor = new Color(col.getRed(),col.getGreen(),
@@ -159,7 +161,9 @@ public class ColorMapPMFactory
                 for(Iterator iter = classifications.iterator(); iter.hasNext();)
                 {
                     Classification c = (Classification)iter.next();
-                    if(c.getCategory().equals(category))
+                    // BUG 117 FIX: hide this as well
+                    if(c.getCategory().equals(category) &&
+                       (c.isValid() == null || c.isValid().booleanValue()))
                     {
                         validSet.add(t);
                         return;

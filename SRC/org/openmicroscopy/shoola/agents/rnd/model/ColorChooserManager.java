@@ -140,7 +140,7 @@ class ColorChooserManager
 	/** Handles event fired by the buttons. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 			switch (index) { 
@@ -274,7 +274,7 @@ class ColorChooserManager
 	{
 		view.getAlphaTextField().setText(""+v);
 		//b/c Color instance expects a value in the range [0, 255].
-		alpha = (int) (v*255/100); 
+		alpha = (v*255/100); 
 		Color c = new Color(colorSelected.getRed(), colorSelected.getGreen(),
 							colorSelected.getBlue(), alpha);
 		colorSelected = c;

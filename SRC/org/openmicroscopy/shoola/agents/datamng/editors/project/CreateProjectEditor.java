@@ -36,7 +36,6 @@ import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -77,13 +76,13 @@ public class CreateProjectEditor
 	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
 								ProjectData model, List datasets)
 	{
-		super((JFrame) registry.getTopFrame().getFrame(), true);
+		super(control.getReferenceFrame(), true);
 		this.registry = registry;
 		manager = new CreateProjectEditorManager(this, control, model,
 												datasets);
-		creationPane = new CreateProjectPane(manager, registry);
+		creationPane = new CreateProjectPane(manager);
 		datasetsPane = new CreateProjectDatasetsPane(manager);
-		bar = new CreateProjectEditorBar(manager);
+		bar = new CreateProjectEditorBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);

@@ -54,6 +54,7 @@ import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserPreferences;
 import org.openmicroscopy.shoola.agents.browser.IconManager;
 import org.openmicroscopy.shoola.agents.browser.UIConstants;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
@@ -262,10 +263,10 @@ public class SemanticZoomNode extends PImage
     {
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         BrowserAgent agent = env.getBrowserAgent();
-        int[] dim = agent.getSemanticNodeSize();
+        BrowserPreferences prefs = env.getBrowserPreferences();
         
-        if(dim[0] != -1) compositeWidth = dim[0];
-        if(dim[1] != -1) compositeHeight = dim[1];
+        compositeWidth = prefs.getMagnifierWidth();
+        compositeHeight = prefs.getMagnifierHeight();
         loadedCompositeInfo = true;
     }
     

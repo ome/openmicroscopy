@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -50,7 +49,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * by their <code>name</code> attribute and represent entries in a 
  * configuration file.  The map also contains all name-value pairs that are
  * added to the registry by means of the {@link #bind(String, Object) bind}
- * method.  References to the container’s services are stored into member
+ * method.  References to the container's services are stored into member
  * fields &#151; as services are accessed frequently, this ensures <i>o(1)</i>
  * access time.
  *
@@ -83,9 +82,6 @@ class RegistryImpl
     
 	/** Reference to container's service. */
 	private Logger             		logger;
-	
-	/** Reference to container's service. */
-	private TopFrame                tf;
 	
 	/** Reference to container's service. */
 	private TaskBar					tb;
@@ -135,9 +131,6 @@ class RegistryImpl
 	public Logger getLogger() { return logger; }
 	
 	/** Implemented as specified by {@link Registry}. */
-	public TopFrame getTopFrame() { return tf; }
-	
-	/** Implemented as specified by {@link Registry}. */
 	public TaskBar getTaskBar() { return tb; }
 	
 	/** Implemented as specified by {@link Registry}. */
@@ -181,13 +174,6 @@ class RegistryImpl
      * @param ps The {@link PixelsService}.
      */
     void setPS(PixelsService ps) { this.ps = ps; }
-   	
-   	/**
-	 * Stores a reference to the {@link TopFrame}.
-	 * 
-	 * @param tf	The {@link TopFrame}.
-	 */
-   	void setTopFrame(TopFrame tf) { this.tf = tf; }
    	
 	/**
 	 * Stores a reference to the {@link TaskBar}.

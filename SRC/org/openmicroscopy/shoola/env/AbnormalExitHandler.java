@@ -92,6 +92,13 @@ class AbnormalExitHandler
 		//So in this case we can just notify the user and log the error. 
 	}
 	
+    /**
+     * Indicates whether termination is already in progress.
+     * Latches to true after the first call to the 
+     * {@link #doTermination(Throwable) doTermination} method.
+     */
+    private boolean inProgress = false;
+    
 	/** Only used for the singleton. */
 	private AbnormalExitHandler() {}
 	
@@ -107,20 +114,29 @@ class AbnormalExitHandler
 	 */
 	private synchronized void doTermination(Throwable t)
 	{	
-		//Disable exception relay to avoid possible infinite loops if another
-		//exception is thrown by the user notifier dialog.
-		AWTExceptionHanlder.unregister();
+        //We need to make sure calls to this method are serialized.  
+        //The synchronized keywork ensures that only one thread at
+        //a time can proceed.  However, the same thread is allowed
+        //to call this method again -- locks are re-entrant, so in
+        //the case of recursion the original caller would enter again.
+        //So just exit to avoid possible infinite loops if another
+        //exception is thrown by the user notifier dialog (see below).
+        if (inProgress) System.exit(1);
+        
+        //First call, set termination flag in case this method is 
+        //called again.
+        inProgress = true;
 				
-		//Now try to log.  There may be no logger yet (or even no container)
-		//if the exception was thrown at start up.		
+		//Now try to log.  There may be no logger yet (or even no 
+        //container) if the exception was thrown at start up.		
 		LogMessage msg = new LogMessage();
 		msg.println("Abnormal termination due to an uncaught exception.");
 		msg.print(t);
 		Container c = Container.getInstance();
 		Logger logger = null;
-		if (c != null)	logger = c.getRegistry().getLogger();
-		if (logger != null)		logger.fatal(this, msg);
-		else	System.err.println(msg);
+		if (c != null) logger = c.getRegistry().getLogger();
+		if (logger != null) logger.fatal(this, msg);
+		else System.err.println(msg);
 		
 		//Finally tell the user.  
 		//(Notification service may not be up yet, so we create a temp one.)

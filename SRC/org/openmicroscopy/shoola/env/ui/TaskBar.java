@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import javax.swing.AbstractButton;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -169,5 +170,12 @@ public interface TaskBar
 	 * Brings up the task bar window.
 	 */
 	public void open();
+    
+    /**
+     * Returns a reference to the task bar window.
+     * 
+     * @return See above.
+     */
+    public JFrame getFrame();
 
 }

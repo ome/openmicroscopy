@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
- * 
+ * Transforms a plane within a given pixels set into a grayscale image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -80,13 +80,27 @@ class GreyScaleStrategy
 	
 	private Renderer	renderer;
 	
-	BufferedImage render(Renderer ctx)
+    
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#getImageSize()
+     */
+    int getImageSize(PlaneDef pd, PixelsDimensions dims)
+    {
+        initAxesSize(pd, dims);
+        return sizeX1*sizeX2*3;
+    }
+    
+    /**
+     * Implemented as specified by superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+	BufferedImage render(Renderer ctx, PlaneDef planeDef)
 		throws DataSourceException, QuantizationException
 	{
 		//Set the context and retrieve rendering settings.
 		renderer = ctx;
 		PixelsDimensions dims = renderer.getPixelsDims();
-		PlaneDef planeDef = renderer.getPlaneDef();
 		RenderingDef rndDef = renderer.getRenderingDef();
 		QuantumManager qManager = renderer.getQuantumManager();
 		DataSink dSink = renderer.getDataSink();
@@ -129,7 +143,7 @@ class GreyScaleStrategy
 
 	/** 
 	 * Initialize the sizes <code>sizeX1</code> and <code>sizeX2</code>
-	 * according to the specified {PlaneDef#slice slice}.
+	 * according to the specified {@link PlaneDef#slice slice}.
 	 * @param pd	reference to the PlaneDef object defined for the strategy.
 	 * @param d		image dimensions object.
 	 */
@@ -161,7 +175,7 @@ class GreyScaleStrategy
 	/** Render an active wavelength. */
 	private void renderWave(DataBufferByte dataBuf, Plane2D plane, 
 		QuantumStrategy qs, int[] rgba)
-		throws QuantizationException
+		throws DataSourceException, QuantizationException
 	{
 		CodomainChain cc = renderer.getCodomainChain();
 		int x1, x2, discreteValue, v, value;

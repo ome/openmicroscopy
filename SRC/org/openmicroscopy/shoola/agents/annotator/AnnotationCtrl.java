@@ -42,6 +42,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.openmicroscopy.ds.dto.Attribute;
+
 /**
  * Interface for annotator controls.
  *
@@ -52,7 +53,11 @@ import org.openmicroscopy.ds.dto.Attribute;
  */
 public abstract class AnnotationCtrl
 {
+    /**
+     * The default new annotation attribute ID.
+     */
     protected static final int NEW_ID = -1;
+    
     /**
      * Whether or not this state has been committed.
      */
@@ -141,7 +146,7 @@ public abstract class AnnotationCtrl
     
     /**
      * Whether or not this attribute/annotation has been saved.
-     * @return See above
+     * @return See above.
      */
     public boolean isSaved()
     {
@@ -149,8 +154,9 @@ public abstract class AnnotationCtrl
     }
     
     /**
-     * Prompt termination.  Expected return values: 
-     * @return
+     * Prompt termination.  Expected return values: true
+     * (for save/don't save); false (for cancel)
+     * @return See above.
      */
     public boolean canExit()
     {

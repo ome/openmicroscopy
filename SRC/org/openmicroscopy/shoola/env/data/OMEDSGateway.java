@@ -30,6 +30,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -45,14 +47,19 @@ import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.ServerVersion;
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.DataInterface;
+import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
+import org.openmicroscopy.ds.managers.RemoteImportManager;
 import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.is.PixelsFactory;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -71,6 +78,11 @@ import org.openmicroscopy.is.ImageServerException;
 class OMEDSGateway 
 {
 
+    private static final int    MAJOR_OMEDS_VERSION = 2, 
+                                MINOR_OMEDS_VERSION = 2,
+                                PATCH_OMEDS_VERSION = 1;
+    
+    private static final String MESSAGE = "The version of OMEDS must be 2.2.1";               
 	/**
 	 * The factory provided by the connection library to access the various
 	 * <i>OMEDS</i> services.
@@ -154,7 +166,7 @@ class OMEDSGateway
 			throw new DSOutOfServiceException(s, e);
 		}
 	}
-	
+    
 	/**
 	 * Tries to connect to <i>OMEDS</i> and log in by using the supplied
 	 * credentials.
@@ -170,6 +182,7 @@ class OMEDSGateway
 		try {
 			RemoteCaller proxy = proxiesFactory.getRemoteCaller();
 			proxy.login(userName, password);
+            serverVersionCheck();
 			connected = true;
 		} catch (RemoteConnectionException rce) {
 			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
@@ -177,6 +190,18 @@ class OMEDSGateway
 			throw new DSOutOfServiceException("Failed to log in.", rae);
 		}
 	}
+    
+    /**
+     * Returns the session key in use.
+     * 
+     * @return The current session key or <code>null</code> if not available.
+     */
+    public String getSessionKey()
+    {
+        DataFactory ds = getDataFactory();
+        if (ds == null) return null;
+        return ds.getSessionKey();
+    }
 	
 	void logout()
 	{
@@ -224,13 +249,24 @@ class OMEDSGateway
 													AnnotationManager.class);
 	}
 	
+	private PixelsFactory getPixelsFactory()
+	{
+		return (PixelsFactory) proxiesFactory.getService(PixelsFactory.class);
+	}
+	
+	private RemoteImportManager getRemoteImportManager()
+	{
+		return (RemoteImportManager) proxiesFactory.getService(
+										RemoteImportManager.class);
+
+	}
 	/** Retrieve the current experimenter. */
 	Experimenter getCurrentUser(Criteria c)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		UserState us = null;
 		try {
-			us = (UserState) getDataFactory().getUserState(c);
+			us = getDataFactory().getUserState(c);
 		} catch (Exception e) {
 			handleException(e, "Can't retrieve the user state.");
 		} 
@@ -508,6 +544,59 @@ class OMEDSGateway
 			handleException(e, "Can't update attributes ("+
 								printList(attributes)+").");
 		}
+    }
+    
+    /** Return the repository where to store the files. */
+	Repository getRepository()
+		throws DSOutOfServiceException
+	{
+		Repository repository = null;
+		try {
+			repository = getPixelsFactory().findRepository(0);
+		} catch (ImageServerException ise) {
+			throw new DSOutOfServiceException("Can't connect to OMEIS.", ise);
+		}
+		return repository;
+	}
+	
+	/** Upload the specified file. */
+	Long uploadFile(Repository rep, File file)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Long ID = null;
+		try {
+			ID = new Long(getPixelsFactory().uploadFile(rep, file));
+		} catch (ImageServerException ise) {
+			throw new DSOutOfServiceException("Can't connect to OMEIS.", ise);
+		} catch(FileNotFoundException fnfe) {
+			throw new DSAccessException("Can't retrieve the file "+file, fnfe);
+		}
+		return ID;
+	}
+	
+	/** Start the import. */
+	void startImport(Dataset dataset, List filesID)
+	{
+		getRemoteImportManager().startRemoteImport(dataset, filesID);
+	}
+	
+    /** Check the version of OMEDS installed. */
+    private void serverVersionCheck()
+        throws DSOutOfServiceException
+    {
+        try {
+            RemoteCaller proxy = proxiesFactory.getRemoteCaller();
+            ServerVersion sv = proxy.getServerVersion();
+            if (sv.getMajorVersion() != MAJOR_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+            if (sv.getMinorVersion() != MINOR_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+            if (sv.getPatchVersion() != PATCH_OMEDS_VERSION)
+                throw new DSOutOfServiceException(MESSAGE);
+        } catch (Exception e) {
+            String s = "Can't connect to OMEDS";
+            throw new DSOutOfServiceException(s, e);
+        }
     }
     
 }

@@ -127,8 +127,8 @@ class PlaneSlicingPanel
 		setKnobOutputEnd(lS+10, yEnd);
 		startPt = new Point2D.Double();
 		endPt = new Point2D.Double();
-		startPt.setLocation((double) leftBorder, (double) yStart);
-		endPt.setLocation((double) lS, (double) yEnd);
+		startPt.setLocation(leftBorder, yStart);
+		endPt.setLocation(lS, yEnd);
 		repaint();
 	}
 	
@@ -187,7 +187,7 @@ class PlaneSlicingPanel
 		yStartOutput1 = y;
 		yStartOutput2 = y-triangleW;
 		yStartOutput3 = y+triangleW;
-		startPt.setLocation(startPt.getX(), (double) y);
+		startPt.setLocation(startPt.getX(), y);
 		repaint();
 	} 
 	
@@ -202,7 +202,7 @@ class PlaneSlicingPanel
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;
-		endPt.setLocation(endPt.getX(), (double) y);
+		endPt.setLocation(endPt.getX(), y);
 		repaint();
 	}
 	

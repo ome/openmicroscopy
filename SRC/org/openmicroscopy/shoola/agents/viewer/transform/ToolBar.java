@@ -63,12 +63,13 @@ public class ToolBar
 	
 	private JSeparator 		separator;
 	
-	public ToolBar(Registry registry, ImageInspectorManager manager)
+	public ToolBar(Registry registry, ImageInspectorManager manager, 
+                    double magFactor)
 	{
 		setBorder(null);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		putClientProperty("JToolBar.isRollover", new Boolean(true));
-		zoomBar = new ZoomBar(registry, manager, this);
+		zoomBar = new ZoomBar(this, registry, manager, magFactor);
 		add(zoomBar);
 		add(separator);
 	}

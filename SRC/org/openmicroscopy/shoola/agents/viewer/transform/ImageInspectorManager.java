@@ -33,15 +33,15 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
+import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
+import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomBar;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomMenu;
-import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 
 /** 
  * 
@@ -60,31 +60,26 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 public class ImageInspectorManager
 {
 
-	/** Default zoom level. */
-	public static final double 		MIN_ZOOM_LEVEL = 0.25 , 
-									MAX_ZOOM_LEVEL = 3.0,
-									ZOOM_DEFAULT = 1.0,
-							 		ZOOM_INCREMENT = 0.25;
-	
-	/** Reference to the view. */
-	private ImageInspector			view;
-	
-	/** Original buffered image. */
-	private BufferedImage			image;
-	
 	/** Width and height of the current image. */
 	private int						imageWidth, imageHeight;
 	
 	/** Canvas. */
-	private ZoomPanel				zoomPanel;
+	private ImageCanvas				canvas;
 	
 	/** Current zooming level. */
 	private double					curZoomLevel;
 	
-	public ImageInspectorManager(ImageInspector view)
+    /** Reference to the view. */
+    private ImageInspector          view;
+    
+    private ViewerCtrl              control;
+    
+	public ImageInspectorManager(ImageInspector view, ViewerCtrl control, 
+                                double magFactor)
 	{
 		this.view = view;
-		curZoomLevel = ZOOM_DEFAULT;
+        this.control = control;
+		curZoomLevel = magFactor;
 		attachListener();
 	}
 	
@@ -92,11 +87,9 @@ public class ImageInspectorManager
 	private void attachListener()
 	{
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { view.dispose(); }
+			public void windowClosing(WindowEvent we) { onClosing(); }
 		});
 	}
-	
-	public BufferedImage getBufferedImage() { return image; }
 	
 	/** Zoom in or out. */
 	public void setZoomLevel(double level)
@@ -111,34 +104,23 @@ public class ImageInspectorManager
 	
 	public int getImageHeight() { return imageHeight; }
 	
-	public JScrollPane getScrollPane() { return view.scroll; }
-	
-	
-	void setZoomPanel(ZoomPanel zoomPanel)
-	{
-		this.zoomPanel = zoomPanel;
-	}
-	
+    void setCanvas(ImageCanvas canvas) { this.canvas = canvas; }
+    
 	/** 
-	 * Set the bufferedimage
+	 * Get the with and height of the bufferedimage
 	 * 
 	 * @param image	bufferedImage to zoom in or out.
 	 */
-	void setBufferedImage(BufferedImage image)
+	void setImageDimension(int width, int height)
 	{
-		this.image = image;	
-		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
-		
+		imageWidth = width;
+		imageHeight = height;	
 	}
 
-	/** Zoom in or out accoding to the current level. */
-	void zoom() { zoom(curZoomLevel); }
-	
 	/** 
 	 * Zoom in or out according to the level.
 	 * 
-	 * @param level	value in the range MIN_ZOOM_LEVEL and MAX_ZOOM_LEVEL.
+	 * @param level	value between MIN_ZOOM_LEVEL and MAX_ZOOM_LEVEL.
 	 */
 	private void zoom(double level)
 	{
@@ -146,13 +128,17 @@ public class ImageInspectorManager
 		zoomBar.getManager().setText(level);
 		ZoomMenu zoomMenu = view.menuBar.getZoomMenu();
 		zoomMenu.getManager().setItemSelected(level);
-		int w = (int) (imageWidth*level);
-		int h = (int) (imageHeight*level);
-	   	Dimension d = new Dimension(w, h);
-	   	zoomPanel.paintImage(level, w, h);
-		zoomPanel.setPreferredSize(d);
-		zoomPanel.setSize(d);	
-	   	zoomPanel.revalidate(); 	
+		int w = (int) (imageWidth*level)+2*ViewerUIF.START;
+        int h = (int) (imageHeight*level)+2*ViewerUIF.START;
+        control.setSizePaintedComponents(new Dimension(w, h));
+        canvas.paintImage(level, w, h);	
 	}
-
+ 
+    /** Handle windowClosing event. */
+    private void onClosing()
+    {
+        control.setMagFactor(curZoomLevel);
+        view.dispose();
+    }
+    
 }

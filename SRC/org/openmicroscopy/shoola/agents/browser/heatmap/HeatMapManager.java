@@ -38,10 +38,14 @@ package org.openmicroscopy.shoola.agents.browser.heatmap;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openmicroscopy.shoola.agents.browser.ActiveWindowListener;
 import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserManager;
-import org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener;
+import org.openmicroscopy.shoola.agents.browser.IconManager;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
+import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /**
  * Manages instances of the heat maps (keeps track as to not provoke
@@ -50,13 +54,16 @@ import org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener;
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
-public final class HeatMapManager implements BrowserSelectionListener
+public final class HeatMapManager implements ActiveWindowListener
 {
     private Map datasetModelMap;
-    private HeatMapUI embeddedUI;
+    private HeatMapWrapper embeddedUI;
+    private BrowserManager uiManager;
+    private IconManager iconManager;
+    private Registry registry;
     
     public static final int NO_DATASET_SHOWN = -1;
 
@@ -65,13 +72,34 @@ public final class HeatMapManager implements BrowserSelectionListener
     /**
      * Constructs the heat map manager.
      */
-    public HeatMapManager()
+    public HeatMapManager(Registry registry)
     {
         datasetModelMap = new HashMap();
-        embeddedUI = new HeatMapUI();
+        this.registry = registry;
         BrowserEnvironment env = BrowserEnvironment.getInstance();
-        BrowserManager manager = env.getBrowserManager();
-        manager.addSelectionListener(this);
+        this.uiManager = env.getBrowserManager();
+        this.iconManager = env.getIconManager();
+        uiManager.addSelectionListener(this);
+        determineFrameMode();
+    }
+    
+    // determines whether or not the application is running in internal
+    // frame or JFrame mode and initializes the component accordingly.
+    private void determineFrameMode()
+    {
+        if(uiManager.managesInternalFrames())
+        {
+            embeddedUI = new HeatMapInternalFrame();
+            uiManager.addStaticWindow(BrowserManager.HEATMAP_KEY,embeddedUI,
+                                      iconManager.getSmallIcon(IconManager.HEAT_MAP_ICON));
+        }
+        else
+        {
+            embeddedUI = new HeatMapFrame();
+            uiManager.addStaticWindow(BrowserManager.HEATMAP_KEY,
+                                      embeddedUI,
+                                      iconManager.getSmallIcon(IconManager.HEAT_MAP_ICON));
+        }
     }
     
     /**
@@ -100,6 +128,15 @@ public final class HeatMapManager implements BrowserSelectionListener
     }
     
     /**
+     * Returns a reference to the wrapped heat map UI
+     * @return See above.
+     */
+    public HeatMapWrapper getUI()
+    {
+        return embeddedUI;
+    }
+    
+    /**
      * Removes the heat map model associated with the dataset with the
      * specified ID from the manager.
      * @param datasetID The ID of the dataset to remove.
@@ -110,7 +147,7 @@ public final class HeatMapManager implements BrowserSelectionListener
         datasetModelMap.remove(intVal);
         if(datasetID == datasetShown)
         {
-            embeddedUI.reset();
+            embeddedUI.getHeatMapUI().reset();
         }
     }
     
@@ -125,31 +162,37 @@ public final class HeatMapManager implements BrowserSelectionListener
         if(model != null)
         {
             datasetShown = datasetID;
-            embeddedUI.modelChanged(model);
+            embeddedUI.getHeatMapUI().modelChanged(model);
+            embeddedUI.setWindowTitle("HeatMap: "+
+                                      model.getInfoSource().getDataset().getName());
         }
         else
         {
             datasetShown = NO_DATASET_SHOWN;
-            embeddedUI.reset();
+            embeddedUI.getHeatMapUI().reset();
+            embeddedUI.setWindowTitle("HeatMap: [no data]");
         }
     }
     
     /**
-     * Returns a reference to the heat map UI component.
-     * @return See above.
+     * Makes changes in the heat map display in response to
+     * browser selection.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.ActiveWindowListener#windowActive(org.openmicroscopy.shoola.agents.browser.ui.UIWrapper)
      */
-    public HeatMapUI getUI()
+    public void windowActive(UIWrapper window)
     {
-        return embeddedUI;
+        browserSelected((BrowserWrapper)window);
     }
     
-    /**
-     * @see org.openmicroscopy.shoola.agents.browser.BrowserSelectionListener#browserSelected(org.openmicroscopy.shoola.agents.browser.BrowserController)
+    /*
+     * Internal browser selection response.
      */
-    public void browserSelected(BrowserController controller)
+    private void browserSelected(BrowserWrapper wrapper)
     {
         try
         {
+            BrowserController controller = wrapper.getController();
             int datasetID = controller.getBrowserModel().getDataset().getID();
             showModel(datasetID);
         }

@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class CategoryEventHandler
@@ -100,7 +100,10 @@ public class CategoryEventHandler
                 CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
                 if(theGroup.equals(group))
                 {
-                    if(!cl.getCategory().equals(c))
+                    // BUG 117 FIX
+                    if(!cl.getCategory().equals(c) ||
+                       (cl.getCategory().equals(c) && cl.isValid() != null &&
+                        !cl.isValid().booleanValue()))
                     {
                         foundOld = true;
                         newClassification = cl;
@@ -154,7 +157,10 @@ public class CategoryEventHandler
                     CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
                     if(theGroup.equals(group))
                     {
-                        if(!cl.getCategory().equals(c))
+                        // BUG 117 FIX
+                        if(!cl.getCategory().equals(c) ||
+                           (cl.getCategory().equals(c) && cl.isValid() != null &&
+                            !cl.isValid().booleanValue()))
                         {
                             foundOld = true;
                             cl.setCategory(c);
@@ -180,5 +186,80 @@ public class CategoryEventHandler
             new Classification[oldClassificationList.size()];
         oldClassificationList.toArray(classifications);
         agent.reclassifyImages(classifications);
+    }
+    
+    /**
+     * Handle the declassification of an image.
+     * BUG 117 FIX.
+     * @param t The thumbnail to declassify.
+     * @param cg The category group to declassify from.
+     * @param ct The category tree which contains the category hierarchy.
+     */
+    public static void handleDeclassify(Thumbnail t, CategoryGroup cg,
+                                        CategoryTree ct)
+    {
+        if(t == null || cg == null || ct == null) return;
+        ThumbnailDataModel tdm = t.getModel();
+        AttributeMap attrMap = tdm.getAttributeMap();
+        List classificationList = attrMap.getAttributes(CLASSIFICATION_ST_NAME);
+        
+        if(classificationList == null) return;
+        Classification invalidClassification = null;
+        boolean found = false;
+        for(Iterator iter = classificationList.iterator();
+            (iter.hasNext() && !found);)
+        {
+            Classification cl = (Classification)iter.next();
+            CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
+            if(theGroup.equals(cg) &&
+               (cl.isValid() == null || cl.isValid().booleanValue()))
+            {
+                invalidClassification = cl;
+                found = true;
+            }
+        }
+        
+        if(found)
+        {
+            agent.declassifyImage(invalidClassification);
+        }
+    }
+    
+    public static void handleDeclassify(Thumbnail[] ts, CategoryGroup cg,
+                                        CategoryTree ct)
+    {
+        if(ts == null || cg == null || ct == null || ts.length == 0) return;
+        List invalidList = new ArrayList();
+        
+        for(int i=0;i<ts.length;i++)
+        {
+            Thumbnail t = ts[i];
+            ThumbnailDataModel tdm = t.getModel();
+            AttributeMap map = tdm.getAttributeMap();
+            List classificationList = map.getAttributes(CLASSIFICATION_ST_NAME);
+        
+            boolean found = false;
+        
+            if(classificationList != null)
+            {
+                for(Iterator iter = classificationList.iterator();
+                    (iter.hasNext() && !found);)
+                {
+                    Classification cl = (Classification)iter.next();
+                    CategoryGroup theGroup = ct.getGroupForCategory(cl.getCategory());
+                    if(theGroup.equals(cg) &&
+                       (cl.isValid() == null || cl.isValid().booleanValue()))
+                    {
+                        found = true;
+                        invalidList.add(cl);
+                    }
+                }
+            }
+        }
+        
+        Classification[] classifications =
+            new Classification[invalidList.size()];
+        invalidList.toArray(classifications);
+        agent.declassifyImages(classifications);
     }
 }

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,6 +44,7 @@ import org.openmicroscopy.shoola.agents.rnd.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
  * 
@@ -60,8 +60,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * </small>
  * @since OME2.2
  */
-class RenderingAgtUIF 
-	extends JInternalFrame
+public class RenderingAgtUIF 
+	extends TopWindow
 {
 	
 	/** index to position Mapping component in the tabbedPane. */
@@ -89,10 +89,17 @@ class RenderingAgtUIF
 	
 	private IconManager				im;
 	
-	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry)
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param control		Reference to the controller {@link RenderingAgtCtrl}
+	 *  					of this agent.
+	 * @param registry		Reference to the {@link Registry registry}.
+	 * @param name			Name of the current image displayed.
+	 */
+	RenderingAgtUIF(RenderingAgtCtrl control, Registry registry, String name)
 	{
-		//name, resizable, closable, maximizable, iconifiable.
-		super("Rendering", true, true, true, true);
+		super("Rendering "+name);
 		this.registry = registry;
 		this.control = control;
 		im = IconManager.getInstance(registry); 
@@ -108,7 +115,7 @@ class RenderingAgtUIF
 	JTabbedPane getTabs() { return tabs; }
 	
 	/** Set the selected model. */
-	void setModelPane(ModelPane pane)
+	void setModelPane(ModelPane pane, boolean b)
 	{
 		tabs.remove(POS_MODEL);
 		modelPane.removeAll();
@@ -116,7 +123,7 @@ class RenderingAgtUIF
 		modelPane.buildComponent();
 		tabs.insertTab(control.getModelType()+" Model", control.getModelIcon(), 
 						modelPane, null, POS_MODEL);
-		tabs.setSelectedIndex(POS_MODEL);	
+		if (b) tabs.setSelectedIndex(POS_MODEL);	
 	}
 
 	/** Set the mapping pane when a new wavelength is selected. */
@@ -128,6 +135,13 @@ class RenderingAgtUIF
 		tabs.insertTab("Mapping", im.getIcon(IconManager.MAPPING), mappingPanel,
 						null, POS_MAPPING);
 		tabs.setSelectedIndex(POS_MAPPING);	
+	}
+	
+	/** Reset the default values for the GUI. */
+	void resetGUI(ModelPane pane)
+	{
+		setModelPane(pane, false);
+		setMappingPane();
 	}
 	
 	/** Initialize the components. */
@@ -159,7 +173,7 @@ class RenderingAgtUIF
 		getContentPane().add(new ToolBar(control, registry), 
 							BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
-		setFrameIcon(im.getIcon(IconManager.RENDER));		
+		//setIconImage(IconManager.getOMEImageIcon());		
 	}
 	
 	/** Build a panel with graphics and control. */
@@ -181,10 +195,16 @@ class RenderingAgtUIF
 
 	private JMenu createMenu()
 	{
-		JMenu menu = new JMenu("Save");
-		JMenuItem menuItem = new JMenuItem("SAVE", 
+		JMenu menu = new JMenu("Controls");
+		/*
+		JMenuItem menuItem = new JMenuItem("Save", 
 									im.getIcon(IconManager.SAVE_SETTINGS));
 		control.setMenuItemListener(menuItem, RenderingAgtCtrl.SAVE);
+		menu.add(menuItem);
+		*/
+		JMenuItem menuItem = new JMenuItem("Reset defaults", 
+								im.getIcon(IconManager.RESET_DEFAULTS));
+		control.setMenuItemListener(menuItem, RenderingAgtCtrl.RESET_DEFAULTS);
 		menu.add(menuItem);
 		return menu;
 	}

@@ -33,7 +33,6 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -64,7 +63,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 public class DatasetEditor
 	extends JDialog
 {
-	
+	/** ID to identify the tab pane. */
 	static final int				POS_MAIN = 0, POS_IMAGE = 1, POS_OWNER = 2;
 									
 	/** Reference to the manager. */
@@ -82,13 +81,13 @@ public class DatasetEditor
 	public DatasetEditor(Registry registry, DataManagerCtrl control,
 						 DatasetData model)
 	{
-		super((JFrame) registry.getTopFrame().getFrame(), true);
+		super(control.getReferenceFrame(), true);
 		this.registry = registry;
 		manager = new DatasetEditorManager(this, control, model);
-		generalPane = new DatasetGeneralPane(manager, registry);
+		generalPane = new DatasetGeneralPane(manager);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
-		bar = new DatasetEditorBar(manager);
+		bar = new DatasetEditorBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);

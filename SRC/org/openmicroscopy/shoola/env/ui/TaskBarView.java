@@ -440,4 +440,13 @@ class TaskBarView
 		UIUtilities.centerAndShow(this);
 	}
 
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see org.openmicroscopy.shoola.env.ui.TaskBar#getFrame()
+     */
+    public JFrame getFrame()
+    {
+        return this;
+    }
+
 }

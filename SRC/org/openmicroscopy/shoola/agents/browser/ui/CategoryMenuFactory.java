@@ -49,6 +49,8 @@ import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.CategoryTree;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserAction;
+import org.openmicroscopy.shoola.agents.browser.events.BrowserActionFactory;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
@@ -57,7 +59,7 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class CategoryMenuFactory
@@ -98,7 +100,35 @@ public class CategoryMenuFactory
     {
         JMenu menu = new JMenu(group.getName());
         
-        List categoryList = tree.getCategories(group); 
+        List categoryList = tree.getCategories(group);
+        
+        // BUG 117 FIX: add declassify item action
+        JMenuItem dItem = new JMenuItem("Declassify");
+        dItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                Set selectedSet = backingModel.getSelectedImages();
+                if(selectedSet == null || selectedSet.size() == 0)
+                    return;
+                
+                Thumbnail[] ts = new Thumbnail[selectedSet.size()];
+                selectedSet.toArray(ts);
+                if(ts.length == 1)
+                {
+                    Thumbnail t = ts[0];
+                    CategoryEventHandler.handleDeclassify(t,group,tree);
+                }
+                else
+                {
+                    CategoryEventHandler.handleDeclassify(ts,group,tree);
+                }
+            }
+        });
+        menu.add(dItem);
+        menu.addSeparator();
+        // END BUG 117 FIX
+        
         for(Iterator iter = categoryList.iterator(); iter.hasNext();)
         {
             final Category category = (Category)iter.next();
@@ -122,6 +152,9 @@ public class CategoryMenuFactory
                     {
                         CategoryEventHandler.handle(ts,group,category,tree);
                     }
+                    BrowserAction action = 
+                        BrowserActionFactory.getLoadColorMapWithGroup(group);
+                    action.execute();
                 }
             });
             menu.add(item);

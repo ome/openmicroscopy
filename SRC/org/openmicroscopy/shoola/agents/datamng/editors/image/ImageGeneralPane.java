@@ -43,7 +43,6 @@ import javax.swing.border.Border;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
@@ -69,14 +68,12 @@ class ImageGeneralPane
 {
 
 	private ImageEditorManager 		manager;
-	private Registry				registry;
 	
 	private MultilineLabel			descriptionArea, nameField;
 	
-	ImageGeneralPane(ImageEditorManager manager, Registry registry)
+	ImageGeneralPane(ImageEditorManager manager)
 	{
 		this.manager = manager;
-		this.registry = registry;
 		buildGUI();
 	}
 	

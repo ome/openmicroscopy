@@ -56,9 +56,9 @@ import java.io.IOException;
  * </small>
  * @since OME2.2
  */
-public class TIFFEncoder
+public class TIFFEncoder 
+	implements Encoder
 {
-	public static final String	FORMAT_EXTENSION = "tiff";
 								
 	private DataOutputStream	output;
 	
@@ -68,16 +68,6 @@ public class TIFFEncoder
 	private int 				bitsPerSample, samplesPerPixel , nEntries , 
 								photoInterp, ifdSize, imageSize;
 	private int					imageWidth, imageHeight;
-	
-	public TIFFEncoder(BufferedImage image, DataOutputStream output)
-		throws IllegalArgumentException
-	{
-		checkColorModel(image);
-		checkOutput(output);
-		this.image = image;
-		this.output = output;
-		init();
-	}
 	
 	/** Save the image as an uncompressed big-endian TIFF. */
 	public void write()
@@ -91,10 +81,21 @@ public class TIFFEncoder
 			bpsSize = TIFFEncoderCst.BPS_DATA_SIZE;
 		}
 		scaleSize = TIFFEncoderCst.SCALE_DATA_SIZE;
+        writeScale();
 		int size = TIFFEncoderCst.IMAGE_START-
 					(TIFFEncoderCst.HDR_SIZE+ifdSize+bpsSize+scaleSize);
 		output.write(new byte[size]); // force image to start at offset 768
 		writeRGBPixels();
+	}
+	
+	public void initialization(BufferedImage image, DataOutputStream output)
+		throws IllegalArgumentException
+	{
+		checkColorModel(image);
+		checkOutput(output);
+		this.image = image;
+		this.output = output;
+		init();
 	}
 	
 	/** Initialize the values. */
@@ -160,7 +161,6 @@ public class TIFFEncoder
 			writeEntry(TIFFEncoderCst.BITS_PER_SAMPLE,  3, 1, bitsPerSample);
 		}
 			
-		
 		writeEntry(TIFFEncoderCst.PHOTO_INTERP, 3, 1, photoInterp);
 		writeEntry(TIFFEncoderCst.STRIP_OFFSETS, 4, 1,
 					TIFFEncoderCst.IMAGE_START);
@@ -197,26 +197,59 @@ public class TIFFEncoder
 		int count = imageWidth*24;		//3*8
 		byte[] buffer = new byte[count];
 		int i, j;
-		DataBufferByte bufferByte = 
-						(DataBufferByte) image.getRaster().getDataBuffer();
+		DataBufferByte 
+		bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
 		//model chosen			
-		byte[] red = bufferByte.getData(TIFFEncoderCst.RED_BAND);
-		byte[] green = bufferByte.getData(TIFFEncoderCst.GREEN_BAND);
-		byte[] blue = bufferByte.getData(TIFFEncoderCst.BLUE_BAND);
+		byte[] red = bufferByte.getData(EncoderUtils.RED_BAND);
+		byte[] green = bufferByte.getData(EncoderUtils.GREEN_BAND);
+		byte[] blue = bufferByte.getData(EncoderUtils.BLUE_BAND);
 		while (bytesWritten < size) {
 			if ((bytesWritten + count) > size)
 				count = size - bytesWritten;
 			j = bytesWritten/3;
 			//TIFF save as BRG and not RGB.
 			for (i = 0; i < count; i += 3) {
-				buffer[i]   = (byte) blue[j];	//blue
-				buffer[i+1] = (byte) red[j];	//red
-				buffer[i+2] = (byte) green[j];	//green
+                buffer[i]   = red[j];
+                buffer[i+1] = green[j];
+                buffer[i+2] = blue[j];
 				j++;
 			}
 			output.write(buffer, 0, count);
 			bytesWritten += count;
 		}
+		writeColorMap(red, green, blue);
 	}    
+	
+	
+	/** Write color palette following the image. */
+	private void writeColorMap(byte[] red, byte[] green, byte[] blue)
+		throws IOException
+	{
+		byte[] colorTable16 = new byte[TIFFEncoderCst.MAP_SIZE*2];
+		int j = 0;
+		int max = 251;
+		if (red.length < max) max = red.length;
+		for (int i = 0 ; i < 251; i++) {
+			colorTable16[j] = red[i];
+			colorTable16[512+j] = green[i];
+			colorTable16[1024+j] = blue[i];
+			j += 2;
+		}
+		output.write(colorTable16);
+	}
 
+    private void writeScale()
+        throws IOException
+    {
+        double xscale = 1.0/imageWidth;
+        double yscale = 1.0/imageHeight;
+        double scale = 1000000.0;
+        if (xscale>1000.0) scale = 1000.0;
+        output.writeInt((int)(xscale*scale));
+        output.writeInt((int)scale);
+        output.writeInt((int)(yscale*scale));
+        output.writeInt((int)scale);
+    
+    }
+    
 }

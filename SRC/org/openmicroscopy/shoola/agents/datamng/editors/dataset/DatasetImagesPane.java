@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.Cursor;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -85,13 +84,11 @@ class DatasetImagesPane
 											buttonsToAddPanel;
 	
 	private ImagesTableModel 				imagesTM;
-	
-	private List							imagesToAdd;
+
 	
 	DatasetImagesPane(DatasetEditorManager manager)
 	{
 		this.manager = manager;
-		imagesToAdd = new ArrayList();
 		buildGUI();
 	}
 

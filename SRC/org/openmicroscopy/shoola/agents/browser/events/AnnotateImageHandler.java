@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.agents.browser.BrowserManager;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
-import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserWrapper;
 import org.openmicroscopy.shoola.env.event.CompletionHandler;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
@@ -90,7 +90,7 @@ public class AnnotateImageHandler implements CompletionHandler
         // delve down to data model; then update.  Kind of a pain, for now.
         for(Iterator iter = browsers.iterator(); iter.hasNext();)
         {
-            UIWrapper wrapper = (UIWrapper)iter.next();
+            BrowserWrapper wrapper = (BrowserWrapper)iter.next();
             BrowserController controller = wrapper.getController();
             BrowserModel model = controller.getBrowserModel();
             Map imageIDMap = model.getImageDataMap();

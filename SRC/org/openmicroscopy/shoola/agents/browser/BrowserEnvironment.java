@@ -35,6 +35,11 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.browser.colormap.ColorMapManager;
 import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapManager;
 
@@ -61,11 +66,15 @@ public final class BrowserEnvironment
     private IconManager iconManager;
     // private static OMEDataAgent dataAgent;
     private MessageHandler messageHandler;
+    private BrowserPreferences browserPreferences;
+    
+    private List imageTypeList;
 
     private BrowserEnvironment()
     {
         // dummy singleton constructor
         initialized = true;
+        imageTypeList = new ArrayList();
     }
 
     /**
@@ -190,7 +199,7 @@ public final class BrowserEnvironment
     }
     
     /**
-     * Setse the color map manager of the environment.
+     * Sets the color map manager of the environment.
      * @param manager The color map manager to use.
      */
     public void setColorMapManager(ColorMapManager manager)
@@ -203,6 +212,56 @@ public final class BrowserEnvironment
         if(browserManager != null)
         {
             browserManager.addSelectionListener(colorMapManager);
+        }
+    }
+    
+    /**
+     * Returns the browser display preferences.
+     * @return See above.
+     */
+    public BrowserPreferences getBrowserPreferences()
+    {
+        return browserPreferences;
+    }
+    
+    /**
+     * Sets the application's default set of browser preferences to the specified
+     * object.
+     * @param prefs The set of browser preferences.
+     */
+    public void setBrowserPreferences(BrowserPreferences prefs)
+    {
+        if(prefs != null)
+        {
+            browserPreferences = prefs;
+        }
+    }
+    
+    /**
+     * Returns the image type list-- that is, the list of semantic types that
+     * are image-granular in the database installation.  As the OME client can
+     * currently only open with one OMEIS/OMEDS pair at a time, this shouldn't be
+     * too much of a problem.
+     * @return The list of semantic types that are image-granular.
+     */
+    public List getImageTypeList()
+    {
+        return Collections.unmodifiableList(imageTypeList);
+    }
+    
+    /**
+     * Sets the image type list to the specified list.
+     * @param imageTypes The list of image semantic types that are image-granular.
+     */
+    public void setImageTypeList(List imageTypes)
+    {
+        if(imageTypes != null)
+        {
+            imageTypeList.clear();
+            for(Iterator iter = imageTypes.iterator(); iter.hasNext();)
+            {
+                imageTypeList.add(iter.next());
+            }
         }
     }
 

@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * methods to manipulate one.
  * <p>Helper methods are needed so that we may link container's services 
  * to a registry without having to know about the actual {@link Registry}'s
- * implementation class -- this is required by some classes that perform 
+ * implementation class &#151; this is required by some classes that perform 
  * initialization tasks.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -108,10 +107,10 @@ public class RegistryFactory
 	}
 	
 	/**
-	 * Adds the {@link EventBus} instance to the container's {@link Registry}.
+	 * Adds the {@link EventBus} instance to the specified {@link Registry}.
 	 * 
 	 * @param eb	The {@link EventBus} instance.
-	 * @param reg	The container's {@link Registry}.
+	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkEventBus(EventBus eb, Registry reg)
 	{
@@ -119,11 +118,11 @@ public class RegistryFactory
 	}
 	
 	/**
-	 * Adds the {@link DataManagementService} instance to the container's 
+	 * Adds the {@link DataManagementService} instance to the specified
 	 * {@link Registry}.
 	 * 
 	 * @param dms	The {@link DataManagementService} instance.
-	 * @param reg	The container's {@link Registry}.
+	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkDMS(DataManagementService dms, Registry reg)
 	{
@@ -131,11 +130,11 @@ public class RegistryFactory
 	}
 	
 	/**
-	 * Adds the {@link SemanticTypesService} instance to the container's 
+	 * Adds the {@link SemanticTypesService} instance to the specified 
 	 * {@link Registry}.
 	 * 
 	 * @param sts	The {@link SemanticTypesService} instance.
-	 * @param reg	The container's {@link Registry}.
+	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkSTS(SemanticTypesService sts, Registry reg)
 	{
@@ -143,11 +142,11 @@ public class RegistryFactory
 	}
     
     /**
-     * Adds the {@link PixelsService} instance to the container's
+     * Adds the {@link PixelsService} instance to the specified
      * {@link Registry}.
      * 
      * @param ps    The {@link PixelsService} instance.
-     * @param reg   The container's {@link Registry}.
+     * @param reg   The {@link Registry}.
      */
     public static void linkPS(PixelsService ps, Registry reg)
     {
@@ -155,21 +154,10 @@ public class RegistryFactory
     }
 	
 	/**
-	 * Adds the {@link TopFrame} instance to the container's {@link Registry}.
-	 * 
-	 * @param tf	The {@link TopFrame} instance.
-	 * @param reg	The container's {@link Registry}.
-	 */
-	public static void linkTopFrame(TopFrame tf, Registry reg)
-	{
-		((RegistryImpl) reg).setTopFrame(tf);
-	}
-	
-	/**
-	 * Adds the {@link TaskBar} instance to the container's {@link Registry}.
+	 * Adds the {@link TaskBar} instance to the specified {@link Registry}.
 	 * 
 	 * @param tf	The {@link TaskBar} instance.
-	 * @param reg	The container's {@link Registry}.
+	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkTaskBar(TaskBar tb, Registry reg)
 	{
@@ -177,10 +165,10 @@ public class RegistryFactory
 	}
 	
 	/**
-	 * Adds the {@link Logger} instance to the container's {@link Registry}.
+	 * Adds the {@link Logger} instance to the specified {@link Registry}.
 	 * 
 	 * @param logger	The {@link Logger} instance.
-	 * @param reg		The container's {@link Registry}.
+	 * @param reg		The {@link Registry}.
 	 */
 	public static void linkLogger(Logger logger, Registry reg)
 	{
@@ -188,11 +176,10 @@ public class RegistryFactory
 	}
 	
 	/**
-	 * Adds the {@link UserNotifier} instance to the container's 
-	 * {@link Registry}.
+	 * Adds the {@link UserNotifier} instance to the specified {@link Registry}.
 	 * 
 	 * @param un	The {@link UserNotifier} instance.
-	 * @param reg	The container's {@link Registry}.
+	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkUserNotifier(UserNotifier un, Registry reg)
 	{

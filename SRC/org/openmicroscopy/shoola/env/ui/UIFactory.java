@@ -65,17 +65,6 @@ public class UIFactory
 	}
 	
 	/**
-	 * Creates the {@link TopFrame}.
-	 * 
-	 * @param c	Reference to the singleton {@link Container}.
-	 * @return	The {@link TopFrame}.
-	 */
-	public static TopFrame makeTopFrame(Container c)
-	{
-		return new TopFrameImpl(c);
-	}
-	
-	/**
 	 * Creates the {@link TaskBar}.
 	 * 
 	 * @param c	Reference to the singleton {@link Container}.

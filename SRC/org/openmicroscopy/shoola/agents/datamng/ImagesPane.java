@@ -64,9 +64,6 @@ class ImagesPane
 	/** This UI component's controller and model. */
 	private ImagesPaneManager		manager;
 
-	/** Reference to the Registry. */
-	private Registry				registry;
-
 	ImagesPaneBar					bar;
 	
 	/** The table used to display the list of images. */
@@ -81,7 +78,6 @@ class ImagesPane
 	 */
 	ImagesPane(DataManagerCtrl agentCtrl, Registry registry)
 	{
-		this.registry = registry;
 		initComponents();
 		bar = new ImagesPaneBar(registry);
 		manager = new ImagesPaneManager(this, agentCtrl);

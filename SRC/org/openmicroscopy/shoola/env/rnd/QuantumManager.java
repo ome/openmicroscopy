@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsGlobalStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
@@ -87,20 +88,23 @@ class QuantumManager
      * 
      * @param qd	The quantum definition which dictates what strategy to use.
      * @param stats	For each wavelength, it contains the global minimum and
-     * 				maximum of the wavelength stack across time.	
+     * 				maximum of the wavelength stack across time.
+     * @param waves 	
      */
-	void initStrategies(QuantumDef qd, PixelsStats stats)
+	void initStrategies(QuantumDef qd, PixelsStats stats, 
+					ChannelBindings[] waves)
 	{
 		QuantumStrategy stg;
 		PixelsGlobalStatsEntry wGlobal;
-		Comparable gMin, gMax;
+		double gMin, gMax;
 		for (int w = 0; w < sizeW; ++w) {
 			stg = QuantumFactory.getStrategy(qd);
 			wGlobal = stats.getGlobalEntry(w);
 			gMin = wGlobal.getGlobalMin();
 			gMax = wGlobal.getGlobalMax();
 			stg.setExtent(gMin, gMax);
-			if (wavesStg[w] == null) stg.setWindow(gMin, gMax); 
+			if (wavesStg[w] == null) stg.setWindow(waves[w].getInputStart(), 
+									waves[w].getInputEnd()); 
 			else 
 				stg.setWindow(wavesStg[w].getWindowStart(), 
 								wavesStg[w].getWindowEnd());

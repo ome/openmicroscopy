@@ -40,16 +40,17 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3D;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3DManager;
 
 /** 
- * 
+ * Manager of the drawing {@link DrawingCanvas component}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -57,120 +58,118 @@ import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3DManager;
  * @since OME2.2
  */
 public class DrawingCanvasMng
-	implements MouseListener, MouseMotionListener
+    implements MouseListener, MouseMotionListener
 {
-	
-	private Viewer3DManager		control;
-	private DrawingCanvas		view;
-	
-	private	Rectangle			drawingAreaXY, drawingAreaXZ, drawingAreaZY;
-	
-	/** Dragging control. */
-	private boolean         	dragging;
-	
-	public DrawingCanvasMng(DrawingCanvas view, Viewer3DManager control)
-	{
-		this.view = view;
-		this.control = control;
-		view.addMouseListener(this);
-		view.addMouseMotionListener(this);
-		drawingAreaXY = new Rectangle();	
-		drawingAreaXZ = new Rectangle();
-		drawingAreaZY = new Rectangle();
-	}
+    
+    private Viewer3DManager     control;
+    
+    private DrawingCanvas       view;
+    
+    /** Rectangle to control the different drawing areas. */
+    private Rectangle           drawingAreaXY, drawingAreaXZ, drawingAreaZY;
+    
+    /** x-coordinate (= y-coordinate) of the XYImage. */
+    private int                 space;
+    
+    /** Dragging control. */
+    private boolean             dragging;
+    
+    public DrawingCanvasMng(DrawingCanvas view, Viewer3DManager control)
+    {
+        this.view = view;
+        this.control = control;
+        view.addMouseListener(this);
+        view.addMouseMotionListener(this);
+        drawingAreaXY = new Rectangle();  
+        drawingAreaXZ = new Rectangle();
+        drawingAreaZY = new Rectangle();
+    }
+    
+    public void setDrawingAreas(int XYWidth, int XYHeight, int XZHeight)
+    {
+        space = 2*Viewer3D.SPACE+XZHeight;
+        drawingAreaXY.setBounds(space, space, XYWidth, XYHeight);
+        drawingAreaZY.setBounds(Viewer3D.SPACE, space, XZHeight, XYHeight);
+        drawingAreaXZ.setBounds(space, Viewer3D.SPACE, XYWidth, XZHeight);
+    }
+    
+    /** Handle mouse pressed event. */ 
+    public void mousePressed(MouseEvent e)
+    {
+        Point p = e.getPoint();
+        if (!dragging) {
+            dragging = true;
+            if (drawingAreaXY.contains(p)) drawXY(p);
+            if (drawingAreaXZ.contains(p)) drawXZ(p);
+            if (drawingAreaZY.contains(p)) drawZY(p);
+        }
+    }
 
-	/** Set the XY drawing area. */
-	public void setDrawingAreaXY(int x, int y, int w, int h)
-	{
-		drawingAreaXY.setBounds(x, y, w, h);
-	}
-	
-	/** Set the XZ drawing area. */
-	public void setDrawingAreaXZ(int x, int y, int w, int h)
-	{
-		drawingAreaXZ.setBounds(x, y, w, h);
-	}
-	
-	/** Set the ZY drawing area. */
-	public void setDrawingAreaZY(int x, int y, int w, int h)
-	{
-		drawingAreaZY.setBounds(x, y, w, h);
-	}
-	
-	/** Handle mouse pressed event. */ 
-	public void mousePressed(MouseEvent e)
-	{
-		Point p = e.getPoint();
-		if (!dragging) {
-			dragging = true;
-			if (drawingAreaXY.contains(p)) drawXY(p);
-			if (drawingAreaXZ.contains(p)) drawXZ(p);
-			if (drawingAreaZY.contains(p)) drawZY(p);
-		}
-	}
+    /** Handle mouse dragged event. */ 
+    public void mouseDragged(MouseEvent e)
+    {
+        Point p = e.getPoint();
+        if (dragging) {
+            if (drawingAreaXY.contains(p)) drawXY(p);
+            if (drawingAreaXZ.contains(p)) drawXZ(p);
+            if (drawingAreaZY.contains(p)) drawZY(p);   
+        }
+    }
+    
+    /** Handle mouse moved on the XYarea. */
+    private void drawXY(Point p)
+    {
+        control.onPlaneSelected(p.x-space, p.y-space);
+        System.out.println(p);
+        view.drawXY(p);
+    }
+    
+    /** Handle mouse moved on the XZarea. */
+    private void drawXZ(Point p) 
+    {
+        control.onXZPlaneSelected(p.x-space, p.y-Viewer3D.SPACE);
+        view.drawXZ(p);
+    }
+    
+    /** Handle mouse moved on the ZYarea. */
+    private void drawZY(Point p) 
+    {
+        control.onZYPlaneSelected(p.x-Viewer3D.SPACE, p.y-space);
+        view.drawZY(p);
+    }
+    
+    /** 
+     * Set the dragging control to <code>false</code> 
+     * and erase the shape drawn on the canvas.
+     */
+    public void mouseReleased(MouseEvent e)
+    {
+        dragging = false;
+        view.erase();
+    }
 
-	/** Handle mouse dragged event. */ 
-	public void mouseDragged(MouseEvent e)
-	{
-		Point p = e.getPoint();
-		if (dragging) {
-			if (drawingAreaXY.contains(p)) drawXY(p);
-			if (drawingAreaXZ.contains(p)) drawXZ(p);
-			if (drawingAreaZY.contains(p)) drawZY(p);	
-		}
-	}
+    /** 
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */   
+    public void mouseClicked(MouseEvent e) {}
 
-	private void drawXY(Point p)
-	{
-		control.onPlaneSelected(p.x, p.y);
-		view.drawXY(p);
-	}
-	
-	
-	private void drawXZ(Point p) 
-	{
-		control.onXZPlaneSelected(p.x, p.y);
-		view.drawXZ(p);
-	}
-	
-	private void drawZY(Point p) 
-	{
-		control.onZYPlaneSelected(p.x, p.y);
-		view.drawZY(p);
-	}
-	
-	/** 
-	 * Set the dragging control to <code>false</code> 
-	 * and erase the shape drawn on each canvas.
-	 */
-	public void mouseReleased(MouseEvent e)
-	{
-		dragging = false;
-		view.erase();
-	}
+    /** 
+     * Required by I/F but not actually needed in our case, 
+     * no op implementation.
+     */   
+    public void mouseEntered(MouseEvent e) {}
 
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */   
-	public void mouseClicked(MouseEvent e) {}
+    /** 
+     * Required by I/F but not actually needed in our case,
+     * no op implementation.
+     */   
+    public void mouseExited(MouseEvent e) {}
 
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */   
-	public void mouseEntered(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case,
-	 * no op implementation.
-	 */   
-	public void mouseExited(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case,
-	 * no op implementation.
-	 */   
-	public void mouseMoved(MouseEvent e) {}
+    /** 
+     * Required by I/F but not actually needed in our case,
+     * no op implementation.
+     */   
+    public void mouseMoved(MouseEvent e) {}
 
 }

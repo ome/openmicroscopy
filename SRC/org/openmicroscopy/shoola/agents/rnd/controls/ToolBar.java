@@ -65,7 +65,7 @@ public class ToolBar
 	
 	
 	private JButton					saveButton, greyButton, rgbButton, 
-									hsbButton;
+									hsbButton, resetButton;
 	
 	private JSeparator				separator;
 	
@@ -75,6 +75,9 @@ public class ToolBar
 		new ToolBarManager(control, this);
 		buildToolBar();
 	}
+	
+	/** Return the reset button. */
+	JButton getResetButton() { return resetButton; }
 	
 	/** Return the grey color model button. */
 	JButton getGreyButton() { return greyButton; }
@@ -105,7 +108,11 @@ public class ToolBar
 		hsbButton =  new JButton(icon);
 		hsbButton.setToolTipText(
 			UIUtilities.formatToolTipText("Select the HSB color model."));
-		separator = UIUtilities.toolBarSeparator(hsbButton,icon);	
+		resetButton = new JButton(im.getIcon(IconManager.RESET_DEFAULTS));
+		resetButton.setToolTipText(
+			UIUtilities.formatToolTipText("Reset the defaults rendering " +
+										"settings."));
+		separator = UIUtilities.toolBarSeparator(hsbButton, icon);	
 	}
 	
 	/** Build and lay out the tool bar. */
@@ -118,7 +125,8 @@ public class ToolBar
 		add(rgbButton);
 		add(hsbButton);
 		add(separator);
-		add(saveButton);
+		add(resetButton);
+		//add(saveButton);
 	}
 
 }

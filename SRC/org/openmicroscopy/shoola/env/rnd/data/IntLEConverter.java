@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * <p>This class handles the conversion of signed little-endian integers of 
  * <code>1, 2</code> and <code>4</code>-byte length 
  * (bytes are assumed to be <code>8</code>-bit long). 
- * Values are packed into an <code>Integer</code>.</p>
+ * Values are packed into a <code>double</code>.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +60,7 @@ public class IntLEConverter
 {
     
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(ReadOnlyByteArray data, int offset, int length)
+	public double pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
@@ -86,7 +86,7 @@ public class IntLEConverter
 			paddingMask <<= 8;
 		}
 		if (data.get(offset+length-1) < 0)   r |= paddingMask;  //Was negative, pad.
-		return new Integer(r);
+		return r;
 	}
     
 }

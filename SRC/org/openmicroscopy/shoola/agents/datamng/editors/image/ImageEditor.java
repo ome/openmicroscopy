@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -80,13 +79,13 @@ public class ImageEditor
 	public ImageEditor(Registry registry, DataManagerCtrl control,
 					ImageData model)
 	{
-		super((JFrame) registry.getTopFrame().getFrame(), true);
+		super(control.getReferenceFrame(), true);
 		this.registry = registry;
 		manager = new ImageEditorManager(this, control, model);
-		generalPane = new ImageGeneralPane(manager, registry);
+		generalPane = new ImageGeneralPane(manager);
 		infoPane = new ImageInfoPane(manager);
 		ownerPane = new ImageOwnerPane(manager);
-		bar = new ImageEditorBar(manager);
+		bar = new ImageEditorBar();
 		buildGUI();
 		manager.initListeners();
 		setSize(DataManager.EDITOR_WIDTH, DataManager.EDITOR_HEIGHT);

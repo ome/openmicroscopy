@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.mem.ByteArray
+ * org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray
  *
  *------------------------------------------------------------------------------
  *
@@ -71,7 +71,7 @@ public class ReadOnlyByteArray
 	protected final int		offset;
 	
 	/** The length of the slice. */
-	protected final int		length;
+	public final int		length;
 	
 	
 	/**
@@ -105,7 +105,7 @@ public class ReadOnlyByteArray
 		if (base == null) throw new NullPointerException("No base.");
 		if (offset < 0 || length < 0 || base.length < offset+length)
 			throw new IllegalArgumentException(
-				"[offset="+offset+", length="+length+
+				"[offset="+offset+", offset+length="+(offset+length)+
 				"] not in [0, base.length="+base.length+"].");
 		this.base = base;
 		this.offset = offset;
@@ -116,7 +116,8 @@ public class ReadOnlyByteArray
 	 * Reads the element at the <code>index</code> position within this
 	 * slice.
 	 * 
- 	 * @param index	The index.
+ 	 * @param index	The index.  Must be in the <code>[0, {@link #length})
+     *              </code> interval.
 	 * @return	The element at the <code>index</code> position in this slice.
 	 */
 	public byte get(int index)

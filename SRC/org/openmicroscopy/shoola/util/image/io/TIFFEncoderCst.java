@@ -71,13 +71,9 @@ class TIFFEncoderCst
 	static final int 	BPS_DATA_SIZE = 6;
 	static final int 	SCALE_DATA_SIZE = 16;
 	static byte[]		header = {0x4D, 0x4D, 0, 42, 0, 0, 0, 8};
-	
+
+
 	//field type
 	static final int 	SHORT = 3;
-
-	//color band constants
-	static final int	RED_BAND = 0;
-	static final int	GREEN_BAND = 1;
-	static final int	BLUE_BAND = 2;
 														
 }

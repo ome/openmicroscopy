@@ -34,11 +34,13 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 //Java imports
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
+import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -90,6 +92,9 @@ class ImageChooser
 	{
 		setDialogType(SAVE_DIALOG);
 		setFileSelectionMode(FILES_ONLY);
+		BMPFilter bmpFilter = new BMPFilter();
+		setFileFilter(bmpFilter);
+		addChoosableFileFilter(bmpFilter); 
 		JPEGFilter jpegFilter = new JPEGFilter();
 		setFileFilter(jpegFilter);
 		addChoosableFileFilter(jpegFilter); 
@@ -116,14 +121,7 @@ class ImageChooser
 	{
 		File file = getSelectedFile();
 		if (file != null) {
-			String format = DEFAULT_FORMAT;
-			if (getFileFilter() instanceof JPEGFilter) 
-				format = JPEGFilter.JPG;
-			else if (getFileFilter() instanceof TIFFFilter) 
-				format = TIFFFilter.TIF;
-			else if (getFileFilter() instanceof PNGFilter) 
-				format = PNGFilter.PNG;
-			
+			String format = getFormat(getFileFilter());
 			String  fileName = file.getAbsolutePath()+"."+format, 
 					name = file.getName()+"."+format;
 			String message = "The image "+name+", has been saved in \n"
@@ -135,6 +133,25 @@ class ImageChooser
 		}      
 		// No file selected, or file can be written - let OK action continue
 		super.approveSelection();
+	}
+	
+	/**
+	 * Retrieve the File format selected.
+	 * @param filter	filter specified.
+	 * @return See above.
+	 */
+	private String getFormat(FileFilter filter)
+	{
+		String format = DEFAULT_FORMAT;
+		if (filter instanceof JPEGFilter) 
+			format = JPEGFilter.JPG;
+		else if (filter instanceof TIFFFilter) 
+			format = TIFFFilter.TIF;
+		else if (filter instanceof PNGFilter) 
+			format = PNGFilter.PNG;
+		else if (filter instanceof BMPFilter) 
+			format = BMPFilter.BMP;
+		return format;
 	}
 	
 	/** 
@@ -163,9 +180,9 @@ class ImageChooser
 		} else {
 			display = false;
 			new SaveImage(parent.getController().getRegistry(), format, 
-				parent.getController().getBufferedImage(), fileName, message);
+				parent.getImageToSave(), fileName, message);
+				cancelSelection();
 		}				
 	}
-	
 	
 }

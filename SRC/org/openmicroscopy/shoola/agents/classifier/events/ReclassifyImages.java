@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @version 2.2.1
  * @since OME2.2
  */
 public class ReclassifyImages extends RequestEvent
@@ -58,12 +58,19 @@ public class ReclassifyImages extends RequestEvent
     // classfications already contain image refs, we don't need em
     private List classificationList;
     
-    // empty constructor, as to build the map iteratively
+    /**
+     * Creates an event without any classifications (classifications are added
+     * using the addClassification entry)
+     */
     public ReclassifyImages()
     {
         classificationList = new ArrayList();
     }
     
+    /**
+     * Creates an event with a base set of classifications.
+     * @param c The collection of updated (reclassified) objects.
+     */
     public ReclassifyImages(Collection c)
     {
         if(c != null)
@@ -74,22 +81,35 @@ public class ReclassifyImages extends RequestEvent
         else classificationList = new ArrayList();
     }
     
+    /**
+     * Adds an updated classification to the event package.
+     * @param c The classification to add.
+     */
     public void addClassification(Classification c)
     {
         if(c != null)
         {
             classificationList.add(c);
+            Collections.sort(classificationList,new AttributeComparator());
         }
     }
     
+    /**
+     * Removes an updated classification from the event package.
+     * @param c The classification to remove.
+     */
     public void removeClassification(Classification c)
     {
-        if(c != null)
+        if(c != null && classificationList.contains(c))
         {
             classificationList.remove(c);
         }
     }
     
+    /**
+     * Gets the list of updated classifications.
+     * @return See above.
+     */
     public List getClassifications()
     {
         return Collections.unmodifiableList(classificationList);

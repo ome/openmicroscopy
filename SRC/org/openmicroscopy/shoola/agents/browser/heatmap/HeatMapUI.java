@@ -37,14 +37,10 @@
 package org.openmicroscopy.shoola.agents.browser.heatmap;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 
 
 /**
@@ -55,7 +51,7 @@ import javax.swing.event.InternalFrameEvent;
  * @version 2.2
  * @since OME2.2
  */
-public final class HeatMapUI extends JInternalFrame
+public final class HeatMapUI extends JPanel
                              implements HeatMapModelListener,
                                         HeatMapDTListener
 {
@@ -63,6 +59,7 @@ public final class HeatMapUI extends JInternalFrame
     private HeatMapStatusUI statusPanel;
     private HeatMapTreeUI treePanel;
     private HeatMapGradientUI gradPanel;
+    private HeatMapGraphUI graphPanel;
     private HeatMapModeBar modeBar;
     private HeatMapScaleBar scaleBar;
     private HeatMapDispatcher dispatcher;
@@ -96,41 +93,24 @@ public final class HeatMapUI extends JInternalFrame
         treePanel = new HeatMapTreeUI(model.getModel());
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
         dispatcher.addLoadListener(treePanel);
+        dispatcher.addLoadListener(graphPanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
         scaleBar.addListener(dispatcher);
+        graphPanel.addListener(dispatcher);
         buildUI();
     }
     
     private void init()
     {
+        graphPanel = new HeatMapGraphUI();
         gradPanel = new HeatMapGradientUI();
         gradPanel.addDTListener(this);
         statusPanel = new HeatMapStatusUI();
         modeBar = new HeatMapModeBar();
         scaleBar = new HeatMapScaleBar();
-        
-        addInternalFrameListener(new InternalFrameAdapter()
-        {
-            public void internalFrameClosing(InternalFrameEvent arg0)
-            {
-                if(dispatcher != null)
-                {
-                    dispatcher.fireModeCancel();
-                }
-            }
-            
-            public void internalFrameOpened(InternalFrameEvent arg0)
-            {
-                if(dispatcher != null)
-                {
-                    dispatcher.fireModeReactivate();
-                }
-            }
-        });
-
     }
     
     /**
@@ -147,8 +127,7 @@ public final class HeatMapUI extends JInternalFrame
     
     private void buildUI()
     {
-        Container contentPane = getContentPane();
-        contentPane.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -180,6 +159,8 @@ public final class HeatMapUI extends JInternalFrame
         controlPanel.add(gradPanel,BorderLayout.CENTER);
         
         JPanel barPanel = new JPanel();
+        barPanel.setLayout(new BorderLayout());
+        barPanel.add(graphPanel,BorderLayout.NORTH);
         barPanel.add(modeBar,BorderLayout.CENTER);
         
         JPanel scalePanel = new JPanel();
@@ -190,19 +171,10 @@ public final class HeatMapUI extends JInternalFrame
         
         mainPanel.add(controlPanel,BorderLayout.SOUTH);
         
-        contentPane.add(mainPanel,BorderLayout.CENTER);
-        contentPane.add(statusPanel,BorderLayout.SOUTH);
+        add(mainPanel,BorderLayout.CENTER);
+        add(statusPanel,BorderLayout.SOUTH);
         
-        if(model != null)
-        {
-            setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
-        }
-        else
-        {
-            setTitle("HeatMap: [no data]");
-        }
         statusPanel.showMessage("Dataset attributes loaded.");
-        pack();
     }
     
     /**
@@ -215,17 +187,19 @@ public final class HeatMapUI extends JInternalFrame
             return;
         }
         this.model = model;
-        setTitle("HeatMap: " + model.getInfoSource().getDataset().getName());
         treePanel.setModel(model.getModel());
         treePanel.removeListener(dispatcher);
         modeBar.removeListener(dispatcher);
+        graphPanel.removeListener(dispatcher);
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
         dispatcher.addLoadListener(treePanel);
+        dispatcher.addLoadListener(graphPanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
         dispatcher.setCurrentScale(scaleBar.getCurrentScaleType());
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
         scaleBar.addListener(dispatcher);
+        graphPanel.addListener(dispatcher);
         gradPanel.setEnabled(false);
         revalidate();
         repaint();
@@ -247,6 +221,24 @@ public final class HeatMapUI extends JInternalFrame
     {
         modeBar.setEnabled(true);
         scaleBar.setEnabled(true);
+    }
+    
+    /**
+     * Instructs the heat map dispatcher to update the currently selected
+     * browser to reflect that the heat map is no longer active.
+     */
+    public void fireModeCancel()
+    {
+        if(dispatcher != null) dispatcher.fireModeCancel();
+    }
+    
+    /**
+     * Instructs the heat map dispatcher to update the currently selected
+     * browser to reflect that the heat map has become active.
+     */
+    public void fireModeReactivate()
+    {
+        if(dispatcher != null) dispatcher.fireModeReactivate();
     }
 
 }

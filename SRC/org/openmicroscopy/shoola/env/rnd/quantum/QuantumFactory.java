@@ -34,14 +34,14 @@ package org.openmicroscopy.shoola.env.rnd.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
- * The bit-depth constants cannot be modified b/c they have a meaning.
- * The class also defines the constants linked to {@link QuantumMap maps} 
- * implemented.
+ * Factory to create objects to carry out quantization for a given context.
+ * This class defines the constants to be used to identify a {@link QuantumMap}
+ * within a quantization context.  It also defines the constants to be used to
+ * define the bit depth of the quantized output interval.  
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,47 +57,189 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 public class QuantumFactory
 {
 	
-	/** Bit-depth 1Bit = 2^1-1. */
+    //NB: The bit-depth constants cannot be modified b/c they have a meaning.
+    
+	/** Flag to select a 1-bit depth (<i>=2^1-1</i>) output interval. */
 	public static final int   DEPTH_1BIT = 1;
-	
-	/** Bit-depth 1Bit = 2^2-1. */
+
+    /** Flag to select a 2-bit depth (<i>=2^2-1</i>) output interval. */
 	public static final int   DEPTH_2BIT = 3;
 	
-	/** Bit-depth 1Bit = 2^3-1. */
-	public static final int   DEPTH_3BIT = 7;
+	/** Flag to select a 3-bit depth (<i>=2^3-1</i>) output interval. */
+    public static final int   DEPTH_3BIT = 7;
 	
-	/** Bit-depth 1Bit = 2^4-1. */
+    /** Flag to select a 4-bit depth (<i>=2^4-1</i>) output interval. */
 	public static final int   DEPTH_4BIT = 15;
 	
-	/** Bit-depth 1Bit = 2^5-1. */
+	/** Flag to select a 5-bit depth (<i>=2^5-1</i>) output interval. */
 	public static final int   DEPTH_5BIT = 31;
 	
-	/** Bit-depth 1Bit = 2^6-1. */
+	/** Flag to select a 6-bit depth (<i>=2^6-1</i>) output interval. */
 	public static final int   DEPTH_6BIT = 63;
 	
-	/** Bit-depth 1Bit = 2^7-1. */
+	/** Flag to select a 7-bit depth (<i>=2^7-1</i>) output interval. */
 	public static final int   DEPTH_7BIT = 127;
 	
-	/** Bit-depth 1Bit = 2^8-1. */
+	/** Flag to select a 8-bit depth (<i>=2^8-1</i>) output interval. */
 	public static final int   DEPTH_8BIT = 255;
     
-	/** Linear mapping: equation of the form y = a*x+b. */
+	/**
+     * Flag to select a linear map for the quantization process. 
+     * The equation of the map is of the form <i>y = a*x + b</i>.  The <i>a</i>
+     * and <i>b</i> coefficients depend on the input and output (codomain) 
+     * interval of the map.
+     */
 	public static final int   LINEAR = 0;
+
+    /**
+     * Flag to select a exponential map for the quantization process. 
+     * The equation of the map is of the form <i>y = a*(exp(x^k)) + b</i>.  
+     * The <i>a</i> and <i>b</i> coefficients depend on the input and output
+     * (codomain) interval of the map.  The <i>k</i> coefficient is the one
+     * specified by the {@link QuantumDef context}.
+     */
+    public static final int   EXPONENTIAL = 1;
 	
-	/** Exponential mapping: equation of the form y = a*(exp(x^k))+b. */
-	public static final int   EXPONENTIAL = 1;
-	
-	/** Linear mapping: equation of the form y = a*log(x)+b. */
+    /**
+     * Flag to select a logarithmic map for the quantization process. 
+     * The equation of the map is of the form <i>y = a*log(x) + b</i>.  
+     * The <i>a</i> and <i>b</i> coefficients depend on the input and output 
+     * (codomain) interval of the map.
+     */
 	public static final int   LOGARITHMIC = 2;
 	
-	/** 
-	 * Linear mapping: equation of the form y = a*x^k+b.
-	 * Note that LINEAR is a specific case of polynomial (k = 1).
-	 * We keep the LINEAR constant for some UI reason but we apply the same 
-	 * algorithm.
-	 */
+    /**
+     * Flag to select a polynomial map for the quantization process. 
+     * The equation of the map is of the form <i>y = a*x^k + b</i>.  
+     * The <i>a</i> and <i>b</i> coefficients depend on the input and output
+     * (codomain) interval of the map.  The <i>k</i> coefficient is the one
+     * specified by the {@link QuantumDef context}.
+     * Note that {@link #LINEAR} is a special case of polynomial (<i>k = 1</i>).
+     * We keep the {@link #LINEAR} constant for some UI reason but we apply the
+     * same algorithm.
+     */
 	public static final int   POLYNOMIAL = 3;
 
+    
+	/**
+     * Verifies that <code>qd</code> is not <code>null</code> and has been
+     * properly defined.
+     * 
+     * @param family    The value to verify.
+     * @throws IllegalArgumentException If the check fails.
+     */
+    private static void verifyDef(QuantumDef qd)
+    {
+        if (qd == null)    
+            throw new NullPointerException("No quantum definition.");
+        verifyFamily(qd.family);
+        verifyBitResolution(qd.bitResolution);
+        verifyPixelType(qd.pixelType);
+    }
+    
+    /**
+     * Verifies that <code>family</code> is one of the constants defined by
+     * this class.
+     * 
+     * @param family    The value to verify.
+     * @throws IllegalArgumentException If the check fails.
+     */
+    private static void verifyFamily(int family)
+    {
+        if (family != LINEAR && 
+                family != LOGARITHMIC && 
+                family != EXPONENTIAL &&
+                family != POLYNOMIAL)  
+            throw new IllegalArgumentException(
+                    "Unsupported family type: "+family+".");
+    }
+    
+    /**
+     * Verifies that <code>bitResolution</code> is one of the constants defined
+     * by this class.
+     * 
+     * @param bitResolution    The value to verify.
+     * @throws IllegalArgumentException If the check fails.
+     */
+    private static void verifyBitResolution(int bitResolution)
+    {
+        boolean  b = false;
+        switch (bitResolution) {
+            case DEPTH_1BIT: b = true; break;
+            case DEPTH_2BIT: b = true; break;
+            case DEPTH_3BIT: b = true; break;
+            case DEPTH_4BIT: b = true; break;
+            case DEPTH_5BIT: b = true; break;
+            case DEPTH_6BIT: b = true; break;
+            case DEPTH_7BIT: b = true; break;
+            case DEPTH_8BIT: b = true; break;
+        }
+        if (!b) throw new IllegalArgumentException(
+                            "Unsupported bit resolution: "+bitResolution+".");
+    }
+    
+    /**
+     * Verifies that <code>pixelType</code> is one of the constants defined
+     * by {@link DataSink}.
+     * 
+     * @param pixelType    The value to verify.
+     * @throws IllegalArgumentException If the check fails.
+     */
+    private static void verifyPixelType(int pixelType)
+    {
+        boolean b = false;
+        switch (pixelType) {
+            case DataSink.BIT:    b = true; break;
+            case DataSink.INT8:   b = true; break;
+            case DataSink.INT16:  b = true; break;
+            case DataSink.INT32:  b = true; break;
+            case DataSink.UINT8:  b = true; break;
+            case DataSink.UINT16: b = true; break;
+            case DataSink.UINT32: b = true; break;
+            case DataSink.FLOAT:  b = true; break;
+            case DataSink.DOUBLE: b = true;
+        }
+        if (!b) throw new IllegalArgumentException(
+                                    "Unsupported pixel type: "+pixelType+".");
+    }
+    
+    /** 
+     * Creates a {@link QuantumStrategy} object suitable for the pixels type
+     * specified by <code>pd</code>.
+     * 
+     * @param pd     Defines the quantization context.
+     * @return A {@link QuantumStrategy} object suitable for the
+     *          given pixels type.
+     */
+    private static QuantumStrategy getQuantization(QuantumDef qd)
+    {
+        QuantumStrategy qs = null;
+        switch (qd.pixelType) {
+            case DataSink.INT8:
+            case DataSink.UINT8:
+            case DataSink.INT16:
+            case DataSink.UINT16:
+            case DataSink.INT32:  
+            case DataSink.UINT32:   
+            case DataSink.FLOAT:  
+            case DataSink.DOUBLE: 
+                qs = new Quantization_8_16_bit(qd);
+                break;
+            case DataSink.BIT:    
+            break;    
+        }
+        return qs;
+    }
+    
+    /**
+     * Returns a strategy to carry out the quantization process whose context
+     * is defined by <code>pd</code>.
+     * 
+     * @param qd    Defines the quantization context.  Mustn't be 
+     *              <code>null</code> and its values must have been
+     *              properly specified.
+     * @return  A {@link QuantumStrategy} suitable for the specified context. 
+     */
 	public static QuantumStrategy getStrategy(QuantumDef qd)
 	{
 		verifyDef(qd);
@@ -115,86 +257,11 @@ public class QuantumFactory
 				qMap = new ExponentialMap(); 
 				break;
 			default: 
-				qMap = new PolynomialMap();
-				RenderingEngine.getRegistry().getLogger().debug(
-					QuantumFactory.class, "Unsupported transformation");	
+				//Never reached, verifyDef throws exception if wrong family.	
 		}
 		strg = getQuantization(qd);
 		strg.setMap(qMap);
-		if (strg == null)
-			throw new IllegalArgumentException("Unsupported strategy");
 		return strg;
 	}
-    
-    /** Retrieve a {@link QuantumStrategy}. */
-	private static QuantumStrategy getQuantization(QuantumDef qd)
-	{
-		QuantumStrategy qs = null;
-		switch (qd.pixelType) {
-			case DataSink.INT8:
-			case DataSink.UINT8:
-			case DataSink.INT16:
-			case DataSink.UINT16:
-				qs = new Quantization_8_16_bit(qd);
-				break;
-			case DataSink.INT32:  //TODO when we support these types
-			case DataSink.UINT32:
-			case DataSink.BIT:    
-			case DataSink.FLOAT:  
-			case DataSink.DOUBLE: break;    
-		}
-		return qs;
-	}
 
-	private static void verifyDef(QuantumDef qd)
-	{
-		if (qd == null)    
-			throw new NullPointerException("No quantum definition provided");
-		verifyFamily(qd.family);
-		verifyBitResolution(qd.bitResolution);
-		verifyPixelType(qd.pixelType);
-	}
-    
-	private static void verifyFamily(int family)
-	{
-		if (family != LINEAR && family != LOGARITHMIC && family != EXPONENTIAL
-			&& family != POLYNOMIAL)  
-			throw new IllegalArgumentException("Unsupported family type");
-	}
-    
-	private static void verifyBitResolution(int bitResolution)
-	{
-		boolean  b = false;
-		switch (bitResolution) {
-			case DEPTH_1BIT: b = true; break;
-			case DEPTH_2BIT: b = true; break;
-			case DEPTH_3BIT: b = true; break;
-			case DEPTH_4BIT: b = true; break;
-			case DEPTH_5BIT: b = true; break;
-			case DEPTH_6BIT: b = true; break;
-			case DEPTH_7BIT: b = true; break;
-			case DEPTH_8BIT: b = true; break;
-		}
-		if (!b) throw new IllegalArgumentException("Unsupported output " +
-				"interval type");
-	}
-    
-	private static void verifyPixelType(int pixelType)
-	{
-		boolean b = false;
-		switch (pixelType) {
-			case DataSink.BIT:    b = true; break;
-			case DataSink.INT8:   b = true; break;
-			case DataSink.INT16:  b = true; break;
-			case DataSink.INT32:  b = true; break;
-			case DataSink.UINT8:  b = true; break;
-			case DataSink.UINT16: b = true; break;
-			case DataSink.UINT32: b = true; break;
-			case DataSink.FLOAT:  b = true; break;
-			case DataSink.DOUBLE: b = true;
-		}
-		if (!b) throw new IllegalArgumentException("Unsupported pixel type");
-	}
-  
 }
-

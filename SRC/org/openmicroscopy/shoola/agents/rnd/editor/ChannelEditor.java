@@ -96,7 +96,7 @@ public class ChannelEditor
 																data);
 		channelPane = new ChannelPane(manager);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		bar = new ChannelEditorBar(manager);
+		bar = new ChannelEditorBar();
 		manager.attachListeners();
 		buildGUI(control.getRegistry());
 		setSize(EDITOR_WIDTH+EXTRA, EDITOR_HEIGHT);

@@ -36,7 +36,20 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.RescaleOp;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -44,6 +57,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
+import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 
 /** 
  * Canvas to display the selected buffered 2D-image.
@@ -63,25 +77,49 @@ public class ImageCanvas
 	extends JPanel
 {
 
-	/** The BufferedImage to display. */	
-	private BufferedImage 		image;
-	
-	/** Width and height. */
-	private int					imageWidth, imageHeight;
-	
-	/** Coordinates of the top-left corner of he image. */
-	private int					x, y;
-	
+    /** 
+     * Width and height of the canvas. 
+     * The <code>width</code> (resp. the <code>height</code>) is equal to 
+     * <code>width</code> (resp. <code>height</code>) of the buffered image 
+     * multiplied by the <code>magFactor</code>.
+     */
+    private int                     w, h;
+    
+    /** Zoom level. */
+    private double                  magFactor;
+    
+    /** Affine transformation. */
+    private BufferedImageOp         biop;
+    
+    /** Buffered image to filter. */
+    private BufferedImage           bimg;
+    
+    private BufferedImage           displayImage;
+    
+	/** The original bufferedImage to display. */	
+	private BufferedImage          image;
+    
+	/** Coordinates of the top-left corner of the canvas. */
+	private int                    x, y;
+    
 	/** Reference to the {@link Viewer view}. */
-	private ViewerUIF 			view;
+	private ViewerUIF 			  view;
 	
 	public ImageCanvas(ViewerUIF view)
 	{
 		this.view = view;
+        magFactor = 1.0;
 		setBackground(Viewer.BACKGROUND_COLOR); 
 		setDoubleBuffered(true);
 	}
  
+    public void resetMagFactor()
+    { 
+        magFactor = 1.0;
+        image = null;
+        displayImage = null;
+    }
+    
 	/** 
 	 * Paint the image. 
 	 * 
@@ -91,11 +129,74 @@ public class ImageCanvas
 	public void paintImage(BufferedImage image)
 	{
 		this.image = image;
-		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
-		repaint();
+        if (image != null) {
+            paintImage(magFactor, 
+                    (int) (image.getWidth()*magFactor)+2*ViewerUIF.START, 
+                    (int) (image.getHeight()*magFactor)+2*ViewerUIF.START);
+        }
 	} 
 	
+    /** 
+     * Create a bufferedImage with dataBufferByte as dataBuffer, 
+     * b/c of the implementation of the TIFFEncoder.
+     */
+    public BufferedImage getDisplayImage()
+    { 
+        //Now we only need to tell Java2D how to handle the RGB buffer. 
+        int sizeX = displayImage.getWidth();
+        int sizeY = displayImage.getHeight();
+        DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
+        DataBuffer dataBuf = displayImage.getRaster().getDataBuffer();
+        ColorModel cm = displayImage.getColorModel();
+        int v;
+        for (int y = 0; y < sizeY; ++y) {
+            for (int x = 0; x < sizeX; ++x) {
+                v = dataBuf.getElem(0, sizeX*y+x);
+                buffer.setElem(0, sizeX*y+x, cm.getRed(v));
+                buffer.setElem(1, sizeX*y+x, cm.getGreen(v));
+                buffer.setElem(2, sizeX*y+x, cm.getBlue(v));
+            } 
+        }  
+        ComponentColorModel ccm = new ComponentColorModel(
+                                    ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+                                    null, false, false, Transparency.OPAQUE, 
+                                    DataBuffer.TYPE_BYTE);
+        BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+                                    sizeX, sizeY, 3);
+        return new BufferedImage(ccm, 
+                Raster.createWritableRaster(csm, buffer, null), false, null);
+    }
+     
+    /** 
+     * Paint the zoomed image. 
+     * 
+     * @param level     zoom level, value between 
+     *                  {@link ImageInspectorManager#MIN_ZOOM_LEVEL} and
+     *                  {@link ImageInspectorManager#MAX_ZOOM_LEVEL}.
+     * @param w         width of the zoomed image.
+     * @param h         height of the zoomed image.
+     *  
+     */ 
+    public void paintImage(double level, int w, int h)
+    {
+        magFactor = level;
+        this.w = w;
+        this.h = h;
+        AffineTransform at = new AffineTransform();
+        at.scale(magFactor, magFactor);
+        bimg = new BufferedImage(image.getWidth(), image.getHeight(),
+                                BufferedImage.TYPE_INT_RGB);
+        RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
+        rop.filter(image, bimg);
+        biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        displayImage =  new BufferedImage((int) (image.getWidth()*magFactor), 
+                                    (int) (image.getHeight()*magFactor),
+                            BufferedImage.TYPE_INT_RGB);
+        Graphics2D big = displayImage.createGraphics();
+        big.drawImage(bimg, biop, 0, 0);
+        repaint();
+    } 
+    
 	/** Overrides the paintComponent. */
 	public void paint(Graphics g)
 	{
@@ -109,7 +210,8 @@ public class ImageCanvas
 							RenderingHints.VALUE_RENDER_QUALITY);
 
 		g2D.setColor(Color.black);
-		g2D.drawImage(image, null, x+ViewerUIF.START, y+ViewerUIF.START);
+        if (displayImage != null)
+            g2D.drawImage(displayImage, null, ViewerUIF.START, ViewerUIF.START);
 	}
 
 	/** Paint the XY-frame. */
@@ -118,8 +220,8 @@ public class ImageCanvas
 		FontMetrics fontMetrics = g2D.getFontMetrics();
 		int hFont = fontMetrics.getHeight()/4;
 		//x-axis
-		int x1 = ViewerUIF.START-ViewerUIF.ORIGIN+x;
-		int y1 = ViewerUIF.START-ViewerUIF.ORIGIN+y;
+		int x1 = ViewerUIF.START-ViewerUIF.ORIGIN;
+		int y1 = ViewerUIF.START-ViewerUIF.ORIGIN;
 		g2D.drawLine(x1, y1, x1+ViewerUIF.LENGTH, y1);
 		g2D.drawLine(x1-ViewerUIF.ARROW+ViewerUIF.LENGTH, y1-ViewerUIF.ARROW, 
 					x1+ViewerUIF.LENGTH, y1);
@@ -141,10 +243,11 @@ public class ImageCanvas
 	private void setLocation()
 	{
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
-		x = (int) (r.width-imageWidth)/2;
-		y = (int) (r.height-imageHeight)/2;
+		x = ((r.width-w)/2);
+		y = ((r.height-h)/2);
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
+        setBounds(x, y, w, h);
 	}
 	
 }

@@ -40,18 +40,17 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /**
  * Declares the operations to be used to access configuration entries and 
- * container's services.
+ * the services of the container.
  * <p>The objects corresponding to configuration entries are accessed through
  * the {@link #lookup(String) lookup)} method, passing in the content of the 
- * <i>name</i> attribute of the entry tag.  Container’s services are accessed
- * through the <code>getXXX</code> methods (with the exception of the rendering
- * service, which is accessed by means of the event bus).</p>
- * <p>A registry can also be used as a map for in-memory objects.  The 
+ * <i>name</i> attribute of the entry tag.  The services of the container are
+ * accessed through the <code>getXXX</code> methods (with the exception of 
+ * the rendering service, which is accessed by means of the event bus).</p>
+ * <p>A registry can also be used as a map for in-memory objects. The 
  * {@link #bind(String, Object) bind} method maps a name onto an arbitrary
  * object, which can then be retrieved by passing that name to the
  * {@link #lookup(String) lookup} method.</p>
@@ -69,12 +68,13 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  */
 public interface Registry
 {  
+	
 	/** 
 	 * Maps <code>name</code> onto <code>value<code>.
 	 * The object can then be retrieved by passing <code>name</code> to the
 	 * {@link #lookup(String) lookup} method.  
 	 * 
-	 * @param name	This entry's name.  If <code>null</code>, this method
+	 * @param name	This name of the entry. If <code>null</code>, this method
 	 * 				does nothing.		
 	 * @param value	The object to map onto <code>name</code>.
 	 */
@@ -124,13 +124,6 @@ public interface Registry
 	 * @return See above.
 	 */
 	public Logger getLogger();
-   	
-	/**
-	 * Returns a reference to the {@link TopFrame}.
-	 * 
-	 * @return See above.
-	 */
-	public TopFrame getTopFrame();
 	
 	/**
 	 * Returns a reference to the {@link TaskBar}.

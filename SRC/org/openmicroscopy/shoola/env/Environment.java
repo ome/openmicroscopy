@@ -53,7 +53,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
+ * @author <br>Jeff Mellen &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
+ * @version 2.2.1
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>

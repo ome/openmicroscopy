@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * big-endian integer into an integer value of appropriate integer value. 
  * <p>This class handles the conversion of  signed big-endian integers of 
  * <code>1, 2</code> and <code>4</code>-byte length (bytes are assumed to 
- * be <code>8</code>-bit long). Values are packed into an <code>Integer</code>.
+ * be <code>8</code>-bit long). Values are packed into a <code>double</code>.
  * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -61,7 +61,7 @@ public class IntBEConverter
 {
 	
 	/** Implemented as specified by {@link BytesConverter}. */
-	public Object pack(ReadOnlyByteArray data, int offset, int length)
+	public double pack(ReadOnlyByteArray data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;
 		for (int k = 0; k < length; ++k) {
@@ -87,7 +87,7 @@ public class IntBEConverter
 			paddingMask <<= 8;  
 		}
 		if (data.get(offset) < 0)   r |= paddingMask;  //Was negative, pad.
-		return new Integer(r);
+		return r;
 	}
     
 }

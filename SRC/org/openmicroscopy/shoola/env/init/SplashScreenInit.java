@@ -77,9 +77,6 @@ final class SplashScreenInit
 	/** The splash screen component. */
 	private SplashScreen	splashScreen;
 	
-	/** The current number of tasks that have been executed. */
-	private int				doneTasks;
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -90,7 +87,6 @@ final class SplashScreenInit
 	{
 		super(c);
 		this.initManager = initManager;
-		doneTasks = 0;
 	}
 
 	/** 
