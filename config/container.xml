@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<container>
+   <services>
+     <structuredEntry name="/services/OMEIS" type = "OMEIS">
+       <url>http://serverhost:8080/standalone/server</url>
+     </structuredEntry>
+     <structuredEntry name="/services/OMEDS" type = "OMEDS">
+       <url>http://runemaster.openmicroscopy.org.uk:8002/</url>
+     </structuredEntry>
+   </services>
+   <agents>
+     <structuredEntry name="/agents" type = "agents">
+       <agent>
+         <name>DataManager</name>
+         <!-- The class tag specifies the FQN of the agent's class. --> 
+         <class>org.openmicroscopy.shoola.agents.datamng.DataManager</class>
+         <!-- The config tag specifies the name of the agent's configuration file.
+         This file has to be placed in the config directory under the installation 
+         directory. -->
+         <config>dm.xml</config>
+       </agent>
+     </structuredEntry>
+   </agents>
+   <resources>
+     <iconFactories>
+       <!-- This entry can be used in agents' configuration files as well.
+       It is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/DefaultFactory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.env.ui.graphx</location>
+       </structuredEntry>
+     </iconFactories>
+     <fonts>
+       <!-- This entry can be used in agents' configuration files as well.
+       It is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+   </resources>
+</container>
