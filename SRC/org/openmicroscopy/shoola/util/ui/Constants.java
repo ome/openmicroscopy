@@ -104,6 +104,7 @@ public class Constants {
 	/** The standard background color for Piccolo Canvases */
 	public static final Color CANVAS_BACKGROUND_COLOR = new Color(227,227,227);
 	
+	public static final Color CANVAS_TIP_COLOR = new Color (80,80,80);
 	/** an alternative background */
 	public static final Color ALT_BACKGROUND_COLOR = new Color(215,215,215);
 	
@@ -234,6 +235,8 @@ public class Constants {
 	/** how much to move in or out when scaling chain palette */
 	public static final double LARGE_SCALE_FACTOR=1.6;
 	
+	/** how much to scale the tip  on the chain creation canvas */
+	public static final double CHAIN_CREATION_TIP_SCALE=0.7;
 	/** parameter label transparency */
 	public static final float MODULE_TRANSPARENT=0.5f;
 	public static final float MODULE_OPAQUE=1.0f;
