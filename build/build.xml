@@ -138,7 +138,7 @@
    * any of the imported child files.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="usage"
-          depends="app.usage,test.usage,dist.usage,docs.usage" 
+          depends="app.usage,test.usage,docs.usage,dist.usage" 
           description="List all available targets.">
     <echo level="info">
 Global targets:
