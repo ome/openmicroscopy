@@ -156,6 +156,15 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 	/** the data manager */
 	private ChainDataManager dataManager;
 	
+	/** number of items in current row */
+	private int count=0; 
+	
+	/** number of items to put in a row */
+	private int rowSize;
+	
+	/** max width of a row */
+	private float maxRowWidth = 0;
+	
 	public ChainPaletteCanvas(ChainDataManager dataManager) {
 		super();
 		this.dataManager = dataManager;
@@ -207,6 +216,7 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		// the current chain
 		
 		LayoutChainData chain;
+		float maxRowWidth=0;
 		
 		Collection chains = dataManager.getChains();
 		ArrayList sortedChains = new ArrayList(chains);
@@ -217,42 +227,72 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		// The display should be roughly square, 
 		// in terms of the number of rows vs. # of columns
-		int rowSize = (int) Math.floor(Math.sqrt(num));
+		rowSize = (int) Math.floor(Math.sqrt(num));
 		
-		int count=0;
+		count=0;
 		// draw each of them.
 		while (iter.hasNext()) {
 			chain = (LayoutChainData) iter.next();
-			drawChain(chain);
-			count++;
-			if (count == rowSize) {
-				// move on to next row.
-				count = 0;
-				x = 0;
-				y+= rowHeight;
-				rowHeight = 0;
+
+			ChainBox box = buildChain(chain);
+			if (box != null)  {
+				placeChain(box);
 			}
-		} 	
+		}
+	}
+	
+	private void placeChain(ChainBox box) {
+			
+		float height = 0;
+		
+		double width = box.getWidth();
+		height = (float) box.getHeight();
+ 
+		//	setup the chain widget
+		
+		// set the row height if this is taller than others in the row.
+		if (height+VGAP>rowHeight)
+			rowHeight = height;
+		
+		if (count >= rowSize && (x+width > maxRowWidth)) {
+			// move on to next row.
+			count = 0;
+			if (x > maxRowWidth)
+				maxRowWidth = x;
+			x = 0;
+			y+= rowHeight;
+			rowHeight = 0;
+		}
+		box.setOffset(x,y);
+		x+=box.getWidth();
+		count++;
 	}
 	
 	
+	private ChainBox buildChain(LayoutChainData chain) {
+		if (chain.getNodes().size() == 0) 
+			return null;
+		ChainBox box = new ChainBox(chain,dataManager.getRegistry());
+		layer.addChild(box);
+		box.moveToBack();
+		return box;
+
+	}
 	/**
 	 * Draw a chain on the canvas. The chain is drawn at the current values
 	 * of x and y.
 	 * @param chain
-	 */
+	 *
 	public  void drawChain(LayoutChainData chain) {
 		
-		
+	
 		float height = 0;
 		
-		if (chain.getNodes().size() == 0) 
+		ChainBox box = buildChain(chain);
+		if (box == null)
 			return;
-		ChainBox box = new ChainBox(chain,dataManager.getRegistry());
-		layer.addChild(box);
-		box.moveToBack();
+		
 		box.setOffset(x,y);
-
 		//	setup the chain widget
 		
 		height = (float) box.getHeight();
@@ -262,12 +302,15 @@ public class ChainPaletteCanvas extends PCanvas implements BufferedObject,
 		
 		//advance the horizontal position
 		x+= box.getWidth();
-	}
+	}*/
 	
 	
 	public void displayNewChain(LayoutChainData chain) {
-		drawChain(chain);
-		scaleToSize();
+		ChainBox box = buildChain(chain);
+		if (box != null)  {
+			placeChain(box);
+			scaleToSize();
+		}
 	}
 
 	public void completeInitialization() {
