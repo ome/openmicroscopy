@@ -98,7 +98,6 @@ public class SemanticZoomNode extends PImage
      */
     public void respondMouseExit(PInputEvent e)
     {
-        System.err.println("exited");
         getParent().removeChild(this);
     }
     

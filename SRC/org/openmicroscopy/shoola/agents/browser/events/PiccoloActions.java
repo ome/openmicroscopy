@@ -42,6 +42,7 @@ import java.awt.geom.Point2D;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
@@ -94,7 +95,20 @@ public interface PiccoloActions
                 
                 semanticNode.setOffset(viewPoint.getX()-size.getWidth()/2,
                                        viewPoint.getY()-size.getHeight()/2);
-                e.getCamera().addChild(semanticNode);
+                
+                // invariant: should be one per (hopefully)
+                PCamera camera = e.getCamera();
+                for(int i=0; i<camera.getChildrenCount();i++)
+                {
+                    Object child = camera.getChild(i);
+                    if(child instanceof SemanticZoomNode)
+                    {
+                        camera.removeChild((SemanticZoomNode)child);
+                        i = camera.getChildrenCount();
+                    }
+                }
+                
+                camera.addChild(0,semanticNode);
             }
         }
     };
