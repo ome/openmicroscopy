@@ -76,6 +76,10 @@ public class ImageServerPixelsService
      */
     protected Map imageServers;
 
+    // This is only to prevent compile-time errors.  This should be
+    // retrieved from the RemoteCaller via the getSessionKey() method.
+    protected String sessionKey;
+
     /**
      * Retrieves or creates an {@link ImageServer} object for
      * retrieving pixels for the given Repository attribute.
@@ -88,7 +92,8 @@ public class ImageServerPixelsService
 
         if (is == null)
         {
-            is = ImageServer.getHTTPImageServer(rep.getImageServerURL());
+            is = ImageServer.getHTTPImageServer(rep.getImageServerURL(),
+                                                sessionKey);
             imageServers.put(id,is);
         }
 
