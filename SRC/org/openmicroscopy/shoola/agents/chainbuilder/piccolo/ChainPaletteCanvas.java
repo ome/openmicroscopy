@@ -456,7 +456,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	
 	
 	public void scaleToSize() {
-		System.err.println("clling chin palette canvas scaleToSize");
 		PActivity act = handler.animateToCanvasBounds();
 		act.setDelegate(new PActivityDelegate() {
 			public void activityStarted(PActivity activity) {
@@ -471,7 +470,6 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 	}
 	
 	public void updateOverview() {
-		System.err.println("calling overview canvas in palette canvas..");
 		if (overviewCanvas != null) {
 			overviewCanvas.updateOverview(getCamera().getViewBounds());
 		}
