@@ -29,7 +29,8 @@
 
 package org.openmicroscopy.shoola.env.config;
 
-/** Creates an Object which contains the informations on the font
+/** 
+ * Creates an Object which contains the informations on the font
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -50,7 +51,8 @@ class FontInfo
     Integer             	size;
      
 
-	/** Set the pair (name, value)
+	/** 
+	 * Set the pair (name, value)
 	 * 
 	 * @param value		tag's value
 	 * @param tag		tag's name
@@ -63,7 +65,8 @@ class FontInfo
             else if (tag.equals(STYLE)) style = value;
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
-	/** return the value of the <code>family</code>
+	/** 
+	 * Return the value of the <code>family</code>
 	 *
 	 * @return String
 	 */
@@ -71,7 +74,8 @@ class FontInfo
     {
         return family;
     }
-	/**  return the value of the <code>size</code>
+	/** 
+	 * Return the value of the <code>size</code>
 	 *
 	 * @return Integer
 	 */
@@ -79,7 +83,8 @@ class FontInfo
     {
         return size;
     }
-	/** return the value of the <code>style</code> 
+	/** 
+	 * Return the value of the <code>style</code> 
 	 *
 	 * @return String
 	 */

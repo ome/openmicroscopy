@@ -58,12 +58,14 @@ public class TopFrameImpl
     implements TopFrame, ActionListener
 {
         
-	/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
+	/** 
+	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
 	 * method to position a component on the bottommost layer of the application 
 	 * internal desktop.
 	 */
     public static int       DEFAULT_LAYER = 0;
-	/** To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
+	/** 
+	 * To be used with the {@link #addToDesktop(Component, int) addToDesktop} 
 	 * method to position a component on the palette layer of the application 
 	 * internal desktop.
 	 * The palette layer sits over the default layer. Useful for floating 
@@ -93,23 +95,20 @@ public class TopFrameImpl
         desktop = new JDesktopPane();
     }
     
-	/** Implemented as specified by {@link UserNotifier}.
-	 */     
+	/** Implemented as specified by {@link TopFrame}. */     
     public void addToDesktop(Component c, int position)
     {
         desktop.add(c, new Integer(position));
     }
     
-	/** Implemented as specified by {@link UserNotifier}.
-	 */ 
+	/** Implemented as specified by {@link TopFrame}.*/ 
     public void removeFromDesktop(Component c)
     {
         desktop.remove(c);
         c.setVisible(false);
     }
     
-	/** Implemented as specified by {@link UserNotifier}.
-	 */ 
+	/** Implemented as specified by {@link TopFrame}.*/ 
     public void addToMenu(int menuType, JMenuItem menuItem)
     {
         JMenu menu = retrieveMenu(menuType);
@@ -117,15 +116,15 @@ public class TopFrameImpl
         else menu.add(menuItem);
     }
     
-	/** Implemented as specified by {@linkUserNotifier}.
-	 */ 
+	/** Implemented as specified by {@link TopFrame}. */ 
     public void removeFromMenu(int menuType, JMenuItem item)
     {
         JMenu menu = retrieveMenu(menuType);
         menu.remove(item);
     }
     
-	/** handles the event EXIT fired by the fileMenu
+	/** 
+	 * Handles the <code>EXIT<code> event fired by the fileMenu
 	 * 
 	 * Required by the ActionListener interface 
 	 */ 
@@ -147,7 +146,8 @@ public class TopFrameImpl
     public void open() {
     }
     
-	/** Add the specified menuItem to the container at the position n-1 
+	/** 
+	* Add the specified menuItem to the container at the position n-1 
 	* 
 	* @param menuItem       menuItem to add
 	*/
@@ -183,7 +183,8 @@ public class TopFrameImpl
         fileMenu.add(menuItem);
     }
 
-	/** retrieves the specified menu 
+	/** 
+	* Retrieves the specified menu 
 	* 
 	* @param  int  menuType
 	* @return the above mentioned 

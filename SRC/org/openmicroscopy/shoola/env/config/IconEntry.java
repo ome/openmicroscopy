@@ -59,8 +59,7 @@ class IconEntry
     {
     }
     
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
@@ -80,8 +79,8 @@ class IconEntry
 	 * Implemented as specified by {@link Entry}.
 	 * Builds and return an Icon Object
 	 *
-	 * @return  An object implementing {@link javax.swing.Icon Icon} or <
-	 *          code>null</code> if the path was invalid.
+	 * @return  An object implementing {@link javax.swing.Icon Icon} or
+	 *          <code>null</code> if the path was invalid.
 	 */  
     Object getValue()
     {

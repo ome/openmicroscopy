@@ -49,16 +49,17 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public interface Agent 
 {
 
-	/** Container tells agent to get ready for service */
+	/** Container tells agent to get ready for service. */
     public void activate();
-	/* Container tells agent to release acquired resources and stop service.*/
+	/** Container tells agent to release acquired resources and stop service. */
     public void terminate();
-	/** Container create a Registry  from entries in agent's configuration 
+	/** 
+	 * Container create a Registry  from entries in agent's configuration 
 	 * file and add entries for services that can be accessed by agent. 
 	 * It then passes  this to setContext
 	 */
     public void setContext(Registry ctx);
-	/** Container tells agent to release acquired resources and stop service.*/
+	/** Container tells agent to release acquired resources and stop service. */
     public boolean canTerminate();
     
 }

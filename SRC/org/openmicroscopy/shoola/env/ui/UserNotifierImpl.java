@@ -32,8 +32,9 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.JOptionPane;
 
-/** Acts as a centralized place where errors are collected and then notified
- *  to the user. 
+/** 
+ * Acts as a centralized place where errors are collected and then notified
+ * to the user. 
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -64,8 +65,7 @@ public class UserNotifierImpl
     // TODO: to be modified. Display message using a JDialog:
     // will implement code soon
     
-	/** Implemented as specified by {@link UserNotifier}.
-	 */       
+	/** Implemented as specified by {@link UserNotifier}. */       
     public void notifyError(String title, String summary, Exception detail)
     {
         if (title==null || title.length()==0)
@@ -83,14 +83,12 @@ public class UserNotifierImpl
         JOptionPane.showMessageDialog(topFrame, buf.toString(), title, 
                                                     JOptionPane.ERROR_MESSAGE);
     }
-	/** Implemented as specified by {@link UserNotifier}.
-	 */     
+	/** Implemented as specified by {@link UserNotifier}. */     
     public void notifyError(String title, String summary)
     {
         notifyError(title, summary, null);
     }
-	/** Implemented as specified by {@link UserNotifier}.
-	 */ 
+	/** Implemented as specified by {@link UserNotifier}. */ 
     public void notifyInfo(String title, String message)
     {  
         if (title==null || title.length()==0)
@@ -104,8 +102,7 @@ public class UserNotifierImpl
                                         JOptionPane.INFORMATION_MESSAGE);
     }
     
-	/** Implemented as specified by {@link UserNotifier}.
-	 */ 
+	/** Implemented as specified by {@link UserNotifier}. */ 
     public void notifyWarning(String title, String message)
     {
         if (title==null || title.length()==0)

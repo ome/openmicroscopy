@@ -57,8 +57,7 @@ class OMEISEntry
     OMEISEntry()
     {
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
@@ -77,8 +76,7 @@ class OMEISEntry
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return value; 

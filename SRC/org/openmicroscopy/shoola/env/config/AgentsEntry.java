@@ -59,8 +59,7 @@ class AgentsEntry
     {
     }
 
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
@@ -78,14 +77,14 @@ class AgentsEntry
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
    
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/**  Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return listAgents; 
     }
     
-	/** parse the Agent node
+	/** 
+	* parse the Agent node
 	*
 	* @param node      agent node
 	*/    

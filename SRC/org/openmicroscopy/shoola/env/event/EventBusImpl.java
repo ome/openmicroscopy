@@ -36,8 +36,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 
-/** Implements the<code>EventBus</code> interface and is the pumping heart
- * or the event propagation system. It maintains a de-multiplex table to 
+/** 
+ * Implements the<code>EventBus</code> interface.
+ * It is the pumping heart or the event propagation system. 
+ * It maintains a de-multiplex table to 
  * keep track of what events have to be dispatched to which subscribers
  *
  *
@@ -60,15 +62,16 @@ public class EventBusImpl
     private int                 state;
     private static final int    IDLE = 0, DISPATCHING = 1;   
     
-	/** Creates a new instance of EventBusImpl */
+	/** 
+	 * Creates a new instance of EventBusImpl
+	 */
     public EventBusImpl()
     {
         eventQueue = new LinkedList();
         deMultiplexTable = new HashMap();
         state = IDLE;
     }    
-	/** Implemented as specified by {@link EventBus}.
-	 */    
+	/** Implemented as specified by {@link EventBus}. */    
     public void register(AgentEventListener  subscriber, Class[] events)
     {
         for (int j=0; j<events.length; ++j) {
@@ -90,8 +93,7 @@ public class EventBusImpl
         }
     }
     
-	/** Implemented as specified by {@link EventBus}.
-	 */    
+	/** Implemented as specified by {@link EventBus}. */    
     public void register(AgentEventListener  subscriber, Class event)
     {
         if (verifyInheritance(event)) { // check inheritance
@@ -109,8 +111,7 @@ public class EventBusImpl
             deMultiplexTable.put(event, list);
         }     
     }    
-	/** Implemented as specified by {@link EventBus}.
-	 */    
+	/** Implemented as specified by {@link EventBus}. */    
     public void remove(AgentEventListener  subscriber, Class[] events)
     {
         for (int j=0; j<events.length; ++j) {
@@ -127,8 +128,7 @@ public class EventBusImpl
             }     
         }   
     }
-	/** Implemented as specified by {@linkEventBus}.
-	 */ 
+	/** Implemented as specified by {@link EventBus}. */ 
     public void remove(AgentEventListener  subscriber, Class event)
     {
         if (verifyInheritance(event)) { // check inheritance
@@ -143,8 +143,7 @@ public class EventBusImpl
         }     
     }
     
-	/** Implemented as specified by {@linkEventBus}.
-	 */ 
+	/** Implemented as specified by {@link EventBus}.*/ 
     public void remove(AgentEventListener  subscriber)
     {
         Iterator   e = deMultiplexTable.keySet().iterator();
@@ -162,8 +161,7 @@ public class EventBusImpl
             } 
         }
     }    
-	/** Implemented as specified by {@link EventBus}.
-	 */  
+	/** Implemented as specified by {@link EventBus}. */  
     public void post(AgentEvent e)
     {
         switch (state) {
@@ -194,7 +192,8 @@ public class EventBusImpl
         }   
     }
     
-	/** verify the inheritance of the class i.e. if the class inherits 
+	/** 
+	 * Verify the inheritance of the class i.e. if the class inherits 
 	 * from AgentEvent class
 	 *
 	 * @param eventClass      class 

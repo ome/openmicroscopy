@@ -59,8 +59,7 @@ class FontEntry
     {
     }
     
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node) { 
         try {
             //the node is supposed to have tags as children, add control
@@ -77,8 +76,7 @@ class FontEntry
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return value; 

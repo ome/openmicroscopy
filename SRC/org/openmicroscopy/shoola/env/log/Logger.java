@@ -31,7 +31,8 @@
 package org.openmicroscopy.shoola.env.log;
 
 
-/** Defines the operations available to any external class
+/** 
+ * Defines the operations available to any external class
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

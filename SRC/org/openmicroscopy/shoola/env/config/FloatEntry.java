@@ -52,8 +52,7 @@ class FloatEntry
     FloatEntry()
     {
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
@@ -61,8 +60,7 @@ class FloatEntry
             value = new Float(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return value; 

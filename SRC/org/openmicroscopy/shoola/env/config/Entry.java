@@ -36,7 +36,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-/** Sits at the base of a hierarchy of classes that represent entries in 
+/** 
+ * Sits at the base of a hierarchy of classes that represent entries in 
  * configuration file.
  * It represents a name-value pair, where the name is the content of 
  * the <code>name</code> attribute.
@@ -83,7 +84,8 @@ abstract class Entry
     }
     private String      name;
     
-	/** For a given entry or structuredEntry tag, creates a concrete 
+	/** 
+	 * For a given entry or structuredEntry tag, creates a concrete 
 	 * <code>Entry</code> object to handle the conversion of the tag's content 
 	 * into an object
 	 *
@@ -113,7 +115,8 @@ abstract class Entry
         return entry;
     }
     
-	/** retrieves the value of the attributes name and type and initializes
+	/** 
+	 * Retrieves the value of the attributes name and type and initializes
 	 *
 	 * @param n    DOM node
 	 * @return NameTypePair
@@ -134,7 +137,8 @@ abstract class Entry
         return ntp;
     }
     
-	/** returns the content of the <code>name</code> attribute 
+	/** 
+	 * Returns the content of the <code>name</code> attribute 
 	 * of a configuration entry
 	 *
 	 * @return String   the content of the <code>name</code> attribute

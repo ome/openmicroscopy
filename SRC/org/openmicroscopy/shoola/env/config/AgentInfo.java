@@ -58,7 +58,11 @@ class AgentInfo
 	/** The value of the <code>config</code> tag. */
 	private String				configPath;
 	
-    
+	/** Set the pair (name, value)
+	* 
+	* @param value		tag's value
+	* @param tag		tag's name
+	*/
     void setValue(String value, String tag)
     {
         try {

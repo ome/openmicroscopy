@@ -40,7 +40,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** In charge of parsing a configuration file, extracting entries 
+/**
+ * In charge of parsing a configuration file.
+ * Extracting entries 
  * (<code>entry</code> and <code>structuredEntry</code> tags) obtaining 
  * a <code>Entry</code> object to represent each of those entries, adding 
  * the object to a given <code>RegistryImpl</code> object.
@@ -70,7 +72,8 @@ class Parser
         "entry",
         "structuredEntry",
     };
-	/** creates an instance of Parser with one parameter
+	/** 
+	 * Creates an instance of Parser with one parameter
 	 *
 	 * @param configFile     configuration file (XML file)
 	 * @param registry      registryImpl         
@@ -81,8 +84,9 @@ class Parser
         this.registry = registry;
     }
     
-	/** creates an instance of Parser with two parameters
-	 *  not useful now b/c no XMLSchema for configFile available
+	/** 
+	 * Creates an instance of Parser with two parameters
+	 * not useful now b/c no XMLSchema for configFile available
 	 *
 	 * @param  configFile                   configuration file (XML file)
 	 * @param configFileXMLSchema   XML schema linked to XML configuration file
@@ -96,7 +100,8 @@ class Parser
         validating = true;
     }
     
-	/** Parse the XML configuration file and build a DOM tree 
+	/** 
+	 * Parse the XML configuration file and build a DOM tree 
 	 * 
 	 */
     void parse()
@@ -124,7 +129,8 @@ class Parser
         }   
     }
     
-	/** retrieves the content of the  entry and structuredEntry tags.
+	/** 
+	 * Retrieves the content of the  entry and structuredEntry tags.
 	 * Stores the DOM representation i.e. DOM node into an arrayList
 	 */
     private void readConfigEntries()
@@ -139,7 +145,8 @@ class Parser
             }
         }
     }
-	/** validate against the config schema not yet implemented
+	/**
+	 * Validate against the config schema not yet implemented
 	 */
     private void validate()
     {

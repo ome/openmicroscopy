@@ -32,7 +32,8 @@ package org.openmicroscopy.shoola.env.log;
 // Third-party libraries
 import org.apache.log4j.Category;
 
-/** It is an adapter that makes use of the Log4j library to implement the 
+/** 
+ * It is an adapter that makes use of the Log4j library to implement the 
  * operations defined by the interface <code>Logger</code>. 
  * Its methods transform the orginal call to a suitable call for Log4j.
  * 
@@ -54,8 +55,7 @@ public class LoggerImpl
     // TODO: configure log4j
     public LoggerImpl() {}
     
-	/** Implemented as specified by {@link Logger}.
-	 */     
+	/** Implemented as specified by {@link Logger}. */     
     public void debug(Object c, String logMsg)
     {
         Category category = null;
@@ -64,8 +64,7 @@ public class LoggerImpl
         category.debug(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}.
-	 */ 
+	/** Implemented as specified by {@link Logger}. */ 
     public void error(Object c, String logMsg)
     {
         Category category = null;
@@ -74,8 +73,7 @@ public class LoggerImpl
         category.error(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}.
-	 */ 
+	/** Implemented as specified by {@link Logger}.*/ 
     public void fatal(Object c, String logMsg)
     {
         Category category = null;
@@ -84,8 +82,7 @@ public class LoggerImpl
         category.fatal(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}.
-	 */ 
+	/** Implemented as specified by {@link Logger}. */ 
     public void info(Object c, String logMsg)
     {
         Category category = null;
@@ -94,8 +91,7 @@ public class LoggerImpl
         category.info(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}.
-	 */ 
+	/** Implemented as specified by {@link Logger}. */ 
     public void warn(Object c, String logMsg)
     {
         Category category = null;

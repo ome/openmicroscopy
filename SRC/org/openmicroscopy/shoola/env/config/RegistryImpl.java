@@ -32,7 +32,8 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 import java.util.HashMap;
 
-/** Implements the <code>Registry</code> interface. It maintains a map of
+/** Implements the <code>Registry</code> interface. 
+ * It maintains a map of
  * <code>Entry</code> objects which are keyed by their <code>name</code> 
  * attribute and represent entries in configuration file.
  * It also maintains references to the container's services into member fields,
@@ -65,42 +66,35 @@ class RegistryImpl
     {
         entriesMap = new HashMap();
     }
-/* add a new entry in the map
- * 
- * @param e new Entry
- */
+	/** 
+	 * Add a new entry in the map
+	 * 
+	 * @param e new Entry
+	 */
     void addEntry(Entry e)
     {
         entriesMap.put(e.getName(), e);
     }
     
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
     public Object lookup(String name)
     {
         Entry entry = (Entry) entriesMap.get(name);
         return entry.getValue();
     }
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
     //public EventBus getEventBus();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public DataManagementService getDataManagementService();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public SemanticTypesService getSemanticTypesServices();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public PixelsService getPixelsServices();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public LogService getLogService();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public TopFrame getTopFrame();
-/** Implemented as specified by {@link Registry}.
- */
+	/** Implemented as specified by {@link Registry}. */
    //public UserNotifier getUserNotifier();
     
     

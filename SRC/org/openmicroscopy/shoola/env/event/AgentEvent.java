@@ -29,7 +29,8 @@
 
 package org.openmicroscopy.shoola.env.event;
 
-/** Ancestor of all classes that represent events
+/** 
+ * Ancestor of all classes that represent events
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

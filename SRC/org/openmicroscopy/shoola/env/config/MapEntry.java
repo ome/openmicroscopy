@@ -58,8 +58,7 @@ class MapEntry
     {
     }
     
-	/** Implemented as specified by {@link Entry}.
-	 */    
+	/** Implemented as specified by {@link Entry}. */    
     protected void setContent(Node node)
     { 
         tagsValues = new HashMap();
@@ -76,8 +75,7 @@ class MapEntry
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
     
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return tagsValues; 

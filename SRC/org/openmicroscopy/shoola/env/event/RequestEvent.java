@@ -29,7 +29,8 @@
 
 package org.openmicroscopy.shoola.env.event;
 
-/** Generic to type to represent a request to execute an asynchronous operation.
+/** 
+ * Generic to type to represent a request to execute an asynchronous operation.
  * A concrete subclass encapsulates the actual request.
  * Every <code>RequestEvent</code> object is linked to the processing action 
  * that has to be dispatched upon completion of the asynchronous operation.

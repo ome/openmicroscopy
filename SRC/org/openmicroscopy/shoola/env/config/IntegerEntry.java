@@ -53,8 +53,7 @@ class IntegerEntry
     {
     }
     
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     protected void setContent(Node node)
     { 
         try {
@@ -62,8 +61,7 @@ class IntegerEntry
             value = new Integer(child.getNodeValue());
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
-	/** Implemented as specified by {@link Entry}.
-	 */  
+	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
         return value; 

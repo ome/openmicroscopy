@@ -29,7 +29,8 @@
 
 package org.openmicroscopy.shoola.env.event;
 
-/** Defines how client classes access the event bus service
+/** 
+ * Defines how client classes access the event bus service
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -46,7 +47,8 @@ public interface EventBus
 {
     
 
-	/** Add the subscriber to the List
+	/** 
+	 * Add the subscriber to the List
 	 * An agent uses the register method in order to be notified  
 	 * of occuremces of the specified event types
 	 *
@@ -55,7 +57,8 @@ public interface EventBus
 	 */     
     public void register(AgentEventListener  subscriber, Class[] events);
 
-	/** Add the subscriber to the List
+	/** 
+	 * Add the subscriber to the List
 	 * An agent uses the register method in order to be notified  
 	 * of occuremces of the specified event types
 	 *
@@ -64,29 +67,33 @@ public interface EventBus
 	 */     
     public void register(AgentEventListener  subscriber, Class event);
 
-	/** Remove the subscriber to the List
+	/** 
+	 * Remove the subscriber to the List
 	 *
 	 * @param subscriber	AgentListener objet to remove
 	 * @param events		list of classes 
 	 */    
     public void remove(AgentEventListener  subscriber);
     
-	/** Remove the subscriber to the List
+	/** 
+	 * Remove the subscriber to the List
 	 *
 	 * @param subscriber     AgentListener objet to remove
 	 * @param event          a class
 	 */     
     public void remove(AgentEventListener  subscriber, Class event);
     
-	/** Remove the subscriber to the List
+	/** 
+	 * Remove the subscriber to the List
 	 *
 	 * @param subscriber	AgentListener objet to remove
 	 * @param events		list of classes 
 	 */     
     public void remove(AgentEventListener  subscriber, Class[] events);
     
-	/** manages the event  i.e. fires an event and puts it on the EventBus 
-	 * so that it can be delivered to all subscribers that registered  in 
+	/** 
+	 * Manages the event i.e. fires an event and puts it on the EventBus. 
+	 * The event can be delivered to all subscribers that registered  in 
 	 * that type of event.
 	 * 
 	 * @param e  AgentEvent to post
