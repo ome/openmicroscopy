@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
@@ -331,7 +332,6 @@ class RenderingManager
         return renderer.render(pd);
     }
     
-    
     /**
      * Creates a proxy to access the rendering environment.
      * 
@@ -355,6 +355,16 @@ class RenderingManager
     void onRenderingPropChange()
     {
         clearCache();
+    }
+    
+    DataSink getDataSink()
+    {
+        return renderer.getDataSink();
+    }
+    
+    PixelsDimensions getPixelsDimensions()
+    {
+        return renderer.getPixelsDims();
     }
     
 }
