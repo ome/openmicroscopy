@@ -68,15 +68,14 @@ public class PixelsServiceAdapter
     private Registry registry;
     private PixelsFactory pixelsFactory;
     
-    public PixelsServiceAdapter(DataFactory factory, Registry registry)
+    public PixelsServiceAdapter(DataFactory factory)
         throws IllegalArgumentException
     {
-        if(factory == null || registry == null)
+        if(factory == null)
         {
             throw new IllegalArgumentException("Null parameters");
         }
         this.factory = factory;
-        this.registry = registry;
         this.pixelsFactory = new PixelsFactory(factory);
     }
     
