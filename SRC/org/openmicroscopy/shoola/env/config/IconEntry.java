@@ -1,6 +1,9 @@
 package org.openmicroscopy.shoola.env.config;
 
 // Java imports 
+import java.net.URL;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,10 +39,21 @@ class IconEntry extends Entry {
             }  
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
-/** Implemented as specified by {@linkEntry}.
+/** 
+ * Implemented as specified by {@linkEntry}.
+ * Builds and return an Icon Object
+ * @return  An object implementing {@link javax.swing.Icon Icon} or <code>null</code> if the path 
+ *                  was invalid.
  */  
     Object getValue() {
-        return value; 
+        URL     location = IconEntry.class.getResource(value);
+        if ( location != null ) {
+            return new ImageIcon(location);
+        } else {
+            //TODO  errorMsg via logService
+            System.err.println("Couldn't find file: "+value);
+            return null;
+        } 
     }
     
     
