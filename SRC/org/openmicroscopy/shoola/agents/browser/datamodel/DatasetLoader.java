@@ -149,7 +149,7 @@ public class DatasetLoader
         {
             ProgressListener listener = (ProgressListener)iter.next();
             listener.processAdvanced("Image metadata loaded.");
-            listener.processSucceeded();
+            listener.processSucceeded("Dataset loaded.");
         }
     }
 }

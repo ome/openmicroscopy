@@ -124,7 +124,7 @@ public class BrowserController
     	if(model != null)
     	{
     		List keyList = model.getImageKeys();
-			browserView.processStarted(keyList.size());
+			statusView.processStarted(keyList.size());
 			ThumbnailDataLoader dataLoader = ThumbnailDataLoader.getInstance();
 			ThumbnailImageLoader imageLoader = ThumbnailImageLoader.getInstance();
 
@@ -138,9 +138,9 @@ public class BrowserController
 				Image image = imageLoader.getImage(data,null);
 				Thumbnail t = new Thumbnail(image,tdm);
 				browserModel.addThumbnail(t);
-				browserView.processAdvanced("Loaded image "+String.valueOf(ID));
+				statusView.processAdvanced("Loaded image "+String.valueOf(ID));
 			}
-			browserView.processFailed("I dunno... did you break it?");
+			statusView.processFailed("I dunno... did you break it?");
     	}
     	
     }

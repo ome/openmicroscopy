@@ -49,6 +49,8 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.BrowserModelListener;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
 
 /**
@@ -62,7 +64,8 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  * @since OME2.2
  */
 public final class StatusBar extends JPanel
-                             implements BrowserModelListener
+                             implements BrowserModelListener,
+                                        ProgressListener
 {
     private JLabel leftLabel;
     private JLabel rightLabel;
@@ -82,6 +85,10 @@ public final class StatusBar extends JPanel
     private final Color defaultColor = Color.black;
     private final Color modeChangeColor = Color.blue;
     private final Font modeChangeFont = new Font(null,Font.BOLD,12);
+    
+    // progress listener variables
+    private int totalPieces;
+    private int piecesCompleted;
     
     /**
      * Creates a StatusBar.
@@ -302,6 +309,65 @@ public final class StatusBar extends JPanel
         temporaryTimer.cancel();
         temporaryTimer = new Timer();
         temporaryTimer.schedule(revertTask,3000);
+    }
+    
+    /**
+     * Indicates to the user that an iterative, potentially time-consuming
+     * process has started.
+     * 
+     * @param piecesOfData The number of steps in the process about to start.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processStarted(int)
+     */
+    public void processStarted(int piecesOfData)
+    {
+        // error state...
+        if(piecesOfData < 1)
+        {
+            return;
+        }
+        else
+        {
+            setLeftColor(Color.black);
+            piecesCompleted = 0;
+            totalPieces = piecesOfData;
+        }
+    }
+    
+    /**
+     * Indicates to the user that a process has advanced a step.
+     * 
+     * @param info The message to display.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processAdvanced(java.lang.String)
+     */
+    public void processAdvanced(String info)
+    {
+        piecesCompleted++;
+        String formatted =
+            ProgressMessageFormatter.format(info,piecesCompleted,totalPieces);
+        
+        setLeftText(info);
+    }
+
+    /**
+     * Display that the process has failed for some reason.
+     * 
+     * @param The displayed reason why a process failed.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processFailed(java.lang.String)
+     */
+    public void processFailed(String reason)
+    {
+        // TODO: launch User notifier?
+        setLeftColor(Color.red);
+        setLeftText("FAIL: "+reason);
+    }
+    
+    /**
+     * Display that a process has succeeded.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processSucceeded()
+     */
+    public void processSucceeded(String successMessage)
+    {
+        setLeftText(successMessage);
     }
 
     

@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.BrowserModelListener;
 import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
 import org.openmicroscopy.shoola.agents.browser.MessageHandler;
-import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragActions;
@@ -92,7 +91,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * @since OME2.2
  */
 public class BrowserView extends PCanvas
-                         implements BrowserModelListener, ProgressListener
+                         implements BrowserModelListener
 {
     // The backing browser model.
     private BrowserModel browserModel;
@@ -505,50 +504,6 @@ public class BrowserView extends PCanvas
             Thumbnail t = (Thumbnail)iter.next();
             t.setMouseOverActions(actions);
         }
-    }
-    
-    /**
-     * Indicates to the user that an iterative, potentially time-consuming
-     * process has started.
-     * 
-     * @param piecesOfData The number of steps in the process about to start.
-     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processStarted(int)
-     */
-    public void processStarted(int piecesOfData)
-    {
-        // bring up process view window?
-        // TODO: make BProgressIndicator
-    }
-    
-    /**
-     * Indicates to the user that a process has advanced a step.
-     * 
-     * @param info The message to display.
-     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processAdvanced(java.lang.String)
-     */
-    public void processAdvanced(String info)
-    {
-        // TODO: advance BProgressIndicator, show message
-    }
-
-    /**
-     * Display that the process has failed for some reason.
-     * 
-     * @param The displayed reason why a process failed.
-     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processFailed(java.lang.String)
-     */
-    public void processFailed(String reason)
-    {
-        // TODO: close BProgressIndicator, launch User notifier?
-    }
-    
-    /**
-     * Display that a process has succeeded.
-     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processSucceeded()
-     */
-    public void processSucceeded()
-    {
-        // TODO: close BProgressIndicator, nothing more (success implicit)
     }
     
     public void paintComponent(Graphics g)

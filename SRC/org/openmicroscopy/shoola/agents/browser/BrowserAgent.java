@@ -35,6 +35,9 @@
  */
 package org.openmicroscopy.shoola.agents.browser;
 
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserInternalFrame;
+import org.openmicroscopy.shoola.agents.browser.ui.BrowserView;
+import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -156,7 +159,18 @@ public class BrowserAgent implements Agent, AgentEventListener
     // images.
     private boolean loadDataset(DatasetData datasetModel)
     {
-        // TODO fill in this mother
+        BrowserModel model = new BrowserModel();
+        BrowserTopModel topModel = new BrowserTopModel();
+        BrowserView view = new BrowserView(model,topModel);
+        BrowserController controller = new BrowserController(model,view);
+        controller.setStatusView(new StatusBar());
+        
+        env.getBrowserManager().addBrowser(controller);
+        BrowserInternalFrame bif = new BrowserInternalFrame(controller);
+        
+        tf.addToDesktop(bif,TopFrame.DEFAULT_LAYER);
+        
+        
         return true;
     }
 
