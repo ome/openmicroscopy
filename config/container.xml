@@ -2,10 +2,10 @@
 <container>
    <services>
      <structuredEntry name="/services/OMEIS" type = "OMEIS">
-       <url>http://valewalker.openmicroscopy.org.uk/cgi-bin/omeis</url>
+       <url>http://somehost/however/not/needed/right/now</url>
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-       <url>http://valewalker.openmicroscopy.org.uk:8002/</url>
+       <url>http://valewalker.openmicroscopy.org.uk/remote</url>
      </structuredEntry>
    </services>
    <agents>
