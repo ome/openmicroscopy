@@ -38,8 +38,6 @@ package org.openmicroscopy.shoola.agents.events.annotator;
 //Java imports
 import java.awt.Point;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 //Third-party libraries
 
 //Application-internal dependencies
