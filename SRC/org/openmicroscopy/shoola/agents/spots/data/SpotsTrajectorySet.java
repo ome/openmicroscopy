@@ -84,7 +84,7 @@ public class SpotsTrajectorySet
 	private ChainExecutionData execution;
 	private Registry registry;
 	
-	private Vector trajectories;
+	private Vector trajectories = null;
 	
 	/** the dataset I'm looking at */
 	private int datasetID;
@@ -112,14 +112,29 @@ public class SpotsTrajectorySet
 		// get the instances of trajectory for this dataset.
 		List entries = findTrajectoryEntries(mexes);
 
+		if (entries == null || entries.size() == 0)
+			return;
+		
 		// Get the features list
 		ArrayList featureList = getFeatures(entries);
+		if (featureList == null || featureList.size() ==0 )
+			return;
+		
 		//  retrieve locations
 		List locations = getLocations(featureList);
-	    iter = locations.iterator();
+		if (locations == null || locations.size() == 0)
+			return;
+	
 		
 		buildTrajectories(entries,locations);
 		//dumpTrajectories();
+	}
+	
+	public boolean isEmpty() {
+		if (trajectories == null) 
+			return true;
+		else
+			return (trajectories.size() ==0);
 	}
 	
 	private List findTrajectoryEntries(Vector mexes) {
