@@ -31,9 +31,8 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 
 //Java imports
-import java.awt.Dimension;
-import javax.swing.BoxLayout;
-import javax.swing.JToolBar;
+import java.awt.FlowLayout;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -56,21 +55,18 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 class ToolBar
-	extends JToolBar
+	extends JPanel
 {
-
-	/** Dimension of the separator between the toolBars. */
-	static final Dimension	SEPARATOR_END = new Dimension(250, 0);
-	static final Dimension	SEPARATOR = new Dimension(15, 0);
 	
 	private ZoomBar			zoomBar;
+	
 	ToolBar(Registry registry, ImageInspectorManager manager)
 	{
-		setFloatable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setBorder(null);
+		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+		putClientProperty("JToolBar.isRollover", new Boolean(true));
 		zoomBar = new ZoomBar(registry, manager);
 		add(zoomBar);
-		addSeparator(SEPARATOR_END);
 	}
 	
 	ZoomBar getZoomBar() { return zoomBar; }

@@ -29,11 +29,10 @@
 
 package org.openmicroscopy.shoola.agents.viewer.transform;
 
-
-
 //Java imports
 import java.awt.BorderLayout;
-
+import java.awt.Dimension;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -67,20 +66,14 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 public class ImageInspector
 	extends JFrame implements AgentEventListener
 {
-	
-	/** Maximum width of the window. */
-	private static final int		WIN_W = 500;
-	
-	/** Maximum height of the window. */
-	private static final int		WIN_H = 500;
-	
+		
 	ToolBar 						toolBar;
 	MenuBar							menuBar;
 
 	private ImageInspectorManager	manager;
 	private ZoomPanel				zoomPanel;
 	
-	JScrollPane scroll;
+	JScrollPane 					scroll;
 	public ImageInspector(ViewerCtrl control)
 	{
 		//super(control.getReferenceFrame(), "Image Inspector");
@@ -88,7 +81,7 @@ public class ImageInspector
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();
-		setSize(WIN_W, WIN_H);
+		pack();//setSize(WIN_W, WIN_H);
 	}
 	
 	/** Initializes the frame. */
@@ -111,6 +104,7 @@ public class ImageInspector
 		manager.setZoomPanel(zoomPanel);
 		menuBar = new MenuBar(manager);
 		toolBar = new ToolBar(reg, manager);
+		setTBSize(control.getBufferedImage().getWidth());
 	}
 	
 	/** Build and lay out the GUI. */
@@ -120,6 +114,7 @@ public class ImageInspector
 		scroll.setBackground(Viewer.BACKGROUND_COLOR);
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(scroll, BorderLayout.CENTER);
+		
 	}
 
 	/** Implement as specified by {@link AgentEventListener}. */
@@ -134,5 +129,15 @@ public class ImageInspector
 		manager.setBufferedImage(response.getRenderedImage());
 		manager.zoom();
 	} 
+	
+	
+	/** Add a rigid area to the toolBar. */
+	private void setTBSize(int w)
+	{
+		Dimension d = toolBar.getSize();
+		int dw = d.width;
+		if (w-dw > 0)
+			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));		
+	}
 	
 }

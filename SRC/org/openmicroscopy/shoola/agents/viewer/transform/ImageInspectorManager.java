@@ -66,7 +66,6 @@ public class ImageInspectorManager
 	private ImageInspector			view;
 	private BufferedImage			image;
 	private int						imageWidth, imageHeight;
-	private Dimension				imageDim;
 	private ZoomPanel				zoomPanel;
 	private double					curZoomLevel;
 	
@@ -78,6 +77,20 @@ public class ImageInspectorManager
 	
 	public BufferedImage getBufferedImage() { return image; }
 	
+	
+	/** Zoom in or out. */
+	public void setZoomLevel(double level)
+	{
+		if (curZoomLevel != level) {
+			zoom(level);
+			curZoomLevel = level;
+		}
+	}
+	
+	public int getImageWidth() { return imageWidth; }
+	
+	public int getImageHeight() { return imageHeight; }
+	
 	/** 
 	 * Set the bufferedimage
 	 * 
@@ -88,24 +101,16 @@ public class ImageInspectorManager
 		this.image = image;	
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		imageDim = new Dimension(imageWidth, imageHeight);
+		
 	}
-
 	void setZoomPanel(ZoomPanel zoomPanel)
 	{
 		this.zoomPanel = zoomPanel;
+		Dimension imageDim = new Dimension(imageWidth, imageHeight);
 		zoomPanel.setPreferredSize(imageDim);
-		zoomPanel.setSize(imageDim);
+		zoomPanel.setSize(imageDim);	
 	}
-	
-	/** Zoom in or out. */
-	public void setZoomLevel(double level)
-	{
-		if (curZoomLevel != level) {
-			zoom(level);
-			curZoomLevel = level;
-		}
-	}
+
 	
 	/** Zoom in or out accoding to the current level. */
 	void zoom() { zoom(curZoomLevel); }
