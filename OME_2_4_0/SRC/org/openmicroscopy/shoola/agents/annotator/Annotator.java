@@ -39,7 +39,6 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.env.Agent;
@@ -205,8 +204,8 @@ public class Annotator
      */   
     void viewDataset()
     {
-        LoadDataset request = new LoadDataset(annotatedDatasetID);
-        registry.getEventBus().post(request);   
+        //LoadDataset request = new LoadDataset(annotatedDatasetID);
+        //registry.getEventBus().post(request);   
     }
     
     /**
@@ -491,6 +490,7 @@ public class Annotator
             id = (Integer) i.next();
             name = ((AnnotationData) 
                 ((List) annotationsMap.get(id)).get(0)).getOwnerLastName();
+            System.out.println(name);
             if (ud.getUserID() == id.intValue()) {
                 selectedIndex = index;
                 name = ud.getUserLastName();
