@@ -22,6 +22,11 @@
          <class>org.openmicroscopy.shoola.agents.browser.BrowserAgent</class> 
          <config>browser.xml</config> 
        </agent>
+	  <agent>
+	    <name>Classifier</name>
+	    <class>org.openmicroscopy.shoola.agents.classifier.Classifier</class>
+	    <config>classifier.xml</config>
+	  </agent>
        <agent>
          <name>DataManager</name>
          <!-- The class tag specifies the FQN of the agent's class. --> 
