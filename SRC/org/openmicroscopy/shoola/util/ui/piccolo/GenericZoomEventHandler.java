@@ -166,10 +166,12 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	}
 	
 	public void animateToLastBounds() {
-		if (lastBounds != null)
+		if (lastBounds != null) {
 			animateToBounds(lastBounds);
-		else
+		}
+		else {
 			animateToCanvasBounds();
+		}
 	}
 	
 	public void animateToNode(PNode node) {
