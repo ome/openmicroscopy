@@ -13,7 +13,7 @@
  <toc name="Table of Contents" href="index.htm">
 	<section href="section_1.html" name="Requirements"/>
 	<section href="section_2.html" name="Usage"/>
-	<section href="section_3.html" name="Desing in a Nutshell"/>
+	<section href="section_3.html" name="Design in a Nutshell"/>
 	<section href="section_4.html" name="Packages and Dependencies"/>
 	<section href="section_5.html" name="Execution Infrastructure"/>
 	<section href="section_6.html" name="Commands Structure"/>
