@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
@@ -210,6 +211,36 @@ class RenderingManager
     }
     
     /**
+     * Calculates the cache size according to what is specified in the
+     * configuration file.
+     * 
+     * @return  The cache size.
+     */
+    private int getCacheSize()
+    {
+        Integer sz = (Integer)
+            RenderingEngine.getRegistry().lookup(LookupNames.RE_CACHE_SZ);
+        if (sz == null) return 1;  //No caching if entry was ripped up.
+        int cacheSize = sz.intValue();  //In Mb, no caching if <=0.
+        return (cacheSize <= 0) ? 1 : cacheSize*1024*1024;  
+    }
+    
+    /**
+     * Returns the maximum number of moves to be used for predicting how many
+     * planes should be pre-fetched and rendered asynchronously.
+     * The value comes from the configuration file.
+     * 
+     * @return  The maximum number of moves.
+     */
+    private int getMaxMoves()
+    {
+        Integer maxMoves = (Integer)
+            RenderingEngine.getRegistry().lookup(LookupNames.RE_MAX_PRE_FETCH);
+        if (maxMoves == null) return 0;  //No async if entry was ripped up.
+        return maxMoves.intValue();  //history will turn <=0 into 0.
+    }
+    
+    /**
      * Clears the current {@link #cache} (if any) and creates an empty new one.
      */
     private void clearCache()
@@ -217,16 +248,25 @@ class RenderingManager
         if (cache != null)  //Called after initialization, clear previous one.
             cache.clear();
         
-        int CACHE_SIZE = 100*1024*1024,  //TODO: get from reg.
-            imgSz = renderer.getImageSize(new PlaneDef(PlaneDef.XY, 0));
+        int imgSz = renderer.getImageSize(new PlaneDef(PlaneDef.XY, 0));
         //NOTE: imgSz depends on rendering strategy.  However, every time
         //the setModel method is called, the onRenderingPropChange method
         //is eventually called too.  B/c onRenderingPropChange calls this
         //method, the cache is rebuilt with the (possibly) new image size.
     
-        cache = new ImageFutureCache(CACHE_SIZE, imgSz, history);
+        cache = new ImageFutureCache(getCacheSize(), imgSz, history);
     }
     
+    /**
+     * Handles rendering of XY planes.
+     * 
+     * @param pd    Selects an XY plane.  Mustn't be <code>null</code>.
+     * @return  A buffered image ready to be displayed on screen.
+     * @throws DataSourceException If an error occured while trying to pull out
+     *                              data from the pixels data repository.
+     * @throws QuantizationException If an error occurred while quantizing the
+     *                                  pixels raw data.
+     */
     private BufferedImage handleXYRendering(PlaneDef pd)
         throws DataSourceException, QuantizationException
     {
@@ -250,8 +290,7 @@ class RenderingManager
         //so that if the next call to this method requests an image that is
         //being rendered asynchronously, we don't start a new operation and
         //we have the caller wait for the ongoing one to complete instead.
-        int MAX_MOVES = 3;  //TODO: get from registry.
-        PlaneDef[] nextMoves = history.guessNextMoves(MAX_MOVES);
+        PlaneDef[] nextMoves = history.guessNextMoves(getMaxMoves());
         for (int i = 0; i < nextMoves.length; i++) {
             if (!cache.contains(nextMoves[i])) {
                 AsyncRenderOp op = new AsyncRenderOp(nextMoves[i]);

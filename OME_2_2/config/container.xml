@@ -8,6 +8,27 @@
        <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
      </structuredEntry>
      
+     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
+          This is a per-image cache which stores planes that have already
+          been rendered and are still valid with respect to the current
+          rendering settings.  Because the Rendering Engine can only process
+          one image at a time, the value you specify here will equal the 
+          maximum amount of memory that will be used for caching rendered
+          images at any given time.  If set to 0 or a negative value, then
+          no caching will be done (this dramatically reduces responsiveness
+          though). -->
+     <entry name="/services/RE/cacheSz" type="integer">100</entry>
+     <!-- Maximum number of planes that will be pre-fetched and rendered
+          asynchronously in addition to the plane that has been currently
+          requested.  If set to a positive value n, then separate threads 
+          will be spawned to render (at most) n planes that are likely to
+          be requested after the current plane.  If 0 or negative, then no
+          asynchronous rendering will take place.
+          Having asynchronous rendering on usually increses performance and
+          responsiveness.  However, take into account that too a high value
+          can be counterproductive (what is "high" depends on your platform
+          and deployment settings). -->
+     <entry name="/services/RE/maxPreFetch" type="integer">3</entry>
      <!-- How many Mb should be allocated to the Rendering Engine to cache
           pixels stacks.  If the size of an image stack exceeds this value
           then the stack won't be cached.  This will increase the time it

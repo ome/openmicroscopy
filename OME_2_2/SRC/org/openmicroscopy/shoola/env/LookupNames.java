@@ -75,5 +75,7 @@ public class LookupNames
 	
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
 	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
+    public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
+    public static final String RE_MAX_PRE_FETCH = "/services/RE/maxPreFetch";
 	
 }
