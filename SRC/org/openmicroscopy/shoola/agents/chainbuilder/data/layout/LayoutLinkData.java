@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.data.layout;
 
 //Java imports
+import java.util.Iterator;
 import java.util.Vector;
 
 //Third-party libraries
@@ -64,6 +65,8 @@ public class LayoutLinkData  extends AnalysisLinkData
 			FormalInputData toInput) 
 	{
 		super(chain,fromNode,fromOutput,toNode,toInput);
+		setFromNode(fromNode);
+		setToNode(toNode);
 	}
 	
 	public LayoutLinkData() {}
@@ -103,7 +106,12 @@ public class LayoutLinkData  extends AnalysisLinkData
 	
 	public void setToNode(AnalysisNodeData node) {
 		super.setToNode(node);
-		int sz = nodes.size();
-		nodes.setElementAt((LayoutNodeData) node,sz-1);
+		//int sz = nodes.size();
+		//nodes.setElementAt((LayoutNodeData) node,sz); /// was -1
+		nodes.add(node);
+	}
+	
+	public Iterator getNodeIterator() {
+		return nodes.iterator();
 	}
 }
