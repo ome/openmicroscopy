@@ -104,11 +104,13 @@ class Renderer
 		int[] rgb;
 		for (int w = 0; w < dims.sizeW; ++w) {
 			wGlobal = stats.getGlobalEntry(w);
-			//TODO: calcultate default interval using sigma, etc.
+			//TODO: calcultate default interval, should be come in next version.
 			rgb = setDefaultColor(w);
 			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
-											wGlobal.getGlobalMax(),
+												wGlobal.getGlobalMax(),
 											rgb[0], rgb[1], rgb[2], 255, false);
+			
+			
 		}
 		
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
@@ -180,7 +182,8 @@ class Renderer
 		//Create and configure the quantum strategies.
 		QuantumDef qd = renderingDef.getQuantumDef();
 		quantumManager = new QuantumManager(pixelsDims.sizeW);
-		quantumManager.initStrategies(qd, pixelsStats);
+		quantumManager.initStrategies(qd, pixelsStats, 
+						renderingDef.getChannelBindings());
 		
 		//Create and configure the codomain chain.
 		codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd,
@@ -207,7 +210,8 @@ class Renderer
 	void updateQuantumManager()
 	{
 		QuantumDef qd = renderingDef.getQuantumDef();
-		quantumManager.initStrategies(qd, pixelsStats);
+		ChannelBindings[] cb = renderingDef.getChannelBindings();
+		quantumManager.initStrategies(qd, pixelsStats, cb);
 	}
 	
 	/**
@@ -266,5 +270,13 @@ class Renderer
 	DataSink getDataSink() { return dataSink; }
 
 	CodomainChain getCodomainChain() { return codomainChain; }
+	
+	RenderingEngine getEngine() { return engine; }
+
+	int getImageID() { return imageID; }
+
+	long getOmeisPixelsID() { return omeisPixelsID; }
+
+	int getPixelsID() { return pixelsID; }
 
 }
