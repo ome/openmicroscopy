@@ -75,11 +75,9 @@ class SaveImage
 	{
 		this.registry = registry;
 		if (format.equals(TIFFFilter.TIF)) 
-			encodeImage((Encoder) (new TIFFEncoder()), image, fileName, 
-						message);
+			encodeImage(new TIFFEncoder(), image, fileName, message);
 		else if (format.equals(BMPFilter.BMP))
-			encodeImage((Encoder) (new BMPEncoder()), image, fileName, 
-					message);
+			encodeImage(new BMPEncoder(), image, fileName, message);
 		else
 			saveImageAs(format, image, fileName, message);
 	}

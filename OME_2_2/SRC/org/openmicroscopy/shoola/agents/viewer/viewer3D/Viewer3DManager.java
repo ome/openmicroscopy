@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.canvas.DrawingCanvas;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.canvas.DrawingCanvasMng;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.canvas.ImagesCanvas;
@@ -65,6 +66,8 @@ public class Viewer3DManager
 
 	private Viewer3D 		view;
 	
+    private ViewerCtrl      control;
+    
 	/** Current image displayed. */
 	private BufferedImage	XYimage, XZimage, ZYimage;
 	
@@ -77,9 +80,10 @@ public class Viewer3DManager
 	/** coordinates of the top-left corner of the XY-image. */
 	private int				xMain, yMain;
 	
-	public Viewer3DManager(Viewer3D view)
+	public Viewer3DManager(Viewer3D view, ViewerCtrl control)
 	{
 		this.view = view;
+        this.control = control;
 		attachListener();
 	}
 	
@@ -87,7 +91,7 @@ public class Viewer3DManager
 	private void attachListener()
 	{
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { view.onClosing(); }
+			public void windowClosing(WindowEvent we) { onClosing(); }
 		});
 	}
 		
@@ -149,12 +153,19 @@ public class Viewer3DManager
 		canvas.repaint();
 	}
 	
+    /** Reset the color model and planeDef. */
+    void onClosing()
+    {
+        control.synchPlaneSelected(view.getCurZ());
+        view.dispose();
+    }
+    
 	/** X-coordinate of the origin of the frame. */
 	public int getXOrigin() { return canvas.getXOrigin(); }
 	
 	/** Y-ccordinate of the origin of the frame. */
 	public int getYOrigin() { return canvas.getYOrigin(); }
-	
+
 	/**
 	 * A point has been selected on the XYImage. a new XZImage and ZYImage
 	 * will be rendered.

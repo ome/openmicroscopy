@@ -43,7 +43,6 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.LogicalChannel;
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
@@ -332,8 +331,7 @@ class DMSAdapter
 		Image img = (Image) gateway.retrieveData(Image.class, c);
 		if (img != null)
 			//Put the server data into the corresponding client object.
-			PixelsMapper.fillPixelsDescription((Pixels) img.getDefaultPixels(), 
-												retVal);
+			PixelsMapper.fillPixelsDescription(img.getDefaultPixels(), retVal);
 		return retVal;
 	}
 	
@@ -580,7 +578,7 @@ class DMSAdapter
 	{
 		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
 								STSMapper.GLOBAL_GRANULARITY, retVal.getID());
-		LogicalChannel lc =  (LogicalChannel) 
+		LogicalChannel lc = 
 				(LogicalChannel) gateway.retrieveSTSData("LogicalChannel", c);
 				
 		//update the LogicalChannel object

@@ -112,12 +112,17 @@ public class IconManager
 	
 	/** ID of the player movie icon. */
 	public static final int		MOVIE = 16;
-		
+    
+    /** ID of the player end icon. */
+    public static final int     PLAYER_END = 17;
+	
+    /** ID of the player end icon. */
+    public static final int     PLAYER_START = 18;
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 16;
+	private static int          MAX_ID = 18;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -140,6 +145,8 @@ public class IconManager
 		relPaths[VIEWER3D] = "nuvola_kalzium16.png";
 		relPaths[LOAD] = "nuvola_network48.png";
 		relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[PLAYER_START] = "nuvola_player_start16.png";
+        relPaths[PLAYER_END] = "nuvola_player_end16.png";
 	}
 	
 	/** The sole instance. */

@@ -61,15 +61,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class GreyScalePaneManager
 	implements ActionListener
 {
-	
-	private GreyScalePane 		view;
-	
 	private RenderingAgtCtrl	eventManager;
-	
-	GreyScalePaneManager(GreyScalePane view) 
-	{
-		this.view = view;
-	}
 	
 	void setEventManager(RenderingAgtCtrl eventManager)
 	{
@@ -91,7 +83,7 @@ class GreyScalePaneManager
 	/** Handle events. */
 	public void actionPerformed(ActionEvent e)
 	{
-		Object obj = (Object) e.getSource();
+		Object obj = e.getSource();
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			if (obj instanceof JRadioButton) {

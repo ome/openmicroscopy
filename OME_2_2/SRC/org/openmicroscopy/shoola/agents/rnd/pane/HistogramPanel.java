@@ -99,8 +99,7 @@ class HistogramPanel
 	private static final Color      layerColor = new Color(192, 192, 192, 90);
 	
 	
-	private int                 	controlOutputStart, controlOutputEnd, 
-									heightStart, heightEnd;
+	private int                 	controlOutputStart, heightStart, heightEnd;
 	private int                 	xStartOutput1, xStartOutput2, xStartOutput3, 
 									yStartOutput1, yStartOutput2, yStartOutput3;
 	private int                 	xEndOutput1, xEndOutput2, xEndOutput3,
@@ -139,7 +138,6 @@ class HistogramPanel
 		controlOutputStart = yStart;
 		heightStart = tS-yStart; 
 		heightEnd = yEnd-topBorder;
-		controlOutputEnd = yEnd;
 		
 		//output knob
 		setKnobOutputStart(lS+10, yStart);
@@ -154,7 +152,7 @@ class HistogramPanel
 	
 	void initSizeBin()
 	{
-		sizeBin = (int) (widthStatDefault/histogramData.length);
+		sizeBin = (widthStatDefault/histogramData.length);
 		if (sizeBin < sizeBinDefault) {
 			sizeBin = sizeBinDefault;
 			widthStat = sizeBin*histogramData.length;	
@@ -266,7 +264,6 @@ class HistogramPanel
 	 */      
 	void updateInputEnd(int y, int yReal)
 	{
-		controlOutputEnd = y;
 		heightEnd = y-topBorder;
 		curMax = "end: "+yReal;
 		updateEndOutputKnob(y);

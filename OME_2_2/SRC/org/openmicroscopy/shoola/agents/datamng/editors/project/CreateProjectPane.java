@@ -44,7 +44,6 @@ import javax.swing.border.Border;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
@@ -70,7 +69,6 @@ class CreateProjectPane
 {
 
 	private CreateProjectEditorManager 	manager;
-	private Registry 					registry;
 	
 	private MultilineLabel				nameField, descriptionArea;
 	
@@ -80,11 +78,9 @@ class CreateProjectPane
 	 * @param manager
 	 * @param registry
 	 */
-	CreateProjectPane(CreateProjectEditorManager manager, 
-								Registry registry) 
+	CreateProjectPane(CreateProjectEditorManager manager) 
 	{
 		this.manager = manager;
-		this.registry = registry;
 		buildGUI();
 	}
 

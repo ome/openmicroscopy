@@ -298,7 +298,7 @@ public class QuantumPaneManager
 	/** Retrieve the main Frame. */
 	JFrame getReferenceFrame()
 	{
-		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
+		return eventManager.getRegistry().getTopFrame().getFrame();
 	}
 
 	RenderingAgtCtrl getEventManager() { return eventManager; }

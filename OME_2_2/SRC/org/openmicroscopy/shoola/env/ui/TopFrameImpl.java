@@ -104,7 +104,7 @@ public class TopFrameImpl
         super("Open Microscopy Environment");
         this.container = container;
         im = IconManager.getInstance(container.getRegistry());
-        manager = new TopFrameImplManager(this, container);
+        manager = new TopFrameImplManager(container);
         
         //Make sure we have nice window decorations.
         JFrame.setDefaultLookAndFeelDecorated(true);

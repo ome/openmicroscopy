@@ -154,6 +154,11 @@ public class Viewer
 		registry.getEventBus().post(renderImage);	
 	}
 	
+    void onPlaneSelected(int z)
+    {
+        onPlaneSelected(z, getDefaultT());
+    }
+    
 	/** Post an event to bring up the rendering agt. */
 	void showRendering()
 	{

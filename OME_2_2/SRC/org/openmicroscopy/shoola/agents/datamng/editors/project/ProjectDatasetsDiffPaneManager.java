@@ -159,7 +159,7 @@ class ProjectDatasetsDiffPaneManager
 		if (datasetsToAdd.size() != 0) {
 			Iterator i = datasetsToAdd.iterator();
 			while (i.hasNext())
-				datasetsDiff.remove((DatasetSummary) i.next());
+				datasetsDiff.remove(i.next());
 			buttonsEnabled(datasetsDiff.size() != 0);
 			control.addDatasetsSelection(datasetsToAdd);
 			datasetsToAdd.removeAll(datasetsToAdd);

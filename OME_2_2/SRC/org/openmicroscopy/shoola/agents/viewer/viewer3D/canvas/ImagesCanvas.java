@@ -224,8 +224,8 @@ public class ImagesCanvas
 	private void setLocation()
 	{
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
-		xOrigin = (int) (r.width-imagesWidth)/2;
-		yOrigin = (int) (r.height-imagesHeight)/2;
+		xOrigin = ((r.width-imagesWidth)/2);
+		yOrigin = ((r.height-imagesHeight)/2);
 		if (xOrigin < Viewer3D.SPACE) xOrigin = Viewer3D.SPACE;
 		if (yOrigin < Viewer3D.SPACE) yOrigin = Viewer3D.SPACE;
 	}		

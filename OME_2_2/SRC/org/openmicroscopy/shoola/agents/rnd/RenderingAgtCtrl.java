@@ -222,13 +222,13 @@ public class RenderingAgtCtrl
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowStart(int w, int x)
 	{
-		abstraction.setChannelWindowStart(w, (double) x);
+		abstraction.setChannelWindowStart(w, x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */
 	public void setChannelWindowEnd(int w, int x)
 	{
-		abstraction.setChannelWindowEnd(w, (double) x);
+		abstraction.setChannelWindowEnd(w, x);
 	}
 	
 	/** Forward event to {@link RenderingAgt abstraction}. */

@@ -56,7 +56,7 @@ class LogarithmicMap
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(int x, double k)
 	{
-		return Math.log(verifyInput((double) x));
+		return Math.log(verifyInput(x));
 	}
 
 	/** Implemented as specified in {@link QuantumMap}. */
@@ -68,7 +68,7 @@ class LogarithmicMap
 	/** Implemented as specified in {@link QuantumMap}. */
 	public double transform(float x, double k)
 	{
-		return Math.log(verifyInput((double) x));
+		return Math.log(verifyInput(x));
 	}
 	
 	private double verifyInput(double x)

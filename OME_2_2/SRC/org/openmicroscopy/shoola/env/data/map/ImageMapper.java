@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
-import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 
 /** 
  * 
@@ -205,7 +204,7 @@ public class ImageMapper
 		
 		// pixelsDescription list.
 		if (image.getDefaultPixels() != null) {
-			List pixels = fillPixels((Pixels) image.getDefaultPixels());
+			List pixels = fillPixels(image.getDefaultPixels());
 			empty.setPixels(pixels);
 		}	
 	}
@@ -228,7 +227,7 @@ public class ImageMapper
 			img = (Image) i.next();
 			//Make a new DataObject and fill it up.
 			is = (ImageSummary) iProto.makeNew();
-			px = (Pixels) img.getDefaultPixels();
+			px = img.getDefaultPixels();
 			is.setID(img.getID());
 			is.setName(img.getName());
 			is.setPixelsIDs(fillListPixelsID(px));

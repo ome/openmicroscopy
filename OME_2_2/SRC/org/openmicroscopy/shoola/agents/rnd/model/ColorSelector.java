@@ -139,7 +139,7 @@ class ColorSelector
 		Color c = initColor(rgba);
 		manager = new ColorSelectorManager(this, rgbManager, c, index);
 		initColorPanel(c);
-		initControls((int) (rgba[3]*100/255));
+		initControls((rgba[3]*100/255));
 		buildGUI();
 		manager.attachListeners();
 		Container contentPane = super.getContentPane(); 

@@ -65,12 +65,10 @@ class DatasetEditorBar
 	extends JToolBar
 {
 
-	private DatasetEditorManager 	manager;
 	private JButton					saveButton, cancelButton, addButton;
 	
-	DatasetEditorBar(DatasetEditorManager manager)
+	DatasetEditorBar()
 	{
-		this.manager = manager;
 		initButtons();
 		buildGUI();
 		setFloatable(false);

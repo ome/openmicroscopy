@@ -63,12 +63,10 @@ class ChannelEditorBar
 	extends JToolBar	
 {
 	
-	private ChannelEditorManager 	manager;
 	private JButton					saveButton, cancelButton;
 	
-	ChannelEditorBar(ChannelEditorManager manager)
+	ChannelEditorBar()
 	{
-		this.manager = manager;
 		initButtons();
 		buildGUI();
 	}

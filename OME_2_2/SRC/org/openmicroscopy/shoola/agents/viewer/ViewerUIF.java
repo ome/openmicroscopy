@@ -96,8 +96,6 @@ public class ViewerUIF
 	
 	private ViewerCtrl 				control;
 	
-	private Registry				registry;
-	
 	private IconManager				im;
 	
 	private JScrollPane 			scrollPane;
@@ -110,7 +108,6 @@ public class ViewerUIF
 		super("", registry.getTaskBar());
 		active = false;
 		this.control = control;
-		this.registry = registry;
 		im = IconManager.getInstance(registry);
 		int maxT = pxsDims.sizeT-1;
 		int maxZ = pxsDims.sizeZ-1;

@@ -64,12 +64,10 @@ class ImageEditorBar
 	extends JToolBar	
 {
 	
-	private ImageEditorManager 		manager;
 	private JButton					saveButton, cancelButton;
 	
-	ImageEditorBar(ImageEditorManager manager)
+	ImageEditorBar()
 	{
-		this.manager = manager;
 		initButtons();
 		buildGUI();
 		setFloatable(false);

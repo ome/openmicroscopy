@@ -207,6 +207,7 @@ class RenderingControlImpl
 	{
 		int imageID = renderer.getImageID();
 		int pixelsID = renderer.getPixelsID();
+		//TODO: need to be modify.
 		Registry context = renderer.getEngine().getRegistry();
 		try {
 			context.getDataManagementService().saveRenderingSettings(pixelsID, 

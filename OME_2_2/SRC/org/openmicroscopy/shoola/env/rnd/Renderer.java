@@ -104,7 +104,7 @@ class Renderer
 		int[] rgb;
 		for (int w = 0; w < dims.sizeW; ++w) {
 			wGlobal = stats.getGlobalEntry(w);
-			//TODO: calcultate default interval, should be come in next version.
+			//TODO: calcultate default interval, should come in next version.
 			rgb = setDefaultColor(w);
 			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
 												wGlobal.getGlobalMax(),

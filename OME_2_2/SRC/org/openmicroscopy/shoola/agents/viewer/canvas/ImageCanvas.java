@@ -141,8 +141,8 @@ public class ImageCanvas
 	private void setLocation()
 	{
 		Rectangle r = view.getScrollPane().getViewportBorderBounds();
-		x = (int) (r.width-imageWidth)/2;
-		y = (int) (r.height-imageHeight)/2;
+		x = ((r.width-imageWidth)/2);
+		y = ((r.height-imageHeight)/2);
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 	}

@@ -92,13 +92,6 @@ public abstract class TopWindow
 	private TaskBar		taskBar;
 	
 	/**
-	 * Reacts to mouse clicks on the display buttons and manages the display
-	 * state of this window.
-	 */
-	private TopWindowManager	manager;
-	
-	
-	/**
 	 * Adds the display buttons to the task bar and enables them.
 	 */
 	private void configureButtons()
@@ -156,8 +149,8 @@ public abstract class TopWindow
 		quickLaunchBtn = new JButton();
 		winMenuEntry = new JMenuItem();
 		configureButtons();
-		manager = new TopWindowManager(this, 
-						new AbstractButton[] {quickLaunchBtn, winMenuEntry});
+		new TopWindowManager(this, 
+                    new AbstractButton[] {quickLaunchBtn, winMenuEntry});
 	}
 	
 	/**

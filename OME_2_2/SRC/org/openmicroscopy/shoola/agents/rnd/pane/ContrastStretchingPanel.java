@@ -117,11 +117,11 @@ class ContrastStretchingPanel
 		staticStartPt = new Point2D.Double();
 		staticEndPt = new Point2D.Double();
 		// bottom-left corner
-		staticStartPt.setLocation((double) leftBorder, (double) tS);
-		startPt.setLocation((double) xStart, (double) yStart);
+		staticStartPt.setLocation(leftBorder, tS);
+		startPt.setLocation(xStart, yStart);
 		// top-right corner
-		staticEndPt.setLocation((double) lS, (double) topBorder);
-		endPt.setLocation((double) xEnd, (double) yEnd);
+		staticEndPt.setLocation(lS, topBorder);
+		endPt.setLocation(xEnd, yEnd);
 		//setSize(3*WIDTH/2, 3*HEIGHT/2);
 		repaint();
 	}
@@ -200,7 +200,7 @@ class ContrastStretchingPanel
 		xStart1 = x;
 		xStart2 = x-triangleW;
 		xStart3 = x+triangleW;
-		startPt.setLocation((double) x, startPt.getY());
+		startPt.setLocation(x, startPt.getY());
 		repaint();
 	}
 	
@@ -214,7 +214,7 @@ class ContrastStretchingPanel
 		xEnd1 = x;
 		xEnd2 = x-triangleW;
 		xEnd3 = x+triangleW;
-		endPt.setLocation((double) x, endPt.getY());
+		endPt.setLocation(x, endPt.getY());
 		repaint();
 	}
 	
@@ -228,7 +228,7 @@ class ContrastStretchingPanel
 		yStartOutput1 = y;
 		yStartOutput2 = y-triangleW;
 		yStartOutput3 = y+triangleW;
-		startPt.setLocation(startPt.getX(), (double) y);
+		startPt.setLocation(startPt.getX(), y);
 		repaint();
 	}
 	
@@ -242,7 +242,7 @@ class ContrastStretchingPanel
 		yEndOutput1 = y;
 		yEndOutput2 = y-triangleW;
 		yEndOutput3 = y+triangleW;
-		endPt.setLocation(endPt.getX(), (double) y);
+		endPt.setLocation(endPt.getX(), y);
 		repaint();
 	}
 	

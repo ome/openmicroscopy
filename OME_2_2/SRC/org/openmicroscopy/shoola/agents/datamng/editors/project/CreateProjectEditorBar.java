@@ -64,12 +64,10 @@ class CreateProjectEditorBar
 	extends JToolBar
 {
 
-	private CreateProjectEditorManager 	manager;
 	private JButton						saveButton, cancelButton;
 	
-	CreateProjectEditorBar(CreateProjectEditorManager manager)
+	CreateProjectEditorBar()
 	{
-		this.manager = manager;
 		initButtons();
 		buildGUI();
 		setFloatable(false);

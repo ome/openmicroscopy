@@ -187,7 +187,7 @@ class PlaneSlicingDialogManager
 	/** Handles event fired by the radio button and the comboBox. */
 	public void actionPerformed(ActionEvent e)
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 			switch(index) { 

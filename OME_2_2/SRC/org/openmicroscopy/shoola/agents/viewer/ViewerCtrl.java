@@ -170,7 +170,7 @@ public class ViewerCtrl
 	}
 	
 	/** Forward event to {@link Viewer abstraction}. */
-	public String getCurImageName(){ return abstraction.getCurImageName(); }
+	public String getCurImageName() { return abstraction.getCurImageName(); }
 	
 	/** Forward event to {@link Viewer abstraction}. */
 	public void onPlaneSelected(int z, int t)
@@ -184,10 +184,7 @@ public class ViewerCtrl
 	 */
 	public void onTChange(int z, int t)
 	{
-		//remove listener otherwise an event is fired.
-		tSlider.removeChangeListener(this);
-		tSlider.setValue(t);
-		tSlider.addChangeListener(this);
+        resetTSlider(t);
 		abstraction.onPlaneSelected(z, t);
 	}
 	
@@ -197,19 +194,39 @@ public class ViewerCtrl
 	 */
 	public void onZChange(int z, int t)
 	{
-		//remove listener otherwise an event is fired.
-		zSlider.removeChangeListener(this);
-		zSlider.setValue(z);
-		zSlider.addChangeListener(this);
+        resetZSlider(z);
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	public void synchPlaneSelected(int z) { zSlider.setValue(z); }
+    /** Remove listener otherwise an event is fired. */
+    private void resetZSlider(int z)
+    {
+        //remove listener otherwise an event is fired.
+        zSlider.removeChangeListener(this);
+        zSlider.setValue(z);
+        zSlider.addChangeListener(this);
+    }
+    
+    /** Remove listener otherwise an event is fired. */
+    private void resetTSlider(int t)
+    {
+        tSlider.removeChangeListener(this);
+        tSlider.setValue(t);
+        tSlider.addChangeListener(this);
+    }
+    
+	public void synchPlaneSelected(int z)
+    {
+        resetZSlider(z);
+        ToolBarManager tbm = presentation.getToolBar().getManager();
+        tbm.onZChange(z);
+        abstraction.onPlaneSelected(z);
+    }
 	
 	/** Handles events. */
 	public void actionPerformed(ActionEvent e) 
 	{
-		String s = (String) e.getActionCommand();
+		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
 		try {
 		   switch (index) { 

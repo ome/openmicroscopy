@@ -85,7 +85,7 @@ public class FloatBEConverter
 
 		}
 		
-		return (double) Float.intBitsToFloat(r);
+		return Float.intBitsToFloat(r);
 	}
 
 }

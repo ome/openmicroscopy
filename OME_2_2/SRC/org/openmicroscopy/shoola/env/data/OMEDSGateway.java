@@ -247,7 +247,7 @@ class OMEDSGateway
 	{
 		UserState us = null;
 		try {
-			us = (UserState) getDataFactory().getUserState(c);
+			us = getDataFactory().getUserState(c);
 		} catch (Exception e) {
 			handleException(e, "Can't retrieve the user state.");
 		} 

@@ -196,9 +196,7 @@ class EventBusImpl
 		    if (eventClass == agtEvent) {
 		        b = true ;
 		        break;
-		    } else {
-		        eventClass = eventClass.getSuperclass();
-		    }
+		    } else eventClass = eventClass.getSuperclass();
 		} 
         return b;
     }

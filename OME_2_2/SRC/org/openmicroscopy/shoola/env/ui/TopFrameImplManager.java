@@ -68,12 +68,10 @@ class TopFrameImplManager
 	static final int        		EXIT_APP = 10;
 	static final int				HELPME = 11;
 	
-	private TopFrameImpl 			view;
 	private Container 				container;
 	
-	TopFrameImplManager(TopFrameImpl view, Container container)
+	TopFrameImplManager(Container container)
 	{
-		this.view = view;
 		this.container = container;
 	}
 

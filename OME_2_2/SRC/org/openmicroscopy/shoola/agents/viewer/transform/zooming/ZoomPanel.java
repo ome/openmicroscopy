@@ -189,8 +189,8 @@ public class ZoomPanel
 	private void setLocation()
 	{
 		Rectangle r = manager.getScrollPane().getViewportBorderBounds();
-		x = (int) (r.width-w)/2;
-		y = (int) (r.height-h)/2;
+		x = ((r.width-w)/2);
+		y = ((r.height-h)/2);
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 	}

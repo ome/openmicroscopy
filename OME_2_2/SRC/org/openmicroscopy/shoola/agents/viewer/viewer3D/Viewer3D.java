@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.Image3DRendered;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
-import org.openmicroscopy.shoola.env.rnd.events.ResetPlaneDef;
 
 /** 
  * 
@@ -134,9 +133,12 @@ public class Viewer3D
 		registry = control.getRegistry();
 		visible = false;
 		init();
-		//buildGUI();
 	}
 	
+    int getModel() { return model; }
+    
+    int getCurZ() { return curZ; }
+    
 	public boolean isVisible() { return visible; }
 	
 	public JScrollPane getScrollPane() { return scrollPane; }
@@ -195,7 +197,7 @@ public class Viewer3D
 	private void init()
 	{
 		registry.getEventBus().register(this, Image3DRendered.class);
-		manager = new Viewer3DManager(this);
+		manager = new Viewer3DManager(this, control);
 		model = control.getModel();
 		//initComponents(sizeZ);
 		control.setModel(RenderingDef.GS);
@@ -250,7 +252,7 @@ public class Viewer3D
 				buildGUI();
 			} 
 			setImages(xzImage, yzImage, xyImage);
-		} else onClosing();
+		} else manager.onClosing();
 	}
 	
 	void setImages(BufferedImage xzImage, BufferedImage yzImage, 
@@ -266,17 +268,4 @@ public class Viewer3D
 		}
 	}
 						
-	/** Reset values. */
-	void onClosing()
-	{
-		control.setModel(model);
-		int t = control.getDefaultT();
-		int curPixelsID = control.getCurPixelsID();
-		PlaneDef pd = new PlaneDef(PlaneDef.XY, t);
-		pd.setZ(curZ);
-		registry.getEventBus().post(new ResetPlaneDef(curPixelsID, pd));
-		control.synchPlaneSelected(curZ);
-		dispose();
-	}
-	
 }

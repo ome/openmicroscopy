@@ -42,7 +42,6 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -272,7 +271,7 @@ class ExplorerPaneManager
 		List images;
 		ImageSummary is;
 		while (i.hasNext()) {
-			images = (List) imagesInDataset.get((Integer) i.next());
+			images = (List) imagesInDataset.get(i.next());
 			j = images.iterator();
 			while (j.hasNext()) {
 				is = (ImageSummary) j.next();
@@ -446,13 +445,13 @@ class ExplorerPaneManager
 				pNodes.put(new Integer(ps.getID()), pNode);
 				addDatasetsToProject(ps, pNode, treeModel);	
 			}
-			treeModel.reload((TreeNode) root);
+			treeModel.reload(root);
 			isTreeLoaded = true;	
 		} else {
 			DefaultMutableTreeNode childNode = 
 										new DefaultMutableTreeNode("");
 			treeModel.insertNodeInto(childNode, root, root.getChildCount());
-			treeModel.reload((TreeNode) root);
+			treeModel.reload(root);
 			view.tree.collapsePath(new TreePath(root.getPath()));
 		}	
 	}
@@ -491,7 +490,7 @@ class ExplorerPaneManager
 					new DefaultMutableTreeNode(LOADING);
 			treeModel.insertNodeInto(childNode, node, node.getChildCount());		
 		}
-		treeModel.reload((TreeNode) node);
+		treeModel.reload(node);
 	}
 	
 	/**

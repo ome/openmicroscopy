@@ -87,7 +87,7 @@ public class IntBEConverter
 			paddingMask <<= 8;  
 		}
 		if (data.get(offset) < 0)   r |= paddingMask;  //Was negative, pad.
-		return (double) r;
+		return r;
 	}
     
 }

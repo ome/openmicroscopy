@@ -158,8 +158,7 @@ class DatasetImagesDiffPaneManager
 		if (imagesToAdd.size() != 0) {
 			Iterator i = imagesToAdd.iterator();
 			while (i.hasNext())
-				imagesDiff.remove((ImageSummary) i.next());
-				
+				imagesDiff.remove(i.next());
 			buttonsEnabled(imagesDiff.size() != 0);
 			control.addImagesSelection(imagesToAdd);
 			imagesToAdd.removeAll(imagesToAdd);

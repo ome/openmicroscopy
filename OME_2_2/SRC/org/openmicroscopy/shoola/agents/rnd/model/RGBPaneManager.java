@@ -84,7 +84,7 @@ class RGBPaneManager
 	
 	JFrame getReferenceFrame()
 	{
-		return (JFrame) eventManager.getRegistry().getTopFrame().getFrame();
+		return eventManager.getRegistry().getTopFrame().getFrame();
 	}
 	
 	void setEventManager(RenderingAgtCtrl eventManager)
@@ -114,7 +114,7 @@ class RGBPaneManager
 	/** Handle events fired by button. */
 	public void actionPerformed(ActionEvent e)
 	{
-		Object component = (Object) e.getSource();
+		Object component = e.getSource();
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			if (component instanceof ColoredButton) 
@@ -132,7 +132,7 @@ class RGBPaneManager
 	public void itemStateChanged(ItemEvent e)
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
-		int w = Integer.parseInt((String) box.getActionCommand());
+		int w = Integer.parseInt(box.getActionCommand());
 		eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
 	}
 	

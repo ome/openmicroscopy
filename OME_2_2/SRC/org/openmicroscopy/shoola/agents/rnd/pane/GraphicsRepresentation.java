@@ -133,8 +133,7 @@ class GraphicsRepresentation
 								
 	private QuadCurve2D.Double	quad;
 	
-   	private int					coefficient, controlOutputStart, 
-								controlOutputEnd;
+   	private int					coefficient;
 								
    	private boolean				reverseIntensity;
 
@@ -184,9 +183,6 @@ class GraphicsRepresentation
 		endPt = new Point2D.Double();
 		staticStartPt = new Point2D.Double();
 		staticEndPt = new Point2D.Double();
-		//control output window to be removed
-		controlOutputStart = square;
-		controlOutputEnd = 0;
 		xStartMax = leftBorder;
 	}
 	
@@ -216,8 +212,8 @@ class GraphicsRepresentation
 		setCurrentInputs(inputStart, inputEnd);
 		xControl = lS;
 		range  = square;
-		binMin = (int) (square/rangeMin);
-		binMax = (int) (square/rangeMax);
+		binMin = (square/rangeMin);
+		binMax = (square/rangeMax);
 		double yStart, yEnd, xStart, xEnd;
 		yStart = setOuputGraphics(cdStart);
 		yEnd = setOuputGraphics(cdEnd);
@@ -231,19 +227,19 @@ class GraphicsRepresentation
 		
 		//Output knob.
 		setKnobOutputStart(leftBorder-10, (int) yStart);
-		setKnobOutputEnd(leftBorder-10, (int) topBorder);
+		setKnobOutputEnd(leftBorder-10, topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd);
 		        
 		//Control points location.
 		if (reverseIntensity) {
-			staticStartPt.setLocation((double) lS, yStart);
-			staticEndPt.setLocation((double) leftBorder, yEnd);
+			staticStartPt.setLocation(lS, yStart);
+			staticEndPt.setLocation(leftBorder, yEnd);
 			startPt.setLocation(xEnd, yStart);
 			endPt.setLocation(xStart, yEnd);
 		} else {
-			staticStartPt.setLocation((double) leftBorder, yStart);
+			staticStartPt.setLocation(leftBorder, yStart);
 			startPt.setLocation(xStart, yStart);
-			staticEndPt.setLocation((double) lS, yEnd);
+			staticEndPt.setLocation(lS, yEnd);
 			endPt.setLocation(xEnd, yEnd);
 		}
 		//draw curve
@@ -266,8 +262,8 @@ class GraphicsRepresentation
 	{
 		setCurrentInputs(inputStart, inputEnd);
 		int k = (int) (curveCoefficient*10);
-		binMin = (int) ((square-40)/(2*rangeMinExpo)); 
-		binMax = (int) ((square-40)/(2*rangeMaxExpo));
+		binMin = ((square-40)/(2*rangeMinExpo)); 
+		binMax = ((square-40)/(2*rangeMaxExpo));
 		double yStart, yEnd, xStart, xEnd, xStaticStart, xStaticEnd;
 		xStaticStart = 0;
 		xStaticEnd = 0;
@@ -276,40 +272,40 @@ class GraphicsRepresentation
 
 		//output knob
 		setKnobOutputStart(leftBorder-10,(int) yStart);
-		setKnobOutputEnd(leftBorder-10, (int) topBorder);
+		setKnobOutputEnd(leftBorder-10, topBorder);
 		manager.setOutputRectangles((int) yStart, (int) yEnd); 
 
 		if (k == INIT) {
 			if (reverseIntensity) {
-				 xStaticStart = (double) lS2;
-				 xStaticEnd = (double) leftBorder;
+				 xStaticStart = lS2;
+				 xStaticEnd = leftBorder;
 				 range = (int) xStaticStart-leftBorder;
 			} else {
-				 xStaticStart = (double) leftBorder;
-				 xStaticEnd = (double) lS2;
+				 xStaticStart = leftBorder;
+				 xStaticEnd = lS2;
 				 range = (int) xStaticEnd-leftBorder;
 			}
 		} else if (MIN <= k && k < INIT) { 
 			k = INIT-k;
 			if (reverseIntensity) {
-				xStaticEnd = (double) leftBorder;
-				xStaticStart = (double) (lS2+k*binMax);
+				xStaticEnd = leftBorder;
+				xStaticStart = (lS2+k*binMax);
 				range = (int) xStaticStart-leftBorder;
 			} else {
-				xStaticEnd = (double) (lS2+k*binMax);
-				xStaticStart = (double) leftBorder;
+				xStaticEnd = (lS2+k*binMax);
+				xStaticStart = leftBorder;
 				range = (int) xStaticEnd-leftBorder;
 			} 
 		} else if (k > INIT && k <= MAX) {
 			k = k-INIT;
 			if (reverseIntensity) {
-				xStaticStart = (double) (lS-k*binMin);
-				xStaticEnd = (double) leftBorder;
+				xStaticStart = (lS-k*binMin);
+				xStaticEnd = leftBorder;
 				if (xStaticStart < leftBorder+20) xStaticStart = leftBorder+20;
 				range = (int) xStaticStart-leftBorder;
 			} else {
-				xStaticEnd = (double) (lS-k*binMin);
-				xStaticStart = (double) leftBorder;
+				xStaticEnd = (lS-k*binMin);
+				xStaticStart = leftBorder;
 				if (xStaticEnd < leftBorder+20) xStaticEnd = leftBorder+20;
 				range = (int) xStaticEnd-leftBorder;
 			}
@@ -354,37 +350,37 @@ class GraphicsRepresentation
 		if (type == QuantumFactory.EXPONENTIAL) {
 			xControl = lS2;
 			range = square/2;
-			binMin = (int) ((square-40)/(2*rangeMinExpo)); 
-			binMax = (int) ((square-40)/(2*rangeMaxExpo));
+			binMin = ((square-40)/(2*rangeMinExpo)); 
+			binMax = ((square-40)/(2*rangeMaxExpo));
 			if (reverseIntensity) { 
-				xStaticStart = (double) lS2;
-				xStaticEnd = (double) leftBorder;
+				xStaticStart = lS2;
+				xStaticEnd = leftBorder;
 				xEnd = (endPt.getX()+leftBorder)/2;
 				xStart = (startPt.getX()+leftBorder)/2;
 			} else {
 				xEnd = (endPt.getX()+leftBorder)/2;
 				xStart = (startPt.getX()+leftBorder)/2;
-				xStaticEnd = (double) lS2;
-				xStaticStart = (double) leftBorder;
+				xStaticEnd = lS2;
+				xStaticStart = leftBorder;
 			}  
 		} else {
 			xControl = lS;
 			range = square;
 			double a;
-			binMin = (int) (square/rangeMin);
-			binMax = (int) (square/rangeMax);
+			binMin = (square/rangeMin);
+			binMax = (square/rangeMax);
 			if (reverseIntensity) {
-				a = (double) square/(staticStartPt.getX()-leftBorder);
-				xStaticStart = (double) lS;
-				xStaticEnd = (double) leftBorder;
+				a = square/(staticStartPt.getX()-leftBorder);
+				xStaticStart = lS;
+				xStaticEnd = leftBorder;
 				xEnd = a*(endPt.getX()-leftBorder)+leftBorder;
 				xStart = a*(startPt.getX()-leftBorder)+leftBorder;
 			} else { 
-				a = (double) square/(staticEndPt.getX()-leftBorder); 
+				a = square/(staticEndPt.getX()-leftBorder); 
 				xEnd = a*(endPt.getX()-leftBorder)+leftBorder;
 				xStart = a*(startPt.getX()-leftBorder)+leftBorder;
-				xStaticEnd = (double) lS;
-				xStaticStart = (double) leftBorder;
+				xStaticEnd = lS;
+				xStaticStart = leftBorder;
 			}  
 		}
 		manager.setType(type, xControl);
@@ -481,18 +477,18 @@ class GraphicsRepresentation
 		coefficient = k;
 		if (k == INIT) {
 			if (reverseIntensity) 
-					x = (double) (staticEndPt.getX()+square/2); 
-			else 	x = (double) (staticStartPt.getX()+square/2);  
+					x = (staticEndPt.getX()+square/2); 
+			else 	x = (staticStartPt.getX()+square/2);  
 		} else if (MIN <= k && k < INIT) { 
 			k = INIT-k;
 			if (reverseIntensity) 
-					x = (double) (staticEndPt.getX()+square/2+k*binMax); 
-			else 	x = (double) (staticStartPt.getX()+square/2+k*binMax); 
+					x = (staticEndPt.getX()+square/2+k*binMax); 
+			else 	x = (staticStartPt.getX()+square/2+k*binMax); 
 		} else if (k > INIT && k <= MAX) {
 			k = k-INIT;
 			if (reverseIntensity)
-					x = (double) (staticEndPt.getX()+square/2-k*binMin);
-			else 	x = (double) (staticStartPt.getX()+square/2-k*binMin);
+					x = (staticEndPt.getX()+square/2-k*binMin);
+			else 	x = (staticStartPt.getX()+square/2-k*binMin);
 		}
 		xControl = (int) x;         
 		if (x >= xStartMax+triangleW) {
@@ -547,8 +543,8 @@ class GraphicsRepresentation
 				controlPt.setLocation(controlPt.getX(), yEnd);
 				repaintCurve();
 			} else {
-				staticStartPt.setLocation((double) lS, yStart);
-				staticEndPt.setLocation((double) leftBorder, yEnd);
+				staticStartPt.setLocation(lS, yStart);
+				staticEndPt.setLocation(leftBorder, yEnd);
 				setControlLocation(coefficient);
 			}
 		} else {
@@ -558,8 +554,8 @@ class GraphicsRepresentation
 				controlPt.setLocation(controlPt.getX(), yStart);
 				repaintCurve();
 			} else {
-				staticStartPt.setLocation((double) leftBorder, yStart);
-				staticEndPt.setLocation((double) lS, yEnd);
+				staticStartPt.setLocation(leftBorder, yStart);
+				staticEndPt.setLocation(lS, yEnd);
 				setControlLocation(coefficient);
 			}
 		}  
@@ -591,8 +587,8 @@ class GraphicsRepresentation
 			xStartMax = x;
 			b = false;
 			setKnobStart(x);
-			if (reverseIntensity) endPt.setLocation((double) x, endPt.getY());
-			else startPt.setLocation((double) x, startPt.getY());
+			if (reverseIntensity) endPt.setLocation(x, endPt.getY());
+			else startPt.setLocation(x, startPt.getY());
 			if (type == QuantumFactory.EXPONENTIAL) repaintCurve();
 			else setControlLocation(coefficient);
 		}
@@ -625,12 +621,12 @@ class GraphicsRepresentation
 			setKnobEnd(x);
 			b = false;
 			if (reverseIntensity) 
-					startPt.setLocation((double) x, startPt.getY());
-			else    endPt.setLocation((double) x, endPt.getY());
+					startPt.setLocation(x, startPt.getY());
+			else    endPt.setLocation(x, endPt.getY());
 			if (type == QuantumFactory.EXPONENTIAL) {
 				if (reverseIntensity)  
-						controlPt.setLocation((double) x, endPt.getY());
-				else    controlPt.setLocation((double) x, startPt.getY());
+						controlPt.setLocation(x, endPt.getY());
+				else    controlPt.setLocation(x, startPt.getY());
 				repaintCurve();
 			} else	setControlLocation(coefficient);
 		}
@@ -644,14 +640,14 @@ class GraphicsRepresentation
 	 */
 	void updateOutputStart(int y)
 	{
-		controlOutputStart = y-topBorder;
+		//controlOutputStart = y-topBorder;
 		setKnobOutputStart(y);
-		startPt.setLocation(startPt.getX(), (double) y);
-		staticStartPt.setLocation(staticStartPt.getX(), (double) y);
+		startPt.setLocation(startPt.getX(), y);
+		staticStartPt.setLocation(staticStartPt.getX(), y);
 		if (type == QuantumFactory.EXPONENTIAL) {
 			if (reverseIntensity)
 					controlPt.setLocation(controlPt.getX(), endPt.getY());
-			else    controlPt.setLocation(controlPt.getX(), (double) y);
+			else    controlPt.setLocation(controlPt.getX(), y);
 			repaintCurve();
 		} else	setControlLocation(coefficient); 
 	}
@@ -663,14 +659,13 @@ class GraphicsRepresentation
 	 */
 	void updateOutputEnd(int y)
 	{
-		controlOutputEnd = y-topBorder;
+		//controlOutputEnd = y-topBorder;
 		setKnobOutputEnd(y);
-		endPt.setLocation(endPt.getX(), (double) y);
-		staticEndPt.setLocation(staticEndPt.getX(), (double) y);
+		endPt.setLocation(endPt.getX(), y);
+		staticEndPt.setLocation(staticEndPt.getX(), y);
 		setControlLocation(coefficient);
 		if (type == QuantumFactory.EXPONENTIAL) {
-			if (reverseIntensity) controlPt.setLocation(startPt.getX(), 
-														(double) y);
+			if (reverseIntensity) controlPt.setLocation(startPt.getX(), y);
 			else controlPt.setLocation(endPt.getX(), controlPt.getY());
 			repaintCurve();
 		} else	setControlLocation(coefficient);
@@ -712,16 +707,16 @@ class GraphicsRepresentation
 		setKnobEnd(xEnd);
 		setKnobStart(xStart);
 		if (reverseIntensity) {
-			endPt.setLocation((double) xStart, endPt.getY());
-			startPt.setLocation((double) xEnd, startPt.getY());
+			endPt.setLocation(xStart, endPt.getY());
+			startPt.setLocation(xEnd, startPt.getY());
 		} else {
-			startPt.setLocation((double) xStart, startPt.getY());
-			endPt.setLocation((double) xEnd, endPt.getY()); 
+			startPt.setLocation(xStart, startPt.getY());
+			endPt.setLocation(xEnd, endPt.getY()); 
 		} 
 		if (type == QuantumFactory.EXPONENTIAL) {
 			if (reverseIntensity)  
-					controlPt.setLocation((double) xEnd, endPt.getY());
-			else    controlPt.setLocation((double) xEnd, startPt.getY());
+					controlPt.setLocation(xEnd, endPt.getY());
+			else    controlPt.setLocation(xEnd, startPt.getY());
 			repaintCurve();
 		} else	setControlLocation(coefficient);
 	}
@@ -735,7 +730,7 @@ class GraphicsRepresentation
 	private double setOuputGraphics(int x)
 	{
 		double a = (double) square/outputRange;
-		return (double) (tS-x*a);
+		return (tS-x*a);
 	}
 	
 	/**
@@ -747,7 +742,7 @@ class GraphicsRepresentation
 	private double setInputGraphics(int x, int r)
 	{
 		double b = (double) r/(maximum-minimum);
-		return (double) (b*(x-minimum)+leftBorder); 
+		return (b*(x-minimum)+leftBorder); 
 	}
 
 	/** 

@@ -115,7 +115,7 @@ public class ColorChooser
 	public ColorChooser(HSBPaneManager hsbManager, int[] rgba, int index)
 	{
 		super(hsbManager.getReferenceFrame(), "ColorChooser", true);
-		int v = (int) (rgba[ALPHA]*100/255);
+		int v = (rgba[ALPHA]*100/255);
 		Color c = new Color(rgba[RED], rgba[GREEN], rgba[BLUE], rgba[ALPHA]);
 		ccManager = new ColorChooserManager(this, hsbManager, rgba, index);
 		cp = new ColorPalette(ccManager);

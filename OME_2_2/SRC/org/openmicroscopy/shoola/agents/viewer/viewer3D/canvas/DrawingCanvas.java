@@ -75,7 +75,7 @@ public class DrawingCanvas
     private int					x, y;
     
     /** Control to paint or not the line on the images. */
- 	private boolean				linesShown, selected;
+ 	private boolean				linesShown;
  	
  	private Viewer3DManager		control;
  	
@@ -89,7 +89,6 @@ public class DrawingCanvas
 		manager = new DrawingCanvasMng(this, control);
 		currentPointXY = null;
 		linesShown = false;
-		selected = false;
 		setOpaque(false);
 		currentPointXY = new Point(0, 0);
 		currentPointXZ = new Point(0, 0);

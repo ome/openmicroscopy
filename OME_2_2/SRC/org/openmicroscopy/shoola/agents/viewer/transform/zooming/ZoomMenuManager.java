@@ -104,15 +104,12 @@ public class ZoomMenuManager
 		inverseValues.put(new Integer(ZOOM_300), new Double(3.0));
 	}
 	
-	private ZoomMenu				view;
-	
 	private ImageInspectorManager 	control;
 	
 	private HashMap					items;
 	
-	public ZoomMenuManager(ZoomMenu view, ImageInspectorManager control)
+	public ZoomMenuManager(ImageInspectorManager control)
 	{
-		this.view = view;
 		this.control = control;
 		items = new HashMap();
 	}

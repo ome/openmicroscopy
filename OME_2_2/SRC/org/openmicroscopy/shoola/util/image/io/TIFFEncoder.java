@@ -208,9 +208,9 @@ public class TIFFEncoder
 			j = bytesWritten/3;
 			//TIFF save as BRG and not RGB.
 			for (i = 0; i < count; i += 3) {
-				buffer[i]   = (byte) blue[j];	//blue
-				buffer[i+1] = (byte) red[j];	//red
-				buffer[i+2] = (byte) green[j];	//green
+				buffer[i]   = blue[j];	//blue
+				buffer[i+1] = red[j];	//red
+				buffer[i+2] = green[j];	//green
 				j++;
 			}
 			output.write(buffer, 0, count);

@@ -86,7 +86,7 @@ public class IntLEConverter
 			paddingMask <<= 8;
 		}
 		if (data.get(offset+length-1) < 0)   r |= paddingMask;  //Was negative, pad.
-		return (double) r;
+		return r;
 	}
     
 }

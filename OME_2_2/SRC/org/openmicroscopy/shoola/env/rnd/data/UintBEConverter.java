@@ -87,7 +87,7 @@ public class UintBEConverter
 		}
 		
 		//if (length < 4) return new Integer((int) r);	
-		return (double) r;
+		return r;
 	}
     
 }
