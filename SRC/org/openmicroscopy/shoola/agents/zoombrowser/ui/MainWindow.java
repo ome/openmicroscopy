@@ -209,7 +209,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		System.err.println("zoom got event ..."+e);
 		if (e instanceof AnalysisChainEvent &&
 					datasetBrowser != null) {
 			AnalysisChainEvent event = (AnalysisChainEvent) e;
@@ -229,7 +228,6 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		else if (e instanceof SelectChainExecutionEvent && datasetBrowser != null) {
 			SelectChainExecutionEvent  event = (SelectChainExecutionEvent) e;
 			ChainExecutionData exec = event.getChainExecution();
-			System.err.println("datasetbrowser selecting..."+exec);
 			datasetBrowser.selectChainExecution(exec);
 		}
 		else if (e instanceof LoadChainExecutionsEvent) {
