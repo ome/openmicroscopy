@@ -96,7 +96,16 @@ public class ChainExecutionLoader extends ContentLoader
 			chainExecution.setChain(chainDataManager.getChain(id));
 			dataset = (BrowserDatasetData) chainExecution.getDataset();
 			id = dataset.getID();
-			chainExecution.setDataset(chainDataManager.getDataset(id));
+			
+			/* if I've already seen this in the hash, then replace it with what
+			 * I saw before. If the hash doesn't have it, this means that the 
+			 * dataset actually belongs to a different user, so it wouldn't
+			 * be in the hash. Leave the dataset
+			 * that I retrieved with the execution 
+			 */
+			BrowserDatasetData otherDataset = chainDataManager.getDataset(id);
+			if (otherDataset != null)
+				chainExecution.setDataset(otherDataset);
 			reconcileNodeExecutions(chainExecution);
 		}
 	}
