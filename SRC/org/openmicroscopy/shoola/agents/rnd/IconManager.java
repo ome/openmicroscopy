@@ -73,17 +73,26 @@ public class IconManager
 	/** ID of the plane slicing icon. */
 	public static final int     SLICING = 4;
 	
-	/** ID of the QuantumMapping icon. */
-	public static final int		QUANTUM = 5;
+	/** ID of the greyscale icon. */
+	public static final int		GREYSCALE = 5;
 	
-	/** ID of the Rendering Model icon. */
-	public static final int		MODEL	= 6;
+	/** ID of the greyscale icon. */
+	public static final int		RGB = 6;
+		
+	/** ID of the greyscale icon. */
+	public static final int		HSB = 7;
+	
+	/** ID of the codomain icon. */
+	public static final int		CODOMAIN = 8;
+	
+	/** ID of the save icon. */
+	public static final int		SAVE_SETTINGS = 9;
 	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 7;
+	private static int          MAX_ID = 9;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -92,10 +101,13 @@ public class IconManager
 		relPaths[OME] = "OME16.png";
 		relPaths[INFO] = "information16.png";
 		relPaths[HISTOGRAM] = "histogram16.png";
-		relPaths[STRETCHING] = "information16.png";
-		relPaths[SLICING] = "information16.png";
-		relPaths[QUANTUM] = "information16.png";
-		relPaths[MODEL] = "information16.png";
+		relPaths[STRETCHING] = "contrastStretching16.png";
+		relPaths[SLICING] = "planeSlicing16.png";
+		relPaths[GREYSCALE] = "grayscale.png";
+		relPaths[RGB] = "rgb16.png";
+		relPaths[HSB] = "hsb16.png";
+		relPaths[CODOMAIN] = "codomain16.png";
+		relPaths[SAVE_SETTINGS] = "save_DB16.png";
 	}
 	
 	/** The sole instance that provides. */
