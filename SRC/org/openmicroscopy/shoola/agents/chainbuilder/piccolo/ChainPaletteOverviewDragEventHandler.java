@@ -45,13 +45,14 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java Imports
 
 //Third-party libraries
-
-
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PDimension;
+import edu.umd.cs.piccolo.util.PPickPath;
 import edu.umd.cs.piccolo.event.PDragEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.event.PInputEventFilter;
 
 //Application-internal dependencies
 
@@ -68,15 +69,20 @@ import edu.umd.cs.piccolo.event.PInputEvent;
  * </small>
  */
 
-public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
+public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler {
 
 	private static final double BOUNDARY=30;
 	private PPath viewRect;
 	private ChainPaletteOverviewCanvas overviewCanvas;
 	
+	private boolean postPopup = false;
+	
 	public ChainPaletteOverviewDragEventHandler
 		(ChainPaletteOverviewCanvas overviewCanvas) {
 		super();
+		PInputEventFilter filter = new PInputEventFilter();
+		filter.acceptAllEventTypes();
+		setEventFilter(filter);
 		this.overviewCanvas = overviewCanvas;
 		viewRect =overviewCanvas.getViewRect();
 	}
@@ -84,7 +90,6 @@ public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
 
 	
 	protected void drag(PInputEvent event) {
-
 		PDimension d = event.getDeltaRelativeTo(event.getPickedNode());
 		
 		PBounds b = viewRect.getGlobalBounds();
@@ -117,5 +122,59 @@ public class ChainPaletteOverviewDragEventHandler extends PDragEventHandler  {
 		viewRect.localToParent(d);
 		viewRect.offset(d.getWidth(), d.getHeight());
 		overviewCanvas.updateMainView();
+	}
+	
+	/**
+	 * 
+	 * unlike other event handlers - like the module nod event handlers
+	 * this handler can't inherit from {@link GenericEventHandler}, because
+	 * this handler is a {@link PDragEventHandler}, not a 
+	 * {@link PBasicInputEventHandler}. So, we recreate some code for
+	 *  mouse clicks, popups, enters, and exits.
+	 */
+	protected boolean isPostPopup(PInputEvent e) {
+		if (postPopup == true) {
+			postPopup = false;		
+			e.setHandled(true);
+			return true;
+		}
+		else 
+			return false;
+	}
+	
+	private boolean isClickOnOverview(PInputEvent e) {
+		PPickPath path = e.getPath();
+		PNode picked = path.getPickedNode();
+		// must call nextPickedNode() to get the view
+		// rect of the pick path. If the view
+		// rect was not what we picked, we ignore the event anyway...
+		PNode next = path.nextPickedNode();
+		return (picked == viewRect);
+	}
+	
+	public void mouseClicked(PInputEvent e) {
+		if (isPostPopup(e))
+			return;
+		if (isClickOnOverview(e)) {
+			overviewCanvas.mouseClick(e);
+		}
+		e.setHandled(true);
+	}
+		
+
+	public void mousePressed(PInputEvent e) {
+		if (e.isPopupTrigger()) {
+			handlePopup(e);
+			e.setHandled(true);
+		}
+		else 
+			super.mousePressed(e);
+	}
+	
+	public void handlePopup(PInputEvent e) {
+		postPopup = true;
+		if (isClickOnOverview(e))
+			overviewCanvas.mousePopup(e);
+		e.setHandled(true);
 	}
 }
