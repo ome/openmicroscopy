@@ -485,4 +485,11 @@ public interface SemanticTypesService
     
     public List retrieveAttributesByMEXs(String typeName, List mexes)
 		throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveTrajectoriesByMEXs(List mexes) 
+   		throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveTrajectoryEntriesByMEXs(List mexes) 
+		throws DSOutOfServiceException, DSAccessException;
+    
 }
