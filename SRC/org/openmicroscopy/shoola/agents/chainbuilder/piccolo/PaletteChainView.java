@@ -143,7 +143,6 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	public void mouseEntered(GenericEventHandler handler) {
-		super.mouseEntered(handler);
 		((ChainPaletteEventHandler) handler).setLastEntered(this);
 		ChainBox cb = getParentChainBox();
 		if (cb != null)
@@ -200,17 +199,19 @@ public class PaletteChainView extends ChainView {
 	
 	public PActivity showFullView(boolean b) {
 		showingFull = b;
-		TransparencyActivity a1;
+		TransparencyActivity a1 = null;
+		// if true, making compound visible
 		if (b ==true)  {
 			compoundView.setPickable(false);
 			a1 = new TransparencyActivity(fullLayer,compoundView);
 			
 		}
-		else {
+		else { // make full visible
 			compoundView.setPickable(true);
 			a1 = new TransparencyActivity(compoundView,fullLayer);
 		}
-		getRoot().getActivityScheduler().addActivity(a1);
+		if (a1 != null)
+			getRoot().getActivityScheduler().addActivity(a1);
 		return a1;
 	}
 	
