@@ -185,8 +185,10 @@ public abstract class Handle
         try {
             h = (Handle) clone();  //Class of h is this instance's class.  
         } catch (CloneNotSupportedException cnse) {
-            throw new Error("JVM Internal Error: couldn't clone object that "+
-                            "implements Cloneable.", cnse);
+            //Shouldn't happen as this class implements Cloneable.
+            throw new InternalError(
+                    "JVM Internal Error: couldn't clone object that "+
+                            "implements Cloneable.");
         }
         h.body = this.body;  //Not actually needed, added for clarity.
         
