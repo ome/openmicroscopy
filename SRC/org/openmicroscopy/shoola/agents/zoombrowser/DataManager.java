@@ -127,7 +127,7 @@ public class DataManager {
 	}
 	
 	public List getDatasets() {
-		if (datasets == null ||projects.size() == 0) {
+		if (datasets == null ||datasets.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				datasets = 
