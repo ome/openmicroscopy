@@ -54,14 +54,28 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 
 public class ChainExecutionsLoadedEvent extends AgentEvent
 {
-
-    public ChainExecutionsLoadedEvent(HashMap executions) {
+    private HashMap executionsByChain;
+    private HashMap executionsByID;
+   
+    
+    public ChainExecutionsLoadedEvent(HashMap executionsByDataset,
+    			HashMap executionsByChain,HashMap executionsByID) {
    		super();
-   		setSource(executions);
+   		setSource(executionsByDataset);
+   		this.executionsByChain = executionsByChain;
+   		this.executionsByID = executionsByID;
     }
  
-    public HashMap getChainExecutions() {
+    public HashMap getChainExecutionsByDatasetID() {
     	    return (HashMap) getSource();
+    }
+    
+    public HashMap getChainExecutionsByChainID() {
+    		return executionsByChain;
+    }
+    
+    public HashMap getExecutionsByID() {
+    		return executionsByID;
     }
 }
 
