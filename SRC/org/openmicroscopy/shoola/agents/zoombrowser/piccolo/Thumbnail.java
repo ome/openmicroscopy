@@ -272,4 +272,7 @@ public class Thumbnail extends PImage implements BufferedObject,
 	public void mousePopup() {
 		zoomOutOfHalo();
 	}
+	
+	public void mouseDoubleClicked() {
+	}
 }

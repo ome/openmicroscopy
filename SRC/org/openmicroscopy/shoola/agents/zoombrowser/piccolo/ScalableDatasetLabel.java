@@ -165,4 +165,7 @@ public class ScalableDatasetLabel extends PNode
 
 	public void mousePopup() {
  	}
+ 	
+	public void mouseDoubleClicked() {
+	}
 }

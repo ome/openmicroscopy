@@ -158,4 +158,7 @@ public class ThumbnailSelectionHalo extends PPath implements BufferedObject,
 	
 	public void mousePopup() {
 	}
+	
+	public void mouseDoubleClicked() {
+	}
 }

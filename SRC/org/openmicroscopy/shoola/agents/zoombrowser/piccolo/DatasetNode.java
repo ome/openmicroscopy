@@ -442,4 +442,7 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		if (handler != null)
 			handler.resetZoomLevel();
 	}
+	
+	public void mouseDoubleClicked() {
+	}
 }
