@@ -941,7 +941,9 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	public PNode getToolTip() {
 		String name = getName();
 		//String desc = mod.getDescription();
-		if (name.compareTo("") != 0) {
+		//only do a tool tip if we're showing the overview,
+		// and we've got a name to show.
+		if (detail.getVisible() == false && name.compareTo("") != 0) {
 			PText pt = new PText(name);
 			pt.setPickable(false);
 			pt.setFont(Constants.TOOLTIP_FONT);
