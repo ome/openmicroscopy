@@ -35,7 +35,8 @@ package org.openmicroscopy.shoola.agents.spots;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.ViewTrackSpotsEvent;
-import org.openmicroscopy.shoola.agents.spots.data.TrajectorySet;
+import org.openmicroscopy.shoola.agents.spots.data.SpotsTrajectorySet;
+import org.openmicroscopy.shoola.agents.spots.ui.SpotsWindow;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
@@ -102,7 +103,8 @@ public class Spots  implements Agent, AgentEventListener
 	private void handleViewSpots(ViewTrackSpotsEvent event) {
 		ChainExecutionData exec = event.getChainExecution();
 		System.err.println("viewing spots for execution..."+exec.getID());
-		TrajectorySet trajectories = new TrajectorySet(registry,exec);
+		SpotsTrajectorySet trajectories = new SpotsTrajectorySet(registry,exec);
+		SpotsWindow window = new SpotsWindow(registry,trajectories);
 	}
 
 }
