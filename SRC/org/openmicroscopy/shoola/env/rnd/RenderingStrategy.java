@@ -54,19 +54,22 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
  */
 abstract class RenderingStrategy
 {
-	static void makeNew(int model)
+	
+	static RenderingStrategy makeNew(int model)
 	{
+		RenderingStrategy strategy = null;
 		switch(model) {
 			case RenderingDef.GS:
-				new GreyScaleStrategy();
+				strategy = new GreyScaleStrategy();
 				break;
 			case RenderingDef.RGB:
-				new RGBStrategy();
+				strategy = new RGBStrategy();
 				break;
 			default:
-				throw new IllegalArgumentException("Wrong Rendering model " +
-					"identifier");
+				throw new IllegalArgumentException(
+											"Wrong Rendering model identifier");
 		}
+		return strategy;
 	}
 	
 	abstract BufferedImage render(Renderer ctx);
