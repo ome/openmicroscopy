@@ -123,6 +123,39 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
     }
     
     /**
+     * Tells the dispatcher to disable heat map mode for the selected
+     * browser.
+     */
+    public void fireModeCancel()
+    {
+        BrowserModel browserModel = model.getInfoSource();
+        List thumbnailList = browserModel.getThumbnails();
+        for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+        {
+            Thumbnail t = (Thumbnail)iter.next();
+            t.removeMiddlePaintMethod(currentMethod);    
+        }
+    }
+    
+    /**
+     * Tells the dispatcher to reenable heat map mode for the selected
+     * browser.
+     */
+    public void fireModeReactivate()
+    {
+        if(currentMethod != null)
+        {
+            BrowserModel browserModel = model.getInfoSource();
+            List thumbnailList = browserModel.getThumbnails();
+            for(Iterator iter = thumbnailList.iterator(); iter.hasNext();)
+            {
+                Thumbnail t = (Thumbnail)iter.next();
+                t.addMiddlePaintMethod(currentMethod);
+            }
+        }
+    }
+    
+    /**
      * Fills in stuff in the browser model accordingly.
      * @see org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapTreeListener#nodeSelected(org.openmicroscopy.shoola.agents.browser.heatmap.SemanticTypeTree.TreeNode)
      */
@@ -217,8 +250,14 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         {
             if(model == null) return;
             if(selectedNode == null) return;
-            if(selectedNode.getFQName() == null) return;
-            if(!(selectedNode instanceof SemanticTypeTree.ElementNode)) return;
+
+            if(!(selectedNode instanceof SemanticTypeTree.ElementNode) ||
+               selectedNode.getFQName() == null)
+            {
+                fireModeCancel();
+                currentMethod = null;
+                return;
+            }
             if(selectedNode.isLazilyInitialized())
             {
                 // get attribute

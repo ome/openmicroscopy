@@ -126,7 +126,7 @@ public class HeatMapPMFactory
                 double val = mode.computeValue(attrs,elementName);
                 Color color = scale.getColor(val,coldColor,warmColor);
                 Color alphaColor = new Color(color.getRed(),color.getGreen(),
-                                             color.getBlue(),128);
+                                             color.getBlue(),153);
                 thumbnailColorMap.put(tdm,alphaColor);
             }
         };

@@ -43,8 +43,9 @@ import java.awt.Dimension;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 
-import org.openmicroscopy.shoola.agents.browser.heatmap.SemanticTypeTree;
 
 /**
  * The Swing UI for the heat map controls.
@@ -72,10 +73,7 @@ public final class HeatMapUI extends JInternalFrame
     {
         super();
         treePanel = new HeatMapTreeUI(null);
-        gradPanel = new HeatMapGradientUI();
-        statusPanel = new HeatMapStatusUI();
-        modeBar = new HeatMapModeBar();
-        scaleBar = new HeatMapScaleBar();
+        init();
         buildUI();
     }
     
@@ -86,6 +84,7 @@ public final class HeatMapUI extends JInternalFrame
     public HeatMapUI(HeatMapModel model)
     {
         super();
+        init();
         if(model == null)
         {
             return;
@@ -93,7 +92,6 @@ public final class HeatMapUI extends JInternalFrame
         this.model = model;
         model.addListener(this);
         
-        statusPanel = new HeatMapStatusUI();
         treePanel = new HeatMapTreeUI(model.getModel());
         dispatcher = new HeatMapDispatcher(model,statusPanel,gradPanel);
         dispatcher.setCurrentMode(modeBar.getCurrentMode());
@@ -101,8 +99,30 @@ public final class HeatMapUI extends JInternalFrame
         treePanel.addListener(dispatcher);
         modeBar.addListener(dispatcher);
         scaleBar.addListener(dispatcher);
-        gradPanel = new HeatMapGradientUI();
         buildUI();
+    }
+    
+    private void init()
+    {
+        gradPanel = new HeatMapGradientUI();
+        statusPanel = new HeatMapStatusUI();
+        modeBar = new HeatMapModeBar();
+        scaleBar = new HeatMapScaleBar();
+        
+        addInternalFrameListener(new InternalFrameAdapter()
+        {
+            public void internalFrameClosing(InternalFrameEvent arg0)
+            {
+                dispatcher.fireModeCancel();
+            }
+            
+            public void internalFrameActivated(InternalFrameEvent arg0)
+            {
+                dispatcher.fireModeReactivate();
+            }
+
+        });
+
     }
     
     /**

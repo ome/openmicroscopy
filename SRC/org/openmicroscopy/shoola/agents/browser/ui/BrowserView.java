@@ -569,7 +569,9 @@ public class BrowserView extends PCanvas
             RegionSensitive rs = (RegionSensitive)iter.next();
             rs.setActiveRegion(footprint);
         }
-    
+        
+        System.err.println(footprint);
+        System.err.println("Dim: "+width+","+height);
         overlayCamera.cameraResized(new Rectangle2D.Double(0,0,width,height));
     }
     
