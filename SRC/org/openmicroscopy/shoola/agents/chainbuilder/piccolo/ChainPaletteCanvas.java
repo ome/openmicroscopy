@@ -60,6 +60,7 @@ import java.util.Iterator;
 //Third-party libraries
 import edu.umd.cs.piccolo.activities.PActivity;
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate;
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
@@ -89,6 +90,7 @@ import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.ContentComponent;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 
 /** 
@@ -653,6 +655,26 @@ public class ChainPaletteCanvas extends BufferedCanvas implements
 		}
 		
 	}
+	
+	public void overviewClick(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof MouseableNode) {
+			MouseableNode mn = (MouseableNode) n;
+			mn.mouseEntered(handler,e);
+			mn.mouseClicked(handler,e);
+		}
+		
+	}
+	
+	public void overviewPopup(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n instanceof MouseableNode) {
+			MouseableNode mn = (MouseableNode) n;
+			mn.mouseEntered(handler,e);
+			mn.mousePopup(handler,e);
+		}
+	}
+	
 		
     private class ChainBoxFilter implements PNodeFilter {
 		
