@@ -118,6 +118,18 @@ public class BrowserAgent implements Agent, AgentEventListener
         // TODO: register event listening here (this,type.class)
         //eventBus.register(this.LoadDataset.class);
     }
+    
+    /**
+     * Instructs the agent to load the Dataset with the given ID into
+     * a new browser window.
+     * @param browserIndex The ID (primary key) of the dataset to load.
+     * @return Whether or not the dataset was succesfully loaded.
+     */
+    public boolean loadDataset(int datasetID)
+    {
+        
+        return true;
+    }
 
     /**
      * Instructs the agent to load the Dataset with the given ID into the

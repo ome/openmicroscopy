@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailSourceMap
+ * org.openmicroscopy.shoola.agents.browser.datamodel.DataLoaderListener
  *
  *------------------------------------------------------------------------------
  *
@@ -35,58 +35,40 @@
  */
 package org.openmicroscopy.shoola.agents.browser.datamodel;
 
-import java.util.*;
-
-import org.openmicroscopy.ds.dto.Image;
-
 /**
- * Specifies a mapping between image thumbnails and Image DTOs.  This can be
- * lazily initialized (and is so by design); that is, one can specify the
- * Images and then, after hitting the image server, can get the corresponding
- * Thumbnails.  Both are linked (implied) by the same image IDs.
+ * An interface that specifies a listener to the an incremental process.
+ * Classes that implement this interface will receive events as to the progress
+ * of a particular event.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ThumbnailSourceMap
+public interface ProgressListener
 {
-    private Map thumbnailMap;
-    private Map sourceMap;
-
     /**
-     * Creates a Thumbnail-to-data source mappping.
+     * Specifies that execution of a process is about to start, with the
+     * specified number of subtasks.
+     * @param piecesOfData The number of subtasks
      */
-    public ThumbnailSourceMap()
-    {
-        thumbnailMap = new HashMap();
-        sourceMap = new HashMap();
-    }
-
-    /**
-     * Adds image data to the mapping.  The image is bound to the corresponding
-     * thumbnail by the image ID (that should be the same for both).  This
-     * is an implied relation.
-     * 
-     * @param image The image to add.  Will accomplish nothing if it is null.
-     */
-    public void putImageData(Image image)
-    {
-        if(image != null)
-        {
-            sourceMap.put(new Integer(image.getID()),image);
-        }
-    }
+    public void processStarted(int piecesOfData);
     
     /**
-     * Return the concrete image metadata associated with the image with
-     * the specified ID.  If no mapping exists, will return null.
-     * @param imageID The Image to access.
-     * @return See above.
+     * Specifies that execution of a process has advanced by an incremental
+     * step, with the specified information about exactly what happened.
+     * @param info Information about what was loaded.
      */
-    public Image getImageData(int imageID)
-    {
-        return (Image)sourceMap.get(new Integer(imageID));
-    }
+    public void processAdvanced(String info);
+    
+    /**
+     * Indicates that the process has completed successfully.
+     */
+    public void processSucceeded();
+    
+    /**
+     * Indicates that the process has terminated with the specified
+     * failure notification.
+     */
+    public void processFailed(String reason);
 }
