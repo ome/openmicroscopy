@@ -83,34 +83,55 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}	
 	
 	
+	public void mouseEntered(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (n != lastChainView && lastChainView != null &&
+				!checkEventInNodeInterior(lastChainView,e) &&
+				!n.isAncestorOf(lastChainView) && 
+				!n.isDescendentOf(lastChainView))
+			hideLastChainView();
+		super.mouseEntered(e);
+			
+	}
+	/**
+	 * If the node that I'm exiting is a chain box, 
+	 * check to see if I've actually gone "outside" of the box (in
+	 * screen terms), as opposed to simply going inside of another node that is
+	 * physically surrounded by the chainbox.
+	 */
 	public void mouseExited(PInputEvent e) {
 		PNode n = e.getPickedNode();
-		if (n instanceof ChainBox)
-			checkExit((ChainBox) n,e);
+		if (n instanceof ChainBox) {
+			if (!checkEventInNodeInterior(n,e))
+				super.mouseExited(e);
+		}
 		else 
 			super.mouseExited(e);
 		e.setHandled(true);
 	}
 	
-	private void checkExit(ChainBox n,PInputEvent e) { 
-		PBounds b = n.getBounds();
-		Point2D pickedPos = e.getPositionRelativeTo(n);
-	
-		if (!b.contains(pickedPos)) {
-			super.mouseExited(e);
+	private boolean checkEventInNodeInterior(PNode node,PInputEvent e) {
+		PBounds b = node.getBounds();
+		// must do something in case node is not on picked path.
+		try {
+			Point2D pickedPos = e.getPositionRelativeTo(node);
+			if (b.contains(pickedPos))
+				return true;
+			else
+				return false;
+		} catch(Exception exc) {
+			// if this pick did not contain the node,
+			// then then event can't be in the node's interior
+			return false;
 		}
 	}
 	
-	public void mouseEntered(PInputEvent e) {
-		PNode n = e.getPickedNode();
-		super.mouseEntered(e);
-	}
 	
 	protected void setLastEntered(PNode node) {
-		System.err.println("setting last entered to .."+node);
 		if (lastChainView != null && lastChainView != node 
 				&& node != null
-				&& !lastChainView.isAncestorOf(node))
+				&& !lastChainView.isAncestorOf(node) 
+				&& !lastChainView.isDescendentOf(node))
 			hideLastChainView();
 		if (node instanceof ChainBox) {
 			ChainBox cb = (ChainBox)node;
@@ -134,7 +155,6 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	private void setSelectedChain(ChainView chain) {
-		System.err.println("setting selected chain.."+chain.getChain().getName());
 		if (chain != null && chain.getChain() != null) {
 			((ChainPaletteCanvas) canvas).setDraggingChain(chain.getChain());;
 		}
@@ -142,12 +162,13 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	public void handleBackgroundClick() {
-		System.err.println("handling background click..");
 		hideLastChainView();
 		super.handleBackgroundClick();
 		SelectAnalysisChain event = new SelectAnalysisChain(null);
 		registry.getEventBus().post(event);
 	}
+	
+	// called on entering/leaving chain box.
 	
 	public void setLastHighlighted(ChainBox box) {
 		if (lastHighlighted != null)
@@ -160,15 +181,19 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 	}
 	
 	/**
-	 * @param lastChainView The lastChainView to set.
+	 * The lastChainView that I clicked on
+	 * called when I click on a compound...
+	 * @param lastChainView 
 	 */
 	public void setLastChainView(PaletteChainView lastChainView) {
-		System.err.println("last chain view is ..."+lastChainView);
+		// if I get this twice, show the full view.
+		if (this.lastChainView == lastChainView)
+			lastChainView.showFullView(true);
 		this.lastChainView = lastChainView;
 	}
 	
 	public void hideLastChainView() {
-		if (lastChainView != null) {
+		if (lastChainView != null) {		
 			lastChainView.hide();
 		}
 		lastChainView = null;
