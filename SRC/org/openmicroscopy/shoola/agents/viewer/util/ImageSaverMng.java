@@ -140,10 +140,31 @@ class ImageSaverMng
             case ImageSaver.PIN_ON_IMAGE:
                 handleSavePinOnImage(encoder, format, fileName, message);
                 break;
-            case ImageSaver.PIN_ON_SIDE:
-                handleSavePinOnSide(encoder, format, fileName, message);
+            case ImageSaver.PIN_ON_SIDE_TOP_LEFT:
+                handleSavePinTopLeft(encoder, format, fileName, message);
+                break;
+            case ImageSaver.PIN_ON_SIDE_TOP_RIGHT:
+                handleSavePinTopRight(encoder, format, fileName, message);
+                break;
+            case ImageSaver.PIN_ON_SIDE_BOTTOM_LEFT:
+                handleSavePinBottomLeft(encoder, format, fileName, message);
+                break;
+            case ImageSaver.PIN_ON_SIDE_BOTTOM_RIGHT:
+                handleSavePinBottomRight(encoder, format, fileName, message);
+                break;
+            case ImageSaver.IMAGE_AND_ROI:
+                handleSaveImageAndROI(encoder, format, fileName, message);
+                break;   
         }
     }
+    
+    private void handleSaveImageAndROI(Encoder encoder, String format, 
+                                        String name, String msg)
+    {
+        BufferedImage img = control.getImageAndROIs();
+        writeImage(img, encoder, format, name, msg, MAIN_MSG);
+    }
+    
     
     /** Save the main image. */
     private void handleSaveImage(Encoder encoder, String format, String name, 
@@ -189,9 +210,9 @@ class ImageSaverMng
     
     /** 
      * Save the pin image and the main one in the same image. The pin
-     * image is painted on the side.
+     * image is painted in the top-left corner.
      */
-    private void handleSavePinOnSide(Encoder encoder, String format, 
+    private void handleSavePinTopLeft(Encoder encoder, String format, 
                                             String name,  String msg)
     {
         JCheckBox box = view.selection.paintingOnOff;
@@ -200,7 +221,59 @@ class ImageSaverMng
             int i = view.selection.colors.getSelectedIndex();
             c = colorSelection[i];
         } 
-        BufferedImage img = control.getPinOnSide(box.isSelected(), c);   
+        BufferedImage img = control.getPinOnSideTopLeft(box.isSelected(), c);   
+        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+    }
+    
+    /** 
+     * Save the pin image and the main one in the same image. The pin
+     * image is painted in the top-right corner.
+     */
+    private void handleSavePinTopRight(Encoder encoder, String format, 
+                                            String name,  String msg)
+    {
+        JCheckBox box = view.selection.paintingOnOff;
+        Color c = null;
+        if (box.isSelected()) {
+            int i = view.selection.colors.getSelectedIndex();
+            c = colorSelection[i];
+        } 
+        BufferedImage img = control.getPinOnSideTopRight(box.isSelected(), c);   
+        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+    }
+    
+    /** 
+     * Save the pin image and the main one in the same image. The pin
+     * image is painted in the bottom-left corner.
+     */
+    private void handleSavePinBottomLeft(Encoder encoder, String format, 
+                                            String name,  String msg)
+    {
+        JCheckBox box = view.selection.paintingOnOff;
+        Color c = null;
+        if (box.isSelected()) {
+            int i = view.selection.colors.getSelectedIndex();
+            c = colorSelection[i];
+        } 
+        BufferedImage img = control.getPinOnSideBottomLeft(box.isSelected(), c);   
+        writeImage(img, encoder, format, name, msg, BOTH_MSG);
+    }
+    
+    /** 
+     * Save the pin image and the main one in the same image. The pin
+     * image is painted in the bottom-right corner.
+     */
+    private void handleSavePinBottomRight(Encoder encoder, String format, 
+                                            String name,  String msg)
+    {
+        JCheckBox box = view.selection.paintingOnOff;
+        Color c = null;
+        if (box.isSelected()) {
+            int i = view.selection.colors.getSelectedIndex();
+            c = colorSelection[i];
+        } 
+        BufferedImage img = control.getPinOnSideBottomRight(box.isSelected(), 
+                                                                c);   
         writeImage(img, encoder, format, name, msg, BOTH_MSG);
     }
     

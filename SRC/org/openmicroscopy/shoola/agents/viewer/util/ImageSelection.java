@@ -80,8 +80,16 @@ class ImageSelection
         selections[ImageSaver.PIN_IMAGE] = "Pin Image"; 
         selections[ImageSaver.PIN_ON_IMAGE] = "Pin on Image"; 
         selections[ImageSaver.PIN_AND_IMAGE] = "Pin and Image"; 
-        selections[ImageSaver.PIN_ON_SIDE] = "Pin on side";
-
+        selections[ImageSaver.PIN_ON_SIDE_TOP_LEFT] = "Pin in top-left corner";
+        selections[ImageSaver.PIN_ON_SIDE_TOP_RIGHT] = "Pin in top-right " +
+                                                    "corner";
+        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_LEFT] = "Pin in bottom-left " +
+                                                     "corner";
+        selections[ImageSaver.PIN_ON_SIDE_BOTTOM_RIGHT] = "Pin in " +
+                                                    "bottom-right corner";
+        
+        selections[ImageSaver.IMAGE_AND_ROI] = "Image and ...";
+        
         selectionOfColors = new String[MAX_COLOR+1];
         selectionOfColors[RED] = "Red";
         selectionOfColors[GREEN] = "Green";

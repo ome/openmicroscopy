@@ -77,11 +77,15 @@ public class ImageSaver
     static final String         MSG_DIR = "The image has been saved in \n";
     
     static final int            IMAGE = 0;
-    static final int            PIN_IMAGE = 1;
-    static final int            PIN_AND_IMAGE = 2;
-    static final int            PIN_ON_IMAGE = 3;
-    static final int            PIN_ON_SIDE = 4;
-    static final int            MAX_TYPE = 4;
+    static final int            IMAGE_AND_ROI = 1;
+    static final int            PIN_IMAGE = 2;
+    static final int            PIN_AND_IMAGE = 3;
+    static final int            PIN_ON_IMAGE = 4;
+    static final int            PIN_ON_SIDE_TOP_LEFT = 5;
+    static final int            PIN_ON_SIDE_TOP_RIGHT = 6;
+    static final int            PIN_ON_SIDE_BOTTOM_LEFT = 7;
+    static final int            PIN_ON_SIDE_BOTTOM_RIGHT = 8;
+    static final int            MAX_TYPE = 8;
 
     ImageChooser                chooser;
     
