@@ -144,11 +144,13 @@ public class IconManager
 	/** ID of the filter icon. */
 	public static final int		FILTER = 26;
 	
+	public static final int		ORDER_BY_SELECTED = 27;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 26;
+	private static int          MAX_ID = 27;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -180,6 +182,7 @@ public class IconManager
 		relPaths[ORDER_BY_NAME] = "eclipse_alphab_sort_co16.png";
 		relPaths[ORDER_BY_DATE] = "nuvola_clock16.png";
 		relPaths[FILTER] = "eclipse_filter_ps16.png";
+		relPaths[ORDER_BY_SELECTED] = "nuvola_endturn16.png";
 	}
 	
 	/** The sole instance. */
