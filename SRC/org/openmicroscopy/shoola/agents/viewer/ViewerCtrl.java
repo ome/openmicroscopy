@@ -527,10 +527,13 @@ public class ViewerCtrl
     /** Forward event to the {@link Viewer agent}. */
     public void showROI()
     { 
-        abstraction.showROI(presentation.getDrawingCanvas(), iat.copy());
-        setRoiOnOff(true);
+        if (!roiOnOff) {
+            abstraction.showROI(presentation.getDrawingCanvas(), iat.copy());
+            setRoiOnOff(true);
+        }
     }
 
+    /** Turn on and off the ROI widget. */
     public void setRoiOnOff(boolean b)
     {
         roiOnOff = b;

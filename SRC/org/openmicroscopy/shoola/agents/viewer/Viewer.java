@@ -285,6 +285,7 @@ implements Agent, AgentEventListener
         presentation.setImageName(imageName);
         presentation.setActive(active);
         presentation.resetMagFactor();
+        presentation.setUnitBarSize(pxsDims.pixelSizeX);
     }
     
     /** Build the GUI. */

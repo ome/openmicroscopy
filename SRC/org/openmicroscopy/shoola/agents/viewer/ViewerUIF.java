@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -78,8 +79,13 @@ public class ViewerUIF
     extends TopWindow
 {
 
+    public static final BasicStroke SCALE_STROKE = new BasicStroke(2.0f);
     
-    /** position of the canvas in the layer. */
+    public static final Color       SCALE_COLOR = new Color(204, 255, 204);
+    
+    public static final int         SCALE_BORDER = 5;
+    
+    /** Position of the canvas in the layer. */
     public static final int         IMAGE_LEVEL = 0, LENS_LEVEL = 1, 
                                     ROI_LEVEL = 2;
     
@@ -108,7 +114,7 @@ public class ViewerUIF
     
     
     /** Constants used to draw the XY-axis. */
-    public static final int         START = 25, ORIGIN = 5, LENGTH = 20, 
+    public static final int         START = 35, ORIGIN = 5, LENGTH = 20, 
                                     ARROW = 3;
     
     /** Canvas to display the currently selected 2D image. */
@@ -152,6 +158,7 @@ public class ViewerUIF
         setJMenuBar(createMenuBar(maxZ, maxT));
         initBars(registry, maxT, defaultT, maxZ, defaultZ);
         initSliders(maxT, defaultT, maxZ, defaultZ);
+        initContainers();
         buildGUI();
     }
     
@@ -228,6 +235,8 @@ public class ViewerUIF
         active = true; 
     }
 
+    void setUnitBarSize(double x) { canvas.setUnitBarSize(x); }
+    
     /** Set the size of the components used to display the image. */
     void setSizePaintedComponents(Dimension d)
     {
@@ -252,6 +261,15 @@ public class ViewerUIF
         layer.repaint();
     }
 
+    private void initContainers()
+    {
+        layer = new JLayeredPane();
+        drawingCanvas = new DrawingCanvas();
+        canvas = new ImageCanvas(this, control);
+        layer.add(canvas, new Integer(IMAGE_LEVEL));
+        scrollPane = new JScrollPane(layer);
+    }
+    
     /** Initialize the toolBar and the bottom bar. */
     private void initBars(Registry reg, int maxT, int t, int maxZ, int z) 
     {
@@ -344,11 +362,6 @@ public class ViewerUIF
     private void buildGUI()
     {
         Container container = getContentPane();
-        layer = new JLayeredPane();
-        drawingCanvas = new DrawingCanvas();
-        canvas = new ImageCanvas(this, control);
-        layer.add(canvas, new Integer(IMAGE_LEVEL));
-        scrollPane = new JScrollPane(layer);
         container.add(toolBar, BorderLayout.NORTH);
         container.add(buildMain(), BorderLayout.WEST);
         container.add(scrollPane, BorderLayout.CENTER);

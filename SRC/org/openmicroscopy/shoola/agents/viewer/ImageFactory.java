@@ -41,15 +41,11 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.util.Iterator;
-import java.util.List;
-
-import org.openmicroscopy.shoola.agents.roi.defs.ScreenPlaneArea;
-import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.math.geom2D.PlaneArea;
 
 /** 
  * Factory class to create buffered Image.
@@ -145,50 +141,7 @@ public class ImageFactory
         } 
         return createImage(sizeX, sizeY, buffer); 
     }
-    
-    public static BufferedImage getImageAndROIs(BufferedImage img, List rois)
-    {
-        int sizeX = img.getWidth();
-        int sizeY = img.getHeight();
-        DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
-        DataBuffer dataBuf = img.getRaster().getDataBuffer();
-        ColorModel cm = img.getColorModel();
-        int v, pos;
-        int red = 0, green = 0, blue = 0;  
-        Iterator i = rois.iterator();
-        ScreenPlaneArea roi;
-        Color c;
-        boolean onBorder = false;
-        for (int y = 0; y < sizeY; ++y) {
-            for (int x = 0; x < sizeX; ++x) {
-                pos = sizeX*y+x;
-                i = rois.iterator();
-                while (i.hasNext()) {
-                    roi = (ScreenPlaneArea) i.next();
-                    if (roi.getPlaneArea().onBoundaries(x, y)) {
-                        c = roi.getAreaColor();
-                        red = c.getRed();
-                        green = c.getGreen();
-                        blue = c.getBlue();
-                        onBorder = true;
-                        break;
-                    } 
-                }
-                if (!onBorder) {
-                    v = dataBuf.getElem(0, pos);
-                    red = cm.getRed(v);
-                    green = cm.getGreen(v);
-                    blue = cm.getBlue(v);
-                }
-                buffer.setElem(0, pos, red);
-                buffer.setElem(1, pos, green);
-                buffer.setElem(2, pos, blue);
-                onBorder = false;
-            } 
-        }  
-        return createImage(sizeX, sizeY, buffer); 
-    }
-    
+
     /**
      * 
      * Create a sub-BufferedImage from an original bufferedImage.
