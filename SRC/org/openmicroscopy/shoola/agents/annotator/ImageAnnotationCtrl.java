@@ -110,6 +110,24 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
             }
         });
     }
+    
+    public String getAnnotation(int annotationIndex)
+    {
+        return (String)getTextAnnotations().get(annotationIndex);
+    }
+    
+    public void newAnnotation(String annotation)
+    {
+        ImageAnnotation annotation = annotator.
+    }
+    
+    public void setAnnotation(int annotationIndex, String content)
+    {
+        ImageAnnotation annotation =
+            (ImageAnnotation)annotationList.get(annotationIndex);
+        annotation.setContent(content);
+    }
+
    
     /**
      * Saves the annotation to DB and indicates such a change.

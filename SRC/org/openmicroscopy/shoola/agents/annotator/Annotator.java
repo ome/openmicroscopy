@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.ds.st.DatasetAnnotation;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -154,6 +156,34 @@ public class Annotator implements Agent, AgentEventListener
         topFrame = registry.getTopFrame();
         EventBus bus = registry.getEventBus();
         bus.register(this,AnnotateImage.class);
+    }
+    
+    /**
+     * Use the STS to create a new DatasetAnnotation attribute.
+     * @param content The content to include in the annotation.
+     * @return A DatasetAnnotation attribute (DTO) with the embedded content.
+     */
+    DatasetAnnotation createDatasetAnnotation(String content)
+    {
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        DatasetAnnotation newAnnotation =
+            (DatasetAnnotation)sts.createAttribute("DatasetAnnotation");
+        newAnnotation.setContent(content);
+        return newAnnotation;
+    }
+    
+    /**
+     * Use the STS to create a new ImageAnnotation attribute.
+     * @param content The content to include in the annotation.
+     * @return An ImageAnnotation attribute (DTO) with the embedded content.
+     */
+    ImageAnnotation createImageAnnotation(String content)
+    {
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        ImageAnnotation newAnnotation =
+            (ImageAnnotation)sts.createAttribute("ImageAnnotation");
+        newAnnotation.setContent(content);
+        return newAnnotation;
     }
 
     /**

@@ -187,6 +187,32 @@ public interface SemanticTypesService
      */
     public int countFeatureAttributes(String typeName, int featureID)
         throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Creates an attribute of the specified type, so that you can set the
+     * values of a new Attribute through its mutator methods, and appropriate
+     * DTO values embedded.
+     * @param type The type of Attribute to create.
+     * @return The created attribute.
+     */
+    public Attribute createAttribute(SemanticType type);
+    
+    /**
+     * Creates an attribute of the type with the specified name, so that you
+     * can set the values of a new Attribute through its mutator methods, and
+     * appropriate DTO values embedded.
+     * @param typeName The name of the attribute to create.
+     * @return The created attribute.
+     */
+    public Attribute createAttribute(String typeName);
+    
+    /**
+     * Uses the AnnotationManager to update/create attributes that require
+     * some form of user input record, such as DatasetAnnotations,
+     * ImageAnnotations, Classifications, etc.
+     * @param attributes The list of attributes to add to the system.
+     */
+    public void updateUserInputAttributes(List attributes);
 
     /**
      * Retrieves the attribute with the given SemanticType and specified

@@ -38,6 +38,7 @@ import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory; 
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 //Java imports
@@ -219,6 +220,24 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         return countFeatureAttributes(type.getName(),featureID);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(org.openmicroscopy.ds.dto.SemanticType)
+     */
+    public Attribute createAttribute(SemanticType type)
+    {
+        DataFactory factory = gateway.getDataFactory();
+        return factory.createNew(type);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#createAttribute(java.lang.String)
+     */
+    public Attribute createAttribute(String typeName)
+    {
+        DataFactory factory = gateway.getDataFactory();
+        return factory.createNew(typeName);
     }
     
     /**
@@ -527,6 +546,21 @@ class STSAdapter
         
         DataFactory proxy = gateway.getDataFactory();
         return (SemanticType)proxy.retrieve(SemanticType.class,criteria);
+    }
+    
+    /**
+     * Updates attributes that have some sort of user input associated with
+     * them, such as ImageAnnotation, DatasetAnnotation, Classification and
+     * others.  Each user input attribute has an associated ModuleExecution,
+     * and updating these attributes requires the AnnotationManager for
+     * proper database storage.
+     * 
+     * @param attributes The list of attributes to update.
+     */
+    public void updateUserInputAttributes(List attributes)
+    {
+        AnnotationManager manager = gateway.getAnnotationManager();
+        manager.annotateAttributes(attributes);
     }
     
     /**

@@ -52,6 +52,7 @@ import org.openmicroscopy.ds.dto.Attribute;
  */
 public abstract class AnnotationCtrl
 {
+    protected static final int NEW_ID = -1;
     /**
      * Whether or not this state has been committed.
      */
@@ -94,14 +95,24 @@ public abstract class AnnotationCtrl
     }
     
     /**
-     * Sets an annotation at the specified ID to the specified value.
+     * Get the annotation in (annotation ID-ordered) index.
+     * @param index The index of the annotation to load.
+     */
+    public abstract String getAnnotation(int index);
+
+    /**
+     * Create a new annotation.
+     * @param annotation
+     */
+    public abstract void newAnnotation(String annotation);
+    
+    /**
+     * Sets an annotation at the specified ID to the specified value.  If
+     * the annotation is new, the annotationID should be NEW_ID.
      * @param annotationID The ID of the annotation to modify.
      * @param annotation The new value of the annotation.
      */
-    public void setAnnotation(int annotationID, String annotation)
-    {
-        // TODO: iterate through attributes, cast annotation, set value
-    }
+    public abstract void setAnnotation(int annotationIndex, String annotation);
     
     /**
      * Sets an attribute at the specified ID to the specified value.
