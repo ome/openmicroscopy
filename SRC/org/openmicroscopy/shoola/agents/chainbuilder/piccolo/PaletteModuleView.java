@@ -45,7 +45,6 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
 import java.util.Collection;
-import java.util.Iterator;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -55,7 +54,6 @@ import edu.umd.cs.piccolo.PNode;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainNodeExecutionData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
@@ -79,9 +77,12 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 public class PaletteModuleView extends SingleModuleView {
 	
-	private static final int MEX_GAP=1;
+	
 	
 	private PNode nexNode = null;
+	
+	private AnalysisNodeData chainNode;
+	
 	public PaletteModuleView() {
 		super();
 	}
@@ -100,48 +101,17 @@ public class PaletteModuleView extends SingleModuleView {
 	 */
 	public PaletteModuleView(AnalysisNodeData node,Collection nexes,int maxCount) {
 		super((ChainModuleData) node.getModule());
+		this.chainNode = node;
 		showDetails();
 		labelNodes.setPickable(false);
-		if (nexes != null && nexes.size() > 0)
-			addNexes(nexes,maxCount);
+		if (nexes != null && nexes.size() > 0) {
+			NexSetView setView = new NexSetView(nexes,getBodyWidth(),maxCount);
+			addChild(setView);
+			setView.setPosition();
+			//setView.setOffset(0,-setView.getHeight());
+		}
 	}
 	
-	/**
-	 * Add the widgets for the individual mexes.
-	 * @param mexes
-	 */
-	private void addNexes(Collection nexes,int maxCount) {
-		
-		// set up the mex node
-		double x = 0;
-		double y = 0;
-		// get the width of the node thus far.
-		float width = getBodyWidth();
-		nexNode = new PNode();
-		addChild(nexNode);
-		
-		// add the mexes.
-		ChainNodeExecutionData nex;
-		Iterator iter = nexes.iterator();
-		NexView view;
-		
-		while (iter.hasNext()) {
-			nex = (ChainNodeExecutionData) iter.next();
-			view = new NexView(nex);
-			nexNode.addChild(view);
-			if (x + view.getWidth() > width) {
-				// move to next row
-				x =0;
-				y += view.getHeight()+MEX_GAP;
-			}
-			view.setOffset(x,y);
-			x += view.getWidth()+MEX_GAP;
-		}
-		// place the nexNode . remember, main overview/detail @ 0,0
-		nexNode.setBounds(nexNode.getUnionOfChildrenBounds(null));
-		nexNode.setOffset(0,-nexNode.getHeight());
-		
-	}
 	
 	
 	// pass in delegates to formal inputs and outs,
@@ -162,7 +132,6 @@ public class PaletteModuleView extends SingleModuleView {
 
 	public void mouseExited(GenericEventHandler handler) {
 		setAllHighlights(false);
-		//((ChainPaletteEventHandler) handler).setLastEntered(null);
 	}
 	
 	public ChainBox getChainBoxParent() {
