@@ -94,6 +94,29 @@ public class DatasetMapper
 		//Specify which fields we want for the dataset.
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
+		
+		criteria.addFilter("owner_id", new Integer(userID));
+		criteria.addFilter("name", "NOT LIKE", "ImportSet");
+		criteria.addOrderBy("name");
+
+
+		return criteria;
+	}
+	
+	/** 
+	 * Create the criteria by which the object graph - including images
+	 *  - is pulled out
+	 * Criteria built for fullRetrieveUserDatasets.
+	 * 
+	 * @param userID	user ID.
+	 */
+	public static Criteria buildFullUserDatasetsCriteria(int userID)
+	{
+		Criteria criteria = new Criteria();
+		
+		//Specify which fields we want for the dataset.
+		criteria.addWantedField("id");
+		criteria.addWantedField("name");
 		criteria.addWantedField("description");
 		criteria.addWantedField("owner");
 		criteria.addWantedField("images");
@@ -130,7 +153,6 @@ public class DatasetMapper
 
 		return criteria;
 	}
-	
 	/**
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieveImages.
@@ -352,6 +374,32 @@ public class DatasetMapper
 	 * @return See above.
 	 */
 	public static List fillUserDatasets(List datasets, 
+				DatasetData dProto,ImageSummary iProto)
+	{
+		List datasetsList = new ArrayList();  //The returned summary list.
+		Iterator i = datasets.iterator();
+		DatasetData ds;
+		Dataset d;
+		//For each d in datasets...
+		while (i.hasNext()) {
+			d = (Dataset) i.next();
+			//Make a new DataObject and fill it up.
+			ds = (DatasetData) dProto.makeNew();
+			ds.setID(d.getID());
+			ds.setName(d.getName());
+			datasetsList.add(ds);
+		}
+		return datasetsList;
+	}
+	
+	/**
+	 * Create a list of dataset summary objects, including images.
+	 *
+	 * @param datasets	list of datasets objects.
+	 * @param dProto	dataObject to model.
+	 * @return See above.
+	 */
+	public static List fillFullUserDatasets(List datasets, 
 				DatasetData dProto,ImageSummary iProto)
 	{
 		List datasetsList = new ArrayList();  //The returned summary list.

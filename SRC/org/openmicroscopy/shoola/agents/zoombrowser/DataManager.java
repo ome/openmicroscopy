@@ -209,7 +209,7 @@ public class DataManager {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
 				Collection datasets = 
-					dms.retrieveUserDatasets(new BrowserDatasetData(),
+					dms.fullRetrieveUserDatasets(new BrowserDatasetData(),
 							new BrowserImageSummary());
 				getDatasetsWithImages(datasets);
 				datasetHash = buildDatasetHash(datasets);

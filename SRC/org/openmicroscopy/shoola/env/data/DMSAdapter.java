@@ -277,6 +277,35 @@ class DMSAdapter
 		return datasetsDS;
 	}
 	
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List fullRetrieveUserDatasets(DatasetData dProto, ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException
+	{
+    	//Make a new proto if none was provided.
+		if (dProto == null) dProto = new DatasetData();
+		if (iProto == null) iProto = new ImageSummary();
+		
+		//Retrieve the user ID.
+		UserCredentials uc = (UserCredentials)
+							registry.lookup(LookupNames.USER_CREDENTIALS);
+
+		//Define the criteria by which the object graph is pulled out.
+		Criteria c = 
+			DatasetMapper.buildFullUserDatasetsCriteria(uc.getUserID());
+
+		//Load the graph defined by criteria.
+		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
+	  	
+		//List of dataset summary objects.
+		List datasetsDS = null;
+		//Put the server data into the corresponding client object.
+		if (datasets != null) 
+		    datasetsDS = 
+				DatasetMapper.fillFullUserDatasets(datasets, dProto,iProto);
+    
+		//can be null
+		return datasetsDS;
+	}
     
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -591,20 +620,33 @@ class DMSAdapter
 		if (mProto == null)     mProto = new ModuleData();
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
+		long start = System.currentTimeMillis();
 		//Retrieve the user ID.
 		UserCredentials uc = (UserCredentials)
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 		//Define the criteria by which the object graph is pulled out
+		long mapStart = System.currentTimeMillis();
 		Criteria c = ChainExecutionMapper.
 			buildChainExecutionCriteria(uc.getUserID());
-	
+		long mapEnd = System.currentTimeMillis()-mapStart;
+		System.err.println("build chain execution criteria took.."+mapEnd);
 		// Load the graph defined by the criteria
+		long retStart = System.currentTimeMillis();
 		List execs = (List) gateway.retrieveListData(ChainExecution.class, c);
-	
+		long retEnd = System.currentTimeMillis()-retStart;
+		System.err.println("retreive chain execution list data.."+retEnd);
+		
 		List execDS = null;
+		
+		long fillStart = System.currentTimeMillis();
 		if (execs != null) 
 			execDS = ChainExecutionMapper.fillChainExecutions(execs, ceProto, 
                      dsProto, acProto, neProto, anProto, mProto, meProto);
+		long end = System.currentTimeMillis()-start;
+		
+		long fillEnd = System.currentTimeMillis()-fillStart;
+		System.err.println("map chain executions took.."+fillEnd);
+		System.err.println("total retrieve chain executions took.."+end);
 		return execDS;
 	}	
 	
