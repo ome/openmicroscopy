@@ -48,7 +48,6 @@ import java.awt.geom.Rectangle2D;
  */
 public interface RegionSensitive
 {
-    // TODO: change to shape?
     /**
      * Gets the region that this object is sensitive to.
      * @return

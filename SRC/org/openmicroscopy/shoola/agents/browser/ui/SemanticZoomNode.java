@@ -115,7 +115,7 @@ public class SemanticZoomNode extends PImage
      */
     public SemanticZoomNode(Thumbnail parent)
     {
-        super(); // TODO change back
+        super();
         if(!loadedCompositeInfo)
         {
             loadSizeInfo();
@@ -180,9 +180,6 @@ public class SemanticZoomNode extends PImage
         int xDiff = getImage().getWidth(null)-compositeWidth; // should be only negative...
         int yDiff = getImage().getHeight(null)-compositeHeight; // should be only negative...
         
-        // TODO get runnable code for getting composite, showing it
-        
-        // TODO fix this
         parentThumbnail = parent;
         border = new Rectangle2D.Double(-4,-4,
                                         getImage().getWidth(null)+8,
@@ -418,7 +415,7 @@ public class SemanticZoomNode extends PImage
      */
     public void respondMouseDoubleClick(PInputEvent event)
     {
-        // TODO Auto-generated method stub
+        // don't do nothin
     }
     
     /**

@@ -309,7 +309,6 @@ public final class StatusBar extends JPanel
      */
     public void processFailed(String reason)
     {
-        // TODO: launch User notifier?
         setStatusColor(Color.red);
         setLeftText("FAIL: "+reason);
     }

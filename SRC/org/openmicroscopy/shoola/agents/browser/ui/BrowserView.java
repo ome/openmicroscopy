@@ -598,7 +598,6 @@ public class BrowserView extends PCanvas
         
         footprint = FootprintAnalyzer.getArea(layoutMap);
         
-        // TODO: determine case (mode) in which this doesn't happen
         updateConstraints();
         repaint();
     }

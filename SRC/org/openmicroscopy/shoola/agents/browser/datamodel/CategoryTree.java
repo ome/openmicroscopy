@@ -73,6 +73,7 @@ public class CategoryTree
             categoryGroupList.add(cg);
             List theList = new ArrayList();
             categoryGroupMap.put(cg,theList);
+            Collections.sort(categoryGroupList,new CategoryComparator());
         }
     }
     
@@ -82,6 +83,7 @@ public class CategoryTree
         List categoryList = (List)categoryGroupMap.get(parent);
         if(categoryList == null) return;
         categoryList.add(category);
+        Collections.sort(categoryList,new CategoryComparator());
         categoryMap.put(category,parent);
     }
     
@@ -102,7 +104,6 @@ public class CategoryTree
     
     public List getCategoryGroups()
     {
-        Collections.sort(categoryGroupList,new CategoryComparator());
         return Collections.unmodifiableList(categoryGroupList);
     }
     
