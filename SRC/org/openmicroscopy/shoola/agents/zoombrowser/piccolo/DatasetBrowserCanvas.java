@@ -601,6 +601,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			return;
 		if (selectedDataset != null)
 			selectedDataset.getNode().setHighlighted(false);
+		if (dataset !=null)
+			System.err.println("setting selected dataset .."+dataset.getID());
 		selectedDataset  = dataset;
 		
 		// if a dataset is clicked on to be selected, it has already
@@ -658,5 +660,46 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			else
 				n.setHighlighted(false);	
 		}
+	}
+	
+	public void selectChainExecution(ChainExecutionData exec) {
+		if (exec == null) {
+			setSelectedDataset(null);
+			return;
+		}
+		DatasetData ds = exec.getDataset();
+		int dsId = ds.getID();
+		System.err.println("selecting exec with ds ..."+dsId);
+		DatasetNode n = null;
+		BrowserDatasetData browserDataset = findDatasetData(dsId);
+		if (browserDataset != null)
+			n = browserDataset.getNode();
+		
+		System.err.println("found dataset data.."+browserDataset);
+		// make what I've found selected
+		if (n != null) {
+			// if it isn't displayed, display all
+			if (n.getParent() != layer)
+				doLayout(allDatasets);
+			eventHandler.animateToNode(n);
+		}
+		setSelectedDataset(browserDataset);
+	}
+	
+	private BrowserDatasetData findDatasetData(int dsId) {
+		
+		// go through some silliness to find the BrowserDatasetData
+		// that corresponds to ds. must look at _all_ datasets - not
+		// just those currently being displayed
+		Iterator iter = allDatasets.iterator();
+		BrowserDatasetData browserDataset = null;
+		while (iter.hasNext()) {
+			browserDataset = (BrowserDatasetData) iter.next();
+			System.err.println("looking at dataset ..."+browserDataset.getID());
+			if (browserDataset.getID() == dsId) {
+				return browserDataset;
+			}
+		}
+		return null;
 	}
  } 
