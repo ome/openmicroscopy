@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 
 //Java imports
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +38,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.st.Pixels;
-import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.PixelsServiceAdapter;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
@@ -131,6 +127,16 @@ public class DataSink
 	/** Tells the endianness of the pixels. */
 	private static final boolean	BIG_ENDIAN = true;
 	
+	//TODO: to be re-factored.
+	private static StackFiller		stackFiller;
+	
+	//TODO: to be re-factored.
+	public static void initialize()
+	{
+		if (stackFiller == null)
+			stackFiller = new StackFillerImpl(100*1024*1024, 4096);
+	}
+	
 	/**
 	 * Utility method to convert a pixel type string-identifier into the
 	 * corresponding constant defined by this class.
@@ -166,85 +172,31 @@ public class DataSink
      * {@link #getPlane2D(PlaneDef, int) getPlane2D} method.
      */
     private PlaneDef			curPlaneDef;
-    
-    /** 
-     * The z-stack of each wavelength at a given timepoint.
-     * The first element contains the stack of the wavelength which was assinged
-     * index <code>0</code>, etc.
-     * This buffer is pre-allocated when the instance is created and then
-     * filled up every time the plane definition processed by the
-     * {@link #getPlane2D(PlaneDef, int) getPlane2D} method specifies a
-     * timepoint different from the one pointed by {@link #curPlaneDef}.  
-     */
-	private byte[][]			stack;
 	
 	/** Proxy to the remote pixels source. */
     private PixelsService 		source;
     
     
-    
-    /** 
-     * Pre-allocates all memory needed by the {@link #stack} array.
-     */
-    private void allocateStack()
-    {
-		int wStackSize = pixDims.sizeX*pixDims.sizeY* 
-								pixDims.sizeZ*BYTES_PER_PIXEL[pixelType];
-		stack = new byte[pixDims.sizeW][wStackSize];
-    }
-    
-    private void fillStack(int t)
-		throws DataSourceException
-    {
-		PixelsServiceAdapter omeis = (PixelsServiceAdapter) source;  //TODO: just tmp hack.
-		InputStream pixelStream = null;
-		int w = 0, bytesRead, offset;    	
-    	try {
-			for (; w < pixDims.sizeW; ++w) {
-				pixelStream = omeis.getStackStream(pixelsID, w, t, BIG_ENDIAN);
-				bytesRead = offset = 0;
-				while ( 0 < 
-					(bytesRead = pixelStream.read(stack[w], offset, 1024)))
-					offset += bytesRead;
-			}	
-		} catch (ImageServerException ise) {
-			throw new DataSourceException(
-				"Can't retrieve wavelength "+w+" stack at timepoint "+
-				t+": ", ise);
-		} catch (IOException ioe) {
-			throw new DataSourceException(
-				"Can't retrieve wavelength "+w+" stack at timepoint "+
-				t+": ", ioe);
-		} catch (ArrayIndexOutOfBoundsException aiobe) {  //Should never happen.
-			throw new DataSourceException(
-				"Can't retrieve wavelength "+w+" stack at timepoint "+
-				t+". The length of the stack stream exceeds this wavelength's"+
-				"stack size, which is "+stack[w].length+" bytes.");
-		} finally {
-			try {
-				if (pixelStream != null) pixelStream.close();
-			} catch (IOException ioe) {}
-		}
-    }
-    
-	private Plane2D createPlane(byte[] wavelengthStack, BytesConverter strategy)
+	private Plane2D createPlane(int w, BytesConverter strategy)
 	{
 		Plane2D plane = null;
 		switch (curPlaneDef.getSlice()) {
 			case PlaneDef.XY:
 				plane = new XYPlane(curPlaneDef, pixDims, 
 									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
+									stackFiller.getPlaneData(
+													curPlaneDef.getZ(), w), 
+									strategy);
 				break;
 			case PlaneDef.XZ:
 				plane = new XZPlane(curPlaneDef, pixDims, 
 									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
+									stackFiller.getStackData(w), strategy);
 				break;
 			case PlaneDef.ZY:
 				plane = new ZYPlane(curPlaneDef, pixDims, 
 									BYTES_PER_PIXEL[pixelType],
-									wavelengthStack, strategy);
+									stackFiller.getStackData(w), strategy);
 		}
 		return plane;
 	}
@@ -270,7 +222,12 @@ public class DataSink
 		this.pixDims = dims;
 		this.curPlaneDef = null;
 		this.source = source;
-		allocateStack();
+		try {  //TODO: to be re-factored.
+			stackFiller.configure(pixelsID, dims, 
+									BYTES_PER_PIXEL[pixelType], source);
+		} catch (DataSourceException dse) {
+			throw new RuntimeException("Run out of memory.", dse);
+		}
 	}
 
 	/** Retrieves the Pixels type. */
@@ -281,11 +238,11 @@ public class DataSink
 		throws DataSourceException
 	{
 		if (curPlaneDef == null || curPlaneDef.getT() != pDef.getT())
-			fillStack(pDef.getT());
+			stackFiller.fill(pDef.getT(), BIG_ENDIAN);
 		curPlaneDef = pDef;
 		BytesConverter strategy = 
 						BytesConverter.getConverter(pixelType, BIG_ENDIAN);
-		return createPlane(stack[w], strategy);
+		return createPlane(w, strategy);
 	}
 
 }
