@@ -275,9 +275,7 @@ public class ViewerUIF
 		buildContents();
 		JScrollPane scrollPane = new JScrollPane(contents);
 		container.add(scrollPane);
-		IconManager im = IconManager.getInstance(registry);
-		Icon icon = im.getIcon(IconManager.OME);
-		setFrameIcon(icon);
+		setFrameIcon(IconManager.getOMEIcon());
 	}
 		
 	private void buildContents()
