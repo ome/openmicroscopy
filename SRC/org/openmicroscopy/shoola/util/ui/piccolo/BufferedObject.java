@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.zoombrowser.piccolo.MousableNode
+ * org.openmicroscopy.shoola.agents.zoombrowser.piccolo.BufferedObject
  *
  *------------------------------------------------------------------------------
  *
@@ -36,21 +36,22 @@
  *
  *------------------------------------------------------------------------------
  */
- 
-package org.openmicroscopy.shoola.util.ui.piccolo;
 
+package org.openmicroscopy.shoola.util.ui.piccolo;
 
 //Java imports
 
 //Third-party libraries
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 
-
 /** 
- * An interface for nodes that can support various input events.
+ * An object that can give us a "buffered bounds" - a bound with a buffer 
+ * around it in all directions. This is useful for zooming: if we use a 
+ * buffered bounds, we can center the object in a window while still leaving 
+ * some space between the edges of the object and the edges of the window 
  * 
- *   
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
  *
@@ -60,16 +61,9 @@ package org.openmicroscopy.shoola.util.ui.piccolo;
  * </small>
  */
 
-public interface MouseableNode {
 
-	public void mouseEntered(GenericEventHandler handler);
+public interface BufferedObject  {
+
+	public PBounds getBufferedBounds();
 	
-	public void mouseExited(GenericEventHandler handler);
-	
-	public void mouseClicked(GenericEventHandler handler);
-	
-	public void mouseDoubleClicked(GenericEventHandler handler);
-	
-	public void mousePopup(GenericEventHandler handler);
-		
 }
