@@ -71,7 +71,6 @@ public class HeatMapUtils
         }
         try
         {
-            System.err.println(attribute);
             double val = attribute.getDoubleElement(elementName).doubleValue();
             return val;
         }

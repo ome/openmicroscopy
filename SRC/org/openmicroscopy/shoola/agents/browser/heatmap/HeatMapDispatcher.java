@@ -204,7 +204,6 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
         List thumbnails = browserModel.getThumbnails();
         Thumbnail[] ts = new Thumbnail[thumbnails.size()];
         thumbnails.toArray(ts);
-        System.err.println("Attribute: "+attribute+", Element: "+elementName);
         double[] stats = RangeChecker.getGlobalMinMax(ts,attribute,elementName);
         gradient.setMin(stats[0]);
         gradient.setMax(stats[1]);
@@ -328,8 +327,6 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 }
                 try
                 {
-                    System.err.println("retrieving "+selectedNode.getDBName() +
-                                       " from " + name);
                     List attributeList =
                         sts.retrieveImageAttributes(name,selectedNode.getDBName(),
                                                     imageIDList);

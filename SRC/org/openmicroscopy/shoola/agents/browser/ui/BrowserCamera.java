@@ -695,7 +695,10 @@ public class BrowserCamera implements RegionSensitive,
                 }
                 else if(-deltaX+cEast > eOffset)
                 {
-                    fdX = -(eOffset-cEast);
+                    if(wOffset > 0)
+                    {
+                        fdX = -(eOffset-cEast);
+                    }
                 }
             }
             else

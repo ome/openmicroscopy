@@ -974,7 +974,6 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         LoadImage imageEvent = new LoadImage(imageID,pixelsID);
         EventBus eventBus = registry.getEventBus();
-        System.err.println("about to post events");
         eventBus.post(imageEvent);
     }
     
@@ -1000,7 +999,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         if(is == null) return;
         ViewImageInfo imageInfoEvent = new ViewImageInfo(is);
         EventBus eventBus = registry.getEventBus();
-        System.err.println("about to post show image info event");
         eventBus.post(imageInfoEvent);
     }
     
@@ -1041,7 +1039,6 @@ public class BrowserAgent implements Agent, AgentEventListener
         // makes sure correct response occurs
         event.setCompletionHandler(new AnnotateImageHandler());
         EventBus eventBus = registry.getEventBus();
-        System.err.println("about to post annotate image event");
         eventBus.post(event);
     }
 

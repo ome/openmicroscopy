@@ -157,9 +157,18 @@ public class BrowserInternalFrame extends JInternalFrame
                     if(iW != horizModel.getMaximum() ||
                        iEX != horizModel.getExtent())
                     {
-                        BoundedRangeModel hModel =
-                            new DefaultBoundedRangeModel(iX,iEX,0,iW);
-                        horizontalBar.setModel(hModel);
+                        try
+                        {
+                            BoundedRangeModel hModel =
+                                new DefaultBoundedRangeModel(iX,iEX,0,iW);
+                            horizontalBar.setModel(hModel);
+                        }
+                        catch(IllegalArgumentException iae)
+                        {
+                            System.err.println("illegal width:["+iX+","+iEX+",0,"
+                                               +iW+"]");
+                            iae.printStackTrace();
+                        }
                     }
                     else
                     {
@@ -174,9 +183,18 @@ public class BrowserInternalFrame extends JInternalFrame
                     if(iH != vertModel.getMaximum() ||
                        iEY != vertModel.getExtent())
                     {
-                        BoundedRangeModel vModel =
-                            new DefaultBoundedRangeModel(iY,iEY,0,iH);
-                        verticalBar.setModel(vModel);
+                        try
+                        {
+                            BoundedRangeModel vModel =
+                                new DefaultBoundedRangeModel(iY,iEY,0,iH);
+                            verticalBar.setModel(vModel);
+                        }
+                        catch(IllegalArgumentException iae)
+                        {
+                            System.err.println("illegal height:["+iY+","+iEY+",0,"
+                                               +iH+"]");
+                            iae.printStackTrace();
+                        }
                     }
                     else
                     {

@@ -95,9 +95,7 @@ public class PopupMenuFactory
             {
                 super.show(arg0, arg1, arg2);
                 Point p = arg0.getLocationOnScreen();
-                
                 final Point displayPoint = new Point(p.x+arg1,p.y+arg2);
-                System.err.println("display="+displayPoint);
                 
                 annotateItem.addActionListener(new ActionListener()
                 {

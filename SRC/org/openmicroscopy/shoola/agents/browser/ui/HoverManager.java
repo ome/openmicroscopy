@@ -102,7 +102,6 @@ public final class HoverManager
                 {
                     SemanticZoomNode node = (SemanticZoomNode)displayedNode;
                     node.loadCompositeImages();
-                    System.err.println(node.getOffset());
                     
                     Point parentPoint = parentComponent.getLocationOnScreen();
                     Point2D offset = node.getOffset();

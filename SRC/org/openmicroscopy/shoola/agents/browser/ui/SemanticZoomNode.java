@@ -407,7 +407,6 @@ public class SemanticZoomNode extends PImage
                 PiccoloAction action = 
                     PiccoloActionFactory.getAnnotateImageAction(parentThumbnail,
                                                                 absoluteLocation);
-                System.err.println(absoluteLocation);
                 action.execute();
             }
         }
