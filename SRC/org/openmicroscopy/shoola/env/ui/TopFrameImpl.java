@@ -91,6 +91,7 @@ public class TopFrameImpl
         // TODO: add icon
         setJMenuBar(createMenuBar());
         desktop = new JDesktopPane();
+        getContentPane().add(desktop);
     }
     
 	/** Implemented as specified by {@link TopFrame}. */     
