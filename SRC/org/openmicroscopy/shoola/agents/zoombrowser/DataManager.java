@@ -126,8 +126,9 @@ public class DataManager {
 		
 		// if we've done it, .grab it...
 		if (projectsLoaded == true) {
-			if (projectHash != null && projectHash.size() > 0)
+			if (projectHash != null && projectHash.size() > 0) {
 				return projectHash.values();
+			}
 			return null;
 		}
 		
@@ -310,7 +311,6 @@ public class DataManager {
 			BrowserImageSummary b;
 			while (iter2.hasNext()) {
 				b = (BrowserImageSummary) iter2.next();
-				long thumbStart = System.currentTimeMillis();
 				Image im = thumbnailRetriever.getImage(b);
 				b.setThumbnail(im);
 			}
@@ -331,14 +331,11 @@ public class DataManager {
 			return moduleHash.values();
 		
 		if (loadingModules == false) {
-			long start = System.currentTimeMillis();
 			loadingModules = true;
 			retrieveModules();
 		//	retrieveCategories();
 			loadingModules = false;
 			notifyAll();
-			long getTime = System.currentTimeMillis()-start;
-			System.err.println("chain data manager. get modules work time.."+getTime);
 			return moduleHash.values();
 		}
 		else {// in progress
@@ -429,14 +426,10 @@ public class DataManager {
 			return moduleCategoryHash.values();
 		
 		if (loadingModuleCategories == false) {
-			long start = System.currentTimeMillis();
 			loadingModuleCategories = true;
 			retrieveModuleCategories();
 			loadingModuleCategories = false;
 			notifyAll();
-			long getTime = System.currentTimeMillis()-start;
-			System.err.println("chain data manager. get module categories work time.."+getTime);
-			
 			return moduleCategoryHash.values();
 		}
 		else {// in progress
