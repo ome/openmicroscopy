@@ -30,19 +30,16 @@
 package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.swing.JFileChooser;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
-import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
-import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
  * Save the current image.
@@ -59,113 +56,51 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ImageSaver
-	extends JFileChooser
+	extends JDialog
 {
 	
-	static String 					MESSAGE = "A file with the same name and " +
-												"extension already exists in " +
-												"this directory. Do you " +
-												"still want to save the image?";
+	static String			MESSAGE = "A file with the same name and " +
+										"extension already exists in " +
+										"this directory. Do you " +
+										"still want to save the image?";
 	
-	static String					TITLE = "Save Image";
-	
-	/** Default extension format. */
-	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
+	static String			TITLE = "Save Image";
 	
 	/** Reference to the {@link ViewerCtrl controller}. */
-	private ViewerCtrl				controller;
+	private ViewerCtrl		controller;
 	
-	private IconManager				im;
+	private IconManager		im;
 	
-	/** 
-	 * Control used to display or not the fileChooser, when the dialog is shown.
-	 */
-	private boolean					display;
+	private ImageChooser	chooser;
 	
 	public ImageSaver(ViewerCtrl controller)
 	{
+		super(controller.getReferenceFrame(), "Save image As", true);
 		this.controller = controller;
 		im = IconManager.getInstance(controller.getRegistry());
-		display = false;
-		createChooser();
+		IconManager im = IconManager.getInstance(controller.getRegistry());
+		buildGUI(im);
+		pack();
+		setVisible(true);
 	}
 
-	void isDisplay(boolean b) { display = b; }
+	void isDisplay(boolean b) { chooser.isDisplay(b); }
 	
 	ViewerCtrl getController() { return controller; }
 	
 	BufferedImage getBufferedImage() { return controller.getBufferedImage(); }
+
 	
-	/** Build the file chooser. */
-	private void createChooser()
-	{ 
-		setFileSelectionMode(FILES_ONLY);
-		JPEGFilter jpegFilter = new JPEGFilter();
-		setFileFilter(jpegFilter);
-		addChoosableFileFilter(jpegFilter); 
-		PNGFilter pngFilter = new PNGFilter();
-		addChoosableFileFilter(pngFilter); 
-		setFileFilter(pngFilter);
-		TIFFFilter tiffFilter = new TIFFFilter();
-		setFileFilter(tiffFilter);
-		addChoosableFileFilter(tiffFilter); 
-		setAcceptAllFileFilterUsed(false);
-		showDialog(controller.getReferenceFrame(), "Save Image");
-	}
-	
-	/** Override the approveSelection method. */
-	public void approveSelection()
+	/** Build and layout the GUI. */
+	private void buildGUI(IconManager im)
 	{
-		File file = getSelectedFile();
-		if (file != null) {
-			String format = DEFAULT_FORMAT;
-			if (getFileFilter() instanceof JPEGFilter) 
-				format = JPEGFilter.JPG;
-			else if (getFileFilter() instanceof TIFFFilter) 
-				format = TIFFFilter.TIF;
-			else if (getFileFilter() instanceof PNGFilter) 
-				format = PNGFilter.PNG;
-				
-			String  fileName = file.getAbsolutePath()+"."+format, 
-					name = file.getName()+"."+format;
-			String message = "The image "+name+", has been saved in \n"
-							+getCurrentDirectory();
-			setSelection(format, fileName, message, 
-								getCurrentDirectory().listFiles());
-			setSelectedFile(null);
-			if (display) return;	
-		}      
-		// No file selected, or file can be written - let OK action continue
-		super.approveSelection();
+		getContentPane().setLayout(new BorderLayout(0, 0));
+		TitlePanel tp = new TitlePanel(TITLE, 
+							"Save the currrent image as a tiff, png or jpeg.", 
+							im.getIcon(IconManager.SAVEAS_BIG));
+		chooser = new ImageChooser(this);			
+		getContentPane().add(tp, BorderLayout.NORTH);
+		getContentPane().add(chooser, BorderLayout.CENTER);
 	}
-	
-	/** 
-	 * Check if the fileName specified already exists if not the image is saved
-	 * in the specified format.
-	 * 
-	 * @param format		format selected <code>jpeg<code>, 
-	 * 						<code>png<code> or <code>tif<code>.
-	 * @param fileName		image's name.
-	 * @param message		message displayed after the image has been created.
-	 * @param list			lis of files in the current directory.
-	 */
-	private void setSelection(String format, String fileName, String message,
-								File[] list)
-	{
-		boolean exist = false;
-		for (int i = 0; i < list.length; i++)
-			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
-			
-		if (exist) {
-			SelectionDialog dialog = new SelectionDialog(this, format, fileName,
-									 message, im.getIcon(IconManager.QUESTION));
-			dialog.pack();	
-			UIUtilities.centerAndShow(dialog);
-		} else {
-			display = false;
-			new SaveImage(controller.getRegistry(), format, 
-						controller.getBufferedImage(), fileName, message);
-		}				
-	}
-	
+		
 }

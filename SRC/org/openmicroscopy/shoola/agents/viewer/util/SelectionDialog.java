@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
 import javax.swing.Icon;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -66,8 +66,8 @@ class SelectionDialog
 	SelectionDialog (ImageSaver parentDialog, String format, String fileName, 
 					 String message, Icon messageIcon) 
 	{
-		super((JFrame) parentDialog.getController().getReferenceFrame(), 
-				ImageSaver.TITLE, ImageSaver.MESSAGE, messageIcon);
+		super((JDialog) parentDialog, ImageSaver.TITLE, ImageSaver.MESSAGE, 
+		messageIcon);
 		this.parentDialog = parentDialog;
 		this.format = format;
 		this.fileName = fileName;
@@ -83,6 +83,8 @@ class SelectionDialog
 		parentDialog.isDisplay(false);
 		new SaveImage(parentDialog.getController().getRegistry(), format, 
 				parentDialog.getBufferedImage(), fileName, message);
+		parentDialog.setVisible(false);
+		parentDialog.dispose();
 	}
 	
 }
