@@ -61,7 +61,7 @@ public class SelectChainExecutionEvent extends AgentEvent {
    	}
  
     
-    public ChainExecutionData getChainExecutions() {
+    public ChainExecutionData getChainExecution() {
     		return (ChainExecutionData) getSource();
     }
 }
