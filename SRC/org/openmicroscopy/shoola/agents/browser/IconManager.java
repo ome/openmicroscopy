@@ -87,9 +87,14 @@ public class IconManager
     public static final int OPEN_IMAGE = 3;
     
     /**
+     * The close (magnified) image icon.
+     */
+    public static final int CLOSE_IMAGE = 4;
+    
+    /**
      * The maximum image ID (increment if you add additional icons.)
      */
-    public static final int MAX_ID = 3;
+    public static final int MAX_ID = 4;
     
     /**
      * The pathnames of the (smaller) icons.
@@ -107,6 +112,7 @@ public class IconManager
         smallPaths[ZOOM_BAR] = "zoombar.png";
         smallPaths[OPTIONS_BAR] = "optionsbar.png";
         smallPaths[OPEN_IMAGE] = "openimage.png";
+        smallPaths[CLOSE_IMAGE] = "closeimage.png";
     }
     
     static
@@ -115,6 +121,7 @@ public class IconManager
         largePaths[ZOOM_BAR] = "zoombar.png";
         largePaths[OPTIONS_BAR] = "optionsbar.png";
         largePaths[OPEN_IMAGE] = "openimage.png";
+        largePaths[CLOSE_IMAGE] = "closeimage.png";
     }
     
     private static final String ICON_FACTORY_KEY = "/resources/icons/Factory";

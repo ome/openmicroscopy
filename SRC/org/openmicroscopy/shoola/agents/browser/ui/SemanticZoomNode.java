@@ -94,6 +94,8 @@ public class SemanticZoomNode extends PImage
     
     protected Image openIconImage;
     protected Rectangle2D openIconShape;
+    protected Image closeIconImage;
+    protected Rectangle2D closeIconShape;
     
     protected Image[] thumbnailImages;
     
@@ -207,12 +209,21 @@ public class SemanticZoomNode extends PImage
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         IconManager manager = env.getIconManager();
         openIconImage = manager.getLargeImage(IconManager.OPEN_IMAGE);
+        closeIconImage = manager.getLargeImage(IconManager.CLOSE_IMAGE);
         
         int iconWidth = openIconImage.getWidth(null);
         int iconHeight = openIconImage.getHeight(null);
         
         openIconShape = new Rectangle2D.Double(width-iconWidth-8,50,
                                                iconWidth,iconHeight);
+        
+        iconWidth = closeIconImage.getWidth(null);
+        iconHeight = closeIconImage.getHeight(null);
+        
+        closeIconShape = new Rectangle2D.Double(width-iconWidth-8,8,
+                                                iconWidth,iconHeight);
+                                               
+              
     }
     
     private static void loadSizeInfo()
@@ -332,6 +343,14 @@ public class SemanticZoomNode extends PImage
                 BrowserEnvironment env = BrowserEnvironment.getInstance();
                 BrowserAgent agent = env.getBrowserAgent();
                 agent.loadImage(parentThumbnail);
+                return;
+            }
+        }
+        if(closeIconShape != null)
+        {
+            if(closeIconShape.contains(pos))
+            {
+                getParent().removeChild(this);
             }
         }
     }
@@ -397,7 +416,13 @@ public class SemanticZoomNode extends PImage
      */
     public void respondMouseExit(PInputEvent e)
     {
-        getParent().removeChild(this);
+        // cheap hack
+        try
+        {
+            getParent().removeChild(this);
+        }
+        // removal w/o notification possible
+        catch(Exception ex) {}
     }
     
     /**
@@ -426,6 +451,9 @@ public class SemanticZoomNode extends PImage
         g2.drawImage(openIconImage,
                      (int)Math.round(openIconShape.getX()),
                      (int)Math.round(openIconShape.getY()),null);
+        g2.drawImage(closeIconImage,
+                     (int)Math.round(closeIconShape.getX()),
+                     (int)Math.round(closeIconShape.getY()),null);
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
         
