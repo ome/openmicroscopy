@@ -45,13 +45,13 @@ import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3DManager;
 import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3D;
 
 /** 
- * 
+ * Panel to display the three buffered Images. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -59,175 +59,177 @@ import org.openmicroscopy.shoola.agents.viewer.viewer3D.Viewer3D;
  * @since OME2.2
  */
 public class ImagesCanvas
-	extends JPanel
+    extends JPanel
 {
-	
-	private Viewer3DManager		manager;
-	
-	private Viewer3D			view;
+    
+    private Viewer3DManager     manager;
+    
+    private Viewer3D            view;
 
-	private static final int	LENGTH = 20;
+    private static final int    LENGTH = 20;
 
-	/** Space between the images. */
-	private static final int	ORIGIN = 5;
-	
-	private static final int	ARROW = 3;
-	
-	private static final int	LENGTH_SQRT = (int) (LENGTH*(Math.sqrt(2.0))/2);
-	
-	/** Coordinate of the origin. */
-	private int					xOrigin, yOrigin;
-	
-	/** width of the ZYimage+Viewer3D.SPACE+XYimage */
-	private int					imagesWidth;
-	
-	/** height of the XZimage+Viewer3D.SPACE+XYimage */
-	private int 				imagesHeight;
-	
-	private int					space;
-	
-	public ImagesCanvas(Viewer3D view, Viewer3DManager manager)
-	{
-		this.view = view;
-		this.manager = manager;
-		setBackground(Viewer3D.BACKGROUND_COLOR); 
-		xOrigin = Viewer3D.SPACE;
-		yOrigin = Viewer3D.SPACE;
-	}
+    /** Space between the images. */
+    private static final int    ORIGIN = 5;
+    
+    private static final int    ARROW = 3;
+    
+    private static final int    LENGTH_SQRT = (int) (LENGTH*(Math.sqrt(2.0))/2);
+    
+    /** Coordinate of the top-left corner of the canvas. */
+    private int                 x, y;
+ 
+    /** Width of the canvas. */
+    private int                 imagesWidth;
+    
+    /** Height of the canvas. */
+    private int                 imagesHeight;
+    
+    private int                 space;
 
-	public int getXOrigin() { return xOrigin; }
-	
-	public int getYOrigin() { return yOrigin; }
-	
-	/** Display the 3 buffered Images. */
-	public void paintImages(int XYimageWidth, int ZYimageWidth, 
-							int XYimageHeight)
-	{
-		space = Viewer3D.SPACE+ZYimageWidth;
-		imagesWidth = XYimageWidth+Viewer3D.SPACE+ZYimageWidth;
-		imagesHeight = XYimageHeight+Viewer3D.SPACE+ZYimageWidth;
-		repaint();
-	}
+    public ImagesCanvas(Viewer3D view, Viewer3DManager manager)
+    {
+        this.view = view;
+        this.manager = manager;
+        setBackground(Viewer3D.BACKGROUND_COLOR); 
+    }
+    
+    /** Display the 3 buffered Images. */
+    public void paintImages(int XYimageWidth, int ZYimageWidth, 
+                            int XYimageHeight)
+    {
+        space = Viewer3D.SPACE+ZYimageWidth;
+        imagesWidth = XYimageWidth+ZYimageWidth+3*Viewer3D.SPACE;
+        imagesHeight = XYimageHeight+ZYimageWidth+3*Viewer3D.SPACE;
+        repaint();
+    }
 
-	/** Overrides the paintComponent. */
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		Graphics2D g2D = (Graphics2D) g;
-		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-							RenderingHints.VALUE_ANTIALIAS_ON);
-		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
-							RenderingHints.VALUE_RENDER_QUALITY);
+    /** Overrides the paintComponent. */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+        g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
+                            RenderingHints.VALUE_RENDER_QUALITY);
 
-		g2D.setColor(Color.black);
-		FontMetrics fontMetrics = g2D.getFontMetrics();
-		int hFont = fontMetrics.getHeight()/4;
-		setLocation();
-		manager.setDrawingArea(xOrigin, yOrigin);
-		paintFrame(g2D, hFont);
-		paintXYFrame(g2D, hFont);
-		paintXZFrame(g2D, hFont);
-		paintZYFrame(g2D, hFont);
-		g2D.drawImage(manager.getXZimage(), null, xOrigin+space, yOrigin);
-		g2D.drawImage(manager.getZYimage(), null, xOrigin, yOrigin+space);
-		g2D.drawImage(manager.getXYimage(), null, xOrigin+space, yOrigin+space);
-	}
+        g2D.setColor(Color.black);
+        FontMetrics fontMetrics = g2D.getFontMetrics();
+        int hFont = fontMetrics.getHeight()/4;
+        setLocation();
+        manager.setDrawingBounds(x, y, imagesWidth, imagesHeight);
+        paintFrame(g2D, hFont);
+        paintXYFrame(g2D, hFont);
+        paintXZFrame(g2D, hFont);
+        paintZYFrame(g2D, hFont);
+        g2D.drawImage(manager.getXZimage(), null, Viewer3D.SPACE+space, 
+                        Viewer3D.SPACE);
+        g2D.drawImage(manager.getZYimage(), null, Viewer3D.SPACE, 
+                    Viewer3D.SPACE+space);
+        g2D.drawImage(manager.getXYimage(), null, Viewer3D.SPACE+space, 
+                    Viewer3D.SPACE+space);
+    }
 
-	/** Paint the frame. */
-	private void paintFrame(Graphics2D g2D, int hFont)
-	{
-		//x-axis
-		g2D.drawLine(xOrigin, yOrigin, xOrigin+LENGTH, yOrigin);
-		g2D.drawLine(xOrigin+LENGTH-ARROW, yOrigin-ARROW, xOrigin+LENGTH, 
-					yOrigin);
-		g2D.drawLine(xOrigin+LENGTH-ARROW, yOrigin+ARROW, xOrigin+LENGTH, 
-					yOrigin);
-		//y-axis
-		g2D.drawLine(xOrigin, yOrigin, xOrigin, yOrigin+LENGTH);
-		g2D.drawLine(xOrigin-ARROW, yOrigin+LENGTH-ARROW, xOrigin, 
-					yOrigin+LENGTH);
-		g2D.drawLine(xOrigin+ARROW, yOrigin+LENGTH-ARROW, xOrigin, 
-					yOrigin+LENGTH);
-		//z-axis
-		g2D.drawLine(xOrigin, yOrigin, xOrigin-LENGTH_SQRT, 
-						yOrigin+LENGTH_SQRT);
-		g2D.drawLine(xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT-5, 
-					xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT);
-		g2D.drawLine(xOrigin-LENGTH_SQRT+5, yOrigin+LENGTH_SQRT, 
-					xOrigin-LENGTH_SQRT, yOrigin+LENGTH_SQRT);
-		g2D.drawString("o", xOrigin-hFont, yOrigin-hFont);
-		g2D.drawString("x", xOrigin+LENGTH/2, yOrigin-hFont);
-		g2D.drawString("y", xOrigin+2*hFont, yOrigin+LENGTH-hFont);	
-		g2D.drawString("z", xOrigin-LENGTH/2-hFont, yOrigin+LENGTH/4);
-	}
-	
-	/** Paint the XZ-frame. */
-	private void paintXZFrame(Graphics2D g2D, int hFont)
-	{
-		//x-axis
-		int x1 = xOrigin+space-ORIGIN;
-		int y1 = yOrigin-ORIGIN;
-		g2D.drawLine(x1, y1, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
-		//z-axis
-		g2D.drawLine(x1, y1, x1, y1+LENGTH);
-		g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
-		g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);	
-		//name axis
-		g2D.drawString("o", x1-hFont, y1-hFont);
-		g2D.drawString("x", x1+LENGTH/2, y1-hFont);
-		g2D.drawString("z", x1-2*hFont, y1+LENGTH-hFont);	
-	}
-	
+    /** Paint the frame. */
+    private void paintFrame(Graphics2D g2D, int hFont)
+    {
+        //x-axis
+        g2D.drawLine(Viewer3D.SPACE, Viewer3D.SPACE, Viewer3D.SPACE+LENGTH, 
+                    Viewer3D.SPACE);
+        g2D.drawLine(Viewer3D.SPACE+LENGTH-ARROW, Viewer3D.SPACE-ARROW, 
+                    Viewer3D.SPACE+LENGTH, Viewer3D.SPACE);
+        g2D.drawLine(Viewer3D.SPACE+LENGTH-ARROW, Viewer3D.SPACE+ARROW, 
+                    Viewer3D.SPACE+LENGTH, Viewer3D.SPACE);
+        //y-axis
+        g2D.drawLine(Viewer3D.SPACE, Viewer3D.SPACE, Viewer3D.SPACE, 
+                    Viewer3D.SPACE+LENGTH);
+        g2D.drawLine(Viewer3D.SPACE-ARROW, Viewer3D.SPACE+LENGTH-ARROW, 
+                    Viewer3D.SPACE, Viewer3D.SPACE+LENGTH);
+        g2D.drawLine(Viewer3D.SPACE+ARROW, Viewer3D.SPACE+LENGTH-ARROW, 
+                    Viewer3D.SPACE, Viewer3D.SPACE+LENGTH);
+        //z-axis
+        g2D.drawLine(Viewer3D.SPACE, Viewer3D.SPACE, Viewer3D.SPACE-LENGTH_SQRT, 
+                    Viewer3D.SPACE+LENGTH_SQRT);
+        g2D.drawLine(Viewer3D.SPACE-LENGTH_SQRT, Viewer3D.SPACE+LENGTH_SQRT-5, 
+                    Viewer3D.SPACE-LENGTH_SQRT, Viewer3D.SPACE+LENGTH_SQRT);
+        g2D.drawLine(Viewer3D.SPACE-LENGTH_SQRT+5, Viewer3D.SPACE+LENGTH_SQRT, 
+                    Viewer3D.SPACE-LENGTH_SQRT, Viewer3D.SPACE+LENGTH_SQRT);
+        g2D.drawString("o", Viewer3D.SPACE-hFont, Viewer3D.SPACE-hFont);
+        g2D.drawString("x", Viewer3D.SPACE+LENGTH/2, Viewer3D.SPACE-hFont);
+        g2D.drawString("y", Viewer3D.SPACE+2*hFont, 
+                    Viewer3D.SPACE+LENGTH-hFont);   
+        g2D.drawString("z", Viewer3D.SPACE-LENGTH/2-hFont, 
+                    Viewer3D.SPACE+LENGTH/4);
+    }
+    
+    /** Paint the XZ-frame. */
+    private void paintXZFrame(Graphics2D g2D, int hFont)
+    {
+        //x-axis
+        int x1 = Viewer3D.SPACE+space-ORIGIN;
+        int y1 = Viewer3D.SPACE-ORIGIN;
+        g2D.drawLine(x1, y1, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
+        //z-axis
+        g2D.drawLine(x1, y1, x1, y1+LENGTH);
+        g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
+        g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH); 
+        //name axis
+        g2D.drawString("o", x1-hFont, y1-hFont);
+        g2D.drawString("x", x1+LENGTH/2, y1-hFont);
+        g2D.drawString("z", x1-2*hFont, y1+LENGTH-hFont);   
+    }
+    
 
-	/** Paint the XY-frame. */
-	private void paintXYFrame(Graphics2D g2D, int hFont)
-	{
-		//x-axis
-		int x1 = space+xOrigin-ORIGIN;
-		int y1 = space+yOrigin-ORIGIN;
-		g2D.drawLine(x1, y1, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
-		//y-axis
-		g2D.drawLine(x1, y1, x1, y1+LENGTH);
-		g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
-		g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);	
-		//
-		g2D.drawString("o", x1-hFont, y1-hFont);
-		g2D.drawString("x", x1+LENGTH/2, y1-hFont);
-		g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont);	
-	}
-	
+    /** Paint the XY-frame. */
+    private void paintXYFrame(Graphics2D g2D, int hFont)
+    {
+        //x-axis
+        int x1 = space+Viewer3D.SPACE-ORIGIN;
+        int y1 = space+Viewer3D.SPACE-ORIGIN;
+        g2D.drawLine(x1, y1, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
+        //y-axis
+        g2D.drawLine(x1, y1, x1, y1+LENGTH);
+        g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
+        g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH); 
+        //
+        g2D.drawString("o", x1-hFont, y1-hFont);
+        g2D.drawString("x", x1+LENGTH/2, y1-hFont);
+        g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont);   
+    }
+    
 
-	/** Paint the ZY-frame. */
-	private void paintZYFrame(Graphics2D g2D, int hFont)
-	{
-		int x1 = xOrigin-ORIGIN;
-		int y1 = space+yOrigin-ORIGIN;
-		//x-axis
-		g2D.drawLine(x1, y1, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
-		g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
-		//y-axis
-		g2D.drawLine(x1, y1, x1, y1+LENGTH);
-		g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
-		g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);	
-		//
-		g2D.drawString("o", x1-hFont, y1-hFont);
-		g2D.drawString("z", x1+LENGTH/2, y1-hFont);
-		g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont);	
-	}
+    /** Paint the ZY-frame. */
+    private void paintZYFrame(Graphics2D g2D, int hFont)
+    {
+        int x1 = Viewer3D.SPACE-ORIGIN;
+        int y1 = Viewer3D.SPACE+space-ORIGIN;
+        //x-axis
+        g2D.drawLine(x1, y1, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1-ARROW, x1+LENGTH, y1);
+        g2D.drawLine(x1-ARROW+LENGTH, y1+ARROW, x1+LENGTH, y1);
+        //y-axis
+        g2D.drawLine(x1, y1, x1, y1+LENGTH);
+        g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
+        g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH); 
+        //
+        g2D.drawString("o", x1-hFont, y1-hFont);
+        g2D.drawString("z", x1+LENGTH/2, y1-hFont);
+        g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont);   
+    }
 
-	/** Set the location of the origin. */
-	private void setLocation()
-	{
-		Rectangle r = view.getScrollPane().getViewportBorderBounds();
-		xOrigin = ((r.width-imagesWidth)/2);
-		yOrigin = ((r.height-imagesHeight)/2);
-		if (xOrigin < Viewer3D.SPACE) xOrigin = Viewer3D.SPACE;
-		if (yOrigin < Viewer3D.SPACE) yOrigin = Viewer3D.SPACE;
-	}		
-	
+    /** Set the location of the top-left corner of the canvas. */
+    private void setLocation()
+    {
+        Rectangle r = view.getScrollPane().getViewportBorderBounds();
+        x = ((r.width-imagesWidth)/2);
+        y = ((r.height-imagesHeight)/2);
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        setBounds(x, y, imagesWidth, imagesHeight);
+    }       
+    
 }
