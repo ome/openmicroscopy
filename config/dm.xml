@@ -19,6 +19,11 @@
          <size>12</size>
          <style>bold</style>
        </structuredEntry>
+       <structuredEntry name="/resources/fonts/Labels" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>plain</style>
+       </structuredEntry>
      </fonts>
    </resources>
 </agent>
