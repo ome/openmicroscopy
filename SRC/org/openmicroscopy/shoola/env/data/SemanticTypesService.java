@@ -187,6 +187,20 @@ public interface SemanticTypesService
      */
     public List retrieveImageAttributes(SemanticType type, int imageID)
         throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves all the Attributes with the given SemanticType that
+     * belong to one of the images specified in the list below.
+     * @param type The type to retrieve.
+     * @param imageIDs A list of Integer objects, indicating which images to
+     *                 query.
+     * @return A list of all Attributes associated with the specified images.
+     * @throws DSOutOfServiceException If the user is not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveImageAttributes(SemanticType type, List imageIDs)
+        throws DSOutOfServiceException, DSAccessException;
         
     /**
      * Retrieves all the Attributes with the given SemanticType that
@@ -200,6 +214,21 @@ public interface SemanticTypesService
      * @throws DSAccessException If there was a communication error.
      */
     public List retrieveFeatureAttributes(SemanticType type, int featureID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves all the Attributes with the given SemanticType that belong
+     * to one of the features specified in the supplied list of feature IDs.
+     * @param type The type of attribute to retrieve.
+     * @param featureIDs A list of Integer objects, indicating which features
+     *                   to query.
+     * @return A list of attributes (ordered by attribute ID) of the specified
+     *         type that belong to any of the specified features.
+     * @throws DSOutOfServiceException If the use ris not logged in or the
+     *                                 connection with the server is lost.
+     * @throws DSAccessException If there was a communication error.
+     */
+    public List retrieveFeatureAttributes(SemanticType type, List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
     
 }

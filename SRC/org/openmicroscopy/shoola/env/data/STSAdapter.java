@@ -29,6 +29,7 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +43,6 @@ import org.openmicroscopy.ds.dto.DataColumn;
 import org.openmicroscopy.ds.dto.SemanticElement;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 //Java imports
 
@@ -52,9 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 
 
 /** 
- * NB: Temporary. DON'T code against it!
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *  @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
@@ -189,6 +187,36 @@ class STSAdapter
     }
     
     /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, java.util.List)
+     */
+    public List retrieveImageAttributes(SemanticType type, List imageIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if(imageIDs == null || imageIDs.size() == 0)
+        {
+            return null;
+        }
+        
+        // test to see if the List is all Integers here
+        for(Iterator iter = imageIDs.iterator(); iter.hasNext();)
+        {
+            if(!(iter.next() instanceof Number))
+            {
+                throw new IllegalArgumentException("Illegal ID type.");
+            }
+        }
+        
+        Integer[] ints = new Integer[imageIDs.size()];
+        imageIDs.toArray(ints);
+        
+        Criteria criteria =
+            buildDefaultRetrieveCriteria(type,IMAGE_GRANULARITY,ints);
+        
+        return (List)retrieveListData(type,criteria);
+    }
+
+    
+    /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType, int)
      */
     public List retrieveFeatureAttributes(SemanticType type, int featureID)
@@ -196,6 +224,35 @@ class STSAdapter
     {
         Criteria criteria =
             buildDefaultRetrieveCriteria(type,FEATURE_GRANULARITY,featureID);
+        return (List)retrieveListData(type,criteria);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImageAttributes(org.openmicroscopy.ds.dto.SemanticType, java.util.List)
+     */
+    public List retrieveFeatureAttributes(SemanticType type, List featureIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if(featureIDs == null || featureIDs.size() == 0)
+        {
+            return null;
+        }
+        
+        // test to see if the List is all Integers here
+        for(Iterator iter = featureIDs.iterator(); iter.hasNext();)
+        {
+            if(!(iter.next() instanceof Number))
+            {
+                throw new IllegalArgumentException("Illegal ID type.");
+            }
+        }
+        
+        Integer[] ints = new Integer[featureIDs.size()];
+        featureIDs.toArray(ints);
+        
+        Criteria criteria =
+            buildDefaultRetrieveCriteria(type,IMAGE_GRANULARITY,ints);
+        
         return (List)retrieveListData(type,criteria);
     }
 
@@ -434,6 +491,65 @@ class STSAdapter
         else if(granularity.equals(GLOBAL_GRANULARITY))
         {
             criteria.addFilter(GLOBAL_KEY, new Integer(targetID));
+        }
+        return criteria;
+    }
+    
+    /**
+     * Returns a Criteria object which contains the default amount of
+     * information to be returned in an attribute-- all the primitive fields,
+     * and all references with just the ID object returned (such that
+     * successive calls may be made to the server to retrieve those attributes
+     * as well)
+     *
+     * @param st The type of object to specify.
+     * @param granularity The type of target to specify.
+     * @param targetID The ID of the target to filter by.
+     * @return A Criteria object with the default depth with the specified
+     *         parameters.
+     * @throws IllegalArgumentException if the list of IDs contains invalid
+     *                                  objects.
+     */
+    private Criteria buildDefaultRetrieveCriteria(SemanticType st,
+                                                  String granularity,
+                                                  Number[] targetIDs)
+        throws IllegalArgumentException
+    {
+        if(st == null || targetIDs == null || targetIDs.length == 0)
+        {
+            return null;
+        }
+        Criteria criteria = new Criteria();
+        List elements = st.getElements();
+        
+        for(Iterator iter = elements.iterator(); iter.hasNext();)
+        {
+            SemanticElement element = (SemanticElement)iter.next();
+            String elementName = element.getName();
+            DataColumn columnType = element.getDataColumn();
+            criteria.addWantedField(elementName);
+            if(columnType.getSQLType().equals("reference"))
+            {
+                criteria.addWantedField(elementName,"id");
+            }
+        }
+
+        if(granularity.equals(DATASET_GRANULARITY))
+        {
+            criteria.addFilter(DATASET_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        else if(granularity.equals(IMAGE_GRANULARITY))
+        {
+            criteria.addFilter(IMAGE_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        else if(granularity.equals(FEATURE_GRANULARITY))
+        {
+            criteria.addFilter(FEATURE_KEY, "IN", Arrays.asList(targetIDs));
+        }
+        // the attribute is itself the target in the global case
+        else if(granularity.equals(GLOBAL_GRANULARITY))
+        {
+            criteria.addFilter(GLOBAL_KEY, "IN", Arrays.asList(targetIDs));
         }
         return criteria;
     }
