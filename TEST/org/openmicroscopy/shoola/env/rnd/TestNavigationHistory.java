@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
 /** 
  * Unit test for {@link NavigationHistory}.
@@ -69,7 +69,7 @@ public class TestNavigationHistory
     
     
     //Used in tests that verify current direction is calculated properly.
-    private void verifyDirection(Line dir, Point lastMove, Point curMove)
+    private void verifyDirection(Line dir, PlanePoint lastMove, PlanePoint curMove)
     {
         assertNotNull("Shouldn't return null if there's more than one move "+
                 "in history.", dir);
@@ -232,8 +232,8 @@ public class TestNavigationHistory
     {
         target.addMove(pd_0_1);  //(z=0, t=1)
         target.addMove(pd_0_2);  //(z=0, t=2)
-        Point L = new Point(pd_0_1.getZ(), pd_0_1.getT()),  //Last move.
-                C = new Point(pd_0_2.getZ(), pd_0_2.getT());  //Current move.
+        PlanePoint L = new PlanePoint(pd_0_1.getZ(), pd_0_1.getT()),  //Last move.
+                C = new PlanePoint(pd_0_2.getZ(), pd_0_2.getT());  //Current move.
         Line dir = target.currentDirection();
         
         verifyDirection(dir, L, C);
@@ -243,8 +243,8 @@ public class TestNavigationHistory
     {
         target.addMove(pd_0_2);  //(z=0, t=2)
         target.addMove(pd_0_1);  //(z=0, t=1)
-        Point L = new Point(pd_0_2.getZ(), pd_0_2.getT()),  //Last move.
-                C = new Point(pd_0_1.getZ(), pd_0_1.getT());  //Current move.
+        PlanePoint L = new PlanePoint(pd_0_2.getZ(), pd_0_2.getT()),  //Last move.
+                C = new PlanePoint(pd_0_1.getZ(), pd_0_1.getT());  //Current move.
         Line dir = target.currentDirection();
         
         verifyDirection(dir, L, C);
@@ -254,8 +254,8 @@ public class TestNavigationHistory
     {
         target.addMove(pd_0_1);  //(z=0, t=1)
         target.addMove(pd_1_1);  //(z=1, t=1)
-        Point L = new Point(pd_0_1.getZ(), pd_0_1.getT()),  //Last move.
-                C = new Point(pd_1_1.getZ(), pd_1_1.getT());  //Current move.
+        PlanePoint L = new PlanePoint(pd_0_1.getZ(), pd_0_1.getT()),  //Last move.
+                C = new PlanePoint(pd_1_1.getZ(), pd_1_1.getT());  //Current move.
         Line dir = target.currentDirection();
         
         verifyDirection(dir, L, C);
@@ -265,8 +265,8 @@ public class TestNavigationHistory
     {
         target.addMove(pd_1_1);  //(z=1, t=1)
         target.addMove(pd_0_1);  //(z=0, t=1)
-        Point L = new Point(pd_1_1.getZ(), pd_1_1.getT()),  //Last move.
-                C = new Point(pd_0_1.getZ(), pd_0_1.getT());  //Current move.
+        PlanePoint L = new PlanePoint(pd_1_1.getZ(), pd_1_1.getT()),  //Last move.
+                C = new PlanePoint(pd_0_1.getZ(), pd_0_1.getT());  //Current move.
         Line dir = target.currentDirection();
         
         verifyDirection(dir, L, C);

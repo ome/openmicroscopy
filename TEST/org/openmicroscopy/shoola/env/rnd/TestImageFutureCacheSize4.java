@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 import org.openmicroscopy.shoola.util.tests.common.FakeBufferedImage;
 
 /** 
@@ -136,7 +136,7 @@ public class TestImageFutureCacheSize4
     {
         //Set the current direction D to be the z axis.  This will result
         //in c being the first element of C' that doesn't lie on D.
-        Line dir = new Line(new Point(0, 0), new Point(1, 0));  
+        Line dir = new Line(new PlanePoint(0, 0), new PlanePoint(1, 0));  
         doTestAdd(dir);
     }
     
@@ -150,7 +150,7 @@ public class TestImageFutureCacheSize4
         //Set the current direction D to have unit vector aO.  This will result
         //in O, a, b, c lying on D and in c being the first element of C' that
         //falls on the negative half of D.
-        Line dir = new Line(new Point(0, 1), new Point(0, 0));
+        Line dir = new Line(new PlanePoint(0, 1), new PlanePoint(0, 0));
         doTestAdd(dir);
     }
     
@@ -163,7 +163,7 @@ public class TestImageFutureCacheSize4
         //in O, a, b, c lying on the non-negative half of D.   As c is the
         //farthest point away from p, this is also the default candidate.
         //(p is the point (2, 0) used in doTestAdd.)
-        Line dir = new Line(new Point(0, 0), new Point(0, 1));  //t axis.
+        Line dir = new Line(new PlanePoint(0, 0), new PlanePoint(0, 1));  //t axis.
         doTestAdd(dir);
     }
     

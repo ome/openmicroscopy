@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 import org.openmicroscopy.shoola.util.concur.tasks.Future;
 import org.openmicroscopy.shoola.util.concur.tasks.MockFuture;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.Point;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 import org.openmicroscopy.shoola.util.tests.common.FakeBufferedImage;
 
 /** 
@@ -99,7 +99,7 @@ public class TestImageFutureCacheSize1
         //Create mock Future and set up expected calls.
         MockFuture mf = new MockFuture(); 
         navigHistory.currentDirection(
-                new Line(new Point(0, 0), new Point(1, 0)));
+                new Line(new PlanePoint(0, 0), new PlanePoint(1, 0)));
         
         //Fill cache up.
         PlaneDef key = new PlaneDef(PlaneDef.XY, 0);
