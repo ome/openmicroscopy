@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.ui;
 // Java Imports
 import java.awt.Component;
 
+import javax.swing.Icon;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -146,5 +148,14 @@ public interface UserNotifier
 	 * @param message	The message that will be shown.
 	 */
     public void notifyInfo(String title, String message);
+    
+    /**
+     * Brings up a modal dialog to notify the user of the specified message.
+     * 
+     * @param title     The title of the dialog.
+     * @param message   The message that will be shown.
+     * @param icon      The icon to display in the dialog.
+     */
+    public void notifyInfo(String title, String message, Icon icon);
 
 }

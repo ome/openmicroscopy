@@ -166,6 +166,15 @@ public class UserNotifierImpl
 								IconManager.getDefaultInfoIcon());
 	}
     
+    /** Implemented as specified by {@link UserNotifier}. */ 
+    public void notifyInfo(String title, String message, Icon icon)
+    {  
+        if (title == null || title.length() == 0)
+            title = DEFAULT_INFO_TITLE;
+        if (icon == null) icon = IconManager.getDefaultInfoIcon();
+        showNotificationDialog(title, message, icon);
+    }
+    
     /**
      * Brings up a notification dialog.
      * 
