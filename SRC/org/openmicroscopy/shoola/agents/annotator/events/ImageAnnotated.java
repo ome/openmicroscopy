@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.ImageAnnotationCtrl
+ * org.openmicroscopy.shoola.agents.annotator.events.ImageAnnotated
  *
  *------------------------------------------------------------------------------
  *
@@ -33,37 +33,55 @@
  *
  *------------------------------------------------------------------------------
  */
- 
-package org.openmicroscopy.shoola.agents.annotator;
+package org.openmicroscopy.shoola.agents.annotator.events;
+
+import org.openmicroscopy.ds.st.ImageAnnotation;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /**
- * (documentation)
- *
+ * Indicates that an image has been annotated, or the contents of the
+ * annotation have changed.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
-public class ImageAnnotationCtrl extends AnnotationCtrl
+public class ImageAnnotated extends ResponseEvent
 {
-    private int imageID;
+    private ImageAnnotation annotation;
     /**
-     * Creates an image annotation controller using the specified image
-     * as a basis.
-     * @param imageID The ID of the image to annotate.
+     * Must take an AnnotateImage request event as a constructor, or an
+     * IllegalArgumentException will be thrown.
+     * @param re The RequestEvent that this is a response to (must be an
+     *           AnnotateImage object)
      */
-    public ImageAnnotationCtrl(Annotator annotator, int imageID)
+    public ImageAnnotated(RequestEvent re)
     {
-        if(annotator == null)
+        super(re); // forced to do initial, but...
+        if(!(re instanceof AnnotateImage))
         {
-            throw new IllegalArgumentException("Cannot construct an" +
-                " ImageAnnotationCtrl with a null Annotator");
+            throw new IllegalArgumentException("Illegal request event type");
         }
-        
-        this.annotator = annotator;
-        this.imageID = imageID;
-        
-        annotationList = annotator.getImageAnnotations(imageID);
-        attributeList = null; // do not use this for attributes yet (if ever)
+    }
+    
+    /**
+     * Gets the new ImageAnnotation (if any).  Saves a round trip to the DB.
+     * @return The new annotation.
+     */
+    public ImageAnnotation getAnnotation()
+    {
+        return annotation;
+    }
+    
+    /**
+     * Sets the new annotation associated with the response.  Saves a round
+     * trip back to the DB for verification.
+     * @param annotation The new ImageAnnotation in the response.
+     */
+    public void setAnnotation(ImageAnnotation annotation)
+    {
+        this.annotation = annotation;
     }
 }

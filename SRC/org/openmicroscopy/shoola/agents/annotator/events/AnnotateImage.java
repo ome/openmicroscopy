@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.ImageAnnotationCtrl
+ * org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage
  *
  *------------------------------------------------------------------------------
  *
@@ -33,37 +33,35 @@
  *
  *------------------------------------------------------------------------------
  */
- 
-package org.openmicroscopy.shoola.agents.annotator;
+package org.openmicroscopy.shoola.agents.annotator.events;
+
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
- * (documentation)
- *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
-public class ImageAnnotationCtrl extends AnnotationCtrl
+public class AnnotateImage extends RequestEvent
 {
     private int imageID;
+    private BrowserModel whichBrowser;
+    
     /**
-     * Creates an image annotation controller using the specified image
-     * as a basis.
-     * @param imageID The ID of the image to annotate.
+     * Constructs a request to bring up the annotator with parameters from
+     * the image with the specified ID.
+     * 
+     * @param imageID
      */
-    public ImageAnnotationCtrl(Annotator annotator, int imageID)
+    public AnnotateImage(int imageID)
     {
-        if(annotator == null)
-        {
-            throw new IllegalArgumentException("Cannot construct an" +
-                " ImageAnnotationCtrl with a null Annotator");
-        }
-        
-        this.annotator = annotator;
         this.imageID = imageID;
-        
-        annotationList = annotator.getImageAnnotations(imageID);
-        attributeList = null; // do not use this for attributes yet (if ever)
+    }
+    
+    public int getImageID()
+    {
+        return imageID;
     }
 }

@@ -42,6 +42,7 @@ import java.util.List;
 
 import javax.swing.JInternalFrame;
 
+import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
