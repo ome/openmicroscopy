@@ -59,10 +59,12 @@ class ToolBarManager
 {
 	
 	/** Action command ID. */
-	private static final int		CREATE_P = 0, CREATE_D = 1, CREATE_I = 2;
-	
-	private DataManagerCtrl control;
-	private ToolBar			view;
+	private static final int           PROJECT = 0, DATASET = 1, IMAGE = 2,
+                                       CREATE_CG = 3;
+
+	private DataManagerCtrl            control;
+    
+	private ToolBar                    view;
 	
 	ToolBarManager(DataManagerCtrl control, ToolBar view)
 	{
@@ -74,15 +76,10 @@ class ToolBarManager
 	/** Attach the listeners. */
 	private void attachListeners()
 	{
-		JButton pButton = view.getProjectButton(), 
-				dButton = view.getDatasetButton(),
-				iButton = view.getImageButton();
-		pButton.setActionCommand(""+CREATE_P);
-		pButton.addActionListener(this);	
-		dButton.setActionCommand(""+CREATE_D);
-		dButton.addActionListener(this);
-		iButton.setActionCommand(""+CREATE_I);
-		iButton.addActionListener(this);
+        attachButtonListener(view.project, PROJECT);
+        attachButtonListener(view.dataset, DATASET);
+        attachButtonListener(view.image, IMAGE);
+        attachButtonListener(view.createGAndC, CREATE_CG);
 	}
 
 	/** Handle event fired by buttons. */
@@ -91,17 +88,24 @@ class ToolBarManager
 		int index = Integer.parseInt(e.getActionCommand());
 		try {
 			switch (index) {
-				case CREATE_P:
+				case PROJECT:
 					control.createProject(); break;
-				case CREATE_D:
+				case DATASET:
 					control.createDataset(); break;
-				case CREATE_I:
-					control.showImagesImporter();
-					break;
+				case IMAGE:
+					control.showImagesImporter(); break;
+                case CREATE_CG:
+                    control.createCG(); break;
 			}
 		} catch(NumberFormatException nfe) { 
 			throw new Error("Invalid Action ID "+index, nfe);
 		}
 	}
 	
+    private void attachButtonListener(JButton button, int id)
+    {
+        button.addActionListener(this);
+        button.setActionCommand(""+id);
+    }
+    
 }

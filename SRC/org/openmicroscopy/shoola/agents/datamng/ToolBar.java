@@ -32,7 +32,10 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.Dimension;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -56,54 +59,85 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ToolBar
-	extends JToolBar
+	extends JPanel
 {
 
+    
 	/** Dimension of the separator. */
-	private static final Dimension	SEPARATOR = new Dimension(15, 0);
+	private static final Dimension	        SEPARATOR = new Dimension(15, 0);
 	
-	private JButton					projectButton, datasetButton, imageButton;
+
+    JToolBar                                explToolBar, classifierToolBar;
+    JButton                                 project, dataset, image;
 	
+    JButton                                 createGAndC;
+    
 	ToolBar(DataManagerCtrl control, Registry registry)
 	{
 		initButtons(registry);
 		new ToolBarManager(control, this);
 		buildToolBar();
 	}
-	
-	/** Return the createProject button. */
-	JButton getProjectButton() { return projectButton; }
-
-	/** Return the createDataset button. */
-	JButton getDatasetButton() { return datasetButton; }
-
-	/** Return the createImage button. */
-	JButton getImageButton() { return imageButton; }
 
 	/** Initialize the control buttons. */
 	private void initButtons(Registry registry)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		projectButton =  new JButton(im.getIcon(IconManager.CREATE_PROJECT));
-		projectButton.setToolTipText(
+		project =  new JButton(im.getIcon(IconManager.CREATE_PROJECT));
+		project.setToolTipText(
 			UIUtilities.formatToolTipText("Create a new project."));
-		datasetButton =  new JButton(im.getIcon(IconManager.CREATE_DATASET));
-		datasetButton.setToolTipText(
+		dataset =  new JButton(im.getIcon(IconManager.CREATE_DATASET));
+		dataset.setToolTipText(
 			UIUtilities.formatToolTipText("Create a new dataset."));
-		imageButton =  new JButton(im.getIcon(IconManager.IMPORT_IMAGE));
-		imageButton.setToolTipText(
+		image =  new JButton(im.getIcon(IconManager.IMPORT_IMAGE));
+		image.setToolTipText(
 			UIUtilities.formatToolTipText("Import a new image."));
+        createGAndC = new JButton(
+                im.getIcon(IconManager.CREATE_CG));
+        createGAndC.setToolTipText(
+                UIUtilities.formatToolTipText("Create a new category group."));
 	}
-	
-	/** Build and lay out the tool bar. */
-	private void buildToolBar()
+    
+	/** Build and lay out the explorer toolBar. */
+	private JToolBar ExplToolBar()
 	{
-		setFloatable(false);
-		add(projectButton);
-		addSeparator(SEPARATOR);
-		add(datasetButton);
-		addSeparator(SEPARATOR);
-		//add(imageButton);
+        explToolBar = new JToolBar();
+        explToolBar.setBorder(BorderFactory.createEtchedBorder());
+        explToolBar.putClientProperty("JToolBar.isRollover", new Boolean(true));
+        explToolBar.setFloatable(false);
+        explToolBar.add(project);
+        explToolBar.addSeparator(SEPARATOR);
+        explToolBar.add(dataset);
+        explToolBar.addSeparator(SEPARATOR);
+        return explToolBar;
 	}
 
+    /** Build and lay out the explorer toolBar. */
+    private JToolBar ClassifierToolBar()
+    {
+        classifierToolBar = new JToolBar();
+        classifierToolBar.setBorder(BorderFactory.createEtchedBorder());
+        classifierToolBar.putClientProperty("JToolBar.isRollover", 
+                                        new Boolean(true));
+        classifierToolBar.setFloatable(false);
+        classifierToolBar.add(createGAndC);
+        classifierToolBar.addSeparator(SEPARATOR);
+        return classifierToolBar;
+    }
+    
+    /** Build and lay out the ToolBar. */
+    private void buildToolBar()
+    {
+        JPanel bars = new JPanel();
+        bars.setBorder(null);
+        bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
+        bars.add(ExplToolBar());
+        bars.add(ClassifierToolBar());
+        setBorder(null);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        add(bars);
+        //add(Box.createRigidArea(new Dimension(100, 16)));
+        //add(Box.createHorizontalGlue()); 
+    }
+    
 }
