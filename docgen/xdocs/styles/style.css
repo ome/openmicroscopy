@@ -1,90 +1,78 @@
 body {
   background-color: white;
-	font-family: Verdana,Arial,Helvetica; 
-	font-size: 12px; 
-	margin-top: 0px;
-	margin-left: 10px;
-}
-a {
-  text-decoration: none;
-  color: steelblue;
-}
-a:hover { text-decoration: underline; }
-td {
+  font-family: Verdana,Helvetica,sans-serif; 
   font-size: 12px; 
-  font-family: Verdana,Arial,Helvetica;
-}  
-p {
-  font-size : 12px; 
-  font-family : Verdana,Arial,Helvetica;
+  margin-top: 0px;
+  margin-left: 10px;
 }
-  
+
+a {
+  color: steelblue;
+  text-decoration: none;
+}
+a:hover { 
+  text-decoration: underline;
+  color: #FFCC1C;
+}
+
+p { font-size: 12px; }
+td {font-size: 12px; }
+
 .navigation {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	width: 100%; 
-	height: 15;
-	font-size: 10px; 
-	font-weight: bold;
-	color: #000000;
-	background-color: #F0F0F0;
+  font-family: Verdana,Helvetica,sans-serif;
+  text-align: left;
+  width: 100%; 
+  height: 15;
+  font-size: 10px; 
+  font-weight: bold;
+  color: #000000;
+  background-color: #F0F0F0;
 }
-.section-heading-1 {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	vertical-align: bottom;
-	font-size: 20px; 
-	font-weight: bold;
-	color: #000000;
-}
-.section-heading-2 {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	vertical-align: bottom;
-	font-size: 14px; 
-	font-weight: bold;
-	color: #000000;
-}
-.section-body-1 {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	margin-left: 10px;
-}
-.section-body-2 {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	margin-left: 10px;
-}
-.document-footer {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: right;
-	font-size: 8px; 
-}
-.document-header {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: right;
-	font-size: 16px; 
-	font-weight: bold;
-	color: #000000;
+
+.document-attributes {
+  font-family: Verdana,Arial,Helvetica; 
+  text-align: left;
+  font-size: 12px; 
+  color: #000000;
 }
 .document-title {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	font-size: 22px; 
-	font-weight: bold;
-	color: gray;
+  font-family: Verdana,Helvetica,sans-serif;
+  text-align: left;
+  font-size: 20px; 
+  font-weight: bold;
+  color: gray;
 }
-.document-attributes {
-	font-family: Verdana,Arial,Helvetica; 
-	text-align: left;
-	font-size: 12px; 
-	color: #000000;
+.document-header {
+  font-family: Verdana,Helvetica,sans-serif;
+  text-align: right;
+  font-size: 16px; 
+  font-weight: bold;
+  color: #000000;
 }
-.note {
-	border: 1px;
-	border-style: solid;
-	padding: 1px;
-	background-color: #F0F0F0;
-	color: #000000;
-	font-size: 10px; 
+.document-footer {
+  font-family: Verdana,Helvetica,sans-serif;
+  text-align: right;
+  font-size: 8px; 
+}
+
+
+.code { 
+  border-color: #CFDCED; 
+  border-style: solid; 
+  border-width: 1px; 
+}
+
+.noteFrame {
+  margin: 30px 20px 30px 20px;
+  border: solid 1px #7099C5;
+  background-color: #F0F0FF; 
+  font-size: 10px;
+}
+.noteLabel {
+  background-color: #7099C5; 
+  color: white;
+}
+.noteContent {
+  margin: 0px;
+  padding: 5px 5px 5px 10px;
 }
