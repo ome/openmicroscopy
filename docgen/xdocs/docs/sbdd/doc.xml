@@ -11,7 +11,7 @@
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">
-    <section href="intro" name="Introdution">
+    <section href="intro.html" name="Introduction">
       <section href="intro1.html" name="Purpose"/>
       <section href="intro2.html" name="Readership"/>
       <section href="intro3.html" name="Document Overview"/>
