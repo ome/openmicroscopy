@@ -65,8 +65,8 @@ class ToolBarManager
 	private static final int	RGB = RenderingDef.RGB;
 	private static final int	HSB = RenderingDef.HSB;
 	
-	private static final int	SAVE = 100;
-	
+	private static final int	SAVE = 100, RESET_DEFAULTS = 101;
+
 	private ToolBar				view;
 	private RenderingAgtCtrl 	control;
 	
@@ -83,7 +83,8 @@ class ToolBarManager
 		JButton greyButton = view.getGreyButton(), 
 				rgbButton = view.getRgbButton(),
 				hsbButton = view.getHsbButton(),
-				saveButton = view.getSave();
+				saveButton = view.getSave(), 
+				resetButton = view.getResetButton();
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);		
 		greyButton.setActionCommand(""+GREY);
@@ -92,6 +93,8 @@ class ToolBarManager
 		rgbButton.addActionListener(this);
 		hsbButton.setActionCommand(""+HSB);
 		hsbButton.addActionListener(this);
+		resetButton.setActionCommand(""+RESET_DEFAULTS);
+		resetButton.addActionListener(this);
 	}
 
 	/** Handle events fired by buttons. */
@@ -101,8 +104,9 @@ class ToolBarManager
 		try {
 			switch (index) {
 				case SAVE:
-					control.saveDisplayOptions();
-					break;
+					control.saveDisplayOptions(); break;
+				case RESET_DEFAULTS:
+					control.resetDefaults(); break;
 				case GREY:
 				case RGB:
 				case HSB:
