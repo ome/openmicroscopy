@@ -41,14 +41,14 @@ import java.util.HashMap;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *              a.falconi@dundee.ac.uk</a>
- * <b>Internal version:</b> $Revision$  $Date$
+ * <br><b>Internal version:</b> $Revision$  $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class RegistryImpl
+class RegistryImpl
     implements Registry
 {
     
@@ -61,7 +61,7 @@ public class RegistryImpl
     //private TopFrame                tf;
     //private UserNotifier            un;
     
-    public RegistryImpl()
+    RegistryImpl()
     {
         entriesMap = new HashMap();
     }
