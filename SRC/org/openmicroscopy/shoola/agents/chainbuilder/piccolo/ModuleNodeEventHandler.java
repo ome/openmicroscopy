@@ -41,8 +41,11 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import java.awt.geom.Point2D;
+
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
@@ -72,23 +75,67 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	}	
 	
 	public void mouseEntered(PInputEvent e) {
-		unhighlightModules();
+		PNode n = e.getPickedNode();
+		if (lastEntered == null || !lastEntered.isAncestorOf(n) )
+			unhighlightModules();
 		super.mouseEntered(e);
 	}
+	
+	/**
+	 * check to see if I've actually gone "outside" of the box (in
+	 * screen terms), as opposed to simply going inside of another node that is
+	 * physically surrounded by the chainbox.
+	 */
+	public void mouseExited(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (!checkEventInNodeInterior(n,e)) {
+			super.mouseExited(e);
+		}
+	}
+	
+	private boolean checkEventInNodeInterior(PNode node,PInputEvent e) {
+		PBounds b = node.getBounds();
+		// must do something in case node is not on picked path.
+		try {
+			Point2D pickedPos = e.getPositionRelativeTo(node);
+			if (b.contains(pickedPos)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+				
+		} catch(Exception exc) {
+			// if this pick did not contain the node,
+			// then then event can't be in the node's interior
+			return false;
+		}
+	}
+	
 
-	protected void unhighlightModules() {
-		if (lastEntered != null) { 
+
+	protected void clearHighlights() {
+	
+		if (lastEntered != null) {
 			lastEntered.setParamsHighlighted(false);
 			ChainModuleData mod = lastEntered.getModule();
 			if (mod != null)
 				mod.setModulesHighlighted(false);
 		}
+	}
+	
+	protected void unhighlightModules() {
+		clearHighlights();
+		if (lastEntered != null)
+			lastEntered.showOverview();
 		lastEntered = null;
 	}	
 	
 	protected void setLastEntered(PNode node) {
 		if (node instanceof ModuleView)
 			this.lastEntered = (ModuleView) node;
+		else if (node == null)
+			this.lastEntered = null;
 		setSelectedForDrag(node);
 	}
 	
@@ -101,5 +148,10 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 	
 	public void unhighlightModules(ChainModuleData mod) {
 		mod.setModulesHighlighted(false);
+	}
+	
+	public boolean hasNoModuleEntered() { 
+		System.err.println("last module entered is "+lastEntered);
+		return (lastEntered == null);
 	}
 }
