@@ -69,6 +69,8 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 public class ChainCompoundModuleView extends ModuleView {
 	
 	private LayoutChainData chain;
+	
+	private static final Integer MAX_IO_CARDINALITY = new Integer(10);
 		
 	public ChainCompoundModuleView() {
 		super();
@@ -152,5 +154,9 @@ public class ChainCompoundModuleView extends ModuleView {
 	public void mouseExited(GenericEventHandler handler) {
 		showOverview();
 		super.mouseExited(handler);
+	}
+	
+	public Integer getMaxIOCardinality() {
+		return MAX_IO_CARDINALITY;
 	}
 }
