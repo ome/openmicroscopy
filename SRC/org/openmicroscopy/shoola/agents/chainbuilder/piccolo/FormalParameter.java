@@ -53,7 +53,6 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
-
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
@@ -89,6 +88,8 @@ public abstract class FormalParameter extends PNode implements
 	 */
 	public static final int TYPE_NODE_VERTICAL_OFFSET=12;
 	public static final float TYPE_NODE_DEFAULT_SCALE=0.5f;
+	
+	private static final float HEIGHT_PORTION=0.8f;
 	
 	/**
 	 * The OME FormalParameter object that the node represents.
@@ -188,7 +189,7 @@ public abstract class FormalParameter extends PNode implements
 		// this formal parameter will listen to any changes that happen to
 		// the node.
 		node.addNodeEventListener(this);
-		
+		setTransparency(Constants.MODULE_TRANSPARENT);
 		
 		
 	}
@@ -287,8 +288,8 @@ public abstract class FormalParameter extends PNode implements
 		
 		// if I'm listening to a node, and it's a parent, pass 
 		// it along to whomever is listening to me.
-		PNode node = e.getNode();
-		if (isDescendentOf(node)) {
+		PNode n = e.getNode();
+		if (isDescendentOf(n)) {
 			fireStateChanged();
 		}
 	}
@@ -424,7 +425,14 @@ public abstract class FormalParameter extends PNode implements
 	}
 	
 	public float getLabelWidth() {
+		PBounds b = labelNode.getFullBoundsReference();
 		return (float) labelNode.getFullBoundsReference().getWidth();	
+	}
+	
+	public float getLabelHeight() {
+		PBounds b = labelNode.getFullBoundsReference();
+		return (float) labelNode.getFullBoundsReference().getHeight()
+			*HEIGHT_PORTION;
 	}
 	
 	public Point2D getLinkCenter() {
