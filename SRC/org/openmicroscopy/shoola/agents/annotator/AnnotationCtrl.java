@@ -132,24 +132,7 @@ public abstract class AnnotationCtrl
     /**
      * Stores the information in the DB.
      */
-    public void save()
-    {
-        List totalAttributeList = new ArrayList();
-        for(Iterator iter = annotationList.iterator(); iter.hasNext();)
-        {
-            totalAttributeList.add(iter.next());
-        }
-        for(Iterator iter = attributeList.iterator(); iter.hasNext();)
-        {
-            totalAttributeList.add(iter.next());
-        }
-        boolean committed = annotator.updateDatasetInfo(totalAttributeList);
-        
-        if(committed)
-        {
-            setSaved(true);
-        }
-    }
+    public abstract void save();
     
     /**
      * Closes the window and removes this controller from the annotator's

@@ -37,12 +37,12 @@
 package org.openmicroscopy.shoola.agents.annotator;
 
 /**
- * (documentation)
+ * Control for the image annotator.
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
- * @version
- * @since
+ * @version 2.2
+ * @since OME2.2
  */
 public class ImageAnnotationCtrl extends AnnotationCtrl
 {
