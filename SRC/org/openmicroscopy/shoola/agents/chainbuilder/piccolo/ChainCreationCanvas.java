@@ -336,10 +336,10 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 		String msg = new String("The new Chain \""+name+"\" was saved correctly.");
 		JOptionPane.showMessageDialog(this,msg,"Save Complete",
 				JOptionPane.INFORMATION_MESSAGE);
-		newChain.layout();
-
-		frame.updateChainPalette(newChain);
-		manager.addChain(newChain);
+		
+		LayoutChainData populated = manager.loadChain(newChain.getID());
+		populated.layout();
+		frame.updateChainPalette(populated);
 
 	}
 	
@@ -399,7 +399,6 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 			node = (PNode) iter.next();
 			if (node instanceof ParamLink) {
 				link = (ParamLink) node; // add it somehow.
-				System.err.println("found a link to save");
 				// get from output
 				FormalOutput output = link.getOutput();
 				FormalOutputData fromOutput = (FormalOutputData) 
