@@ -123,10 +123,8 @@ class TreePopupMenuManager
 				agentCtrl.viewImage(((ImageSummary) target));
 			else if (src == view.browse && target instanceof DatasetSummary)
 				agentCtrl.viewDataset(((DatasetSummary) target));
-			else if (src == view.annotate && target instanceof DatasetSummary)
-				agentCtrl.annotateDataset(((DatasetSummary) target));
-			else if (src == view.annotate && target instanceof ImageSummary)
-				agentCtrl.annotateImage(((ImageSummary) target));
+			else if (src == view.annotate)
+				agentCtrl.annotate(target);
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
             else if (src == view.refresh) agentCtrl.refresh(target);

@@ -116,10 +116,7 @@ class ClassifierPopupMenu
         IconManager icons = IconManager.getInstance(config);
         properties = new JMenuItem("Properties", 
                                     icons.getIcon(IconManager.PROPERTIES));
-        properties.setBorder(null);
-        properties.setFont((Font) config.lookup("/resources/fonts/Labels"));
-        properties.setForeground(DataManagerUIF.STEELBLUE);
-        properties.setEnabled(false);    
+        initMenuItem(properties, false);  
     }
 
     /** Creates and initializes the view button. */
@@ -127,10 +124,7 @@ class ClassifierPopupMenu
     {
         IconManager icons = IconManager.getInstance(config);
         view = new JMenuItem("View", icons.getIcon(IconManager.VIEWER));
-        view.setBorder(null);
-        view.setFont((Font) config.lookup("/resources/fonts/Labels"));
-        view.setForeground(DataManagerUIF.STEELBLUE); 
-        view.setEnabled(false);  
+        initMenuItem(view, false);
     }
     
     /** Creates and initializes the annotate button. */
@@ -139,10 +133,7 @@ class ClassifierPopupMenu
         IconManager icons = IconManager.getInstance(config);
         annotate = new JMenuItem("Annotate", 
                                 icons.getIcon(IconManager.ANNOTATE));
-        annotate.setBorder(null);
-        annotate.setFont((Font) config.lookup("/resources/fonts/Labels"));
-        annotate.setForeground(DataManagerUIF.STEELBLUE);
-        annotate.setEnabled(false);  
+        initMenuItem(annotate, false);
     }
     
     /** Creates and initializes the refresh button. */
@@ -150,9 +141,16 @@ class ClassifierPopupMenu
     {
         IconManager icons = IconManager.getInstance(config);
         refresh = new JMenuItem("Refresh", icons.getIcon(IconManager.REFRESH));
-        refresh.setBorder(null);
-        refresh.setFont((Font) config.lookup("/resources/fonts/Labels"));
-        refresh.setForeground(DataManagerUIF.STEELBLUE); 
+        initMenuItem(refresh, true);
+    }
+    
+    /** Set menuItem defaults. */
+    private void initMenuItem(JMenuItem item, boolean b)
+    {
+        item.setBorder(null);
+        item.setFont((Font) config.lookup("/resources/fonts/Labels"));
+        item.setForeground(DataManagerUIF.STEELBLUE);
+        item.setEnabled(b);
     }
     
     /** Builds and lays out the GUI. */

@@ -42,7 +42,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
-import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
+import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.CategorySummary;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -124,8 +125,8 @@ public class DataManager
 		projectSummaries = new ArrayList();
         
         EventBus bus = registry.getEventBus();
-        bus.register(this, ViewImageInfo.class);
         bus.register(this, ServiceActivationResponse.class);
+        bus.register(this, ShowProperties.class);
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -141,10 +142,10 @@ public class DataManager
      */
     public void eventFired(AgentEvent e)
     {
-        if (e instanceof ViewImageInfo)
-            control.showProperties(((ViewImageInfo) e).getImageInfo());
-        else if (e instanceof ServiceActivationResponse)
+        if (e instanceof ServiceActivationResponse)
         	handleSAR((ServiceActivationResponse) e);
+        else if (e instanceof ShowProperties)
+            control.showProperties(((ShowProperties) e).getUserObject());
     }
 
 	Registry getRegistry() { return registry; }
@@ -880,18 +881,19 @@ public class DataManager
 	/** Select the menuItem. */
 	//void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	
-	/** Post an {@link AnnotateDataset} event. */
-	void annotateDataset(int id, String name)
-	{
-		registry.getEventBus().post(new AnnotateDataset(id, name));
-	}
-	
-	/** Post an {@link AnnotateImage} event. */
-	void annotateImage(int id, String name, int pixelsID) 
-	{
-		registry.getEventBus().post(new AnnotateImage(id, name, pixelsID));
-	}
-    
+    void annotate(DataObject target)
+    {
+        EventBus eventBus = registry.getEventBus();
+        if (target instanceof DatasetSummary) {
+            DatasetSummary uO = (DatasetSummary) target;
+            eventBus.post(new AnnotateDataset(uO.getID(), uO.getName()));
+        } else if (target instanceof ImageSummary) {
+            ImageSummary uO = (ImageSummary) target;
+            eventBus.post(new AnnotateImage(uO.getID(), uO.getName(), 
+                        (uO.getPixelsIDs())[0]));
+        }      
+    }
+
     /** Retrieve all categoryGroups. */
     List getCategoryGroups()
         throws DSAccessException

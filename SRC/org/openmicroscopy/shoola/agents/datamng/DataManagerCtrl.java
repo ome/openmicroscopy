@@ -431,19 +431,9 @@ public class DataManagerCtrl
     { 
         abstraction.viewDataset(ds.getID());
     }
-
-    /** Forward event to the {@link DataManager abstraction}. */
-    void annotateDataset(DatasetSummary ds)
-    {
-        abstraction.annotateDataset(ds.getID(), ds.getName());
-    }
     
-    /** Forward event to the {@link DataManager abstraction}. */
-    void annotateImage(ImageSummary is)
-    {
-        int[] pixelsID = is.getPixelsIDs();
-        abstraction.annotateImage(is.getID(), is.getName(), pixelsID[0]);
-    }
+    /** Forward the call to the {@link DataManager abstraction}. */
+    void annotate(DataObject target) { abstraction.annotate(target); }
     
     /** Bring up the corresponding editor. */
     void createProject()

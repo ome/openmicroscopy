@@ -114,8 +114,7 @@ class ClassifierPopupMenuMng
                 control.viewCategoryGroup(((CategoryGroupData) target));
             else if (src == view.view && target instanceof CategorySummary)       
                 control.viewCategory(((CategorySummary) target));
-            else if (src == view.annotate && target instanceof ImageSummary)
-                control.annotateImage(((ImageSummary) target));
+            else if (src == view.annotate) control.annotate(target);
             else if (src == view.refresh) control.refresh(target);
         } else if (target == null && src == view.refresh)
             control.refresh(DataManagerCtrl.CLASSIFIER);
