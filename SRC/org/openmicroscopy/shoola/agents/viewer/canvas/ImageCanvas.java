@@ -105,7 +105,7 @@ public class ImageCanvas
         this.control = control;
         manager = new ImageCanvasMng(this, control);
         itMng = new ImageTransformMng();
-        setBackground(Viewer.BACKGROUND_COLOR); 
+        setBackground(ViewerUIF.BACKGROUND_COLOR); 
         setDoubleBuffered(true);
     }
     
@@ -155,7 +155,7 @@ public class ImageCanvas
         if (displayImage == null) return null;
         return ImageFactory.getImage(displayImage);
     }
-     
+    
     /** Reset the default. */
     public void resetDefault()
     { 
@@ -202,6 +202,7 @@ public class ImageCanvas
                 (int)(image.getHeight()*level));
         itMng.setMagFactor(level);
         displayImage = itMng.buildDisplayImage(image);
+        control.imageDisplayedUpdated(displayImage, level);
         repaint();
     } 
 
@@ -209,6 +210,7 @@ public class ImageCanvas
     {
         resetLens();
         displayImage = itMng.filterImage(displayImage, filter);
+        control.imageDisplayedUpdated(displayImage, itMng.getMagFactor());
         repaint();
     }
     

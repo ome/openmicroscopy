@@ -37,11 +37,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * 
@@ -87,13 +86,11 @@ class ImageTransformMng
         AffineTransform at = new AffineTransform();
         at.scale(magFactor, magFactor);
         BufferedImage displayImage;
-        displayImage = ImageFactory.magnifyImage(image, magFactor, at, 0);
+        displayImage = Factory.magnifyImage(image, magFactor, at, 0);
         Iterator i = filters.iterator();
-        while (i.hasNext()) {
-            displayImage = ImageFactory.convolveImage(displayImage, 
-                            (float[]) i.next());
-            
-        }
+        while (i.hasNext())
+            displayImage = Factory.convolveImage(displayImage, 
+                            (float[]) i.next());  
         return displayImage;
     }
     
@@ -102,20 +99,18 @@ class ImageTransformMng
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
         BufferedImage displayImage;
-        displayImage = ImageFactory.magnifyImage(image, f, at, 0);
+        displayImage = Factory.magnifyImage(image, f, at, 0);
         Iterator i = filters.iterator();
-        while (i.hasNext()) {
-            displayImage = ImageFactory.convolveImage(displayImage, 
+        while (i.hasNext())
+            displayImage = Factory.convolveImage(displayImage, 
                             (float[]) i.next());
-            
-        }
         return displayImage;
     }
     
     BufferedImage filterImage(BufferedImage img, float[] filter)
     {
         filters.add(filter);
-        return ImageFactory.convolveImage(img, filter); 
+        return Factory.convolveImage(img, filter); 
     }
     
 }
