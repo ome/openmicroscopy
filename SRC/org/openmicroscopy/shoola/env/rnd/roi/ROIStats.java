@@ -90,6 +90,9 @@ public class ROIStats
         this.dims = dims;
     }
     
+    //Tempo
+    public int getSize() { return arrayMap.size(); }
+    
     /**
      * Returns the stats, if any, that were calculated against the 2D selection
      * within the specified plane.
@@ -140,7 +143,7 @@ public class ROIStats
         if (pixelValue < planeStats.min) planeStats.min = pixelValue;
         if (planeStats.max < pixelValue) planeStats.max = pixelValue;
         planeStats.sum += pixelValue;
-        planeStats.sumOfSquares = pixelValue*pixelValue;
+        planeStats.sumOfSquares += pixelValue*pixelValue;
     }
 
     /** 
@@ -155,10 +158,14 @@ public class ROIStats
         //planeStats can't be null, see onStartPlane().
         if (0 < pointsCount) {
             ps.mean = ps.sum/pointsCount;
-            if (0 < pointsCount-1)
-                ps.standardDeviation = Math.sqrt(
-                        (ps.sumOfSquares - ps.sum*ps.sum/pointsCount)
-                        /(pointsCount-1));
+            ps.pointsCount = pointsCount;
+            if (0 < pointsCount-1) {
+                double sigmaSquare = 
+                 (ps.sumOfSquares - ps.sum*ps.sum/pointsCount)/(pointsCount-1);
+                if (sigmaSquare > 0)
+                    ps.standardDeviation = Math.sqrt(sigmaSquare);
+            }
+                
         }
     }
 

@@ -96,10 +96,12 @@ public class ROIAnalyzer
             throw new IllegalArgumentException("No ROI defined.");
         for (int i = 0; i < rois.length; ++i) 
             if (rois[i] == null)
-                throw new NullPointerException("No ROI at: "+i+".");
-            
+                throw new NullPointerException("No ROI at: "+i+".");   
+        this.rois = rois;
+        
         //Constructor will check source and dims.
         runner = new PointIterator(source, dims);
+        this.dims = dims;
     }
     
     public Map analyze() 

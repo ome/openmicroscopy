@@ -266,6 +266,7 @@ public class PointIterator
                 for (int w = 0; w < dims.sizeW; ++w) {
                     for (int z = 0; z < dims.sizeZ; ++z) {
                         selection2D = roi.getPlaneArea(z, t, w);
+                        if (selection2D == null) continue;
                         points = selection2D.getPoints();
                         notifyPlaneStart(z, w, t, points.length);
                         pd.setZ(z);
