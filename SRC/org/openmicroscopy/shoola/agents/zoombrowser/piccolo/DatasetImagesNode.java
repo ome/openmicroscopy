@@ -373,7 +373,16 @@ public class DatasetImagesNode extends PNode  {
 		setPickable(true);
 		// get the zoom level	
 		int level = handler.getZoomLevel();
-	
+
+		// if canvas does not have a selected node
+		// select that dataset and zoom to it
+
+		if (level == 0  && handler.getSelectedDatasetNode() == null)  {
+			
+			DatasetNode node = (DatasetNode) getParent();
+			handler.animateToDatasetNode(node);
+			 return;
+		}
 		
 		int radius = getRadius(level);
 	
