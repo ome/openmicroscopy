@@ -40,7 +40,6 @@
 package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 
 //Java imports
-import java.util.Collection;
 
 //Third-party libraries
 
@@ -65,7 +64,7 @@ import java.util.Collection;
 public interface ContentComponent  {
 
 	/** Set the OME conetnts that we are using here */	
-	public void setContents(Collection contents);
+	public void setContents(Object contents);
 	
 	/** create appropriate screen layout for these contents */
 	public void layoutContents(); 

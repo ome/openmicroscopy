@@ -104,7 +104,8 @@ public class ProjectSelectionCanvas extends PCanvas implements
 	
 	}
 	
-	public void setContents(Collection projects) {
+	public void setContents(Object obj) {
+		Collection projects = (Collection) obj;
 		ProjectLabel pl;
 		Iterator iter = projects.iterator();
 		while (iter.hasNext()) {

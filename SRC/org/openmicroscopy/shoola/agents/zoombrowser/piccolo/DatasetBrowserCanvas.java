@@ -77,7 +77,6 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 public class DatasetBrowserCanvas extends PCanvas implements BufferedObject, 
 	SelectionEventListener, ContentComponent {
 	
-	private static final int BROWSER_SIDE=400;
 	
 	/** The agent of which we are a part */
 	//private ZoomBrowserAgent agent;
@@ -157,8 +156,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	}
 	
 	
-	public void setContents(Collection allDatasets) {
-		this.allDatasets = allDatasets;
+	public void setContents(Object allDatasets) {
+		this.allDatasets = (Collection) allDatasets;
 	}
 	
 	
