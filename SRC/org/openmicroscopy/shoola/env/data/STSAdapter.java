@@ -126,14 +126,6 @@ class STSAdapter
         return (List)retrieveListData(SemanticType.class,criteria);
     }
     
-    public List getRelevantImageTypes(DatasetData dataset)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        //Criteria criteria = buildRelevantImageTypeCriteria(dataset);
-        //return (List)retrieveListData(SemanticType.class,criteria);
-        return null;
-    }
-    
     /**
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#getAvailableGlobalTypes()
      */
