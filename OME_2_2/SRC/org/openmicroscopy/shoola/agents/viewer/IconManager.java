@@ -63,7 +63,7 @@ public class IconManager
 {
 	
 	/** ID of the movie icon. */
-	public static final int     MOVIE = 0;   
+	public static final int     PLAY = 0;   
   
 	/** ID of the stop icon. */
 	public static final int     STOP = 1; 
@@ -90,7 +90,7 @@ public class IconManager
 	public static final int		INSPECTOR = 8;
 	
 	/** ID of the player pause icon. */
-	public static final int		PLAYER_PAUSE = 9;
+	public static final int		PAUSE = 9;
 	
 	/** ID of the save_image_as icon. */
 	public static final int		SAVEAS = 10;	
@@ -110,17 +110,20 @@ public class IconManager
 	/** ID of the save_image_as big icon. */
 	public static final int		LOAD = 15;
 	
+	/** ID of the player movie icon. */
+	public static final int		MOVIE = 16;
+		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 15;
+	private static int          MAX_ID = 16;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
-		relPaths[MOVIE] = "nuvola_player_play16.png";
+		relPaths[PLAY] = "nuvola_player_play16.png";
 		relPaths[STOP] = "nuvola_player_stop16.png";
 		relPaths[REWIND] = "nuvola_player_rev16.png";
 		relPaths[RENDER] = "render16.png";
@@ -129,13 +132,14 @@ public class IconManager
 		relPaths[ZOOMOUT] = "nuvola_viewmag-16.png";
 		relPaths[ZOOMFIT] = "nuvola_viewmagfit16.png";
 		relPaths[INSPECTOR] = "nuvola_viewmag16.png";
-		relPaths[PLAYER_PAUSE] = "nuvola_player_pause16.png";
+		relPaths[PAUSE] = "nuvola_player_pause16.png";
 		relPaths[SAVEAS] = "nuvola_filesaveas16.png";
 		relPaths[FORWARD] = "nuvola_player_fwd16.png";
 		relPaths[QUESTION] = "nuvola_filetypes32.png";
 		relPaths[SAVEAS_BIG] = "nuvola_filesaveas48.png";
 		relPaths[VIEWER3D] = "nuvola_kalzium16.png";
 		relPaths[LOAD] = "nuvola_network48.png";
+		relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
 	}
 	
 	/** The sole instance. */

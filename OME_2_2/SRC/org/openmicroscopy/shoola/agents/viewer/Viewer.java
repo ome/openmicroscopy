@@ -99,6 +99,7 @@ public class Viewer
 	private RenderingControl		renderingControl;
 	
 	private int						curImageID, curPixelsID;
+	
 	private BufferedImage			curImage;
 	
 	private String					curImageName;
@@ -165,7 +166,9 @@ public class Viewer
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
 		def.setZ(z);
-		registry.getEventBus().post(new RenderImage(curPixelsID, def));	
+		RenderImage renderImage = new RenderImage(curPixelsID, def);
+		renderImage.setMovie(false);
+		registry.getEventBus().post(renderImage);	
 	}
 	
 	/** Post an event to bring up the rendering agt. */
@@ -209,10 +212,22 @@ public class Viewer
 		} else
 			initPresentation(request.getImageName(), pxsDims, true);
 	}
+
+	/** Handle event @see ImageRendered. */
+	private void handleImageRendered(ImageRendered response)
+	{
+		RenderImage request = (RenderImage) response.getACT();
+		if (!request.isMovie()) {
+			curImage = null;
+			curImage = response.getRenderedImage();
+			presentation.setImage(curImage);
+			setMenuSelection(true);
+		}
+	}
 	
 	/** Set the default. */
 	private void initPresentation(String imageName, PixelsDimensions pxsDims, 
-									boolean active)
+							boolean active)
 	{
 		curImageName = imageName;
 		presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
@@ -221,16 +236,7 @@ public class Viewer
 		presentation.setActive(active);
 		setPresentation();
 	}
-	
-	/** Handle event @see ImageRendered. */
-	private void handleImageRendered(ImageRendered response)
-	{
-		curImage = null;
-		curImage = response.getRenderedImage();
-		presentation.setImage(curImage);
-		setMenuSelection(true);
-	}
-	
+		
 	/** Select the menuItem. */
 	void setMenuSelection(boolean b) { viewItem.setSelected(b); }
 	

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -46,7 +45,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 
 //Third-party libraries
 
@@ -91,8 +89,8 @@ public class ViewerUIF
 	/** Tool bar of the Agent. */
 	private ToolBar					toolBar;
 	
-	/** Movie menu. */
-	private JMenu					movieMenu;
+	/** Controls menu. */
+	private JMenuItem				movieItem;
 	
 	private JMenuItem				viewer3DItem;
 	
@@ -123,11 +121,7 @@ public class ViewerUIF
 		initSliders(maxT, t, maxZ, z);
 		buildGUI();
 	}
-	
-	public JTextField getMovieStart() { return toolBar.getMovieStart(); }
-	
-	public JTextField getMovieEnd() { return toolBar.getMovieEnd(); }
-	
+
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
 	public JSlider getTSlider() { return tSlider; }
@@ -149,33 +143,24 @@ public class ViewerUIF
 		tbm.onZChange(z);
 		int maxZ = sizeZ-1;
 		int maxT = sizeT-1;
+		
 		tbm.setMaxT(maxT);
 		tbm.setMaxZ(maxZ);
 		toolBar.getZLabel().setText("/"+maxZ);
 		toolBar.getTLabel().setText("/"+maxT);
 		resetSliders(maxT, t, maxZ, z);
 		
-		toolBar.getViewer3D().setEnabled(maxZ != 0);
-		viewer3DItem.setEnabled(maxZ != 0);
-		boolean b;
-		if (maxT == 0) b = false;
-		else b = true;
-		//toolbar Movie controls.
-		toolBar.getPause().setEnabled(b);
-		toolBar.getForward().setEnabled(b);
-		toolBar.getRewind().setEnabled(b);
-		toolBar.getPlay().setEnabled(b);
-		toolBar.getStop().setEnabled(b);
-		toolBar.getFPS().setEnabled(b);
-		toolBar.getEditor().setEnabled(b);
-		toolBar.repaint();
-		//MovieMenu items
-		Component[] components = movieMenu.getMenuComponents();
-		Component c;
-		for (int i = 0; i < components.length; i++) {
-			c = components[i];
-			if (c instanceof JMenuItem) c.setEnabled(b);
-		}
+		boolean bT = false, bZ = false;
+		if (maxT != 0) bT = true;
+		if (maxZ != 0) bZ = true;
+		
+		toolBar.getTField().setEditable(bT);
+		toolBar.getZField().setEditable(bZ);
+		toolBar.getViewer3D().setEnabled(bZ);
+		viewer3DItem.setEnabled(bZ);
+		toolBar.getMovie().setEnabled(bT);
+		movieItem.setEnabled(bT);
+		//toolBar.repaint();
 	}
 	
 	/** Set the internalFrame status. */
@@ -201,7 +186,7 @@ public class ViewerUIF
 		zSlider.setEnabled(maxZ != 0);
 		tSlider.setEnabled(maxT != 0);
 	}
-
+	
 	/** Initiliazes the z-slider and t-slider. */
 	private void initSliders(int maxT, int t, int maxZ, int z)
 	{
@@ -238,47 +223,12 @@ public class ViewerUIF
 	private JMenuBar createMenuBar(int maxT, int maxZ)
 	{
 		JMenuBar menuBar = new JMenuBar(); 
-		createMovieMenu(maxT);
-		menuBar.add(createControlsMenu(maxZ));
-		menuBar.add(movieMenu);
+		menuBar.add(createControlsMenu(maxZ, maxT));
 		return menuBar;
 	}
 
-	/** Create a Movie menu. */
-	private void createMovieMenu(int maxT)
-	{
-		movieMenu = new JMenu("Movie");
-		JMenuItem menuItem = new JMenuItem("Play", 
-									im.getIcon(IconManager.MOVIE));
-		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
-		menuItem.setEnabled(maxT != 0);
-		movieMenu.add(menuItem);
-		/*
-		menuItem = new JMenuItem("Pause", 
-									im.getIcon(IconManager.PLAYER_PAUSE));
-		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PAUSE);
-		menuItem.setEnabled(maxT != 0);
-		movieMenu.add(menuItem);
-		menuItem = new JMenuItem("Stop", 
-									im.getIcon(IconManager.STOP));
-		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_STOP);
-		menuItem.setEnabled(maxT != 0);
-		movieMenu.add(menuItem);
-		*/
-		menuItem = new JMenuItem("Rewind", 
-									im.getIcon(IconManager.REWIND));
-		menuItem.setEnabled(maxT != 0);
-		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_REWIND);
-		movieMenu.add(menuItem);
-		menuItem = new JMenuItem("Forward", 
-								im.getIcon(IconManager.FORWARD));
-		menuItem.setEnabled(maxT != 0);
-		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_FORWARD);
-		movieMenu.add(menuItem);
-	}
-	
 	/** Create the control Menu. */
-	private JMenu createControlsMenu(int maxZ)
+	private JMenu createControlsMenu(int maxZ, int maxT)
 	{
 		JMenu menu = new JMenu("Controls");
 		JMenuItem menuItem = new JMenuItem("Rendering", 
@@ -294,6 +244,10 @@ public class ViewerUIF
 		control.attachItemListener(viewer3DItem, ViewerCtrl.VIEWER3D);
 		viewer3DItem.setEnabled(maxZ != 0);
 		menu.add(viewer3DItem);
+		movieItem = new JMenuItem("Movie", im.getIcon(IconManager.MOVIE));
+		control.attachItemListener(movieItem, ViewerCtrl.MOVIE);
+		movieItem.setEnabled(maxT != 0);
+		menu.add(movieItem);
 		menuItem = new JMenuItem("SAVE AS...", im.getIcon(IconManager.SAVEAS));
 		control.attachItemListener(menuItem, ViewerCtrl.SAVE_AS);
 		menu.add(menuItem);

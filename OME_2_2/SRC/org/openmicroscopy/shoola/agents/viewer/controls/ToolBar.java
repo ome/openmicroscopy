@@ -40,10 +40,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
 //Third-party libraries
@@ -85,23 +83,11 @@ public class ToolBar
 	/** Control to post an event to bring up the rendering widget. */
 	private JButton					render;
 	
-	/** Buttons to control the playback of time movie. */
-	private JButton         		play, stop, rewind, pause, forward; 
-	
-	/** Allows user t specify the movie playback rate in frames per second. */
-	private JSpinner        		fps;
-	
-	/** To define new editor for JSpinner (due to JSpinner bug). */
-	private JTextField      		editor; 
+	private JButton					movie;
 	
 	/** Fields displaying the current z-section and the current timepoint. */
 	private JTextField				zField, tField;
-	
-	/** TextField with the start (resp. end) timepoint. */
-	private JTextField				movieStart, movieEnd;
-	
-	private JPanel					controlsMoviePanel;
-	
+		
 	/** Labels displaying the number of timepoints and of z-sections. */
 	private JLabel					zLabel, tLabel;
 	
@@ -111,17 +97,28 @@ public class ToolBar
 	
 	private int 					txtWidth;
 	
+	/** 
+	 * 
+	 * @param control	reference to the {@link ViewerCtrl control}.
+	 * @param registry	reference to the {@link Registry registry}.
+	 * @param sizeT		timepoint-1 b/c OME values start at 0.
+	 * @param sizeZ		number of section-1 b/c OME values start at 0.
+	 * @param t			current timepoint.
+	 * @param z			current z-section.
+	 */
 	public ToolBar(ViewerCtrl control, Registry registry, int sizeT,
 							int sizeZ, int t, int z)
 	{
 		initTxtWidth();
-		initComponents(registry, sizeT-1, sizeZ-1);
+		initComponents(registry, sizeT, sizeZ);
 		initTextFields(t, z, sizeT, sizeZ);
 		manager = new ToolBarManager(control, this, sizeT, t, sizeZ, z);
 		manager.attachListeners();
 		buildToolBar();
 	}
 
+	public JButton getMovie() { return movie; }
+	
 	public JButton getViewer3D() { return viewer3D; }
 	
 	public JButton getSaveAs() { return saveAs; }
@@ -130,31 +127,13 @@ public class ToolBar
 	
 	public JLabel getTLabel() { return tLabel; }
 	
-	public JSpinner getFPS() { return fps; }
-	
-	public JTextField getEditor() { return editor; }
-
 	public JButton getInspector() { return inspector; } 
-	
-	public JButton getPlay() { return play; }
 
 	public JButton getRender() { return render; }
-
-	public JButton getRewind() { return rewind; }
-	
-	public JButton getPause() { return pause; }
-	
-	public JButton getForward() { return forward; }
-
-	public JButton getStop() { return stop; }
 
 	public JTextField getTField() { return tField; }
 
 	public JTextField getZField() { return zField; }
-
-	public JTextField getMovieStart() { return movieStart; }
-	
-	public JTextField getMovieEnd() { return movieEnd; }
 	
 	public ToolBarManager getManager() { return manager; }
 	
@@ -166,51 +145,21 @@ public class ToolBar
 		viewer3D = new JButton(im.getIcon(IconManager.VIEWER3D));
 		viewer3D.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the image3D viewer."));
-		viewer3D.setEnabled(maxZ ==0);	
+		viewer3D.setEnabled(maxZ == 0);	
 		saveAs = new JButton(im.getIcon(IconManager.SAVEAS));
 		saveAs.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the save image window."));
-			
+			UIUtilities.formatToolTipText("Bring up the save image window."));	
 		inspector  =  new JButton(im.getIcon(IconManager.INSPECTOR));
 		inspector.setToolTipText(
 			UIUtilities.formatToolTipText("Bring up the inspector panel."));
 		render =  new JButton(im.getIcon(IconManager.RENDER));
 		render.setToolTipText(
-			UIUtilities.formatToolTipText("Bring up the rendering panel."));	
-		play = new JButton(im.getIcon(IconManager.MOVIE));
-		play.setToolTipText(
-		UIUtilities.formatToolTipText("Play movie from current timepoint."));
-		stop = new JButton(im.getIcon(IconManager.STOP));
-		stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie."));
-		rewind = new JButton(im.getIcon(IconManager.REWIND));
-	  	rewind.setToolTipText(
-	  		UIUtilities.formatToolTipText("Go to the first timepoint."));
-		forward = new JButton(im.getIcon(IconManager.FORWARD));
-		forward.setToolTipText(
-			UIUtilities.formatToolTipText("Go to the last timepoint."));	
-		pause = new JButton(im.getIcon(IconManager.PLAYER_PAUSE));
-		pause.setToolTipText(
-			UIUtilities.formatToolTipText("Stop the movie."));
-					
-	  	//Spinner timepoint granularity is 1, so must be stepSize
-	  	//fps = new JSpinner(new SpinnerNumberModel(12, 0, sizeT, 1));  
-	  	fps = new JSpinner(new SpinnerNumberModel(12, 12, 12, 1));
-	  	editor = new JTextField("12", (""+maxT).length());
-	  	String s = "Select or enter the movie playback rate " +
-						"(frames per second).";
-	  	editor.setToolTipText(UIUtilities.formatToolTipText(s));
-	  	fps.setEditor(editor);
-	  	//only one timepoint.
-	  	boolean b;
-	  	if (maxT == 0) b = false;
-	  	else b = true;
-		play.setEnabled(b);
-		rewind.setEnabled(b);
-		stop.setEnabled(b);
-		pause.setEnabled(b);
-		forward.setEnabled(b);
-		fps.setEnabled(b);
-		editor.setEnabled(b);	
+			UIUtilities.formatToolTipText("Bring up the rendering panel."));
+			
+		movie =  new JButton(im.getIcon(IconManager.MOVIE));
+		movie.setToolTipText(
+			UIUtilities.formatToolTipText("Bring up the movie player."));	
+		movie.setEnabled(maxT != 0);	
 	}
 	
 	/** 
@@ -222,7 +171,8 @@ public class ToolBar
 		zLabel = new JLabel("/"+maxZ);
 		tLabel = new JLabel("/"+maxT);
 		tField = new JTextField(""+t, (""+maxT).length());
-		if (maxT-1 == 0) tField.setEditable(false);
+		//if (maxT == 0) tField.setEditable(false);
+		tField.setEditable(maxT != 0);
 		tField.setForeground(Viewer.STEELBLUE);
 		tField.setToolTipText(
 			UIUtilities.formatToolTipText("Enter a timepoint."));
@@ -230,18 +180,9 @@ public class ToolBar
 		zField.setForeground(Viewer.STEELBLUE);
 		zField.setToolTipText(
 			UIUtilities.formatToolTipText("Enter a Z point"));
-		if (maxZ-1 == 0) zField.setEditable(false);
+		//if (maxZ-1 == 0) zField.setEditable(maxZ != 0);
+		zField.setEditable(maxZ != 0);
 		ztPanel = textFieldsPanel((""+maxZ).length(), (""+maxT).length());
-		
-		movieStart = new JTextField(""+0, (""+maxT).length());
-		movieStart.setForeground(Viewer.STEELBLUE);
-		movieStart.setToolTipText(
-		UIUtilities.formatToolTipText("Enter the starting point of the movie"));
-		movieEnd = new JTextField(""+maxT, (""+maxT).length());
-		movieEnd.setForeground(Viewer.STEELBLUE);
-		movieEnd.setToolTipText(
-		UIUtilities.formatToolTipText("Enter the end point of the movie"));
-		controlsMoviePanel = buildControlsMoviePanel((""+maxT).length());
 	}
 	
 	/** Build the main tool bar. */
@@ -249,9 +190,6 @@ public class ToolBar
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(buildBar());
-		add(moviePanel());
-		//add(controlsMoviePanel);
-		add(new JSeparator(SwingConstants.VERTICAL));
 		add(ztPanel);
 	}
 	
@@ -263,68 +201,10 @@ public class ToolBar
 		bar.add(render);
 		bar.add(inspector);
 		bar.add(viewer3D);
+		bar.add(movie);
 		bar.add(saveAs);
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
-		//movie controls.
-		bar.add(play);
-		//bar.add(pause);
-		//bar.add(stop);
-		bar.add(rewind);
-		bar.add(forward);
 		return bar;
-	}
-	
-	/** Build panel with text editor. */
-	private JPanel moviePanel()
-	{
-		JPanel p = new JPanel();
-		//p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		p.setLayout(gridbag);
-		c.fill = GridBagConstraints.NONE;
-		JLabel l = new JLabel(" Rate ");
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(l, c);
-		p.add(l);
-		c.gridx = 1;
-		gridbag.setConstraints(fps, c);
-		p.add(fps);
-		//p.add(Box.createRigidArea(H_SPACER_SIZE));
-		return p;
-	}
-	
-	private JPanel buildControlsMoviePanel(int length)
-	{
-		JPanel p = new JPanel();
-		JLabel l = new JLabel(" start ");
-		int x = length*txtWidth;
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		p.setLayout(gridbag);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.EAST;
-		gridbag.setConstraints(l, c);
-		p.add(l);
-		c.gridx = 1;
-		c.ipadx = x;
-		gridbag.setConstraints(movieStart, c);
-		p.add(movieStart);
-		c.gridx = 2;
-		c.ipadx = 0;
-		l = new JLabel(" end ");
-		gridbag.setConstraints(l, c);
-		p.add(l);
-		c.gridx = 3;
-		c.ipadx = x;
-		gridbag.setConstraints(movieEnd, c);
-		p.add(movieEnd);
-		return p; 
 	}
 	
 	/** Build panel with labels and text fields. */
