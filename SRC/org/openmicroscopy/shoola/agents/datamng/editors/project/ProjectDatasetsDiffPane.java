@@ -42,6 +42,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
@@ -49,6 +51,9 @@ import javax.swing.table.AbstractTableModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.util.ui.TableHeaderTextAndIcon;
+import org.openmicroscopy.shoola.util.ui.TableIconRenderer;
+import org.openmicroscopy.shoola.util.ui.TableSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -70,10 +75,23 @@ class ProjectDatasetsDiffPane
 	extends JDialog
 {
 
+	/** Action id. */
+	private static final int				NAME = 0, SELECT = 1;
+			
+	protected static final String[]			columnNames;
+	
+	static {
+		columnNames  = new String[2];
+		columnNames[NAME] = "Name";
+		columnNames[SELECT] = "Select";
+	}
+
 	private JButton							selectButton, cancelButton, 
 											saveButton;
 											
 	private DatasetsTableModel 				datasetsTM;
+	
+	private TableSorter 					sorter;
 	
 	/** Reference to the control of the main widget. */
 	private ProjectEditorManager 			control;
@@ -146,8 +164,7 @@ class ProjectDatasetsDiffPane
 			selectButton.setEnabled(false);
 			cancelButton.setEnabled(false);
 			saveButton.setEnabled(false);
-		}
-		
+		}	
 	}
 	
 	/** Build and lay out the GUI. */
@@ -180,8 +197,12 @@ class ProjectDatasetsDiffPane
 		
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
-		JTable t = new JTable(datasetsTM);
-
+		JTable t = new JTable();
+		sorter = new TableSorter(datasetsTM);  
+		t.setModel(sorter);
+		sorter.addMouseListenerToHeaderInTable(t);
+		setTableLayout(t);
+		
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -193,6 +214,28 @@ class ProjectDatasetsDiffPane
 		return p;
 	}
 
+	/** Set icons in the tableHeader. */
+	private void setTableLayout(JTable table)
+	{
+		IconManager im = IconManager.getInstance(
+							control.getView().getRegistry());
+		TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
+		TableColumnModel tcm = table.getTableHeader().getColumnModel();
+		TableColumn tc = tcm.getColumn(NAME);
+		tc.setHeaderRenderer(iconHeaderRenderer);
+		TableHeaderTextAndIcon 
+		txt = new TableHeaderTextAndIcon(columnNames[NAME], 
+				im.getIcon(IconManager.ORDER_BY_NAME), 
+				"Order datasets by name.");
+		tc.setHeaderValue(txt);
+		tc = tcm.getColumn(SELECT);
+		tc.setHeaderRenderer(iconHeaderRenderer); 
+		txt = new TableHeaderTextAndIcon(columnNames[SELECT], 
+				im.getIcon(IconManager.ORDER_BY_SELECTED), 
+				"Order by selected datasets.");
+		tc.setHeaderValue(txt);
+	}
+
 	/** 
 	 * A <code>3</code>-column table model to view the summary of 
 	 * datasets contained in the project.
@@ -202,7 +245,6 @@ class ProjectDatasetsDiffPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]		columnNames = {"Name", "Remove"};
 		private final Object[]		datasets = 
 									manager.getDatasetsDiff().toArray();
 		private Object[][] 			data = new Object[datasets.length][2];
@@ -210,7 +252,7 @@ class ProjectDatasetsDiffPane
 		private DatasetsTableModel()
 		{
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = ((DatasetSummary) datasets[i]).getName();
+				data[i][0] = (DatasetSummary) datasets[i];
 				data[i][1] = new Boolean(false);
 			}
 		}
@@ -233,9 +275,9 @@ class ProjectDatasetsDiffPane
 		public void setValueAt(Object value, int row, int col)
 		{	
 			data[row][col] = value;
+			DatasetSummary ds = (DatasetSummary) sorter.getValueAt(row, NAME);
 			fireTableCellUpdated(row, col);
-			manager.addDataset(((Boolean) value).booleanValue(), 
-								(DatasetSummary) datasets[row]);
+			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
 	

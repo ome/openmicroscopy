@@ -149,7 +149,7 @@ class ProjectDatasetsDiffPaneManager
 	void addDataset(boolean value, DatasetSummary ds) 
 	{
 		if (value)	{
-			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
+			if (!datasetsToAdd.contains(ds))	datasetsToAdd.add(ds);
 		} else 	datasetsToAdd.remove(ds);
 	}
 	
@@ -162,6 +162,7 @@ class ProjectDatasetsDiffPaneManager
 				datasetsDiff.remove((DatasetSummary) i.next());
 			buttonsEnabled(datasetsDiff.size() != 0);
 			control.addDatasetsSelection(datasetsToAdd);
+			datasetsToAdd.removeAll(datasetsToAdd);
 		}
 		view.setVisible(false);
 	}

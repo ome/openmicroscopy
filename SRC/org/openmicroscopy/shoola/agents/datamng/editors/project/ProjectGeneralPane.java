@@ -120,16 +120,14 @@ class ProjectGeneralPane
 	 */
 	private TableComponent buildTable()
 	{
-		TableComponent table = new TableComponent(3, 2);
+		TableComponent table = new TableComponent(2, 2);
 		setTableLayout(table);
 		
 		// Labels
-		table.setValueAt(new JLabel(" ID"), 0, 0);
-		table.setValueAt(new JLabel(" Name"), 1, 0);
-		table.setValueAt(new JLabel(" Description"), 2, 0);
+		table.setValueAt(new JLabel(" Name"), 0, 0);
+		table.setValueAt(new JLabel(" Description"), 1, 0);
 
 		ProjectData pd = manager.getProjectData();
-		table.setValueAt(new JLabel(""+pd.getID()), 0, 1);
 		
 		//textfields
 		nameField = new MultilineLabel(pd.getName());
@@ -137,14 +135,14 @@ class ProjectGeneralPane
 		nameField.setEditable(true);
 		JScrollPane scrollPaneName  = new JScrollPane(nameField);
 		scrollPaneName.setPreferredSize(DataManager.DIM_SCROLL_NAME);
-		table.setValueAt(scrollPaneName, 1, 1); 
+		table.setValueAt(scrollPaneName, 0, 1); 
 		
 		descriptionArea = new MultilineLabel(pd.getDescription());
 		descriptionArea.setForeground(DataManager.STEELBLUE);
 		descriptionArea.setEditable(true);
 		JScrollPane scrollPane = new JScrollPane(descriptionArea);
 		scrollPane.setPreferredSize(DataManager.DIM_SCROLL_TABLE);
-		table.setValueAt(scrollPane, 2, 1);
+		table.setValueAt(scrollPane, 1, 1);
 					
 		return table;
 	}
@@ -153,8 +151,8 @@ class ProjectGeneralPane
 	private void setTableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
-		table.setRowHeight(2, DataManager.ROW_TABLE_HEIGHT);
-		table.setRowHeight(1, DataManager.ROW_NAME_FIELD);
+		table.setRowHeight(1, DataManager.ROW_TABLE_HEIGHT);
+		table.setRowHeight(0, DataManager.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
