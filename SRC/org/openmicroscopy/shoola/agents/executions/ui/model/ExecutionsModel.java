@@ -40,6 +40,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.ChainExecutionsLoadedEvent;
+import org.openmicroscopy.shoola.agents.executions.ui.LongRangeSlider;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 
 
@@ -56,6 +57,12 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 */
 
 public class ExecutionsModel {
+	
+	public static final String[] modes =  {"Datasets", "Chains"};
+	private static final int DATASET_ORDER=0;
+	private static final int CHAIN_ORDER=1;
+	
+	private int currentOrder;
 	
 	private HashMap execsByDataset;
 	private HashMap execsByChain;
@@ -92,6 +99,9 @@ public class ExecutionsModel {
 		return gm;
 	}
 	
+	public LongRangeSlider getSlider() {
+		return new LongRangeSlider(getRangeModel());
+	}
 	
 	
 	public void resetRangeProperties() {
@@ -106,12 +116,15 @@ public class ExecutionsModel {
 	public int getChainCount() {
 		return execsByChain.keySet().size();
 	}
+	
+	public int getDatasetCount() {
+		return execsByDataset.keySet().size();
+	}
 	// either do executions by dataset, and then by chain within datasets.
 	// either way, entries go from row 1...|chains| * |datasets|
 	public int getLastRowIndex() {
 		int chainCount = getChainCount();
 		int datasetCount = execsByDataset.keySet().size();
-		System.err.println("# of chains is "+chainCount+", # of datasets "+datasetCount);
 		return chainCount*datasetCount;
 	}
 	
@@ -122,13 +135,30 @@ public class ExecutionsModel {
 	//	 eventually, this will change to look at a flag,  but for now, it's dataset 
 	// major ordering and then chain within datasets.
 	public int getRow(ChainExecutionData exec) {
-		System.err.println("getting row for exec...");
-		System.err.println("chain id is "+exec.getChain().getID()+", dataset id is "+exec.getDataset().getID());
+		
+		if (currentOrder == DATASET_ORDER) 
+			return getDatasetMajorRow(exec);
+		else 
+			return getChainMajorRow(exec);
+	}
+	
+	private int getDatasetMajorRow(ChainExecutionData exec) {
 		int chain = getChainIndex(exec);
 		int dataset = getDatasetIndex(exec);
-		System.err.println("chain is "+chain+", dataset is "+dataset+
-				", chain count is "+getChainCount());
 		return dataset*getChainCount()+chain;
+	}
+	
+	private int getChainMajorRow(ChainExecutionData exec) {
+		int chain = getChainIndex(exec);
+		int dataset = getDatasetIndex(exec);
+		return chain*getDatasetCount()+dataset;
+	}
+	
+	public void setRenderingOrder(String choice) {
+		for (int i = 0; i < modes.length; i++) {
+			if (choice.compareTo(modes[i]) == 0)
+				currentOrder = i;
+		}
 	}
 	
 	private int getChainIndex(ChainExecutionData exec) {
