@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
-
 //Java imports
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -45,6 +44,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
 
 /** 
  * 
@@ -64,7 +64,9 @@ class PlaneSlicingDialogManager
 	implements ActionListener, MouseListener, MouseMotionListener
 {
 	/** ID to handle events. */
-	private static final int		STATIC = 0, DYNAMIC = 1, RANGE = 2;
+	private static final int		STATIC = 0;
+	private static final int		DYNAMIC = 1;
+	private static final int 		RANGE = 2;
 	
 	/** Graphical constants. */
 	private static final int    	topBorder = PlaneSlicingPanel.topBorder,
@@ -75,24 +77,36 @@ class PlaneSlicingDialogManager
 									tS = topBorder+square;
 	private static final int 		triangleW = PlaneSlicingPanel.triangleW;
 	
+	/** 
+	 * Coefficient of the map: y = coeff*x+b to convert
+	 * a real value into a coordinate.
+	 */
 	private static final double		coeff = square/255;	
-						
+
+	/** 
+	 * Coefficient of the map: y = rCoeff*x+b to convert
+	 * a graphical value into a real value in the range [0, 255].
+	 */
+	private static final double		rCoeff = 255/square;
+				
 	private Rectangle				boxOutputStart, boxOutputEnd;
 	private boolean					dragging, isSelected;
 	
 	private PlaneSlicingDialog		view;
 	private QuantumMappingManager	control;
-	
+	private PlaneSlicingDef			psDef;
 	/**
 	 * Create a new instance.
 	 * @param view			
 	 * @param control
 	 */
 	PlaneSlicingDialogManager(PlaneSlicingDialog view, 
-								QuantumMappingManager control)
+								QuantumMappingManager control, 
+								PlaneSlicingDef psDef)
 	{
 		this.view = view;
 		this.control = control;
+		this.psDef = psDef;
 		isSelected = true;
 		boxOutputStart = new Rectangle();
 		boxOutputEnd = new Rectangle();
@@ -111,30 +125,31 @@ class PlaneSlicingDialogManager
 		cbx.addActionListener(this);
 		cbx.setActionCommand(""+RANGE);
 		
-		// graphics listeners.	
+		// graphical listeners.	
 		view.getPSPanel().addMouseListener(this);
 		view.getPSPanel().addMouseMotionListener(this);
 	}
 
 	/** 
-	 * Convert a real value to a coordinate.
+	 * Convert a real value into a coordinate.
 	 * 
 	 * @param value		real value.
 	 * @return	See above.
 	 */
-	int convertRealToGraphics(int value)
+	int convertRealIntoGraphics(int x)
 	{
-		return	(int) (tS-coeff*value);
+		return	(int) (tS-coeff*x);
 	}
 	
-	/** Convert into a real value i.e. value in the range [0, 255] 
+	/** 
+	 * Convert into a real value i.e. value in the range [0, 255] 
 	 * 
 	 * @param y		y-coordinate.
 	 * @return
 	 */
-	int convertGraphicsToReal(int x)
+	int convertGraphicsIntoReal(int x)
 	{
-		return x;
+		return (int) (rCoeff*(tS-x));
 	}
 	
 	/** Handles event fired by the radio button and the comboBox. */
@@ -146,14 +161,13 @@ class PlaneSlicingDialogManager
 			switch(index) { 
 				case RANGE:
 					JComboBox cbx = (JComboBox) e.getSource();
-					//forward event to the control.
+					setPlaneIndex(cbx.getSelectedIndex());
 					break;
 				case STATIC:
 					activateStatic();
 					break;
 				case DYNAMIC:
 					activateDynamic();
-			
 			}// end switch  
 		//impossible if IDs are set correctly 
 		} catch(NumberFormatException nfe) {
@@ -168,18 +182,11 @@ class PlaneSlicingDialogManager
 		if (!dragging) {
 			dragging = true;
 			if (boxOutputStart.contains(p) && p.y <= tS && p.y >= topBorder 
-				&& isSelected) {
-				setOutputStartBox(p.y);
-				view.getPSPanel().updateOutputStart(p.y);
-				int v = convertGraphicsToReal(p.y);
-				//TODO: forward event to the control
-			}
+				&& isSelected)
+				setLowerLimit(p.y);
 			if (boxOutputEnd.contains(p) && p.y >= topBorder && p.y <= tS 
-				&& isSelected) {
-				setOutputEndBox(p.y);
-				view.getPSPanel().updateOutputEnd(p.y);
-				//TODO: forward event to the control
-			}
+				&& isSelected)
+				setUpperLimit(p.y);
 		 }  //else dragging already in progress 
 	}
 	
@@ -187,19 +194,13 @@ class PlaneSlicingDialogManager
 	public void mouseDragged(MouseEvent e)
 	{
 		Point   p = e.getPoint();
-		if (dragging) {  
+		if (dragging) { 
 			if (boxOutputStart.contains(p) && p.y <= tS && p.y >= topBorder 
-				&& isSelected) {
-				setOutputStartBox(p.y);
-				view.getPSPanel().updateOutputStart(p.y);
-				//TODO: forward event to the control
-			}
+				&& isSelected) 
+				setLowerLimit(p.y);
 			if (boxOutputEnd.contains(p) && p.y >= topBorder && p.y <= tS
-				&& isSelected) {
-				setOutputEndBox(p.y);
-				view.getPSPanel().updateOutputEnd(p.y);
-				//TODO: forward event to the control
-			}
+				&& isSelected)
+				setUpperLimit(p.y);
 		}
 	}
 	
@@ -207,6 +208,41 @@ class PlaneSlicingDialogManager
 	public void mouseReleased(MouseEvent e)
 	{
 		dragging = false;
+	}
+	
+	/**
+	 * Set the plane slice index.
+	 * 
+	 * @param index		plane's index.
+	 */
+	private void setPlaneIndex(int index)
+	{
+		//psDef.setPlaneIndex(index);
+		//Forward event to control
+	}
+	
+	/**
+	 * Set the lower limit.
+	 * @param x			x-coordinate.
+	 */
+	private void setLowerLimit(int x)
+	{
+		setOutputStartBox(x);
+		view.getPSPanel().updateOutputStart(x);
+		//psDef.setLowerLimit(convertGraphicsIntoReal(x));
+		//Forward event to control
+	}
+	
+	/**
+	 * Set the upper limit.
+	 * @param x			x-coordinate.
+	 */
+	private void setUpperLimit(int x)
+	{
+		setOutputEndBox(x);
+		view.getPSPanel().updateOutputEnd(x);
+		//psDef.setUpperLimit(convertGraphicsIntoReal(x));
+		//Forward event to control
 	}
 	
 	/** 

@@ -59,20 +59,20 @@ class HistogramDialogManager
 	implements MouseListener, MouseMotionListener
 {
 	/** Graphics constants. */
-	static final int			heightStat = HistogramPanel.heightStat,
+	private static final int	heightStat = HistogramPanel.heightStat,
 								widthStat = HistogramPanel.widthStat, 
 								topBorder = HistogramPanel.topBorder,
 								leftBorder = HistogramPanel.leftBorder,
-								bottomBorder = HistogramPanel.bottomBorder,
 								rightBorder = HistogramPanel.rightBorder,
 								lS = leftBorder+widthStat, 
 								tS = topBorder+heightStat,
 								triangleW = HistogramPanel.triangleW,
-								triangleH = HistogramPanel.triangleH, 
 								length = 2*triangleW, 
 								window = HistogramPanel.window,
 								rangeGraphics = heightStat-2*window;
-   	static final int            absEnd = topBorder+window, absStart = tS-window;
+   	private static final int    absEnd = topBorder+window, absStart = tS-window;
+   	
+   	private final int			tW = topBorder+window;
    	
    	private int                     maxStartInputY, minEndInputY;
    	private Rectangle               boxInputStart, boxInputEnd;
@@ -81,25 +81,85 @@ class HistogramDialogManager
 	private QuantumMappingManager 	control;
 	
 	
-	HistogramDialogManager(HistogramDialog view, QuantumMappingManager control,
-							int yStart, int yEnd)
+	HistogramDialogManager(HistogramDialog view, QuantumMappingManager control)
 	{
 		this.view = view;
 		this.control = control;
-		//Size the rectangle used to control the OutputWindow cursor
-		 boxInputStart = new Rectangle(lS, yStart-triangleW, rightBorder, 
-		 								length);
-		 boxInputEnd = new Rectangle(lS, yEnd-triangleW, rightBorder, length);
-		 maxStartInputY = yStart-triangleW;
-		 minEndInputY = yEnd+triangleW; 
 	}
-
-	/** Attach the listeners */
+	
+	/** 
+	 * Initialize the rectangles which control the cursors.
+	 * 
+	 * @param yStart	graphical input start value.
+	 * @param yEnd		graphical input end value.
+	 */
+	void initRectangles(int yStart, int yEnd)
+	{
+		//Size the rectangle used to control the OutputWindow cursor
+		boxInputStart = new Rectangle(lS, yStart-triangleW, rightBorder, 
+										length);
+		boxInputEnd = new Rectangle(lS, yEnd-triangleW, rightBorder, length);
+		maxStartInputY = yStart-triangleW;
+		minEndInputY = yEnd+triangleW; 
+		
+	}
+	
+	/** Attach the listeners. */
 	void attachListeners()
 	{
 		view.getHistogramPanel().addMouseListener(this);
 		view.getHistogramPanel().addMouseMotionListener(this);
 	}
+	
+	/**
+	 * Convert a real value into a graphical one.
+	 * 
+	 * @param x	real value
+	 * @return graphics coordinate.
+	 */
+	int convertRealIntoGraphics(int x) 
+	{
+		int b = control.getMinimum();
+		int c = control.getMaximum();
+		double a = (double) rangeGraphics/(double) (b-c);
+		return (int) (a*(x-c)+tW);
+	}
+	
+	/** 
+	 * Converts a graphics value into a real value. 
+	 *
+	 * @param x     graphics coordinate.
+	 */    
+	int convertGraphicsIntoReal(int x)
+	{
+		int b = control.getMaximum(); 
+		double a =  (double) (control.getMinimum()-b)/(double) rangeGraphics;
+		return (int) (a*(x-tW)+b);
+	}
+	
+	/**
+	 * Resize the input window.
+	 * 
+	 * @param v		real input window value
+	 */
+	void setInputWindowStart(int v)
+	{
+		int gv = convertRealIntoGraphics(v);
+		setInputStartBox(gv);
+		view.getHistogramPanel().updateInputStart(gv, v);
+	}
+	
+	/**
+	 * Resize the input window.
+	 * 
+	 * @param v		real input window value
+	 */
+	void setInputWindowEnd(int v)
+	{
+		int gv = convertRealIntoGraphics(v);
+		setInputEndBox(gv);
+		view.getHistogramPanel().updateInputEnd(gv, v);
+	} 
 	
 	/** Handles events fired the graphics cursors. */
 	public void mousePressed(MouseEvent e)
@@ -108,19 +168,11 @@ class HistogramDialogManager
 		if (!dragging) {
 			dragging = true;
 			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-				p.y <= absStart) {
-				setInputStartBox(p.y);
-				int yReal = convertGraphicsToReal(p.y);    
-				view.getHistogramPanel().updateInputStart(p.y, yReal);
-				//control.synchInputStartCurvePanel(yReal);
-			}
+				p.y <= absStart)
+				control.setInputWindowStart(convertGraphicsIntoReal(p.y)); 
 			if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-				p.y >= absEnd) {
-				setInputEndBox(p.y);
-				int yReal = convertGraphicsToReal(p.y);    
-				view.getHistogramPanel().updateInputEnd(p.y, yReal);
-				//control.synchInputEndCurvePanel(yReal);
-			}
+				p.y >= absEnd) 
+				control.setInputWindowEnd(convertGraphicsIntoReal(p.y)); 
 		 }  //else dragging already in progress 
 	}
 	
@@ -130,19 +182,11 @@ class HistogramDialogManager
 		Point   p = e.getPoint();
 	   	if (dragging) {  
 			if (boxInputStart.contains(p) && p.y >= minEndInputY &&
-				p.y <= absStart) {
-			   	setInputStartBox(p.y);
-			   	int yReal = convertGraphicsToReal(p.y);    
-				view.getHistogramPanel().updateInputStart(p.y, yReal);
-			   	//control.synchInputStartCurvePanel(yReal);
-		   	}
+				p.y <= absStart) 
+				control.setInputWindowStart(convertGraphicsIntoReal(p.y)); 
 		   	if (boxInputEnd.contains(p) && p.y <= maxStartInputY &&
-			   	p.y >= absEnd) {
-			   	setInputEndBox(p.y);
-			   	int yReal = convertGraphicsToReal(p.y);    
-				view.getHistogramPanel().updateInputEnd(p.y, yReal);
-			   	//topManager.synchInputEndCurvePanel(yReal);
-		   	}
+			   	p.y >= absEnd)
+				control.setInputWindowEnd(convertGraphicsIntoReal(p.y)); 
 		}
 	}
 	
@@ -151,66 +195,7 @@ class HistogramDialogManager
 	{
 		dragging = false;
 	}
-	
-	/**
-	 * Updates the histogram.
-	 * Note that the value in main window is a x-coordinate but
-	 * in the histogram widget becomes a y-coordinate.
-	 *
-	 * @param xReal		real value to convert in the graphics system.
-	 */    
-	void setInputStart(int xReal)
-	{
-	   int y = convertRealToGraphics(xReal);
-	   view.getHistogramPanel().updateInputStart(y, xReal);
-	   setInputStartBox(y); 
-	}
-	/** 
-	* Update the histogram.
-	* Note that the value in main window is a x-coordinate 
-	* but in the histogram widget becomes a y-coordinate.
-	*
-	* @param xReal		real value to convert in the graphics system.
-	*/   
-	void setInputEnd(int xReal)
-	{
-	   int y = convertRealToGraphics(xReal);
-	   view.getHistogramPanel().updateInputEnd(y, xReal);
-	   setInputEndBox(y); 
-	}
 
-	/** 
-	 * Converts a graphics value into a real value. 
-	 *
-	 * @param x     graphics coordinate.
-	 */    
-	int convertGraphicsToReal(int x)
-	{
-		/*
-		int b = control.getMaximum(); 
-		double a =  (double) (control.getMinimum()-b)/(double) rangeGraphics;
-		return (int) (a*(x-topBorder-window)+b);
-		*/
-		return 0;
-	}
-	
-	/**
-	 * Convert a real value into a graphics value.
-	 * 
-	 * @param x	real value
-	 * @return graphics coordinate.
-	 */
-	int convertRealToGraphics(int x) 
-	{
-		/*
-		int b = control.getMinimum();
-		int c = control.getMaximum();
-		double a = (double) rangeGraphics/(double) (b-c);
-		return (int) (a*(x-c)+topBorder+window);
-		*/
-		return 0;
-	}
-	
 	/** 
 	 * Resizes the outputStart rectangle.
 	 *

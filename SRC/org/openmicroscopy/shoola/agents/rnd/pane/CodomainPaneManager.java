@@ -35,12 +35,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.ContrastStretchingDef;
-import org.openmicroscopy.shoola.agents.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
 
 /** 
  * 
@@ -59,8 +60,14 @@ import org.openmicroscopy.shoola.agents.rnd.PlaneSlicingDef;
 class CodomainPaneManager
 	implements ActionListener, ItemListener
 {
+	/** JButtons events. */
 	private static final int			STRETCHING = 0;
 	private static final int			SLICING = 1;	
+	
+	/** CheckBoxes events. */
+	private static final int			RI = 0;
+	private static final int			CS = 1; 
+	private static final int			PS = 2; 
 	
 	private QuantumMappingManager		control;
 	private CodomainPane				view;
@@ -79,20 +86,24 @@ class CodomainPaneManager
 		this.psDef = psDef;
 	}
 
-	private void initListeners()
+	void attachListeners()
 	{
 		//CheckBox
-		view.getRI().addItemListener(this);
-		view.getCS().addItemListener(this);
-		view.getPS().addItemListener(this);
+		JCheckBox ri = view.getRI(), cs = view.getCS(), ps = view.getPS();
+		ri.addItemListener(this);
+		ri.setActionCommand(""+RI);
+		cs.addItemListener(this);
+		cs.setActionCommand(""+CS);
+		ps.addItemListener(this);
+		ps.setActionCommand(""+PS);
+		
 		//buttons
 		JButton stretchingButton = view.getCStretching(),
 				slicingButton = view.getPSlicing();
 		stretchingButton.addActionListener(this);
 		stretchingButton.setActionCommand(""+STRETCHING);
 		slicingButton.addActionListener(this);
-		slicingButton.setActionCommand(""+SLICING);
-		
+		slicingButton.setActionCommand(""+SLICING);	
 	}
 
 	/** Handles events fired by the JButtons. */
@@ -114,14 +125,16 @@ class CodomainPaneManager
 			} 
 		}
 
-
+	/** Handle event fired by the CheckBox. */
 	public void itemStateChanged(ItemEvent e)
 	{
 		//TODO: implement event fired by chech box.
 		//register the event in the codomain chain 
-		
+		JCheckBox cb = (JCheckBox) e.getItemSelectable();
+		if (e.getStateChange()== ItemEvent.DESELECTED) cb.setSelected(false);
 	}
 	
+	/** Initializes the dialog window if it hasn't been created. */
 	private void popUpContrastStretchingDialog()
 	{
 		if (csDialog == null)
@@ -129,10 +142,12 @@ class CodomainPaneManager
 		csDialog.setVisible(true);
 	}
 	
+	/** Initializes the dialog window if it hasn't been created. */
 	private void popUpPlaneSlicingDialog()
 	{
 		if(psDialog == null)
 			psDialog = new PlaneSlicingDialog(control, psDef);
 		psDialog.setVisible(true);
 	}
+	
 }

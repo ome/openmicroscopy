@@ -63,18 +63,17 @@ class HistogramDialog
 	private HistogramDialogManager 	manager;
 	
 	HistogramDialog(QuantumMappingManager control, int mini, int maxi, 
-					int start, int end, int yStart, int yEnd, 
-					Object[] histogramData)
+					int start, int end, Object[] histogramData)
 	{
+		manager = new HistogramDialogManager(this, control);
+		int yStart, yEnd;
+		yStart = manager.convertRealIntoGraphics(start);
+		yEnd = manager.convertRealIntoGraphics(end);
 		histogramPanel = new HistogramPanel(mini, maxi, start, end,
-											yStart, yEnd, histogramData);
-		manager = new HistogramDialogManager(this, control, yStart, yEnd);
+												yStart, yEnd, histogramData);
+		manager.initRectangles(yStart, yEnd);										
 		manager.attachListeners();
-		//histogramPanel.setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
-		Container contentPane = super.getContentPane();
-		contentPane.add(histogramPanel);
-		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
-		setResizable(false);
+		buildGUI();	
 	}
 
 	public HistogramPanel getHistogramPanel()
@@ -87,4 +86,14 @@ class HistogramDialog
 		return manager;
 	}
 
+	/** Build and layout the GUI. */
+	void buildGUI()
+	{
+		//histogramPanel.setSize(HistogramPanel.WIDTH, HistogramPanel.HEIGHT);
+		Container contentPane = super.getContentPane();
+		contentPane.add(histogramPanel);
+		setSize(HistogramPanel.WIDTH, HEIGHT_WIN);
+		setResizable(false);
+	}
+	
 }

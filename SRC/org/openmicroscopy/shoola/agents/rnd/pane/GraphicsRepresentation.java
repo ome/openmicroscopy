@@ -38,7 +38,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -49,7 +48,8 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
 
 /** 
  * Builds a JPanel with the curve associated to the specified family.
@@ -166,7 +166,7 @@ class GraphicsRepresentation
 							int min, int max)
 	{
 		this.qDef = qDef;
-		type = qDef.getFamily();
+		type = qDef.family;
 		reverseIntensity = false; //TODO: retrieve user settings
 		manager = new GraphicsRepresentationManager(this, control, type);
 		setInputWindow(min, max);
@@ -211,28 +211,27 @@ class GraphicsRepresentation
 	 */ 
 	void setDefaultLinear(int inputStart, int inputEnd)
 	{
-		setCurrentInputs(inputStart,inputEnd);
+		setCurrentInputs(inputStart, inputEnd);
 		xControl = lS;
 		range  = square;
 		binMin = (int) (square/rangeMin);
 		binMax = (int) (square/rangeMax);
 		double yStart, yEnd, xStart, xEnd;
-		yStart = setOuputGraphics(qDef.getCdStart());
-		yEnd = setOuputGraphics(qDef.getCdEnd());
+		yStart = setOuputGraphics(qDef.cdStart);
+		yEnd = setOuputGraphics(qDef.cdEnd);
 		xStart = setInputGraphics(inputStart, square); 
 		xEnd = setInputGraphics(inputEnd, square);
+		
 		//Size the rectangles used to control cursor.
 		//Input Cursor.
 		setCursorStart((int) xStart);
 		setCursorEnd((int) xEnd);
-		manager.setInputStartBox((int) xStart);
-		manager.setInputEndBox((int) xEnd);
+		manager.setInputRectangles((int) xStart, (int) xEnd);
 		
 		//Output cursor.
-		setCursorOutputStart(leftBorder-10,(int) yStart);
+		setCursorOutputStart(leftBorder-10, (int) yStart);
 		setCursorOutputEnd(leftBorder-10, (int) topBorder);
-		manager.setOutputStartBox((int) yStart);
-		manager.setOutputEndBox((int) yEnd);
+		manager.setOutputRectangles((int) yStart, (int) yEnd);
 		        
 		//Control points location.
 		if (reverseIntensity) {
@@ -248,9 +247,9 @@ class GraphicsRepresentation
 		}
 		// draw curve
 		int k;
-		if (qDef.getFamily() == QuantumMapping.LINEAR) k = INIT;
-		else if (qDef.getFamily() == QuantumMapping.LOGARITHMIC) k = MIN;
-		else k = (int) qDef.getCurveCoefficient();
+		if (qDef.family == QuantumFactory.LINEAR) k = INIT;
+		else if (qDef.family == QuantumFactory.LOGARITHMIC) k = MIN;
+		else k = (int) qDef.curveCoefficient;
 		setControlLocation(k); 
 	}
 	
@@ -264,21 +263,21 @@ class GraphicsRepresentation
 	 */    
 	void setDefaultExponential(int inputStart, int inputEnd)
 	{
-		setCurrentInputs(inputStart,inputEnd);
-		int k = (int) (qDef.getCurveCoefficient()*10);
-		binMin = (int)((square-40)/(2*rangeMinExpo)); 
-		binMax = (int)((square-40)/(2*rangeMaxExpo));
+		setCurrentInputs(inputStart, inputEnd);
+		int k = (int) (qDef.curveCoefficient*10);
+		binMin = (int) ((square-40)/(2*rangeMinExpo)); 
+		binMax = (int) ((square-40)/(2*rangeMaxExpo));
 		double yStart, yEnd, xStart, xEnd, xStaticStart, xStaticEnd;
 		xStaticStart = 0;
 		xStaticEnd = 0;
-		yStart = setOuputGraphics(qDef.getCdStart());
-		yEnd = setOuputGraphics(qDef.getCdEnd());
-		
+		yStart = setOuputGraphics(qDef.cdStart);
+		yEnd = setOuputGraphics(qDef.cdEnd);
+
 		//output cursor
 		setCursorOutputStart(leftBorder-10,(int) yStart);
 		setCursorOutputEnd(leftBorder-10, (int) topBorder);
-		manager.setOutputStartBox((int) yStart);
-		manager.setOutputEndBox((int) yEnd); 
+		manager.setOutputRectangles((int) yStart, (int) yEnd); 
+		
 		if (k == INIT) {
 			if (reverseIntensity) {
 				 xStaticStart = (double) lS2;
@@ -314,15 +313,14 @@ class GraphicsRepresentation
 				range = (int) xStaticEnd-leftBorder;
 			}
 		}
-	
 		staticStartPt.setLocation(xStaticStart, yStart);
 		staticEndPt.setLocation(xStaticEnd, yEnd);
 		xStart  = setInputGraphics(inputStart, range);
 		xEnd    = setInputGraphics(inputEnd, range);
 		setCursorStart((int) xStart);
 		setCursorEnd((int) xEnd);
-		manager.setInputStartBox((int) xStart);
-		manager.setInputEndBox((int) xEnd);
+		
+		manager.setInputRectangles((int) xStart, (int) xEnd);
 		if (reverseIntensity) {
 			xControl = (int) xStaticStart;
 			controlPt.setLocation(xEnd, yEnd);
@@ -353,7 +351,7 @@ class GraphicsRepresentation
 		xStaticStart = 0;
 		xEnd = 0;
 		xStart = 0;
-		if (type == QuantumMapping.EXPONENTIAL) {
+		if (type == QuantumFactory.EXPONENTIAL) {
 			xControl = lS2;
 			range = lS2;
 			binMin = (int) ((square-40)/(2*rangeMinExpo)); 
@@ -399,13 +397,11 @@ class GraphicsRepresentation
 		if (reverseIntensity) {
 			setCursorStart((int) xEnd);
 			setCursorEnd((int) xStart);
-			manager.setInputStartBox((int) xEnd);
-			manager.setInputEndBox((int) xStart);
+			manager.setInputRectangles((int) xEnd, (int) xStart);
 		} else {
 			setCursorStart((int) xStart);
 			setCursorEnd((int) xEnd);
-			manager.setInputStartBox((int) xStart);
-			manager.setInputEndBox((int) xEnd);
+			manager.setInputRectangles((int) xStart, (int) xEnd);
 		}       
 	}
 	
@@ -533,22 +529,19 @@ class GraphicsRepresentation
 	void reverse(boolean b)
 	{
 		double yStart, yEnd;
+		double xStaticStart, xStart;
 		reverseIntensity = b;
+		yEnd = endPt.getY();
+		yStart = startPt.getY();
+		setCursorOutputStart((int) yStart);
+		setCursorOutputEnd((int) yEnd);
+		manager.setOutputRectangles((int) yStart, (int) yEnd);
+		xStaticStart = staticStartPt.getX();
+		xStart = startPt.getX();
+		startPt.setLocation(endPt.getX(), yStart);
+		endPt.setLocation(xStart, yEnd);
 		if (reverseIntensity) {
-			yEnd = endPt.getY();
-			yStart = startPt.getY();
-			setCursorOutputStart((int) yStart);
-			setCursorOutputEnd((int) yEnd);
-			
-			//Resizes the rectangles 
-			manager.setOutputStartBox((int) yStart);
-			manager.setOutputEndBox((int) yEnd);
-			double xStaticStart, xStart;
-			xStaticStart = staticStartPt.getX();
-			xStart = startPt.getX();
-			startPt.setLocation(endPt.getX(), yStart);
-			endPt.setLocation(xStart, yEnd);
-			if (type == QuantumMapping.EXPONENTIAL) {
+			if (type == QuantumFactory.EXPONENTIAL) {
 				staticStartPt.setLocation(staticEndPt.getX(), yStart);
 				staticEndPt.setLocation(xStaticStart, yEnd);
 				controlPt.setLocation(controlPt.getX(), yEnd);
@@ -559,18 +552,7 @@ class GraphicsRepresentation
 				setControlLocation(coefficient);
 			}
 		} else {
-			yEnd = endPt.getY();
-			yStart = startPt.getY();
-			setCursorOutputStart((int) yStart);
-			setCursorOutputEnd((int) yEnd);
-			manager.setOutputStartBox((int) yStart);
-			manager.setOutputEndBox((int) yEnd);
-			double xStaticStart, xStart;
-			xStaticStart = staticStartPt.getX();
-			xStart = startPt.getX();
-			startPt.setLocation(endPt.getX(), yStart);
-			endPt.setLocation(xStart, yEnd);
-			if (type == QuantumMapping.EXPONENTIAL) {
+			if (type == QuantumFactory.EXPONENTIAL) {
 				staticStartPt.setLocation(staticEndPt.getX(), yStart);
 				staticEndPt.setLocation(xStaticStart, yEnd);
 				controlPt.setLocation(controlPt.getX(), yStart);
@@ -580,7 +562,8 @@ class GraphicsRepresentation
 				staticEndPt.setLocation((double) lS, yEnd);
 				setControlLocation(coefficient);
 			}
-		}  
+		}
+		  
 	}
 	
 	/** 
@@ -611,7 +594,7 @@ class GraphicsRepresentation
 			setCursorStart(x);
 			if (reverseIntensity) endPt.setLocation((double) x, endPt.getY());
 			else startPt.setLocation((double) x, startPt.getY());
-			if (type == QuantumMapping.EXPONENTIAL) repaintCurve();
+			if (type == QuantumFactory.EXPONENTIAL) repaintCurve();
 			else setControlLocation(coefficient);
 		}
 		if (b) repaint(0, tS+bottomBorder, width, bottomBorderSupp);
@@ -645,7 +628,7 @@ class GraphicsRepresentation
 			if (reverseIntensity) 
 					startPt.setLocation((double) x, startPt.getY());
 			else    endPt.setLocation((double) x, endPt.getY());
-			if (type == QuantumMapping.EXPONENTIAL) {
+			if (type == QuantumFactory.EXPONENTIAL) {
 				if (reverseIntensity)  
 						controlPt.setLocation((double) x, endPt.getY());
 				else    controlPt.setLocation((double) x, startPt.getY());
@@ -660,19 +643,18 @@ class GraphicsRepresentation
 	/** 
 	 * Modifies the position of the outputStart cursor.
 	 *
-	 * @param p		Point p.
+	 * @param y		y-coordinate.
 	 */
-	void updateOutputStart(Point p)
+	void updateOutputStart(int y)
 	{
-		controlOutputStart = p.y-topBorder;
-		double y = (double) p.y;
-		setCursorOutputStart((int) y);
-		startPt.setLocation(startPt.getX(), y);
-		staticStartPt.setLocation(staticStartPt.getX(), y);
-		if (type == QuantumMapping.EXPONENTIAL) {
+		controlOutputStart = y-topBorder;
+		setCursorOutputStart(y);
+		startPt.setLocation(startPt.getX(), (double) y);
+		staticStartPt.setLocation(staticStartPt.getX(), (double) y);
+		if (type == QuantumFactory.EXPONENTIAL) {
 			if (reverseIntensity)
 					controlPt.setLocation(controlPt.getX(), endPt.getY());
-			else    controlPt.setLocation(controlPt.getX(), y);
+			else    controlPt.setLocation(controlPt.getX(), (double) y);
 			repaintCurve();
 		} else {
 			setControlLocation(coefficient);
@@ -682,18 +664,18 @@ class GraphicsRepresentation
 	/** 
 	 * Modifies the position of the outputEnd cursor.
 	 *
-	 * @param p     point location.
+	 * @param y     y-coordinate.
 	 */
-	void updateOutputEnd(Point p)
+	void updateOutputEnd(int y)
 	{
-		controlOutputEnd = p.y-topBorder;
-		double y = (double) p.y;
-		setCursorOutputEnd((int) y);
-		endPt.setLocation(endPt.getX(), y);
-		staticEndPt.setLocation(staticEndPt.getX(), y);
+		controlOutputEnd = y-topBorder;
+		setCursorOutputEnd(y);
+		endPt.setLocation(endPt.getX(), (double) y);
+		staticEndPt.setLocation(staticEndPt.getX(), (double) y);
 		setControlLocation(coefficient);
-		if (type == QuantumMapping.EXPONENTIAL) {
-			if (reverseIntensity) controlPt.setLocation(startPt.getX(), y);
+		if (type == QuantumFactory.EXPONENTIAL) {
+			if (reverseIntensity) controlPt.setLocation(startPt.getX(), 
+														(double) y);
 			else controlPt.setLocation(endPt.getX(), controlPt.getY());
 			repaintCurve();
 		} else {
@@ -743,7 +725,7 @@ class GraphicsRepresentation
 			startPt.setLocation((double) xStart, startPt.getY());
 			endPt.setLocation((double) xEnd, endPt.getY()); 
 		} 
-		if (type == QuantumMapping.EXPONENTIAL) {
+		if (type == QuantumFactory.EXPONENTIAL) {
 			if (reverseIntensity)  
 					controlPt.setLocation((double) xEnd, endPt.getY());
 			else    controlPt.setLocation((double) xEnd, startPt.getY());
@@ -752,6 +734,7 @@ class GraphicsRepresentation
 			setControlLocation(coefficient);
 		} 
 	}
+	
 	/**
 	 * Converts a real output value into a y-coordinate.
 	 * 
@@ -905,7 +888,7 @@ class GraphicsRepresentation
 	
 		setCursorStartEndY(tS+hStart+5);
 		int extra;
-		if (type == QuantumMapping.EXPONENTIAL) extra = hStart/2;
+		if (type == QuantumFactory.EXPONENTIAL) extra = hStart/2;
 		else extra = 0;
 		//Grid
 		AffineTransform transform = new AffineTransform();

@@ -37,10 +37,10 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.ContrastStretchingDef;
-import org.openmicroscopy.shoola.agents.rnd.PlaneSlicingDef;
-import org.openmicroscopy.shoola.agents.rnd.QuantumDef;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.QuantumDef;
 
 /** 
  * 
@@ -59,11 +59,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 class QuantumMapping
 	extends JPanel
 {
-	static final int                LINEAR = 0;
-	static final int                EXPONENTIAL = 1;
-	static final int                LOGARITHMIC = 2;
-	static final int                POLYNOMIAL = 3;
-	
 	private CodomainPane			codomainPane;
 	private DomainPane				domainPane;
 	private GraphicsRepresentation  gRepresentation;
@@ -78,6 +73,8 @@ class QuantumMapping
 		codomainPane = new CodomainPane(registry, manager, csDef, psDef);
 		domainPane = new DomainPane(registry, manager, waves, qDef);
 		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
+		manager.setMinimum(mini);
+		manager.setMaximum(maxi);
 		buildGUI();
 	}
 
@@ -85,10 +82,26 @@ class QuantumMapping
 	{
 		return manager;
 	}
+
+	public CodomainPane getCodomainPane()
+	{
+		return codomainPane;
+	}
+
+	public DomainPane getDomainPane()
+	{
+		return domainPane;
+	}
+
+	public GraphicsRepresentation getGRepresentation()
+	{
+		return gRepresentation;
+	}
 	
 	/** Builds and layout the GUI. */
 	private void buildGUI()
 	{
-		
+	
 	}
+
 }

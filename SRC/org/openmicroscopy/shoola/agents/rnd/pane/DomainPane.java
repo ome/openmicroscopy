@@ -47,8 +47,9 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
-import org.openmicroscopy.shoola.agents.rnd.QuantumDef;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -93,21 +94,20 @@ class DomainPane
 	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
 																BUTTON_HEIGHT);	
 											
-	static final int                DEPTH_START = 1, DEPTH_END = 8;
-	//TODO ref to the curvePanel.
-	static final int                INIT = 10, MAX = 40, MIN = 1;
+	private static final int        DEPTH_START = 1, DEPTH_END = 8;
+
+	private static final int		MAX = GraphicsRepresentation.MAX;
+	private static final int		MIN = GraphicsRepresentation.MIN;
 	
-	static final int                LINEAR = 0, EXPONENTIAL = 1, 
-									LOGARITHMIC = 2, POLYNOMIAL = 3;
 	private static final String[]   algorithms;
     
-	//	  the Families
+	//the Families
 	static {
 	   algorithms = new String[4];
-	   algorithms[LINEAR] = "Linear";
-	   algorithms[EXPONENTIAL] ="Exponential";
-	   algorithms[LOGARITHMIC] = "Logarithmic";
-	   algorithms[POLYNOMIAL] ="Polynomial";      
+	   algorithms[QuantumFactory.LINEAR] = "Linear";
+	   algorithms[QuantumFactory.EXPONENTIAL] ="Exponential";
+	   algorithms[QuantumFactory.LOGARITHMIC] = "Logarithmic";
+	   algorithms[QuantumFactory.POLYNOMIAL] ="Polynomial";      
    }
 
 	private JButton					histogram;
@@ -179,7 +179,7 @@ class DomainPane
 	private void initComboBoxes(String[] waves)
 	{
 		transformations = new JComboBox(algorithms);
-		transformations.setSelectedIndex(qDef.getFamily()); 
+		transformations.setSelectedIndex(qDef.family); 
 		wavelengths = new JComboBox(waves);
 		wavelengths.setSelectedIndex(0); 
 	}
@@ -187,19 +187,20 @@ class DomainPane
 	/** Initializes the sliders: gamma and bitResolution. */    
 	private void initSliders()
 	{
-		int k = (int) (qDef.getCurveCoefficient()*10);
+		int k = (int) (qDef.curveCoefficient*10);
 		gamma = new JSlider(JSlider.HORIZONTAL, MIN, MAX, k);
-		if (qDef.getFamily() == LINEAR || qDef.getFamily() == LOGARITHMIC) 
+		if (qDef.family == QuantumFactory.LINEAR || 
+			qDef.family == QuantumFactory.LOGARITHMIC) 
 			gamma.setEnabled(false);
 		else gamma.setEnabled(true);
 		bitResolution = new JSlider(JSlider.HORIZONTAL, DEPTH_START, DEPTH_END,
-							 qDef.getBitResolution());
+							 qDef.bitResolution);
 	}
 	
 	/** Initializes the gamma label. */
 	private void initLabel()
 	{
-		gammaLabel = new JLabel(" Gamma: "+qDef.getCurveCoefficient());
+		gammaLabel = new JLabel(" Gamma: "+qDef.curveCoefficient);
 	}
 	
 	/** Initializes the histogram Button. */

@@ -43,7 +43,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.QuantumFactory;
 
 /** 
  * 
@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.agents.rnd.QuantumDef;
 class DomainPaneManager
 	implements ActionListener, ChangeListener
 {
-	/** ID to control events*/    
+	/** ID used to control events*/    
 	private static final int        WAVELENGTH = 0;
 	private static final int        TRANSFORMATION = 1;
 	private static final int        HISTOGRAM = 2;
@@ -98,6 +98,31 @@ class DomainPaneManager
 		button.setActionCommand(""+HISTOGRAM);
 	}
 
+	/**
+	 * Resize the input window.
+	 * The method is called by the control {@link QuantumMappingManager}.
+	 * Forward event to the HistogramDialogManager.
+	 * 
+	 * @param value	real value.
+	 */
+	void setInputWindowStart(int value)
+	{
+		if (histogramDialog != null)
+			histogramDialog.getManager().setInputWindowStart(value);
+	}
+	
+	/**
+	 * Resize the input window.
+	 * The method is called by the control {@link QuantumMappingManager}.
+	 * 
+	 * @param value	real value.
+	 */
+	void setInputWindowEnd(int value)
+	{
+		if (histogramDialog != null)
+			histogramDialog.getManager().setInputWindowEnd(value);
+	}
+	
 	/** Handles events fired  by the JComboBoxes and the JButtons. */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -130,6 +155,12 @@ class DomainPaneManager
 		else setBitResolution(source.getValue());
 	}
 	
+	/** 
+	 * Set the curve coefficient and forward event to 
+	 * {@link QuantumMappingManager}.
+	 * 
+	 * @param value		slider value.
+	 */
 	private void setCurveCoefficient(int value)
 	{
 		view.getGammaLabel().setText(""+((double) value/10));
@@ -143,17 +174,16 @@ class DomainPaneManager
 	
 	/** 
 	 * Forward event to {@link QuantumMappingManager}.
+	 * 
 	 * @param family    family index.
 	 */  
 	private void setFamily(int family)
 	{
-		//update or create a new QuantumDef ?????
-		if (family == QuantumMapping.LOGARITHMIC || 
-			family == QuantumMapping.LINEAR) {
+		if (family == QuantumFactory.LOGARITHMIC || 
+			family == QuantumFactory.LINEAR) 
 			view.getGamma().setEnabled(false);
-		} else {
+		else
 			view.getGamma().setEnabled(true);
-		}
 		control.setStrategy();
 	}
 	
@@ -162,25 +192,38 @@ class DomainPaneManager
 	 *  
 	 * @param index wavelength index.
 	 */	
+	
 	private void setWavelength(int index)
 	{
 		control.setWavelength(index);
+		//Update the view.
 	}
 
+	/** 
+	 * Initialize the histogramDialog window if the window hasn't been 
+	 * created yet and display.
+	 *
+	 */
 	private void popUpHistogram()
 	{
+		if (histogramDialog == null) {
+			//TODO initializes histogramDialog
+			// need to retrieve histogramData.+ minimum + start
+		}
+		histogramDialog.setVisible(true);
 	}
+	
 	/** 
 	 * Resets the default values for gamma.
 	 */
-	void resetDefaultGamma()
+	private void resetDefaultGamma()
 	{
-		//TODO MODIFY
-		view.getGammaLabel().setText(""+1);
+		view.getGammaLabel().setText(""+GraphicsRepresentation.INIT/10);
 		JSlider ccSlider = view.getGamma();
-		// doesn't fire an event
+		//Remove temporarily the listener otherwise an event is fired.
 		ccSlider.removeChangeListener(this);
-		ccSlider.setValue(10);
+		ccSlider.setValue(GraphicsRepresentation.INIT);
 		ccSlider.addChangeListener(this);
 	}
+	
 }

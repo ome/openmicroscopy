@@ -32,13 +32,12 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 //Java imports
 import java.awt.Container;
-
 import javax.swing.JDialog;
-import javax.swing.JPanel;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
 
 /** 
  * 
@@ -70,21 +69,20 @@ class ContrastStretchingDialog
 	ContrastStretchingDialog(QuantumMappingManager control,
 							ContrastStretchingDef csDef)
 	{
-		manager = new ContrastStretchingDialogManager(this, control);
-		//coordinate
+		manager = new ContrastStretchingDialogManager(this, control, csDef);
 		int xStart, xEnd, yStart, yEnd;
-		xStart = 0;
-		xEnd = 0;
-		yStart = 0;
-		yEnd = 0;
-		//TODO: implement method in manager to convert into coordinates
+		int lb = ContrastStretchingPanel.leftBorder;
+		int tb = ContrastStretchingPanel.topBorder;
+		int s = control.getCurOutputStart();
+		int e = control.getCurOutputEnd();
+		xStart = lb+manager.convertRealIntoGraphics(csDef.getXStart(), e-s, s);
+		xEnd = lb+manager.convertRealIntoGraphics(csDef.getXEnd(), e-s, s);
+		yStart = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
+		yEnd = tb+manager.convertRealIntoGraphics(csDef.getYStart(), s-e, e);
 		manager.setRectangles(xStart, xEnd, yStart, yEnd);
 		csPanel = new ContrastStretchingPanel(xStart, xEnd, yStart, yEnd);
-		
-		Container contentPane = super.getContentPane();
-		contentPane.add(csPanel);
-		setSize(ContrastStretchingPanel.WIDTH, HEIGHT_WIN);
-		setResizable(false);
+		manager.attachListeners();
+		buildGUI();	
 	}
 	
 	public ContrastStretchingPanel getCSPanel()
@@ -97,4 +95,11 @@ class ContrastStretchingDialog
 		return manager;
 	}
 
+	private void buildGUI()
+	{
+		Container contentPane = super.getContentPane();
+		contentPane.add(csPanel);
+		setSize(ContrastStretchingPanel.WIDTH, HEIGHT_WIN);
+		setResizable(false);
+	}
 }

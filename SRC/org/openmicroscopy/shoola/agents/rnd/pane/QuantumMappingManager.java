@@ -51,11 +51,89 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
  */
 class QuantumMappingManager
 {
-
+	/** minimum value (real value) of the input window. */
+	private int 				minimum;
+	
+	/** maximum value (real value) of the input window. */
+	private int 				maximum;
+	
+	/** The current window input start value. */
+	private int					curStart;
+	
+	/** The current window input end value. */
+	private int					curEnd;
+	
+	/** The current window output start value. */
+	private int					curOutputStart;
+	
+	/** The current window output end value. */
+	private int					curOutputEnd;
+	
 	private QuantumMapping		view;
+	
 	QuantumMappingManager(QuantumMapping view)
 	{
 		this.view = view;
+	}
+	
+	void setCurStart(int v)
+	{
+		curStart = v;
+	}
+	
+	void setCurEnd(int v)
+	{
+		curEnd = v;
+	}
+	
+	int getCurStart()
+	{
+		return curStart;
+	}
+	
+	int getCurEnd()
+	{
+		return curEnd;
+	}
+	
+	void setMinimum(int minimum)
+	{
+		this.minimum = minimum;
+	}
+	
+	void setMaximum(int maximum)
+	{
+		this.maximum = maximum;
+	}
+
+	int getMaximum()
+	{
+		return maximum;
+	}
+
+	int getMinimum()
+	{
+		return minimum;
+	}
+	
+	int getCurOutputEnd()
+	{
+		return curOutputEnd;
+	}
+
+	int getCurOutputStart()
+	{
+		return curOutputStart;
+	}
+	
+	void setCurOutputEnd(int i)
+	{
+		curOutputEnd = i;
+	}
+
+	void setCurOutputStart(int i)
+	{
+		curOutputStart = i;
 	}
 
 	void setStrategy()
@@ -71,13 +149,39 @@ class QuantumMappingManager
 	{
 	}
 	
-	void setInputWindowStart()
+	/** 
+	 * Resize the input window and forward event to the different views.
+	 *
+	 * @param value	real input value.
+	 */
+	void setInputWindowStart(int value)
 	{
-		//TODO: synchronize the histogram and graphics representation.
+		//TODO: update window
+		curStart = value;
+		DomainPaneManager dpManager = view.getDomainPane().getManager();
+		GraphicsRepresentationManager 
+			grManager = view.getGRepresentation().getManager();
+		dpManager.setInputWindowStart(value);
+		grManager.setInputWindowStart(value);			
 	}
 	
-	void setInputWindowEnd()
+	/** 
+	 * Set the window input and synchronize the different view.
+	 *
+	 * @param value	real input value.
+	 */
+	void setInputWindowEnd(int value)
 	{
+		curEnd = value;
+		//TODO: update window
+		DomainPaneManager dpManager = view.getDomainPane().getManager();
+  		GraphicsRepresentationManager 
+	 	 	grManager = view.getGRepresentation().getManager();
+  		dpManager.setInputWindowStart(value);
+  		grManager.setInputWindowStart(value);	
 	}
+	
+	
+	
 	
 }

@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Container;
 import java.awt.Dimension;
-
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -45,7 +44,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.rnd.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.PlaneSlicingDef;
 
 /** 
  * 
@@ -89,15 +88,15 @@ class PlaneSlicingDialog
 	
 	PlaneSlicingDialog(QuantumMappingManager control, PlaneSlicingDef psDef)
 	{
-		manager = new PlaneSlicingDialogManager(this, control);
+		manager = new PlaneSlicingDialogManager(this, control, psDef);
 		int yStart, yEnd;
-		yStart = manager.convertRealToGraphics(psDef.getLowerLimit());
-		yEnd = manager.convertRealToGraphics(psDef.getUpperLimit());
+		yStart = manager.convertRealIntoGraphics(psDef.getLowerLimit());
+		yEnd = manager.convertRealIntoGraphics(psDef.getUpperLimit());
 		psPanel = new PlaneSlicingPanel(yStart, yEnd);
 		pssPanel = new PlaneSlicingStaticPanel();
 		manager.setOutputStartBox(yStart);
 		manager.setOutputEndBox(yEnd);
-		initialize(psDef.getPlaneIndex());
+		initialize(0); //TODO: user settings.
 		manager.attachListeners();
 		buildGUI();
 	}
@@ -118,23 +117,23 @@ class PlaneSlicingDialog
 	}
 	
 	/** Returns the dynamic panel. */
-	public PlaneSlicingPanel getPSPanel()
+	PlaneSlicingPanel getPSPanel()
 	{
 		return psPanel;
 	}
 	
 	/** Returns the static panel. */
-	public PlaneSlicingStaticPanel getPSSPanel()
+	PlaneSlicingStaticPanel getPSSPanel()
 	{
 		return pssPanel;
 	}
 	
 	/** Returns the manager. */
-	public PlaneSlicingDialogManager getManager()
+	PlaneSlicingDialogManager getManager()
 	{
 		return manager;
 	}
-	
+
 	/** Initializes the component. */
 	private void initialize(int index)
 	{

@@ -31,11 +31,16 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 
 
 //Java imports
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.ContrastStretchingDef;
 
 /** 
  * 
@@ -52,16 +57,16 @@ import java.awt.Rectangle;
  * @since OME2.2
  */
 class ContrastStretchingDialogManager
+	implements MouseListener, MouseMotionListener
 {
 	private static final int	topBorder = ContrastStretchingPanel.topBorder, 
 								leftBorder = ContrastStretchingPanel.leftBorder,
 								square = ContrastStretchingPanel.square, 
-								bottomBorder = ContrastStretchingPanel.bottomBorder, 
-								rightBorder = ContrastStretchingPanel.rightBorder,
+								bottomBorder = 
+									ContrastStretchingPanel.bottomBorder, 
 								lS = leftBorder+square, 
 								tS = topBorder+square;
-	private static final int 	triangleW = ContrastStretchingPanel.triangleW,
-								triangleH = ContrastStretchingPanel.triangleH, 
+	private static final int 	triangleW = ContrastStretchingPanel.triangleW, 
 								length = 2*triangleW;
 								
 	private boolean   					dragging;
@@ -74,12 +79,35 @@ class ContrastStretchingDialogManager
 										minEndOutputY;
 	private ContrastStretchingDialog	view;
 	private QuantumMappingManager		control;
+	private ContrastStretchingDef 		csDef;
+	
 	ContrastStretchingDialogManager(ContrastStretchingDialog view,
-									QuantumMappingManager control)
+									QuantumMappingManager control,
+									ContrastStretchingDef csDef)
 	{
 		this.view = view;
 		this.control = control;
-
+		this.csDef = csDef;
+	}
+	
+	/** Attach listeners. */
+	void attachListeners()
+	{
+		view.getCSPanel().addMouseListener(this);
+		view.getCSPanel().addMouseMotionListener(this);
+	}
+	
+	
+	int convertGraphicsIntoReal(int x, int r, int b)
+	{
+		double a = (double) r/square;
+		return (int) (a*x+b);
+	}
+	
+	int convertRealIntoGraphics(int x, int r, int b)
+	{
+		double a = (double) square/r;
+		return (int) (a*(x-b));
 	}
 	
 	/** Initializes the rectangles which control the cursors. */
@@ -92,5 +120,165 @@ class ContrastStretchingDialogManager
 		boxOutputEnd = new Rectangle(0, yEnd-triangleW, leftBorder-triangleW-1,
 										length);
 	}
+	
+	/** Handles events fired the cursors. */
+	public void mousePressed(MouseEvent e)
+	{
+		Point p = e.getPoint();
+		if (dragging) {  
+			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
+				&& p.x <= minEndX)
+				setInputStart(p.x);
+			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS
+				&& p.x >= maxStartX)
+				setInputEnd(p.x); 
+			if (boxOutputStart.contains(p) && p.y >= minEndOutputY
+				&& p.y <= tS)
+				setOutputStart(p.y);
+			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY
+				&& p.y >= topBorder) 
+				setOutputEnd(p.y);
+		}
+	}
+	
+	/** Handles events fired the cursors. */
+	public void mouseDragged(MouseEvent e)
+	{
+		Point   p = e.getPoint();
+		if (dragging) {  
+			if (boxStart.contains(p) && p.x >= leftBorder && p.x <= lS 
+				&& p.x <= minEndX)
+				setInputStart(p.x);
+			if (boxEnd.contains(p) && p.x >= leftBorder && p.x <= lS
+				&& p.x >= maxStartX)
+				setInputEnd(p.x); 
+			if (boxOutputStart.contains(p) && p.y >= minEndOutputY
+				&& p.y <= tS)
+				setOutputStart(p.y);
+			if (boxOutputEnd.contains(p) && p.y <= maxStartOutputY
+				&& p.y >= topBorder) 
+				setOutputEnd(p.y);
+		}
+	}
+	
+	/** Resets the dragging control to false. */
+	public void mouseReleased(MouseEvent e)
+	{
+		dragging = false;
+	}
+	
+	private void setInputStart(int x)
+	{
+		setInputStartBox(x);
+		view.getCSPanel().updateStartCursor(x);
+		int s  = control.getCurOutputStart();
+		int xReal = convertGraphicsIntoReal(x-leftBorder, 
+											control.getCurEnd()-s, s);
+		csDef.setXStart(xReal);
+		//Forward event to control
+	}
+	
+	private void setInputEnd(int x)
+	{
+		setInputEndBox(x);
+		view.getCSPanel().updateEndCursor(x);
+		int s  = control.getCurOutputStart();
+		int xReal = convertGraphicsIntoReal(x-leftBorder,
+											control.getCurOutputEnd()-s, s);
+		csDef.setXEnd(xReal);
+		//Forward event to control
+	}
+	
+	private void setOutputStart(int y)
+	{
+		setOutputStartBox(y);
+		view.getCSPanel().updateStartOutputCursor(y);
+		int e = control.getCurOutputEnd();
+		int yReal = convertGraphicsIntoReal(y-topBorder, 
+										e-control.getCurOutputStart(), e);
+		csDef.setYStart(yReal);
+		//Forward event to control
+	}
+	
+	private void setOutputEnd(int y)
+	{
+		setOutputEndBox(y);
+		view.getCSPanel().updateEndOutputCursor(y);
+		int e = control.getCurOutputEnd();
+		int yReal = convertGraphicsIntoReal(y-topBorder, 
+										e-control.getCurOutputStart(), e);
+		csDef.setYEnd(yReal);
+		//Forward event to control
+	}
+	
+	/** 
+	 * Sizes the rectangle used to listen to the inputStart cursor.
+	 *
+	 * @param x     x-coordinate.
+	 */
+	private void setInputStartBox(int x)
+	{
+		maxStartX = x+triangleW;
+		boxStart.setBounds(x-triangleW, tS, length, bottomBorder);
+	}
+	
+	/** 
+	 * Sizes the rectangle used to listen to the inputEnd cursor.
+	 *
+	 * @param x     x-coordinate.
+	 */
+	private void setInputEndBox(int x)
+	{
+		minEndX = x-triangleW;
+		boxEnd.setBounds(x-triangleW, tS, length, bottomBorder);
+	}
+	
+	/** 
+	 * Sizes the rectangle used to listen to the outputStart cursor.
+	 *
+	 * @param y     y-coordinate.
+	 */
+	private void setOutputStartBox(int y)
+	{
+		maxStartOutputY = y-triangleW;
+		boxOutputStart.setBounds(0, y-triangleW, leftBorder-triangleW-1, 
+								length);
+	}
+	
+	/** 
+	 * Sizes the rectangle used to listen to the outputEnd cursor.
+	 *
+	 * @param y     y-coordinate.
+	 */
+	private void setOutputEndBox(int y)
+	{
+		minEndOutputY = y+triangleW;
+		boxOutputEnd.setBounds(0, y-triangleW, leftBorder-triangleW-1, 
+							length);
+	}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation. 
+	 */   
+	public void mouseMoved(MouseEvent e) {}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation. 
+	 */    
+	public void mouseClicked(MouseEvent e) {}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation. 
+	 */     
+	public void mouseEntered(MouseEvent e) {}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation. 
+	 */    
+	public void mouseExited(MouseEvent e) {}
 	
 }
