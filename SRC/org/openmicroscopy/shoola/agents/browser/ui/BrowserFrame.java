@@ -44,6 +44,8 @@ import org.openmicroscopy.shoola.agents.browser.BrowserController;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.BrowserView;
 
+import edu.umd.cs.piccolo.PCanvas;
+
 /**
  * A (tentative) JFrame wrapper for a BrowserView object.
  * 
@@ -69,6 +71,8 @@ public class BrowserFrame extends JFrame implements UIWrapper
         {
             this.controller = controller;
             this.embeddedView = controller.getView();
+            PCanvas.CURRENT_ZCANVAS = embeddedView;
+            embeddedView.setVisible(true);
             this.env = BrowserEnvironment.getInstance();
         }
         

@@ -76,12 +76,13 @@ public class LocalBrowserTest
         BrowserModel bm = new BrowserModel();
         bm.setLayoutMethod(new PlateLayoutMethod(8,12));
         BrowserView view = new BrowserView(bm,model);
-        BrowserController controller = new BrowserController(bm);
-        controller.setView(view);
-        // controller.displayCurrentDataModel(); // wait until fixed to decomment
         
-        BrowserInternalFrame bif = new BrowserInternalFrame(controller);
-        gui.addBrowser(bif);
+        BrowserController controller = new BrowserController(bm,view);
+        
+		BrowserInternalFrame bif = new BrowserInternalFrame(controller);
+		gui.addBrowser(bif);
+        controller.setDataModel(tsm);
+        // controller.displayCurrentDataModel(); // wait until fixed to decomment
         
         frame.show();
     }

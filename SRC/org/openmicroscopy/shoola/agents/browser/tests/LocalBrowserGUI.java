@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.browser.tests;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.beans.PropertyVetoException;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -74,7 +75,12 @@ public class LocalBrowserGUI extends JDesktopPane
         frame.setClosable(true);
         frame.setMaximizable(true);
         frame.setResizable(true);
-        add(frame,new Integer(1));
+        add(frame,new Integer(0));
+        try
+        {
+        	frame.setSelected(true);
+        }
+        catch(PropertyVetoException e) {}
         frame.show();
     }
     

@@ -108,7 +108,7 @@ public class Thumbnail extends PImage
      */
     public Thumbnail(Image thumbImage, ThumbnailDataModel tdm)
     {
-        super(thumbImage,true);
+        super(thumbImage,false);
         this.model = tdm;
         defaultZOrder = new PaintMethodZOrder();
     }

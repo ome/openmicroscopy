@@ -130,9 +130,17 @@ public class PlateLayoutMethod extends AbstractOrderedLayoutMethod
         {
             int maxHeight = 0;
             int hOffset = 0;
+            if(!iter.hasNext())
+            {
+            	break;
+            }
             
             for(int j=0;j<numCols;j++)
             {
+            	if(!iter.hasNext())
+            	{
+            		break;
+            	}
                 Thumbnail t = (Thumbnail)iter.next();
                 BufferedImage bi = (BufferedImage)t.getImage();
                 pointMap.put(t,new Point2D.Double(hOffset,vOffset));

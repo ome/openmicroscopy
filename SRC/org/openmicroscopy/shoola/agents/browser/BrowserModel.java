@@ -107,8 +107,7 @@ public class BrowserModel
     // model doesn't always revert to the default)
     
     /**
-     * Adds a thumbnail to the browser.  This thumbnail *should* also be in
-     * the source browser.  Will do nothing if thumb is null.
+     * Adds a thumbnail to the browser.  Will do nothing if thumb is null.
      * 
      * @param thumb The thumbnail to add.
      */
@@ -122,6 +121,27 @@ public class BrowserModel
             group.addThumbnail(thumb);
             updateModelListeners();
         }
+    }
+    
+   	/**
+   	 * Batch add thumbnails to the browser.
+   	 * @param thumbs An array of thumbnails to add
+   	 */
+    public void addThumbnails(Thumbnail[] thumbs)
+    {
+    	System.err.println("Add thumbnails");
+    	if(thumbs == null || thumbs.length == 0)
+    	{
+    		return;
+    	}
+    	
+    	for(int i=0;i<thumbs.length;i++)
+    	{
+    		thumbnailSet.add(thumbs[i]);
+    		GroupModel group = groupingMethod.getGroup(thumbs[i]);
+    		group.addThumbnail(thumbs[i]);
+    	}
+    	updateModelListeners();
     }
     
     /**
@@ -271,6 +291,26 @@ public class BrowserModel
     public void fireModelUpdated()
     {
         updateModelListeners();
+    }
+    
+    /**
+     * Adds a model listener to this model.  Wooo.
+     * @param listener
+     */
+    public void addModelListener(BrowserModelListener listener)
+    {
+    	if(listener != null)
+    	{
+    		modelListeners.add(listener);
+    	}
+    }
+    
+    public void removeModelListener(BrowserModelListener listener)
+    {
+    	if(listener != null)
+    	{
+    		modelListeners.remove(listener);
+    	}
     }
     
     // notifies all classes listening to the status of this model that
