@@ -146,13 +146,13 @@ public class Future
         state = HAS_EXCEPTION;
     }
     
-/* NOTE: This can’t happen if the execution workflow is correctly implemented; 
+/* NOTE: This can't happen if the execution workflow is correctly implemented; 
  * in fact, setException() is only called after catching an exception and 
  * passing along that exception.  However, in the case t is null, this is the 
  * best strategy: if a client is blocked on getResult(), it will be woken up 
  * and no deadlock is possible.  The alternative would be to throw a 
  * NullPointerException which is likely to percolate all the way up in the 
- * executor thread’s call stack and eventually appear on stderr.  In this case, 
+ * executor thread's call stack and eventually appear on stderr.  In this case, 
  * no call to setException() (or setResult() for that matter) would follow and 
  * the state would still be WAITING_FOR_RESULT, which could result in a 
  * deadlock.  

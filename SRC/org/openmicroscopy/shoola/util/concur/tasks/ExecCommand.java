@@ -242,7 +242,7 @@ class ExecCommand
      * memory and a refresh of the executor's one the next time the interrupted
      * status is checked.  The executor checks the interrupted status at the 
      * beginning of every step in the computation &#151; however, in general, 
-     * it’s not possible to state the relative order of this method call and
+     * it's not possible to state the relative order of this method call and
      * the last check of the interrupted status in the executor thread; this is
      * the reason why cancellation could have no effect.    
      * That said, if the interrupted status is detected, then execution will
