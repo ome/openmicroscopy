@@ -84,11 +84,24 @@ public class LoggerFactory
 		//to the singleton container. So we can be sure this method is going to
 		//create services just once.
 		if (c == null)	return null;
+		String off = (String) c.getRegistry().lookup("/services/LOG");
+		if ("OFF".equalsIgnoreCase(off))	return makeNoOpLogger();
 		File logDir = new File(c.getHomeDir(), LOG_DIR), logFile;
 		logDir.mkdir();
 		if (logDir.isDirectory())	logFile = new File(logDir, LOG_FILE);
 		else	logFile = new File(c.getHomeDir(), LOG_FILE);
 		return new LoggerImpl(logFile.getAbsolutePath());
+	}
+	
+	private static Logger makeNoOpLogger()
+	{
+		return new Logger() {
+			public void debug(Object c, String logMsg) {}
+			public void error(Object c, String logMsg) {}
+			public void fatal(Object c, String logMsg) {}
+			public void info(Object c, String logMsg) {}
+			public void warn(Object c, String logMsg) {}
+		};
 	}
 
 }

@@ -7,6 +7,8 @@
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
        <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
      </structuredEntry>
+     <!-- Enable("ON")/disable("OFF") the Log Service. -->
+     <entry name = "/services/LOG">ON</entry>
    </services>
    <agents>
      <structuredEntry name="/agents" type = "agents">
