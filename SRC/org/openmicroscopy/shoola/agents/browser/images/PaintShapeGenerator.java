@@ -71,32 +71,11 @@ public final class PaintShapeGenerator
         GeneralPath linesPath = new GeneralPath();
         
         paperPath.moveTo(0,0);
-        paperPath.lineTo(14,0);
-        paperPath.lineTo(21,7);
-        paperPath.lineTo(21,27);
-        paperPath.lineTo(0,27);
+        paperPath.lineTo(8,0);
+        paperPath.lineTo(12,4);
+        paperPath.lineTo(12,16);
+        paperPath.lineTo(0,16);
         paperPath.closePath();
-        
-        foldPath.moveTo(14,0);
-        foldPath.lineTo(21,7);
-        foldPath.lineTo(14,7);
-        foldPath.closePath();
-        
-        linesPath.moveTo(3,3);
-        linesPath.lineTo(14,3);
-        linesPath.moveTo(3,7);
-        linesPath.lineTo(14,7);
-        linesPath.moveTo(3,11);
-        linesPath.lineTo(18,11);
-        linesPath.moveTo(3,15);
-        linesPath.lineTo(18,15);
-        linesPath.moveTo(3,19);
-        linesPath.lineTo(18,19);
-        linesPath.moveTo(3,23);
-        linesPath.lineTo(18,23);
-        
-        paperPath.append(foldPath,false);
-        paperPath.append(linesPath,false);
         return paperPath;
     }
     

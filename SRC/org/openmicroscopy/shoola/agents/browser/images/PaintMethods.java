@@ -43,6 +43,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.shoola.agents.browser.UIConstants;
+import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.util.StringPainter;
 
 import edu.umd.cs.piccolo.util.PPaintContext;
@@ -115,28 +116,28 @@ public class PaintMethods
     };
     
     public static final PaintMethod DRAW_ANNOTATION_METHOD =
-        new AbstractPaintMethod()
-    {
-        public void paint(PPaintContext c, Thumbnail t)
+        new ZoomDependentPaintMethod(0.5,Double.POSITIVE_INFINITY,
+                                     new AbstractPaintMethod()
         {
-            Graphics2D g = c.getGraphics();
-            // TODO: change this to check for annotations
-            boolean dummyVariable = false;
-            if(dummyVariable)
+            public void paint(PPaintContext c, Thumbnail t)
             {
-                Rectangle2D bounds = t.getBounds().getBounds2D();
-                double width = bounds.getWidth();
-                double height = bounds.getHeight();
-                DrawStyle noteStyle = DrawStyles.ANNOTATION_NODE_STYLE;
-                DrawStyle oldStyle = noteStyle.applyStyle(g);
-                PaintShapeGenerator generator = PaintShapeGenerator.getInstance();
-                Shape note = generator.getAnnotationNoteShape(width-10,height-15);
-                g.fill(note);
-                g.draw(note);
-                oldStyle.applyStyle(g);
+                Graphics2D g = c.getGraphics();
+                // TODO: change this to check for annotations
+            
+                AttributeMap map = t.getModel().getAttributeMap();
+                if(map.getAttributes("ImageAnnotation") != null)
+                {
+                    PaintShapeGenerator gen = PaintShapeGenerator.getInstance();
+                    g.setPaint(new Color(255,255,192));
+                    Shape s = gen.getAnnotationNoteShape(t.getWidth()-10,
+                                                         t.getHeight()-10);
+                    g.fill(s);
+                    g.setColor(Color.black);
+                    g.draw(s);
+                }
             }
         }
-    };
+    );
     
     public static final PaintMethod MAGNIFIER_ICON_METHOD =
         new AbstractPaintMethod()

@@ -630,6 +630,13 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     ThumbnailDataModel tdm = new ThumbnailDataModel(sum);
                                     tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                     tdm.getAttributeMap().putAttribute(pix);
+                                    ImageAnnotation annotation =
+                                        (ImageAnnotation)refAnnotations.get(new Integer(sum.getID()));
+                                        
+                                    if(annotation != null)
+                                    {
+                                        tdm.getAttributeMap().putAttribute(annotation);
+                                    }
                                     images[k] = image;
                                     models[k] = tdm;
                                     count++;
@@ -705,6 +712,13 @@ public class BrowserAgent implements Agent, AgentEventListener
                         Image image = ps.getThumbnail(pix);
                         ThumbnailDataModel tdm = new ThumbnailDataModel(summary);
                         tdm.getAttributeMap().putAttribute(pix);
+                        ImageAnnotation annotation =
+                            (ImageAnnotation)refAnnotations.get(new Integer(summary.getID()));
+                            
+                        if(annotation != null)
+                        {
+                            tdm.getAttributeMap().putAttribute(annotation);
+                        }
                         // TODO: figure out strategy for adding attributes.  do it here?
                         final Thumbnail t = new Thumbnail(image,tdm);
                         
