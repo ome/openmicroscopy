@@ -70,8 +70,8 @@ class XZPlane
 
 	protected int calculateOffset(int x1, int x2) 
 	{ 
-		return 0;
-		//TODO: implement when we do 3D rendering.
+		return bytesPerPixel *
+				(x2*dims.sizeX*dims.sizeY+dims.sizeX*planeDef.getY()+x1);
 	}
 
 }
