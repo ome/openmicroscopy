@@ -31,17 +31,21 @@ package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.results.ROIResultsMng;
+import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.GraphicCanvas;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIStats;
 
 /** 
@@ -62,38 +66,86 @@ public class StatsResultsPane
     extends JPanel
 {
     
-    public static final String[]   zAndtFieldNames = {"Z", "T", "Min", "Max", 
-                                                "Mean", "StD", "Area", "Sum"};
+    public static final int Z = 0;
+    public static final int T = 1;
+    public static final int MIN = 2;
+    public static final int MAX = 3;
+    public static final int MEAN = 4;
+    public static final int STD = 5;
+    public static final int AREA = 6;
+    public static final int SUM = 7;
+    public static final int MAX_ID = 7;
+    
+    /** Will remove the first two columns. */
+    public static final int MINUS = 2;
+
+    public static final String[]   zAndtFieldNames ;
+    
+    static {
+        zAndtFieldNames = new String[MAX_ID+1];
+        zAndtFieldNames[Z] = "Z";
+        zAndtFieldNames[T] = "T";
+        zAndtFieldNames[MIN] = "Min";
+        zAndtFieldNames[MAX] = "Max";
+        zAndtFieldNames[MEAN] = "Mean";
+        zAndtFieldNames[STD] = "Std";
+        zAndtFieldNames[AREA] = "Area";
+        zAndtFieldNames[SUM] = "Sum";
+    }
     
     StatsTable                      table;
     
-    private StatsResultsPaneMng     manager;
+    BottomBar                       bar;
     
+    JScrollPane                     scrollPane;
+    
+    private StatsResultsPaneMng     manager;
+
     public StatsResultsPane(ROIResultsMng mng, ROIStats stats, int sizeT, 
                             int sizeZ, int channel, int l, Icon up, Icon down)
     {
         manager = new StatsResultsPaneMng(this, mng, sizeT, sizeZ, stats, l);
-        table = new StatsTable(manager.getData(channel), up, down);
-        buildGUI(new BottomBar(manager, mng.getRegistry()));
+        table = new StatsTable(up, down);
+        table.initTable(manager.getDataToDisplay(channel));
+        bar = new BottomBar(manager, mng.getRegistry());
+        buildGUI();
     }
     
-    public void showResultsForChannel(int channel)
-    {
-        table.setTableData(manager.getData(channel));
-    }
-    
+    public StatsResultsPaneMng getManager() { return manager; }
+
     AbstractTableModel getTableModel()
     { 
         return (AbstractTableModel) table.getModel();
     }
     
+    void addGraphic(JComponent c)
+    {
+        JViewport viewPort = scrollPane.getViewport();
+        //viewPort.removeAll();
+        viewPort.add(c);
+    }
+    
+    void addTable()
+    {
+        JViewport viewPort = scrollPane.getViewport();
+        viewPort.removeAll();
+        viewPort.add(table);
+    }
+    
     /** Build and lay out the GUI. */
-    private void buildGUI(BottomBar bar)
+    private void buildGUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(new JScrollPane(table));
-        add(bar);
+        scrollPane = new JScrollPane(table);
+        scrollPane.setBackground(GraphicCanvas.BACKGROUND);
+        addComponents(scrollPane);
+    }
+    
+    private void addComponents(JComponent c)
+    {
+        add(c, BorderLayout.CENTER);
+        add(bar, BorderLayout.SOUTH);
     }
     
 }

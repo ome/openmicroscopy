@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.roi.results.stats;
 
 //Java imports
-import java.text.NumberFormat;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -40,6 +39,7 @@ import javax.swing.table.TableColumnModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.table.NumberFormatCellRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
@@ -67,17 +67,13 @@ class StatsTable
     
     private TableSorter     sorter;
     
-    private NumberFormat    nf;
-    
-    StatsTable(Object[][] data, Icon up, Icon down)
+    StatsTable(Icon up, Icon down)
     {
         this.up = up;
         this.down = down;
-        nf = NumberFormat.getInstance();
-        initTable(data);
     }
     
-    void setTableData(Object[][] data)
+    void setTableData(Number[][] data)
     {
         StatsTableModel model = new StatsTableModel(data);
         sorter.setModel(model);
@@ -85,7 +81,7 @@ class StatsTable
     }
     
     /** Initializes the table. */
-    void initTable(Object[][] data)
+    void initTable(Number[][] data)
     {
         StatsTableModel model = new StatsTableModel(data);
         sorter = new TableSorter(model); 
@@ -99,12 +95,14 @@ class StatsTable
     private void setTableLayout(String[] fieldNames)
     {
         TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
+        NumberFormatCellRenderer cr = new NumberFormatCellRenderer();
         TableColumnModel tcm = getTableHeader().getColumnModel();
         TableColumn tc;
         TableHeaderTextAndIcon txt;
         for (int i = 0; i < fieldNames.length; i++) {
             tc = tcm.getColumn(i);
             tc.setHeaderRenderer(iconHeaderRenderer);
+            tc.setCellRenderer(cr);
             txt = new TableHeaderTextAndIcon(fieldNames[i], up, down, 
                                 "Order by "+fieldNames[i]+".");
             tc.setHeaderValue(txt);
@@ -119,9 +117,9 @@ class StatsTable
         private String[]    fieldNames = StatsResultsPane.zAndtFieldNames;
         
         /** Data to be displayed. */
-        private Object[][]  data;
+        private Number[][]  data;
         
-        StatsTableModel(Object[][] data)
+        StatsTableModel(Number[][] data)
         { 
             this.data = data;
         }
@@ -132,13 +130,10 @@ class StatsTable
         
         public int getRowCount() { return data.length; }
         
-        public Object getValueAt(int row, int col)
-        { 
-            return nf.format(data[row][col]); 
-        }
+        public Object getValueAt(int row, int col) {  return data[row][col]; }
         
         public boolean isCellEditable(int row, int col) { return false; }
         
     }
-    
+        
 }

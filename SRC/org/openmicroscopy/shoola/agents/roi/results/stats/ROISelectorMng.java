@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.roi.results.pane.BottomBarMng
+ * org.openmicroscopy.shoola.agents.roi.results.stats.ROISelectorMng
  *
  *------------------------------------------------------------------------------
  *
@@ -37,8 +37,6 @@ import javax.swing.JButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.roi.results.stats.graphic.ContextPane;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -54,87 +52,55 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-class BottomBarMng
+class ROISelectorMng
     implements ActionListener
 {
     
-    /** Action command ID. */
-    private static final int        SAVE = 0, GRAPHIC = 1, BACK_TO_TABLE = 2,
-                                    BACK_TO_GRAPHIC = 3, BACKGROUND = 4,
-                                    RATIO = 5, INITIAL = 6;
+    private static final int        COMPUTE = 0;
     
-    private BottomBar               view;
+    private ROISelector             view;
     
     private StatsResultsPaneMng     mng;
     
-    BottomBarMng(BottomBar view, StatsResultsPaneMng mng)
+    ROISelectorMng(ROISelector view, StatsResultsPaneMng mng)
     {
         this.view = view;
         this.mng = mng;
-        attachListeners();
+        attachListener();
     }
     
-    /** Attach Listeners. */
-    private void attachListeners()
+    private void attachListener()
     {
-        attachButtonListeners(view.save, SAVE);
-        attachButtonListeners(view.graphic, GRAPHIC);
-        attachButtonListeners(view.back, BACK_TO_TABLE);
-        attachButtonListeners(view.forward, BACK_TO_GRAPHIC);
-        attachButtonListeners(view.background, BACKGROUND);
-        attachButtonListeners(view.ratio, RATIO);
-        attachButtonListeners(view.initial, INITIAL);
+        attachButtonListener(view.compute, COMPUTE);
     }
-
+    
     /** Attach a {@link ActionListener listener} to a button. */
-    private void attachButtonListeners(JButton button, int id)
+    private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id); 
     }
-    
-    /** Handle radioButton events. */
+
+    /** Handle events fired by buttons. */
     public void actionPerformed(ActionEvent e)
     {
         int index = Integer.parseInt(e.getActionCommand());
         try {
             switch (index) {
-                case SAVE:
-                    mng.saveResult(); break;
-                case GRAPHIC:
-                    showGraphicSelection(); break;
-                case BACK_TO_TABLE:
-                    mng.backToTable(); break;
-                case BACK_TO_GRAPHIC:
-                    mng.backToGraphic(); break;
-                case BACKGROUND:
-                    showROISelector(StatsResultsPaneMng.TABLE_BACKGROUND, 
-                            "Background");
-                    break;
-                case RATIO:
-                    showROISelector(StatsResultsPaneMng.TABLE_RATIO, "Ratio"); 
-                    break;
-                case INITIAL:
-                    view.setEnabledMoveButtons(false);
-                    mng.displayInitialData();
-                    break;
+                case COMPUTE:
+                    compute(); break;
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
         }   
     }
     
-    private void showROISelector(int tableIndex, String s)
+    private void compute()
     {
-        view.setEnabledMoveButtons(false);
-        mng.setTableIndex(tableIndex);
-        UIUtilities.centerAndShow(new ROISelector(mng, s));
-    }
-    
-    private void showGraphicSelection()
-    {  
-        UIUtilities.centerAndShow(new ContextPane(mng, mng.getZSelected(), 
-                                mng.getTSelected()));
+        
+        mng.compute(view.box.getSelectedIndex());
+        view.dispose();
+        view.setVisible(false);
     }
     
 }
