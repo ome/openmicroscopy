@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.ui.BMenu
+ * org.openmicroscopy.shoola.agents.browser.ui.BPalette
  *
  *------------------------------------------------------------------------------
  *
@@ -40,14 +40,15 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
+import edu.umd.cs.piccolo.event.PDragSequenceEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
@@ -79,9 +80,39 @@ public class BPalette extends PNode
      */
     public BPalette(String name)
     {
+        final BPalette refCopy = this;
         this.paletteName = name;
         titleBar = new TitleBar(name);
         addChild(titleBar);
+        
+        addInputEventListener(new PDragSequenceEventHandler()
+        {
+            /* (non-Javadoc)
+             * @see edu.umd.cs.piccolo.event.PDragSequenceEventHandler#startDrag(edu.umd.cs.piccolo.event.PInputEvent)
+             */
+            public void startDrag(PInputEvent arg0)
+            {
+                // TODO Auto-generated method stub
+                super.startDrag(arg0);
+                System.err.println(arg0.getPickedNode());
+            }
+            
+            public void drag(PInputEvent arg0)
+            {
+                super.drag(arg0);
+                Dimension2D dim = arg0.getDeltaRelativeTo(refCopy);
+                refCopy.translate(dim.getWidth(),dim.getHeight());
+                arg0.setHandled(true);
+            }
+            
+            public void endDrag(PInputEvent arg0)
+            {
+                super.endDrag(arg0);
+                System.err.println("end drag");
+                System.err.println(arg0.getPickedNode());
+            }    
+        });
+        setBounds(titleBar.getBounds());
     }
     
     /**
@@ -96,11 +127,12 @@ public class BPalette extends PNode
         this.maxWidth = width;
     }
     
-    class TitleBar extends PPath
+    class TitleBar extends PNode
     {
         private String titleName;
         private Color backgroundColor;
-        private Rectangle2D bounds;
+        private Rectangle2D bounds =
+            new Rectangle2D.Double(0,0,measuredWidth,20);
         
         private PText titleNode;
         private PNode minimizeNode;
@@ -111,8 +143,7 @@ public class BPalette extends PNode
         
         TitleBar(String name)
         {
-            super(new Rectangle2D.Double(0,0,measuredWidth,20));
-            bounds = getPathReference().getBounds2D();
+            setBounds(bounds);
             titleName = name;
             
             backgroundColor = new Color(102,102,102,128);
@@ -138,7 +169,6 @@ public class BPalette extends PNode
         
         public void paint(PPaintContext context)
         {
-            System.err.println("paint main");
             Graphics2D g2 = context.getGraphics();
             Paint oldPaint = g2.getPaint();
             g2.setPaint(backgroundColor);
@@ -147,23 +177,15 @@ public class BPalette extends PNode
         }
     }
     
-    class MinimizeIcon extends PPath
+    class MinimizeIcon extends PNode
     {
-        private Rectangle2D bounds;
+        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Rectangle2D visibleIcon = new Rectangle2D.Double(3,7,14,6);
         
         // TODO: need to pass a Palette reference in here?
         public MinimizeIcon()
         {
-            super(new Rectangle2D.Double(0,0,20,20));
-            bounds = getPathReference().getBounds2D();
-            addInputEventListener(new PBasicInputEventHandler()
-            {
-                public void mouseClicked(PInputEvent arg0)
-                {
-                    // figure out how to minimize the sucker
-                }
-            });
+            setBounds(bounds);
         }
         
         public void paint(PPaintContext context)
@@ -176,24 +198,15 @@ public class BPalette extends PNode
         }
     }
     
-    class HideIcon extends PPath
+    class HideIcon extends PNode
     {
-        private Rectangle2D bounds;
+        private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Ellipse2D visibleIcon = new Ellipse2D.Double(5,5,10,10);
         
         // TODO: pass a Palette reference in here?
         public HideIcon()
         {
-            super(new Rectangle2D.Double(0,0,20,20));
-            bounds = getPathReference().getBounds();
-            
-            addInputEventListener(new PBasicInputEventHandler()
-            {
-                public void mouseClicked(PInputEvent arg0)
-                {
-                    // TODO: figure out how to hide
-                }
-            });
+            setBounds(bounds);
         }
         
         public void paint(PPaintContext context)
@@ -206,7 +219,7 @@ public class BPalette extends PNode
         }
     }
     
-    class CloseIcon extends PPath
+    class CloseIcon extends PNode
     {
         private Rectangle2D bounds = new Rectangle2D.Double(0,0,20,20);
         private Shape xPath;
@@ -232,16 +245,8 @@ public class BPalette extends PNode
         
         public CloseIcon()
         {
-            super(new Rectangle2D.Double(0,0,20,20));
-            bounds = getPathReference().getBounds2D();
+            setBounds(bounds);
             xPath = generatePath(0,0);
-            addInputEventListener(new PBasicInputEventHandler()
-            {
-                public void mouseClicked(PInputEvent arg0)
-                {
-                    // TODO figure out how to close palette
-                }
-            });
         }
         
         public void paint(PPaintContext context)

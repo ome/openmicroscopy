@@ -228,11 +228,11 @@ public class BIcon extends PNode
             // TODO: verify that this works cross-platform
             if(e.isPopupTrigger())
             {
-                rightClickAction.actionPerformed();
+                rightClickAction.execute();
             }
             else
             {
-                leftClickAction.actionPerformed();
+                leftClickAction.execute();
             }
             e.setHandled(true);
         }
@@ -268,7 +268,7 @@ public class BIcon extends PNode
                 {
                     if(pendingMouseOverAction)
                     {
-                        mouseOverAction.actionPerformed();
+                        mouseOverAction.execute();
                         mouseOverActionExecuted = true;
                         pendingMouseOverAction = false;
                     }

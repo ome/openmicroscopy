@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.BrowserAction
+ * org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive
  *
  *------------------------------------------------------------------------------
  *
@@ -38,19 +38,54 @@ package org.openmicroscopy.shoola.agents.browser.events;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
 /**
- * Specifies an action within the browser framework.  This may be changed or
- * amended later.  Will likely be triggered by overlay nodes.
+ * Specifies a node or other object that is susceptible to clicks.  If the
+ * action is local and non-atomic (i.e., relies on a sequence of events that
+ * rely on internal state), then it is best to override these methods within
+ * the implementing class.  Otherwise, you can take advantage of action
+ * reusability with the get/set action classes. 
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public interface BrowserAction
+public interface MouseDownSensitive
 {
     /**
-     * Specifies what do do when the widget within the browser is acted upon.
-     * (A parameter might be introduced later... not sure yet)
+     * Get the action to be executed (if any exists) when the node catches
+     * a mouse press (down) event.
+     * @return The action associated with mouse down.
      */
-    public void execute();
+    public BrowserAction getPressBrowserAction();
+    
+    /**
+     * Get the action to be executed (if any exists) when the node catches
+     * a mouse release (up) event.
+     * @return The action associated with mouse up.
+     */
+    public BrowserAction getReleaseBrowserAction();
+    
+    /**
+     * Get the action to be executed (if any exists) when the node catches
+     * a mouse click event.
+     * @return The action associated with a mouse click.
+     */
+    public BrowserAction getClickBrowserAction();
+    
+    /**
+     * Sets the action to be executed when the node catches a mouse down
+     * event.
+     * @param action
+     */
+    public void setPressBrowserAction(BrowserAction action);
+    
+    public void setReleaseBrowserAction(BrowserAction action);
+    
+    public void setClickBrowserAction(BrowserAction action);
+    
+    public void mousePressed(PInputEvent event);
+    
+    public void mouseReleased(PInputEvent event);
+    
+    public void mouseClicked(PInputEvent event);
 }

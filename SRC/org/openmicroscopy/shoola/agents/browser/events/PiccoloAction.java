@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.BrowserAction
+ * org.openmicroscopy.shoola.agents.browser.events.PiccoloAction
  *
  *------------------------------------------------------------------------------
  *
@@ -38,19 +38,26 @@ package org.openmicroscopy.shoola.agents.browser.events;
 import edu.umd.cs.piccolo.event.PInputEvent;
 
 /**
- * Specifies an action within the browser framework.  This may be changed or
- * amended later.  Will likely be triggered by overlay nodes.
+ * Specifies an action that occurs within the Piccolo environment.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public interface BrowserAction
+public abstract class PiccoloAction implements BrowserAction
 {
     /**
-     * Specifies what do do when the widget within the browser is acted upon.
-     * (A parameter might be introduced later... not sure yet)
+     * Executes the action, independent of a PInputEvent.  Should be
+     * overridden if to be used.
      */
-    public void execute();
+    public void execute() {}
+    
+    /**
+     * Executes the action, using the PInputEvent to transport node and
+     * state information.  Should be overridden if it is to be used.
+     * 
+     * @param e The event and associated metadata.
+     */
+    public void execute(PInputEvent e) {}
 }

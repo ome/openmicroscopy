@@ -50,7 +50,7 @@ public final class BrowserActions
      */
     public static BrowserAction NOOP_ACTION = new BrowserAction()
     {
-        public void actionPerformed()
+        public void execute()
         {
             // do nothing
         }
