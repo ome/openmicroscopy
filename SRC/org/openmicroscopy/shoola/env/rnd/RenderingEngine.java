@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
@@ -56,7 +57,6 @@ import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSource;
 import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -102,8 +102,13 @@ public class RenderingEngine
 	
 	private void hanldeException(String message, Exception cause)
 	{
-		UserNotifier un = registry.getUserNotifier();
-		un.notifyError("Rendering Engine exception", message, cause);
+		LogMessage msg = new LogMessage();
+		msg.print("Rendering Engine Exception: ");
+		msg.println(message);
+		msg.print(cause);
+		registry.getLogger().error(this, msg);
+		registry.getUserNotifier().notifyError("Rendering Engine Exception", 
+												message, msg.toString());
 	}
 	
 	private void handleLoadImage(LoadImage request)
