@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImages
+ * org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImages
  *
  *------------------------------------------------------------------------------
  *
@@ -33,7 +33,6 @@
  *
  *------------------------------------------------------------------------------
  */
- 
 package org.openmicroscopy.shoola.agents.classifier.events;
 
 import java.util.ArrayList;
@@ -43,46 +42,52 @@ import java.util.List;
 
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.agents.classifier.AttributeComparator;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
- * An event for changing image classification.
- *
+ * Event that indicates multiple classifications should be erased.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2.1
- * @since OME2.2
+ * @since OME2.2.1
  */
-public class ReclassifyImages extends RequestEvent
+public class DeclassifyImages
+// just like DeclassifyImage, I'd ideally like this to extend ReclassifyImages,
+// because, in the short term, that's exactly what's happening; but (a) that could
+// change and (b) it would introduce a hidden dependency into any class that
+// demultiplexes events (both would be ReclassifyImages instances... uh oh!)
 {
-    // classfications already contain image refs, we don't need em
     private List classificationList;
     
     /**
-     * Creates an event without any classifications (classifications are added
-     * using the addClassification entry)
+     * Creates an empty event (classifications to invalidate are added using
+     * the addClassification method)
      */
-    public ReclassifyImages()
+    public DeclassifyImages()
     {
         classificationList = new ArrayList();
     }
     
     /**
-     * Creates an event with a base set of classifications.
-     * @param c The collection of updated (reclassified) objects.
+     * Creates an event with the specified collection of classification objects
+     * to invalidate.
+     * @param c The collection of classifications to "erase".
      */
-    public ReclassifyImages(Collection c)
+    public DeclassifyImages(Collection c)
     {
-        if(c != null)
+        if(c == null)
+        {
+            classificationList = new ArrayList();
+        }
+        else
         {
             classificationList = new ArrayList(c);
             Collections.sort(classificationList,new AttributeComparator());
         }
-        else classificationList = new ArrayList();
     }
     
     /**
-     * Adds an updated classification to the event package.
+     * Adds a classification to the event package.
      * @param c The classification to add.
      */
     public void addClassification(Classification c)
@@ -95,7 +100,7 @@ public class ReclassifyImages extends RequestEvent
     }
     
     /**
-     * Removes an updated classification from the event package.
+     * Removes a classification from the event package.
      * @param c The classification to remove.
      */
     public void removeClassification(Classification c)
@@ -107,7 +112,7 @@ public class ReclassifyImages extends RequestEvent
     }
     
     /**
-     * Gets the list of updated classifications.
+     * Returns the list of classifications to be invalidated/erased.
      * @return See above.
      */
     public List getClassifications()

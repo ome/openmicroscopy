@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.classifier.events.ReclassifyImage
+ * org.openmicroscopy.shoola.agents.classifier.events.DeclassifyImage
  *
  *------------------------------------------------------------------------------
  *
@@ -33,37 +33,44 @@
  *
  *------------------------------------------------------------------------------
  */
- 
 package org.openmicroscopy.shoola.agents.classifier.events;
 
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
- * An event for changing image classification.
- *
+ * Event that indicates a classification should be erased.
+ * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2.1
- * @since OME2.2
+ * @since OME2.2.1
  */
-public class ReclassifyImage extends RequestEvent
+public class DeclassifyImage extends RequestEvent
+// I'd like this to extend ReclassifyImage because it has exactly the same
+// semantics, and for now, the same actions, but both will be instances of
+// ReclassifyImage and that may introduce a nasty hidden dependency in any
+// class that demultiplexes events.
 {
     private Classification changed;
     
     /**
-     * Creates a reclassify-image event with the newly updated classification
-     * as the lone parameter.
-     * @param c The new (updated) classification.
+     * Constructs a DeclassifyImage event, with the classification to be
+     * invalidated as the parameter.
+     * @param classification See above.
+     * @throws IllegalArgumentException If the classification is null.
      */
-    public ReclassifyImage(Classification c)
+    public DeclassifyImage(Classification classification)
     {
-        if(c == null) throw new IllegalArgumentException("Invalid classification");
-        this.changed = c;
+        if(classification == null)
+        {
+            throw new IllegalArgumentException("Classification cannot be null.");
+        }
+        changed = classification;
     }
     
     /**
-     * Gets the new classification.
+     * Returns the embedded classification to be invalidated.
      * @return See above.
      */
     public Classification getClassification()
