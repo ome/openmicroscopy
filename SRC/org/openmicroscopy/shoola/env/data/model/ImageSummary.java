@@ -62,7 +62,7 @@ public class ImageSummary
 	 * The OMEIS id's of this image's pixels.
 	 * The first element of the array always contains the default pixels.
 	 */
-	private int[]	imageServerPixelsID;
+	private long[]	imageServerPixelsID;
     
     /**
      * The default pixels of the image.
@@ -71,14 +71,14 @@ public class ImageSummary
 	
 	public ImageSummary() {}
 	
-	public ImageSummary(int id, String name, int[] imageServerPixelsID)
+	public ImageSummary(int id, String name, long[] imageServerPixelsID)
 	{
 		this.id = id;
 		this.name = name;
 		this.imageServerPixelsID = imageServerPixelsID;
 	}
     
-    public ImageSummary(int id, String name, int[] imageServerPixelsID,
+    public ImageSummary(int id, String name, long[] imageServerPixelsID,
                         PixelsDescription defaultPixels)
     {
         this.id  = id;
@@ -119,12 +119,12 @@ public class ImageSummary
 	}
 
 
-	public int[] getImageServerPixelsID()
+	public long[] getImageServerPixelsID()
 	{
 		return imageServerPixelsID;
 	}
 
-	public void setImageServerPixelsID(int[] imageServerPixelsID)
+	public void setImageServerPixelsID(long[] imageServerPixelsID)
 	{
 		this.imageServerPixelsID = imageServerPixelsID;
 	}
