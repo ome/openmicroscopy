@@ -96,7 +96,7 @@ public class DatasetMapper
 		criteria.addWantedField("name");
 		
 		criteria.addFilter("owner_id", new Integer(userID));
-		
+		criteria.addFilter("name", "NOT LIKE", "ImportSet");
 		return criteria;
 	}
 	
