@@ -115,8 +115,9 @@ public class BrowserAgent implements Agent, AgentEventListener
         this.registry = ctx;
         // TODO: extract registry settings from context
         this.eventBus = ctx.getEventBus();
+        this.tf = ctx.getTopFrame();
         // TODO: register event listening here (this,type.class)
-        //eventBus.register(this.LoadDataset.class);
+        //eventBus.register(this,LoadDataset.class);
     }
     
     /**
@@ -199,6 +200,4 @@ public class BrowserAgent implements Agent, AgentEventListener
     {
         // TODO handle listening events here
     }
-
-
 }
