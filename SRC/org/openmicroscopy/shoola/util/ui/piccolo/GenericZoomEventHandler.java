@@ -78,6 +78,8 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	 */
 	protected int allButtonMask = MouseEvent.BUTTON1_MASK;
 	
+	private PBounds lastBounds;
+	
 	
 	public GenericZoomEventHandler(BufferedObject canvas) {
 		super();
@@ -154,10 +156,18 @@ public class GenericZoomEventHandler extends  GenericEventHandler {
 	public  void animateToBounds(PBounds b) {
 		PCamera camera = ((PCanvas) canvas).getCamera();
 		camera.animateViewToCenterBounds(b,true,PConstants.ANIMATION_DELAY);
+		lastBounds = b;
 	}
 	
 	public void animateToCanvasBounds() {
 		animateToBounds(canvas.getBufferedBounds());
+	}
+	
+	public void animateToLastBounds() {
+		if (lastBounds != null)
+			animateToBounds(lastBounds);
+		else
+			animateToCanvasBounds();
 	}
 	
 	public void animateToNode(PNode node) {
