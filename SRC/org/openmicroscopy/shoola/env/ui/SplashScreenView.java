@@ -36,6 +36,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,6 +47,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 
 //Third-party libraries
 
@@ -117,19 +120,19 @@ class SplashScreenView
 	private static final Color		FONT_COLOR_TASK = new Color(102, 0, 204);	
 		
 	/** Text field to enter the login user name. */
-	JTextField      user;
+	JTextField      				user;
 	
 	/** Password field to enter login password. */
-	JPasswordField  pass;
+	JPasswordField  				pass;
 	
 	/** Login button. */
-	JButton         login;
+	JButton         				login;
 	
 	/** Displays the name of the task that is currently being executed. */
-	JLabel			currentTask;
+	JLabel							currentTask;
 	
 	/** Provides feedback on the state of the initialization process. */
-	JProgressBar	progressBar;
+	JProgressBar					progressBar;
 	
 	/** 
 	 * The image icons needed to build the GUI.
@@ -137,7 +140,7 @@ class SplashScreenView
 	 * background image, the third is the login button and the forth is the
 	 * login button when the mouse rolls over the button.
 	*/
-	private Icon[]  images;
+	private Icon[]  				images;
 
 	/** 
 	 * Creates the splash screen UI.
@@ -192,7 +195,9 @@ class SplashScreenView
 		user = new JTextField();
 		user.setFont(FONT);
 		user.setForeground(FONT_COLOR);
+		user.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		pass = new JPasswordField();
+		pass.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		pass.setFont(FONT);
 		pass.setForeground(FONT_COLOR);
 	}

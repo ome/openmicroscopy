@@ -78,10 +78,10 @@ class SplashScreenManager
 	private UserCredentials		userCredentials;
 
 	/** The current number of tasks to be executed. */
-	private int				totalTasks;
+	private int					totalTasks;
 	
 	/** The current number of tasks that have been executed. */
-	private int				doneTasks;
+	private int					doneTasks;
 	
 	/**
 	 * Creates the splash screen component.
