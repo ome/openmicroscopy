@@ -62,7 +62,7 @@ public class NavigationPalette
 	extends JDialog
 {
 	/** Width of the editor dialog window. */
-	private static final int			EDITOR_WIDTH = 250;
+	private static final int			EDITOR_WIDTH = 300;
 	
 	/** Height of the editor dialog window. */
 	private static final int			EDITOR_HEIGHT = 200;

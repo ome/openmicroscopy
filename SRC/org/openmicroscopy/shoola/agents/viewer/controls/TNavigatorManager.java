@@ -129,7 +129,8 @@ class TNavigatorManager
 	private void synch(int val)
 	{
 		curT = val;
-		view.getTField().setText(""+val);  //doesn't fire ActionEvent  
+		view.getTField().setText(""+val);  //doesn't fire ActionEvent 
+		view.repaint(); 
 		manager.onTChange(curT);
 	}
 

@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 //Java imports
 import java.awt.Dimension;
 import java.util.Hashtable;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -69,10 +68,19 @@ class XYZNavigator
 	extends JPanel
 {
 	/** Default width of a cell. */
-	private static final int		DEFAULT_WIDTH = 90;
+	private static final int		DEFAULT_WIDTH = 80;
+	
+	/** Width of the second column. */
+	private static final int		WIDTH_THIRD = 110;
+	
+	/** Width of the second column. */
+	private static final int		WIDTH_SECOND = 30;
+	
+	/** Default height of a cell. */
+	private static final int		ROW_HEIGHT = 60;
 	
 	/** Default width of a cell. */
-	private static final int		ROW_HEIGHT = 60;
+	private static final int		ROW_HEIGHT_2 = 40;
 	
 	/** Dimension of the JPanel which contains the slider. */
 	private static final int		PANEL_HEIGHT = 40;
@@ -80,7 +88,12 @@ class XYZNavigator
 	
 	private static final Dimension	DIM = new Dimension(PANEL_WIDTH, 
 														PANEL_HEIGHT);
-
+														
+	/** Dimension of the panel containing the textField. */
+	private static final int		FIELD_HEIGHT = 25;
+	private static final int		FIELD_WIDTH = 30;
+	private static final Dimension	DIM_FIELD = new Dimension(FIELD_WIDTH, 
+														FIELD_HEIGHT);
 	/** The slider used to move across the Z stack. */
 	private JSlider         		zSlider;
 	
@@ -97,8 +110,8 @@ class XYZNavigator
 	{
 		manager = new XYZNavigatorManager(this, topManager, sizeZ, z);
 		im = IconManager.getInstance(topManager.getRegistry());
-		initSlider(sizeZ, z);
-		initTextField(sizeZ, z);
+		initSlider(sizeZ-1, z);
+		initTextField(sizeZ-1, z);
 		manager.attachListeners();
 		buildGUI(sizeX, sizeY, sizeZ);
 	}
@@ -118,9 +131,9 @@ class XYZNavigator
 	 * 
 	 * @param max     Total number of ticks.
 	 */
-	private void initSlider(int sizeZ, int z)
+	private void initSlider(int maxZ, int z)
 	{
-		zSlider = new JSlider(JSlider.HORIZONTAL, 0, sizeZ, z);
+		zSlider = new JSlider(JSlider.HORIZONTAL, 0, maxZ, z);
 		zSlider.setToolTipText("Move the slider to navigate across Z stack");
 		zSlider.setMinorTickSpacing(1);
 		zSlider.setMajorTickSpacing(10);
@@ -128,7 +141,7 @@ class XYZNavigator
 		zSlider.setOpaque(false);
 		Hashtable labelTable = new Hashtable();
 		labelTable.put(new Integer(0), new JLabel(""+0) );
-		labelTable.put(new Integer(sizeZ), new JLabel(""+sizeZ));
+		labelTable.put(new Integer(maxZ), new JLabel(""+maxZ));
 		zSlider.setLabelTable(labelTable);
 		zSlider.setPaintLabels(true);
 
@@ -140,9 +153,9 @@ class XYZNavigator
 	 * @param sizeZ		Total number of planes in the Z-stack.
 	 * @param z 		Default z.
 	 */
-	private void initTextField(int sizeZ, int z)
+	private void initTextField(int maxZ, int z)
 	{
-		zField = new JTextField(""+z, (""+sizeZ).length());
+		zField = new JTextField(""+z, (""+maxZ).length());
 		zField.setForeground(NavigationPalette.STEELBLUE);
 		zField.setToolTipText("Enter a Z point");
 	}
@@ -153,23 +166,50 @@ class XYZNavigator
 	{
 		//add(buildDimsPanel(sizeX, sizeY, sizeZ), BorderLayout.WEST);
 		add(buildTable(sizeX, sizeY, sizeZ));
-		add(buildSliderPanel());
+		//add(buildSliderPanel());
 	}
 	
 	private JPanel buildTable(int sizeX, int sizeY, int sizeZ)
 	{
 		JPanel p = new JPanel();
-		JTable table = new TableComponent(1, 2);
+		JTable table = new TableComponent(2, 3);
 		tableLayout(table);
+		
+		//First row
+		JLabel label = new JLabel("");
 		table.setValueAt(buildDimsPanel(sizeX, sizeY, sizeZ), 0, 0);
-		table.setValueAt(new JLabel(""), 0, 1);
+		table.setValueAt(label, 0, 1);
+		table.setValueAt(label, 0, 2);
+		
+		//Second row
+		table.setRowHeight(1, ROW_HEIGHT_2);
+		label = new JLabel("Current Z: ");
+		label.setForeground(NavigationPalette.STEELBLUE);
+		table.setValueAt(label, 1, 0);
+		table.setValueAt(buildFieldPanel(), 1, 1);
+		table.setValueAt(buildSliderPanel(), 1, 2);
 		
 		p.add(table);
 		p.setOpaque(false);
 		return p;
 	}
 	
-	
+	/**
+	 * Build a panel containing the a text field along with current selection.
+	 * @return	See above.
+	 */
+	private JPanel buildFieldPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(null);
+		p.setOpaque(false);
+		p.setPreferredSize(DIM_FIELD);
+		p.setSize(DIM_FIELD);
+		zField.setPreferredSize(DIM_FIELD);
+		zField.setBounds(0, 0, FIELD_WIDTH, FIELD_HEIGHT);
+		p.add(zField);
+		return p;
+	}
 	
 	/**
 	 * Build a panel containing a slider along with current selection
@@ -178,7 +218,8 @@ class XYZNavigator
 	 */
 	private JPanel buildSliderPanel()	
 	{
-		JPanel p = new JPanel(), field = new JPanel(), slider = new JPanel();
+		//JPanel p = new JPanel(), field = new JPanel(), slider = new JPanel();
+		JPanel slider = new JPanel();
 		slider.setLayout(null);
 		slider.setOpaque(false);
 		slider.setPreferredSize(DIM);
@@ -187,15 +228,16 @@ class XYZNavigator
 		zSlider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		slider.add(zSlider);
 		
-		JLabel current = new JLabel("Current Z: ");
-		current.setForeground(NavigationPalette.STEELBLUE);
-		field.add(current);
-		field.add(zField);
-		field.setAlignmentX(LEFT_ALIGNMENT);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(field);
-		p.add(slider);
-		return p;
+		//JLabel current = new JLabel("Current Z: ");
+		//current.setForeground(NavigationPalette.STEELBLUE);
+		///field.add(current);
+		//field.add(zField);
+		//field.setAlignmentX(LEFT_ALIGNMENT);
+		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		//p.add(field);
+		//p.add(slider);
+		//return p;
+		return slider;
 	}
 	
 	/** 
@@ -227,12 +269,19 @@ class XYZNavigator
 		table.setOpaque(false);
 		table.setShowGrid(false);
 		TableColumnModel columns = table.getColumnModel();
-		TableColumn column= columns.getColumn(0);
+		TableColumn column = columns.getColumn(0);
 		column.setPreferredWidth(DEFAULT_WIDTH);
 		column.setWidth(DEFAULT_WIDTH);
+		column = columns.getColumn(1);
+		column.setPreferredWidth(DEFAULT_WIDTH);
+		column.setWidth(DEFAULT_WIDTH);
+		column = columns.getColumn(2);
+		column.setPreferredWidth(WIDTH_THIRD);
+		column.setWidth(WIDTH_THIRD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
 		table.setDefaultEditor(JComponent.class, 
 								new TableComponentCellEditor());
-	}	
+	}
+		
 }

@@ -94,7 +94,8 @@ class XYZNavigatorManager
 	{
 		curZ = v;
 		view.getZSlider().setValue(v);
-		view.getZField().setText(""+v);           
+		view.getZField().setText(""+v);  
+		view.repaint();         
 		manager.onZChange(curZ);
 	}
 	
