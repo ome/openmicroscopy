@@ -108,4 +108,13 @@ public class NullEventBus
 
     }
 
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.event.EventBus#hasListenerFor(java.lang.Class)
+     */
+    public boolean hasListenerFor(Class event)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }
