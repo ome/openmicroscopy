@@ -41,9 +41,18 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
-/** Declares the operations to be used to access configuration entries and 
+/**
+ * Declares the operations to be used to access configuration entries and 
  * container's services.
- *
+ * <p>The objects corresponding to configuration entries are accessed through
+ * the {@link #lookup(String) lookup)} method, passing in the content of the 
+ * <i>name</i> attribute of the entry tag.  Container’s services are accessed
+ * through the <code>getXXX</code> methods (with the exception of the rendering
+ * service, which is accessed by means of the event bus).</p>
+ * <p>A registry can also be used as a map for in-memory objects.  The 
+ * {@link #bind(String, Object) bind} method maps a name onto an arbitrary
+ * object, which can then be retrieved by passing that name to the
+ * {@link #lookup(String) lookup} method.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,70 +68,80 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 public interface Registry
 {  
 	/** 
-	 * Binds a name to an object. 
-	 * Adds an object in the {@link Entry}'s map.
-	 * e.g. UserCredentials.
+	 * Maps <code>name</code> onto <code>value<code>.
+	 * The object can then be retrieved by passing <code>name</code> to the
+	 * {@link #lookup(String) lookup} method.  
 	 * 
-	 * @param name		
-	 * @param object
+	 * @param name	This entry's name.  If <code>null</code>, this method
+	 * 				does nothing.		
+	 * @param value	The object to map onto <code>name</code>.
 	 */
-	public void bind(String name, Object obj);
+	public void bind(String name, Object value);
 	
 	/**
-	 * Retrieves an {@link Entry} from the map maintained by the Registry.
+	 * Retrieves the object keyed by <code>name</code> from the registry.
+	 * The <code>name</code> parameter is either the value of the <i>name</i>
+	 * attribute of an entry tag in the configuration file (in this case the
+	 * object that represents the configuration entry will be returned) or the
+	 * name to which the object was bound &#151; by means of the
+	 * {@link #bind(String, Object) bind} method (in this case the object that
+	 * was originally passed to {@link #bind(String, Object) bind()} will be 
+	 * returned). 
 	 * 
-	 * @param name	{@link Entry}'s name.
-	 * @return See above.
+	 * @param name	The name which an object within this registry is
+	 * 				mapped onto.
+	 * @return The object mapped to <code>name</code> or <code>null</code> if
+	 * 			no such a mapping exists.
 	 */  
 	public Object lookup(String name);
 	
    	/**
-    * Returns the {@link EventBus} registered.
-    * 
-    * @return See above.
-    */
+   	 * Returns a reference to the {@link EventBus}.
+   	 * 
+   	 * @return See above.
+   	 */
 	public EventBus getEventBus();
 	
-   	/**
-    * Returns the {@link DataManagementService} registered.
-    * 
-    * @return See above.
-    */
+	/**
+	 * Returns a reference to the {@link DataManagementService}.
+	 * 
+	 * @return See above.
+	 */
    	public DataManagementService getDataManagementService();
    	
    	/**
-   	* Returns the {@link SemanticTypesService} registered.
-   	* 
-   	* @return See above.
-   	*/
+	 * Returns a reference to the {@link SemanticTypesService}.
+	 * 
+	 * @return See above.
+	 */
     public SemanticTypesService getSemanticTypesService();
     
-   	/**
-   	* Returns the {@link Logger} registered.
-   	* 
-   	* @return See above.
-   	*/
+	/**
+	 * Returns a reference to the {@link Logger}.
+	 * 
+	 * @return See above.
+	 */
 	public Logger getLogger();
-	
-   	/**
-   	* Returns the {@link TopFrame} registered.
-   	* 
-   	* @return See above.
-   	*/
+   	
+	/**
+	 * Returns a reference to the {@link TopFrame}.
+	 * 
+	 * @return See above.
+	 */
 	public TopFrame getTopFrame();
 	
    	/**
-   	* Returns the {@link UserNotifier} registered.
-   	* 
-   	* @return See above.
-   	*/
+	 * Returns a reference to the {@link UserNotifier}.
+	 * 
+	 * @return See above.
+	 */
    	public UserNotifier getUserNotifier();
    	
 	/**
-	* Returns the {@link PixelsService} registered.
-	* 
-	* @return See above.
-	*/
+	 * Returns a reference to the {@link PixelsService}.
+	 * 
+	 * @return See above.
+	 */
 	//	public PixelsService getPixelsServce();
 	//TODO: add it when ready.
    

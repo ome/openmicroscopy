@@ -38,7 +38,8 @@ import org.w3c.dom.Node;
 //Application-internal dependencies
 
 /** 
- * 
+ * Convenience class to store a name-value pair that is added to the registry
+ * by means of the {@link Registry#bind(String, Object) bind} method. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,38 +56,56 @@ class ObjectEntry
 	extends Entry
 {
 	
+	/** The lookup name. Overrides the same field in {@link Entry}. */
+	//NB: we do this b/c Entry.name has to be kept private to avoid subclasses
+	//screwing around and modifying mappings.
 	private String		name;
+	
+	/** The value. */
 	private Object		value;
 	
+	/**
+	 * Creates a new entry to be added to the registry.
+	 * 
+	 * @param name	The lookup name given to this entry.
+	 */
 	ObjectEntry(String name)
 	{
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.env.config.Entry#getValue()
+	/** 
+	 * Returns this entry's value.
+	 * @see Entry#getValue()
 	 */
 	Object getValue()
 	{
 		return value;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.env.config.Entry#setContent(org.w3c.dom.Node)
+	/**
+	 * Does nothing as this entry is created by the 
+	 * {@link Registry#bind(String, Object) bind} method.
+	 * @see Entry#setContent(org.w3c.dom.Node)
 	 */
 	protected void setContent(Node node)
 	{
 		//Do nothing. This is an in-memory entry.	
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.env.config.Entry#setContent(java.lang.Object)
+	/** 
+	 * Stores <code>content</code> as this entry's value.
+	 * 
+	 * @param content	The entry's value.
 	 */
 	void setContent(Object content)
 	{
 		value = content;	
 	}
 	
+	/**
+	 * Overrides the superclass method to return the correct value.
+	 */
 	String getName()
 	{
 		return name;

@@ -45,11 +45,12 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 /** 
  * Implements the <code>Registry</code> interface. 
  * It maintains a map of {@link Entry} objects which are keyed 
- * by their <code>name</code> attribute and represent entries in 
- * configuration file.
- * It also maintains references to the container's services into member fields,
- * this ensures <code>o(1)</code> access time.
- *
+ * by their <code>name</code> attribute and represent entries in a 
+ * configuration file.  The map also contains all name-value pairs that are
+ * added to the registry by means of the {@link #bind(String, Object) bind}
+ * method.  References to the container’s services are stored into member
+ * fields &#151; as services are accessed frequently, this ensures <i>o(1)</i>
+ * access time.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,22 +63,39 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * </small>
  * @since OME2.2
  */
-
 class RegistryImpl
     implements Registry
 {
     
+    /** The name-value map. */
     private HashMap             	entriesMap;
+    
+    /** Reference to container's service. */
     private EventBus                eb;
+    
+	/** Reference to container's service. */
     private DataManagementService   dms;
+    
+	/** Reference to container's service. */
     private SemanticTypesService	sts;
+    
+	/** Reference to container's service. */
 	private Logger             		logger;
+	
+	/** Reference to container's service. */
 	private TopFrame                tf;
+	
+	/** Reference to container's service. */
    	private UserNotifier            un;
+   	
     //private PixelsService           ps;
     //private ImageService			is;
    
-    
+   
+   
+    /**
+     * Just creates an empty map.
+     */
     RegistryImpl()
     {
         entriesMap = new HashMap();
@@ -143,10 +161,10 @@ class RegistryImpl
 //TODO: add it when ready.
 
 	/** 
-	* Add a new entry in the map of {@link Entry}.
-	* The {@link Entry} object is created after parsing the configuration file.
-	* 
-	* @param e new Entry.
+	* Adds the specified {@link Entry} to the map.
+	*
+	* @param e 	A new {@link Entry} created from an entry tag in the
+	* 			configuration file.
 	*/
 	void addEntry(Entry e)
 	{
@@ -154,60 +172,60 @@ class RegistryImpl
    	}
    	
 	/**
-	* Sets the {@link EventBus}.
-	* 
-	* @param eb	{@link EventBus}.
-	*/
+	 * Stores a reference to the {@link EventBus}.
+	 * 
+	 * @param eb	The {@link EventBus}.
+	 */
 	void setEventBus(EventBus eb)
 	{
 		this.eb = eb;
 	}
 	
    	/**
-	* Sets the {@link DataManagementService}.
-	* 
-	* @param dms	{@link DataManagementService}.
-	*/
+	 * Stores a reference to the {@link DataManagementService}.
+	 * 
+	 * @param dms	The {@link DataManagementService}.
+	 */
 	void setDMS(DataManagementService dms)
 	{
 		this.dms = dms;
 	}
 	
 	/**
-	* Sets the {@link SemanticTypeService}.
-	* 
-	* @param sts {@link SemanticTypeService}.
-	*/
+	 * Stores a reference to the {@link SemanticTypesService}.
+	 * 
+	 * @param sts	The {@link SemanticTypesService}.
+	 */
 	void setSTS(SemanticTypesService sts)
    	{
 		this.sts = sts;
    	}
    	
    	/**
-	* Sets the {@link TopFrame}.
-	* 
-	* @param tf {@link TopFrame}.
-	*/
+	 * Stores a reference to the {@link TopFrame}.
+	 * 
+	 * @param tf	The {@link TopFrame}.
+	 */
    	void setTopFrame(TopFrame tf)
    	{
 		this.tf = tf;
    	}
    	
 	/**
-	* Sets the {@link Logger}.
-	* 
-	* @param logger {@link Logger}.
-	*/
+	 * Stores a reference to the {@link Logger}.
+	 * 
+	 * @param logger	The {@link Logger}.
+	 */
 	void setLogger(Logger logger)
 	{
 		this.logger = logger;
 	}
 	
 	/**
-	* Sets the {@link UserNotifier}.
-	* 
-	* @param un {@link UserNotifier}.
-	*/
+	 * Stores a reference to the {@link UserNotifier}.
+	 * 
+	 * @param un	The {@link UserNotifier}.
+	 */
 	void setUserNotifier(UserNotifier un)
 	{
 		this.un = un;
