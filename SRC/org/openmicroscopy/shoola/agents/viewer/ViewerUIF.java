@@ -52,9 +52,9 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.canvas.ImageCanvas;
 import org.openmicroscopy.shoola.agents.viewer.controls.ToolBar;
+import org.openmicroscopy.shoola.agents.viewer.controls.ToolBarManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -95,10 +95,9 @@ public class ViewerUIF
 	
 	private boolean					active;
 	
-	
-	ViewerUIF(ViewerCtrl control, Registry registry, String imageName)
+	ViewerUIF(ViewerCtrl control, Registry registry)
 	{
-		super(imageName, true, true, true, true);
+		setFrame();
 		this.control = control;
 		this.registry = registry;
 		setJMenuBar(createMenuBar());
@@ -118,18 +117,35 @@ public class ViewerUIF
 	
 	public ToolBar getToolBar() { return toolBar; } 
 	
-	/** Reset the default timepoint and z-section in the stack; */
+	/** Set the title of the Image. */
+	void setImageName(String imageName)
+	{
+		setTitle(imageName);
+	}
+	
+	/** Reset the default values for timepoint and z-section in the stack; */
 	void setDefaultZT(int t, int z, int sizeT, int sizeZ)
 	{
-
-		toolBar.getManager().onTChange(t);
-		toolBar.getManager().onZChange(z);
+		ToolBarManager tbm = toolBar.getManager();
+		tbm.onTChange(t);
+		tbm.onZChange(z);
 		int maxZ = sizeZ-1;
 		int maxT = sizeT-1;
+		tbm.setMaxT(maxT);
+		tbm.setMaxZ(maxZ);
 		toolBar.getZLabel().setText("/"+maxZ);
 		toolBar.getTLabel().setText("/"+maxT);
 		resetSliders(maxT, t, maxZ, z);
 		toolBar.repaint();
+	}
+	
+	/** Set the internalFrame status. */
+	private void setFrame()
+	{
+		setResizable(true);
+		setClosable(true);
+		setMaximizable(true);
+		setIconifiable(true);
 	}
 	
 	/** Reset the sliders' values when a new image is selected. */
@@ -167,18 +183,18 @@ public class ViewerUIF
 	 */
 	 void setImage(BufferedImage img)
 	 {
-		canvas.display(img);
-		if (!active) {
-			int w = canvas.getIconWidth();
-			int h = canvas.getIconHeight();
-			tSlider.setSize(w-EXTRA, EXTRA);
-			zSlider.setSize(EXTRA, h-EXTRA);
+		int w = img.getWidth();
+		int h = img.getHeight();
+		Dimension d = new Dimension(w, h);
+		canvas.setPreferredSize(d);
+		canvas.setSize(d);
+		canvas.paintImage(img);
+		if (!active)
 			setWindowSize(w+2*EXTRA, h+2*EXTRA+2*toolBar.getHeight());
-	 	}
 	 	active = true;
 	 	revalidate();
-	 }
-	   
+	}
+
 	/** Create a menu. */
 	private JMenuBar createMenuBar()
 	{
@@ -235,12 +251,11 @@ public class ViewerUIF
 		buildContents();
 		JScrollPane scrollPane = new JScrollPane(contents);
 		container.add(scrollPane);
-		
 		IconManager im = IconManager.getInstance(registry);
 		Icon icon = im.getIcon(IconManager.OME);
 		setFrameIcon(icon);
 	}
-	
+		
 	private void buildContents()
 	{
 		JPanel p = new JPanel(), pt = new JPanel(), pz = new JPanel();
@@ -274,7 +289,7 @@ public class ViewerUIF
 		int height = 9*(screenSize.height/10);
 		if (w > width) w = width;
 		if (h > height) h = height;
-		setSize(w, h);
+		setSize(w, h);		
 	}
 	
 }

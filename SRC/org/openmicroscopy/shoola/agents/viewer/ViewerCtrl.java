@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -163,7 +162,10 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	/** Update t-slider. */
+	/** 
+	 * Update t-slider, method called when a new value is set using 
+	 * the textField.
+	 */
 	public void onTChange(int z, int t)
 	{
 		//remove listener otherwise an event is fired.
@@ -173,7 +175,10 @@ public class ViewerCtrl
 		abstraction.onPlaneSelected(z, t);
 	}
 	
-	/** Update z-slider. */
+	/** 
+	 * Update z-slider, method called when a new value is set using 
+	 * the textField.
+	 */
 	public void onZChange(int z, int t)
 	{
 		//remove listener otherwise an event is fired.
@@ -246,7 +251,7 @@ public class ViewerCtrl
 		UIUtilities.centerAndShow(dialog);
 	}
 	
-	/** Bring the file chooser. */
+	/** Bring up the file chooser. */
 	private void showImageSaver()
 	{
 		if (abstraction.getCurImage() == null) {

@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -158,10 +157,11 @@ public class Viewer
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
 		if (curImageID != request.getImageID()) {
-			if (presentation == null) buildPresentation(request.getImageName());
+			if (presentation == null) buildPresentation();
 			PixelsDimensions pxsDims = control.getPixelsDims();
 			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									  pxsDims.sizeT, pxsDims.sizeZ);
+			presentation.setImageName(request.getImageName());
 			setPresentation();
 			curImageID = request.getImageID();
 			curPixelsID = request.getPixelsID();
@@ -171,6 +171,7 @@ public class Viewer
 			PixelsDimensions pxsDims = control.getPixelsDims();
 			presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
 									  pxsDims.sizeT, pxsDims.sizeZ);
+			presentation.setImageName(request.getImageName());
 			setPresentation();
 		}
 	}
@@ -222,10 +223,10 @@ public class Viewer
 	}
 	
 	/** Build the GUI. */
-	private void buildPresentation(String imageName)
+	private void buildPresentation()
 	{
 		control = new ViewerCtrl(this);
-		presentation = new ViewerUIF(control, registry, imageName);
+		presentation = new ViewerUIF(control, registry);
 		control.setPresentation(presentation);
 		control.attachListener();
 		control.attachItemListener(viewItem, ViewerCtrl.V_VISIBLE);
