@@ -62,6 +62,7 @@ public class PixelsDescription
 	private int 	sizeC;
 	private int 	sizeT;
 	private int 	bitsPerPixel;
+	private String	pixelType;
 	private String	imageServerURL;
     
     private Pixels  backingPixels;
@@ -240,5 +241,15 @@ public class PixelsDescription
             this.backingPixels = pixels;
         }
     }
+
+	public String getPixelType() 
+	{
+		return pixelType;
+	}
+
+	public void setPixelType(String type)
+	{
+		pixelType = type;
+	}
 
 }
