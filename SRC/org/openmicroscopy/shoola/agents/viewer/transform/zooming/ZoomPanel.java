@@ -74,10 +74,21 @@ public class ZoomPanel
 	/** Location of the image. */
 	private int						x, y;
 	
+	/** 
+	 * Width and height of the canvas. 
+	 * The width (resp. the height) is equal to width (resp. height) of 
+	 * the buffered image times the zoomLevel.
+	 */
+	private int						w, h;
+	
 	/** Zoom level. */
 	private double					magFactor;
-	 
-	private boolean					isInit;
+	
+	/** Affine transformation. */
+	private BufferedImageOp 		biop;
+	
+	/** Buffered image to filter. */
+	private BufferedImage 			bimg;
 	
 	public ZoomPanel(ImageInspectorManager manager)
 	{
@@ -85,7 +96,6 @@ public class ZoomPanel
 		setDoubleBuffered(true);
 		setBackground(Viewer.BACKGROUND_COLOR); 
 		magFactor = ImageInspectorManager.ZOOM_DEFAULT; 
-		isInit = true;
 	}
  
  	/** 
@@ -98,12 +108,19 @@ public class ZoomPanel
  	 * @param y			y-coordinate.
  	 * 	
  	 */	
-	public void paintImage(double level, int x, int y)
+	public void paintImage(double level, int w, int h)
 	{
 		magFactor = level;
-		isInit = false;
-		this.x = x;
-		this.y = y;
+		this.w = w;
+		this.h = h;
+		BufferedImage image = manager.getBufferedImage();
+		AffineTransform at = new AffineTransform();
+		at.scale(magFactor, magFactor);
+		bimg = new BufferedImage(image.getWidth(), image.getHeight(),
+								BufferedImage.TYPE_INT_RGB);
+		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
+		rop.filter(image, bimg);
+		biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		repaint();
 	} 
 
@@ -111,33 +128,23 @@ public class ZoomPanel
 	public void paint(Graphics g)
 	{
 		super.paintComponent(g);
-		BufferedImage image = manager.getBufferedImage();
 		Graphics2D g2D = (Graphics2D) g;
-		if (isInit) setLocation();
+		setLocation();
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
 							RenderingHints.VALUE_RENDER_QUALITY);
 
-		g2D.setColor(Color.black);
-		AffineTransform at = new AffineTransform();
-		at.scale(magFactor, magFactor);
-		BufferedImage bimg = new BufferedImage(image.getWidth(),
-												image.getHeight(),
-												BufferedImage.TYPE_INT_RGB);
-		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
-		rop.filter(image, bimg);
-		BufferedImageOp biop = new AffineTransformOp(at,
-										AffineTransformOp.TYPE_BILINEAR);			
+		g2D.setColor(Color.black);			
 		g2D.drawImage(bimg, biop, x, y);
 	}
-	
-	/** Set the coordinate of the top-left corner of the image. */
+
+	/** Set the location of the zoomImage. */
 	private void setLocation()
 	{
-		Rectangle d = getBounds();
-		x = (int) (d.width-manager.getImageWidth())/2;
-		y = (int) (d.height-manager.getImageHeight())/2;
+		Rectangle r = manager.getScrollPane().getViewportBorderBounds();
+		x = (int) (r.width-w)/2;
+		y = (int) (r.height-h)/2;
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 	}

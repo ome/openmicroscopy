@@ -31,8 +31,11 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
@@ -58,25 +61,43 @@ import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
 public class ImageInspectorManager
 {
 
-	public static final double 		MIN_ZOOM_LEVEL = 0.25;
-	public static final double 		MAX_ZOOM_LEVEL = 3.0;
-	public static final double		ZOOM_DEFAULT = 1.0;
-	public static final double 		ZOOM_INCREMENT = 0.25;
+	/** Default zoom level. */
+	public static final double 		MIN_ZOOM_LEVEL = 0.25 , 
+									MAX_ZOOM_LEVEL = 3.0,
+									ZOOM_DEFAULT = 1.0,
+							 		ZOOM_INCREMENT = 0.25;
 	
+	/** Reference to the view. */
 	private ImageInspector			view;
+	
+	/** Original buffered image. */
 	private BufferedImage			image;
+	
+	/** Width and height of the current image. */
 	private int						imageWidth, imageHeight;
+	
+	/** Canvas. */
 	private ZoomPanel				zoomPanel;
+	
+	/** Current zooming level. */
 	private double					curZoomLevel;
 	
 	public ImageInspectorManager(ImageInspector view)
 	{
 		this.view = view;
 		curZoomLevel = ZOOM_DEFAULT;
+		attachListener();
+	}
+	
+	/** Attach a window listener to the dialog. */
+	private void attachListener()
+	{
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) { view.dispose(); }
+		});
 	}
 	
 	public BufferedImage getBufferedImage() { return image; }
-	
 	
 	/** Zoom in or out. */
 	public void setZoomLevel(double level)
@@ -91,6 +112,14 @@ public class ImageInspectorManager
 	
 	public int getImageHeight() { return imageHeight; }
 	
+	public JScrollPane getScrollPane() { return view.scroll; }
+	
+	
+	void setZoomPanel(ZoomPanel zoomPanel)
+	{
+		this.zoomPanel = zoomPanel;
+	}
+	
 	/** 
 	 * Set the bufferedimage
 	 * 
@@ -103,15 +132,7 @@ public class ImageInspectorManager
 		imageHeight = image.getHeight();
 		
 	}
-	void setZoomPanel(ZoomPanel zoomPanel)
-	{
-		this.zoomPanel = zoomPanel;
-		Dimension imageDim = new Dimension(imageWidth, imageHeight);
-		zoomPanel.setPreferredSize(imageDim);
-		zoomPanel.setSize(imageDim);	
-	}
 
-	
 	/** Zoom in or out accoding to the current level. */
 	void zoom() { zoom(curZoomLevel); }
 	
@@ -129,16 +150,10 @@ public class ImageInspectorManager
 		int w = (int) (imageWidth*level);
 		int h = (int) (imageHeight*level);
 	   	Dimension d = new Dimension(w, h);
-	   	
-		Rectangle r = view.scroll.getViewportBorderBounds();
-		int x = (int) (r.width-w)/2;
-		int y = (int) (r.height-h)/2;
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
-	   	zoomPanel.setPreferredSize(d);
-	   	zoomPanel.setSize(d);
-	   	zoomPanel.paintImage(level, x, y);
-		zoomPanel.revalidate();	 	
+	   	zoomPanel.paintImage(level, w, h);
+		zoomPanel.setPreferredSize(d);
+		zoomPanel.setSize(d);	
+	   	zoomPanel.revalidate(); 	
 	}
 
 }

@@ -35,14 +35,12 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.viewer.IconManager;
 import org.openmicroscopy.shoola.agents.viewer.Viewer;
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.agents.viewer.transform.zooming.ZoomPanel;
@@ -66,32 +64,25 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
  * @since OME2.2
  */
 public class ImageInspector
-	extends JFrame implements AgentEventListener
+	extends JDialog implements AgentEventListener
 {
 		
 	ToolBar 						toolBar;
 	MenuBar							menuBar;
 
 	private ImageInspectorManager	manager;
+	
 	private ZoomPanel				zoomPanel;
 	
 	JScrollPane 					scroll;
+	
 	public ImageInspector(ViewerCtrl control)
 	{
-		//super(control.getReferenceFrame(), "Image Inspector");
-		initFrame(IconManager.getInstance(control.getRegistry()));
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		super(control.getReferenceFrame(), "Image Inspector");
 		init(control);
 		setJMenuBar(menuBar);
 		buildGUI();
-	}
-	
-	/** Initializes the frame. */
-	private void initFrame(IconManager im)
-	{
-		setTitle("Image Inspector");
-		setIconImage(
-		((ImageIcon) im.getIcon(IconManager.INSPECTOR)).getImage());
+		manager.zoom();
 	}
 	
 	/** Initializes the components. */
@@ -151,7 +142,7 @@ public class ImageInspector
 	{
 		Dimension d = toolBar.getSize();
 		int dw = d.width;
-		if (w-dw > 0)
+		if (w-dw>0)
 			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));		
 	}
 	
