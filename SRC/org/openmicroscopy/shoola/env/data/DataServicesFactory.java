@@ -30,11 +30,18 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.net.URL;
+import java.net.MalformedURLException;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.RemoteException;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.config.HostInfo;
+import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  * A factory for the {@link DataManagementService} and the
@@ -51,29 +58,48 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 public class DataServicesFactory
 {
-
-	/**
-	 * Creates a new empty {@link DataManagementService}.
+    /**
+	 * Creates a new {@link DataManagementService} and {@link
+	 * SemanticTypesService}.
 	 * 
 	 * @param reg	Reference to the {@link Registry}.
-	 * @return	See above.
 	 */
-	public static DataManagementService createDMS(Registry reg)
-	{		
-			return (DataManagementService) null;
-			//return new DataManagerServiceImpl();
+	public static void createDataServices(Registry reg)
+        throws NotLoggedInException
+	{
+        UserCredentials uc = (UserCredentials)
+            reg.lookup(LookupNames.USER_CREDENTIALS);
+        if (uc == null)
+            throw new NotLoggedInException("User has not provided credentials");
+
+        HostInfo hi = (HostInfo)
+            reg.lookup(LookupNames.OMEDS);
+        if (hi == null)
+            throw new NotLoggedInException("No data server host provided!");
+
+        URL url = null;
+        try
+        {
+            url = new URL("http",hi.getHost(),hi.getPort().intValue(),"");
+        } catch (MalformedURLException e) {
+            throw new NotLoggedInException("Malformed data server URL "+
+                                           e.getMessage());
+        }
+
+        try
+        {
+            DataManagementService dms =
+                new RemoteDataManagementService(url,
+                                                uc.getUserName(),
+                                                uc.getPassword());
+            // sts = new RemoteSemanticTypesService(dms.getRemoteCaller());
+
+            RegistryFactory.linkDMS(dms,reg);
+            //RegistryFactory.linkSTS(sts,reg);
+        } catch (RemoteException e) {
+            throw new NotLoggedInException("Could not log into data server"+
+                                           e.getMessage());
+        }
 	}
-	/**
-	 * Creates a new empty {@link SemanticTypeService}.
-	 *
-	 * @param reg	Reference to the {@link Registry}.
-	 * @return	See above.
-	 */
-	public static SemanticTypesService createSTS(Registry reg)
-	{		
-			return (SemanticTypesService) null;
-			//return new SemanticTypeServiceImpl();
-	}
-	
 	
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.SemanticTypeServiceInit
+ * org.openmicroscopy.shoola.env.init.DataServicesInit
  *
  *------------------------------------------------------------------------------
  *
@@ -27,36 +27,35 @@
  *------------------------------------------------------------------------------
  */
 
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Douglas Creager <dcreager@alum.mit.edu>
+ *
+ *------------------------------------------------------------------------------
+ */
+
+
 package org.openmicroscopy.shoola.env.init;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.NotLoggedInException;
 
 /** 
- * Creates the {@link SemanticTypesService} and links it to the container's
- * {@link Registry}.
+ * Creates the {@link DataManagementService} and {@link
+ * SemanticTypesService} and links them to the container's {@link
+ * Registry}.
  *
- * @see	InitializationTask
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * <br><b>Internal version:</b> $Revision$ $Date$
- * @version 2.2
+ * @author Douglas Creager (dcreager@alum.mit.edu)
+ * @version 2.2 <i>(Internal: $Revision$ $Date$)</i>
  * @since OME2.2
  */
-final class SemanticTypesServiceInit
+
+final class DataServicesInit
 	extends InitializationTask
 {
 
@@ -65,36 +64,41 @@ final class SemanticTypesServiceInit
 	 * 
 	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	SemanticTypesServiceInit(Container c)
+	DataServicesInit(Container c)
 	{
 		super(c);
 	}
-	
+
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
 	String getName()
 	{
-		return "Starting Semantic Types Service";
+		return "Starting data management services";
 	}
-	
+
 	/** 
 	 * Does nothing, as this task requires no set up.
 	 * @see InitializationTask#configure()
 	 */
 	void configure() {}
-	
+
 	/** 
 	 * Carries out this task.
 	 * @see InitializationTask#execute()
 	 */
-	void execute() 
+	void execute()
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
-		SemanticTypesService sts = DataServicesFactory.createSTS(reg);
-		RegistryFactory.linkSTS(sts, reg);
+        try
+        {
+            DataServicesFactory.createDataServices(reg);
+        } catch (NotLoggedInException e) {
+            throw new StartupException("Could not log into data server"+
+                                       e.getMessage());
+        }
 	}
 	
 	/** 
@@ -102,5 +106,4 @@ final class SemanticTypesServiceInit
 	 * @see InitializationTask#rollback()
 	 */
 	void rollback() {}
-
 }

@@ -129,11 +129,7 @@ public class Initializer
 		task.configure();
 		processingQueue.add(task);
 		
-		task = new DataManagementServiceInit(container);
-		task.configure();
-		processingQueue.add(task);
-		
-		task = new SemanticTypesServiceInit(container);
+		task = new DataServicesInit(container);
 		task.configure();
 		processingQueue.add(task);
 		
