@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.util.ui.table;
 
 //Java imports
 import java.awt.Component;
+
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.UIManager;
@@ -62,7 +64,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class TableIconRenderer
 	extends DefaultTableCellRenderer 
 {
-
 	public Component getTableCellRendererComponent(JTable table, Object value,
 				   boolean isSelected, boolean hasFocus, int row, int column)
 	{
@@ -78,13 +79,16 @@ public class TableIconRenderer
 	
 		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		setHorizontalAlignment(JLabel.CENTER);
+        
 		if (value instanceof TableHeaderTextAndIcon) {
 			TableHeaderTextAndIcon v = (TableHeaderTextAndIcon) value;
 	   		setText(v.getText());
 	   		setToolTipText(UIUtilities.formatToolTipText(v.getToolTipTxt()));
 	   		if (v.isAscending()) setIcon(v.getIconUp());
 	   		else setIcon(v.getIconDown());
-   		}
+   		} else {
+   		    return (JComponent) value;
+        }
 	   	return this;
    }
 

@@ -60,11 +60,15 @@ public class ColoredLabel
     extends JLabel
 {
     
-    private Color               DEFAULT_FONT_COLOR = Color.BLACK;
+    public  static final int    NO_SHAPE = 0, SQUARE = 1, CIRCLE = 2;
+    
+    private static Color        DEFAULT_FONT_COLOR = Color.BLACK;
+    
+    private static final int    WIDTH = 8;
     
     private int                 textWidth;
     
-    private boolean             draw;
+    private int                 shapeType;
     
     private String              text;
     
@@ -73,17 +77,19 @@ public class ColoredLabel
     public ColoredLabel(String text)
     {
         this.text = text;
+        shapeType = NO_SHAPE;
         initTextWidth();
     }
     
     public ColoredLabel()
     {
+        shapeType = NO_SHAPE;
         initTextWidth();
     }
     
-    public void setDraw(boolean b) { draw = b; }
+    public void setShapeType(int type) { shapeType = type; }
     
-    public boolean getDraw() { return draw; }
+    public int getShapeType() { return shapeType; }
     
     /** Overrides the setText method. */
     public void setText(String text) { this.text = text; }
@@ -98,9 +104,16 @@ public class ColoredLabel
         g2D.setColor(getBackground());
         Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height); 
-        if (draw) {
-            g2D.setColor(DEFAULT_FONT_COLOR);
-            g2D.fillRect(2, 2, 5, 5);
+        g2D.setColor(DEFAULT_FONT_COLOR);
+        switch (shapeType) {
+            case SQUARE:
+                g2D.fillRect((d.width-WIDTH)/2, (d.height-WIDTH)/2, WIDTH, 
+                            WIDTH);
+                break;
+            case CIRCLE:
+                g2D.fillOval((d.width-WIDTH)/2, (d.height-WIDTH)/2, WIDTH, 
+                            WIDTH);
+                break;
         }
         if (text != null) paintText(g2D, d.width, d.height);
     }

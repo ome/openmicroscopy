@@ -95,11 +95,23 @@ public class GraphicSliderMng
         init(s, e);
     }
     
-    void addChangeListener(ChangeListener l) {
+    /** 
+     * Add a {@link ChangeListener} to the list of listeners.
+     * 
+     * @param l {@link ChangeListener} to be added.
+     */
+    void addChangeListener(ChangeListener l)
+    {
         listenerList.add(ChangeListener.class, l);
     }
 
-    void removeChangeListener(ChangeListener l) {
+    /** 
+     * Remove a {@link ChangeListener} from the list of listeners.
+     * 
+     * @param l {@link ChangeListener} to be removed.
+     */
+    void removeChangeListener(ChangeListener l)
+    {
         listenerList.remove(ChangeListener.class, l);
     } 
     

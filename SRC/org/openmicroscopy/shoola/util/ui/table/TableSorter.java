@@ -65,6 +65,7 @@ import javax.swing.table.TableModel;
 public class TableSorter
 	extends TableMap
 {
+    
 	int             indexes[];
 	Vector          sortingColumns = new Vector();
 	boolean         ascending = true;
@@ -88,10 +89,9 @@ public class TableSorter
 
 	public int compareRowsByColumn(int row1, int row2, int column)
 	{
-		Class type = model.getColumnClass(column);
 		TableModel data = model;
 
-		// Check for nulls.
+		// Check for null.
 		Object o1 = data.getValueAt(row1, column);
 		Object o2 = data.getValueAt(row2, column); 
 
@@ -99,31 +99,19 @@ public class TableSorter
 		if (o1 == null && o2 == null) return 0; 
 		else if (o1 == null) return -1; 
 		else if (o2 == null) return 1; 
-
-		/*
-		 * We copy all returned values from the getValue call in case
-		 * an optimised model is reusing one object to return many
-		 * values.  The Number subclasses in the JDK are immutable and
-		 * so will not be used in this way but other subclasses of
-		 * Number might want to do this to save space and avoid
-		 * unnecessary heap allocation.
-		 */
 		int result = 0;
-		if (type.getSuperclass() == java.lang.Number.class)
-			result = compareNumbers((Number) data.getValueAt(row1, column), 
-							(Number) data.getValueAt(row2, column));
-		else if (type == java.util.Date.class) 
-			result = compareDates((Date) data.getValueAt(row1, column),
-						(Date) data.getValueAt(row2, column));
-		else if (type == String.class)
-			result = compareStrings((String) data.getValueAt(row1, column),
-							(String) data.getValueAt(row2, column));
-		else if (type == Boolean.class)
-			result = compareBooleans((Boolean) data.getValueAt(row1, column),
-									(Boolean) data.getValueAt(row2, column));	
+
+        if (o1 instanceof Number || o1 instanceof Integer || 
+                o1 instanceof Double || o1 instanceof Float)
+            result = compareNumbers((Number) o1, (Number) o2);
+		else if (o1 instanceof Date) 
+			result = compareDates((Date) o1, (Date) o2);
+		else if (o1 instanceof String)
+			result = compareStrings((String) o1, (String) o2);
+		else if (o1 instanceof Boolean)
+			result = compareBooleans((Boolean) o1, (Boolean) o2);	
 		else 
-			result = compareObjects(data.getValueAt(row1, column),
-									data.getValueAt(row2, column) );
+			result = compareObjects(o1, o2);
 			
 		return result;
 	}
@@ -175,7 +163,6 @@ public class TableSorter
 	/** Compare two Boolean obejcts. */
 	private int compareBooleans(Boolean bool1, Boolean bool2)
 	{
-		//if ascending order, the selected values are on top.
 		boolean b1 = bool1.booleanValue();
 		boolean b2 = bool2.booleanValue();
 		int v = 0;
@@ -189,9 +176,10 @@ public class TableSorter
 	public int compare(int row1, int row2)
 	{
 		compares++;
+        int result;
 		for (int level = 0; level < sortingColumns.size(); level++) {
 			Integer column = (Integer) sortingColumns.elementAt(level);
-			int result = compareRowsByColumn(row1, row2, column.intValue());
+			result = compareRowsByColumn(row1, row2, column.intValue());
 			if (result != 0) return ascending ? result : -result;
 		}
 		return 0;
@@ -240,8 +228,7 @@ public class TableSorter
 		shuttlesort(to, from, low, middle);
 		shuttlesort(to, from, middle, high);
 
-		int p = low;
-		int q = middle;
+		int p = low, q = middle;
 
 		/* This is an optional short-cut; at each recursive call,
 		check to see if the elements in this subset are already
@@ -290,10 +277,7 @@ public class TableSorter
 		model.setValueAt(aValue, indexes[aRow], aColumn);
 	}
 
-	public void sortByColumn(int column)
-	{
-		sortByColumn(column, true);
-	}
+	public void sortByColumn(int column) { sortByColumn(column, true); }
 
 	public void sortByColumn(int column, boolean ascending)
 	{
