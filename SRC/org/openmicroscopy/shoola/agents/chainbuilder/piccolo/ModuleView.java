@@ -47,6 +47,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -490,14 +491,32 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 * 
 	 */
 	public void setLinkableHighlighted(boolean v) {
-		if (v == true)
+		if (v == true)  {
 			setPaint(Constants.SELECTED_FILL);
-		else
+		}
+		else {
 			setPaint(Constants.DEFAULT_FILL);
+		}
+		inputLinkTarget.setHighlighted(v);
+		outputLinkTarget.setHighlighted(v);
+		// do something with inputs and outputs.
 		repaint();
 	}
 	
-	
+	public void setLinkTargetHighlighted(ModuleLinkTarget targ,boolean v) {
+		Collection params;
+		if (targ  == inputLinkTarget)
+			params = getAllInputParameters();
+		else //
+			params = getOutputParameters();
+			
+		Iterator iter = params.iterator();
+		FormalParameter p;
+		while (iter.hasNext()) {
+			p = (FormalParameter) iter.next();
+			p.setParamsHighlighted(v);
+		}
+	}
 	
 	
 	/***
@@ -544,7 +563,8 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	}
 	
 	/***
-	 * Set the parameters associated with this module to be highlighted.
+	 * Set the parameters associated with parameters of 
+	 * this module to be highlighted.
 	 * @param v true if the parameters should be highlighted, else false
 	 */
 	public void setParamsHighlighted(boolean v) {
@@ -722,6 +742,23 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			}
 		};
 		return new TreeSet(labelNodes.getAllNodes(outputFilter,null));
+	}
+	
+	/**
+	 * 
+	 * @return a sorted list of all of the input parameters. These parameters 
+	 * are identified via a {@link PNodeFilter}
+	 */
+	public TreeSet getAllInputParameters() {
+		PNodeFilter inputFilter = new PNodeFilter() {
+			public boolean accept(PNode aNode) {
+				return (aNode instanceof FormalInput);
+			}
+			public boolean acceptChildrenOf(PNode aNode) {
+				return true;
+			}
+		};
+		return new TreeSet(labelNodes.getAllNodes(inputFilter,null));
 	}
 	
 	/*public void setNode(Node node) {
