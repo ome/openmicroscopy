@@ -96,7 +96,7 @@ class DataManagerUIF
 	/** Reference to the regisry. */
 	private Registry						registry;
 	
-	/** Reference to the regisry. */
+	/** Reference to the control component. */
 	private DataManagerCtrl					control;
 	
 	private JMenu							newMenu;

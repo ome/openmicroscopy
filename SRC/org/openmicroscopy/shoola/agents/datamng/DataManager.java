@@ -471,7 +471,7 @@ public class DataManager
 			j = ps.getDatasets().iterator();
 			while (j.hasNext()) {
 				ds = (DatasetSummary) j.next();
-				if(ds.getID() == dd.getID()) {
+				if (ds.getID() == dd.getID()) {
 					ds.setName(dd.getName());
 					break;
 				}

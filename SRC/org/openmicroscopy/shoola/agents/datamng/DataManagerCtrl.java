@@ -71,7 +71,7 @@ public class DataManagerCtrl
 	
 	private DataManager			abstraction;
 	
-	public DataManagerCtrl(DataManager	abstraction)
+	DataManagerCtrl(DataManager	abstraction)
 	{
 		this.abstraction = abstraction;
 	}
