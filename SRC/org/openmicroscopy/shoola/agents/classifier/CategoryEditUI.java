@@ -197,6 +197,7 @@ public class CategoryEditUI extends JDialog
         ui.setTitle("Create Group");
         ui.pack();
         ui.show();
+        ui.toFront();
     }
     
     public static void showCreateCategoryDialog(CategoryUI parent,
@@ -208,6 +209,7 @@ public class CategoryEditUI extends JDialog
         ui.setTitle("Create Phenotype");
         ui.pack();
         ui.show();
+        ui.toFront();
     }
     
     public static void showEditGroupDialog(CategoryUI parent,
@@ -219,6 +221,7 @@ public class CategoryEditUI extends JDialog
         ui.setTitle("Edit Group");
         ui.pack();
         ui.show();
+        ui.toFront();
     }
     
     public static void showEditCategoryDialog(CategoryUI parent,
@@ -231,6 +234,7 @@ public class CategoryEditUI extends JDialog
         ui.setTitle("Edit Phenotype");
         ui.pack();
         ui.show();
+        ui.toFront();
     }
     
     public void buildGUI()

@@ -640,6 +640,7 @@ public class Classifier implements Agent, AgentEventListener
         activeControls.add(cc);
         CategoryUI ui = new CategoryUI(cc,registry);
         ui.show();
+        ui.toFront();
     }
     
     /**
