@@ -141,7 +141,7 @@ public class ChainExecutions {
 			obj = iter2.next();
 			ChainExecutionData exec = (ChainExecutionData) obj;
 		    DatasetData ds = exec.getDataset();
-			datasetNames[i++] = ds.getName();	
+			datasetNames[i++] = new String(ds.getID()+". "+ds.getName());	
 		}
 	}
 	
