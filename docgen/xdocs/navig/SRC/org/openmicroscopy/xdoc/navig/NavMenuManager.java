@@ -64,7 +64,6 @@ class NavMenuManager
     /** A viewer capable to show the document pages. */
     private DocumentViewer  docViewer;
     
-    
     /**
      * Creates a new instance.
      * 
