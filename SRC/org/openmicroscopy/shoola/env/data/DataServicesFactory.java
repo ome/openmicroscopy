@@ -78,6 +78,7 @@ public class DataServicesFactory
 	private RemoteCaller	proxy;
 	private DMSAdapter		dms;
 	private STSAdapter		sts;
+    private ImageServerPixelsService ps;
 	
 	
 	private DataServicesFactory(Container c)
@@ -95,7 +96,10 @@ public class DataServicesFactory
 		dms = new DMSAdapter(omeds, registry); 
 		
 		//Create the STS adapter.
-		//TODO: implement when SemanticTypeManager is ready.
+		sts = new STSAdapter(omeds, registry);
+        
+        //Create the new IS-based pixels service.
+        ps = new ImageServerPixelsService(proxy.getSessionKey());
 	}
 	
 	public DataManagementService getDMS()
@@ -107,6 +111,11 @@ public class DataServicesFactory
 	{
 		return sts;
 	}
+    
+    public PixelsService getPS()
+    {
+        return ps;
+    }
 	
 	/**
 	 * Try to connect to OMEDS.

@@ -79,12 +79,23 @@ public class ImageServerPixelsService
     // This is only to prevent compile-time errors.  This should be
     // retrieved from the RemoteCaller via the getSessionKey() method.
     protected String sessionKey;
+    
+    /**
+     * Creates a new instance of the ImageServerPixelsService.
+     * 
+     * @param sessionKey The session key with which to commuicate to the
+     *                   image server.
+     */
+    public ImageServerPixelsService(String sessionKey)
+    {
+        imageServers = new HashMap();
+        this.sessionKey = sessionKey;
+    }
 
     /**
      * Retrieves or creates an {@link ImageServer} object for
      * retrieving pixels for the given Repository attribute.
      */
-
     protected ImageServer activateRepository(Repository rep)
     {
         Integer id = new Integer(rep.getID());

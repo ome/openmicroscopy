@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -141,6 +142,18 @@ public class RegistryFactory
 	{
 		((RegistryImpl) reg).setSTS(sts);
 	}
+    
+    /**
+     * Adds the {@link PixelsService} instance to the container's
+     * {@link Registry}.
+     * 
+     * @param ps    The {@link PixelsService} instance.
+     * @param reg   The container's {@link Registry}.
+     */
+    public static void linkPS(PixelsService ps, Registry reg)
+    {
+        ((RegistryImpl) reg).setPS(ps);
+    }
 	
 	/**
 	 * Adds the {@link TopFrame} instance to the container's {@link Registry}.

@@ -153,6 +153,8 @@ final class AgentsInit
 								agentReg);
 		RegistryFactory.linkSTS(containerReg.getSemanticTypesService(),
 								agentReg);
+        RegistryFactory.linkPS(containerReg.getPixelsService(),
+                               agentReg);
 		RegistryFactory.linkTopFrame(containerReg.getTopFrame(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);

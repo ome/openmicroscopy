@@ -36,6 +36,7 @@ import java.util.HashMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -88,7 +89,8 @@ class RegistryImpl
 	/** Reference to container's service. */
    	private UserNotifier            un;
    	
-    //private PixelsService           ps;
+    /** Reference to the container's pixel service. */
+    private PixelsService           ps;
     //private ImageService			is;
    
    
@@ -157,8 +159,10 @@ class RegistryImpl
    	}
    	
 	/** Implemented as specified by {@link Registry}. */
-//	public PixelsService getPixelsServices();
-//TODO: add it when ready.
+    public PixelsService getPixelsService()
+    {
+        return ps;
+    }
 
 	/** 
 	* Adds the specified {@link Entry} to the map.
@@ -200,6 +204,16 @@ class RegistryImpl
    	{
 		this.sts = sts;
    	}
+    
+    /**
+     * Stores a reference to the {@link PixelsService}.
+     * 
+     * @param ps The {@link PixelsService}
+     */
+    void setPS(PixelsService ps)
+    {
+        this.ps = ps;    
+    }
    	
    	/**
 	 * Stores a reference to the {@link TopFrame}.

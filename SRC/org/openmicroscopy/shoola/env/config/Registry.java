@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -142,7 +143,6 @@ public interface Registry
 	 * 
 	 * @return See above.
 	 */
-	//	public PixelsService getPixelsServce();
-	//TODO: add it when ready.
+	public PixelsService getPixelsService();
    
 }

@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 
 /** 
@@ -101,11 +102,13 @@ final class DataServicesInit
 		//Retrieve them.
 		DataManagementService dms = factory.getDMS();
 		SemanticTypesService sts = factory.getSTS();
+        PixelsService ps = factory.getPS();
 		
 		//Link them to the container's registry.
 		Registry reg = container.getRegistry();
 		RegistryFactory.linkDMS(dms, reg);
 		RegistryFactory.linkSTS(sts, reg);
+        RegistryFactory.linkPS(ps, reg);
 	}
 	
 	/** 
