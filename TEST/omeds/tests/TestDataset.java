@@ -128,10 +128,10 @@ public class TestDataset
 	
 	public void testRetrieveDataset()
 	{
-		Criteria c = DatasetCriteriaFactory.buildDatasetCriteria();
-		
 		int datasetID = datasetRow.getID();
-		Dataset d = (Dataset) omeds.load(Dataset.class, datasetID, c);
+		Criteria c = DatasetCriteriaFactory.buildDatasetCriteria(datasetID);
+		
+		Dataset d = (Dataset) omeds.retrieve(Dataset.class, c);
 		
 		//dataset data
 		assertEquals(datasetID, d.getID());

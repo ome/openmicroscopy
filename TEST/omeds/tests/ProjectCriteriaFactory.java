@@ -80,7 +80,7 @@ public class ProjectCriteriaFactory
 	 * Create the criteria by which the object graph is pulled out.
 	 * 
 	 */
-	public static Criteria buildProjectCriteria()
+	public static Criteria buildProjectCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 
@@ -106,6 +106,8 @@ public class ProjectCriteriaFactory
 		//Specify which fields we want for the datasets.
 		criteria.addWantedField("datasets", "id");
 		criteria.addWantedField("datasets", "name");
+		
+		criteria.addFilter("id", new Integer(id));
 		
 		return criteria;
 	}

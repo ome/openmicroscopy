@@ -57,7 +57,7 @@ public class ImageCriteriaFactory
 	 * 
 	 * @return 
 	 */
-	public static Criteria buildImageCriteria()
+	public static Criteria buildImageCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 
@@ -93,6 +93,8 @@ public class ImageCriteriaFactory
 		criteria.addWantedField("owner.Group", "id");
 		criteria.addWantedField("owner.Group", "Name");
 
+		criteria.addFilter("id", new Integer(id));
+		
 		return criteria;
 	}
 	

@@ -76,7 +76,7 @@ public class DatasetCriteriaFactory
 	 * Create the criteria by which the object graph is pulled out.
 	 * 
 	 */
-	public static Criteria buildDatasetCriteria()
+	public static Criteria buildDatasetCriteria(int id)
 	{
 		Criteria criteria = new Criteria();
 
@@ -102,6 +102,8 @@ public class DatasetCriteriaFactory
 		//Specify which fields we want for the images.
 		criteria.addWantedField("images", "id");
 		criteria.addWantedField("images", "name");
+		
+		criteria.addFilter("id", new Integer(id));
 		
 		return criteria;
 	}

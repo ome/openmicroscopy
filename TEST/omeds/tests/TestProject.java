@@ -123,10 +123,11 @@ public class TestProject
 	public void testRetrieveProject()
 	{
 		
-		Criteria c = ProjectCriteriaFactory.buildProjectCriteria();
-		
 		int projectID = projectRow.getID();
-		Project p = (Project) omeds.load(Project.class, projectID, c);
+		Criteria c = ProjectCriteriaFactory.buildProjectCriteria(projectID);
+		
+		
+		Project p = (Project) omeds.retrieve(Project.class, c);
 		
 		//project data
 		assertEquals(projectID, p.getID());
