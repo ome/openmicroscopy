@@ -82,7 +82,7 @@ public class ContrastStretchingContext
 	private double 					a2, b2;
 	
 	/** 
-	 * Verify the bounds of the input interval[s,e]. This interval must be a
+	 * Verify the bounds of the input interval [s, e]. This interval must be a
 	 * sub-interval of [intervalStart, intervalEnd]. 
 	 * 
 	 * @param start		Lower bound of the interval.
@@ -91,7 +91,8 @@ public class ContrastStretchingContext
 	private void verifyInputInterval(int start, int end)
 	{
 		if (start >= end || start < intervalStart || end > intervalEnd)
-			throw new IllegalArgumentException("Interval not consistent.");
+			throw new IllegalArgumentException("Interval not consistent " +
+				"in contrast stretching context.");
 	}
 	
 	/** Compute the coefficients of the first straight y = a0*x+b0.  */
@@ -130,6 +131,11 @@ public class ContrastStretchingContext
 	 */
 	void buildContext() 
 	{
+		if (xStart < intervalStart) xStart = intervalStart;
+		if (yStart < intervalStart) yStart = intervalStart;
+		if (xEnd > intervalEnd) xEnd = intervalEnd;
+		if (yEnd > intervalEnd) yEnd = intervalEnd;
+		
 		setFirstLineCoefficient(intervalStart);
 		setSecondLineCoefficient();
 		setThirdLineCoefficient(intervalEnd);

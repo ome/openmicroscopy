@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
- * 
+ * Save the current image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -86,7 +86,8 @@ public class ImageSaver
 							String message)
 	{
 		UserNotifier un = controller.getRegistry().getUserNotifier();
-		
+		if (img == null) 
+			un.notifyError("Save image", "No current image displayed");
 		try {
 			Iterator writers = ImageIO.getImageWritersByFormatName(format);
 			ImageWriter writer = (ImageWriter) writers.next();
