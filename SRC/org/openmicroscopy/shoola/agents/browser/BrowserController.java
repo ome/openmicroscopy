@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,33 +47,33 @@ import org.openmicroscopy.shoola.agents.browser.events.ModularEventHandler;
  */
 public class BrowserController
 {
-  private ModularEventHandler commonEventHandler;
-  private BrowserModel browserModel;
-  private BrowserTopModel overlayModel;
-  
-  private BrowserView browserView;
-  
-  public BrowserController()
-  {
-    browserModel = new BrowserModel();
-  }
-  
-  /**
-   * Show the view component.
-   */
-  public void showView()
-  {
-    // TODO: fill in method
-  }
-  
-  /**
-   * Hide the view component.
-   */
-  public void hideView()
-  {
-    // TODO: fill in method.
-  }
-  
-  // TODO: fill in additional appropriate methods (right place to initialize
-  // environment?)
+    private ModularEventHandler commonEventHandler;
+    private BrowserModel browserModel;
+    private BrowserTopModel overlayModel;
+
+    private BrowserView browserView;
+
+    public BrowserController()
+    {
+        browserModel = new BrowserModel();
+    }
+
+    /**
+     * Show the view component.
+     */
+    public void showView()
+    {
+        // TODO: fill in method
+    }
+
+    /**
+     * Hide the view component.
+     */
+    public void hideView()
+    {
+        // TODO: fill in method.
+    }
+
+    // TODO: fill in additional appropriate methods (right place to initialize
+    // environment?)
 }

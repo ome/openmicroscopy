@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,10 +47,10 @@ import java.awt.image.BufferedImage;
  */
 public interface RenderMethod
 {
-  /**
-   * Convert the pixel data in the Renderable to a BufferedImage.
-   * @param pixels The pixel data.
-   * @return A BufferedImage of that pixel/symbolic data.
-   */
-  public BufferedImage render(Renderable pixels);
+    /**
+     * Convert the pixel data in the Renderable to a BufferedImage.
+     * @param pixels The pixel data.
+     * @return A BufferedImage of that pixel/symbolic data.
+     */
+    public BufferedImage render(Renderable pixels);
 }

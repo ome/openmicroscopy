@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -54,77 +51,77 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public class GroupModel
 {
-  private Set thumbnails;
-  private String groupName;
-  
-  private void init()
-  {
-    thumbnails = new HashSet();
-  }
-  
-  /**
-   * Creates a group model with the specified name.
-   * @param name The name of the group.
-   */
-  public GroupModel(String name)
-  {
-    init();
-    // set default layout method
-    this.groupName = name;
-  }
-  
-  /**
-   * Adds a thumbnail to the group.
-   * 
-   * @param t The thumbnail to add.
-   */
-  public void addThumbnail(Thumbnail t)
-  {
-    if(t != null)
+    private Set thumbnails;
+    private String groupName;
+
+    private void init()
     {
-      thumbnails.add(t);
+        thumbnails = new HashSet();
     }
-  }
-  
-  /**
-   * Removes a thumbnail from the group.
-   * 
-   * @param t The thumbnail to remove.
-   */
-  public void removeThumbnail(Thumbnail t)
-  {
-    if(thumbnails.contains(t))
+
+    /**
+     * Creates a group model with the specified name.
+     * @param name The name of the group.
+     */
+    public GroupModel(String name)
     {
-      thumbnails.remove(t);
+        init();
+        // set default layout method
+        this.groupName = name;
     }
-  }
-  
-  /**
-   * Gets the name of the group.
-   * 
-   * @return The name of the group.
-   */
-  public String getName()
-  {
-    return groupName;
-  }
-  
-  /**
-   * Sets the name of the group to the specified name.
-   * 
-   * @param name The new name of the group.
-   */
-  public void setName(String name)
-  {
-    this.groupName = name;
-  }
-  
-  /**
-   * Gets an unmodifiable set of thumbnails from this group.
-   * @return See above.
-   */
-  public Set getThumbnails()
-  {
-    return Collections.unmodifiableSet(thumbnails);
-  }
+
+    /**
+     * Adds a thumbnail to the group.
+     * 
+     * @param t The thumbnail to add.
+     */
+    public void addThumbnail(Thumbnail t)
+    {
+        if (t != null)
+        {
+            thumbnails.add(t);
+        }
+    }
+
+    /**
+     * Removes a thumbnail from the group.
+     * 
+     * @param t The thumbnail to remove.
+     */
+    public void removeThumbnail(Thumbnail t)
+    {
+        if (thumbnails.contains(t))
+        {
+            thumbnails.remove(t);
+        }
+    }
+
+    /**
+     * Gets the name of the group.
+     * 
+     * @return The name of the group.
+     */
+    public String getName()
+    {
+        return groupName;
+    }
+
+    /**
+     * Sets the name of the group to the specified name.
+     * 
+     * @param name The new name of the group.
+     */
+    public void setName(String name)
+    {
+        this.groupName = name;
+    }
+
+    /**
+     * Gets an unmodifiable set of thumbnails from this group.
+     * @return See above.
+     */
+    public Set getThumbnails()
+    {
+        return Collections.unmodifiableSet(thumbnails);
+    }
 }

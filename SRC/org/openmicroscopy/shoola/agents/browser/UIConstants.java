@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -51,23 +48,23 @@ import java.awt.Font;
  */
 public interface UIConstants
 {
-  /**
-   * The default background color for the entire browser.
-   */
-  public static Color BUI_BACKGROUND_COLOR = new Color(224,224,224);
-  
-  /**
-   * The default background color for each group/region.
-   */
-  public static Color BUI_GROUPAREA_COLOR = new Color(224,224,224);
-  
-  /**
-   * The default foreground/text color for each group/region.
-   */
-  public static Color BUI_GROUPTEXT_COLOR = new Color(51,51,51);
-  
-  /**
-   * The default text font for the group/region to display the group name.
-   */
-  public static Font BUI_GROUPTEXT_FONT = new Font(null,Font.BOLD,14);
+    /**
+     * The default background color for the entire browser.
+     */
+    public static Color BUI_BACKGROUND_COLOR = new Color(224, 224, 224);
+
+    /**
+     * The default background color for each group/region.
+     */
+    public static Color BUI_GROUPAREA_COLOR = new Color(224, 224, 224);
+
+    /**
+     * The default foreground/text color for each group/region.
+     */
+    public static Color BUI_GROUPTEXT_COLOR = new Color(51, 51, 51);
+
+    /**
+     * The default text font for the group/region to display the group name.
+     */
+    public static Font BUI_GROUPTEXT_FONT = new Font(null, Font.BOLD, 14);
 }

@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,23 +47,22 @@ import edu.umd.cs.piccolo.PNode;
  */
 public class BrowserTopModel
 {
-  private Map modalSet;
-  private Map orientationMap;
-  private Map actionMap;
-  
-  public BrowserTopModel()
-  {
-    modalSet = new HashMap();
-    orientationMap = new HashMap();
-    actionMap = new HashMap();
-  }
-  
-  public void putModal(BrowserMode mode, PNode node, Orientation orientation)
-  {
-    // TODO: fill in code
-  }
-  
-  // TODO: figure out rest of appropriate methods (tie actions here?)
-  
-  
+    private Map modalSet;
+    private Map orientationMap;
+    private Map actionMap;
+
+    public BrowserTopModel()
+    {
+        modalSet = new HashMap();
+        orientationMap = new HashMap();
+        actionMap = new HashMap();
+    }
+
+    public void putModal(BrowserMode mode, PNode node, Orientation orientation)
+    {
+        // TODO: fill in code
+    }
+
+    // TODO: figure out rest of appropriate methods (tie actions here?)
+
 }

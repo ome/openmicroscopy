@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,53 +45,53 @@ package org.openmicroscopy.shoola.agents.browser;
  */
 public class BrowserMode
 {
-  // dummy differentiation variable
-  private int value;
-  
-  // private (singleton) constructor
-  private BrowserMode(int value)
-  {
-    this.value = value;
-  }
-  
-  /**
-   * Indicates that the browser is in some sort of default mode.  (This will
-   * probably stay.)
-   */
-  public static final BrowserMode DEFAULT_MODE = new BrowserMode(0);
-  
-  /**
-   * Indicates that the browser is in annotation mode (this might not be
-   * a good example of a mode, but it illustrates the usage pattern.)
-   */
-  public static final BrowserMode ANNOTATE_MODE = new BrowserMode(1);
-  
-  // TODO: Determine which modes are really necessary and include them
-  
-  /**
-   * Returns the numerical value of the Browser (so that this enum can be
-   * used in switch statements)
-   */
-  public int getValue()
-  {
-    return value;
-  }
-  
-  /**
-   * Forces equality by reference and not by value.
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  public boolean equals(Object o)
-  {
-    return this == o;
-  }
-  
-  /**
-   * Maintains the equals/hashCode contract.
-   * @see java.lang.Object#hashCode()
-   */
-  public int hashCode()
-  {
-    return value;
-  }
+    // dummy differentiation variable
+    private int value;
+
+    // private (singleton) constructor
+    private BrowserMode(int value)
+    {
+        this.value = value;
+    }
+
+    /**
+     * Indicates that the browser is in some sort of default mode.  (This will
+     * probably stay.)
+     */
+    public static final BrowserMode DEFAULT_MODE = new BrowserMode(0);
+
+    /**
+     * Indicates that the browser is in annotation mode (this might not be
+     * a good example of a mode, but it illustrates the usage pattern.)
+     */
+    public static final BrowserMode ANNOTATE_MODE = new BrowserMode(1);
+
+    // TODO: Determine which modes are really necessary and include them
+
+    /**
+     * Returns the numerical value of the Browser (so that this enum can be
+     * used in switch statements)
+     */
+    public int getValue()
+    {
+        return value;
+    }
+
+    /**
+     * Forces equality by reference and not by value.
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object o)
+    {
+        return this == o;
+    }
+
+    /**
+     * Maintains the equals/hashCode contract.
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return value;
+    }
 }

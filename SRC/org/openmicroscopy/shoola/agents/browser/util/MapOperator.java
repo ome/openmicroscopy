@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,13 +45,13 @@ package org.openmicroscopy.shoola.agents.browser.util;
  */
 public interface MapOperator
 {
-  /**
-   * Apply a method to an object, returning an object as a value.
-   * This method can modify the original object in question, but such an
-   * action should be carefully documented.
-   * 
-   * @param o The object to act on.
-   * @return The return value of such an action.
-   */
-  public Object execute(Object o);
+    /**
+     * Apply a method to an object, returning an object as a value.
+     * This method can modify the original object in question, but such an
+     * action should be carefully documented.
+     * 
+     * @param o The object to act on.
+     * @return The return value of such an action.
+     */
+    public Object execute(Object o);
 }

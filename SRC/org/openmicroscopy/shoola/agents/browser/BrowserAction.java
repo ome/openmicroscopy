@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -49,9 +46,9 @@ package org.openmicroscopy.shoola.agents.browser;
  */
 public interface BrowserAction
 {
-  /**
-   * Specifies what do do when the widget within the browser is acted upon.
-   * (A parameter might be introduced later... not sure yet)
-   */
-  public void actionPerformed();
+    /**
+     * Specifies what do do when the widget within the browser is acted upon.
+     * (A parameter might be introduced later... not sure yet)
+     */
+    public void actionPerformed();
 }

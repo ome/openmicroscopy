@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -56,78 +53,77 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public class CoordinateLayoutMethod implements LayoutMethod
 {
-  private Map positionMap;
-  
-  public CoordinateLayoutMethod()
-  {
-    positionMap = new HashMap();
-  }
-  
-  /**
-   * Returns the assigned/saved coordinate of the specified thumbnail.  Returns
-   * nothing if the thumbnail does not have a specified coordinate.
-   * 
-   * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoint(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
-   */
-  public Point2D getAnchorPoint(Thumbnail t)
-  {
-    if(!positionMap.containsKey(t))
-    {
-      return null;
-    }
-    else
-    {
-      return (Point2D)positionMap.get(t);
-    }
-  }
-  
-  /**
-   * Sets the anchor (upper-left) coordinate of the specified thumbnail.
-   * 
-   * @param t The thumbnail to anchor.
-   * @param point The desired anchor (upper-left) point of the thumbnail.
-   */
-  public void setAnchorPoint(Thumbnail t, Point2D point)
-  {
-    if(t != null && point != null)
-    {
-      positionMap.put(t,point);
-    }
-  }
-  
-  /**
-   * Returns the coordinates of each specified thumbnail.  If a thumbnail does
-   * not have a coordinate, it will not be included in the map.
-   * 
-   * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoints(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
-   */
-  public Map getAnchorPoints(Thumbnail[] ts)
-  {
-    Map returnMap = new HashMap();
-    for(int i=0;i<ts.length;i++)
-    {
-      Point2D point = (Point2D)positionMap.get(ts[i]);
-      if(point != null)
-      {
-        returnMap.put(ts[i],point);
-      }
-    }
-    return Collections.unmodifiableMap(returnMap);
-  }
+    private Map positionMap;
 
-  
-  /**
-   * Removes the thumbnail from the method and unloads its coordinate.
-   * @param t The thumbnail to remove.
-   */
-  public void removeThumbnail(Thumbnail t)
-  {
-    if(t != null)
+    public CoordinateLayoutMethod()
     {
-      positionMap.remove(t);
+        positionMap = new HashMap();
     }
-  }
-  
-  // TODO: save/load methods?  or have separate class take care of that?
-  // store as semantic type?
+
+    /**
+     * Returns the assigned/saved coordinate of the specified thumbnail.  Returns
+     * nothing if the thumbnail does not have a specified coordinate.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoint(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+     */
+    public Point2D getAnchorPoint(Thumbnail t)
+    {
+        if (!positionMap.containsKey(t))
+        {
+            return null;
+        }
+        else
+        {
+            return (Point2D) positionMap.get(t);
+        }
+    }
+
+    /**
+     * Sets the anchor (upper-left) coordinate of the specified thumbnail.
+     * 
+     * @param t The thumbnail to anchor.
+     * @param point The desired anchor (upper-left) point of the thumbnail.
+     */
+    public void setAnchorPoint(Thumbnail t, Point2D point)
+    {
+        if (t != null && point != null)
+        {
+            positionMap.put(t, point);
+        }
+    }
+
+    /**
+     * Returns the coordinates of each specified thumbnail.  If a thumbnail does
+     * not have a coordinate, it will not be included in the map.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod#getAnchorPoints(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public Map getAnchorPoints(Thumbnail[] ts)
+    {
+        Map returnMap = new HashMap();
+        for (int i = 0; i < ts.length; i++)
+        {
+            Point2D point = (Point2D) positionMap.get(ts[i]);
+            if (point != null)
+            {
+                returnMap.put(ts[i], point);
+            }
+        }
+        return Collections.unmodifiableMap(returnMap);
+    }
+
+    /**
+     * Removes the thumbnail from the method and unloads its coordinate.
+     * @param t The thumbnail to remove.
+     */
+    public void removeThumbnail(Thumbnail t)
+    {
+        if (t != null)
+        {
+            positionMap.remove(t);
+        }
+    }
+
+    // TODO: save/load methods?  or have separate class take care of that?
+    // store as semantic type?
 }

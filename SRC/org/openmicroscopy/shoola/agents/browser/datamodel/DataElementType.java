@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -49,121 +46,121 @@ package org.openmicroscopy.shoola.agents.browser.datamodel;
  */
 public class DataElementType
 {
-  // dummy definition
-  private int value;
-  
-  // singleton constructor
-  private DataElementType(int value)
-  {
-    this.value = value;
-  }
-  
-  /**
-   * Symbolic representation of an integer type.
-   */
-  public static final DataElementType INT = new DataElementType(0);
-  
-  /**
-   * Symbolic representation of a long type.
-   */
-  public static final DataElementType LONG = new DataElementType(1);
-  
-  /**
-   * Symbolic representation of a float type.
-   */
-  public static final DataElementType FLOAT = new DataElementType(2);
-  
-  /**
-   * Symbolic representation of a double type.
-   */
-  public static final DataElementType DOUBLE = new DataElementType(3);
-  
-  /**
-   * Symbolic representation of a boolean type.
-   */
-  public static final DataElementType BOOLEAN = new DataElementType(4);
-  
-  /**
-   * Symbolic representation of a string type.
-   */
-  public static final DataElementType STRING = new DataElementType(5);
-  
-  /**
-   * Symbolic representation of an attribute type.
-   */
-  public static final DataElementType ATTRIBUTE = new DataElementType(6);
-  
-  /**
-   * Symbolic representation of an object type;
-   */
-  public static final DataElementType OBJECT = new DataElementType(7);
-  
-  /**
-   * The canonical value of the type.  Makes switch statements easier.
-   * @return The canonical value of the type.
-   */
-  public int getValue()
-  {
-    return value;
-  }
-  
-  /**
-   * Overrides Object.equals() to force reference equality.
-   */
-  public boolean equals(Object o)
-  {
-    return o == this;
-  }
-  
-  /**
-   * Overrides the toString() so these values can be ordered in a Swing
-   * view data model.
-   */
-  public String toString()
-  {
-    if(this == INT)
+    // dummy definition
+    private int value;
+
+    // singleton constructor
+    private DataElementType(int value)
     {
-      return "int";
+        this.value = value;
     }
-    else if(this == FLOAT)
+
+    /**
+     * Symbolic representation of an integer type.
+     */
+    public static final DataElementType INT = new DataElementType(0);
+
+    /**
+     * Symbolic representation of a long type.
+     */
+    public static final DataElementType LONG = new DataElementType(1);
+
+    /**
+     * Symbolic representation of a float type.
+     */
+    public static final DataElementType FLOAT = new DataElementType(2);
+
+    /**
+     * Symbolic representation of a double type.
+     */
+    public static final DataElementType DOUBLE = new DataElementType(3);
+
+    /**
+     * Symbolic representation of a boolean type.
+     */
+    public static final DataElementType BOOLEAN = new DataElementType(4);
+
+    /**
+     * Symbolic representation of a string type.
+     */
+    public static final DataElementType STRING = new DataElementType(5);
+
+    /**
+     * Symbolic representation of an attribute type.
+     */
+    public static final DataElementType ATTRIBUTE = new DataElementType(6);
+
+    /**
+     * Symbolic representation of an object type;
+     */
+    public static final DataElementType OBJECT = new DataElementType(7);
+
+    /**
+     * The canonical value of the type.  Makes switch statements easier.
+     * @return The canonical value of the type.
+     */
+    public int getValue()
     {
-      return "float";
+        return value;
     }
-    else if(this == LONG)
+
+    /**
+     * Overrides Object.equals() to force reference equality.
+     */
+    public boolean equals(Object o)
     {
-      return "long";
+        return o == this;
     }
-    else if(this == DOUBLE)
+
+    /**
+     * Overrides the toString() so these values can be ordered in a Swing
+     * view data model.
+     */
+    public String toString()
     {
-      return "double";
+        if (this == INT)
+        {
+            return "int";
+        }
+        else if (this == FLOAT)
+        {
+            return "float";
+        }
+        else if (this == LONG)
+        {
+            return "long";
+        }
+        else if (this == DOUBLE)
+        {
+            return "double";
+        }
+        else if (this == BOOLEAN)
+        {
+            return "boolean";
+        }
+        else if (this == STRING)
+        {
+            return "string";
+        }
+        else if (this == OBJECT)
+        {
+            return "object";
+        }
+        else if (this == ATTRIBUTE)
+        {
+            return "attribute";
+        }
+        else
+        {
+            return super.toString();
+        }
     }
-    else if(this == BOOLEAN)
+
+    /**
+     * Maintains the equals()/hashCode() contract.
+     */
+    public int hashCode()
     {
-      return "boolean";
+        return value;
     }
-    else if(this == STRING)
-    {
-      return "string";
-    }
-    else if(this == OBJECT)
-    {
-      return "object";
-    }
-    else if(this == ATTRIBUTE)
-    {
-      return "attribute";
-    }
-    else
-    {
-      return super.toString();
-    }
-  }
-  
-  /**
-   * Maintains the equals()/hashCode() contract.
-   */
-  public int hashCode()
-  {
-    return value;
-  }
 }

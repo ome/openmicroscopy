@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,17 +45,17 @@ import java.util.*;
  */
 public class ThumbnailSourceMap
 {
-  private Map thumbnailMap;
-  private Map sourceMap;
-  
-  /**
-   * Creates a Thumbnail-to-data source mappping.
-   */
-  public ThumbnailSourceMap()
-  {
-    thumbnailMap = new HashMap();
-    sourceMap = new HashMap();
-  }
-  
-  // TODO: fill in ThumbnailSourceMap methods
+    private Map thumbnailMap;
+    private Map sourceMap;
+
+    /**
+     * Creates a Thumbnail-to-data source mappping.
+     */
+    public ThumbnailSourceMap()
+    {
+        thumbnailMap = new HashMap();
+        sourceMap = new HashMap();
+    }
+
+    // TODO: fill in ThumbnailSourceMap methods
 }

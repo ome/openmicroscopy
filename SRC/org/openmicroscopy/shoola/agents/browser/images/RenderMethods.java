@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,19 +47,20 @@ import java.awt.image.BufferedImage;
  */
 public class RenderMethods
 {
-  /**
-   * Assumes the Renderable contains a BufferedImage already.
-   */
-  public static RenderMethod SIMPLE_METHOD = new RenderMethod()
-  {
-    public BufferedImage render(Renderable pixels)
+    /**
+     * Assumes the Renderable contains a BufferedImage already.
+     */
+    public static RenderMethod SIMPLE_METHOD = new RenderMethod()
     {
-      Object pixelData = pixels.getPixelData();
-      if(pixelData instanceof BufferedImage)
-      {
-        return (BufferedImage)pixelData;
-      }
-      else return null; 
-    }
-  };
+        public BufferedImage render(Renderable pixels)
+        {
+            Object pixelData = pixels.getPixelData();
+            if (pixelData instanceof BufferedImage)
+            {
+                return (BufferedImage) pixelData;
+            }
+            else
+                return null;
+        }
+    };
 }

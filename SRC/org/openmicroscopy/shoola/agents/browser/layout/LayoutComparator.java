@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,33 +47,34 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public abstract class LayoutComparator implements Comparator
 {
-  /**
-   * overrides the Comparator method to sort thumbnails.
-   * 
-   * @param o1 The first object to compare.
-   * @param o2 The second object to compare.
-   * @return see compareThumbnails.
-   */
-  public int compare(Object o1, Object o2)
-  {
-    if(o1 instanceof Thumbnail && o2 instanceof Thumbnail)
+    /**
+     * overrides the Comparator method to sort thumbnails.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return see compareThumbnails.
+     */
+    public int compare(Object o1, Object o2)
     {
-      return compareThumbnails((Thumbnail)o1,(Thumbnail)o2);
+        if (o1 instanceof Thumbnail && o2 instanceof Thumbnail)
+        {
+            return compareThumbnails((Thumbnail) o1, (Thumbnail) o2);
+        }
+        else
+            return 0;
     }
-    else return 0;
-  }
-  
-  /**
-   * Returns whether or not a thumbnail should be laid out before another
-   * thumbnail. If the first should be placed before the second, this method
-   * returns -1.  If they are placed at the same time (which hopefully will
-   * only happen if the two thumbnails are the same), this method returns 0.  If
-   * the first should be placed after the second, this method will return 1.
-   * 
-   * @param t1 The first thumbnail to compare.
-   * @param t2 The second thumbnail to compare.
-   * @return See above.
-   * @see java.util.Comparator#compare(java.lang.Object,java.lang.Object)
-   */
-  public abstract int compareThumbnails(Thumbnail t1, Thumbnail t2);
+
+    /**
+     * Returns whether or not a thumbnail should be laid out before another
+     * thumbnail. If the first should be placed before the second, this method
+     * returns -1.  If they are placed at the same time (which hopefully will
+     * only happen if the two thumbnails are the same), this method returns 0.  If
+     * the first should be placed after the second, this method will return 1.
+     * 
+     * @param t1 The first thumbnail to compare.
+     * @param t2 The second thumbnail to compare.
+     * @return See above.
+     * @see java.util.Comparator#compare(java.lang.Object,java.lang.Object)
+     */
+    public abstract int compareThumbnails(Thumbnail t1, Thumbnail t2);
 }

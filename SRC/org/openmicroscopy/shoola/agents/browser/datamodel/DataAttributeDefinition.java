@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,41 +45,41 @@ import java.util.*;
  */
 public interface DataAttributeDefinition
 {
-  /**
-   * Return the common name of the DataAttribute.
-   * @return The common name of the DataAttribute. (duh)
-   */
-  public String getAttributeTypeName();
-  
-  /**
-   * Return a collection of element names.
-   * @return The list of element names.
-   */
-  public Collection getElementNames();
-  
-  /**
-   * Returns the element type associated with the specified key.
-   * @param key The element's name.
-   * @return The type of the specified element.
-   */
-  public DataElementType getElementType(String key);
-  
-  /**
-   * Returns whether or not the attribute is an instance of
-   * this definition.
-   * 
-   * @param attribute The DataAttribute to verify.
-   * @return Whether or not attribute is an instance of this definition.
-   */
-  public boolean isInstance(DataAttribute attribute);
-  
-  /**
-   * Creates an instance of the DataAttribute with the set of values.
-   * Will return null (TODO: analyze this behavior) if an incorrect
-   * specification of values is entered.
-   * @param values The values to create the instance.
-   * @return A DataAttribute representing those objects.
-   */
-  public DataAttribute getInstance(Map values);
-  
+    /**
+     * Return the common name of the DataAttribute.
+     * @return The common name of the DataAttribute. (duh)
+     */
+    public String getAttributeTypeName();
+
+    /**
+     * Return a collection of element names.
+     * @return The list of element names.
+     */
+    public Collection getElementNames();
+
+    /**
+     * Returns the element type associated with the specified key.
+     * @param key The element's name.
+     * @return The type of the specified element.
+     */
+    public DataElementType getElementType(String key);
+
+    /**
+     * Returns whether or not the attribute is an instance of
+     * this definition.
+     * 
+     * @param attribute The DataAttribute to verify.
+     * @return Whether or not attribute is an instance of this definition.
+     */
+    public boolean isInstance(DataAttribute attribute);
+
+    /**
+     * Creates an instance of the DataAttribute with the set of values.
+     * Will return null (TODO: analyze this behavior) if an incorrect
+     * specification of values is entered.
+     * @param values The values to create the instance.
+     * @return A DataAttribute representing those objects.
+     */
+    public DataAttribute getInstance(Map values);
+
 }

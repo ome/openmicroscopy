@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,12 +45,12 @@ package org.openmicroscopy.shoola.agents.browser.util;
  */
 public interface GrepOperator
 {
-  /**
-   * Returns whether or not the object satisfies a certain criteria.  SHOULD
-   * NOT modify/mutate the object o-- this is an undesired side effect.
-   * 
-   * @param o The object to evaluate.
-   * @return Whether or not the object fulfills the specified criteria.
-   */
-  public boolean eval(Object o);
+    /**
+     * Returns whether or not the object satisfies a certain criteria.  SHOULD
+     * NOT modify/mutate the object o-- this is an undesired side effect.
+     * 
+     * @param o The object to evaluate.
+     * @return Whether or not the object fulfills the specified criteria.
+     */
+    public boolean eval(Object o);
 }

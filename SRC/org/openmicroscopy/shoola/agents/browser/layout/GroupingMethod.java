@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -50,20 +47,20 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public interface GroupingMethod
 {
-  /**
-   * Assigns a particular thumbnail to a group and adds it to the GroupModel.
-   * The model returned is the group model that the thumbnail was assigned to.
-   * 
-   * @param t The thumbnail to assign.
-   * @return Which group the thumbnail was assigned to.
-   */
-  public GroupModel assignGroup(Thumbnail t);
-  
-  /**
-   * Gets the currently assigned group of the specified thumbnail, if there
-   * is one.
-   * @param t The thumbnail to check membership.
-   * @return Which group the thumbnail belongs to.
-   */
-  public GroupModel getGroup(Thumbnail t);
+    /**
+     * Assigns a particular thumbnail to a group and adds it to the GroupModel.
+     * The model returned is the group model that the thumbnail was assigned to.
+     * 
+     * @param t The thumbnail to assign.
+     * @return Which group the thumbnail was assigned to.
+     */
+    public GroupModel assignGroup(Thumbnail t);
+
+    /**
+     * Gets the currently assigned group of the specified thumbnail, if there
+     * is one.
+     * @param t The thumbnail to check membership.
+     * @return Which group the thumbnail belongs to.
+     */
+    public GroupModel getGroup(Thumbnail t);
 }

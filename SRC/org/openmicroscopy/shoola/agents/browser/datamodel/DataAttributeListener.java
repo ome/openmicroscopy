@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,22 +45,22 @@ package org.openmicroscopy.shoola.agents.browser.datamodel;
  */
 public interface DataAttributeListener
 {
-  /**
-   * An attribute changed event.
-   * 
-   * @param key The name of the changed attribute.
-   */
-  public void attributeChanged(String name);
-  
-  /**
-   * An attribute added event.
-   * @param name The name of this added attribute.
-   */
-  public void attributeAdded(String name);
-  
-  /**
-   * An attribute removed event.
-   * @param name The name of this removed attribute.
-   */
-  public void attributeRemoved(String name);
+    /**
+     * An attribute changed event.
+     * 
+     * @param key The name of the changed attribute.
+     */
+    public void attributeChanged(String name);
+
+    /**
+     * An attribute added event.
+     * @param name The name of this added attribute.
+     */
+    public void attributeAdded(String name);
+
+    /**
+     * An attribute removed event.
+     * @param name The name of this removed attribute.
+     */
+    public void attributeRemoved(String name);
 }

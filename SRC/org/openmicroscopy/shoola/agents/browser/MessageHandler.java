@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -46,45 +43,45 @@ package org.openmicroscopy.shoola.agents.browser;
  */
 public interface MessageHandler
 {
-  /**
-   * Report an error that was caused by programming mistakes entirely within
-   * this OME system.
-   * 
-   * @param message The error message to send.
-   */
-  public void reportInternalError(String message);
-  
-  /**
-   * Report an detail an error that was caused by programming mistakes
-   * entirely within the OME system.
-   * 
-   * @param message The error message to send.
-   * @param e The details of the error (Exception thrown, if any)
-   */
-  public void reportInternalError(String message, Exception e);
-  
-  /**
-   * Report an error with the specified message.
-   * @param message The error message to report.
-   */
-  public void reportError(String message);
-  
-  /**
-   * Report an error with the specified message and Exception details.
-   * @param message The error message to report.
-   * @param e The exception detail to include.
-   */
-  public void reportError(String message, Exception e);
-  
-  /**
-   * Warn the user of something with the specified message.
-   * @param message The warning message to report.
-   */
-  public void reportWarning(String message);
-  
-  /**
-   * Inform the user of something with specified message.
-   * @param message The information message to report (could be good!)
-   */
-  public void reportInformation(String message);
+    /**
+     * Report an error that was caused by programming mistakes entirely within
+     * this OME system.
+     * 
+     * @param message The error message to send.
+     */
+    public void reportInternalError(String message);
+
+    /**
+     * Report an detail an error that was caused by programming mistakes
+     * entirely within the OME system.
+     * 
+     * @param message The error message to send.
+     * @param e The details of the error (Exception thrown, if any)
+     */
+    public void reportInternalError(String message, Exception e);
+
+    /**
+     * Report an error with the specified message.
+     * @param message The error message to report.
+     */
+    public void reportError(String message);
+
+    /**
+     * Report an error with the specified message and Exception details.
+     * @param message The error message to report.
+     * @param e The exception detail to include.
+     */
+    public void reportError(String message, Exception e);
+
+    /**
+     * Warn the user of something with the specified message.
+     * @param message The warning message to report.
+     */
+    public void reportWarning(String message);
+
+    /**
+     * Inform the user of something with specified message.
+     * @param message The information message to report (could be good!)
+     */
+    public void reportInformation(String message);
 }

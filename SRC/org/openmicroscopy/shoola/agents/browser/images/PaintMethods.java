@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -49,41 +46,41 @@ import java.util.Map;
  */
 public class PaintMethods
 {
-  private Map methodMap;
-  private static PaintMethods methods;
-  
-  private PaintMethods()
-  {
-    methodMap = new HashMap();
-  }
-  
-  public static PaintMethods getInstance()
-  {
-    if(methods == null)
+    private Map methodMap;
+    private static PaintMethods methods;
+
+    private PaintMethods()
     {
-      methods = new PaintMethods();
+        methodMap = new HashMap();
     }
-    return methods;
-  }
-  
-  public void put(String key, PaintMethod method)
-  {
-    if(key == null || method == null)
+
+    public static PaintMethods getInstance()
     {
-      return;
+        if (methods == null)
+        {
+            methods = new PaintMethods();
+        }
+        return methods;
     }
-    methodMap.put(key,method);
-  }
-  
-  public PaintMethod get(String key)
-  {
-    return (PaintMethod)methodMap.get(key);
-  }
-  
-  public PaintMethod remove(String key)
-  {
-    PaintMethod method = get(key);
-    methodMap.remove(key);
-    return method;
-  }
+
+    public void put(String key, PaintMethod method)
+    {
+        if (key == null || method == null)
+        {
+            return;
+        }
+        methodMap.put(key, method);
+    }
+
+    public PaintMethod get(String key)
+    {
+        return (PaintMethod) methodMap.get(key);
+    }
+
+    public PaintMethod remove(String key)
+    {
+        PaintMethod method = get(key);
+        methodMap.remove(key);
+        return method;
+    }
 }

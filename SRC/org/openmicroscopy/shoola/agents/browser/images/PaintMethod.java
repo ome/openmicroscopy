@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -51,12 +48,12 @@ import java.awt.Graphics;
  */
 public interface PaintMethod
 {
-  /**
-   * Determine if a thumbnail meets the criteria for additional graphics, and
-   * if so, paint an appropriate overlay atop the thumbnail.
-   * 
-   * @param g The canvas to draw to.
-   * @param t The thumbnail to draw.
-   */
-  public void paint(Graphics g, Thumbnail t);
+    /**
+     * Determine if a thumbnail meets the criteria for additional graphics, and
+     * if so, paint an appropriate overlay atop the thumbnail.
+     * 
+     * @param g The canvas to draw to.
+     * @param t The thumbnail to draw.
+     */
+    public void paint(Graphics g, Thumbnail t);
 }

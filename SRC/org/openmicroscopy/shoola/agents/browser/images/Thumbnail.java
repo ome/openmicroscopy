@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -56,102 +53,102 @@ import edu.umd.cs.piccolo.nodes.PImage;
  */
 public class Thumbnail extends PImage implements MEHChangeListener
 {
-  /**
-   * The base model of the thumbnail.
-   */
-  protected ThumbnailDataModel model;
-  
-  /**
-   * The current render method.
-   */
-  protected RenderMethod renderMethod;
-  
-  /**
-   * Defines the set of paint methods in a self-organizing list
-   * (impl: TreeSet)
-   */
-  protected Set paintMethods;
-  
-  /**
-   * Defines the union of UI gestures for this thumbnail.
-   */
-  protected ModularEventHandler eventHandler;
-  
-  /**
-   * Defines if this thumbnail is mip-mapped.
-   */
-  protected boolean usesImageSet;
-  
-  /**
-   * Constructs a thumbnail around this model (no renderer specified yet)
-   * @param tdm The data model.
-   */
-  public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
-  {
-    this.model = tdm;
-  }
-  
-  /**
-   * Constructs a thumbnail around this model and specifies a first
-   * renderer for it.
-   */
-  public Thumbnail(ThumbnailDataModel tdm, RenderMethod method)
-  {
-    this.model = tdm;
-    this.renderMethod = method;
-  }
-  // TODO: complete this code skeleton
-  
-  /* (non-Javadoc)
-   * @see org.openmicroscopy.shoola.agents.browser.events.MEHChangeListener#eventListenerChanged(int)
-   */
-  public void eventListenerChanged(int changeType)
-  {
-    // TODO: rework event handler
-  }
-  
-  /**
-   * Returns the current render method for this thumbnail.
-   * @return The current render method.
-   */
-  public RenderMethod getRenderMethod()
-  {
-    return renderMethod;
-  }
-  
-  /**
-   * Sets the current render method for this thumbnail.
-   * @param method
-   */
-  public void setRenderMethod(RenderMethod method)
-  {
-    if(method != null)
+    /**
+     * The base model of the thumbnail.
+     */
+    protected ThumbnailDataModel model;
+
+    /**
+     * The current render method.
+     */
+    protected RenderMethod renderMethod;
+
+    /**
+     * Defines the set of paint methods in a self-organizing list
+     * (impl: TreeSet)
+     */
+    protected Set paintMethods;
+
+    /**
+     * Defines the union of UI gestures for this thumbnail.
+     */
+    protected ModularEventHandler eventHandler;
+
+    /**
+     * Defines if this thumbnail is mip-mapped.
+     */
+    protected boolean usesImageSet;
+
+    /**
+     * Constructs a thumbnail around this model (no renderer specified yet)
+     * @param tdm The data model.
+     */
+    public Thumbnail(ThumbnailDataModel tdm) // TODO: fix
     {
-      this.renderMethod = method;
+        this.model = tdm;
     }
-  }
-  
-  /**
-   * Gets the underlying model for the thumbnail.
-   * 
-   * @return This thumbnail's underlying model.
-   */
-  public ThumbnailDataModel getModel()
-  {
-    return model;
-  }
-  
-  /**
-   * Sets the underlying model for the thumbnail.
-   * 
-   * @param model This thumbnail's new data model.
-   */
-  public void setModel(ThumbnailDataModel model)
-  {
-    if(model == null)
+
+    /**
+     * Constructs a thumbnail around this model and specifies a first
+     * renderer for it.
+     */
+    public Thumbnail(ThumbnailDataModel tdm, RenderMethod method)
     {
-      this.model = model;
+        this.model = tdm;
+        this.renderMethod = method;
     }
-  }
+    // TODO: complete this code skeleton
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.events.MEHChangeListener#eventListenerChanged(int)
+     */
+    public void eventListenerChanged(int changeType)
+    {
+        // TODO: rework event handler
+    }
+
+    /**
+     * Returns the current render method for this thumbnail.
+     * @return The current render method.
+     */
+    public RenderMethod getRenderMethod()
+    {
+        return renderMethod;
+    }
+
+    /**
+     * Sets the current render method for this thumbnail.
+     * @param method
+     */
+    public void setRenderMethod(RenderMethod method)
+    {
+        if (method != null)
+        {
+            this.renderMethod = method;
+        }
+    }
+
+    /**
+     * Gets the underlying model for the thumbnail.
+     * 
+     * @return This thumbnail's underlying model.
+     */
+    public ThumbnailDataModel getModel()
+    {
+        return model;
+    }
+
+    /**
+     * Sets the underlying model for the thumbnail.
+     * 
+     * @param model This thumbnail's new data model.
+     */
+    public void setModel(ThumbnailDataModel model)
+    {
+        if (model == null)
+        {
+            this.model = model;
+        }
+    }
 
 }

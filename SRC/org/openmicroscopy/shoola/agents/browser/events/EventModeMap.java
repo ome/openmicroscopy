@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -54,172 +51,177 @@ import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
  */
 public class EventModeMap
 {
-  // TODO: replace null handler calls w/NOOP handler
-  private Map mouseDragMap;
-  private Map mouseOverMap;
-  private Map mouseSelectMap;
-  private Map keyPressMap;
-  private Map mouseWheelMap;
-  
-  /**
-   * Creates an EventModeMap with no set mode/handler mappings.
-   */
-  public EventModeMap()
-  {
-    mouseDragMap = new HashMap();
-    mouseOverMap = new HashMap();
-    mouseSelectMap = new HashMap();
-    keyPressMap = new HashMap();
-    mouseWheelMap = new HashMap();
-  }
-  
-  /**
-   * Returns the mouse drag handler for the specified mode.
-   * @param mode The target browser mode.
-   * @return The mouse drag handler for that mode, or null if there is no
-   *         such mapping.
-   */
-  public PBasicInputEventHandler getMouseDragHandler(BrowserMode mode)
-  {
-    if(mode == null)
-    {
-      return null;
-    }
-    return (PBasicInputEventHandler)mouseDragMap.get(mode);
-  }
-  
-  /**
-   * Sets the mouse drag handler for the specified node.
-   * @param mode The browser mode to map.
-   * @param handler The handler to bind to the mode.
-   */
-  public void setMouseDragHandler(BrowserMode mode,
-                                  PBasicInputEventHandler handler)
-  {
-    if(mode == null || handler == null)
-    {
-      return;
-    }
-    mouseDragMap.put(mode,handler);
-  }
+    // TODO: replace null handler calls w/NOOP handler
+    private Map mouseDragMap;
+    private Map mouseOverMap;
+    private Map mouseSelectMap;
+    private Map keyPressMap;
+    private Map mouseWheelMap;
 
-  /**
-   * Returns the mouse over handler for the specified mode.
-   * @param mode The target browser mode.
-   * @return The mouse over handler for that mode, or null if there is no
-   *         such mapping.
-   */
-  public PBasicInputEventHandler getMouseOverHandler(BrowserMode mode)
-  {
-    if(mode == null)
+    /**
+     * Creates an EventModeMap with no set mode/handler mappings.
+     */
+    public EventModeMap()
     {
-      return null;
+        mouseDragMap = new HashMap();
+        mouseOverMap = new HashMap();
+        mouseSelectMap = new HashMap();
+        keyPressMap = new HashMap();
+        mouseWheelMap = new HashMap();
     }
-    return (PBasicInputEventHandler)mouseOverMap.get(mode);
-  }
 
-  /**
-   * Sets the mouse over handler for the specified node.
-   * @param mode The browser mode to map.
-   * @param handler The handler to bind to the mode.
-   */
-  public void setMouseOverHandler(BrowserMode mode,
-                                  PBasicInputEventHandler handler)
-  {
-    if(mode == null || handler == null)
+    /**
+     * Returns the mouse drag handler for the specified mode.
+     * @param mode The target browser mode.
+     * @return The mouse drag handler for that mode, or null if there is no
+     *         such mapping.
+     */
+    public PBasicInputEventHandler getMouseDragHandler(BrowserMode mode)
     {
-      return;
+        if (mode == null)
+        {
+            return null;
+        }
+        return (PBasicInputEventHandler) mouseDragMap.get(mode);
     }
-    mouseOverMap.put(mode,handler);
-  }
 
-  /**
-   * Returns the mouse select handler for the specified mode.
-   * @param mode The target browser mode.
-   * @return The mouse select handler for that mode, or null if there is no
-   *         such mapping.
-   */
-  public PBasicInputEventHandler getMouseSelectHandler(BrowserMode mode)
-  {
-    if(mode == null)
+    /**
+     * Sets the mouse drag handler for the specified node.
+     * @param mode The browser mode to map.
+     * @param handler The handler to bind to the mode.
+     */
+    public void setMouseDragHandler(
+        BrowserMode mode,
+        PBasicInputEventHandler handler)
     {
-      return null;
+        if (mode == null || handler == null)
+        {
+            return;
+        }
+        mouseDragMap.put(mode, handler);
     }
-    return (PBasicInputEventHandler)mouseSelectMap.get(mode);
-  }
 
-  /**
-   * Sets the mouse select handler for the specified node.
-   * @param mode The browser mode to map.
-   * @param handler The handler to bind to the mode.
-   */
-  public void setMouseSelectHandler(BrowserMode mode,
-                                    PBasicInputEventHandler handler)
-  {
-    if(mode == null || handler == null)
+    /**
+     * Returns the mouse over handler for the specified mode.
+     * @param mode The target browser mode.
+     * @return The mouse over handler for that mode, or null if there is no
+     *         such mapping.
+     */
+    public PBasicInputEventHandler getMouseOverHandler(BrowserMode mode)
     {
-      return;
+        if (mode == null)
+        {
+            return null;
+        }
+        return (PBasicInputEventHandler) mouseOverMap.get(mode);
     }
-    mouseSelectMap.put(mode,handler);
-  }
 
-  /**
-   * Returns the key press handler for the specified mode.
-   * @param mode The target browser mode.
-   * @return The key press handler for that mode, or null if there is no
-   *         such mapping.
-   */
-  public PBasicInputEventHandler getKeyPressHandler(BrowserMode mode)
-  {
-    if(mode == null)
+    /**
+     * Sets the mouse over handler for the specified node.
+     * @param mode The browser mode to map.
+     * @param handler The handler to bind to the mode.
+     */
+    public void setMouseOverHandler(
+        BrowserMode mode,
+        PBasicInputEventHandler handler)
     {
-      return null;
+        if (mode == null || handler == null)
+        {
+            return;
+        }
+        mouseOverMap.put(mode, handler);
     }
-    return (PBasicInputEventHandler)keyPressMap.get(mode);
-  }
 
-  /**
-   * Sets the key press handler for the specified node.
-   * @param mode The browser mode to map.
-   * @param handler The handler to bind to the mode.
-   */
-  public void setKeyPressHandler(BrowserMode mode,
-                                 PBasicInputEventHandler handler)
-  {
-    if(mode == null || handler == null)
+    /**
+     * Returns the mouse select handler for the specified mode.
+     * @param mode The target browser mode.
+     * @return The mouse select handler for that mode, or null if there is no
+     *         such mapping.
+     */
+    public PBasicInputEventHandler getMouseSelectHandler(BrowserMode mode)
     {
-      return;
+        if (mode == null)
+        {
+            return null;
+        }
+        return (PBasicInputEventHandler) mouseSelectMap.get(mode);
     }
-    keyPressMap.put(mode,handler);
-  }
-  
-  /**
-   * Returns the mouse wheel handler for the specified mode.
-   * @param mode The target browser mode.
-   * @return The mouse wheel handler for that mode, or null if there is no
-   *         such mapping.
-   */
-  public PBasicInputEventHandler getMouseWheelHandler(BrowserMode mode)
-  {
-    if(mode == null)
-    {
-      return null;
-    }
-    return (PBasicInputEventHandler)mouseWheelMap.get(mode);
-  }
 
-  /**
-   * Sets the mouse wheel handler for the specified node.
-   * @param mode The browser mode to map.
-   * @param handler The handler to bind to the mode.
-   */
-  public void setMouseWheelHandler(BrowserMode mode,
-                                   PBasicInputEventHandler handler)
-  {
-    if(mode == null || handler == null)
+    /**
+     * Sets the mouse select handler for the specified node.
+     * @param mode The browser mode to map.
+     * @param handler The handler to bind to the mode.
+     */
+    public void setMouseSelectHandler(
+        BrowserMode mode,
+        PBasicInputEventHandler handler)
     {
-      return;
+        if (mode == null || handler == null)
+        {
+            return;
+        }
+        mouseSelectMap.put(mode, handler);
     }
-    mouseWheelMap.put(mode,handler);
-  }
+
+    /**
+     * Returns the key press handler for the specified mode.
+     * @param mode The target browser mode.
+     * @return The key press handler for that mode, or null if there is no
+     *         such mapping.
+     */
+    public PBasicInputEventHandler getKeyPressHandler(BrowserMode mode)
+    {
+        if (mode == null)
+        {
+            return null;
+        }
+        return (PBasicInputEventHandler) keyPressMap.get(mode);
+    }
+
+    /**
+     * Sets the key press handler for the specified node.
+     * @param mode The browser mode to map.
+     * @param handler The handler to bind to the mode.
+     */
+    public void setKeyPressHandler(
+        BrowserMode mode,
+        PBasicInputEventHandler handler)
+    {
+        if (mode == null || handler == null)
+        {
+            return;
+        }
+        keyPressMap.put(mode, handler);
+    }
+
+    /**
+     * Returns the mouse wheel handler for the specified mode.
+     * @param mode The target browser mode.
+     * @return The mouse wheel handler for that mode, or null if there is no
+     *         such mapping.
+     */
+    public PBasicInputEventHandler getMouseWheelHandler(BrowserMode mode)
+    {
+        if (mode == null)
+        {
+            return null;
+        }
+        return (PBasicInputEventHandler) mouseWheelMap.get(mode);
+    }
+
+    /**
+     * Sets the mouse wheel handler for the specified node.
+     * @param mode The browser mode to map.
+     * @param handler The handler to bind to the mode.
+     */
+    public void setMouseWheelHandler(
+        BrowserMode mode,
+        PBasicInputEventHandler handler)
+    {
+        if (mode == null || handler == null)
+        {
+            return;
+        }
+        mouseWheelMap.put(mode, handler);
+    }
 }

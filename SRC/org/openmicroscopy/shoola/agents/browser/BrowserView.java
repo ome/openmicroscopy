@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -51,65 +48,64 @@ import edu.umd.cs.piccolo.PCanvas;
  */
 public class BrowserView extends PCanvas
 {
-  private BrowserModel browserModel;
-  private BrowserTopModel overlayModel;
-  private BrowserEnvironment env;
-  
-  private void init()
-  {
-    env = BrowserEnvironment.getInstance();
-  }
-  
-  /**
-   * Constructs the browser view with the two backing models-- one for the
-   * thumbnails and the other for any sticky overlays.
-   * 
-   * @param browserModel The thumbnail/canvas model.
-   * @param overlayModel The overlay/sticky node model.
-   */
-  public BrowserView(BrowserModel browserModel,
-                     BrowserTopModel overlayModel)
-  {
-    init();
-    
-    if(browserModel == null || overlayModel == null)
+    private BrowserModel browserModel;
+    private BrowserTopModel overlayModel;
+    private BrowserEnvironment env;
+
+    private void init()
     {
-      sendInternalError("Null parameters in BrowserView constructor");
+        env = BrowserEnvironment.getInstance();
     }
-    else
+
+    /**
+     * Constructs the browser view with the two backing models-- one for the
+     * thumbnails and the other for any sticky overlays.
+     * 
+     * @param browserModel The thumbnail/canvas model.
+     * @param overlayModel The overlay/sticky node model.
+     */
+    public BrowserView(BrowserModel browserModel, BrowserTopModel overlayModel)
     {
-      this.browserModel = browserModel;
-      this.overlayModel = overlayModel;
+        init();
+
+        if (browserModel == null || overlayModel == null)
+        {
+            sendInternalError("Null parameters in BrowserView constructor");
+        }
+        else
+        {
+            this.browserModel = browserModel;
+            this.overlayModel = overlayModel;
+        }
     }
-  }
-  
-  /**
-   * Show the overlay (sticky) nodes.
-   */
-  public void showModalNodes()
-  {
-    // TODO: fill in code
-  }
-  
-  /**
-   * Hide the overlay (sticky) nodes.
-   */
-  public void hideModalNodes()
-  {
-    // TODO: fill in code
-  }
-  
-  // send internal error through the BrowserEnvironment pathway
-  private void sendInternalError(String message)
-  {
-    MessageHandler handler = env.getMessageHandler();
-    handler.reportInternalError(message);
-  }
-  
-  // send general error through the BrowserEnvironment pathway
-  private void sendError(String message)
-  {
-    MessageHandler handler = env.getMessageHandler();
-    handler.reportError(message);
-  }
+
+    /**
+     * Show the overlay (sticky) nodes.
+     */
+    public void showModalNodes()
+    {
+        // TODO: fill in code
+    }
+
+    /**
+     * Hide the overlay (sticky) nodes.
+     */
+    public void hideModalNodes()
+    {
+        // TODO: fill in code
+    }
+
+    // send internal error through the BrowserEnvironment pathway
+    private void sendInternalError(String message)
+    {
+        MessageHandler handler = env.getMessageHandler();
+        handler.reportInternalError(message);
+    }
+
+    // send general error through the BrowserEnvironment pathway
+    private void sendError(String message)
+    {
+        MessageHandler handler = env.getMessageHandler();
+        handler.reportError(message);
+    }
 }

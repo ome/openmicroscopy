@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -55,248 +52,247 @@ import org.openmicroscopy.shoola.agents.browser.UIConstants;
  * @since 2.2
  */
 public class GroupView
-{ 
-  /**
-   * The layout method for the group.
-   */
-  protected LayoutMethod layoutMethod;
-  
-  /**
-   * The shape bounds of the group (0,0 is always the top-left; this is
-   * relative; a top-level browser canvas will control the real position of
-   * the group)
-   */
-  protected Shape bounds;
-  
-  /**
-   * The background color of the group.
-   */
-  protected Color backgroundColor;
-  
-  /**
-   * The font of the group name.
-   */
-  protected Font nameFont;
-  
-  /**
-   * The color of the group font/foreground information.
-   */
-  protected Color foregroundColor;
-  
-  /**
-   * The backing model of the group view.
-   */
-  protected GroupModel model;
-  
-  /**
-   * Constructs a group model with the default color scheme and layout method.
-   * Bounds will be interpolated according to the default layout method.
-   * 
-   * @param model The model to base the group view on.
-   */
-  public GroupView(GroupModel model)
-  {
-    if(model != null)
-    {
-      this.model = model;
-    }
-    // TODO: specify default layout method, create bounds shape
-    backgroundColor = UIConstants.BUI_GROUPAREA_COLOR;
-    foregroundColor = UIConstants.BUI_GROUPTEXT_COLOR;
-    nameFont = UIConstants.BUI_GROUPTEXT_FONT;
-  }
-  
-  /**
-   * Constructs a group model with the default color scheme and specified
-   * layout method.  Bounds will be interpolated according to the default
-   * layout method.
-   * 
-   * @param model The model to base the group view on.
-   * @param method The layout method to organize the thumbnails by (in the
-   *               group).
-   */
-  public GroupView(GroupModel model, LayoutMethod method)
-  {
-    if(model != null)
-    {
-      this.model = model;
-    }
-    
-    if(method != null)
-    {
-      this.layoutMethod = method;
-    }
-    else
-    {
-      // TODO: specify default layout method, create bounds shape
-    }
-    
-    backgroundColor = UIConstants.BUI_GROUPAREA_COLOR;
-    foregroundColor = UIConstants.BUI_GROUPTEXT_COLOR;
-    nameFont = UIConstants.BUI_GROUPTEXT_FONT;
-  }
-  
-  /**
-   * Constructs a group view with the specified backing model, layout method,
-   * and maximum bounds constraints.
-   * 
-   * @param model The group model to base the view on.
-   * @param method The layout method to order the thumbnails by.
-   * @param bounds The maximum bounds of the group.
-   */
-  public GroupView(GroupModel model, LayoutMethod method, Shape bounds)
-  {
-    if(model != null)
-    {
-      this.model = model;
-    }
-    
-    if(method != null)
-    {
-      this.layoutMethod = method;
-    }
-    else
-    {
-      // TODO: specify default layout method
-    }
-    
-    if(bounds != null)
-    {
-      // TODO: set bounds
-    }
-    else
-    {
-      // TODO: interpolate based on layout method
-    }
-  }
-  
-  /**
-   * Returns the backing group model.
-   * @return The backing group model.
-   */
-  public GroupModel getModel()
-  {
-    return this.model;
-  }
-  
-  /**
-   * Returns the current layout method.
-   * @return The layout method.
-   */
-  public LayoutMethod getLayoutMethod()
-  {
-    return this.layoutMethod;
-  }
-  
-  /**
-   * Sets the layout method to the specified value, unless null.
-   * @param method The method to use to layout this group's thumbnails.
-   */
-  public void setLayoutMethod(LayoutMethod method)
-  {
-    if(method != null)
-    {
-      this.layoutMethod = method;
-    }
-  }
-  
-  /**
-   * Gets the (relative) shape of the area.
-   * @return The bounds of the area.
-   */
-  public Shape getBounds()
-  {
-    // create a copy.
-    AffineTransform dummyTransform = new AffineTransform();
-    return dummyTransform.createTransformedShape(bounds);
-  }
-  
-  /**
-   * Sets the (relative) shape of the area to the specified shape.  Will do
-   * nothing if the shape is null or is an instance of a line.
-   */
-  public void setBounds(Shape s)
-  {
-    if(s == null || s instanceof Line2D)
-    {
-      return;
-    }
-    AffineTransform dummyTransform = new AffineTransform();
-    bounds = dummyTransform.createTransformedShape(s);
-    
-    // do recalculation of layout here?
-  }
-  
-  
-  /**
-   * Returns the background color.
-   * 
-   * @return The background color.
-   */
-  public Color getBackgroundColor()
-  {
-    return backgroundColor;
-  }
+{
+    /**
+     * The layout method for the group.
+     */
+    protected LayoutMethod layoutMethod;
 
-  /**
-   * Returns the foreground color.
-   * 
-   * @return The foreground color.
-   */
-  public Color getForegroundColor()
-  {
-    return foregroundColor;
-  }
+    /**
+     * The shape bounds of the group (0,0 is always the top-left; this is
+     * relative; a top-level browser canvas will control the real position of
+     * the group)
+     */
+    protected Shape bounds;
 
-  /**
-   * Returns the font of the group name.
-   * 
-   * @return The group name font.
-   */
-  public Font getNameFont()
-  {
-    return nameFont;
-  }
+    /**
+     * The background color of the group.
+     */
+    protected Color backgroundColor;
 
-  /**
-   * Sets the background color to the specified value.
-   * 
-   * @param color The color value to change the background to (does nothing
-   *              if null)
-   */
-  public void setBackgroundColor(Color color)
-  {
-    if(color != null)
+    /**
+     * The font of the group name.
+     */
+    protected Font nameFont;
+
+    /**
+     * The color of the group font/foreground information.
+     */
+    protected Color foregroundColor;
+
+    /**
+     * The backing model of the group view.
+     */
+    protected GroupModel model;
+
+    /**
+     * Constructs a group model with the default color scheme and layout method.
+     * Bounds will be interpolated according to the default layout method.
+     * 
+     * @param model The model to base the group view on.
+     */
+    public GroupView(GroupModel model)
     {
-      backgroundColor = color;
+        if (model != null)
+        {
+            this.model = model;
+        }
+        // TODO: specify default layout method, create bounds shape
+        backgroundColor = UIConstants.BUI_GROUPAREA_COLOR;
+        foregroundColor = UIConstants.BUI_GROUPTEXT_COLOR;
+        nameFont = UIConstants.BUI_GROUPTEXT_FONT;
     }
-  }
 
-  /**
-   * Sets the text/foreground color to the specified value.
-   * 
-   * @param color The color value to change the foreground to (does nothing
-   *              if null)
-   */
-  public void setForegroundColor(Color color)
-  {
-    if(color != null)
+    /**
+     * Constructs a group model with the default color scheme and specified
+     * layout method.  Bounds will be interpolated according to the default
+     * layout method.
+     * 
+     * @param model The model to base the group view on.
+     * @param method The layout method to organize the thumbnails by (in the
+     *               group).
+     */
+    public GroupView(GroupModel model, LayoutMethod method)
     {
-      foregroundColor = color;
-    } 
-  }
+        if (model != null)
+        {
+            this.model = model;
+        }
 
-  /**
-   * Sets the font to the specified value.
-   * 
-   * @param font The font to display the group name, unless null.
-   */
-  public void setNameFont(Font font)
-  {
-    if(font != null)
-    {
-      nameFont = font;
+        if (method != null)
+        {
+            this.layoutMethod = method;
+        }
+        else
+        {
+            // TODO: specify default layout method, create bounds shape
+        }
+
+        backgroundColor = UIConstants.BUI_GROUPAREA_COLOR;
+        foregroundColor = UIConstants.BUI_GROUPTEXT_COLOR;
+        nameFont = UIConstants.BUI_GROUPTEXT_FONT;
     }
-  }
+
+    /**
+     * Constructs a group view with the specified backing model, layout method,
+     * and maximum bounds constraints.
+     * 
+     * @param model The group model to base the view on.
+     * @param method The layout method to order the thumbnails by.
+     * @param bounds The maximum bounds of the group.
+     */
+    public GroupView(GroupModel model, LayoutMethod method, Shape bounds)
+    {
+        if (model != null)
+        {
+            this.model = model;
+        }
+
+        if (method != null)
+        {
+            this.layoutMethod = method;
+        }
+        else
+        {
+            // TODO: specify default layout method
+        }
+
+        if (bounds != null)
+        {
+            // TODO: set bounds
+        }
+        else
+        {
+            // TODO: interpolate based on layout method
+        }
+    }
+
+    /**
+     * Returns the backing group model.
+     * @return The backing group model.
+     */
+    public GroupModel getModel()
+    {
+        return this.model;
+    }
+
+    /**
+     * Returns the current layout method.
+     * @return The layout method.
+     */
+    public LayoutMethod getLayoutMethod()
+    {
+        return this.layoutMethod;
+    }
+
+    /**
+     * Sets the layout method to the specified value, unless null.
+     * @param method The method to use to layout this group's thumbnails.
+     */
+    public void setLayoutMethod(LayoutMethod method)
+    {
+        if (method != null)
+        {
+            this.layoutMethod = method;
+        }
+    }
+
+    /**
+     * Gets the (relative) shape of the area.
+     * @return The bounds of the area.
+     */
+    public Shape getBounds()
+    {
+        // create a copy.
+        AffineTransform dummyTransform = new AffineTransform();
+        return dummyTransform.createTransformedShape(bounds);
+    }
+
+    /**
+     * Sets the (relative) shape of the area to the specified shape.  Will do
+     * nothing if the shape is null or is an instance of a line.
+     */
+    public void setBounds(Shape s)
+    {
+        if (s == null || s instanceof Line2D)
+        {
+            return;
+        }
+        AffineTransform dummyTransform = new AffineTransform();
+        bounds = dummyTransform.createTransformedShape(s);
+
+        // do recalculation of layout here?
+    }
+
+    /**
+     * Returns the background color.
+     * 
+     * @return The background color.
+     */
+    public Color getBackgroundColor()
+    {
+        return backgroundColor;
+    }
+
+    /**
+     * Returns the foreground color.
+     * 
+     * @return The foreground color.
+     */
+    public Color getForegroundColor()
+    {
+        return foregroundColor;
+    }
+
+    /**
+     * Returns the font of the group name.
+     * 
+     * @return The group name font.
+     */
+    public Font getNameFont()
+    {
+        return nameFont;
+    }
+
+    /**
+     * Sets the background color to the specified value.
+     * 
+     * @param color The color value to change the background to (does nothing
+     *              if null)
+     */
+    public void setBackgroundColor(Color color)
+    {
+        if (color != null)
+        {
+            backgroundColor = color;
+        }
+    }
+
+    /**
+     * Sets the text/foreground color to the specified value.
+     * 
+     * @param color The color value to change the foreground to (does nothing
+     *              if null)
+     */
+    public void setForegroundColor(Color color)
+    {
+        if (color != null)
+        {
+            foregroundColor = color;
+        }
+    }
+
+    /**
+     * Sets the font to the specified value.
+     * 
+     * @param font The font to display the group name, unless null.
+     */
+    public void setNameFont(Font font)
+    {
+        if (font != null)
+        {
+            nameFont = font;
+        }
+    }
 
 }

@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -52,74 +49,74 @@ import java.util.List;
  */
 public class BrowserManager
 {
-  private List browserList;
-  
-  /**
-   * Constructs a new browser manager.
-   */
-  public BrowserManager()
-  {
-    browserList = new ArrayList();
-  }
-  
-  /**
-   * Adds a browser to the manager.
-   * @param browser The controller to the browser to add.
-   */
-  public void addBrowser(BrowserController browser)
-  {
-    if(browser != null)
+    private List browserList;
+
+    /**
+     * Constructs a new browser manager.
+     */
+    public BrowserManager()
     {
-      browserList.add(browser);
+        browserList = new ArrayList();
     }
-  }
-  
-  /**
-   * Gets the browser at the specified index.  This will return null
-   * if the index is invalid.
-   * @param index The index of the browser to access.
-   * @return The accessed browser.
-   */
-  public BrowserController getBrowser(int index)
-  {
-    try
+
+    /**
+     * Adds a browser to the manager.
+     * @param browser The controller to the browser to add.
+     */
+    public void addBrowser(BrowserController browser)
     {
-      return (BrowserController)browserList.get(index);
+        if (browser != null)
+        {
+            browserList.add(browser);
+        }
     }
-    catch(Exception e)
+
+    /**
+     * Gets the browser at the specified index.  This will return null
+     * if the index is invalid.
+     * @param index The index of the browser to access.
+     * @return The accessed browser.
+     */
+    public BrowserController getBrowser(int index)
     {
-      // TODO: log message here
-      return null;
+        try
+        {
+            return (BrowserController) browserList.get(index);
+        }
+        catch (Exception e)
+        {
+            // TODO: log message here
+            return null;
+        }
     }
-  }
-  
-  /**
-   * Gets the number of browsers in the manager.
-   * @return
-   */
-  public int getBrowserCount()
-  {
-    return browserList.size();
-  }
-  
-  /**
-   * Returns an unmodifiable list of all the browsers in the manager.
-   * @return See above.
-   */
-  public List getAllBrowsers()
-  {
-    return Collections.unmodifiableList(browserList);
-  }
-  
-  /**
-   * Removes the specified browser from the manager, if it is present.
-   * @param browser The browser to remove.
-   */
-  public void removeBrowser(BrowserController browser)
-  {
-    if(browser != null && browserList.contains(browser))
+
+    /**
+     * Gets the number of browsers in the manager.
+     * @return
+     */
+    public int getBrowserCount()
     {
-      browserList.remove(browser);
+        return browserList.size();
     }
-  }
+
+    /**
+     * Returns an unmodifiable list of all the browsers in the manager.
+     * @return See above.
+     */
+    public List getAllBrowsers()
+    {
+        return Collections.unmodifiableList(browserList);
+    }
+
+    /**
+     * Removes the specified browser from the manager, if it is present.
+     * @param browser The browser to remove.
+     */
+    public void removeBrowser(BrowserController browser)
+    {
+        if (browser != null && browserList.contains(browser))
+        {
+            browserList.remove(browser);
+        }
+    }
 }

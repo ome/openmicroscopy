@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -51,114 +48,114 @@ import org.openmicroscopy.shoola.agents.browser.events.EventModeMap;
  */
 public final class BrowserEnvironment
 {
-  private static boolean initialized = false;
-  private static BrowserEnvironment environment = null;
-  
-  private BrowserAgent browserAgent;
-  
-  private BrowserManager browserManager;
-  // private static OMEDataAgent dataAgent;
-  private MessageHandler messageHandler;
-  
-  private EventModeMap eventModeMap;
-  
-  private BrowserEnvironment()
-  {
-    // dummy singleton constructor
-    initialized = true;
-  }
-  
-  /**
-   * Returns the environment's OMEBrowserAgent.
-   * 
-   * @return The OME browser agent of the environment.
-   */
-  public BrowserAgent getBrowserAgent()
-  {
-    return browserAgent;
-  }
-  
-  /**
-   * Sets the environment's OMEBrowserAgent.
-   * 
-   * @param agent The OME browser agent of the environment.
-   */
-  public void setBrowserAgent(BrowserAgent agent)
-  {
-    this.browserAgent = agent;
-  }
-  
-  /**
-   * Gets the environment's browser manager.
-   * @return See above.
-   */
-  public BrowserManager getBrowserManager()
-  {
-    return browserManager;
-  }
-  
-  /**
-   * Sets the environment's browser manager.
-   * 
-   * @param manager The new manager for this environment.
-   */
-  public void setBrowserManager(BrowserManager manager)
-  {
-    this.browserManager = manager;
-  }
-  
-  /**
-   * Gets the message handler for the environment.
-   * 
-   * @return The message handler of the environment.
-   */
-  public MessageHandler getMessageHandler()
-  {
-    return messageHandler;
-  }
-  
-  /**
-   * Sets the message handler for the environment.
-   * 
-   * @param handler The message hander to use.
-   */
-  public void setMessageHandler(MessageHandler handler)
-  {
-    this.messageHandler = handler;
-  }
-  
-  /**
-   * Gets the browser mode-event handler map for the environment.
-   * 
-   * @return The mode/event map for the environment.
-   */
-  public EventModeMap getEventModeMap()
-  {
-    return eventModeMap;
-  }
-  
-  /**
-   * Sets the browser mode-event handler map for the environment.
-   * 
-   * @param modeMap The mode/event map for the environment.
-   */
-  public void setEventModeMap(EventModeMap modeMap)
-  {
-    this.eventModeMap = modeMap;
-  }
-  
-  // TODO: Add OMEDataAgent get/set methods
-  
-  /**
-   * Gets the BrowserEnvironment instance.
-   * @return
-   */
-  public static BrowserEnvironment getInstance()
-  {
-    if(!initialized)
+    private static boolean initialized = false;
+    private static BrowserEnvironment environment = null;
+
+    private BrowserAgent browserAgent;
+
+    private BrowserManager browserManager;
+    // private static OMEDataAgent dataAgent;
+    private MessageHandler messageHandler;
+
+    private EventModeMap eventModeMap;
+
+    private BrowserEnvironment()
     {
-      environment = new BrowserEnvironment();
+        // dummy singleton constructor
+        initialized = true;
     }
-    return environment;
-  }
+
+    /**
+     * Returns the environment's OMEBrowserAgent.
+     * 
+     * @return The OME browser agent of the environment.
+     */
+    public BrowserAgent getBrowserAgent()
+    {
+        return browserAgent;
+    }
+
+    /**
+     * Sets the environment's OMEBrowserAgent.
+     * 
+     * @param agent The OME browser agent of the environment.
+     */
+    public void setBrowserAgent(BrowserAgent agent)
+    {
+        this.browserAgent = agent;
+    }
+
+    /**
+     * Gets the environment's browser manager.
+     * @return See above.
+     */
+    public BrowserManager getBrowserManager()
+    {
+        return browserManager;
+    }
+
+    /**
+     * Sets the environment's browser manager.
+     * 
+     * @param manager The new manager for this environment.
+     */
+    public void setBrowserManager(BrowserManager manager)
+    {
+        this.browserManager = manager;
+    }
+
+    /**
+     * Gets the message handler for the environment.
+     * 
+     * @return The message handler of the environment.
+     */
+    public MessageHandler getMessageHandler()
+    {
+        return messageHandler;
+    }
+
+    /**
+     * Sets the message handler for the environment.
+     * 
+     * @param handler The message hander to use.
+     */
+    public void setMessageHandler(MessageHandler handler)
+    {
+        this.messageHandler = handler;
+    }
+
+    /**
+     * Gets the browser mode-event handler map for the environment.
+     * 
+     * @return The mode/event map for the environment.
+     */
+    public EventModeMap getEventModeMap()
+    {
+        return eventModeMap;
+    }
+
+    /**
+     * Sets the browser mode-event handler map for the environment.
+     * 
+     * @param modeMap The mode/event map for the environment.
+     */
+    public void setEventModeMap(EventModeMap modeMap)
+    {
+        this.eventModeMap = modeMap;
+    }
+
+    // TODO: Add OMEDataAgent get/set methods
+
+    /**
+     * Gets the BrowserEnvironment instance.
+     * @return
+     */
+    public static BrowserEnvironment getInstance()
+    {
+        if (!initialized)
+        {
+            environment = new BrowserEnvironment();
+        }
+        return environment;
+    }
 }

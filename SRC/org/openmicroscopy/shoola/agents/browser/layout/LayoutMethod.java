@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -53,22 +50,22 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public interface LayoutMethod
 {
-  /**
-   * Returns the position of the thumbnail in its relative container.  This
-   * is appropriate if the layout method maintains some model state.
-   * 
-   * @param t The thumbnail for which to determine the position.
-   * @return The assigned position of the thumbnail.
-   */
-  public Point2D getAnchorPoint(Thumbnail t);
-  
-  /**
-   * Returns a map with the thumbnail keys mapped to their specified
-   * positions.  This is good if the layout method has no state, and the
-   * layout is computed at runtime.
-   * 
-   * @param ts The array of thumbnails to place.
-   * @return A map mapping the thumbnails to their specified locations.
-   */
-  public Map getAnchorPoints(Thumbnail[] ts);
+    /**
+     * Returns the position of the thumbnail in its relative container.  This
+     * is appropriate if the layout method maintains some model state.
+     * 
+     * @param t The thumbnail for which to determine the position.
+     * @return The assigned position of the thumbnail.
+     */
+    public Point2D getAnchorPoint(Thumbnail t);
+
+    /**
+     * Returns a map with the thumbnail keys mapped to their specified
+     * positions.  This is good if the layout method has no state, and the
+     * layout is computed at runtime.
+     * 
+     * @param ts The array of thumbnails to place.
+     * @return A map mapping the thumbnails to their specified locations.
+     */
+    public Map getAnchorPoints(Thumbnail[] ts);
 }

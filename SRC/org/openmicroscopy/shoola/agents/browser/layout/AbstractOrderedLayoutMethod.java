@@ -49,40 +49,40 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  */
 public abstract class AbstractOrderedLayoutMethod implements LayoutMethod
 {
-  /**
-   * The comparator that orders the thumbnails.
-   */
-  protected LayoutComparator comparator;
+    /**
+     * The comparator that orders the thumbnails.
+     */
+    protected LayoutComparator comparator;
 
-  /**
-   * Returns the ordered list of thumbnails based on the comparator.
-   * 
-   * @param ts The thumbnails to order.
-   * @return Those same thumbnails, placed in layout order.
-   */
-  protected List getThumbnailOrder(Thumbnail[] ts)
-  {
-    if (comparator == null)
+    /**
+     * Returns the ordered list of thumbnails based on the comparator.
+     * 
+     * @param ts The thumbnails to order.
+     * @return Those same thumbnails, placed in layout order.
+     */
+    protected List getThumbnailOrder(Thumbnail[] ts)
     {
-      return Arrays.asList(ts);
+        if (comparator == null)
+        {
+            return Arrays.asList(ts);
+        }
+        else
+        {
+            List thumbnailList = Arrays.asList(ts);
+            Collections.sort(thumbnailList, comparator);
+            return thumbnailList;
+        }
     }
-    else
-    {
-      List thumbnailList = Arrays.asList(ts);
-      Collections.sort(thumbnailList, comparator);
-      return thumbnailList;
-    }
-  }
 
-  /**
-   * Constructs a layout method that orders thumbnails by the specified
-   * comparison criteria.
-   * 
-   * @param comparator The comparator that will order the thumbnails.
-   */
-  protected AbstractOrderedLayoutMethod(LayoutComparator comparator)
-  {
-    this.comparator = comparator;
-  }
+    /**
+     * Constructs a layout method that orders thumbnails by the specified
+     * comparison criteria.
+     * 
+     * @param comparator The comparator that will order the thumbnails.
+     */
+    protected AbstractOrderedLayoutMethod(LayoutComparator comparator)
+    {
+        this.comparator = comparator;
+    }
 
 }

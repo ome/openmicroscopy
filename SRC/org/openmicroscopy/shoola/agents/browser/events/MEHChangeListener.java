@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -46,11 +43,11 @@ package org.openmicroscopy.shoola.agents.browser.events;
  */
 public interface MEHChangeListener
 {
-  public static final int DRAG_CHANGE = 1;
-  public static final int OVER_CHANGE = 2;
-  public static final int SELECT_CHANGE = 4;
-  public static final int KEY_CHANGE = 8;
-  public static final int WHEEL_CHANGE = 16;
-  
-  public void eventListenerChanged(int changeType);
+    public static final int DRAG_CHANGE = 1;
+    public static final int OVER_CHANGE = 2;
+    public static final int SELECT_CHANGE = 4;
+    public static final int KEY_CHANGE = 8;
+    public static final int WHEEL_CHANGE = 16;
+
+    public void eventListenerChanged(int changeType);
 }

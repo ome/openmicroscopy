@@ -27,9 +27,6 @@
  *------------------------------------------------------------------------------
  */
 
-
-
-
 /*------------------------------------------------------------------------------
  *
  * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
@@ -48,9 +45,9 @@ package org.openmicroscopy.shoola.agents.browser.images;
  */
 public interface Renderable
 {
-  /**
-   * Gets the pixel data that the renderers can process.
-   * @return Pixel data.
-   */
-  public Object getPixelData();
+    /**
+     * Gets the pixel data that the renderers can process.
+     * @return Pixel data.
+     */
+    public Object getPixelData();
 }
