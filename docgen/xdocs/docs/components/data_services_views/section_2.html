@@ -54,17 +54,15 @@
  was available at the time the event was fired.<br/>
   Moreover, any partial result that the computation makes available will be packed 
   into the feedback event.</p>
-<p>It's important to keep in mind that the computation may not run to 
- completion -- either because of an exception within the computation or
- because the agent cancels execution -- <code>CallHandle#cancel()</code>.  In both 
- cases, the feedback notification won't run to completion either.  However,
- in any case a final 
- <code>org.openmicroscopy.shoola.env.data.events.DSCallOutcomeEvent</code> is 
- delivered to the <code>observer</code> to notify of the computation outcome
- -- the event's methods can be used to find out the actual outcome and 
- retrieve any result or exception.  Every call documents what is the returned
- object and what are the possible exceptions so that the caller can later 
- cast the returned value or exception as appropriate.</p>  
+<p>It's important to keep in mind that the computation may not run to completion -- 
+  either because of an exception within the computation or because the agent cancels 
+  execution -- <code>CallHandle.cancel()</code>. In both cases, the feedback notification 
+  won't run to completion either. However, in any case a final <code>org.openmicroscopy.shoola.env.data.events.DSCallOutcomeEvent</code> 
+  is delivered to the <code>observer</code> to notify of the computation outcome -- 
+  the event's methods can be used to find out the actual outcome and retrieve any 
+  result or exception. Every call documents what is the returned object and what are 
+  the possible exceptions so that the caller can later cast the returned value or 
+  exception as appropriate.</p>  
 <p>Here's the code for a prototypical observer:</p>
 <pre class="code">
    public void eventFired(AgentEvent ae)
