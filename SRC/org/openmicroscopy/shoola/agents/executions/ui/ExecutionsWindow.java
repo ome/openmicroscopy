@@ -47,12 +47,14 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.AnalysisChainEvent;
-import org.openmicroscopy.shoola.agents.events.LoadChainExecutionsEvent;
 import org.openmicroscopy.shoola.agents.events.DatasetEvent;
 import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsDataManager;
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsLoader;
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
 import org.openmicroscopy.shoola.env.config.IconFactory;
@@ -62,6 +64,9 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.TopWindowManager;
+import org.openmicroscopy.shoola.util.data.ContentGroup;
+import org.openmicroscopy.shoola.util.data.ContentGroupSubscriber;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 
@@ -78,10 +83,13 @@ import org.openmicroscopy.shoola.util.ui.Constants;
  * @since OME2.2
  */
 public class ExecutionsWindow extends TopWindow implements AgentEventListener,
-	ActionListener {
+	ActionListener, ContentGroupSubscriber {
 	
 	private static final int SLIDER_FUDGE=3;
 	private static final String RUN_ICON="nuvola-run16.png";
+	private static final int NOT_LOADED=0;
+	private static final int LOADING=1;
+	private static final int LOADED=2;
 	
 	/* a pointer to the registry */
 	private Registry registry;
@@ -98,26 +106,32 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	
 	private JComboBox combo;
 	
+	private ExecutionsDataManager dataManager;
+	
+	/* state of data loading process */
+	private int dataState = NOT_LOADED;
+	
+	private TopWindowManager topWindowManager;
+	
 	/**
 	 * Creates a new instance.
 	 */
-	public ExecutionsWindow(Registry registry)
+	public ExecutionsWindow(Registry registry,ExecutionsDataManager manager)
 	{
 		//We have to specify the title of the window to the superclass
 		//constructor and pass a reference to the TaskBar, which we get
 		//from the Registry.
 		super("Execution Manager", registry.getTaskBar());
+		this.dataManager = manager;
 		this.registry = registry;
 		configureDisplayButtons();
 		registry.getEventBus().register(this, 
-				new Class[] {LoadChainExecutionsEvent.class,
-							DatasetEvent.class,
+				new Class[] {DatasetEvent.class,
 							AnalysisChainEvent.class,
 							MouseOverDataset.class,
 							MouseOverAnalysisChain.class,
 							SelectDataset.class,
 							SelectAnalysisChain.class});
-		enableButtons(false);
 	}
 	
 	/**
@@ -199,13 +213,14 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	}
 	
 	public void eventFired(AgentEvent e) {
-		if (e instanceof LoadChainExecutionsEvent) {
+		/*if (e instanceof LoadChainExecutionsEvent) {
 			LoadChainExecutionsEvent event = (LoadChainExecutionsEvent) e;
 			execsModel = new ExecutionsModel(event);
 			if (execsModel.size() >0)
 				buildGUI();
 		}
-		else if (e instanceof AnalysisChainEvent) {
+		else */ 
+		if (e instanceof AnalysisChainEvent) {
 			AnalysisChainEvent event = (AnalysisChainEvent) e;
 			AnalysisChainData chain = event.getAnalysisChain();
 			if (execCanvas != null) 
@@ -230,6 +245,29 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 			execsModel.setRenderingOrder(choice);
 			
 			execCanvas.repaint();
+		}
+	}
+	
+	public void preHandleDisplay(TopWindowManager manager) {
+		if (dataState == NOT_LOADED) {
+			topWindowManager = manager;
+			ContentGroup group  = new ContentGroup(this);
+			new ExecutionsLoader(dataManager,group);
+			group.setAllLoadersAdded();
+			dataState = LOADING;
+		}
+		else if (dataState == LOADED) {
+			topWindowManager.continueHandleDisplay();
+		}
+	}
+	
+	public void contentComplete() {
+		if (dataManager.getChainExecutions() != null) {
+			ExecutionsData execs = dataManager.getChainExecutions();
+			execsModel = new ExecutionsModel(execs);
+			if (execsModel.size() >0)
+				buildGUI();
+			dataState =LOADED;
 		}
 	}
 	

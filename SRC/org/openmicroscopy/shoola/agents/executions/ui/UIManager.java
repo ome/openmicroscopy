@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.agents.executions.ui;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsDataManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 
@@ -78,10 +78,10 @@ public class UIManager
 	 * 
 	 * @param config	A reference to this agent's registry.
 	 */
-	public UIManager(Registry config)
+	public UIManager(Registry config,ExecutionsDataManager manager)
 	{	
 		this.config = config;
-		executionsWindow = new ExecutionsWindow(config);
+		executionsWindow = new ExecutionsWindow(config,manager);
 	}
 		
 	/**

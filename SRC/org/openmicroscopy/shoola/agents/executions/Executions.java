@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.executions;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.executions.data.ExecutionsDataManager;
 import org.openmicroscopy.shoola.agents.executions.ui.UIManager;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -82,7 +83,8 @@ public class Executions
 	
 	public void activate() 
 	{
-		uiManager = new UIManager(registry);
+		ExecutionsDataManager manager= new ExecutionsDataManager(registry);
+		uiManager = new UIManager(registry,manager);
 	}
 	
 	public boolean canTerminate() 
