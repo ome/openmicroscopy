@@ -111,9 +111,6 @@ public class GraphicSlider
         endKnob = new Rectangle2D.Double();
         manager.setStart(s);
         manager.setEnd(e);
-
-        //setKnobStart(BORDER-KW2);
-        //setKnobEnd(BL-KW2);
         Dimension d = new Dimension(WIDTH, HEIGHT);
         setPreferredSize(d);
         setSize(d);

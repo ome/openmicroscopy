@@ -129,9 +129,11 @@ public class ImageCanvas
 	public void paintImage(BufferedImage image)
 	{
 		this.image = image;
-        paintImage(magFactor, 
-                (int) (image.getWidth()*magFactor)+2*ViewerUIF.START, 
-                (int) (image.getHeight()*magFactor)+2*ViewerUIF.START);
+        if (image != null) {
+            paintImage(magFactor, 
+                    (int) (image.getWidth()*magFactor)+2*ViewerUIF.START, 
+                    (int) (image.getHeight()*magFactor)+2*ViewerUIF.START);
+        }
 	} 
 	
     /** 
@@ -208,7 +210,8 @@ public class ImageCanvas
 							RenderingHints.VALUE_RENDER_QUALITY);
 
 		g2D.setColor(Color.black);
-        g2D.drawImage(zoomImage, null, ViewerUIF.START, ViewerUIF.START);
+        if (zoomImage != null)
+            g2D.drawImage(zoomImage, null, ViewerUIF.START, ViewerUIF.START);
 	}
 
 	/** Paint the XY-frame. */

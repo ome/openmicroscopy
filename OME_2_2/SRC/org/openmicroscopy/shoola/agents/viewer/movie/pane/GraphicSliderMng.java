@@ -81,8 +81,6 @@ public class GraphicSliderMng
         this.mpMng = mpMng;
         boxStart = new Rectangle();
         boxEnd = new Rectangle();
-        //setKnobStart(MIN-GraphicSlider.KNOB_WITH/2);
-        //setKnobEnd(MAX-GraphicSlider.KNOB_WITH/2);
     }
 
     /** Attach Mouse listeners. */
@@ -134,7 +132,8 @@ public class GraphicSliderMng
      */
     void setStart(int v)
     {
-        int gv = convertRealIntoGraphics(v);
+        int gv = MIN;
+        if (max != 0) gv = convertRealIntoGraphics(v);
         positionStartKnob(gv);
     }
     
@@ -145,7 +144,8 @@ public class GraphicSliderMng
      */
     void setEnd(int v)
     {
-        int gv = convertRealIntoGraphics(v);
+        int gv = MAX;
+        if (max != 0) gv = convertRealIntoGraphics(v);
         positionEndKnob(gv);
     }
 
