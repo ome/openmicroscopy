@@ -43,8 +43,6 @@ import java.awt.Image;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
  
 //Third-party libraries
 
@@ -61,7 +59,10 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
+//import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+//import org.openmicroscopy.ds.st.CategoryGroup;
+//import org.openmicroscopy.ds.st.Category;
 
 /**
  * A utility class for managing communications with registry and 
@@ -133,8 +134,10 @@ public class DataManager {
 		if (loadingProjects == false) {
 			loadingProjects = true;
 			retrieveProjects();
-			Collection res = projectHash.values();
 			loadingProjects = false;
+			Collection res = null;
+			if (projectHash != null)
+				res= projectHash.values();
 			notifyAll();
 			return res;
 		}
@@ -294,38 +297,20 @@ public class DataManager {
 		return (BrowserDatasetData) datasetHash.get(ID);
 	}
 
-	public void getImages(BrowserDatasetData dataset) {
-        if (dataset.getImages() == null) {
-              try { 
-                      DataManagementService dms = registry.getDataManagementService();
-                      List images = dms.retrieveImages(dataset.getID(),
-                              new BrowserImageSummary());
-                      dataset.setImages(images);
-              } catch(DSAccessException dsae) {
-                      String s = "Can't retrieve user's datasets.";
-                      registry.getLogger().error(this, s+" Error: "+dsae);
-                      registry.getUserNotifier().notifyError("Data Retrieval Failure",
-                                                                                                      s, dsae);       
-              } catch(DSOutOfServiceException dsose) {
-                      ServiceActivationRequest 
-                      request = new ServiceActivationRequest(
-                                                              ServiceActivationRequest.DATA_SERVICES);
-                      registry.getEventBus().post(request);
-              }
-        }
-	}
 	private Collection getDatasetsWithImages(Collection ds) {
 		BrowserDatasetData d;
 	  	Iterator iter = ds.iterator();
+	  	
 		while (iter.hasNext()) {
 			d = (BrowserDatasetData) iter.next();
-			getImages(d);
 			Collection images= d.getImages();
+			if (images == null || images.size() == 0)
+				continue;
 			Iterator iter2 = images.iterator();
 			BrowserImageSummary b;
-			Vector imageSet = new Vector();
 			while (iter2.hasNext()) {
 				b = (BrowserImageSummary) iter2.next();
+				long thumbStart = System.currentTimeMillis();
 				Image im = thumbnailRetriever.getImage(b);
 				b.setThumbnail(im);
 			}
@@ -346,10 +331,14 @@ public class DataManager {
 			return moduleHash.values();
 		
 		if (loadingModules == false) {
+			long start = System.currentTimeMillis();
 			loadingModules = true;
 			retrieveModules();
+		//	retrieveCategories();
 			loadingModules = false;
 			notifyAll();
+			long getTime = System.currentTimeMillis()-start;
+			System.err.println("chain data manager. get modules work time.."+getTime);
 			return moduleHash.values();
 		}
 		else {// in progress
@@ -362,6 +351,36 @@ public class DataManager {
 			}
 		}
 	}
+	
+	/*protected synchronized void retrieveCategories() {
+		try { 
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			CategoryGroup cg = (CategoryGroup) sts.getCategoryGroup(45978);
+			if (cg == null) {
+				System.err.println("no category found ");
+			}	
+			else {
+				System.err.println("found category group "+cg.getName());
+				Collection categories = cg.getCategoryList();
+				Iterator iter = categories.iterator();
+				while (iter.hasNext()) {
+					Category c = (Category) iter.next();
+					System.err.println("category... "+c.getName());
+				}
+			}
+			
+		} catch(DSAccessException dsae) {
+			String s = "Can't retrieve user's modules.";
+			registry.getLogger().error(this, s+" Error: "+dsae);
+			registry.getUserNotifier().notifyError("Data Retrieval Failure",
+													s, dsae);	
+		} catch(DSOutOfServiceException dsose) {
+			ServiceActivationRequest 
+			request = new ServiceActivationRequest(
+								ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		}
+	}*/
 	
 	protected synchronized void retrieveModules() {
 		if (moduleHash == null ||moduleHash.size() == 0) {
@@ -410,10 +429,14 @@ public class DataManager {
 			return moduleCategoryHash.values();
 		
 		if (loadingModuleCategories == false) {
+			long start = System.currentTimeMillis();
 			loadingModuleCategories = true;
 			retrieveModuleCategories();
 			loadingModuleCategories = false;
 			notifyAll();
+			long getTime = System.currentTimeMillis()-start;
+			System.err.println("chain data manager. get module categories work time.."+getTime);
+			
 			return moduleCategoryHash.values();
 		}
 		else {// in progress
