@@ -32,10 +32,8 @@ package org.openmicroscopy.shoola.agents.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -50,6 +48,7 @@ import org.openmicroscopy.shoola.agents.rnd.controls.ToolBar;
 import org.openmicroscopy.shoola.agents.rnd.model.ModelPane;
 import org.openmicroscopy.shoola.agents.rnd.pane.QuantumPane;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * 
@@ -128,14 +127,7 @@ class RenderingAgtUIF
 	 */
 	void showDialog(JDialog editor)
 	{
-		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
-		int offsetX = (tfB.width-psB.width)/2, 
-			offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0) offsetX = 0;
-		if (offsetY < 0) offsetY = 0;
-		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
-		editor.setVisible(true);
+		UIFactory.showEditor(editor);
 	}
 	
 	/** Set the selected model. */
