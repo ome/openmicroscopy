@@ -29,16 +29,13 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-import java.util.List;
-
-import org.openmicroscopy.ds.dto.Attribute;
-import org.openmicroscopy.ds.dto.SemanticType;
-
 //Java imports
-
+import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.dto.Attribute;
+import org.openmicroscopy.ds.dto.SemanticType;
 
 /** 
  * 
@@ -195,7 +192,8 @@ public interface SemanticTypesService
      * @param type The type of Attribute to create.
      * @return The created attribute.
      */
-    public Attribute createAttribute(SemanticType type);
+    public Attribute createAttribute(SemanticType type)
+		throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Creates an attribute of the type with the specified name, so that you
@@ -204,7 +202,8 @@ public interface SemanticTypesService
      * @param typeName The name of the attribute to create.
      * @return The created attribute.
      */
-    public Attribute createAttribute(String typeName);
+    public Attribute createAttribute(String typeName)
+		throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Uses the AnnotationManager to update/create attributes that require
@@ -212,7 +211,8 @@ public interface SemanticTypesService
      * ImageAnnotations, Classifications, etc.
      * @param attributes The list of attributes to add to the system.
      */
-    public void updateUserInputAttributes(List attributes);
+    public void updateUserInputAttributes(List attributes)
+		throws DSOutOfServiceException, DSAccessException;
 
     /**
      * Retrieves the attribute with the given SemanticType and specified
@@ -271,8 +271,8 @@ public interface SemanticTypesService
      * @throws DSAccessException If there is a communication error or the
      *                           childAttribute name is invalid.
      */
-    public List retrieveDatasetAttributes(String typeName, String childAttribute,
-                                          int datasetID)
+    public List retrieveDatasetAttributes(String typeName, 
+    									String childAttribute, int datasetID)
         throws DSOutOfServiceException, DSAccessException;
         
     /**
@@ -400,8 +400,8 @@ public interface SemanticTypesService
      * @throws DSAccessException If there is a communication error or the
      *                           childAttribute name is invalid.
      */
-    public List retrieveFeatureAttributes(String typeName, String childAttribute,
-                                          int featureID)
+    public List retrieveFeatureAttributes(String typeName, 
+    									 String childAttribute, int featureID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -420,15 +420,16 @@ public interface SemanticTypesService
         throws DSOutOfServiceException, DSAccessException;
         
     /**
-     * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,java.util.List)
+     * @see retrieveFeatureAttributes(org.openmicroscopy.ds.dto.SemanticType,
+     *								List)
      */
     public List retrieveFeatureAttributes(String typeName, List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
         
     /**
      * Returns all the Attributes with the given SemanticType that belong to
-     * features with the specified IDs, and include (in the DB call) the attribute
-     * with the specified name.  For example, if childAttribute is
+     * features with the specified IDs, and include (in the DB call) the 
+     * attribute with the specified name.  For example, if childAttribute is
      * <code>OTF.Instrument</code>, the retrieval will include both the
      * fully-spec'd embedded OTF and Instrument.  names must be specified by
      * their names in the semantic type, not their semantic type names.
@@ -444,8 +445,8 @@ public interface SemanticTypesService
      * @throws DSAccessException If there is a communication error or the
      *                           childAttribute name is invalid.
      */
-    public List retrieveFeatureAttributes(String typeName, String childAttribute,
-                                          List featureIDs)
+    public List retrieveFeatureAttributes(String typeName, 
+    									String childAttribute, List featureIDs)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
