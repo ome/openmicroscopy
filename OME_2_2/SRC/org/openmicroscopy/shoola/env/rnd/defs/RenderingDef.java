@@ -124,9 +124,16 @@ public class RenderingDef
 		cdChainDef.add(mapCtx);
 	}
 	
+	/** Remove the specified codomainMapContext. */
 	public void removeCodomainMapCtx(CodomainMapContext mapCtx)
 	{
 		cdChainDef.remove(mapCtx);
+	}
+	
+	/** Remove all codomainMapContext. */
+	public void remove()
+	{
+		cdChainDef.removeAll(cdChainDef);
 	}
 	
 	/**

@@ -184,6 +184,19 @@ public class CodomainChain
 	public int getIntervalStart() { return intervalStart; }
 	
 	/** 
+	 * Remove all codomainMapContexts except the identity and 
+	 * reset the interval. 
+	 */
+	public void remove()
+	{
+		intervalStart = 0;
+		intervalEnd = 255;
+		chain.removeAll(chain);
+		chain.add(identityCtx);
+		buildLUT();
+	}
+	
+	/** 
 	 * Adds a map context to the chain.
 	 * This means that the transformation associated to the passed context
 	 * will be applied after all the currently queued transformations.

@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * 
@@ -251,7 +252,8 @@ class RenderingControlProxy
 		eventBus.post(rpc);
 	}
 
-	public void removeCodomainMap(final CodomainMapContext mapCtx) {
+	public void removeCodomainMap(final CodomainMapContext mapCtx)
+	{
 		rndDefCopy.removeCodomainMapCtx(mapCtx);
 		MethodCall mCall = new MethodCall() {
 			public void doCall() { 
@@ -261,7 +263,7 @@ class RenderingControlProxy
 		RenderingPropChange rpc = new RenderingPropChange(mCall);
 		eventBus.post(rpc);
 	}
-
+	
 	public void saveCurrentSettings() 
 	{
 		MethodCall mCall = new MethodCall() {
@@ -273,4 +275,37 @@ class RenderingControlProxy
 		eventBus.post(rpc);
 	}
 
+	/** Implemented as specified by {@link RenderingControl}. */
+	public void resetDefaults()
+	{
+		setQuantumStrategy(QuantumFactory.LINEAR, 1.0, 
+							QuantumFactory.DEPTH_8BIT);
+		setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
+		
+		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
+		PixelsStats stats = servant.getPixelsStats();
+		for (int i = 0; i < cb.length; i++)
+				resetDefaultsChannel(i, stats);
+		rndDefCopy.remove();
+		setModel(RenderingDef.GS);
+		
+		MethodCall mCall = new MethodCall() {
+			public void doCall() { 
+				servant.resetDefaults();
+			}
+		};
+		RenderingPropChange rpc = new RenderingPropChange(mCall);
+		eventBus.post(rpc);
+	}
+	
+	/** Reset defaults for all wavelengths. */
+	private void resetDefaultsChannel(int w, PixelsStats stats)
+	{
+		setActive(w, w == 0);
+		Integer s = new Integer((int) (stats.getGlobalEntry(w).globalMin));
+		Integer e = new Integer((int) (stats.getGlobalEntry(w).globalMax));
+		setChannelWindow(w, s, e);
+		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
+	}
+	
 }

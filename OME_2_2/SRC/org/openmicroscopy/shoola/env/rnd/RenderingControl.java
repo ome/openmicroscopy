@@ -90,4 +90,7 @@ public interface RenderingControl
 	//Save display options to db.
 	public void saveCurrentSettings();
 	
+	//ResetDefaults values.
+	public void resetDefaults();
+	
 }

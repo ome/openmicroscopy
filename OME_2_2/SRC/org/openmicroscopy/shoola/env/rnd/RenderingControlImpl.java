@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumStrategy;
 
 /** 
@@ -197,11 +198,40 @@ class RenderingControlImpl
 	{
 		renderer.getCodomainChain().remove(mapCtx);
 	}
-
+	
 	/** Implemented as specified by {@link RenderingControl}. */
 	public void saveCurrentSettings() 
 	{
 		//TODO: implement when display options in DB are sorted out.	
 	}
 
+	/** Implemented as specified by {@link RenderingControl}. */
+	public void resetDefaults()
+	{
+		//linear gamma = 1.0 and bitResolution <=> 255
+		setQuantumStrategy(QuantumFactory.LINEAR, 1.0, 
+							QuantumFactory.DEPTH_8BIT);
+		setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
+		ChannelBindings[] cb = renderer.getRenderingDef().getChannelBindings();
+		PixelsStats stats = renderer.getPixelsStats();
+		for (int i = 0; i < cb.length; i++)
+				resetDefaultsChannel(i, stats);
+		//Remove all the codomainMapCtx except the identity.
+		renderer.getCodomainChain().remove();
+		
+		//reset the strategy.
+		setModel(RenderingDef.GS);
+	}
+
+	
+	/** Reset the defaults for each channel. */
+	private void resetDefaultsChannel(int w, PixelsStats stats)
+	{
+		setActive(w, w == 0);
+		Integer s = new Integer((int) (stats.getGlobalEntry(w).globalMin));
+		Integer e = new Integer((int) (stats.getGlobalEntry(w).globalMax));
+		setChannelWindow(w, s, e);
+		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
+	}
+	
 }
