@@ -117,7 +117,7 @@ public abstract class FormalParameter extends PNode implements
 	 /**
 	  * True if a link to this parameter can be added
 	  */
-	protected boolean linkable;
+	protected boolean linkable = false;
 	
 	/**
 	 * The name of the parameter
@@ -418,7 +418,6 @@ public abstract class FormalParameter extends PNode implements
 	public boolean canBeLinkOrigin() {
 		if (getParent() == null)
 			return false;
-		System.err.println("parent of param is "+getParent()+", visibility is "+getParent().getVisible());
 		return getParent().getVisible();
 	}
 	
@@ -492,7 +491,4 @@ public abstract class FormalParameter extends PNode implements
 	public void mousePopup(GenericEventHandler handler) {
 		delegate.mousePopup(handler);
 	}
-	
-	
-
 }
