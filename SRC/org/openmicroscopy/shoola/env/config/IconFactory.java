@@ -70,7 +70,7 @@ public class IconFactory
 	 * @param name	icon's name.
 	 * @return
 	 */
-	Icon getIcon(String name)
+	public Icon getIcon(String name)
 	{
 		Icon icon = null;
 		if (location != null) {
