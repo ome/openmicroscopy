@@ -124,6 +124,11 @@ class OMEDSGateway
 		return (DatasetManager) proxiesFactory.getService(DatasetManager.class);
 	}
 	
+	AnnotationManager getAnnotationManager()
+	{
+		return (AnnotationManager) proxiesFactory.getService(AnnotationManager.class);
+	}
+	
 	/** Retrieve the current experimenter. */
 	Experimenter getCurrentUser(Criteria c)
 		throws DSOutOfServiceException, DSAccessException
