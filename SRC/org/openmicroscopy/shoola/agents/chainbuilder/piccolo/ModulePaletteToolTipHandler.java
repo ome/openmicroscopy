@@ -133,10 +133,12 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 		double y=0;
 		p.setOffset(0,y);
 		p.setFont(font);
+		p.setPickable(false);
 		y += p.getHeight();
 		SemanticTypeData st = fp.getSemanticType();
 		if (st != null) {
 			p = new PText("Type: "+st.getName());
+			p.setPickable(false);
 			node.addChild(p);
 			p.setFont(font);
 			p.setOffset(0,y);
@@ -145,7 +147,7 @@ public class ModulePaletteToolTipHandler extends ToolTipHandler {
 		node.setBounds(node.getUnionOfChildrenBounds(null));
 		node.setStrokePaint(Constants.TOOLTIP_BORDER_COLOR);
 		node.setPaint(Constants.TOOLTIP_FILL_COLOR);
-		
+		node.setPickable(false);
 		return node;	
 	}
 	
