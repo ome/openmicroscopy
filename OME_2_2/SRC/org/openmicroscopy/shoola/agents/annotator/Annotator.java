@@ -227,6 +227,10 @@ public class Annotator
 		}
     }
     
+    /**
+     * For existing annotations in the database, trigger a SQL update.
+     * @param annotations
+     */
     void updateAnnotations(List annotations)
     {
         if(annotations == null || annotations.size() == 0 ) return;

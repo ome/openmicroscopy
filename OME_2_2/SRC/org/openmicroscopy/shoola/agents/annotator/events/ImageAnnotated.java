@@ -39,8 +39,8 @@ import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /**
- * Indicates that an image has been annotated, or the contents of the
- * annotation have changed.
+ * An event that signals that an image has been annotated, or the contents
+ * of the annotation have changed.
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
