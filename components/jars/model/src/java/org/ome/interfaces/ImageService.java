@@ -18,18 +18,19 @@ public interface ImageService {
 			throws RemoteException;
 
 	public List retrieveImagesByExperimenter(LSID experimenterId,
-			int predicateGroupId) throws RemoteException;
+			LSID predicateGroupId) throws RemoteException;
 
 	public IImage retrieveImage(LSID imageId) throws RemoteException;
 
-	public IImage retrieveImage(LSID imageId, int predicateGroupId)
+	public IImage retrieveImage(LSID imageId, LSID predicateGroupId)
 			throws RemoteException;
 
 	// The next could be generated as (?container :contains ?image) //TODO
+	// or just generalized "getByContainer()" since Transitive??
 
-	public IImage retrieveImagesByDataset(LSID datasetId) throws RemoteException;
+	public List retrieveImagesByDataset(LSID datasetId) throws RemoteException;
 
-	public IImage retrieveImagesByProject(LSID projectId) throws RemoteException;
+	public List retrieveImagesByProject(LSID projectId) throws RemoteException;
 
 	public void updateImage(IImage data) throws RemoteException;
 

@@ -6,6 +6,7 @@ package org.ome.model;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /** storage mechanism for an RDF graph of LSID-referenced objects.
@@ -27,7 +28,8 @@ public abstract class AbstractLSObject implements Serializable, LSObject{
 				object instanceof Float ||
 				object instanceof Double ||
 				object instanceof String ||
-				object instanceof Integer) {
+				object instanceof Integer ||
+				object instanceof List) {
 				map.put(predicate,object);
 			return true;
 		} else {

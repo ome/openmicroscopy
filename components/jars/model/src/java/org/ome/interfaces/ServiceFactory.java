@@ -3,6 +3,9 @@
  */
 package org.ome.interfaces;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 /**
  * 
  * NB: ServiceFactory implementations on the client side will be communicating
@@ -11,9 +14,12 @@ package org.ome.interfaces;
  * 
  * @author josh
  */
-public interface ServiceFactory {
-	public AdministrationService getAdministrationService();
-	public ContainerService getContainerService();
-	public GenericService getGenericService();
-	public FollowGroupService getFollowGroupService();
+public interface ServiceFactory extends Remote{
+	public AdministrationService getAdministrationService() throws RemoteException;
+	public ContainerService getContainerService() throws RemoteException;
+	public GenericService getGenericService() throws RemoteException;
+	public FollowGroupService getFollowGroupService() throws RemoteException;
+	public ImageService getImageService() throws RemoteException;
+	public AttributeService getAttributeService() throws RemoteException;
+	public AnalysisService getAnalysisService() throws RemoteException;
 }

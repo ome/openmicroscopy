@@ -9,6 +9,8 @@ import org.ome.model.LSID;
 
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * responsible for the resolution of individual LSObjects
@@ -17,9 +19,11 @@ import java.rmi.Remote;
  */
 public interface GenericService extends Remote {
 
-	public void setLSOjbect(LSObject obj);
-	public void updateLSObject(LSObject obj);
-	public LSObject getLSObject(LSID lsid);
-	public LSObject getLSObject(LSID lsid, FollowGroup pg);
+	public void setLSOjbect(LSObject obj) throws RemoteException;
+	public void updateLSObject(LSObject obj) throws RemoteException;
+	public LSObject getLSObject(LSID lsid) throws RemoteException;
+	public LSObject getLSObjectWithFollowGroup(LSID lsid, FollowGroup fg) throws RemoteException;
+	public List getLSObjectsByLSIDType(LSID type) throws RemoteException;
+	public List getLSObjectsByClassType(Class klass) throws RemoteException;
 	
 }
