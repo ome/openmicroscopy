@@ -76,6 +76,10 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
 public class RenderingAgt
 	implements Agent, AgentEventListener
 {
+	
+	public static final Dimension	HBOX = new Dimension(10, 0), 
+									VBOX = new Dimension(0, 10);
+	
 	/** horizontal space between the cells in the grid. */
 	public static final int			H_SPACE = 10;
 	

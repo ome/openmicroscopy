@@ -105,7 +105,7 @@ class GraphicsRepresentation
 	static final Color			iStartColor = Color.RED;
 	
 	/** Color of the inputStart knob. */
-	static final Color			iEndColor = Color.YELLOW;
+	static final Color			iEndColor = Color.GREEN;
 	
 	/** Color of the lines. */
 	private static final Color	lineColor = Color.RED;
@@ -131,6 +131,7 @@ class GraphicsRepresentation
    	/** Control points. */
    	private Point2D				startPt, endPt, controlPt, staticStartPt,
 								staticEndPt;
+								
 	private QuadCurve2D.Double	quad;
 	
    	private int					coefficient, controlOutputStart, 
@@ -903,8 +904,8 @@ class GraphicsRepresentation
 		g2D.drawString(end, xControl-wEnd/2, hFont+tS+extra);
 		g2D.drawString("Pixels intensity", lS2-wInput/2, 
 						hFont/2+tS+bottomBorder+hInput);
-		g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
-		g2D.drawString(curEnd, lS2+10, hFont+tS+bottomBorder+2*hInput);
+		//g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
+		//g2D.drawString(curEnd, lS2+10, hFont+tS+bottomBorder+2*hInput);
 		
 		//inputStart knob
 		int xStartPoints[] = {xStart1, xStart2, xStart3};
@@ -916,6 +917,9 @@ class GraphicsRepresentation
 		filledPolygonStart.closePath();
 		g2D.setColor(iStartColor);
 		g2D.fill(filledPolygonStart);
+		//curStart value
+		g2D.drawString(curStart, 10, hFont+tS+bottomBorder+2*hInput);
+		
 		
 		//inputEnd knob
 		int xEndPoints[] = {xEnd1, xEnd2, xEnd3};
@@ -928,6 +932,8 @@ class GraphicsRepresentation
 		
 		g2D.setColor(iEndColor);
 		g2D.fill(filledPolygonEnd);
+		//curEnd value.
+		g2D.drawString(curEnd, lS2+10, hFont+tS+bottomBorder+2*hInput);
 		
 		//outputStart knob
 		int xStartOutputPoints[] = {xStartOutput1, xStartOutput2, 

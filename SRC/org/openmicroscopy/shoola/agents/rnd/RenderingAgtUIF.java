@@ -167,9 +167,7 @@ class RenderingAgtUIF
 	/** Build a panel with graphics and control. */
 	private void buildMappingPanel()
 	{
-		JPanel p = new JPanel();
-		p.add(quantumPane.getLayeredPane());
-		mappingPanel.add(p, BorderLayout.NORTH);
+		mappingPanel.add(quantumPane.getGRPane(), BorderLayout.NORTH);
 		mappingPanel.add(quantumPane.getDomainPane(), BorderLayout.CENTER);
 	}
 	
@@ -178,7 +176,7 @@ class RenderingAgtUIF
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createModelMenu());
-		menuBar.add( createMenu());
+		menuBar.add(createMenu());
 		return menuBar;
 	}
 

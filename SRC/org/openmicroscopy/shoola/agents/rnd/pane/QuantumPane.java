@@ -34,7 +34,8 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import javax.swing.JLayeredPane;
+
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -60,20 +61,24 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 public class QuantumPane
 {
 	
-	static final String			NOTE = 
+	static final String				NOTE = 
 				"[Note] The output interval selected in \"Mapping\" defines " +
 				"the input and output intervals for this transformation.";
 			
 	/** set the background color of the layered pane. */
-	private static final Color		BACKGROUND = Color.WHITE;
-	
+	static final Color				BACKGROUND = Color.WHITE;
+
+	private static final Dimension	GR_DIM = new Dimension(
+												GraphicsRepresentation.width, 
+												GraphicsRepresentation.height);
 	/** Default index. */
 	private static final int		INDEX = 0;
 	
 	private CodomainPane			codomainPane;
 	private DomainPane				domainPane;
 	private GraphicsRepresentation  gRepresentation;
-	private JLayeredPane			layeredPane;
+	
+	private JPanel					grPane;
 	
 	/** Reference to the {@link QuantumPaneManager manager}. */
 	private QuantumPaneManager		manager;
@@ -96,9 +101,10 @@ public class QuantumPane
 		if (qDef.family == QuantumFactory.EXPONENTIAL)
 			 gRepresentation.setDefaultExponential(s, e);
 		else gRepresentation.setDefaultLinear(s, e);
-		buildLayeredPane(gRepresentation);
+		buildGRPane();
 	}
 	
+	 
 	/** Set enabled the wavelenghts combobox. */
 	public void setSelectionWavelengthsEnable(boolean b)
 	{
@@ -118,31 +124,22 @@ public class QuantumPane
 	public CodomainPane getCodomainPane() { return codomainPane; }
 
 	public DomainPane getDomainPane() { return domainPane; }
-
-	public JLayeredPane getLayeredPane() { return layeredPane; }
+	
+	public JPanel getGRPane() { return grPane; }
 	
 	GraphicsRepresentation getGRepresentation() { return gRepresentation; }
 	
 	QuantumPaneManager getManager() { return manager; }
 	
 	void setGRepresentation(GraphicsRepresentation gr) { gRepresentation = gr;}
-	
-	/** 
-	 * Builds a layeredPane containing the GraphicsRepresentation.
-	 *
-	 * @return the above mentioned.
-	 */   
-	void buildLayeredPane(GraphicsRepresentation gr)
-	{
-		layeredPane = new JLayeredPane();
-		layeredPane.setPreferredSize(new Dimension(GraphicsRepresentation.width, 
-										GraphicsRepresentation.height));
-		layeredPane.setBounds(0, 0, GraphicsRepresentation.width, 
-							GraphicsRepresentation.height);
-		gr.setSize(GraphicsRepresentation.height, 
-					GraphicsRepresentation.height);
-		gr.setBackground(BACKGROUND);
-		layeredPane.add(gr);
-	}
 
+	void buildGRPane()
+	{
+		grPane = new JPanel();
+		gRepresentation.setPreferredSize(GR_DIM);
+		gRepresentation.setSize(GR_DIM);
+		gRepresentation.setBackground(BACKGROUND);
+		grPane.add(gRepresentation);
+	}
+	
 }

@@ -37,12 +37,13 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -50,6 +51,7 @@ import javax.swing.JRadioButton;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
+import org.openmicroscopy.shoola.agents.rnd.RenderingAgt;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -74,7 +76,14 @@ class PlaneSlicingDialog
 	
 	private static final String			TEXT = 
 									"Highlight a specific gray-level range.";
-		
+	
+	private static final Dimension		DIM = new Dimension(
+												PlaneSlicingPanel.WIDTH,
+												PlaneSlicingPanel.HEIGHT),
+										DIM_ALL = new Dimension(
+												2*PlaneSlicingPanel.WIDTH,
+												PlaneSlicingPanel.HEIGHT);
+														
 	private static final String[]   	RANGE;
 
 	static {
@@ -119,9 +128,7 @@ class PlaneSlicingDialog
 	private PlaneSlicingStaticPanel		pssPanel;
 	
 	private PlaneSlicingDialogManager	manager;
-	
-	private JLayeredPane				layeredPane;
-	
+
 	PlaneSlicingDialog(QuantumPaneManager control, PlaneSlicingContext psCtx)
 	{
 		super(control.getReferenceFrame(), "Plane Slicing", true);	
@@ -187,41 +194,40 @@ class PlaneSlicingDialog
 		IconManager im = IconManager.getInstance(registry);
 		TitlePanel tp = new TitlePanel("Plane Slicing", TEXT, QuantumPane.NOTE,
 									im.getIcon(IconManager.SLICING_BIG));
-		buildLayeredPane();
+									
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(layeredPane, BorderLayout.CENTER);
-		getContentPane().add(buildBody(), BorderLayout.SOUTH);
-		setResizable(false);
-		pack();
+		getContentPane().add(buildBody(), BorderLayout.CENTER);
+		setSize(2*PlaneSlicingPanel.WIDTH, 3*PlaneSlicingPanel.HEIGHT);
 	}
 	
 	private JPanel buildBody()
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(buildRadioGroupPanel());
-		p.add(buildComboBoxPanel());
+		p.add(buildGraphicsPane());
+		p.add(Box.createRigidArea(RenderingAgt.VBOX));
+		p.add(buildControlsPanel());
 		return p;
 	}
 	
-	/** Builds a layeredPane containing the GraphicsRepresentation. */   
-	private	void buildLayeredPane()
+	private JPanel buildGraphicsPane()
 	{
-		layeredPane = new JLayeredPane();
-		layeredPane.setLayout(null);
-		layeredPane.setPreferredSize(new Dimension(2*PlaneSlicingPanel.WIDTH, 
-												3*PlaneSlicingPanel.HEIGHT/2));
-		psPanel.setBounds(0, 0, PlaneSlicingPanel.WIDTH, 
-								PlaneSlicingPanel.HEIGHT);
-		pssPanel.setBounds(PlaneSlicingPanel.WIDTH, 0, PlaneSlicingPanel.WIDTH, 
-								PlaneSlicingPanel.HEIGHT);
-		layeredPane.add(psPanel, new Integer(1));
-		layeredPane.add(pssPanel, new Integer(1));
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.setPreferredSize(DIM_ALL);
+		p.setSize(DIM_ALL);
+		psPanel.setPreferredSize(DIM);
+		psPanel.setSize(DIM);
+		p.add(psPanel);
+		pssPanel.setPreferredSize(DIM);
+		pssPanel.setSize(DIM);
+		p.add(pssPanel);
+		return p;
 	}
 	
 	/** Build a panel containing the radiogroup. */    
-	private JPanel buildRadioGroupPanel()
+	private JPanel buildControlsPanel()
 	{
 		JPanel p = new JPanel(), pAll = new JPanel();
 		GridBagLayout gridbag = new GridBagLayout();
@@ -236,12 +242,16 @@ class PlaneSlicingDialog
 		c.gridy = 1;
 		gridbag.setConstraints(radioStatic, c);
 		p.add(radioStatic);
+		JPanel comboPanel = buildComboBoxPanel();
+		c.gridy = 2;
+		gridbag.setConstraints(comboPanel, c);
+		p.add(comboPanel);
 		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pAll.add(p);
 		return pAll;
 	}
 	
-	/** Build a Panel with a combobox. */
+	/** Build a Panel with label and comboBox. */
 	private JPanel buildComboBoxPanel()
 	{
 		JPanel p = new JPanel();
@@ -252,6 +262,7 @@ class PlaneSlicingDialog
 		return p;	
 	}
 
+	/** Build a panel with the comboBox. */
 	private JPanel buildComboBoxPanel(JComboBox box)
 	{
 		JPanel p = new JPanel();
@@ -259,4 +270,5 @@ class PlaneSlicingDialog
 		p.add(box);
 		return p;
 	}
+	
 }

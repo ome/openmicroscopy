@@ -34,7 +34,7 @@ package org.openmicroscopy.shoola.agents.rnd.pane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JDialog;
-import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -65,12 +65,14 @@ class ContrastStretchingDialog
 	private static final String				TEXT = "Increase the dynamic " +
 											"range of the gray levels.";
 	
+	private static final Dimension			DIM = new Dimension(
+												ContrastStretchingPanel.WIDTH,
+												ContrastStretchingPanel.HEIGHT);
+												
 	private ContrastStretchingPanel			csPanel;
 	
 	private ContrastStretchingDialogManager	manager;
 
-	private JLayeredPane					layeredPane;
-	
 	ContrastStretchingDialog(QuantumPaneManager control, 
 							ContrastStretchingContext ctx)
 	{
@@ -108,28 +110,29 @@ class ContrastStretchingDialog
 	private void buildGUI(Registry registry)
 	{
 		IconManager im = IconManager.getInstance(registry);
-		buildLayeredPane();
+
 		TitlePanel tp = new TitlePanel("Contrast Stretching", TEXT, 
 										QuantumPane.NOTE,
 										im.getIcon(IconManager.STRETCHING_BIG));
 		getContentPane().add(tp, BorderLayout.NORTH);
-		getContentPane().add(layeredPane, BorderLayout.CENTER);
-		setResizable(false);
-		pack();
+		getContentPane().add(buildGraphicsPane(), BorderLayout.CENTER);
+		setSize(2*ContrastStretchingPanel.WIDTH, 
+				2*ContrastStretchingPanel.HEIGHT);
 	}
 	
 	/** 
-	 * Builds a layeredPane containing the GraphicsRepresentation.
+	 * Builds a panel containing the GraphicsRepresentation.
 	 *
 	 * @return the above mentioned.
 	 */   
-	private	void buildLayeredPane()
+	private	JPanel buildGraphicsPane()
 	{
-		layeredPane = new JLayeredPane();
-		Dimension d = new Dimension(3*ContrastStretchingPanel.WIDTH/2, 
-										3*ContrastStretchingPanel.HEIGHT/2);
-		layeredPane.setPreferredSize(d);
-		layeredPane.add(csPanel);
+		JPanel p = new JPanel();
+		csPanel.setBackground(QuantumPane.BACKGROUND);
+		csPanel.setPreferredSize(DIM);
+		csPanel.setSize(DIM);
+		p.add(csPanel);
+		return p;
 	}
 	
 }

@@ -183,7 +183,7 @@ class QuantumPaneManager
 	 */
 	void setWavelength(int w)
 	{
-		view.getLayeredPane().removeAll();
+		view.getGRPane().removeAll();
 		GraphicsRepresentation gr = view.getGRepresentation();
 		gr = null;
 		int mini = (int) eventManager.getGlobalChannelWindowStart(w);
@@ -199,7 +199,7 @@ class QuantumPaneManager
 			gr.setDefaultExponential(s, e);
 		else gr.setDefaultLinear(s, e);
 		view.setGRepresentation(gr);
-		view.buildLayeredPane(gr);
+		view.buildGRPane();
 		eventManager.setMappingPane();
 	}
 	

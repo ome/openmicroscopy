@@ -386,8 +386,7 @@ class GraphicsRepresentationManager
 	private void setOutputStartBox(int y)
 	{
 		maxStartOutputY = y-2*triangleW;
-		boxOutputStart.setBounds(0, y-2*triangleW, leftBorder-2*triangleW-1,
-										 4*length);
+		boxOutputStart.setBounds(0, y-2*triangleW, leftBorder, 4*length);
 	}
 	
 	/** 
@@ -398,8 +397,7 @@ class GraphicsRepresentationManager
 	private void setOutputEndBox(int y)
 	{
 		minEndOutputY = y+triangleW;
-		boxOutputEnd.setBounds(0, y-triangleW, leftBorder-triangleW-1, 
-								2*length);
+		boxOutputEnd.setBounds(0, y-triangleW, leftBorder, 2*length);
 	}
 	
 	/** 

@@ -122,7 +122,7 @@ class ContrastStretchingPanel
 		// top-right corner
 		staticEndPt.setLocation((double) lS, (double) topBorder);
 		endPt.setLocation((double) xEnd, (double) yEnd);
-		setSize(3*WIDTH/2, 3*HEIGHT/2);
+		//setSize(3*WIDTH/2, 3*HEIGHT/2);
 		repaint();
 	}
 	
