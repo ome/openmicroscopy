@@ -79,7 +79,7 @@ public final class BrowserViewEventDispatcher
                 }
             }
         
-            public void mouseMoved(PInputEvent e)
+            public void mouseEntered(PInputEvent e)
             {
                 PPickPath pickPath = e.getPath();
                 PNode node;
@@ -89,6 +89,25 @@ public final class BrowserViewEventDispatcher
                     if(node instanceof MouseOverSensitive)
                     {
                         ((MouseOverSensitive)node).respondMouseEnter(e);
+                        e.setHandled(true);
+                    }
+                    else
+                    {
+                        pickPath.popNode(node);
+                    }
+                }
+            }
+            
+            public void mouseExited(PInputEvent e)
+            {
+                PPickPath pickPath = e.getPath();
+                PNode node;
+                while((node = pickPath.getPickedNode()) != null &&
+                      !e.isHandled())
+                {
+                    if(node instanceof MouseOverSensitive)
+                    {
+                        ((MouseOverSensitive)node).respondMouseExit(e);
                         e.setHandled(true);
                     }
                     else

@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.browser.events.MouseDragSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
+import org.openmicroscopy.shoola.agents.browser.events.PiccoloActions;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloModifiers;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethods;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
@@ -204,6 +205,8 @@ public class BrowserView extends PCanvas
         
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                                 selectThumbnailAction);
+        defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
+                                                PiccoloActions.SEMANTIC_ZOOM_ACTION);
         
     }
     
