@@ -39,11 +39,11 @@ import java.util.Iterator;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
-import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
 import org.openmicroscopy.shoola.util.ui.graphlayout.GraphLayoutNode;
 import org.openmicroscopy.shoola.util.ui.graphlayout.LayoutLink;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 /** 
  * An extension of 

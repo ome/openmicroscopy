@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 /**
  * Nodes for displaying Formal Inputs to OME Modules

@@ -183,7 +183,7 @@ public abstract class Link extends  PPath implements NodeEventListener {
 		setLine();
 	}
 	
-	protected abstract void setLine();
+	public abstract void setLine();
 	
 	/**
 	 * SEt the point at a specific index.

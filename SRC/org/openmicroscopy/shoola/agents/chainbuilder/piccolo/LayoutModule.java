@@ -42,6 +42,8 @@
 
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
+
 
 /** 
  * A subclass of {@link ModuleView}, used to contain bounds in terms of an x,y 

@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.util.ui.graphlayout.GraphLayoutNode;
 import org.openmicroscopy.shoola.util.ui.graphlayout.Layering;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 

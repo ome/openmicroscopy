@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.chainbuilder.ui.dnd.ModuleFlavor;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 
 

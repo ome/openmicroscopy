@@ -53,6 +53,7 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.Constants;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the

@@ -53,6 +53,7 @@ import edu.umd.cs.piccolo.PNode;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutChainData;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 /** 
  * A Piccolo widget for  a single, atomic OME analysis  module - as opposed to

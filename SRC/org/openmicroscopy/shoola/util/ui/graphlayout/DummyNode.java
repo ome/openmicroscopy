@@ -49,7 +49,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
-import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
  
 

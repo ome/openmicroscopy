@@ -43,6 +43,8 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 //Java imports
 
 //Third-party libraries
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
+
 import edu.umd.cs.piccolox.handles.PBoundsHandle;
 import edu.umd.cs.piccolox.util.PBoundsLocator;
  

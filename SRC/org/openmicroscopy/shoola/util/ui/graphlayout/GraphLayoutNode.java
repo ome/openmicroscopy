@@ -47,7 +47,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleView;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 /** 
  * Behavior for nodes that can be involved in chainlayout. Generally will be 
  * two types of classes that implement this: graph nodes and "dummy nodes" that

@@ -158,7 +158,7 @@ public class ParamLink extends  Link {
 	 * Java rendering bug on macs that made arrows not work gets fixed.
 	 * 
 	 */
-	protected void setLine() {
+	public void setLine() {
 		Point2D second;
 		try {
 	

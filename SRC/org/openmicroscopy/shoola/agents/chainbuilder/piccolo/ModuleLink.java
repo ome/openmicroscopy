@@ -48,6 +48,7 @@ import edu.umd.cs.piccolo.PNode;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.Constants;
 import org.openmicroscopy.shoola.util.ui.piccolo.Link;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
  
 /** 
  * A Piccolo node for links between between {@link ModuleView} objects. These 
@@ -197,7 +198,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.Link;
 	 * link is always the side that goes to an input, we just draw the link 
 	 * end at the last point in the list. 
 	 */	
-	protected void setLine() {
+	public void setLine() {
 			
 		int n = points.size();
 		Point2D end = (Point2D) points.get(n-1);

@@ -51,6 +51,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedCanvas;
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericZoomEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 
 
@@ -134,7 +135,7 @@ public abstract class ModuleNodeEventHandler extends GenericZoomEventHandler  {
 		lastEntered = null;
 	}	
 	
-	protected void setLastEntered(PNode node) {
+	public void setLastEntered(PNode node) {
 		if (node instanceof ModuleView)
 			this.lastEntered = (ModuleView) node;
 		else if (node == null)

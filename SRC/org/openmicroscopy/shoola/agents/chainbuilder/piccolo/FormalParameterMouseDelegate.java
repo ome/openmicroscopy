@@ -46,6 +46,7 @@ import edu.umd.cs.piccolo.PNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 
 /** 

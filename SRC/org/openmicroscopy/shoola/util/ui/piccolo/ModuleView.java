@@ -40,7 +40,7 @@
 
 
 
-package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
+package org.openmicroscopy.shoola.util.ui.piccolo;
 
 
 //Java imports
@@ -72,12 +72,21 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalInputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainFormalOutputData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
 import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.CategoryBox;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.FormalInput;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.FormalOutput;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.FormalParameter;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.LinkTarget;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleHandles;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleLinkTarget;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ModuleNodeEventHandler;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.NodeEvent;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.NodeEventListener;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ParameterLabelNode;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ParameterNode;
+import org.openmicroscopy.shoola.agents.chainbuilder.piccolo.ToolTipNode;
 import org.openmicroscopy.shoola.env.data.model.FormalParameterData;
 import org.openmicroscopy.shoola.util.ui.Constants;
-import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
-import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
-import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
-import org.openmicroscopy.shoola.util.ui.piccolo.SortableBufferedObject;
 
 
 /** 

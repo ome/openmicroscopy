@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.openmicroscopy.shoola.util.ui.piccolo.Link;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 //Third-party libraries
 import edu.umd.cs.piccolo.PLayer;

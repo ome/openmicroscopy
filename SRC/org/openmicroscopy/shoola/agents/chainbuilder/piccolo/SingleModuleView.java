@@ -51,6 +51,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.chainbuilder.data.ChainModuleData;
+import org.openmicroscopy.shoola.util.ui.piccolo.ModuleView;
 
 
 /** 
