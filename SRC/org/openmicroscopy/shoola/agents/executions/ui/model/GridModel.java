@@ -218,7 +218,8 @@ public class GridModel implements ChangeListener {
 		//vert
 		g.drawLine(xStartAxis,yStartAxis,xStartAxis,yEndAxis);
 	
-		// stripes
+		buildHorizHashes();
+		buildRowDecorations();
 		drawRowDecorations(g);
 		//hashes
 		g.setStroke(hashStroke);
@@ -333,6 +334,18 @@ public class GridModel implements ChangeListener {
 		Iterator iter = axisHashes.iterator();
 		while (iter.hasNext()) {
 			res = (AxisHash) iter.next();
+			if (res.isAt(x,y) == true)
+				return res;
+		}
+		return null;
+	}
+	
+	public AxisRowDecoration getRowDecorationAt(int x,int y) {
+		AxisRowDecoration res = null;
+		
+		Iterator iter = rowDecorations.iterator();
+		while (iter.hasNext()) {
+			res = (AxisRowDecoration) iter.next();
 			if (res.isAt(x,y) == true)
 				return res;
 		}
