@@ -83,7 +83,7 @@ public class BrowserMenuBar extends JMenuBar
     
     public static final int ANALYZE_MAGNIFY_ITEM = 201;
     public static final int ANALYZE_HEATMAP_ITEM = 202;
-    public static final int ANALYZE_CLASSIFY_ITEM = 203;
+    public static final int ANALYZE_CATEGORIES_ITEM = 203;
     
     private Map menuMap;
     private Map menuItemMap;
@@ -136,6 +136,7 @@ public class BrowserMenuBar extends JMenuBar
         menu.add(createAnalyzeMagnifierItem());
         menu.addSeparator();
         menu.add(createAnalyzeHeatmapItem());
+        menu.add(createAnalyzeCategoryItem());
         
         menuMap.put(new Integer(ANALYZE_MENU),menu);
         return menu;
@@ -279,6 +280,26 @@ public class BrowserMenuBar extends JMenuBar
         });
         menuItemMap.put(new Integer(ANALYZE_HEATMAP_ITEM),heatItem);
         return heatItem;
+    }
+    
+    private JMenuItem createAnalyzeCategoryItem()
+    {
+        final BrowserEnvironment env = BrowserEnvironment.getInstance();
+        final BrowserAgent agent = env.getBrowserAgent();
+        final TopFrame tf = agent.getTopFrame();
+        
+        JMenuItem categoryItem = new JMenuItem("View Categories");
+        categoryItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                int datasetID = actionTarget.getDataset().getID();
+                String name = actionTarget.getDataset().getName();
+                agent.loadCategories(datasetID,name);
+            }
+        });
+        menuItemMap.put(new Integer(ANALYZE_CATEGORIES_ITEM),categoryItem);
+        return categoryItem;
     }
     
     /**

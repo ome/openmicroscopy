@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
+import org.openmicroscopy.shoola.agents.classifier.events.LoadCategories;
 import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
@@ -1055,6 +1056,19 @@ public class BrowserAgent implements Agent, AgentEventListener
             return;
         }
         // TODO: fill in loadImages(int[])
+    }
+    
+    /**
+     * Instruct the BrowserAgent to fire a LoadCategories evnet, to be
+     * processed by another part of the client.
+     * 
+     * @param datasetID The ID of the dataset to trigger.
+     */
+    public void loadCategories(int datasetID, String displayName)
+    {
+        LoadCategories event = new LoadCategories(datasetID,displayName);
+        EventBus eventBus = registry.getEventBus();
+        eventBus.post(event);
     }
     
     /**
