@@ -37,9 +37,17 @@ import javax.swing.Icon;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 /** 
- * 
+ * Provides the icons used by the Viewer.
+ * <p>The icons are retrieved by first calling the 
+ * {@link #getInstance(Registry) getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class &#151; icons will be retrieved
+ * from the Viewer's graphics bundle, which implies that its
+ * configuration has been read in (this happens during the initialization
+ * procedure).</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,54 +61,49 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * @since OME2.2
  */
 public class IconManager
+	extends AbstractIconManager
 {
-	/** Contains icon objects to be retrieved through the icon IDs. */
-	private Icon[]				icons;
-
-	/** ID of the OME logo icon. */
-	public static final int     OME = 0; 
 	
 	/** ID of the movie icon. */
-	public static final int     MOVIE = 1;   
+	public static final int     MOVIE = 0;   
   
 	/** ID of the stop icon. */
-	public static final int     STOP = 2; 
+	public static final int     STOP = 1; 
 	
 	/** ID of the rewind icon. */
-	public static final int     REWIND = 3;
+	public static final int     REWIND = 2;
 	
 	/** ID of the question mark icon. */
-	public static final int		QUESTION = 4;
+	public static final int		QUESTION = 3;
 	
 	/** ID of the rendering icon. */
-	public static final int		RENDER = 5;
+	public static final int		RENDER = 4;
 	
 	/** ID of the viewer icon. */
-	public static final int		VIEWER = 6;
+	public static final int		VIEWER = 5;
 	
 	/** ID of the zoom in icon. */
-	public static final int		ZOOMIN = 7;
+	public static final int		ZOOMIN = 6;
 	
 	/** ID of the zoom out icon. */
-	public static final int		ZOOMOUT = 8;
+	public static final int		ZOOMOUT = 7;
 	
 	/** ID of the zoom fit icon. */
-	public static final int		ZOOMFIT = 9;
+	public static final int		ZOOMFIT = 8;
 	
 	/** ID of the inspector icon. */
-	public static final int		INSPECTOR = 10;
+	public static final int		INSPECTOR = 9;
 		
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 10;
+	private static int          MAX_ID = 9;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
 		
 	static {
-		relPaths[OME] = "OME16.png";
 		relPaths[MOVIE] = "movie16.png";
 		relPaths[STOP] = "stop16.png";
 		relPaths[REWIND] = "rewind16.png";
@@ -113,7 +116,7 @@ public class IconManager
 		relPaths[INSPECTOR] = "render16.png";
 	}
 	
-	/** The sole instance that provides. */
+	/** The sole instance. */
 	private static IconManager	singleton;
 	
 	/**
@@ -123,17 +126,10 @@ public class IconManager
 	 */
 	public static IconManager getInstance(Registry registry)
 	{
-		if (singleton == null) {
-			try {	
-				singleton = new IconManager(registry);
-			} catch (Exception e) {
-				throw new RuntimeException("Can't create the IconManager", e);
-			}
-		}
+		if (singleton == null)	singleton = new IconManager(registry);
 		return singleton;
 	}
 	
-	private IconFactory 	factory;
 	
 	/**
 	 * Creates a new instance and configures the parameters.
@@ -142,20 +138,7 @@ public class IconManager
 	 */
 	private IconManager(Registry registry)
 	{
-		factory = (IconFactory) registry.lookup("/resources/icons/Factory");
-		icons = new Icon[MAX_ID+1];
-	}
-
-	/** 
-	 * Retrieves the icon specified by the icon <code>ID</code>.
-	 *
-	 * @param ID    Must be one of the IDs defined by this class.
-	 * @return  The specified icon. The retuned value is meant to be READ-ONLY.
-	 */    
-	public Icon getIcon(int ID)
-	{
-		if (icons[ID] == null) icons[ID] = factory.getIcon(relPaths[ID]);
-		return icons[ID];
+		super(registry, "/resources/icons/Factory", relPaths);
 	}
 	
 }
