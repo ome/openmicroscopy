@@ -47,6 +47,7 @@ import org.openmicroscopy.ds.dto.AnalysisChain;
 import org.openmicroscopy.ds.dto.AnalysisNode;
 import org.openmicroscopy.ds.dto.ChainExecution;
 import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleExecution;
 import org.openmicroscopy.ds.dto.NodeExecution;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
@@ -108,6 +109,12 @@ public class ChainExecutionMapper
 		criteria.addWantedField("node_executions.module_execution","id");
 		criteria.addWantedField("node_executions.module_execution","status");
 		criteria.addWantedField("node_executions.module_execution","timestamp");
+		
+		criteria.addWantedField("node_executions.module_execution","module");
+		
+		criteria.addWantedField("node_executions.module_execution.module","id");
+		criteria.addWantedField("node_executions.module_execution.module","name");
+		 
 				
 		criteria.addFilter("experimenter_id",new Integer(userID));
 		criteria.addFilter("dataset.owner_id",new Integer(userID));
@@ -186,6 +193,8 @@ public class ChainExecutionMapper
 		AnalysisNodeData analysisNode;
 		ModuleExecution me;
 		ModuleExecutionData moduleExecution;
+		Module m;
+		ModuleData module;
 		
 		Iterator i = executions.iterator();
 		
@@ -211,6 +220,12 @@ public class ChainExecutionMapper
 			moduleExecution.setTimestamp(me.getTimestamp());
 			moduleExecution.setDate(getDate(me.getTimestamp()));
 			nodeExecution.setModuleExecution(moduleExecution);
+			
+			m = me.getModule();
+			module = (ModuleData) mProto.makeNew();
+			module.setID(m.getID());
+			module.setName(m.getName());
+			moduleExecution.setModule(module);
 	
 			nodeExecutionList.add(nodeExecution);
 		}
