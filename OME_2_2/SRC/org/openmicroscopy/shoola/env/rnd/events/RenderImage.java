@@ -57,10 +57,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
 public class RenderImage
 	extends RequestEvent
 {
-	
-	/** Flag to control if the event is posted to build a movie. */
-	private boolean		movie;
-	
+
 	/** The ID of the pixels set. */
 	private int			pixelsID;
 		
@@ -81,7 +78,6 @@ public class RenderImage
 	{
 		this.planeDef = null;
 		this.pixelsID = pixelsID;
-		movie = false;
 	}
 	
 	/**
@@ -99,7 +95,6 @@ public class RenderImage
 			throw new NullPointerException("No plane definition.");
 		this.planeDef = planeDef;
 		this.pixelsID = pixelsID;
-		movie = false;
 	}
 
 	/** Return the ID of the pixels set. */
@@ -113,9 +108,5 @@ public class RenderImage
 	 * @return	See above.
 	 */
 	public PlaneDef getPlaneDef() { return planeDef; }
-
-	public void setMovie(boolean movie) { this.movie = movie; }
-	
-	public boolean isMovie() { return movie; }
 	
 }

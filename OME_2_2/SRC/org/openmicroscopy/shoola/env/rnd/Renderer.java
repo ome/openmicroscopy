@@ -122,15 +122,15 @@ class Renderer
 	private int[] setDefaultColor(int w)
 	{
 		int[] rgb = new int[3];
-		if (w == 1) {
-			rgb[0] = 0;
-			rgb[1] = 255;
-			rgb[2] = 0;
-		} else if (w == 2) {
-			rgb[0] = 0;
-			rgb[1] = 0;
-			rgb[2] = 255;
-		} else {
+		if (w == 0) { //blue
+            rgb[0] = 0;
+            rgb[1] = 0;
+            rgb[2] = 255;
+		} else if (w == 1) { //green
+            rgb[0] = 0;
+            rgb[1] = 255;
+            rgb[2] = 0;
+		} else {  //red
 			rgb[0] = 255;
 			rgb[1] = 0;
 			rgb[2] = 0;
