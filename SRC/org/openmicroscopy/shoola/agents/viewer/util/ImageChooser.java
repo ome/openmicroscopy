@@ -156,9 +156,10 @@ class ImageChooser
                                 File[] list)
     {
         boolean exist = false;
-        for (int i = 0; i < list.length; i++)
-            if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
-        
+        String name = fileName + "." + format;
+        for (int i = 0; i < list.length; i++) 
+            if ((list[i].getAbsolutePath()).equals(name)) exist = true;
+
         if (!exist) {
             display = false;
             manager.saveImage(format, fileName, message);

@@ -201,7 +201,6 @@ class ImageSaverMng
             c = colorSelection[i];
         } 
         BufferedImage img = control.getPinOnSide(box.isSelected(), c);   
-            
         writeImage(img, encoder, format, name, msg, BOTH_MSG);
     }
     
