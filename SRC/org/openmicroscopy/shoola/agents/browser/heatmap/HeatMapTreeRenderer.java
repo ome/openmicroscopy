@@ -109,8 +109,16 @@ public class HeatMapTreeRenderer extends DefaultTreeCellRenderer
         {
             setIcon(booleanIcon);
         }
-        setToolTipText(((SemanticTypeTree.TreeNode)value).getFQName());
+        setToolTipText(getToolTip(value));
         return this;
+    }
+    
+    protected String getToolTip(Object value)
+    {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
+        SemanticTypeTree.TreeNode stNode =
+            (SemanticTypeTree.TreeNode)node.getUserObject();
+        return stNode.getFQName();
     }
     
     protected int getNodeType(Object value)
