@@ -29,6 +29,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
+import java.awt.Component;
 
 //Third-party libraries
 
@@ -77,6 +78,17 @@ public interface UserNotifier
 	public void notifyError(String title, String summary, String detail);
     
 	/**
+     * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.  However the user can press
+ 	 * a <i>details</i> button to have the dialog show the error detail.
+ 	 * 
+     * @param title		The title of the dialog.
+ 	 * @param summary	A brief description of the error.
+ 	 * @param detail	A more detailed description of the cause of the error.
+     */
+	public void notifyError(String title, String summary, Component component);
+    
+	/**
 	 * Brings up a modal dialog to notify the user of an error.
  	 * The dialog will just show the error summary.
 	 * 
@@ -106,6 +118,18 @@ public interface UserNotifier
 	 * @param detail	A more detailed description of the cause of the warning.
 	 */
 	public void notifyWarning(String title, String summary, String detail);
+	
+	/**
+	 * Brings up a modal dialog to notify the user of the specified warning.
+	 * The dialog will just show the warning summary.  However the user can
+	 * press a <i>details</i> button to have the dialog show the warning detail.
+	 * 
+	 * @param title		The title of the dialog.
+	 * @param summary	A brief description of the warning.
+	 * @param component	A component containing a more detailed description 
+	 * 					of the cause of the warning.
+	 */
+	public void notifyWarning(String title, String summary, Component component);
 	
 	/**
 	 * Brings up a modal dialog to notify the user of the specified warning.

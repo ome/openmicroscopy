@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
@@ -109,6 +110,15 @@ public class UserNotifierImpl
 										IconManager.getDefaultErrorIcon(),
 										detail);
 	}
+	
+	/** Implemented as specified by {@link UserNotifier}. */     
+	public void notifyError(String title, String summary, Component component)
+	{
+		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		showDetailedNotificationDialog(title, summary, 
+										IconManager.getDefaultErrorIcon(),
+										component);
+	}
     
 	/** Implemented as specified by {@link UserNotifier}. */ 
 	public void notifyWarning(String title, String message)
@@ -129,6 +139,17 @@ public class UserNotifierImpl
 										detail);
 	}
     
+	/** Implemented as specified by {@link UserNotifier}. */ 
+	public void notifyWarning(String title, String summary, Component component) 
+	{
+		if (title == null || title.length() == 0)
+			title = DEFAULT_WARNING_TITLE;
+		showDetailedNotificationDialog(title, summary, 
+										IconManager.getDefaultWarnIcon(),
+										component);
+	}
+    
+	
 	/** Implemented as specified by {@link UserNotifier}. */ 
 	public void notifyWarning(String title, String summary, Throwable detail) 
 	{
@@ -175,6 +196,24 @@ public class UserNotifierImpl
 		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
 												SHARED_FRAME, title, message, 
 												icon, detail);
+		dialog.pack();										
+		UIUtilities.centerAndShow(dialog);
+	}
+	
+	/**
+	 * Brings up a detailed notification dialog.
+	 * 
+	 * @param title		The dialog title.
+	 * @param message	The dialog message.
+	 * @param icon		The icon to show by the message.
+	 * @param component  The details in a component
+	 */
+	private void showDetailedNotificationDialog(String title, String message, 
+												Icon icon, Component component)
+	{
+		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
+												SHARED_FRAME, title, message, 
+												icon, component);
 		dialog.pack();										
 		UIUtilities.centerAndShow(dialog);
 	}
