@@ -109,6 +109,7 @@ public abstract class InternalFrame extends JInternalFrame
             public void internalFrameClosing(InternalFrameEvent arg0)
             {
                 super.internalFrameClosing(arg0);
+                setVisible(false);
                 wrapperClosed();
             }
         });
