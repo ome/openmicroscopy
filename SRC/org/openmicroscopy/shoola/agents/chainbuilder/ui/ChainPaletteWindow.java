@@ -73,13 +73,8 @@ public class ChainPaletteWindow extends JFrame  {
 		this.dataManager = dataManager;
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		addComponentListener(new ComponentAdapter() {
-			public void componentResized(ComponentEvent e) {
-				if (chainCanvas != null)
-					chainCanvas.scaleToResize();
-			}
-		});
-
+		
+		
 	}
 	
 	public void buildGUI() {
@@ -91,7 +86,13 @@ public class ChainPaletteWindow extends JFrame  {
 		chainCanvas.layoutContents();
 		chainCanvas.completeInitialization();
 		setSize(new Dimension(ModulePaletteWindow.SIDE,ModulePaletteWindow.SIDE));
-		content.add(chainCanvas); 	
+		content.add(chainCanvas);
+		addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				if (chainCanvas != null)
+					chainCanvas.scaleToResize();
+			}
+		});
 	}
 	
 	public void focusOnPalette() {
