@@ -53,10 +53,9 @@ import org.openmicroscopy.shoola.env.Container;
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>m
+ * </small>
  * @since OME2.2
  */
-
 public class Main 
 {
 	/**
