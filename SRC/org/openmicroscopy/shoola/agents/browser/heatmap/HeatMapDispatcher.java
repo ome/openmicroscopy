@@ -283,10 +283,10 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                 }
                 try
                 {
-                    System.err.println("retrieving "+selectedNode.getFQName() +
+                    System.err.println("retrieving "+selectedNode.getDBName() +
                                        " from " + name);
                     List attributeList =
-                        sts.retrieveImageAttributes(name,selectedNode.getFQName(),
+                        sts.retrieveImageAttributes(name,selectedNode.getDBName(),
                                                     imageIDList);
                     
                     for(Iterator iter = attributeList.iterator(); iter.hasNext();)
@@ -296,10 +296,7 @@ public class HeatMapDispatcher implements HeatMapTreeListener,
                         ThumbnailDataModel tdm =
                             (ThumbnailDataModel)imageIDMap.get(new Integer(imageID));
                         AttributeMap attrMap = tdm.getAttributeMap();
-                        if(attrMap.getAttribute(name,attribute.getID()) == null)
-                        {
-                            attrMap.putAttribute(attribute);
-                        }
+                        attrMap.putAttribute(attribute);
                     }
                     
                     if(status != null)

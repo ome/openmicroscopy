@@ -77,7 +77,8 @@ public class HeatMapUtils
         }
         catch(NullPointerException npe)
         {
-            throw new IllegalArgumentException("Invalid element parsed.");
+            throw new IllegalArgumentException("Invalid element parsed: "+
+                                               elementName);
         }
         catch(ClassCastException cce)
         {

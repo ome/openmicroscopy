@@ -132,11 +132,17 @@ public class SemanticTypeTree
                 String type = element.getDataColumn().getSQLType();
                 DataElementType det = DataElementType.forName(type);
                 String fqName = "";
+                String dbName = "";
                 if(node.getFQName() != null)
                 {
                     fqName = fqName + node.getFQName() + ".";
                 }
+                if(node.getDBName() != null)
+                {
+                    dbName = dbName + node.getDBName() + ".";
+                }
                 fqName = fqName + element.getName();
+                dbName = dbName + element.getDataColumn().getColumnName();
                 if(det == DataElementType.ATTRIBUTE)
                 {
                     SemanticType childType = element.getDataColumn().getReferenceType();
@@ -243,6 +249,7 @@ public class SemanticTypeTree
         protected Set children;
         protected String name;
         protected String fqName; // fully qualified name
+        protected String dbName; // name to retrieve in DB (could be diff.)
         protected boolean lazilyInitialized = false;
         
         public TreeNode(String nodeName)
@@ -270,7 +277,26 @@ public class SemanticTypeTree
         }
         
         /**
-         * Gets the fully qualified (criteria query) name of this
+         * Gets the fully qualified (criteria name path) of this node.
+         * @return See above.
+         */
+        public String getDBName()
+        {
+            return dbName;
+        }
+        
+        /**
+         * Sets the fully qualified (criteria name path) of this node to
+         * the specified.
+         * @param dbName The name to specify.
+         */
+        public void setDBName(String dbName)
+        {
+            this.dbName = dbName;
+        }
+        
+        /**
+         * Gets the fully qualified (element name path) name of this
          * node.
          * @return The fully qualified name of this node.
          */
@@ -280,7 +306,7 @@ public class SemanticTypeTree
         }
         
         /**
-         * Sets the fully qualified (criteria query) name of this
+         * Sets the fully qualified (element name path) name of this
          * node.
          * @param fqName The fully qualified name of this node.
          */
