@@ -90,7 +90,7 @@ public class ImageCanvasMng
         width = ViewerUIF.DEFAULT_WIDTH;
         magFactorLens = ViewerUIF.DEFAULT_MAG;
         drawingArea = new Rectangle();
-        onOff = true;
+        onOff = false;
         pin = false;
         painting = false;
         click = false;
@@ -121,11 +121,14 @@ public class ImageCanvasMng
     public void setClick(boolean b) { click = b; }
     
     /** Call when the image inspector widget is closed. */
-    public void resetDefault(boolean b)
+    public void setDefault(boolean b)
     { 
         click = b;
+        onOff = !b;
+        pin = b;
+        painting = b;
         view.resetLens();
-        view.repaint();
+        //view.repaint();
     }
     
     /** Set the width of the lens. */
@@ -141,17 +144,16 @@ public class ImageCanvasMng
     
     public void setOnOff(boolean b)
     { 
-        onOff = b; 
-        if (!b && pin) {
-            view.resetLens();
-            view.repaint(); 
-        }
+        click = true;
+        onOff = b;
     }
     
     public void setPin(boolean b)
     { 
         pin = b;
-        if (view.getLens() != null) {
+        if (pin && anchor != null)
+            drawLens(anchor);
+        else if (!pin) {
             view.resetLens();
             view.repaint();
         }
@@ -175,7 +177,7 @@ public class ImageCanvasMng
     {
         if (e.getClickCount() == 1 && click) {
             Point p = new Point(e.getPoint());
-            view.resetLens();
+            //view.resetLens();
             if (!dragging && onOff && drawingArea.contains(p)) {
                 dragging = true;
                 drawLens(p);
@@ -187,7 +189,8 @@ public class ImageCanvasMng
     public void mouseDragged(MouseEvent e)
     {
         Point p = new Point(e.getPoint());
-        if (dragging && onOff && drawingArea.contains(p)) drawLens(p); 
+        if (dragging && onOff && drawingArea.contains(p)) 
+            drawLens(p); 
     }
     
     /** Handle Mouse released event. */

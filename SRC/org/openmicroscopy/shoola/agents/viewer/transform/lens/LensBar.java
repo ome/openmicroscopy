@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspector;
 import org.openmicroscopy.shoola.agents.viewer.transform.ImageInspectorManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /** 
  * 
  *
@@ -139,6 +140,13 @@ public class LensBar
     
     public LensBarMng getManager() { return manager; }
     
+    public void setDefault()
+    {
+        onOff.setSelected(false);
+        pin.setSelected(false);
+        painting.setSelected(false);
+    }
+    
     /** Initialize the zoom components. */
     private void initComponents()
     {
@@ -160,7 +168,6 @@ public class LensBar
         onOff = new JCheckBox();
         onOff.setToolTipText(
                 UIUtilities.formatToolTipText("Lens on or off."));
-        onOff.setSelected(true);
         
         pin = new JCheckBox();
         pin.setToolTipText(
@@ -178,6 +185,7 @@ public class LensBar
         colors.setToolTipText(
                 UIUtilities.formatToolTipText("Pick a color to draw the lens'" +
                         " border."));
+        setDefault();
     }   
     
     /** Build and lay out the GUI. */
@@ -227,7 +235,7 @@ public class LensBar
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(gridbag);
-        JLabel l = new JLabel(" Painting");
+        JLabel l = new JLabel(" Border");
         c.gridx = 0;
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;

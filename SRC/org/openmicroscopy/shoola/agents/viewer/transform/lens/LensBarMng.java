@@ -152,8 +152,9 @@ public class LensBarMng
     /** Handle event fired by button. */
     public void actionPerformed(ActionEvent e) 
     {
-        int index = Integer.parseInt(e.getActionCommand());
+        int index = -1;
         try {
+            index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case SIZE_PLUS:
                     incrementWidth(); break;
@@ -183,7 +184,7 @@ public class LensBarMng
             // grab the color.
             int index = view.getColors().getSelectedIndex();
             control.setPainting(b, colorSelection[index]);
-        }     
+        }  
     }
     
     private void selectColor()
