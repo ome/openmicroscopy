@@ -244,7 +244,7 @@ This template renders the cover page.
 			<xsl:value-of select="$dmi/title"/>
 			</fo:block> 
 			<fo:block  text-align="center" space-before="40mm" space-before.conditionality="retain" >
-				<fo:external-graphic src="url('ome_logo.gif')" /> 
+				<fo:external-graphic src="url('logo-selzer.gif')" /> 
 			</fo:block>
 	</fo:flow>
 </fo:page-sequence>
