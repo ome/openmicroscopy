@@ -398,10 +398,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 	 * mouseDragged() behavior is equivalent to mouseMoved() behavior.
 	 */
 	public void mouseDragged(PInputEvent e) {
-		if (ChainBuilderAgent.DEBUG) {
+		/*if (ChainBuilderAgent.DEBUG) {
 			System.err.println("CHAIN HANDLER:got a drag event in chain canvas");
 			System.err.println("mouse dragged..."+e.getPickedNode());
-		}
+		}*/
 		mouseMoved(e);
 		super.mouseDragged(e);
 	}
@@ -610,6 +610,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (curScale< Constants.SCALE_THRESHOLD) {
 			showingOverview = true;
 		}	
+		if (ChainBuilderAgent.DEBUG) {
+			System.err.println("current scale is "+curScale);
+			System.err.println("showing overview..."+showingOverview);
+		}
 		iter = mods.iterator(); 
 		while (iter.hasNext()) {
 			mod = (ModuleView)iter.next();
@@ -620,6 +624,10 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				mod.showDetails();
 			}
 		}
+		if (showingOverview == true) 
+			canvas.showModuleLinks();
+		else 
+			canvas.showParamLinks();
 	}
 	
 	
@@ -707,6 +715,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		if (linkState != LINK_CHANGING_POINT) {
 			selectedLink = (Link) node;
 			selectedLink.setSelected(true);
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("mouse pressed on a link when not changing. link state is NOT_LINKING");
 			linkState = NOT_LINKING;
 		}
 	}
@@ -854,6 +864,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 				y += SPACING;
 			}
 		}
+		else  // single click ont on camera.
+			cancelModuleLinks();
 		postLinkCompletion = true;
 		e.setHandled(true);
 	}
@@ -935,7 +947,7 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		
 		moduleLinkOriginTarget = modLink;
 		if (ChainBuilderAgent.DEBUG)
-			System.err.println("starting mmodule target link..."+modLink);
+			System.err.println("starting mmodule target link..."+modLink+", link state is LINKING_MODULE_TARGETS");
 		moduleLink = new ModuleLink(linkLayer,moduleLinkOriginTarget);
 		moduleLink.setPickable(false);
 		linkState = LINKING_MODULE_TARGETS;
@@ -993,6 +1005,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cleanUpModuleTargetLink();
 		}
 		moduleLinkOriginTarget = null;
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("ending finsihModuleTargetLink ModuleLinkTarget. NOT_LINKING");
 		linkState = NOT_LINKING;
 	}
 	
@@ -1046,6 +1060,9 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			cleanUpModuleTargetLink();
 		}
 		moduleLinkOriginTarget = null;
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("ending finsihModuleTargetLink ModuleView. NOT_LINKING");
+		
 		linkState = NOT_LINKING;
 	}
 	
@@ -1090,6 +1107,8 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 		moduleLink.remove();
 		moduleLink =null;
 		cleanUpModuleTargetLink();
+		if (ChainBuilderAgent.DEBUG)
+			System.err.println("cancel up module target link NOT_LINKING");
 		linkState = NOT_LINKING;
 	}
 	
@@ -1444,8 +1463,21 @@ public class ChainCreationEventHandler extends  PPanEventHandler
 			// I should zoom to view of whole canvas
 			PBounds b = canvas.getBufferedBounds();
 			PCamera camera =canvas.getCamera();
-			camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);	
-			setModulesDisplayMode();
+			if (ChainBuilderAgent.DEBUG)
+				System.err.println("zooming to canvas bounds..");
+			PActivity act = 
+				camera.animateViewToCenterBounds(b,true,Constants.ANIMATION_DELAY);	
+			PActivityDelegate delegate = new PActivityDelegate() {
+				public void activityStarted(PActivity activity) {
+				}
+				public void activityStepped(PActivity activity) {
+				}
+				public void activityFinished(PActivity activity) {
+					setModulesDisplayMode();
+				}
+			};
+			act.setDelegate(delegate);
+			
 		}
 		else {
 			double scaleFactor = 1/Constants.SCALE_FACTOR;
