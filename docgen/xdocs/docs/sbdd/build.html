@@ -3,17 +3,36 @@
   <title>Build Process</title>
 </head>
 <body>
-<p>
-The build process is designed to be cross-platform and self-contained. What all
-this means is that you can run the various build tasks (which we'll refer to as
-'targets' in the remainder of this document) on any machine where a Java runtime
-(JRE version 1.4 or later) is available, without having to worry about resolving
-library dependencies. In fact, all the libraries required by the application and
-test code as well as those needed for the build itself come in the CVS module
-and are automatically linked as needed. 
-</p>
-
-
+<p> The build process is designed to be cross-platform and self-contained. What 
+  all this means is that you can run the various build tasks (which we'll refer 
+  to as <i>targets</i> in the remainder of this document) on any machine where 
+  a Java runtime (JRE version 1.4 or later) is available, without having to worry 
+  about resolving library dependencies. In fact, all the libraries required by 
+  the application and test code as well as those needed for the build itself come 
+  in the CVS module and are automatically linked as needed.</p>
+<p>A convenience tool is povided to run any of the available build targets. This 
+  tool operates from the command line, so you'll need to be a little familiar 
+  with your operating system shell in order to use it. Move to the <i>build</i> 
+  directory and from there type, at the command prompt:</p>
+<pre><code>    java -jar build -p</code></pre>
+<p>This will output a list of all available targets along with a short description 
+  of what each target does. For a more detailed description simply type:</p>
+<pre><code>    java -jar build</code></pre>
+<p>To run a target, just specify the name of the target after <code>build</code> 
+  on the command line, for example:</p>
+<pre><code>    java -jar build compile</code></pre>
+<p>would compile the application sources. If you're an experienced Java developer, 
+  you might have already guessed that we're using <a href="http://ant.apache.org/">Ant</a> 
+  under the hood. In fact, the build tool simply forwards to Ant whatever follows 
+  <code>build</code> on the command line. So, in general, you can use the build 
+  tool as follows:</p>
+<pre><code>    java -jar build [options] [target [target2 [target3] ...]]</code></pre>
+<p>Where <code>options</code> are any of the Ant options. (You can get the whole 
+  list of Ant options by using the <code>-h</code> switch.) For example:</p>
+<pre><code>    java -jar build -e compile</code></pre>
+<p>would output logging information on the console without adornments.</p>
+<p>The remainder of this section details the various build targets and provides 
+  useful information related to the build process.</p>
 </body>
 </html>
 
