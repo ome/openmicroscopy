@@ -123,6 +123,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 	private RoundRectangle2D rect;
 	
+	/*** and the rect when no labels */
+	private RoundRectangle2D noLabelRect;
+	
 	/**
 	 * The node contiaining the module name
 	 */
@@ -139,6 +142,8 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	private float height;
 	private float width=0;
 	
+	private float noLabelHeight;
+	private float noLabelWidth;
 	/**
 	 * The Width of the name node.
 	 */
@@ -225,17 +230,20 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		inputLinkTarget = getLinkTarget();
 		linkTargets.addChild(inputLinkTarget);
 		inputLinkTarget.setOffset(-Constants.LINK_TARGET_HALF_SIZE,height);
-				
+		height+=NAME_SPACING;	
 		nameWidth = (float) nameBounds.getWidth();
-		
-		// do the individual parameter labels.
+
+		// set width of the whole bounding rectangle
+	    width = NAME_LABEL_OFFSET*2+nameWidth-Constants.LINK_TARGET_HALF_SIZE;
+
+	    	noLabelHeight = height;
+	 	// do the individual parameter labels.
 		addParameterLabels();  
 		
-		// set width of the whole bounding rectangle
-	    width = NAME_LABEL_OFFSET*2+width-Constants.LINK_TARGET_HALF_SIZE;
 		
 		// create bounding rectangle, set it to be this node's path,
 		// and finish other parameters.
+		//width = NAME_LABEL_OFFSET*2+width-Constants.LINK_TARGET_HALF_SIZE;
 		rect = 
 			new RoundRectangle2D.Float(0f,0f,width,height,
 					DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
@@ -251,7 +259,10 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		outputLinkTarget.setOffset(width-Constants.LINK_TARGET_HALF_SIZE,
 			linkTargetHeight);
 	
-		buildMagnifiedLabel();
+		buildMagnifiedLabel(); 
+		noLabelRect = new RoundRectangle2D.Float(0f,0f, width,
+				(float) (noLabelHeight+zoomName.getHeight()),
+				DEFAULT_ARC_WIDTH,DEFAULT_ARC_HEIGHT);
 	}
 	
 	/** 
@@ -386,7 +397,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		
 		
 		//height of first one
-		height+=NAME_SPACING;
+
 		float inHeight = 0;
 		float outHeight=0;
 			 		
@@ -456,6 +467,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			name.setVisible(false);
 			zoomName.setVisible(true);
 			linkTargets.setVisible(true);
+			setPathTo(noLabelRect);
 		}
 		else {
 			linkTargets.setVisible(false);
@@ -463,6 +475,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			labelNodes.setVisible(true);
 			labelNodes.setPickable(true);
 			zoomName.setVisible(false);
+			setPathTo(rect);
 		} 
 		super.paint(aPaintContext);
 	} 
