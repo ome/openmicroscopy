@@ -413,8 +413,6 @@ public class ChainCreationCanvas extends PCanvas implements DropTargetListener {
 				// what are these nodes?
 				LayoutNodeData fromNode =  output.getModuleView().getNode();
 				LayoutNodeData toNode = input.getModuleView().getNode();
-				System.err.println("from..."+output.getModule().getName());
-				System.err.println("to..."+input.getModule().getName());
 				// somehow create a link
 				LayoutLinkData linkData = new 
 					LayoutLinkData(chain,fromNode,fromOutput,toNode,toInput);
