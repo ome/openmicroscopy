@@ -94,9 +94,14 @@ final class DataServicesInit
 	void execute()
 		throws StartupException
 	{
-		DataServicesFactory.createDataServices();
+		//Create services.
+		DataServicesFactory.createDataServices(container);
+		
+		//Retrieve them.
 		DataManagementService dms = DataServicesFactory.getDMS();
 		SemanticTypesService sts = DataServicesFactory.getSTS();
+		
+		//Link them to the container's registry.
 		Registry reg = container.getRegistry();
 		RegistryFactory.linkDMS(dms, reg);
 		RegistryFactory.linkSTS(sts, reg);
