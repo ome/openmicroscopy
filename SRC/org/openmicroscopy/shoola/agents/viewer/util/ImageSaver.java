@@ -31,19 +31,24 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.viewer.ViewerCtrl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 
 /** 
  * Save the current image.
@@ -62,11 +67,10 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 public class ImageSaver
 	extends JFileChooser
 {
-	private static final String 	JPEG = "jpeg";
-	private static final String 	JPG = "jpg";
-	private static final String 	PNG = "png";
 	
+	private static final String		DEFAULT_FORMAT = TIFFFilter.TIF;
 	private ViewerCtrl				controller;
+	
 	public ImageSaver(ViewerCtrl controller)
 	{
 		this.controller = controller;
@@ -88,10 +92,10 @@ public class ImageSaver
 		UserNotifier un = controller.getRegistry().getUserNotifier();
 		if (img == null) 
 			un.notifyError("Save image", "No current image displayed");
+		File f = new File(fileName);
 		try {
 			Iterator writers = ImageIO.getImageWritersByFormatName(format);
 			ImageWriter writer = (ImageWriter) writers.next();
-			File f = new File(fileName);
 			ImageOutputStream ios = ImageIO.createImageOutputStream(f);
 			writer.setOutput(ios);
 			writer.write(img);
@@ -99,8 +103,37 @@ public class ImageSaver
 			un.notifyInfo("Image saved", message);
 			//TODO: forward event to server.
 		} catch (Exception ex){
+			f.delete();
 			un.notifyError("Save image failure", "Unable to save the image",
 								ex);
+		}
+	}
+	
+	/**
+	 * Save a specified buffered image as a <code>tif</code>.
+	 * 
+	 * @param img		buffered image to save.
+	 * @param fileName	image's name.
+	 * @param message	message to display when the image has been saved.
+	 */
+	private void saveImageAsTIFF(BufferedImage img, String fileName, 
+								String message)
+	{
+		UserNotifier un = controller.getRegistry().getUserNotifier();
+		if (img == null) 
+			un.notifyError("Save image", "No current image displayed");
+		File f = new File(fileName);	
+		try {
+			DataOutputStream dos = 
+							new DataOutputStream(new FileOutputStream(f));
+			TIFFEncoder encoder = new TIFFEncoder(img, dos);
+			encoder.write();
+			dos.close();
+			un.notifyInfo("Image saved", message);
+		} catch (Exception ex) {
+			f.delete();
+			un.notifyError("Save image failure", "Unable to save the image", 
+							ex);					
 		}
 	}
 	
@@ -108,88 +141,68 @@ public class ImageSaver
 	private void createChooser()
 	{ 
 		setFileSelectionMode(FILES_ONLY);
-		JpegFilter jpegFilter = new JpegFilter();
+		JPEGFilter jpegFilter = new JPEGFilter();
 		setFileFilter(jpegFilter);
-		PngFilter pngFilter = new PngFilter();
+		addChoosableFileFilter(jpegFilter); 
+		PNGFilter pngFilter = new PNGFilter();
 		addChoosableFileFilter(pngFilter); 
 		setFileFilter(pngFilter);
+		TIFFFilter tiffFilter = new TIFFFilter();
+		setFileFilter(tiffFilter);
+		addChoosableFileFilter(tiffFilter); 
 		setAcceptAllFileFilterUsed(false);
 		int returnVal = showDialog(controller.getReferenceFrame(), 
 									"Save Image");
-		
 		//Process the result
 		File file = getSelectedFile();
 		if (file != null && returnVal == JFileChooser.APPROVE_OPTION) {
-			String format = PNG;
-			if (getFileFilter() instanceof JpegFilter) format = JPG;
+			String format = DEFAULT_FORMAT;
+			if (getFileFilter() instanceof JPEGFilter) 
+				format = JPEGFilter.JPG;
+			else if (getFileFilter() instanceof TIFFFilter) 
+				format = TIFFFilter.TIF;
+			else if (getFileFilter() instanceof PNGFilter) 
+				format = PNGFilter.PNG;
 			String  fileName = file.getAbsolutePath()+"."+format, 
 					name = file.getName()+"."+format;;
 			String message = "The image "+name+", has been saved in \n"
 							+getCurrentDirectory();
-			saveImageAs(format, controller.getBufferedImage(), fileName, 
-						message);
-			setSelectedFile(null);
+			setSelection(format, fileName, message, 
+						getCurrentDirectory().listFiles());				
+			setSelectedFile(null);	
 		}      
 	}
 	
 	/** 
-	 * Filter the files which extension is <code>jpeg</code> or 
-	 * <code>jpg</code>.
+	 * Check if the fileName specified already exists if not the image is saved
+	 * in the specified format.
+	 * 
+	 * @param format		format selected <code>jpeg<code>, 
+	 * 						<code>png<code> or <code>tif<code>.
+	 * @param fileName		image's name.
+	 * @param message		message displayed when the image has been created.
+	 * @param list			lis of files in the current directory.
 	 */
-	static class JpegFilter extends FileFilter
+	private void setSelection(String format, String fileName, String message,
+								File[] list)
 	{
-		private String description = JPEG;
+		boolean exist = false;
+		for (int i = 0; i < list.length; i++)
+			if ((list[i].getAbsolutePath()).equals(fileName)) exist = true;
 		
-		public String getDescription()
-		{
-			return description;
-		}
-		
-		public boolean accept(File f)
-		{
-			if (f.isDirectory()) return true;
-			String s = f.getName();
-			String extension = null;
-			int i = s.lastIndexOf('.');
-			if (i > 0 && i < s.length()-1)
-				extension = s.substring(i+1).toLowerCase();
-			if (extension != null) {
-				boolean b = false;
-				if (extension.equals(JPEG) || extension.equals(JPG)) b =  true;
-				return b;
-			}
-			return false;
-		}
-	}
-	
-	/** 
-	 * Filter the files which extension is <code>png</code> or 
-	 * <code>jpg</code>.
-	 */
-	static class PngFilter extends FileFilter
-	{
-		private String description = PNG;
-	
-		public String getDescription()
-		{
-			return description;
-		}
-		
-		public boolean accept(File f)
-		{
-			if (f.isDirectory()) return true;
-			String s = f.getName();
-			String extension = null;
-			int i = s.lastIndexOf('.');
-			if (i > 0 && i < s.length()-1)
-				extension = s.substring(i+1).toLowerCase();
-			if (extension != null) {
-				boolean b = false;
-				if (extension.equals(PNG)) b = true;
-				return b;
-			}
-			return false;
-		}
+		if (exist){
+			UserNotifier un = controller.getRegistry().getUserNotifier();
+			String s = "This file's name already exists, please choose a new" +
+						" one";
+			un.notifyInfo("Image saved", s); 
+		} else {
+			if (format.equals(TIFFFilter.TIF))
+				saveImageAsTIFF(controller.getBufferedImage(), fileName, 
+								message);
+			else
+				saveImageAs(format, controller.getBufferedImage(), fileName, 
+							message);
+		}					
 	}
 	
 }
