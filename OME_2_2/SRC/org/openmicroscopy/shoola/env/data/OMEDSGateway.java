@@ -30,6 +30,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -47,12 +49,16 @@ import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
 import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.DataInterface;
+import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
+import org.openmicroscopy.ds.managers.RemoteImportManager;
 import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.is.PixelsFactory;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -224,6 +230,17 @@ class OMEDSGateway
 													AnnotationManager.class);
 	}
 	
+	private PixelsFactory getPixelsFactory()
+	{
+		return (PixelsFactory) proxiesFactory.getService(PixelsFactory.class);
+	}
+	
+	private RemoteImportManager getRemoteImportManager()
+	{
+		return (RemoteImportManager) proxiesFactory.getService(
+										RemoteImportManager.class);
+
+	}
 	/** Retrieve the current experimenter. */
 	Experimenter getCurrentUser(Criteria c)
 		throws DSOutOfServiceException, DSAccessException
@@ -510,5 +527,39 @@ class OMEDSGateway
 		}
     }
     
+    /** Return the repository where to store the files. */
+	Repository getRepository()
+		throws DSOutOfServiceException
+	{
+		Repository repository = null;
+		try {
+			repository = getPixelsFactory().findRepository(0);
+		} catch (ImageServerException ise) {
+			throw new DSOutOfServiceException("Can't connect to OMEIS.", ise);
+		}
+		return repository;
+	}
+	
+	/** Upload the specified file. */
+	Long uploadFile(Repository rep, File file)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Long ID = null;
+		try {
+			ID = new Long(getPixelsFactory().uploadFile(rep, file));
+		} catch (ImageServerException ise) {
+			throw new DSOutOfServiceException("Can't connect to OMEIS.", ise);
+		} catch(FileNotFoundException fnfe) {
+			throw new DSAccessException("Can't retrieve the file "+file, fnfe);
+		}
+		return ID;
+	}
+	
+	/** Start the import. */
+	void startImport(Dataset dataset, List filesID)
+	{
+		getRemoteImportManager().startRemoteImport(dataset, filesID);
+	}
+	
 }
 

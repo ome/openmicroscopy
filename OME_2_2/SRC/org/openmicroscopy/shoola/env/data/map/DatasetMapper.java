@@ -183,13 +183,12 @@ public class DatasetMapper
 	 */
 	public static void fillDataset(Dataset dataset, DatasetData empty)
 	{
-		
-		//Fill in the data coming from Project.
+		//Fill up the DataObject with the data coming from Project.
 		empty.setID(dataset.getID());
 		empty.setName(dataset.getName());
 		empty.setDescription(dataset.getDescription());
 				
-		//Fill in the data coming from Experimenter.
+		//Fill up the DataObject with data coming from Experimenter.
 		Experimenter owner = dataset.getOwner();
 		empty.setOwnerID(owner.getID());
 		empty.setOwnerFirstName(owner.getFirstName());
@@ -197,7 +196,7 @@ public class DatasetMapper
 		empty.setOwnerEmail(owner.getEmail());
 		empty.setOwnerInstitution(owner.getInstitution());
 		
-		//Fill in the data coming from Group.
+		//Fill up the DataObject with data coming from Group.
 		Group group = owner.getGroup();
 		empty.setOwnerGroupID(group.getID());
 		empty.setOwnerGroupName(group.getName());
@@ -214,33 +213,40 @@ public class DatasetMapper
 		}
 		empty.setImages(images);	
 	}
-	
-	
-	
+
 	/**
 	 * Creates the image summary list.
 	 * 
 	 * @param dataset	OMEDS dataset object.
+	 * @param iProto	DataObject to fill up.
 	 * @return list of image summary objects.
 	 */
-	public static List fillListImages(Dataset dataset)
+	public static List fillListImages(Dataset dataset, ImageSummary iProto)
 	{
 		List images = new ArrayList();
 		Iterator i = dataset.getImages().iterator();
 		Image image;
+		ImageSummary is;
 		while (i.hasNext()) {
 			image = (Image) i.next();
-			images.add(new ImageSummary(image.getID(), image.getName(),
-						fillListPixelsID(image),
-                        fillDefaultPixels(image.getDefaultPixels())));
+			//Make a new DataObject and fill it up.
+			is = (ImageSummary) iProto.makeNew();
+			is.setID(image.getID());
+			is.setName(image.getName());
+			is.setPixelsIDs(fillListPixelsID(image));
+			is.setDefaultPixels(fillDefaultPixels(image.getDefaultPixels()));
+			//Add the image summary object to the list.
+			images.add(is);
 		}
 		return images;
 	}
 	
 	/**
-	 * @param datasets
-	 * @param dProto
-	 * @return
+	 * Create a list of dataset summary object.
+	 * 
+	 * @param datasets	list of datasets objects.
+	 * @param dProto	dataObject to model.
+	 * @return See above.
 	 */
 	public static List fillUserDatasets(List datasets, DatasetSummary dProto)
 	{
@@ -255,10 +261,9 @@ public class DatasetMapper
 			ds = (DatasetSummary) dProto.makeNew();
 			ds.setID(d.getID());
 			ds.setName(d.getName());
-			//Add the datasets to the list of returned datasets.
+			//Add the dataset  summary object to the list.
 			datasetsList.add(ds);
 		}
-		
 		return datasetsList;
 	}
 

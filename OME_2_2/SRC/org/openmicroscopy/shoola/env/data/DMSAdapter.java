@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
@@ -261,24 +263,34 @@ class DMSAdapter
 		return retrieveDataset(id, null);
 	}
 	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public List retrieveImages(int datasetID, ImageSummary retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Create a new dataObject if none provided.
+		//Object used as prototype.
+		if (retVal == null) retVal = new ImageSummary();
+		//Define the criteria by which the object graph is pulled out.
+		Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
+
+		//Load the graph defined by criteria.
+		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
+
+		//List of image summary object.
+		List images = null;
+
+		if (dataset != null)
+		//Put the server data into the corresponding client object.
+		images = DatasetMapper.fillListImages(dataset, retVal);
+
+		return images;
+	}
+	
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveImages(int datasetID)
 		throws DSOutOfServiceException, DSAccessException
     {
-		//Define the criteria by which the object graph is pulled out.
-    	Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
-
-		//Load the graph defined by criteria.
-		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
-	  	
-	  	//List of image summary object.
-	  	List images = null;
-	  	
-	  	if (dataset != null)
-			//Put the server data into the corresponding client object.
-	  		images = DatasetMapper.fillListImages(dataset);
-	  		
-	  	return images;
+		return retrieveImages(datasetID, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -382,7 +394,7 @@ class DMSAdapter
 		if (pIds.size() != 0) gateway.addDatasetToProjects(d.getID(), pIds);
 		if (iIds.size() != 0) gateway.addImagesToDataset(d.getID(), iIds);
 		
-		//fill in the proto
+		//fill up the proto
 		dProto.setID(d.getID());
 		dProto.setName(d.getName());
 		return dProto;
@@ -559,6 +571,24 @@ class DMSAdapter
 		List l = new ArrayList();
 		l.add(lc);
 		gateway.updateAttributes(l);
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public void importImages(int datasetID, List images)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Criteria c = DatasetMapper.buildUpdateCriteria(datasetID);
+		Dataset d = (Dataset) gateway.retrieveData(Dataset.class, c);
+		Repository rep = gateway.getRepository();
+		List filesToImport = new ArrayList();
+		Iterator i = images.iterator();
+		Long ID;
+		while (i.hasNext()) {
+			ID = gateway.uploadFile(rep, (File) i.next());
+			if (ID != null) filesToImport.add(ID);
+		}
+		if (d != null && filesToImport.size() != 0) 
+			gateway.startImport(d, filesToImport);
 	}
 	
 }

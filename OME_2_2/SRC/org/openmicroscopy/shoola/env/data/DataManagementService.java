@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 public interface DataManagementService
 {
+	
 	/**
 	 * Create, if none provided, two new protos and fill them up
 	 * with data retrieved form OMEDS Project objects.
@@ -242,6 +243,21 @@ public interface DataManagementService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Retrieve all images linked to a given dataset.
+	 * Create, if none provided, a DataObject and fill it up with
+	 * data retrieved from an OMEDS Image object.
+	 * 
+	 * @param id		imageID.
+	 * @param iProto	DataObject used as a prototype.
+	 * @return image data object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.  
+	 */
+	public List retrieveImages(int datasetID, ImageSummary iProto)
+		throws DSOutOfServiceException, DSAccessException;
+		
+	/**
 	 * Retrieves the common metadata (such as dimensions, type, etc.) associated
 	 * to a pixels set.
 	 * 
@@ -271,8 +287,10 @@ public interface DataManagementService
 	/**
 	 * Create a new dataset.
 	 * 
-	 * @param projectSummaries	List of project summary object.
-	 * @param retVal			DataObject
+	 * @param projectSummaries	List of project summary objects.
+	 * @param imageSummaries	List of image summary objects.
+	 * @param retVal			DataObject to fill up.
+	 * @param dProto			DataObject prototype.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * 		   update data from OMEDS service.  
@@ -369,6 +387,17 @@ public interface DataManagementService
 	 * 		   update data from OMEDS service.  
 	 */
 	public void updateChannelData(ChannelData retVal)	
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Import the specified image files into a dataset.
+	 * 
+	 * @param datasetID	ID of the dataset to import into.
+	 * @param images	list of image files to import.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void importImages(int datasetID, List images)	
 		throws DSOutOfServiceException, DSAccessException;
 		
 }
