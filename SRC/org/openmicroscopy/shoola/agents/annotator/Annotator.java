@@ -36,34 +36,51 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
-import java.awt.Point;
+
+//Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import org.openmicroscopy.ds.st.DatasetAnnotation;
-import org.openmicroscopy.ds.st.ImageAnnotation;
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.annotator.events.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.annotator.events.AnnotateImage;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.ResponseEvent;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.events.ImageLoaded;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
+import org.openmicroscopy.shoola.env.ui.UserDetails;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- * Model and agent for the Annotator set of widgets.  The annotator makes
- * it so multiple annotation windows can be opened at the same time.  There are
- * also two alternate windows, as the annotator both handles text annotations
- * and scalar attribute definitions.  The text annotations are inherently
- * (from a UI perspective) different, and are thus shown in a different
- * format.
+ * Model and agent for the Annotator set of widgets.
  *
- * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
+ * after code by 
+ * 
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">
+ *              jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2.1
  * @since OME2.2
@@ -72,304 +89,474 @@ public class Annotator
 	implements Agent, AgentEventListener
 {
 	
-	private static final String			ANNOT_D = "DatasetAnnotation";
-	private static final String			ANNOT_I = "ImageAnnotation";
+    public static final int             SAVE = 0, SAVEWITHRS = 1;
+    
+    /** Annotation constants. */
+    public static final int             DATASET = 0, IMAGE = 1;
 	
-    private Registry registry;
+    private static final String         MSG = "The annotation has been saved.";
     
-    private List activeControls;
+    /** Reference to the {@link RenderingControl}. */
+    private RenderingControl            renderingControl;
     
-    /**
-     * Initializes the internal structure of the annotator agent.
+    /** Reference to the {@link Registry}. */
+    private Registry                    registry;
+    
+    /** Reference to the control of this agent. */
+    private AnnotatorCtrl               control;
+    
+    /** Reference to the view of this agent. */
+    private AnnotatorUIF                presentation;  
+    
+    private int                         viewImageID;
+    
+    /** ID of the pixels set of the image we annotate. */
+    private int                         pixelsID;
+    
+    /** One the Annotation contants defined above. */
+    private int                         annotationIndex;
+    
+    /** 
+     * Map of annotations, key: ownerID, value: list of annotations made
+     * by the owner.
      */
-    public Annotator()
-    {
-        activeControls = new ArrayList();
-    }
+    private Map                         annotationsMap;
     
-    /**
-     * Process and handle events destined for the Annotator.  NB to JM/Andrea:
-     * I *believe* that there would only be one real event: EditAnnotation, or
-     * the like, but there may be a distinction between a dataset and image
-     * annotation, so... we'll likely talk about this on 3/9.
-     * 
-     * @param e The event to be captured by the annotator.
-     */
-    public void eventFired(AgentEvent e)
-    {
-        if (e instanceof AnnotateImage) {
-            AnnotateImage event = (AnnotateImage) e;
-            showAnnotationDialog(event);
-        }
-    }
+    /** Utility map to link index and owner ID. */
+    private Map                         ownersMap;
     
-    /**
-     * Don't do anything, because of nature of annotator (triggered explicitly,
-     * not when the application becomes active)
-     * 
-     * @see org.openmicroscopy.shoola.env.Agent#activate()
-     */
-    public void activate()
-    {
-        // do nothing
-    }
+    /** ID of the image or dataset to annotate. */
+    private int                         annotatedImageID, annotatedDatasetID;
     
-    /**
-     * Checks any open annotator windows to see if there is unsaved
-     * information.  On a cancel, will return false.  Otherwise, if there is
-     * no unsaved information or if the user makes a decisive choice to save
-     * or not save an annotation, returns true.
-     * 
-     * @return Whether or not the agent can be terminated.
-     * @see org.openmicroscopy.shoola.env.Agent#canTerminate()
-     */
-    public boolean canTerminate()
-    {
-		AnnotationCtrl control;
-        for (Iterator iter = activeControls.iterator(); iter.hasNext();) {
-            control = (AnnotationCtrl) iter.next();
-            if (!control.canExit()) return false;
-        }
-        return true;
-    }
+    /** Name of the image or dataset to annotate. */
+    private String                      objectName;
     
-    /**
-     * Does nothing.
-     * 
-     * @see org.openmicroscopy.shoola.env.Agent#terminate()
-     */
-    public void terminate()
-    {
-        // do nothing.
-    }
+    private int                         maxOwner;
     
-    /**
-     * Sets the registry (and operating context) of the Annotator.
-     * 
-     * @see Agent#setContext(Registry).
-     */
+    private int                         userIndex;
+    
+    /** Implemented as specified by {@link Agent}. */
+    public void activate() {}
+    
+    /** Implemented as specified by {@link Agent}. */
+    public void terminate() {}
+    
+    /** Implemented as specified by {@link Agent}. */
     public void setContext(Registry ctx)
     {
         this.registry = ctx;
-        registry.getEventBus().register(this, AnnotateImage.class);
-    }
-    
-    /**
-     * Use the STS to create a new DatasetAnnotation attribute.
-     * @param content The content to include in the annotation.
-     * @return A DatasetAnnotation attribute (DTO) with the embedded content.
-     */
-    DatasetAnnotation createDatasetAnnotation(String content, int datasetID)
-    {
-		DatasetAnnotation newAnnotation = null;
-		try { 
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			newAnnotation = (DatasetAnnotation) sts.createAttribute(ANNOT_D,datasetID);
-			newAnnotation.setContent(content);
-		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Creation Failure", 
-				"Unable to create the semantic type "+ANNOT_D, dsae);
-		} catch(DSOutOfServiceException dsose) {	
-			ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
-			registry.getEventBus().post(request);
-		}
-        return newAnnotation;
-    }
-    
-    /**
-     * Use the STS to create a new ImageAnnotation attribute.
-     * @param content The content to include in the annotation.
-     * @return An ImageAnnotation attribute (DTO) with the embedded content.
-     */
-    ImageAnnotation createImageAnnotation(String content, int imageID)
-    {
-		ImageAnnotation newAnnotation = null;
-		try { 
-			SemanticTypesService sts = registry.getSemanticTypesService();
-            newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I,imageID);
-			newAnnotation.setContent(content);
-		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Creation Failure", 
-				"Unable to the semantic type "+ANNOT_I, dsae);
-		} catch(DSOutOfServiceException dsose) {	
-			ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
-            dsose.printStackTrace();
-			registry.getEventBus().post(request);
-		}
-		return newAnnotation;
-    }
-    
-    /**
-     * Commits the annotations in the DB through the STS (controllers that
-     * save annotations should call this)
-     * @param annotations The list of new annotations to add to the database.
-     */
-    void commitNewAnnotations(List annotations)
-    {
-        if(annotations == null || annotations.size() == 0 ) return;
-		try { 
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			sts.updateUserInputAttributes(annotations);
-		} catch(DSAccessException dsae) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Data Creation Failure", 
-				"Unable to update the semantic type ", dsae);
-		} catch(DSOutOfServiceException dsose) {	
-			ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
-            dsose.printStackTrace();
-			registry.getEventBus().post(request);
-		}
-    }
-    
-    /**
-     * For existing annotations in the database, trigger a SQL update.  For newly
-     * created attributes, the commitNewAnnotations() method must be called prior
-     * to executing this method.
-     * @param annotations The list of annotations to update in the database.  
-     */
-    void updateAnnotations(List annotations)
-    {
-        if(annotations == null || annotations.size() == 0 ) return;
-        try {
-            SemanticTypesService sts = registry.getSemanticTypesService();
-            sts.updateAttributes(annotations);
-        } catch(DSAccessException dsae) {
-            UserNotifier un = registry.getUserNotifier();
-            un.notifyError("Data Creation Failure", 
-                "Unable to update the semantic type ", dsae);
-                dsae.printStackTrace();
-        } catch(DSOutOfServiceException dsose) {    
-            ServiceActivationRequest request = new ServiceActivationRequest(
-                                        ServiceActivationRequest.DATA_SERVICES);
-            dsose.printStackTrace();
-            registry.getEventBus().post(request);
-        }
+        pixelsID = -1;
+        control = new AnnotatorCtrl(this);
+        EventBus bus = registry.getEventBus();
+        bus.register(this, AnnotateImage.class);
+        bus.register(this, AnnotateDataset.class);
+        bus.register(this, ImageLoaded.class);
     }
 
-    /**
-     * Retrieve the dataset annotation information from the database.
-     * @param datasetID the ID of the dataset to retrieve annotations from.
-     * @return A list of annotations for that dataset.
-     */
-    List getDatasetAnnotations(int datasetID)
+    /** Implemented as specified by {@link Agent}. */
+    public boolean canTerminate() { return true; }
+
+    /** Implemented as specified by {@link AgentListener}. */
+    public void eventFired(AgentEvent e)
     {
-        // TODO call registry to find out this information and change this
-        return new ArrayList();
+        if (e instanceof AnnotateImage) 
+            handleAnnotateImage((AnnotateImage) e);
+        else if (e instanceof AnnotateDataset)
+            handleAnnotateDataset((AnnotateDataset) e);
+        else if (e instanceof ImageLoaded) 
+            handleImageLoaded((ImageLoaded) e);
+    }
+
+    Registry getRegistry() { return registry; }
+    
+    /** 
+     * View the image at the specified z-section and timepoint. 
+     * 
+     * @param z     z-section.
+     * @param t     timepoint
+     */
+    void viewImage(int z, int t)
+    {
+        if (annotationIndex == IMAGE) {
+            loadImage();
+            if (z != AnnotationData.DEFAULT && t != AnnotationData.DEFAULT)
+                renderImage(z, t);   
+            else renderImage();
+        }
+    }
+    
+    /** 
+     * Invoke when we want to view the image and 
+     * the annotation hasn't been created. 
+     */
+    void viewImage()
+    {
+        if (annotationIndex == IMAGE) {
+            loadImage();
+            //Agent listens to ImageLoaded event, this implies that 
+            //the renderingContol != null
+            renderImage(); 
+        }
+    }
+    
+    /** Post an event to load the specific event. */
+    private void loadImage()
+    {
+        LoadImage request = new LoadImage(annotatedImageID, pixelsID, 
+                                            objectName);
+        registry.getEventBus().post(request);   
+    }
+    
+    private void renderImage(int z, int t)
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, t);
+        def.setZ(z);
+        renderingControl.setDefaultZ(z);
+        renderingControl.setDefaultT(t);
+        registry.getEventBus().post(new RenderImage(pixelsID, def));  
+    }
+    
+    private void renderImage()
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, 
+                            renderingControl.getDefaultT());
+        def.setZ(renderingControl.getDefaultZ());
+        registry.getEventBus().post(new RenderImage(pixelsID, def));  
     }
     
     /**
-     * Retrieve the semantic attributes associated with this database from
-     * the dataset.
-     * @param datasetID the ID of the dataset to retrieve attributes from.
-     * @return A list of attributes for that dataset.
+     * Update the specified annotation.
+     * 
+     * @param data  annotation to update.
      */
-    List getDatasetAttributes(int datasetID)
+    void update(AnnotationData data, int saveIndex)
     {
-        List imageAttributes = null;
+        String title = "";
         try {
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			imageAttributes =  sts.retrieveImageAttributes(ANNOT_D, datasetID);
+            DataManagementService dms = registry.getDataManagementService();
+            switch (annotationIndex) {
+                case DATASET:
+                    title = "Dataset annotation updated";
+                    dms.updateDatasetAnnotation(data);
+                    //Eventually post a DatasetAnnotation event.
+                    break;
+                case IMAGE:
+                    title = "Image annotation updated";
+                    setDataToSave(data, saveIndex);
+                    dms.updateImageAnnotation(data);
+                    //Eventually post a ImageAnnotation event.
+                    break;
+            }
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo(title, MSG, im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
         } catch(DSOutOfServiceException dso) {
-			ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
-			registry.getEventBus().post(request);
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
         }
-        return imageAttributes;
+        close();
     }
     
-    /**
-     * Retrieve the image annotation information from the database.
-     * @param imageID the ID of the image to retrieve annotations from.
-     * @return A list of annotations for that image.
+    /** 
+     * Create a new annotation. 
+     * 
+     * @param annotation    text of the annotation.
      */
-    List getImageAnnotations(int imageID)
+    void create(String annotation, int saveIndex)
     {
-    	List imageAnnotations = null;
+        String title = "";
         try {
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			imageAnnotations = sts.retrieveImageAttributes(ANNOT_I, imageID);
+            DataManagementService dms = registry.getDataManagementService();
+            switch (annotationIndex) {
+                case DATASET:
+                    title = "Dataset annotation created";
+                    dms.createDatasetAnnotation(annotatedDatasetID, annotation);
+                    //Eventually post a ImageAnnotation event.
+                    break;
+                case IMAGE:
+                    title = "Image annotation created";
+                    int theZ = AnnotationData.DEFAULT;
+                    int theT = AnnotationData.DEFAULT;
+                    if (renderingControl != null && saveIndex == SAVEWITHRS &&
+                        annotatedImageID == viewImageID) {
+                        theT = renderingControl.getDefaultT();
+                        theZ = renderingControl.getDefaultZ();
+                        renderingControl.saveCurrentSettings();
+                    }
+                    dms.createImageAnnotation(annotatedImageID, annotation, 
+                                                theZ, theT);
+                    //Eventually post a ImageAnnotation event.
+                    break;
+            }
+            UserNotifier un = registry.getUserNotifier();
+            IconManager im = IconManager.getInstance(registry);
+            un.notifyInfo(title, MSG, im.getIcon(IconManager.SEND_TO_DB));
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
         } catch(DSOutOfServiceException dso) {
-			ServiceActivationRequest request = new ServiceActivationRequest(
-										ServiceActivationRequest.DATA_SERVICES);
-			registry.getEventBus().post(request);
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
         }
-        return imageAnnotations;
+        close();
     }
     
-    /**
-     * Retrieve the image attribute information from the database.
-     *
-     * @param imageID The ID of the image to retrieve attributes from.
-     * @return A list of attributes for that image.
+    /** 
+     * Create an ImageAnnotationData object to save in the DB. 
+     * Note that if we previously save theZ and theT, and we only want 
+     * to update the annotation, we have to press the save button.
      */
-    List getImageAttributes(int imageID)
+    private void setDataToSave(AnnotationData data, int saveIndex)
     {
-        // TODO call registry to find out this information and change this
-        return new ArrayList();
-    }
-    
-    /**
-     * Show the annotation dialog.
-     * @param summary The image summary to wrap the dialog around.
-     */
-    void showAnnotationDialog(AnnotateImage requestEvent)
-    {
-        ImageAnnotationCtrl iac =
-            new ImageAnnotationCtrl(this,requestEvent);
-        activeControls.add(iac);
-        TextAnnotationUIF tif = new TextAnnotationUIF(iac,registry);
-        
-        if(requestEvent.isLocationSpecified())
+        if (saveIndex == SAVEWITHRS && renderingControl != null && 
+                annotatedImageID == viewImageID)
         {
-            Point point = requestEvent.getSpecifiedLocation();
-            tif.setBounds(point.x,point.y,tif.getWidth(),tif.getHeight());
+            data.setTheT(renderingControl.getDefaultT());
+            data.setTheZ(renderingControl.getDefaultZ());
+            renderingControl.saveCurrentSettings();
         }
-        else
-        {
-            // TODO center on screen.
+    }
+    
+    /** 
+     * Delete the specified annotation.
+     * 
+     * @param data  annotation to delete.
+     */
+    void delete(AnnotationData data)
+    {
+        try {
+            DataManagementService dms = registry.getDataManagementService();
+            switch (annotationIndex) {
+                case DATASET:
+                    dms.removeDatasetAnnotation(data);
+                    break;
+                case IMAGE:
+                    dms.removeImageAnnotation(data);
+                    break;
+            }
+        } catch(DSAccessException dsa) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
         }
-        tif.show();
-        tif.toFront();
+        close();
     }
+
+    /** Close the widget and reset the map.*/
+    void close()
+    {
+        if (presentation != null) {
+            presentation.dispose();
+            presentation.setVisible(false);
+            presentation = null;
+            control.setPresentation(null);
+        }
+        annotationsMap = null;
+        maxOwner = -1;
+        annotatedImageID = -1;
+        annotatedDatasetID = -1;
+    }
+    
+    void bringToFront()
+    {
+        if (presentation != null) presentation.toFront();
+    }
+    
+    /** Return the annotations made by the specified user. */
+    List getOwnerAnnotation(int index)
+    { 
+        if (index == maxOwner) {
+            Iterator i = annotationsMap.keySet().iterator();
+            ArrayList all = new ArrayList();
+            List l;
+            while (i.hasNext()) {
+                l = (List) annotationsMap.get(i.next());
+                all.addAll(l);
+            }
+            return all;
+        }
+        Integer ownerID = (Integer) ownersMap.get(new Integer(index));
+        if (ownerID == null) return new ArrayList();    //empty list
+        return (List) annotationsMap.get(ownerID);
+    }
+    
+    int getUserIndex() { return userIndex; }
+    
+    int getAnnotationIndex() { return annotationIndex; }
     
     /**
-     * Tells the annotator agent to respond with the specified event.
-     * @param re The event to post to the application's event bus.
+     * Retrieve all the annotations of the specified image.
+     * 
+     * @param imageID     ID of the image.
+     * @return 
      */
-    void respondWithEvent(ResponseEvent re)
+    private Map getImageAnnotations(int imageID)
     {
-		registry.getEventBus().post(re);
+        annotationsMap = null;
+        try {
+            DataManagementService dms = registry.getDataManagementService();
+            annotationsMap = dms.getImageAnnotations(imageID);  
+        } catch(DSAccessException dsa) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return annotationsMap;
     }
-    
+      
     /**
-     * Indicates a close event; removes this control from the active list.
-     * @param control The control UI to close.
+     * Retrieve all the annotations of the specified dataset.
+     * 
+     * @param datasetID     ID of the dataset.
+     * @return 
      */
-    void close(AnnotationCtrl control)
+    private Map getDatasetAnnotations(int datasetID)
     {
-        activeControls.remove(control);
+        annotationsMap = null;
+        try {
+            DataManagementService dms = registry.getDataManagementService();
+            annotationsMap = dms.getDatasetAnnotations(datasetID);  
+        } catch(DSAccessException dsa) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return annotationsMap;
     }
     
-    /**
-     * Commits all the attributes to the specified values.
-     * @param attributes The attributes to update (and specified values)
-     */
-    boolean updateDatasetInfo(List attributes)
+    /** Retrieve the user's id. */
+    private UserDetails retrieveUserDetails()
     {
-        // TODO call registry to get STS handle to do update.
-        // return false on error
-        return true;
+        UserDetails ud = null;
+        try {
+            DataManagementService dms = registry.getDataManagementService();
+            ud = dms.getUserDetails();  
+        } catch(DSAccessException dsa) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Server Error", dsa.getMessage(), dsa);
+        } catch(DSOutOfServiceException dso) {
+            ServiceActivationRequest request = new ServiceActivationRequest(
+                                        ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return ud;
     }
     
+    /** Handle the event @see ImageLoaded. */
+    private void handleImageLoaded(ImageLoaded response)
+    {
+        renderingControl = response.getProxy();  
+        LoadImage request = (LoadImage) response.getACT();
+        viewImageID = request.getImageID();
+        if (viewImageID != annotatedImageID) close();
+    }
+    
+    /** Handle the event @see AnnotateImage. */
+    private void handleAnnotateImage(AnnotateImage response)
+    {
+        if (annotatedImageID == response.getID()) {
+            bringToFront();
+            return;
+        }
+        close();
+        annotationIndex = IMAGE;
+        annotatedImageID = response.getID();
+        pixelsID = response.getPixelsID();
+        objectName = response.getName();
+        //retrieve the annotation associated to the image.
+        if (getImageAnnotations(response.getID()) != null)
+            showAnnotationDialog();
+    }
+    
+    /** Handle the event @see AnnotateDataset. */
+    private void handleAnnotateDataset(AnnotateDataset response)
+    {
+        if (annotatedDatasetID == response.getID()) {
+            bringToFront();
+            return;
+        }
+        close();
+        annotationIndex = DATASET;
+        annotatedDatasetID = response.getID();
+        objectName = response.getName();
+        //retrieve the annotation associated to the dataset
+        if (getDatasetAnnotations(response.getID()) != null) 
+            showAnnotationDialog();
+    }
+
+    /** Bring up the dialog. */
+    private void showAnnotationDialog()
+    {
+        //Retrieve user ID
+        UserDetails ud = retrieveUserDetails();
+        if (ud == null) return;
+        String[] owners = new String[annotationsMap.size()];
+        Iterator i = (annotationsMap.keySet().iterator());
+        Integer id;
+        int index = 0;
+        ownersMap = new HashMap();
+        int selectedIndex = -1;
+        String name = "";
+        while (i.hasNext()) {
+            id = (Integer) i.next();
+            name = ((AnnotationData) 
+                ((List) annotationsMap.get(id)).get(0)).getOwnerLastName();
+            if (ud.getUserID() == id.intValue()) {
+                selectedIndex = index;
+                name = ud.getUserLastName();
+            }
+            owners[index] = name;
+            ownersMap.put(new Integer(index), id);
+            index++;
+        }
+        //Determine the list.
+        String[] annotators = null;
+        if (selectedIndex == -1) {  //user not in the list.
+            if (owners.length >= 1) {   //at least one
+                annotators = new String[owners.length+2];
+                for (int j = 0; j < owners.length; j++) 
+                    annotators[j] = owners[j];
+                annotators[owners.length] = ud.getUserLastName();
+                annotators[owners.length+1] = "All";
+                selectedIndex = owners.length;
+                maxOwner = owners.length+1;
+            } else {
+                annotators = new String[1];
+                annotators[0] = ud.getUserLastName();
+                selectedIndex = 0;
+            }
+        } else {    // user in the least
+            if (owners.length >= 2) {   //at least two
+                annotators = new String[owners.length+1];
+                for (int j = 0; j < owners.length; j++) 
+                    annotators[j] = owners[j];
+                annotators[owners.length] = "All";
+                maxOwner = owners.length;
+            } else {
+                annotators = new String[owners.length];
+                for (int j = 0; j < owners.length; j++) 
+                    annotators[j] = owners[j];
+            }
+        }
+        userIndex = selectedIndex;
+        presentation = new AnnotatorUIF(control, objectName, annotators, 
+                            selectedIndex, getOwnerAnnotation(selectedIndex));
+        control.setPresentation(presentation);
+        UIUtilities.centerAndShow(presentation);
+    }
+
 }
