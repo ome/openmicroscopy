@@ -386,13 +386,13 @@ public abstract class FormalParameter extends PNode implements
 		while (iter.hasNext()) {
 			p = (FormalParameter) iter.next();
 			
-			/*if (v == true) {// when making things linkable
+			if (v == true) {// when making things linkable
 				// only make it linkable if we're not linked already
 				// and we're not in the same module.
 				if (!isLinkedTo(p) && source != p.getModule())
 						p.setLinkable(v);
 			}
-			else // always want to clear linkable */
+			else // always want to clear linkable 
 				p.setLinkable(v);		
 		}
 	}
@@ -410,10 +410,16 @@ public abstract class FormalParameter extends PNode implements
 
 	/**
 	 * 
-	 * By default, a parameter can be the origin of a link.	
+	 * By default, a parameter can be the origin of a link, but only if it is 
+	 * visible - ie, not hidden due to semantic zoom. So, check the parent, 
+	 * which is the node that holds this.
+	 * 	
 	 */
 	public boolean canBeLinkOrigin() {
-		return true;
+		if (getParent() == null)
+			return false;
+		System.err.println("parent of param is "+getParent()+", visibility is "+getParent().getVisible());
+		return getParent().getVisible();
 	}
 	
 	public float getLabelWidth() {
