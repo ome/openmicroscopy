@@ -140,5 +140,17 @@ public class ChainCompoundModuleView extends ModuleView {
 		if (p != null) {
 			((ModuleNodeEventHandler) handler).animateToNode(p);
 		}
-	}	
+	}
+	
+	public void mouseEntered(GenericEventHandler handler) {
+		ChainPaletteEventHandler modHandler = (ChainPaletteEventHandler) handler;
+		showDetails();
+		moveUp();
+		super.mouseEntered(handler);
+	}
+
+	public void mouseExited(GenericEventHandler handler) {
+		showOverview();
+		super.mouseExited(handler);
+	}
 }
