@@ -36,7 +36,6 @@
 package org.openmicroscopy.shoola.agents.annotator.events;
 
 import org.openmicroscopy.ds.st.ImageAnnotation;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /**
@@ -48,7 +47,8 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
  * @version 2.2
  * @since OME2.2
  */
-public class ImageAnnotated extends ResponseEvent
+public class ImageAnnotated
+	extends ResponseEvent
 {
     private ImageAnnotation annotation;
     
@@ -80,4 +80,5 @@ public class ImageAnnotated extends ResponseEvent
     {
         this.annotation = annotation;
     }
+    
 }

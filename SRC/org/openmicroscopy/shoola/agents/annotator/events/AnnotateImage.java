@@ -35,7 +35,11 @@
  */
 package org.openmicroscopy.shoola.agents.annotator.events;
 
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /**
@@ -44,26 +48,37 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * @version 2.2
  * @since OME2.2
  */
-public class AnnotateImage extends RequestEvent
+public class AnnotateImage
+	extends RequestEvent
 {
-    private ImageSummary imageInfo;
+	
+	/** Image's id. */
+    private int id;
+        
+    /** Image's name. */
+    private String name;
     
     /**
      * Constructs a request to bring up the annotator with parameters from
      * the image with the specified ID.
      * 
-     * @param imageID
+     * @param id 		The id of the specified image.
+     * @param name		The name of the specified image.
      */
-    public AnnotateImage(ImageSummary imageInfo)
+    public AnnotateImage(int id, String name)
     {
-        if(imageInfo == null)
-            throw new IllegalArgumentException("Null image info");
-        else
-            this.imageInfo = imageInfo;
+       this.id = id;
+       this.name = name;
+    }
+
+    public int getID()
+    {
+        return id;
     }
     
-    public ImageSummary getImageInfo()
+    public String getName()
     {
-        return imageInfo;
+    	return name;
     }
+    
 }

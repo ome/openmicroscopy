@@ -53,22 +53,34 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 public class AnnotateDataset
 	extends RequestEvent
 {
-	private int datasetID;
+	
+	/** Dataset's id. */
+	private int id;
+    
+    /** Dataset's name. */
+    private String name;
     
 	/**
 	 * Constructs a request to bring up the annotator with parameters from
 	 * the dataset with the specified ID.
 	 * 
-	 * @param datasetInfo
+	 * @param id	The id of the specified dataset.
+	 * @param name	The name of the specified dataset.
 	 */
-	public AnnotateDataset(int datasetID)
+	public AnnotateDataset(int id, String name)
 	{
-		this.datasetID = datasetID;
+		this.id = id;
+		this.name = name;
 	}
     
-	public int getDatasetID()
+	public int getID()
 	{
-		return datasetID;
+		return id;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 
 }
