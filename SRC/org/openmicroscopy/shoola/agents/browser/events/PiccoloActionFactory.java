@@ -204,6 +204,27 @@ public class PiccoloActionFactory
     }
     
     /**
+     * Creates an action, that, when executed, will trigger an information
+     * view of this particular thumbnail.
+     * @param t The thumbnail to query.
+     * @return A PiccoloAction that wraps the appropriate DM trigger code
+     *         in an execute() statement.
+     */
+    public static PiccoloAction getInfoFromDMAction(final Thumbnail t)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute()
+            {
+                BrowserEnvironment env = BrowserEnvironment.getInstance();
+                BrowserAgent agent = env.getBrowserAgent();
+                agent.showImageInfo(t);
+            }
+        };
+        return action;
+    }
+    
+    /**
      * Creates an action, that, when exected, will trigger a zoom-to-fit
      * command.
      * @param model The browser to affect.

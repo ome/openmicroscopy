@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.StatusBar;
 import org.openmicroscopy.shoola.agents.browser.ui.UIWrapper;
 import org.openmicroscopy.shoola.agents.browser.util.KillableThread;
+import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.LoadDataset;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -993,6 +994,32 @@ public class BrowserAgent implements Agent, AgentEventListener
         EventBus eventBus = registry.getEventBus();
         System.err.println("about to post events");
         eventBus.post(imageEvent);
+    }
+    
+    /**
+     * Use the DM to show image info about a particular thumbnail.
+     * @param t The thumbnail to query.
+     */
+    public void showImageInfo(Thumbnail t)
+    {
+        if(t == null) return;
+        ThumbnailDataModel tdm = t.getModel();
+        ImageSummary is = tdm.getImageInformation();
+        showImageInfo(is);
+    }
+    
+    /**
+     * Use the DM to visualize the specified ImageSummary data object,
+     * located (likely) inside a Thumbnail's ThumbnailDataModel.
+     * @param is The image summary to show.
+     */
+    public void showImageInfo(ImageSummary is)
+    {
+        if(is == null) return;
+        ViewImageInfo imageInfoEvent = new ViewImageInfo(is);
+        EventBus eventBus = registry.getEventBus();
+        System.err.println("about to post show image info event");
+        eventBus.post(imageInfoEvent);
     }
 
     /**

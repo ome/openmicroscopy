@@ -87,6 +87,7 @@ public class ThumbnailImageLoader
     public BufferedImage getImage(ImageSummary imageData,
                                   CompositingSettings settings)
     {
+        // TODO fix
         return null;
     }
 }

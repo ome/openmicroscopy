@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloAction;
 import org.openmicroscopy.shoola.agents.browser.events.PiccoloActionFactory;
@@ -99,6 +100,18 @@ public class PopupMenuFactory
         });
         menu.add(openItem);
         menu.addSeparator();
+        JMenuItem infoItem = new JMenuItem("View Info");
+        infoItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                PiccoloAction action =
+                    PiccoloActionFactory.getInfoFromDMAction(t);
+                action.execute();     
+            }
+        });
+        menu.add(infoItem);
+        
         return menu;
     }
     

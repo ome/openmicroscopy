@@ -219,7 +219,7 @@ public class BrowserView extends PCanvas
         
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
                                                 selectThumbnailAction);
-        defaultTDownActions.setMouseClickAction(PiccoloModifiers.NORMAL,
+        defaultTDownActions.setMouseDoubleClickAction(PiccoloModifiers.NORMAL,
                                                 PiccoloActions.OPEN_IMAGE_ACTION);
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.POPUP,
                                                 PiccoloActions.POPUP_MENU_ACTION);

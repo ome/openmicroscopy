@@ -50,6 +50,7 @@ import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PText;
 import edu.umd.cs.piccolo.util.PPaintContext;
+import edu.umd.cs.piccolo.util.PPickPath;
 
 /**
  * Tooltip-like node that displays the name of a thumbnail, and other
@@ -152,26 +153,37 @@ public class ImageNameNode extends PNode
     
     public void respondMouseClick(PInputEvent event)
     {
-        t.respondMouseClick(event);
         getParent().removeChild(this);
+        t.respondMouseClick(pushParentNode(event,t));
     }
     
     public void respondMouseDoubleClick(PInputEvent event)
     {
-        t.respondMouseDoubleClick(event);
         getParent().removeChild(this);
+        t.respondMouseDoubleClick(pushParentNode(event,t));
+        
     }
     
     public void respondMousePress(PInputEvent event)
     {
-        t.respondMousePress(event);
         getParent().removeChild(this);
+        t.respondMousePress(pushParentNode(event,t));
     }
     
     public void respondMouseRelease(PInputEvent event)
     {
-        t.respondMouseRelease(event);
         getParent().removeChild(this);
+        t.respondMouseRelease(pushParentNode(event,t));
+    }
+    
+    private PInputEvent pushParentNode(PInputEvent initialEvent,
+                                       Thumbnail parent)
+    {
+        PPickPath path = initialEvent.getPath();
+        path.popNode(path.getPickedNode());
+        path.pushNode(parent);
+        initialEvent.setPath(path);
+        return initialEvent;
     }
 
     // does nothing
