@@ -101,12 +101,14 @@ class Renderer
 											QuantumFactory.DEPTH_8BIT);
 		ChannelBindings[] waves = new ChannelBindings[dims.sizeW];
 		PixelsGlobalStatsEntry wGlobal;
+		int[] rgb;
 		for (int w = 0; w < dims.sizeW; ++w) {
 			wGlobal = stats.getGlobalEntry(w);
 			//TODO: calcultate default interval using sigma, etc.
+			rgb = setDefaultColor(w);
 			waves[w] = new ChannelBindings(w, wGlobal.getGlobalMin(),
 											wGlobal.getGlobalMax(),
-											255, 0, 0, 255, false);
+											rgb[0], rgb[1], rgb[2], 255, false);
 		}
 		waves[0].setActive(true);  //NOTE: ImageDimensions enforces 1 < sizeW.
 		return new RenderingDef(dims.sizeZ/2+dims.sizeZ%2-1, 0, 
@@ -114,6 +116,24 @@ class Renderer
 		//NOTE: middle of stack is z=1 if szZ==3, z=1 if szZ==4, etc.
 	}
 	
+	private int[] setDefaultColor(int w)
+	{
+		int[] rgb = new int[3];
+		if (w == 1) {
+			rgb[0] = 0;
+			rgb[1] = 255;
+			rgb[2] = 0;
+		} else if (w == 2) {
+			rgb[0] = 0;
+			rgb[1] = 0;
+			rgb[2] = 255;
+		} else {
+			rgb[0] = 255;
+			rgb[1] = 0;
+			rgb[2] = 0;
+		}
+		return rgb;
+	}
 	/**
 	 * Creates a new instance to render the specified pixels set.
 	 * The {@link #initialize() initialize} method has to be called straight
