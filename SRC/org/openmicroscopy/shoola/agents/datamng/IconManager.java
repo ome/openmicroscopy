@@ -91,11 +91,14 @@ public class IconManager
 	/** ID of the refresh icon used by the popup menu. */
 	public static final int		REFRESH = 10;
 
+	/** ID of the annotate icon used by the popup menu. */
+	public static final int		ANNOTATE = 11;
+	
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 10;
+	private static int          MAX_ID = 11;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -112,6 +115,7 @@ public class IconManager
 		relPaths[VIEWER] = "viewer16.png";
 		relPaths[BROWSER] = "browser-small.png";
 		relPaths[REFRESH] = "refresh16.png";
+		relPaths[ANNOTATE] = "annotate16.png";	
 	}
 	
 	/** The sole instance that provides. */
@@ -127,7 +131,6 @@ public class IconManager
 				throw new RuntimeException("Can't create the IconManager", e);
 			}
 		}
-		
 		return singleton;
 	}
 	
