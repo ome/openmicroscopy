@@ -44,13 +44,16 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
 import org.openmicroscopy.shoola.agents.browser.ui.HoverSensitive;
+import org.openmicroscopy.shoola.agents.browser.ui.PaletteFactory;
 import org.openmicroscopy.shoola.agents.browser.ui.RegionSensitive;
 
 import edu.umd.cs.piccolo.PCamera;
@@ -71,7 +74,8 @@ import edu.umd.cs.piccolo.util.PPaintContext;
  * @since OME2.2
  */
 public class BrowserCamera implements RegionSensitive,
-                                      HoverSensitive
+                                      HoverSensitive,
+                                      BrowserTopModelListener
 {
     private Rectangle2D activeRegion;
     private Rectangle2D cameraBounds;
@@ -111,14 +115,42 @@ public class BrowserCamera implements RegionSensitive,
         this.model = model;
         this.camera = camera;
         
+        init();
+        
+
+        
+        cameraResized(cameraBounds);
+    }
+    
+    private void init()
+    {
         activeRegion = new Rectangle2D.Double(0,0,0,0);
         edgeDistance = 20;
         panSpeed = 5;
         cameraBounds = camera.getBounds();
         paletteLayer = new PLayer();
         panNodeList = new ArrayList();
+        palettes = new HashSet();
         
-        cameraResized(cameraBounds);
+        BPalette palette = PaletteFactory.getMainPalette(model);
+        addPalette(palette);
+        model.addPalette(palette.getName(),palette);
+        showPalette(palette);
+    }
+    
+    /**
+     * Adds a palette into the view.
+     * @param palette
+     */
+    public void addPalette(BPalette palette)
+    {
+        if(palette == null)
+        {
+            return;
+        }
+        
+        palettes.add(palette);
+        camera.addChild(palette);
     }
     
     /**
@@ -350,6 +382,53 @@ public class BrowserCamera implements RegionSensitive,
         }
         camera.repaint();
     }
+    
+    /**
+     * Show the palette.
+     */
+    public void showPalette(BPalette palette)
+    {
+        if(palettes.contains(palette))
+        {
+            if(camera.indexOfChild(palette) == -1)
+            {
+                camera.addChild(palette);
+            }
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserTopModelListener#deiconifyPalette(org.openmicroscopy.shoola.agents.browser.ui.BPalette)
+     */
+    public void deiconifyPalette(BPalette palette)
+    {
+        // TODO Auto-generated method stub
+
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserTopModelListener#iconifyPalette(org.openmicroscopy.shoola.agents.browser.ui.BPalette)
+     */
+    public void iconifyPalette(BPalette palette)
+    {
+        // TODO Auto-generated method stub
+
+    }
+    
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserTopModelListener#hidePalette(org.openmicroscopy.shoola.agents.browser.ui.BPalette)
+     */
+    public void hidePalette(BPalette palette)
+    {
+        if(palette != null)
+        {
+            camera.removeChild(palette);
+        }
+    }
+
+
+
+
 
     
     /**

@@ -44,6 +44,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.shoola.agents.browser.BrowserTopModel;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDragActions;
@@ -79,13 +80,19 @@ public class BPalette extends PNode
     private TitleBar titleBar;
     private IconBar iconBar;
     
+    private BrowserTopModel backingModel;
+    
     /**
      * Constructs a palette with the given name.
      * 
+     * @param parent The BrowserTopModel to communicate with on certain
+     *               palette actions (minimize, anchor, close, etc)
      * @param name The name of the palette.
      */
-    public BPalette(String name)
+    public BPalette(BrowserTopModel parent, String name)
     {
+        backingModel = parent;
+        
         final BPalette refCopy = this;
         this.paletteName = name;
         titleBar = new TitleBar(name);
@@ -95,6 +102,24 @@ public class BPalette extends PNode
         iconBar.setOffset(0,titleBar.getHeight());
         // sets the bounds
         setBounds(0,0,measuredWidth,titleBar.getHeight()+iconBar.getHeight());
+    }
+    
+    /**
+     * Gets the backing model for this particular palette.
+     * @return The backing model for this palette.
+     */
+    public BrowserTopModel getModel()
+    {
+        return backingModel;
+    }
+    
+    /**
+     * Returns the name of the palette.
+     * @return See above.
+     */
+    public String getName()
+    {
+        return paletteName;
     }
     
     public void addIcon(BIcon icon)

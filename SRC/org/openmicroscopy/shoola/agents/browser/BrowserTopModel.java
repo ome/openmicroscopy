@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.*;
 
-import edu.umd.cs.piccolo.PNode;
+import org.openmicroscopy.shoola.agents.browser.ui.BPalette;
 
 /**
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
@@ -49,20 +49,165 @@ public class BrowserTopModel
 {
     private Map modalSet;
     private Map orientationMap;
-    private Map actionMap;
+    private Map paletteMap;
+    
+    private Set modelListeners;
 
     public BrowserTopModel()
     {
         modalSet = new HashMap();
         orientationMap = new HashMap();
-        actionMap = new HashMap();
+        paletteMap = new HashMap();
+        modelListeners = new HashSet();
     }
-
-    public void putModal(BrowserMode mode, PNode node, Orientation orientation)
+    
+    public void addModelListener(BrowserTopModelListener listener)
     {
-        // TODO: fill in code
+        if(listener != null)
+        {
+            modelListeners.add(listener);
+        }
+    }
+    
+    public void removeModelListener(BrowserTopModelListener listener)
+    {
+        if(listener != null)
+        {
+            modelListeners.remove(listener);
+        }
     }
 
-    // TODO: figure out rest of appropriate methods (tie actions here?)
+    /**
+     * Binds a particular palette to a specific name, and adds it to the ones
+     * available to be hidden/shown/minimized in the browser window.
+     * 
+     * @param paletteName The name of the palette to overlay.
+     * @param palette The palette itself.
+     */
+    public void addPalette(String paletteName, BPalette palette)
+    {
+        if(paletteName == null || palette == null)
+        {
+            return;
+        }
+        paletteMap.put(paletteName,palette);
+        
+    }
+    
+    /**
+     * Shows the palette with the specified name.
+     * @param name The name of the palette to show.
+     */
+    public void showPalette(String name)
+    {
+        BPalette palette = (BPalette)paletteMap.get(name);
+        showPalette(palette);
+    }
+    
+    /**
+     * Makes the specified palette visible.  In actuality,
+     * trigger those listening to make the palette visible.
+     * 
+     * @param palette The palette to show.
+     */
+    public void showPalette(BPalette palette)
+    {
+        if(palette != null && paletteMap.containsValue(palette))
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserTopModelListener listener =
+                    (BrowserTopModelListener)iter.next();
+                listener.showPalette(palette);
+            }
+        }
+    }
+    
+    /**
+     * Hides the palette with the specified name.
+     * @param name The name of the palette to hide.
+     */
+    public void hidePalette(String name)
+    {
+        BPalette palette = (BPalette)paletteMap.get(name);
+        hidePalette(palette);
+    }
+
+    /**
+     * Makes the specified palette invisible.  In actuality,
+     * trigger those listening to make the palette visible.
+     * 
+     * @param palette The palette to hide.
+     */
+    public void hidePalette(BPalette palette)
+    {
+        if(palette != null && paletteMap.containsValue(palette))
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserTopModelListener listener =
+                    (BrowserTopModelListener)iter.next();
+                listener.hidePalette(palette);
+            }
+        }
+    }
+    
+    /**
+     * Minimizes the palette with the specified name.
+     * @param name The name of the palette to hide.
+     */
+    public void iconifyPalette(String name)
+    {
+        BPalette palette = (BPalette)paletteMap.get(name);
+        iconifyPalette(palette);
+    }
+
+    /**
+     * Minimizes the specified palette.  In actuality,
+     * trigger those listening to make the palette visible.
+     * 
+     * @param palette The palette to hide.
+     */
+    public void iconifyPalette(BPalette palette)
+    {
+        if(palette != null && paletteMap.containsValue(palette))
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserTopModelListener listener =
+                    (BrowserTopModelListener)iter.next();
+                listener.iconifyPalette(palette);
+            }
+        }
+    }
+    
+    /**
+     * Deiconifies the palette with the specified name.
+     * @param name The name of the palette to deiconify.
+     */
+    public void deiconifyPalette(String name)
+    {
+        BPalette palette = (BPalette)paletteMap.get(name);
+        deiconifyPalette(palette);
+    }
+
+    /**
+     * Deiconifies the specified palette.  In actuality,
+     * trigger those listening to make the palette deiconified.
+     * 
+     * @param palette The palette to hide.
+     */
+    public void deiconifyPalette(BPalette palette)
+    {
+        if(palette != null && paletteMap.containsValue(palette))
+        {
+            for(Iterator iter = modelListeners.iterator(); iter.hasNext();)
+            {
+                BrowserTopModelListener listener =
+                    (BrowserTopModelListener)iter.next();
+                listener.deiconifyPalette(palette);
+            }
+        }
+    }
 
 }
