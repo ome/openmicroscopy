@@ -95,8 +95,7 @@ public class TIFFEncoder
 		int size = TIFFEncoderCst.IMAGE_START-
 					(TIFFEncoderCst.HDR_SIZE+ifdSize+bpsSize+scaleSize);
 		output.write(new byte[size]); // force image to start at offset 768
-		if (colorType == ColorSpace.TYPE_RGB)	writeRGBPixels();
-		else  writeGrayPixels();	
+		writeRGBPixels();
 	}
 	
 	/** Initialize the values. */
@@ -208,24 +207,6 @@ public class TIFFEncoder
 		if (count == 1 && fieldType == TIFFEncoderCst.SHORT)
 			value <<= 16; //left justify 16-bit values
 		output.writeInt(value); // may be an offset
-	}
-
-	/** Write the pixel value, band model. */
-	private void writeGrayPixels()
-		throws IOException
-	{
-		int bytesWritten = 0;
-		int size = imageWidth*imageHeight;
-		int count = 8192;
-		DataBufferByte buffer = 
-						(DataBufferByte) image.getRaster().getDataBuffer();
-		byte[] pixels = buffer.getData();
-		while (bytesWritten<size) {
-			if ((bytesWritten + count) > size)
-				count = size - bytesWritten;
-			output.write(pixels, bytesWritten, count);
-			bytesWritten += count;
-		}
 	}
 	
 	/** Write the pixel value, band model. */
