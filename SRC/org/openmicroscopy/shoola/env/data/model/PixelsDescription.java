@@ -29,13 +29,12 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
-import org.openmicroscopy.ds.st.Pixels;
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Pixels;
 
 /** 
  * 
@@ -94,10 +93,6 @@ public class PixelsDescription
         this.backingPixels = pixels;
     }
 	
-    /**
-     * (Old) constructor-- does not specify the Pixels attribute (bad, but
-     * maybe required for some old code not to break)
-     */
 	public PixelsDescription(int id, long imageServerID, int sizeX, int sizeY, 
 							int sizeZ, int sizeC, int sizeT, int bitsPerPixel,
 							String imageServerURL)
