@@ -76,11 +76,11 @@ public class ImportImageChooser
 		iiSelection = new ImportImageSelection(manager, datasets);
 		manager.setSelectionView(iiSelection);
 		manager.attachListener();
-		createChooser(datasets);
+		createChooser();
 	}
 
 	/** Build the file chooser. */
-	private void createChooser(List datasets)
+	private void createChooser()
 	{ 
 		setFileSelectionMode(FILES_ONLY); 
 		setMultiSelectionEnabled(true);

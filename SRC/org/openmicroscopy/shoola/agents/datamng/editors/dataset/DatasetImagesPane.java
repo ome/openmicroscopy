@@ -138,7 +138,6 @@ class DatasetImagesPane
 		tablePanel = buildTablePanel();
 		buttonsPanel = buildButtonsPanel();
 		buttonsToAddPanel = buildButtonsToAddPanel();
-		JPanel p = new JPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(tablePanel);
 		add(Box.createRigidArea(DataManager.VBOX));

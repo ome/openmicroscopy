@@ -89,7 +89,7 @@ class ToolBar
 			UIUtilities.formatToolTipText("Create a new project."));
 		datasetButton =  new JButton(im.getIcon(IconManager.CREATE_DATASET));
 		datasetButton.setToolTipText(
-			UIUtilities.formatToolTipText("Create a new Dataset."));
+			UIUtilities.formatToolTipText("Create a new dataset."));
 		imageButton =  new JButton(im.getIcon(IconManager.IMPORT_IMAGE));
 		imageButton.setToolTipText(
 			UIUtilities.formatToolTipText("Import a new image."));

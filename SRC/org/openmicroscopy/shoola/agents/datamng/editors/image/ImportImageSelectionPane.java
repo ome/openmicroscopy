@@ -69,9 +69,6 @@ class ImportImageSelectionPane
 {
 	
 	private static final int		POS_ZERO = 0, POS_ONE = 1, POS_TWO = 2;
-	
-	private static final String		
-							IMPORT_QUEUE = "Remove the file from the queue";
 									
 	private JComboBox				existingDatasets;
 	private ImportImageChooserMng 	manager;
