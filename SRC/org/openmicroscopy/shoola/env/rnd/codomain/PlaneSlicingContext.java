@@ -110,19 +110,35 @@ public class PlaneSlicingContext
 	 */
 	private boolean 				constant;
 	
-	
-	//TODO: constuctor.
+	public PlaneSlicingContext(int planePrevious, int planeSelected,
+							 	boolean constant)
+	{
+		if (planePrevious > planeSelected)
+			throw new IllegalArgumentException("Not a valid plane selection");	
+		verifyBitPlanes(planePrevious);
+		verifyBitPlanes(planeSelected);
+		this.planePrevious = planePrevious;
+		this.planeSelected = planeSelected;
+		this.constant = constant;
+	}
+
+	/** Contructor used to make a copy of the object. */
+	private PlaneSlicingContext() {}
 	
 	/** 
 	 * Method called if and only if isConstant == false. 
 	 *
-	 * @param lowerLevel		value (in [0, 255]) used to set
-	 * 							the level for bit-plane &lt; bit-plane selected.
-	 * @param upperLevel		value (in [0, 255]) used to set
-	 * 							the level for bit-plane &gt; bit-plane selected.
+	 * @param lowerLevel		value (in [intervalStart, intervalEnd]) 
+	 * 							used to set the level of the
+	 * 							bit-plane &lt; bit-plane selected.
+	 * @param upperLevel		value (in [intervalStart, intervalEnd]) 
+	 * 							used to set the level of the
+	 * 							bit-plane &gt; bit-plane selected.
 	 */
 	void setLimits(int lowerLimit, int upperLimit)
 	{
+		verifyInput(lowerLimit);
+		verifyInput(upperLimit);
 		this.lowerLimit = lowerLimit;
 		this.upperLimit = upperLimit;	
 	}
@@ -186,6 +202,30 @@ public class PlaneSlicingContext
 	public int getUpperLimit()
 	{
 		return upperLimit;
+	}
+	
+	/** Verify if bitPlane is one the contants defined above. */
+	private void verifyBitPlanes(int bitPlane)
+	{
+		boolean b = false;
+		switch (bitPlane) {
+			case BIT_ZERO:	b = true; break;
+			case BIT_ONE:   b = true; break;
+			case BIT_TWO:  	b = true; break;
+			case BIT_THREE: b = true; break;
+			case BIT_FOUR:  b = true; break;
+			case BIT_FIVE: 	b = true; break;
+			case BIT_SIX: 	b = true; break;
+			case BIT_SEVEN: b = true; break;
+			case BIT_EIGHT: b = true;
+		}
+		if (!b) throw new IllegalArgumentException("Not a valid plane");
+	}
+	
+	private void verifyInput(int x)
+	{
+		if (x < intervalStart || x > intervalEnd)
+			throw new IllegalArgumentException("Value not in the interval.");
 	}
 	
 }

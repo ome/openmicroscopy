@@ -81,6 +81,31 @@ public class ContrastStretchingContext
 	/** coefficients of the third line with equation y = a2*x+b2. */
 	private double 					a2, b2;
 	
+	public ContrastStretchingContext(int xStart, int yStart, int xEnd, int yEnd)
+	{
+		verifyInputInterval(xStart, xEnd);
+		verifyInputInterval(yStart, yEnd);
+		this.xStart = xStart;
+		this.xEnd = xEnd;
+		this.yStart = yStart;
+		this.yEnd = yEnd;
+	}
+	
+	/** 
+	 * Verify the bounds of the input interval[s,e]. This interval must be a
+	 * sub-interval of [intervalStart, intervalEnd]. 
+	 * 
+	 * @param start		Lower bound of the interval.
+	 * @param end		Upper bound of the interval.
+	 */
+	private void verifyInputInterval(int start, int end)
+	{
+		if (start >= end || start < intervalStart || end > intervalEnd)
+			throw new IllegalArgumentException("Interval not consistent.");
+	}
+	
+	/** Contructor used to make a copy of the object. */
+	private ContrastStretchingContext() {}
 	
 	/** Compute the coefficients of the first straight y = a0*x+b0.  */
 	private void setFirstLineCoefficient(int intervalStart)
