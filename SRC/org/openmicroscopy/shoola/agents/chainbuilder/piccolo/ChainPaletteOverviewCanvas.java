@@ -46,6 +46,7 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import java.awt.Color;
 
 //Third-party libraries
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.PLayer;
 import edu.umd.cs.piccolo.util.PBounds;
@@ -92,12 +93,13 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 		detail.setOverview(this);
 		PLayer detailLayer = new PLayer();
 		detailLayer.addChild(detail.getLayer());
-		detailLayer.setPickable(false);
-		detailLayer.setChildrenPickable(false);
+		//detailLayer.setPickable(false);
+		//detailLayer.setChildrenPickable(false);
 		getLayer().addChild(detailLayer);
 		viewRect = new PPath();
 		viewRect.setPaint(new Color(200,0,0,100));
 		getLayer().addChild(viewRect);
+		viewRect.moveToFront();
 		
 		addInputEventListener(new ChainPaletteOverviewDragEventHandler(this));
 		
@@ -122,8 +124,6 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 	
 	public void updateMainView() {
 		detail.panView(viewRect.getGlobalBounds());
-		/*detail.getCamera().
-			animateViewToCenterBounds(viewRect.getGlobalBounds(),true,0); */
 	}
 	
 	public void hideOverview() {
@@ -132,5 +132,13 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 	
 	public PPath getViewRect() {
 		return viewRect;
+	}
+	
+	public void mouseClick(PInputEvent e) {
+		detail.overviewClick(e);
+	}
+	
+	public void mousePopup(PInputEvent e) {
+		detail.overviewPopup(e);
 	}
 }
