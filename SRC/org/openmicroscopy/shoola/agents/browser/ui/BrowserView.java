@@ -103,6 +103,9 @@ public class BrowserView extends PCanvas
     // The browser overlay view.
     private BrowserCamera overlayCamera;
     
+    // Semantic zoom node manager.
+    private SemanticLayer semanticLayer;
+    
     // The environment (contains registry, etc.)
     private BrowserEnvironment env;
     
@@ -148,6 +151,8 @@ public class BrowserView extends PCanvas
     /** REUSABLE PICCOLO ACTIONS... **/
     private PiccoloAction selectThumbnailAction;
     private PiccoloAction deselectThumbnailAction;
+    private PiccoloAction semanticHoverThumbnailAction;
+    private PiccoloAction semanticExitThumbnailAction;
     
     /** CURRENT THUMBNAIL ACTIONS (FOR THUMBNAILS TO BE ADDED) **/
     private MouseDownActions defaultTDownActions;
@@ -213,8 +218,19 @@ public class BrowserView extends PCanvas
                                                 selectThumbnailAction);
         defaultTDownActions.setMouseClickAction(PiccoloModifiers.POPUP,
                                                 PiccoloActions.POPUP_MENU_ACTION);
+        
+
+        semanticLayer = new SemanticLayer();
+        semanticHoverThumbnailAction =
+            PiccoloActionFactory.getSemanticEnterAction(semanticLayer);
+            
+        semanticExitThumbnailAction =
+            PiccoloActionFactory.getSemanticExitAction(semanticLayer);
+            
         defaultTOverActions.setMouseEnterAction(PiccoloModifiers.NORMAL,
-                                                PiccoloActions.SEMANTIC_ZOOM_ACTION);
+                                                semanticHoverThumbnailAction);
+        defaultTOverActions.setMouseExitAction(PiccoloModifiers.NORMAL,
+                                               semanticExitThumbnailAction);
         
     }
     

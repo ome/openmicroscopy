@@ -74,49 +74,6 @@ public interface PiccoloActions
         }
     };
     
-    /**
-     * The common action to draw a semantic-zoom image over a thumbnail.
-     */
-    public static final PiccoloAction SEMANTIC_ZOOM_ACTION = new PiccoloAction()
-    {
-        public void execute(PInputEvent e)
-        {
-            if(e.getCamera().getViewScale() < 1)
-            {
-                Thumbnail t = (Thumbnail)e.getPickedNode();
-                Image image = t.getImage();
-                SemanticZoomNode semanticNode =
-                    new SemanticZoomNode(t);
-                
-                Point2D point = new Point2D.Double(t.getOffset().getX()+
-                                                   t.getBounds().getCenter2D().getX(),
-                                                   t.getOffset().getY()+
-                                                   t.getBounds().getCenter2D().getY());
-                Point2D dummyPoint = new Point2D.Double(point.getX(),point.getY());
-                Dimension2D size = t.getBounds().getSize();
-                
-                Point2D viewPoint = e.getCamera().viewToLocal(dummyPoint);
-                
-                semanticNode.setOffset(viewPoint.getX()-size.getWidth()/2,
-                                       viewPoint.getY()-size.getHeight()/2);
-                
-                // invariant: should be one per (hopefully)
-                PCamera camera = e.getCamera();
-                for(int i=0; i<camera.getChildrenCount();i++)
-                {
-                    Object child = camera.getChild(i);
-                    if(child instanceof SemanticZoomNode)
-                    {
-                        camera.removeChild((SemanticZoomNode)child);
-                        i = camera.getChildrenCount();
-                    }
-                }
-                
-                camera.addChild(0,semanticNode);
-            }
-        }
-    };
-    
     public static final PiccoloAction POPUP_MENU_ACTION = new PiccoloAction()
     {
         public void execute(PInputEvent e)

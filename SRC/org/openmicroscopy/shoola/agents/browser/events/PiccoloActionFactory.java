@@ -36,12 +36,17 @@
  
 package org.openmicroscopy.shoola.agents.browser.events;
 
+import java.awt.Image;
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openmicroscopy.shoola.agents.browser.BrowserMode;
 import org.openmicroscopy.shoola.agents.browser.BrowserModel;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.ui.SemanticLayer;
+import org.openmicroscopy.shoola.agents.browser.ui.SemanticZoomNode;
 
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -287,4 +292,53 @@ public class PiccoloActionFactory
         };
         return action;
     };
+    
+    public static PiccoloAction getSemanticEnterAction(final SemanticLayer layer)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                Thumbnail t = (Thumbnail)e.getPickedNode();
+                
+                double width = t.getWidth()*e.getCamera().getViewScale();
+                double height = t.getHeight()*e.getCamera().getViewScale();
+                if(width < SemanticZoomNode.getStandardWidth() &&
+                   height < SemanticZoomNode.getStandardHeight())
+                {
+                    Image image = t.getImage();
+                    SemanticZoomNode semanticNode =
+                        new SemanticZoomNode(t);
+                    
+                    Point2D point = new Point2D.Double(t.getOffset().getX()+
+                                                       t.getBounds().getCenter2D().getX(),
+                                                       t.getOffset().getY()+
+                                                       t.getBounds().getCenter2D().getY());
+                    Point2D dummyPoint = new Point2D.Double(point.getX(),point.getY());
+                    Dimension2D size = semanticNode.getBounds().getSize();
+                    
+                    Point2D viewPoint = e.getCamera().viewToLocal(dummyPoint);
+                    
+                    semanticNode.setOffset(viewPoint.getX()-size.getWidth()/2,
+                                           viewPoint.getY()-size.getHeight()/2);
+                    
+                    layer.hideSemanticNode(e.getCamera());
+                    layer.nodeEntered(e.getCamera(),semanticNode);
+                }
+            }
+        };
+        return action;
+    }
+    
+    public static PiccoloAction getSemanticExitAction(final SemanticLayer layer)
+    {
+        PiccoloAction action = new PiccoloAction()
+        {
+            public void execute(PInputEvent e)
+            {
+                layer.nodeExited();
+            }
+        };
+        return action;
+    }
 }

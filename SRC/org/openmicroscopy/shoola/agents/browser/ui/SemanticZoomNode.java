@@ -73,10 +73,14 @@ public class SemanticZoomNode extends PImage
     
     private static boolean loadedCompositeInfo = false;
     
-    private static int compositeWidth = 0;
-    private static int compositeHeight = 0;
+    private static int compositeWidth = 96; // hardcoded default
+    private static int compositeHeight = 96; // hardcoded default
     
     protected Image displayImage;
+    
+    protected Image[] thumbnailImages;
+    
+    protected boolean multipleModeOn;
     
     /**
      * Makes the node from the specified thumbnail.
@@ -84,7 +88,7 @@ public class SemanticZoomNode extends PImage
      */
     public SemanticZoomNode(Thumbnail parent)
     {
-        super(parent.getImage(),false); // TODO change back
+        super(); // TODO change back
         if(!loadedCompositeInfo)
         {
             loadSizeInfo();
@@ -96,46 +100,108 @@ public class SemanticZoomNode extends PImage
                 "SemanticZoomNode");
         }
         
-        /*Image originalImage = parent.getImage();
-        int width = originalImage.getWidth(null);
-        int height = originalImage.getHeight(null);
+        multipleModeOn = parent.isMultipleThumbnail();
         
-        Image scaledImage;
-        
-        if(width < height)
+        if(!multipleModeOn)
         {
-            scaledImage =
-                originalImage.getScaledInstance(-1,compositeHeight,
-                                                Image.SCALE_DEFAULT);
+            Image scaledImage;
+            Image originalImage = parent.getImage();
+            int width = originalImage.getWidth(null);
+            int height = originalImage.getHeight(null);
+            
+            if(width < height)
+        
+            {
+                scaledImage =
+                    originalImage.getScaledInstance(-1,compositeHeight,
+                                                    Image.SCALE_DEFAULT);
+            }
+            else
+            {
+                scaledImage =
+                    originalImage.getScaledInstance(compositeWidth,-1,
+                                                    Image.SCALE_DEFAULT);
+            }
+                                                
+            setImage(scaledImage);
         }
         else
         {
-            scaledImage =
-                originalImage.getScaledInstance(compositeWidth,-1,
-                                                Image.SCALE_DEFAULT);
+            Image[] originalImages = parent.getMultipleImages();
+            thumbnailImages = new Image[originalImages.length];
+            for(int i=0;i<originalImages.length;i++)
+            {
+                int width = originalImages[i].getWidth(null);
+                int height = originalImages[i].getHeight(null);
+                
+                if(width < height)
+                {
+                    thumbnailImages[i] =
+                        originalImages[i].getScaledInstance(-1,compositeHeight,
+                                                            Image.SCALE_DEFAULT);
+                }
+                else
+                {
+                    thumbnailImages[i] =
+                        originalImages[i].getScaledInstance(compositeWidth,-1,
+                                                            Image.SCALE_DEFAULT);
+                }
+            }
+            setImage(thumbnailImages[parent.getMultipleImageIndex()]);
         }
-                                            
-        setImage(scaledImage);*/
+        
+        int xDiff = getImage().getWidth(null)-compositeWidth; // should be only negative...
+        int yDiff = getImage().getHeight(null)-compositeHeight; // should be only negative...
         
         // TODO get runnable code for getting composite, showing it
         
         // TODO fix this
         parentThumbnail = parent;
         border = new Rectangle2D.Double(-4,-4,
-                                        parent.getBounds().getWidth()+8,
-                                        parent.getBounds().getHeight()+8);
+                                        getImage().getWidth(null)+8,
+                                        getImage().getHeight(null)+8);
         setBounds(border);
     }
     
-    private void loadSizeInfo()
+    private static void loadSizeInfo()
     {
         BrowserEnvironment env = BrowserEnvironment.getInstance();
         BrowserAgent agent = env.getBrowserAgent();
         int[] dim = agent.getSemanticNodeSize();
         
-        compositeWidth = dim[0];
-        compositeHeight = dim[1];
+        if(dim[0] != -1) compositeWidth = dim[0];
+        if(dim[1] != -1) compositeHeight = dim[1];
         loadedCompositeInfo = true;
+    }
+    
+    /**
+     * Gets the standard width of the semantic node (as loaded in the config
+     * file for the browser agent, or 96 by app default)
+     * 
+     * @return The width of all semantic zoom nodes.
+     */
+    public static int getStandardWidth()
+    {
+        if(!loadedCompositeInfo)
+        {
+            loadSizeInfo();
+        }
+        return compositeWidth;
+    }
+    
+    /**
+     * Gets the standard height of the semantic node (as loaded in the config
+     * file for the browser agent, or 96 by app default)
+     * 
+     * @return
+     */
+    public static int getStandardHeight()
+    {
+        if(!loadedCompositeInfo)
+        {
+            loadSizeInfo();
+        }
+        return compositeHeight;
     }
     
     /**

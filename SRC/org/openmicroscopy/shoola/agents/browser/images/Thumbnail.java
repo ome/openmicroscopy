@@ -390,6 +390,42 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
     }
     
     /**
+     * Returns all images in the thumbnail (if it's a multiple image)
+     * @return An array of images in the thumbnail.
+     */
+    public Image[] getMultipleImages()
+    {
+        Image[] images = new Image[multipleThumbnailList.size()];
+        multipleThumbnailList.toArray(images);
+        return images;
+    }
+    
+    /**
+     * Returns the current index of the selected image, in multiple
+     * mode.
+     * 
+     * @return See above.
+     */
+    public int getMultipleImageIndex()
+    {
+        return multipleSelectedIndex;
+    }
+    
+    /**
+     * Returns the size of the image collection (in multiple mode).  If this
+     * is not a multiple image, this will return 1.
+     * @return See above.
+     */
+    public int getMultipleImageSize()
+    {
+        if(hasMultipleImages)
+        {
+            return multipleThumbnailList.size();
+        }
+        else return 1;
+    }
+    
+    /**
      * Sets the visible image (in multiple mode) to the selected value.
      * @param index The index of the image to make visible.
      */

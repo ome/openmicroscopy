@@ -731,13 +731,38 @@ public class BrowserAgent implements Agent, AgentEventListener
     /**
      * Returns the width and height of the size the semantic window onto a node
      * should be, specified in the registry file.  Suggested: 150x150.  Cool.
+     * If the value is not specified in the config file, either width or height
+     * (or both) will return -1.  Also, if a negative value is specified in
+     * the config file, that parameter will be listed as -1.
+     * 
+     * @return [width,height].
      */
     public int[] getSemanticNodeSize()
+        throws NullPointerException
     {
         Integer width = (Integer)registry.lookup(SEMANTIC_WIDTH_KEY);
         Integer height = (Integer)registry.lookup(SEMANTIC_HEIGHT_KEY);
         
-        return new int[] {width.intValue(),height.intValue()};
+        int widthVal, heightVal;
+        if(width == null || width.intValue() <= 0)
+        {
+            widthVal = -1;
+        }
+        else
+        {
+            widthVal = width.intValue();
+        }
+        
+        if(height == null || height.intValue() <= 0)
+        {
+            heightVal = -1;
+        }
+        else
+        {
+            heightVal = height.intValue();
+        }
+        
+        return new int[] {widthVal,heightVal};
     }
     
     /**
