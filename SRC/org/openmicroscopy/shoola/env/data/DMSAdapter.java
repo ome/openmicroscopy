@@ -36,12 +36,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.ds.DataFactory;
-import org.openmicroscopy.ds.RemoteAuthenticationException;
-import org.openmicroscopy.ds.RemoteConnectionException;
-import org.openmicroscopy.ds.RemoteServerErrorException;
-import org.openmicroscopy.ds.RemoteServices;
-import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
@@ -52,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
 import org.openmicroscopy.shoola.env.data.map.ProjectMapper;
+import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -98,25 +93,7 @@ class DMSAdapter
 	int getUserID() 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = new Criteria();
-		criteria.addWantedField("experimenter");
-		criteria.addWantedField("experimenter", "id");
-		
-		//Load the graph defined by criteria
-		UserState us = null;
-		
-		try {
-			us = (UserState) proxy.getUserState(criteria);
-		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
-		} catch (RemoteServerErrorException rsee) {
-					throw new DSAccessException("Can't retrieve the user id",
-												rsee);
-		} 
-		
+		UserState us = gateway.getUserState(UserMapper.getUserStateCriteria());
 		return us.getExperimenter().getID();
 	}
     
@@ -134,11 +111,10 @@ class DMSAdapter
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = ProjectMapper.buildUserProjectsCriteria(
-															uc.getUserID());
+		Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
 
 		//Load the graph defined by criteria.
-		List projects = (List) retrieveListData(Project.class, criteria);
+		List projects = (List) gateway.retrieveListData(Project.class, c);
 	  	
 		//List of project summary objects.
 		List projectsDS = null;
@@ -146,7 +122,6 @@ class DMSAdapter
 			//Put the server data into the corresponding client object.
     		projectsDS = ProjectMapper.fillUserProjects(projects, pProto, 
     													dProto);
-    
     	//can be null
     	return projectsDS;
 	}
@@ -170,11 +145,10 @@ class DMSAdapter
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = DatasetMapper.buildUserDatasetsCriteria(
-															uc.getUserID());
+		Criteria c = DatasetMapper.buildUserDatasetsCriteria(uc.getUserID());
 
 		//Load the graph defined by criteria.
-		List datasets = (List) retrieveListData(Dataset.class, criteria);
+		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
 	  	
 		//List of dataset summary objects.
 		List datasetsDS = null;
@@ -205,11 +179,10 @@ class DMSAdapter
 							registry.lookup(LookupNames.USER_CREDENTIALS);
 
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = ImageMapper.buildUserImagesCriteria(
-															uc.getUserID());
+		Criteria c = ImageMapper.buildUserImagesCriteria(uc.getUserID());
 
 		//Load the graph defined by criteria.
-		List images = (List) retrieveListData(Image.class, criteria);
+		List images = (List) gateway.retrieveListData(Image.class, c);
 	  	
 		//List of image summary objects.
 		List imagesDS = null;
@@ -235,10 +208,10 @@ class DMSAdapter
 		if (retVal == null) retVal = new ProjectData();
 		
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = ProjectMapper.buildProjectCriteria(id);
+		Criteria c = ProjectMapper.buildProjectCriteria(id);
 		
 		//Load the graph defined by criteria.
-		Project project = (Project) retrieveData(Project.class, criteria);
+		Project project = (Project) gateway.retrieveData(Project.class, c);
 		
 		if (project != null)
 			//Put the server data into the corresponding client object.
@@ -263,10 +236,10 @@ class DMSAdapter
 		if (retVal == null) retVal = new DatasetData();
 	
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = DatasetMapper.buildDatasetCriteria(id);
+		Criteria c = DatasetMapper.buildDatasetCriteria(id);
 	
 		//Load the graph defined by criteria.
-		Dataset	dataset = (Dataset) retrieveData(Dataset.class, criteria);
+		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
 		
 		if (dataset != null)
 			//Put the server data into the corresponding client object.
@@ -288,11 +261,10 @@ class DMSAdapter
 		throws DSOutOfServiceException, DSAccessException
     {
 		//Define the criteria by which the object graph is pulled out.
-    	Criteria criteria = DatasetMapper.buildImagesCriteria();
+    	Criteria c = DatasetMapper.buildImagesCriteria(datasetID);
 
 		//Load the graph defined by criteria.
-		Dataset	dataset = (Dataset) loadData(Dataset.class, datasetID, 
-											criteria);
+		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
 	  	
 	  	//List of image summary object.
 	  	List images = null;
@@ -312,10 +284,10 @@ class DMSAdapter
     	if (retVal == null) retVal = new ImageData();
 
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = ImageMapper.buildImageCriteria(id);
+		Criteria c = ImageMapper.buildImageCriteria(id);
 				
 		//Load the graph defined by criteria.
-		Image image = (Image) retrieveData(Image.class, criteria);
+		Image image = (Image) gateway.retrieveData(Image.class, c);
   		if (image != null)
   			//Put the server data into the corresponding client object.
   			ImageMapper.fillImage(image, retVal);
@@ -337,9 +309,9 @@ class DMSAdapter
 	{
 		PixelsDescription retVal = new PixelsDescription();
 		//Define the criteria by which the object graph is pulled out.
-		Criteria criteria = PixelsMapper.buildPixelsCriteria(imageID);
+		Criteria c = PixelsMapper.buildPixelsCriteria(imageID);
 		
-		Image img = (Image) retrieveData(Image.class, criteria);
+		Image img = (Image) gateway.retrieveData(Image.class, c);
 		if (img != null)
 			//Put the server data into the corresponding client object.
 			PixelsMapper.fillPixelsDescription((Pixels) img.getDefaultPixels(), 
@@ -355,12 +327,13 @@ class DMSAdapter
 		//Make a new proto if none was provided.
 		if (pProto == null) pProto = new ProjectSummary();
 		
+		/*
 		Project p = (Project) createNewData(Project.class);
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
 		updateData(p);
 		ProjectMapper.fillNewProject(p, pProto);
-
+		*/
 		return pProto;
 	}
 	
@@ -373,13 +346,13 @@ class DMSAdapter
 	{
 		//Make a new proto if none was provided.
 		if (dProto == null) dProto = new DatasetSummary();
-
+		/*
 		Dataset d = (Dataset) createNewData(Dataset.class);
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
 		updateData(d);
 		DatasetMapper.fillNewDataset(d, dProto);
-
+		*/
 		return dProto;
 	}
 	
@@ -403,23 +376,26 @@ class DMSAdapter
     public void updateProject(ProjectData retVal)
 		throws DSOutOfServiceException, DSAccessException
     {
+    	/*
 		Project p = (Project) createNewData(Project.class);
 		p.setID(retVal.getID());
 		p.setName(retVal.getName());
 		p.setDescription(retVal.getDescription());
 		updateData(p);
-		
+		*/
     }
     
 	/**Implemented as specified in {@link DataManagementService}. */
 	public void updateDataset(DatasetData retVal)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		/*
 		Dataset d = (Dataset) createNewData(Dataset.class);
 		d.setID(retVal.getID());
 		d.setName(retVal.getName());
 		d.setDescription(retVal.getDescription());
 		updateData(d);
+		*/
 	}
 	
 	/**Implemented as specified in {@link DataManagementService}. */
@@ -434,138 +410,5 @@ class DMSAdapter
 		*/
 	}
 	
-	/**
-	 * Create a new Data Interface object
-	 * Wrap the call to the {@link DataFactory#createNew(Class) create}
-     * method.
-	 * @param dto 	targetClass, the core data type to count.
-	 * @return DataInterface.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * create a DataInterface from OMEDS service. 
-	 */
-	private DataInterface createNewData(Class dto)
-			throws DSOutOfServiceException, DSAccessException 
-	{
-		DataInterface retVal = null;
-		try {
-			retVal = proxy.createNew(dto);
-		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
-		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
-		} 
-		return retVal; 
-	}
-	
-	/**
-	 * Wrap the call to the {@link DataFactory#update(DataInterface) update}
-     * method.
-     * 
-	 * @param di		dataInterface.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * update data from OMEDS service. 
-	 */
-	private void updateData(DataInterface di)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			proxy.update(di);
-		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
-		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
-		}
-	}
-	
-    /**
-     * Load the graph defined by the criteria.
-     * Wrap the call to the {@link DataFactory#load(Class, int, Criteria) load}
-     * method.
-     * 
-     * @param dto		targetClass, the core data type to count.
-     * @param id		filter by id .
-     * @param c			criteria by which the object graph is pulled out.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service.  
-     */
-	private Object loadData(Class dto, int id, Criteria c) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		Object retVal = null;
-		try {
-			retVal = proxy.load(dto, id, c);
-		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
-		} catch (RemoteServerErrorException rsee) {
-			throw new DSAccessException("Can't load data", rsee);
-		} 
-		return retVal;
-	}
-	
-	/**
-	* Load the graph defined by the criteria.
-	* Wrap the call to the 
-	* {@link DataFactory#retrieve(Class, Criteria) retrieve} method.
-	* 
-	* @param dto		targetClass, the core data type to count.
-	* @param c			criteria by which the object graph is pulled out. 
-	* @throws DSOutOfServiceException If the connection is broken, or logged in
-	* @throws DSAccessException If an error occured while trying to 
-	* retrieve data from OMEDS service. 
-	*/
-   private Object retrieveData(Class dto, Criteria c) 
-	   throws DSOutOfServiceException, DSAccessException 
-   {
-	   Object retVal = null;
-	   try {
-		   retVal = proxy.retrieve(dto, c);
-	   } catch (RemoteConnectionException rce) {
-		   throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-	   } catch (RemoteAuthenticationException rae) {
-		   throw new DSOutOfServiceException("Not logged in", rae);
-	   } catch (RemoteServerErrorException rsee) {
-		   throw new DSAccessException("Can't load data", rsee);
-	   } 
-	   return retVal;
-   }
 
-	/**
-     * Retrieve the graph defined by the criteria.
-     * Wrap the call to the 
-     * {@link DataFactory#retrieveList(Class, int, Criteria) retrieve}
-     * method.
-     *  
-	 * @param dto		targetClass, the core data type to count.
-	 * @param c			criteria by which the object graph is pulled out.
-	 * @return
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service. 
-	 */
-	private Object retrieveListData(Class dto, Criteria c) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Object retVal = null;
-		try {
-			retVal = proxy.retrieveList(dto, c);
-		} catch (RemoteConnectionException rce) {
-			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
-		} catch (RemoteAuthenticationException rae) {
-			throw new DSOutOfServiceException("Not logged in", rae);
-		} catch (RemoteServerErrorException rsee) {
-            throw new DSAccessException("Can't retrieve data", rsee);
-		} 
-		
-		return retVal;
-	}
-	
 }

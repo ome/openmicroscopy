@@ -35,10 +35,16 @@ import java.net.URL;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.DataServer;
+import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteCaller;
+import org.openmicroscopy.ds.RemoteConnectionException;
+import org.openmicroscopy.ds.RemoteServerErrorException;
 import org.openmicroscopy.ds.RemoteServices;
+import org.openmicroscopy.ds.dto.DataInterface;
+import org.openmicroscopy.ds.dto.UserState;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -104,4 +110,103 @@ class OMEDSGateway
 		return (DataFactory) proxiesFactory.getService(DataFactory.class);
 	}
 
+	/** Retrieve the user State. */
+	UserState getUserState(Criteria c)
+		throws DSOutOfServiceException, DSAccessException
+	{ 
+		UserState us;
+		try {
+		us = (UserState) getDataFactory().getUserState(c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't retrieve the user id", rsee);
+		} 
+		return us;
+	}
+	
+	/**
+	 * Create a new Data Interface object
+	 * Wrap the call to the {@link DataFactory#createNew(Class) create}
+	 * method.
+	 * @param dto 	targetClass, the core data type to count.
+	 * @return DataInterface.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * create a DataInterface from OMEDS service. 
+	 */
+	DataInterface createNewData(Class dto)
+			throws DSOutOfServiceException, DSAccessException 
+	{
+		DataInterface retVal;
+		try {
+			retVal = getDataFactory().createNew(dto);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal; 
+	}
+
+	/**
+	 * Retrieve the graph defined by the criteria.
+	 * Wrap the call to the 
+	 * {@link DataFactory#retrieveList(Class, int, Criteria) retrieve}
+	 * method.
+	 *  
+	 * @param dto		targetClass, the core data type to count.
+	 * @param c			criteria by which the object graph is pulled out.
+	 * @return
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	Object retrieveListData(Class dto, Criteria c) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Object retVal;
+		try {
+			retVal = getDataFactory().retrieveList(dto, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't retrieve data", rsee);
+		} 
+		return retVal;
+	}
+	
+	/**
+	* Load the graph defined by the criteria.
+	* Wrap the call to the 
+	* {@link DataFactory#retrieve(Class, Criteria) retrieve} method.
+	* 
+	* @param dto		targetClass, the core data type to count.
+	* @param c			criteria by which the object graph is pulled out. 
+	* @throws DSOutOfServiceException If the connection is broken, or logged in
+	* @throws DSAccessException If an error occured while trying to 
+	* retrieve data from OMEDS service. 
+	*/
+   Object retrieveData(Class dto, Criteria c) 
+	   throws DSOutOfServiceException, DSAccessException 
+   {
+	   Object retVal;
+	   try {
+		   retVal = getDataFactory().retrieve(dto, c);
+	   } catch (RemoteConnectionException rce) {
+		   throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+	   } catch (RemoteAuthenticationException rae) {
+		   throw new DSOutOfServiceException("Not logged in", rae);
+	   } catch (RemoteServerErrorException rsee) {
+		   throw new DSAccessException("Can't load data", rsee);
+	   } 
+	   return retVal;
+   }
+   
 }
