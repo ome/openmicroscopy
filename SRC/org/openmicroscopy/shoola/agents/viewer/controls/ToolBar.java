@@ -69,7 +69,7 @@ public class ToolBar
 	private static final Color		STEELBLUE = new Color(0x4682B4);
 	
 	/** Dimension of the separator between the toolBars. */
-	private static final Dimension	SEPARATOR_END = new Dimension(180, 0);
+	private static final Dimension	SEPARATOR_END = new Dimension(100, 0);
 	private static final Dimension	SEPARATOR = new Dimension(15, 0);
 																																							
 	/** Control to post an event to bring up the rendering widget. */
@@ -87,17 +87,24 @@ public class ToolBar
 	/** Fields displaying the current z-section and the current timepoint. */
 	private JTextField				zField, tField;
 	
+	/** Labels displaying the number of timepoints and of z-sections. */
+	private JLabel					zLabel, tLabel;
+	
 	private ToolBarManager			manager;
 	
 	public ToolBar(ViewerCtrl control, Registry registry, int sizeT,
 							int sizeZ, int t, int z)
 	{
-		initMovieComponents(registry, sizeT -1);
-		initTextFields(t, z, sizeT -1, sizeZ-1);
+		initMovieComponents(registry, sizeT-1);
+		initTextFields(t, z, sizeT, sizeZ);
 		manager = new ToolBarManager(control, this, sizeT, t, sizeZ, z);
 		manager.attachListeners();
 		buildToolBar();
 	}
+	
+	public JLabel getZLabel() { return zLabel; }
+	
+	public JLabel getTLabel() { return tLabel; }
 	
 	public JSpinner getFPS() { return fps; }
 	
@@ -147,15 +154,17 @@ public class ToolBar
 	 */
 	private void initTextFields(int t, int z, int maxT, int maxZ)
 	{
+		zLabel = new JLabel("/"+maxZ);
+		tLabel = new JLabel("/"+maxT);
 		tField = new JTextField();
 		tField = new JTextField(""+t, (""+maxT).length());
-		if (maxT == 0) tField.setEditable(false);
+		if (maxT-1 == 0) tField.setEditable(false);
 		tField.setForeground(STEELBLUE);
 		tField.setToolTipText("Enter a timepoint.");
 		zField = new JTextField(""+z, (""+maxZ).length());
 		zField.setForeground(STEELBLUE);
 		zField.setToolTipText("Enter a Z point");
-		if (maxZ == 0) zField.setEditable(false);
+		if (maxZ-1 == 0) zField.setEditable(false);
 	}
 	
 	
@@ -176,13 +185,19 @@ public class ToolBar
 	{
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
-		JLabel label = new JLabel("z ");
+		JLabel label = new JLabel(" Z ");
+		label.setForeground(STEELBLUE);
 		tb.add(label);
 		tb.add(zField);
 		addSeparator();
-		label = new JLabel(" t ");
+		tb.add(zLabel);
+		addSeparator();
+		label = new JLabel(" T ");
+		label.setForeground(STEELBLUE);
 		tb.add(label);
 		tb.add(tField);
+		addSeparator();
+		tb.add(tLabel);
 		return tb;
 	}
 	

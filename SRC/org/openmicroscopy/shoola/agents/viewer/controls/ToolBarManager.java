@@ -208,6 +208,7 @@ public class ToolBarManager
 		} catch(NumberFormatException nfe) {}
 		if (valid) {
 			curT = val;
+			
 			control.onTChange(curZ, curT); 
 		} else {
 			view.getTField().selectAll();
@@ -226,7 +227,7 @@ public class ToolBarManager
 		boolean valid = false;
 		int val = 0;
 		try {
-			val = Integer.parseInt(view.getTField().getText());
+			val = Integer.parseInt(view.getZField().getText());
 			if (0 <= val && val <= maxZ) valid = true;
 		} catch(NumberFormatException nfe) {}
 		if (valid) {
