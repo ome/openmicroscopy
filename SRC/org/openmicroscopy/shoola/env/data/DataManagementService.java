@@ -519,7 +519,19 @@ public interface DataManagementService
 										List imageSummaries,
 										DatasetData retVal)
 			throws DSOutOfServiceException, DSAccessException;
-					
+		
+
+	/**
+	 * Create a Chain
+	 * 
+	 * @param retVal	DataObject
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * 		   update data from OMEDS service.  
+	 */
+	public void createAnalysisChain(AnalysisChainData retVal)
+			throws DSOutOfServiceException, DSAccessException;
+	
     /**
      * Update a specified project.
      * 

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +40,8 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.AnalysisChain;
+import org.openmicroscopy.ds.dto.AnalysisLink;
+import org.openmicroscopy.ds.dto.AnalysisNode;
 import org.openmicroscopy.ds.dto.ChainExecution;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
@@ -624,6 +627,86 @@ class DMSAdapter
 		dProto.setID(d.getID());
 		dProto.setName(d.getName());
 		return dProto;
+	}
+	
+	/** Implemented as specified in {@link DataManagementService}. */
+	public void createAnalysisChain(AnalysisChainData retVal)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Create a new chain Object
+		Criteria c = UserMapper.getUserStateCriteria(); 
+		AnalysisChain chain = 
+				(AnalysisChain) gateway.createNewData(AnalysisChain.class);
+		chain.setName(retVal.getName());
+		chain.setDescription(retVal.getDescription());
+		chain.setOwner(gateway.getCurrentUser(c));
+		gateway.markForUpdate(chain);
+
+		
+		markChainNodes(chain,retVal.getNodes());		
+		markChainLinks(chain,retVal.getLinks());
+		
+		gateway.updateMarkedData();
+		retVal.setID(chain.getID());
+	}
+	
+	private void markChainNodes(AnalysisChain chain,Collection nodes)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Iterator iter = nodes.iterator();
+		AnalysisNodeData node;
+		AnalysisNode n;
+		
+		while (iter.hasNext()) {
+			node = (AnalysisNodeData) iter.next();
+			n  = (AnalysisNode) gateway.createNewData(AnalysisNode.class);
+			node.setAnalysisNodeDTO(n);
+			n.setModule(node.getModule().getModuleDTO());
+			n.setChain(chain);
+			gateway.markForUpdate(n);
+		}	
+	}
+	
+	private void markChainLinks(AnalysisChain chain,Collection links) 
+		throws DSOutOfServiceException, DSAccessException
+	{	
+		AnalysisNodeData node;
+		AnalysisNode n;
+		AnalysisLinkData link;
+		AnalysisLink  lnk;
+		Iterator iter = links.iterator();
+		while (iter.hasNext()) {
+			link = (AnalysisLinkData) iter.next();
+			lnk =  	(AnalysisLink) gateway.createNewData(AnalysisLink.class);
+			// set output module
+			// get the analysis Node data that it came from.
+			
+			node = link.getFromNode();
+			// get the DTO for this node
+			n = node.getAnalysisNodeDTO();
+			
+			// set this in the dto for the link going out
+			lnk.setFromNode(n);
+			
+			// set output param
+			FormalOutputData output = link.getFromOutput();
+			lnk.setFromOutput(output.getFormalOutputDTO());
+			
+			// set input node
+			// as per above with output node
+			node = link.getToNode();
+			n = node.getAnalysisNodeDTO();
+			lnk.setToNode(n);
+			
+			
+			// set input param.
+			FormalInputData input = link.getToInput();
+			lnk.setToInput(input.getFormalInputDTO());
+			
+			//set chain
+			lnk.setChain(chain);	
+			gateway.markForUpdate(lnk);
+		}
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
