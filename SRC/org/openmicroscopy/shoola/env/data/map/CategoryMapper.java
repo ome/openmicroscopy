@@ -392,7 +392,6 @@ public class CategoryMapper
         if (group == null) 
             throw new NullPointerException("CategoryGroup cannot be null");
         CategoryGroupData data = new CategoryGroupData();
-        
         data.setID(group.getID());
         data.setName(group.getName());
         data.setDescription(group.getDescription());
@@ -489,4 +488,5 @@ public class CategoryMapper
             categories.add(createCategorySummary((Category) i.next(), userID));
         return groupData;
     }
+    
 }
