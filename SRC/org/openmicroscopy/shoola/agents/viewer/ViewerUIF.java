@@ -46,6 +46,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 
 //Third-party libraries
 
@@ -122,6 +123,10 @@ public class ViewerUIF
 		initSliders(maxT, t, maxZ, z);
 		buildGUI();
 	}
+	
+	public JTextField getMovieStart() { return toolBar.getMovieStart(); }
+	
+	public JTextField getMovieEnd() { return toolBar.getMovieEnd(); }
 	
 	public JScrollPane getScrollPane() { return scrollPane; }
 	
@@ -248,6 +253,7 @@ public class ViewerUIF
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PLAY);
 		menuItem.setEnabled(maxT != 0);
 		movieMenu.add(menuItem);
+		/*
 		menuItem = new JMenuItem("Pause", 
 									im.getIcon(IconManager.PLAYER_PAUSE));
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_PAUSE);
@@ -258,6 +264,7 @@ public class ViewerUIF
 		control.attachItemListener(menuItem, ViewerCtrl.MOVIE_STOP);
 		menuItem.setEnabled(maxT != 0);
 		movieMenu.add(menuItem);
+		*/
 		menuItem = new JMenuItem("Rewind", 
 									im.getIcon(IconManager.REWIND));
 		menuItem.setEnabled(maxT != 0);

@@ -188,7 +188,8 @@ public class Viewer
 	/** Handle event @see LoadImage. */
 	private void handleLoadImage(LoadImage request)
 	{
-		control.showProgressNotifier(request.getImageName());
+		//TODO: REMOVE COMMENTS
+		//control.showProgressNotifier(request.getImageName());
 	}
 	
 	/** Handle event @see ImageLoaded. */
@@ -197,7 +198,8 @@ public class Viewer
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
 		PixelsDimensions pxsDims = renderingControl.getPixelsDims();
-		control.removeProgressNotifier();
+		//TODO:	REMOVE COMMENTS
+		//control.removeProgressNotifier();
 		if (curImageID != request.getImageID()) {
 			if (presentation == null) buildPresentation(pxsDims);
 			initPresentation(request.getImageName(), pxsDims, false);

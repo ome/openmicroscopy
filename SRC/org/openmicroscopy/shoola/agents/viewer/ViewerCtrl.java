@@ -92,6 +92,10 @@ public class ViewerCtrl
 	
 	private ProgressNotifier 	progressNotifier;
 	
+	private int					curTMovie;
+	
+	private boolean				playing, playingForward, playingRewind;
+	
 	public ViewerCtrl(Viewer abstraction)
 	{
 		this.abstraction = abstraction;
@@ -215,11 +219,14 @@ public class ViewerCtrl
 					showInspector(); break;
 				case VIEWER3D:
 					showImage3DViewer(); break;
+				//TODO: REMOVE COMMENTS
 				/*
 				case MOVIE_PLAY:
-				case MOVIE_STOP:
+					playMovie(); break;
+				case MOVIE_FORWARD:
+					playForward(); break;
 				case MOVIE_REWIND:
-					break;
+					playRewind(); break;	
 				*/
 		   }
 		} catch(NumberFormatException nfe) {   
@@ -239,7 +246,68 @@ public class ViewerCtrl
 		else  tbm.onZChange(valZ);
 		abstraction.onPlaneSelected(valZ, valT);
 	}
-
+	
+	/** Play a movie from start to end. */
+	public void playMovie()
+	{
+		if (!playingForward && !playingRewind) {
+			int start = Integer.parseInt(
+						presentation.getMovieStart().getText());
+			int end = Integer.parseInt(presentation.getMovieEnd().getText());
+			playing = true;
+			play(start, end);
+			playing = false;
+		}
+	}
+	
+	/** Play forward. */
+	public void playForward()
+	{
+		if (!playing && !playingRewind) {
+			playingForward = true;
+			int start = getDefaultT();
+			int end = Integer.parseInt(presentation.getMovieEnd().getText());
+			play(start, end);
+			playingForward = false;
+		}
+	}
+	
+	public void playRewind()
+	{
+		if (!playing && !playingForward) {
+			playingRewind = true;
+			int start = getDefaultT();
+			int end = Integer.parseInt(presentation.getMovieStart().getText());
+			play(start, end);
+			playingRewind = false;
+		}
+	}
+	
+	private void play(int start, int end)
+	{
+		int maxT = abstraction.getPixelsDims().sizeT-1;
+		checkInterval(start, end, maxT);
+		for (int i = start; i < end; i++) {
+			curTMovie = i;
+			tSlider.setValue(i);
+		}	
+	}
+	
+	/** To be on the save side. */
+	private void checkInterval(int s, int e, int maxT)
+	{
+		if (s < 0 || e > maxT) {
+			UserNotifier un = abstraction.getRegistry().getUserNotifier();
+			un.notifyInfo("Invalid interval", "Please reset an interval");
+		}
+	}
+	
+	/** Stop playing movie. */
+	public void stopMovie()
+	{
+		// to implement posting an event
+	}
+	
 	/** Bring up the progressNotifier dialog. */
 	void showProgressNotifier(String imageName)
 	{
