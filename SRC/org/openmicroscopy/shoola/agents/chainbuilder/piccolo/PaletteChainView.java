@@ -40,7 +40,8 @@
 package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 
 //Java imports
-import java.util.Collection;
+//import java.util.Collection;
+
 //Third-party libraries
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PPath;
@@ -82,8 +83,8 @@ public class PaletteChainView extends ChainView {
 	public PaletteChainView(LayoutChainData chain,ChainDataManager dataManager) {
 		super(chain);
 		this.registry = dataManager.getRegistry();
-		this.executions = dataManager.getChainExecutionsByChainID(chain.getID());
-		maxExecCount = dataManager.getMaxNodeExecutionCount();
+	//	this.executions = dataManager.getChainExecutionsByChainID(chain.getID());
+	//	maxExecCount = dataManager.getMaxNodeExecutionCount();
 		drawChain();
 		setPickable(false);
 	}	
@@ -102,10 +103,10 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	protected ModuleView getModuleView(AnalysisNodeData node) {
-		Collection nexes = null;
+		/*Collection nexes = null;
 		if (executions != null)
-			nexes = executions.getNexes(node);
-		PaletteModuleView moduleView = new PaletteModuleView(node,nexes,maxExecCount);
+			nexes = executions.getNexes(node)*/
+		PaletteModuleView moduleView = new PaletteModuleView(node);
 		//find the execution here..
 		return moduleView;
 	}

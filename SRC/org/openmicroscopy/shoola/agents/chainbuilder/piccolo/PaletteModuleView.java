@@ -95,15 +95,23 @@ public class PaletteModuleView extends SingleModuleView {
 	}
 	
 	 
+	public PaletteModuleView(AnalysisNodeData node) {
+		super((ChainModuleData) node.getModule());
+		this.chainNode = node;
+		showDetails();
+		labelNodes.setPickable(false);
+	}
+	
 	/**
 	 * The main constructor 
 	 * @param module The OME Module being represented
 	 */
 	public PaletteModuleView(AnalysisNodeData node,Collection nexes,int maxCount) {
-		super((ChainModuleData) node.getModule());
-		this.chainNode = node;
-		showDetails();
-		labelNodes.setPickable(false);
+		this(node);
+		addNexes(nexes,maxCount);
+	}
+	
+	private void addNexes(Collection nexes,int maxCount) {
 		if (nexes != null && nexes.size() > 0) {
 			NexSetView setView = new NexSetView(nexes,getBodyWidth(),maxCount);
 			addChild(setView);

@@ -36,6 +36,7 @@ import java.util.Iterator;
 //Third-party libraries
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.nodes.PPath;
+import edu.umd.cs.piccolo.nodes.PText;
 
 
 //Application-internal dependencies
@@ -71,7 +72,7 @@ public class NexSetView extends PNode {
 		addNexViews(nexes,width,maxCount);
 		if (nexes.size() > BAR_THRESHOLD) {
 			System.err.println("showing bar. hiding individuals.");
-			//viewsNode.setVisible(false);
+			viewsNode.setVisible(false);
 			addNexBar(nexes,width,maxCount);
 		} 
 		
@@ -111,8 +112,17 @@ public class NexSetView extends PNode {
 		// to max # of nexes
 		float barWidth = width *nexes.size()/maxCount;
 		viewsBar = PPath.createRectangle(0,0,barWidth,BAR_HEIGHT);
-		viewsBar.setPaint(null);
-		viewsBar.setStrokePaint(Constants.NEX_COLOR);
+		viewsBar.setPaint(Constants.NEX_COLOR);
+		viewsBar.setStrokePaint(null);
+		
+		//add something for size.
+		PText sizeText = new PText(Integer.toString(nexes.size()));
+		sizeText.setFont(Constants.NAME_FONT);
+		sizeText.setTextPaint(Constants.NEX_COUNT_COLOR);
+		viewsBar.addChild(sizeText);
+		double x = viewsBar.getX()+viewsBar.getWidth()/2-sizeText.getWidth()/2;
+		double y = viewsBar.getY()+viewsBar.getHeight()/2-sizeText.getHeight()/2;
+		sizeText.setOffset(x,y);
 		addChild(viewsBar);
 		
 	}
