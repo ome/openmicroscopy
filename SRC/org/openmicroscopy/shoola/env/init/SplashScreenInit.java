@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
@@ -45,7 +46,9 @@ import org.openmicroscopy.shoola.env.ui.UserCredentials;
 /** 
  * Does some configuration required for the initialization process to run.
  * Loads L&F, registers for initialization progress notification and
- * pops up the splash screen.
+ * pops up the splash screen.  When the initialization process is finished,
+ * we wait until user's credentials are available and then try to log into
+ * <i>OMEDS</i>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -153,8 +156,11 @@ final class SplashScreenInit
 		//NOTE: post increment b/c this task hasn't been executed yet.
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.env.init.InitializationListener#onEnd()
+	/** 
+	 * Waits until user's credentials are available and then tries to log into
+	 * <i>OMEDS</i>.
+	 * 
+	 * @see InitializationListener#onEnd()
 	 */
 	public void onEnd()
 	{
@@ -167,6 +173,16 @@ final class SplashScreenInit
 		//Add credentials to the registry.
 		Registry reg = container.getRegistry();
 		reg.bind(LookupNames.USER_CREDENTIALS, uc);
+		
+		//Now try to connect to OMEDS.
+		try {
+			DataServicesFactory factory = 
+									DataServicesFactory.getInstance(container);
+			factory.connect();
+		} catch (Exception e) {
+			//Ignore, the user will be prompted to log in when they try
+			//to access their remote data.
+		}
 	
 		splashScreen.close();
 	}
