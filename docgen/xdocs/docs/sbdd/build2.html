@@ -1,41 +1,94 @@
 <html>
 <head>
-  <title>Dependencies</title>
+  <title>Build Targets</title>
 </head>
 <body>
-<p>Shoola is entirely written in Java and you will need a Java Runtime Environment 
-  (version 1.4 or later) to run it. All the third-party libraries required by Shoola 
-  come already in each distribution bundle and are automatically linked at runtime, 
-  so you won't have to worry about installing/upgrading libraries.</p>
-<p>For the sake of record, here's a brief description of the third-party libraries 
-  used by Shoola. First off, all of those libraries are stored in the <code>LIB</code> 
-  directory under the CVS root. Its <code>test</code> sub-directory contains additional 
-  libraries required by the test code &#151; these are not obviously included in the 
-  distribution bundles. The libraries required by the Shoola source code are:</p>
+<p>The targets available to the build tool can be grouped into the following categories: 
+  application, test, documentation, distribution, and shortcuts. All targets output 
+  under the <i>Shoola/OUT</i> directory. (<i>Shoola</i> is the directory 
+  where you downloaded the CVS tree.) Unless otherwise specified, all directory pathnames 
+  in the following description are given relative to the <i>Shoola/OUT</i> directory.</p>
+<h5><i>Application Targets</i></h5>
+<p>Use the targets in this category to compile and run the application. These targets 
+  output under the <i>app</i> directory. Follows their description:</p>
 <ul>
-  <li><code>piccolo.jar</code> and <code>piccolox.jar</code>: The Piccolo graphics 
-    framework (<a href="http://www.cs.umd.edu/hcil/jazz/">http://www.cs.umd.edu/hcil/jazz/</a>). 
-    Version 1.0. These libraries are used by Shoola to build zoomable user interfaces.</li>
-  <li><code>log4j-1.2.8.jar</code>: The Log4j logging framework (<a href="http://logging.apache.org/log4j/">http://logging.apache.org/log4j/</a>). 
-    Version 1.2.8. This library provides logging facilities to Shoola.</li>
-  <li><code>ome-java.jar</code>: This library is part of the OME distributions and 
-    is used by Shoola as a gateway to the OME data and image servers.</li>
-  <li><code>xmlrpc-1.2-b1.jar</code>: The Apache XmlRpc package (<a href="http://ws.apache.org/xmlrpc/">http://ws.apache.org/xmlrpc/</a>). 
-    Version 1.2-b1. This library is not directly required by Shoola, but by the <code>ome-java.jar</code>, 
-    which uses it to connect to the OME data server.</li>
-  <li><code>commons-httpclient-2.0-rc2.jar</code>: The The Jakarta Commons HttpClient 
-    (<a href="http://jakarta.apache.org/commons/httpclient/">http://jakarta.apache.org/commons/httpclient/</a>). 
-    Version 2.0-rc2. This library is not directly required by Shoola, but by the <code>ome-java.jar</code>, 
-    which uses it to connect to the OME image server.</li>
-  <li><code>commons-logging.jar</code>: The Jakarta Commons Logging (<a href="http://jakarta.apache.org/commons/logging/">http://jakarta.apache.org/commons/logging/</a>). 
-    Version 1.0. This library is not directly required by Shoola, but by the <code>commons-httpclient-2.0-rc2.jar</code>.</li>
+  <li><code>compile</code>: Compiles all the application sources and links all the 
+    application resources. This target processes the source files that are not up-to-date 
+    with respect to the corresponding compiled files. So every subsequent invocation 
+    of this target will only compile the source files that have changed since the 
+    last invocation. The same policy applies to resource files.</li>
+  <li><code>run</code>: Runs the application. This target will automatically execute 
+    <code>compile</code>, so you won't have to invoke it yourself before running the 
+    application.</li>
+  <li><code>app.clean</code>: Deletes the <i>app</i> directory and all its contents.</li>
 </ul>
 <p>&#160;</p>
-<p>The additional libraries required by the test code are:</p>
+<h5><i>Test Targets</i></h5>
+<p>Use the targets in this category to test the application and generate test reports. 
+  These targets output under the <i>test</i> directory. Follows their description:</p>
 <ul>
-  <li><code>junit-3.8.1.jar</code>: The JUnit Testing Framework 
-  (<a href="http://www.junit.org/">http://www.junit.org/</a>). Version: 3.8.1.</li>
+  <li><code>test</code>: Runs all the tests, outputing a brief report for each test 
+    on the console and a detailed report under <i>test/reports/html</i>. This 
+    target will automatically execute <code>compile</code>, so you won't have to invoke 
+    it yourself before running the tests.</li>
+  <li><code>test.clean</code>: Deletes the <i>test</i> directory and all its 
+    contents.</li>
 </ul>
+<p>&#160;</p>
+<h5><i>Documentation Targets</i></h5>
+<p>Use the targets in this category to generate the project documentation. These targets 
+  output under the <i>docs</i> directory. Follows their description:</p>
+<ul>
+  <li><code>docs</code>: Outputs all available project documentation. This includes 
+    both techinical documents (like this document, architecture/design documents, 
+    JavaDoc, etc.) and users documentation.</li>
+  <li><code>docs.clean</code>: Deletes the <i>docs</i> directory and all its 
+    contents.</li>
+</ul>
+<p>&#160;</p>
+<h5><i>Distribution Targets</i></h5>
+<p>Use the targets in this category to create the deliverables. These targets output 
+  under the <i>dist</i> directory. Follows their description:</p>
+<ul>
+  <li><code>dist</code>: Creates the default distribution bundle. This is a zip file 
+    whose name indicates the version number. It contains, besides the application 
+    file itself, the configuration files, all the required libraries, various launch 
+    scripts for the supported platforms, install instructions, and the license file. 
+    This target will first clean the application and test directories and then perform 
+    a fresh <code>compile</code>-and-<code>test</code> before packaging to make sure 
+    the application is good for delivery. The application <i>jar</i> file (<i>shoola.jar</i>) 
+    produced during this process is left under the <i>dist</i> directory.</li>
+  <li><code>dist-osx</code>: Creates the Mac OS X distribution bundle. This is a zip 
+    file whose name indicates the version number and ends with <code>-OSX</code>. 
+    It contains, besides the application file itself, the configuration files, all 
+    the required libraries, Mac OS X application stubs, install instructions, and 
+    the license file. This target will first clean the application and test directories 
+    and then perform a fresh <code>compile</code>-and-<code>test</code> before packaging 
+    to make sure the application is good for delivery. The application <i>jar</i> 
+    file (<i>shoola.jar</i>) produced during this process is left under the 
+    <i>dist</i> directory.</li>
+  <li><code>dist-docs</code>: Creates the documentation bundle. This target first 
+    generates all of the project documentation by invoking <code>docs</code>. It then 
+    zips everything in a single file whose name indicates the version number and ends 
+    with <code>-doc</code>.</li>
+  <li><code>dist.clean</code>: Deletes the <i>dist</i> directory and all its 
+    contents.</li>
+</ul>
+<p>&#160;</p>
+<h5><i>Shortcuts</i></h5>
+<p>The targets in this category provide shortcuts to other targets. Follows their 
+  description:</p>
+<ul>
+  <li><code>clean</code>: Removes all the output generated by the last build.</li>
+  <li><code>all</code>: An alias for <code>clean,dist</code>.</li>
+</ul>
+<p>&#160;</p>
+<p>&#160;</p>
+<div class="note"><b>Note for developers</b>: Some internal targets not mentioned 
+  above could be useful during development. For example, you can run only some given 
+  tests or generate only a subset of the project documentation. Also, it is possibe 
+  to easily tweak existing targets by simply overriding their properties from the 
+  command line. Refer to the various child build files for details.</div>
 </body>
 </html>
 
