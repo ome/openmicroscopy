@@ -57,12 +57,9 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
 /** 
- * A Piccolo widget for an OME analysis  module. This widget will consist of a 
- * rounded rectangle, which is a border. This node will have two children:
- * a node with the name of the Module, and a second child which will itself
- * have multiple children - one for each input and output of the module. These 
- * children will be instances of FormalInput and FormalOutput (or appropriate
- * subclasses thereof).  
+ * A Piccolo widget for an OME analysis  module, when found in a chain on the chain
+ * palette. Contains alternative interaction code as appropriate for use on the
+ * chain palette
  *
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
