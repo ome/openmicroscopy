@@ -87,12 +87,14 @@ public class GreyScalePane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        removeAll();
 		buildBody();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 		add(contents);
 	}
 	
+    /** Build the main component. */
 	private void buildBody()
 	{
 		contents = new JPanel();

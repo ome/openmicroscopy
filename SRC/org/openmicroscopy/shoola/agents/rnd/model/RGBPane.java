@@ -75,12 +75,13 @@ public class RGBPane
 	private RGBPaneManager			manager;
 	
 	private JPanel					contents;
+    
 	public RGBPane()
 	{
 		manager = new RGBPaneManager(this);
-		
 	}
 
+    /** Re-build the component. */
 	public void buildComponent()
 	{
 		manager.setEventManager(eventManager);
@@ -91,6 +92,7 @@ public class RGBPane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        removeAll();
 		buildBody();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -119,7 +121,6 @@ public class RGBPane
 			color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
 			addRow(gridbag, cst, i, channelData[i], color, active);
 		}
-		
 	}
 	
 	/** Build a row in the table. */
