@@ -161,7 +161,7 @@ class GreyScaleStrategy
 			for (x1 = 0; x1 < sizeX1; ++x1) {
 				discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
 				v = cc.transform(discreteValue);
-				dataBuf.setElem(0, sizeX1*x2+x1, (int) (v*alpha/255));
+				dataBuf.setElem(0, sizeX1*x2+x1, (int) (v*alpha));
 	   } 
 	}
 	
