@@ -172,12 +172,14 @@ class ImagesPaneManager
 		tc.setHeaderRenderer(iconHeaderRenderer);
 		TableHeaderTextAndIcon 
 		txt = new TableHeaderTextAndIcon(columnNames[NAME], 
-				im.getIcon(IconManager.ORDER_BY_NAME), "Order by name.");
+				im.getIcon(IconManager.ORDER_BY_NAME_UP), 
+				im.getIcon(IconManager.ORDER_BY_NAME_DOWN), "Order by name.");
 		tc.setHeaderValue(txt);
 		tc = tcm.getColumn(DATE);
 		tc.setHeaderRenderer(iconHeaderRenderer); 
 		txt = new TableHeaderTextAndIcon(columnNames[DATE], 
-				im.getIcon(IconManager.ORDER_BY_DATE), "Order by date.");
+				im.getIcon(IconManager.ORDER_BY_DATE_UP), 
+				im.getIcon(IconManager.ORDER_BY_DATE_DOWN), "Order by date.");
 		tc.setHeaderValue(txt);
 	}
 	
@@ -193,7 +195,6 @@ class ImagesPaneManager
 	{
 		int selRow = view.table.getSelectedRow();
 		if (selRow != -1) {
-			
 			if (e.isPopupTrigger()) {
 				ImageSummary 
 					target = (ImageSummary) sorter.getValueAt(selRow, NAME);
@@ -248,7 +249,6 @@ class ImagesPaneManager
 		{
 			if (col == NAME) {
 				ImageSummary is = (ImageSummary) sorter.getValueAt(row, col);
-				//is.setName(((JTextField) value).getText());
 				is.setName(((ImageSummary) value).getName());
 				agentCtrl.updateImage(is);
 			}
@@ -259,7 +259,6 @@ class ImagesPaneManager
 		{
 			ImageSummary summary = (ImageSummary) sorter.getValueAt(row, NAME);
 			summary.setName(is.getName());
-			//fireTableCellUpdated(row, NAME);
 		} 
 	}
 	

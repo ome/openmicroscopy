@@ -225,13 +225,15 @@ class ProjectDatasetsDiffPane
 		tc.setHeaderRenderer(iconHeaderRenderer);
 		TableHeaderTextAndIcon 
 		txt = new TableHeaderTextAndIcon(columnNames[NAME], 
-				im.getIcon(IconManager.ORDER_BY_NAME), 
+				im.getIcon(IconManager.ORDER_BY_NAME_UP),
+				im.getIcon(IconManager.ORDER_BY_NAME_DOWN),
 				"Order datasets by name.");
 		tc.setHeaderValue(txt);
 		tc = tcm.getColumn(SELECT);
 		tc.setHeaderRenderer(iconHeaderRenderer); 
 		txt = new TableHeaderTextAndIcon(columnNames[SELECT], 
-				im.getIcon(IconManager.ORDER_BY_SELECTED), 
+				im.getIcon(IconManager.ORDER_BY_SELECTED_UP), 
+				im.getIcon(IconManager.ORDER_BY_SELECTED_DOWN),
 				"Order by selected datasets.");
 		tc.setHeaderValue(txt);
 	}

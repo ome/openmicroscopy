@@ -43,12 +43,18 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManager;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.util.ui.TableHeaderTextAndIcon;
+import org.openmicroscopy.shoola.util.ui.TableIconRenderer;
+import org.openmicroscopy.shoola.util.ui.TableSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -69,13 +75,25 @@ class CreateProjectDatasetsPane
 	extends JPanel
 {
 	
+	/** Action id. */
+	private static final int				NAME = 0, SELECT = 1;
+		
+	protected static final String[]			columnNames;
+
+	static {
+		columnNames  = new String[2];
+		columnNames[NAME] = "Name";
+		columnNames[SELECT] = "Select";
+	}
+	
 	/** Reference to the manager. */
 	private CreateProjectEditorManager		manager;
 
-	private JButton							selectButton;
-	private JButton							resetButton;
+	private JButton							selectButton, resetButton;
 	
 	private DatasetsTableModel 				datasetsTM;
+	
+	private TableSorter 					sorter;
 	
 	CreateProjectDatasetsPane(CreateProjectEditorManager manager)
 	{
@@ -129,7 +147,12 @@ class CreateProjectDatasetsPane
 	  
 		//datasets table
 		datasetsTM = new DatasetsTableModel();
-		JTable t = new JTable(datasetsTM);
+		JTable t = new JTable();
+		sorter = new TableSorter(datasetsTM);  
+		t.setModel(sorter);
+		sorter.addMouseListenerToHeaderInTable(t);
+		
+		setTableLayout(t);
 		t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		t.setPreferredScrollableViewportSize(DataManager.VP_DIM);
 		//wrap table in a scroll pane and add it to the panel
@@ -139,6 +162,30 @@ class CreateProjectDatasetsPane
 		p.add(controls);
 		
 		return p;
+	}
+
+	/** Set icons in the tableHeader. */
+	private void setTableLayout(JTable table)
+	{
+		IconManager im = IconManager.getInstance(
+							manager.getView().getRegistry());
+		TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
+		TableColumnModel tcm = table.getTableHeader().getColumnModel();
+		TableColumn tc = tcm.getColumn(NAME);
+		tc.setHeaderRenderer(iconHeaderRenderer);
+		TableHeaderTextAndIcon 
+		txt = new TableHeaderTextAndIcon(columnNames[NAME], 
+				im.getIcon(IconManager.ORDER_BY_NAME_UP), 
+				im.getIcon(IconManager.ORDER_BY_NAME_DOWN), 
+				"Order datasets by name.");
+		tc.setHeaderValue(txt);
+		tc = tcm.getColumn(SELECT);
+		tc.setHeaderRenderer(iconHeaderRenderer); 
+		txt = new TableHeaderTextAndIcon(columnNames[SELECT], 
+				im.getIcon(IconManager.ORDER_BY_SELECTED_UP),
+				im.getIcon(IconManager.ORDER_BY_SELECTED_DOWN),
+				"Order by selected datasets.");
+		tc.setHeaderValue(txt);
 	}
 
 	/** 
@@ -151,15 +198,14 @@ class CreateProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]		columnNames = {"Name", "Remove"};
-		private final Object[] 		datasets = manager.getDatasets().toArray();
-		private Object[][] 			data;
+		private final Object[]	datasets = manager.getDatasets().toArray();
+		private Object[][]		data;
 		
 		private DatasetsTableModel()
 		{
 			data = new Object[datasets.length][3];
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = ((DatasetSummary) datasets[i]).getName();
+				data[i][0] = (DatasetSummary) datasets[i];
 				data[i][1] = new Boolean(false);
 			}
 		}
@@ -182,9 +228,9 @@ class CreateProjectDatasetsPane
 		public void setValueAt(Object value, int row, int col)
 		{
 			data[row][col] = value;
+			DatasetSummary ds = (DatasetSummary) sorter.getValueAt(row, NAME);
 			fireTableCellUpdated(row, col);
-			manager.addDataset(((Boolean) value).booleanValue(), 
-								(DatasetSummary) datasets[row]);
+			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
 	
