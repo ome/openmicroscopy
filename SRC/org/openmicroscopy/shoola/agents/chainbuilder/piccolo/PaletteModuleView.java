@@ -72,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.piccolo.GenericEventHandler;
 
 
 
-public class PaletteModuleView extends ModuleView {
+public class PaletteModuleView extends SingleModuleView {
 	
 	public PaletteModuleView() {
 		super();
@@ -130,11 +130,30 @@ public class PaletteModuleView extends ModuleView {
 		}
 		return null;
 	}
-	
+
+	private ChainView getChainViewParent() {
+		PNode p = getParent();
+		while (p != null) {
+			if (p instanceof ChainView)
+				return (ChainView) p;
+			p = p.getParent();
+		}
+		return null;
+	}
 	protected LinkTarget getLinkTarget() {
 		LinkTarget link = super.getLinkTarget();
 		link.setPickable(false);
 		return link;
+	}
+	
+	public void mousePopup(GenericEventHandler handler) {
+		ChainView view = getChainViewParent();
+		((ModuleNodeEventHandler) handler).animateToNode(view);
+		((ModuleNodeEventHandler) handler).setLastEntered(view);
+	}
+	
+	public void mouseClicked(GenericEventHandler handler) {
+		super.mouseClicked(handler);
 	}
 }
 	
