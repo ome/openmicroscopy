@@ -45,7 +45,8 @@ public RMIContainerFacade() throws RemoteException {
 			System.err.flush();
 		}
 		return results;
-	}
+
+}
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#retrieveProjectsByExperimenter(org.ome.model.LSID, org.ome.model.LSID)
 	 */
@@ -63,9 +64,9 @@ public RMIContainerFacade() throws RemoteException {
 		throw new RuntimeException("implement me");
 	}
 	/* (non-Javadoc)
-	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID, int)
+	 * @see org.ome.interfaces.ContainerService#retrieveProject(org.ome.model.LSID, org.ome.model.LSID)
 	 */
-	public IProject retrieveProject(LSID arg0, int arg1) throws RemoteException {
+	public IProject retrieveProject(LSID arg0, LSID arg1) throws RemoteException {
 		// TODO Auto-generated method stub
 		/* return null; */
 		throw new RuntimeException("implement me");
@@ -113,9 +114,9 @@ public RMIContainerFacade() throws RemoteException {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createProject(org.ome.model.IProject)
 	 */
-	public int createProject(IProject arg0) throws RemoteException {
+	public LSID createProject(IProject arg0) throws RemoteException {
 		// TODO Auto-generated method stub
-		/* return 0; */
+		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 	/* (non-Javadoc)
@@ -145,9 +146,9 @@ public RMIContainerFacade() throws RemoteException {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ContainerService#createDataset(org.ome.model.IDataset)
 	 */
-	public int createDataset(IDataset arg0) throws RemoteException {
+	public LSID createDataset(IDataset arg0) throws RemoteException {
 		// TODO Auto-generated method stub
-		/* return 0; */
+		/* return null; */
 		throw new RuntimeException("implement me");
 	}
 	/* (non-Javadoc)

@@ -11,7 +11,6 @@ import org.ome.interfaces.GenericService;
 import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.ImageService;
 import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.jena.JenaContainerStore;
 
 /**
  * @author josh
@@ -57,18 +56,14 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	 * @see org.ome.interfaces.ServiceFactory#getAttributeService()
 	 */
 	public AttributeService getAttributeService() throws RuntimeException {
-		// TODO Auto-generated method stub
-		/* return null; */
-		throw new RuntimeException("implement me");
+		return new AttributeServiceImpl();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ServiceFactory#getAnalysisService()
 	 */
 	public AnalysisService getAnalysisService() throws RuntimeException {
-		// TODO Auto-generated method stub
-		/* return null; */
-		throw new RuntimeException("implement me");
+		return new AnalysisServiceImpl();
 	}
 
 	

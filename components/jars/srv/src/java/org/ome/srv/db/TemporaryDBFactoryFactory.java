@@ -3,8 +3,8 @@
  */
 package org.ome.srv.db;
 
-import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.jena.JenaStoreFactory;
+import org.ome.srv.db.jena.JenaGenericStore;
+
 
 /**
  * this temporary factory factory is simply here to avoid undue complexity.
@@ -13,7 +13,7 @@ import org.ome.srv.db.jena.JenaStoreFactory;
  * @author josh
  */
 public class TemporaryDBFactoryFactory {
-	public static ServiceFactory getServiceFactory() {
-		return new JenaStoreFactory();
+	public static GenericStore getStore() {
+		return new JenaGenericStore();
 	}
 }

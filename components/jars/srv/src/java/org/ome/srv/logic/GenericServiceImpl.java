@@ -8,23 +8,20 @@ import java.util.List;
 
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
-import org.ome.cache.CacheFactory;
-import org.ome.cache.TemporaryCacheFactoryFactory;
 import org.ome.interfaces.GenericService;
-import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.TemporaryDBFactoryFactory;
 import org.ome.model.FollowGroup;
 
 /**
  * @author josh
  */
-public class GenericServiceImpl extends AbstractServiceImpl implements GenericService {
+public class GenericServiceImpl extends AbstractService implements GenericService {
 	
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.GenericService#setLSOjbect(org.ome.LSObject)
 	 */
 	public void setLSOjbect(LSObject obj) {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("implement me");
 
 	}
 
@@ -33,6 +30,7 @@ public class GenericServiceImpl extends AbstractServiceImpl implements GenericSe
 	 */
 	public void updateLSObject(LSObject obj) {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("implement me");
 
 	}
 
@@ -41,7 +39,7 @@ public class GenericServiceImpl extends AbstractServiceImpl implements GenericSe
 	 */
 	public LSObject getLSObject(LSID lsid) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)
@@ -49,7 +47,7 @@ public class GenericServiceImpl extends AbstractServiceImpl implements GenericSe
 	 */
 	public LSObject getLSObject(LSID lsid, FollowGroup fg) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("implement me");
 	}
 
 	/* (non-Javadoc)

@@ -1,0 +1,30 @@
+#### Misc
+## ja = jarray()
+## s1 = ja.array(["http://cesar/icons/jhe061.gif",None],java.lang.String)
+##  dir, help, pprint.pprint
+##  jars = glob("/home/moore/tmp/taverna/lib/*.jar")
+##  for j in jars:
+##    sys.path.insert( 0, j ) # works from commandline
+
+def odir(obj):
+    return dir(obj.__class__)
+
+def osuper(obj):
+    tmp = obj.getClass()
+    res = []
+    while (tmp != None):
+        res.append(tmp)
+        tmp = tmp.superclass
+    return res
+
+def adir(obj):
+    classes = osuper(obj)
+    attrs = []
+    for c in classes:
+        attrs.extend(dir(c))
+    attrs.sort()
+    return attrs
+
+def pdir(pkg):
+    pp(dir(pkg))
+    

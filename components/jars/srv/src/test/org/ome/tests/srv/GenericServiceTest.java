@@ -5,22 +5,14 @@ package org.ome.tests.srv;
 
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.ome.model.LSID;
 import org.ome.model.LSObject;
-import org.ome.model.Project;
-import org.ome.interfaces.AdministrationService;
 import org.ome.interfaces.GenericService;
 import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.TemporaryDBFactoryFactory;
-import org.ome.srv.db.jena.JenaAdministrationStore;
 import org.ome.srv.logic.ServiceFactoryImpl;
-import org.ome.model.Vocabulary;
-import org.ome.model.IProject;
 ;
 
 /**
@@ -30,7 +22,7 @@ public class GenericServiceTest extends TestCase {
 
 	GenericService g;
 	
-	
+	// TODO transaction tests, null LSIDs, catching class cast
 	
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -50,7 +42,7 @@ public class GenericServiceTest extends TestCase {
 		assertTrue(o2==null);
 	}
 	
-// TODO
+// TODO make this test work
 //	public void testAllObjectsByType() throws URISyntaxException, RemoteException{
 //		IProject proj = new Project(new LSID("EMPTY"));
 //		LSID lsid = new LSID(proj.getURI());

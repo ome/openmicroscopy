@@ -5,16 +5,16 @@ package org.ome.srv.logic;
 
 import org.ome.cache.CacheFactory;
 import org.ome.cache.TemporaryCacheFactoryFactory;
-import org.ome.interfaces.ServiceFactory;
+import org.ome.srv.db.GenericStore;
 import org.ome.srv.db.TemporaryDBFactoryFactory;
 
 /**
  * @author josh
  */
-public abstract class AbstractServiceImpl {
+public abstract class AbstractService {
 
-	protected ServiceFactory dbFactory = TemporaryDBFactoryFactory
-		.getServiceFactory();
+	protected GenericStore db = TemporaryDBFactoryFactory
+		.getStore();
 
 	protected CacheFactory cacheFactory = TemporaryCacheFactoryFactory
 		.getCacheFactory();

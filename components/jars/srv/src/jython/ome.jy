@@ -1,0 +1,4 @@
+execfile("/home/moore/lib/jython/utils.jy",globals())
+f=org.ome.srv.logic.ServiceFactoryImpl()
+f.getGenericService()
+g.getLSObject(LSID("1"))

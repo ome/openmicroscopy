@@ -19,9 +19,8 @@ public class RMIServer {
 	
 		try {
 		    RMIServiceFactory obj = new RMIServiceFactory();
-	
-		    // Bind this object instance to the name "HelloServer" TODO
-		    Naming.rebind("//localhost/ServiceFactory", obj);
+		   
+		    Naming.rebind("//localhost/ServiceFactory", obj);//TODO get rid of strings
 	
 		    System.out.println("Service Factory bound in registry.");
 		} catch (Exception e) {

@@ -4,26 +4,26 @@
 package org.ome.srv.logic;
 
 import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.List;
 
+import org.ome.model.Experimenter;
 import org.ome.model.IExperimenter;
 import org.ome.model.LSID;
-import org.ome.model.LSObject;
-import org.ome.cache.Cache;
-import org.ome.cache.CacheFactory;
-import org.ome.cache.TemporaryCacheFactoryFactory;
 import org.ome.interfaces.AdministrationService;
-import org.ome.interfaces.ContainerService;
-import org.ome.interfaces.ServiceFactory;
-import org.ome.srv.db.TemporaryDBFactoryFactory;
-import org.ome.model.ProjectWrapper;
 
 /**
  * @author josh
  */
-public class AdministrationServiceImpl extends AbstractServiceImpl implements AdministrationService {
+public class AdministrationServiceImpl extends AbstractService implements AdministrationService {
 
+	/* (non-Javadoc)
+	 * @see org.ome.interfaces.AdministrationService#getExperimenter(org.ome.model.LSID)
+	 */
+	public IExperimenter getExperimenter(LSID lsid) throws RemoteException {
+		return new Experimenter(db.getLSObject(lsid));
+	}
+
+	//TODO===========================================
+	
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getSessionKey()
 	 */
@@ -51,14 +51,6 @@ public class AdministrationServiceImpl extends AbstractServiceImpl implements Ad
 		throw new RuntimeException("implement me");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.ome.interfaces.AdministrationService#getExperimenter(org.ome.model.LSID)
-	 */
-	public IExperimenter getExperimenter(LSID arg0) throws RemoteException {
-		// TODO Auto-generated method stub
-		/* return null; */
-		throw new RuntimeException("implement me");
-	}
 
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.AdministrationService#getExperimenter(org.ome.model.LSID, org.ome.model.LSID)
