@@ -49,9 +49,13 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.MouseOverChainExecutionEvent;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
@@ -74,6 +78,9 @@ public class ExecutionsCanvas extends JPanel implements
 	
 	private static Font tipFont = new Font("Helvetica",Font.PLAIN,10); 
 
+	/* the shoola registry */
+	private Registry registry;
+	
 	/* the model of the grid */
 	private GridModel gridModel;
 	
@@ -89,10 +96,10 @@ public class ExecutionsCanvas extends JPanel implements
 	/**
 	 * Creates a new instance.
 	 */
-	public ExecutionsCanvas(ExecutionsModel model)
+	public ExecutionsCanvas(ExecutionsModel model,Registry registry)
 	{
 		super();
-	//this.model = model;
+		this.registry = registry;
 		gridModel = model.getGridModel();
 		gridModel.setCanvas(this);
 		setBackground(Constants.CANVAS_BACKGROUND_COLOR);
@@ -179,6 +186,12 @@ public class ExecutionsCanvas extends JPanel implements
 		ExecutionView exec = getViewAt(xLoc,yLoc);
 		if ( exec != currentExecution) {
 			currentExecution = exec;
+			MouseOverChainExecutionEvent event;
+			ChainExecutionData execution = null;
+			if (exec != null)
+				execution = exec.getChainExecution(); 
+			registry.getEventBus().post(
+					new MouseOverChainExecutionEvent(execution));
 			repaint();
 		}
 	}
@@ -255,5 +268,33 @@ public class ExecutionsCanvas extends JPanel implements
 		y+=metrics.getHeight();
 		g.drawString(date2,x,y);
 		
+	}
+	
+	public void selectChain(AnalysisChainData chain) {
+		Iterator iter = executionViews.iterator();
+		while (iter.hasNext()) {
+			ExecutionView execView =(ExecutionView) iter.next();
+			if (chain != null &&
+					chain.getID() == 
+						execView.getChainExecution().getChain().getID())
+				execView.setHighlighted(true);
+			else
+				execView.setHighlighted(false);
+		}
+		repaint();
+	}
+	
+	public void selectDataset(DatasetData dataset) {
+		Iterator iter = executionViews.iterator();
+		while (iter.hasNext()) {
+			ExecutionView execView =(ExecutionView) iter.next();
+			if (dataset != null && 
+					dataset.getID() == 
+						execView.getChainExecution().getDataset().getID())
+				execView.setHighlighted(true);
+			else
+				execView.setHighlighted(false);
+		}
+		repaint();
 	}
 }
