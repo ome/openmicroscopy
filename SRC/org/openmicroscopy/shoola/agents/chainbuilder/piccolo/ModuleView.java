@@ -119,6 +119,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	private static final float LAST_ST_BUFFER=5f;
 	private static final float BOTTOM_GAP=30;
 	
+	
 	private static float maxParamWidth = 0f;
 	private static float maxNameHeight = 0f;
 	/**
@@ -264,13 +265,24 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		// each row will contain one input and one output.
 		// if # of each is not equal, we'll have one or more rows of input
 		// only or output only.
-		// # of rows is max of input and output
-		int 	rows = inSize > outSize? inSize: outSize;
+		// # of rows is max of input and output 
+		int rows = inSize > outSize? inSize: outSize;
+		
+		Integer maxCard = getMaxIOCardinality();
+		int max=0;
+		
+		if (maxCard != null) 
+			max = maxCard.intValue();
+		
+		if (rows > max && maxCard != null)
+			rows = max;
 		
 		ChainFormalInputData paramIn;
 		ChainFormalOutputData paramOut;
-		FormalInput inp;
-		FormalOutput outp;
+		FormalInput fin;
+		FormalOutput fout;
+		ParameterLabelNode inp;
+		ParameterLabelNode outp;
 		
 	
 		Vector inSet  = new Vector();
@@ -281,19 +293,41 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		// for each row.
 		for (int i = 0; i < rows; i++) {
 			if (i < inSize) {
-				// as long as I have more inputs, create them, 
-				// add them to label nodes, 
-				// and store max width
-				paramIn = (ChainFormalInputData) inputs.get(i);
-				inp = getFormalInput(paramIn);
-				labelNodes.addChild(inp);
-				inSet.add(inp);
+				if (i == max-1 && rows==max) {
+					// if # of rows has been truncated and I'm at the last row.
+					// add a text item.
+					OrderableText text = new OrderableText();
+					labelNodes.addChild(text);
+					text.setFont(Constants.NAME_FONT);
+					text.setVisible(true);
+					inSet.add(text);
+				}
+				else {
+					//as long as I have more inputs, create them, 
+					// add them to label nodes, 
+					// and store max width
+					paramIn = (ChainFormalInputData) inputs.get(i);
+					fin = getFormalInput(paramIn);
+					labelNodes.addChild(fin);
+					inSet.add(fin);
+				}
 			}
 			if (i < outSize) {
-				paramOut = (ChainFormalOutputData) outputs.get(i);
-				outp = getFormalOutput(paramOut);
-				labelNodes.addChild(outp);
-				outSet.add(outp);
+				if (i == max-1 && rows == max) {
+					// if # of rows has been truncated and I'm at the last row.
+					// add a text item.
+					OrderableText text = new OrderableText();
+					labelNodes.addChild(text);
+					text.setFont(Constants.NAME_FONT);
+					text.setVisible(true);
+					outSet.add(text);
+				}
+				else {
+					paramOut = (ChainFormalOutputData) outputs.get(i);
+					fout = getFormalOutput(paramOut);
+					labelNodes.addChild(fout);
+					outSet.add(fout);
+				}
 			}
 		}
 		
@@ -303,11 +337,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		// we want that to be the width -  the largest output,
 		// with space for a margin left over.
 		float outputColumnX = NAME_LABEL_OFFSET+ALIGNMENT_BUFFER;
-		
-		//height of first one
-
-		
-			 		
+					 		
 		Collections.sort(inSet);
 		Collections.sort(outSet);
 	 	Object[] ins = inSet.toArray();
@@ -315,9 +345,9 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 
 	 	float paramHeight;
 	 	if (inSet.size() > 0) 
-	 		paramHeight = ((FormalInput) ins[0]).getLabelHeight();
+	 		paramHeight = ((ParameterLabelNode) ins[0]).getLabelHeight();
 	 	else 
-	 		paramHeight = ((FormalOutput) outs[0]).getLabelHeight();
+	 		paramHeight = ((ParameterLabelNode) outs[0]).getLabelHeight();
 	 	
 	 	// add a bit of a buffer
 	 	paramHeight += PARAMETER_SPACING;
@@ -327,7 +357,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 
 			// get ith input 
 			if (i <inSize) {
-				inp = (FormalInput) ins[i];
+				inp = (ParameterLabelNode) ins[i];
 				inp.setOffset(NAME_LABEL_OFFSET,height);
 			}
 			height += paramHeight;
@@ -336,7 +366,7 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 				// we want to right-justify these. So, 
 				// find difference bwtween the maximum output width
 				// and the width of this one.
-				outp = (FormalOutput) outs[i];
+				outp = (ParameterLabelNode) outs[i];
 				float rightJustifyGap = maxParamWidth-
 					outp.getLabelWidth();
 				// and then move right by that amount.
@@ -349,6 +379,11 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 		// parameter
 		height += LAST_ST_BUFFER;
 		detail.addChild(labelNodes);
+	}
+	
+	// max cardinality of ins and outs. null by default, but can over-ride
+	protected Integer getMaxIOCardinality() {
+		return null;
 	}
 	
 	private void getParamWidth() {
@@ -533,9 +568,10 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	public void setParamsHighlighted(boolean v) {
 
 		Iterator iter = labelNodes.getChildrenIterator();
-		FormalParameter p;
+		ParameterLabelNode p;
+		
 		while (iter.hasNext()) {
-			p = (FormalParameter) iter.next();
+			p = (ParameterLabelNode) iter.next();
 			p.setParamsHighlighted(v);
 		}
 	}	
@@ -909,5 +945,37 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	
 	public void remove() {
 		
+	}
+	
+	class OrderableText extends PText implements Comparable, ParameterLabelNode {
+		
+		public OrderableText() {
+			super("More ...");
+		}
+		
+		// alwyas comes after everything.
+		public int compareTo(Object o) {
+			return 1;
+		}
+		
+		public float getLabelWidth() {
+			return (float) getWidth();
+		}
+		
+		public float getLabelHeight() {
+			return (float) getHeight();
+		}
+		
+		public void setOffset(float x,float y) {
+			super.setOffset(x,y);
+		}
+		
+		public void setParamsHighlighted(boolean v) {
+			if (v == true) 
+				setTextPaint(Constants.HIGHLIGHT_COLOR);
+			else {
+				setTextPaint(Constants.DEFAULT_TEXT_COLOR);
+			}
+		}
 	}
 }
