@@ -172,7 +172,7 @@ public class Viewer3DManager
     /** Reset the color model and planeDef. */
     void onClosing()
     {
-        control.synchPlaneSelected(view.getCurZ(), previousModel);
+        //control.synchPlaneSelected(view.getCurZ(), previousModel);
         view.dispose();
     }
     
