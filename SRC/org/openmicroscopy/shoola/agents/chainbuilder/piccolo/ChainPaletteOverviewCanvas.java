@@ -93,8 +93,6 @@ public class ChainPaletteOverviewCanvas extends BufferedCanvas  {
 		detail.setOverview(this);
 		PLayer detailLayer = new PLayer();
 		detailLayer.addChild(detail.getLayer());
-		//detailLayer.setPickable(false);
-		//detailLayer.setChildrenPickable(false);
 		getLayer().addChild(detailLayer);
 		viewRect = new PPath();
 		viewRect.setPaint(new Color(200,0,0,100));
