@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.rnd.events;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.StateChangeEvent;
+import org.openmicroscopy.shoola.env.rnd.MethodCall;
 
 /** 
  * 
@@ -50,10 +51,21 @@ import org.openmicroscopy.shoola.env.event.StateChangeEvent;
  * </small>
  * @since OME2.2
  */
-public abstract class RenderingPropChange
+public class RenderingPropChange
 	extends StateChangeEvent
 {
 	
-	public abstract void doUpdate();
+	private MethodCall	mCall;
+	
+	public RenderingPropChange(MethodCall mCall)
+	{
+		if (mCall == null)	throw new NullPointerException("No method call");
+		this.mCall = mCall; 
+	}
+	
+	public void doUpdate() 
+	{
+		mCall.doCall();
+	}
 	
 }
