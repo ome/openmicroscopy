@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.browser.datamodel.AttributeMap;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethod;
 import org.openmicroscopy.shoola.agents.browser.images.PaintMethodZOrder;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.ImageIDComparator;
@@ -64,6 +65,7 @@ public class BrowserModel
     private DatasetData backingModel;
 
     private Set thumbnailSet;
+    private Map imageIDMap;
     
     private Set progressListeners;
     private Set modelListeners;
@@ -122,6 +124,7 @@ public class BrowserModel
         groupingMethod = new SingleGroupingMethod();
         groupModels = Arrays.asList(groupingMethod.getGroups());
         thumbnailSet = new HashSet();
+        imageIDMap = new HashMap();
         annotationModel = new PaintMethodZOrder();
         modeClassMap = new HashMap();
 
@@ -238,6 +241,20 @@ public class BrowserModel
         }
         
         thumbnailSet.add(thumb);
+        if(thumb.isMultipleThumbnail())
+        {
+            ThumbnailDataModel[] tdms = thumb.getMultipleModels();
+            for(int i=0;i<tdms.length;i++)
+            {
+                imageIDMap.put(new Integer(tdms[i].getID()),tdms[i]);
+            }
+        }
+        else
+        {
+            imageIDMap.put(new Integer(thumb.getModel().getID()),
+                           thumb.getModel());
+        }
+        
         GroupModel group = groupingMethod.getGroup(thumb);
         group.addThumbnail(thumb);
         
@@ -268,10 +285,23 @@ public class BrowserModel
     	{
             if(!thumbnailSet.contains(thumbs[i]))
             {
-    		  thumbnailSet.add(thumbs[i]);
-    		  GroupModel group = groupingMethod.getGroup(thumbs[i]);
-    		  group.addThumbnail(thumbs[i]);
-              added++;
+    		    thumbnailSet.add(thumbs[i]);
+                if(thumbs[i].isMultipleThumbnail())
+                {
+                    ThumbnailDataModel[] tdms = thumbs[i].getMultipleModels();
+                    for(int j=0;j<tdms.length;j++)
+                    {
+                        imageIDMap.put(new Integer(tdms[j].getID()),tdms[j]);
+                    }
+                }
+                else
+                {
+                    imageIDMap.put(new Integer(thumbs[i].getModel().getID()),
+                                   thumbs[i].getModel());
+                }
+    		    GroupModel group = groupingMethod.getGroup(thumbs[i]);
+    		    group.addThumbnail(thumbs[i]);
+                added++;
             }
     	}
         
@@ -327,6 +357,16 @@ public class BrowserModel
         List thumbnailList = new ArrayList(thumbnailSet);
         Collections.sort(thumbnailList,new ImageIDComparator());
         return Collections.unmodifiableList(thumbnailList);
+    }
+    
+    /**
+     * Returns the thumbnail data model for the image with the given ID.
+     * @param imageID The ID of the image to retrieve the model.
+     * @return The model for the particular ID.
+     */
+    public ThumbnailDataModel getModel(int imageID)
+    {
+        return (ThumbnailDataModel)imageIDMap.get(new Integer(imageID));
     }
     
     /**

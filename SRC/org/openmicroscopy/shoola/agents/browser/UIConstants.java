@@ -67,4 +67,10 @@ public interface UIConstants
      * The default text font for the group/region to display the group name.
      */
     public static Font BUI_GROUPTEXT_FONT = new Font(null, Font.BOLD, 14);
+    
+    /**
+     * The default key for the display of the Well parameter in
+     * ThumbnailDataModels.
+     */
+    public static final String WELL_KEY_STRING = "Well";
 }

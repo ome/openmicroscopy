@@ -38,7 +38,6 @@ package org.openmicroscopy.shoola.agents.browser;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,6 +50,7 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
 import org.openmicroscopy.ds.dto.SemanticType;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.is.ImageServerException;
@@ -392,6 +392,8 @@ public class BrowserAgent implements Agent, AgentEventListener
         
         boolean plateMode = false;
         List plateList;
+        List annotationList;
+        Map annotationMap;
         PlateInfo plateInfo = new PlateInfo();
         
         try
@@ -420,6 +422,15 @@ public class BrowserAgent implements Agent, AgentEventListener
             }
             
             plateList = sts.retrieveImageAttributes("ImagePlate",idList);
+            
+            writeStatusImmediately(status,"Retrieving annotation information from DB...");
+            annotationList = sts.retrieveImageAttributes("ImageAnnotation",idList);
+            annotationMap = new HashMap();
+            for(Iterator iter = annotationList.iterator(); iter.hasNext();)
+            {
+                ImageAnnotation ia = (ImageAnnotation)iter.next();
+                annotationMap.put(new Integer(ia.getImage().getID()),ia);
+            }
             
             // going to assume that all image plates in dataset belong to
             // same plate (could be very wrong)
@@ -462,6 +473,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         final List refList = Collections.unmodifiableList(imageList);
         final List refPlateList = Collections.unmodifiableList(plateList);
         final PlateInfo refInfo = plateInfo;
+        final Map refAnnotations = annotationMap;
         
         Thread plateLoader = new Thread()
         {
@@ -505,9 +517,19 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     wellSized = true;
                                 }
                                 ImageData data = new ImageData();
-                                data.setID(pix.getID());
+                                data.setID(sum.getID());
+                                data.setName(sum.getName());
                                 ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                 tdm.getAttributeMap().putAttribute(pix);
+                                
+                                ImageAnnotation annotation =
+                                    (ImageAnnotation)refAnnotations.get(new Integer(sum.getID()));
+                                    
+                                if(annotation != null)
+                                {
+                                    tdm.getAttributeMap().putAttribute(annotation);
+                                }
                                 final Thumbnail t = new Thumbnail(image,tdm);
                                 lm.setIndex(t,i,j);
                                 
@@ -551,6 +573,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     ImageData data = new ImageData();
                                     data.setID(pix.getID());
                                     ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                    tdm.setValue(UIConstants.WELL_KEY_STRING,well);
                                     tdm.getAttributeMap().putAttribute(pix);
                                     images[k] = image;
                                     models[k] = tdm;
@@ -662,6 +685,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         {
             loader.start();
         }
+        
         return true;
     }
     

@@ -49,6 +49,7 @@ import java.awt.geom.Rectangle2D;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
+import org.openmicroscopy.shoola.agents.browser.UIConstants;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseDownSensitive;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
@@ -221,7 +222,6 @@ public class SemanticZoomNode extends PImage
             ThumbnailDataModel model = parentThumbnail.getModel();
             Pixels pix = (Pixels)model.getAttributeMap().getAttribute("Pixels");
             
-            System.err.println("loaded composite");
             setImage(agent.getResizedThumbnail(pix,compositeWidth,
                                                compositeHeight));
             setBounds(border);
@@ -237,7 +237,6 @@ public class SemanticZoomNode extends PImage
                     agent.getResizedThumbnail(pix,compositeWidth,
                                               compositeHeight);
             }
-            System.err.println("loaded all composites");
             setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
             setBounds(border);
         }
@@ -289,14 +288,12 @@ public class SemanticZoomNode extends PImage
      */
     public void respondMouseClick(PInputEvent event)
     {
-        System.err.println("click");
         Point2D pos = event.getPositionRelativeTo(this);
         System.err.println(pos);
         if(prevImageShape != null)
         {
             if(prevImageShape.contains(pos))
             {
-                System.err.println("got prev");
                 parentThumbnail.showPreviousImage();
                 setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
                 setBounds(border);
@@ -308,7 +305,6 @@ public class SemanticZoomNode extends PImage
         {
             if(nextImageShape.contains(pos))
             {
-                System.err.println("got next");
                 parentThumbnail.showNextImage();
                 setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
                 setBounds(border);
@@ -408,10 +404,12 @@ public class SemanticZoomNode extends PImage
         g2.setFont(nameFont);
         g2.setColor(Color.yellow);
         
-        String name = parentThumbnail.getModel().getName();
-        if(name != null)
+        String wellName =
+            (String)parentThumbnail.getModel().getValue(UIConstants.WELL_KEY_STRING);
+            
+        if(wellName != null)
         {
-            g2.drawString(parentThumbnail.getModel().getName(),4,26);
+            g2.drawString(wellName,4,26);
         }
         g2.setFont(oldFont);
         g2.setColor(oldColor);
@@ -430,13 +428,15 @@ public class SemanticZoomNode extends PImage
             
             Rectangle2D totalBounds =
                 getBounds().getBounds2D();
-                
+            
+            g2.setFont(multiFont);
             g2.drawString(whichSelected,
                           (float)((totalBounds.getWidth()-selectedBounds.getWidth())/2),
                           (float)(totalBounds.getHeight()-selectedBounds.getHeight()-5));
             
             g2.fill(prevImageShape);
             g2.fill(nextImageShape);
+            g2.setFont(oldFont);
             g2.setPaint(oldPaint);
             g2.setColor(oldColor);
             

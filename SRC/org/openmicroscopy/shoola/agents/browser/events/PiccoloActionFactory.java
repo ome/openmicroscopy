@@ -322,6 +322,38 @@ public class PiccoloActionFactory
                     semanticNode.setOffset(viewPoint.getX()-size.getWidth()/2,
                                            viewPoint.getY()-size.getHeight()/2);
                     
+                    double offRight = semanticNode.getOffset().getX()+
+                                      semanticNode.getBounds().getWidth()-
+                                      e.getCamera().getBounds().getWidth();
+                    
+                    double offBottom = semanticNode.getOffset().getY()+
+                                       semanticNode.getBounds().getHeight()-
+                                       e.getCamera().getBounds().getHeight();
+                    
+                    double offLeft = semanticNode.getOffset().getX();
+                    double offTop = semanticNode.getOffset().getY();
+                    
+                    if(offRight > 0)
+                    {
+                        offLeft = offLeft-offRight-4;
+                        semanticNode.setOffset(offLeft,offTop);
+                    }
+                    if(offBottom > 0)
+                    {
+                        offTop = offBottom-offTop-4;
+                        semanticNode.setOffset(offLeft,offTop);
+                    }
+                    if(offLeft < 4)
+                    {
+                        offLeft = 4;
+                        semanticNode.setOffset(offLeft,offTop);
+                    }
+                    if(offTop < 4)
+                    {
+                        offTop = 4;
+                        semanticNode.setOffset(offLeft,offTop);
+                    }
+                    
                     layer.hideSemanticNode(e.getCamera());
                     layer.nodeEntered(e.getCamera(),semanticNode);
                 }
