@@ -47,9 +47,11 @@ package org.openmicroscopy.shoola.agents.chainbuilder.piccolo;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.Vector;
 import javax.swing.event.EventListenerList;
 
 
@@ -144,7 +146,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	/**
 	 *  The node that will contain nodes for each of the formal parameters
 	 */
-	private ParameterNode labelNodes;
+	protected ParameterNode labelNodes;
 	
 	/**
 	 * A node that holds the square rectangle {@link LinkTarget}s associated
@@ -165,17 +167,10 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 */
 //	private Node node=null;
 	
-	/**
-	 * The OME object corresponding to the analysis module that this object
-	 * represents
-	 */
-	private ChainModuleData module;
 	
 	/** the node in the analysis chain that is represented by this widget */
 	private LayoutNodeData node;
-	
-	public ModuleView() {
-	}
+
 	
 	public LayoutNodeData getNode() {
 		return node;
@@ -185,8 +180,8 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		this.node = node;
 	}
 	
-	public ModuleView(ChainModuleData module,float x,float y) {
-		this(module);
+	public ModuleView(float x,float y) {
+		this();
 		setOffset(x,y);
 	}
 	 
@@ -194,17 +189,19 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 * The main constructor 
 	 * @param module The OME Module being represented
 	 */
-	public ModuleView(ChainModuleData module) {
+	public ModuleView() {
 		super();
 	
-		this.module = module;
 		
 		// create the container node for the formal parameters
 		labelNodes = new ParameterNode();
 		addChild(labelNodes);
+	}
+	
+	protected void init() {
 		
 		// create the name and position it.
-		name = new PText(module.getName());
+		name = new PText(getName());
 		name.setGreekThreshold(0);
 		name.setFont(Constants.NAME_FONT);
 		name.setPickable(false);
@@ -231,7 +228,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		nameWidth = (float) nameBounds.getWidth();
 		
 		// do the individual parameter labels.
-		addParameterLabels(module);  
+		addParameterLabels();  
 		
 		// set width of the whole bounding rectangle
 	    width = NAME_LABEL_OFFSET*2+width-Constants.LINK_TARGET_HALF_SIZE;
@@ -256,13 +253,22 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		buildMagnifiedLabel();
 	}
 	
+	/** 
+	 * get the name of the module. Will generally be implemented in subclasses. 
+	 * Can't be abstract, as we don't really want to put a call in {@LayoutModule}
+	 * @return
+	 */
+	public String getName() {
+		return null;
+	}
+	
 	protected LinkTarget getLinkTarget() {
 		return new LinkTarget();
 	}
 	
 	private void buildMagnifiedLabel() {
 		// set up the magnified version of the module name
-		zoomName = new PText(module.getName());
+		zoomName = new PText(getName());
 		zoomName.setGreekThreshold(0);
 		zoomName.setFont(Constants.NAME_FONT);
 		zoomName.setPickable(false);
@@ -316,10 +322,10 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	 *
 	 * @param module the module in question
 	 */
-	private void addParameterLabels(ChainModuleData module) {
+	private void addParameterLabels() {
 		
-		List inputs = module.getFormalInputs();
-		List outputs = module.getFormalOutputs();
+		List inputs = getFormalInputs();
+		List outputs = getFormalOutputs();
 		int inSize = 0;
 		int outSize = 0;
 		if (inputs != null)
@@ -337,11 +343,9 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		FormalInput inp;
 		FormalOutput outp;
 		
-		// Store them in {@link TreeSet} objects, so things will be sorted,
-		// based on the id numbers of the semantic types of the associated 
-		// parameters   See FormalParameter for details
-		TreeSet inSet  = new TreeSet();
-		TreeSet outSet= new TreeSet();
+	
+		Vector inSet  = new Vector();
+		Vector outSet= new Vector();
 		
 		// get input nodes and find max input width
 		float maxInputWidth =0;
@@ -385,6 +389,8 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		float inHeight = 0;
 		float outHeight=0;
 			 		
+		Collections.sort(inSet);
+		Collections.sort(outSet);
 	 	Object[] ins = inSet.toArray();
 	 	Object[] outs = outSet.toArray();
 	
@@ -414,6 +420,14 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 			else
 				height+=outHeight; 
 		}
+	}
+	
+	protected List getFormalInputs() {
+		return null;
+	}
+	
+	protected List getFormalOutputs() {
+		return null;
 	}
 	
 	protected FormalInput getFormalInput(ChainFormalInputData paramIn) {
@@ -483,33 +497,7 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		repaint();
 	}
 	
-	/**
-	 * 
-	 * @return the OME Module associated with this graphical display
-	 */
-	public ChainModuleData getModule() {
-		return module;
-	}
 	
-	
-	/**
-	 * to remove a {@link ModuleView}, remove all of its links,
-	 * remove this widget from the list of widgets for the corresponding OME 
-	 * Module, and remove this widget from the scenegraph
-	 *
-	 */
-	public void remove() {
-		// iterate over children of labelNodes
-		Iterator iter = labelNodes.getChildrenIterator();
-		
-		FormalParameter p;
-		while (iter.hasNext()) {
-			p = (FormalParameter) iter.next();
-			p.removeLinks();
-		}
-		module.removeModuleNode(this);
-		removeFromParent();
-	}
 	
 	
 	/***
@@ -549,17 +537,10 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 
 	public void setAllHighlights(boolean v) {
 		setParamsHighlighted(v);
-		setModulesHighlighted(v);
 	}
 	
-	/**
-	 * Set all of the {@link ModuleView} objects with the same OME {@link Module} 
-	 * as this one to have the same highlighted state.
-	 * @param v true if the modules should be highlighted, else false
-	 */
 	public void setModulesHighlighted(boolean v) {
 		
-		module.setModulesHighlighted(v);
 	}
 	
 	/***
@@ -760,7 +741,6 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 	}
 	
 	public void mouseClicked(GenericEventHandler handler) {
-		
 		((ModuleNodeEventHandler) handler).animateToNode(this);
 		((ModuleNodeEventHandler) handler).setLastEntered(this);
 	}
@@ -783,4 +763,21 @@ public class ModuleView extends PPath implements SortableBufferedObject,
 		if (p instanceof BufferedObject)  
 			((ModuleNodeEventHandler) handler).animateToNode(p);	
 	}
+	
+	public void setPickable(boolean b) {
+		super.setPickable(b);
+		labelNodes.setPickable(b);
+	}
+	
+	/** 
+	 *  will generally be overridden
+	 */
+	public ChainModuleData getModule() {
+		return null;
+	}
+	
+	public void remove() {
+		
+	}
+	
 }
