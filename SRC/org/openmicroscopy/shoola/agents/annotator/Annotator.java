@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -161,17 +160,17 @@ public class Annotator
      * @param content The content to include in the annotation.
      * @return A DatasetAnnotation attribute (DTO) with the embedded content.
      */
-    DatasetAnnotation createDatasetAnnotation(String content)
+    DatasetAnnotation createDatasetAnnotation(String content, int datasetID)
     {
 		DatasetAnnotation newAnnotation = null;
 		try { 
 			SemanticTypesService sts = registry.getSemanticTypesService();
-			newAnnotation = (DatasetAnnotation) sts.createAttribute(ANNOT_D);
+			newAnnotation = (DatasetAnnotation) sts.createAttribute(ANNOT_D,datasetID);
 			newAnnotation.setContent(content);
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Creation Failure", 
-				"Unable to the semantic type "+ANNOT_D, dsae);
+				"Unable to create the semantic type "+ANNOT_D, dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -190,9 +189,7 @@ public class Annotator
 		ImageAnnotation newAnnotation = null;
 		try { 
 			SemanticTypesService sts = registry.getSemanticTypesService();
-            DataManagementService dms = registry.getDataManagementService();
-            
-			newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I,imageID);
+            newAnnotation = (ImageAnnotation) sts.createAttribute(ANNOT_I,imageID);
 			newAnnotation.setContent(content);
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
