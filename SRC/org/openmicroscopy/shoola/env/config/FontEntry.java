@@ -56,7 +56,7 @@ class FontEntry
     extends Entry
 {
     
-    private HostInfo value;
+    private FontInfo value;
     FontEntry()
     {
     }
@@ -74,10 +74,12 @@ class FontEntry
                     if (child.getNodeType() == Node.ELEMENT_NODE)  
                         fi.setValue(child.getFirstChild().getNodeValue(), 
                                 child.getNodeName()) ;
-                }   
-            }  
+                }
+				value = fi;    
+            } 
         } catch (DOMException dex) { throw new RuntimeException(dex); }
     }
+    
 	/** Implemented as specified by {@link Entry}. */  
     Object getValue()
     {
