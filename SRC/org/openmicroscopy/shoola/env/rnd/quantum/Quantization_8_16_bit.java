@@ -64,10 +64,7 @@ public class Quantization_8_16_bit
 	 * @param qd 	Quantum definition object, contained mapping data.
 	 * @param qMap	QuantumMap object.	
 	 */
-	public Quantization_8_16_bit(QuantumDef qd)
-	{
-		super(qd);
-	}
+	public Quantization_8_16_bit(QuantumDef qd) { super(qd); }
 	
 	/**
 	 * Initializes the LUT. 
@@ -124,18 +121,17 @@ public class Quantization_8_16_bit
 		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.cdEnd; 
 	}
 
-	/**
-	 * The input window size changed, rebuild the LUT.
-	 */
-	protected void onWindowChange()
-	{
-		buildLUT();
-	}
+	/** The input window size changed, rebuild the LUT. */
+	protected void onWindowChange() { buildLUT(); }
 	
 	/** Implemented as specified in {@link QuantumStrategy}. */
 	public int quantize(Object value)
+		throws QuantizationException
 	{
 		int x = ((Integer) value).intValue();
+		if (x < min || x > max)
+			throw new QuantizationException(
+					"The value "+x+" is not in the interval ["+min+","+max+"]");
 		int i = LUT[x-min];
 		return (i & 0xFF);  //assumed x in [min, max]
 	}

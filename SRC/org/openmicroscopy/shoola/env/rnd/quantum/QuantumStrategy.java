@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
  */
 public abstract class QuantumStrategy
 {
+	
     /** Minimum of all minima. */
 	private Comparable      		globalMin;
 	
@@ -88,12 +89,12 @@ public abstract class QuantumStrategy
 	}
 	
 	/**
-	* min and max could be out of pixel type range 
-	* b/c of an error occured in stats calculations.
-	* 
-	* @param min	lower bound.
-	* @param max	upper bound.
-	*/
+	 * min and max could be out of pixel type range 
+	 * b/c of an error occured in stats calculations.
+	 * 
+	 * @param min	lower bound.
+	 * @param max	upper bound.
+	 */
 	private void verifyInterval(Comparable min, Comparable max)
 	{
 		boolean b = false;
@@ -172,34 +173,19 @@ public abstract class QuantumStrategy
 		onWindowChange();
 	}
 	
-	void setMap(QuantumMap qMap)
-	{
-		valueMapper = qMap;
-	}
+	void setMap(QuantumMap qMap) { valueMapper = qMap; }
 	
 	/** Returns the globalMin. */
-	public Comparable getGlobalMin()
-	{
-		return globalMin;
-	}
+	Comparable getGlobalMin() { return globalMin; }
     
 	/** Returns the globalMax. */
-	public Comparable getGlobalMax()
-	{
-		return globalMax;
-	}
+	Comparable getGlobalMax() { return globalMax; }
     
 	/** Returns the input start value. */
-	public Comparable getWindowStart()
-	{
-		return windowStart;
-	}
+	public Comparable getWindowStart() { return windowStart; }
 	
 	/** Returns the input end value. */
-	public Comparable getWindowEnd()
-	{
-		return windowEnd;
-	}
+	public Comparable getWindowEnd() { return windowEnd; }
     
     /** Notify when the input interval has changed. */
 	protected abstract void onWindowChange();
@@ -211,7 +197,7 @@ public abstract class QuantumStrategy
 	 * @param value	pixel intensity value.
 	 * @return int value in the codomain interval i.e. sub-interval of [0, 255]
 	 */
-	public abstract int quantize(Object value);
+	public abstract int quantize(Object value) throws QuantizationException;
 	
 }
 
