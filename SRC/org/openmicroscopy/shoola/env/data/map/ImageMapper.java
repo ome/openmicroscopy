@@ -80,9 +80,9 @@ public class ImageMapper
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		
+		//Specify which fields we want for the pixels.
 		criteria.addWantedField("default_pixels");
-		criteria.addWantedField("default_pixels", "ImageServerID");
-		
+		criteria.addWantedField("default_pixels", "id");
 		criteria.addFilter("owner_id", new Integer(userID));
 		
 		return criteria;
@@ -206,7 +206,8 @@ public class ImageMapper
 			px = (Pixels) img.getDefaultPixels();
 			is.setID(img.getID());
 			is.setName(img.getName());
-			is.setImageServerPixelsID(fillListPixelsID(px));
+			is.setPixelsIDs(fillListPixelsID(px));
+			//is.setImageServerPixelsID(fillListPixelsID(px));
 			//Add the images to the list of returned images
 			imagesList.add(is);
 		}
@@ -232,13 +233,11 @@ public class ImageMapper
 		return pixels;
 	}
 	
-	//	TODO: will be modified as soon as we have a better approach.
-	private static long[] fillListPixelsID(Pixels px)
+	private static int[] fillListPixelsID(Pixels px)
 	{
-		long[] ids = new long[1];
-		//to be on the save side
-		if (px.getImageServerID() != null)
-			ids[0] = (px.getImageServerID()).longValue();
+		int[] ids = new int[1];
+		ids[0] = px.getID();
 		return ids;
 	}
+	
 }

@@ -78,6 +78,7 @@ public class DatasetMapper
 		criteria.addWantedField("id");
 		criteria.addWantedField("name");
 		
+		
 		criteria.addFilter("owner_id", new Integer(userID));
 		
 		return criteria;
@@ -100,6 +101,7 @@ public class DatasetMapper
 		criteria.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
+		criteria.addWantedField("images.default_pixels", "id");
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
         criteria.addWantedField("images.default_pixels", "Repository");
         criteria.addWantedField("images.default_pixels.Repository",
@@ -143,6 +145,7 @@ public class DatasetMapper
 		criteria.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
+		criteria.addWantedField("images.default_pixels", "id");
 		criteria.addWantedField("images.default_pixels", "ImageServerID");
         criteria.addWantedField("images.default_pixels", "Repository");
         criteria.addWantedField("images.default_pixels.Repository",
@@ -254,13 +257,11 @@ public class DatasetMapper
 	}
 	
 	//	TODO: will be modified as soon as we have a better approach.
-	private static long[] fillListPixelsID(Image image)
+	private static int[] fillListPixelsID(Image image)
 	{
-		long[] ids = new long[1];
+		int[] ids = new int[1];
 	  	Pixels px = (Pixels) image.getDefaultPixels();
-		//to be on the save side
-		if (px.getImageServerID() != null)
-			ids[0] = (px.getImageServerID()).longValue();
+		ids[0] = px.getID();
 	  	return ids;
 	}
     
