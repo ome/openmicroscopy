@@ -65,7 +65,12 @@ import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 public class FormalOutput extends FormalParameter {
 	
 	public FormalOutput(ModuleView node,ChainFormalOutputData param) {
-		super(node,param);
+		this(node,param,null);
+	}
+	
+	public FormalOutput(ModuleView node,ChainFormalOutputData param,
+			FormalParameterMouseDelegate delegate) {
+		super(node,param,delegate);
 		
 		param.addFormalOutput(this);
 		addTarget();

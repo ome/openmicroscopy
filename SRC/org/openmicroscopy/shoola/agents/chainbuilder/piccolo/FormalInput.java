@@ -69,7 +69,12 @@ public class FormalInput extends FormalParameter {
 	public static final int TYPE_NODE_HORIZ_OFFSET = 0;
 	
 	public FormalInput(ModuleView node,ChainFormalInputData param) {
-		super(node,param);
+		this(node,param,null);
+	}
+	
+	public FormalInput(ModuleView node,ChainFormalInputData param,
+			FormalParameterMouseDelegate delegate) {
+		super(node,param,delegate);
 		
 		// if I have a semantic type, add it to the lists of inputs with
 		// this semantic type.
