@@ -40,6 +40,7 @@ import org.openmicroscopy.ds.DataFactory;
 import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.RemoteServices;
 import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
@@ -79,12 +80,12 @@ class DMSAdapter
 	implements DataManagementService
 {
 	
-	private DataFactory		proxy;
-	private Registry		registry;
+	private OMEDSGateway		gateway;
+	private Registry			registry;
 
-	DMSAdapter(DataFactory proxy, Registry registry)
+	DMSAdapter(OMEDSGateway gateway, Registry registry)
 	{
-		this.proxy = proxy;
+		this.gateway = gateway;
 		this.registry = registry;
 	}
 	
