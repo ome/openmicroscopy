@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>web</id>
+  <name>Web Application</name>
+  <package>org.ome.web</package>
+  <description>This is the web application.</description>
+  <dependencies>
+    <dependency>
+      <groupId>ome3</groupId>
+      <artifactId>ejb</artifactId>
+      <version>1.0</version>
+      <type>ejb</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>junit</id>
+      <version>3.8.1</version>
+    </dependency>
+    
+    <dependency>
+      <id>servletapi</id>
+      <version>2.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-j2ee</artifactId>
+      <version>3.2.1</version>
+    </dependency>
+    
+    <dependency>
+      <id>jstl</id>
+      <version>1.0.2</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>      
+    </dependency>
+    
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.0.4</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>      
+    </dependency>
+    
+    <dependency>
+      <groupId>cactus</groupId>
+      <artifactId>cactus</artifactId>
+      <version>13-1.6dev-20040115</version>
+    </dependency>
+
+     <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.3</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <!-- XDoclet dependencies -->
+    <dependency>
+      <id>xdoclet</id>
+      <version>1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xdoclet</groupId>
+      <artifactId>xdoclet-web-module</artifactId>
+      <version>1.2</version>
+      <url>http://xdoclet.sf.net/</url>
+    </dependency>
+    
+    <dependency>
+      <groupId>xdoclet</groupId>
+      <artifactId>xdoclet-ejb-module</artifactId>
+      <version>1.2</version>
+      <url>http://xdoclet.sf.net/</url>
+    </dependency>
+    
+    <dependency>
+      <groupId>xdoclet</groupId>
+      <artifactId>xjavadoc</artifactId>
+      <version>1.0.2</version>
+      <url>http://xdoclet.sf.net/</url>
+    </dependency>
+
+    <dependency>
+      <groupId>xdoclet</groupId>
+      <artifactId>maven-xdoclet-plugin</artifactId>
+      <version>1.2</version>
+      <type>plugin</type>
+      <url>http://xdoclet.sf.net/</url>
+    </dependency> 
+    
+    <!-- HttpUnit dependencies -->
+   <dependency>
+      <groupId>httpunit</groupId>
+      <artifactId>httpunit</artifactId>
+      <version>1.5.4</version>
+      <properties>
+        <cactus.bundle>true</cactus.bundle>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>jtidy</groupId>
+      <artifactId>jtidy</artifactId>
+      <version>4aug2000r7-dev</version>
+      <properties>
+        <cactus.bundle>true</cactus.bundle>
+      </properties>
+    </dependency>
+    
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/NaughtyTest.java</exclude>
+      </excludes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
