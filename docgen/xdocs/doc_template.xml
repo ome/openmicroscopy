@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <xdoc>
-
+<xdoc-info>
 <!-- START EDIT: Enter title and authors. -->
   <title>Template</title>
   <author name="XXX" email="xxx@xxx.com" />
@@ -8,8 +9,9 @@
 
   <revision number="$Revision$" />
   <last-modified date="$Date$" />
+</xdoc-info>
+  
   <toc name="Table of Contents" href="index.htm">
-
 <!-- START EDIT: Link your sections.  Each section is an HTML page.  
      Nesting is supported. -->
     <section href="section1.html" name="1. This is section 1" /> 
