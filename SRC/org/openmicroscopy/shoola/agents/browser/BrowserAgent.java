@@ -1069,8 +1069,10 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void annotateImage(ImageSummary imageInfo, Point popupLocation)
     {
+        int[] pixelsID = imageInfo.getPixelsIDs();
         AnnotateImage event = new AnnotateImage(imageInfo.getID(),
-                                                imageInfo.getName());
+                                                imageInfo.getName(), 
+                                                pixelsID[0]);
         if(popupLocation != null)
         {
             event.setSpecifiedLocation(popupLocation);
