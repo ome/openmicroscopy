@@ -198,8 +198,7 @@ public class Viewer
 			registry.getEventBus().post(new RenderImage(curPixelsID));
 			// have to dispose all windows linked 
 			control.disposeDialogs();
-		} //else
-			//initPresentation(request.getImageName(), pxsDims, true);
+		} showPresentation();
 	}
 
 	/** Handle event @see ImageRendered. */

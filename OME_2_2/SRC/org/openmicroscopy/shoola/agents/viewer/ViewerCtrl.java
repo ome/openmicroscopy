@@ -308,7 +308,8 @@ public class ViewerCtrl
         int maxZ = abstraction.getPixelsDims().sizeZ-1;
         int maxT = abstraction.getPixelsDims().sizeT-1;
         if (movieSettings == null) initMovieSettings(maxZ, maxT);
-        moviePlayer = new Player(this, maxT, maxZ, movieSettings);
+        if (moviePlayer == null)
+            moviePlayer = new Player(this, maxT, maxZ, movieSettings);
 		UIUtilities.centerAndShow(moviePlayer);
 	}
 	
@@ -328,7 +329,8 @@ public class ViewerCtrl
 	/** Bring up the image inspector widget. */
 	public void showInspector()
 	{
-		imageInspector = new ImageInspector(this, presentation.getCanvas(), 
+        if (imageInspector == null)
+            imageInspector = new ImageInspector(this, presentation.getCanvas(), 
                                             magFactor);
 		UIUtilities.centerAndShow(imageInspector);
 	}
