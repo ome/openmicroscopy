@@ -95,6 +95,8 @@ public class ExecutionsCanvas extends JPanel implements
 	private AxisRowDecoration currentRowDecoration;
 	
 	private boolean pressSelected = true;
+	
+	private LongRangeSlider slider = null;
 	/**
 	 * Creates a new instance.
 	 */
@@ -126,6 +128,10 @@ public class ExecutionsCanvas extends JPanel implements
 		return getPreferredSize();
 	}
 	
+	public void setSlider(LongRangeSlider slider) {
+		this.slider = slider;
+	}
+	
 	public void setBounds(int x,int y,int w,int h) {
 		super.setBounds(x,y,w,h);
 		if (gridModel != null) 
@@ -138,6 +144,10 @@ public class ExecutionsCanvas extends JPanel implements
 		if (gridModel == null)
 			return;
 		gridModel.drawAxes(g2);
+		if (slider != null) {
+			gridModel.drawSliderGuides(g2,slider.getLeftXCoord(),
+						slider.getRightXCoord());
+		}
 		drawExecutions(g2);
 		if (currentExecution != null  && pressSelected == false) {
 			currentExecution.drawExecutionTip(g2,xLoc,yLoc);
