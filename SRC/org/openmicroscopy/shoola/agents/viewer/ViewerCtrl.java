@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.viewer.controls.NavigationPalette;
 import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -62,11 +63,11 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 public class ViewerCtrl
 	implements ActionListener
 {
+	/** Action Command ID. */
 	static final int			V_VISIBLE = 0;
 	static final int			CONTROL = 1;
 	static final int			SAVE_AS = 2;
 	
-	private NavigationPalette	palette;
 	private Viewer				abstraction;
 	
 	ViewerCtrl(Viewer abstraction)
@@ -89,7 +90,7 @@ public class ViewerCtrl
 	/** Return the buffered Image displayed. */
 	public BufferedImage getBufferedImage()
 	{
-		return null;
+		return abstraction.getCurImage();
 	}
 	
 	/** Forward event to {@link Viewer}. */
@@ -140,13 +141,13 @@ public class ViewerCtrl
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case V_VISIBLE:
-					abstraction.activate();
+					abstraction.showPresentation();
 					break;
 				case CONTROL:
 					showControls();
 					break; 	
 				case SAVE_AS:
-					new ImageSaver(this);
+					showImageSaver();
 					break;
 		   }
 		} catch(NumberFormatException nfe) {   
@@ -162,9 +163,17 @@ public class ViewerCtrl
 	
 	private void showControls()
 	{
-		if (palette == null) palette = new NavigationPalette(this);
-		showDialog(palette);		
+		showDialog(new NavigationPalette(this));		
 	}
 	
+	private void showImageSaver()
+	{
+		if (abstraction.getCurImage() == null) {
+			UserNotifier un = getRegistry().getUserNotifier();
+			un.notifyError("Save image", "No current image displayed");
+		} else {
+			new ImageSaver(this);
+		}
+	}
 	
 }

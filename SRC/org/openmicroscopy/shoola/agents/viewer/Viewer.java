@@ -31,12 +31,12 @@ package org.openmicroscopy.shoola.agents.viewer;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
+import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import javax.swing.JMenuItem;
-
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -78,16 +78,13 @@ public class Viewer
 	private RenderingControl	renderingControl;
 	
 	private int					curImageID, curPixelsID;
+	private BufferedImage		curImage;
 	
 	private JMenuItem 			viewItem;
 	
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
-	{   //TODO: add control. 
-		if (presentation != null) {  
-			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-			presentation.setVisible(true);
-		}
+	{ 
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -111,6 +108,14 @@ public class Viewer
 	public boolean canTerminate() 
 	{
 		return true;
+	}
+
+	void showPresentation()
+	{
+		if (presentation != null) {  
+			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+			presentation.setVisible(true);
+		}
 	}
 
 	ViewerUIF getPresentation()
@@ -138,6 +143,11 @@ public class Viewer
 		return renderingControl.getDefaultZ();
 	}
 	
+	BufferedImage getCurImage()
+	{
+		return curImage;
+	}
+	
 	void onPlaneSelected(int z, int t)
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, t);
@@ -155,22 +165,26 @@ public class Viewer
 			handleImageRendered((ImageRendered) e);
 	}
 	
+	/** Handle event @see ImageLoaded. */
 	private void handleImageLoaded(ImageLoaded response)
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
-		buildPresentation();
+		if (presentation == null) buildPresentation();
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
 		RenderImage event = new RenderImage(curPixelsID);
 		registry.getEventBus().post(event);
 	}
 	
+	/** Handle event @see ImageRendered. */
 	private void handleImageRendered(ImageRendered response)
 	{
-		presentation.setImage(response.getRenderedImage());
+		curImage = response.getRenderedImage();
+		presentation.setImage(curImage);
 	}
 	
+	/** Build the GUI. */
 	private void buildPresentation()
 	{
 		control = new ViewerCtrl(this);
@@ -178,8 +192,7 @@ public class Viewer
 		control.setMenuItemListener(viewItem, ViewerCtrl.V_VISIBLE);
 		viewItem.setEnabled(true);
 		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-		presentation.setVisible(true);
-		
+		presentation.setVisible(true);	
 	}
 	
 	/** 
@@ -193,20 +206,17 @@ public class Viewer
 		return menuItem;
 	}
 	
-	
-	
 	/** Implement as specified by {@link EventBus}. */ 
 	public void register(AgentEventListener subscriber, Class event) 
 	{
 		registry.getEventBus().register(subscriber, event);
 	}
 
-	/** Implement as specified by {@link EventBus}. */ 
-	public void register(AgentEventListener subscriber, Class[] events)
-	{
-		for (int i = 0; i < events.length; i++) 
-			registry.getEventBus().register(subscriber, events[i]);
-	}
+	/**
+	 * Required by I/F but not actually needed in our case, no op 
+	 * implementation.
+	 */
+	public void register(AgentEventListener subscriber, Class[] events) {}
 
 	/**
 	 * Required by I/F but not actually needed in our case, no op 

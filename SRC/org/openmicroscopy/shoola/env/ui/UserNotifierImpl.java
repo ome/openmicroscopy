@@ -106,11 +106,12 @@ public class UserNotifierImpl
         if (summary == null || summary.length() == 0)   
             buf.append(DEFAULT_ERROR_SUMMARY);
         else    buf.append(summary);
+        
         String  d = detail == null ? null : detail.getMessage();
-        if (d != null && d.length() != 0) {
-            buf.append(":\n\n");
-            buf.append(d);
-        }
+        //if (d != null && d.length() != 0) {
+        //    buf.append(":\n\n");
+        //    buf.append(d);
+        //}
 		showMessageDialog(title, buf.toString(), d, IconManager.ERROR);
     }
     

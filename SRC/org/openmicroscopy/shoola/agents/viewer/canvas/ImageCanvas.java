@@ -162,8 +162,8 @@ public class ImageCanvas
 				if (imgH < d.height) y = (d.height-imgH)/2; 
 				c.imgLayers.setBounds(x, y, imgW, imgH);
 				c.picture.setBounds(wSpace, hSpace, imgW, imgH);	
-				if (c.imgGlassPane != null) 
-					c.imgGlassPane.setBounds(wSpace, hSpace, imgW, imgH);
+				//if (c.imgGlassPane != null) 
+				//	c.imgGlassPane.setBounds(wSpace, hSpace, imgW, imgH);
 			}
 		}
 

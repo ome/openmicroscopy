@@ -89,7 +89,14 @@ public class Quantization_8_16_bit
 	 * of [0, 255].
 	 * Since the user can select the bitResolution 2^n-1 where n = 1..8, 
 	 * 2 steps.
-	 *
+	 * The mapping is the composition of 2 transformations:
+	 * The first one <code>f</code> is one of the map selected by the user
+	 * f:[inputStart, inputEnd]-&lt;[0, 2^n-1].
+	 * The second one <code>g</code> is a linear map: y = a1*x+b1 
+	 * where b1 = codomainStart and 
+	 * a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
+	 * g: [0, 2^n-1]-&lt;[cdStart, cdEnd].
+	 * For some reasons, we cannot compute directly gof.
 	 */
 	private void buildLUT()
 	{
@@ -103,17 +110,14 @@ public class Quantization_8_16_bit
 		double ye = valueMapper.transform(dEnd, k);
 		double a0 = qDef.bitResolution/(ye-ys);
 		double a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
-		double b0 = (qDef.cdEnd-qDef.cdStart)/(ye-ys);
 		int x = min;
 		double v;
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 
-			//v = Approximation.nearestInteger(
-			//							a0*(valueMapper.transform(x, k)-ys));
-			//v = Approximation.nearestInteger(a1*v+qDef.cdStart);
 			v = Approximation.nearestInteger(
-							b0*(valueMapper.transform(x, k)-ys)+qDef.cdStart);
+										a0*(valueMapper.transform(x, k)-ys));
+			v = Approximation.nearestInteger(a1*v+qDef.cdStart);
 			LUT[x-min] = (byte) v;
 		}
 		

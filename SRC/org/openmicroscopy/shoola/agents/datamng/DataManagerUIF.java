@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.util.List;
 import javax.swing.Icon;
@@ -264,12 +263,11 @@ class DataManagerUIF
 	{
 		//editor.pack();
 		JFrame topFrame = (JFrame) registry.getTopFrame().getFrame();
-		Rectangle   tfB = topFrame.getBounds(), 
-					psB = editor.getBounds();
-		int         offsetX = (tfB.width-psB.width)/2, 
-					offsetY = (tfB.height-psB.height)/2;
-		if (offsetX < 0)   offsetX = 0;
-		if (offsetY < 0)   offsetY = 0;
+		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
+		int offsetX = (tfB.width-psB.width)/2, 
+			offsetY = (tfB.height-psB.height)/2;
+		if (offsetX < 0)	offsetX = 0;
+		if (offsetY < 0)	offsetY = 0;
 		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
 		editor.setVisible(true);
 	}

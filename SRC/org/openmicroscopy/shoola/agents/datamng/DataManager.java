@@ -334,23 +334,22 @@ public class DataManager
 	 */
 	void createProject(ProjectData pd)
 	{
-		ProjectSummary project = null;
+		ProjectSummary project;
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			project = dms.createProject(pd);
+			if (projectSummaries == null) projectSummaries = new ArrayList();
+			projectSummaries.add(project);
+			// forward event to the presentation.
+			presentation.addNewProjectToTree(project);
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to create a new Project "+pd, dsae);
+				"Unable to create a project: "+pd.getName(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
-		if (projectSummaries == null) projectSummaries = new ArrayList();
-		projectSummaries.add(project);
-		
-		// forward event to the presentation.
-		presentation.addNewProjectToTree(project);
 	}
 	
 	/**
@@ -363,28 +362,30 @@ public class DataManager
 	 */
 	void createDataset(List projects, List images, DatasetData dd)
 	{
-		DatasetSummary dataset = null;
+		DatasetSummary dataset;
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dataset = dms.createDataset(projects, images, dd);
+			if (datasetSummaries == null) datasetSummaries = new ArrayList();
+			datasetSummaries.add(dataset);
+			ProjectSummary ps;
+			for (int i = 0; i < projects.size(); i++) {
+				ps = (ProjectSummary) projects.get(i);
+				ps.getDatasets().add(dataset);	
+			}
+			// forward event to the presentation.
+			if (projects != null) 
+				presentation.addNewDatasetToTree(projects);
+				
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to create a new dataset "+dd, dsae);
+				"Unable to create a dataset: "+dd.getName(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
-		if (datasetSummaries == null) datasetSummaries = new ArrayList();
-		datasetSummaries.add(dataset);
 		
-		for (int i = 0; i < projects.size(); i++) {
-			ProjectSummary ps = (ProjectSummary) projects.get(i);
-			ps.getDatasets().add(dataset);	
-		}
-		// forward event to the presentation.
-		if (projects != null) 
-			presentation.addNewDatasetToTree(projects);
 	}
 	
 	/**
@@ -397,18 +398,18 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dms.updateProject(pd);
+			//update the presentation and the project summary contained in the 
+			//projectSummaries list accordingly.
+			updatePSList(pd);
+			if (nameChange) presentation.updateProjectInTree();
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified project "+pd, dsae);
+				"Unable to update the specified project: "+pd.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
-		} 
-		//update the presentation and the project summary contained in the 
-		// projectSummaries list accordingly.
-		updatePSList(pd);
-		if (nameChange) presentation.updateProjectInTree();
+		} 	
 	}
 	
 	/** 
@@ -442,19 +443,19 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dms.updateDataset(dd);
+			//update the presentation and the dataset summary contained in the 
+			//datasetSummaries list accordingly.
+			if (datasetSummaries != null) updateDSList(dd);
+			updateDatasetInPS(dd);
+			if (nameChange) presentation.updateDatasetInTree();
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified dataset "+dd, dsae);
+				"Unable to update the specified dataset: "+dd.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
 		} 
-		//update the presentation and the dataset summary contained in the 
-		//datasetSummaries list accordingly.
-		if (datasetSummaries != null) updateDSList(dd);
-		updateDatasetInPS(dd);
-		if (nameChange) presentation.updateDatasetInTree();
 	}
 	
 	/** 
@@ -513,15 +514,15 @@ public class DataManager
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
 			dms.updateImage(id);
+			if (nameChange) presentation.updateImageInTree(id);
 		} catch(DSAccessException dsae) {
 			UserNotifier un = registry.getUserNotifier();
 			un.notifyError("Data Retrieval Failure", 
-				"Unable to update the specified image "+id, dsae);
+				"Unable to update the specified image: "+id.getID(), dsae);
 		} catch(DSOutOfServiceException dsose) {	
 			// pop up login window
 			throw new RuntimeException(dsose);
-		} 
-		if (nameChange) presentation.updateImageInTree(id);
+		} 	
 	}
 
 	/**

@@ -66,9 +66,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 public class RenderingAgtCtrl
 	implements ActionListener
 {
-	/** Action command ID to display the Rendering internalFrame. */
-	static final int		R_VISIBLE = 5;
-	
+
 	/** Action command ID to display the {@link GreyScalePane}. */
 	static final int		GREY = RenderingDef.GS;
 	
@@ -81,7 +79,11 @@ public class RenderingAgtCtrl
 	/** Action command ID. */
 	static final int		SAVE = 4;
 	
+	/** Action command ID to display the Rendering internalFrame. */
+	static final int		R_VISIBLE = 5;
+	
 	private boolean 		active;
+	
 	private HashMap 		renderersPool;
 	
 	private RenderingAgt	abstraction;
@@ -251,7 +253,7 @@ public class RenderingAgtCtrl
 		   int index = Integer.parseInt(s);
 		   switch (index) { 
 				case R_VISIBLE:
-					abstraction.activate();
+					abstraction.showPresentation();
 					break;
 				case SAVE:
 					saveDisplayOptions();
@@ -287,6 +289,7 @@ public class RenderingAgtCtrl
 		abstraction.setModel(i);
 	}
 	
+	/** Retrieve or instanciate the ModelPane. */ 
 	private ModelPane activate(Class c)
 	{
 	   ModelPane rnd = (ModelPane) renderersPool.get(c);
@@ -326,9 +329,10 @@ public class RenderingAgtCtrl
 		return result;
 	}
 	
+	/** Save the image settings. */
 	private void saveDisplayOptions()
 	{
-	
+		//TODO: implement method.
 	}
 	
 }

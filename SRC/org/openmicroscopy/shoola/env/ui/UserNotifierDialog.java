@@ -117,7 +117,6 @@ public class UserNotifierDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
 		buildGUI(summary, iconID);	
 		pack();
-		//setVisible(true);
 	}
 	
 	/**
@@ -142,7 +141,6 @@ public class UserNotifierDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
 		buildGUIWithButton(summary, iconID);
 		pack();
-		setVisible(true);
 	}
 	
 	/** Handles event fired by the JButton. */
@@ -195,7 +193,7 @@ public class UserNotifierDialog
 	{
 		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
-		JTextArea  label = new JTextArea(summary);
+		JTextArea label = new JTextArea(summary);
 		label.setLineWrap(true);
 		label.setWrapStyleWord(true);
 		label.setBorder(null);
@@ -231,7 +229,7 @@ public class UserNotifierDialog
 	{
 		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
-		JTextArea  label = new JTextArea(summary);
+		JTextArea label = new JTextArea(summary);
 		label.setLineWrap(true);
 		label.setWrapStyleWord(true);
 		label.setBorder(null);

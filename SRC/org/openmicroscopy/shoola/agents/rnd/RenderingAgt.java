@@ -102,11 +102,6 @@ public class RenderingAgt
 	/** Implemented as specified by {@link Agent}. */
 	public void activate()
 	{
-		//TODO: add control. 
-		if (presentation != null) {  
-	   		topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
-	   		presentation.setVisible(true);
-   		}
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -137,23 +132,27 @@ public class RenderingAgt
 			handleImageLoaded((ImageLoaded) e);	
 	}
 	
+	/** Render a new image when a control has been activated. */
 	private void refreshImage()
 	{
 		RenderImage event = new RenderImage(curPixelsID);
 		registry.getEventBus().post(event);	
 	}
 	
+	/** Handle the event @see ImageLoaded. */
 	private void handleImageLoaded(ImageLoaded response)
 	{
 		LoadImage request = (LoadImage) response.getACT();
 		renderingControl = response.getProxy();
 		pxsDims = renderingControl.getPixelsDims();
 		pxsStats = renderingControl.getPixelsStats();
+		intiChannelData();
 		buildPresentation();
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
 	}
 	
+	/** Build the presentation. */
 	private void buildPresentation()
 	{
 		control  = new RenderingAgtCtrl(this);
@@ -176,34 +175,38 @@ public class RenderingAgt
 		registry.getEventBus().register(subscriber, event);	
 	}
 	
-	/** Implement as specified by {@link EventBus}. */
-	public void register(AgentEventListener subscriber, Class[] events)
-	{
-		for (int i = 0; i < events.length; i++) 
-			registry.getEventBus().register(subscriber, events[i]);
-	}
-	
-	/** Implement as specified by {@link EventBus}. */
-	public void post(AgentEvent e) {}
-		
 	/** Return the presentation. */
 	public RenderingAgtUIF getPresentation()
 	{
 		return presentation;
 	}
 
+	/** Return a refence to the {@link Registry}. */
 	Registry getRegistry()
 	{
 		return registry;
 	}
 	
-	//TODO: retrieve data from DataManagerService.
-	ChannelData[] getChannelData()
+	/** Display the widget. */
+	void showPresentation()
 	{
-		if (channelData == null) channelData = new ChannelData[pxsDims.sizeW];
+		//TODO: add control. 
+		if (presentation != null) {  
+			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
+			presentation.setVisible(true);
+		}
+	}
+	
+	//TODO: retrieve data from DataManagerService.
+	void intiChannelData()
+	{
+		channelData = new ChannelData[pxsDims.sizeW];
 		for (int i = 0; i < pxsDims.sizeW; i++)
-			channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
-			
+					channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
+	}
+
+	ChannelData[] getChannelData()
+	{	
 		return channelData;
 	}
 
@@ -431,18 +434,33 @@ public class RenderingAgt
 	}
 
 	/** 
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/ 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation.
+	 */ 
 	public void remove(AgentEventListener subscriber) {}
 
 	/** 
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/ 
+	 * Required by I/F but not actually needed in our case,
+	 * no op implementation.
+	 */ 
 	public void remove(AgentEventListener subscriber, Class event) {}
 
 	/** 
-	* Required by I/F but not actually needed in our case, no op implementation.
-	*/ 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation.
+	 */ 
 	public void remove(AgentEventListener subscriber, Class[] events) {}
-
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation.
+	 */ 
+	public void register(AgentEventListener subscriber, Class[] events) {}
+	
+	/** 
+	 * Required by I/F but not actually needed in our case, 
+	 * no op implementation.
+	 */ 
+	public void post(AgentEvent e) {}
+	
 }

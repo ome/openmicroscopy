@@ -79,7 +79,7 @@ class CodomainPane
 	private static final int		WIDTH = 140;
 
 	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 15, BUTTON_WIDTH = 40;	
+	private static final int		BUTTON_HEIGHT = 20, BUTTON_WIDTH = 40;	
 		
 	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
 															BUTTON_HEIGHT);
