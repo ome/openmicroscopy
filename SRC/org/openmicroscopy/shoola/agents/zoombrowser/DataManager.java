@@ -242,8 +242,7 @@ public class DataManager {
 									ServiceActivationRequest.DATA_SERVICES);
 				registry.getEventBus().post(request);
 			}
-		}
-		//System.err.println("end of retrieve datasets.."+datasetHash);		
+		}		
 	}
 	
 	/**
