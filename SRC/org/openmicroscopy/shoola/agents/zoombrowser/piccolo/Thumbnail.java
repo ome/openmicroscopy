@@ -51,8 +51,8 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Appliaction-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
-import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.ViewImageModuleExecutions;
+import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.util.ui.Constants;

@@ -40,8 +40,8 @@ import javax.swing.JPopupMenu;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.events.ViewImageInfo;
 import org.openmicroscopy.shoola.agents.events.ViewImageModuleExecutions;
+import org.openmicroscopy.shoola.agents.events.datamng.ViewImageInfo;
 import 
    org.openmicroscopy.shoola.agents.zoombrowser.piccolo.DatasetBrowserCanvas;
 import org.openmicroscopy.shoola.agents.zoombrowser.piccolo.Thumbnail;
