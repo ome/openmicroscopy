@@ -32,7 +32,8 @@ package org.openmicroscopy.shoola.env.config;
 //Java imports
 import java.util.HashMap;
 
-/** Implements the <code>Registry</code> interface. 
+/** 
+ * Implements the <code>Registry</code> interface. 
  * It maintains a map of
  * <code>Entry</code> objects which are keyed by their <code>name</code> 
  * attribute and represent entries in configuration file.
@@ -67,9 +68,9 @@ class RegistryImpl
         entriesMap = new HashMap();
     }
 	/** 
-	 * Add a new entry in the map
+	 * Add a new entry in the map.
 	 * 
-	 * @param e new Entry
+	 * @param e new Entry.
 	 */
     void addEntry(Entry e)
     {

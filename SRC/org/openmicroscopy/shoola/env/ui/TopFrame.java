@@ -51,31 +51,31 @@ public interface TopFrame
 	/** 
 	* Position a component on the layer of the application internal desktop.
 	* 
-	* @param    c             component to position
-	* @param    position    specified position
+	* @param    c			component to position.
+	* @param    position    specified position.
 	*/    
     public void addToDesktop(Component c, int position);
     
 	/** 
-	* Remove a component form the application internal desktop
+	* Remove a component form the application internal desktop.
 	* 
-	* @param   c component to be removed
+	* @param   c component to be removed.
 	*/
     public void removeFromDesktop(Component c);
     
 	/** 
-	* Add a component to a specified menu 
+	* Add a component to a specified menu. 
 	*
-	* @param menuType  ID which corresponds to specified menu
-	* @param item         component to be added
+	* @param menuType  		ID which corresponds to specified menu.
+	* @param item         	component to be added.
 	*/
     public void addToMenu(int menuType, JMenuItem item);
     
 	/** 
-	* Remove a component from a specified menu 
+	* Remove a component from a specified menu. 
 	*
-	* @param menuType  ID which corresponds to specified menu
-	* @param item         component to be removed
+	* @param menuType  		ID which corresponds to specified menu.
+	* @param item         	component to be removed.
 	*/
     public void removeFromMenu(int menuType, JMenuItem item);
     

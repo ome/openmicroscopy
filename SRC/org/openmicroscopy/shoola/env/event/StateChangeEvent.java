@@ -31,9 +31,9 @@ package org.openmicroscopy.shoola.env.event;
 
 /** 
  * Abstract class from which agents derive concrete classes to represent static 
- * change notifications
+ * change notifications.
  * The <code>stateChange</code> field can be used to carry all state-change 
- * informations
+ * informations.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

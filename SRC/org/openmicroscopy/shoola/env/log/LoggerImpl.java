@@ -59,7 +59,7 @@ public class LoggerImpl
     public void debug(Object c, String logMsg)
     {
         Category category = null;
-        if (c!=null) category = Category.getInstance(c.getClass().getName());
+        if (c != null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.debug(logMsg);
     }
@@ -68,7 +68,7 @@ public class LoggerImpl
     public void error(Object c, String logMsg)
     {
         Category category = null;
-        if (c!=null) category = Category.getInstance(c.getClass().getName());
+        if (c != null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.error(logMsg);
     }
@@ -77,7 +77,7 @@ public class LoggerImpl
     public void fatal(Object c, String logMsg)
     {
         Category category = null;
-        if (c!=null) category = Category.getInstance(c.getClass().getName());
+        if (c != null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.fatal(logMsg);
     }
@@ -86,7 +86,7 @@ public class LoggerImpl
     public void info(Object c, String logMsg)
     {
         Category category = null;
-        if (c!=null) category = Category.getInstance(c.getClass().getName());
+        if (c != null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.info(logMsg);
     }
@@ -95,7 +95,7 @@ public class LoggerImpl
     public void warn(Object c, String logMsg)
     {
         Category category = null;
-        if (c!=null) category = Category.getInstance(c.getClass().getName());
+        if (c != null) category = Category.getInstance(c.getClass().getName());
         else category = Category.getRoot();
         category.warn(logMsg);
     }

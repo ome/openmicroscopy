@@ -30,7 +30,7 @@
 package org.openmicroscopy.shoola.env.config;
 
 /** Declares the operations to be used to access configuration entries and 
- * container's services
+ * container's services.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

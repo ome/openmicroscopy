@@ -67,9 +67,9 @@ class IconEntry
             //add control b/c we don't use a XMLSchema config
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
-                for (int i = 0; i<childList.getLength(); i++) {
+                for (int i = 0; i < childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType()==Node.ELEMENT_NODE) 
+                    if (child.getNodeType() == Node.ELEMENT_NODE) 
                         value = child.getFirstChild().getNodeValue();
                 }
             }  
@@ -77,7 +77,7 @@ class IconEntry
     }
 	/** 
 	 * Implemented as specified by {@link Entry}.
-	 * Builds and return an Icon Object
+	 * Builds and return an Icon Object.
 	 *
 	 * @return  An object implementing {@link javax.swing.Icon Icon} or
 	 *          <code>null</code> if the path was invalid.

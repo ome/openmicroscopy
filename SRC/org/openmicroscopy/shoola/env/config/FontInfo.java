@@ -30,7 +30,7 @@
 package org.openmicroscopy.shoola.env.config;
 
 /** 
- * Creates an Object which contains the informations on the font
+ * Creates an Object which contains the informations on the font.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,10 +52,10 @@ class FontInfo
      
 
 	/** 
-	 * Set the pair (name, value)
+	 * Set the pair (name, value).
 	 * 
-	 * @param value		tag's value
-	 * @param tag		tag's name
+	 * @param value		tag's value.
+	 * @param tag		tag's name.
 	 */
     void setValue(String value, String tag)
     {
@@ -66,27 +66,27 @@ class FontInfo
         } catch (Exception ex) { throw new RuntimeException(ex); }
     }
 	/** 
-	 * Return the value of the <code>family</code>
+	 * Return the value of the <code>family</code>.
 	 *
-	 * @return String
+	 * @return String.
 	 */
     String getFamily()
     {
         return family;
     }
 	/** 
-	 * Return the value of the <code>size</code>
+	 * Return the value of the <code>size</code>.
 	 *
-	 * @return Integer
+	 * @return Integer.
 	 */
     Integer getSize()
     {
         return size;
     }
 	/** 
-	 * Return the value of the <code>style</code> 
+	 * Return the value of the <code>style</code>.
 	 *
-	 * @return String
+	 * @return String.
 	 */
     String getStyle()
     {

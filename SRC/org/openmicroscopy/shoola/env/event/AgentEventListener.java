@@ -31,9 +31,9 @@
 package org.openmicroscopy.shoola.env.event;
 
 /** 
- * The AgentEventListener interface represents a subscriber to the event bus.
- * It has to be implemented by all subscribers in order to register 
- * for event notifications
+ * The AgentEventListener interface represents a subscriber to the event bus,
+ * it has to be implemented by all subscribers in order to register 
+ * for event notifications.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,9 +51,9 @@ public interface AgentEventListener
 {   
 
 	/** 
-	 * Call back method invoked by the event Bus in order to dispatch an event
+	 * Call back method invoked by the event Bus in order to dispatch an event.
 	 *
-	 * @param e      AgentEvent to be dispatched
+	 * @param e      AgentEvent to be dispatched.
 	 */
     public void eventFired(AgentEvent e); 
     

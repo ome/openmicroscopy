@@ -73,10 +73,10 @@ class Parser
         "structuredEntry",
     };
 	/** 
-	 * Creates an instance of Parser with one parameter
+	 * Creates an instance of Parser with one parameter.
 	 *
-	 * @param configFile     configuration file (XML file)
-	 * @param registry      registryImpl         
+	 * @param configFile		configuration file (XML file).
+	 * @param registry      	registryImpl.         
 	 */
     Parser(String configFile, RegistryImpl registry)
     { 
@@ -86,11 +86,11 @@ class Parser
     
 	/** 
 	 * Creates an instance of Parser with two parameters
-	 * not useful now b/c no XMLSchema for configFile available
+	 * not useful now b/c no XMLSchema for configFile available.
 	 *
-	 * @param  configFile                   configuration file (XML file)
-	 * @param configFileXMLSchema   XML schema linked to XML configuration file
-	 * @param registry                      registryImpl
+	 * @param  configFile				configuration file (XML file).
+	 * @param configFileXMLSchema   	XML schema of configuration file.
+	 * @param registry					registryImpl.
 	 */    
     Parser(String configFile, String configFileXMLSchema, RegistryImpl registry)
     {
@@ -101,7 +101,7 @@ class Parser
     }
     
 	/** 
-	 * Parse the XML configuration file and build a DOM tree 
+	 * Parse the XML configuration file and build a DOM tree. 
 	 * 
 	 */
     void parse()
@@ -136,17 +136,17 @@ class Parser
     private void readConfigEntries()
     {
         entriesTags = new ArrayList();
-        for (int k = 0; k<tagsEntry.length; ++k) {
+        for (int k = 0; k < tagsEntry.length; ++k) {
             NodeList list = document.getElementsByTagName(tagsEntry[k]);
             int l = entriesTags.size();
-            for (int i = 0; i<list.getLength(); ++i) {
+            for (int i = 0; i < list.getLength(); ++i) {
                 Node n = list.item(i);
                 if (n.hasChildNodes()) entriesTags.add(k*l+i, n);
             }
         }
     }
 	/**
-	 * Validate against the config schema not yet implemented
+	 * Validate against the config schema not yet implemented.
 	 */
     private void validate()
     {

@@ -67,9 +67,9 @@ class FontEntry
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 FontInfo fi = new FontInfo();
-                for (int i = 0; i<childList.getLength(); i++) {
+                for (int i = 0; i < childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType()==Node.ELEMENT_NODE)  
+                    if (child.getNodeType() == Node.ELEMENT_NODE)  
                         fi.setValue(child.getFirstChild().getNodeValue(), 
                                 child.getNodeName()) ;
                 }   

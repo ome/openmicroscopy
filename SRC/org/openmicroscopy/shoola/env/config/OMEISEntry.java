@@ -66,9 +66,9 @@ class OMEISEntry
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
                 HostInfo hi = new HostInfo();
-                for (int i = 0; i<childList.getLength(); i++){
+                for (int i = 0; i < childList.getLength(); i++){
                     Node child = childList.item(i);
-                    if (child.getNodeType()==Node.ELEMENT_NODE)
+                    if (child.getNodeType() == Node.ELEMENT_NODE)
                         hi.setValue(child.getFirstChild().getNodeValue(),
                                     child.getNodeName());
                 }

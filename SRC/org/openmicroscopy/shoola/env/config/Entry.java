@@ -87,9 +87,9 @@ abstract class Entry
 	/** 
 	 * For a given entry or structuredEntry tag, creates a concrete 
 	 * <code>Entry</code> object to handle the conversion of the tag's content 
-	 * into an object
+	 * into an object.
 	 *
-	 * @param node             DOM node representing the tag
+	 * @param node             DOM node representing the tag.
 	 * @return Entry                    
 	 */  
     
@@ -100,10 +100,10 @@ abstract class Entry
         if (node.hasAttributes()) { 
             NameTypePair ntp = retrieveEntryAttributes(node);
             String key = null;
-            if (node.getNodeName()==ENTRY) // entry tag
-                key = ntp.type==null? DEFAULT_ENTRY : ntp.type;
-            else if (node.getNodeName()==STRUCT_ENTRY) // structuredEntry tag 
-                key = ntp.type==null? DEFAULT_STRUCT_ENTRY : ntp.type;
+            if (node.getNodeName() == ENTRY) // entry tag
+                key = ntp.type == null? DEFAULT_ENTRY : ntp.type;
+            else if (node.getNodeName() == STRUCT_ENTRY) // structuredEntry tag 
+                key = ntp.type == null? DEFAULT_STRUCT_ENTRY : ntp.type;
             Class handler = (Class) contentHandlers.get(key);
             try {
                 if (handler == null) handler = Class.forName(key); 
@@ -116,32 +116,32 @@ abstract class Entry
     }
     
 	/** 
-	 * Retrieves the value of the attributes name and type and initializes
+	 * Retrieves the value of the attributes name and type and initializes.
 	 *
-	 * @param n    DOM node
+	 * @param n    DOM node.
 	 * @return NameTypePair
 	 */    
-    private static NameTypePair retrieveEntryAttributes(Node n)
-    {
-        NameTypePair    ntp = new NameTypePair();
-        NamedNodeMap    list = n.getAttributes();
-        try {
-            for (int i = 0; i<list.getLength(); ++i) {
-                Node na = list.item(i);
-                if (na.getNodeName()==NAME) ntp.name = na.getNodeValue();
-                else if (na.getNodeName()==TYPE)  ntp.type = na.getNodeValue();
-            }
-        } catch (DOMException dex) { throw new RuntimeException(dex); }
-        if (ntp.name==null || ntp.name.length()==0)
-            throw new RuntimeException(" Blah..");
-        return ntp;
-    }
+	private static NameTypePair retrieveEntryAttributes(Node n)
+	{
+		NameTypePair    ntp = new NameTypePair();
+		NamedNodeMap    list = n.getAttributes();
+		try {
+			for (int i = 0; i < list.getLength(); ++i) {
+				Node na = list.item(i);
+				if (na.getNodeName() == NAME) ntp.name = na.getNodeValue();
+				else if (na.getNodeName() == TYPE)  ntp.type = na.getNodeValue();
+			}
+		} catch (DOMException dex) { throw new RuntimeException(dex); }
+		if (ntp.name == null || ntp.name.length() == 0)
+			throw new RuntimeException(" Blah..");
+		return ntp;
+	}
     
 	/** 
 	 * Returns the content of the <code>name</code> attribute 
-	 * of a configuration entry
+	 * of a configuration entry.
 	 *
-	 * @return String   the content of the <code>name</code> attribute
+	 * @return String   the content of the <code>name</code> attribute.
 	 */  
     public String getName()
     {

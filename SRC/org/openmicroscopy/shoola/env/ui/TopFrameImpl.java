@@ -73,13 +73,13 @@ public class TopFrameImpl
 	 */
     public static int       PALETTE_LAYER = 1;
     
-	/**Action command ID */    
+	/**Action command ID. */    
     static final int        FILE = 0;
     static final int        VIEW = 1;
     static final int        HELP = 2;
     static final int        EXIT = 3;
     
-	/** the 3 available menus */    
+	/** the 3 available menus. */    
     private JMenu           fileMenu, viewMenu, helpMenu;
 	/** The application internal desktop. */ 
     private JDesktopPane    desktop;
@@ -112,7 +112,7 @@ public class TopFrameImpl
     public void addToMenu(int menuType, JMenuItem menuItem)
     {
         JMenu menu = retrieveMenu(menuType);
-        if (menuType==FILE) addToMenuFile(menuItem);
+        if (menuType == FILE) addToMenuFile(menuItem);
         else menu.add(menuItem);
     }
     
@@ -124,9 +124,9 @@ public class TopFrameImpl
     }
     
 	/** 
-	 * Handles the <code>EXIT<code> event fired by the fileMenu
+	 * Handles the <code>EXIT<code> event fired by the fileMenu.
 	 * 
-	 * Required by the ActionListener interface 
+	 * Required by the ActionListener interface. 
 	 */ 
     public void actionPerformed(ActionEvent e)
     {
@@ -147,9 +147,9 @@ public class TopFrameImpl
     }
     
 	/** 
-	* Add the specified menuItem to the container at the position n-1 
+	* Add the specified menuItem to the container at the position n-1. 
 	* 
-	* @param menuItem       menuItem to add
+	* @param menuItem       menuItem to add.
 	*/
     private void addToMenuFile(JMenuItem menuItem)
     {
@@ -160,7 +160,7 @@ public class TopFrameImpl
         fileMenu.add(lastOne);
     }
     
-	/** Initializes the 3 menus and add them to the menuBar */
+	/** Initializes the 3 menus and add them to the menuBar. */
     private JMenuBar createMenuBar()
     {
         JMenuBar menuBar = new JMenuBar(); 
@@ -173,7 +173,7 @@ public class TopFrameImpl
         return menuBar;
     }
     
-	/** Initializes the fileMenu */
+	/** Initializes the fileMenu. */
     private void createFileMenu()
     {
         fileMenu = new JMenu("File");
@@ -184,10 +184,10 @@ public class TopFrameImpl
     }
 
 	/** 
-	* Retrieves the specified menu 
+	* Retrieves the specified menu. 
 	* 
-	* @param  int  menuType
-	* @return the above mentioned 
+	* @param  int  menuType.
+	* @return the above mentioned. 
 	*/    
     private JMenu retrieveMenu(int menuType)
     {

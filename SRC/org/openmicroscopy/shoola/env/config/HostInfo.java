@@ -29,7 +29,7 @@
 package org.openmicroscopy.shoola.env.config;
 
 /** 
- * Creates an object containing the Host's informations
+ * Creates an object containing the Host's informations.
  *
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -49,10 +49,10 @@ class HostInfo
     Integer             port;
     
 	/** 
-	* Set the pair (name, value)
+	* Set the pair (name, value).
 	* 
-	* @param value		tag's value
-	* @param tag		tag's name
+	* @param value		tag's value.
+	* @param tag		tag's name.
 	*/    
     void setValue(String value, String tag)
      {
@@ -63,9 +63,9 @@ class HostInfo
     }
     
 	/** 
-	 * Return the value of the <code>host</code>
+	 * Return the value of the <code>host</code>.
 	 *
-	 * @return the above mentioned
+	 * @return the above mentioned.
 	 */
     String getHost()
     {
@@ -73,9 +73,9 @@ class HostInfo
     }
     
 	/** 
-	 * Return the value of the <code>port</code> tag
+	 * Return the value of the <code>port</code> tag.
 	 *
-	 * @return the above mentioned
+	 * @return the above mentioned.
 	 */
     Integer getPort()
     {

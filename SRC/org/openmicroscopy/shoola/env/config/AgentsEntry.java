@@ -68,9 +68,9 @@ class AgentsEntry
             listAgents = new ArrayList();
             if (node.hasChildNodes()) {
                 NodeList childList = node.getChildNodes();
-                for (int i = 0; i<childList.getLength(); i++) {
+                for (int i = 0; i < childList.getLength(); i++) {
                     Node child = childList.item(i);
-                    if (child.getNodeType()==Node.ELEMENT_NODE) 
+                    if (child.getNodeType() == Node.ELEMENT_NODE) 
                         retrieveAgentContent(child);
                 }
             }  
@@ -84,9 +84,9 @@ class AgentsEntry
     }
     
 	/** 
-	* parse the Agent node
+	* Parse the Agent node.
 	*
-	* @param node      agent node
+	* @param node      agent node.
 	*/    
      private void retrieveAgentContent(Node node)
      {

@@ -37,8 +37,8 @@ import java.util.ListIterator;
 
 
 /** 
- * Implements the<code>EventBus</code> interface.
- * It is the pumping heart or the event propagation system. 
+ * Implements the<code>EventBus</code> interface, it is the pumping heart 
+ * of the event propagation system. 
  * It maintains a de-multiplex table to 
  * keep track of what events have to be dispatched to which subscribers
  *
@@ -63,7 +63,7 @@ public class EventBusImpl
     private static final int    IDLE = 0, DISPATCHING = 1;   
     
 	/** 
-	 * Creates a new instance of EventBusImpl
+	 * Creates a new instance of EventBusImpl.
 	 */
     public EventBusImpl()
     {
@@ -74,15 +74,16 @@ public class EventBusImpl
 	/** Implemented as specified by {@link EventBus}. */    
     public void register(AgentEventListener  subscriber, Class[] events)
     {
-        for (int j=0; j<events.length; ++j) {
+        for (int j = 0; j < events.length; ++j) {
             Class eventClass = events[j];
+            
             if (verifyInheritance(eventClass)) { // check inheritance
                 LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
-                if (list!=null) {
+                if (list != null) {
                     ListIterator i = list.listIterator();
                     while (i.hasNext()) {
                         AgentEventListener listener = (AgentEventListener) i.next();
-                        if (listener!=subscriber) list.addLast(subscriber);
+                        if (listener != subscriber) list.addLast(subscriber);
                     }
                 } else {
                     list = new LinkedList();
@@ -98,11 +99,11 @@ public class EventBusImpl
     {
         if (verifyInheritance(event)) { // check inheritance
             LinkedList list = (LinkedList) deMultiplexTable.get(event);
-            if (list!=null) {
+            if (list != null) {
                 ListIterator i = list.listIterator();
                 while (i.hasNext()) {
                     AgentEventListener listener = (AgentEventListener) i.next();
-                    if (listener!=subscriber) list.addLast(subscriber);
+                    if (listener != subscriber) list.addLast(subscriber);
                 }
             } else {
                 list = new LinkedList();
@@ -114,7 +115,7 @@ public class EventBusImpl
 	/** Implemented as specified by {@link EventBus}. */    
     public void remove(AgentEventListener  subscriber, Class[] events)
     {
-        for (int j=0; j<events.length; ++j) {
+        for (int j = 0; j < events.length; ++j) {
             Class eventClass = events[j];
             if (verifyInheritance(eventClass)) { // check inheritance
                 LinkedList list = (LinkedList) deMultiplexTable.get(eventClass);
@@ -123,7 +124,7 @@ public class EventBusImpl
                     AgentEventListener listener = (AgentEventListener) i.next();
                     if (listener.equals(subscriber)) list.remove(subscriber);
                 }
-                if (list!=null) deMultiplexTable.put(eventClass, list);
+                if (list != null) deMultiplexTable.put(eventClass, list);
                 else deMultiplexTable.remove(eventClass);
             }     
         }   
@@ -138,7 +139,7 @@ public class EventBusImpl
                 AgentEventListener listener = (AgentEventListener) i.next();
                 if (listener.equals(subscriber)) list.remove(subscriber);
             }
-            if (list!=null) deMultiplexTable.put(event, list);
+            if (list != null) deMultiplexTable.put(event, list);
             else deMultiplexTable.remove(event);
         }     
     }
@@ -178,7 +179,7 @@ public class EventBusImpl
         }
     }
     
-	/** Dispatch the event */
+	/** Dispatch the event. */
     private void dispatch()
     {
         // grab the first event posted
@@ -188,23 +189,23 @@ public class EventBusImpl
         ListIterator i = list.listIterator();
         while (i.hasNext()) {
             AgentEventListener listener = (AgentEventListener) i.next();
-            if (e.getSource()!=listener) listener.eventFired(e);
+            if (e.getSource() != listener) listener.eventFired(e);
         }   
     }
     
 	/** 
 	 * Verify the inheritance of the class i.e. if the class inherits 
-	 * from AgentEvent class
+	 * from AgentEvent class.
 	 *
-	 * @param eventClass      class 
+	 * @param eventClass      class. 
 	 */
     private boolean verifyInheritance(Class eventClass)
     {
         Class agtEvent = AgentEvent.class;
         boolean b = false;
         //find first class, if any, in inheritance hierarchy
-        while (eventClass!=null) {   
-            if (eventClass==agtEvent) {
+        while (eventClass != null) {   
+            if (eventClass == agtEvent) {
                 b = true ;
                 eventClass = null;
             } else {

@@ -57,7 +57,7 @@ public class UserNotifierImpl
     private static final String     DEFAULT_WARNING_MESSAGE = "Message "; 
     private TopFrameImpl            topFrame;
     
-    /** Creates a new instance of UserNotifierImpl */
+    /** Creates a new instance of UserNotifierImpl. */
     public UserNotifierImpl(TopFrameImpl topFrame)
     {
         this.topFrame = topFrame;
@@ -68,13 +68,13 @@ public class UserNotifierImpl
 	/** Implemented as specified by {@link UserNotifier}. */       
     public void notifyError(String title, String summary, Exception detail)
     {
-        if (title==null || title.length()==0)
+        if (title == null || title.length() == 0)
             title = DEFAULT_ERROR_TITLE;
         StringBuffer buf = new StringBuffer();
-        if (summary==null || summary.length()==0)   
+        if (summary == null || summary.length() == 0)   
             buf.append(DEFAULT_ERROR_SUMMARY);
         else    buf.append(summary);
-        String  d = detail==null ? null : detail.getMessage();
+        String  d = detail == null ? null : detail.getMessage();
         if (d!=null && d.length()!=0) {
             buf.append(":\n\n");
             buf.append(d);
@@ -91,10 +91,10 @@ public class UserNotifierImpl
 	/** Implemented as specified by {@link UserNotifier}. */ 
     public void notifyInfo(String title, String message)
     {  
-        if (title==null || title.length()==0)
+        if (title == null || title.length() == 0)
             title = DEFAULT_INFO_TITLE;
         StringBuffer buf = new StringBuffer();
-        if (message== null || message.length()==0)   
+        if (message == null || message.length() == 0)   
             buf.append(DEFAULT_INFO_MESSAGE);
         else    buf.append(message);
         // to be modified
@@ -105,10 +105,10 @@ public class UserNotifierImpl
 	/** Implemented as specified by {@link UserNotifier}. */ 
     public void notifyWarning(String title, String message)
     {
-        if (title==null || title.length()==0)
+        if (title == null || title.length() == 0)
             title = DEFAULT_WARNING_TITLE;
         StringBuffer buf = new StringBuffer();
-        if (message==null || message.length()==0)   
+        if (message == null || message.length()==0)   
             buf.append(DEFAULT_WARNING_MESSAGE);
         else    buf.append(message);
         // to be modified
