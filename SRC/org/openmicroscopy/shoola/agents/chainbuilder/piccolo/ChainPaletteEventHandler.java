@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.piccolo.BufferedObject;
+import org.openmicroscopy.shoola.util.ui.piccolo.MouseableNode;
 
 /** 
  * An event handler for a canvas containing {@link ModuleView} objects in the
@@ -142,6 +143,24 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		setLastEntered(chain);
 		lastHighlighted = box;
 	}
+	
+	/** 
+	 * In the chain palette, we don't want to zoom into the chain itself,
+	 * only in the box. So, if I've clicked on a chain view, pass the click 
+	 * along to the parent.
+	 */
+	public void doMouseClicked(PInputEvent e) {
+		PNode n = e.getPickedNode();
+		if (!(n instanceof ChainView))
+			super.doMouseClicked(e);
+		else {
+			PNode parent = n.getParent();
+			if (parent != null && parent instanceof MouseableNode)
+				((MouseableNode) parent).mouseClicked(this);		
+		}
+		e.setHandled(true);
+	}
+	
 }
 
 
