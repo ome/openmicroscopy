@@ -10,8 +10,8 @@ import java.rmi.RemoteException;
 
 import org.ome.client.Properties;
 import org.ome.interfaces.AdministrationService;
+import org.ome.interfaces.FollowGroupService;
 import org.ome.interfaces.GenericService;
-import org.ome.interfaces.PredicateGroupService;
 import org.ome.interfaces.ServiceFactory;
 
 /** provides client side implementations for all services 
@@ -62,11 +62,11 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	/* (non-Javadoc)
 	 * @see org.ome.interfaces.ServiceFactory#getPredicateGroupService()
 	 */
-	public PredicateGroupService getPredicateGroupService() {
+	public FollowGroupService getFollowGroupService() {
 		try {
-			PredicateGroupService pgs = (PredicateGroupService) Naming
+			FollowGroupService fgs = (FollowGroupService) Naming
 					.lookup(Properties.getString("RMIServiceFactory.GenericService")); 
-			return pgs;
+			return fgs;
 			
 		} catch (MalformedURLException mue) {
 			// TODO: handle exception
@@ -76,4 +76,5 @@ public class ServiceFactoryImpl implements ServiceFactory {
 			// TODO Auto-generated catch block
 		}
 		return null;	}
+
 }

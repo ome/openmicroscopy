@@ -7,10 +7,10 @@ import junit.framework.TestCase;
 import java.rmi.Naming;
 import java.util.List;
 
-import org.ome.LSID;
+import org.ome.model.LSID;
 import org.ome.client.Properties;
 import org.ome.interfaces.AdministrationService;
-import org.ome.texen.Vocabulary;
+import org.ome.model.Vocabulary;
 
 /**
  * @author josh
