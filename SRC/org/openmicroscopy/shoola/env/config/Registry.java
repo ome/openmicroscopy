@@ -70,7 +70,7 @@ public interface Registry
 {  
 	
 	/** 
-	 * Maps <code>name</code> onto <code>value<code>.
+	 * Maps <code>name</code> onto <code>value</code>.
 	 * The object can then be retrieved by passing <code>name</code> to the
 	 * {@link #lookup(String) lookup} method.  
 	 * 

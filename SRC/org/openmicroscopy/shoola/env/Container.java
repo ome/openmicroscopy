@@ -204,7 +204,7 @@ public final class Container
 	 * dependent -- in many cases, the path is resolved against the user 
 	 * directory (typically the directory in which the JVM was invoked).</p>
 	 * 
-	 * @param home	Path to the installation directory.  If <code>null<code> or
+	 * @param home	Path to the installation directory.  If <code>null</code> or
 	 * 				empty, then the user directory is assumed.
 	 * @throws StartupException	If <code>home</code> can't be resolved to a
 	 * 			valid and existing directory. 				
