@@ -101,7 +101,7 @@ public class BPalette extends PNode
         titleBar.addChild(iconBar); // cheap way to get the whole thing to move
         iconBar.setOffset(0,titleBar.getHeight());
         // sets the bounds
-        setBounds(0,0,measuredWidth,titleBar.getHeight()+iconBar.getHeight());
+        //setBounds(0,0,measuredWidth,titleBar.getHeight()+iconBar.getHeight());
     }
     
     /**
@@ -154,7 +154,7 @@ public class BPalette extends PNode
         public IconBar(int maxWidth)
         {
             this.maxWidth = maxWidth;
-            backgroundColor = new Color(153,153,153,128);
+            backgroundColor = new Color(153,153,153,192);
             setBounds(getX(),getY(),maxWidth,currentHeight);
         }
         
@@ -309,7 +309,7 @@ public class BPalette extends PNode
             setBounds(bounds);
             titleName = name;
             
-            backgroundColor = new Color(0,51,153,128);
+            backgroundColor = new Color(0,51,153);
             titleNode = new PText(name);
             titleNode.setPaint(Color.white);
             titleNode.setFont(titleFont);
