@@ -83,28 +83,29 @@ public class ColorChooser
 	
 	private static final int			WBUTTON = 70;
 	
+	private static final int			MAX_SLIDER = 100;
 	/** Slider controlling the Alpha component. */
-	private JSlider				alphaSlider;
+	private JSlider						alphaSlider;
 	
-	private JTextField			alphaTextField;
+	private JTextField					alphaTextField;
 	
 	/** Textfield displaying the value of the red component of the color.*/
-	private JTextField			rArea;
+	private JTextField					rArea;
 	
 	/** Textfield displaying the value of the green component of the color.*/
-	private JTextField			gArea;
+	private JTextField					gArea;
 	
 	/** Textfield displaying the value of the blue component of the color.*/
-	private JTextField			bArea;
+	private JTextField					bArea;
 	
-	private JButton				applyButton;
-	private JButton				saveButton;
-	private JButton 			cancelButton;
-	private ColorPanel			colorPanel;
-	private ColorChooserManager ccManager;
-	private ColorPalette		cp;
+	private JButton						applyButton;
+	private JButton						saveButton;
+	private JButton 					cancelButton;
+	private ColorPanel					colorPanel;
+	private ColorChooserManager 		ccManager;
+	private ColorPalette				cp;
 	
-	private JPanel				contents;
+	private JPanel						contents;
 	
 	/**
 	 * Creates a new ColorChooser instance.
@@ -113,7 +114,7 @@ public class ColorChooser
 	 */
 	public ColorChooser(ChannelBindings cb)
 	{
-		int[] rgba = cb.rgba;
+		int[] rgba = cb.getRGBA();
 		int v = (int) (rgba[ALPHA]*100/255);
 		Color c = new Color(rgba[RED], rgba[GREEN], rgba[BLUE], rgba[ALPHA]);
 		ccManager = new ColorChooserManager(this, rgba, v);
@@ -215,7 +216,7 @@ public class ColorChooser
 	/** Initializes the slider. */
 	private void initSlider(int v)
 	{
-		alphaSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, v);
+		alphaSlider = new JSlider(JSlider.HORIZONTAL, 0, MAX_SLIDER, v);
 		alphaSlider.setOpaque(false);
 	}
 	
@@ -315,7 +316,7 @@ public class ColorChooser
 	/** 
 	 * Builds a panel containing the buttons.
 	 *
-	 * @return       The above mentioned panel.
+	 * @return	The above mentioned panel.
 	 */
 	private JPanel builButtonPanel()
 	{
