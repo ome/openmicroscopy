@@ -47,11 +47,16 @@ import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.PixelChannelComponent;
 import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.ds.st.RenderingSettings;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * 
@@ -274,70 +279,117 @@ public class ImageMapper
 				excitation = nanometer;
 			else 
 				excitation = lc.getExcitationWavelength().intValue();
-	
-			channelData[index] = new ChannelData(lc.getID(), index, nanometer,
-									lc.getPhotometricInterpretation(), 
-									excitation, lc.getFluor());
+            if (channelData[index] == null) {
+                channelData[index] = new ChannelData(lc.getID(), index, 
+                        nanometer, lc.getPhotometricInterpretation(), 
+                        excitation, lc.getFluor());
+            }
 		}
 		return channelData;
 	}
-	
-	/*
-	public static RenderingDef fillInRenderingDef(List rsList, int pixelType)
+
+
+    /** Fill in a renderingDef object. */
+	public static RenderingDef fillInRenderingDef(List rsList, int pixelType, 
+                                                int userID)
 	{
+        List list = filterList(rsList, userID);
+        if (list.size() == 0) return null;
+        
 		//Create a new QuantumDef object.
-		 
-		
-		QuantumDef qDef;
-		ChannelBindings[] channelBindings = new ChannelBindings[cbList.size()];
-		RenderingSettings rs;
-		Iterator i = rsList.iterator();
-		
+        //Default one.
+        int cdStart = 0, cdEnd = QuantumFactory.DEPTH_8BIT;
+        int bitResolution = QuantumFactory.DEPTH_8BIT;
+        boolean noiseReduction = QuantumFactory.NOISE_REDUCTION;
+        ChannelBindings[] channelBindings = new ChannelBindings[list.size()];
+		int index = 0, z = 0, t = 0, model = RenderingDef.GS;
+        double coeff = 1.0, dStart = 0, dEnd = 1;
+        int red = ChannelBindings.COLOR_MIN, 
+            green = ChannelBindings.COLOR_MIN,
+            blue = ChannelBindings.COLOR_MAX,
+            alpha = ChannelBindings.COLOR_MAX,
+            family = QuantumFactory.LINEAR;
+        boolean active = true;
+        int j;
+        Iterator i = list.iterator();
+        RenderingSettings rs;
 		while (i.hasNext()) {
 			rs = (RenderingSettings) i.next();
-			index = (cb.getID()).intValue();
+            j = index;
+            if (rs.getTheC() != null) j = rs.getTheC().intValue();
 			if (index == 0) {
-				qDef = = new QuantumDef(rs.getFamily(), pixelType,
-						 rs.getCoefficient(), rs.getCDStart(), rs.getCDEnd(),
-						 rs.getBitResolution();
+                if (rs.getTheZ() != null) z = rs.getTheZ().intValue();
+                if (rs.getTheT() != null) t = rs.getTheT().intValue();
+                if (rs.getModel() != null) model = rs.getModel().intValue();
+                if (rs.getCdStart() != null) 
+                    cdStart = rs.getCdStart().intValue(); 
+                if (rs.getCdEnd() != null)
+                    cdEnd = rs.getCdEnd().intValue();
+                if (rs.getBitResolution() != null)
+                    bitResolution = rs.getBitResolution().intValue();
 			}
-			
-			channelBindings[index] = new ChannelData(index, rs.getInputStart(),
-					rs.getInputEnd(), rs.getRed(), rs.getGreen(), rs.getBlue(),
-					rs.getAlpha(), rs.isActive());
+            if (rs.getInputStart() != null)
+                dStart = rs.getInputStart().doubleValue();
+            if (rs.getInputEnd() != null)
+                dEnd = rs.getInputEnd().doubleValue();
+            if (rs.getRed() != null) red = rs.getRed().intValue();
+            if (rs.getGreen() != null) green = rs.getGreen().intValue();
+            if (rs.getBlue() != null) blue = rs.getBlue().intValue();
+            if (rs.getAlpha() != null) alpha = rs.getAlpha().intValue();
+            if (rs.getFamily() != null) family = rs.getFamily().intValue();
+            if (rs.getCoefficient() != null) 
+                coeff = rs.getCoefficient().doubleValue();
+            if (rs.isActive() != null) active = rs.isActive().booleanValue();
+			channelBindings[j] = new ChannelBindings(index, dStart,
+			        dEnd, red, green, blue, alpha, active, family, coeff);
+            index++;
 		}
-		return new RenderingDef(qs.getID(), qs.getDefaultZ(), qs.getDefaultT(),
-								qs.getModel(), qDef, channelBindings);	
+        QuantumDef  qDef = new QuantumDef(pixelType, cdStart, cdEnd, 
+                                bitResolution, noiseReduction);
+		return new RenderingDef(z, t, model, qDef, channelBindings);	
 	}
-	*/
 	
 	/**
 	 * Fill in the renderingSettings ST.
 	 */
-	/*
 	public static void fillInRenderingSettings(int z, int t, int model, 
-									int family, double coeff, int cdStart, 
-									int cdEnd, int bitResolution, 
+									int cdStart, int cdEnd, int bitResolution, 
 									ChannelBindings cb, RenderingSettings rs)
 	{
-		rs.setTheT(t);
-		rs.setTheZ(z);
-		rs.setFamily(family);
-		rs.setModel(model);
-		rs.setCoefficient(coeff);
-		rs.setCDStart(cdStart);
-		rs.setCDEnd(cdEnd);
-		rs.setBitResolution(bitResolution);
+		rs.setTheT(new Integer(t));
+		rs.setTheZ(new Integer(z));
+		rs.setModel(new Integer(model));
+		rs.setCdStart(new Integer(cdStart));
+		rs.setCdEnd(new Integer(cdEnd));
+		rs.setBitResolution(new Integer(bitResolution));
 		int rgba[] = cb.getRGBA();
-		rs.setRed(rgba[0]);
-		rs.setGreen(rgba[1]);
-		rs.setBlue(rgba[2]);
-		rs.setAlpha(rgba[3]);
-		rs.setInputStart(cb.getInputStart());
-		rs.setInputEnd(cb.getInputEnd());
-		rs.setTheC(cb.getIndex());		//call the C to be consistent.
+		rs.setRed(new Integer(rgba[0]));
+		rs.setGreen(new Integer(rgba[1]));
+		rs.setBlue(new Integer(rgba[2]));
+		rs.setAlpha(new Integer(rgba[3]));
+		rs.setInputStart(new Double(cb.getInputStart()));
+		rs.setInputEnd(new Double(cb.getInputEnd()));
+		rs.setTheC(new Integer(cb.getIndex()));		
+        rs.setActive(new Boolean(cb.isActive()));
+        rs.setFamily(new Integer(cb.getFamily()));
+        rs.setCoefficient(new Double(cb.getCurveCoefficient()));
 	}
-	*/
+
+    /** Filter a list of ST. */
+    public static List filterList(List l, int userID)
+    {
+        //First filter the list.
+        Iterator i = l.iterator();
+        RenderingSettings rs;
+        List valid = new ArrayList();
+        while (i.hasNext()) {
+            rs = (RenderingSettings) i.next();
+            if (rs.getExperimenter().getID() == userID)
+                valid.add(rs);
+        }
+        return valid;
+    }
+    
 	/** 
 	 * Fill in the PixelDescription object.
 	 * @return List of pixelDescription object.
