@@ -50,6 +50,7 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
+import org.openmicroscopy.shoola.agents.browser.heatmap.HeatMapModel;
 import org.openmicroscopy.ds.dto.SemanticType;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.ImagePlate;
@@ -84,12 +85,9 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
-import com.sun.rsasign.h;
 
 /**
  * The agent class that connects the browser to the rest of the client
@@ -874,6 +872,7 @@ public class BrowserAgent implements Agent, AgentEventListener
         SemanticType[] types = new SemanticType[relevantTypes.size()];
         relevantTypes.toArray(types);
         targetModel.setRelevantTypes(types);
+        // HeatMapModel hmm = new HeatMapModel(targetModel);
     }
     
     // keeps track of the time-consuming loader threads.

@@ -111,6 +111,62 @@ public class DataElementType
     {
         return o == this;
     }
+    
+    /**
+     * Returns the correct DataElementType for the given SQL type (this makes
+     * a lot of assumptions about your DB implementation, so this is probably
+     * not the best idea in the world.
+     * 
+     * @param sqlName The name of the SQL type.
+     * @return A DataElementType (enum) that represents it.
+     */
+    public static DataElementType forName(String sqlName)
+    {
+        if(sqlName.equalsIgnoreCase("int") ||
+           sqlName.equalsIgnoreCase("uint8") ||
+           sqlName.equalsIgnoreCase("int8") ||
+           sqlName.equalsIgnoreCase("uint16") ||
+           sqlName.equalsIgnoreCase("int16"))
+        {
+            return DataElementType.INT;
+        }
+        else if(sqlName.equalsIgnoreCase("long") ||
+                sqlName.equalsIgnoreCase("uint32") ||
+                sqlName.equalsIgnoreCase("int32"))
+        {
+            return DataElementType.LONG;
+        }
+        else if(sqlName.equalsIgnoreCase("float"))
+        {
+            return DataElementType.FLOAT;
+        }
+        else if(sqlName.equalsIgnoreCase("double"))
+        {
+            return DataElementType.DOUBLE;
+        }
+        else if(sqlName.equalsIgnoreCase("boolean") ||
+                sqlName.equalsIgnoreCase("bool"))
+        {
+            return DataElementType.BOOLEAN;  
+        }
+        else if(sqlName.equalsIgnoreCase("string") ||
+                sqlName.equalsIgnoreCase("varchar") ||
+                sqlName.equalsIgnoreCase("str"))
+        {
+            return DataElementType.STRING;
+        }
+        else if(sqlName.equalsIgnoreCase("ref") ||
+                sqlName.equalsIgnoreCase("reference"))
+        {
+            return DataElementType.ATTRIBUTE;
+        }
+        else
+        {
+            System.err.println("unrecognized SQL type: "+sqlName+
+                               " (returning string as val)");
+            return DataElementType.STRING;
+        }
+    }
 
     /**
      * Overrides the toString() so these values can be ordered in a Swing
