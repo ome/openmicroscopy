@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -68,6 +69,12 @@ public class TitlePanel
 
 	/** Default color for the background. */
 	private Color		backgroundColor = Color.WHITE;
+	
+	/** 
+	 * The preferred size of the widget that displays the  message.
+	 * Only the part of text that fits into this display area will be displayed.
+	 */
+	protected static final Dimension	MSG_AREA_SIZE = new Dimension(150, 80);
 	
 	/** 
 	 * Create an instance.
@@ -127,14 +134,20 @@ public class TitlePanel
 		gridbag.setConstraints(label, c);
 		p.add(label);
 		c.gridy = 1;
-		label = new JLabel(" "+text);
-		gridbag.setConstraints(label, c);
-		p.add(label);
-		if (note != null) {
-			c.gridy = 2;
-			MultilineLabel ml = setNoteLabel(" "+note);
+		if (title != null) {
+			label = new JLabel(" "+text);
+			gridbag.setConstraints(label, c);
+			p.add(label);
+		} else {
+			MultilineLabel ml = setMessageLabel(" "+text);
 			gridbag.setConstraints(ml, c);
 			p.add(ml);
+		}
+		if (note != null) {
+			c.gridy = 2;
+			MultilineLabel nl = setNoteLabel(" "+note);
+			gridbag.setConstraints(nl, c);
+			p.add(nl);
 		} 
 		//necessary to align panel on the left.
 		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -151,6 +164,14 @@ public class TitlePanel
 		Font newFont = font.deriveFont(Font.BOLD);
 		label.setFont(newFont);
 		label.setBackground(Color.PINK);
+		return label;
+	}
+	
+	/** Set the font to italic. */
+	private MultilineLabel setMessageLabel(String s)
+	{
+		MultilineLabel label = new MultilineLabel(s);
+		label.setPreferredSize(MSG_AREA_SIZE);
 		return label;
 	}
 	
