@@ -149,7 +149,9 @@ public class TrajectoryPanel extends JPanel implements ActionListener,  ChangeLi
 		sliderpanel.add(resetButton);
 		
 		resetButton.addActionListener(this);
-		int sliderMax = (int)horizExtent;
+		// must go to next greater integer to make sure range model is all-
+		// inclusive
+		int sliderMax = (int) Math.ceil(horizExtent);
 		model = new AxisBoundedRangeModel(horizontal,0,sliderMax,0,sliderMax);
 		slider = new RangeSlider(model);
 	
