@@ -112,7 +112,6 @@ public class DatasetImagesNode extends PNode  {
 	/**
 	 * the halo
 	 */
-	//private ThumbnailSelectionHalo zoomHalo = new ThumbnailSelectionHalo();
 	private PBounds haloBounds;
 	
 	
