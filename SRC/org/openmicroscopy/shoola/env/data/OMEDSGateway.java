@@ -44,6 +44,7 @@ import org.openmicroscopy.ds.RemoteAuthenticationException;
 import org.openmicroscopy.ds.RemoteCaller;
 import org.openmicroscopy.ds.RemoteConnectionException;
 import org.openmicroscopy.ds.RemoteServerErrorException;
+import org.openmicroscopy.ds.dto.Attribute;
 import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
@@ -115,17 +116,17 @@ class OMEDSGateway
 		return (DataFactory) proxiesFactory.getService(DataFactory.class);
 	}
 	
-	ProjectManager getProjectManager()
+	private ProjectManager getProjectManager()
 	{
 		return (ProjectManager) proxiesFactory.getService(ProjectManager.class);
 	}
 	
-	DatasetManager getDatasetManager()
+	private DatasetManager getDatasetManager()
 	{
 		return (DatasetManager) proxiesFactory.getService(DatasetManager.class);
 	}
 	
-	AnnotationManager getAnnotationManager()
+	private AnnotationManager getAnnotationManager()
 	{
 		return (AnnotationManager) proxiesFactory.getService(
 													AnnotationManager.class);
@@ -175,6 +176,32 @@ class OMEDSGateway
 	}
 
 	/**
+	 * Create a new Attribute object
+	 * Wrap the call to the {@link DataFactory#createNew(String) create}
+	 * method.
+	 * @param semanticType 	the semantic type to create.
+	 * @return Attribute.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * create a DataInterface from OMEDS service. 
+	 */
+	Attribute createNewData(String semanticTypeName) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		Attribute retVal;
+		try {
+			retVal = getDataFactory().createNew(semanticTypeName);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal; 
+	}
+	
+	/**
 	 * Retrieve the graph defined by the criteria.
 	 * Wrap the call to the 
 	 * {@link DataFactory#retrieveList(Class, int, Criteria) retrieve}
@@ -210,8 +237,9 @@ class OMEDSGateway
 	 * 
 	 * @param dto		targetClass, the core data type to count.
 	 * @param c			criteria by which the object graph is pulled out. 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service. 
+	 * retrieve data from OMEDS service.  
 	 */
 	Object retrieveData(Class dto, Criteria c) 
 		throws DSOutOfServiceException, DSAccessException 
@@ -228,8 +256,90 @@ class OMEDSGateway
 	   	} 
 		return retVal;
 	}
-   
-   /** Mark the specified for update. */
+   	
+   	/**
+   	 * Load the graph defined by the criteria.
+	 * Wrap the call to the 
+	 * {@link DataFactory#retrieveList(String, Criteria) retrieve} method.
+	 * 
+   	 * @param semanticTypeName	specified semanticType.
+   	 * @param c					criteria by which the object graph is pulled 
+   	 * 							out.
+   	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+   	 */
+   	Object retrieveListSTSData(String semanticTypeName, Criteria c)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		Object retVal;
+		try {
+			retVal = getDataFactory().retrieveList(semanticTypeName, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal;
+	}
+   	
+   	/**
+   	 * Load the graph defined by the criteria.
+	 * Wrap the call to the 
+	 * {@link DataFactory#retrieve(String, Criteria) retrieve} method.
+   	 * @param semanticTypeName	specified semanticType.
+   	 * @param c					criteria by which the object graph is pulled 
+   	 * 							out.
+   	 * @return
+   	 * @throws DSOutOfServiceException
+   	 * @throws DSAccessException
+   	 */
+   	Object retrieveSTSData(String semanticTypeName, Criteria c)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Object retVal;
+		try {
+			retVal = getDataFactory().retrieve(semanticTypeName, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+		return retVal;
+	}
+   		
+	/**
+	 * Wrap the call to the 
+	 * {@link DataFactory#count(SemanticType, Criteria) count}
+	 * method.
+	 * @param type		type, the semantic type to count.
+	 * @param c			criteria by which the object graph is pulled out.
+	 * @return
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service. 
+	 */
+	int countData(String type, Criteria c)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		int val;
+		try {
+			val = getDataFactory().count(type, c);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't retrieve data", rsee);
+		} 
+		return val;
+	}
+	
+	/** Mark the specified for update. */
 	void markForUpdate(DataInterface object) 
 	{
 		getDataFactory().markForUpdate(object);
@@ -317,6 +427,21 @@ class OMEDSGateway
 	{
 		try {
 			getDatasetManager().removeImagesFromDataset(datasetID, imagesIDs);
+		} catch (RemoteConnectionException rce) {
+			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
+		} catch (RemoteAuthenticationException rae) {
+			throw new DSOutOfServiceException("Not logged in", rae);
+		} catch (RemoteServerErrorException rsee) {
+			throw new DSAccessException("Can't load data", rsee);
+		} 
+	}
+	
+	/** Annotate. */
+	void annotateAttributesData(List attributes)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			getAnnotationManager().annotateAttributes(attributes);
 		} catch (RemoteConnectionException rce) {
 			throw new DSOutOfServiceException("Can't connect to OMEDS", rce);
 		} catch (RemoteAuthenticationException rae) {
