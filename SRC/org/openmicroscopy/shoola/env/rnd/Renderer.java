@@ -37,6 +37,7 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.codomain.CodomainChain;
+import org.openmicroscopy.shoola.env.rnd.codomain.CodomainFactory;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.PlaneDef;
@@ -151,7 +152,8 @@ class Renderer
 		QuantumDef qd = renderingDef.getQuantumDef();
 		quantumManager = new QuantumManager(pixelsDims.sizeW);
 		quantumManager.initStrategies(qd, pixelsStats);
-		codomainChain = new CodomainChain(qd.cdStart, qd.cdEnd);
+		codomainChain = CodomainFactory.makeNew(qd.cdStart, qd.cdEnd, 
+											renderingDef.getCodomainMapDefs());
 		dataSink = engine.getDataSink(imageID, pixelsID);
 		renderingStrategy = RenderingStrategy.makeNew(renderingDef.getModel());
 	}
