@@ -142,9 +142,9 @@ class DataManagerUIF
 	/**
 	 * Forward event to {@link ExplorerPaneManager}.
 	 */
-	void addNewDatasetToTree()
+	void addNewDatasetToTree(List projects)
 	{
-		explPane.getManager().addNewDatasetToTree();
+		explPane.getManager().addNewDatasetToTree(projects);
 	}
 	
 	/** 

@@ -81,11 +81,11 @@ public class DataManager
 	
 	public static final Dimension	DIM_SCROLL_TABLE = new Dimension(40, 60);
 	
-	public static final Dimension	DIM_SCROLL_NAME = new Dimension(40, 30);
+	public static final Dimension	DIM_SCROLL_NAME = new Dimension(40, 25);
 	
 	public static final int			ROW_TABLE_HEIGHT = 60;
 	
-	public static final int			ROW_NAME_FIELD = 30;
+	public static final int			ROW_NAME_FIELD = 25;
 	
 	/** Reference to the registry. */
 	private Registry				registry;
@@ -376,7 +376,7 @@ public class DataManager
 		}
 		// forward event to the presentation.
 		if (projects != null) 
-			presentation.addNewDatasetToTree();
+			presentation.addNewDatasetToTree(projects);
 	}
 	
 	/**
