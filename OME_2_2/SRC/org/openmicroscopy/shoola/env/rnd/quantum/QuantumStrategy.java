@@ -61,18 +61,18 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
  */
 public abstract class QuantumStrategy
 {
-	
+
     /** Minimum of all minima. */
-	private Comparable      		globalMin;
+	private double    				globalMin;
 	
 	/** Maximum of all maxima. */
-	private Comparable      		globalMax;
+	private double      			globalMax;
 	
 	/** The lower limit of the input Interval i.e. pixel intensity interval. */
-	private Comparable      		windowStart;
+	private double      			windowStart;
 	
 	/** The upper limit of the input Interval i.e. pixel intensity interval. */
-	private Comparable      		windowEnd;
+	private double      			windowEnd;
 	
 	/** Reference to a quantumDef object. */
 	protected final QuantumDef      qDef;   
@@ -81,8 +81,8 @@ public abstract class QuantumStrategy
 
 	protected QuantumStrategy(QuantumDef qd)
 	{
-		windowStart = globalMin = new Integer(0);
-		windowEnd = globalMax = new Integer(1);
+		windowStart = globalMin = 0.0;
+		windowEnd = globalMax = 1.0;
 		if (qd == null)    
 			throw new NullPointerException("No quantum definition");
 		this.qDef = qd;
@@ -95,51 +95,49 @@ public abstract class QuantumStrategy
 	 * @param min	lower bound.
 	 * @param max	upper bound.
 	 */
-	private void verifyInterval(Comparable min, Comparable max)
+	private void verifyInterval(double min, double max)
 	{
 		boolean b = false;
-		if (min != null && max != null && 0 < max.compareTo(min)) {
+		if (min < max) {
 			switch (qDef.pixelType) { 
 				case DataSink.INT8:
 				case DataSink.UINT8:
-					if (min instanceof Integer && max instanceof Integer) {
-						int m = ((Integer) min).intValue(),
-							M = ((Integer) max).intValue();
-						if (m < M && M-m < 0x100)  b = true; 
-					}
+					int m8 = (int) min, M8 = (int) max;
+					if (m8 < M8 && M8-m8 < 0x100)  b = true; 
 					break;
 				case DataSink.INT16:
 				case DataSink.UINT16:
-					if (min instanceof Integer && max instanceof Integer) {
-						int m = ((Integer) min).intValue(),
-							M = ((Integer) max).intValue();
-						if (m < M && M-m < 0x10000)  b = true; 
-					}
-					break;
 				case DataSink.INT32:
-					if (min instanceof Integer && max instanceof Integer) {
-						int m = ((Integer) min).intValue(),
-							M = ((Integer) max).intValue();
-						if (m < M && M-m < 0x100000000L)  b = true; 
-					}
+				case DataSink.UINT32:
+				case DataSink.FLOAT:  
+				case DataSink.DOUBLE: 
+					int m16 = (int) min, M16 = (int) max;
+					if (m16 < M16 && M16-m16 < 0x10000)  b = true; 
+					break;
+				/*
+				case DataSink.INT32:
+					int m = (int) min, M = (int) max;
+					if (m < M && M-m < 0x100000000L)  b = true; 
+					
 					break;
 				case DataSink.UINT32:
-					if (min instanceof Long && max instanceof Long) {
-						long m = ((Long) min).longValue(),
-							 M = ((Long) max).longValue();
-						if (m < M && M-m < 0x100000000L)  b = true; 
-					}
+					long m32 = (long) min, M32 = (long) max;
+					if (m32 < M32 && M32-m32 < 0x100000000L)  b = true; 
 					break;
+				case DataSink.FLOAT:  
+				case DataSink.DOUBLE: 
+					
+					if (min < max && max-min < 0x100000000L)  b = true; 
+					break;
+				*/
 					//TODO: checking all when we support these types
 					/*
 					case Pixels.BIT:
-					case Pixels.FLOAT:  
-					case Pixels.DOUBLE: break;
 					*/
 			}
 		}
 		if (!b)
-			throw new IllegalArgumentException("Pixel interval not consistent");
+			throw new IllegalArgumentException("Pixel interval not supported");
 	}
   
 	/** 
@@ -148,7 +146,7 @@ public abstract class QuantumStrategy
 	 * @param globalMin		minimum of all minima for a specified stack.
 	 * @param globalMax		maximum of all maxima for a specified stack.
 	 */
-	public void setExtent(Comparable globalMin, Comparable globalMax)
+	public void setExtent(double globalMin, double globalMax)
 	{
 		 verifyInterval(globalMin, globalMax); 
 		 this.globalMin = globalMin;
@@ -163,10 +161,10 @@ public abstract class QuantumStrategy
 	 * @param start		the lower bound of the interval.
 	 * @param end		the upper bound of the interval.
 	 */
-	public void setWindow(Comparable start, Comparable end)
+	public void setWindow(double start, double end)
 	{
 		verifyInterval(start, end);
-		if (start.compareTo(globalMin) < 0 || globalMax.compareTo(end) < 0)
+		if (start < globalMin || globalMax < end)
 			throw new IllegalArgumentException("Wrong interval definition");
 		windowStart = start;
 		windowEnd = end;
@@ -176,16 +174,22 @@ public abstract class QuantumStrategy
 	void setMap(QuantumMap qMap) { valueMapper = qMap; }
 	
 	/** Returns the globalMin. */
-	Comparable getGlobalMin() { return globalMin; }
+	double getGlobalMin()
+	{ 
+		//needed b/c of float value
+		double d = globalMin-Math.floor(globalMin);
+		if (d != 0) globalMin = Math.floor(globalMin);
+		return globalMin;
+	}
     
 	/** Returns the globalMax. */
-	Comparable getGlobalMax() { return globalMax; }
+	double getGlobalMax() { return globalMax; }
     
 	/** Returns the input start value. */
-	public Comparable getWindowStart() { return windowStart; }
+	public double getWindowStart() { return windowStart; }
 	
 	/** Returns the input end value. */
-	public Comparable getWindowEnd() { return windowEnd; }
+	public double getWindowEnd() { return windowEnd; }
     
     /** Notify when the input interval has changed. */
 	protected abstract void onWindowChange();
@@ -197,7 +201,7 @@ public abstract class QuantumStrategy
 	 * @param value	pixel intensity value.
 	 * @return int value in the codomain interval i.e. sub-interval of [0, 255]
 	 */
-	public abstract int quantize(Object value) throws QuantizationException;
+	public abstract int quantize(double value) throws QuantizationException;
 	
 }
 

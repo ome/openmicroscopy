@@ -60,7 +60,7 @@ public class Approximation
 	public static double nearestInteger(double v)
 	{
 		double d = Math.floor(v);
-		double diff = v-d;
+		double diff = Math.abs(v-d);
 		double value = d;
 		if (diff > 0.5) value++; 
 		return value;

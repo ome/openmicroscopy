@@ -57,14 +57,14 @@ public class ChannelBindings
 	/** Color range. */
 	private static final int	COLOR_MIN = 0, COLOR_MAX = 255;
 	
-	/** Index of the wavelength. */
+	/** The OME index of the wavelength. */
 	private int 				index;
 	
 	/** The lower bound of the pixel intensity interval. */
-	private Comparable 			inputStart;
+	private double 				inputStart;
 	
 	/** The upper bound of the pixel intensity interval. */
-	private Comparable 			inputEnd;
+	private double 				inputEnd;
 	
 	/** Color associated to the wavelength. */
 	private int[] 				rgba;
@@ -75,8 +75,7 @@ public class ChannelBindings
 	 */
 	private boolean				active;
 	
-	public ChannelBindings(int index, 
-							Comparable inputStart, Comparable inputEnd,
+	public ChannelBindings(int index, double inputStart, double inputEnd,
 							int red, int green, int blue, int alpha,
 						  	boolean active)
 	{
@@ -94,9 +93,9 @@ public class ChannelBindings
 
 	public int getIndex() { return index; }
 
-	public Comparable getInputEnd() { return inputEnd; }
+	public double getInputEnd() { return inputEnd; }
 
-	public Comparable getInputStart() { return inputStart; }
+	public double getInputStart() { return inputStart; }
 
 	public int[] getRGBA() 
 	{
@@ -109,7 +108,7 @@ public class ChannelBindings
 	public void setActive(boolean active) { this.active = active; }
 
 	//TODO: checks done in QuantumStrategy, where do they belong to?
-	public void setInputWindow(Comparable start, Comparable end)
+	public void setInputWindow(double start, double end)
 	{
 		inputStart = start;
 		inputEnd = end;

@@ -135,13 +135,14 @@ public class QuantumFactory
 			case DataSink.UINT8:
 			case DataSink.INT16:
 			case DataSink.UINT16:
+			case DataSink.INT32:  
+			case DataSink.UINT32:   
+			case DataSink.FLOAT:  
+			case DataSink.DOUBLE: 
 				qs = new Quantization_8_16_bit(qd);
 				break;
-			case DataSink.INT32:  //TODO when we support these types
-			case DataSink.UINT32:
 			case DataSink.BIT:    
-			case DataSink.FLOAT:  
-			case DataSink.DOUBLE: break;    
+			break;    
 		}
 		return qs;
 	}

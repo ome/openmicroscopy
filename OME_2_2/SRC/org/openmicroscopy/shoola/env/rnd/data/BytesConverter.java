@@ -29,13 +29,14 @@
 
 package org.openmicroscopy.shoola.env.rnd.data;
 
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 //Java imports
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Represents a strategy to convert a pixel value stored in a sequence of bytes
@@ -49,14 +50,9 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * endianness-order of the bytes.</p>
  * <p>Each subclass implements the {@link #pack(ReadOnlyByteArray,int,int) pack}
  * method to carry out a specific conversion algorithm, taking into account
- * pixel type and endianness.  The value returned by this method is an object
- * that wraps the actual numeric value.  For {@link DataSink#INT8},
- * {@link DataSink#INT16}, {@link DataSink#INT32}, {@link DataSink#UINT8} and
- * {@link DataSink#UINT16} types, the returned value is an instance of
- * <code>Integer</code>, as <code>Long</code> is used for
- * {@link DataSink#UINT32}.</p>
- * <p>TODO: when we support all other pixel types, explain the mapping here.</p>
- *
+ * pixel type and endianness.  The value returned by this method is 
+ * a <code>double</code>.</p>
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -94,18 +90,45 @@ abstract class BytesConverter
 			case DataSink.INT32:
 				bc = createIntConverter(bigEndian);
 				break;
+			case DataSink.FLOAT:
+				bc = createFloatConverter(bigEndian);
+				break;
+			case DataSink.DOUBLE:
+				bc = createDoubleConverter(bigEndian);
+				break;
 			// not yet implemented
 			//case DataSink.BIT:
-			//    break;
-			//case DataSink.FLOAT:
-			//    break;
-			//case DataSink.DOUBLE:
 			//    break;
 		}
 		return bc;
 	}
-
-
+	
+	/** 
+	 * Creates a converter suitable for double.
+	 *
+	 * @param bigEndian	Pass <code>true</code> if the bytes are in big-endian 
+	 * 					order, <code>false</code> otherwise.   
+	 * @return the suitable converter.
+	 */
+	private static BytesConverter createDoubleConverter(boolean bigEndian)
+	{
+		if (bigEndian) return new DoubleBEConverter();
+		return new DoubleLEConverter();   
+	}
+	
+	/** 
+	 * Creates a converter suitable for float.
+	 *
+	 * @param bigEndian	Pass <code>true</code> if the bytes are in big-endian 
+	 * 					order, <code>false</code> otherwise.   
+	 * @return the suitable converter.
+	 */
+	private static BytesConverter createFloatConverter(boolean bigEndian)
+	{
+		if (bigEndian) return new FloatBEConverter();
+		return new FloatLEConverter();   
+	}
+	
 	/** 
 	 * Creates a converter suitable for unsigned integers.
  	 *
@@ -135,20 +158,13 @@ abstract class BytesConverter
 	/**
 	 * Converts a sequence of bytes, representing a pixel value, into a numeric 
 	 * value of appropriate type, taking endianness into account. 
-	 * The value returned by this method is an object that wraps the actual 
-	 * numeric value. For {@link DataSink#INT8}, {@link DataSink#INT16}, 
-	 * {@link DataSink#INT32}, {@link DataSink#UINT8}, and 
-	 * {@link DataSink#UINT16} types, the returned value is an 
-	 * instance of <code>Integer</code>, as <code>Long</code> is used for 
-	 * {@link DataSink#UINT32}.
- 	 * <p>TODO: when we support all other pixel types, explain the mapping 
- 	 * here.</p>
+	 * The value returned by this method is a <code>double</code>.
  	 *
  	 * @param data    The byte array containing the bytes to convert.
  	 * @param offset  The position of the first byte making up the pixel value.
  	 * @param length  The number of bytes that make up the pixel value.
  	 * @return An object to wrap the actual numeric value.
  	 */
-	public abstract Object pack(ReadOnlyByteArray data, int offset, int length);
+	public abstract double pack(ReadOnlyByteArray data, int offset, int length);
 
 }

@@ -101,8 +101,8 @@ public class RenderingDef
 	}
 
 	//channelBindings must be such that channelBindings[i].getIndex() == i
-	public RenderingDef(int defaultZ, int defaultT, int model, QuantumDef qDef,
-						ChannelBindings[] channelBindings)
+	public RenderingDef(int defaultZ, int defaultT, int model, 
+						QuantumDef qDef, ChannelBindings[] channelBindings)
 	{
 		this.defaultZ = defaultZ;
 		this.defaultT = defaultT;

@@ -44,8 +44,8 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 
 /** 
  * Encapsulates access to the image raw data. 
- * Contains the logic to interpret a linear byte array as a 5D array. 
- * Knows how to extract a 2D-plane from the 5D array, but delegates to the 
+ * Contains the logic to interpret a linear byte array as a 5D-array. 
+ * Knows how to extract a 2D-plane from the 5D-array, but delegates to the 
  * specified 2D-Plane the retrieval of pixel values. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -93,7 +93,7 @@ public class DataSink
 	private static int  		MIN_PIX_TYPE = 1;
 	
 	/** Maximum value assigned to the pixel type constants. */
-	private static int 			MAX_PIX_TYPE = 6;
+	private static int 			MAX_PIX_TYPE = 9;
 	
 	/** 
 	 * Tells you how many bytes are used to store a pixel. 
@@ -103,7 +103,8 @@ public class DataSink
 	static {
 		BYTES_PER_PIXEL[INT8] = BYTES_PER_PIXEL[UINT8] = 1;
 		BYTES_PER_PIXEL[INT16] = BYTES_PER_PIXEL[UINT16] = 2;
-		//TODO: add the other pixel types when we support them
+		BYTES_PER_PIXEL[UINT32] = BYTES_PER_PIXEL[FLOAT] = 4;
+		BYTES_PER_PIXEL[DOUBLE] = 8;
 	}
 	
 	/**
@@ -154,7 +155,6 @@ public class DataSink
 		return id.intValue();
 	}
 	
-
 	/** The id of the pixels set. */
 	private Pixels				pixelsID;
 	

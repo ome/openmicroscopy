@@ -130,6 +130,7 @@ public class MetadataSource
 		StackStatistics stackStats;
 		PixelsDescription desc;
 		try {
+			
 			desc = dms.retrievePixels(pixelsID, imageID);
 			stackStats = ps.getStackStatistics(desc.getPixels());
 			//TODO: tmp hack; stats have to be retrieved from STS and desc
@@ -139,8 +140,12 @@ public class MetadataSource
 			pixelsDims = new PixelsDimensions(desc.getSizeX(), desc.getSizeY(),
 											desc.getSizeZ(), desc.getSizeC(), 
 											desc.getSizeT());
+											
 			pixelsStats = makeStats(stackStats, pixelsDims);
 			pixels = desc.getPixels();  //TODO: to be removed.
+			//Retrieve user setting return null if no settings retrieved.
+			displayOptions = dms.retrieveRenderingSettings(pixelsID, imageID, 
+										pixelType);
 		} catch (Exception e) {
 			throw new MetadataSourceException(
 				"Can't retrieve the pixels metadata.", e);
@@ -166,7 +171,6 @@ public class MetadataSource
 		double gMax = 1;
 		double min, max;
 		PixelsStats ps = new PixelsStats(d.sizeW, d.sizeT);
-		//TODO: Need Polymorphic stats.
 		for (int w = 0; w < d.sizeW; w++) {
 			for (int t = 0; t < d.sizeT; t++) {
 				min = s.minimum[w][t];
@@ -178,8 +182,8 @@ public class MetadataSource
 					gMin = Math.min(gMin, min);
 					gMax = Math.max(gMax, max);
 				}
-				ps.setEntry(w, t, min, max, s.geometricMean[w][t],
-							s.geometricSigma[w][t]); 
+				
+				ps.setEntry(w, t, min, max, s.mean[w][t], s.sigma[w][t]); 
 			}
 			ps.setGlobalEntry(w, gMin, gMax);
 		}

@@ -75,7 +75,7 @@ public abstract class Plane2D
 	
 	protected abstract int calculateOffset(int x1, int x2);
 
-	public Object getPixelValue(int x1, int x2)
+	public double getPixelValue(int x1, int x2)
 	{
 		int offset = calculateOffset(x1, x2);
 		return strategy.pack(data, offset, bytesPerPixel);

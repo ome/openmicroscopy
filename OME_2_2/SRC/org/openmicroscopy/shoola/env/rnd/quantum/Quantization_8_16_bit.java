@@ -62,7 +62,6 @@ public class Quantization_8_16_bit
 	
 	/**
 	 * @param qd 	Quantum definition object, contained mapping data.
-	 * @param qMap	QuantumMap object.	
 	 */
 	public Quantization_8_16_bit(QuantumDef qd) { super(qd); }
 	
@@ -76,8 +75,8 @@ public class Quantization_8_16_bit
 	 */
 	private void init()
 	{	
-		min = ((Integer) getGlobalMin()).intValue();  
-		max = ((Integer) getGlobalMax()).intValue();
+		min = (int) getGlobalMin();  
+		max = (int) getGlobalMax();
 		LUT = new byte[max-min+1];  
 	}
 
@@ -100,21 +99,50 @@ public class Quantization_8_16_bit
 		if (LUT == null) init();
 		// Comparable assumed to be Integer
 		//domain
-		int dStart = ((Integer) getWindowStart()).intValue(),
-			dEnd = ((Integer) getWindowEnd()).intValue(); 
+		double dStart = getWindowStart(), dEnd = getWindowEnd(); 
 		double k = qDef.curveCoefficient;
-		double ys = valueMapper.transform(dStart, k);
-		double ye = valueMapper.transform(dEnd, k);
-		double a0 = qDef.bitResolution/(ye-ys);
+		//double ys = valueMapper.transform(dStart, k);
+		//double ye = valueMapper.transform(dEnd, k);
+		//double a0 = qDef.bitResolution/(ye-ys);
 		double a1 = (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); 
 		int x = min;
-		double v;
+		
+		//Temporary, to come: "piece-wise rendering."
+		QuantumMap normalize = new PolynomialMap();
+	   	int extra = 10;
+	   	
+	   	double decile = (max-min)/(double) 10;
+	   	double Q1 = min+decile, Q9 = max-decile;
+		double S1 = Q1;
+	   	double ysNorm = valueMapper.transform(0, k);
+	   	double yeNorm = valueMapper.transform(255, k);
+	   	double aNorm = qDef.bitResolution/(yeNorm-ysNorm);
+        
+	   	double v = extra;
+		double c0, nom = Q9-Q1;
+		
+		if (dStart >= Q1 && dEnd > Q9) {
+			nom = (Q9-dStart);
+			S1 = dStart;
+		} else if (dStart < Q1 && dEnd <= Q9) {
+			nom = dEnd-Q1;
+		} else if (dStart >= Q1 && dEnd <= Q9) {
+			nom = dEnd-dStart;
+			S1 = dStart;
+		}
+		c0 = (255-2*extra)/nom;
 		
 		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.cdStart;
 		
 		for(; x < dEnd; ++x) { 
+			if (x > Q1) {
+				if (x <= Q9)
+					v = c0*(normalize.transform(x, 1)-S1)+extra;
+				else v = 255-extra;
+			} else v = extra;
 			v = Approximation.nearestInteger(
-										a0*(valueMapper.transform(x, k)-ys));
+								aNorm*(valueMapper.transform(v, k)-ysNorm));
+			
 			v = Approximation.nearestInteger(a1*v+qDef.cdStart);
 			LUT[x-min] = (byte) v;
 		}
@@ -126,10 +154,10 @@ public class Quantization_8_16_bit
 	protected void onWindowChange() { buildLUT(); }
 	
 	/** Implemented as specified in {@link QuantumStrategy}. */
-	public int quantize(Object value)
+	public int quantize(double value)
 		throws QuantizationException
 	{
-		int x = ((Integer) value).intValue();
+		int x = (int) value;
 		if (x < min || x > max)
 			throw new QuantizationException(
 					"The value "+x+" is not in the interval ["+min+","+max+"]");

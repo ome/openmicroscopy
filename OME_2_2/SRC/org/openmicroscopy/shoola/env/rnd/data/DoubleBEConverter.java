@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.IntLEConverter
+ * org.openmicroscopy.shoola.env.rnd.data.DoubleConverter
  *
  *------------------------------------------------------------------------------
  *
@@ -31,18 +31,18 @@ package org.openmicroscopy.shoola.env.rnd.data;
 
 //Java imports
 
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
- * Packs a sequence of bytes representing a signed (2's complement) 
- * little-endian integer into an integer value. 
- * <p>This class handles the conversion of signed little-endian integers of 
- * <code>1, 2</code> and <code>4</code>-byte length 
+ * Packs a sequence of bytes representing a big-endian double into 
+ * a <code>double</code> value of appropriate integer type. 
+ * <p>This class handles the conversion of double of <code>4</code>-byte length 
  * (bytes are assumed to be <code>8</code>-bit long). 
- * Values are packed into a <code>double</code>.</p>
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,21 +55,21 @@ import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
  * </small>
  * @since OME2.2
  */
-public class IntLEConverter 
+public class DoubleBEConverter
 	extends BytesConverter
 {
-    
+
 	/** Implemented as specified by {@link BytesConverter}. */
 	public double pack(ReadOnlyByteArray data, int offset, int length)
 	{
-		int r = 0, tmp, paddingMask = -1;
+		long r = 0, tmp;
 		for (int k = 0; k < length; ++k) {
 			
-			//Get k-byte starting from LSB.
+			//Get k-byte starting from MSB, that is LSB[length-k-1].
 			tmp = data.get(offset+k)&0xFF;
+			//Add LSB[j]*(2^8)^j to r, where j=length-k-1.  
+			r |= tmp<<(length-k-1)*8;
 			
-			//Add LSB[k]*(2^8)^k to r.  
-			r |= tmp<<k*8;  
 			/* 
 			 * This probably deserves a quick explanation.
 			 * We consider every byte value as a digit in base 2^8=B. 
@@ -80,13 +80,11 @@ public class IntLEConverter
 			 * endianness of the platform we're running on.
 			 * We use a left shift to calculate LSB[k]*B^k because this operator
 			 * shifts from LSB to MSB, regardless of endianness.
-			 */
-			 
-			//Make room for length bytes.			
-			paddingMask <<= 8;
+			 */ 
+
 		}
-		if (data.get(offset+length-1) < 0)   r |= paddingMask;  //Was negative, pad.
-		return (double) r;
+		
+		return Double.longBitsToDouble(r);
 	}
-    
+
 }
