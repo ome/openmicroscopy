@@ -31,15 +31,24 @@ package org.openmicroscopy.shoola.agents.rnd;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.LogicalChannel;
+import org.openmicroscopy.ds.st.PixelChannelComponent;
 import org.openmicroscopy.shoola.agents.rnd.events.DisplayRendering;
 import org.openmicroscopy.shoola.agents.rnd.metadata.ChannelData;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -53,6 +62,7 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStatsEntry;
 import org.openmicroscopy.shoola.env.ui.TopFrame;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * 
@@ -69,7 +79,7 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
  * @since OME2.2
  */
 public class RenderingAgt
-	implements Agent, AgentEventListener, EventBus
+	implements Agent, AgentEventListener
 {
 	
 	private PixelsStats			pxsStats;
@@ -109,10 +119,10 @@ public class RenderingAgt
 	public void setContext(Registry ctx)
 	{
 		registry = ctx;
-		register(this, ImageLoaded.class);
-		register(this, DisplayRendering.class);
+		EventBus bus = registry.getEventBus();
+		bus.register(this, ImageLoaded.class);
+		bus.register(this, DisplayRendering.class);
 		topFrame = registry.getTopFrame();
-		//topFrame.addToMenu(TopFrame.VIEW, viewItem);	
 	}
 
 	/** Implemented as specified by {@link Agent}. */
@@ -139,11 +149,11 @@ public class RenderingAgt
 		renderingControl = response.getProxy();
 		pxsDims = renderingControl.getPixelsDims();
 		pxsStats = renderingControl.getPixelsStats();
-		intiChannelData();
-		if (presentation != null) removePresentation();
-		else buildPresentation();
 		curImageID = request.getImageID();
 		curPixelsID = request.getPixelsID();
+		initChannelData();
+		if (presentation != null) removePresentation();
+		else buildPresentation();	
 	}
 
 	/** Menu item to add to the {@link TopFrame} menu bar. */
@@ -184,12 +194,6 @@ public class RenderingAgt
 			topFrame.addToDesktop(presentation, TopFrame.PALETTE_LAYER);
 			presentation.setVisible(true);	
 		}	
-	}
-	
-	/** Implement as specified by {@link EventBus}. */
-	public void register(AgentEventListener subscriber, Class event) 
-	{
-		registry.getEventBus().register(subscriber, event);	
 	}
 	
 	/** Return the {@link RenderingAgtUIF presentation}. */
@@ -242,14 +246,48 @@ public class RenderingAgt
 				displayed = true;	
 			}
 	}
-	
-	
-	//TODO: retrieve data from DataManagerService.
-	void intiChannelData()
+
+	/** Initializes the channel data. */
+	void initChannelData()
 	{
 		channelData = new ChannelData[pxsDims.sizeW];
-		for (int i = 0; i < pxsDims.sizeW; i++)
-			channelData[i] = new ChannelData(i, i, "Wavelenth "+i);
+		//TODO: modify the way we retrieve data.
+		try {
+			SemanticTypesService sts = registry.getSemanticTypesService();
+			//channel components.
+			List ciList = sts.retrieveImageAttributes("PixelChannelComponent", 
+												curImageID);
+			List lcList = sts.retrieveImageAttributes("LogicalChannel", 
+											curImageID);
+			Iterator k = ciList.iterator();
+			PixelChannelComponent pcc;
+			HashMap lcIndexes = new HashMap();
+			while (k.hasNext()) {
+				pcc = (PixelChannelComponent) k.next();
+				lcIndexes.put(new Integer(pcc.getLogicalChannel().getID()), 
+								new Integer(pcc.getIndex().intValue()));
+			}
+			LogicalChannel lc;
+			int index;
+			Iterator i = lcList.iterator();
+			while (i.hasNext()) {
+				lc = (LogicalChannel) i.next();
+				index = 
+				((Integer) lcIndexes.get(new Integer(lc.getID()))).intValue();
+				channelData[index] = new ChannelData(index, 
+									lc.getEmissionWavelength().intValue(),
+									lc.getPhotometricInterpretation());
+			}
+			
+		}catch(DSAccessException dsae) {
+			UserNotifier un = registry.getUserNotifier();
+			un.notifyError("Data Retrieval Failure", 
+			"Unable to retrieve the LogicalChannel data for "+curImageID, dsae);
+		} catch(DSOutOfServiceException dsose) {	
+			ServiceActivationRequest request = new ServiceActivationRequest(
+									ServiceActivationRequest.DATA_SERVICES);
+			registry.getEventBus().post(request);
+		} 
 	}
 
 	ChannelData[] getChannelData() { return channelData; }
@@ -476,35 +514,5 @@ public class RenderingAgt
 	}
 	
 	boolean isActive(int w) { return renderingControl.isActive(w); }
-
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */ 
-	public void remove(AgentEventListener subscriber) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case,
-	 * no op implementation.
-	 */ 
-	public void remove(AgentEventListener subscriber, Class event) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */ 
-	public void remove(AgentEventListener subscriber, Class[] events) {}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */ 
-	public void register(AgentEventListener subscriber, Class[] events) {}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, 
-	 * no op implementation.
-	 */ 
-	public void post(AgentEvent e) {}
 
 }
