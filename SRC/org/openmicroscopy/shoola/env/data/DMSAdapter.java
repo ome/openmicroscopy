@@ -49,7 +49,9 @@ import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.LogicalChannel;
+import org.openmicroscopy.ds.st.RenderingSettings;
 import org.openmicroscopy.ds.st.Repository;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
@@ -82,6 +84,8 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -916,72 +920,104 @@ class DMSAdapter
 		throws DSOutOfServiceException, DSAccessException
 	{
 		
-		RenderingDef displayOptions;
-		displayOptions = null;
-		/*
-		HAVE TO WRITE CRITERIA criteria with imageID +userID+ pixels
-		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-										STSMapper.IMAGE_GRANULARITY, imageID);
-		List rsList = 
-			(List) gateway.retrieveListSTSData("RenderingSettings", c);
-		// build new criteria
-		if (rsList != null && rsList.size() == 0)
-			displayOptions = ImageMapper.fillInRenderingDef(qs, pixelType);									
-		*/
+		RenderingDef displayOptions = null;
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                        STSMapper.IMAGE_GRANULARITY, imageID);
+        List rsList = 
+            (List) gateway.retrieveListSTSData("RenderingSettings", c);
+        if (rsList != null && rsList.size() != 0)
+            displayOptions = ImageMapper.fillInRenderingDef(rsList, pixelType, 
+                                                uc.getUserID());
+                                         
 		return displayOptions;
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
 	public void saveRenderingSettings(int pixelsID, int imageID,
-		RenderingDef rDef)
+	                                    RenderingDef rDef)
 		throws DSOutOfServiceException, DSAccessException
 	{ 
-		/*
-	
-		//HAVE TO WRITE CRITERIA criteria with imageID +userID+ pixels
-		Criteria c = STSMapper.buildDefaultRetrieveCriteria(
-										STSMapper.IMAGE_GRANULARITY, imageID);
-		List rsList = 
-			(List) gateway.retrieveListSTSData("RenderingSettings", c);
-		//List to save	
-		List l = new ArrayList();
-		RenderingSettings rs;
-		ChannelBindings[] channelBindings = rDef.getChannelBindings();
-		int z = rDef.getDefaultZ();
-		int t = rDef.getDefaultT();
-		int model = rDef.getModel();
-		QuantumDef qDef = rDef.getQuantumDef();
-		int family = qDef.family;
-		double coeff = qDef.curveCoefficient;
-		int cdStart = qDef.cdStart;
-		int cdEnd = qDef.cdEnd;
-		int bitResolution = qDef.bitResolution;
-		if (rsList == null && rsList.size() == 0) { // nothing previously saved
-			for (int i = 0; i < channelBindings.length; i++) {
-				rs = (RenderingSettings) 
-					gateway.createNewData("RenderingSettings");
-				ImageMapper.fillInRenderingSettings(z, t, model, family, 
-								coeff, cdStart, cdEnd, bitResolution, 
-								ChannelBindings[i], RenderingSettings rs);
-				l.add(rs);
-			}
-		} else {
-			Iterator j = rsList.iterator();
-			int k;
-			if (channelBindings.length != rsList.size()) 
-				throw new DSAccessException("Data retrieved from DB don't " +
-					"match the parameters passed.");
-			while (j.hasNext()) {
-				rs = (type) j.next();
-				k = rs.getTheC();
-				ImageMapper.fillInRenderingSettings(z, t, model, family, 
-							coeff, cdStart, cdEnd, bitResolution, 
-							ChannelBindings[k], RenderingSettings rs);
-				l.add(rs);
-			}
-		}
-		gateway.updateAttributes(l);
-		*/
+	    Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                            STSMapper.IMAGE_GRANULARITY, imageID);
+        
+        List rsList = 
+            (List) gateway.retrieveListSTSData("RenderingSettings", c);
+        
+        UserCredentials uc = (UserCredentials)
+                registry.lookup(LookupNames.USER_CREDENTIALS);
+        //List of renderingSettings to save in DB.  
+        List l = new ArrayList();
+        if (rsList != null) {
+            List list = ImageMapper.filterList(rsList, uc.getUserID());
+            if (list.size() == 0)  // nothing previously saved
+                l = saveRSFirstTime(imageID, rDef);
+            else l = saveRS(rDef, list);
+            gateway.updateAttributes(l);
+        }
 	}
+    
+    private List saveRSFirstTime(int imageID, RenderingDef rDef)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        List l = new ArrayList();
+        ChannelBindings[] channelBindings = rDef.getChannelBindings();
+        int z = rDef.getDefaultZ();
+        int t = rDef.getDefaultT();
+        int model = rDef.getModel();
+        QuantumDef qDef = rDef.getQuantumDef();
+        int cdStart = qDef.cdStart;
+        int cdEnd = qDef.cdEnd;
+        int bitResolution = qDef.bitResolution;
+        RenderingSettings rs;
+        //Need to retrieve the image object.
+        //Define the criteria by which the object graph is pulled out.
+        Criteria cImage = ImageMapper.buildImageCriteria(imageID);       
+        //Load the graph defined by criteria.
+        Image image = (Image) gateway.retrieveData(Image.class, cImage);
+        
+        Criteria cExp = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(cExp);
+        for (int i = 0; i < channelBindings.length; i++) {
+            rs = (RenderingSettings) 
+                gateway.createNewData("RenderingSettings");
+            rs.setImage(image);
+            rs.setExperimenter(experimenter);
+            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
+                            bitResolution, channelBindings[i], rs);
+            l.add(rs);
+        }  
+        return l;
+    }
+
+    private List saveRS(RenderingDef rDef, List rsList)
+        throws DSAccessException
+    {
+        List l = new ArrayList();
+        ChannelBindings[] channelBindings = rDef.getChannelBindings();
+        int z = rDef.getDefaultZ();
+        int t = rDef.getDefaultT();
+        int model = rDef.getModel();
+        QuantumDef qDef = rDef.getQuantumDef();
+        int cdStart = qDef.cdStart;
+        int cdEnd = qDef.cdEnd;
+        int bitResolution = qDef.bitResolution;
+        RenderingSettings rs;
+        Iterator j = rsList.iterator();
+        int k;
+        if (channelBindings.length != rsList.size()) 
+            throw new DSAccessException("Data retrieved from DB don't " +
+                "match the parameters passed.");
+        while (j.hasNext()) {
+            rs = (RenderingSettings) j.next();
+            k = rs.getTheC().intValue(); // need to add control
+            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
+                        bitResolution, channelBindings[k], rs);
+            l.add(rs);
+        } 
+        return l;
+    }
 
 }
