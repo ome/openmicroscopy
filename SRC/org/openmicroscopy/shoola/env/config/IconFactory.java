@@ -80,7 +80,8 @@ public class IconFactory
 	 * Points to the directory specified by the <i>location</i> tag.
 	 * The path is relative to the application classpath.
 	 */
-	private String location;
+	private String	location;
+	
 
 	/**
 	 * Creates a new instance.
@@ -92,6 +93,18 @@ public class IconFactory
 		location = (location == null ? "" : location);
 		this.location = "/"+location.replace('.', '/');
 	}
+	
+	/**
+	 * Returns the pathname of the specified file.
+	 * The returned pathname is relative to the application classpath.
+	 *  
+	 * @param iconFileName	The file name.
+	 * @return See above.
+	 */
+	public String getResourcePathname(String iconFileName)
+	{
+		return location+"/"+iconFileName;
+	}
 
 	/** 
 	 * Creates an {@link Icon} from the specified file.
@@ -100,13 +113,13 @@ public class IconFactory
 	 * 				specified in the configuration file.
 	 * @return	An {@link Icon} object created from the image file.  The return
 	 * 			value will be <code>null</code> if the file couldn't be found
-	 * 			or an image icon couldn't be created from the file.
+	 * 			or an image icon couldn't be created from that file.
 	 */
 	public Icon getIcon(String name)
 	{
 		ImageIcon icon = null;
 		try {
-			String path = location+"/"+name;
+			String path = getResourcePathname(name);
 			URL url = IconFactory.class.getResource(path);
 			icon = new ImageIcon(url);
 		} catch (Exception e) {} 
