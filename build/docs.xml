@@ -47,6 +47,7 @@
    *       docs.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="docs.dir" location="${build.dir}/docs" />
+  <property name="userdocs.dir" location="${build.dir}/docs/userdocs" />
   <property name="docs.javadoc.dir" location="${docs.dir}/javadoc" /> 
   <property name="docs.xml2ad.file" 
               location="${base.docgen.xdocs.xsl.dir}/xml2ad.xsl" /> 
@@ -66,6 +67,7 @@
   <target name="docs-init" depends="init">
     <mkdir dir="${docs.dir}" /> 
     <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
+    <copy todir="${userdocs.dir}"  file="${base.userdocs.index.file}"/>
   </target> 
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
