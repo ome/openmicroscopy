@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.net.URL;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -85,6 +84,15 @@ public class UIFactory
 	}
 	
 	/**
+	 * Creates the {@link UserNotifier}. Should only be used at initialization 
+	 * time.
+	 */
+	public static UserNotifier makeUserNotifier()
+	{
+		return new UserNotifierImpl();
+	}
+	
+	/**
 	 * Creates the {@link UserNotifier}.
 	 * 
 	 * @param tf	Reference to the {@link TopFrame}. 
@@ -96,7 +104,8 @@ public class UIFactory
 		return new UserNotifierImpl((TopFrameImpl) tf, reg);
 	}
 	
-	/** Utility factory method to create an icon from a file.
+	/** 
+	 * Utility factory method to create an icon from a file.
 	 *
 	 * @param path    The path of the icon file relative to this class.
 	 * @return  An instance of {@link javax.swing.Icon Icon} or
@@ -110,7 +119,8 @@ public class UIFactory
 		return icon;
 	}
 	
-	/** Utility factory method to build a tool tip in a fixed font and color.
+	/** 
+	 * Utility factory method to build a tool tip in a fixed font and color.
 	 * Pass the tool tip text and get back an <i>HTML</i> string to be
 	 * passed, in turn, to the <code>setToolTipText</code> method of a 
 	 * {@link javax.swing.JComponent}.
@@ -123,7 +133,8 @@ public class UIFactory
 	{
 		StringBuffer buf = new StringBuffer(90+toolTipText.length());
 		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
-		buf.append("<font face=Arial size=2>");  //TODO: change into platform independent font
+		//TODO: change into platform independent font
+		buf.append("<font face=Arial size=2>");  
 		buf.append(toolTipText);
 		buf.append("</font></body></html>");
 		return buf.toString();

@@ -74,15 +74,16 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class UserNotifierDialog
 	extends JDialog
 	implements ActionListener
-{	
+{
+	
 	/** The width of the dialog window. */
-	private static final int		WIN_W = 150;  
+	static final int				WIN_W = 250;  
 	
 	/** The height of the dialog window. */
-	private static final int		WIN_H = 150;
+	static final int				WIN_H = 200;
 	
 	private static final Dimension	D_WIN = new Dimension(WIN_W, WIN_H);
-	
+		
 	/** Summary's Detail to display if requested. */
 	private String 					detail;
 	
@@ -97,6 +98,31 @@ public class UserNotifierDialog
 	
 	/** Reference to the registry .*/
 	private Registry				registry;
+	
+	public UserNotifierDialog(String title, String summary, String detail)
+	{
+		this.detail = detail;
+		setTitle(title);
+		setModal(true);
+		isShown = false;
+		setResizable(false);
+		contentPane = getContentPane();
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		buildGUI(summary, true);
+		pack();
+	}
+	
+	public UserNotifierDialog(String title, String summary)
+	{
+		setTitle(title);
+		setModal(true);
+		//setResizable(false);
+		contentPane = getContentPane();	
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		buildGUI(summary, false);
+		pack();	
+	}
+	
 	/**
 	 * Creates a new instance of {@link UserNotifierDialog}.
 	 * 
@@ -111,12 +137,11 @@ public class UserNotifierDialog
 	{
 		super(frame, title, true);
 		this.registry = registry;
-		isShown = false;
 		setResizable(false);
-		contentPane = super.getContentPane();
+		contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
-		buildGUI(summary, iconID);	
-		pack();
+		buildGUI(summary, iconID, false);
+		pack();	
 	}
 	
 	/**
@@ -137,9 +162,9 @@ public class UserNotifierDialog
 		this.detail = detail;
 		isShown = false;
 		setResizable(false);
-		contentPane = super.getContentPane();
+		contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 	
-		buildGUIWithButton(summary, iconID);
+		buildGUI(summary, iconID, true);
 		pack();
 	}
 	
@@ -154,21 +179,20 @@ public class UserNotifierDialog
 		}    
 	 }
 	 
-	 /** Hides the error's details. */
+	 /** Hides the details. */
 	 private void hideError()
 	 {
 		button.setText("Details >>");
 		isShown = false;
 		Component[] list = contentPane.getComponents();
 		Component c = null;
-		for (int i = 0; i < list.length; i++) {
+		for (int i = 0; i < list.length; i++)
 			if (list[i] instanceof JScrollPane) c = list[i];
-		}
 		contentPane.remove(c);
 		pack();	
 	 }
 	 
-	/** Shows the summary's details. */
+	/** Shows the details. */
 	 private void displayError()
 	 {
 		button.setText("<< Details");
@@ -184,12 +208,12 @@ public class UserNotifierDialog
 	 }
 	
 	/**
-	 * Buil and layout the GUI.
+	 * Build and lay out the GUI.
 	 * 
 	 * @param summary		summary of information/ warning.
 	 * @param iconID		iconID.
 	 */
-	private void buildGUI(String summary, int iconID)
+	private void buildGUI(String summary, int iconID, boolean withButton)
 	{
 		IconManager im = IconManager.getInstance(registry);
 		JPanel content = new JPanel(), iconPanel = new JPanel();
@@ -199,7 +223,6 @@ public class UserNotifierDialog
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		
 		iconPanel.add(new JLabel(im.getIcon(iconID)));
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -213,50 +236,53 @@ public class UserNotifierDialog
 		c.anchor = GridBagConstraints.EAST;
 		gridbag.setConstraints(label, c);
 		content.add(label);
+		if (withButton) {
+			button = new JButton("Details >>");
+			button.addActionListener(this);
+			c.insets = new Insets(10, 0, 0, 0);  //top padding
+			c.gridy = 1;
+			gridbag.setConstraints(button, c); 
+			content.add(button);
+		}
 		content.setPreferredSize(D_WIN);
 		content.setSize(D_WIN);
 		contentPane.add(content);
-	}
+	}	
 	
 	/**
-	 * Build and layout the GUI, with the option to display the details 
-	 * of an error message.
+	 * Build and lay out the GUI.
 	 * 
-	 * @param summary		summary of the error message.
+	 * @param summary		summary of information/ warning.
 	 * @param iconID		iconID.
 	 */
-	private void buildGUIWithButton(String summary, int iconID)
+	private void buildGUI(String summary, boolean withButton)
 	{
-		IconManager im = IconManager.getInstance(registry);
-		JPanel content = new JPanel(), iconPanel = new JPanel();
+		JPanel content = new JPanel();
 		JTextArea label = new JTextArea(summary);
 		label.setLineWrap(true);
 		label.setWrapStyleWord(true);
 		label.setBorder(null);
 		label.setEditable(false);
 		label.setOpaque(false);
-		iconPanel.add(new JLabel(im.getIcon(iconID)));
-		button = new JButton("Details >>");
-		button.addActionListener(this);
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		content.setLayout(gridbag);
 		c.gridx = 0;
 		c.gridy = 0;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		gridbag.setConstraints(iconPanel, c); 
-		content.add(iconPanel);
-		c.gridx = 1;
 		c.anchor = GridBagConstraints.EAST;
 		gridbag.setConstraints(label, c);
-		content.add(label); 
-		c.insets = new Insets(10, 0, 0, 0);  //top padding
-		c.gridy = 1;
-		gridbag.setConstraints(button, c); 
-		content.add(button);
+		content.add(label);
+		if (withButton) {
+			button = new JButton("Details >>");
+			button.addActionListener(this);
+			c.insets = new Insets(10, 0, 0, 0);  //top padding
+			c.gridy = 1;
+			gridbag.setConstraints(button, c); 
+			content.add(button);
+		}
 		content.setPreferredSize(D_WIN);
 		content.setSize(D_WIN);
 		contentPane.add(content);
-	}
+	}	
 	
 }

@@ -52,6 +52,24 @@ package org.openmicroscopy.shoola.env.ui;
 
 public interface UserNotifier
  {
+ 	
+	/**
+	 * error notification. This notification is used at initialization time.
+	 * 
+	 * @param title		title of the Dialog window.
+	 * @param summary	error's summary.
+	 * @param detail	error's details.
+	 */
+	public void notifyInitError(String title, String summary, Exception detail);
+
+	/**
+	 * error notification. This notification is used at initialization time.
+	 * 
+	 * @param title		title of the Dialog window.
+	 * @param summary	error's summary.* @param detail	error's details.
+	 */
+	public void notifyInitError(String title, String message);
+ 	
  	/**
  	 * error notification.
  	 * 

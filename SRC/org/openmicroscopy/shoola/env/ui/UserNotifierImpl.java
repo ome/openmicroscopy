@@ -32,14 +32,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import javax.swing.JDialog;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Rectangle;
-
-import javax.swing.JDialog;
-
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -61,6 +60,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class UserNotifierImpl 
     implements UserNotifier
 {
+	
     /** Default Title of the error Dialog window. */
     private static final String     DEFAULT_ERROR_TITLE = "Error";
     
@@ -85,7 +85,14 @@ public class UserNotifierImpl
 	/** Reference to the registry. */
     private Registry				reg;
     
-    /** Creates a new instance of UserNotifierImpl. 
+    /** 
+     * Creates an empty constructor. 
+     * Required to display error message which occured at init time.
+     */
+    public UserNotifierImpl() {}
+    
+    /** 
+     * Creates a new instance of UserNotifierImpl. 
      * 
      * @param topFrame	reference to the 
      * 					{@link TopFrameImpl TopFrameImplemenation}.
@@ -97,6 +104,24 @@ public class UserNotifierImpl
         this.reg = reg;
     }
     
+    public void notifyInitError(String title, String summary, Exception detail)
+    {
+		if (title == null || title.length() == 0)
+			title = DEFAULT_ERROR_TITLE;
+		StringBuffer buf = new StringBuffer();
+		if (summary == null || summary.length() == 0)   
+			buf.append(DEFAULT_ERROR_SUMMARY);
+		else    buf.append(summary);
+		String  d = detail == null ? null : detail.getCause().getMessage();
+		showMessageInitDialog(title, buf.toString(), d);
+    }
+    
+	/** Implemented as specified by {@link UserNotifier}. */     
+	public void notifyInitError(String title, String summary)
+	{
+		notifyInitError(title, summary, null);
+	}
+	
 	/** Implemented as specified by {@link UserNotifier}. */       
     public void notifyError(String title, String summary, Exception detail)
     {
@@ -107,11 +132,7 @@ public class UserNotifierImpl
             buf.append(DEFAULT_ERROR_SUMMARY);
         else    buf.append(summary);
         
-        String  d = detail == null ? null : detail.getMessage();
-        //if (d != null && d.length() != 0) {
-        //    buf.append(":\n\n");
-        //    buf.append(d);
-        //}
+        String  d = detail == null ? null : detail.getCause().getMessage();
 		showMessageDialog(title, buf.toString(), d, IconManager.ERROR);
     }
     
@@ -170,14 +191,46 @@ public class UserNotifierImpl
 	 */
 	private void showMessageDialog(String title, String summary, 
 									String detail, int iconID)
-	{
+	{		
 		if (detail == null) 
 			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
 								iconID));
-		else	
+		else 	
 			showDialog(new UserNotifierDialog(reg, topFrame, title, summary, 
 								detail, iconID)); 
 	}
+	
+	/**
+	 * Brings up a dialog {@link UserNotifierDialog} with a specified title, 
+	 * summary, icon.
+	 * 
+	 * @param title			dialog window title.	
+	 * @param summary		message's summary.
+	 * @param detail		message's details. 
+	 * @param iconID		iconID as specified in {@link UserNotifierDialog}.
+	 */
+	private void showMessageInitDialog(String title, String summary, 
+									String detail)
+	{
+		if (detail == null)
+			showDialogScreen(new UserNotifierDialog(title, summary));
+		if (detail != null)	
+			showDialogScreen(new UserNotifierDialog(title, summary, detail));		 
+	}
+	
+	
+	/**  
+	 * Display dialog widget if an error occured at initialization time.
+	 * Sizes, centers and brings up the specified editor dialog.
+	 */
+	private void showDialogScreen(JDialog editor)
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		editor.setLocation((screenSize.width-UserNotifierDialog.WIN_W)/2, 
+						(screenSize.height-UserNotifierDialog.WIN_H)/2);
+		editor.setVisible(true);
+	}
+	
 	
 	/** 
 	 * Sizes, centers and brings up the specified editor dialog.
@@ -186,10 +239,9 @@ public class UserNotifierImpl
 	 */
 	private void showDialog(JDialog editor)
 	{
-		Rectangle   tfB = topFrame.getBounds(), 
-					psB = editor.getBounds();
-		int         offsetX = (tfB.width-psB.width)/2, 
-					offsetY = (tfB.height-psB.height)/2;
+		Rectangle tfB = topFrame.getBounds(), psB = editor.getBounds();
+		int offsetX = (tfB.width-psB.width)/2, 
+			offsetY = (tfB.height-psB.height)/2;
 		if (offsetX < 0)   offsetX = 0;
 		if (offsetY < 0)   offsetY = 0;
 		editor.setLocation(tfB.x+offsetX, tfB.y+offsetY);
