@@ -94,11 +94,23 @@ class LoggerImpl
 		getAdaptee(c).debug(logMsg);
     }
     
+	/** Implemented as specified by {@link Logger}. */     
+	public void debug(Object c, LogMessage msg)
+	{
+		getAdaptee(c).debug(msg == null ? null : msg.toString());
+	}
+    
 	/** Implemented as specified by {@link Logger}. */ 
     public void error(Object c, String logMsg)
     {
 		getAdaptee(c).error(logMsg);
     }
+    
+	/** Implemented as specified by {@link Logger}. */     
+	public void error(Object c, LogMessage msg)
+	{
+		getAdaptee(c).error(msg == null ? null : msg.toString());
+	}
     
 	/** Implemented as specified by {@link Logger}.*/ 
     public void fatal(Object c, String logMsg)
@@ -106,16 +118,34 @@ class LoggerImpl
 		getAdaptee(c).fatal(logMsg);
     }
     
+	/** Implemented as specified by {@link Logger}. */     
+	public void fatal(Object c, LogMessage msg)
+	{
+		getAdaptee(c).fatal(msg == null ? null : msg.toString());
+	}
+    
 	/** Implemented as specified by {@link Logger}. */ 
     public void info(Object c, String logMsg)
     {
 		getAdaptee(c).info(logMsg);
     }
     
+	/** Implemented as specified by {@link Logger}. */     
+	public void info(Object c, LogMessage msg)
+	{
+		getAdaptee(c).info(msg == null ? null : msg.toString());
+	}
+    
 	/** Implemented as specified by {@link Logger}. */ 
     public void warn(Object c, String logMsg)
     {
 		getAdaptee(c).warn(logMsg);
     }
+    
+	/** Implemented as specified by {@link Logger}. */     
+	public void warn(Object c, LogMessage msg)
+	{
+		getAdaptee(c).warn(msg == null ? null : msg.toString());
+	}
   
 }
