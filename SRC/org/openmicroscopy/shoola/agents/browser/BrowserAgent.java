@@ -507,6 +507,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                 ImageData data = new ImageData();
                                 data.setID(pix.getID());
                                 ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                tdm.getAttributeMap().putAttribute(pix);
                                 final Thumbnail t = new Thumbnail(image,tdm);
                                 lm.setIndex(t,i,j);
                                 
@@ -550,6 +551,7 @@ public class BrowserAgent implements Agent, AgentEventListener
                                     ImageData data = new ImageData();
                                     data.setID(pix.getID());
                                     ThumbnailDataModel tdm = new ThumbnailDataModel(data);
+                                    tdm.getAttributeMap().putAttribute(pix);
                                     images[k] = image;
                                     models[k] = tdm;
                                     count++;
@@ -763,6 +765,34 @@ public class BrowserAgent implements Agent, AgentEventListener
         }
         
         return new int[] {widthVal,heightVal};
+    }
+    
+    /**
+     * Gets a thumbnail of a different size (same settings)
+     * @param width The width of the image with the default thumb settings
+     *              to retrieve.
+     * @param height The height of the image with the default thumb settings
+     *               to retrieve.
+     * @return A new composite.
+     */
+    public Image getResizedThumbnail(Pixels pix, int width, int height)
+    {
+        if(pix == null)
+        {
+            return null;
+        }
+        
+        PixelsService ps = registry.getPixelsService();
+        try
+        {
+            return ps.getThumbnail(pix,width,height);
+        }
+        catch(ImageServerException ise)
+        {
+            // don't do user notification, make this more subtle
+            System.err.println("could not load composite thumbnail");
+            return null;
+        }
     }
     
     /**

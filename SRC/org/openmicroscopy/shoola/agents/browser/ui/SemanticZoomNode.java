@@ -43,11 +43,13 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 
+import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.agents.browser.BrowserAgent;
 import org.openmicroscopy.shoola.agents.browser.BrowserEnvironment;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverActions;
 import org.openmicroscopy.shoola.agents.browser.events.MouseOverSensitive;
 import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+import org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel;
 
 import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.nodes.PImage;
@@ -172,6 +174,39 @@ public class SemanticZoomNode extends PImage
         if(dim[0] != -1) compositeWidth = dim[0];
         if(dim[1] != -1) compositeHeight = dim[1];
         loadedCompositeInfo = true;
+    }
+    
+    public void loadCompositeImages()
+    {
+        BrowserEnvironment env = BrowserEnvironment.getInstance();
+        BrowserAgent agent = env.getBrowserAgent();
+        
+        if(!multipleModeOn)
+        {
+            ThumbnailDataModel model = parentThumbnail.getModel();
+            Pixels pix = (Pixels)model.getAttributeMap().getAttribute("Pixels");
+            
+            System.err.println("loaded composite");
+            setImage(agent.getResizedThumbnail(pix,compositeWidth,
+                                               compositeHeight));
+            setBounds(border);
+        }
+        else
+        {
+            ThumbnailDataModel[] models = parentThumbnail.getMultipleModels();
+            for(int i=0;i<models.length;i++)
+            {
+                Pixels pix =
+                    (Pixels)models[i].getAttributeMap().getAttribute("Pixels");
+                thumbnailImages[i] =
+                    agent.getResizedThumbnail(pix,compositeWidth,
+                                              compositeHeight);
+            }
+            System.err.println("loaded all composites");
+            setImage(thumbnailImages[parentThumbnail.getMultipleImageIndex()]);
+            setBounds(border);
+        }
+        repaint();
     }
     
     /**

@@ -401,6 +401,19 @@ public class Thumbnail extends PImage implements MouseDownSensitive,
     }
     
     /**
+     * Returns all backing image models in the thumbnail (if it's a multiple
+     * image)
+     * @return An array of models in the thumbnail.
+     */
+    public ThumbnailDataModel[] getMultipleModels()
+    {
+        ThumbnailDataModel[] models =
+            new ThumbnailDataModel[multipleModelList.size()];
+        multipleModelList.toArray(models);
+        return models;
+    }
+    
+    /**
      * Returns the current index of the selected image, in multiple
      * mode.
      * 

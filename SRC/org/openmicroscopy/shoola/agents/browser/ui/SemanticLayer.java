@@ -87,6 +87,7 @@ public final class SemanticLayer
                 displayingNode = true;
                 displayedNode = node;
                 target.repaint();
+                displayedNode.loadCompositeImages();
             }
         };
         
