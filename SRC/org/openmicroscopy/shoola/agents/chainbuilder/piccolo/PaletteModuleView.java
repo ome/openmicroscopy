@@ -167,6 +167,11 @@ public class PaletteModuleView extends SingleModuleView {
 		return link;
 	}
 	
+	// in chain palette, always show details
+	public void showOverview() {
+		
+	}
+	
 	public void mousePopup(GenericEventHandler handler,PInputEvent e) {
 		ChainBox cb = getChainBoxParent();
 		if (cb != null)
