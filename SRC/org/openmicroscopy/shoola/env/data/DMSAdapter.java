@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -48,12 +50,15 @@ import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
+import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Dimensions;
 import org.openmicroscopy.ds.st.Experimenter;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.RenderingSettings;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.map.AnalysisChainMapper;
+import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.ChainExecutionMapper;
 import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
@@ -66,6 +71,7 @@ import org.openmicroscopy.shoola.env.data.map.UserMapper;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
@@ -87,6 +93,7 @@ import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
+import org.openmicroscopy.shoola.env.ui.UserDetails;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -116,20 +123,24 @@ class DMSAdapter
 		this.registry = registry;
 	}
 
-	/** 
-	 * Retrieves the user's ID. 
-	 * This method is called when we connect cf. 
-	 * {@link DataServicesFactory#connect() connect}.
-	 * The userID is then retrieved using the {@link UserCredentials}.
-	 */
-	int getUserID() 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Criteria c = UserMapper.getUserStateCriteria();
-		return gateway.getCurrentUser(c).getID();
-	}
+    /** Implemented as specified in {@link DataManagementService}. */
+    public UserDetails getUserDetails()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        UserDetails ud = (UserDetails) 
+                    registry.lookup(LookupNames.USER_DETAILS);
+        if (ud == null) {
+            Criteria c = UserMapper.getUserStateCriteria();
+            Experimenter exp = gateway.getCurrentUser(c);
+            ud = new UserDetails(exp.getID(), exp.getFirstName(), 
+                                exp.getLastName());
+            registry.bind(LookupNames.USER_DETAILS, ud);
+        }
+         return ud;
+    }
     
-     /** Implemented as specified in {@link DataManagementService}. */
+    
+    /** Implemented as specified in {@link DataManagementService}. */
     public String getSessionKey()
     {
         return gateway.getSessionKey();
@@ -863,6 +874,134 @@ class DMSAdapter
 		gateway.updateAttributes(l);
 	}
 
+    /** Implemented as specified in {@link DataManagementService}. */
+    public Map getImageAnnotations(int imageID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildImageAnnotationCriteria(imageID);
+        List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        if (l == null || l.size() == 0) return new TreeMap();
+        return AnnotationMapper.fillImageAnnotations(l);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public Map getDatasetAnnotations(int datasetID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetID);
+        List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        TreeMap map = new TreeMap();
+        if (l == null || l.size() == 0) return map;
+        AnnotationMapper.fillDatasetAnnotations(l, map);
+        return map;
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void updateImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        ImageAnnotation ia = 
+            (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
+        ia.setContent(data.getAnnotation());
+        if (data.getTheZ() != AnnotationData.DEFAULT) 
+            ia.setTheZ(new Integer(data.getTheZ()));
+        if (data.getTheT() != AnnotationData.DEFAULT) 
+            ia.setTheT(new Integer(data.getTheT()));
+        List l = new ArrayList();
+        l.add(ia);
+        gateway.updateAttributes(l);  
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void updateDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        DatasetAnnotation da = 
+            (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
+        da.setContent(data.getAnnotation());
+        List l = new ArrayList();
+        l.add(da);
+        gateway.updateAttributes(l);  
+    }
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void removeImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        ImageAnnotation ia = 
+            (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
+        ia.setValid(Boolean.FALSE);
+        List l = new ArrayList();
+        l.add(ia);
+        gateway.updateAttributes(l);  
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void removeDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c = STSMapper.buildDefaultRetrieveCriteria(
+                STSMapper.GLOBAL_GRANULARITY, data.getID());
+        DatasetAnnotation da = 
+            (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
+        da.setValid(Boolean.FALSE);
+        List l = new ArrayList();
+        l.add(da);
+        gateway.updateAttributes(l); 
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void createImageAnnotation(int imageID, String annotation, int theZ,
+                                        int theT)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Create a new Annotation for the user.
+        //Retrieve the current user.
+        Criteria c = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(c);
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        ImageAnnotation retVal = (ImageAnnotation) 
+                    sts.createAttribute("ImageAnnotation", imageID);
+        retVal.setContent(annotation);
+        retVal.setExperimenter(experimenter);
+        retVal.setValid(Boolean.TRUE);
+        if (theZ != AnnotationData.DEFAULT) retVal.setTheZ(new Integer(theZ));
+        if (theT != AnnotationData.DEFAULT) retVal.setTheT(new Integer(theT));
+        //retVal.setTimestamp(
+        //        new Long(AnnotationMapper.getTimestamp().getTime()));
+        ArrayList l = new ArrayList();
+        l.add(retVal);
+        sts.updateUserInputAttributes(l);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void createDatasetAnnotation(int datasetID, String annotation)
+        throws DSOutOfServiceException, DSAccessException
+    {
+//      Create a new Annotation for the user.
+        //Retrieve the current user.
+        Criteria c = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(c);
+        SemanticTypesService sts = registry.getSemanticTypesService();
+        DatasetAnnotation retVal = (DatasetAnnotation) 
+                    sts.createAttribute("DatasetAnnotation", datasetID);
+        retVal.setContent(annotation);
+        retVal.setExperimenter(experimenter);
+        retVal.setValid(Boolean.TRUE);
+        //retVal.setTimestamp(
+        //        new Long(AnnotationMapper.getTimestamp().getTime()));
+        ArrayList l = new ArrayList();
+        l.add(retVal);
+        sts.updateUserInputAttributes(l);
+    }
+    
+    
 	/** Implemented as specified in {@link DataManagementService}. */
 	public RenderingDef retrieveRenderingSettings(int pixelsID, int imageID, 
 											int pixelType)

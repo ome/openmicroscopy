@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -38,6 +39,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisLinkData;
 import org.openmicroscopy.shoola.env.data.model.AnalysisNodeData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
@@ -56,6 +58,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
+import org.openmicroscopy.shoola.env.ui.UserDetails;
 
 /** 
  * 
@@ -75,6 +78,10 @@ import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 public interface DataManagementService
 {
 
+    /** Retrieve the user's details. */
+    public UserDetails getUserDetails()
+        throws DSOutOfServiceException, DSAccessException;
+    
     /**
      * Returns the session key in use.
      * 
@@ -635,6 +642,109 @@ public interface DataManagementService
 	public void updateChannelData(ChannelData retVal)	
 		throws DSOutOfServiceException, DSAccessException;
 	
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Retrieve the image's annotations.
+     * 
+     * @param imageID        ID of the image.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public Map getImageAnnotations(int imageID)
+        throws DSOutOfServiceException, DSAccessException;  
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Retrieve the dataset's annotations.
+     * 
+     * @param datasetID        ID of the dataset.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public Map getDatasetAnnotations(int datasetID)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Update the specified image's annotation.
+     * 
+     * @param AnnotationData data to update.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void updateImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Update the specified dataset's annotation.
+     * 
+     * @param AnnotationData data to update.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void updateDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Remove the specified image's annotation.
+     * 
+     * @param ImageAnnotationData data to remove.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void removeImageAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Remove the specified dataset's annotation.
+     * 
+     * @param AnnotationData data to remove.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void removeDatasetAnnotation(AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Create a new image's annotation.
+     * 
+     * @param imageID       annotate the specified image.
+     * @param annotation    annotation's text.
+     * @param theZ          if not equals to {@link #ImageAnnotation.DEFAULT}
+     *                      the value is inserted.
+     * @param theT          if not equals to {@link #ImageAnnotation.DEFAULT}
+     *                      the value is inserted.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void createImageAnnotation(int imageID, String annotation, int theZ, 
+                                        int theT)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    /**
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Create a new dataset's annotation.
+     * 
+     * @param datasetID     annotate the specified dataset.
+     * @param annotation    annotation's text.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    public void createDatasetAnnotation(int datasetID, String annotation)
+        throws DSOutOfServiceException, DSAccessException; 
+    
 	/**
 	 * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
 	 * Retrieve the setting for a specified image and specified set of pixels.

@@ -133,7 +133,7 @@ public class DataServicesFactory
 		//uc can't be null b/c there's no way to call this method b/f init.
 		gateway.login(uc.getUserName(), uc.getPassword());
 		//retrieve the user's ID and store it in the UserCredentials.
-		uc.setUserID(dms.getUserID());
+		uc.setUserID(dms.getUserDetails().getUserID());
 	}
 	
 	/**
