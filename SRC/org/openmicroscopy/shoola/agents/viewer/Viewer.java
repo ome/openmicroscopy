@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.env.ui.TopFrame;
  * @since OME2.2
  */
 public class Viewer
-	implements Agent, AgentEventListener, EventBus
+	implements Agent, AgentEventListener
 {
 		
 	/** Reference to the {@link Registry}. */
@@ -94,8 +94,9 @@ public class Viewer
 	public void setContext(Registry ctx) 
 	{
 		registry = ctx;
-		register(this, ImageLoaded.class);
-		register(this, ImageRendered.class);
+		EventBus bus = registry.getEventBus();
+		bus.register(this, ImageLoaded.class);
+		bus.register(this, ImageRendered.class);
 		topFrame = registry.getTopFrame();
 		viewItem = getViewMenuItem();
 		topFrame.addToMenu(TopFrame.VIEW, viewItem);
@@ -230,40 +231,4 @@ public class Viewer
 		return menuItem;
 	}
 	
-	/** Implement as specified by {@link EventBus}. */ 
-	public void register(AgentEventListener subscriber, Class event) 
-	{
-		registry.getEventBus().register(subscriber, event);
-	}
-
-	/**
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void register(AgentEventListener subscriber, Class[] events) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void remove(AgentEventListener subscriber) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void remove(AgentEventListener subscriber, Class event) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void remove(AgentEventListener subscriber, Class[] events) {}
-
-	/**
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */
-	public void post(AgentEvent e) {}
-
 }
