@@ -36,7 +36,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -287,7 +286,7 @@ public class ViewerUIF
         configureDisplayButtons();
 	}
 	
-	/** Build and layout panel with slider and scrollpane. */
+	/** Build and lay out the panel with slider and scrollpane. */
 	private JPanel buildMain()
 	{
 		JPanel p = new JPanel();
@@ -308,10 +307,9 @@ public class ViewerUIF
         p.add(pz);
         p.add(pt);
 		return p;
-		
 	}
 	
-	/** Set the size of the window w.r.t the size of the screen. */
+	/** Set the size of the window w.r.t. the size of the screen. */
 	private void setWindowSize(int w, int h)
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -319,16 +317,7 @@ public class ViewerUIF
 		int height = 7*(screenSize.height/10);
 		if (w > width) w = width;
 		if (h > height) h = height;
-		setTBSize(w);
 		setSize(w, h);		
 	}
-	
-	/** Add a rigid area to the toolBar. */
-	private void setTBSize(int w)
-	{
-		Dimension d = toolBar.getSize();
-		if (w-d.width > 0)
-			toolBar.add(Box.createRigidArea(new Dimension(w-d.width, 1)));
-	}
-	
+
 }
