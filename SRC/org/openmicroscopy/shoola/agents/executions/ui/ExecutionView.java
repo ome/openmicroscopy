@@ -40,7 +40,6 @@ import java.awt.Graphics2D;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.agents.executions.ui.model.GridModel;
 import org.openmicroscopy.shoola.agents.executions.ui.model.ExecutionsModel;
-import org.openmicroscopy.shoola.agents.executions.ui.model.BoundedLongRangeModel;
 import org.openmicroscopy.shoola.util.ui.Constants;
 
 /** 
@@ -73,8 +72,9 @@ public class ExecutionView extends Ellipse2D.Float {
 	
 	public void paint(Graphics2D g,boolean current) {
 		long time = execution.getDate().getTime();
-		BoundedLongRangeModel rangeModel = execsModel.getRangeModel();
-		if (rangeModel.isInRange(time)) {
+		
+		if (execsModel.isInRange(time)) {
+		
 			Color oldColor = g.getColor();
 			if (current == false)
 				g.setColor(Constants.DEFAULT_COLOR);
