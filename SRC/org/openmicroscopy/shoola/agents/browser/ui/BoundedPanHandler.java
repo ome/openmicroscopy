@@ -51,7 +51,7 @@ import edu.umd.cs.piccolo.util.PDimension;
  * bounds of the object, or the bounds with a specific margin.
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
- * <b>Internal version:</b> $Revision$ $Date${date}
+ * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */

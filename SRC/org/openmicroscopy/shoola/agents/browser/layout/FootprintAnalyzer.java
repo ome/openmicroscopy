@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
  * of thumbnails occupies.
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
- * <b>Internal version:</b> $Revision$ $Date${date}
+ * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */

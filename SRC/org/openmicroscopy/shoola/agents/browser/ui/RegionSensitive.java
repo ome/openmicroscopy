@@ -42,7 +42,7 @@ import java.awt.geom.Rectangle2D;
  * Specifies an object that is sensitive to a region.
  *
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
- * <b>Internal version:</b> $Revision$ $Date${date}
+ * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
