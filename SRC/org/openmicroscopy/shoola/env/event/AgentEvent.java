@@ -9,17 +9,15 @@ package org.openmicroscopy.shoola.env.event;
  */
 
 public abstract class AgentEvent {
-    private Object source, stateChange;
     
-    protected AgentEvent(Object source, Object stateChange) {
+    private Object source;
+    
+    public void setSource(Object source) {
         this.source = source;
-        this.stateChange =stateChange;
     }
+    
     public Object getSource(){
         return source;
-    }
-    public Object getStateChange(){
-        return stateChange;
     }
     
     
