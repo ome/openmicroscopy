@@ -55,11 +55,7 @@ import edu.umd.cs.piccolo.util.PPaintContext;
 
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEvent;
-import 
-	org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEventListener;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
-import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 /** 
  * A {@link PCanvas} for viewing images in datasets, with datasets laid out
@@ -75,7 +71,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
  */
 
 public class DatasetBrowserCanvas extends PCanvas implements BufferedObject, 
-	SelectionEventListener, ContentComponent {
+	ContentComponent {
 	
 	
 	/** The agent of which we are a part */
@@ -111,13 +107,8 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	/** the main window in which this panel is being stored */
 	private MainWindow mainWindow;
 
-	/**
-	 * A {@link PExecutionList} that may show the lists of executions for a
-	 * dataset.
-	 * 
-	 */	
-//	private PExecutionList executionList;
 
+	
 	/**
 	 * Some internal state variables for treemap calculation
 	 */
@@ -127,12 +118,16 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	private Vector strips;
 	private double screenHeight = 0;
 	private double screenWidth =0;
-	
+
 	/**
 	 * The last dataset that we moused over
 	 */
 
 	private DatasetNode lastRolledOver = null;
+	
+	/** the selected project and dataset */
+	private BrowserProjectSummary selectedProject = null;
+	private BrowserDatasetSummary selectedDataset = null;
 	
 	/**
 	 * The event handler for this canvas
@@ -193,6 +188,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	private void displayDatasets(Collection datasets) {
 			
 		doLayout(datasets);
+		System.err.println("displaying datasets. animating to "+getBufferedBounds());
 		eventHandler.animateToBounds(getBufferedBounds());
 	
 	}
@@ -446,7 +442,7 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */	
 	public void layoutContents() {
 		
-		System.err.println("laying out datasets");
+		System.err.println("laying out datasets.. # of datasets.."+allDatasets.size());
 		eventHandler = new DatasetBrowserEventHandler(this);
 		// layout treemaps
 		arrangeDisplay(allDatasets);
@@ -462,60 +458,9 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 		
 		// center view
 		eventHandler.animateToBounds(getBufferedBounds());
-		//listen for selection events
-		SelectionState.getState().addSelectionEventListener(this);
 	}
 	
-	/**
-	 * Handler for selection events
-	 */
-	public void selectionChanged(SelectionEvent e) {
-		Collection sets = null;
-		SelectionState state = e.getSelectionState();
-		
 
-		if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)
-			|| e.isEventOfType(SelectionEvent.SET_SELECTED_DATASET)) {
-			// if we select a project or dataset, update their state.
-			updateProjectDatasetSelection(state);	
-		}
-	  
-	}
-		
-	/**
-	 * Highlight selected datasets and display as needed.
-	 * @param state
-	 */
-	private void updateProjectDatasetSelection(SelectionState state) {
-		BrowserDatasetSummary selected = state.getSelectedDataset();
-		
-		// if there is no selected project, don't higlight any datasets
-		if (state.getSelectedProject() == null)
-			clearHighlightDatasets(); 
-			
-		if (selected == null){
-			// display the active datasets, or all of them (if none active).
-			Collection selections = state.getActiveDatasets();
-			if (selections != null && selections.size() > 0) {
-				displayDatasets(selections);
-			}
-			else 
-				displayDatasets(allDatasets);
-		}
-	}
-
-	/**
-	 * This Browser is interested in most SelectionState events
-	 */
-	public int getEventMask() {
-		return SelectionEvent.SET_SELECTED_DATASET | 
-			SelectionEvent.SET_SELECTED_PROJECT | 
-			SelectionEvent.SET_ROLLOVER_CHAIN |
-			SelectionEvent.SET_SELECTED_CHAIN;
-	}
-
-
-	
 
 	/**
 	 * Highlight all of the datasets in a collection. 
@@ -523,8 +468,6 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 	 */
 	public  void setRolloverProject(BrowserProjectSummary p) {
 		
-		// we must look at all datasets, as we want to turn off the 
-		// highlighting in those that are not in the collection c.
 		Iterator iter = layer.getChildrenIterator();
 		while (iter.hasNext()) {
 			Object obj = iter.next();
@@ -572,6 +515,70 @@ public class DatasetBrowserCanvas extends PCanvas implements BufferedObject,
 			lastRolledOver = rolled.getNode();
 			lastRolledOver.setSelected(true);
 		}
+		if (selectedDataset != null)
+			selectedDataset.getNode().setSelected(true);
 		mainWindow.setRolloverDataset(rolled);
+	}
+	
+	public void setSelectedProject(BrowserProjectSummary proj) {
+		System.err.println("dataset browser ..set selected project to ..."+proj);
+		if (proj == selectedProject) // no change
+			return;
+		selectedProject = proj;
+		Collection datasetsToDisplay;
+		// ok. what to do now?
+		
+		// cases:
+	
+		if (proj == null) {
+			if (selectedDataset == null)
+				//1) project is null and selected dataset is null we display all
+				datasetsToDisplay = allDatasets;
+			else {
+				//2) project is null, selected dataset isn't. display it. 
+				datasetsToDisplay = new Vector();
+				datasetsToDisplay.add(selectedDataset);
+			}
+		}
+		else { 
+			if (selectedDataset == null) {
+				// 3)project is not null. and selected is null display 
+					//all for project
+				datasetsToDisplay = proj.getDatasets();
+			}
+			else { // selected is not null
+				if (!proj.hasDataset(selectedDataset)) {
+					// 4) project is not null, selected is not null, and selected 
+					// is not in project. display all for project and clear selected
+					datasetsToDisplay = proj.getDatasets();
+					selectedDataset = null;
+				}
+				else {
+					// 5) project is not null and selected is not null and selected  
+					// is in project display selected
+					datasetsToDisplay = new Vector();
+					datasetsToDisplay.add(selectedDataset);
+				}
+				
+			}
+		}
+		displayDatasets(datasetsToDisplay);
+	}
+	
+	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+		// if they're the same, return
+		// except for if it's null. then we might need to redraw
+		if (dataset == selectedDataset && dataset != null)
+			return;
+		selectedDataset  = dataset;
+		
+		// if a dataset is clicked on to be selected, it has already
+		// told the canvas to draw to it.
+		if (selectedDataset == null) {
+			// selected is not null display it
+			Collection datasetsToDisplay = allDatasets;
+			displayDatasets(datasetsToDisplay);
+		}
+		mainWindow.setSelectedDataset(dataset);
 	}
  }

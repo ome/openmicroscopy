@@ -46,7 +46,6 @@ import edu.umd.cs.piccolo.util.PBounds;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 /** 
  * Project labels, as found on a {@link ProjctSelectionCanvas}
@@ -98,15 +97,15 @@ public class ProjectLabel extends PText implements MouseableNode {
 	
 	
 	public void setNormal() {
-		if (project == SelectionState.getState().getSelectedProject())
-			return; 
+	//	if (project == SelectionState.getState().getSelectedProject())
+		//	return; 
 		setScale(NORMAL_SCALE);
 		setPaint(PConstants.DEFAULT_COLOR);
 	}
 	
 	public void setActive() {
-		if (project == SelectionState.getState().getSelectedProject())
-					return; 
+		//if (project == SelectionState.getState().getSelectedProject())
+		//			return; 
 		setScale(NORMAL_SCALE);
 		setPaint(PConstants.PROJECT_ACTIVE_COLOR);
 	}
@@ -118,8 +117,8 @@ public class ProjectLabel extends PText implements MouseableNode {
 	}
 	
 	public void setRollover(boolean v) {
-		if (project == SelectionState.getState().getSelectedProject())
-			return;
+		//if (project == SelectionState.getState().getSelectedProject())
+		//	return;
 		if (v == true) {
 			setScale(ROLLOVER_SCALE);
 			setPaint(PConstants.PROJECT_ROLLOVER_COLOR);
@@ -131,9 +130,7 @@ public class ProjectLabel extends PText implements MouseableNode {
 	
 	public void mouseEntered(GenericEventHandler handler) {
 		BrowserProjectSummary p = getProject();
-		if (p.hasDatasets()) {
-			canvas.setRolloverProject(p);
-		}
+		canvas.setRolloverProject(p);
 	}
 
 	public void mouseExited(GenericEventHandler handler) {
@@ -141,28 +138,18 @@ public class ProjectLabel extends PText implements MouseableNode {
 	}
 
 	public void mouseClicked(GenericEventHandler handler) {
-		BrowserProjectSummary project = getProject();
-		SelectionState state = SelectionState.getState();
-
-		BrowserProjectSummary selected = state.getSelectedProject();
-		if (selected == project) { 
-			// if i've just clicked on what was selected,
-			// clear dataset selection
-			state.setSelectedDataset(null);
-	
-		}
-		else if (project.hasDatasets())
-			state.setSelectedProject(project);
+		BrowserProjectSummary p = getProject();
+		if (p.hasDatasets()) 
+			canvas.setSelectedProject(p);
 	}
 
 	public void mousePopup(GenericEventHandler handler) {
 		BrowserProjectSummary picked = getProject();
-		SelectionState.getState().setSelectedProject(null);	
+		canvas.setSelectedProject(null);	
 	}
 
 	public void mouseDoubleClicked(GenericEventHandler handler) {
-		SelectionState state = SelectionState.getState();
-		state.setSelectedProject(null);
+		canvas.setSelectedProject(null);
 	}
 	
 }

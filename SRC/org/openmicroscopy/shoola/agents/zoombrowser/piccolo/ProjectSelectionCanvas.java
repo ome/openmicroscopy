@@ -53,11 +53,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEvent;
-import 
-	org.openmicroscopy.shoola.agents.zoombrowser.events.SelectionEventListener;
 import org.openmicroscopy.shoola.agents.zoombrowser.MainWindow;
-import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 /** 
  * A Piccolo canvas for selecting projects.
@@ -71,8 +67,7 @@ import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
  * </small>
  */
 
-public class ProjectSelectionCanvas extends PCanvas implements 
-	SelectionEventListener, ContentComponent {
+public class ProjectSelectionCanvas extends PCanvas implements ContentComponent {
 	
 	private static final int HEIGHT=50;
 	private static final int MAXHEIGHT=150;
@@ -89,6 +84,9 @@ public class ProjectSelectionCanvas extends PCanvas implements
 	
 	private int lastHeight; // last window height
 	
+	private BrowserProjectSummary selectedProject;
+	
+	private BrowserDatasetSummary selectedDataset;
 	
 	
 	public ProjectSelectionCanvas(MainWindow panel) {
@@ -100,8 +98,6 @@ public class ProjectSelectionCanvas extends PCanvas implements
 		setMaximumSize(new Dimension(MAXWIDTH,MAXHEIGHT));
 		removeInputEventListener(getPanEventHandler());
 		removeInputEventListener(getZoomEventHandler());
-	
-	
 	}
 	
 	public void setContents(Object obj) {
@@ -117,13 +113,21 @@ public class ProjectSelectionCanvas extends PCanvas implements
 	}
 
 	public void completeInitialization() {
+		System.err.println("completing initialization of project selection canvas");
 		addInputEventListener(new GenericEventHandler());
-		SelectionState.getState().addSelectionEventListener(this);
 	}
 		
 	private boolean reentrant = false;
 	
 	public void layoutContents() {
+		System.err.println("laying out contents of project selection canvas");
+		setMinimumSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
+		setPreferredSize(new Dimension(PConstants.BROWSER_SIDE,HEIGHT));
+		setMaximumSize(new Dimension(MAXWIDTH,MAXHEIGHT));
+		doLayout();
+	}
+	
+	public void doLayout() {
 	
 		if (reentrant == true)
 			return;
@@ -133,6 +137,8 @@ public class ProjectSelectionCanvas extends PCanvas implements
 		ProjectLabel pl;
 
 		int width = getWidth();
+		System.err.println("displaying project list. width of window is "+width);
+		System.err.println("height is "+getHeight());
 		Rectangle bounds = getBounds();
 		
 		Vector rows = new Vector();
@@ -202,92 +208,78 @@ public class ProjectSelectionCanvas extends PCanvas implements
 		reentrant = false;
 	}
 	
-	
-	
-	public void selectionChanged(SelectionEvent e) {
-		SelectionState state = e.getSelectionState();
-		if (e.isEventOfType(SelectionEvent.SET_SELECTED_PROJECT)) {
-	 			setSelectedProject();
-	 	}
-	}
-	
-	public int getEventMask() {
-		return SelectionEvent.SET_SELECTED_PROJECT;
-	}
-	
-	public void setRolloverDataset(BrowserDatasetSummary rolled) {
-		Iterator iter = layer.getChildrenIterator();
-		ProjectLabel pLabel=null;
-		SelectionState state = SelectionState.getState();
 		
-		while (iter.hasNext()) {
-			Object obj = iter.next();
-			if (obj instanceof ProjectLabel) {
-				pLabel = (ProjectLabel) obj;
-				BrowserProjectSummary p = pLabel.getProject();
-				if (rolled != null && p.hasDataset(rolled)) 
-					pLabel.setRollover(true);
-				else if (p.sharesDatasetsWith(state.getSelectedProject()))
-					pLabel.setActive();
-				else  
-					pLabel.setNormal();
-			}
-		}
-		layoutContents();
+	public void setRolloverDataset(BrowserDatasetSummary rolled) {
+		setLabelPainting(rolled,null);
+		doLayout();
 	}
 			
  	public void setRolloverProject(BrowserProjectSummary proj) {
-		Iterator iter = layer.getChildrenIterator();
-		ProjectLabel pLabel;
-		SelectionState state = SelectionState.getState();
 		
-		while (iter.hasNext()) {
-		Object obj = iter.next();
-			if (obj instanceof ProjectLabel) {
-				pLabel = (ProjectLabel) obj;
-				BrowserProjectSummary p = pLabel.getProject();
-				if (pLabel.getProject() == proj) {
-					pLabel.setRollover(true);
-				}
-				else if (p.sharesDatasetsWith(proj) ||
-					p.hasDataset(state.getSelectedDataset())) {
-					pLabel.setActive();
-				}
-				else
-					pLabel.setNormal();
-
-			}
-		}
+		System.err.println("\n\n\nsetting rollover project..");
+		if (proj != null)
+			System.err.println("to .."+proj.getName());
+		if (selectedProject != null)
+			System.err.println("selected is ..."+selectedProject.getName());
+		setLabelPainting(null,proj);
 		panel.setRolloverProject(proj);
-		layoutContents();
+		doLayout();
  	}
  	
-	public void setSelectedProject() {
-		SelectionState state = SelectionState.getState();
-		BrowserProjectSummary selected = state.getSelectedProject();
+ 	
+	public void setSelectedProject(BrowserProjectSummary selected) {
+		if (selected == selectedProject) // no change
+			return;
+		
+		if (selected != null)
+			System.err.println("\nset selected project to ..."+selected.getName());
+		else
+			System.err.println("\nset selected project to null");
+		selectedProject = selected;
+		if (selected != null && !selected.hasDataset(selectedDataset))
+			selectedDataset = null;
+		setLabelPainting(null,null);
+		panel.setSelectedProject(selected);
+		doLayout();
+	} 
+	
+	public void setSelectedDataset(BrowserDatasetSummary dataset) {
+		System.err.println("project canvas got selection of dataset .."+
+				dataset);
+		if (dataset == selectedDataset) //no change
+			return;
+		selectedDataset = dataset;
+		
+		setLabelPainting(null,null);
+	}
+	
+	public void setLabelPainting(BrowserDatasetSummary rolloverDataset,
+			BrowserProjectSummary rolloverProject) {
 		Iterator iter = layer.getChildrenIterator();
 		ProjectLabel pLabel;
 		BrowserProjectSummary proj;
-				
+		
 		while (iter.hasNext()) {
 			Object obj = iter.next();
 			if (obj instanceof ProjectLabel) {
 				pLabel = (ProjectLabel) obj;
 				proj = pLabel.getProject();
-				if (proj== selected)
+				if (proj== selectedProject)
 					pLabel.setSelected();
-				else if (proj.hasDataset(state.getSelectedDataset()))
-					pLabel.setActive();
-				else if (selected == null)
-					pLabel.setNormal();
-				else if (selected.sharesDatasetsWith(proj))
+				else if (proj == rolloverProject || 
+						(rolloverDataset !=null) && 
+							proj.hasDataset(rolloverDataset))
+					pLabel.setRollover(true);
+				else if (proj.hasDataset(selectedDataset) ||
+						proj.sharesDatasetsWith(rolloverProject) ||
+						(selectedProject != null &&
+						(selectedProject.sharesDatasetsWith(proj))))
 					pLabel.setActive();
 				else
 					pLabel.setNormal();
 			}
 		}
-		layoutContents();
-	} 
+	}
 }
 
 

@@ -49,7 +49,6 @@ import edu.umd.cs.piccolo.util.PBounds;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
-import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
 
 
 /** 
@@ -436,17 +435,17 @@ public class DatasetNode extends GenericBox implements MouseableNode {
 		DatasetBrowserEventHandler 
 			dsHandler = (DatasetBrowserEventHandler) handler;
 		if (dsHandler != null && dsHandler.getZoomLevel() == 0) {
-			SelectionState.getState().setSelectedDataset(getDataset());
 			dsHandler.animateToNode(this);
+			canvas.setSelectedDataset(getDataset());
 		}
 	}
 	
 	public void mousePopup(GenericEventHandler handler) {
 		DatasetBrowserEventHandler 
 			dsHandler = (DatasetBrowserEventHandler) handler;
-		SelectionState.getState().setSelectedDataset(null);
 		if (dsHandler != null)
 			dsHandler.resetZoomLevel();
+		canvas.setSelectedDataset(null);
 	}
 	
 	public void mouseDoubleClicked(GenericEventHandler handler) {

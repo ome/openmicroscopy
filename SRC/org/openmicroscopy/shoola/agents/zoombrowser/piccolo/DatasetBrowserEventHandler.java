@@ -45,8 +45,6 @@ package org.openmicroscopy.shoola.agents.zoombrowser.piccolo;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.zoombrowser.SelectionState;
-
 
 /** 
  * An event handler for the {@link DatasetBrowserCanvas}. Handle zooming into
@@ -88,7 +86,6 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	 * What happens when I enter a node that is not a MouseableNode?
 	 */	
 	protected void defaultMouseEntered() {
-		//SelectionState.getState().setRolloverDataset(null);
 		zoomLevel = 0;
 	}
 
@@ -96,8 +93,7 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 	/** What happens when I click on the background? */
 	public  void handleBackgroundClick() {
 		// click on background clears selected dataset
-		SelectionState selectionState = SelectionState.getState();
-		selectionState.setSelectedDataset(null);
+		canvas.setSelectedDataset(null);
 		zoomLevel =0;	
 	}
 	
