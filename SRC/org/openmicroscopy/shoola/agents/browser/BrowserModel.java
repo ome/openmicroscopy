@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.*;
 
-import org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailSourceMap;
+import org.openmicroscopy.is.CompositingSettings;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupModel;
 import org.openmicroscopy.shoola.agents.browser.layout.GroupingMethod;
 import org.openmicroscopy.shoola.agents.browser.layout.LayoutMethod;
@@ -56,12 +56,15 @@ public class BrowserModel
 {
     private BrowserEnvironment env;
 
-    private ThumbnailSourceMap sourceModel;
+    private ThumbnailSourceModel sourceModel;
+    private Set thumbnailSet;
 
     private LayoutMethod layoutMethod;
     
     private List groupModels;
     private GroupingMethod groupingMethod;
+    
+    private CompositingSettings renderSettings;
 
     private Set selectedImages;
     private Set hiddenImages;
@@ -75,13 +78,14 @@ public class BrowserModel
         selectedImages = new HashSet();
         hiddenImages = new HashSet();
         groupModels = new ArrayList();
+        thumbnailSet = new HashSet();
 
         // default behavior (may replace later)
         currentMode = BrowserMode.DEFAULT_MODE;
     }
 
     /**
-     * Creates a BrowserModel with an empty backing ThumbnailSourceMap.  That is,
+     * Creates a BrowserModel with an empty backing ThumbnailSourceModel.  That is,
      * there are not yet any loaded thumbnails, although the model is accessible.
      *
      */
@@ -94,13 +98,13 @@ public class BrowserModel
     }
 
     /**
-     * Creates a BrowserModel with the backing ThumbnailSourceMap.  An error
+     * Creates a BrowserModel with the backing ThumbnailSourceModel.  An error
      * will be thrown to the user if no such map (which contains the Thumbnail
      * and data source information) is supplied.
      *
      * @param dataModel The data model to back the BrowserModel.
      */
-    public BrowserModel(ThumbnailSourceMap dataModel)
+    public BrowserModel(ThumbnailSourceModel dataModel)
     {
         init();
 
@@ -122,7 +126,7 @@ public class BrowserModel
      * Gets the backing source/image data model.
      * @return The thumbnail/data source backing model.
      */
-    public ThumbnailSourceMap getDataModel()
+    public ThumbnailSourceModel getDataModel()
     {
         return sourceModel;
     }
@@ -133,7 +137,7 @@ public class BrowserModel
      * 
      * @param dataModel The desired backing model.
      */
-    public void setDataModel(ThumbnailSourceMap dataModel)
+    public void setDataModel(ThumbnailSourceModel dataModel)
     {
         if (dataModel == null)
         {
@@ -153,7 +157,7 @@ public class BrowserModel
      */
     public void selectImage(int imageID)
     {
-        // TODO: fill in method
+        
     }
 
     /**

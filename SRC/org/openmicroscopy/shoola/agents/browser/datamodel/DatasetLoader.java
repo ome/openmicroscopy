@@ -43,6 +43,7 @@ import java.util.Set;
 import org.openmicroscopy.ds.DataException;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
+import org.openmicroscopy.shoola.agents.browser.*;
 
 /**
  * A factory that constructs ThumbnailSourceMaps from a particular data
@@ -68,14 +69,14 @@ public class DatasetLoader
     
     /**
      * Loads the image contents of the Dataset DTO into the
-     * ThumbnailSourceMap.  Will do nothing if either the Dataset or
-     * ThumbnailSourceMap are null.
+     * ThumbnailSourceModel.  Will do nothing if either the Dataset or
+     * ThumbnailSourceModel are null.
      * 
      * @param dto The dataset to analyze.
      * @param tsm The thumbnail source map in which to place image
      *            information (extracted from the DTO)
      */
-    public void loadInto(Dataset dto, ThumbnailSourceMap tsm)
+    public void loadInto(Dataset dto, ThumbnailSourceModel tsm)
     {
         if(dto == null || tsm == null)
         {

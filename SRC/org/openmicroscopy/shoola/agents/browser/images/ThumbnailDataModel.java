@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailDataModel
+ * org.openmicroscopy.shoola.agents.browser.images.ThumbnailDataModel
  *
  *------------------------------------------------------------------------------
  *
@@ -33,7 +33,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.datamodel;
+package org.openmicroscopy.shoola.agents.browser.images;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +41,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.openmicroscopy.shoola.agents.browser.datamodel.DataAttribute;
+import org.openmicroscopy.shoola.agents.browser.datamodel.DataAttributeListener;
 
 /**
  * Model of thumbnail data.

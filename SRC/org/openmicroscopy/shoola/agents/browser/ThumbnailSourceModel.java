@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.browser.datamodel.ThumbnailSourceMap
+ * org.openmicroscopy.shoola.agents.browser.ThumbnailSourceModel
  *
  *------------------------------------------------------------------------------
  *
@@ -33,34 +33,31 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.browser.datamodel;
+package org.openmicroscopy.shoola.agents.browser;
 
 import java.util.*;
 
 import org.openmicroscopy.ds.dto.Image;
 
 /**
- * Specifies a mapping between image thumbnails and Image DTOs.  This can be
- * lazily initialized (and is so by design); that is, one can specify the
- * Images and then, after hitting the image server, can get the corresponding
- * Thumbnails.  Both are linked (implied) by the same image IDs.
+ * Specifies a mapping between image IDs and image DTOs, so that thumbnails
+ * can reference their original image backing.  Should be one per browser
+ * window (or even per Shoola environment, as image IDs are distinct)
  * 
  * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
  * <b>Internal version:</b> $Revision$ $Date$
  * @version 2.2
  * @since OME2.2
  */
-public class ThumbnailSourceMap
+public class ThumbnailSourceModel
 {
-    private Map thumbnailMap;
     private Map sourceMap;
 
     /**
      * Creates a Thumbnail-to-data source mappping.
      */
-    public ThumbnailSourceMap()
+    public ThumbnailSourceModel()
     {
-        thumbnailMap = new HashMap();
         sourceMap = new HashMap();
     }
 
