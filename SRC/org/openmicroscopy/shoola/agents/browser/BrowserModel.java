@@ -551,7 +551,6 @@ public class BrowserModel
         for(int i=0;i<availableTypesList.size();i++)
         {
             SemanticType type = (SemanticType)availableTypesList.get(i);
-            System.err.println(type.getName());
         }
     }
     

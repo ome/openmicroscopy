@@ -42,8 +42,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -79,6 +82,9 @@ public class TextAnnotationUIF extends JDialog
     private JTextArea annotationArea;
     private JButton saveButton;
     private JButton reloadButton;
+    
+    private boolean isNewAnnotation = false;
+    private int annotationIndex = 0; // TODO modify/add mutator if multi-IA
     
     /**
      * Construct a new TextAnnotationUIF.
@@ -118,6 +124,7 @@ public class TextAnnotationUIF extends JDialog
         annotationArea = new JTextArea();
         annotationArea.setLineWrap(true);
         annotationArea.setWrapStyleWord(true);
+        annotationArea.getDocument().addDocumentListener(this);
         
         JScrollPane scrollPane = new JScrollPane(annotationArea);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -127,7 +134,43 @@ public class TextAnnotationUIF extends JDialog
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         reloadButton = new JButton("Reload");
+        
+        reloadButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(isNewAnnotation)
+                {
+                    annotationArea.setText("");
+                }
+                else
+                {
+                    annotationArea.setText(controller.getAnnotation(annotationIndex));
+                }
+            }
+        });
         saveButton = new JButton("Save");
+        saveButton.setEnabled(false);
+        
+        saveButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(isNewAnnotation)
+                {
+                    controller.newAnnotation(annotationArea.getText());
+                    isNewAnnotation = false;
+                    annotationIndex = 0;
+                }
+                else
+                {
+                    controller.setAnnotation(annotationIndex,
+                                             annotationArea.getText());
+                }
+                controller.save();
+                dispose();
+            }
+        });
         
         buttonPanel.add(reloadButton);
         buttonPanel.add(saveButton);
@@ -177,6 +220,21 @@ public class TextAnnotationUIF extends JDialog
                 }
             }
         });
+        
+        // ok, now check to see if there are any annotations (single-annotation
+        // use case here)
+        List annotations = controller.getTextAnnotations();
+        if(annotations.size() == 0)
+        {
+            isNewAnnotation = true;
+            annotationArea.setText("(no annotation)");
+        }
+        else
+        {
+            String annotation = controller.getAnnotation(0);
+            annotationArea.setText(annotation);
+        }
+        
         pack();
 
     }

@@ -82,7 +82,7 @@ public class HeatMapFilter
                     SemanticTypeTree.ElementNode eNode =
                         (SemanticTypeTree.ElementNode)o;
                     DataElementType det = eNode.getType();
-                    if(det != DataElementType.BOOLEAN &&
+                    if(//det != DataElementType.BOOLEAN && // TODO: boolean mode
                        det != DataElementType.DOUBLE &&
                        det != DataElementType.FLOAT &&
                        det != DataElementType.INT &&

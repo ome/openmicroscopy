@@ -238,7 +238,6 @@ public class BrowserCamera implements RegionSensitive,
      */
     public void setX(double value)
     {
-        System.err.println("setX: "+value);
         camera.translateView(getX()-value,0);
         camera.repaint();
     }
@@ -249,7 +248,6 @@ public class BrowserCamera implements RegionSensitive,
      */
     public void setY(double value)
     {
-        System.err.println("setY: "+value);
         camera.translateView(0,getY()-value);
         camera.repaint();
     }

@@ -36,6 +36,7 @@
  
 package org.openmicroscopy.shoola.agents.annotator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openmicroscopy.ds.st.ImageAnnotation;
@@ -74,8 +75,17 @@ public class ImageAnnotationCtrl extends AnnotationCtrl
         this.annotator = annotator;
         this.imageID = triggeringEvent.getID();
         this.imageName = triggeringEvent.getName();
+        this.requestEvent = triggeringEvent;
         
-        annotationList = annotator.getImageAnnotations(imageID);
+        List theList = annotator.getImageAnnotations(imageID);
+        if(theList == null)
+        {
+            annotationList = new ArrayList();
+        }
+        else
+        {
+            annotationList = new ArrayList(theList);
+        }
         attributeList = null; // do not use this for attributes yet (if ever)
     }
     
