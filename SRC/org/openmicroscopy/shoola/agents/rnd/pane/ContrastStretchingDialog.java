@@ -37,7 +37,7 @@ import javax.swing.JDialog;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 
 /** 
  * 
@@ -67,7 +67,7 @@ class ContrastStretchingDialog
 	 * @param csDef
 	 */
 	ContrastStretchingDialog(QuantumMappingManager control,
-							ContrastStretchingDef csDef)
+							ContrastStretchingContext csDef)
 	{
 		manager = new ContrastStretchingDialogManager(this, control, csDef);
 		initPanel(control, csDef);
@@ -87,7 +87,7 @@ class ContrastStretchingDialog
 	
 	/** Inialize the {@link ContrastStretchingPanel}. */
 	private void initPanel(QuantumMappingManager control,
-							ContrastStretchingDef csDef)
+							ContrastStretchingContext csDef)
 	{
 		int xStart, xEnd, yStart, yEnd;
 		int lb = ContrastStretchingPanel.leftBorder;

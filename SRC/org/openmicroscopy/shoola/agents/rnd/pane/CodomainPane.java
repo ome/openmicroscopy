@@ -47,8 +47,8 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellRenderer;
@@ -74,16 +74,18 @@ class CodomainPane
 	private static final int 		ROW_HEIGHT = 25;
 	
 	/** row's width. */
-	private static final int		DEFAULT_WIDTH = 40;
+	private static final int		BWIDTH = 45;
 	
 	/** width of the first column. */
-	private static final int		WIDTH = 100;
-	/** background color of the JTable. */ 
-	private static final Color		CELL_COLOR = Color.LIGHT_GRAY;
+	private static final int		WIDTH = 140;
+	
+	/** gridcolor of the JTable. */ 
+	private static final Color		GRID_COLOR = Color.WHITE;
 
 	/** Dimension of the JButton. */
-	private static final int		BUTTON_HEIGHT = 20;
-	private static final int		BUTTON_WIDTH = 100;		
+	private static final int		BUTTON_HEIGHT = 15;
+	private static final int		BUTTON_WIDTH = 40;	
+		
 	private static final Dimension	DIM_BUTTON = new Dimension(BUTTON_WIDTH, 
 																BUTTON_HEIGHT);
 	
@@ -95,7 +97,7 @@ class CodomainPane
 	
 	private CodomainPaneManager		manager;
 	public CodomainPane(Registry registry, QuantumMappingManager control,
-						ContrastStretchingDef csDef, PlaneSlicingDef psDef)
+						ContrastStretchingContext csDef, PlaneSlicingContext psDef)
 	{
 		manager = new CodomainPaneManager(this, control, csDef, psDef);
 		initButton(registry);
@@ -164,24 +166,24 @@ class CodomainPane
 		JTable table = new TableComponent(3, 3);
 		table.setTableHeader(null);
 		table.setRowHeight(ROW_HEIGHT);
-		table.setBackground(CELL_COLOR);
+		table.setGridColor(GRID_COLOR);
 		
 		//Set the columns' width.
 		TableColumnModel columns = table.getColumnModel();
 		TableColumn column = columns.getColumn(0);
-		column.setPreferredWidth(DEFAULT_WIDTH);
-		column.setWidth(DEFAULT_WIDTH);
-		
-		//Reset the width of the first column
-		column = columns.getColumn(0);
-		//column.setPreferredWidth(PANEL_WIDTH);
+		column.setPreferredWidth(WIDTH);
 		column.setWidth(WIDTH);
+		column = columns.getColumn(2);
+		column.setPreferredWidth(BWIDTH);
+		column.setWidth(BWIDTH);
 
 		//First row.
 		JLabel label = new JLabel(" Reverse Intensity");
 		table.setValueAt(label, 0, 0);
 		table.setValueAt(ri, 0, 1);
-
+		label = new JLabel("");
+		table.setValueAt(label, 0, 2);
+		
 		//Second row.
 		label = new JLabel(" Contrast Stretching");
 		table.setValueAt(label, 1, 0);
@@ -210,10 +212,10 @@ class CodomainPane
 	private JPanel buildButtonPanel(JButton button)
 	{
 		JPanel p = new JPanel();
-		p.setBackground(Color.LIGHT_GRAY);
+		p.setBackground(GRID_COLOR);
 		p.setBorder(null);
 		button.setPreferredSize(DIM_BUTTON);
-		button.setBounds(0, 0, 40, 20);
+		button.setBounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
 		button.setContentAreaFilled(false);
 		p.setPreferredSize(DIM_BUTTON);
 		p.setSize(DIM_BUTTON);

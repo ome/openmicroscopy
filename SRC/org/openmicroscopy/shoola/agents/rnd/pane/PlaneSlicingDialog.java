@@ -44,7 +44,7 @@ import javax.swing.JRadioButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
 
 /** 
  * 
@@ -86,7 +86,7 @@ class PlaneSlicingDialog
 	private PlaneSlicingStaticPanel		pssPanel;
 	private PlaneSlicingDialogManager	manager;
 	
-	PlaneSlicingDialog(QuantumMappingManager control, PlaneSlicingDef psDef)
+	PlaneSlicingDialog(QuantumMappingManager control, PlaneSlicingContext psDef)
 	{
 		manager = new PlaneSlicingDialogManager(this, control, psDef);
 		int yStart, yEnd;

@@ -40,7 +40,7 @@ import java.awt.event.MouseMotionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingDef;
+import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
 
 /** 
  * 
@@ -79,11 +79,11 @@ class ContrastStretchingDialogManager
 										minEndOutputY;
 	private ContrastStretchingDialog	view;
 	private QuantumMappingManager		control;
-	private ContrastStretchingDef 		csDef;
+	private ContrastStretchingContext 		csDef;
 	
 	ContrastStretchingDialogManager(ContrastStretchingDialog view,
 									QuantumMappingManager control,
-									ContrastStretchingDef csDef)
+									ContrastStretchingContext csDef)
 	{
 		this.view = view;
 		this.control = control;

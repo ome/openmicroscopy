@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.rnd.pane.QuantumMapping
+ * org.openmicroscopy.shoola.agents.rnd.pane.HistogramBinMinMax
  *
  *------------------------------------------------------------------------------
  *
@@ -29,18 +29,11 @@
 
 package org.openmicroscopy.shoola.agents.rnd.pane;
 
-
-
 //Java imports
-import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.codomain.ContrastStretchingContext;
-import org.openmicroscopy.shoola.env.rnd.codomain.PlaneSlicingContext;
-import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 
 /** 
  * 
@@ -56,52 +49,26 @@ import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
  * </small>
  * @since OME2.2
  */
-class QuantumMapping
-	extends JPanel
+class HistogramBinMinMax
 {
-	private CodomainPane			codomainPane;
-	private DomainPane				domainPane;
-	private GraphicsRepresentation  gRepresentation;
+	/** minimum value. */
+	private int min;
 	
-	private QuantumMappingManager	manager;
+	/** maximum value. */
+	private int max;
 	
-	QuantumMapping(Registry registry, QuantumDef qDef, 
-					ContrastStretchingContext csDef, PlaneSlicingContext psDef, 
-					String[] waves, int mini, int maxi)
+	HistogramBinMinMax(int min, int max)
 	{
-		manager = new QuantumMappingManager(this);
-		codomainPane = new CodomainPane(registry, manager, csDef, psDef);
-		domainPane = new DomainPane(registry, manager, waves, qDef);
-		gRepresentation = new GraphicsRepresentation(manager, qDef, mini, maxi);
-		manager.setMinimum(mini);
-		manager.setMaximum(maxi);
-		buildGUI();
-	}
-
-	public QuantumMappingManager getManager()
-	{
-		return manager;
-	}
-
-	public CodomainPane getCodomainPane()
-	{
-		return codomainPane;
-	}
-
-	public DomainPane getDomainPane()
-	{
-		return domainPane;
-	}
-
-	public GraphicsRepresentation getGRepresentation()
-	{
-		return gRepresentation;
+		   this.min = min;
+		   this.max = max;
 	}
 	
-	/** Builds and layout the GUI. */
-	private void buildGUI()
+	int getMin()
 	{
-	
-	}
-
+		return min;
+   	}
+   	int getMax()
+   	{
+	   return max;
+   	}
 }

@@ -48,7 +48,7 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.rnd.quantum.QuantumDef;
+import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 import org.openmicroscopy.shoola.util.ui.TableComponent;
 import org.openmicroscopy.shoola.util.ui.TableComponentCellEditor;
@@ -79,7 +79,7 @@ class DomainPane
 	private static final int		COLUMN_WIDTH = 90;
 	
 	/** background color of the JTable. */ 
-	private static final Color		CELL_COLOR = Color.LIGHT_GRAY;
+	private static final Color		GRID_COLOR = Color.WHITE;
 	
 	/** Dimension of the JPanel which contains the slider. */
 	private static final int		PANEL_HEIGHT = 25;
@@ -223,7 +223,7 @@ class DomainPane
 		JTable table = new TableComponent(5, 2);
 		table.setTableHeader(null);
 		table.setRowHeight(ROW_HEIGHT);
-		table.setBackground(CELL_COLOR);
+		table.setGridColor(GRID_COLOR);
 		
 		//Set the columns' width.
 		TableColumnModel columns = table.getColumnModel();
@@ -231,7 +231,7 @@ class DomainPane
 		column.setPreferredWidth(COLUMN_WIDTH);
 		column.setWidth(COLUMN_WIDTH);
 		
-		//Reset the width of the second column
+		//Set the width of the second column
 		column = columns.getColumn(1);
 		//column.setPreferredWidth(PANEL_WIDTH);
 		column.setWidth(PANEL_WIDTH);
@@ -278,11 +278,11 @@ class DomainPane
 		//JPanel which contains a slider.
 		JPanel sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
-		//sliderPanel.setPreferredSize(DIM);
+		sliderPanel.setPreferredSize(DIM);
 		sliderPanel.setSize(DIM);
 		slider.setPreferredSize(DIM);
 		slider.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-		slider.setBackground(Color.LIGHT_GRAY);
+		slider.setBackground(GRID_COLOR);
 		sliderPanel.add(slider);
 		
 		return sliderPanel;
