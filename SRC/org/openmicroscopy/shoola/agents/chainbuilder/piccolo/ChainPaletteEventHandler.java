@@ -154,6 +154,8 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 		if (!(n instanceof ChainView))
 			super.doMouseClicked(e);
 		else {
+			//System.err.println("clicked on chain in chain palette..");
+			
 			
 			// In ChainPaletteCanvas,
 			// chain view has chain box as a grandparent. that's what we 
@@ -162,8 +164,11 @@ public class ChainPaletteEventHandler extends ModuleNodeEventHandler  {
 			if (parent == null) 
 				return;
 			parent = parent.getParent();
-			if (parent != null && parent instanceof MouseableNode)
+			if (parent != null && parent instanceof MouseableNode) {
 				((MouseableNode) parent).mouseClicked(this);		
+				ChainPaletteCanvas c = (ChainPaletteCanvas) canvas;
+				//System.err.println("after zoom, scale is "+c.getCamera().getViewScale());
+			}
 		}
 		e.setHandled(true);
 	}
