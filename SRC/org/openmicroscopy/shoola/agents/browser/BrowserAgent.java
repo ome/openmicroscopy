@@ -1045,7 +1045,8 @@ public class BrowserAgent implements Agent, AgentEventListener
      */
     public void annotateImage(ImageSummary imageInfo)
     {
-        AnnotateImage event = new AnnotateImage(imageInfo);
+        AnnotateImage event = new AnnotateImage(imageInfo.getID(),
+                                                imageInfo.getName());
         
         // makes sure correct response occurs
         event.setCompletionHandler(new AnnotateImageHandler());
