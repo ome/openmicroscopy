@@ -78,11 +78,11 @@ class DatasetImagesDiffPane
 	/** Reference to the control of the main widget. */
 	private DatasetEditorManager 			control;
 	
-	private DatasetImagesDiffPaneManager	manager;
-	
 	private JPanel							contents;
 	
 	private IconManager						im;
+	
+	private DatasetImagesDiffPaneManager	manager;
 	
 	DatasetImagesDiffPane(DatasetEditorManager control, List imagesDiff)
 	{
