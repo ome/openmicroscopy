@@ -73,6 +73,8 @@ public class ImageInspector
 	private ImageInspectorManager	manager;
 	private ZoomPanel				zoomPanel;
 	
+	JScrollPane scroll;
+	
 	public ImageInspector(ViewerCtrl control)
 	{
 		super(control.getReferenceFrame(), "Image Inspector", true);
@@ -95,7 +97,7 @@ public class ImageInspector
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-		JScrollPane scroll = new JScrollPane(zoomPanel);
+		scroll = new JScrollPane(zoomPanel);
 		scroll.setBackground(Viewer.BACKGROUND_COLOR);
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(scroll, BorderLayout.CENTER);

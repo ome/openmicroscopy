@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.viewer.transform;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
@@ -106,11 +107,19 @@ public class ImageInspectorManager
 		zoomBar.getManager().setText(level);
 		ZoomMenu zoomMenu = view.menuBar.getZoomMenu();
 		zoomMenu.getManager().setItemSelected(level);
-	   	Dimension d = new Dimension((int) (imageWidth*level), 
-		   					(int) (imageHeight*level));
+		int w = (int) (imageWidth*level);
+		int h = (int) (imageHeight*level);
+	   	Dimension d = new Dimension(w, h);
+	   	
+		Rectangle r = view.scroll.getViewportBorderBounds();
+		int x = (int) (r.width-w)/2;
+		int y = (int) (r.height-h)/2;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
 	   	zoomPanel.setPreferredSize(d);
 	   	zoomPanel.setSize(d);
-	   	zoomPanel.paintImage(level);
+	   	zoomPanel.paintImage(level, x, y);
+		zoomPanel.revalidate();	 	
 	}
-	
+
 }

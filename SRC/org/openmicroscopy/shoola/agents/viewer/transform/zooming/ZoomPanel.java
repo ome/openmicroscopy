@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.viewer.transform.zooming;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -99,9 +98,11 @@ public class ZoomPanel
  	 * @param y			y-coordinate.
  	 * 	
  	 */	
-	public void paintImage(double level)
+	public void paintImage(double level, int x, int y)
 	{
 		magFactor = level;
+		this.x = x;
+		this.y = y;
 		repaint();
 	} 
 
@@ -110,7 +111,6 @@ public class ZoomPanel
 	{
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
-		setLocation();
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -124,20 +124,8 @@ public class ZoomPanel
 		RescaleOp rop = new RescaleOp((float) magFactor, 0.0f, null);
 		rop.filter(image, bimg);
 		BufferedImageOp biop = new AffineTransformOp(at,
-										AffineTransformOp.TYPE_BILINEAR);		//g2D.fillRect(0, 0, d.width, d.height);	
+										AffineTransformOp.TYPE_BILINEAR);			
 		g2D.drawImage(bimg, biop, x, y);
-	}
-	
-	/** Set the coordinate of the top-left corner of the image. */
-	private void setLocation()
-	{
-		Rectangle d = getBounds();
-		int w = (int) (imageWidth*magFactor);
-		int h = (int) (imageHeight*magFactor);
-		x = (int) (d.width-w)/2;
-		y = (int) (d.height-h)/2;
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
 	}
 	
 }
