@@ -152,8 +152,11 @@ public class Classifier implements Agent, AgentEventListener
         }
         else if(e instanceof ReclassifyImages)
         {
-            ReclassifyImages ri = (ReclassifyImages)ri;
-            reclassify(ri.getClassifications());
+            ReclassifyImages ri = (ReclassifyImages)e;
+            List classifierList = ri.getClassifications();
+            Classification[] attrs = new Classification[classifierList.size()];
+            classifierList.toArray(attrs);
+            reclassify(attrs);
         }
     }
     
