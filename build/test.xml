@@ -167,16 +167,18 @@
            errorproperty="test.didnt.pass" 
            failureproperty="test.didnt.pass"
            fork="yes">
-      <classpath refid="test.classpath"/> 
+      <classpath refid="test.classpath" /> 
       <batchtest todir="${test.reports.xml.dir}">
-        <fileset refid="test.suite"/>
-        <formatter type="brief" usefile="no"/>
-        <formatter type="xml"/> 
+        <fileset refid="test.suite" />
+        <formatter type="brief" usefile="no" />
+        <formatter type="xml" /> 
       </batchtest> 
     </junit>
     <junitreport todir="${test.reports.xml.dir}">
-      <fileset dir="${test.reports.xml.dir}" includes="TEST-*.xml"/>
-      <report todir="${test.reports.html.dir}" format="frames"/> 
+      <fileset dir="${test.reports.xml.dir}" includes="TEST-*.xml" />
+      <report todir="${test.reports.html.dir}" 
+              format="frames"
+              styledir="${base.build.dir}/tools" /> 
     </junitreport>
     <fail if="test.didnt.pass">
       Tests didn't pass.  See report details in ${test.reports.html.dir}.
