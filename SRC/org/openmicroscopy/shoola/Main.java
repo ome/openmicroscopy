@@ -67,18 +67,6 @@ public class Main
 	{
 		String homeDir = "";
 		if (0 < args.length)	homeDir = args[0];
-		try {
-			Container.startup(homeDir);
-		} catch (StartupException se) {
-			System.out.println();
-			System.out.println("---------------------------------------------");
-			System.out.println("An error occurred during initialization.");
-			System.out.println("Error message: "+se.getMessage());
-			System.out.println("Originated by: "+se.getOriginator());
-			System.out.println("---------------------------------------------");
-			System.out.println();
-			System.out.println("Details as follows.");
-			se.printStackTrace();
-		}
+		Container.startup(homeDir);
 	}
 }
