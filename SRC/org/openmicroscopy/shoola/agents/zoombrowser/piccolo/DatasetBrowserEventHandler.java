@@ -173,9 +173,9 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		PNode node = e.getPickedNode();
 		if (node instanceof DatasetNode) {
 			// right click on a dataset deslects
-			//SelectionState selectionState = SelectionState.getState();	
-			//selectionState.setSelectedDataset(null);
-			//zoomLevel = 0;
+			SelectionState selectionState = SelectionState.getState();	
+			selectionState.setSelectedDataset(null);
+			zoomLevel = 0;
 		}
 		else if (node instanceof Thumbnail) {
 			// on a thumbnail, we zoom out
@@ -207,13 +207,14 @@ public class DatasetBrowserEventHandler extends GenericZoomEventHandler {
 		if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) 
 			== MouseEvent.BUTTON1_MASK) {
 			if (node instanceof DatasetNode) {
-				if (zoomLevel == 0) { // Not zoomed in, go to the dataset 
-					// if it's a dataset, select it and animate to it.
+				if (zoomLevel ==0) {
+					// if it's a dataset and we're zoomed out,
+					//  select it and animate to it.
 					DatasetNode d = (DatasetNode) node;
 					selectionState.setSelectedDataset(d.getDataset());
 					animateToNode(d);
-				}
-				// else, do nothing
+				} 
+				// else, ignore the event.
 			}
 
 		//	else if (node instanceof PExecutionText) {
