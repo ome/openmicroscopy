@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.config;
 
 //Java imports
+import java.net.MalformedURLException;
 import java.net.URL;
 
 //Third-party libraries
@@ -37,7 +38,7 @@ import java.net.URL;
 //Application-internal dependencies
 
 /** 
- * 
+ * Contents the information on OMEDS.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,30 +52,29 @@ import java.net.URL;
 public class OMEDSInfo
 {
 
-	private URL		serverAddress;
-	/**
-	 * 
-	 */
-	public OMEDSInfo()
-	{
-	}
+	static final String		URL = "url";
+	private URL				serverAddress;
 
+	/** 
+	* Set the pair (name, value).
+	* 
+	* @param value		tag's value.
+	* @param tag		tag's name.
+	*/ 
+	void setValue(String value, String tag)
+	{  
+		try {
+			if (tag.equals(URL)) serverAddress = new URL(value);  
+		} catch (MalformedURLException ex) { throw new RuntimeException(ex); }
+	}
+	
 	/**
-	 * @return
+	 * Returns the content of the tag <code>url</code>.
+	 * 
+	 * @return See above.
 	 */
 	public URL getServerAddress() {
 		return serverAddress;
 	}
 
-//REMINDER:
-/*
-  URL url = null;
-  try
-  {
-	  url = new URL("http",hi.getHost(),hi.getPort().intValue(),"");
-  } catch (MalformedURLException e) {
-	  throw new NotLoggedInException("Malformed data server URL "+
-									 e.getMessage());
-  }
-  */
 }
