@@ -164,6 +164,8 @@ public class LinkLayer extends PLayer {
 	 * @param link
 	 */
 	public void removeModuleLinks(ParamLink link) {
+		if (link.getOutput() == null || link.getInput() == null)
+			return;
 		ModuleView start = link.getOutput().getModuleView();
 		ModuleView end = link.getInput().getModuleView();
 		
