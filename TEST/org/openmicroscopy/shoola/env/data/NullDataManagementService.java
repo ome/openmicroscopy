@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -615,7 +616,117 @@ public class NullDataManagementService
 	{
 	    // TODO Auto-generated method stub
 	   return null;	
-	}    
+	}
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectsTree(java.util.List)
+     */
+    public List retrieveProjectsTree(List projectIDs)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetsTree(java.util.List)
+     */
+    public List retrieveDatasetsTree(List datasetIDs)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserImages(org.openmicroscopy.shoola.env.data.model.ImageSummary, java.util.Map, java.util.Map)
+     */
+    public List retrieveUserImages(ImageSummary iProto, Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserImages(java.util.Map, java.util.Map)
+     */
+    public List retrieveUserImages(Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserGroup(java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInUserGroup(Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserGroup(org.openmicroscopy.shoola.env.data.model.ImageSummary, java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInUserGroup(ImageSummary iProto, Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets(java.util.List, org.openmicroscopy.shoola.env.data.model.ImageSummary, java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInUserDatasets(List datasetIDs, ImageSummary iProto, Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets(java.util.List, java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInUserDatasets(List datasetIDs, Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInUserDatasets(java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInUserDatasets(Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInSystem(org.openmicroscopy.shoola.env.data.model.ImageSummary, java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInSystem(ImageSummary iProto, Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveImagesInSystem(java.util.Map, java.util.Map)
+     */
+    public List retrieveImagesInSystem(Map filters, Map complexFilters)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }    
 		
     
 }
