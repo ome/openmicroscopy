@@ -65,7 +65,6 @@ class ImageEditorManager
 	
 	/** ID used to handle events. */
 	private static final int	SAVE = 0;	
-	private static final int	CANCEL = 1;
 	
 	private ImageData			model;
 	private ImageEditor			view;
@@ -89,7 +88,6 @@ class ImageEditorManager
 	void initListeners()
 	{
         attachButtonListener(view.getSaveButton(), SAVE);
-		attachButtonListener(view.getCancelButton(), CANCEL);
 		JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -112,8 +110,6 @@ class ImageEditorManager
 			switch (index) { 
 				case SAVE:
 					save(); break;
-				case CANCEL:
-					cancel();
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -126,14 +122,6 @@ class ImageEditorManager
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameField().getText());
 		control.updateImage(model, nameChange);
-		view.dispose();
-	}
-	
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
 	}
 	
 	/** Require by I/F. */

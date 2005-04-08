@@ -30,10 +30,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Category's propertySheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class CategoryEditor
-	extends JDialog
+	extends JPanel
 {
     
 	/** ID to identify the tab pane. */
@@ -71,8 +70,8 @@ public class CategoryEditor
 	/** Reference to the manager. */
 	private CategoryEditorManager      manager;
 	
-	/** Reference to the registry. */
-	private Registry				   registry;
+	/** Reference to the {@link DataManagerCtrl}. */
+	private DataManagerCtrl            agentCtrl;
 	
 	private CategoryPane               categoryPane;
 	private CategoryImagesPane         imagesPane;
@@ -81,21 +80,18 @@ public class CategoryEditor
 	
 
     
-	public CategoryEditor(Registry registry, DataManagerCtrl control,
-						 CategoryData model)
+	public CategoryEditor(DataManagerCtrl agentCtrl, CategoryData model)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new CategoryEditorManager(this, control, model);
+		this.agentCtrl = agentCtrl;
+		manager = new CategoryEditorManager(this, agentCtrl, model);
 		categoryPane = new CategoryPane(manager);
 		imagesPane = new CategoryImagesPane(manager);
 		bar = new CategoryEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
-	Registry getRegistry() { return registry; } 
+	Registry getRegistry() { return agentCtrl.getRegistry(); } 
 	
 	CategoryImagesPane getImagesPane() { return imagesPane; }
 	
@@ -104,9 +100,6 @@ public class CategoryEditor
 	
 	/** Returns the save button displayed {@link CategoryEditorBar}. */
 	JButton getAddButton() { return bar.addButton; }
-	
-	/** Returns the cancel button displayed in {@link CategoryEditorBar}. */
-	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the remove button displayed in {@link CategoryImagesPane}. */
 	JButton getRemoveButton() { return imagesPane.removeButton; }
@@ -140,7 +133,7 @@ public class CategoryEditor
 	{
 		tabs.remove(POS_IMAGE);
 		imagesPane.rebuildComponent();
-		IconManager im = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(getRegistry());
 		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), imagesPane, 
 						null, POS_IMAGE);
 		tabs.setSelectedIndex(POS_IMAGE);	
@@ -154,6 +147,7 @@ public class CategoryEditor
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
+        Registry registry = getRegistry();
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		IconManager im = IconManager.getInstance(registry);
 		tabs.insertTab("Category", im.getIcon(IconManager.CATEGORY), 
@@ -168,11 +162,10 @@ public class CategoryEditor
                                     "Edit an existing category.", 
 									im.getIcon(IconManager.CATEGORY_BIG));
 		//set layout and add components
-        Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);	
+        setLayout(new BorderLayout(0, 0));
+		add(tp, BorderLayout.NORTH);
+		add(tabs, BorderLayout.CENTER);
+		add(bar, BorderLayout.SOUTH);	
 	}
 
 }

@@ -64,7 +64,7 @@ class ImageEditorBar
 	extends JToolBar	
 {
 	
-	JButton					saveButton, cancelButton;
+	JButton					saveButton;
 	
 	ImageEditorBar()
 	{
@@ -76,15 +76,11 @@ class ImageEditorBar
 	/** Initializes the buttons. */
 	private void initButtons()
 	{
-		saveButton = new JButton("OK");
+		saveButton = new JButton("Save");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
-		cancelButton = new JButton("Cancel");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
-		cancelButton.setToolTipText(
-			UIUtilities.formatToolTipText("Close without saving."));
 	}
 	
 	/** Build and lay out the GUI. */
@@ -117,8 +113,6 @@ class ImageEditorBar
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(saveButton);
-		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		p.add(cancelButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.setOpaque(false); //make panel transparent
 		return p;

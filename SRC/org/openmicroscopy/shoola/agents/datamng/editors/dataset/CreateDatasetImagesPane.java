@@ -106,7 +106,7 @@ class CreateDatasetImagesPane
 	}
 
     JButton                                selectButton, resetButton, 
-                                           showImages;
+                                           showImages, filter;
     
 	/** Reference to the manager. */
 	private CreateDatasetEditorManager     manager;
@@ -178,6 +178,12 @@ class CreateDatasetImagesPane
         showImages.setToolTipText(
             UIUtilities.formatToolTipText("Show list of images."));
         setButtonsEnabled(false);
+        
+        //Filters images
+        IconManager im = IconManager.getInstance(manager.getRegistry());
+        filter = new JButton(im.getIcon(IconManager.FILTER));
+        filter.setToolTipText(
+            UIUtilities.formatToolTipText("Filters..."));
         selections = new JComboBox(listOfItems);
     }    
     
@@ -204,6 +210,7 @@ class CreateDatasetImagesPane
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
         componentsPanel.add(showImages);
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(filter);
         componentsPanel.setOpaque(false); //make panel transparent
     }
     

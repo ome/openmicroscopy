@@ -61,7 +61,6 @@ class CreateGroupEditorMng
     
     /** ID used to handle events. */
     private static final int    SAVE = 0;
-    private static final int    CANCEL = 1;
     
     private CreateGroupEditor   view;
     
@@ -86,7 +85,6 @@ class CreateGroupEditorMng
     void initListeners()
     {
         attachButtonListener(view.getSaveButton(), SAVE);
-        attachButtonListener(view.getCancelButton(), CANCEL);
     }
     
     /** Attach a listener to a JButton. */
@@ -104,20 +102,11 @@ class CreateGroupEditorMng
             index = Integer.parseInt(e.getActionCommand());
             switch (index) { 
                 case SAVE:
-                    save(); break;
-                case CANCEL:
-                    cancel(); break;
+                    save(); 
             } 
         } catch(NumberFormatException nfe) {
             throw new Error("Invalid Action ID "+index, nfe);
         } 
-    }
-
-    /** Close the widget, doesn't save changes. */
-    private void cancel()
-    {
-        view.setVisible(false);
-        view.dispose();
     }
     
     /** Save the new group/category. */
@@ -127,8 +116,6 @@ class CreateGroupEditorMng
         String description = view.getGroupDescription().getText();
         //Add check if name no valid.
         control.saveNewGroup(name, description);
-        //close widget.
-        view.dispose();
     }
     
 }

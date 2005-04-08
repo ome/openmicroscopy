@@ -30,10 +30,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Project's propertySheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class ProjectEditor
-	extends JDialog
+	extends JPanel
 {	
 	
 	/** ID to position the components. */
@@ -71,8 +70,8 @@ public class ProjectEditor
 	/** Reference to the manager. */
 	private ProjectEditorManager   manager;
 	
-	/** Reference to the registry. */
-	private Registry				registry;
+	/** Reference to the {@link DataManagerCtrl}. */
+	private DataManagerCtrl agentCtrl;
 	
 	private ProjectGeneralPane		generalPane;
 	private ProjectDatasetsPane		datasetsPane;
@@ -81,22 +80,19 @@ public class ProjectEditor
 	private ProjectEditorBar		bar;
 	private JTabbedPane				tabs;
 	
-	public ProjectEditor(Registry registry, DataManagerCtrl control,
-						 ProjectData model)
+	public ProjectEditor(DataManagerCtrl agentCtrl, ProjectData model)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new ProjectEditorManager(this, control, model);
+        this.agentCtrl = agentCtrl;
+		manager = new ProjectEditorManager(this, agentCtrl, model);
 		generalPane = new ProjectGeneralPane(manager);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
 		bar = new ProjectEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
-	Registry getRegistry() { return registry; } 
+	Registry getRegistry() { return agentCtrl.getRegistry(); } 
 	
 	ProjectDatasetsPane getDatasetsPane() { return datasetsPane; }
 	
@@ -105,9 +101,6 @@ public class ProjectEditor
 	
 	/**  Returns the save button displayed {@link ProjectEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
-	
-	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
-	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the remove button displayed in {@link ProjectDatasetsPane}. */
 	JButton getRemoveButton() { return datasetsPane.removeButton; }
@@ -141,7 +134,7 @@ public class ProjectEditor
 	{
 		tabs.remove(POS_DATASET);
 		datasetsPane.rebuildComponent();
-		IconManager im = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(getRegistry());
 		tabs.insertTab("Datasets", im.getIcon(IconManager.DATASET), 
 						datasetsPane, null, POS_DATASET);
 		tabs.setSelectedIndex(POS_DATASET);	
@@ -154,6 +147,7 @@ public class ProjectEditor
 		tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
   		tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = getRegistry();
   		IconManager im = IconManager.getInstance(registry);
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.insertTab("General", im.getIcon(IconManager.PROJECT), generalPane,
@@ -166,14 +160,12 @@ public class ProjectEditor
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
 		TitlePanel tp = new TitlePanel("Edit Project", 
-										"Edit an existing project.", 
+                                        "Edit an existing project.", 
 										im.getIcon(IconManager.PROJECT_BIG));
-  		//set layout and add components
-        Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);	
+        setLayout(new BorderLayout(0, 0));
+        add(tp, BorderLayout.NORTH);
+        add(tabs, BorderLayout.CENTER);
+        add(bar, BorderLayout.SOUTH); 
 	}
 
 }

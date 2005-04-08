@@ -73,9 +73,8 @@ class ProjectEditorManager
 	private static final int		REMOVE = 1;
 	private static final int		RESET = 2;
 	private static final int		ADD = 3;
-	private static final int		CANCEL = 4;
-	private static final int		REMOVE_ADDED = 5;
-	private static final int		RESET_ADDED = 6;
+	private static final int		REMOVE_ADDED = 4;
+	private static final int		RESET_ADDED = 5;
 	
 	/** Reference to the model. */
 	private ProjectData				model;
@@ -84,7 +83,7 @@ class ProjectEditorManager
 	private ProjectEditor			view;
 	
 	/** Reference to the control. */
-	private DataManagerCtrl 		control;
+	private DataManagerCtrl 		agentCtrl;
 	
 	/** List of datasets to remove. */
 	private List					datasetsToRemove;
@@ -99,11 +98,11 @@ class ProjectEditorManager
 	
 	private ProjectDatasetsDiffPane	dialog;
 	
-	ProjectEditorManager(ProjectEditor view, DataManagerCtrl control,
+	ProjectEditorManager(ProjectEditor view, DataManagerCtrl agentCtrl,
 						ProjectData model)
 	{
 		this.view = view;
-		this.control = control;
+		this.agentCtrl = agentCtrl;
 		this.model = model;
 		nameChange = false;
 		isName = false;
@@ -115,9 +114,9 @@ class ProjectEditorManager
 	List getDatasetsToAdd() { return datasetsToAdd; }
 	
 	List getDatasetsToAddToRemove() { return datasetsToAddToRemove; }
-	
-	ProjectEditor getView() { return view; }
-	
+
+	DataManagerCtrl getAgentControl() { return agentCtrl; }
+    
 	ProjectData getProjectData() { return model; }
 
 	/** Initializes the listeners. */
@@ -126,7 +125,6 @@ class ProjectEditorManager
 		//buttons
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getAddButton(), ADD);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getRemoveButton(), REMOVE);
         attachButtonListener(view.getResetButton(), RESET);
         attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
@@ -157,8 +155,6 @@ class ProjectEditorManager
 					save(); break;
 				case ADD:
 					showDatasetsSelection(); break;
-				case CANCEL:
-					cancel(); break;
 				case REMOVE:
 					remove(); break;
 				case RESET:
@@ -178,7 +174,7 @@ class ProjectEditorManager
 	{
 		if (dialog == null) {
 			//tempo solution
-			List datasetsDiff = control.getDatasetsDiff(model);
+			List datasetsDiff = agentCtrl.getDatasetsDiff(model);
 			dialog = new ProjectDatasetsDiffPane(this, datasetsDiff);
 		} else {
 			dialog.remove(dialog.getContents());
@@ -235,21 +231,14 @@ class ProjectEditorManager
 		view.getSaveButton().setEnabled(true);
 	}
 	
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
-	
 	/** Save in DB. */
 	private void save()
 	{
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameField().getText());
-		control.updateProject(model, datasetsToRemove, datasetsToAdd, 
+		agentCtrl.updateProject(model, datasetsToRemove, datasetsToAdd, 
 							nameChange);
-		view.dispose();
+		//view.dispose();
 	}
 
 	/** Select All datasets.*/

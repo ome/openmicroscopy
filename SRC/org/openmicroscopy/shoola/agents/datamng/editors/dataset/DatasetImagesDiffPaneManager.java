@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -45,8 +46,10 @@ import javax.swing.JComboBox;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
-import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
+import org.openmicroscopy.shoola.agents.datamng.util.Filter;
+import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -64,7 +67,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class DatasetImagesDiffPaneManager
-	implements ActionListener, IDatasetsSelectorMng
+	implements ActionListener, ISelector
 {
 	
 	/** ID to handle event fired by the buttons. */
@@ -73,6 +76,7 @@ class DatasetImagesDiffPaneManager
 	private static final int			SAVE = 2;
     private static final int            SHOW_IMAGES = 3;
     private static final int            IMAGES_SELECTION = 4;
+    private static final int            FILTER = 5;
 	
 	/** List of images to be added. */
 	private List						imagesToAdd;
@@ -86,6 +90,12 @@ class DatasetImagesDiffPaneManager
 	
     private int                         selectionIndex;
     
+    private Map                         filters, complexFilters;
+    
+    private List                        selectedDatasets;
+    
+    private boolean                     loaded;
+    
 	DatasetImagesDiffPaneManager(DatasetImagesDiffPane view, 
 									DatasetEditorManager control)
 	{
@@ -96,11 +106,21 @@ class DatasetImagesDiffPaneManager
 			attachListeners();					
 	}
     
-    /** Implemented as specified in  {@link IDatasetsSelectorMng}. */
-    public void displayListImages(List images)
-    {
-        if (images == null || images.size() == 0) return;
-        view.showImages(images);
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setSelectedDatasets(List l) { selectedDatasets = l; }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setFilters(Map filters)
+    { 
+        this.filters = filters;
+        loaded = false;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setComplexFilters(Map complexFilters)
+    { 
+        this.complexFilters = complexFilters;
+        loaded = false;
     }
     
 	/** Attach listeners. */
@@ -109,6 +129,7 @@ class DatasetImagesDiffPaneManager
         attachButtonListener(view.selectButton, ALL);
         attachButtonListener(view.cancelButton, CANCEL);
         attachButtonListener(view.saveButton, SAVE);
+        attachButtonListener(view.filter, FILTER);
         attachButtonListener(view.showImages, SHOW_IMAGES);
         attachBoxListeners(view.selections, IMAGES_SELECTION);
 	}
@@ -144,6 +165,8 @@ class DatasetImagesDiffPaneManager
                     showImages(); break;
                 case IMAGES_SELECTION:
                     bringSelector(e); break;
+                case FILTER:
+                    bringFilter(); 
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -180,19 +203,28 @@ class DatasetImagesDiffPaneManager
 		} else 	imagesToAdd.remove(is);
 	}
 	
-    /** Bring up the datasetSelector. */
+    /** Bring up the Filter widget. */
+    private void bringFilter()
+    {
+        UIUtilities.centerAndShow(new Filter(control.getAgentControl(), this));
+    }
+    
+    /** Bring up the datasetSelector widget. */
     private void bringSelector(ActionEvent e)
     {
         int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
         if (selectedIndex == CreateDatasetImagesPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
-            //retrieve the user's datasets.
-            List d = control.getUserDatasets();
+            //retrieve the datasets usd by the current user.
+            List d = control.getUsedDatasets();
             if (d != null && d.size() > 0) {
-                DatasetsSelector dialog = new DatasetsSelector(
-                    control.getAgentControl(), this, d, 
-                    DataManagerCtrl.IMAGES_FOR_PDI, control.getDatasetData());
+                DatasetsSelector dialog = 
+                    new DatasetsSelector(control.getAgentControl(), this, d);
                 UIUtilities.centerAndShow(dialog);
+            } else {
+                UserNotifier un = 
+                    control.getAgentControl().getRegistry().getUserNotifier();
+                un.notifyInfo("Used datasets", "no dataset used ");
             }
         }
     }
@@ -201,19 +233,42 @@ class DatasetImagesDiffPaneManager
     private void showImages()
     {
         int selectedIndex = view.selections.getSelectedIndex();
-        if (selectedIndex != selectionIndex) {
+        if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
             List images = null;
             switch (selectedIndex) {
                 case DatasetImagesDiffPane.IMAGES_IMPORTED:
-                    images = control.getImagesDiff(); break;
+                    images = control.getImagesDiff(filters, complexFilters);
+                    break;
                 case DatasetImagesDiffPane.IMAGES_GROUP:
-                    images = control.getImagesInUserGroupDiff(); break;
+                    images = control.getImagesInUserGroupDiff(filters, 
+                                                complexFilters);
+                    break;
                 case DatasetImagesDiffPane.IMAGES_SYSTEM:
-                    images = control.getImagesInSystemDiff(); break;
+                    images = control.getImagesInSystemDiff(filters, 
+                                                        complexFilters);
+                    break;
+                case DatasetImagesDiffPane.IMAGES_USED:
+                    images = control.getAgentControl().loadImagesInDatasets(
+                            selectedDatasets, DataManagerCtrl.FOR_HIERARCHY, 
+                            control.getDatasetData(), filters, complexFilters);
             }
             displayListImages(images);
         }
+    }
+    
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) {
+            UserNotifier un = 
+                control.getAgentControl().getRegistry().getUserNotifier();
+            un.notifyInfo("Image retrieval", "No image matching your criteria");
+            return;
+        }
+        view.showImages(images);
+        loaded = true;
     }
     
 	/** Add the selection to the dataset. */

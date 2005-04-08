@@ -108,7 +108,7 @@ class CategoryImagesDiffPane
 	}
 	
 	JButton							         selectButton, cancelButton, 
-											 saveButton, showImages;
+											 saveButton, showImages, filter;
 											
 	private ImagesTableModel 				imagesTM;
 	
@@ -126,7 +126,8 @@ class CategoryImagesDiffPane
 	
 	CategoryImagesDiffPane(CategoryEditorManager control)
 	{
-		super(control.getView(), "List of existing images", true);
+		super(control.getAgentControl().getReferenceFrame(), 
+                "List of existing images", true);
 		this.control = control;
 		im = IconManager.getInstance(control.getView().getRegistry());
 		initComponents();
@@ -198,6 +199,12 @@ class CategoryImagesDiffPane
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
             UIUtilities.formatToolTipText("Show Images."));
+        //Filters images
+        IconManager im = IconManager.getInstance(
+                control.getAgentControl().getRegistry());
+        filter = new JButton(im.getIcon(IconManager.FILTER));
+        filter.setToolTipText(
+            UIUtilities.formatToolTipText("Filters..."));
         selections = new JComboBox(listOfItems);
 	}
 	
@@ -236,6 +243,7 @@ class CategoryImagesDiffPane
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
         componentsPanel.add(showImages);
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(filter);
         componentsPanel.setOpaque(false); //make panel transparent
     }
 	

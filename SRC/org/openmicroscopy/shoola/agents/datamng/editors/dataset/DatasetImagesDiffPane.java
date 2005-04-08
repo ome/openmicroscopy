@@ -108,7 +108,7 @@ class DatasetImagesDiffPane
 	}
 	
 	JButton                                selectButton, cancelButton, 
-                                           saveButton, showImages;
+                                           saveButton, showImages, filter;
 											
 	private ImagesTableModel               imagesTM;
 	
@@ -126,7 +126,8 @@ class DatasetImagesDiffPane
 	
 	DatasetImagesDiffPane(DatasetEditorManager control)
 	{
-		super(control.getView(), "List of exiting images", true);
+		super(control.getAgentControl().getReferenceFrame(), 
+                "List of exiting images", true);
 		this.control = control;
 		im = IconManager.getInstance(control.getView().getRegistry());
 		initComponents();
@@ -172,7 +173,6 @@ class DatasetImagesDiffPane
         contents.add(p);
         if (images != null && images.size() != 0) 
            contents.add(buildImagesPanel(images)); 
-        //repaint(); 
         pack();
     }
     
@@ -199,6 +199,12 @@ class DatasetImagesDiffPane
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
             UIUtilities.formatToolTipText("Show Images."));
+        //Filters images
+        IconManager im = IconManager.getInstance(
+                control.getAgentControl().getRegistry());
+        filter = new JButton(im.getIcon(IconManager.FILTER));
+        filter.setToolTipText(
+            UIUtilities.formatToolTipText("Filters..."));
         selections = new JComboBox(listOfItems);
 	}
 	
@@ -237,6 +243,7 @@ class DatasetImagesDiffPane
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
         componentsPanel.add(showImages);
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(filter);
         componentsPanel.setOpaque(false); //make panel transparent
     }
 	

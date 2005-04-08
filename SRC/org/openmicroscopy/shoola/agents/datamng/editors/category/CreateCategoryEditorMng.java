@@ -37,6 +37,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -50,9 +51,12 @@ import javax.swing.event.DocumentListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
-import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
+import org.openmicroscopy.shoola.agents.datamng.util.Filter;
+import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -71,17 +75,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class CreateCategoryEditorMng
-    implements ActionListener, DocumentListener, MouseListener,
-    IDatasetsSelectorMng
+    implements ActionListener, DocumentListener, MouseListener, ISelector
 {
 
-    /** ID used to handle events. */
+    /** Action command ID. */
     private static final int        SAVE = 0;
     private static final int        SELECT_IMAGE = 1;
     private static final int        RESET_SELECT_IMAGE = 2;
-    private static final int        CANCEL = 3;
-    private static final int        SHOW_IMAGES = 4;
-    private static final int        IMAGES_SELECTION = 5;
+    private static final int        SHOW_IMAGES = 3;
+    private static final int        IMAGES_SELECTION = 4;
+    private static final int        FILTER = 5;
     
     /** List of images to be added. */
     private List                    imagesToAdd;
@@ -91,9 +94,15 @@ class CreateCategoryEditorMng
     /** Reference to the view. */
     private CreateCategoryEditor    view;
     
-    private DataManagerCtrl         control;
+    private DataManagerCtrl         agentCtrl;
     
     private int                     selectionIndex;
+    
+    private Map                     filters, complexFilters;
+    
+    private List                    selectedDatasets;
+    
+    private boolean                 loaded;
     
     /**
      * @param editor
@@ -102,16 +111,28 @@ class CreateCategoryEditorMng
     CreateCategoryEditorMng(CreateCategoryEditor view, DataManagerCtrl control)
     {
         this.view = view;
-        this.control = control;
+        agentCtrl = control;
         selectionIndex = -1;
         imagesToAdd = new ArrayList();
     }
 
-    /** Implemented as specified in  {@link IDatasetsSelectorMng}. */
-    public void displayListImages(List images)
+    Registry getRegistry() { return agentCtrl.getRegistry(); }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setSelectedDatasets(List l) { selectedDatasets = l; }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setFilters(Map filters)
     {
-        if (images == null || images.size() == 0) return;
-        view.showImages(images);
+        this.filters = filters;
+        loaded = false;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setComplexFilters(Map complexFilters)
+    { 
+        this.complexFilters = complexFilters;
+        loaded = false;
     }
     
     CreateCategoryEditor getView() { return view; }
@@ -121,10 +142,10 @@ class CreateCategoryEditorMng
     {
         attachBoxListeners(view.getImagesSelection(), IMAGES_SELECTION);
         attachButtonListener(view.getSaveButton(), SAVE);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getSelectButton(), SELECT_IMAGE);
         attachButtonListener(view.getResetButton(), RESET_SELECT_IMAGE);
         attachButtonListener(view.getShowImagesButton(), SHOW_IMAGES);
+        attachButtonListener(view.getFilterButton(), FILTER);
         JTextArea nameField = view.getCategoryName();
         nameField.getDocument().addDocumentListener(this);
         nameField.addMouseListener(this);
@@ -160,14 +181,7 @@ class CreateCategoryEditorMng
         button.addActionListener(this);
         button.setActionCommand(""+id);
     }
-    
-    /** Close the widget, doesn't save changes. */
-    private void cancel()
-    {
-        view.setVisible(false);
-        view.dispose();
-    }
-    
+
     /** 
      * Create a new Category
      * {@link DataManagerCtrl}.
@@ -179,8 +193,7 @@ class CreateCategoryEditorMng
         CategoryGroupData 
         group = (CategoryGroupData) view.getExistingGroups().getSelectedItem();
         //check if name is ""
-        control.createNewCategory(group, name, description, imagesToAdd);
-        view.dispose();
+        agentCtrl.createNewCategory(group, name, description, imagesToAdd);
     }
 
     /** Select images. */
@@ -197,6 +210,12 @@ class CreateCategoryEditorMng
         view.resetImageSelection();
     }
 
+    /** Bring up the Filter widget. */
+    private void bringFilter()
+    {
+        UIUtilities.centerAndShow(new Filter(agentCtrl, this));
+    }
+    
     /** Bring up the datasetSelector. */
     private void bringSelector(ActionEvent e)
     {
@@ -204,14 +223,14 @@ class CreateCategoryEditorMng
         if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
             //retrieve the user's datasets.
-            List d = control.getUserDatasets();
-            if (d != null && d.size() > 0) {
-                CategoryGroupData group = 
-                (CategoryGroupData) view.getExistingGroups().getSelectedItem();
-                DatasetsSelector dialog = new DatasetsSelector(
-                    control, this,  d, DataManagerCtrl.IMAGES_FOR_CGI, group);
-                UIUtilities.centerAndShow(dialog);
-            }   
+            List d = agentCtrl.getUsedDatasets();
+            if (d != null && d.size() > 0) 
+                UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this,
+                        d));
+            else {
+                UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+                un.notifyInfo("Used datasets", "no dataset used ");
+            }
         }
     }
     
@@ -221,23 +240,41 @@ class CreateCategoryEditorMng
         CategoryGroupData 
         group = (CategoryGroupData) view.getExistingGroups().getSelectedItem();
         int selectedIndex = view.getImagesSelection().getSelectedIndex();
-        if (selectedIndex != selectionIndex) {
+        if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
             List images = null;
             switch (selectedIndex) {
                 case CreateCategoryImagesPane.IMAGES_IMPORTED:
-                    images = control.getImagesNotInCategoryGroup(group); break;
+                    images = agentCtrl.getImagesNotInCategoryGroup(group, 
+                            filters, complexFilters);
+                    break;
                 case CreateCategoryImagesPane.IMAGES_GROUP:
-                    images = 
-                        control.getImagesInUserGroupNotInCategoryGroup(group);
+                    images = agentCtrl.getImagesInUserGroupNotInCategoryGroup(
+                            group, filters, complexFilters);
                      break;
                 case CreateCategoryImagesPane.IMAGES_SYSTEM:
-                    images = 
-                        control.getImagesInSystemNotInCategoryGroup(group);
-                     break;
+                    images = agentCtrl.getImagesInSystemNotInCategoryGroup(
+                                group, filters, complexFilters);
+                    break;
+                case CreateCategoryImagesPane.IMAGES_USED:
+                    images = agentCtrl.loadImagesInDatasets(selectedDatasets, 
+                            DataManagerCtrl.FOR_CLASSIFICATION, group, filters, 
+                            complexFilters);
             }
             displayListImages(images);
         }
+    }
+    
+    /** Display the images. */
+    private void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) {
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+            un.notifyInfo("Image retrieval", "No image matching your criteria");
+            return;
+        }
+        loaded = true;
+        view.showImages(images);
     }
     
     /** Handles event fired by the buttons. */
@@ -249,8 +286,6 @@ class CreateCategoryEditorMng
             switch (index) { 
                 case SAVE:
                     save(); break;
-                case CANCEL:
-                    cancel(); break;
                 case SELECT_IMAGE:
                     selectImage(); break;
                 case RESET_SELECT_IMAGE:
@@ -258,26 +293,28 @@ class CreateCategoryEditorMng
                 case SHOW_IMAGES:
                     showImages(); break;
                 case IMAGES_SELECTION:
-                    bringSelector(e); break;    
+                    bringSelector(e); break;
+                case FILTER:
+                    bringFilter();
             }
         } catch(NumberFormatException nfe) {
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
 
-    /** Require by I/F. */
+    /** Require by {@link MouseListener} I/F. */
     public void changedUpdate(DocumentEvent e)
     { 
         view.getSaveButton().setEnabled(isName);
     }
     
-    /** Require by I/F. */
+    /** Require by {@link MouseListener} I/F. */
     public void insertUpdate(DocumentEvent e)
     {
         view.getSaveButton().setEnabled(isName);
     }
 
-    /** Require by I/F. */
+    /** Require by {@link MouseListener} I/F. */
     public void removeUpdate(DocumentEvent e)
     {
         view.getSaveButton().setEnabled(isName);
@@ -287,26 +324,26 @@ class CreateCategoryEditorMng
     public void mousePressed(MouseEvent e) { isName = true; }
 
     /** 
-     * Required by I/F but not actually needed in our case, no op 
-     * implementation.
+     * Required by {@link MouseListener} I/F but not actually needed 
+     * in our case, no op implementation.
      */ 
     public void mouseClicked(MouseEvent e) {}
 
     /** 
-     * Required by I/F but not actually needed in our case, no op 
-     * implementation.
+     * Required by {@link MouseListener} I/F but not actually needed 
+     * in our case, no op implementation.
      */ 
     public void mouseEntered(MouseEvent e) {}
 
     /** 
-     * Required by I/F but not actually needed in our case, no op 
-     * implementation.
+     * Required by {@link MouseListener} I/F but not actually needed 
+     * in our case, no op implementation.
      */ 
     public void mouseExited(MouseEvent e) {}
 
     /** 
-     * Required by I/F but not actually needed in our case, no op 
-     * implementation.
+     * Required by {@link MouseListener} I/F but not actually needed 
+     * in our case, no op implementation.
      */ 
     public void mouseReleased(MouseEvent e) {}
 

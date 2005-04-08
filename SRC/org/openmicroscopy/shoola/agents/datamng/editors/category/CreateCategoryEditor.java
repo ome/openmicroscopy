@@ -32,13 +32,12 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -55,7 +54,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Create Category widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,23 +68,22 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class CreateCategoryEditor
-    extends JDialog
+    extends JPanel
 {
         
     static final Dimension              MAX_SCROLL = new Dimension(150, 60);
     
-    private Registry                    registry;
+    private DataManagerCtrl             agentCtrl;
     private CreateCategoryPane          categoryPane;
     private CreateCategoryImagesPane    imagePane;
     private CreateBar                   bar;
     private CreateCategoryEditorMng     manager;
     
-    public CreateCategoryEditor(DataManagerCtrl control, List groups, 
+    public CreateCategoryEditor(DataManagerCtrl agentCtrl, List groups, 
                             int selectedCategoryGroupID)
     {
-        super(control.getReferenceFrame(), true);
-        this.registry = control.getRegistry();
-        manager = new CreateCategoryEditorMng(this, control);
+        this.agentCtrl = agentCtrl;
+        manager = new CreateCategoryEditorMng(this, agentCtrl);
         categoryPane = new CreateCategoryPane(groups, selectedCategoryGroupID);
         imagePane = new CreateCategoryImagesPane(manager);
         bar = new CreateBar();
@@ -95,7 +93,7 @@ public class CreateCategoryEditor
         setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
     }
     
-    Registry getRegistry() { return registry; }
+    Registry getRegistry() { return agentCtrl.getRegistry(); }
     
     /** Returns the widget {@link CreateCategoryEditorMng manager}. */
     CreateCategoryEditorMng getManager() { return manager; }
@@ -108,31 +106,22 @@ public class CreateCategoryEditor
     
     JButton getSaveButton() { return bar.getSave(); }
     
-    JButton getCancelButton() { return bar.getCancel(); }
-    
     JButton getSelectButton() { return imagePane.selectButton; }
     
     JButton getResetButton() { return imagePane.resetButton; }
     
     JButton getShowImagesButton() { return imagePane.showImages; }
     
+    JButton getFilterButton() { return imagePane.filter; }
+    
     JComboBox getImagesSelection() { return imagePane.selections; }
     
     /** List of imageSummary object. */
-    void showImages(List images)
-    {
-        imagePane.showImages(images);
-    }
+    void showImages(List images) { imagePane.showImages(images); }
     
-    void selectAllImages()
-    {
-        imagePane.setSelection(Boolean.TRUE);
-    }
+    void selectAllImages() { imagePane.setSelection(Boolean.TRUE); }
     
-    void resetImageSelection()
-    {
-        imagePane.setSelection(Boolean.FALSE);  
-    }
+    void resetImageSelection() { imagePane.setSelection(Boolean.FALSE); }
     
     /** Build and lay out the GUI. */
     private void buildGUI()
@@ -140,6 +129,7 @@ public class CreateCategoryEditor
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
                                           JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = getRegistry();
         IconManager im = IconManager.getInstance(registry);
         //TODO: specify lookup name.
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -153,11 +143,10 @@ public class CreateCategoryEditor
         TitlePanel tp = new TitlePanel("Category", "Create a new category.", 
                         im.getIcon(IconManager.CREATE_CATEGORY_BIG));
         //set layout and add components
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
-        c.add(tp, BorderLayout.NORTH);
-        c.add(tabs, BorderLayout.CENTER);
-        c.add(bar, BorderLayout.SOUTH);
+        setLayout(new BorderLayout(0, 0));
+        add(tp, BorderLayout.NORTH);
+        add(tabs, BorderLayout.CENTER);
+        add(bar, BorderLayout.SOUTH);
     }
 
 }

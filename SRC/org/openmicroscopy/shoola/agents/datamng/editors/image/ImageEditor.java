@@ -31,10 +31,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -49,7 +48,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Image's propertySheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,40 +62,34 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class ImageEditor
-	extends JDialog
+	extends JPanel
 {
 	
 	/** Reference to the manager. */
 	private ImageEditorManager 		manager;
 	
 	/** Reference to the registry. */
-	private Registry				registry;
+	private DataManagerCtrl        agentCtrl;
 	
 	private ImageGeneralPane		generalPane;
 	private ImageInfoPane			infoPane;
 	private ImageOwnerPane			ownerPane;
 	private ImageEditorBar			bar;
 	
-	public ImageEditor(Registry registry, DataManagerCtrl control,
-					ImageData model)
+	public ImageEditor(DataManagerCtrl agentCtrl, ImageData model)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new ImageEditorManager(this, control, model);
+		this.agentCtrl = agentCtrl;
+		manager = new ImageEditorManager(this, agentCtrl, model);
 		generalPane = new ImageGeneralPane(manager);
 		infoPane = new ImageInfoPane(manager);
 		ownerPane = new ImageOwnerPane(manager);
 		bar = new ImageEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
 	/** Returns the save button displayed in {@link ImageEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
-
-	/** Returns the cancel button displayed in {@link ImageEditorBar}. */
-	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the TextArea displayed in {@link ImageGeneralPane}. */
 	JTextArea getDescriptionArea() { return generalPane.descriptionArea; }
@@ -111,6 +104,7 @@ public class ImageEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = agentCtrl.getRegistry();
 		IconManager im = IconManager.getInstance(registry);
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		
@@ -123,11 +117,10 @@ public class ImageEditor
 		TitlePanel tp = new TitlePanel("Image", "Edit an existing image.", 
 								im.getIcon(IconManager.IMAGE_BIG));
 		//set layout and add components
-        Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);		
+		setLayout(new BorderLayout(0, 0));
+		add(tp, BorderLayout.NORTH);
+		add(tabs, BorderLayout.CENTER);
+		add(bar, BorderLayout.SOUTH);		
 	}
 
 }

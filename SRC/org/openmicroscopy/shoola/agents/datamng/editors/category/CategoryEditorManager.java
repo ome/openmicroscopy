@@ -38,6 +38,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -69,14 +71,13 @@ class CategoryEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
 	
-	/** ID used to handle events. */
+	/** Action command ID. */
 	private static final int           SAVE = 0;	
 	private static final int           REMOVE = 1;
-	private static final int           CANCEL = 2;
-	private static final int           ADD = 3;
-	private static final int           RESET = 4;
-	private static final int           REMOVE_ADDED = 5;
-	private static final int           RESET_ADDED = 6;
+	private static final int           ADD = 2;
+	private static final int           RESET = 3;
+	private static final int           REMOVE_ADDED = 4;
+	private static final int           RESET_ADDED = 5;
 	
 	private CategoryData               model;
 	private CategoryEditor             view;
@@ -90,17 +91,17 @@ class CategoryEditorManager
 	/** List of selected images to be added that have to be removed. */
 	private List                       imagesToAddToRemove;
 	
-	private DataManagerCtrl            control;
+	private DataManagerCtrl            agentCtrl;
 	
 	private boolean                    nameChange, isName;
 	
 	private CategoryImagesDiffPane     dialog;
     
-    CategoryEditorManager(CategoryEditor view, DataManagerCtrl control,
+    CategoryEditorManager(CategoryEditor view, DataManagerCtrl agentCtrl,
                             CategoryData model)
 	{
 		this.view = view;
-		this.control = control;
+		this.agentCtrl = agentCtrl;
 		this.model = model;
 		nameChange = false;
 		isName = false;
@@ -109,7 +110,7 @@ class CategoryEditorManager
 		imagesToAddToRemove = new ArrayList();
 	}
     
-    DataManagerCtrl getAgentControl() { return control; }
+    DataManagerCtrl getAgentControl() { return agentCtrl; }
     
 	List getImages() { return model.getImages(); }
 	
@@ -121,27 +122,33 @@ class CategoryEditorManager
 	
 	CategoryData getCategoryData() { return model; }
 
-    List getUserDatasets() {return control.getUserDatasets(); }
+    List getUserDatasets() {return agentCtrl.getUserDatasets(); }
     
-    List getImagesDiff()
+    List getUsedDatasets() {return agentCtrl.getUsedDatasets(); }
+    
+    List getImagesDiff(Map filters, Map complexFilters)
     {
-        return control.getImagesDiffNotInCategoryGroup(model);
+        return agentCtrl.getImagesDiffNotInCategoryGroup(model, filters, 
+                                                        complexFilters);
     }
     
-    List getImagesDiffInUserDatasets(List datasets)
+    List getImagesDiffInUserDatasets(List datasets, Map filters, 
+                                    Map complexFilters)
     {
-        return control.getImagesDiffInUserDatasetsNotInCategoryGroup(model, 
-                datasets);
+        return agentCtrl.getImagesDiffInUserDatasetsNotInCategoryGroup(model, 
+                datasets, filters, complexFilters);
     }
     
-    List getImagesDiffInUserGroup()
+    List getImagesDiffInUserGroup(Map filters, Map complexFilters)
     {
-        return control.getImagesDiffInUserGroupNotInCategoryGroup(model);
+        return agentCtrl.getImagesDiffInUserGroupNotInCategoryGroup(model, 
+                        filters, complexFilters);
     }
     
-    List getImagesDiffInSystem()
+    List getImagesDiffInSystem(Map filters, Map complexFilters)
     {
-        return control.getImagesDiffInSystemNotInCategoryGroup(model);
+        return agentCtrl.getImagesDiffInSystemNotInCategoryGroup(model, filters, 
+                    complexFilters);
     }
     
 	/** Initializes the listeners. */
@@ -150,7 +157,6 @@ class CategoryEditorManager
 		//buttons
         attachButtonListener(view.getSaveButton(), SAVE);
 		attachButtonListener(view.getAddButton(), ADD);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getRemoveButton(), REMOVE);
         attachButtonListener(view.getResetButton(), RESET);
         attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
@@ -173,8 +179,6 @@ class CategoryEditorManager
 			switch (index) {
 				case SAVE:
 					save(); break;
-				case CANCEL:
-					cancel(); break;
 				case ADD:
 					showImagesSelection(); break;
 				case REMOVE:
@@ -247,20 +251,13 @@ class CategoryEditorManager
 		view.getSaveButton().setEnabled(true);
 	}
 
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
-	
 	/** Save changes in DB. */
 	private void save()
 	{
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameField().getText());
-		control.updateCategory(model, imagesToRemove, imagesToAdd, nameChange);
-		view.dispose();
+		agentCtrl.updateCategory(model, imagesToRemove, imagesToAdd, 
+                                nameChange);
 	}
 	
 	/** Select All images.*/
@@ -294,7 +291,7 @@ class CategoryEditorManager
 		}
 	}
 
-    
+    /** Attach an {@link ActionListener} to a {@link JButton}. */
     private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
@@ -308,20 +305,19 @@ class CategoryEditorManager
 		view.rebuildComponent();
 	}
 
-	
-	/** Require by I/F. */
+	/** Require by {@link MouseListener} I/F. */
 	public void changedUpdate(DocumentEvent e)
     { 
         view.getSaveButton().setEnabled(true);
     }
 
-	/** Require by I/F. */
+	/** Require by {@link MouseListener} I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
 		view.getSaveButton().setEnabled(isName);
 	}
 	
-	/** Require by I/F. */
+	/** Require by {@link MouseListener} I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
         view.getSaveButton().setEnabled(isName);
@@ -331,27 +327,27 @@ class CategoryEditorManager
 	public void mousePressed(MouseEvent e) { isName = true; }
 
 	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
+	 * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
 	 */ 
 	public void mouseClicked(MouseEvent e) {}
 
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */ 
 	public void mouseEntered(MouseEvent e) {}
 
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */ 
 	public void mouseExited(MouseEvent e) {}
 
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     */ 
 	public void mouseReleased(MouseEvent e){}
 	
 }	

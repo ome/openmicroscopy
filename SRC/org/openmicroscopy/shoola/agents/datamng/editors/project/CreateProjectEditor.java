@@ -32,11 +32,10 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -52,7 +51,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Panel to create a Project.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,31 +65,30 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class CreateProjectEditor
-	extends JDialog
+	extends JPanel
 {
 	
-	private Registry 					registry;
-	private CreateProjectPane 			creationPane;
-	private CreateProjectDatasetsPane	datasetsPane;
-	private CreateBar		            bar;
-	private CreateProjectEditorManager	manager;
+	private DataManagerCtrl            agentCtrl;
+    
+	private CreateProjectPane          creationPane;
+	private CreateProjectDatasetsPane  datasetsPane;
+	private CreateBar                  bar;
+	private CreateProjectEditorManager manager;
 	
-	public CreateProjectEditor(Registry registry, DataManagerCtrl control,
-								ProjectData model, List datasets)
+	public CreateProjectEditor(DataManagerCtrl agentCtrl, ProjectData model,
+                                List datasets)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new CreateProjectEditorManager(this, control, model,
+		this.agentCtrl = agentCtrl;
+		manager = new CreateProjectEditorManager(this, agentCtrl, model,
 												datasets);
 		creationPane = new CreateProjectPane();
 		datasetsPane = new CreateProjectDatasetsPane(manager);
 		bar = new CreateBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
-	Registry getRegistry() { return registry; }
+	Registry getRegistry() { return agentCtrl.getRegistry(); }
 	
 	/** Returns the widget {@link CreateProjectEditorManager manager}. */
 	CreateProjectEditorManager getManager() { return manager; }
@@ -103,9 +101,6 @@ public class CreateProjectEditor
 	
 	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
 	JButton getSaveButton() { return bar.getSave(); }
-	
-	/** Returns the save button displayed in {@link CreateProjectEditorBar}. */
-	JButton getCancelButton() { return bar.getCancel(); }
 	
 	/** 
 	 * Returns the select button displayed in {@link CreateProjectDatasetsPane}.
@@ -135,6 +130,7 @@ public class CreateProjectEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = getRegistry();
 		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -148,11 +144,10 @@ public class CreateProjectEditor
 		TitlePanel tp = new TitlePanel("Project", "Create a new project.", 
 						im.getIcon(IconManager.CREATE_PROJECT_BIG));
 		//set layout and add components
-        Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);
+        setLayout(new BorderLayout(0, 0));
+		add(tp, BorderLayout.NORTH);
+		add(tabs, BorderLayout.CENTER);
+		add(bar, BorderLayout.SOUTH);
 	}
 
 	

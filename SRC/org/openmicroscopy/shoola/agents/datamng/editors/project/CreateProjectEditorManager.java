@@ -66,15 +66,14 @@ public class CreateProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
 	
-	/** ID used to handle events. */
+	/** Action command ID. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT = 1;
-	private static final int		CANCEL = 2;
-	private static final int		RESET = 3;
+	private static final int		RESET = 2;
 	
 	private CreateProjectEditor 	view;
 	private ProjectData 			model;
-	private DataManagerCtrl			control;
+	private DataManagerCtrl			agentCtrl;
 	
 	/** 
 	 * List of datasets which belong to the user. These datasets can be added
@@ -99,10 +98,10 @@ public class CreateProjectEditorManager
 	 * @param datasets		List of dataset summary object.
 	 */
 	public CreateProjectEditorManager(CreateProjectEditor view, 
-									DataManagerCtrl control, ProjectData model,
-									List datasets)
+									DataManagerCtrl agentCtrl, 
+                                    ProjectData model, List datasets)
 	{
-		this.control = control;
+		this.agentCtrl = agentCtrl;
 		this.view = view;
 		this.model = model;
 		this.datasets = datasets;
@@ -120,7 +119,6 @@ public class CreateProjectEditorManager
 	void initListeners()
 	{
         attachButtonListener(view.getSaveButton(), SAVE);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getSelectButton(), SELECT);
         attachButtonListener(view.getResetButton(), RESET);
 		JTextArea nameField = view.getNameArea();
@@ -145,8 +143,6 @@ public class CreateProjectEditorManager
 			switch (index) { 
 				case SAVE:
 					save(); break;
-				case CANCEL:
-					cancel(); break;
 				case SELECT:
 					select(); break;
 				case RESET:
@@ -171,13 +167,6 @@ public class CreateProjectEditorManager
 			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
 		} else 	datasetsToAdd.remove(ds);
 	}
-
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
 	
 	/** 
 	 * Save the new ProjectData object and forward event to the 
@@ -188,11 +177,7 @@ public class CreateProjectEditorManager
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameArea().getText());
 		model.setDatasets(datasetsToAdd);
-		//update tree and forward event to DB.
-		//forward event to DataManager.
-		control.addProject(model);
-		//close widget.
-		view.dispose();
+		agentCtrl.createProject(model);
 	}
 	
 	/** Select all datasets and add them to the model. */

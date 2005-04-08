@@ -103,7 +103,7 @@ class CreateCategoryImagesPane
     }
         
     JButton                                 selectButton, resetButton, 
-                                            showImages;
+                                            showImages, filter;
     
     /** List of images we wish to display. */
     JComboBox                               selections;
@@ -142,9 +142,6 @@ class CreateCategoryImagesPane
         p.add(componentsPanel);
         p.add(selectionsPanel);
         add(p);
-        //add(Box.createRigidArea(DataManagerUIF.VBOX));
-        //add(componentsPanel);
-        //add(Box.createRigidArea(DataManagerUIF.VBOX));
         if (images != null && images.size() != 0) {
             add(buildImagesPanel(images));
             setButtonsEnabled(true);
@@ -157,7 +154,6 @@ class CreateCategoryImagesPane
     {
         selectButton.setEnabled(b);
         resetButton.setEnabled(b);
-        //showImages.setEnabled(b);
     }
     
     /** Initializes the components. */
@@ -180,6 +176,11 @@ class CreateCategoryImagesPane
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
             UIUtilities.formatToolTipText("Show list of imported images."));
+        //Filters images
+        IconManager im = IconManager.getInstance(manager.getRegistry());
+        filter = new JButton(im.getIcon(IconManager.FILTER));
+        filter.setToolTipText(
+            UIUtilities.formatToolTipText("Filters..."));
         setButtonsEnabled(false);
         selections = new JComboBox(listOfItems);
     }
@@ -206,6 +207,8 @@ class CreateCategoryImagesPane
         componentsPanel.add(selectButton);
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
         componentsPanel.add(showImages);
+        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        componentsPanel.add(filter);
         componentsPanel.setOpaque(false); //make panel transparent
     }
     

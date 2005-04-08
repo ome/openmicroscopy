@@ -35,6 +35,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
@@ -43,8 +45,10 @@ import javax.swing.JComboBox;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
-import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
+import org.openmicroscopy.shoola.agents.datamng.util.Filter;
+import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -62,7 +66,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class CategoryImagesDiffPaneManager
-	implements ActionListener, IDatasetsSelectorMng
+	implements ActionListener, ISelector
 {
 	
 	/** Action command ID. */
@@ -71,6 +75,7 @@ class CategoryImagesDiffPaneManager
 	private static final int			SAVE = 102;
     private static final int            SHOW_IMAGES = 103;
     private static final int            IMAGES_SELECTION = 104;
+    private static final int            FILTER = 105;
 	
 	/** List of images to be added. */
 	private List						imagesToAdd;
@@ -84,6 +89,12 @@ class CategoryImagesDiffPaneManager
 	
     private int                         selectionIndex;
     
+    private Map                         filters, complexFilters;
+    
+    private List                        selectedDatasets;
+    
+    private boolean                     loaded;
+    
 	CategoryImagesDiffPaneManager(CategoryImagesDiffPane view, 
 									CategoryEditorManager control)
 	{
@@ -94,12 +105,21 @@ class CategoryImagesDiffPaneManager
 			attachListeners();					
 	}
 
-    /** Implemented as specified inthe {@link IDatasetsSelectorMng I/F} */
-    public void displayListImages(List images)
+	/** Implemented as specified by {@link ISelector} I/F. */
+    public void setSelectedDatasets(List l) { selectedDatasets = l; }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setFilters(Map filters)
     {
-        if (images == null || images.size() == 0) return;
-        imagesDiff = images;
-        view.showImages(images);
+        this.filters = filters;
+        loaded = true;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setComplexFilters(Map complexFilters)
+    { 
+        this.complexFilters = complexFilters;
+        loaded = true;
     }
     
 	/** Attach listeners. */
@@ -109,6 +129,7 @@ class CategoryImagesDiffPaneManager
         attachButtonListener(view.cancelButton, CANCEL);
         attachButtonListener(view.saveButton, SAVE);
         attachButtonListener(view.showImages, SHOW_IMAGES);
+        attachButtonListener(view.filter, FILTER);
         attachBoxListeners(view.selections, IMAGES_SELECTION);
 	}
     
@@ -120,10 +141,10 @@ class CategoryImagesDiffPaneManager
     }
     
     /** Attach an {@link ActionListener} to a {@link JComboBox}. */
-    private void attachBoxListeners(JComboBox button, int id)
+    private void attachBoxListeners(JComboBox box, int id)
     {
-        button.addActionListener(this);
-        button.setActionCommand(""+id);
+        box.addActionListener(this);
+        box.setActionCommand(""+id);
     }
     
 	/** Handle events fired by the buttons. */
@@ -142,7 +163,8 @@ class CategoryImagesDiffPaneManager
                     showImages(); break;
                 case IMAGES_SELECTION:
                     bringSelector(e); break;
-                    
+                case FILTER:
+                    bringFilter();  
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -179,20 +201,29 @@ class CategoryImagesDiffPaneManager
 		} else 	imagesToAdd.remove(is);
 	}
 	
+    /** Bring up the Filter widget. */
+    private void bringFilter()
+    {
+        UIUtilities.centerAndShow(new Filter(control.getAgentControl(), this));
+    }
+    
     /** Bring up the datasetSelector. */
     private void bringSelector(ActionEvent e)
     {
         int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
         if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
-            //retrieve the user's datasets.
-            List d = control.getUserDatasets();
+            //retrieve the datasets used by the current user.
+            List d = control.getUsedDatasets();
             if (d != null && d.size() > 0) {
                 DatasetsSelector dialog = new DatasetsSelector(
-                    control.getAgentControl(), this,  d, 
-                    DataManagerCtrl.IMAGES_FOR_CGI, control.getCategoryData());
+                    control.getAgentControl(), this, d);
                 UIUtilities.centerAndShow(dialog);
-            }   
+            } else {
+                UserNotifier un = 
+                    control.getAgentControl().getRegistry().getUserNotifier();
+                un.notifyInfo("Used datasets", "no dataset used ");
+            }
         }
     }
     
@@ -200,16 +231,26 @@ class CategoryImagesDiffPaneManager
     private void showImages()
     {
         int selectedIndex = view.selections.getSelectedIndex();
-        if (selectedIndex != selectionIndex) {
+        if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
             List images = null;
             switch (selectedIndex) {
                 case CategoryImagesDiffPane.IMAGES_IMPORTED:
-                    images = control.getImagesDiff(); break;
+                    images = control.getImagesDiff(filters, complexFilters); 
+                    break;
                 case CategoryImagesDiffPane.IMAGES_GROUP:
-                    images = control.getImagesDiffInUserGroup(); break;
+                    images = control.getImagesDiffInUserGroup(filters, 
+                                complexFilters);
+                    break;
                 case CategoryImagesDiffPane.IMAGES_SYSTEM:
-                    images = control.getImagesDiffInSystem(); break;
+                    images = control.getImagesDiffInSystem(filters, 
+                                        complexFilters); 
+                    break;
+                case CategoryImagesDiffPane.IMAGES_USED:
+                    images = control.getAgentControl().loadImagesInDatasets(
+                            selectedDatasets, 
+                            DataManagerCtrl.FOR_CLASSIFICATION, 
+                            control.getCategoryData(), filters, complexFilters);
             }
             displayListImages(images);
         }
@@ -228,7 +269,21 @@ class CategoryImagesDiffPaneManager
 		}
 		view.setVisible(false);
 	}
-	
+    
+    /** Display the images. */
+    public void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) {
+            UserNotifier 
+                un = control.getAgentControl().getRegistry().getUserNotifier();
+            un.notifyInfo("Image retrieval", "No image matching your criteria");
+            return;
+        }
+        imagesDiff = images;
+        view.showImages(images);
+        loaded = true;
+    }
+    
 	/** Select All datasets.*/
 	private void selectAll()
 	{

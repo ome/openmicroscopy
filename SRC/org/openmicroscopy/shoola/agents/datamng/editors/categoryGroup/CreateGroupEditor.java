@@ -33,10 +33,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -51,7 +50,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * Widget to create a new CategoryGroup.
+ * Create a new CategoryGroup widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,28 +64,26 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class CreateGroupEditor
-    extends JDialog
+    extends JPanel
 {
   
-    private Registry                    registry;
+    private DataManagerCtrl             agentCtrl;
     private CreateGroupPane             groupPane;
     private CreateBar                   bar;
     private CreateGroupEditorMng        manager;
     
-    public CreateGroupEditor(DataManagerCtrl control)
+    public CreateGroupEditor(DataManagerCtrl agentCtrl)
     {
-        super(control.getReferenceFrame(), true);
-        this.registry = control.getRegistry();
-        manager = new CreateGroupEditorMng(this, control);
+        this.agentCtrl = agentCtrl;
+        manager = new CreateGroupEditorMng(this, agentCtrl);
         groupPane = new CreateGroupPane();
         bar = new CreateBar();
         getSaveButton().setEnabled(true);
         buildGUI();
         manager.initListeners();
-        setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
     }
     
-    Registry getRegistry() { return registry; }
+    Registry getRegistry() { return agentCtrl.getRegistry(); }
     
     /** Returns the widget {@link CreateGroupEditorMng manager}. */
     CreateGroupEditorMng getManager() { return manager; }
@@ -96,16 +93,14 @@ public class CreateGroupEditor
     JTextArea getGroupDescription() { return groupPane.descriptionArea; }
     
     JButton getSaveButton() { return bar.getSave(); }
-    
-    JButton getCancelButton() { return bar.getCancel(); }
 
-    
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
                                           JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = getRegistry();
         IconManager im = IconManager.getInstance(registry);
         //TODO: specify lookup name.
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -118,11 +113,10 @@ public class CreateGroupEditor
                         "Create a new group.", 
                         im.getIcon(IconManager.CREATE_GROUP_BIG));
         //set layout and add components
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
-        c.add(tp, BorderLayout.NORTH);
-        c.add(tabs, BorderLayout.CENTER);
-        c.add(bar, BorderLayout.SOUTH);
+        setLayout(new BorderLayout(0, 0));
+        add(tp, BorderLayout.NORTH);
+        add(tabs, BorderLayout.CENTER);
+        add(bar, BorderLayout.SOUTH);
     }
     
 }

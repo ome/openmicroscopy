@@ -30,10 +30,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Dataset's propertySheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class DatasetEditor
-	extends JDialog
+	extends JPanel
 {
     
 	/** ID to identify the tab pane. */
@@ -71,8 +70,8 @@ public class DatasetEditor
 	/** Reference to the manager. */
 	private DatasetEditorManager 	manager;
 	
-	/** Reference to the registry. */
-	private Registry				registry;
+	/** Reference to the {@link DataManagerCtrl}. */
+	private DataManagerCtrl        agentCtrl;
 	
 	private DatasetGeneralPane		generalPane;
 	private DatasetImagesPane		imagesPane;
@@ -80,22 +79,19 @@ public class DatasetEditor
 	private DatasetEditorBar		bar;
 	private JTabbedPane				tabs;
 	
-	public DatasetEditor(Registry registry, DataManagerCtrl control,
-						 DatasetData model)
+	public DatasetEditor(DataManagerCtrl agentCtrl, DatasetData model)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new DatasetEditorManager(this, control, model);
+		this.agentCtrl = agentCtrl;
+		manager = new DatasetEditorManager(this, agentCtrl, model);
 		generalPane = new DatasetGeneralPane(manager);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
 		bar = new DatasetEditorBar();
 		buildGUI();
 		manager.initListeners();
-		setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
-	Registry getRegistry() { return registry; } 
+	Registry getRegistry() { return agentCtrl.getRegistry(); } 
 	
 	DatasetImagesPane getImagesPane() { return imagesPane; }
 	
@@ -104,9 +100,6 @@ public class DatasetEditor
 	
 	/** Returns the save button displayed {@link DatasetEditorBar}. */
 	JButton getAddButton() { return bar.addButton; }
-	
-	/** Returns the cancel button displayed in {@link DatasetEditorBar}. */
-	JButton getCancelButton() { return bar.cancelButton; }
 	
 	/** Returns the remove button displayed in {@link DatasetImagesPane}. */
 	JButton getRemoveButton() { return imagesPane.removeButton; }
@@ -140,7 +133,7 @@ public class DatasetEditor
 	{
 		tabs.remove(POS_IMAGE);
 		imagesPane.rebuildComponent();
-		IconManager im = IconManager.getInstance(registry);
+		IconManager im = IconManager.getInstance(getRegistry());
 		tabs.insertTab("Datasets", im.getIcon(IconManager.IMAGE), imagesPane, 
 						null, POS_IMAGE);
 		tabs.setSelectedIndex(POS_IMAGE);	
@@ -154,6 +147,7 @@ public class DatasetEditor
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
+        Registry registry = getRegistry();
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		IconManager im = IconManager.getInstance(registry);
 		tabs.insertTab("General", im.getIcon(IconManager.DATASET), generalPane,
@@ -170,11 +164,10 @@ public class DatasetEditor
 								"Edit an existing dataset.", 
 									im.getIcon(IconManager.DATASET_BIG));
 		//set layout and add components
-        Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);	
+        setLayout(new BorderLayout(0, 0));
+		add(tp, BorderLayout.NORTH);
+		add(tabs, BorderLayout.CENTER);
+		add(bar, BorderLayout.SOUTH);	
 	}
 
 }

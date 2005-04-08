@@ -31,10 +31,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -49,7 +48,7 @@ import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * CategoryGroup's propertySheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,7 +62,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class GroupEditor
-    extends JDialog
+    extends JPanel
 {
     
     /** ID to identify the tab pane. */
@@ -72,8 +71,8 @@ public class GroupEditor
     /** Reference to the manager. */
     private GroupEditorManager      manager;
     
-    /** Reference to the registry. */
-    private Registry                registry;
+    /** Reference to the {@link DataManagerCtrl}. */
+    private DataManagerCtrl         agentCtrl;
     
     private GroupEditorBar          bar;
     
@@ -83,12 +82,10 @@ public class GroupEditor
     
     GroupCategoriesPane             categoriesPane;
     
-    public GroupEditor(Registry registry, DataManagerCtrl control,
-                         CategoryGroupData model)
+    public GroupEditor(DataManagerCtrl agentCtrl, CategoryGroupData model)
     {
-        super(control.getReferenceFrame(), true);
-        this.registry = registry;
-        manager = new GroupEditorManager(this, control, model);
+        this.agentCtrl = agentCtrl;
+        manager = new GroupEditorManager(this, agentCtrl, model);
         generalPane = new GroupPane(manager);
         categoriesPane = new GroupCategoriesPane(manager);
         bar = new GroupEditorBar();
@@ -97,17 +94,14 @@ public class GroupEditor
         setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
     }
     
-    Registry getRegistry() { return registry; } 
+    Registry getRegistry() { return agentCtrl.getRegistry(); } 
     
     /**  Returns the save button displayed {@link CategoryEditorBar}. */
     JButton getSaveButton() { return bar.saveButton; }
     
     /** Returns the save button displayed {@link CategoryEditorBar}. */
     JButton getAddButton() { return bar.addButton; }
-    
-    /** Returns the cancel button displayed in {@link CategoryEditorBar}. */
-    JButton getCancelButton() { return bar.cancelButton; }
-    
+
     /** Returns the remove button displayed in {@link GroupCategoriesPane}. */
     JButton getRemoveToAddButton() { return categoriesPane.removeToAddButton; }
     
@@ -134,7 +128,7 @@ public class GroupEditor
     {
         tabs.remove(POS_CATEGORY);
         categoriesPane.rebuildComponent();
-        IconManager im = IconManager.getInstance(registry);
+        IconManager im = IconManager.getInstance(getRegistry());
         tabs.insertTab("Categories", im.getIcon(IconManager.IMAGE), 
                         categoriesPane, null, POS_CATEGORY);
         tabs.setSelectedIndex(POS_CATEGORY);   
@@ -148,6 +142,7 @@ public class GroupEditor
                                           JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
         //TODO: specify lookup name.
+        Registry registry = getRegistry();
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
         IconManager im = IconManager.getInstance(registry);
         tabs.insertTab("General", im.getIcon(IconManager.CATEGORY_GROUP), 
@@ -162,11 +157,10 @@ public class GroupEditor
                                 "Edit an existing category group.", 
                                     im.getIcon(IconManager.CATEGORY_GROUP_BIG));
         //set layout and add components
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
-        c.add(tp, BorderLayout.NORTH);
-        c.add(tabs, BorderLayout.CENTER);
-        c.add(bar, BorderLayout.SOUTH); 
+        setLayout(new BorderLayout(0, 0));
+        add(tp, BorderLayout.NORTH);
+        add(tabs, BorderLayout.CENTER);
+        add(bar, BorderLayout.SOUTH); 
     }
 
 }

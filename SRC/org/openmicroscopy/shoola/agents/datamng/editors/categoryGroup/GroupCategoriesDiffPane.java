@@ -106,7 +106,8 @@ class GroupCategoriesDiffPane
 
     GroupCategoriesDiffPane(GroupEditorManager control, List categoriesDiff)
     {
-        super(control.getView(), "List of existing categories", true);
+        super(control.getAgentCtrl().getReferenceFrame(), 
+                "List of existing categories", true);
         this.control = control;
         initButtons(categoriesDiff);
         manager = new GroupCategoriesDiffPaneMng(this, control, 
@@ -163,7 +164,7 @@ class GroupCategoriesDiffPane
     void buildGUI()
     {
         IconManager im = 
-            IconManager.getInstance(control.getView().getRegistry());
+            IconManager.getInstance(control.getAgentCtrl().getRegistry());
         TitlePanel tp = new TitlePanel(" Add categories", 
                                 "  Select categories to add to the group.", 
                             im.getIcon(IconManager.DATASET_BIG));
@@ -213,7 +214,7 @@ class GroupCategoriesDiffPane
     private void setTableLayout(JTable table)
     {
         IconManager im = IconManager.getInstance(
-                            control.getView().getRegistry());
+                            control.getAgentCtrl().getRegistry());
         TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
         TableColumnModel tcm = table.getTableHeader().getColumnModel();
         TableColumn tc = tcm.getColumn(NAME);

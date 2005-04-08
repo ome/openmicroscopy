@@ -38,6 +38,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -72,11 +74,10 @@ class DatasetEditorManager
 	/** ID used to handle events. */
 	private static final int		SAVE = 0;	
 	private static final int		REMOVE = 1;
-	private static final int		CANCEL = 2;
-	private static final int		ADD = 3;
-	private static final int		RESET = 4;
-	private static final int		REMOVE_ADDED = 5;
-	private static final int		RESET_ADDED = 6;
+	private static final int		ADD = 2;
+	private static final int		RESET = 3;
+	private static final int		REMOVE_ADDED = 4;
+	private static final int		RESET_ADDED = 5;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -90,17 +91,17 @@ class DatasetEditorManager
 	/** List of selected images to be added that have to be removed. */
 	private List					imagesToAddToRemove;
 	
-	private DataManagerCtrl 		control;
+	private DataManagerCtrl 		agentCtrl;
 	
 	private boolean					nameChange, isName;
 	
 	private DatasetImagesDiffPane	dialog;
     
-	DatasetEditorManager(DatasetEditor view, DataManagerCtrl control,
+	DatasetEditorManager(DatasetEditor view, DataManagerCtrl agentCtrl,
 						DatasetData model)
 	{
 		this.view = view;
-		this.control = control;
+		this.agentCtrl = agentCtrl;
 		this.model = model;
 		nameChange = false;
 		isName = false;
@@ -109,7 +110,7 @@ class DatasetEditorManager
 		imagesToAddToRemove = new ArrayList();
 	}
 	
-    DataManagerCtrl getAgentControl() { return control; }
+    DataManagerCtrl getAgentControl() { return agentCtrl; }
     
     DatasetEditor getView() { return view; }
     
@@ -121,25 +122,23 @@ class DatasetEditorManager
 	
 	List getImagesToAddToRemove() { return imagesToAddToRemove; }
 
-    List getImagesDiff() { return control.getImagesDiff(model); }
-    
-    List getUserDatasets() { return control.getUserDatasets(); }
-    
-    /*
-    List getImagesInUserDatasetsDiff(List datasets)
+    List getImagesDiff(Map filters, Map complexFilters)
     { 
-        return control.getImagesInUserDatasetsDiff(model, datasets);
-    }
-    */
-    
-    List getImagesInUserGroupDiff()
-    {
-        return control.getImagesInUserGroupDiff(model);
+        return agentCtrl.getImagesDiff(model, filters, complexFilters);
     }
     
-    List getImagesInSystemDiff()
+    List getUserDatasets() { return agentCtrl.getUserDatasets(); }
+    
+    List getUsedDatasets() { return agentCtrl.getUsedDatasets(); }
+    
+    List getImagesInUserGroupDiff(Map filters, Map complexFilters)
     {
-        return control.getImagesInSystemDiff(model);
+        return agentCtrl.getImagesInUserGroupDiff(model, filters, complexFilters);
+    }
+    
+    List getImagesInSystemDiff(Map filters, Map complexFilters)
+    {
+        return agentCtrl.getImagesInSystemDiff(model, filters, complexFilters);
     }
     
 	/** Initializes the listeners. */
@@ -148,7 +147,6 @@ class DatasetEditorManager
 		//buttons
         attachButtonListener(view.getSaveButton(), SAVE);
 		attachButtonListener(view.getAddButton(), ADD);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getRemoveButton(), REMOVE);
         attachButtonListener(view.getResetButton(), RESET);
         attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
@@ -171,8 +169,6 @@ class DatasetEditorManager
 			switch (index) {
 				case SAVE:
 					save(); break;
-				case CANCEL:
-					cancel(); break;
 				case ADD:
 					showImagesSelection(); break;
 				case REMOVE:
@@ -246,21 +242,13 @@ class DatasetEditorManager
 		else 	imagesToRemove.remove(is);
 		view.getSaveButton().setEnabled(true);
 	}
-
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
 	
 	/** Save changes in DB. */
 	private void save()
 	{
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameArea().getText());
-		control.updateDataset(model, imagesToRemove, imagesToAdd, nameChange);
-		view.dispose();
+		agentCtrl.updateDataset(model, imagesToRemove, imagesToAdd, nameChange);
 	}
 	
 	/** Select All images.*/

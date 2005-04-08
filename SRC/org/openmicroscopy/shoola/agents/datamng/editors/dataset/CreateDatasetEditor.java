@@ -31,12 +31,11 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -53,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 
 /** 
- * 
+ * Create Dataset widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -67,22 +66,21 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME2.2
  */
 public class CreateDatasetEditor
-	extends JDialog
+	extends JPanel
 {	
 
-	private Registry                       registry;
+    private DataManagerCtrl                 agentCtrl;
 	private CreateDatasetPane              creationPane;
 	private CreateDatasetProjectsPane      projectsPane;
 	private CreateDatasetImagesPane        imagesPane;
 	private CreateBar                      bar;
 	private CreateDatasetEditorManager     manager;
 	
-	public CreateDatasetEditor(Registry registry, DataManagerCtrl control,
-								DatasetData model, List projects)
+	public CreateDatasetEditor(DataManagerCtrl agentCtrl, DatasetData model,
+                            List projects)
 	{
-		super(control.getReferenceFrame(), true);
-		this.registry = registry;
-		manager = new CreateDatasetEditorManager(this, control, model, 
+		this.agentCtrl = agentCtrl;
+		manager = new CreateDatasetEditorManager(this, agentCtrl, model, 
                                                 projects);
 		creationPane = new CreateDatasetPane();
 		projectsPane = new CreateDatasetProjectsPane(manager);
@@ -93,7 +91,7 @@ public class CreateDatasetEditor
 		setSize(DataManagerUIF.EDITOR_WIDTH+100, DataManagerUIF.EDITOR_HEIGHT);
 	}
 	
-	Registry getRegistry() { return registry; }
+	Registry getRegistry() { return agentCtrl.getRegistry(); }
 	
 	/** Return the {@link CreateDatasetEditorManager manager} of the widget. */
 	CreateDatasetEditorManager getManager() { return manager; }
@@ -107,11 +105,6 @@ public class CreateDatasetEditor
 	/** Returns the save button displayed by {@link CreateDatasetEditorBar}. */
 	JButton getSaveButton() { return bar.getSave(); }
 
-	/** 
-	 * Returns the cancel button displayed by 
-	 * {@link CreateDatasetEditorBar}.
-	 */
-	JButton getCancelButton() { return bar.getCancel(); }
 	/** 
 	 * Returns the select button displayed by {@link CreateDatasetProjectsPane}.
 	 */
@@ -137,6 +130,11 @@ public class CreateDatasetEditor
      * by {@link CreateDatasetImagesPane}.
      */
     JButton getShowImagesButton() { return imagesPane.showImages; }
+    
+    /** 
+     * Returns the filter button displayed by {@link CreateDatasetImagesPane}.
+     */
+    JButton getFilterButton() { return imagesPane.filter; }
 	
     /** 
      * Returns the selection box displayed by {@link CreateDatasetImagesPane}.
@@ -165,6 +163,7 @@ public class CreateDatasetEditor
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
 										  JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
+        Registry registry = getRegistry();
 		IconManager im = IconManager.getInstance(registry);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
@@ -177,14 +176,13 @@ public class CreateDatasetEditor
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
-        Container c = getContentPane();
 		TitlePanel tp = new TitlePanel("Dataset", "Create a new dataset.", 
 							im.getIcon(IconManager.CREATE_DATASET_BIG));
 		//set layout and add components
-		c.setLayout(new BorderLayout(0, 0));
-		c.add(tp, BorderLayout.NORTH);
-		c.add(tabs, BorderLayout.CENTER);
-		c.add(bar, BorderLayout.SOUTH);
+		setLayout(new BorderLayout(0, 0));
+		add(tp, BorderLayout.NORTH);
+		add(tabs, BorderLayout.CENTER);
+		add(bar, BorderLayout.SOUTH);
 	}
 
 }

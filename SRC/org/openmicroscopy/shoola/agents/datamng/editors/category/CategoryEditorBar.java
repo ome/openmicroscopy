@@ -65,7 +65,7 @@ class CategoryEditorBar
 	extends JToolBar
 {
 
-	JButton					saveButton, cancelButton, addButton;
+	JButton					saveButton, addButton;
 	
 	CategoryEditorBar()
 	{
@@ -77,15 +77,11 @@ class CategoryEditorBar
 	/** Initializes the buttons. */
 	private void initButtons()
 	{
-		saveButton = new JButton("OK");
+		saveButton = new JButton("Save");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save the data."));
 		saveButton.setEnabled(false);
-		cancelButton = new JButton("Cancel");
-		cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
-		cancelButton.setToolTipText(
-			UIUtilities.formatToolTipText("Close without saving."));
 		addButton = new JButton("Show images");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		addButton.setToolTipText(
@@ -122,8 +118,6 @@ class CategoryEditorBar
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(saveButton);
-		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		p.add(cancelButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(addButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));

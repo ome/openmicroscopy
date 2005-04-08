@@ -69,12 +69,11 @@ class GroupEditorManager
     implements ActionListener, DocumentListener, MouseListener
 {
     
-    /** ID used to handle events. */
+    /** Action ID. */
     private static final int        SAVE = 0;   
     private static final int        ADD = 1;
-    private static final int        CANCEL = 2;
-    private static final int        REMOVE_ADDED = 3;
-    private static final int        RESET_ADDED = 4;
+    private static final int        REMOVE_ADDED = 2;
+    private static final int        RESET_ADDED = 3;
     
     /** Reference to the model. */
     private CategoryGroupData               model;
@@ -83,7 +82,7 @@ class GroupEditorManager
     private GroupEditor                     view;
     
     /** Reference to the control. */
-    private DataManagerCtrl                 control;
+    private DataManagerCtrl                 agentCtrl;
     
     private List                            categoriesToAdd, 
                                             categoriesToAddToRemove;
@@ -97,7 +96,7 @@ class GroupEditorManager
     {
         
         this.view = view;
-        this.control = control;
+        this.agentCtrl = control;
         this.model = model;
         nameChange = false;
         isName = false;
@@ -108,8 +107,8 @@ class GroupEditorManager
     List getCategoriesToAdd() { return categoriesToAdd; }
     
     List getCategoriesToAddToRemove() { return categoriesToAddToRemove; }
-    
-    GroupEditor getView() { return view; }
+
+    DataManagerCtrl getAgentCtrl() { return agentCtrl; }
     
     CategoryGroupData getCategoryGroupData() { return model; }
     
@@ -119,7 +118,6 @@ class GroupEditorManager
         //buttons
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getAddButton(), ADD);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
         attachButtonListener(view.getResetToAddButton(), RESET_ADDED);  
         
@@ -148,8 +146,6 @@ class GroupEditorManager
                     save(); break;
                 case ADD:
                     showCategorieSelection(); break;
-                case CANCEL:
-                    cancel(); break;
                 case REMOVE_ADDED:
                     removeAdded(); break;
                 case RESET_ADDED:
@@ -164,7 +160,7 @@ class GroupEditorManager
     void showCategorieSelection()
     {
         if (dialog == null) {
-            List categories = control.getCategoriesNotInGroup(model);
+            List categories = agentCtrl.getCategoriesNotInGroup(model);
             if (categories != null)
                 dialog = new GroupCategoriesDiffPane(this, categories);
         } else {
@@ -208,21 +204,13 @@ class GroupEditorManager
                 categoriesToAddToRemove.remove(cd);
         } 
     }
-    
-    /** Close the widget, doesn't save changes. */
-    private void cancel()
-    {
-        view.setVisible(false);
-        view.dispose();
-    }
-    
+
     /** Save in DB. */
     private void save()
     {
         model.setDescription(view.getDescriptionArea().getText());
         model.setName(view.getNameField().getText());
-        control.updateCategoryGroup(model, categoriesToAdd, nameChange);
-        view.dispose();
+        agentCtrl.updateCategoryGroup(model, categoriesToAdd, nameChange);
     }
 
     /** Remove the selected datasets from the queue of datasets to add. */

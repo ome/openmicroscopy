@@ -101,7 +101,8 @@ class ProjectDatasetsDiffPane
 	
 	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
 	{
-		super(control.getView(), "List of existing datasets", true);
+		super(control.getAgentControl().getReferenceFrame(), 
+                "List of existing datasets", true);
 		this.control = control;
 		initButtons(datasetsDiff);
 		manager = new ProjectDatasetsDiffPaneManager(this, control, 
@@ -158,7 +159,7 @@ class ProjectDatasetsDiffPane
 	void buildGUI()
 	{
         IconManager im = 
-            IconManager.getInstance(control.getView().getRegistry());
+            IconManager.getInstance(control.getAgentControl().getRegistry());
 		TitlePanel tp = new TitlePanel(" Add datasets", 
 								"  Select datasets to add to the project.", 
 							im.getIcon(IconManager.DATASET_BIG));
@@ -208,7 +209,7 @@ class ProjectDatasetsDiffPane
 	private void setTableLayout(JTable table)
 	{
 		IconManager im = IconManager.getInstance(
-							control.getView().getRegistry());
+							control.getAgentControl().getRegistry());
 		TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
 		TableColumnModel tcm = table.getTableHeader().getColumnModel();
 		TableColumn tc = tcm.getColumn(NAME);

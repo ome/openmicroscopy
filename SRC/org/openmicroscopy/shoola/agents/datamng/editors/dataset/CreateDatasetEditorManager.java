@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -48,7 +49,9 @@ import javax.swing.event.DocumentListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
-import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
+import org.openmicroscopy.shoola.agents.datamng.util.Filter;
+import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
@@ -70,21 +73,22 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class CreateDatasetEditorManager
-	implements ActionListener, DocumentListener, MouseListener, 
-    IDatasetsSelectorMng
+	implements ActionListener, DocumentListener, MouseListener, ISelector
 {
 	
-	/** ID used to handle events. */
+	/** Action command ID. */
 	private static final int		SAVE = 0;
 	private static final int		SELECT_PROJECT = 1;
 	private static final int		RESET_SELECTION_PROJECT = 2;
 	private static final int		SELECT_IMAGE = 3;
 	private static final int		RESET_SELECTION_IMAGE = 4;
-	private static final int		CANCEL = 5;
-    private static final int        SHOW_IMAGES = 6;
-    private static final int        IMAGES_SELECTION = 7;
+    private static final int        SHOW_IMAGES = 5;
+    private static final int        IMAGES_SELECTION = 6;
+    private static final int        FILTER = 7;
 	
 	private CreateDatasetEditor 	view;
+    
+    /** Reference to the datamodel. */
 	private DatasetData 			model;
     
 	private DataManagerCtrl			agentCtrl;
@@ -101,6 +105,12 @@ class CreateDatasetEditorManager
 	
     private int                     selectionIndex;
     
+    private Map                     filters, complexFilters;
+    
+    private List                    selectedDatasets;
+    
+    private boolean                 loaded;
+    
     CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl agentCtrl,
 									  DatasetData model, List projects)
@@ -115,11 +125,23 @@ class CreateDatasetEditorManager
 		isName = false;
 	}
 	
-    /** Implemented as specified in  {@link IDatasetsSelectorMng}. */
-    public void displayListImages(List images)
+    Registry getRegistry() { return agentCtrl.getRegistry(); }
+
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setSelectedDatasets(List l) { selectedDatasets = l; }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setFilters(Map filters)
     {
-        if (images == null || images.size() == 0) return;
-        view.showImages(images);
+        this.filters = filters;
+        loaded = false;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setComplexFilters(Map complexFilters)
+    { 
+        this.complexFilters = complexFilters;
+        loaded = false;
     }
     
 	CreateDatasetEditor getView() { return view; }
@@ -133,7 +155,6 @@ class CreateDatasetEditorManager
 	{
         attachBoxListeners(view.getImagesSelections(), IMAGES_SELECTION);
         attachButtonListener(view.getSaveButton(), SAVE);
-        attachButtonListener(view.getCancelButton(), CANCEL);
         attachButtonListener(view.getSelectButton(), SELECT_PROJECT);
         attachButtonListener(view.getResetProjectButton(), 
                             RESET_SELECTION_PROJECT);
@@ -141,6 +162,8 @@ class CreateDatasetEditorManager
         attachButtonListener(view.getResetImageButton(), 
                                 RESET_SELECTION_IMAGE);
         attachButtonListener(view.getShowImagesButton(), SHOW_IMAGES);
+        attachButtonListener(view.getFilterButton(), FILTER);
+        //TextArea
 		JTextArea nameField = view.getNameArea();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -171,8 +194,6 @@ class CreateDatasetEditorManager
 			switch (index) { 
 				case SAVE:
 					save(); break;
-				case CANCEL:
-					cancel(); break;
 				case SELECT_PROJECT:
 					selectProject(); break;
 				case RESET_SELECTION_PROJECT:
@@ -185,6 +206,8 @@ class CreateDatasetEditorManager
                     showImages(); break;
                 case IMAGES_SELECTION:
                     bringSelector(e); break;
+                case FILTER:
+                    bringFilter();
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
@@ -221,18 +244,27 @@ class CreateDatasetEditorManager
 		} else 	projectsToAdd.remove(ps);
 	}
 
-    /** Bring up the datasetSelector. */
+    /** Bring up the Filter widget. */
+    private void bringFilter()
+    {
+        UIUtilities.centerAndShow(new Filter(agentCtrl, this));
+    }
+    
+    /** Bring up the datasetSelector widget. */
     private void bringSelector(ActionEvent e)
     {
         int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
         if (selectedIndex == CreateDatasetImagesPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
-            //retrieve the user's datasets.
-            List d = agentCtrl.getUserDatasets();
+            //retrieve the datasets used by the current user.
+            List d = agentCtrl.getUsedDatasets();
             if (d != null && d.size() > 0)
                 UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
-                                            d, DataManagerCtrl.IMAGES_FOR_PDI, 
-                                            null));
+                                            d));
+            else {
+                UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+                un.notifyInfo("Used datasets", "no dataset used ");
+            }
         }
     }
     
@@ -240,27 +272,40 @@ class CreateDatasetEditorManager
     private void showImages()
     {
         int selectedIndex = view.getImagesSelections().getSelectedIndex();
-        if (selectedIndex != selectionIndex) {
+        if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
             List images = null;
             switch (selectedIndex) {
                 case CreateDatasetImagesPane.IMAGES_IMPORTED:
-                    images = agentCtrl.getImportedImages(); break;
+                    images = agentCtrl.getImportedImages(filters, 
+                                complexFilters);
+                    break;
                 case CreateDatasetImagesPane.IMAGES_GROUP:
-                    images = agentCtrl.getGroupImages(); break;
+                    images = agentCtrl.getGroupImages(filters, complexFilters);
+                    break;
                 case CreateDatasetImagesPane.IMAGES_SYSTEM:
-                    images = agentCtrl.getSystemImages(); break;
+                    images = agentCtrl.getSystemImages(filters, complexFilters);
+                    break;
+                case CreateDatasetImagesPane.IMAGES_USED:
+                    images = agentCtrl.loadImagesInDatasets(selectedDatasets, 
+                            DataManagerCtrl.FOR_HIERARCHY, null, filters, 
+                            complexFilters);
             }
             displayListImages(images);
         }
     }
     
-	/** Close the widget, doesn't save changes. */
-	private void cancel()
-	{
-		view.setVisible(false);
-		view.dispose();
-	}
+    /** Display the images. */
+    private void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) {
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+            un.notifyInfo("Image retrieval", "No image matching your criteria");
+            return;
+        }
+        view.showImages(images);
+        loaded = true;
+    }
 	
 	/** 
 	 * Save the new DatasetData object in DB and forward event to the 
@@ -281,8 +326,6 @@ class CreateDatasetEditorManager
 		//forward event to DataManager.
         
 		agentCtrl.addDataset(projectsToAdd, imagesToAdd, model);
-		//close widget.
-		view.dispose();
 	}
 
 	/** Select projects. */
