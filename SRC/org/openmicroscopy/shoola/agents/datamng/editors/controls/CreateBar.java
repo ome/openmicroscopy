@@ -68,7 +68,7 @@ public class CreateBar
 extends JToolBar
 {
 
-    private JButton     save, cancel;
+    private JButton     save;
     
     public CreateBar()
     {
@@ -78,21 +78,15 @@ extends JToolBar
     }
     
     public JButton getSave() { return save; }
-    
-    public JButton getCancel() { return cancel; }
-    
+
     /** Initializes the buttons. */
     private void initButtons()
     {
-        save = new JButton("OK");
+        save = new JButton("Save");
         save.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
         save.setToolTipText(
             UIUtilities.formatToolTipText("Save data."));
         save.setEnabled(false);
-        cancel = new JButton("Cancel");
-        cancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        cancel.setToolTipText(
-            UIUtilities.formatToolTipText("Close without saving."));
     }
     
     /** Build and lay out the GUI. */
@@ -125,8 +119,6 @@ extends JToolBar
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(save);
-        p.add(Box.createRigidArea(DataManagerUIF.HBOX));
-        p.add(cancel);
         p.add(Box.createRigidArea(DataManagerUIF.HBOX));
         p.setOpaque(false); //make panel transparent
         return p;
