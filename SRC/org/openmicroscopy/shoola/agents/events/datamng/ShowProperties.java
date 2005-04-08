@@ -29,15 +29,15 @@
 
 package org.openmicroscopy.shoola.agents.events.datamng;
 
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
-
 
 //Java imports
+import java.awt.Component;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * 
@@ -56,13 +56,24 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 public class ShowProperties
     extends RequestEvent
 {
-
-    private DataObject userObject;
+    
+    private Component   parent;
+    
+    private DataObject  userObject;
     
     public ShowProperties(DataObject userObject) 
     {
         this.userObject = userObject;
+        parent = null;
     }
+    
+    public ShowProperties(DataObject userObject, Component parent) 
+    {
+        this.userObject = userObject;
+        this.parent = parent;
+    }
+    
+    public Component getParent() { return parent; }
     
     public DataObject getUserObject() { return userObject; }
     
