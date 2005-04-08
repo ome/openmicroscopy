@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.viewer.controls;
 
 //Java imports
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -266,8 +265,7 @@ public class ToolBar
     /** Initializes the width of the text. */
     private void initTxtWidth()
     {
-        FontMetrics metrics = getFontMetrics(getFont());
-        txtWidth = metrics.charWidth('m');
+        txtWidth = getFontMetrics(getFont()).charWidth('m');
     }
 
 }
