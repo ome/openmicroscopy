@@ -176,11 +176,13 @@ public class IconManager
     
     public static final int     CREATE_CATEGORY_BIG = 41;
     
+    public static final int     FILTER_BIG = 42;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 41;
+	private static int          MAX_ID = 42;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -227,6 +229,7 @@ public class IconManager
         relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
         relPaths[CREATE_CATEGORY] = "eclipse_newclass_wiz16.png";
         relPaths[CREATE_CATEGORY_BIG] = "category48.png"; 
+        relPaths[FILTER_BIG] = "category48.png"; 
 	}
 	
 	/** The sole instance. */

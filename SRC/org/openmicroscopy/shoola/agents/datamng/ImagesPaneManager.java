@@ -37,6 +37,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,8 +48,10 @@ import javax.swing.JTable;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
-import org.openmicroscopy.shoola.agents.datamng.util.IDatasetsSelectorMng;
+import org.openmicroscopy.shoola.agents.datamng.util.Filter;
+import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -65,7 +69,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ImagesPaneManager
-	implements ActionListener, IDatasetsSelectorMng
+	implements ActionListener, ISelector
 {
 
 	/** Action command ID. */
@@ -73,6 +77,9 @@ class ImagesPaneManager
     
     /** Action command ID. */
     private static final int                SELECTION = 1;
+    
+    /** Action command ID. */
+    private static final int                FILTER = 2;
 
 	/** This UI component's view. */
 	private ImagesPane 						view;
@@ -84,6 +91,10 @@ class ImagesPaneManager
 
     private int                             index;
     
+    private Map                             filters, complexFilters;
+    
+    private List                            selectedDatasets;
+    
 	ImagesPaneManager(ImagesPane view, DataManagerCtrl agentCtrl)
 	{
 		this.view = view;
@@ -93,12 +104,25 @@ class ImagesPaneManager
 		initListeners();
 	}
 
-    /** Display the list of images retrieved. */
-    public void displayListImages(List images)
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setSelectedDatasets(List l)
+    { 
+        selectedDatasets = l;
+        loaded = false;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setFilters(Map filters)
     {
-        if (images == null) return;
-        view.displayImages(images.toArray());
-        loaded = true;
+        this.filters = filters;
+        loaded = false;
+    }
+    
+    /** Implemented as specified by {@link ISelector} I/F. */
+    public void setComplexFilters(Map complexFilters)
+    { 
+        this.complexFilters = complexFilters;
+        loaded = false; 
     }
     
 	/** update the view when an image's name has been modified. */
@@ -131,6 +155,7 @@ class ImagesPaneManager
 	private void initListeners()
 	{
         attachButtonListeners(view.bar.load, LOAD);
+        attachButtonListeners(view.bar.filter, FILTER);
         attachBoxListeners(view.bar.selections, SELECTION);
 	}
 
@@ -142,10 +167,10 @@ class ImagesPaneManager
     }
     
     /** Attach an {@link ActionListener} to an {@link AbstractButton}. */
-    private void attachBoxListeners(JComboBox button, int id)
+    private void attachBoxListeners(JComboBox box, int id)
     {
-        button.addActionListener(this);
-        button.setActionCommand(""+id);
+        box.addActionListener(this);
+        box.setActionCommand(""+id);
     }
     
 	/** Handles event fired by the buttons. */
@@ -158,24 +183,35 @@ class ImagesPaneManager
 					loadImages(); break;
                 case SELECTION:
                     bringSelector(e); break;
+                case FILTER:
+                    bringFilter(); break;
 			}
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
 		} 
 	}
 
+    /** Bring up the filter. */
+    private void bringFilter()
+    {
+        UIUtilities.centerAndShow(new Filter(agentCtrl, this));
+    }
+    
     /** Bring up the datasetSelector. */
     private void bringSelector(ActionEvent e)
     {
         int selectedIndex = ((JComboBox) e.getSource()).getSelectedIndex();
         if (selectedIndex == ImagesPaneBar.IMAGES_USED) {
             index = selectedIndex;
-            //retrieve the user's datasets.
-            List d = agentCtrl.getUserDatasets();
+            //retrieve the datasets used by the current user.
+            List d = agentCtrl.getUsedDatasets();
             if (d != null && d.size() > 0)
                 UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
-                                            d, DataManagerCtrl.IMAGES_FOR_PDI, 
-                                            null));
+                                            d));
+            else {
+                UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+                un.notifyInfo("Used datasets", "no dataset used ");
+            }
         }
     }
     
@@ -183,16 +219,24 @@ class ImagesPaneManager
 	private void loadImages()
 	{
         int selectedIndex = view.bar.selections.getSelectedIndex();
-        if (selectedIndex != index) {
+        if (selectedIndex != index || !loaded) {
             index = selectedIndex;
             List images = null;
             switch (selectedIndex) {
                 case ImagesPaneBar.IMAGES_IMPORTED:
-                    images = agentCtrl.getImportedImages(); break;
+                    images = agentCtrl.getImportedImages(filters, 
+                                                        complexFilters);
+                    break;
                 case ImagesPaneBar.IMAGES_GROUP:
-                    images = agentCtrl.getGroupImages(); break;
+                    images = agentCtrl.getGroupImages(filters, complexFilters);
+                    break;
                 case ImagesPaneBar.IMAGES_SYSTEM:
-                    images = agentCtrl.getSystemImages(); break;
+                    images = agentCtrl.getSystemImages(filters, complexFilters);
+                    break;
+                case ImagesPaneBar.IMAGES_USED:
+                    images = agentCtrl.loadImagesInDatasets(selectedDatasets, 
+                            DataManagerCtrl.FOR_HIERARCHY, null, filters, 
+                            complexFilters);
             }
             displayListImages(images);
         }
@@ -221,5 +265,17 @@ class ImagesPaneManager
 			} 
 		}	
 	}
+    
+    /** Display the images. */
+    private void displayListImages(List images)
+    {
+        if (images == null || images.size() == 0) {
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+            un.notifyInfo("Image retrieval", "No image matching your criteria");
+            return;
+        }
+        view.displayImages(images.toArray());
+        loaded = true;
+    }
 	
 }

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -86,6 +87,22 @@ public class DataManager
 	implements Agent, AgentEventListener
 {
 
+    public static final String      FILTER_NAME = 
+                    DataManagementService.FILTER_NAME;
+    public static final String      FILTER_DATE = 
+                    DataManagementService.FILTER_DATE;
+    public static final String      FILTER_ANNOTATED = 
+                    DataManagementService.FILTER_ANNOTATED;
+    public static final String      FILTER_LIMIT = 
+                    DataManagementService.FILTER_LIMIT;
+    public static final String      GREATER = 
+                    DataManagementService.FILTER_GREATER;
+    public static final String      LESS = DataManagementService.FILTER_LESS;
+    public static final String      CONTAIN = 
+                    DataManagementService.FILTER_CONTAIN;
+    public static final String      NOT_CONTAIN = 
+                    DataManagementService.FILTER_NOT_CONTAIN;
+    
 	/** Reference to the registry. */
 	private Registry				registry;
 	
@@ -143,12 +160,17 @@ public class DataManager
     {
         if (e instanceof ServiceActivationResponse)
         	handleSAR((ServiceActivationResponse) e);
-        else if (e instanceof ShowProperties)
-            control.showProperties(((ShowProperties) e).getUserObject());
+        else if (e instanceof ShowProperties) 
+            handleShowProperties((ShowProperties) e);
     }
 
 	Registry getRegistry() { return registry; }
 	
+    void handleShowProperties(ShowProperties response)
+    {
+        control.showProperties(response.getUserObject(), response.getParent());
+    }
+    
 	/** Rebuild the Tree if the connection is succesfull. */
 	void handleSAR(ServiceActivationResponse response)
 	{
@@ -204,11 +226,11 @@ public class DataManager
      * 
 	 * @return See above.
 	 */
-	List getImagesDiff(DatasetData data)
+	List getImagesDiff(DatasetData data, Map filters, Map complexFilters)
 	{
 		List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getImportedImages();   
+            imagesDiff = getImportedImages(filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -237,12 +259,13 @@ public class DataManager
      * 
      * @return See above.
      */
-    List getImagesInUserDatasetsDiff(DatasetData data, List datasets)
+    List getImagesInUserDatasetsDiff(DatasetData data, List datasets,
+            Map filters, Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         if (datasets == null || datasets.size() == 0) return imagesDiff;
         try {
-            imagesDiff = getImagesInDatasets(datasets);//getUsedImages();   
+            imagesDiff = getImagesInDatasets(datasets, filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -271,11 +294,12 @@ public class DataManager
      * 
      * @return See above.
      */
-    List getImagesInUserGroupDiff(DatasetData data)
+    List getImagesInUserGroupDiff(DatasetData data, Map filters, 
+                                Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getGroupImages();   
+            imagesDiff = getGroupImages(filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -304,11 +328,12 @@ public class DataManager
      * 
      * @return See above.
      */
-    List getImagesInSystemDiff(DatasetData data)
+    List getImagesInSystemDiff(DatasetData data, Map filters, 
+                                Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
-            imagesDiff = getSystemImages();   
+            imagesDiff = getSystemImages(filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -392,6 +417,35 @@ public class DataManager
 		return projectSummaries;
 	}
 	
+    /** 
+     * Return the list of datasets used by the current user.
+     * @return
+     * @throws DSAccessException
+     */
+    List getUsedDatasets()
+        throws DSAccessException
+    {
+        List projects = getUserProjects();
+        List datasets = new ArrayList();
+        if (projects == null || projects.size() == 0) return datasets;
+        Map map = new HashMap();
+        Iterator i = projects.iterator(), j, k;
+        List listDS;
+        DatasetSummary ds;
+        while (i.hasNext()) {
+            listDS = ((ProjectSummary) i.next()).getDatasets();
+            j = listDS.iterator();
+            while (j.hasNext()) {
+                ds = (DatasetSummary) j.next();
+                map.put(new Integer(ds.getID()), ds);
+            }
+        }
+        k = map.keySet().iterator();
+        while (k.hasNext())
+            datasets.add(map.get(k.next()));
+        return datasets;
+    }
+    
 	/**
 	 * Returns all datasets which belong to the current user.
 	 * <p>If an error occurs while trying to retrieve the user's data from 
@@ -424,12 +478,12 @@ public class DataManager
 	 *
 	 * @return  A list of {@link ImageSummary} objects. 
 	 */
-	List getImportedImages()
+	List getImportedImages(Map filters, Map complexFilters)
         throws DSAccessException
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			return dms.retrieveUserImages();
+			return dms.retrieveUserImages(filters, complexFilters);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -487,7 +541,7 @@ public class DataManager
      * @param datasets    list of datasetSummary.
      * @return list of {@link ImageSummary} objects contained in the datasets.
      */
-    List getImagesInDatasets(List datasets)
+    List getImagesInDatasets(List datasets, Map filters, Map complexFilters)
         throws DSAccessException
     {
         try { 
@@ -497,7 +551,8 @@ public class DataManager
             while (i.hasNext()) 
                 datasetIDs.add(
                         new Integer(((DatasetSummary) i.next()).getID()));  
-            return dms.retrieveImagesInUserDatasets(datasetIDs);
+            return dms.retrieveImagesInUserDatasets(datasetIDs, filters,
+                        complexFilters);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -515,12 +570,12 @@ public class DataManager
      *
      * @return  A list of {@link ImageSummary} objects. 
      */
-    List getGroupImages()
+    List getGroupImages(Map filters, Map complexFilters)
         throws DSAccessException
     {
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            return dms.retrieveImagesInUserGroup();
+            return dms.retrieveImagesInUserGroup(filters, complexFilters);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -537,12 +592,12 @@ public class DataManager
      *
      * @return  A list of {@link ImageSummary} objects. 
      */
-    List getSystemImages()
+    List getSystemImages(Map filters, Map complexFilters)
         throws DSAccessException
     {
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            return dms.retrieveImagesInSystem();
+            return dms.retrieveImagesInSystem(filters, complexFilters);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -641,24 +696,23 @@ public class DataManager
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			ProjectSummary project = dms.createProject(pd);
+			ProjectSummary ps = dms.createProject(pd);
 			if (projectSummaries.size() != 0) {
-				projectSummaries.add(project);	//local copy
-				presentation.addNewProjectToTree(project);	//update tree
+				projectSummaries.add(ps);	//local copy
+				presentation.addNewProjectToTree(ps);	//update tree
 			} else {
 				getUserProjects(); 
 				presentation.rebuildTree();
 			} 
-            UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo("Create project", "A new project "+pd.getName()+
-                        " has been created.", 
-                        im.getIcon(IconManager.SEND_TO_DB));
+            //if everything went smoothly we removed the creation panel 
+            //and display the property panel
+            control.showProperties(ps, DataManagerCtrl.FOR_HIERARCHY);
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the project: "+pd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
 			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
 													dsae);
+            control.showComponent(null, DataManagerCtrl.FOR_HIERARCHY);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -678,28 +732,27 @@ public class DataManager
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			DatasetSummary dataset = dms.createDataset(projects, images, dd);
+			DatasetSummary ds = dms.createDataset(projects, images, dd);
 			if (datasetSummaries.size() !=0) getUserDatasets();
-			else datasetSummaries.add(dataset); //local copy.
+			else datasetSummaries.add(ds); //local copy.
 			ProjectSummary ps;
 			for (int i = 0; i < projects.size(); i++) {
 				ps = (ProjectSummary) projects.get(i);
-				ps.getDatasets().add(dataset);	
+				ps.getDatasets().add(ds);	
 			}
 			if (presentation.isTreeLoaded()) {
 				if (projects != null ) 
 					presentation.addNewDatasetToTree(projects);	
 			} else  presentation.rebuildTree();
-            UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo("Create dataset", "A new dataset "+dd.getName()+
-                        " has been created.", 
-                        im.getIcon(IconManager.SEND_TO_DB));
+			//if everything went smoothly we removed the creation panel 
+            //and display the property panel
+            control.showProperties(ds, DataManagerCtrl.FOR_HIERARCHY);
 		} catch(DSAccessException dsae) {
 			String s = "Can't create the dataset: "+dd.getName()+".";
 			registry.getLogger().error(this, s+" Error: "+dsae);
 			registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
 													dsae);
+            control.showComponent(null, DataManagerCtrl.FOR_HIERARCHY);
 		} catch(DSOutOfServiceException dsose) {	
 			ServiceActivationRequest request = new ServiceActivationRequest(
 										ServiceActivationRequest.DATA_SERVICES);
@@ -936,12 +989,14 @@ public class DataManager
      * @param group     corresponding data object.
      * @return  list of {@link ImageSummary}s.
      */
-    List retrieveImagesNotInCategoryGroup(CategoryGroupData group)
+    List retrieveImagesNotInCategoryGroup(CategoryGroupData group, Map filters, 
+                    Map complexFilters)
         throws DSAccessException
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveImagesNotInCategoryGroup(group.getID());
+            return sts.retrieveImagesNotInCategoryGroup(group.getID(), filters, 
+                                                complexFilters);
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -959,7 +1014,7 @@ public class DataManager
      * @param List  List of {@link DatasetSummary} objects.
      */
     List retrieveImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData group,
-            List datasets)
+            List datasets, Map filters, Map complexFilters)
         throws DSAccessException
     {
         if (datasets == null || datasets.size() == 0) return new ArrayList();
@@ -970,7 +1025,7 @@ public class DataManager
                 ids.add(new Integer(((DatasetSummary) i.next()).getID()));
             SemanticTypesService sts = registry.getSemanticTypesService();
             return sts.retrieveImagesInUserDatasetsNotInCategoryGroup(group, 
-                    ids);
+                    ids, filters, complexFilters);
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -981,12 +1036,14 @@ public class DataManager
     }
     
     /** Retrieve all images not classified in the specified group. */
-    List retrieveImagesInUserGroupNotInCategoryGroup(CategoryGroupData group)
+    List retrieveImagesInUserGroupNotInCategoryGroup(CategoryGroupData group, 
+            Map filters, Map complexFilters)
         throws DSAccessException
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveImagesInUserGroupNotInCategoryGroup(group);
+            return sts.retrieveImagesInUserGroupNotInCategoryGroup(group, 
+                    filters, complexFilters);
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -997,12 +1054,14 @@ public class DataManager
     }
     
     /** Retrieve all images not classified in the specified group. */
-    List retrieveImagesInSystemNotInCategoryGroup(CategoryGroupData group)
+    List retrieveImagesInSystemNotInCategoryGroup(CategoryGroupData group, 
+            Map filters, Map complexFilters)
         throws DSAccessException
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveImagesInSystemNotInCategoryGroup(group);
+            return sts.retrieveImagesInSystemNotInCategoryGroup(group, filters, 
+                    complexFilters);
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -1018,12 +1077,13 @@ public class DataManager
      * @param data  specified category.
      * @return See above.
      */
-    List retrieveImagesDiffNotInCategoryGroup(CategoryData data)
+    List retrieveImagesDiffNotInCategoryGroup(CategoryData data,
+                Map filters, Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
             imagesDiff = retrieveImagesNotInCategoryGroup(
-                        data.getCategoryGroup());   
+                        data.getCategoryGroup(), filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -1052,12 +1112,13 @@ public class DataManager
      * @return See above.
      */
     List retrieveImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData data, 
-            List datasets)
+            List datasets, Map filters, Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
             imagesDiff = retrieveImagesInUserDatasetsNotInCategoryGroup(
-                        data.getCategoryGroup(), datasets);   
+                        data.getCategoryGroup(), datasets, filters, 
+                        complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -1084,12 +1145,13 @@ public class DataManager
      * @param data  specified category.
      * @return See above.
      */
-    List retrieveImagesDiffInUserGroupNotInCategoryGroup(CategoryData data)
+    List retrieveImagesDiffInUserGroupNotInCategoryGroup(CategoryData data, 
+              Map filters, Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
             imagesDiff = retrieveImagesInUserGroupNotInCategoryGroup(
-                        data.getCategoryGroup());   
+                        data.getCategoryGroup(), filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -1116,12 +1178,13 @@ public class DataManager
      * @param data  specified category.
      * @return See above.
      */
-    List retrieveImagesDiffInSystemNotInCategoryGroup(CategoryData data)
+    List retrieveImagesDiffInSystemNotInCategoryGroup(CategoryData data, 
+              Map filters, Map complexFilters)
     {
         List imagesDiff = new ArrayList();
         try {
             imagesDiff = retrieveImagesInSystemNotInCategoryGroup(
-                        data.getCategoryGroup());   
+                        data.getCategoryGroup(), filters, complexFilters);   
             List images = data.getImages();
             ImageSummary isg;
             Iterator i;
@@ -1160,40 +1223,26 @@ public class DataManager
         }
         return new ArrayList();
     }
-    /*
-    CategoryData getCategoryData(int id)
-        throws DSAccessException
-    {
-        try { 
-            SemanticTypesService sts = registry.getSemanticTypesService();
-            //cd = sts.retrieveCategory(id);
-            return sts.retrieveCategoryWithIAnnotations(id);
-        } catch(DSOutOfServiceException dsose) {    
-            ServiceActivationRequest request = new ServiceActivationRequest(
-                                        ServiceActivationRequest.DATA_SERVICES);
-            registry.getEventBus().post(request);
-        } 
-        return new CategoryData();
-    }
-*/
+
     /** Create a new category group. */
     void createCategoryGroup(CategoryGroupData data)
     {
         if (data == null) return;
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            sts.createCategoryGroup(data);
+            CategoryGroupData group = sts.createCategoryGroup(data);
             presentation.rebuildClassificationTree();
-            UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo("Create categoryGroup", 
-                    "A new categoryGroup has now been created.", 
-                    im.getIcon(IconManager.SEND_TO_DB));
+            if (group != null)
+                control.showProperties(group, 
+                        DataManagerCtrl.FOR_CLASSIFICATION);
+            else 
+                control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
         } catch(DSAccessException dsae) {
             String s = "Can't create a new categoryGroup.";
             registry.getLogger().error(this, s+" Error: "+dsae);
             registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
                                                     dsae);
+            control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
@@ -1207,17 +1256,18 @@ public class DataManager
         if (data == null) return;
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            sts.createCategory(data, images);
+            CategoryData category = sts.createCategory(data, images);
             presentation.rebuildClassificationTree();
-            UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo("Create category", "A new category has now been " +
-                    "created.", im.getIcon(IconManager.SEND_TO_DB));
+            if (category != null) control.showProperties(category, 
+                            DataManagerCtrl.FOR_CLASSIFICATION);
+            else 
+                control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
         } catch(DSAccessException dsae) {
             String s = "Can't create a new category.";
             registry.getLogger().error(this, s+" Error: "+dsae);
             registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
                                                     dsae);
+            control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
         } catch(DSOutOfServiceException dsose) {    
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);

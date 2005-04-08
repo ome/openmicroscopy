@@ -32,8 +32,12 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -64,7 +68,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 class ExplorerPane
-	extends JScrollPane
+	extends JSplitPane
 {
 	
 	/** This UI component's controller and model. */
@@ -76,6 +80,8 @@ class ExplorerPane
 	/** The tree used to represent the project-dataset hierarchy. */
 	JTree       					tree;
 	
+    JScrollPane                     mainPane;
+    
 	/** 
 	 * Creates a new instance.
 	 *
@@ -85,6 +91,7 @@ class ExplorerPane
 	{
 		this.registry = registry;
 		tree = new JTree();
+        mainPane  = new JScrollPane();
 		manager = new ExplorerPaneManager(this, agentCtrl);
 		DefaultMutableTreeNode r = manager.getUserTreeModel(
                 agentCtrl.getUserName());
@@ -95,6 +102,20 @@ class ExplorerPane
 		buildGUI();
 	}
 	
+    /** Display the JComponent in the main JScrollPane. */
+    void addToMainComponent(JComponent c)
+    {
+        JViewport port = mainPane.getViewport();
+        port.removeAll();
+        port.add(c);
+    }
+    
+    /** Remove all components from the main JScrollPane. */
+    void removeFromMainComponent()
+    {
+        mainPane.getViewport().removeAll();
+    }
+    
 	/** 
 	 * Returns the last selected node on the tree only if that is a project, 
 	 * dataset or image.
@@ -123,11 +144,33 @@ class ExplorerPane
 	/** Builds and lay out the GUI. */
 	private void buildGUI()
 	{
-		tree.putClientProperty("JTree.lineStyle", "Angled");
-		tree.setCellRenderer(new DataTreeCellRenderer(registry));
-		tree.getSelectionModel().setSelectionMode(
-									TreeSelectionModel.SINGLE_TREE_SELECTION);
-		setViewportView(tree);
+        buildMain();
+        setLeftComponent(buildTreeUI());
+        setRightComponent(mainPane);
+        setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        setContinuousLayout(true); 
+        setOneTouchExpandable(true); 
+        setDividerLocation(DataManagerUIF.DIVIDER_LOC); 
 	}
-		
+	
+    /** Display the Tree in a JScrollPane. */
+    private JScrollPane buildTreeUI()
+    {
+        JScrollPane pane = new JScrollPane();
+        tree.putClientProperty("JTree.lineStyle", "Angled");
+        tree.setCellRenderer(new DataTreeCellRenderer(registry));
+        tree.getSelectionModel().setSelectionMode(
+                                    TreeSelectionModel.SINGLE_TREE_SELECTION);
+        pane.setViewportView(tree);
+        tree.setMinimumSize(DataManagerUIF.COMPONENT_MIN_DIM);
+        return pane;
+    }
+    
+    private void buildMain()
+    {
+        JPanel p = new JPanel();
+        p.setMinimumSize(DataManagerUIF.COMPONENT_MIN_DIM);
+        mainPane.getViewport().add(p);
+    }
+    
 }

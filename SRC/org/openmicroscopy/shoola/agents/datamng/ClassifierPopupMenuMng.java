@@ -63,7 +63,7 @@ class ClassifierPopupMenuMng
     private ClassifierPopupMenu      view; 
     
     /** The agent's control component. */
-    private DataManagerCtrl         control;
+    private DataManagerCtrl         agentCtrl;
     
     /** 
      * The object (categoryGroup, category or image) the menu is currently
@@ -72,10 +72,10 @@ class ClassifierPopupMenuMng
     private DataObject              target;
     
     public ClassifierPopupMenuMng(ClassifierPopupMenu view, 
-                                DataManagerCtrl control)
+                                DataManagerCtrl agentCtrl)
     {
         this.view = view;
-        this.control = control;
+        this.agentCtrl = agentCtrl;
         initListeners();
     }
 
@@ -107,17 +107,18 @@ class ClassifierPopupMenuMng
         Object src = e.getSource();
         if (target != null) {   
             if (src == view.properties) 
-                control.showProperties(target);
+                agentCtrl.showProperties(target, 
+                        DataManagerCtrl.FOR_CLASSIFICATION);
             else if (src == view.view && target instanceof ImageSummary)       
-                control.viewImage(((ImageSummary) target));
+                agentCtrl.viewImage(((ImageSummary) target));
             else if (src == view.view && target instanceof CategoryGroupData)       
-                control.browseCategoryGroup(((CategoryGroupData) target));
+                agentCtrl.browseCategoryGroup(((CategoryGroupData) target));
             else if (src == view.view && target instanceof CategoryData)       
-                control.browseCategory(((CategoryData) target));
-            else if (src == view.annotate) control.annotate(target);
-            else if (src == view.refresh) control.refresh(target);
+                agentCtrl.browseCategory(((CategoryData) target));
+            else if (src == view.annotate) agentCtrl.annotate(target);
+            else if (src == view.refresh) agentCtrl.refresh(target);
         } else if (target == null && src == view.refresh)
-            control.refresh(DataManagerCtrl.CLASSIFIER);
+            agentCtrl.refresh(DataManagerCtrl.CLASSIFIER);
         view.setVisible(false);
     }
     

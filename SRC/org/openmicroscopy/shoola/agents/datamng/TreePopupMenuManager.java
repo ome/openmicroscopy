@@ -125,7 +125,7 @@ class TreePopupMenuManager
 		Object src = e.getSource();
 		if (target != null) {	
 			if (src == view.properties)	
-				agentCtrl.showProperties(target);
+				agentCtrl.showProperties(target, DataManagerCtrl.FOR_HIERARCHY);
 			else if (src == view.view && target instanceof ImageSummary)       
 				agentCtrl.viewImage(((ImageSummary) target));
 			else if (src == view.browse && target instanceof DatasetSummary)

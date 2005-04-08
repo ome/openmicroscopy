@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
+
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -71,6 +73,9 @@ public class DataManagerUIF
 	extends TopWindow
 {
     
+    /** Horizontal space between the cells in the grid. */
+    public static final int                 H_SPACE = 10;
+    
     public static final Color               STEELBLUE = new Color(0x4682B4);
 
     /** Width of the editor dialog window. */
@@ -104,10 +109,18 @@ public class DataManagerUIF
     public static final Dimension           EXTENDED_VP_DIM = 
                                             new Dimension(400, 100);
     
+    static final int                        DIVIDER_LOC = 200;
+    
+    static final Dimension                  COMPONENT_MIN_DIM = 
+                                            new Dimension(100, 100);
+    
     private static final String             HIERARCHY = "Hierarchy", 
-                                            CLASSIFIER = "Classifier";
+                                            CLASSIFIER = "Classifier",
+                                            IMAGE = "Images";
     
     JMenu                                   hierarchyMenu, classifierMenu;
+    
+    private JTabbedPane                     tabs;
     
 	/** 
 	 * UI component to view a summary of the user's data
@@ -148,16 +161,42 @@ public class DataManagerUIF
 		buildGUI(new ToolBar(control, registry));
     }
     
+    /** Forward event to {@link ExplorerPane}. */
+    void addComponentToHierarchy(JComponent c)
+    {
+        explPane.addToMainComponent(c);
+        tabs.setSelectedComponent(explPane);
+    }
+    
+    /** Forward event to {@link ClassifierPane}. */
+    void addComponentToClassification(JComponent c)
+    {
+        classifierPane.addToMainComponent(c);
+        tabs.setSelectedComponent(classifierPane);
+    }
+    
+    /** Forward event to {@link ClassifierPane}. */
+    void removeComponentFromClassification()
+    {
+        classifierPane.removeFromMainComponent();
+    }
+    
+    /** Forward event to {@link ExplorerPane}. */
+    void removeComponentFromHierarchy()
+    {
+        explPane.removeFromMainComponent();
+    }
+    
 	/** Forward event to {@link ExplorerPaneManager}. */
 	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
 	
-    /** Forward event to {@link classifierPaneManager}. */
+    /** Forward event to {@link ClassifierPaneManager}. */
     void refreshCategory(CategoryData data)
     {
         classifierPane.getManager().refreshCategoryInTree(data);
     }
     
-    /** Forward event to {@link classifierPaneManager}. */
+    /** Forward event to {@link ClassifierPaneManager}. */
     void rebuildCategoryGroupTree()
     {
         classifierPane.getManager().rebuildTree();
@@ -237,15 +276,15 @@ public class DataManagerUIF
 	/** Build and lay out the GUI. */
 	private void buildGUI(ToolBar bar)
 	{
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
-											JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		//TODO: specify lookup name.
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");					
-		tabs.addTab(HIERARCHY, im.getIcon(IconManager.EXPLORER), explPane);
-		tabs.addTab("Images", im.getIcon(IconManager.IMAGE), imgPane);
+		tabs.addTab(HIERARCHY, im.getIcon(IconManager.EXPLORER), 
+                explPane);
         tabs.addTab(CLASSIFIER, im.getIcon(IconManager.EXPLORER), 
-                        classifierPane);
+                 classifierPane);
+		tabs.addTab(IMAGE, im.getIcon(IconManager.IMAGE), imgPane);
 		tabs.setFont(font);
 		tabs.setForeground(STEELBLUE);
 		tabs.setSelectedComponent(explPane);

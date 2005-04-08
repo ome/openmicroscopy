@@ -79,7 +79,7 @@ public class ClassifierPaneManager
     private ClassifierPane              view; 
     
     /** The agent's control component. */
-    private DataManagerCtrl             control;
+    private DataManagerCtrl             agentCtrl;
     
     /** Root of the tree. */
     private DefaultMutableTreeNode      root;
@@ -105,7 +105,7 @@ public class ClassifierPaneManager
     public ClassifierPaneManager(ClassifierPane view, DataManagerCtrl control)
     {
         this.view = view;
-        this.control = control;
+        agentCtrl = control;
         gNodes = new TreeMap();
         cNodes = new TreeMap();
         initListeners();
@@ -156,7 +156,7 @@ public class ClassifierPaneManager
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode gNode;
-        List l = control.getCategoryGroups();     
+        List l = agentCtrl.getCategoryGroups();     
         if (l == null) return;
         Iterator j = l.iterator();
         CategoryGroupData cg;
@@ -176,7 +176,7 @@ public class ClassifierPaneManager
     {   
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode gNode;                                       
-        List l = control.getCategoryGroups(); 
+        List l = agentCtrl.getCategoryGroups(); 
         if (l == null) return;
         Iterator j = l.iterator();
         CategoryGroupData cg;
@@ -343,26 +343,25 @@ public class ClassifierPaneManager
         view.tree.setSelectionRow(selRow);
         DataObject target = view.getClassifyObject();
         if (target != null) {
-            if (e.isPopupTrigger()) {
-                DataManagerUIF presentation = control.getReferenceFrame();
-                ClassifierPopupMenu
-                    popup = presentation.getClassifierPopupMenu();
-                popup.setTarget(target);  
-                popup.show(view.tree, e.getX(), e.getY());
-            } else {
+            if (e.isPopupTrigger()) showPopupMenu(e, target);
+            else {
                 if (e.getClickCount() == 2)
-                    control.showProperties(target);
+                    agentCtrl.showProperties(target, 
+                            DataManagerCtrl.FOR_CLASSIFICATION);
             }
         } else { //click on the root node.
             if (e.getClickCount() == 2 && !treeLoaded) rebuildTree();
-            else if (treeLoaded && e.isPopupTrigger()) {
-                DataManagerUIF presentation = control.getReferenceFrame();
-                ClassifierPopupMenu
-                    popup = presentation.getClassifierPopupMenu();
-                popup.setTarget(null);  
-                popup.show(view.tree, e.getX(), e.getY());
-            }
+            else if (treeLoaded && e.isPopupTrigger()) showPopupMenu(e, null);
         }
+    }
+    
+    /** Bring up the popupMenu. */
+    private void showPopupMenu(MouseEvent e, DataObject target)
+    {
+        ClassifierPopupMenu 
+            popup = agentCtrl.getReferenceFrame().getClassifierPopupMenu();
+        popup.setTarget(target);  
+        popup.show(view.tree, e.getX(), e.getY());
     }
     
     /**
@@ -384,7 +383,7 @@ public class ClassifierPaneManager
             categoryNodeNavigation((CategoryData) usrObject, node, 
                                     isExpanding);
         } else if (usrObject instanceof CategoryGroupData) {
-            control.setSelectedCategoryGroup(
+            agentCtrl.setSelectedCategoryGroup(
                     ((CategoryGroupData) usrObject).getID());
         } else {
             if (node.equals(root) && !treeLoaded && isExpanding) rebuildTree();
@@ -415,10 +414,13 @@ public class ClassifierPaneManager
         }       
     }
     
-    /** Build the tree model to represent the group-category hierarchy. */
+    /** 
+     * Build the tree model to represent the 
+     * CategogyGroup-category hierarchy.
+     */
     void rebuildTree()
     {
-        List l = control.getCategoryGroups();
+        List l = agentCtrl.getCategoryGroups();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         root.removeAllChildren();
         if (l == null || l.size() == 0) {
@@ -426,7 +428,9 @@ public class ClassifierPaneManager
                     root.getChildCount());
             treeModel.reload(root);
             view.tree.collapsePath(new TreePath(root.getPath()));
-            UserNotifier un = control.getRegistry().getUserNotifier();
+            //Bring up the CreateCategoryGroup Panel
+            agentCtrl.createGroup();
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
             un.notifyInfo("Classifications", "No categoryGroup created");
             return;
         }

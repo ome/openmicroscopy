@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.FlowLayout;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -66,7 +65,7 @@ class ImagesPaneBar
 	private Registry       registry;
 	
 	/** Load all tree. */
-	JButton                load;
+	JButton                load, filter;
 	
     JComboBox              selections;
     
@@ -101,6 +100,9 @@ class ImagesPaneBar
 		load = new JButton(im.getIcon(IconManager.IMAGE));
 		load.setToolTipText(
 			UIUtilities.formatToolTipText("Retrieve images."));
+        filter = new JButton(im.getIcon(IconManager.FILTER));
+        filter.setToolTipText(
+            UIUtilities.formatToolTipText("Filters..."));
         selections = new JComboBox(listOfItems);
 	}	
 	
@@ -118,6 +120,7 @@ class ImagesPaneBar
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.putClientProperty("JToolBar.isRollover", new Boolean(true));
+        bar.add(filter);
         bar.add(load);
         return bar;
     }

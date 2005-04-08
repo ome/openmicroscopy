@@ -160,20 +160,16 @@ class ImagesPane
         TableColumnModel tcm = table.getTableHeader().getColumnModel();
         TableColumn tc = tcm.getColumn(NAME);
         tc.setHeaderRenderer(iconHeaderRenderer);
-        tc.setHeaderValue(buildTableHeader(columnNames[NAME], im));
+        TableHeaderTextAndIcon header =  new TableHeaderTextAndIcon(
+                columnNames[NAME], im.getIcon(IconManager.ORDER_BY_NAME_UP), 
+                im.getIcon(IconManager.ORDER_BY_NAME_DOWN), "Order by name");
+        tc.setHeaderValue(header);
         tc = tcm.getColumn(DATE);
         tc.setHeaderRenderer(iconHeaderRenderer); 
-        tc.setHeaderValue(buildTableHeader(columnNames[DATE], im));
-    }
-    
-    /** Build the corresponding tableHeader. */
-    private TableHeaderTextAndIcon buildTableHeader(String columnName, 
-                                                    IconManager im)
-    {
-        return  new TableHeaderTextAndIcon(columnName, 
-                        im.getIcon(IconManager.ORDER_BY_NAME_UP), 
-                        im.getIcon(IconManager.ORDER_BY_NAME_DOWN), 
-                        "Order by "+columnName);
+        header =  new TableHeaderTextAndIcon(
+                columnNames[DATE], im.getIcon(IconManager.ORDER_BY_DATE_UP), 
+                im.getIcon(IconManager.ORDER_BY_DATE_DOWN), "Order by date");
+        tc.setHeaderValue(header);
     }
     
     /** 

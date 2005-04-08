@@ -281,8 +281,7 @@ class ExplorerPaneManager
             if (isVisible) setNodeVisible(dNode, pNode);
         }   
     }
-
-    
+  
     /** 
      * Update the map of expanded datasets.
      * 
@@ -406,28 +405,28 @@ class ExplorerPaneManager
             view.tree.setSelectionRow(selRow);
             DataObject target = view.getCurrentOMEObject();
             if (target != null) {
-                if (e.isPopupTrigger()) {
-                    DataManagerUIF presentation = 
-                                agentCtrl.getAbstraction().getPresentation();
-                    TreePopupMenu popup = presentation.getPopupMenu();
-                    popup.setTarget(target); 
-                    popup.show(view.tree, e.getX(), e.getY());
-                } else {
+                if (e.isPopupTrigger()) showPopupMenu(e, target);
+                else {
                     if (e.getClickCount() == 2)
-                        agentCtrl.showProperties(target);
+                        agentCtrl.showProperties(target,
+                                DataManagerCtrl.FOR_HIERARCHY);
                 }
             } else { //click on the root node.
                 if (e.getClickCount() == 2 && !treeLoaded) rebuildTree();
-                else if (treeLoaded && e.isPopupTrigger())
-                {
-                    DataManagerUIF presentation = 
-                    agentCtrl.getAbstraction().getPresentation();
-                    TreePopupMenu popup = presentation.getPopupMenu();
-                    popup.setTarget(null);  
-                    popup.show(view.tree, e.getX(), e.getY());
-                }
+                else if (treeLoaded && e.isPopupTrigger()) 
+                    showPopupMenu(e, null);
             }
         }
+    }
+    
+    /** Bring up the popupMenu. */
+    private void showPopupMenu(MouseEvent e, DataObject target)
+    {
+        DataManagerUIF presentation = 
+            agentCtrl.getAbstraction().getPresentation();
+        TreePopupMenu popup = presentation.getPopupMenu();
+        popup.setTarget(target);  
+        popup.show(view.tree, e.getX(), e.getY());
     }
     
     /**
@@ -458,11 +457,12 @@ class ExplorerPaneManager
         List pSummaries = agentCtrl.getUserProjects();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         root.removeAllChildren();
-        if (pSummaries == null && pSummaries.size() == 0) {
+        if (pSummaries == null || pSummaries.size() == 0) {
             treeModel.insertNodeInto(new DefaultMutableTreeNode(""), root, 
                     root.getChildCount());
             treeModel.reload(root);
             view.tree.collapsePath(new TreePath(root.getPath()));
+            agentCtrl.createProject();
             UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
             un.notifyInfo("Hierarchy", "No project created");
             return;
