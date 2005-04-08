@@ -55,6 +55,10 @@ import org.openmicroscopy.ds.Criteria;
  */
 public class STSMapper
 {
+    
+    //ISSUE: the :all: field may create big problems.
+    //All data link to the target will be retrieved.
+    //ISSUE: Should control the size of the list when the IN clause is applied.
 	
 	public static final String GLOBAL_GRANULARITY = "G";
 	public static final String DATASET_GRANULARITY = "D";
@@ -78,14 +82,14 @@ public class STSMapper
      * @param granularity   The granularity of the attribute.
      * @param targetID      The ID of the target.
      */
+    /*
     public static Criteria buildBasicCriteria(int objectID) 
     {
         Criteria c = new Criteria();
-        c.addWantedField("id");
         c.addFilter("id", new Integer(objectID));
         return c;
-    }
-
+    }*/
+    
 	/** 
 	 *
 	 * @param granularity
@@ -120,17 +124,15 @@ public class STSMapper
 		Criteria c = new Criteria();
     
 	   	// all non-references; has-ones with just ID's; no has-manys
-	   	c.addWantedField(":all:");
+	   	c.addWantedField(":all:"); 
 	   	c.addWantedField("semantic_type");
         c.addWantedField("semantic_type", "name");
         c.addWantedField("semantic_type", "granularity");
 	   	c.addWantedField("semantic_type", "semantic_elements");
-	   	c.addWantedField("semantic_type.semantic_elements", "id");
 	   	c.addWantedField("semantic_type.semantic_elements", "name");
 	   	c.addWantedField("semantic_type.semantic_elements", "data_column");
-	   	c.addWantedField("semantic_type.semantic_elements.data_column", "id");
 	   	c.addWantedField("semantic_type.semantic_elements.data_column",
-						"sql_type");
+                        "sql_type");
 	   	c.addWantedField("semantic_type.semantic_elements.data_column",
 						"reference_semantic_type");
     
@@ -235,32 +237,24 @@ public class STSMapper
 	private static Criteria buildBasicTypeCriteria()
 	{
 		Criteria c = new Criteria();
-
-   		c.addWantedField("id");
    		c.addWantedField("name");
         c.addWantedField("granularity");
    		c.addWantedField("description");
    		c.addWantedField("semantic_elements");
-   		c.addWantedField("semantic_elements", "id");
    		c.addWantedField("semantic_elements", "name");
    		c.addWantedField("semantic_elements", "description");
    		c.addWantedField("semantic_elements", "data_column");
    		c.addWantedField("semantic_elements", "semantic_type");
-   		c.addWantedField("semantic_elements.data_column", "id");
    		c.addWantedField("semantic_elements.data_column", "column_name");
    		c.addWantedField("semantic_elements.data_column", "sql_type");
    		c.addWantedField("semantic_elements.data_column", 
 						"reference_semantic_type");
    		c.addWantedField("semantic_elements.data_column", "data_table");
-   		c.addWantedField("semantic_elements.data_column.data_table", "id");
    		c.addWantedField("semantic_elements.data_column.data_table",
 						"table_name");
-   		c.addWantedField("semantic_elements.data_column." +
-						   "reference_semantic_type", "id");
-   		c.addWantedField("semantic_elements.data_column." +
-						   "reference_semantic_type", "name");
-
-   		return c;
+   		c.addWantedField("semantic_elements.data_column.reference_semantic_type"
+						 , "name");
+  		return c;
 	}
 	
 	public static Criteria buildRetrieveCriteriaWithMEXs(List mexes)
@@ -280,7 +274,6 @@ public class STSMapper
 	    Criteria c = new Criteria();
 
 	    // all non-references; has-ones with just ID's; no has-manys
-	    c.addWantedField("id");
 	    c.addWantedField("Name");
 	    c.addWantedField("TotalDistance");
 	    c.addWantedField("AverageVelocity");
@@ -303,7 +296,6 @@ public class STSMapper
 	    Criteria c = new Criteria();
 
 	    // all non-references; has-ones with just ID's; no has-manys
-	    c.addWantedField("id");
 	    c.addWantedField("Order");
 	    c.addWantedField("DeltaX");
 	    c.addWantedField("DeltaY");
@@ -312,13 +304,10 @@ public class STSMapper
 	    c.addWantedField("Velocity");
 	    c.addWantedField("Trajectory");
 	    c.addWantedField("feature");
-	    c.addWantedField("Trajectory", "id");
 	    c.addWantedField("Trajectory", "Name");
 	    c.addWantedField("Trajectory", "TotalDistance");
 	    c.addWantedField("Trajectory", "AverageVelocity");
-	    c.addWantedField("feature", "id");
 	    c.addWantedField("feature", "image");
-	    c.addWantedField("feature.image", "id");
 	    // how to get features?
 		c.addFilter("module_execution_id", "IN", mexes);
 	    return c;
@@ -329,7 +318,6 @@ public class STSMapper
 		 
 		if (features == null || features.size() == 0) return null;
 		Criteria c = new Criteria();
-		c.addWantedField("id");
 		c.addWantedField("TheX");
 		c.addWantedField("TheY");
 		c.addWantedField("TheZ");
@@ -343,7 +331,6 @@ public class STSMapper
 		 
 		if (features == null || features.size() == 0) return null;
 		Criteria c = new Criteria();
-		c.addWantedField("id");
 		c.addWantedField("Volume");
 		c.addWantedField("feature");	
 		c.addFilter("feature_id", "IN", features);

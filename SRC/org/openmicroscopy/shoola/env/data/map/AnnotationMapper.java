@@ -86,7 +86,7 @@ public class AnnotationMapper
         c.addWantedField("TheZ");
         c.addWantedField("TheT");
         c.addWantedField("image");
-        c.addFilter("image_id", "IN", ids);
+        if (ids != null) c.addFilter("image_id", "IN", ids);
         //Retrieve user's annotation only
         if (userID != -1)
             c.addFilter("module_execution.experimenter_id", 
@@ -109,7 +109,7 @@ public class AnnotationMapper
         Criteria c = new Criteria();
         fillAnnotationCriteria(c);
         c.addWantedField("dataset");
-        c.addFilter("dataset_id", "IN", datasetIDs);
+        if (datasetIDs != null) c.addFilter("dataset_id", "IN", datasetIDs);
         //Retrieve user's annotation only
         if (userID != -1)
             c.addFilter("module_execution.experimenter_id", 
@@ -128,7 +128,6 @@ public class AnnotationMapper
     
     public static void fillAnnotationCriteria(Criteria c)
     {
-        //c.addWantedField("id");
         c.addWantedField("Content");
         c.addWantedField("module_execution");
         c.addWantedField("module_execution", "timestamp");
@@ -158,10 +157,7 @@ public class AnnotationMapper
         DatasetAnnotation annotation;
         while (i.hasNext()) {
             annotation = (DatasetAnnotation) i.next();
-            //if (userID == 
-            //    annotation.getModuleExecution().getExperimenter().getID())
-            map.put(new Integer(annotation.getDataset().getID()), 
-                                       annotation);
+            map.put(new Integer(annotation.getDataset().getID()), annotation);
         }
         return map;
     }

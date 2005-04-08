@@ -78,24 +78,20 @@ public class HierarchyMapper
         c.addWantedField("datasets");
         
         //Specify which fields we want for the datasets.
-        c.addWantedField("datasets", "id");
         c.addWantedField("datasets", "name");
         c.addWantedField("datasets", "projects");
+        c.addWantedField("datasets.projects", "name");
         
-        c.addFilter("id", "IN", ids);
+        //Add Filter
+        if (ids != null) c.addFilter("id", "IN", ids);
         return c;
-        
     }
-    
+
     public static Criteria buildICGHierarchyCriteria(List imageIDs, int userID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Confidence");
         c.addWantedField("Category");
-        //c.addWantedField("module_execution");
-        //c.addWantedField("module_execution", "experimenter");
-        //Specify which fields we want for the owner.
-        //c.addWantedField("module_execution.experimenter", "id");
         //Fields for the category
         c.addWantedField("Category", "Name");
         c.addWantedField("Category", "Description");
@@ -104,8 +100,7 @@ public class HierarchyMapper
         c.addWantedField("Category.CategoryGroup", "Description");
         //Fields we want for the images.
         c.addWantedField("image");
-        c.addWantedField("image", "id");
-        c.addFilter("image_id", "IN", imageIDs);
+        if (imageIDs != null) c.addFilter("image_id", "IN", imageIDs);
         //In this case, the filter should work ;-)
         if (userID != -1)
             c.addFilter("module_execution.experimenter_id", 
@@ -114,13 +109,16 @@ public class HierarchyMapper
     }
     
     /** 
-     * Fill in a Image-Dataset-Project hierarchy.
+     * Fill in a Image/Dataset/Project hierarchy.
      * 
      * @param images list of {@link org.openmicroscopy.ds.dto.Image Image} 
      * objects.
      */
     public static List fillIDPHierarchy(List images, Map mapIS)
     {
+        List unOrderedImages = new ArrayList();
+        List orphanDatasets = new ArrayList();
+        List results = new ArrayList();
         Iterator i = images.iterator();
         Map datasetsMap = new HashMap(), projectsMap = new HashMap();
         Image image;
@@ -137,44 +135,52 @@ public class HierarchyMapper
         while (i.hasNext()) {
             image = (Image) i.next();
             is = (ImageSummary) mapIS.get(new Integer(image.getID()));
-            dl = image.getDatasets();
-            j = dl.iterator();
-            //for each dataset
-            while (j.hasNext()) {
-                dataset = (Dataset) j.next();
-                dID = new Integer(dataset.getID());
-                ds = (DatasetSummaryLinked) datasetsMap.get(dID);
-                if (ds == null) {
-                    ds = new DatasetSummaryLinked();
-                    ds.setID(dataset.getID());
-                    ds.setName(dataset.getName());
-                    ds.setImages(new ArrayList());
-                    datasetsMap.put(dID, ds);
+            if (is != null) {
+                dl = image.getDatasets();
+                if (dl.size() == 0) //unorderedImage
+                    unOrderedImages.add(is);
+                else {
+                    j = dl.iterator();
+                    //for each dataset
+                    while (j.hasNext()) {
+                        dataset = (Dataset) j.next();
+                        dID = new Integer(dataset.getID());
+                        ds = (DatasetSummaryLinked) datasetsMap.get(dID);
+                        if (ds == null) {
+                            ds = createDSL(dataset);
+                            datasetsMap.put(dID, ds);
+                        }
+                        listImages = ds.getImages();
+                        if (!listImages.contains(is)) listImages.add(is);
+                        //for eachProject
+                        pl = dataset.getProjects();
+                        if (pl.size() == 0) { //orphan datasets
+                            orphanDatasets.add(ds);
+                        } else {
+                            k = pl.iterator();
+                            while (k.hasNext()) {
+                                project = (Project) k.next();
+                                pID = new Integer(project.getID());
+                                ps = (ProjectSummary) projectsMap.get(pID);
+                                if (ps == null) {
+                                    ps = createPS(project);
+                                    projectsMap.put(pID, ps);
+                                }
+                                listDatasets = ps.getDatasets();
+                                if (!listDatasets.contains(ds)) 
+                                    listDatasets.add(ds);
+                                if (!listProjects.contains(ps)) 
+                                    listProjects.add(ps);
+                            }
+                        } 
+                    }  
                 }
-                listImages = ds.getImages();
-                if (!listImages.contains(is)) listImages.add(is);
-               
-                //for eachProject
-                pl = dataset.getProjects();
-                k = pl.iterator();
-                while (k.hasNext()) {
-                    project = (Project) k.next();
-                    pID = new Integer(project.getID());
-                    ps = (ProjectSummary) projectsMap.get(pID);
-                    if (ps == null) {
-                        ps = new ProjectSummary();
-                        ps.setID(project.getID());
-                        ps.setName(project.getName());
-                        ps.setDatasets(new ArrayList());
-                        projectsMap.put(pID, ps);
-                    }
-                    listDatasets = ps.getDatasets();
-                    if (!listDatasets.contains(ds)) listDatasets.add(ds);
-                    if (!listProjects.contains(ps)) listProjects.add(ps);
-                }
-            }  
+            }
         }
-        return listProjects;
+        results.addAll(listProjects);
+        results.addAll(orphanDatasets);
+        results.addAll(unOrderedImages);
+        return results;
     }
     
     /** 
@@ -183,10 +189,9 @@ public class HierarchyMapper
      * @param classifications list of 
      * {@link org.openmicroscopy.ds.st.Classification Classification} objects.
      */
-    public static Object[] fillICGHierarchy(List classifications, Map mapIS)
+    public static List fillICGHierarchy(List classifications, Map mapIS)
     {
-        Object[] results = new Object[2];
-        Iterator i = classifications.iterator();
+        List results = new ArrayList();
         //OME-JAVA object.
         Classification classification;
         Category category;
@@ -197,7 +202,7 @@ public class HierarchyMapper
         CategoryGroupData gModel;
         ImageSummary is;
         Map categoryMap = new HashMap(), groupMap = new HashMap(), 
-            classificationsMap;
+            orphanMap = new HashMap(), classificationsMap;
         float f;
         Integer categoryID, groupID;
         Collection unclassifiedImages = mapIS.values();
@@ -205,6 +210,7 @@ public class HierarchyMapper
         List categoriesList;
         CategoryGroupData gProto = new CategoryGroupData();
         CategoryData cProto = new CategoryData();
+        Iterator i = classifications.iterator();
         while (i.hasNext()) {
             classification = (Classification) i.next();
             f = CategoryMapper.CONFIDENCE;
@@ -213,42 +219,74 @@ public class HierarchyMapper
             is = (ImageSummary) mapIS.get(
                     new Integer(classification.getImage().getID()));
            
-            if (!classifiedImages.contains(is)) 
-                classifiedImages.add(is);
-            
-            cData = new ClassificationData(classification.getID(), f);
-            category = classification.getCategory();
-            group = category.getCategoryGroup();
-            groupID = new Integer(group.getID());
-            gModel = (CategoryGroupData) groupMap.get(groupID);
-            //Create CategoryGroupData
-            if (gModel == null) {
-                gModel = CategoryMapper.buildCategoryGroup(gProto, group);
-                gModel.setCategories(new ArrayList());
-                groupMap.put(groupID, gModel);
+            //Control needed b/c the IN Filter may not have been used.
+            if (is != null) {
+                if (!classifiedImages.contains(is)) 
+                    classifiedImages.add(is);
+                
+                cData = new ClassificationData(classification.getID(), f);
+                category = classification.getCategory();
+                
+                group = category.getCategoryGroup();
+                categoryID = new Integer(category.getID());
+                if (group == null) {//Orphan category.
+                    cModel = (CategoryData) orphanMap.get(categoryID);
+                    if (cModel == null) {
+                        cModel = CategoryMapper.buildCategoryData(cProto, 
+                                    category, null);
+                        cModel.setClassifications(new HashMap());
+                        orphanMap.put(categoryID, cModel);
+                    }
+                } else {
+                    groupID = new Integer(group.getID());
+                    gModel = (CategoryGroupData) groupMap.get(groupID);
+                    //Create CategoryGroupData
+                    if (gModel == null) {
+                        gModel = CategoryMapper.buildCategoryGroup(gProto, 
+                                        group);
+                        gModel.setCategories(new ArrayList());
+                        groupMap.put(groupID, gModel);
+                    }
+                    cModel = (CategoryData) categoryMap.get(categoryID);
+                    //Create CategoryData
+                    if (cModel == null) {
+                        cModel = CategoryMapper.buildCategoryData(cProto, 
+                                category, gModel);
+                        cModel.setClassifications(new HashMap());
+                        categoryMap.put(categoryID, cModel);
+                    }  
+                    categoriesList = gModel.getCategories();
+                    if (!categoriesList.contains(cModel))
+                        categoriesList.add(cModel);
+                }
+                classificationsMap = cModel.getClassifications();
+                classificationsMap.put(is.copyObject(), cData);
             }
-            
-            categoryID = new Integer(category.getID());
-            cModel = (CategoryData) categoryMap.get(categoryID);
-            //Create CategoryData
-            if (cModel == null) {
-                cModel = CategoryMapper.buildCategoryData(cProto, category, 
-                                                        gModel);
-                cModel.setClassifications(new HashMap());
-                categoryMap.put(categoryID, cModel);
-                gModel.getCategories();
-            }  
-            categoriesList = gModel.getCategories();
-            if (!categoriesList.contains(cModel))
-                categoriesList.add(cModel);
-            
-            classificationsMap = cModel.getClassifications();
-            classificationsMap.put(is.copyObject(), cData);
         }
         unclassifiedImages.removeAll(classifiedImages);
-        results[0] = unclassifiedImages;
-        results[1] = groupMap.values();
+        results.addAll(groupMap.values());
+        results.addAll(orphanMap.values());
+        results.addAll(unclassifiedImages);
         return results;
+    }
+    
+    
+    private static DatasetSummaryLinked createDSL(Dataset dataset)
+    {
+        DatasetSummaryLinked ds = new DatasetSummaryLinked();
+        ds.setID(dataset.getID());
+        ds.setName(dataset.getName());
+        ds.setImages(new ArrayList());
+        return ds;
+    }
+    
+    private static ProjectSummary createPS(Project project)
+    {
+        ProjectSummary ps = new ProjectSummary();
+        ps.setID(project.getID());
+        ps.setName(project.getName());
+        ps.setDatasets(new ArrayList());
+        return ps;
     }
     
 }

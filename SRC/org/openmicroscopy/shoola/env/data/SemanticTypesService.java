@@ -297,17 +297,16 @@ public interface SemanticTypesService
     /**
      * Retrieves the all hierarchy Image-Category-Group passing a list of 
      * {@link ImageSummary} objects.
+     * B/c of the actual implementation, we have to return a list of 
+     * {@link DataObject}, either {@link CategoryGroupData},
+     * {@link CategoryData} or {@link ImageSummary}
      * 
-     * @return an 2D-array:
-     *          first element: collection of unclassified 
-     *          {@link ImageSummary} objects.
-     *          second element: collection of {@link CategoryGroupData} objects.
-     * 
+     * @return See above
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public Object[] retrieveICGHierarchy(List imageSummaries)
+    public List retrieveICGHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 
@@ -362,7 +361,20 @@ public interface SemanticTypesService
     public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
             CategoryData cProto, int catGroupID)
         throws DSOutOfServiceException, DSAccessException;
-
+    
+    public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
+                                    Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
+            CategoryData cProto, int catGroupID, Map filters, 
+            Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData group, 
+                    Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /** 
      * Retrieve a list of images owned by members of the user's group but
      * not contained in the specified category group.
@@ -378,6 +390,10 @@ public interface SemanticTypesService
      */
     public List retrieveImagesInUserGroupNotInCategoryGroup(
                         CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveImagesInUserGroupNotInCategoryGroup(
+            CategoryGroupData group, Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 
@@ -401,6 +417,15 @@ public interface SemanticTypesService
             CategoryGroupData group, List datasetsID)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, List datasetsID, Map filters, 
+            Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /** 
      * Retrieve a list of all images but
      * not contained in the specified category group.
@@ -417,37 +442,11 @@ public interface SemanticTypesService
     public List retrieveImagesInSystemNotInCategoryGroup(
                                         CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException;
+
+    public List retrieveImagesInSystemNotInCategoryGroup(
+            CategoryGroupData group, Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
     
-    /** 
-     * Retrieve the information about the specified category.
-     * Build the corresponding {@link CategoryData} object.
-     * 
-     * @param id of the specified category. 
-     * 
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     *         update data from OMEDS service. 
-     */
-    /*
-    public CategoryData retrieveCategory(int id)
-        throws DSOutOfServiceException, DSAccessException;
-    */
-    /** 
-     * Retrieve the {@link CategoryData} object corresponding
-     * to the specified category. In that case, each {@link ImageSummary}
-     * corresponding to an image within the category is linked to an 
-     * {@link AnnotationData annotation}.
-     * 
-     * @param id of the specified category. 
-     * 
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     *         update data from OMEDS service. 
-     */
-    /*
-    public CategoryData retrieveCategoryWithIAnnotations(int id)
-        throws DSOutOfServiceException, DSAccessException;
-    */
     /** 
      * Create a new CategoryGroup.
      * 
@@ -457,7 +456,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
-    public void createCategoryGroup(CategoryGroupData data)
+    public CategoryGroupData createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException; 
     
     /** 
@@ -470,7 +469,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
-    public void createCategory(CategoryData data, List images)
+    public CategoryData createCategory(CategoryData data, List images)
         throws DSOutOfServiceException, DSAccessException; 
     
     /** 

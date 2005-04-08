@@ -31,11 +31,14 @@ package org.openmicroscopy.shoola.env.data.map;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
+import org.openmicroscopy.shoola.env.data.DataManagementService;
 
 /** 
  * 
@@ -54,15 +57,58 @@ import org.openmicroscopy.ds.Criteria;
 public class UserMapper
 {
 	
+    public static void setFilters(Criteria c, Map filters, 
+                                    Map complexFilters)
+    {
+        if (filters != null) {
+            //get Limit
+            Integer i = (Integer) 
+                    filters.get(DataManagementService.FILTER_LIMIT);
+            if (i != null) c.setLimit(i.intValue());
+        }
+        if (complexFilters != null) {
+            Iterator j = complexFilters.keySet().iterator(), k;
+            Map map;
+            String column, key;
+            Object value;
+            while (j.hasNext()) {
+                column = (String) j.next();
+                map = (Map) complexFilters.get(column);
+                k = map.keySet().iterator();
+                while (k.hasNext()) {
+                    key = (String) k.next();
+                    value = map.get(key);
+                    if (key.equals(DataManagementService.FILTER_CONTAIN) ||
+                        key.equals(DataManagementService.FILTER_NOT_CONTAIN)) 
+                       value = "%"+value+"%";
+                    c.addFilter( column, key, value);
+                } 
+            }
+        }
+    }
+    
 	public static Criteria getUserStateCriteria()
 	{
 		Criteria criteria = new Criteria();
 		criteria.addWantedField("experimenter");
-		criteria.addWantedField("experimenter", "id");
         criteria.addWantedField("experimenter", "Group");
         criteria.addWantedField("experimenter", "FirstName");
         criteria.addWantedField("experimenter", "LastName");
 		return criteria;
 	}
-	
+    
+    /** Field required to ownwer's details. */
+    static void objectOwnerCriteria(Criteria c)
+    {
+        //Specify which fields we want for the owner.
+        c.addWantedField("owner", "FirstName");
+        c.addWantedField("owner", "LastName");
+        c.addWantedField("owner", "Email");
+        c.addWantedField("owner", "Institution");
+        c.addWantedField("owner", "Group");
+
+        //Specify which fields we want for the owner's group.
+        c.addWantedField("owner.Group", "Name");   
+    }
+    
 }

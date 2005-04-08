@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
+import org.openmicroscopy.shoola.env.data.map.DatasetMapper;
 import org.openmicroscopy.shoola.env.data.map.HierarchyMapper;
 import org.openmicroscopy.shoola.env.data.map.ImageMapper;
 import org.openmicroscopy.shoola.env.data.map.PixelsMapper;
@@ -107,7 +108,7 @@ class STSAdapter
         this.registry = registry;
     }
     
-    /** @see SemanticTypesService#getAvailableGlobalTypes(). */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List getAvailableImageTypes()
         throws DSOutOfServiceException, DSAccessException
     {
@@ -116,10 +117,7 @@ class STSAdapter
         return (List) gateway.retrieveListData(SemanticType.class, criteria);
     }
 
-    /**
-     * @see SemanticTypesService#countImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, List).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public int countImageAttributes(String typeName, List imageIDList)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -135,17 +133,14 @@ class STSAdapter
         return gateway.countData(typeName, c);
     }
     
-    /** @see SemanticTypesService#countImageAttributes(String, List). */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public int countImageAttributes(SemanticType type, List imageIDList)
         throws DSOutOfServiceException, DSAccessException
     {
         return countImageAttributes(type.getName(), imageIDList);
     }
 
-    /**
-     * @see SemanticTypesService#retrieveDatasetAttributes(
-     * 			org.openmicroscopy.ds.dto.SemanticType, int).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveDatasetAttributes(String typeName, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -154,20 +149,14 @@ class STSAdapter
 		return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
-    /**
-     * @see SemanticTypesService#retrieveDatasetAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, int).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveDatasetAttributes(SemanticType type, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
         return retrieveDatasetAttributes(type.getName(), datasetID);
     }
 
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, List).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImageAttributes(String typeName, List imageIDs)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -182,27 +171,20 @@ class STSAdapter
         
         Integer[] ints = new Integer[imageIDs.size()];
         imageIDs.toArray(ints);
-        
         Criteria c = STSMapper.buildDefaultRetrieveCriteria(
         					STSMapper.IMAGE_GRANULARITY, ints);
         
         return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
-    /**
-     * @see SemanticTypesService#retrieveImageAttributes(
-     * org.openmicroscopy.ds.dto.SemanticType, List).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImageAttributes(SemanticType type, List imageIDs)
         throws DSOutOfServiceException, DSAccessException
     {
         return retrieveImageAttributes(type.getName(), imageIDs);
     }
     
-    /**
-     * @see SemanticTypesService#retrieveFeatureAttributes(String, String,
-     * 														List).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImageAttributes(String typeName, String childAttribute,
                                         List imageIDs)
         throws DSOutOfServiceException, DSAccessException
@@ -225,39 +207,34 @@ class STSAdapter
             				STSMapper.IMAGE_GRANULARITY, ints);
         else
             c = STSMapper.buildDefaultRetrieveCriteria(
-            				STSMapper.IMAGE_GRANULARITY, childAttribute,ints);
+            				STSMapper.IMAGE_GRANULARITY, childAttribute, ints);
         
         return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
-    /**
-     * @see SemanticTypesService#retrieveSemanticType(
-     * org.openmicroscopy.ds.dto.SemanticType).
-     */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public SemanticType retrieveSemanticType(SemanticType type)
         throws DSOutOfServiceException, DSAccessException
     {
         return retrieveSemanticType(type.getName());
     }
     
-    /** @see SemanticTypesService#retrieveSemanticType(String). */
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public SemanticType retrieveSemanticType(String typeName)
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria c = STSMapper.buildRetrieveSingleTypeCriteria(typeName);
         return (SemanticType) gateway.retrieveData(SemanticType.class, c);
     }
-
-    /**
-     * Updates attributes that have already been created, regardless of
-     * creation method.
-     */
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public void updateAttributes(List attributes)
         throws DSOutOfServiceException, DSAccessException
     {
         gateway.updateAttributes(attributes);
     }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveAttributesByMEXs(String typeName, List mexes)
     		throws DSOutOfServiceException, DSAccessException
    {
@@ -274,6 +251,7 @@ class STSAdapter
         return (List) gateway.retrieveListSTSData(typeName, c);
     }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveTrajectoriesByMEXs(List mexes) 
     	   	throws DSOutOfServiceException, DSAccessException
     {
@@ -288,6 +266,7 @@ class STSAdapter
         return (List) gateway.retrieveListSTSData("Trajectory", c);
     }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveTrajectoryEntriesByMEXs(List mexes) 
        throws DSOutOfServiceException, DSAccessException
     {
@@ -302,10 +281,10 @@ class STSAdapter
 		return (List) gateway.retrieveListSTSData("TrajectoryEntry", c);
 	}
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveLocationsByFeatureID(List features)
 		throws DSOutOfServiceException, DSAccessException
     {
-    	
         if (features == null || features.size() == 0)   return null;
         	
         //test to see if the List is all Integers here
@@ -313,11 +292,11 @@ class STSAdapter
             if (!(iter.next() instanceof Number))
                 throw new IllegalArgumentException("Illegal ID type.");
         }
-
         Criteria c = STSMapper.buildLocationCriteriaWithFeatures(features);
         return (List) gateway.retrieveListSTSData("Location", c);
     }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveExtentsByFeatureID(List features)
          throws DSOutOfServiceException, DSAccessException
     {
@@ -379,7 +358,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria c = AnnotationMapper.buildBasicCriteria(
-                STSMapper.GLOBAL_GRANULARITY, data.getID());
+                STSMapper.IMAGE_GRANULARITY, data.getID());
         ImageAnnotation ia = 
             (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
         ia.setValid(Boolean.FALSE);
@@ -393,7 +372,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria c = AnnotationMapper.buildBasicCriteria(
-                STSMapper.GLOBAL_GRANULARITY, data.getID());
+                STSMapper.DATASET_GRANULARITY, data.getID());
         DatasetAnnotation da = 
             (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
         da.setValid(Boolean.FALSE);
@@ -407,9 +386,9 @@ class STSAdapter
                                         int theT)
         throws DSOutOfServiceException, DSAccessException
     {
+        Criteria c = ImageMapper.buildBasicImageCriteria(imageID);
         ImageAnnotation retVal = (ImageAnnotation) 
-                    createBasicAttribute("ImageAnnotation", 
-                            STSMapper.buildBasicCriteria(imageID));
+                    createBasicAttribute("ImageAnnotation", c);
         retVal.setContent(annotation);
         retVal.setValid(Boolean.TRUE);
         if (theZ != AnnotationData.DEFAULT) retVal.setTheZ(new Integer(theZ));
@@ -424,9 +403,9 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         //Create a new Annotation for the user.
+        Criteria c = DatasetMapper.buildUpdateCriteria(datasetID);
         DatasetAnnotation retVal = (DatasetAnnotation) 
-                    createBasicAttribute("DatasetAnnotation", 
-                            STSMapper.buildBasicCriteria(datasetID));
+                    createBasicAttribute("DatasetAnnotation", c);
         retVal.setContent(annotation);
         retVal.setValid(Boolean.TRUE);
         ArrayList l = new ArrayList();
@@ -466,6 +445,40 @@ class STSAdapter
     public List retrieveImagesNotInCategoryGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
+        return retrieveImagesNotInCategoryGroup(group, null, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
+                            CategoryData cProto, int catGroupID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesNotInCategoryGroup(gProto, cProto, catGroupID, 
+                                                null, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInCategoryGroup(int catGroupID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesNotInCategoryGroup(null, null, catGroupID, null, 
+                                                null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
+                                            Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesNotInCategoryGroup(null, null, catGroupID, filters,
+                                                complexFilters);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData group, 
+                Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
         CategoryData data;
@@ -480,8 +493,10 @@ class STSAdapter
             }  
         }
         List images = new ArrayList();
+        //Filters images
         List userImages = 
-            registry.getDataManagementService().retrieveUserImages();
+            registry.getDataManagementService().retrieveUserImages(filters, 
+                                        complexFilters);
         Iterator j = userImages.iterator();
         ImageSummary is;
         while (j.hasNext()) {
@@ -491,13 +506,13 @@ class STSAdapter
         }
         return images;
     }
-    
+
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
-                            CategoryData cProto, int catGroupID)
+            CategoryData cProto, int catGroupID, Map filters, 
+            Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
-
         UserCredentials uc = (UserCredentials)
         registry.lookup(LookupNames.USER_CREDENTIALS);
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
@@ -515,17 +530,17 @@ class STSAdapter
         return new ArrayList();
     }
     
-    
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
+    public List retrieveImagesInUserGroupNotInCategoryGroup(
+            CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveImagesNotInCategoryGroup(null, null, catGroupID);
+        return retrieveImagesInUserGroupNotInCategoryGroup(group, null, null);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInUserGroupNotInCategoryGroup(
-            CategoryGroupData group)
+            CategoryGroupData group, Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
         Iterator i = group.getCategories().iterator();
@@ -543,7 +558,8 @@ class STSAdapter
         }
         List images = new ArrayList();
         List userImages = 
-            registry.getDataManagementService().retrieveImagesInUserGroup();
+            registry.getDataManagementService().retrieveImagesInUserGroup(
+                    filters, complexFilters);
         Iterator j = userImages.iterator();
         ImageSummary is;
         while (j.hasNext()) {
@@ -557,14 +573,32 @@ class STSAdapter
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInUserDatasetsNotInCategoryGroup(
             CategoryGroupData group)
-    throws DSOutOfServiceException, DSAccessException
+        throws DSOutOfServiceException, DSAccessException
     {
         return retrieveImagesInUserDatasetsNotInCategoryGroup(group, null);
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, Map filers, Map filters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasetsNotInCategoryGroup(group, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
             CategoryGroupData group, List datasetIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasetsNotInCategoryGroup(group, datasetIDs,
+                null, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInUserDatasetsNotInCategoryGroup(
+            CategoryGroupData group, List datasetIDs, Map filters, 
+            Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
         Iterator i = group.getCategories().iterator();
@@ -584,11 +618,12 @@ class STSAdapter
         List userImages = null;
         if (datasetIDs == null || datasetIDs.size() == 0)
             userImages = 
-            registry.getDataManagementService().retrieveImagesInUserDatasets();
+            registry.getDataManagementService().retrieveImagesInUserDatasets(
+                    filters, complexFilters);
         else 
             userImages = 
             registry.getDataManagementService().retrieveImagesInUserDatasets(
-                    datasetIDs);
+                    datasetIDs, filters, complexFilters);
         Iterator j = userImages.iterator();
         ImageSummary is;
         while (j.hasNext()) {
@@ -602,6 +637,14 @@ class STSAdapter
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesInSystemNotInCategoryGroup(
             CategoryGroupData group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        return retrieveImagesInSystemNotInCategoryGroup(group, null, null);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveImagesInSystemNotInCategoryGroup(
+            CategoryGroupData group, Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException 
     {
         Iterator i = group.getCategories().iterator();
@@ -619,7 +662,8 @@ class STSAdapter
         }
         List images = new ArrayList();
         List userImages = 
-            registry.getDataManagementService().retrieveImagesInSystem();
+            registry.getDataManagementService().retrieveImagesInSystem(filters,
+                    complexFilters);
         Iterator j = userImages.iterator();
         ImageSummary is;
         while (j.hasNext()) {
@@ -662,25 +706,29 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void createCategoryGroup(CategoryGroupData data)
+    public CategoryGroupData createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
     {
         List l = new ArrayList();
-        // Build a CategoryGroup object.
-        l.add(buildCategoryGroup(data));
+        CategoryGroup group = buildCategoryGroup(data);
+        l.add(group); // Build a CategoryGroup object.
         gateway.annotateAttributesData(l);//to have a mex
+        return buildCategoryGroupData(group);
     }
-    
+
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void createCategory(CategoryData data, List images)
+    public CategoryData createCategory(CategoryData data, List images)
         throws DSOutOfServiceException, DSAccessException 
     {
         CategoryGroupData parent = data.getCategoryGroup();
-        if (parent == null) return;
+        if (parent == null) return null;
         CategoryGroup cg;
         List newAttributes = new ArrayList(), oldAttributes = new ArrayList();
         //Retrieve the CategoryGroup object.
-        Criteria c = STSMapper.buildBasicCriteria(parent.getID());
+        UserCredentials 
+        uc = (UserCredentials) registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildBasicCategoryGroupCriteria(
+                parent.getID(), uc.getUserID());
         cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         //Build a Category object.
         Category category = buildCategory(data, cg);
@@ -689,14 +737,22 @@ class STSAdapter
         newAttributes.removeAll(newAttributes);
         
         Classification classification;
+        ImageSummary is;
         //Need to add the images one by one ;-)).
         Iterator j = images.iterator();
         Object[] results;
+        Map map = new HashMap();
+        ClassificationData cData;
         while (j.hasNext()) {
             //Build/Retrieve a Classification object
-            results = buildClassification(category, 
-                    ((ImageSummary) j.next()).getID());
+            is = (ImageSummary) j.next();
+            results = buildClassification(category, is.getID());
             classification = (Classification) results[1];
+            if (classification.isValid() != null && 
+                    classification.isValid().equals(Boolean.TRUE)) {
+                cData = CategoryMapper.buildClassificationData(classification);
+                map.put(is, cData);
+            }
             //only solution to have a mex
             if (((Boolean) results[0]).booleanValue()) { 
                 newAttributes.add(classification);
@@ -706,6 +762,11 @@ class STSAdapter
         }
         if (oldAttributes.size() != 0) //update the existing classification
             gateway.updateAttributes(oldAttributes);
+        //Add information to the CategoryData object
+        data.setID(category.getID());
+        data.setClassifications(map);
+        return data;
+        
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -811,7 +872,7 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public Object[] retrieveICGHierarchy(List imageSummaries)
+    public List retrieveICGHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException
     {
         if (imageSummaries == null)
@@ -832,7 +893,8 @@ class STSAdapter
             ids.add(id);
         }
         UserCredentials uc = (UserCredentials)
-        registry.lookup(LookupNames.USER_CREDENTIALS);
+            registry.lookup(LookupNames.USER_CREDENTIALS);
+        if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
                                         uc.getUserID());
         List classifications = 
@@ -945,13 +1007,11 @@ class STSAdapter
     {
         List l = new ArrayList();
         ChannelBindings[] channelBindings = rDef.getChannelBindings();
-        int z = rDef.getDefaultZ();
-        int t = rDef.getDefaultT();
-        int model = rDef.getModel();
+        int z = rDef.getDefaultZ(), t = rDef.getDefaultT(),
+            model = rDef.getModel();
         QuantumDef qDef = rDef.getQuantumDef();
-        int cdStart = qDef.cdStart;
-        int cdEnd = qDef.cdEnd;
-        int bitResolution = qDef.bitResolution;
+        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd,
+            bitResolution = qDef.bitResolution;
         RenderingSettings rs;
         //Need to retrieve the image object.
         //Define the criteria by which the object graph is pulled out.
@@ -1027,7 +1087,7 @@ class STSAdapter
         results[0] = Boolean.FALSE;
         if (classification == null) {
             results[0] = Boolean.TRUE;
-            c = STSMapper.buildBasicCriteria(imgID);
+            c = CategoryMapper.buildClassificationCriteria(imgID, -1);
             classification = (Classification) 
                             createBasicAttribute("Classification", c);
             classification.setCategory(category);
@@ -1049,7 +1109,7 @@ class STSAdapter
         return cg;
     }
     
-    /** Create a CategoryGroup attribute. */
+    /** Create a Category attribute. */
     private Category buildCategory(CategoryData data, CategoryGroup group)
         throws DSOutOfServiceException, DSAccessException 
     {
@@ -1059,5 +1119,37 @@ class STSAdapter
         category.setCategoryGroup(group);
         return category;
     }
+    
+    /** 
+     * Build a CategoryGroupData object. This method isinvoked when a new 
+     * CategoryGroup is created.
+     * 
+     * @param group
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    private CategoryGroupData buildCategoryGroupData(CategoryGroup group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(group.getID(), 
+                                        uc.getUserID());
+        CategoryGroup cg = (CategoryGroup)
+            gateway.retrieveSTSData("CategoryGroup", c);
+        List result = new ArrayList();
+        if (cg == null) return null;
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        List l = new ArrayList();
+        l.add(cg);
+        CategoryMapper.fillCategoryGroup(gProto, cProto, l, result, 
+                uc.getUserID());
+       
+        return (CategoryGroupData) result.get(0);
+    }
+
     
 }

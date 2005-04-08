@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -74,6 +75,22 @@ import org.openmicroscopy.shoola.env.data.model.UserDetails;
 public interface DataManagementService
 {
 
+    public static final String      FILTER_ANNOTATED = "annotation";
+    
+    public static final String      FILTER_NAME = "name";
+    
+    public static final String      FILTER_DATE = "created";
+    
+    public static final String      FILTER_LIMIT = "limit";
+    
+    public static final String      FILTER_GREATER = ">=";
+    
+    public static final String      FILTER_LESS = "<=";
+    
+    public static final String      FILTER_CONTAIN = "LIKE";
+    
+    public static final String      FILTER_NOT_CONTAIN = "NOT LIKE";
+    
     /** Retrieve the user's details. */
     public UserDetails getUserDetails()
         throws DSOutOfServiceException, DSAccessException;
@@ -255,6 +272,13 @@ public interface DataManagementService
 	public List retrieveUserImages()
 		throws DSOutOfServiceException, DSAccessException; 
 
+    public List retrieveUserImages(ImageSummary iProto, Map filters, 
+                                    Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveUserImages(Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
     /**
      * Retrieve images imported by members of the current user's group.
      * Create a list of {@link ImageSummary} DataObjects filled up with 
@@ -279,6 +303,13 @@ public interface DataManagementService
      * retrieve data from OMEDS service. 
      */
     public List retrieveImagesInUserGroup(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveImagesInUserGroup(Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveImagesInUserGroup(ImageSummary iProto, Map filters, 
+                                            Map complexFilters)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -324,6 +355,17 @@ public interface DataManagementService
     public List retrieveImagesInUserDatasets()
         throws DSOutOfServiceException, DSAccessException; 
     
+    public List retrieveImagesInUserDatasets(List datasetIDs, 
+            ImageSummary iProto, Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveImagesInUserDatasets(List datasetIDs, Map filters, 
+                                            Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
+    public List retrieveImagesInUserDatasets(Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException; 
+    
     /**
      * Retrieve all images in the system.
      * Create a list of {@link ImageSummary} DataObjects filled up with 
@@ -348,6 +390,13 @@ public interface DataManagementService
      * retrieve data from OMEDS service. 
      */
     public List retrieveImagesInSystem(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveImagesInSystem(ImageSummary iProto, Map filters, 
+                                        Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveImagesInSystem(Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
     
 	/**
@@ -763,11 +812,12 @@ public interface DataManagementService
     
     /**
      * Given a list of {@link ImageSummary} objects, retrieve the hierarchy
-     * Image-Dataset-Project.
+     * Image/Dataset/Project.
      * 
      * @param imageSummaries    List of {@link ImageSummary} objects.
      * 
-     * @return list of {@link ProjectSummary} objects.
+     * @return list of {@link DataObject} objects, either 
+     * {@link ProjectSummary}, {@link DatasetSummary} or {@link ImageSummary}.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
@@ -775,8 +825,31 @@ public interface DataManagementService
     public List retrieveIDPHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException;
 
-     
-    /****
+    /**
+     * Retrieve the hierarchy Project/dataset/Image.
+     * The DataObject of each level is a Summary object.
+     * 
+     * @param projectIDs     List of project's id.
+     * @return List of {@link ProjectSummaries}.        
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List retrieveProjectsTree(List projectIDs)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve the hierarchy Dataset/Image.
+     * The DataObject of each level is a Summary object.
+     * 
+     * @param datasetIDs     List of dataset's id.
+     * @return List of {@link DatasetSummaries}.        
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public List retrieveDatasetsTree(List datasetIDs)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
      * Given an id of a module execution, get the list of module executions that 
      * represents the entire data history for this execution. 
      * 
@@ -794,15 +867,16 @@ public interface DataManagementService
      *         update data from OMEDS service. 
      */
     public List getMexExecutionHistory(int mexID,ModuleExecutionData mexData,
-    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
-			FormalOutputData foutData,SemanticTypeData stData) 
+    			ModuleData modData, ActualInputData inpData, 
+                FormalInputData finData, FormalOutputData foutData,
+                SemanticTypeData stData) 
 		throws DSOutOfServiceException, DSAccessException;
     
-    /****
+    /**
      * Given an id of a module execution, get the list of module executions that 
      * represents the entire data history for this execution. 
      * 
-     * @param mexID			Id of the module execution
+     * @param mexID     Id of the module execution
      * 
      * @return list of {@link ModuleExecutionData} objects
      * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -812,17 +886,17 @@ public interface DataManagementService
     public List getMexExecutionHistory(int mexID) 
 		throws DSOutOfServiceException, DSAccessException;
     
-    /****
+    /**
      * Given an id of a chain execution, get the list of module executions that 
      * represents the entire data history for this execution.
      * 
-     * @param chexID			Id of the chain execution
-     * @param mexData 		object prototype
-     * @param modData 		module prototype
-     * @param inpData 		ActualInput prototype
-     * @param finData	        FormalInput Prototype
-     * @param foutData       FormalOutput Prototype
-     * @param stData	        SemanticType prototype
+     * @param chexID    Id of the chain execution
+     * @param mexData   object prototype
+     * @param modData   module prototype
+     * @param inpData   ActualInput prototype
+     * @param finData   FormalInput Prototype
+     * @param foutData  FormalOutput Prototype
+     * @param stData    SemanticType prototype
      * 
      * @return list of {@link ChainExecutionData} objects
      * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -830,11 +904,12 @@ public interface DataManagementService
      *         update data from OMEDS service. 
      */
     public List getChainExecutionHistory(int mexID,ModuleExecutionData mexData,
-    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
-				FormalOutputData foutData,SemanticTypeData stData) 
+    			ModuleData modData, ActualInputData inpData, 
+                FormalInputData finData, FormalOutputData foutData,
+                SemanticTypeData stData) 
 		throws DSOutOfServiceException, DSAccessException;
     
-    /****
+    /**
      * Given an id of a chain execution, get the list of module executions that 
      * represents the entire data history for this execution.
      * 
@@ -847,4 +922,5 @@ public interface DataManagementService
      */
     public List getChainExecutionHistory(int mexID) 
 		throws DSOutOfServiceException, DSAccessException;
+    
 }

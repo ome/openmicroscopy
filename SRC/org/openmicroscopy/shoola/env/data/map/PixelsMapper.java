@@ -66,7 +66,6 @@ public class PixelsMapper
 		criteria.addWantedField("default_pixels");
 		
 		//Specify which fields we want for the pixels.
-		criteria.addWantedField("default_pixels", "id");
 		criteria.addWantedField("default_pixels", "SizeX");
 		criteria.addWantedField("default_pixels", "SizeY");
 		criteria.addWantedField("default_pixels", "SizeZ");
@@ -89,8 +88,6 @@ public class PixelsMapper
     public static Criteria buildPixelsDimensionCriteria(int imageID)
     {
         Criteria c = new Criteria();
-
-        //Specify which fields we want for the image.
         c.addWantedField("PixelSizeT");
         c.addWantedField("PixelSizeC");
         c.addWantedField("PixelSizeX");
@@ -146,9 +143,12 @@ public class PixelsMapper
         c.addWantedField("IlluminationType");
         return c;
     }
+    
     /**
-     * Only retrieve the EmissionWavelength field 
-     * @param g
+     * Only retrieve the EmissionWavelength field.
+     *  
+     * @param g String corresponding to the granularity defined by 
+     *          {@link STSMapper}
      * @param id
      * @return
      */

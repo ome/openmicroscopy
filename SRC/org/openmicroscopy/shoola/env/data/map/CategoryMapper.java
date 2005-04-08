@@ -91,7 +91,7 @@ public class CategoryMapper
         if (id != -1) c.addFilter("id", new Integer(id));
         if (userID != -1) 
             c.addFilter("module_execution.experimenter_id", 
-                    new Integer(userID));
+                        new Integer(userID));
         return c;
     }
     
@@ -131,11 +131,28 @@ public class CategoryMapper
         c.addWantedField("CategoryList.ClassificationList.image", "created");
         c.addWantedField("CategoryList.ClassificationList.image", 
                     "default_pixels");
+        c.addWantedField("CategoryList.ClassificationList.image.default_pixels",
+                    "ImageServerID");
+        c.addWantedField("CategoryList.ClassificationList.image.default_pixels", 
+                    "Repository");
+        c.addWantedField(
+            "CategoryList.ClassificationList.image.default_pixels.Repository",
+                                "ImageServerURL");
 
-        //Specify which fields we want for the owner.
-        //group mex
-       // c.addWantedField("module_execution", "experimenter");
-
+        if (groupID != -1) c.addFilter("id", new Integer(groupID));
+        if (userID != -1) 
+            c.addFilter("module_execution.experimenter_id", 
+                    new Integer(userID));
+        return c;
+    }
+    
+    /** Retrieve the minimal information about the specified CategoryGroup. */
+    public static Criteria buildBasicCategoryGroupCriteria(int groupID, 
+            int userID)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("Name");
+        c.addWantedField("Description");
         if (groupID != -1) c.addFilter("id", new Integer(groupID));
         if (userID != -1) 
             c.addFilter("module_execution.experimenter_id", 
@@ -150,7 +167,6 @@ public class CategoryMapper
         Criteria c = new Criteria();
         c.addWantedField("Name");
         c.addWantedField("CategoryGroup");
-        
         c.addWantedField("ClassificationList");
         c.addWantedField("ClassificationList", "Valid");
         c.addWantedField("ClassificationList", "image");
@@ -159,12 +175,7 @@ public class CategoryMapper
         
         c.addWantedField("ClassificationList.module_execution", 
                             "experimenter");
-        //Specify which fields we want for the owner.
-        
-       // c.addWantedField("module_execution");
-       // c.addWantedField("module_execution", "experimenter");
-        //Specify which fields we want for the owner.
-        
+
         if (groupID != -1) 
             c.addFilter("CategoryGroup", "!=", new Integer(groupID));
         if (userID != -1) 
@@ -209,7 +220,6 @@ public class CategoryMapper
         return c;
     }
     
-    
     /** 
      * Build the criteria to retrieve the classification attribute associated
      * to the specified image and category.
@@ -224,8 +234,8 @@ public class CategoryMapper
         Criteria c = new Criteria();
         c.addWantedField("Valid");
         c.addWantedField("Category");
-        c.addFilter("image_id", new Integer(imageID));
-        c.addFilter("Category", new Integer(catID));
+        if (imageID != -1) c.addFilter("image_id", new Integer(imageID));
+        if (catID != -1) c.addFilter("Category", new Integer(catID));
         return c;
     }
 
@@ -295,7 +305,7 @@ public class CategoryMapper
                         cd = fillCategory(data, cProto, c);
                         cMap.put(id, cd);
                     }
-                    //Add the categories
+                    //Add the category to the list
                     categories.add(cd);
                 }
             }
@@ -335,7 +345,6 @@ public class CategoryMapper
         Integer id;
         while (i.hasNext()) {
             c = (Category) i.next();
-            //if (c.getModuleExecution().getExperimenter().getID() == userID) {
             id = new Integer(c.getID());
             data = (CategoryData) categoryMap.get(id);
             if (data == null) {
@@ -345,11 +354,9 @@ public class CategoryMapper
                     result.add(data);
                 }
             } else result.add(data);
-            //}
         }
     }
-    
-    
+
     /** 
      * Fill up a {@link CategoryData} object. 
      * 
@@ -368,19 +375,15 @@ public class CategoryMapper
         Classification classification;
         ClassificationData cData;
         ImageSummary is;
-        float f;
         Map map = new HashMap();
         while (i.hasNext()) {
             classification = (Classification) i.next();
-            f = CONFIDENCE;
-            if (classification.getConfidence() != null)
-                f =  classification.getConfidence().floatValue();
             //filter doesn't work when applies at the criteria level.
             if (classification.isValid() != null && 
                     classification.isValid().equals(Boolean.TRUE)) {
-                cData = new ClassificationData(classification.getID(), f);
-                is = ImageMapper.buildImageSummary(classification.getImage(), 
-                                                    new ImageSummary());
+                cData = buildClassificationData(classification);
+                is = new ImageSummary();
+                ImageMapper.buildImageSummary(classification.getImage(), is);
                 map.put(is, cData); 
             }
         }
@@ -388,6 +391,14 @@ public class CategoryMapper
         return model;
     }
 
+    public static ClassificationData buildClassificationData(Classification c)
+    {
+        float f = CONFIDENCE;
+        if (c.getConfidence() != null)
+            f = c.getConfidence().floatValue();
+        return new ClassificationData(c.getID(), f);
+    }
+    
     /** 
      * Fill up a {@link CategoryGroupData} object. 
      * 
@@ -437,22 +448,5 @@ public class CategoryMapper
                     (ImageAnnotation) ids.get(new Integer(is.getID()))));
         }
     }
- 
-    
-    /** Build a categoryGroup
-    private static CategoryGroupData buildCategoryGroup(Category c, int userID)
-    {
-        CategoryGroupData groupData = new CategoryGroupData();
-        CategoryGroup group = c.getCategoryGroup();
-        groupData.setID(group.getID());
-        groupData.setName(group.getName());
-        List categories = groupData.getCategories();
-        List l = group.getCategoryList();
-        Iterator i = l.iterator();
-       
-        while (i.hasNext())
-            categories.add(createCategorySummary((Category) i.next(), userID));
-        return groupData;
-    }
-    */
+
 }

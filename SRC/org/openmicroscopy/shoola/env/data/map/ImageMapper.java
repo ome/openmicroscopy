@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -43,6 +44,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.PixelChannelComponent;
 import org.openmicroscopy.ds.st.Pixels;
@@ -83,7 +85,6 @@ public class ImageMapper
 	public static Criteria buildUpdateCriteria(int imageID)
 	{
 		Criteria c = new Criteria();
-		c.addWantedField("id");
 		c.addWantedField("name");
 		c.addWantedField("description");
 		c.addFilter("id", new Integer(imageID));
@@ -96,12 +97,14 @@ public class ImageMapper
 	 * 
 	 * @param userID	user ID.
 	 */
-	public static Criteria buildUserImagesCriteria(int userID)
+	public static Criteria buildUserImagesCriteria(int userID, Map filters, 
+                                        Map complexFilters)
 	{
-		Criteria criteria = buildBasicImagesCriteria();
+		Criteria c = buildBasicImagesCriteria();
         if (userID != -1)
-            criteria.addFilter("owner_id", new Integer(userID));
-		return criteria;
+            c.addFilter("owner_id", new Integer(userID));
+        UserMapper.setFilters(c, filters, complexFilters); 
+        return c;
 	}
 	
     /** 
@@ -109,11 +112,22 @@ public class ImageMapper
      * 
      * @param userGroupIds    List of group's id, the user belongs to.
      */
-    public static Criteria buildUserImagesCriteria(List userGroupIds)
+    public static Criteria buildUserImagesCriteria(List userGroupIds, 
+                            Map filters, Map complexFilters)
     {
-        Criteria criteria = buildBasicImagesCriteria();
-        criteria.addFilter("group_id", "IN", userGroupIds);
-        return criteria;
+        Criteria c = buildBasicImagesCriteria();
+        UserMapper.setFilters(c, filters, complexFilters); 
+        //Shouldn't be a problem
+        if (userGroupIds != null) c.addFilter("group_id", "IN", userGroupIds);
+        return c;
+    }
+    
+    public static Criteria buildBasicImageCriteria(int imageID)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("name");
+        if (imageID != -1) c.addFilter("id", new Integer(imageID));
+        return c;
     }
     
     private static Criteria buildBasicImagesCriteria()
@@ -121,12 +135,10 @@ public class ImageMapper
         Criteria criteria = new Criteria();
         
         //Specify which fields we want for the image.
-        criteria.addWantedField("id");
         criteria.addWantedField("name");
         criteria.addWantedField("created");
         //Specify which fields we want for the pixels.
         criteria.addWantedField("default_pixels");
-        criteria.addWantedField("default_pixels", "id");
         return criteria;
     }
     
@@ -137,50 +149,22 @@ public class ImageMapper
 	 */
 	public static Criteria buildImageCriteria(int id)
 	{
-		Criteria criteria = new Criteria();
+		Criteria criteria = PixelsMapper.buildPixelsCriteria(id);
 		
 		//Specify which fields we want for the image.
-  		criteria.addWantedField("id");
   		criteria.addWantedField("name");
   		criteria.addWantedField("description"); 
 		criteria.addWantedField("inserted"); 
 		criteria.addWantedField("created"); 
 		criteria.addWantedField("owner");	
 		criteria.addWantedField("datasets");
-		criteria.addWantedField("default_pixels");
 		
 		//Specify which fields we want for the datasets.
-		criteria.addWantedField("datasets", "id");
 		criteria.addWantedField("datasets", "name");
-		
-		
-		//Specify which fields we want for the pixels.
-		criteria.addWantedField("default_pixels", "id");
-		criteria.addWantedField("default_pixels", "SizeX");
-		criteria.addWantedField("default_pixels", "SizeY");
-		criteria.addWantedField("default_pixels", "SizeZ");
-		criteria.addWantedField("default_pixels", "SizeC");
-		criteria.addWantedField("default_pixels", "SizeT");
-		criteria.addWantedField("default_pixels", "PixelType");
-		criteria.addWantedField("default_pixels", "Repository");
-		criteria.addWantedField("default_pixels", "ImageServerID");
-		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
-  		
-  		//Specify which fields we want for the owner.
-		criteria.addWantedField("owner", "id");
-  		criteria.addWantedField("owner", "FirstName");
-  		criteria.addWantedField("owner", "LastName");
-  		criteria.addWantedField("owner", "Email");
-  		criteria.addWantedField("owner", "Institution");
-  		criteria.addWantedField("owner", "Group");
 
-  		//Specify which fields we want for the owner's group.
-  		criteria.addWantedField("owner.Group", "id");
-  		criteria.addWantedField("owner.Group", "Name");
-  		
-        //Add filter
-		criteria.addFilter("id", new Integer(id));
-		
+		//Fields for the owner.
+        UserMapper.objectOwnerCriteria(criteria);
+        
   		return criteria;
 	}
 	
@@ -218,7 +202,6 @@ public class ImageMapper
 	 */
 	public static void fillImage(Image image, ImageData empty)
 	{
-	
 		//Fill in the data coming from OMEDS object.
 		empty.setID(image.getID());
 		empty.setName(image.getName());
@@ -271,14 +254,41 @@ public class ImageMapper
 		//For each d in datasets...
 		while (i.hasNext()) {
 			//Make a new DataObject and fill it up.
-			is = buildImageSummary((Image) i.next(), 
-                                    (ImageSummary) iProto.makeNew());
+            is = (ImageSummary) iProto.makeNew();
+			buildImageSummary((Image) i.next(), is);
 			//Add the images to the list of returned images
 			imagesList.add(is);
 		}
 		return imagesList;
 	}
 	
+    public static List fillListImages(List images, ImageSummary iProto, 
+                                      List annotations)
+    {
+        Map ids = AnnotationMapper.reverseListImageAnnotations(annotations);
+        List imagesList = new ArrayList();  //The returned summary list.
+        Iterator i = images.iterator();
+        ImageSummary is;
+        Image img;
+        int id;
+        ImageAnnotation annotation;
+        //For each d in datasets...
+        while (i.hasNext()) {
+            //Make a new DataObject and fill it up.
+            img = (Image) i.next();
+            id = img.getID();
+            annotation = (ImageAnnotation) ids.get(new Integer(id));
+            if (annotation != null) {
+                is = (ImageSummary) iProto.makeNew();
+                buildImageSummary(img, is);
+                is.setAnnotation(
+                        AnnotationMapper.fillImageAnnotation(annotation));
+                imagesList.add(is);
+            }
+        }
+        return imagesList;
+    }
+    
 	/**
      * Build the logical channel object
      * @param pccList       PixelChannelComponent list.
@@ -504,7 +514,7 @@ public class ImageMapper
 	}
 	
     /** Build an image summary object. */
-    static ImageSummary buildImageSummary(Image img, ImageSummary is)
+    static void buildImageSummary(Image img, ImageSummary is)
     {
         Pixels px;
         px = img.getDefaultPixels();
@@ -513,7 +523,6 @@ public class ImageMapper
         is.setPixelsIDs(fillListPixelsID(px));
         is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
         //is.setImageServerPixelsID(fillListPixelsID(px));
-        return is;
     }
     
 	private static int[] fillListPixelsID(Pixels px)

@@ -107,6 +107,11 @@ class DMSAdapter
 	implements DataManagementService
 {
 	
+    //ISSUE: Don't use the IN clause for filtering results.
+    // e.g. filtering by imageID, don't pass a list of imageID with 
+    //size > limit. The server may crash otherwise.
+    static final int    LIMIT_FOR_IN = 50;
+    
 	private OMEDSGateway		gateway;
 	private Registry			registry;
 
@@ -201,7 +206,6 @@ class DMSAdapter
     					projects, pProto, dProto);
     	//can be null
     	return projectsDS;
-	
 	}
 
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -238,24 +242,19 @@ class DMSAdapter
         List projects = (List) gateway.retrieveListData(Project.class, c);
         
         //Put the server data into the corresponding client object.
-        List projectsDS = new ArrayList();
-        if (projects != null) {
-            List ids = ProjectMapper.prepareListDatasetsID(projects);
-            if (ids != null && ids.size() != 0) {
-                c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, 
-                                uc.getUserID());
-                List l = (List) gateway.retrieveListSTSData("DatasetAnnotation",
-                                                            c);
-                ProjectMapper.fillListAnnotatedDatasets(projects, pProto, 
-                                dProto, l, projectsDS);
-            } else {  
-                //Projects contain no datasets, this is the case for the
-                //initial project for example.
-                projectsDS = 
-                    ProjectMapper.fillUserProjects(projects, pProto, dProto);
-            }
+        if (projects == null) return new ArrayList();
+        List ids = ProjectMapper.prepareListDatasetsID(projects);
+        if (ids != null && ids.size() != 0) {
+            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, 
+                    uc.getUserID());
+            List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+            return ProjectMapper.fillListAnnotatedDatasets(projects, pProto, 
+                            dProto, l);
         }
-        return projectsDS;
+        //Projects contain no datasets, this is the case for the
+        //initial project for example.
+        return ProjectMapper.fillUserProjects(projects, pProto, dProto);
     }
     
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -324,45 +323,74 @@ class DMSAdapter
 	}
 
     /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserImages(Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveUserImages(null, filters, complexFilters);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveUserImages(ImageSummary iProto, Map filters, 
+                                    Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Make a new proto if none was provided.
+        if (iProto == null) iProto = new ImageSummary();
+        
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = ImageMapper.buildUserImagesCriteria(uc.getUserID(), 
+                            filters, complexFilters);
+
+        //Load the graph defined by criteria.
+        List images = (List) gateway.retrieveListData(Image.class, c);
+        if (images == null)  return new ArrayList();
+        
+        Boolean b = null;
+        if (filters != null)
+            b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
+        
+        if (b != null && b.booleanValue()) {
+            List ids = new ArrayList();
+            Iterator i = images.iterator();
+            while (i.hasNext()) 
+                ids.add(new Integer(((Image) i.next()).getID()));
+            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
+                    uc.getUserID());
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            return ImageMapper.fillListImages(images, iProto, l);
+        }
+        return ImageMapper.fillListImages(images, iProto);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveUserImages()
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveUserImages(null);
+        return retrieveUserImages(null, null, null);
     }
     
 	/** Implemented as specified in {@link DataManagementService}. */
 	public List retrieveUserImages(ImageSummary iProto)
 		throws DSOutOfServiceException, DSAccessException								
 	{	
-		//Make a new proto if none was provided.
-		if (iProto == null) iProto = new ImageSummary();
-		
-		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-
-		//Define the criteria by which the object graph is pulled out.
-		Criteria c = ImageMapper.buildUserImagesCriteria(uc.getUserID());
-
-		//Load the graph defined by criteria.
-		List images = (List) gateway.retrieveListData(Image.class, c);
-	  	
-		//Put the server data into the corresponding client object.
-		if (images != null) 
-           return ImageMapper.fillListImages(images, iProto);
-    
-		return new ArrayList();
+        return retrieveUserImages(iProto, null, null);
 	}
-    
+       
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveImagesInUserGroup()
+    public List retrieveImagesInUserGroup(Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveImagesInUserGroup(null);
+        return retrieveImagesInUserGroup(null, filters, complexFilters);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveImagesInUserGroup(ImageSummary iProto)
+    public List retrieveImagesInUserGroup(ImageSummary iProto, Map filters, 
+                                            Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
         //Make a new proto if none was provided.
@@ -370,28 +398,66 @@ class DMSAdapter
 
         //Define the criteria by which the object graph is pulled out.
         Criteria c = ImageMapper.buildUserImagesCriteria(
-                    getUserDetails().getGroupIDs());
+                    getUserDetails().getGroupIDs(), filters, complexFilters);
 
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
+        if (images == null) return new ArrayList(); 
+        //Check if annotation filter is specified.
+        Boolean b = null;
+        if (filters != null)
+            b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
         
-        //Put the server data into the corresponding client object.
-        if (images != null) 
-           return ImageMapper.fillListImages(images, iProto);
+        if (b != null && b.booleanValue()) {
+            List ids = new ArrayList();
+            Iterator i = images.iterator();
+            //Retrieve the user ID.
+            UserCredentials uc = (UserCredentials)
+                                registry.lookup(LookupNames.USER_CREDENTIALS);
+            while (i.hasNext()) 
+                ids.add(new Integer(((Image) i.next()).getID()));
+            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
+                    uc.getUserID());
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            return ImageMapper.fillListImages(images, iProto, l);
+        }
+        return ImageMapper.fillListImages(images, iProto);
+    }
     
-        return new ArrayList();
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserGroup()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserGroup(null, null, null);
+    }
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserGroup(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserGroup(iProto, null, null);
     }
 	
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveImagesInUserDatasets(List datasetsIDs)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveImagesInUserDatasets(datasetsIDs, null);
+        return retrieveImagesInUserDatasets(datasetsIDs, null, null, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserDatasets(List datasetsIDs, Map filters, 
+                                            Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasets(datasetsIDs, null, filters, 
+                                            complexFilters);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveImagesInUserDatasets(List datasetsIDs, 
-                                            ImageSummary iProto)
+            ImageSummary iProto, Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
         if (datasetsIDs == null || datasetsIDs.size() == 0)
@@ -399,14 +465,41 @@ class DMSAdapter
         //Create a new dataObject if none provided.
         if (iProto == null) iProto = new ImageSummary();
         //Define the criteria by which the object graph is pulled out.
-        Criteria c = DatasetMapper.buildImagesCriteria(datasetsIDs);
+        Criteria c;
+        if (datasetsIDs.size() > LIMIT_FOR_IN)
+            c = DatasetMapper.buildImagesCriteria(null, filters, 
+                        complexFilters);
+        else c = DatasetMapper.buildImagesCriteria(datasetsIDs, filters, 
+                                        complexFilters);
 
         //Load the graph defined by criteria.
         List datasets = (List) gateway.retrieveListData(Dataset.class, c);
-        //Put the server data into the corresponding client object.
-        if (datasets != null && datasets.size() != 0)
-            return DatasetMapper.fillImagesInUserDatasets(datasets, iProto);
-        return new ArrayList(); 
+        if (datasets == null || datasets.size() == 0) return new ArrayList(); 
+        Boolean b = null;
+        if (filters != null)
+            b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
+        
+        if (b != null && b.booleanValue()) {
+            UserCredentials uc = (UserCredentials)
+            registry.lookup(LookupNames.USER_CREDENTIALS);
+            List ids = DatasetMapper.prepareListImagesID(datasets);
+            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
+                    uc.getUserID());
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            return DatasetMapper.fillImagesInUserDatasets(datasets, iProto, l, 
+                                        datasetsIDs);
+        }
+        return DatasetMapper.fillImagesInUserDatasets(datasets, iProto,
+                                            datasetsIDs);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInUserDatasets(List datasetsIDs, 
+                                            ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInUserDatasets(datasetsIDs, iProto, null, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -431,34 +524,90 @@ class DMSAdapter
         List datasetIDs = new ArrayList();
         while (key.hasNext())
             datasetIDs.add(key.next());
-        return retrieveImagesInUserDatasets(datasetIDs, null);
+        return retrieveImagesInUserDatasets(datasetIDs, null, null, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveImagesInSystem()
+    public List retrieveImagesInUserDatasets(Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveImagesInSystem(null);
+        List projects = retrieveUserProjects();
+        Iterator i = projects.iterator();
+        List datasets;
+        Iterator j;
+        HashMap ids = new HashMap();
+        Integer id;
+        while (i.hasNext()) {
+            datasets = ((ProjectSummary) i.next()).getDatasets();
+            j = datasets.iterator();
+            while (j.hasNext()) {
+                id = new Integer(((DatasetSummary) j.next()).getID());
+                ids.put(id, id);
+            }
+        }
+        Iterator key = ids.keySet().iterator();
+        List datasetIDs = new ArrayList();
+        while (key.hasNext())
+            datasetIDs.add(key.next());
+        return retrieveImagesInUserDatasets(datasetIDs, null, filters, 
+                                            complexFilters);
+    }
+
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInSystem(Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInSystem(null, filters, complexFilters);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveImagesInSystem(ImageSummary iProto)
+    public List retrieveImagesInSystem(ImageSummary iProto, Map filters, 
+                                    Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
         //Make a new proto if none was provided.
         if (iProto == null) iProto = new ImageSummary();
 
         //Define the criteria by which the object graph is pulled out.
-        Criteria c = ImageMapper.buildUserImagesCriteria(-1);
+        Criteria c = ImageMapper.buildUserImagesCriteria(-1, filters, 
+                                    complexFilters);
 
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
+        if (images == null) return new ArrayList();
+        Boolean b = null;
+        if (filters != null)
+            b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
         
-        //Put the server data into the corresponding client object.
-        if (images != null) 
-           return ImageMapper.fillListImages(images, iProto);
+        if (b != null && b.booleanValue()) {
+            List ids = new ArrayList();
+            Iterator i = images.iterator();
+            //Retrieve the user ID.
+            UserCredentials uc = (UserCredentials)
+                                registry.lookup(LookupNames.USER_CREDENTIALS);
+            while (i.hasNext()) 
+                ids.add(new Integer(((Image) i.next()).getID()));
+            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
+                    uc.getUserID());
+            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            return ImageMapper.fillListImages(images, iProto, l);
+        }
+        return ImageMapper.fillListImages(images, iProto);
+    }
     
-        return new ArrayList();
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInSystem()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInSystem(null, null, null);
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveImagesInSystem(ImageSummary iProto)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        return retrieveImagesInSystem(iProto, null, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -523,7 +672,7 @@ class DMSAdapter
 		//Define the criteria by which the object graph is pulled out.
         List ids = new ArrayList();
         ids.add(new Integer(datasetID));
-		Criteria c = DatasetMapper.buildImagesCriteria(ids);
+		Criteria c = DatasetMapper.buildImagesCriteria(ids, null, null);
 
 		//Load the graph defined by criteria.
 		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
@@ -551,7 +700,7 @@ class DMSAdapter
         //Define the criteria by which the object graph is pulled out.
         List datasetIDs = new ArrayList();
         datasetIDs.add(new Integer(datasetID));
-        Criteria c = DatasetMapper.buildImagesCriteria(datasetIDs);
+        Criteria c = DatasetMapper.buildImagesCriteria(datasetIDs, null, null);
 
         //Load the graph defined by criteria.
         Dataset dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
@@ -564,6 +713,7 @@ class DMSAdapter
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
         List ids = DatasetMapper.prepareListImagesID(dataset);
+        if (ids.size() > LIMIT_FOR_IN) ids = null;
         c = AnnotationMapper.buildImageAnnotationCriteria(ids, uc.getUserID());
         if (ids != null && ids.size() != 0) {
             List l = (List) gateway.retrieveListSTSData("ImageAnnotation", 
@@ -1031,14 +1181,45 @@ class DMSAdapter
             map.put(id, is);
             ids.add(id);
         }
+        if (ids.size() > LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
-        if (images != null)
+        if (images != null && images.size() > 0)
              return HierarchyMapper.fillIDPHierarchy(images, map);
         return new ArrayList();
     }
 
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveProjectsTree(List projectIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c;
+        if (projectIDs.size() > LIMIT_FOR_IN) 
+            c = ProjectMapper.buildProjectsTreeCriteria(null);
+        else c = ProjectMapper.buildProjectsTreeCriteria(projectIDs);
+        List projects = (List) gateway.retrieveListData(Project.class, c);
+        List results = new ArrayList();
+        if (projects != null && projects.size() > 0)
+            ProjectMapper.fillProjectsTree(projects, results, projectIDs);
+        return results;
+    }
+    
+    /** Implemented as specified in {@link DataManagementService}. */
+    public List retrieveDatasetsTree(List datasetIDs)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Criteria c;
+        if (datasetIDs.size() > LIMIT_FOR_IN) 
+            c = DatasetMapper.buildDatasetsTree(null);
+        else c = DatasetMapper.buildDatasetsTree(datasetIDs);
+        List datasets = (List) gateway.retrieveListData(Dataset.class, c);
+        List results = new ArrayList();
+        if (datasets != null && datasets.size() > 0)
+            DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs);
+        return results;
+    }
+    
     private void markChainNodes(AnalysisChain chain, Collection nodes)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -1063,6 +1244,8 @@ class DMSAdapter
         AnalysisLinkData link;
         AnalysisLink  lnk;
         Iterator iter = links.iterator();
+        FormalOutputData output;
+        FormalInputData input;
         while (iter.hasNext()) {
             link = (AnalysisLinkData) iter.next();
             lnk =   (AnalysisLink) gateway.createNewData(AnalysisLink.class);
@@ -1076,7 +1259,7 @@ class DMSAdapter
             lnk.setFromNode(n);
             
             // set output param
-            FormalOutputData output = link.getFromOutput();
+            output = link.getFromOutput();
             lnk.setFromOutput(output.getFormalOutputDTO());
             
             // set input node
@@ -1086,7 +1269,7 @@ class DMSAdapter
             lnk.setToNode(n);
 
             // set input param.
-            FormalInputData input = link.getToInput();
+            input = link.getToInput();
             lnk.setToInput(input.getFormalInputDTO());
             
             //set chain
@@ -1096,19 +1279,19 @@ class DMSAdapter
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List getMexExecutionHistory(int mexID,ModuleExecutionData mexProto,
-    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
-			FormalOutputData foutData,SemanticTypeData stData)
+    public List getMexExecutionHistory(int mexID, ModuleExecutionData mexProto,
+    			ModuleData modData, ActualInputData inpData, 
+                FormalInputData finData, FormalOutputData foutData,
+                SemanticTypeData stData)
     		throws DSOutOfServiceException, DSAccessException
     {
     		if (mexProto == null) mexProto = new ModuleExecutionData();
     		
-    		List mexes  = gateway.getModuleExecutionHistory(mexID);
-    		List mexDS  =null;
+    		List mexes = gateway.getModuleExecutionHistory(mexID);
+    		List mexDS = null;
     		if (mexes != null)
-    				mexDS = ModuleExecutionMapper.
-						fillHistoryMexes(mexes,mexProto,modData,inpData,
-								finData,foutData,stData); 
+    				mexDS = ModuleExecutionMapper.fillHistoryMexes(mexes, 
+                      mexProto, modData, inpData, finData, foutData, stData); 
     		return mexDS;
     }
     
@@ -1116,23 +1299,24 @@ class DMSAdapter
     public List getMexExecutionHistory(int mexID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-    		return getMexExecutionHistory(mexID,null,null,null,null,null,null);
+    		return getMexExecutionHistory(mexID, null, null, null, null, null,
+                                            null);
 	}
 
     /** Implemented as specified in {@link DataManagementService}. */
-    public List getChainExecutionHistory(int chexID,ModuleExecutionData mexProto,
-    			ModuleData modData,ActualInputData inpData,FormalInputData finData,
-				FormalOutputData foutData,SemanticTypeData stData) 
-	throws DSOutOfServiceException, DSAccessException
+    public List getChainExecutionHistory(int chexID, 
+                ModuleExecutionData mexProto, ModuleData modData, 
+                ActualInputData inpData, FormalInputData finData,
+				FormalOutputData foutData, SemanticTypeData stData) 
+	    throws DSOutOfServiceException, DSAccessException
 	{	
     		if (mexProto == null) mexProto = new ModuleExecutionData();
 
-    		List mexes =  gateway.getChainExecutionHistory(chexID);
+    		List mexes = gateway.getChainExecutionHistory(chexID);
     		List mexDS = null;
     		if (mexes != null)
-    				mexDS = ModuleExecutionMapper.
-					fillHistoryMexes(mexes,mexProto,modData,inpData,finData,
-							foutData,stData);
+    				mexDS = ModuleExecutionMapper.fillHistoryMexes(mexes, 
+    				mexProto, modData, inpData, finData, foutData, stData);
     		return mexDS;
 	}
     
@@ -1140,7 +1324,9 @@ class DMSAdapter
     public List getChainExecutionHistory(int chexID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-    		return getChainExecutionHistory(chexID,null,null,null,null,null,null);
+    		return getChainExecutionHistory(chexID, null, null, null, null, 
+                                            null, null);
 	}
+    
 }
 

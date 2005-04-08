@@ -48,6 +48,7 @@ import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
@@ -68,6 +69,32 @@ import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 public class DatasetMapper
 {
 	
+    /**
+     * Build a criteria to retrieve minimal information to build the 
+     * dataset-image graph.
+     * 
+     * @param datasetIDs List of dataset's ID.
+     * @return See above
+     */
+    public static Criteria buildDatasetsTree(List datasetIDs)
+    {
+        Criteria c = new Criteria();
+        c.addWantedField("name");
+        c.addWantedField("images");
+        //Specify which fields we want for the images.
+        c.addWantedField("images", "name");
+        c.addWantedField("images", "created");
+        c.addWantedField("images", "default_pixels");
+        
+        //Specify which fields we want for the pixels.
+        c.addWantedField("images.default_pixels", "ImageServerID"); 
+        c.addWantedField("images.default_pixels", "Repository");
+        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");      
+
+        if (datasetIDs != null) c.addFilter("id", "IN", datasetIDs);
+        return c;
+    }
+    
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for updateDataset.
@@ -77,7 +104,6 @@ public class DatasetMapper
 	public static Criteria buildUpdateCriteria(int datasetID)
 	{
 		Criteria c = new Criteria();
-		c.addWantedField("id");
 		c.addWantedField("name");
 		c.addWantedField("description");
 		c.addFilter("id", new Integer(datasetID));
@@ -92,17 +118,14 @@ public class DatasetMapper
 	 */
 	public static Criteria buildUserDatasetsCriteria(int userID)
 	{
-		Criteria criteria = new Criteria();
+		Criteria c = new Criteria();
 		
 		//Specify which fields we want for the dataset.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		
-		criteria.addFilter("owner_id", new Integer(userID));
-		criteria.addFilter("name", "NOT LIKE", "ImportSet");
-		criteria.addOrderBy("name");
-        
-		return criteria;
+		c.addWantedField("name");
+		//Filter
+		c.addFilter("owner_id", new Integer(userID));
+		c.addFilter("name", "NOT LIKE", "ImportSet");
+		return c;
 	}
 	
 	/** 
@@ -114,43 +137,30 @@ public class DatasetMapper
 	 */
 	public static Criteria buildFullUserDatasetsCriteria(int userID)
 	{
-		Criteria criteria = new Criteria();
+		Criteria c = new Criteria();
 		
 		//Specify which fields we want for the dataset.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		criteria.addWantedField("description");
-		criteria.addWantedField("owner");
-		criteria.addWantedField("images");
+		c.addWantedField("name");
+		c.addWantedField("description");
+		c.addWantedField("owner");
+		c.addWantedField("images");
 
-		//Specify which fields we want for the owner.
-		criteria.addWantedField("owner", "id");
-		criteria.addWantedField("owner", "FirstName");
-		criteria.addWantedField("owner", "LastName");
-		criteria.addWantedField("owner", "Email");
-		criteria.addWantedField("owner", "Institution");
-		criteria.addWantedField("owner", "Group");
-
-		//Specify which fields we want for the owner's group.
-		criteria.addWantedField("owner.Group", "id");
-		criteria.addWantedField("owner.Group", "Name");
+        UserMapper.objectOwnerCriteria(c);
 
 		//Specify which fields we want for the images.
-		criteria.addWantedField("images", "id");
-		criteria.addWantedField("images", "name");
-		criteria.addWantedField("images", "default_pixels");
+		c.addWantedField("images", "name");
+        c.addWantedField("images", "created");
+		c.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
-		criteria.addWantedField("images.default_pixels", "id"); 
-		criteria.addWantedField("images.default_pixels", "ImageServerID"); 
-		criteria.addWantedField("images.default_pixels", "Repository");
-		criteria.addWantedField("images.default_pixels.Repository",
-								"ImageServerURL");		
+		c.addWantedField("images.default_pixels", "ImageServerID"); 
+		c.addWantedField("images.default_pixels", "Repository");
+		c.addWantedField("images.default_pixels.Repository", "ImageServerURL");		
 
-		criteria.addFilter("owner_id", new Integer(userID));
-		criteria.addFilter("name", "NOT LIKE", "ImportSet");
-		criteria.addOrderBy("name");
-		return criteria;
+        //Add filter
+		c.addFilter("owner_id", new Integer(userID));
+		c.addFilter("name", "NOT LIKE", "ImportSet");
+		return c;
 	}
     
 	/**
@@ -159,28 +169,24 @@ public class DatasetMapper
 	 * 
 	 * @return 
 	 */
-	public static Criteria buildImagesCriteria(List ids)
+	public static Criteria buildImagesCriteria(List datasetIDs, Map filters,
+                                    Map complexFilters)
 	{
-		Criteria criteria = new Criteria();
+		Criteria c = new Criteria();
 		
 		//Specify which fields we want for the images.
-		criteria.addWantedField("images");
-		criteria.addWantedField("images", "id");
-		criteria.addWantedField("images", "name");
-        criteria.addWantedField("images", "created");
-		criteria.addWantedField("images", "default_pixels");
+		c.addWantedField("images");
+		c.addWantedField("images", "name");
+        c.addWantedField("images", "created");
+		c.addWantedField("images", "default_pixels");
 		
-		//Specify which fields we want for the pixels.
-		criteria.addWantedField("images.default_pixels", "id");
-		criteria.addWantedField("images.default_pixels", "ImageServerID");
-        criteria.addWantedField("images.default_pixels", "Repository");
-        criteria.addWantedField("images.default_pixels.Repository",
-								"ImageServerURL");
-        criteria.addFilter("id", "IN", ids);
-		//criteria.addFilter("id", new Integer(id));
-        criteria.addOrderBy("id");
-		
-		return criteria;
+		//Specify which fields we want for the pixels
+		c.addWantedField("images.default_pixels", "ImageServerID");
+        c.addWantedField("images.default_pixels", "Repository");
+        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");
+        if (datasetIDs != null) c.addFilter("id", "IN", datasetIDs);
+        UserMapper.setFilters(c, filters, complexFilters);
+		return c;
 	}
 	
 	/** 
@@ -190,43 +196,37 @@ public class DatasetMapper
 	 */
 	public static Criteria buildDatasetCriteria(int id)
 	{
-		Criteria criteria = new Criteria();
+		Criteria c = new Criteria();
 
 		//Specify which fields we want for the dataset.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		criteria.addWantedField("description");
-		criteria.addWantedField("owner");
-		criteria.addWantedField("images"); 
+		c.addWantedField("name");
+		c.addWantedField("description");
+		c.addWantedField("owner");
+		c.addWantedField("images"); 
 
 		//Specify which fields we want for the owner.
-		criteria.addWantedField("owner", "id");
-		criteria.addWantedField("owner", "FirstName");
-		criteria.addWantedField("owner", "LastName");
-		criteria.addWantedField("owner", "Email");
-		criteria.addWantedField("owner", "Institution");
-		criteria.addWantedField("owner", "Group");
+		c.addWantedField("owner", "FirstName");
+		c.addWantedField("owner", "LastName");
+		c.addWantedField("owner", "Email");
+		c.addWantedField("owner", "Institution");
+		c.addWantedField("owner", "Group");
 
 		//Specify which fields we want for the owner's group.
-		criteria.addWantedField("owner.Group", "id");
-		criteria.addWantedField("owner.Group", "Name");
+		c.addWantedField("owner.Group", "Name");
 
 		//Specify which fields we want for the images.
-		criteria.addWantedField("images", "id");
-		criteria.addWantedField("images", "name");
-		criteria.addWantedField("images", "default_pixels");
+		c.addWantedField("images", "name");
+        c.addWantedField("images", "created");
+		c.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
-		criteria.addWantedField("images.default_pixels", "id");
-		criteria.addWantedField("images.default_pixels", "ImageServerID");
-        criteria.addWantedField("images.default_pixels", "Repository");
-        criteria.addWantedField("images.default_pixels.Repository",
-								"ImageServerURL");
-        criteria.addOrderBy("id");
-		
-		criteria.addFilter("id", new Integer(id));
-		
-		return criteria;
+		c.addWantedField("images.default_pixels", "ImageServerID");
+        c.addWantedField("images.default_pixels", "Repository");
+        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");
+
+		//Filter by ID.
+		c.addFilter("id", new Integer(id));
+		return c;
 	}
 
 	/** 
@@ -259,13 +259,9 @@ public class DatasetMapper
 		//Create the image summary list.
 		List images = new ArrayList();
 		Iterator i = dataset.getImages().iterator();
-		Image img;
-		while (i.hasNext()) {
-			img = (Image) i.next();
-			images.add(new ImageSummary(img.getID(), img.getName(), 
-						fillListPixelsID(img),
-                        fillDefaultPixels(img.getDefaultPixels())));
-		}
+		while (i.hasNext()) 
+			images.add(fillImageSummary((Image) i.next()));
+		
 		empty.setImages(images);	
 	}
 
@@ -307,10 +303,7 @@ public class DatasetMapper
 			while (i.hasNext()) {
 				img = (Image) i.next();
 				ImageSummary is = (ImageSummary) iProto.makeNew();
-				is.setID(img.getID());
-				is.setName(img.getName());
-				is.setPixelsIDs(fillListPixelsID(img));
-				is.setDefaultPixels(fillDefaultPixels(img.getDefaultPixels()));
+				fillImageSummary(img, is);
 				images.add(is);
 			}
 			empty.setImages(images);
@@ -320,21 +313,33 @@ public class DatasetMapper
     /** Build a list of imageID. */
     public static List prepareListImagesID(Dataset dataset)
     {
-        List ids = new ArrayList();
-        List imgs = dataset.getImages();
-        if (imgs != null && imgs.size() != 0) {
-            Iterator j = imgs.iterator();
-            Image image;
+        List d = new ArrayList();
+        d.add(dataset);
+        return prepareListImagesID(d);
+    }
+    
+    /** Build a list of imageID. */
+    public static List prepareListImagesID(List datasets)
+    {
+        Map map = new HashMap();
+        Iterator i = datasets.iterator(), j;
+        Integer id;
+        while (i.hasNext()) {
+            j = (((Dataset) i.next()).getImages()).iterator();
             while (j.hasNext()) {
-                image = (Image) j.next();
-                ids.add(new Integer(image.getID()));
+                id = new Integer(((Image) j.next()).getID());
+                map.put(id, id);
             }
         }
-        return ids;
+        List results = new ArrayList();
+        Iterator k = map.keySet().iterator();
+        while (k.hasNext()) 
+            results.add(k.next());
+        return results;
     }
     
     public static List fillImagesInUserDatasets(List datasets, 
-                    ImageSummary iProto)
+                    ImageSummary iProto, List datasetIDs)
     {
         List images = new ArrayList();
         HashMap map = new HashMap();
@@ -343,25 +348,63 @@ public class DatasetMapper
         Image image;
         ImageSummary is;
         Integer imageID;
+        Dataset dDTO;
         while (d.hasNext()) {
-            i = ((Dataset) d.next()).getImages().iterator();
-            while (i.hasNext()) {
-                image = (Image) i.next();
-                imageID = new Integer(image.getID());
-                is = (ImageSummary) map.get(imageID);
-                if (is == null) {
-                    //Make a new DataObject and fill it up.
-                    is = (ImageSummary) iProto.makeNew();
-                    is.setID(image.getID());
-                    is.setName(image.getName());
-                    is.setDate(
-                       PrimitiveTypesMapper.getTimestamp(image.getCreated()));
-                    is.setPixelsIDs(fillListPixelsID(image));
-                    is.setDefaultPixels(fillDefaultPixels(
-                                image.getDefaultPixels()));
-                    //Add the image summary object to the list.
-                    images.add(is);
-                    map.put(imageID, is);
+            dDTO = (Dataset) d.next();
+            if (datasetIDs.contains(new Integer(dDTO.getID()))) {
+                i = dDTO.getImages().iterator();
+                while (i.hasNext()) {
+                    image = (Image) i.next();
+                    imageID = new Integer(image.getID());
+                    is = (ImageSummary) map.get(imageID);
+                    if (is == null) {
+                        //Make a new DataObject and fill it up.
+                        is = (ImageSummary) iProto.makeNew();
+                        fillImageSummary(image, is);
+                        //Add the image summary object to the list.
+                        images.add(is);
+                        map.put(imageID, is);
+                    }
+                } 
+            }
+        }
+        return images;
+    }
+    
+    public static List fillImagesInUserDatasets(List datasets, 
+                        ImageSummary iProto, List annotations, List datasetIDs)
+    {
+        Map ids = AnnotationMapper.reverseListImageAnnotations(annotations);
+        List images = new ArrayList();
+        HashMap map = new HashMap();
+        Iterator d = datasets.iterator();
+        Iterator i;
+        Image image;
+        ImageSummary is;
+        Integer imageID;
+        ImageAnnotation annotation;
+        Dataset dDTO;
+        while (d.hasNext()) {
+            dDTO = (Dataset) d.next();
+            if (datasetIDs.contains(new Integer(dDTO.getID()))) {
+                i = dDTO.getImages().iterator();
+                while (i.hasNext()) {
+                    image = (Image) i.next();
+                    imageID = new Integer(image.getID());
+                    annotation = (ImageAnnotation) ids.get(imageID);
+                    if (annotation != null) {
+                        is = (ImageSummary) map.get(imageID);
+                        if (is == null) {
+                            //Make a new DataObject and fill it up.
+                            is = (ImageSummary) iProto.makeNew();
+                            fillImageSummary(image, is);
+                            is.setAnnotation(
+                                AnnotationMapper.fillImageAnnotation(annotation));
+                            //Add the image summary object to the list.
+                            images.add(is);
+                            map.put(imageID, is);
+                        }
+                    }
                 }
             }
         }
@@ -379,7 +422,9 @@ public class DatasetMapper
 	{
 		List datasets = new ArrayList();
         datasets.add(dataset);
-        return fillImagesInUserDatasets(datasets, iProto);
+        List d = new ArrayList();
+        d.add(new Integer(dataset.getID()));
+        return fillImagesInUserDatasets(datasets, iProto, d);
 	}
 	
     /**
@@ -402,14 +447,10 @@ public class DatasetMapper
             image = (Image) i.next();
             //Make a new DataObject and fill it up.
             is = (ImageSummary) iProto.makeNew();
+            fillImageSummary(image, is);
             id = image.getID();
             is.setAnnotation(AnnotationMapper.fillImageAnnotation(
                     (ImageAnnotation) ids.get(new Integer(id))));
-            is.setID(id);
-            is.setName(image.getName());
-            is.setDate(PrimitiveTypesMapper.getTimestamp(image.getCreated()));
-            is.setPixelsIDs(fillListPixelsID(image));
-            is.setDefaultPixels(fillDefaultPixels(image.getDefaultPixels()));
             //Add the image summary object to the list.
             images.add(is);
         }
@@ -466,7 +507,60 @@ public class DatasetMapper
 		}
 		return datasetsList;
 	}
-	
+    
+    public static void fillDatasetsTree(List datasets, List results, 
+                                        List datasetIDs)
+    {
+        Iterator i = datasets.iterator(), k;
+        Map imagesMap = new HashMap();
+        DatasetSummaryLinked ds;
+        Dataset d;
+        Image img;
+        ImageSummary is;
+        List images;
+        Integer id;
+        while (i.hasNext()) {
+            d = (Dataset) i.next();
+            if (datasetIDs.contains(new Integer(d.getID()))) {
+                ds = new DatasetSummaryLinked();
+                ds.setID((d.getID()));
+                ds.setName(d.getName());
+                k = d.getImages().iterator();
+                //Add images to the dataset.
+                images = new ArrayList();
+                k = d.getImages().iterator();
+                while (k.hasNext()) {
+                    img = (Image) k.next();
+                    id = new Integer(img.getID());
+                    is = (ImageSummary) imagesMap.get(id);
+                    if (is == null) {
+                        is = fillImageSummary(img);
+                        imagesMap.put(id, is);
+                    }
+                    images.add(is);
+                }
+                ds.setImages(images);
+                results.add(ds);
+            }
+        }
+    }
+    
+    public static ImageSummary fillImageSummary(Image img)
+    {
+        ImageSummary is = new ImageSummary();
+        fillImageSummary(img, is);
+        return is;
+    }
+    
+    private static void fillImageSummary(Image img, ImageSummary is)
+    {
+        is.setID(img.getID());
+        is.setName(img.getName());
+        is.setPixelsIDs(fillListPixelsID(img));
+        is.setDefaultPixels(fillDefaultPixels(img.getDefaultPixels()));
+        is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
+    }
+    
 	//	TODO: will be modified as soon as we have a better approach.
 	private static int[] fillListPixelsID(Image image)
 	{

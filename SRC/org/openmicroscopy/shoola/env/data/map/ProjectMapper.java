@@ -43,12 +43,15 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Dataset;
+import org.openmicroscopy.ds.dto.Image;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
@@ -68,7 +71,32 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  */
 public class ProjectMapper
 {
-	
+
+    /**
+     * Build criteria for the retrieveProjectTree method.
+     * 
+     * @param projectIDs List of projects ID.
+     * @return See above.
+     */
+    public static Criteria buildProjectsTreeCriteria(List projectIDs)
+    {
+        Criteria c = buildBasicCriteria();
+        //Specify which fields we want for the datasets.
+        c.addWantedField("datasets", "images");
+        //Specify which fields we want for the images.
+        c.addWantedField("datasets.images", "name");
+        c.addWantedField("datasets.images", "created");
+        c.addWantedField("datasets.images", "default_pixels");
+        
+        //Specify which fields we want for the pixels.
+        c.addWantedField("datasets.images.default_pixels", "ImageServerID"); 
+        c.addWantedField("datasets.images.default_pixels", "Repository");
+        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");      
+        
+        if (projectIDs != null) c.addFilter("id", "IN", projectIDs);
+        return c;
+    }
+    
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for updateProject.
@@ -78,7 +106,6 @@ public class ProjectMapper
 	public static Criteria buildUpdateCriteria(int projectID)
 	{
 		Criteria c = new Criteria();
-		c.addWantedField("id");
 		c.addWantedField("name");
 		c.addWantedField("description");
 		c.addFilter("id", new Integer(projectID));
@@ -93,22 +120,9 @@ public class ProjectMapper
 	 */
 	public static Criteria buildUserProjectsCriteria(int userID)
 	{
-		Criteria criteria = new Criteria();
-		
-		//Specify which fields we want for the project.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
-		criteria.addWantedField("datasets");
-		
-		//Specify which fields we want for the datasets.
-		criteria.addWantedField("datasets", "id");
-		criteria.addWantedField("datasets", "name");
-		
-		//Retrieve the user's projects.
+		Criteria criteria = buildBasicCriteria();
+		//Retrieve by user's ID.
 		criteria.addFilter("owner_id", new Integer(userID));
-		
-		criteria.addOrderBy("name");
-		
 		return criteria;
 	}
 	
@@ -119,36 +133,28 @@ public class ProjectMapper
 	 */
 	public static Criteria buildProjectCriteria(int id)
 	{
-		Criteria criteria = new Criteria();
-
+		Criteria criteria = buildBasicCriteria();
+        
 		//Specify which fields we want for the project.
-		criteria.addWantedField("id");
-		criteria.addWantedField("name");
 		criteria.addWantedField("description");
 		criteria.addWantedField("owner");
-		criteria.addWantedField("datasets"); 
-
-		//Specify which fields we want for the owner.
-		criteria.addWantedField("owner", "id");
-		criteria.addWantedField("owner", "FirstName");
-		criteria.addWantedField("owner", "LastName");
-		criteria.addWantedField("owner", "Email");
-		criteria.addWantedField("owner", "Institution");
-		criteria.addWantedField("owner", "Group");
-
-		//Specify which fields we want for the owner's group.
-		criteria.addWantedField("owner.Group", "id");
-		criteria.addWantedField("owner.Group", "Name");
-
-		//Specify which fields we want for the datasets.
-		criteria.addWantedField("datasets", "id");
-		criteria.addWantedField("datasets", "name");
-		
+        UserMapper.objectOwnerCriteria(criteria);
+		//Filter by ID.
 		criteria.addFilter("id", new Integer(id));
 		
 		return criteria;
 	}
-	
+    
+    private static Criteria buildBasicCriteria()
+    {
+        Criteria criteria = new Criteria();
+        criteria.addWantedField("name"); 
+        criteria.addWantedField("datasets"); 
+        //Specify which fields we want for the datasets.
+        criteria.addWantedField("datasets", "name");
+        return criteria;
+    }
+	   
     /** Return of Object ID corresponding to the dataset ID. */
     public static List prepareListDatasetsID(List projects)
     {
@@ -225,12 +231,11 @@ public class ProjectMapper
 	{
 		Map	datasetsMap = new HashMap();
 		List projectsList = new ArrayList();  //The returned summary list.
-		Iterator i = projects.iterator();
+		Iterator i = projects.iterator(), j;
 		ProjectSummary ps;
 		Project p;
 		DatasetSummary ds;
 		Dataset d;
-		Iterator j;
 		List datasets;
         Integer id;
 		//For each p in projects...
@@ -251,7 +256,7 @@ public class ProjectMapper
 				if (ds == null) {
 					//Make a new DataObject and fill it up.
 					ds = (DatasetSummary) dProto.makeNew();		
-					ds.setID(id.intValue());
+					ds.setID(d.getID());
 					ds.setName(d.getName());
 					datasetsMap.put(id, ds);
 				}  //else we have already created this object.
@@ -280,18 +285,17 @@ public class ProjectMapper
      * @return
      */
     public static List fillListAnnotatedDatasets(List projects, ProjectSummary 
-                    pProto, DatasetSummary dProto, List annotations, 
-                    List projectsList)
+                    pProto, DatasetSummary dProto, List annotations)
     {
+        List projectsList = new ArrayList();
         Map ids = AnnotationMapper.reverseListDatasetAnnotations(annotations);
         Map datasetsMap = new HashMap();
-        Iterator i = projects.iterator();
+        Iterator i = projects.iterator(), j;
         //DataObject.
         ProjectSummary ps;
         DatasetSummary ds;
         Project p;
         Dataset d;
-        Iterator j;
         List datasets;
         Integer id;
         //For each p in projects...
@@ -312,7 +316,7 @@ public class ProjectMapper
                 if (ds == null) {
                     //Make a new DataObject and fill it up.
                     ds = (DatasetSummary) dProto.makeNew();     
-                    ds.setID(id.intValue());
+                    ds.setID(d.getID());
                     ds.setName(d.getName());
                     ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
                             (DatasetAnnotation) ids.get(id)));
@@ -345,12 +349,11 @@ public class ProjectMapper
 	{
 		Map	datasetsMap = new HashMap();
 		List projectsList = new ArrayList();  //The returned summary list.
-		Iterator i = projects.iterator();
+		Iterator i = projects.iterator(), j;
 		ProjectSummary ps;
 		Project p;
 		DatasetData ds;
 		Dataset d;
-		Iterator j;
 		List datasets;
         Integer id;
 		//For each p in projects...
@@ -371,7 +374,7 @@ public class ProjectMapper
 				if (ds == null) {
 					//Make a new DataObject and fill it up.
 					ds = (DatasetData) dProto.makeNew();		
-					ds.setID(id.intValue());
+					ds.setID(d.getID());
 					ds.setName(d.getName());
 					datasetsMap.put(id, ds);
 				}  //else we have already created this object.
@@ -404,5 +407,59 @@ public class ProjectMapper
 		pProto.setDatasets(datasets);
 		return ids;
 	}
+    
+    public static void fillProjectsTree(List projects, List results, 
+                            List projectIDs)
+    {
+        Iterator i = projects.iterator(), j, k;
+        Map datasetsMap = new HashMap(), imagesMap = new HashMap();
+        Project p;
+        List datasets, images;
+        ProjectSummary ps;
+        Dataset d;
+        DatasetSummaryLinked ds;
+        ImageSummary is;
+        Image img;
+        Integer id, idImg;
+        while (i.hasNext()) {
+            p = (Project) i.next();
+            if (projectIDs.contains(new Integer(p.getID()))) {
+                ps = new ProjectSummary(p.getID(), p.getName());
+                datasets = new ArrayList();
+                j = p.getDatasets().iterator();
+                while (j.hasNext()) {
+                    d = (Dataset) j.next();
+                    id = new Integer(d.getID());
+                    ds = (DatasetSummaryLinked) datasetsMap.get(id);
+                    if (ds == null) {
+                        //Make a new DataObject and fill it up.
+                        ds = new DatasetSummaryLinked(); 
+                        ds.setID(d.getID());
+                        ds.setName(d.getName());
+                        datasetsMap.put(id, ds);
+                    }  //object already created this object.
+                    //Add the dataset to this project's list.
+                    datasets.add(ds);   
+                    //Add images to the dataset
+                    images = new ArrayList();
+                    k = d.getImages().iterator();
+                    while (k.hasNext()) {
+                        img = (Image) k.next();
+                        idImg = new Integer(img.getID());
+                        is = (ImageSummary) imagesMap.get(idImg);
+                        if (is == null) {
+                            is = DatasetMapper.fillImageSummary(img);
+                            imagesMap.put(idImg, is);
+                        }
+                        images.add(is);
+                    }
+                    ds.setImages(images);
+                }
+                //Link the datasets to this project.
+                ps.setDatasets(datasets);
+                results.add(ps);
+            }
+        }
+    }
 	
 }
