@@ -80,7 +80,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ViewerUIF
     extends TopWindow
 {
-
+    
+    public static final String      NANOMETER = " \u00B5m";
+    
     public static final BasicStroke SCALE_STROKE = new BasicStroke(2.0f);
     
     public static final Color       SCALE_COLOR = new Color(204, 255, 204);
@@ -272,7 +274,6 @@ public class ViewerUIF
         lensCanvas = new LensCanvas();
         canvas = new ImageCanvas(this, control, lensCanvas);
         addCanvasToLayer(canvas, IMAGE_LEVEL);
-        //addCanvasToLayer(lensCanvas, LENS_LEVEL);
         scrollPane = new JScrollPane(layer);
     }
     

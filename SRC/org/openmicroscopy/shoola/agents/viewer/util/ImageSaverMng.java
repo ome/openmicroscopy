@@ -166,6 +166,25 @@ class ImageSaverMng
             writeImage(image, fileName);
         }
         cancelPreviewSaveImage();
+    } 
+    
+    /** Save the preview image .*/
+    void savePreviewImage(BufferedImage previewImage)
+    {
+        if (previewImage ==  null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyError("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
+        if (previewImage != null && lensImage == null)
+            writeImage(previewImage, fileName);
+        else if (previewImage != null && lensImage != null) {
+            writeImage(previewImage, fileName);
+            fileName +="_lens";
+            writeImage(previewImage, fileName);
+        }
+        cancelPreviewSaveImage();
     }
     
     /** 
@@ -232,7 +251,6 @@ class ImageSaverMng
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
-    
     
     /** Save the main image. */
     private void handleSaveImage()

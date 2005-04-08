@@ -61,6 +61,10 @@ public class ImageSaver
     extends JDialog
 {
     
+    public static final int     PREVIEW_TOP_LEFT = 0, PREVIEW_TOP_RIGHT = 1, 
+                                PREVIEW_BOTTOM_LEFT = 2, 
+                                PREVIEW_BOTTOM_RIGHT = 3;
+    
     static final String         MESSAGE = "A file with the same name and " +
                                         "extension already exists in " +
                                         "this directory. Do you " +

@@ -30,6 +30,9 @@
 package org.openmicroscopy.shoola.agents.viewer.canvas;
 
 //Java imports
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -41,7 +44,9 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.viewer.ImageFactory;
 import org.openmicroscopy.shoola.agents.viewer.ViewerUIF;
+import org.openmicroscopy.shoola.agents.viewer.util.ImageSaver;
 
 /** 
  * 
@@ -61,6 +66,10 @@ public class PreviewCanvas
     extends JPanel
 {
     
+    private static final int    BORDER = 2;
+    
+    private static final Color  DEFAULT_COLOR = Color.RED;
+    
     /**  Width and height of the canvas. */
     private int                 w, h;
     
@@ -68,27 +77,43 @@ public class PreviewCanvas
     private int                 x, y;
     
     /** The original bufferedImage to display. */   
-    private BufferedImage       image, sideImage;
-    
+    private BufferedImage       image, sideImage, originalImage;
     
     private JScrollPane         scrollPane;
     
+    private int                 txtWidth;
+    
     public PreviewCanvas()
     {
+        txtWidth = getFontMetrics(getFont()).charWidth('m');
         setBackground(ViewerUIF.BACKGROUND_COLOR); 
         setDoubleBuffered(true);
     }
     
     public void setContainer(JScrollPane c) { scrollPane = c; }
     
+    public BufferedImage getDisplayImage()
+    {
+        return ImageFactory.getImage(image);
+    }
+    
+    /** Write some text on the image. */
+    public void paintTextOnImage(String txt, int location, Color c)
+    {
+        if (c == null) c = DEFAULT_COLOR;
+        image = paintNewImage(originalImage, txt, location, c);
+        repaint();
+    }
+    
     /** 
-     * Paint the specified image in the canvas
+     * Paint the specified image.
      * 
      * @param img   {@link BufferedImage img} to pain.
-     * . */
+     */
     public void paintImage(BufferedImage image)
     {
         this.image = image;
+        originalImage = image;
         if (image != null) {
             w = image.getWidth()+2*ViewerUIF.START;
             h = image.getHeight()+2*ViewerUIF.START;
@@ -96,6 +121,12 @@ public class PreviewCanvas
         }
     }
     
+    /** 
+     * 
+     * Paint the specified images.
+     * @param image         main image.
+     * @param sideImage     lens image.
+     */
     public void paintImages(BufferedImage image, BufferedImage sideImage)
     {
         this.image = image;
@@ -104,11 +135,11 @@ public class PreviewCanvas
             w = image.getWidth()+sideImage.getWidth()+3*ViewerUIF.START;
             h = image.getHeight()+sideImage.getHeight()+2*ViewerUIF.START;
             repaint();
-        }
-            
+        }      
     }
+    
     /** Overrides the {@link #paint(Graphics)} method. */
-    public void paint(Graphics g)
+    public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
@@ -124,6 +155,48 @@ public class PreviewCanvas
         if (sideImage != null && image != null) 
             g2D.drawImage(sideImage, null, image.getWidth()+2*ViewerUIF.START, 
                     ViewerUIF.START);
+    }
+    
+    /** Create a new BufferedImage. */
+    private BufferedImage paintNewImage(BufferedImage img, String txt, int
+            index, Color c)
+    {
+        int width = img.getWidth(), height =  img.getHeight();
+        BufferedImage newImage = 
+            (BufferedImage) createImage(width, height);
+        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        g2.drawImage(img, null, 0, 0); 
+        
+        //Paint the text
+        FontMetrics fontMetrics = g2.getFontMetrics();
+        int hFont = fontMetrics.getHeight();
+        int length = txt.length()*txtWidth;
+        int xTxt = 0, yTxt = 0;
+        switch (index) {
+            case ImageSaver.PREVIEW_TOP_LEFT:
+                xTxt = BORDER;
+                yTxt = BORDER+hFont;
+                break;
+            case ImageSaver.PREVIEW_TOP_RIGHT:
+                xTxt = width-BORDER-length;
+                yTxt = BORDER+hFont;
+                break;
+            case ImageSaver.PREVIEW_BOTTOM_LEFT:
+                xTxt = BORDER;
+                yTxt = height-BORDER-hFont;
+                break;
+            case ImageSaver.PREVIEW_BOTTOM_RIGHT:
+                xTxt = width-BORDER-length;
+                yTxt = height-BORDER-hFont;
+        }
+        g2.setColor(c);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD));
+        g2.drawString(txt, xTxt, yTxt);
+        return newImage;
     }
     
     /** Set the coordinates of the top-left corner of the image. */

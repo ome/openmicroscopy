@@ -31,15 +31,27 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import javax.swing.Box;
+import java.util.HashMap;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -67,7 +79,11 @@ class Preview
     extends JDialog
 {
     
-    private static final Dimension  HBOX = new Dimension(10, 0);
+    private static final int        MAX_WITH = 10;
+    
+    private static final int        RED = 0, GREEN = 1, BLUE = 2, DARK_GRAY = 3,
+                                    GRAY = 4, LIGHT_GRAY = 5, BLACK = 6, 
+                                    WHITE = 7, MAX = 7;
     
     PreviewCanvas                   canvas;
      
@@ -75,13 +91,55 @@ class Preview
     
     JButton                         save, cancel;
     
+    JComboBox                       selections, colors;
+    
+    JTextField                      nameField;
+    
+    private static final String[]   selectionsChoice, colorsChoice;
+     
+    private static final HashMap    colorMap;
+    
+    private int                     txtWidth;
+       
+    static {
+        selectionsChoice = new String[4];
+        selectionsChoice[ImageSaver.PREVIEW_TOP_LEFT] = "top-left";
+        selectionsChoice[ImageSaver.PREVIEW_TOP_RIGHT] = "top-right";
+        selectionsChoice[ImageSaver.PREVIEW_BOTTOM_LEFT] = "bottom-left";
+        selectionsChoice[ImageSaver.PREVIEW_BOTTOM_RIGHT] = "bottom-right";
+        colorsChoice = new String[MAX+1];
+        colorsChoice[RED] = "Red";
+        colorsChoice[GREEN] = "Green";
+        colorsChoice[BLUE] = "Blue";
+        colorsChoice[DARK_GRAY] = "Dark gray";
+        colorsChoice[GRAY] = "Gray";
+        colorsChoice[LIGHT_GRAY] = "Light gray";
+        colorsChoice[BLACK] = "Black";
+        colorsChoice[WHITE] = "White";
+        colorMap = new HashMap();
+        colorMap.put(new Integer(BLACK), Color.BLACK);
+        colorMap.put(new Integer(WHITE), Color.WHITE);
+        colorMap.put(new Integer(RED), Color.RED);
+        colorMap.put(new Integer(GREEN), Color.GREEN);
+        colorMap.put(new Integer(BLUE), Color.BLUE);
+        colorMap.put(new Integer(DARK_GRAY), Color.DARK_GRAY);
+        colorMap.put(new Integer(GRAY), Color.GRAY);
+        colorMap.put(new Integer(LIGHT_GRAY), Color.LIGHT_GRAY);
+    }
+    
     Preview(ImageSaverMng mng)
     {
         super(mng.getReferenceFrame(), "Save Preview", true);
+        txtWidth = getFontMetrics(getFont()).charWidth('m');
         PreviewMng manager = new PreviewMng(this, mng);
         initComponents(IconManager.getInstance(mng.getRegistry()));
         manager.attachListeners();
         buildGUI();
+    }
+    
+    Color getColor(int index)
+    { 
+        return (Color) colorMap.get(new Integer(index));
     }
     
     /** Initializes the components. */
@@ -96,6 +154,10 @@ class Preview
         cancel = new JButton(im.getIcon(IconManager.CLOSE));
         cancel.setToolTipText(
             UIUtilities.formatToolTipText("Don't save the preview image."));
+        //textField
+        nameField = new JTextField();
+        selections = new JComboBox(selectionsChoice);
+        colors = new JComboBox(colorsChoice);
     }
     
     /** Set the {@link BufferedImage} to save in the canvas. */
@@ -127,9 +189,49 @@ class Preview
     {
         JScrollPane scrollPane = new JScrollPane(layer);
         canvas.setContainer(scrollPane);
-        getContentPane().add(buildBar(), BorderLayout.NORTH);
+        getContentPane().add(panelBar(), BorderLayout.NORTH);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
-        
+    }
+    
+    /** Display text controls in a JPanel. */
+    public JPanel buildNamePanel()
+    {
+        JPanel p = new JPanel();
+        GridBagLayout gridbag = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
+        p.setLayout(gridbag);
+       
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.EAST;
+        Insets insets = nameField.getInsets();
+        c.ipadx = insets.left+MAX_WITH*txtWidth+insets.right;
+        gridbag.setConstraints(nameField, c);
+        p.add(nameField);
+        c.gridx = 1;
+        c.ipadx = 0;
+        JPanel contain = UIUtilities.buildComponentPanel(selections);
+        gridbag.setConstraints(contain, c);
+        p.add(contain);
+        c.gridx = 2;
+        contain = UIUtilities.buildComponentPanel(colors);
+        gridbag.setConstraints(contain, c);
+        p.add(contain);
+        //Add text.
+        JPanel results = new JPanel();
+        results.setLayout(new BoxLayout(results, BoxLayout.X_AXIS));
+        results.add(new JLabel("Add text "));
+        results.add(p);
+        return UIUtilities.buildComponentPanel(results);
+    }
+    
+    /** Build the toolBar. */
+    public JPanel panelBar()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(buildBar());
+        p.add(buildNamePanel());
+        return UIUtilities.buildComponentPanel(p);
     }
     
     /** Set the buttons in a {@link JToolBar}. */
@@ -138,8 +240,8 @@ class Preview
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.add(save);
-        bar.add(Box.createRigidArea(HBOX));
         bar.add(cancel);
+        bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;
     }
     

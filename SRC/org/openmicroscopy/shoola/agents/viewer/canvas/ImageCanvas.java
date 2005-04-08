@@ -73,10 +73,6 @@ public class ImageCanvas
     extends JPanel
 {
 
-    private static final String         NANOMETER = " \u00B5m";
-    
-    private static final int            LENGTH2 = 2*ViewerUIF.LENGTH;
-    
     private BufferedImage               displayImage, zoomForLens;
     
     /** The original bufferedImage to display. */   
@@ -113,7 +109,7 @@ public class ImageCanvas
         itMng = new ImageTransformMng();
         setBackground(ViewerUIF.BACKGROUND_COLOR); 
         setDoubleBuffered(true);
-        realValue = LENGTH2/itMng.getMagFactor();
+        realValue = 2*ViewerUIF.LENGTH/itMng.getMagFactor();
     }
     
     public void setUnitBarSize(double s)
@@ -353,8 +349,9 @@ public class ImageCanvas
         paintXYFrame(g2D);
         if (realValue > 0)
               paintScaleBar(g2D, ViewerUIF.START, 3*ViewerUIF.START/2+height, 
-                        LENGTH2, ""+(int) (realValue*LENGTH2)+ NANOMETER, 
-                        Color.GRAY);
+                      2*ViewerUIF.LENGTH, 
+                      ""+(int) (realValue*2*ViewerUIF.LENGTH)+ 
+                      ViewerUIF.NANOMETER, Color.GRAY);
         if (displayImage != null)
             g2D.drawImage(displayImage, null, ViewerUIF.START, ViewerUIF.START);
     }
@@ -409,8 +406,10 @@ public class ImageCanvas
         g2.drawImage(img, null, 0, 0); 
         if (overlays != null) paintOverLays(g2, overlays);
         paintScaleBar(g2, ViewerUIF.SCALE_BORDER, 
-                        img.getHeight()-ViewerUIF.SCALE_BORDER, LENGTH2, 
-                        ""+(int) (realValue*LENGTH2), ViewerUIF.SCALE_COLOR);
+                        img.getHeight()-ViewerUIF.SCALE_BORDER, 
+                        2*ViewerUIF.LENGTH, 
+                        ""+(int) (realValue*2*ViewerUIF.LENGTH)+ 
+                        ViewerUIF.NANOMETER, ViewerUIF.SCALE_COLOR);
         return newImage;
     }
 
@@ -425,8 +424,6 @@ public class ImageCanvas
                 RenderingHints.VALUE_RENDER_QUALITY);
         g2.drawImage(img, null, 0, 0); 
         g2.setColor(ViewerUIF.SCALE_COLOR);
-        //g2.drawString("x"+manager.getMagFactorLens(), ViewerUIF.SCALE_BORDER, 
-        //            g2.getFontMetrics().getHeight());
         if (withBar) {
             double v = realValue/manager.getMagFactorLens();
             v = v*img.getWidth()/3;
@@ -468,8 +465,7 @@ public class ImageCanvas
     /** Initializes the width of the text. */
     private void initTxtWidth()
     {
-        FontMetrics metrics = getFontMetrics(getFont());
-        txtWidth = metrics.charWidth('m');
+        txtWidth = getFontMetrics(getFont()).charWidth('m');
     }
     
 }
