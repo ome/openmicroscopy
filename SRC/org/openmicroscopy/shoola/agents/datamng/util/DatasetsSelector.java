@@ -52,7 +52,6 @@ import javax.swing.table.TableColumnModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -89,7 +88,7 @@ public class DatasetsSelector
     }
     
     JButton                                 selectButton, resetButton, 
-                                            loadButton;
+                                            loadButton, cancelButton;
 
     private DatasetsTableModel              datasetsTM;
     
@@ -100,14 +99,12 @@ public class DatasetsSelector
     private DataManagerCtrl                 agentCtrl;
     
     public DatasetsSelector(DataManagerCtrl agentCtrl, 
-                    IDatasetsSelectorMng iSelector, List datasets, int index,
-                    DataObject object)
+                    ISelector iSelector, List datasets)
     {
         super(agentCtrl.getReferenceFrame(), "List of used datasets", true);
         this.agentCtrl = agentCtrl;
         initComponents();
-        manager = new DatasetsSelectorMng(this, agentCtrl, iSelector, index, 
-                                            object);
+        manager = new DatasetsSelectorMng(this, iSelector);
         buildGUI(datasets);
     }
     
@@ -135,7 +132,11 @@ public class DatasetsSelector
         loadButton = new JButton("OK");
         loadButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         loadButton.setToolTipText(
-            UIUtilities.formatToolTipText("Add the selection."));
+            UIUtilities.formatToolTipText("Apply selection."));
+        cancelButton = new JButton("Cancel");
+        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        cancelButton.setToolTipText(
+            UIUtilities.formatToolTipText("Close dialog."));
     }
     
     /** Build and Lay out the GUI. */
@@ -187,6 +188,8 @@ public class DatasetsSelector
         controls.add(selectButton);
         controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
         controls.add(loadButton);
+        controls.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        controls.add(cancelButton);
         controls.setOpaque(false); //make panel transparent
         return controls;
     }

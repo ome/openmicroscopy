@@ -40,8 +40,6 @@ import javax.swing.AbstractButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 
 
@@ -72,30 +70,21 @@ class DatasetsSelectorMng
     /** Action command ID. */
     private static final int        RESET = 2;
     
+    /** Action command ID. */
+    private static final int        CANCEL = 3;
+    
     /** Reference to the view. */
     private DatasetsSelector        view;
     
-    /** Reference to the {@link DataManagerCtrl agentControl}. */
-    private DataManagerCtrl         agentCtrl;
-    
-    private IDatasetsSelectorMng    selectorMngRef;
+    private ISelector               selector;
     
     /** List of selected datasets. */
     private List                    datasetsSelected;
-
-    private int                     index;
     
-    private DataObject              object;
-    
-    DatasetsSelectorMng(DatasetsSelector view, DataManagerCtrl agentCtrl, 
-                        IDatasetsSelectorMng selectorMngRef, int index, 
-                        DataObject object)
+    DatasetsSelectorMng(DatasetsSelector view, ISelector selector)
     {
         this.view = view;
-        this.agentCtrl = agentCtrl;
-        this.selectorMngRef = selectorMngRef;
-        this.index = index;
-        this.object = object;
+        this.selector = selector;
         datasetsSelected = new ArrayList();
         attachListeners();
     }
@@ -118,6 +107,7 @@ class DatasetsSelectorMng
     /** Attach listeners. */
     private void attachListeners()
     {
+        attachButtonListener(view.cancelButton, CANCEL);
         attachButtonListener(view.selectButton, SELECT_ALL);
         attachButtonListener(view.resetButton, RESET);
         attachButtonListener(view.loadButton, LOAD);
@@ -142,6 +132,8 @@ class DatasetsSelectorMng
                     selectAllDatasets(); break;
                 case RESET:
                     resetSelection(); break;
+                case CANCEL:
+                    cancel();
             }
         } catch(NumberFormatException nfe) {
             throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
@@ -166,10 +158,15 @@ class DatasetsSelectorMng
     private void loadImages()
     {
         if (datasetsSelected.size() == 0) return;
+        cancel();
+        selector.setSelectedDatasets(datasetsSelected);
+    }
+    
+    /** Close the widget. */
+    private void cancel()
+    {
         view.setVisible(false);
         view.dispose();
-        agentCtrl.loadImagesInDatasets(datasetsSelected, selectorMngRef, 
-                                        index, object);
     }
     
 }
