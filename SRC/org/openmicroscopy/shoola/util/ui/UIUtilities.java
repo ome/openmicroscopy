@@ -30,17 +30,21 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -67,6 +71,12 @@ import javax.swing.SwingConstants;
 public class UIUtilities
 {
 
+    /** Width of the dialog window. */
+    public static final int                 DIALOG_WIDTH = 500;
+    
+    /** Height of the dialog window. */
+    public static final int                 DIALOG_HEIGHT = 500;
+    
 	/** Width of the separator. */
 	public static final int SEPARATOR_WIDTH = 2;
 	
@@ -87,7 +97,7 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Centers the specified component on the screen and then makeit visible.
+	 * Centers the specified component on the screen and then makes it visible.
 	 * This method is mainly useful for windows, frames and dialogs. 
 	 * 
 	 * @param window	The component to center.
@@ -98,7 +108,49 @@ public class UIUtilities
 		centerOnScreen(window);
 		window.setVisible(true);
 	}
-
+    
+	/**
+     * Creates a modal JDialog containing the specified JComponent
+     * for the specified parent.
+     * The newly created dialog is then centered on the screen and made visible.
+	 *
+     *@param parent     The parent component.
+     *@param title      The title of the dialog.
+     *@param JComponent The component to display.
+     *
+     *@see #centerAndShow(Component)
+	 */
+    public static void makeForDialog(Component parent, String title, 
+                                    JComponent c)
+    {
+        if (c == null) return;
+        JDialog dialog = null;
+        if (parent instanceof Frame) 
+            dialog = new JDialog((Frame) parent);
+        else if (parent instanceof Dialog) 
+            dialog = new JDialog((Dialog) parent);
+        else if (dialog == null || parent == null) 
+            dialog = new JDialog(); //no parent
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.setTitle(title);
+        dialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+        Container container = dialog.getContentPane();
+        container.setLayout(new BorderLayout(0, 0));
+        container.add(c, BorderLayout.CENTER);
+        centerAndShow(dialog);
+    }
+    
+    /** 
+     * Create a modal JDialog with no title. 
+     * @see #makeForDialog(Component, String)
+     * 
+     * */
+    public static void makeForDialog(Component parent, JComponent c)
+    {
+        makeForDialog(parent, "", c);
+    }
+    
 	/** 
 	 * Builds a tool tip in a fixed font and color.
 	 * You pass the tool tip text and get back an <i>HTML</i> string to be
