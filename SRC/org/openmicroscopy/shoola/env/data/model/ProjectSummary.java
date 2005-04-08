@@ -65,6 +65,7 @@ public class ProjectSummary
 	private List	datasets;
 	
 	public ProjectSummary() {}
+    
 	public ProjectSummary(int id, String name)
 	{
 		this.id = id;
