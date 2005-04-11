@@ -141,12 +141,6 @@ class ImageInfoPane
                             listChannels += ""+channels[i]+", ";
                         else listChannels += ""+channels[i];
                     }
-                } else {
-                    for (int i = 0; i < px.getSizeC(); i++) {
-                        if (i <= px.getSizeC()-2)
-                            listChannels += ""+i+", ";
-                        else listChannels += ""+i;
-                    }
                 }
                 data[7] = listChannels;
 			}		

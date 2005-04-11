@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Image;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -48,7 +50,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * Image's propertySheet.
+ * Image's property sheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,11 +78,12 @@ public class ImageEditor
 	private ImageOwnerPane			ownerPane;
 	private ImageEditorBar			bar;
 	
-	public ImageEditor(DataManagerCtrl agentCtrl, ImageData model)
+	public ImageEditor(DataManagerCtrl agentCtrl, ImageData model, 
+                        Image thumbnail)
 	{
 		this.agentCtrl = agentCtrl;
 		manager = new ImageEditorManager(this, agentCtrl, model);
-		generalPane = new ImageGeneralPane(manager);
+		generalPane = new ImageGeneralPane(manager, thumbnail);
 		infoPane = new ImageInfoPane(manager);
 		ownerPane = new ImageOwnerPane(manager);
 		bar = new ImageEditorBar();
