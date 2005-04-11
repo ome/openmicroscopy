@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 
 //Java imports
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +42,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.Pixels;
+import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
@@ -49,6 +53,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
@@ -102,6 +107,8 @@ public class DataManager
                     DataManagementService.FILTER_CONTAIN;
     public static final String      NOT_CONTAIN = 
                     DataManagementService.FILTER_NOT_CONTAIN;
+    
+    private static final int        THUMBNAIL_SIZE=100;
     
 	/** Reference to the registry. */
 	private Registry				registry;
@@ -687,6 +694,17 @@ public class DataManager
 		return new ImageData();
 	}
 	
+    Image getThumbnail(ImageData data) 
+    {
+        BufferedImage thumbnail = null;
+        PixelsService ps = registry.getPixelsService();
+        try {
+            Pixels pix = data.getDefaultPixels().getPixels();
+            thumbnail = ps.getThumbnail(pix, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+        } catch(ImageServerException ise) {}
+        return thumbnail;
+    }
+    
 	/**
 	 * Create a new project.
 	 * 

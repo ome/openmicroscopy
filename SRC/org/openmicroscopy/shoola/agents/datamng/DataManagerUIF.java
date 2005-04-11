@@ -156,35 +156,48 @@ public class DataManagerUIF
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
         classifierPopupMenu = new ClassifierPopupMenu(control, registry);
-		imgPane = new ImagesPane(control, registry);
+		imgPane = new ImagesPane(control);
         classifierPane = new ClassifierPane(control, registry);
 		buildGUI(new ToolBar(control, registry));
+    }
+    
+    /** Forward event to {@link ImagesPane}. */
+    void addComponentToImages(JComponent c)
+    {
+        imgPane.addToRightComponent(c);
+        tabs.setSelectedComponent(imgPane);
+    }
+    
+    /** Forward event to {@link ImagesPane}. */
+    void removeComponentFromImages()
+    {
+        imgPane.removeFromRightComponent();
     }
     
     /** Forward event to {@link ExplorerPane}. */
     void addComponentToHierarchy(JComponent c)
     {
-        explPane.addToMainComponent(c);
+        explPane.addToRightComponent(c);
         tabs.setSelectedComponent(explPane);
     }
     
     /** Forward event to {@link ClassifierPane}. */
     void addComponentToClassification(JComponent c)
     {
-        classifierPane.addToMainComponent(c);
+        classifierPane.addToRightComponent(c);
         tabs.setSelectedComponent(classifierPane);
     }
     
     /** Forward event to {@link ClassifierPane}. */
     void removeComponentFromClassification()
     {
-        classifierPane.removeFromMainComponent();
+        classifierPane.removeFromRightComponent();
     }
     
     /** Forward event to {@link ExplorerPane}. */
     void removeComponentFromHierarchy()
     {
-        explPane.removeFromMainComponent();
+        explPane.removeFromRightComponent();
     }
     
 	/** Forward event to {@link ExplorerPaneManager}. */

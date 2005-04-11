@@ -426,6 +426,7 @@ class ExplorerPaneManager
             agentCtrl.getAbstraction().getPresentation();
         TreePopupMenu popup = presentation.getPopupMenu();
         popup.setTarget(target);  
+        popup.setIndex(DataManagerCtrl.FOR_HIERARCHY);
         popup.show(view.tree, e.getX(), e.getY());
     }
     

@@ -32,26 +32,13 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.sql.Date;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
-import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
-import org.openmicroscopy.shoola.util.ui.table.TableSorter;
-
 
 /** 
  * 
@@ -69,77 +56,63 @@ import org.openmicroscopy.shoola.util.ui.table.TableSorter;
  */
 class ImagesPane
 	extends JPanel
+    implements ISplitPane
 {
 
     /** Action id. */
-    static final int                NAME = 0, DATE = 1;
+    static final int                NAME = 0, DATE = 1, MAX_ID = 1;            
     
-    private static final int        MAX_ID = 1;
-            
-    protected static final String[] columnNames;
-    
-    static {
-        columnNames  = new String[MAX_ID+1];
-        columnNames[NAME] = "Name";
-        columnNames[DATE] = "Date";
-    }
-
-    private static final String     MSG = "Select the images you want " +
-                    "to retrieve in the list above, and press the button." +
-        "Retrieving the data can take time.";
-    
-	/** This UI component's controller and model. */
-	private ImagesPaneManager		manager;
-
-    private DataManagerCtrl         agentCtrl;
+    /** This UI component's controller and model. */
+    ImagesPaneManager               manager;
     
 	ImagesPaneBar					bar;
 	
-	JScrollPane						scrollPane;
-	
-    TableSorter                     sorter;
-    
-    ImagesTableModel                tableModel;
+    ImagesSplitPane                 imagesSplitPane;
 
-    JTable                          table;
+    private DataManagerCtrl         agentCtrl;
     
 	/** 
 	 * Creates a new instance.
 	 *
 	 *@param    agentCtrl   The agent's control component.
 	 */
-	ImagesPane(DataManagerCtrl agentCtrl, Registry registry)
+	ImagesPane(DataManagerCtrl agentCtrl)
 	{
         this.agentCtrl = agentCtrl;
+        manager = new ImagesPaneManager(this, agentCtrl);
 		initComponents();
-		bar = new ImagesPaneBar(registry);
-		manager = new ImagesPaneManager(this, agentCtrl);
+        manager.initListeners();
 		buildGUI();
 	}
 	
+    /** Forward action to the {@link ImagesSplitPane}. */
+    public void addToRightComponent(JComponent c)
+    {
+        imagesSplitPane.addToRightComponent(c);
+    }
+    
+    /** Forward action to the {@link ImagesSplitPane}. */
+    public void removeFromRightComponent()
+    {
+        imagesSplitPane.removeFromRightComponent();
+    }
+    
+    void updateImage(ImageSummary is)
+    {
+        agentCtrl.updateImage(is);
+    }
+    
+    /** Display the images in the left panel. */
     void displayImages(Object[] images) 
     {
-        table = new JTable();
-        table.setShowGrid(false);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        manager.attachTableListener(table);
-        tableModel = new ImagesTableModel(images);
-        sorter = new TableSorter(tableModel);  
-        table.setModel(sorter);
-        sorter.addMouseListenerToHeaderInTable(table);
-        sorter.sortByColumn(NAME);
-        setTableLayout(table);
-        JViewport viewPort = scrollPane.getViewport();
-        viewPort.removeAll();
-        viewPort.add(table);
+        imagesSplitPane.displayImages(images);
     }   
     
 	/** Initializes the table and the scrollPane. */
 	void initComponents()
 	{
-		JPanel p = new JPanel();
-        p.add(new MultilineLabel(MSG), BorderLayout.CENTER);
-		scrollPane = new JScrollPane(p);
+        bar = new ImagesPaneBar(agentCtrl.getRegistry());
+        imagesSplitPane = new ImagesSplitPane(this, agentCtrl.getRegistry());
 	}
 	
 	/** Return the manager of the component. */
@@ -150,83 +123,7 @@ class ImagesPane
 	{
 		setLayout(new BorderLayout(0, 0));
 		add(bar, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
+		add(imagesSplitPane, BorderLayout.CENTER);
 	}
-	/** Set icons in the tableHeader. */
-    private void setTableLayout(JTable table)
-    {
-        IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
-        TableIconRenderer iconHeaderRenderer = new TableIconRenderer();
-        TableColumnModel tcm = table.getTableHeader().getColumnModel();
-        TableColumn tc = tcm.getColumn(NAME);
-        tc.setHeaderRenderer(iconHeaderRenderer);
-        TableHeaderTextAndIcon header =  new TableHeaderTextAndIcon(
-                columnNames[NAME], im.getIcon(IconManager.ORDER_BY_NAME_UP), 
-                im.getIcon(IconManager.ORDER_BY_NAME_DOWN), "Order by name");
-        tc.setHeaderValue(header);
-        tc = tcm.getColumn(DATE);
-        tc.setHeaderRenderer(iconHeaderRenderer); 
-        header =  new TableHeaderTextAndIcon(
-                columnNames[DATE], im.getIcon(IconManager.ORDER_BY_DATE_UP), 
-                im.getIcon(IconManager.ORDER_BY_DATE_DOWN), "Order by date");
-        tc.setHeaderValue(header);
-    }
-    
-    /** 
-     * A <code>2</code>-column table model to view the summary of 
-     * the user's image.
-     * The first column contains the image names, the second column 
-     * the <code>created date</code>.
-     */
-    final class ImagesTableModel 
-        extends AbstractTableModel
-    {
-        private Object[]      images;
-        private Object[][]    data;
-        
-        private ImagesTableModel(Object[] images) 
-        {
-            this.images = images;
-            data = new Object[images.length][2]; 
-            ImageSummary is;
-            for (int i = 0; i < images.length; i++) {
-                is = (ImageSummary) images[i];
-                data[i][NAME] = is;
-                data[i][DATE] = new Date(is.getDate().getTime()); 
-            }
-        }
-
-        public int getColumnCount() { return 2; }
-    
-        public int getRowCount() { return images.length; }
-    
-        public String getColumnName(int col) { return columnNames[col]; }
-
-        public Class getColumnClass(int col)
-        {
-            return getValueAt(0, col).getClass();
-        }
-        
-        public Object getValueAt(int row, int col) { return data[row][col]; }
-        
-        public boolean isCellEditable(int row, int col) { return (col == 0); }
-
-        //only name column is editable
-        public void setValueAt(Object value, int row, int col)
-        {
-            if (col == NAME) {
-                ImageSummary is = (ImageSummary) sorter.getValueAt(row, col);
-                is.setName(((ImageSummary) value).getName());
-                agentCtrl.updateImage(is);
-            }
-        } 
-        
-        /** invoke when the view is updated. */
-        public void setValueAt(ImageSummary is, int row)
-        {
-            ImageSummary summary = (ImageSummary) sorter.getValueAt(row, NAME);
-            summary.setName(is.getName());
-        } 
-    }
-    
+ 
 }

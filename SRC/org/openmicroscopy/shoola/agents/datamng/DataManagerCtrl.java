@@ -37,7 +37,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
@@ -106,10 +105,10 @@ public class DataManagerCtrl
     /** ID used to handle the refresh CategroyGroup tree action. */
     static final int            CLASSIFIER = 101;
 
-    public static final int     FOR_HIERARCHY = 300;
-    
-    public static final int     FOR_CLASSIFICATION = 301;
-    
+    /** ID to control in which tabbedPane the property sheet is displayed. */
+    public static final int     FOR_HIERARCHY = 300, FOR_CLASSIFICATION = 301,
+                                FOR_IMAGES = 302;
+     
 	private DataManager			abstraction;
 	
     private int                 selectedCategoryGroupID;
@@ -359,7 +358,8 @@ public class DataManagerCtrl
             } else if (target instanceof ImageSummary) {
                 ImageData image = abstraction.getImage(
                                         ((ImageSummary) target).getID());
-                showComponent(new ImageEditor(this, image), index);
+                showComponent(new ImageEditor(this, image, 
+                        abstraction.getThumbnail(image)), index);
             } else if (target instanceof CategoryGroupData) {
                 showComponent(new GroupEditor(this, (CategoryGroupData) target),
                                                 index);
@@ -394,7 +394,9 @@ public class DataManagerCtrl
             } else if (target instanceof ImageSummary) {
                 ImageData image = abstraction.getImage(
                                         ((ImageSummary) target).getID());
-                showComponent(new ImageEditor(this, image), FOR_HIERARCHY, 
+                //Retrieve the thumbnail 
+                showComponent(new ImageEditor(this, image, 
+                            abstraction.getThumbnail(image)), FOR_HIERARCHY, 
                                 parent);
             } else if (target instanceof CategoryGroupData) {
                 showComponent(new GroupEditor(this, (CategoryGroupData) target),
@@ -421,6 +423,7 @@ public class DataManagerCtrl
                     if (c != null) presentation.addComponentToHierarchy(c);
                     else presentation.removeComponentFromHierarchy();
                     presentation.removeComponentFromClassification();
+                    presentation.removeComponentFromImages();
                 } else {
                     if (parent == null) 
                         parent = getRegistry().getTaskBar().getFrame();
@@ -432,7 +435,16 @@ public class DataManagerCtrl
                     if (c != null) presentation.addComponentToClassification(c);
                     else presentation.removeComponentFromClassification();
                     presentation.removeComponentFromHierarchy();
+                    presentation.removeComponentFromImages();
                 } else UIUtilities.makeForDialog(parent, "Editor", c);
+                break;
+            case FOR_IMAGES:
+                if (presentation != null) {
+                    if (c != null) presentation.addComponentToImages(c);
+                    else presentation.removeComponentFromImages();
+                    presentation.removeComponentFromHierarchy();
+                    presentation.removeComponentFromClassification();
+                } else UIUtilities.makeForDialog(parent, "Editor", c);   
         }
     }
     

@@ -120,6 +120,13 @@ class TreePopupMenu
 	 */
 	void setTarget(DataObject t) { manager.setTarget(t); }
     
+    /** 
+     * Sets the pane index, One of the constants defined by 
+     * {@link DataManagerCtrl} i.e. {@link DataManagerCtrl#FOR_HIERARCHY}
+     * or {@link DataManagerCtrl#FOR_IMAGES}
+     */
+    void setIndex(int index) { manager.setIndex(index); }
+    
 	/** Creates and initializes the properties button. */
 	private void initProperties() 
 	{

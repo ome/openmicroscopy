@@ -71,6 +71,8 @@ class TreePopupMenuManager
 	 */
 	private DataObject				target;
     
+    private int                     index;
+    
 	/** 
 	 * Creates a new instance which will register itself as appropiate with the
 	 * view's widgets.
@@ -81,6 +83,8 @@ class TreePopupMenuManager
 	TreePopupMenuManager(TreePopupMenu view, DataManagerCtrl control)
 	{
 		this.view = view;
+        //DEFAULT 
+        index = DataManagerCtrl.FOR_HIERARCHY;
 		agentCtrl = control;
 		initListeners();
 	}
@@ -115,6 +119,19 @@ class TreePopupMenuManager
         }
 	}
     
+    /** 
+     * Sets the pane index, One of the constants defined by 
+     * {@link DataManagerCtrl} i.e. {@link DataManagerCtrl#FOR_HIERARCHY}
+     * or {@link DataManagerCtrl#FOR_IMAGES}
+     */
+    void setIndex(int i)
+    {
+        if (i == DataManagerCtrl.FOR_HIERARCHY || 
+                i == DataManagerCtrl.FOR_IMAGES)
+            index = i;
+        else index = DataManagerCtrl.FOR_HIERARCHY; 
+    }
+    
 	/** 
 	 * Reacts to activation of the menu buttons.
 	 *
@@ -125,7 +142,7 @@ class TreePopupMenuManager
 		Object src = e.getSource();
 		if (target != null) {	
 			if (src == view.properties)	
-				agentCtrl.showProperties(target, DataManagerCtrl.FOR_HIERARCHY);
+				agentCtrl.showProperties(target, index);
 			else if (src == view.view && target instanceof ImageSummary)       
 				agentCtrl.viewImage(((ImageSummary) target));
 			else if (src == view.browse && target instanceof DatasetSummary)

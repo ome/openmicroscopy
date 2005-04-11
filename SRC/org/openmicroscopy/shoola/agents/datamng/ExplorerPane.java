@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  */
 class ExplorerPane
 	extends JSplitPane
+    implements ISplitPane
 {
 	
 	/** This UI component's controller and model. */
@@ -80,7 +81,7 @@ class ExplorerPane
 	/** The tree used to represent the project-dataset hierarchy. */
 	JTree       					tree;
 	
-    JScrollPane                     mainPane;
+    JScrollPane                     rightPane;
     
 	/** 
 	 * Creates a new instance.
@@ -91,7 +92,7 @@ class ExplorerPane
 	{
 		this.registry = registry;
 		tree = new JTree();
-        mainPane  = new JScrollPane();
+        rightPane  = new JScrollPane();
 		manager = new ExplorerPaneManager(this, agentCtrl);
 		DefaultMutableTreeNode r = manager.getUserTreeModel(
                 agentCtrl.getUserName());
@@ -103,17 +104,17 @@ class ExplorerPane
 	}
 	
     /** Display the JComponent in the main JScrollPane. */
-    void addToMainComponent(JComponent c)
+    public void addToRightComponent(JComponent c)
     {
-        JViewport port = mainPane.getViewport();
+        JViewport port = rightPane.getViewport();
         port.removeAll();
         port.add(c);
     }
     
     /** Remove all components from the main JScrollPane. */
-    void removeFromMainComponent()
+    public void removeFromRightComponent()
     {
-        mainPane.getViewport().removeAll();
+        rightPane.getViewport().removeAll();
     }
     
 	/** 
@@ -146,7 +147,7 @@ class ExplorerPane
 	{
         buildMain();
         setLeftComponent(buildTreeUI());
-        setRightComponent(mainPane);
+        setRightComponent(rightPane);
         setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         setContinuousLayout(true); 
         setOneTouchExpandable(true); 
@@ -170,7 +171,7 @@ class ExplorerPane
     {
         JPanel p = new JPanel();
         p.setMinimumSize(DataManagerUIF.COMPONENT_MIN_DIM);
-        mainPane.getViewport().add(p);
+        rightPane.getViewport().add(p);
     }
     
 }

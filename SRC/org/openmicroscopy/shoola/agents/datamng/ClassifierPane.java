@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  */
 public class ClassifierPane
     extends JSplitPane
+    implements ISplitPane
 {
 
     /** This UI component's controller and model. */
@@ -78,7 +79,7 @@ public class ClassifierPane
     /** The tree used to represent the categoryGroup-category hierarchy. */
     JTree                               tree;
     
-    JScrollPane                         mainPane;
+    JScrollPane                         rightPane;
     
     /** 
      * Creates a new instance.
@@ -89,7 +90,7 @@ public class ClassifierPane
     {
         this.registry = registry;
         tree = new JTree();
-        mainPane  = new JScrollPane();
+        rightPane  = new JScrollPane();
         manager = new ClassifierPaneManager(this, agentCtrl);
         DefaultMutableTreeNode r = manager.getTreeModel();
         DefaultTreeModel dtm = new DefaultTreeModel(r);
@@ -100,17 +101,17 @@ public class ClassifierPane
     }
     
     /** Display the JComponent in the main JScrollPane. */
-    void addToMainComponent(JComponent c)
+    public void addToRightComponent(JComponent c)
     {
-        JViewport port = mainPane.getViewport();
+        JViewport port = rightPane.getViewport();
         port.removeAll();
         port.add(c);
     }
     
     /** Remove all components from the main JScrollPane. */
-    void removeFromMainComponent()
+    public void removeFromRightComponent()
     {
-        mainPane.getViewport().removeAll();
+        rightPane.getViewport().removeAll();
     }
     
     /** 
@@ -143,7 +144,7 @@ public class ClassifierPane
     {
         buildMain();
         setLeftComponent(buildTreeUI());
-        setRightComponent(mainPane);
+        setRightComponent(rightPane);
         setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         setContinuousLayout(true); 
         setOneTouchExpandable(true); 
@@ -167,7 +168,7 @@ public class ClassifierPane
     {
         JPanel p = new JPanel();
         p.setMinimumSize(DataManagerUIF.COMPONENT_MIN_DIM);
-        mainPane.getViewport().add(p);
+        rightPane.getViewport().add(p);
     }
     
 }

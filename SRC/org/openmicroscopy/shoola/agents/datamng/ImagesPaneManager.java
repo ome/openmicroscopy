@@ -73,13 +73,7 @@ class ImagesPaneManager
 {
 
 	/** Action command ID. */
-	private static final int				LOAD = 0;
-    
-    /** Action command ID. */
-    private static final int                SELECTION = 1;
-    
-    /** Action command ID. */
-    private static final int                FILTER = 2;
+	private static final int				LOAD = 0, SELECTION = 1, FILTER = 2;
 
 	/** This UI component's view. */
 	private ImagesPane 						view;
@@ -101,7 +95,6 @@ class ImagesPaneManager
 		this.agentCtrl = agentCtrl;
 		loaded = false;
         index = -1;
-		initListeners();
 	}
 
     /** Implemented as specified by {@link ISelector} I/F. */
@@ -129,13 +122,13 @@ class ImagesPaneManager
 	void updateImageInTable(ImageSummary is)
 	{
 		if (loaded) {
-			int rows = view.sorter.getRowCount();
+			int rows = view.imagesSplitPane.sorter.getRowCount();
 			ImageSummary summary;
 			for (int i = 0; i < rows; i++) {
-				summary = (ImageSummary) view.sorter.getValueAt(i, 
-                                                ImagesPane.NAME);
+				summary = (ImageSummary) 
+                    view.imagesSplitPane.sorter.getValueAt(i, ImagesPane.NAME);
 				if (summary.getID() == is.getID()) {
-					view.tableModel.setValueAt(is, i);
+                    view.imagesSplitPane.tableModel.setValueAt(is, i);
 					break;
 				}		
 			}
@@ -152,7 +145,7 @@ class ImagesPaneManager
     }
     
 	/** Initializes the listeners. */
-	private void initListeners()
+	void initListeners()
 	{
         attachButtonListeners(view.bar.load, LOAD);
         attachButtonListeners(view.bar.filter, FILTER);
@@ -252,16 +245,18 @@ class ImagesPaneManager
 	 */
 	private void onClick(MouseEvent e)
 	{
-		int selRow = view.table.getSelectedRow();
+		int selRow = view.imagesSplitPane.table.getSelectedRow();
 		if (selRow != -1) {
 			if (e.isPopupTrigger()) {
 				ImageSummary 
-					target = (ImageSummary) view.sorter.getValueAt(selRow, 
+					target = (ImageSummary) 
+                        view.imagesSplitPane.sorter.getValueAt(selRow, 
                             ImagesPane.NAME);
 				DataManagerUIF presentation = agentCtrl.getReferenceFrame();
 				TreePopupMenu popup = presentation.getPopupMenu();
 				popup.setTarget(target);  
-				popup.show(view.table, e.getX(), e.getY());
+                popup.setIndex(DataManagerCtrl.FOR_IMAGES);
+				popup.show(view.imagesSplitPane.table, e.getX(), e.getY());
 			} 
 		}	
 	}
