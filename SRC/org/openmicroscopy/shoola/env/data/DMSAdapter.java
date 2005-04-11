@@ -756,7 +756,7 @@ class DMSAdapter
                 STSMapper.IMAGE_GRANULARITY, id);
         List lc = (List) gateway.retrieveListSTSData("LogicalChannel", c);
         //need to fix problem if no logical channel(shouldn't happen)
-        if (lc != null && lc.size() != retVal.getDefaultPixels().getSizeC()) 
+        if (lc != null && lc.size() == retVal.getDefaultPixels().getSizeC()) 
             retVal.setChannels(ImageMapper.fillImageChannels(lc));
         else 
             retVal.setChannels(ImageMapper.fillDefaultImageChannels(
