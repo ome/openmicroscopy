@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * CategoryGroup's propertySheet.
+ * CategoryGroup's property sheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,7 +91,6 @@ public class GroupEditor
         bar = new GroupEditorBar();
         buildGUI();
         manager.initListeners();
-        setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
     }
     
     Registry getRegistry() { return agentCtrl.getRegistry(); } 

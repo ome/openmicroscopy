@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * Category's propertySheet.
+ * Category's property sheet.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,8 +78,6 @@ public class CategoryEditor
 	private CategoryEditorBar          bar;
 	private JTabbedPane                tabs;
 	
-
-    
 	public CategoryEditor(DataManagerCtrl agentCtrl, CategoryData model)
 	{
 		this.agentCtrl = agentCtrl;
@@ -154,7 +152,6 @@ public class CategoryEditor
                     categoryPane, null, POS_MAIN);
 		tabs.insertTab("Images", im.getIcon(IconManager.IMAGE), imagesPane,
 						null, POS_IMAGE);
-
 		tabs.setSelectedComponent(categoryPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
