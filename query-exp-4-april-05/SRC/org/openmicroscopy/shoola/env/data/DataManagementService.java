@@ -535,15 +535,13 @@ public interface DataManagementService
 	 * Each module category object is linked to a lists of modules
 	 *
 	 * @param mcProto	module category proto. 
-	 * @param mProto	module proto.
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	public List retrieveModuleCategories(ModuleCategoryData mcProto,
-					ModuleData mProto)
+	public List retrieveModuleCategories(ModuleCategoryData mcProto)
 		throws DSOutOfServiceException, DSAccessException;
 								
 	/**
