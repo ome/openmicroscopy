@@ -52,6 +52,7 @@ import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
 import org.openmicroscopy.ds.managers.ChainRetrievalManager;
+import org.openmicroscopy.ds.managers.ModuleRetrievalManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.HistoryManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
@@ -258,6 +259,11 @@ class OMEDSGateway
 	private ChainRetrievalManager getChainRetrievalManager() {
 		return (ChainRetrievalManager) proxiesFactory.getService(
 								ChainRetrievalManager.class);
+	}
+	
+	private ModuleRetrievalManager getModuleRetrievalManager() {
+		return (ModuleRetrievalManager) proxiesFactory.getService(
+				ModuleRetrievalManager.class);
 	}
 
 	/** Retrieve the current experimenter. */
@@ -558,6 +564,24 @@ class OMEDSGateway
 			return result;
 		} catch (Exception e) {
 			handleException(e,"Can't retrieve chains");
+		}
+		return null;
+	}
+	
+	/**
+	 * Retrieve all of the modules in the database
+	 * @param attributes
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	List retrieveModules() 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			List result = getModuleRetrievalManager().retrieveModules();
+				return result;
+		} catch (Exception e) {
+			handleException(e,"Can't retrieve modules");
 		}
 		return null;
 	}
