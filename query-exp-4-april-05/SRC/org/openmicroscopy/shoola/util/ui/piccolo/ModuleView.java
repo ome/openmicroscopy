@@ -344,8 +344,10 @@ public class ModuleView extends PNode implements SortableBufferedObject,
 	 	float paramHeight;
 	 	if (inSet.size() > 0) 
 	 		paramHeight = ((ParameterLabelNode) ins[0]).getLabelHeight();
-	 	else 
+	 	else if (outSet.size() >0 )
 	 		paramHeight = ((ParameterLabelNode) outs[0]).getLabelHeight();
+	 	else 
+	 		paramHeight = 0;
 	 	
 	 	// add a bit of a buffer
 	 	paramHeight += PARAMETER_SPACING;
