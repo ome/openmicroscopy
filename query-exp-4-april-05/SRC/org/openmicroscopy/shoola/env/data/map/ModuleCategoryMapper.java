@@ -42,7 +42,6 @@ import java.util.List;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
-import org.openmicroscopy.shoola.env.data.model.ModuleData;
 
 /** 
  * Mapper for module catgegories
@@ -75,10 +74,6 @@ public class ModuleCategoryMapper
 		criteria.addWantedField("name");
 		criteria.addWantedField("description");
 		criteria.addWantedField("parent_category");
-	
-		//Specify which fields we want for the categories
-		criteria.addWantedField("parent_category","name");
-		criteria.addWantedField("parent_category","id");
 		
 		criteria.addOrderBy("name");
 	
@@ -96,7 +91,7 @@ public class ModuleCategoryMapper
 	 * @return 
 	 */
 	public static List fillModuleCategories(List categories,
-		ModuleCategoryData mcProto,ModuleData mProto)
+		ModuleCategoryData mcProto)
 	{
 		List categoriesList = new ArrayList();  //The returned summary list.
 		Iterator i = categories.iterator();
@@ -117,7 +112,6 @@ public class ModuleCategoryMapper
 			parent = mc.getParentCategory();
 			if (parent != null) {
 				mcdParent = (ModuleCategoryData) mcProto.makeNew();
-				mcdParent.setName(parent.getName());
 				mcdParent.setID(parent.getID());
 				mcd.setParentCategory(mcdParent);
 			}
