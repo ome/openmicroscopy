@@ -30,17 +30,13 @@
 package org.openmicroscopy.shoola.agents.datamng.editors.image;
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -71,24 +67,23 @@ class ImageGeneralPane
 	extends JPanel
 {
 
-    private static final String     MSG = "No thumbnail available";
     
 	private ImageEditorManager     manager;
 	
 	MultilineLabel                 descriptionArea, nameField;
 	
-	ImageGeneralPane(ImageEditorManager manager, Image thumbnail)
+	ImageGeneralPane(ImageEditorManager manager, JPanel thumbnailPanel)
 	{
 		this.manager = manager;
-		buildGUI(thumbnail);
+		buildGUI(thumbnailPanel);
 	}
 	
 	/** Build and lay out the GUI. */
-	private void buildGUI(Image thumbnail)
+	private void buildGUI(JPanel thumbnailPanel)
 	{
 		setLayout(new GridLayout(2, 1));
 		add(buildSummaryPanel());
-        add(buildThumbnailPanel(thumbnail));
+        add(thumbnailPanel);
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -104,18 +99,7 @@ class ImageGeneralPane
 		return p;
 	}
 	
-    /** Display the image Thumbnail in a JPanel. */
-    private JPanel buildThumbnailPanel(Image thumbnail)
-    {
-        JPanel  p = new JPanel();
-        p.setLayout(new BorderLayout()); 
-        p.setBorder(new BevelBorder(BevelBorder.LOWERED)); 
-        JLabel l;
-        if (thumbnail != null) l = new JLabel(new ImageIcon(thumbnail));    
-        else l = new JLabel(MSG);
-        p.add(l, BorderLayout.CENTER);
-        return p;
-    }
+    
     
 	/** 
 	 * A <code>3x2</code> table model to view image summary.

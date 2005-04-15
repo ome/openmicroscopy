@@ -68,17 +68,18 @@ class ImageInfoPane
 
 	private ImageEditorManager manager;
 	
-	ImageInfoPane(ImageEditorManager manager)
+	ImageInfoPane(ImageEditorManager manager, JPanel thumbnailPanel)
 	{
 		this.manager = manager;
-		buildGUI();
+		buildGUI(thumbnailPanel);
 	}
 	
 	/** Build and lay out the GUI. */
-	private void buildGUI()
+	private void buildGUI(JPanel thumbnailPanel)
 	{
-		setLayout(new GridLayout(1, 1));
+		setLayout(new GridLayout(2, 1));
 		add(buildSummaryPanel());
+        add(thumbnailPanel);
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}

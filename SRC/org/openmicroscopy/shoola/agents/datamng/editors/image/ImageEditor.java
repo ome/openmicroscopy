@@ -33,8 +33,10 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Image;
-
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
@@ -67,6 +69,10 @@ public class ImageEditor
 	extends JPanel
 {
 	
+    /** Message displayed when no thumbnail is specified. */
+    private static final String     MSG = "No thumbnail available",
+                                    TITLE = "Thumbnail Size: ";
+    
 	/** Reference to the manager. */
 	private ImageEditorManager 		manager;
 	
@@ -83,14 +89,31 @@ public class ImageEditor
 	{
 		this.agentCtrl = agentCtrl;
 		manager = new ImageEditorManager(this, agentCtrl, model);
-		generalPane = new ImageGeneralPane(manager, thumbnail);
-		infoPane = new ImageInfoPane(manager);
+		generalPane = new ImageGeneralPane(manager, 
+                    buildThumbnailPanel(thumbnail));
+		infoPane = new ImageInfoPane(manager, buildThumbnailPanel(thumbnail));
 		ownerPane = new ImageOwnerPane(manager);
 		bar = new ImageEditorBar();
 		buildGUI();
 		manager.initListeners();
 	}
 	
+    /** Display the image Thumbnail in a JPanel. */
+    private JPanel buildThumbnailPanel(Image thumbnail)
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BorderLayout()); 
+        String title = 
+            TITLE+thumbnail.getWidth(null)+"x"+thumbnail.getHeight(null);
+        p.setBorder(BorderFactory.createTitledBorder(title));
+        //p.setBorder(new BevelBorder(BevelBorder.LOWERED)); 
+        JLabel l;
+        if (thumbnail != null) l = new JLabel(new ImageIcon(thumbnail));    
+        else l = new JLabel(MSG);
+        p.add(l, BorderLayout.CENTER);
+        return p;
+    }
+    
 	/** Returns the save button displayed in {@link ImageEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
 	
