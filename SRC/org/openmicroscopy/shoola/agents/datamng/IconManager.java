@@ -87,102 +87,99 @@ public class IconManager
 	/** ID of the viewer icon used by the popup menu. */
 	public static final int		VIEWER = 7;
 
-	/** ID of the browser icon used by the popup menu. */
-	public static final int		BROWSER = 8;
-
 	/** ID of the refresh icon used by the popup menu. */
-	public static final int		REFRESH = 9;
+	public static final int		REFRESH = 8;
 
 	/** ID of the annotate icon used by the popup menu. */
-	public static final int		ANNOTATE = 10;
+	public static final int		ANNOTATE = 9;
 	
 	/** ID of the datamanager icon. */
-	public static final int		DMANAGER = 11;
+	public static final int		DMANAGER = 10;
 	
 	/** ID of the datamanager icon. */
-	public static final int		ROOT = 12;
+	public static final int		ROOT = 11;
 	
 	/** ID of the import image icon. */
-	public static final int		IMPORT_IMAGE = 13;
+	public static final int		IMPORT_IMAGE = 12;
 	
 	/** ID of the owner icon. */
-	public static final int		OWNER = 14;
+	public static final int		OWNER = 13;
 	
 	/** ID of the explorer icon. */
-	public static final int		EXPLORER = 15;	
+	public static final int		EXPLORER = 14;	
 	
 	/** ID of the createProject icon. */
-	public static final int		CREATE_PROJECT = 16;
+	public static final int		CREATE_PROJECT = 15;
 	
 	/** ID of the createDataset icon. */
-	public static final int		CREATE_DATASET = 17;	
+	public static final int		CREATE_DATASET = 16;	
 	
 	/** ID of the createproject big icon. */
-	public static final int		CREATE_PROJECT_BIG = 18;
+	public static final int		CREATE_PROJECT_BIG = 17;
 	
 	/** ID of the createDataset big icon. */
-	public static final int		CREATE_DATASET_BIG = 19;
+	public static final int		CREATE_DATASET_BIG = 18;
 	
 	/** ID of the project big icon. */
-	public static final int		PROJECT_BIG = 20;
+	public static final int		PROJECT_BIG = 19;
 	
 	/** ID of the dataset big icon. */
-	public static final int		DATASET_BIG = 21;
+	public static final int		DATASET_BIG = 20;
 		
 	/** ID of the image big icon. */
-	public static final int		IMAGE_BIG = 22;
+	public static final int		IMAGE_BIG = 21;
 	
 	/** ID of the image big icon. */
-	public static final int		IMPORT_IMAGE_BIG = 23;	
+	public static final int		IMPORT_IMAGE_BIG = 22;	
 	
 	/** ID of the orderByName icon. */
-	public static final int		ORDER_BY_NAME_UP = 24;
+	public static final int		ORDER_BY_NAME_UP = 23;
 	
 	/** ID of the orderByName icon. */
-	public static final int		ORDER_BY_NAME_DOWN = 25;
+	public static final int		ORDER_BY_NAME_DOWN = 24;
 	
 	/** ID of the orderByDate icon. */
-	public static final int		ORDER_BY_DATE_UP = 26;
+	public static final int		ORDER_BY_DATE_UP = 25;
 	
 	/** ID of the orderByDate icon. */
-	public static final int		ORDER_BY_DATE_DOWN = 27;
+	public static final int		ORDER_BY_DATE_DOWN = 26;
 	
-	public static final int		ORDER_BY_SELECTED_UP = 28;
+	public static final int		ORDER_BY_SELECTED_UP = 27;
 	
-	public static final int		ORDER_BY_SELECTED_DOWN = 29;
+	public static final int		ORDER_BY_SELECTED_DOWN = 28;
 	
 	/** ID of the filter icon. */
-	public static final int		FILTER = 30;
+	public static final int		FILTER = 29;
 	
-    public static final int     SEND_TO_DB = 31;
+    public static final int     SEND_TO_DB = 30;
     
-    public static final int     CREATE_GROUP = 32;
+    public static final int     CREATE_GROUP = 31;
     
-    public static final int     CREATE_GROUP_BIG = 33;
+    public static final int     CREATE_GROUP_BIG = 32;
     
-    public static final int     CATEGORY = 34;
+    public static final int     CATEGORY = 33;
     
-    public static final int     CATEGORY_BIG = 35;
+    public static final int     CATEGORY_BIG = 34;
     
-    public static final int     CATEGORY_GROUP = 36;
+    public static final int     CATEGORY_GROUP = 35;
     
-    public static final int     CATEGORY_GROUP_BIG = 37;
+    public static final int     CATEGORY_GROUP_BIG = 36;
     
-    public static final int     ANNOTATED_DATASET = 38;
+    public static final int     ANNOTATED_DATASET = 37;
     
-    public static final int     ANNOTATED_IMAGE = 39;
+    public static final int     ANNOTATED_IMAGE = 38;
     
-    public static final int     CREATE_CATEGORY = 40;
+    public static final int     CREATE_CATEGORY = 39;
     
-    public static final int     CREATE_CATEGORY_BIG = 41;
+    public static final int     CREATE_CATEGORY_BIG = 40;
     
-    public static final int     FILTER_BIG = 42;
+    public static final int     FILTER_BIG = 41;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 42;
+	private static int          MAX_ID = 41;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -195,7 +192,6 @@ public class IconManager
 		relPaths[INFO] = "nuvola_info16.png";
 		relPaths[PROPERTIES] = "nuvola_kate16.png";
 		relPaths[VIEWER] = "viewer16.png";
-		relPaths[BROWSER] = "browser-small.png";
 		relPaths[REFRESH] = "nuvola_reload16.png";
 		relPaths[ANNOTATE] = "nuvola_kwrite16.png";
 		relPaths[DMANAGER] = "nuvola_file-manager16.png";
