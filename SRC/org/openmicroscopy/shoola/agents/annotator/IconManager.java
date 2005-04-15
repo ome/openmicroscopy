@@ -88,13 +88,11 @@ public class IconManager
     
     public static final int     VIEWER = 9;
     
-    public static final int     BROWSER = 10;
-    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 10;
+    private static int          MAX_ID = 9;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -110,7 +108,6 @@ public class IconManager
         relPaths[SAVEWITHRS] = "nuvola_save_all16.png";
         relPaths[SEND_TO_DB] = "nuvola_package_games_board32.png";
         relPaths[VIEWER] = "viewer16.png";
-        relPaths[BROWSER] = "browser-small.png";
     }
     
     /** The sole instance. */
