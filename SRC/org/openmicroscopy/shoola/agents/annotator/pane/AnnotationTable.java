@@ -236,18 +236,14 @@ class AnnotationTable
     
     private JButton createViewButton(IconManager im)
     {
-        JButton view = null;
+        JButton view = new JButton(im.getIcon(IconManager.VIEWER));
         String s = "";
         switch(control.getAnnotationIndex()) {
             case Annotator.IMAGE:
-                view = new JButton(im.getIcon(IconManager.VIEWER));
                 s = "View the annotated Image.";
                 break;
             case Annotator.DATASET:
-                view = new JButton(im.getIcon(IconManager.BROWSER));
-                s = "View the annotated Dataset.";
-                break;
-                
+                s = "View the annotated Dataset.";   
         }
         view.setToolTipText(UIUtilities.formatToolTipText(s));
         return view;
