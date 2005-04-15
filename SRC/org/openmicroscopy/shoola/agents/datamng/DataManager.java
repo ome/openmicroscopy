@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
@@ -698,9 +699,15 @@ public class DataManager
     {
         BufferedImage thumbnail = null;
         PixelsService ps = registry.getPixelsService();
+        PixelsDescription pxd = data.getDefaultPixels();
+        int sizeX = THUMBNAIL_SIZE;
+        int sizeY = THUMBNAIL_SIZE;
+        double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+        if (ratio < 1) sizeX *= ratio;
+        else if (ratio > 1) sizeY *= ratio;
         try {
             Pixels pix = data.getDefaultPixels().getPixels();
-            thumbnail = ps.getThumbnail(pix, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+            thumbnail = ps.getThumbnail(pix, sizeX, sizeY);
         } catch(ImageServerException ise) {}
         return thumbnail;
     }

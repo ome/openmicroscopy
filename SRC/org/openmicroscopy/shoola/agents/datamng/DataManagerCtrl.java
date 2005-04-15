@@ -98,12 +98,6 @@ public class DataManagerCtrl
     static final int            CREATE_GROUP = 3;
     
     static final int            CREATE_CATEGORY = 4;
-    
-    /** ID used to handle the refresh Hierarchy tree action. */
-    static final int            EXPLORER = 100;
-    
-    /** ID used to handle the refresh CategroyGroup tree action. */
-    static final int            CLASSIFIER = 101;
 
     /** ID to control in which tabbedPane the property sheet is displayed. */
     public static final int     FOR_HIERARCHY = 300, FOR_CLASSIFICATION = 301,
@@ -469,8 +463,10 @@ public class DataManagerCtrl
     
     void refresh(int index)
     {
-        if (index == EXPLORER) abstraction.refresh();  
-        else if (index == CLASSIFIER)  abstraction.refreshCategoryGroups();
+        if (index == FOR_HIERARCHY) 
+            abstraction.refresh();  
+        else if (index == FOR_CLASSIFICATION)  
+            abstraction.refreshCategoryGroups();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */

@@ -36,6 +36,8 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -66,8 +68,8 @@ class TreePopupMenuManager
 	private DataManagerCtrl			agentCtrl;
 	
 	/** 
-	 * The object (project, dataset or image) the menu is currently
-	 * operating on.
+	 * The object (project, dataset, caegoryGroup, category or image) 
+     * the menu is currently operating on.
 	 */
 	private DataObject				target;
     
@@ -90,12 +92,8 @@ class TreePopupMenuManager
 	}
     
 	/** 
-	 * Sets the object (project, dataset or image) the menu is going to
-	 * operate on. 
-	 * The view button will be enabled only if the passed object is
-	 * an image summary.
-	 * The browse button will be enabled only if the passed object is
-	 * a dataset summary.
+	 * Sets the object (project, dataset, categoryGroup, category or image)
+     * the menu is going to operate on. 
 	 *
 	 * @param t  The object for which the menu has to be brought up.
 	 */
@@ -104,14 +102,17 @@ class TreePopupMenuManager
 		target = t;
 		if (target != null) {
 			view.properties.setEnabled(true);
-			view.browse.setEnabled(!(target instanceof ImageSummary));
-			view.view.setEnabled((target instanceof ImageSummary));
-			view.annotate.setEnabled(!(target instanceof ProjectSummary));
+            if (target instanceof ImageSummary)
+                view.view.setText(TreePopupMenu.VIEW);
+            else view.view.setText(TreePopupMenu.BROWSE);
+			view.view.setEnabled(true);
+			view.annotate.setEnabled((target instanceof DatasetSummary) ||
+                    (target instanceof ImageSummary));
 			view.importImg.setEnabled((target instanceof DatasetSummary));
             view.refresh.setEnabled(!(target instanceof ImageSummary));
 		} else {//root node.
             view.properties.setEnabled(false);
-            view.browse.setEnabled(true);
+            view.view.setText(TreePopupMenu.BROWSE);
             view.view.setEnabled(false);
             view.annotate.setEnabled(false);
             view.importImg.setEnabled(false);
@@ -127,7 +128,8 @@ class TreePopupMenuManager
     void setIndex(int i)
     {
         if (i == DataManagerCtrl.FOR_HIERARCHY || 
-                i == DataManagerCtrl.FOR_IMAGES)
+                i == DataManagerCtrl.FOR_IMAGES || 
+                i == DataManagerCtrl.FOR_CLASSIFICATION)
             index = i;
         else index = DataManagerCtrl.FOR_HIERARCHY; 
     }
@@ -141,34 +143,41 @@ class TreePopupMenuManager
 	{
 		Object src = e.getSource();
 		if (target != null) {	
-			if (src == view.properties)	
-				agentCtrl.showProperties(target, index);
-			else if (src == view.view && target instanceof ImageSummary)       
-				agentCtrl.viewImage(((ImageSummary) target));
-			else if (src == view.browse && target instanceof DatasetSummary)
-				agentCtrl.browseDataset(((DatasetSummary) target));
-            else if (src == view.browse && target instanceof ProjectSummary)
-                agentCtrl.browseProject(((ProjectSummary) target));
-			else if (src == view.annotate)
-				agentCtrl.annotate(target);
+			if (src == view.properties)	agentCtrl.showProperties(target, index);
+			else if (src == view.view) view(target);
+			else if (src == view.annotate)   agentCtrl.annotate(target);
 			else if (src == view.importImg && target instanceof DatasetSummary)
 				agentCtrl.showImagesImporter(((DatasetSummary) target));
             else if (src == view.refresh) agentCtrl.refresh(target);
 		} else { //root node
-            if (src == view.refresh) 
-                agentCtrl.refresh(DataManagerCtrl.EXPLORER);
-            else if (src == view.browse) 
+            if (src == view.refresh) agentCtrl.refresh(index);
+            //For harry
+            else if (src == view.view && index == DataManagerCtrl.FOR_HIERARCHY) 
                 agentCtrl.browseRoot();  
         }
 		view.setVisible(false);
 	}
 	
+    /** View the specified dataObject. */
+    private void view(Object uo)
+    {
+        if (uo instanceof DatasetSummary)
+            agentCtrl.browseDataset(((DatasetSummary) uo));
+        else if (uo instanceof ProjectSummary)
+            agentCtrl.browseProject(((ProjectSummary) uo));
+        else if (uo instanceof CategoryGroupData)
+            agentCtrl.browseCategoryGroup(((CategoryGroupData) uo));
+        else if (uo instanceof CategoryData)
+            agentCtrl.browseCategory(((CategoryData) uo));
+        else if (uo instanceof ImageSummary)
+            agentCtrl.viewImage(((ImageSummary) uo));
+    }
+    
 	/** Registers listeners with the view's widgets. */
 	private void initListeners()
 	{
 		view.properties.addActionListener(this);
 		view.view.addActionListener(this);
-		view.browse.addActionListener(this);
 		view.refresh.addActionListener(this);
 		view.annotate.addActionListener(this);
 		view.importImg.addActionListener(this);

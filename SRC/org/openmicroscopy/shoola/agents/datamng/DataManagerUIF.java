@@ -142,9 +142,6 @@ public class DataManagerUIF
 	/** On-request menu displayed for nodes in the hierarchy tree. */
 	private TreePopupMenu					popupMenu;
 	
-    /** On-request menu displayed for nodes in the classifier tree. */
-    private ClassifierPopupMenu             classifierPopupMenu;
-    
 	private IconManager 					im;
 	
 	public DataManagerUIF(DataManagerCtrl control, Registry registry)
@@ -155,7 +152,6 @@ public class DataManagerUIF
 		im = IconManager.getInstance(registry);
 		explPane = new ExplorerPane(control, registry);
 		popupMenu = new TreePopupMenu(control, registry);
-        classifierPopupMenu = new ClassifierPopupMenu(control, registry);
 		imgPane = new ImagesPane(control);
         classifierPane = new ClassifierPane(control, registry);
 		buildGUI(new ToolBar(control, registry));
@@ -269,9 +265,6 @@ public class DataManagerUIF
 	/** Return the menu displayed for nodes in the tree. */
 	TreePopupMenu getPopupMenu() { return popupMenu; }
     
-    /** Return the menu displayed for nodes in the tree. */
-    ClassifierPopupMenu getClassifierPopupMenu() { return classifierPopupMenu; }
-	
 	/**
 	 * Specifies icons, text, and tooltips for the display buttons in the
 	 * TaskBar.

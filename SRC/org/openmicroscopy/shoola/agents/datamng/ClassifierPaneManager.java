@@ -358,8 +358,9 @@ public class ClassifierPaneManager
     /** Bring up the popupMenu. */
     private void showPopupMenu(MouseEvent e, DataObject target)
     {
-        ClassifierPopupMenu 
-            popup = agentCtrl.getReferenceFrame().getClassifierPopupMenu();
+        DataManagerUIF presentation = 
+            agentCtrl.getAbstraction().getPresentation();
+        TreePopupMenu popup = presentation.getPopupMenu();
         popup.setTarget(target);  
         popup.show(view.tree, e.getX(), e.getY());
     }

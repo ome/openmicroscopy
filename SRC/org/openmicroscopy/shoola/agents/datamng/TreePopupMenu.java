@@ -45,7 +45,8 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
 /** 
  * The UI of the context pop-up menu used within this agent's UI. 
  * Provides buttons for accessing the properties of an object (a project, 
- * dataset or image), viewing an image, browsing a dataset, and reloading
+ * dataset, categoryGroup, category or image), viewing an image, 
+ * browsing a project/dataset/categoryGroup/category, and reloading
  * data from the DB.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -63,6 +64,8 @@ class TreePopupMenu
 	extends JPopupMenu
 {
     
+    static final String             VIEW = "View", BROWSE = "Browse";
+    
 	/** This UI component's controller and model. */
 	private TreePopupMenuManager	manager;
 	
@@ -70,17 +73,14 @@ class TreePopupMenu
 	private Registry				config;
 	
 	/** 
-	 * Button to bring up the property sheet of an object (project, dataset 
-	 * or image).
+	 * Button to bring up the property sheet of an object (project, dataset,
+     * categoryGroup, category or image).
 	 */
 	JMenuItem   					properties;
 	
-	/** Button to view an image. */
+	/** Button to view a project, dataset, categoryGroup, category or image. */
 	JMenuItem   					view;
-	
-	/** Button to browse a dataset. */
-	JMenuItem   					browse;
-	
+
 	/** Button to reload data from the DB. */
 	JMenuItem   					refresh;
 
@@ -100,7 +100,6 @@ class TreePopupMenu
 		this.config = r;
 		initProperties();
 		initView();
-		initBrowse();
 		initRefresh();
 		initAnnotate();
 		initImportImage();
@@ -109,12 +108,8 @@ class TreePopupMenu
 	}
 
 	/** 
-	 * Sets the object (project, dataset or image) the menu is going to 
-	 * operate on. 
-	 * The view button will be enabled only if the passed object is
-	 * an image summary.
-	 * The browse button will be enabled only if the passed object is
-	 * a dataset summary.
+	 * Sets the object (project, dataset, categoryGroup, category or image) 
+     * the menu is going to operate on. 
 	 *
 	 * @param   t  The object for which the menu has to be brought up.
 	 */
@@ -122,8 +117,9 @@ class TreePopupMenu
     
     /** 
      * Sets the pane index, One of the constants defined by 
-     * {@link DataManagerCtrl} i.e. {@link DataManagerCtrl#FOR_HIERARCHY}
-     * or {@link DataManagerCtrl#FOR_IMAGES}
+     * {@link DataManagerCtrl} i.e. {@link DataManagerCtrl#FOR_HIERARCHY}, 
+     * {@link DataManagerCtrl#FOR_IMAGES} or 
+     * {@link DataManagerCtrl#FOR_CLASSIFICATION}
      */
     void setIndex(int index) { manager.setIndex(index); }
     
@@ -143,15 +139,7 @@ class TreePopupMenu
 		view = new JMenuItem("View", icons.getIcon(IconManager.VIEWER));
 		initMenuItem(view, false);
 	}
-	
-	/** Creates and initializes the browse button. */
-	private void initBrowse() 
-	{
-		IconManager icons = IconManager.getInstance(config);
-		browse = new JMenuItem("Browse", icons.getIcon(IconManager.BROWSER));
-		initMenuItem(browse, false);
-	}
-   
+
 	/** Creates and initializes the refresh button. */
 	private void initRefresh() 
 	{
@@ -193,7 +181,6 @@ class TreePopupMenu
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		add(properties);
 		add(view);
-		add(browse);
 		add(annotate);
 		//add(importImg);
 		add(refresh);
