@@ -87,7 +87,7 @@ public class ProjectEditor
 		generalPane = new ProjectGeneralPane(manager);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
-		bar = new ProjectEditorBar();
+		bar = new ProjectEditorBar(agentCtrl.getRegistry());
 		buildGUI();
 		manager.initListeners();
 	}
@@ -96,7 +96,10 @@ public class ProjectEditor
 	
 	ProjectDatasetsPane getDatasetsPane() { return datasetsPane; }
 	
-	/** Returns the cancel button displayed in {@link ProjectEditorBar}. */
+    /** Returns the view button displayed in {@link ProjectEditorBar}. */
+    JButton getViewButton() { return bar.viewButton; }
+    
+	/** Returns the add button displayed in {@link ProjectEditorBar}. */
 	JButton getAddButton() { return bar.addButton; }
 	
 	/**  Returns the save button displayed {@link ProjectEditorBar}. */

@@ -68,14 +68,15 @@ class ProjectEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
 	
-	/** ID used to handle events. */
-	private static final int		SAVE = 0;	
-	private static final int		REMOVE = 1;
-	private static final int		RESET = 2;
-	private static final int		ADD = 3;
-	private static final int		REMOVE_ADDED = 4;
-	private static final int		RESET_ADDED = 5;
-	
+	/** Action command ID. */
+	private static final int       SAVE = 0;	
+	private static final int       REMOVE = 1;
+	private static final int       RESET = 2;
+	private static final int       ADD = 3;
+	private static final int       REMOVE_ADDED = 4;
+	private static final int       RESET_ADDED = 5;
+	private static final int       VIEW = 6;
+    
 	/** Reference to the model. */
 	private ProjectData				model;
 	
@@ -123,6 +124,7 @@ class ProjectEditorManager
 	void initListeners()
 	{
 		//buttons
+        attachButtonListener(view.getViewButton(), VIEW);
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getAddButton(), ADD);
         attachButtonListener(view.getRemoveButton(), REMOVE);
@@ -151,6 +153,8 @@ class ProjectEditorManager
 		try {
             index = Integer.parseInt(e.getActionCommand());
 			switch (index) { 
+                case VIEW:
+                    agentCtrl.browseProject(model); break;
 				case SAVE:
 					save(); break;
 				case ADD:

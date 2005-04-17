@@ -78,6 +78,7 @@ class CategoryEditorManager
 	private static final int           RESET = 3;
 	private static final int           REMOVE_ADDED = 4;
 	private static final int           RESET_ADDED = 5;
+    private static final int           VIEW = 6;
 	
 	private CategoryData               model;
 	private CategoryEditor             view;
@@ -155,6 +156,7 @@ class CategoryEditorManager
 	void initListeners()
 	{
 		//buttons
+        attachButtonListener(view.getViewButton(), VIEW);
         attachButtonListener(view.getSaveButton(), SAVE);
 		attachButtonListener(view.getAddButton(), ADD);
         attachButtonListener(view.getRemoveButton(), REMOVE);
@@ -177,6 +179,8 @@ class CategoryEditorManager
 		try {
             index = Integer.parseInt(e.getActionCommand());
 			switch (index) {
+                case VIEW:
+                    agentCtrl.browseCategory(model); break;
 				case SAVE:
 					save(); break;
 				case ADD:

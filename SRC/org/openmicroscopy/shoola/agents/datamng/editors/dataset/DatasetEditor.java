@@ -86,7 +86,7 @@ public class DatasetEditor
 		generalPane = new DatasetGeneralPane(manager);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
-		bar = new DatasetEditorBar();
+		bar = new DatasetEditorBar(agentCtrl.getRegistry());
 		buildGUI();
 		manager.initListeners();
 	}
@@ -95,6 +95,9 @@ public class DatasetEditor
 	
 	DatasetImagesPane getImagesPane() { return imagesPane; }
 	
+    /**  Returns the view button displayed {@link DatasetEditorBar}. */
+    JButton getViewButton() { return bar.viewButton; }
+    
 	/**  Returns the save button displayed {@link DatasetEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
 	

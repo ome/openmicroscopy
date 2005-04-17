@@ -44,6 +44,8 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -64,17 +66,17 @@ class ProjectEditorBar
 	extends JToolBar	
 {
 
-	JButton					saveButton, addButton;
+	JButton					saveButton, addButton, viewButton;
 	
-	ProjectEditorBar()
+	ProjectEditorBar(Registry registry)
 	{
-		initButtons();
+		initButtons(registry);
 		buildGUI();
 		setFloatable(false);
 	}
 	
 	/** Initializes the buttons. */
-	private void initButtons()
+	private void initButtons(Registry registry)
 	{
 		saveButton = new JButton("Save");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
@@ -85,6 +87,9 @@ class ProjectEditorBar
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		addButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add datasets to the project."));	
+        IconManager im = IconManager.getInstance(registry);
+        viewButton = new JButton(im.getIcon(IconManager.VIEWER));
+        viewButton.setToolTipText(UIUtilities.formatToolTipText("View."));
 	}
 	
 	/** Build and lay out the GUI. */
@@ -116,6 +121,8 @@ class ProjectEditorBar
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(viewButton);
+        p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(saveButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(addButton);

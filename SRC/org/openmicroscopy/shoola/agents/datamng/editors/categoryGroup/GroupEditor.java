@@ -88,17 +88,20 @@ public class GroupEditor
         manager = new GroupEditorManager(this, agentCtrl, model);
         generalPane = new GroupPane(manager);
         categoriesPane = new GroupCategoriesPane(manager);
-        bar = new GroupEditorBar();
+        bar = new GroupEditorBar(agentCtrl.getRegistry());
         buildGUI();
         manager.initListeners();
     }
     
     Registry getRegistry() { return agentCtrl.getRegistry(); } 
     
+    /**  Returns the view button displayed {@link CategoryEditorBar}. */
+    JButton getViewButton() { return bar.viewButton; }
+    
     /**  Returns the save button displayed {@link CategoryEditorBar}. */
     JButton getSaveButton() { return bar.saveButton; }
     
-    /** Returns the save button displayed {@link CategoryEditorBar}. */
+    /** Returns the add button displayed {@link CategoryEditorBar}. */
     JButton getAddButton() { return bar.addButton; }
 
     /** Returns the remove button displayed in {@link GroupCategoriesPane}. */

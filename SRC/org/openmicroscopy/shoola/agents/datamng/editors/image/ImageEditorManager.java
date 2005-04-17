@@ -63,8 +63,8 @@ class ImageEditorManager
 	implements ActionListener, DocumentListener,  MouseListener
 {
 	
-	/** ID used to handle events. */
-	private static final int	SAVE = 0;	
+	/** Action command ID. */
+	private static final int	SAVE = 0, VIEW = 1;	
 	
 	private ImageData			model;
 	private ImageEditor			view;
@@ -88,6 +88,7 @@ class ImageEditorManager
 	void initListeners()
 	{
         attachButtonListener(view.getSaveButton(), SAVE);
+        attachButtonListener(view.getViewButton(), VIEW);
 		JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
 		nameField.addMouseListener(this);
@@ -110,12 +111,14 @@ class ImageEditorManager
 			switch (index) { 
 				case SAVE:
 					save(); break;
+                case VIEW:
+                    control.viewImage(model);
 			}// end switch  
 		} catch(NumberFormatException nfe) {
 			throw new Error("Invalid Action ID "+index, nfe);
 		} 
 	}
-	
+    
 	/** Save changes in DB. */
 	private void save()
 	{

@@ -71,13 +71,14 @@ class DatasetEditorManager
 	implements ActionListener, DocumentListener, MouseListener
 {
 	
-	/** ID used to handle events. */
+	/** Action command ID. */
 	private static final int		SAVE = 0;	
 	private static final int		REMOVE = 1;
 	private static final int		ADD = 2;
 	private static final int		RESET = 3;
 	private static final int		REMOVE_ADDED = 4;
 	private static final int		RESET_ADDED = 5;
+    private static final int        VIEW = 6;
 	
 	private DatasetData				model;
 	private DatasetEditor			view;
@@ -145,6 +146,7 @@ class DatasetEditorManager
 	void initListeners()
 	{
 		//buttons
+        attachButtonListener(view.getViewButton(), VIEW);
         attachButtonListener(view.getSaveButton(), SAVE);
 		attachButtonListener(view.getAddButton(), ADD);
         attachButtonListener(view.getRemoveButton(), REMOVE);
@@ -167,6 +169,8 @@ class DatasetEditorManager
 		try {
             index = Integer.parseInt(e.getActionCommand());
 			switch (index) {
+                case VIEW:
+                    agentCtrl.browseDataset(model); break;
 				case SAVE:
 					save(); break;
 				case ADD:

@@ -69,11 +69,12 @@ class GroupEditorManager
     implements ActionListener, DocumentListener, MouseListener
 {
     
-    /** Action ID. */
+    /** Action command ID. */
     private static final int        SAVE = 0;   
     private static final int        ADD = 1;
     private static final int        REMOVE_ADDED = 2;
     private static final int        RESET_ADDED = 3;
+    private static final int        VIEW = 4;
     
     /** Reference to the model. */
     private CategoryGroupData               model;
@@ -116,6 +117,7 @@ class GroupEditorManager
     void initListeners()
     {
         //buttons
+        attachButtonListener(view.getViewButton(), VIEW);
         attachButtonListener(view.getSaveButton(), SAVE);
         attachButtonListener(view.getAddButton(), ADD);
         attachButtonListener(view.getRemoveToAddButton(), REMOVE_ADDED);
@@ -142,6 +144,8 @@ class GroupEditorManager
         try {
             index = Integer.parseInt(e.getActionCommand());
             switch (index) { 
+                case VIEW:
+                    agentCtrl.browseCategoryGroup(model); break;
                 case SAVE:
                     save(); break;
                 case ADD:

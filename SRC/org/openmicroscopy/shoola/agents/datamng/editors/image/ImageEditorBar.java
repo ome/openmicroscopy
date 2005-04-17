@@ -44,6 +44,8 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
+import org.openmicroscopy.shoola.agents.datamng.IconManager;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -64,23 +66,26 @@ class ImageEditorBar
 	extends JToolBar	
 {
 	
-	JButton					saveButton;
+	JButton					saveButton, viewButton;
 	
-	ImageEditorBar()
+	ImageEditorBar(Registry registry)
 	{
-		initButtons();
+		initButtons(registry);
 		buildGUI();
 		setFloatable(false);
 	}
     
 	/** Initializes the buttons. */
-	private void initButtons()
+	private void initButtons(Registry registry)
 	{
 		saveButton = new JButton("Save");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
+        IconManager im = IconManager.getInstance(registry);
+        viewButton = new JButton(im.getIcon(IconManager.VIEWER));
+        viewButton.setToolTipText(UIUtilities.formatToolTipText("View."));
 	}
 	
 	/** Build and lay out the GUI. */
@@ -112,6 +117,8 @@ class ImageEditorBar
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(viewButton);
+        p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(saveButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.setOpaque(false); //make panel transparent

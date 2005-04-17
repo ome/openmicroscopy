@@ -84,7 +84,7 @@ public class CategoryEditor
 		manager = new CategoryEditorManager(this, agentCtrl, model);
 		categoryPane = new CategoryPane(manager);
 		imagesPane = new CategoryImagesPane(manager);
-		bar = new CategoryEditorBar();
+		bar = new CategoryEditorBar(agentCtrl.getRegistry());
 		buildGUI();
 		manager.initListeners();
 	}
@@ -93,10 +93,13 @@ public class CategoryEditor
 	
 	CategoryImagesPane getImagesPane() { return imagesPane; }
 	
+    /**  Returns the view button displayed {@link CategoryEditorBar}. */
+    JButton getViewButton() { return bar.viewButton; }
+    
 	/**  Returns the save button displayed {@link CategoryEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
 	
-	/** Returns the save button displayed {@link CategoryEditorBar}. */
+	/** Returns the add button displayed {@link CategoryEditorBar}. */
 	JButton getAddButton() { return bar.addButton; }
 	
 	/** Returns the remove button displayed in {@link CategoryImagesPane}. */

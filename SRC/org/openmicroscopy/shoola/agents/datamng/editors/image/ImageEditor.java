@@ -93,7 +93,7 @@ public class ImageEditor
                     buildThumbnailPanel(thumbnail));
 		infoPane = new ImageInfoPane(manager, buildThumbnailPanel(thumbnail));
 		ownerPane = new ImageOwnerPane(manager);
-		bar = new ImageEditorBar();
+		bar = new ImageEditorBar(agentCtrl.getRegistry());
 		buildGUI();
 		manager.initListeners();
 	}
@@ -103,16 +103,20 @@ public class ImageEditor
     {
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout()); 
-        String title = 
-            TITLE+thumbnail.getWidth(null)+"x"+thumbnail.getHeight(null);
-        p.setBorder(BorderFactory.createTitledBorder(title));
-        //p.setBorder(new BevelBorder(BevelBorder.LOWERED)); 
         JLabel l;
-        if (thumbnail != null) l = new JLabel(new ImageIcon(thumbnail));    
-        else l = new JLabel(MSG);
+        String title = "";
+        if (thumbnail != null) {
+            l = new JLabel(new ImageIcon(thumbnail));
+            title = TITLE+thumbnail.getWidth(null)+"x"+
+                    thumbnail.getHeight(null);
+        } else l = new JLabel(MSG);
+        p.setBorder(BorderFactory.createTitledBorder(title));
         p.add(l, BorderLayout.CENTER);
         return p;
     }
+    
+    /** Returns the view button displayed in {@link ImageEditorBar}. */
+    JButton getViewButton() { return bar.viewButton; }
     
 	/** Returns the save button displayed in {@link ImageEditorBar}. */
 	JButton getSaveButton() { return bar.saveButton; }
