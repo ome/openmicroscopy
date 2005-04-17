@@ -72,6 +72,12 @@ public class ImageData
 	private List       datasets;
 	private int[]      channels;
     
+    /** 
+     * The id's of this image's pixels.
+     * The first element of the array always contains the default pixels.
+     */  
+    private int[]       pixelsIDs;
+    
 	public ImageData() {}
 
 	public ImageData(int id, String name, String description, 
@@ -191,5 +197,10 @@ public class ImageData
     public int[] getChannels() { return channels; }
     
     public void setChannels(int[] channels) { this.channels = channels; }
+    
+    public int[] getPixelsIDs() { return pixelsIDs; }
+
+    public void setPixelsIDs(int[] pixelsIDs) { this.pixelsIDs = pixelsIDs; }
+    
     
 }

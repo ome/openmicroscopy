@@ -234,10 +234,11 @@ public class ImageMapper
 		empty.setDatasets(datasets);
 		
 		// pixelsDescription list.
-		if (image.getDefaultPixels() != null) {
-			List pixels = fillPixels(image.getDefaultPixels());
-			empty.setPixels(pixels);
-		}	
+        Pixels defaultPix = image.getDefaultPixels();
+		if (defaultPix != null) {
+            empty.setPixelsIDs(fillListPixelsID(defaultPix));    
+            empty.setPixels(fillPixels(defaultPix));
+        }	
 	}
 	
 	/**
@@ -516,11 +517,9 @@ public class ImageMapper
     /** Build an image summary object. */
     static void buildImageSummary(Image img, ImageSummary is)
     {
-        Pixels px;
-        px = img.getDefaultPixels();
         is.setID(img.getID());
         is.setName(img.getName());
-        is.setPixelsIDs(fillListPixelsID(px));
+        is.setPixelsIDs(fillListPixelsID(img.getDefaultPixels()));
         is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
         //is.setImageServerPixelsID(fillListPixelsID(px));
     }
