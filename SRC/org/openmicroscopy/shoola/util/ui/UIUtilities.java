@@ -211,4 +211,14 @@ public class UIUtilities
         p.add(component);
         return p;
     }
+    
+    /** Wrap a JComponent in a JPanel. */
+    public static JPanel buildComponentPanelRight(JComponent component)
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        p.add(component);
+        return p;
+    }
+    
 }
