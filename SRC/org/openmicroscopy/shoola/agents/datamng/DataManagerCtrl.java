@@ -323,6 +323,23 @@ public class DataManagerCtrl
         return new ArrayList();
     }
     
+    /** Forward the call to the {@link DataManager abstraction}. */
+    public void viewImage(DataObject data)
+    {
+        if (data instanceof ImageSummary) {
+            ImageSummary is = (ImageSummary) data;
+            int[] pxSets = is.getPixelsIDs();
+            //TODO: select pixels if more than one!
+            abstraction.viewImage(is.getID(), pxSets[0], is.getName());
+        } else if (data instanceof ImageData) {
+            ImageData idata = (ImageData) data;
+            int[] pxSets = idata.getPixelsIDs();
+            //TODO: select pixels if more than one!
+            abstraction.viewImage(idata.getID(), pxSets[0], idata.getName());
+        }
+        
+    }
+    
     /** Return the abstraction. */
     DataManager getAbstraction() {return abstraction; }
     
@@ -475,13 +492,6 @@ public class DataManagerCtrl
         abstraction.updateImage(is);
     }
     
-    /** Forward the call to the {@link DataManager abstraction}. */
-    void viewImage(ImageSummary is)
-    {
-        int[] pxSets = is.getPixelsIDs();
-        //TODO: select pixels if more than one!
-        abstraction.viewImage(is.getID(), pxSets[0], is.getName());
-    }
     
     /** Forward the call to the {@link DataManager abstraction}. */
     List getUserProjects()
@@ -526,15 +536,27 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    void browseDataset(DatasetSummary ds)
+    public void browseDataset(DataObject data)
     { 
-        abstraction.browseDataset(ds);
+        abstraction.browseDataset(data);
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    void browseProject(ProjectSummary ps)
+    public void browseProject(DataObject data)
     { 
-        abstraction.browseProject(ps);
+        abstraction.browseProject(data);
+    }
+
+    /** Forward to the {@link DataManager abstraction}. */
+    public void browseCategoryGroup(CategoryGroupData data)
+    {
+       abstraction.browseCategoryGroup(data);
+    }
+
+    /** Forward to the {@link DataManager abstraction}. */
+    public void browseCategory(CategoryData data)
+    {
+        abstraction.browseCategory(data); 
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
@@ -613,18 +635,6 @@ public class DataManagerCtrl
     void setSelectedCategoryGroup(int categoryGroupID)
     {
         selectedCategoryGroupID = categoryGroupID;
-    }
-    
-    /** Forward to the {@link DataManager abstraction}. */
-    void browseCategoryGroup(CategoryGroupData data)
-    {
-       abstraction.browseCategoryGroup(data);
-    }
-
-    /** Forward to the {@link DataManager abstraction}. */
-    void browseCategory(CategoryData data)
-    {
-        abstraction.browseCategory(data); 
     }
 
     /** Create a new Category. */

@@ -934,15 +934,17 @@ public class DataManager
 	 * 
 	 * @param datasetID		The id of the dataset.
 	 */
-	void browseDataset(DatasetSummary ds)
+	void browseDataset(DataObject object)
 	{
+        //object must be instance of 
+        //DatasetSummary/DatasetSummaryLinked/DatasetData
         getRegistry().getUserNotifier().notifyInfo("Browser", 
                 "Sorry, not yet implemented ");  
 		//LoadDataset request = new LoadDataset(datasetID);
 		//registry.getEventBus().post(request);	
 	}
 
-    void browseProject(ProjectSummary ps)
+    void browseProject(DataObject object)
     {
         
     }
