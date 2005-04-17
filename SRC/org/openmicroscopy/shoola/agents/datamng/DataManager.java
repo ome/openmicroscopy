@@ -48,6 +48,10 @@ import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
+import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategory;
+import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup;
+import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseDataset;
+import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseProject;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -929,26 +933,66 @@ public class DataManager
         return name;
     }
 	
-	/**
-	 * Posts a request to view all images in the specified dataset.
-	 * 
-	 * @param datasetID		The id of the dataset.
-	 */
+    /** 
+     * Post an event to browse the specified dataset.
+     * 
+     * @param object    DataObject corresponding either to a 
+     *                  DatasetSummary, DatasetData.
+     *                  
+     */
 	void browseDataset(DataObject object)
 	{
-        //object must be instance of 
-        //DatasetSummary/DatasetSummaryLinked/DatasetData
-        getRegistry().getUserNotifier().notifyInfo("Browser", 
-                "Sorry, not yet implemented ");  
-		//LoadDataset request = new LoadDataset(datasetID);
-		//registry.getEventBus().post(request);	
+        int id = -1;
+        if (object instanceof DatasetData) 
+            id = ((DatasetData) object).getID();
+        else if (object instanceof ProjectSummary) 
+            id = ((DatasetSummary) object).getID();
+        if (id != -1)
+            registry.getEventBus().post(new BrowseDataset(id));
 	}
 
+    /** 
+     * Post an event to browse the specified project.
+     * 
+     * @param object    DataObject corresponding either to a 
+     *                  ProjectSummary or ProjectData.
+     *                  
+     */
     void browseProject(DataObject object)
     {
-        
+        int id = -1;
+        if (object instanceof ProjectData) 
+            id = ((ProjectData) object).getID();
+        else if (object instanceof ProjectSummary) 
+            id = ((ProjectSummary) object).getID();
+        if (id != -1)
+            registry.getEventBus().post(new BrowseProject(id));
+    }
+
+    /** 
+     * Post an event to browse the specified categoryGroup.
+     * 
+     * @param object    DataObject to browse.              
+     */
+    void browseCategoryGroup(CategoryGroupData data)
+    {
+        if (data != null)
+            registry.getEventBus().post(new BrowseCategoryGroup(data.getID()));
     }
     
+    /** 
+     * Post an event to browse the specified category.
+     * 
+     * @param object    DataObject to browse.
+     *                  
+     */
+    void browseCategory(CategoryData data)
+    {
+        if (data != null)
+            registry.getEventBus().post(new BrowseCategory(data.getID()));
+    }
+    
+    //Post an event to bring the ZoomBrowser. ???
     void browseRoot()
     {
         
@@ -983,16 +1027,6 @@ public class DataManager
         }      
     }
 
-    void browseCategoryGroup(CategoryGroupData data)
-    {
-        
-    }
-    
-    void browseCategory(CategoryData data)
-    {
-        
-    }
-    
     /** Retrieve all categoryGroups. */
     List getCategoryGroups()
         throws DSAccessException
