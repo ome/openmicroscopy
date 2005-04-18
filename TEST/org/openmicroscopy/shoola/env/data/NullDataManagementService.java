@@ -726,6 +726,66 @@ public class NullDataManagementService
     {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectTree(int)
+     */
+    public List retrieveProjectTree(int projectID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetTree(int)
+     */
+    public List retrieveDatasetTree(int datasetID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectsTree(java.util.List, boolean)
+     */
+    public List retrieveProjectsTree(List projectIDs, boolean annotated)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectTree(int, boolean)
+     */
+    public List retrieveProjectTree(int projectID, boolean annotated)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetsTree(java.util.List, boolean)
+     */
+    public List retrieveDatasetsTree(List datasetIDs, boolean annotated)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetTree(int, boolean)
+     */
+    public List retrieveDatasetTree(int datasetID, boolean annotated)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
     }    
 		
     
