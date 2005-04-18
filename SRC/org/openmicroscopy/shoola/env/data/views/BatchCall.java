@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.util.concur.tasks.MultiStepTask;
  * </small>
  * @since OME2.2
  */
-abstract class BatchCall
+public abstract class BatchCall
     implements MultiStepTask
 {
 
@@ -139,7 +139,7 @@ abstract class BatchCall
      * 
      * @throws Exception If an error occurs.
      */
-    void doCall() throws Exception {}
+    public void doCall() throws Exception {}
     
     /**
      * Forwards the call to the {@link #doCall() doCall} method.

@@ -65,7 +65,7 @@ import org.openmicroscopy.shoola.util.concur.tasks.ExecMonitor;
  * </small>
  * @since OME2.2
  */
-abstract class BatchCallTree
+public abstract class BatchCallTree
 {
 
     /**
