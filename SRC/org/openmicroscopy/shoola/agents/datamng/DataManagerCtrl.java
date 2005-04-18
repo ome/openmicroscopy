@@ -435,6 +435,7 @@ public class DataManagerCtrl
                     else presentation.removeComponentFromHierarchy();
                     presentation.removeComponentFromClassification();
                     presentation.removeComponentFromImages();
+                    presentation.setSelectedPane(FOR_HIERARCHY);
                 } else {
                     if (parent == null) 
                         parent = getRegistry().getTaskBar().getFrame();
@@ -447,6 +448,7 @@ public class DataManagerCtrl
                     else presentation.removeComponentFromClassification();
                     presentation.removeComponentFromHierarchy();
                     presentation.removeComponentFromImages();
+                    presentation.setSelectedPane(FOR_CLASSIFICATION);
                 } else UIUtilities.makeForDialog(parent, "Editor", c);
                 break;
             case FOR_IMAGES:
@@ -455,6 +457,7 @@ public class DataManagerCtrl
                     else presentation.removeComponentFromImages();
                     presentation.removeComponentFromHierarchy();
                     presentation.removeComponentFromClassification();
+                    presentation.setSelectedPane(FOR_IMAGES);
                 } else UIUtilities.makeForDialog(parent, "Editor", c);   
         }
     }

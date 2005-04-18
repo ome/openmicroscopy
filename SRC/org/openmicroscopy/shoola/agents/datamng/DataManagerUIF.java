@@ -157,11 +157,22 @@ public class DataManagerUIF
 		buildGUI(new ToolBar(control, registry));
     }
     
+    /** Set the selected tabbedPane according to the index. */
+    void setSelectedPane(int index)
+    {
+        switch (index) {
+            case DataManagerCtrl.FOR_HIERARCHY:
+                tabs.setSelectedComponent(explPane); break;
+            case DataManagerCtrl.FOR_IMAGES:
+                tabs.setSelectedComponent(imgPane); break;
+            case DataManagerCtrl.FOR_CLASSIFICATION:
+                tabs.setSelectedComponent(classifierPane);
+        }
+    }
     /** Forward event to {@link ImagesPane}. */
     void addComponentToImages(JComponent c)
     {
         imgPane.addToRightComponent(c);
-        tabs.setSelectedComponent(imgPane);
     }
     
     /** Forward event to {@link ImagesPane}. */
@@ -174,14 +185,12 @@ public class DataManagerUIF
     void addComponentToHierarchy(JComponent c)
     {
         explPane.addToRightComponent(c);
-        tabs.setSelectedComponent(explPane);
     }
     
     /** Forward event to {@link ClassifierPane}. */
     void addComponentToClassification(JComponent c)
     {
         classifierPane.addToRightComponent(c);
-        tabs.setSelectedComponent(classifierPane);
     }
     
     /** Forward event to {@link ClassifierPane}. */

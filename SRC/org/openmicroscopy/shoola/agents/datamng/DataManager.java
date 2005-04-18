@@ -47,6 +47,7 @@ import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
+import org.openmicroscopy.shoola.agents.events.datamng.ClassifyImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
 import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategory;
 import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup;
@@ -155,6 +156,7 @@ public class DataManager
         EventBus bus = registry.getEventBus();
         bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ShowProperties.class);
+        bus.register(this, ClassifyImage.class);
 	}
 	
 	/** Implemented as specified by {@link Agent}. */
@@ -174,17 +176,31 @@ public class DataManager
         	handleSAR((ServiceActivationResponse) e);
         else if (e instanceof ShowProperties) 
             handleShowProperties((ShowProperties) e);
+        else if (e instanceof ClassifyImage)
+            handleClassifyImage((ClassifyImage) e);
     }
 
 	Registry getRegistry() { return registry; }
 	
-    void handleShowProperties(ShowProperties response)
+     /** Handle the classify Image event. */
+    private void handleClassifyImage(ClassifyImage response)
+    {
+        if (response == null) return;
+        //For now we bring the dataManager, no the best strategy.
+        if (presentation == null) 
+            presentation = new DataManagerUIF(control, registry);
+        presentation.deIconify();
+        control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
+    }
+    
+    /** Handle the show properties event. */
+    private void handleShowProperties(ShowProperties response)
     {
         control.showProperties(response.getUserObject(), response.getParent());
     }
     
 	/** Rebuild the Tree if the connection is succesfull. */
-	void handleSAR(ServiceActivationResponse response)
+	private void handleSAR(ServiceActivationResponse response)
 	{
 		if (response.isActivationSuccessful() && presentation != null) 
 			presentation.rebuildTree();
@@ -710,7 +726,7 @@ public class DataManager
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1) sizeY *= ratio;
         try {
-            Pixels pix = data.getDefaultPixels().getPixels();
+            Pixels pix = pxd.getPixels();
             thumbnail = ps.getThumbnail(pix, sizeX, sizeY);
         } catch(ImageServerException ise) {}
         return thumbnail;
@@ -945,7 +961,7 @@ public class DataManager
         int id = -1;
         if (object instanceof DatasetData) 
             id = ((DatasetData) object).getID();
-        else if (object instanceof ProjectSummary) 
+        else if (object instanceof DatasetSummary) 
             id = ((DatasetSummary) object).getID();
         if (id != -1)
             registry.getEventBus().post(new BrowseDataset(id));
@@ -977,7 +993,7 @@ public class DataManager
     void browseCategoryGroup(CategoryGroupData data)
     {
         if (data != null)
-            registry.getEventBus().post(new BrowseCategoryGroup(data.getID()));
+            registry.getEventBus().post(new BrowseCategoryGroup(data));
     }
     
     /** 
@@ -989,7 +1005,7 @@ public class DataManager
     void browseCategory(CategoryData data)
     {
         if (data != null)
-            registry.getEventBus().post(new BrowseCategory(data.getID()));
+            registry.getEventBus().post(new BrowseCategory(data));
     }
     
     //Post an event to bring the ZoomBrowser. ???
