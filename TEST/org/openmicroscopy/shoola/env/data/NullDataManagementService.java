@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -618,25 +619,6 @@ public class NullDataManagementService
 	   return null;	
 	}
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectsTree(java.util.List)
-     */
-    public List retrieveProjectsTree(List projectIDs)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetsTree(java.util.List)
-     */
-    public List retrieveDatasetsTree(List datasetIDs)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveUserImages(org.openmicroscopy.shoola.env.data.model.ImageSummary, java.util.Map, java.util.Map)
@@ -728,25 +710,6 @@ public class NullDataManagementService
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectTree(int)
-     */
-    public List retrieveProjectTree(int projectID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetTree(int)
-     */
-    public List retrieveDatasetTree(int datasetID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectsTree(java.util.List, boolean)
@@ -761,7 +724,7 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveProjectTree(int, boolean)
      */
-    public List retrieveProjectTree(int projectID, boolean annotated)
+    public ProjectSummary retrieveProjectTree(int projectID, boolean annotated)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
@@ -781,7 +744,8 @@ public class NullDataManagementService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveDatasetTree(int, boolean)
      */
-    public List retrieveDatasetTree(int datasetID, boolean annotated)
+    public DatasetSummaryLinked retrieveDatasetTree(int datasetID, 
+            boolean annotated)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
