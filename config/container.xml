@@ -101,6 +101,11 @@
 	<name>Chain Builder Agent</name>
 	<class>org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent</class>  
         <config>chainbuilder.xml</config>
+      </agent>
+      <agent> 
+      <name>HiViewer Agent</name>
+	<class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
+        <config>hiviewer.xml</config>
       </agent> 
      </structuredEntry>
    </agents>
