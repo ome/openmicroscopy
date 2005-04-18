@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -830,41 +831,32 @@ public interface DataManagementService
      * The DataObject of each level is a Summary object.
      * 
      * @param projectIDs     List of project's id.
-     * @return List of {@link ProjectSummaries}.        
+     * @return List of {@link ProjectSummary} objects.        
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public List retrieveProjectsTree(List projectIDs)
-        throws DSOutOfServiceException, DSAccessException;
-    
-    public List retrieveProjectTree(int projectID)
-        throws DSOutOfServiceException, DSAccessException;
-    
     public List retrieveProjectsTree(List projectIDs, boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
 
-    public List retrieveProjectTree(int projectID, boolean annotated)
+    public ProjectSummary retrieveProjectTree(int projectID, boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Retrieve the hierarchy Dataset/Image.
      * The DataObject of each level is a Summary object.
      * 
-     * @param datasetIDs     List of dataset's id.
-     * @return List of {@link DatasetSummaries}.        
+     * @param datasetIDs    List of dataset's id.
+     * @param annotated     If <code>true</code>, we retrieve the annotation
+     *                      associated to the Image and Dataset.
+     * @return List of {@link DatasetSummaryLinked}.        
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public List retrieveDatasetsTree(List datasetIDs)
-        throws DSOutOfServiceException, DSAccessException;
-    
-    public List retrieveDatasetTree(int datasetID)
-        throws DSOutOfServiceException, DSAccessException;
-    
     public List retrieveDatasetsTree(List datasetIDs, boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
 
-    public List retrieveDatasetTree(int datasetID, boolean annotated)
+    public DatasetSummaryLinked retrieveDatasetTree(int datasetID, 
+                                boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
 
     /**

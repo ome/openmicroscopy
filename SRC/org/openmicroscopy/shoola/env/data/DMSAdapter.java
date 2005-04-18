@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.FormalInputData;
 import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -1190,34 +1191,9 @@ class DMSAdapter
     }
 
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveProjectsTree(List projectIDs)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria c;
-        if (projectIDs.size() > LIMIT_FOR_IN) 
-            c = ProjectMapper.buildProjectsTreeCriteria(null);
-        else c = ProjectMapper.buildProjectsTreeCriteria(projectIDs);
-        List projects = (List) gateway.retrieveListData(Project.class, c);
-        List results = new ArrayList();
-        if (projects != null && projects.size() > 0)
-            ProjectMapper.fillProjectsTree(projects, results, projectIDs);
-        return results;
-    }
-    
-    /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveProjectTree(int projectID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        List ids = new ArrayList();
-        ids.add(new Integer(projectID));
-        return retrieveProjectsTree(ids);
-    }
-    
-    /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveProjectsTree(List projectIDs, boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (!annotated) return retrieveProjectsTree(projectIDs);
         Criteria c;
         if (projectIDs.size() > LIMIT_FOR_IN) 
             c = ProjectMapper.buildProjectsTreeCriteria(null);
@@ -1227,6 +1203,11 @@ class DMSAdapter
         List results = new ArrayList();
         //Put the server data into the corresponding client object.
         if (projects == null || projects.size() == 0) return results;
+        
+        if (!annotated) {
+            ProjectMapper.fillProjectsTree(projects, results, projectIDs);
+            return results;
+        }
         //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
@@ -1248,54 +1229,30 @@ class DMSAdapter
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveProjectTree(int projectID, boolean annotated)
+    public ProjectSummary retrieveProjectTree(int projectID, boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (!annotated) return retrieveProjectTree(projectID);
         List ids = new ArrayList();
         ids.add(new Integer(projectID));
-        return retrieveProjectsTree(ids, annotated); 
+        List results = retrieveProjectsTree(ids, annotated); 
+        return (ProjectSummary) results.get(0);
     }
-    
+
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveDatasetsTree(List datasetIDs)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Criteria c;
-        if (datasetIDs.size() > LIMIT_FOR_IN) 
-            c = DatasetMapper.buildDatasetsTree(null);
-        else c = DatasetMapper.buildDatasetsTree(datasetIDs);
-        List datasets = (List) gateway.retrieveListData(Dataset.class, c);
-        List results = new ArrayList();
-        if (datasets != null && datasets.size() > 0)
-            DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs);
-        return results;
-    }
-    
-    /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveDatasetTree(int datasetID)
+    public DatasetSummaryLinked retrieveDatasetTree(int datasetID, 
+                                boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
         List ids = new ArrayList();
         ids.add(new Integer(datasetID));
-        return retrieveDatasetsTree(ids);
-    }
-    
-    /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveDatasetTree(int datasetID, boolean annotated)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        if (!annotated) return retrieveDatasetTree(datasetID);
-        List ids = new ArrayList();
-        ids.add(new Integer(datasetID));
-        return retrieveDatasetsTree(ids, annotated);
+        List results = retrieveDatasetsTree(ids, annotated);
+        return (DatasetSummaryLinked) results.get(0);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
     public List retrieveDatasetsTree(List datasetIDs, boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (!annotated) return retrieveDatasetsTree(datasetIDs);
         Criteria c;
         if (datasetIDs.size() > LIMIT_FOR_IN) 
             c = DatasetMapper.buildDatasetsTree(null);
@@ -1303,6 +1260,10 @@ class DMSAdapter
         List datasets = (List) gateway.retrieveListData(Dataset.class, c);
         List results = new ArrayList();
         if (datasets == null || datasets.size() == 0) return results;
+        if (!annotated) {
+            DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs);
+            return results;
+        }
         //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
@@ -1315,9 +1276,8 @@ class DMSAdapter
                 uc.getUserID());
         List dsAnnotations = 
             (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
-        
-        
-        DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs);
+        DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs, 
+                dsAnnotations, isAnnotations);
         return results;
     }
     
