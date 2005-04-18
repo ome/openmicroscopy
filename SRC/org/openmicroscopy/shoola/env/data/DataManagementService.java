@@ -837,6 +837,15 @@ public interface DataManagementService
     public List retrieveProjectsTree(List projectIDs)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveProjectTree(int projectID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveProjectsTree(List projectIDs, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+
+    public List retrieveProjectTree(int projectID, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+    
     /**
      * Retrieve the hierarchy Dataset/Image.
      * The DataObject of each level is a Summary object.
@@ -849,6 +858,15 @@ public interface DataManagementService
     public List retrieveDatasetsTree(List datasetIDs)
         throws DSOutOfServiceException, DSAccessException;
     
+    public List retrieveDatasetTree(int datasetID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    public List retrieveDatasetsTree(List datasetIDs, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+
+    public List retrieveDatasetTree(int datasetID, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+
     /**
      * Given an id of a module execution, get the list of module executions that 
      * represents the entire data history for this execution. 

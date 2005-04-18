@@ -48,6 +48,7 @@ import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
+import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
@@ -91,7 +92,8 @@ public class ProjectMapper
         //Specify which fields we want for the pixels.
         c.addWantedField("datasets.images.default_pixels", "ImageServerID"); 
         c.addWantedField("datasets.images.default_pixels", "Repository");
-        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");      
+        c.addWantedField("datasets.images.default_pixels.Repository", 
+                        "ImageServerURL");      
         
         if (projectIDs != null) c.addFilter("id", "IN", projectIDs);
         return c;
@@ -175,6 +177,32 @@ public class ProjectMapper
         while (i.hasNext()) 
             ids.add(i.next());
 
+        return ids;
+    }
+    
+    /** Return of Object ID corresponding to the image ID. */
+    public static List prepareListImagesID(List projects)
+    {
+        Map map = new HashMap();
+        Iterator i = projects.iterator(), j, k;
+        List datasets, images;
+        Integer id;
+        while (i.hasNext()) {
+            datasets = ((Project) i.next()).getDatasets();
+            j = datasets.iterator();
+            while (j.hasNext()) {
+                images = ((Dataset) j.next()).getImages();
+                k = images.iterator();
+                while (k.hasNext()) {
+                    id = new Integer(((Image) k.next()).getID());
+                    map.put(id, id);
+                }  
+            }
+        }
+        i = map.keySet().iterator();
+        List ids = new ArrayList();
+        while (i.hasNext()) 
+            ids.add(i.next());
         return ids;
     }
     
@@ -462,4 +490,77 @@ public class ProjectMapper
         }
     }
 	
+    /** 
+     * Build a project-dataset-image hierarchy and specified
+     * the annotated datasets and images.
+     * 
+     * @param projects
+     * @param results
+     * @param projectIDs
+     * @param dsAnnotations
+     * @param isAnnotations
+     */
+    public static void fillProjectsTree(List projects, List results, 
+            List projectIDs, List dsAnnotations, List isAnnotations)
+    {
+        Map imgAnnotated = 
+                AnnotationMapper.reverseListImageAnnotations(isAnnotations);
+        Map dAnnotated = 
+                AnnotationMapper.reverseListDatasetAnnotations(dsAnnotations);
+        Iterator i = projects.iterator(), j, k;
+        Map datasetsMap = new HashMap(), imagesMap = new HashMap();
+        Project p;
+        List datasets, images;
+        ProjectSummary ps;
+        Dataset d;
+        DatasetSummaryLinked ds;
+        ImageSummary is;
+        Image img;
+        Integer id, idImg;
+        while (i.hasNext()) {
+        p = (Project) i.next();
+        if (projectIDs.contains(new Integer(p.getID()))) {
+        ps = new ProjectSummary(p.getID(), p.getName());
+        datasets = new ArrayList();
+        j = p.getDatasets().iterator();
+        while (j.hasNext()) {
+            d = (Dataset) j.next();
+            id = new Integer(d.getID());
+            ds = (DatasetSummaryLinked) datasetsMap.get(id);
+            if (ds == null) {
+                //Make a new DataObject and fill it up.
+                ds = new DatasetSummaryLinked(); 
+                ds.setID(d.getID());
+                ds.setName(d.getName());
+                ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
+                        (DatasetAnnotation) dAnnotated.get(id)));
+                datasetsMap.put(id, ds);
+            }  //object already created this object.
+            //Add the dataset to this project's list.
+            datasets.add(ds);   
+            //Add images to the dataset
+            images = new ArrayList();
+            k = d.getImages().iterator();
+            while (k.hasNext()) {
+                img = (Image) k.next();
+                idImg = new Integer(img.getID());
+                is = (ImageSummary) imagesMap.get(idImg);
+                if (is == null) {
+                    is = DatasetMapper.fillImageSummary(img);
+                    is.setAnnotation(AnnotationMapper.fillImageAnnotation(
+                            (ImageAnnotation) imgAnnotated.get(idImg)));
+                    imagesMap.put(idImg, is);
+                }
+                images.add(is);
+            }
+            ds.setImages(images);
+        }
+        //Link the datasets to this project.
+        ps.setDatasets(datasets);
+        results.add(ps);
+        }
+        }
+    }
+    
+    
 }

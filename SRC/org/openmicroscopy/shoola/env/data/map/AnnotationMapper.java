@@ -141,6 +141,7 @@ public class AnnotationMapper
     public static Map reverseListImageAnnotations(List annotations)
     {
         Map map = new HashMap();
+        if (annotations == null) return map;
         Iterator i = annotations.iterator();
         ImageAnnotation annotation;
         while (i.hasNext()) {
@@ -153,6 +154,7 @@ public class AnnotationMapper
     public static Map reverseListDatasetAnnotations(List annotations)
     {
         Map map = new HashMap();
+        if (annotations == null) return map;
         Iterator i = annotations.iterator();
         DatasetAnnotation annotation;
         while (i.hasNext()) {

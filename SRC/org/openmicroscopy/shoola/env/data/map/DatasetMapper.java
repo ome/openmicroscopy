@@ -42,6 +42,7 @@ import java.util.Map;
 import org.openmicroscopy.ds.Criteria;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
+import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.ds.st.ImageAnnotation;
@@ -535,6 +536,52 @@ public class DatasetMapper
                     is = (ImageSummary) imagesMap.get(id);
                     if (is == null) {
                         is = fillImageSummary(img);
+                        imagesMap.put(id, is);
+                    }
+                    images.add(is);
+                }
+                ds.setImages(images);
+                results.add(ds);
+            }
+        }
+    }
+    
+    public static void fillDatasetsTree(List datasets, List results, 
+            List datasetIDs, List dsAnnotations, List isAnnotations)
+    {
+        Map imgAnnotated = 
+            AnnotationMapper.reverseListImageAnnotations(isAnnotations);
+        Map dAnnotated = 
+            AnnotationMapper.reverseListDatasetAnnotations(dsAnnotations);
+        Iterator i = datasets.iterator(), k;
+        Map imagesMap = new HashMap();
+        DatasetSummaryLinked ds;
+        Dataset d;
+        Image img;
+        ImageSummary is;
+        List images;
+        Integer id;
+        while (i.hasNext()) {
+            d = (Dataset) i.next();
+            if (datasetIDs.contains(new Integer(d.getID()))) {
+                ds = new DatasetSummaryLinked();
+                ds.setID((d.getID()));
+                ds.setName(d.getName());
+                ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
+                        (DatasetAnnotation) 
+                        dAnnotated.get(new Integer(d.getID()))));
+                k = d.getImages().iterator();
+                //Add images to the dataset.
+                images = new ArrayList();
+                k = d.getImages().iterator();
+                while (k.hasNext()) {
+                    img = (Image) k.next();
+                    id = new Integer(img.getID());
+                    is = (ImageSummary) imagesMap.get(id);
+                    if (is == null) {
+                        is = fillImageSummary(img);
+                        is.setAnnotation(AnnotationMapper.fillImageAnnotation(
+                                (ImageAnnotation) imgAnnotated.get(id)));
                         imagesMap.put(id, is);
                     }
                     images.add(is);
