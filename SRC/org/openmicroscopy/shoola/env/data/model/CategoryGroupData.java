@@ -61,10 +61,7 @@ public class CategoryGroupData
     private String      name;
     private String      description;
     
-    /** 
-     * List of {@link CategorySummary} objects or 
-     * {@link CategoryData} objects. 
-     */
+    /** List of {@link CategoryData}. */
     private List        categories;
     
     public CategoryGroupData()
