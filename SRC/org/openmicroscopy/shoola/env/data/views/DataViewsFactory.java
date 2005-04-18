@@ -107,8 +107,8 @@ public class DataViewsFactory
     {
         if (view == null) throw new NullPointerException("No view specified.");
         DataServicesView dsv = null;
-        if (view.equals(DatasetBrowsingView.class)) ;  //TODO: implement.
-            //dsv = new DatasetBrowsingViewImpl();
+        if (view.equals(HierarchyBrowsingView.class))
+            dsv = new HierarchyBrowsingViewImpl();
         //else if (view.equals(..)) ...
         if (dsv == null) 
             throw new IllegalArgumentException("Unknown view type: "+view+".");
