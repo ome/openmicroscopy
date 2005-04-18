@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.events.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -57,24 +58,25 @@ public class BrowseCategory
     extends RequestEvent
 {
     
-    /** The ID of the category. */
-    private int     categoryID;
+    /** The DataObject representing the Category. */
+    private CategoryData   hierarchyObject;
     
     /**
      * Creates a new instance.
      * 
-     * @param categoryID     The specified category. 
+     * @param CategoryData     The specified category. 
      */
     
-    public BrowseCategory(int categoryID)
+    public BrowseCategory(CategoryData hierarchyObject)
     {
-        this.categoryID = categoryID;
+        this.hierarchyObject = hierarchyObject;
     }
 
     /**
-     * The ID of the category.
+     * The hierarchy object.
      * 
      * @return  See above.
      */
-    public int getCategoryID() { return categoryID; }
+    public CategoryData getHierarchyObject() { return hierarchyObject; }
+    
 }
