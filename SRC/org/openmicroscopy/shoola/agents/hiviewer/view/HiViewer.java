@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerUIF;
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -82,7 +83,8 @@ public class HiViewer
     {
         super("Hierarchy Viewer", reg.getTaskBar());
         this.actions = actions;
-        statusBar = new StatusBar();
+        IconManager iconMng = IconManager.getInstance(reg);
+        statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
         popupMenu = new PopupMenu(actions);
         setJMenuBar(createMenuBar());
         buildUI();
@@ -138,6 +140,7 @@ public class HiViewer
         menu.add(new JMenuItem(actions[HiViewerUIF.FIND_ANNOTATED]));
         menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_TITLE]));
         menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_ANNOTATION]));
+        menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_ST]));
         menu.addSeparator();
         menu.add(new JMenuItem(actions[HiViewerUIF.CLEAR]));
         return menu;
@@ -213,6 +216,13 @@ public class HiViewer
         int height = 8*(screenSize.height/10);
         setSize(width, height); 
         UIUtilities.centerAndShow(this);
+    }
+    
+    public void setStatus(String status, boolean hideProgressBar, 
+                            int progressPerc)
+    {
+        statusBar.setStatus(status);
+        statusBar.setProgress(hideProgressBar, progressPerc);
     }
     
 }

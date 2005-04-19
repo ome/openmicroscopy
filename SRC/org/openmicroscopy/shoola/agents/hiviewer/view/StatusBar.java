@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -62,26 +63,31 @@ public class StatusBar
     extends JPanel
 {
     
-    private static final String STATUS = " Status: ";
-    
-    
     private JProgressBar        progressBar;
 
     private JLabel              status;
     
-    public StatusBar()
+    public StatusBar(Icon statusIcon)
     {
-        initComponents();
+        initComponents(statusIcon);
         buildUI();
     }
     
+    public void setStatus(String s) { status.setText(s); }
+    
+    public void setProgress(boolean hide, int perc)
+    {
+        progressBar.setVisible(!hide);
+        progressBar.setValue(perc);
+    }
+    
     /** Initializes the components. */
-    private void initComponents()
+    private void initComponents(Icon statusIcon)
     {
         progressBar = new JProgressBar();
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
-        status = new JLabel(STATUS);
+        status = new JLabel(statusIcon);
     }
     
     /** Build and lay out the UI. */
