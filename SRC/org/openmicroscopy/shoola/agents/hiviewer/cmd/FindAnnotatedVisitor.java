@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
- * 
+ * Visitor that highligths nodes representing annotated images and datasets.  
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,9 +65,7 @@ public class FindAnnotatedVisitor
     /** The color in which the title bar will be highlighted. */
     private static final Color HIGH_LIGHT_COLOR = Color.ORANGE;
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor#visit(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode)
-     */
+    /** Highlight the annotated image.*/
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
@@ -77,11 +75,7 @@ public class FindAnnotatedVisitor
         }
     }
 
-    /**
-     * Highlight the current node or its children
-     * if the corrsponding hierarchy object is an instanceof 
-     * {@link DatasetSummary}.
-     */
+    /** Highlight the annotated dataset.*/
     public void visit(ImageSet node)
     {
         Object ho = node.getHierarchyObject();
@@ -90,5 +84,5 @@ public class FindAnnotatedVisitor
                 node.setHighlight(HIGH_LIGHT_COLOR);
         }
     }
-
+    
 }
