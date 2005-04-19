@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.datamng.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -260,16 +259,14 @@ public class Filter
     /** Build the ToolBar Panel. */
     private JPanel barPanel()
     {
-        JPanel p = new JPanel(), bar = new JPanel();
+        JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(applyButton);
         p.add(Box.createRigidArea(DataManagerUIF.HBOX));
         p.add(cancelButton);
         p.add(Box.createRigidArea(DataManagerUIF.HBOX));
         p.setOpaque(false); //make panel transparent
-        bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        bar.add(p);
-        return bar;
+        return UIUtilities.buildComponentPanelRight(p);
     }
     
     /** Build and lay out the main Panel. */
