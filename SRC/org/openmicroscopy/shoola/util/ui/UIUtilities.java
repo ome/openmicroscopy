@@ -78,8 +78,11 @@ public class UIUtilities
     public static final int                 DIALOG_HEIGHT = 500;
     
 	/** Width of the separator. */
-	public static final int SEPARATOR_WIDTH = 2;
+	public static final int                 SEPARATOR_WIDTH = 2;
 	
+    /** Maximum width of the table. */
+    public static final int                 TABLE_WIDTH = 200;
+    
 	/**
 	 * Centers the specified component on the screen.
 	 * The location of the specified component is set so that it will appear
@@ -172,6 +175,45 @@ public class UIUtilities
 		return buf.toString();
 	} 
 	
+    /**
+     * Builds a tool tip in a fixed font and color.
+     * 
+     * @param title
+     * @param body
+     * @param maxWidth
+     * @return
+     */
+    public static String makeParagraph(String title, String body, int maxWidth)
+    {
+        if (title != null && body == null) 
+            return formatToolTipText(title);
+        //title.
+        StringBuffer buf = new StringBuffer();
+        buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
+        //TODO: change into platform independent font
+        if (title != null && body != null) {
+            String s = "<table width="+maxWidth+"><tr>";
+            buf.append(s);
+            buf.append("<td><b>");
+            buf.append(title);
+            buf.append("</b></td></tr><tr><td with = 100>");
+            buf.append("<font face=Arial size=2>"); 
+            buf.append(body);
+            buf.append("</font>");
+            buf.append("</td></tr></table>");
+        } else if (title == null && body != null) {
+            String s = "<table width="+maxWidth+"><tr>";
+            buf.append(s);
+            buf.append("<td>");
+            buf.append("<font face=Arial size=2>"); 
+            buf.append(body);
+            buf.append("</font>");
+            buf.append("</td></tr></table>");
+        }
+        buf.append("</body></html>");
+        return buf.toString();  
+    }
+    
 	/** 
 	 * Create a separator to add to a toolbar. The separator needs to be 
 	 * set when the layout of the toolbar is reset.
