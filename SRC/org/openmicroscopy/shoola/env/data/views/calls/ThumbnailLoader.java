@@ -40,6 +40,7 @@ import java.util.Set;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -48,9 +49,9 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * <p>As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to the 
  * caller through <code>DSCallFeedbackEvent</code>s.  Each thumbnail will be
  * posted in a single event; the caller can then invoke the <code>
- * getPartialResult</code> method to retrieve a <code>BufferedImage</code> for
- * that thumbnail.  The final <code>DSCallOutcomeEvent</code> will have no 
- * result.</p>
+ * getPartialResult</code> method to retrieve a <code>ThumbnailData</code>
+ * object for that thumbnail.  The final <code>DSCallOutcomeEvent</code> will
+ * have no result.</p>
  * <p>Thumbnails are generated respecting the <code>X/Y</code> ratio of the
  * original image and so that their area doesn't exceed <code>maxWidth*
  * maxHeight</code>, which is specified to the constructor.</p>
@@ -80,7 +81,7 @@ public class ThumbnailLoader
     private int             maxHeight;
     
     /** The lastly retrieved thumbnail. */
-    private BufferedImage   currentThumbnail;
+    private ThumbnailData   currentThumbnail;
     
     
     /**
@@ -97,8 +98,9 @@ public class ThumbnailLoader
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1) sizeY *= ratio;
-        currentThumbnail = context.getPixelsService().getThumbnail(
-                pxd.getPixels(), sizeX, sizeY);
+        BufferedImage thumbPix = context.getPixelsService().getThumbnail(
+                                                pxd.getPixels(), sizeX, sizeY);
+        currentThumbnail = new ThumbnailData(images[index].getID(), thumbPix);
     }
     
     /**
