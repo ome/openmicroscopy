@@ -181,8 +181,8 @@ public class HiViewer
     /** Closes the widget. */
     public void closeViewer()
     {
-        dispose();
         setVisible(false);
+        dispose();
     }
     
     /** 
