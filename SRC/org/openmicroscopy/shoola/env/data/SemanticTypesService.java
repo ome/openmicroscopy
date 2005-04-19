@@ -223,7 +223,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void updateImageAnnotation(AnnotationData data, int imageID)
+    public boolean updateImageAnnotation(AnnotationData data, int imageID)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -235,7 +235,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
+    public boolean updateDatasetAnnotation(AnnotationData data, int datasetID)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -247,7 +247,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void removeImageAnnotation(AnnotationData data)
+    public boolean removeImageAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -259,7 +259,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public void removeDatasetAnnotation(AnnotationData data)
+    public boolean removeDatasetAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException; 
     
     /**
@@ -306,7 +306,7 @@ public interface SemanticTypesService
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public List retrieveICGHierarchy(List imageSummaries)
+    public List retrieveCGCIHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 

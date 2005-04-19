@@ -1161,7 +1161,7 @@ class DMSAdapter
 	}
 
     /** Implemented as specified in {@link DataManagementService}. */
-    public List retrieveIDPHierarchy(List imageSummaries)
+    public List retrievePDIHierarchy(List imageSummaries, boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
         if (imageSummaries == null)
@@ -1175,6 +1175,7 @@ class DMSAdapter
         Map map = new HashMap();
         List ids = new ArrayList();
         Integer id;
+        //Not sure this is useful in that case.
         while (i.hasNext()) {
             is = (ImageSummary) i.next();
             id = new Integer(is.getID());
@@ -1185,9 +1186,19 @@ class DMSAdapter
         Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
-        if (images != null && images.size() > 0)
-             return HierarchyMapper.fillIDPHierarchy(images, map);
-        return new ArrayList();
+        if (images == null || images.size() == 0) return new ArrayList();
+        
+        if (!annotated)
+            return HierarchyMapper.fillIDPHierarchy(images, map, null);
+        
+        UserCredentials uc = (UserCredentials)
+        registry.lookup(LookupNames.USER_CREDENTIALS);
+        c = AnnotationMapper.buildDatasetAnnotationCriteria(null, 
+                            uc.getUserID());
+        List dsAnnotations = 
+            (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        return HierarchyMapper.fillIDPHierarchy(images, map, dsAnnotations);
+
     }
 
     /** Implemented as specified in {@link DataManagementService}. */

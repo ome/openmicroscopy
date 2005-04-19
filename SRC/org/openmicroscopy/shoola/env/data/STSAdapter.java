@@ -337,48 +337,52 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void updateImageAnnotation(AnnotationData data, int imgID)
+    public boolean updateImageAnnotation(AnnotationData data, int imgID)
         throws DSOutOfServiceException, DSAccessException
     {
-        removeImageAnnotation(data);
+        if (!removeImageAnnotation(data)) return false;
         createImageAnnotation(imgID, data.getAnnotation(), data.getTheZ(), 
                             data.getTheT()); 
+        return true;
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
+    public boolean updateDatasetAnnotation(AnnotationData data, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
-        removeDatasetAnnotation(data);
+        if (!removeDatasetAnnotation(data)) return false;
         createDatasetAnnotation(datasetID, data.getAnnotation());
+        return true;
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void removeImageAnnotation(AnnotationData data)
+    public boolean removeImageAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = AnnotationMapper.buildBasicCriteria(
-                STSMapper.IMAGE_GRANULARITY, data.getID());
+        Criteria c = AnnotationMapper.buildBasicCriteria(data.getID());
         ImageAnnotation ia = 
             (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
+        if (ia == null) return false;
         ia.setValid(Boolean.FALSE);
         List l = new ArrayList();
         l.add(ia);
         gateway.updateAttributes(l);  
+        return true;
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public void removeDatasetAnnotation(AnnotationData data)
+    public boolean removeDatasetAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = AnnotationMapper.buildBasicCriteria(
-                STSMapper.DATASET_GRANULARITY, data.getID());
+        Criteria c = AnnotationMapper.buildBasicCriteria(data.getID());
         DatasetAnnotation da = 
             (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
+        if (da == null) return false;
         da.setValid(Boolean.FALSE);
         List l = new ArrayList();
         l.add(da);
         gateway.updateAttributes(l); 
+        return true;
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -872,7 +876,7 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveICGHierarchy(List imageSummaries)
+    public List retrieveCGCIHierarchy(List imageSummaries)
         throws DSOutOfServiceException, DSAccessException
     {
         if (imageSummaries == null)

@@ -94,12 +94,11 @@ public class AnnotationMapper
         return c;
     }
     
-    public static Criteria buildBasicCriteria(String g, int id)
+    public static Criteria buildBasicCriteria(int id)
     {
         Criteria c = new Criteria();
         c.addWantedField("Valid");
-        String column = (String) STSMapper.granularities.get(g);
-        if (column != null) c.addFilter(column, new Integer(id));
+        c.addFilter("id", new Integer(id));
         return c;
     }
    
@@ -180,6 +179,7 @@ public class AnnotationMapper
     
     public static AnnotationData fillImageAnnotation(ImageAnnotation annotation)
     {
+        if (annotation == null) return null;
         Object[] results = getImageAnnotation(annotation);
         return (AnnotationData) results[0];
     }
@@ -204,6 +204,7 @@ public class AnnotationMapper
     public static AnnotationData fillDatasetAnnotation(DatasetAnnotation 
                                                         annotation)
     {
+        if (annotation == null) return null;
         Object[] results = getDatasetAnnotation(annotation);
         return (AnnotationData) results[0];
     }

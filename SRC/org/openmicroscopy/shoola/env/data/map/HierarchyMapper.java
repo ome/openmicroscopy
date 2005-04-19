@@ -47,6 +47,7 @@ import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
+import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ClassificationData;
@@ -109,13 +110,16 @@ public class HierarchyMapper
     }
     
     /** 
-     * Fill in a Image/Dataset/Project hierarchy.
+     * Fill in a Project-Dataset-Image hierarchy.
      * 
      * @param images list of {@link org.openmicroscopy.ds.dto.Image Image} 
      * objects.
      */
-    public static List fillIDPHierarchy(List images, Map mapIS)
+    public static List fillIDPHierarchy(List images, Map mapIS, 
+                                    List dsAnnotations)
     {
+        Map dAnnotated = 
+            AnnotationMapper.reverseListDatasetAnnotations(dsAnnotations);
         List unOrderedImages = new ArrayList();
         List orphanDatasets = new ArrayList();
         List results = new ArrayList();
@@ -148,6 +152,9 @@ public class HierarchyMapper
                         ds = (DatasetSummaryLinked) datasetsMap.get(dID);
                         if (ds == null) {
                             ds = createDSL(dataset);
+                            ds.setAnnotation(
+                                    AnnotationMapper.fillDatasetAnnotation(
+                                    (DatasetAnnotation) dAnnotated.get(dID)));
                             datasetsMap.put(dID, ds);
                         }
                         listImages = ds.getImages();
@@ -221,8 +228,7 @@ public class HierarchyMapper
            
             //Control needed b/c the IN Filter may not have been used.
             if (is != null) {
-                if (!classifiedImages.contains(is)) 
-                    classifiedImages.add(is);
+                if (!classifiedImages.contains(is)) classifiedImages.add(is);
                 
                 cData = new ClassificationData(classification.getID(), f);
                 category = classification.getCategory();
@@ -270,7 +276,13 @@ public class HierarchyMapper
         return results;
     }
     
-    
+    /** 
+     * Fill in a {@link DatasetSummaryLinked} given a 
+     * remote {@link Dataset}.
+     * 
+     * @param dataset   remote objet.
+     * @return See above.
+     */
     private static DatasetSummaryLinked createDSL(Dataset dataset)
     {
         DatasetSummaryLinked ds = new DatasetSummaryLinked();
@@ -280,6 +292,13 @@ public class HierarchyMapper
         return ds;
     }
     
+    /** 
+     * Fill in a {@link ProjectSummary} given a 
+     * remote {@link Project}.
+     * 
+     * @param dataset   remote objet.
+     * @return See above.
+     */
     private static ProjectSummary createPS(Project project)
     {
         ProjectSummary ps = new ProjectSummary();

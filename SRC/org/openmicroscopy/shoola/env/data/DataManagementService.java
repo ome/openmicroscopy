@@ -813,24 +813,31 @@ public interface DataManagementService
     
     /**
      * Given a list of {@link ImageSummary} objects, retrieve the hierarchy
-     * Image/Dataset/Project.
+     * Project-Dataset-Images.
+     * The corresponding DataObjects are: 
+     * {@link ProjectSummary}/{@link DatasetSummaryLinked}/{@link ImageSummary}.
      * 
      * @param imageSummaries    List of {@link ImageSummary} objects.
-     * 
+     * @param annotated         if <code>true</code>, retrieve the dataset's
+     *                          annotation.
+     *                          
      * @return list of {@link DataObject} objects, either 
-     * {@link ProjectSummary}, {@link DatasetSummary} or {@link ImageSummary}.
+     *      {@link ProjectSummary}, {@link DatasetSummaryLinked} or 
+     *      {@link ImageSummary}.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
-    public List retrieveIDPHierarchy(List imageSummaries)
+    public List retrievePDIHierarchy(List imageSummaries, boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
 
     /**
      * Retrieve the hierarchy Project/dataset/Image.
-     * The DataObject of each level is a Summary object.
+     * The corresponding DataObjects are: 
+     * {@link ProjectSummary}/{@link DatasetSummaryLinked}/{@link ImageSummary}.
      * 
      * @param projectIDs     List of project's id.
+     * 
      * @return List of {@link ProjectSummary} objects.        
      * @throws DSOutOfServiceException
      * @throws DSAccessException
@@ -843,7 +850,8 @@ public interface DataManagementService
     
     /**
      * Retrieve the hierarchy Dataset/Image.
-     * The DataObject of each level is a Summary object.
+     * The corresponding DataObjects are: 
+     * {@link DatasetSummaryLinked}/{@link ImageSummary}.
      * 
      * @param datasetIDs    List of dataset's id.
      * @param annotated     If <code>true</code>, we retrieve the annotation
