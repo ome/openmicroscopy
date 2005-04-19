@@ -62,12 +62,13 @@ public class FindWithAnnotationAction
     
     private static final String NAME = "With Annotation...";
     
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "Find a regular expression " +
+            "in the annotation.";
 
     public FindWithAnnotationAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        setEnabled(false);
+        //setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

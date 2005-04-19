@@ -69,10 +69,11 @@ public class TreeLayoutAction
         super(agentCtrl);
         //setEnabled(false);
         putValue(Action.NAME, NAME);
-        Layout layout = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
+        Layout layout = LayoutFactory.createLayout(LayoutFactory.TREE_LAYOUT);
         String description = layout.getDescription();
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(description));
+                UIUtilities.makeParagraph(null, description,
+                        UIUtilities.TABLE_WIDTH));
         IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.TREE_LAYOUT));
     }

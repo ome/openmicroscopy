@@ -62,12 +62,13 @@ public class FindWithTitleAction
     
     private static final String NAME = "With Title...";
     
-    private static final String DESCRIPTION = "Close the window.";
-
+    private static final String DESCRIPTION = "Find a regular expression " +
+                            "in the title.";
+    
     public FindWithTitleAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        setEnabled(false);
+        //setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

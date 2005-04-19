@@ -74,7 +74,8 @@ public class SquaryLayoutAction
         Layout layout = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
         String description = layout.getDescription();
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(description));
+                UIUtilities.makeParagraph(null, description,
+                        UIUtilities.TABLE_WIDTH));
         IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SQUARY_LAYOUT));
     }

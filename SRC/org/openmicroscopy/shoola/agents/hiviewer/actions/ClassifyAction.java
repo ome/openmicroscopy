@@ -67,7 +67,7 @@ public class ClassifyAction
     public ClassifyAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        setEnabled(false);
+        //setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
