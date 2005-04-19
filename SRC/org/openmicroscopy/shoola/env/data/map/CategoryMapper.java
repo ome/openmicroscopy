@@ -426,7 +426,7 @@ public class CategoryMapper
          data.setName(category.getName());
          data.setDescription(category.getDescription());
          data.setCategoryGroup(gModel);
-         return null;
+         return data;
      }
      
     /**
