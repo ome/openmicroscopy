@@ -298,5 +298,27 @@ public class HiViewerAgent
                             target.getName());
         registry.getEventBus().post(request);   
     }
+    
+    /** 
+     * Retrieve how the set of images is organized 
+     * in the CategoryGroup-Category-Images hierarchy
+     * 
+     * @param images    set of images.
+     */
+    void viewInCGCI(Set images)
+    {
+        
+    }
+    
+    /** 
+     * Retrieve how the set of images is organized 
+     * in the Project-Dataset-Images hierarchy
+     * 
+     * @param images    set of images.
+     */
+    void viewInPDI(Set images)
+    {
+        
+    }
 
 }

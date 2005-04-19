@@ -42,7 +42,10 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExTitleVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinder;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
@@ -50,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -171,11 +175,9 @@ public class HiViewerCtrl
         Set set = browser.getImages();
         switch (index) {
             case VIEW_IN_PDI:
-                
-                break;
+                abstraction.viewInPDI(set); break;
             case VIEW_IN_CGCI:
-                
-                break;
+                abstraction.viewInCGCI(set); break;
         }
     }
     
@@ -183,6 +185,9 @@ public class HiViewerCtrl
     public void findAnnotated(BrowserAction action)
     {
         if (action == null) return;
+        //We first clear.
+        clear(action);
+        //Then apply visitor
         Browser browser = action.getBrowser();
         browser.accept(new FindAnnotatedVisitor());
     }
@@ -190,13 +195,34 @@ public class HiViewerCtrl
     /** Handle the FindAnnotatedAction. */
     public void findWithAnnotation(BrowserAction action)
     {
-        
+        if (action == null) return;
+        //We first clear.
+        clear(action);
+        //Then we apply the filter.
+        HiViewerUIF presentation = HiViewerUIF.getInstance(this);
+        HiViewer hi = presentation.getViewer(action.getBrowser());
+        UIUtilities.centerAndShow(
+                new RegExFinder(RegExFinder.FOR_ANNOTATION, 
+                        action.getBrowser(), hi));
+    }
+    
+    /** Handle the FindAnnotatedAction. */
+    public void findWithST(BrowserAction action)
+    {
+        if (action == null) return;
     }
     
     /** Handle the FindAnnotatedAction. */
     public void findWithTitle(BrowserAction action)
     {
-        
+        if (action == null) return;
+        //We first clear.
+        clear(action);
+        //Then we apply the filter.
+        HiViewerUIF presentation = HiViewerUIF.getInstance(this);
+        HiViewer hi = presentation.getViewer(action.getBrowser());
+        UIUtilities.centerAndShow(new RegExFinder(RegExFinder.FOR_TITLE,
+                action.getBrowser(), hi));
     }
     
     /** Handle the FindAnnotatedAction. */

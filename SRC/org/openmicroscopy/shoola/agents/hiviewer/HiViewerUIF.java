@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAnnotatedAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithAnnotationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithTitleAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
@@ -126,14 +127,17 @@ public class HiViewerUIF
     /** Identifies the view action within actions menu. */
     public static final int     VIEW = 13;
     
-    /** Identifies the properties action within actions menu. */
+    /** Identifies the zoom in action within actions menu. */
     public static final int     ZOOM_IN = 14;
     
-    /** Identifies the properties action within actions menu. */
+    /** Identifies the zoom out action within actions menu. */
     public static final int     ZOOM_OUT = 15;
     
+    /** Identifies the properties action within actions menu. */
+    public static final int     FIND_W_ST = 16;
+    
     /** The maximum ID used for the action IDs. */
-    private static final int    MAX_ID = 15;
+    private static final int    MAX_ID = 16;
     
     /** List of created browsers. */
     private static Map          browsers;
@@ -179,6 +183,7 @@ public class HiViewerUIF
         actions[VIEW] = new ViewAction(agentCtrl);
         actions[ZOOM_IN] = new ZoomInAction(agentCtrl);
         actions[ZOOM_OUT] = new ZoomOutAction(agentCtrl);
+        actions[FIND_W_ST] = new FindwSTAction(agentCtrl);
         return actions;
     }
     
