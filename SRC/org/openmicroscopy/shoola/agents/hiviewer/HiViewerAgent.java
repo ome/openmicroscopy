@@ -133,64 +133,25 @@ public class HiViewerAgent
     }
     
     /** Handle browse project event. */
-    private void handleBrowseProject(BrowseProject response)
+    private void handleBrowseProject(BrowseProject evt)
     {
-        if (response == null) return;
-        HiViewer hiViewer = null;
-        try { 
-            //Need asynch call.
-            HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-            hiViewer = presentation.createHiViewer();
-            //Listen to progress and update statusBar
-            
-            DataManagementService dms = registry.getDataManagementService();
-            ProjectSummary 
-                ps = dms.retrieveProjectTree(response.getProjectID(), 
-                                true);
-            Set topNodes = HiTranslator.transformProject(ps);
-            presentation.createBrowserFor(topNodes, hiViewer);
-        } catch(DSOutOfServiceException dsose) {    
-            ServiceActivationRequest request = new ServiceActivationRequest(
-                                        ServiceActivationRequest.DATA_SERVICES);
-            registry.getEventBus().post(request);
-        } catch(DSAccessException dsae) { //Bring up dialog
-            String s = "Can't browse the selected project.";
-            getRegistry().getLogger().error(this, s+" Error: "+dsae);
-            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae);
-            if (hiViewer != null) hiViewer.closeViewer();
-        }
+        if (evt == null) return;
+        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
+        HiViewer hiViewer = presentation.createHiViewer();
+        ProjectLoader loader = new ProjectLoader(this, hiViewer, 
+                                                 evt.getProjectID());
+        loader.load();
     }
 
     /** Handle browse dataset event. */
-    private void handleBrowseDataset(BrowseDataset response)
+    private void handleBrowseDataset(BrowseDataset evt)
     {
-        if (response == null) return;
-        HiViewer hiViewer = null;
-        try { 
-            //Need asynch call.
-            HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-            hiViewer = presentation.createHiViewer();
-            //Listen to progress and update statusBar;
-            //Need to remove it
-            //Status bar will listen to progress
-            DataManagementService dms = registry.getDataManagementService();
-            DatasetSummaryLinked 
-                ds = dms.retrieveDatasetTree(response.getDatasetID(), 
-                                                true);
-            Set topNodes = HiTranslator.transformDataset(ds);
-            presentation.createBrowserFor(topNodes, hiViewer);
-        } catch(DSOutOfServiceException dsose) {    
-            ServiceActivationRequest request = new ServiceActivationRequest(
-                                        ServiceActivationRequest.DATA_SERVICES);
-            registry.getEventBus().post(request);
-        } catch(DSAccessException dsae) { //Bring up dialog
-            String s = "Can't browse the selected dataset.";
-            getRegistry().getLogger().error(this, s+" Error: "+dsae);
-            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
-                    "Failure", s, dsae);
-            if (hiViewer != null) hiViewer.closeViewer();
-        }
+        if (evt == null) return;
+        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
+        HiViewer hiViewer = presentation.createHiViewer();
+        DatasetLoader loader = new DatasetLoader(this, hiViewer, 
+                                                 evt.getDatasetID());
+        loader.load();
     }
     
     /** Handle browse categoryGroup event. */
@@ -208,6 +169,8 @@ public class HiViewerAgent
     }
 
     Registry getRegistry() { return registry; }
+    
+    HiViewerCtrl getControl() { return control; }
     
     /** Classify the selected image. */
     void classify(ImageSummary target)
@@ -307,7 +270,10 @@ public class HiViewerAgent
      */
     void viewInCGCI(Set images)
     {
-        
+        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
+        HiViewer hiViewer = presentation.createHiViewer();
+        CGCILoader loader = new CGCILoader(this, hiViewer, images);
+        loader.load();
     }
     
     /** 
@@ -318,7 +284,10 @@ public class HiViewerAgent
      */
     void viewInPDI(Set images)
     {
-        
+        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
+        HiViewer hiViewer = presentation.createHiViewer();
+        PDILoader loader = new PDILoader(this, hiViewer, images);
+        loader.load();
     }
 
 }

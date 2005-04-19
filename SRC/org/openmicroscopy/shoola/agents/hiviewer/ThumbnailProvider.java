@@ -31,10 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
@@ -43,6 +39,7 @@ import java.awt.image.BufferedImage;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
 /** 
  * 
@@ -61,39 +58,55 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 public class ThumbnailProvider
     implements Thumbnail
 {
-
-    BufferedImage getImage(String name, int w, int h)
+    
+    static final int        THUMB_MAX_WIDTH = 64;  //TODO: should be 96.
+    static final int        THUMB_MAX_HEIGHT = 64; //TODO: should be 96.
+    
+    
+    private ImageSummary    imgInfo;
+    private int             width;  //of displayThumb. 
+    private int             height; //of displayThumb.
+    private BufferedImage   fullScaleThumb;
+    private BufferedImage   displayThumb;
+    private ImageNode       display;
+    
+    
+    //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
+    //but we need size b/f img is retrieved -- b/c we vis tree need to be
+    //laid out.  Sort this out.
+    private void computeDims()
     {
-        String path = "C:\\Documents and Settings\\Jean Marie\\Desktop\\Shoola\\"+
-            "CODE\\CVS_REP\\Shoola\\SRC\\org\\openmicroscopy\\shoola\\agents\\"+
-            "hiviewer\\graphx\\"+name;
-        Image img = Toolkit.getDefaultToolkit().getImage(path);
-        /*
-        try {
-            MediaTracker tracker = new MediaTracker(this);
-            tracker.addImage(img, 0);
-            tracker.waitForID(0);
-        } catch (Exception e) { e.printStackTrace(); }
-        */
-        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2D = bi.createGraphics();
-        g2D.drawImage(img, 0, 0, null);
-        return bi;
+        PixelsDescription pxd = imgInfo.getDefaultPixels();
+        int sizeX = THUMB_MAX_WIDTH, sizeY = THUMB_MAX_HEIGHT;
+        double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+        if (ratio < 1) sizeX *= ratio;
+        else if (ratio > 1) sizeY *= ratio;
+        width = sizeX;
+        height = sizeY;
+    }
+    
+    void setFullScaleThumb(BufferedImage t)
+    {
+        fullScaleThumb = t;
+        //TODO: scale down to 64x64.
+        displayThumb = t;  //TODO: set to scaled down version.
+        if (display != null) display.repaint();
     }
     
     public ThumbnailProvider(ImageSummary is)
     {
-        
+        imgInfo = is;
+        computeDims();
     }
     
-    public int getWidth() { return 128; }
+    public int getWidth() { return width; }
     
-    public int getHeight() { return 97; }
+    public int getHeight() { return height; }
     
     public BufferedImage getImageFor(ImageNode node) 
     { 
-        return getImage("t1_128x97.jpg", 128, 97); 
+        display = node;
+        return displayThumb; 
     }
-
 
 }
