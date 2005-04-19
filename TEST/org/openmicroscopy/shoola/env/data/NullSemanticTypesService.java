@@ -236,41 +236,41 @@ public class NullSemanticTypesService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void updateImageAnnotation(AnnotationData data, int imgID)
+    public boolean updateImageAnnotation(AnnotationData data, int imgID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-        
+        return true;
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#updateDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void updateDatasetAnnotation(AnnotationData data, int datasetID)
+    public boolean updateDatasetAnnotation(AnnotationData data, int datasetID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-        
+        return true;
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#removeImageAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void removeImageAnnotation(AnnotationData data)
+    public boolean removeImageAnnotation(AnnotationData data)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-        
+        return true;
     }
 
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#removeDatasetAnnotation(org.openmicroscopy.shoola.env.data.model.AnnotationData)
      */
-    public void removeDatasetAnnotation(AnnotationData data)
+    public boolean removeDatasetAnnotation(AnnotationData data)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-        
+        return true;
     }
 
     /* (non-Javadoc)
@@ -346,7 +346,7 @@ public class NullSemanticTypesService
     /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveICGHierarchy(java.util.List)
      */
-    public List retrieveICGHierarchy(List imageSummaries)
+    public List retrieveCGCIHierarchy(List imageSummaries)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub

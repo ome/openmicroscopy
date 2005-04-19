@@ -557,16 +557,6 @@ public class NullDataManagementService
         
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveIDPHierarchy(java.util.List)
-     */
-    public List retrieveIDPHierarchy(List imageSummaries)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /*
      *  (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.DataManagementService#
@@ -746,6 +736,16 @@ public class NullDataManagementService
      */
     public DatasetSummaryLinked retrieveDatasetTree(int datasetID, 
             boolean annotated)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveIDPHierarchy(java.util.List, boolean)
+     */
+    public List retrievePDIHierarchy(List imageSummaries, boolean annotated)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
