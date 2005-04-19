@@ -95,11 +95,20 @@ public interface Browser
     public void setSelectedDisplay(ImageDisplay node);
     
     /**
-     * Returns a set of all image Object within the browser.
+     * Returns all the hierarchy objects that are linked to the any of the
+     * {@link ImageNode}s in the visualization trees hosted by the browser.
      * 
-     * @return set of imageNodes.
+     * @return A set of <code>Object</code>s.
      */
     public Set getImages();
+    
+    /**
+     * Returns all the {@link ImageNode}s in the visualization trees hosted
+     * by the browser.
+     * 
+     * @return A set of {@link ImageNode} objects.
+     */
+    public Set getImageNodes();
     
     /**
      * Returns the node, if any, that is currently selected in the 

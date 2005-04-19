@@ -140,6 +140,17 @@ class BrowserModel
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getSelectedDisplay()
      */
+    public Set getImageNodes()
+    { 
+        ImageFinder finder = new ImageFinder();
+        accept(finder);
+        return finder.getImageNodes(); 
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDisplay()
+     */
     public ImageDisplay getSelectedDisplay() { return selectedDisplay; }
 
     /**
