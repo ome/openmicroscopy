@@ -45,12 +45,14 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -74,6 +76,37 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class HiTranslator
 {
     
+    private static final String UNCLASSIFIED = "Wild and free images.";
+    
+    /** Format the toolTip of the specified node. */
+    private static void formatToolTipFor(ImageDisplay node, 
+            AnnotationData data)
+    {
+        String toolTip = "";
+        if (data != null)
+            toolTip = UIUtilities.makeParagraph(node.getTitle(), 
+                    data.getAnnotation(), UIUtilities.TABLE_WIDTH);
+        else toolTip = UIUtilities.formatToolTipText(node.getTitle());  
+        node.setTitleBarToolTip(toolTip);
+    }
+    
+    /** 
+     * Transforms each {@link ImageSummary} object into a visualisation object
+     * i.e. {@link ImageNode}.
+     * Then adds the newly create {@link ImageNode} to the specified 
+     * {@link ImageSet parent}. 
+     * 
+     * @param is Dataobject to transform  List of ImageSummary.
+     * @param parent 
+     */
+    private static void linkImageTo(ImageSummary is, ImageSet parent)
+    {
+        ImageNode node = new ImageNode(is.getName(), is, 
+                new ThumbnailProvider(is));
+        formatToolTipFor(node, is.getAnnotation());
+        parent.addChildDisplay(node);
+    }
+    
     /** 
      * Transforms each {@link ImageSummary} object contained in the specified
      * list into a visualisation object i.e. {@link ImageNode}.
@@ -84,19 +117,12 @@ public class HiTranslator
      * @param   Visualisation object corresponding to the DataObject containing
      *          the images.
      */
-    private static void linkImagesToContainer(List images, ImageSet parent)
+    private static void linkImagesTo(List images, ImageSet parent)
     {
         if (images == null || parent == null) return;
         Iterator i = images.iterator();
-        //DataObject
-        ImageSummary is;
-        //Visualisation object
-        ImageNode node;
-        while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            node = new ImageNode(is.getName(), is, new ThumbnailProvider(is));
-            parent.addChildDisplay(node);
-        }
+        while (i.hasNext()) 
+            linkImageTo((ImageSummary) i.next(), parent);
     }
     
     /** 
@@ -117,11 +143,76 @@ public class HiTranslator
         if (uo instanceof DatasetSummaryLinked) {
             DatasetSummaryLinked ds = (DatasetSummaryLinked) uo;
             node = new ImageSet(ds.getName(), ds);
-            linkImagesToContainer(ds.getImages(), node);
+            formatToolTipFor(node, ds.getAnnotation());
+            linkImagesTo(ds.getImages(), node);
+        } else if (uo instanceof CategoryData) {
+            CategoryData data = (CategoryData) uo;
+            node = new ImageSet(data.getName(), data);
+            formatToolTipFor(node, null);
+            linkImagesTo(data.getImages(), node);
         }
         return node;
     }
     
+    /** 
+     * Transforms a list of DataObjects into theirs corresponding visualization
+     * object. The elements of the list can be either 
+     * {@link ProjectSummary}, {@link DatasetSummaryLinked} or 
+     * {@link ImageSummary}.
+     * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
+     * 
+     * @param dataObjects   List of dataObjects to transform.
+     * @return See above.
+     */
+    public static Set transformHierarchy(List dataObjects)
+    {
+        if (dataObjects == null) throw new NullPointerException("No objects.");
+        Set results = new HashSet();
+        Iterator i = dataObjects.iterator();
+        DataObject ho;
+        ImageSet unclassified = null;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof ProjectSummary)
+                results.add(getFirstElement(transformProject(ho)));
+            else if (ho instanceof DatasetSummaryLinked)
+                results.add(getFirstElement(transformDataset(ho)));
+            else if (ho instanceof CategoryGroupData)
+                results.add(getFirstElement(
+                        transformCategoryGroup((CategoryGroupData) ho)));
+            else if (ho instanceof CategoryData)
+                results.add(getFirstElement(
+                        transformCategory((CategoryData) ho)));
+            else if (ho instanceof ImageSummary) {
+                if (unclassified == null) {
+                    unclassified = new ImageSet(UNCLASSIFIED, new Object());
+                    formatToolTipFor(unclassified, null);
+                }
+                linkImageTo((ImageSummary) ho, unclassified);
+            }
+        }
+        if (unclassified != null) results.add(unclassified);
+        return results;
+    }
+    /** 
+     * Return the first element in the specified set. 
+     * Return <code>null</code> if the set is empty.
+     * 
+     * @param set
+     * @return
+     */
+    private static ImageDisplay getFirstElement(Set set)
+    {
+        if (set == null) return null;
+        ImageDisplay display = null;
+        Iterator i = set.iterator();
+        while (i.hasNext()) {
+            display = (ImageDisplay) i.next();
+            break;  
+        }
+        return display;
+        
+    }
     /**
      * Transforms a Projects/Datasets/Images hierarchy into a visualisation
      * tree. 
@@ -142,6 +233,7 @@ public class HiTranslator
         while (i.hasNext()) {
             ps = (ProjectSummary) i.next();
             project = new ImageSet(ps.getName(), ps);
+            formatToolTipFor(project, null);
             datasets = ps.getDatasets();
             if (datasets != null) {
                 j = datasets.iterator();
@@ -221,22 +313,18 @@ public class HiTranslator
         Iterator i = groups.iterator(), j;
         //DataObject
         CategoryGroupData  cgData;
-        CategoryData cData;
         //Visualisation object.
-        ImageSet group, category;  
+        ImageSet group;  
         List categories;
         while (i.hasNext()) {
             cgData = (CategoryGroupData) i.next();
             group = new ImageSet(cgData.getName(), cgData);
+            formatToolTipFor(group, null);
             categories = cgData.getCategories();
             if (categories != null) {
                 j = categories.iterator();
-                while (j.hasNext()) {
-                    cData = (CategoryData) j.next();
-                    category = new ImageSet(cData.getName(), cData);
-                    group.addChildDisplay(category);
-                    linkImagesToContainer(cData.getImages(), category);
-                }
+                while (j.hasNext())
+                    group.addChildDisplay(linkImages((DataObject) j.next()));
             }
             results.add(group); //add the group ImageSet 
         }
@@ -276,7 +364,8 @@ public class HiTranslator
         while (i.hasNext()) {
             data = (CategoryData) i.next();
             parent = new ImageSet(data.getName(), data);
-            linkImagesToContainer(data.getImages(), parent);
+            formatToolTipFor(parent, null);
+            linkImagesTo(data.getImages(), parent);
             results.add(parent);
         }
         return results;
