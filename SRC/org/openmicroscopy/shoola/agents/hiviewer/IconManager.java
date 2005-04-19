@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Java imports
 
 //Third-party libraries
-
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
@@ -123,11 +122,14 @@ public class IconManager
     /** ID of the save icon. */
     public static final int     TREE_LAYOUT = 19;
     
+    /** ID of the save icon. */
+    public static final int     STATUS_INFO = 20;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 19;
+    private static int          MAX_ID = 20;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -146,12 +148,13 @@ public class IconManager
         relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
         relPaths[ANNOTATED] = "annotated_image16.png";
-        relPaths[CLEAR] = "minus.png";
+        relPaths[CLEAR] = "eclipse_clear_co16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[FILTER_W_ANNOTATION] = "eclipse_filter_ps16.png";
         relPaths[FILTER_W_TITLE] = "eclipse_filter_ps16.png";
         relPaths[SQUARY_LAYOUT] = "OpenOffice_stock_3d-texture-16.png";
         relPaths[TREE_LAYOUT] = "eclipse_hierarchy_co16.png";
+        relPaths[STATUS_INFO] = "nuvola_hwinfo16.png";
     }
     
     /** The sole instance. */
