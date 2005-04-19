@@ -218,22 +218,26 @@ public class Annotator
         String title = "";
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
+            boolean b = false;
             switch (annotationIndex) {
                 case DATASET:
                     title = "Update dataset annotation";
-                    sts.updateDatasetAnnotation(data, annotatedDatasetID);
+                    b = sts.updateDatasetAnnotation(data, annotatedDatasetID);
                     //Eventually post a DatasetAnnotation event.
                     break;
                 case IMAGE:
                     title = "Update image annotation";
                     setDataToSave(data, saveIndex);
-                    sts.updateImageAnnotation(data, annotatedImageID);
+                    b = sts.updateImageAnnotation(data, annotatedImageID);
                     break;
             }
             UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo(title, MSG_UPDATE, 
-                        im.getIcon(IconManager.SEND_TO_DB));
+            if (b) {
+                IconManager im = IconManager.getInstance(registry);
+                un.notifyInfo(title, MSG_UPDATE, 
+                            im.getIcon(IconManager.SEND_TO_DB));
+            } else
+                un.notifyError(title, "cannot update the object.");
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
@@ -300,20 +304,23 @@ public class Annotator
         String title = "";
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
+            boolean b = false;
             switch (annotationIndex) {
                 case DATASET:
                     title = "Delete dataset annotation";
-                    sts.removeDatasetAnnotation(data);
+                    b = sts.removeDatasetAnnotation(data);
                     break;
                 case IMAGE:
                     title = "Delete image annotation";
-                    sts.removeImageAnnotation(data);
+                    b = sts.removeImageAnnotation(data);
                     break;
             }
             UserNotifier un = registry.getUserNotifier();
-            IconManager im = IconManager.getInstance(registry);
-            un.notifyInfo(title, MSG_DELETE, 
-                            im.getIcon(IconManager.SEND_TO_DB));
+            if (b) {
+                IconManager im = IconManager.getInstance(registry);
+                un.notifyInfo(title, MSG_DELETE, 
+                                im.getIcon(IconManager.SEND_TO_DB));
+            } else un.notifyError(title, "cannot delete the object.");
         } catch(DSAccessException dsa) {
             UserNotifier un = registry.getUserNotifier();
             un.notifyError("Server Error", dsa.getMessage(), dsa);
