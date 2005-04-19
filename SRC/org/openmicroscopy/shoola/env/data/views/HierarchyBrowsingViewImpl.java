@@ -36,6 +36,9 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -84,6 +87,32 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = 
                         new ThumbnailLoader(imgSummaries, maxWidth, maxHeight);
+        CallHandle handle = cmd.exec(observer);
+        return handle;
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#findPDIHierarchies(Set, AgentEventListener)
+     */
+    public CallHandle findPDIHierarchies(Set imgSummaries, 
+                                         AgentEventListener observer)
+    {
+        BatchCallTree cmd = 
+                        new HierarchyFinder(ProjectSummary.class, imgSummaries);
+        CallHandle handle = cmd.exec(observer);
+        return handle;
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, AgentEventListener)
+     */
+    public CallHandle findCGCIHierarchies(Set imgSummaries, 
+                                          AgentEventListener observer)
+    {
+        BatchCallTree cmd = 
+                    new HierarchyFinder(CategoryGroupData.class, imgSummaries);
         CallHandle handle = cmd.exec(observer);
         return handle;
     }

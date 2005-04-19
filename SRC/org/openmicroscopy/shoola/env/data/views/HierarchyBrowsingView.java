@@ -81,7 +81,69 @@ public interface HierarchyBrowsingView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadHierarchy(Class rootNodeType, int nodeID,
-                                        AgentEventListener observer);
+                                    AgentEventListener observer);
+    
+    /**
+     * Finds the data trees in the Project/Dataset/Image (P/D/I) hierarchy that 
+     * contain the specified images. 
+     * <p>This method will look for all the Datasets containing the specified 
+     * Images (represented by the passed in <code>ImageSummary</code>s) and then
+     * all Projects containing those Datasets.  Projects will be represented by
+     * <code>ProjectSummary</code>s and Datasets by <code>DatasetSummaryLinked
+     * </code> objects &#151; dataset annotations are retrieved too.</p>
+     * <p>The object returned in the <code>DSCallOutcomeEvent</code> will be a
+     * <code>Set</code> with all root nodes that were found.  Every root node
+     * is linked to the found objects and so on until the leaf nodes, which are
+     * the <i>passed in</i> <code>ImageSummary</code>s.  Note that the type of
+     * any root node in the returned set can be <code>ProjectSummary</code>, 
+     * <code>DatasetSummaryLinked</code>, or <code>ImageSummary</code>.</p>
+     * <p>For example, say that you pass in six <code>ImageSummary</code>s:
+     * <code>i1, i2, i3, i4, i5, i6</code>.  If the P/D/I hierarchy in the DB
+     * looks like this:</p>
+     * <pre>        
+     *                __p1__
+     *               /      \    
+     *             _d1_    _d2_      d3
+     *            /    \  /    \     |
+     *           i1     i2     i3    i4    i5  i6
+     * </pre>
+     * <p>Then the returned set will contain <code>p1, d3, i5, i6</code>.  All
+     * objects will be properly linked to the <code>i1, i2, i3, i4, i5, i6
+     * </code> objects you passed in to this method &#151; <code>p1, d1, d2, d3
+     * </code> will obvioulsy be new objects though.</p>
+     * <p>Finally, this method will <i>only</i> retrieve the nodes that are 
+     * connected in a tree to the specified leaf image nodes.  Back to the
+     * previous example, if <code>d1</code> contained image <code>img500</code>,
+     * then the returned object would <i>not</i> contain <code>img500</code>.
+     * In a similar way, if <code>p1</code> contained <code>ds300</code> and 
+     * this dataset weren't linked to any of the <code>i1, i2, i3, i4, i5, i6
+     * </code> images, then <code>ds300</code> would <i>not</i> be part of the
+     * returned tree rooted by <code>p1</code>.</p>
+     * 
+     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
+     *                     for each leaf image node.
+     * @param observer     Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle findPDIHierarchies(Set imgSummaries,
+                                         AgentEventListener observer);
+    
+    /**
+     * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
+     * hierarchy that contain the specified images.
+     * This method is the analogous of the 
+     * {@link #findPDIHierarchies(Set, AgentEventListener) findPDIHierarchies}
+     * method for the Category Group/Category/Image hierarchy.  The semantics
+     * is exaclty the same, so refer to that method's documentation for the
+     * gory details.
+     * 
+     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
+     *                     for each leaf image node.
+     * @param observer     Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle findCGCIHierarchies(Set imgSummaries,
+                                          AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>ImageSummary</code> object.
@@ -89,8 +151,8 @@ public interface HierarchyBrowsingView
      * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
      * Each thumbnail will be posted in a single event; the <code>observer
      * </code> can then call the <code>getPartialResult</code> method to 
-     * retrieve a <code>BufferedImage</code> for that thumbnail.  The final
-     * <code>DSCallOutcomeEvent</code> will have no result.
+     * retrieve a <code>ThumbnailData</code> object for that thumbnail.  The 
+     * final <code>DSCallOutcomeEvent</code> will have no result.
      * Thumbnails are generated respecting the <code>X/Y</code> ratio of the
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
