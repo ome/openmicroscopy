@@ -72,7 +72,9 @@ public class ViewPDIAction
     public ViewPDIAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        setEnabled(false);
+        //setEnabled(false);  
+        //TODO: restore the above.  This is just a TMP hack b/c browser is
+        //not firing selectedDisplay change events.
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
