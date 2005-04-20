@@ -172,10 +172,10 @@ public class HiViewerAgent
                 loader = new DatasetLoader(this, hiViewer, id);
                 break;
             case Browse.CATEGORY_GROUP:
-                loader = new ProjectLoader(this, hiViewer, id);
+                loader = new CategoryGroupLoader(this, hiViewer, id);
                 break;
             case Browse.CATEGORY:
-                loader = new ProjectLoader(this, hiViewer, id);
+                loader = new CategoryLoader(this, hiViewer, id);
                 break;             
         }
         if (loader != null) loader.load();
