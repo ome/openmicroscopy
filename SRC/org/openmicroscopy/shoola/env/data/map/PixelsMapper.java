@@ -64,21 +64,32 @@ public class PixelsMapper
 
 		//Specify which fields we want for the image.
 		criteria.addWantedField("default_pixels");
-		
-		//Specify which fields we want for the pixels.
-		criteria.addWantedField("default_pixels", "SizeX");
-		criteria.addWantedField("default_pixels", "SizeY");
-		criteria.addWantedField("default_pixels", "SizeZ");
-		criteria.addWantedField("default_pixels", "SizeC");
-		criteria.addWantedField("default_pixels", "SizeT");
-		criteria.addWantedField("default_pixels", "PixelType");	
-		criteria.addWantedField("default_pixels", "Repository");
-		criteria.addWantedField("default_pixels", "ImageServerID");
-		criteria.addWantedField("default_pixels.Repository", "ImageServerURL");
-		criteria.addFilter("id", new Integer(imageID));
+		fieldsForPixels(criteria, "default_pixels");
+        criteria.addFilter("id", new Integer(imageID));
 		return criteria;
 	}
 	
+    /** 
+     * Specify the wanted fields for pixels, and add them to the specified
+     * criteria.
+     * 
+     * @param c Specified criteria.         
+     * @param columnName    name of the column.
+     */
+    public static void fieldsForPixels(Criteria c, String columnName)
+    {
+        c.addWantedField(columnName, "SizeX");
+        c.addWantedField(columnName, "SizeY");
+        c.addWantedField(columnName, "SizeZ");
+        c.addWantedField(columnName, "SizeC");
+        c.addWantedField(columnName, "SizeT");
+        c.addWantedField(columnName, "PixelType"); 
+        c.addWantedField(columnName, "Repository");
+        c.addWantedField(columnName, "ImageServerID");
+        String rep = columnName+".Repository";
+        c.addWantedField(rep, "ImageServerURL");
+    }
+    
     /** 
      * Build criteria to retrieve the real pixel dimensions
      * 

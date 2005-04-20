@@ -131,6 +131,9 @@ public class CategoryMapper
         c.addWantedField("CategoryList.ClassificationList.image", "created");
         c.addWantedField("CategoryList.ClassificationList.image", 
                     "default_pixels");
+        PixelsMapper.fieldsForPixels(c, 
+                "CategoryList.ClassificationList.image.default_pixels");
+        /*
         c.addWantedField("CategoryList.ClassificationList.image.default_pixels",
                     "ImageServerID");
         c.addWantedField("CategoryList.ClassificationList.image.default_pixels", 
@@ -138,7 +141,7 @@ public class CategoryMapper
         c.addWantedField(
             "CategoryList.ClassificationList.image.default_pixels.Repository",
                                 "ImageServerURL");
-
+        */                       
         if (groupID != -1) c.addFilter("id", new Integer(groupID));
         if (userID != -1) 
             c.addFilter("module_execution.experimenter_id", 
@@ -382,8 +385,8 @@ public class CategoryMapper
             if (classification.isValid() != null && 
                     classification.isValid().equals(Boolean.TRUE)) {
                 cData = buildClassificationData(classification);
-                is = new ImageSummary();
-                ImageMapper.buildImageSummary(classification.getImage(), is);
+                is = ImageMapper.buildImageSummary(classification.getImage(), 
+                        null);
                 map.put(is, cData); 
             }
         }

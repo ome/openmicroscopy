@@ -90,11 +90,8 @@ public class ProjectMapper
         c.addWantedField("datasets.images", "default_pixels");
         
         //Specify which fields we want for the pixels.
-        c.addWantedField("datasets.images.default_pixels", "ImageServerID"); 
-        c.addWantedField("datasets.images.default_pixels", "Repository");
-        c.addWantedField("datasets.images.default_pixels.Repository", 
-                        "ImageServerURL");      
-        
+        PixelsMapper.fieldsForPixels(c, "datasets.images.default_pixels");
+
         if (projectIDs != null) c.addFilter("id", "IN", projectIDs);
         return c;
     }
@@ -420,7 +417,15 @@ public class ProjectMapper
 		
 		return projectsList;
 	}
-	/** Fill in a project data object.*/
+    
+	/**
+     * Fill in a {@link ProjectSummary} object.
+     * 
+	 * @param p        Remote object.
+	 * @param datasets List of DatasetSummary object to add to the new project.
+	 * @param pProto   Prototype.
+	 * @return
+	 */
 	public static List fillNewProject(Project p, List datasets, 
 										ProjectSummary pProto)
 	{
@@ -436,9 +441,24 @@ public class ProjectMapper
 		return ids;
 	}
     
+    /** 
+     * Fill in the project tree.
+     * 
+     * @param projects  List of remote Project objects.
+     * @param results   Empty list to fill in with {@link ProjectSummary} 
+     *                  objects.
+     * @param projectIDs
+     * @param dsAnnotations List of datasetAnnotation. Can be <code>null</code>.
+     * @param isAnnotations List of imageAnnotation. Can be <code>null</code>.
+     */
     public static void fillProjectsTree(List projects, List results, 
-                            List projectIDs)
+                            List projectIDs, List dsAnnotations, 
+                            List isAnnotations)
     {
+        Map imgAnnotated = 
+            AnnotationMapper.reverseListImageAnnotations(isAnnotations);
+        Map dAnnotated = 
+            AnnotationMapper.reverseListDatasetAnnotations(dsAnnotations);
         Iterator i = projects.iterator(), j, k;
         Map datasetsMap = new HashMap(), imagesMap = new HashMap();
         Project p;
@@ -465,6 +485,8 @@ public class ProjectMapper
                         ds.setID(d.getID());
                         ds.setName(d.getName());
                         datasetsMap.put(id, ds);
+                        ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
+                                (DatasetAnnotation) dAnnotated.get(id)));
                     }  //object already created this object.
                     //Add the dataset to this project's list.
                     datasets.add(ds);   
@@ -476,7 +498,10 @@ public class ProjectMapper
                         idImg = new Integer(img.getID());
                         is = (ImageSummary) imagesMap.get(idImg);
                         if (is == null) {
-                            is = DatasetMapper.fillImageSummary(img);
+                            is = ImageMapper.buildImageSummary(img, null);
+                            is.setAnnotation(
+                                    AnnotationMapper.fillImageAnnotation(
+                                    (ImageAnnotation) imgAnnotated.get(idImg)));
                             imagesMap.put(idImg, is);
                         }
                         images.add(is);
@@ -489,78 +514,5 @@ public class ProjectMapper
             }
         }
     }
-	
-    /** 
-     * Build a project-dataset-image hierarchy and specified
-     * the annotated datasets and images.
-     * 
-     * @param projects
-     * @param results
-     * @param projectIDs
-     * @param dsAnnotations
-     * @param isAnnotations
-     */
-    public static void fillProjectsTree(List projects, List results, 
-            List projectIDs, List dsAnnotations, List isAnnotations)
-    {
-        Map imgAnnotated = 
-                AnnotationMapper.reverseListImageAnnotations(isAnnotations);
-        Map dAnnotated = 
-                AnnotationMapper.reverseListDatasetAnnotations(dsAnnotations);
-        Iterator i = projects.iterator(), j, k;
-        Map datasetsMap = new HashMap(), imagesMap = new HashMap();
-        Project p;
-        List datasets, images;
-        ProjectSummary ps;
-        Dataset d;
-        DatasetSummaryLinked ds;
-        ImageSummary is;
-        Image img;
-        Integer id, idImg;
-        while (i.hasNext()) {
-        p = (Project) i.next();
-        if (projectIDs.contains(new Integer(p.getID()))) {
-        ps = new ProjectSummary(p.getID(), p.getName());
-        datasets = new ArrayList();
-        j = p.getDatasets().iterator();
-        while (j.hasNext()) {
-            d = (Dataset) j.next();
-            id = new Integer(d.getID());
-            ds = (DatasetSummaryLinked) datasetsMap.get(id);
-            if (ds == null) {
-                //Make a new DataObject and fill it up.
-                ds = new DatasetSummaryLinked(); 
-                ds.setID(d.getID());
-                ds.setName(d.getName());
-                ds.setAnnotation(AnnotationMapper.fillDatasetAnnotation(
-                        (DatasetAnnotation) dAnnotated.get(id)));
-                datasetsMap.put(id, ds);
-            }  //object already created this object.
-            //Add the dataset to this project's list.
-            datasets.add(ds);   
-            //Add images to the dataset
-            images = new ArrayList();
-            k = d.getImages().iterator();
-            while (k.hasNext()) {
-                img = (Image) k.next();
-                idImg = new Integer(img.getID());
-                is = (ImageSummary) imagesMap.get(idImg);
-                if (is == null) {
-                    is = DatasetMapper.fillImageSummary(img);
-                    is.setAnnotation(AnnotationMapper.fillImageAnnotation(
-                            (ImageAnnotation) imgAnnotated.get(idImg)));
-                    imagesMap.put(idImg, is);
-                }
-                images.add(is);
-            }
-            ds.setImages(images);
-        }
-        //Link the datasets to this project.
-        ps.setDatasets(datasets);
-        results.add(ps);
-        }
-        }
-    }
-    
     
 }

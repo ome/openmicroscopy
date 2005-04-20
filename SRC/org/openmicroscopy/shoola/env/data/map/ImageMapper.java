@@ -75,7 +75,68 @@ import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
  */
 public class ImageMapper
 {
-	
+    
+    /** 
+     * Fill in the PixelDescription object.
+     * @return List of pixelDescription object.
+     */ 
+    private static List fillPixels(Pixels px)
+    {
+        List pixels = new ArrayList();
+        if (px == null) return pixels;
+        PixelsDescription pxd = new PixelsDescription();
+        pxd.setID(px.getID());
+        if (px.getSizeX() != null) pxd.setSizeX((px.getSizeX()).intValue());
+        if (px.getSizeY() != null) pxd.setSizeY((px.getSizeY()).intValue());
+        if (px.getSizeZ() != null) pxd.setSizeZ((px.getSizeZ()).intValue());
+        if (px.getSizeC() != null) pxd.setSizeC((px.getSizeC()).intValue());
+        if (px.getSizeT() != null) pxd.setSizeT((px.getSizeT()).intValue());
+        pxd.setPixelType(px.getPixelType());
+        pxd.setImageServerUrl(px.getRepository().getImageServerURL());
+        if (px.getImageServerID() != null)
+            pxd.setImageServerID((px.getImageServerID()).longValue());
+        pxd.setPixels(px);
+        pixels.add(pxd);
+        return pixels;
+    }
+    
+    /** Fill an array of pixels ID. */
+    private static int[] fillListPixelsID(Pixels px)
+    {
+        int[] ids = new int[1];
+        if (px == null) return ids;
+        ids[0] = px.getID();
+        return ids;
+    }
+    
+    private static Criteria buildBasicImagesCriteria()
+    {
+        Criteria c = new Criteria();
+        
+        //Specify which fields we want for the image.
+        c.addWantedField("name");
+        c.addWantedField("created");
+        //Specify which fields we want for the pixels.
+        c.addWantedField("default_pixels");
+        PixelsMapper.fieldsForPixels(c, "default_pixels");
+        return c;
+    }
+    
+    /** Build an image summary object. */
+    static ImageSummary buildImageSummary(Image img, ImageSummary is)
+    {
+        if (is == null) is = new ImageSummary();
+        is.setID(img.getID());
+        is.setName(img.getName());
+       
+        is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
+        is.setPixelsIDs(fillListPixelsID(img.getDefaultPixels()));
+        List pixels = fillPixels(img.getDefaultPixels());
+        if (pixels.size() > 0)
+           is.setDefaultPixels((PixelsDescription) pixels.get(0));
+        return is;
+    }
+    
 	/** 
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for updateImage.
@@ -122,24 +183,17 @@ public class ImageMapper
         return c;
     }
     
+    /** 
+     * Simplest criteria to retrieve a remote Image object. 
+     * 
+     * @param imageID   ID of the remote object to retrieve.
+     */
     public static Criteria buildBasicImageCriteria(int imageID)
     {
         Criteria c = new Criteria();
         c.addWantedField("name");
         if (imageID != -1) c.addFilter("id", new Integer(imageID));
         return c;
-    }
-    
-    private static Criteria buildBasicImagesCriteria()
-    {
-        Criteria criteria = new Criteria();
-        
-        //Specify which fields we want for the image.
-        criteria.addWantedField("name");
-        criteria.addWantedField("created");
-        //Specify which fields we want for the pixels.
-        criteria.addWantedField("default_pixels");
-        return criteria;
     }
     
 	/** 
@@ -149,25 +203,31 @@ public class ImageMapper
 	 */
 	public static Criteria buildImageCriteria(int id)
 	{
-		Criteria criteria = PixelsMapper.buildPixelsCriteria(id);
+		Criteria c = PixelsMapper.buildPixelsCriteria(id);
 		
 		//Specify which fields we want for the image.
-  		criteria.addWantedField("name");
-  		criteria.addWantedField("description"); 
-		criteria.addWantedField("inserted"); 
-		criteria.addWantedField("created"); 
-		criteria.addWantedField("owner");	
-		criteria.addWantedField("datasets");
+  		c.addWantedField("name");
+  		c.addWantedField("description"); 
+		c.addWantedField("inserted"); 
+		c.addWantedField("created"); 
+		c.addWantedField("owner");	
+		c.addWantedField("datasets");
 		
 		//Specify which fields we want for the datasets.
-		criteria.addWantedField("datasets", "name");
+		c.addWantedField("datasets", "name");
 
 		//Fields for the owner.
-        UserMapper.objectOwnerCriteria(criteria);
+        UserMapper.objectOwnerCriteria(c);
         
-  		return criteria;
+  		return c;
 	}
 	
+    /**
+     * 
+     * @param g
+     * @param id
+     * @return
+     */
     public static Criteria buildRenderingSettingsCriteria(String g, int id)
     {
         Criteria c = new Criteria();
@@ -235,10 +295,8 @@ public class ImageMapper
 		
 		// pixelsDescription list.
         Pixels defaultPix = image.getDefaultPixels();
-		if (defaultPix != null) {
-            empty.setPixelsIDs(fillListPixelsID(defaultPix));    
-            empty.setPixels(fillPixels(defaultPix));
-        }	
+        empty.setPixelsIDs(fillListPixelsID(defaultPix));    
+        empty.setPixels(fillPixels(defaultPix));	
 	}
 	
 	/**
@@ -263,6 +321,13 @@ public class ImageMapper
 		return imagesList;
 	}
 	
+    /**
+     * 
+     * @param images
+     * @param iProto
+     * @param annotations
+     * @return
+     */
     public static List fillListImages(List images, ImageSummary iProto, 
                                       List annotations)
     {
@@ -291,10 +356,11 @@ public class ImageMapper
     }
     
 	/**
-     * Build the logical channel object
+     * Build the logical channel objects.
+     * 
      * @param pccList       PixelChannelComponent list.
      * @param lcList        LogicalChannel List.
-     * @return
+     * @return array of channelData objects.
      */
     public static ChannelData[] fillImageChannelData(List pccList, List lcList)
     {
@@ -490,45 +556,6 @@ public class ImageMapper
         }
         return valid;
     }
-    
-	/** 
-	 * Fill in the PixelDescription object.
-	 * @return List of pixelDescription object.
-	 */ 
-	private static List fillPixels(Pixels px)
-	{
-		List pixels = new ArrayList();
-		PixelsDescription pxd = new PixelsDescription();
-		pxd.setID(px.getID());
-		if (px.getSizeX() != null) pxd.setSizeX((px.getSizeX()).intValue());
-		if (px.getSizeY() != null) pxd.setSizeY((px.getSizeY()).intValue());
-		if (px.getSizeZ() != null) pxd.setSizeZ((px.getSizeZ()).intValue());
-		if (px.getSizeC() != null) pxd.setSizeC((px.getSizeC()).intValue());
-		if (px.getSizeT() != null) pxd.setSizeT((px.getSizeT()).intValue());
-		pxd.setPixelType(px.getPixelType());
-		pxd.setImageServerUrl(px.getRepository().getImageServerURL());
-		if (px.getImageServerID() != null)
-			pxd.setImageServerID((px.getImageServerID()).longValue());
-        pxd.setPixels(px);
-		pixels.add(pxd);
-		return pixels;
-	}
-	
-    /** Build an image summary object. */
-    static void buildImageSummary(Image img, ImageSummary is)
-    {
-        is.setID(img.getID());
-        is.setName(img.getName());
-        is.setPixelsIDs(fillListPixelsID(img.getDefaultPixels()));
-        is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
-        //is.setImageServerPixelsID(fillListPixelsID(px));
-    }
-    
-	private static int[] fillListPixelsID(Pixels px)
-	{
-		int[] ids = new int[1];
-		ids[0] = px.getID();
-		return ids;
-	}
+
 	
 }

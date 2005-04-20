@@ -46,12 +46,10 @@ import org.openmicroscopy.ds.st.DatasetAnnotation;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.Group;
 import org.openmicroscopy.ds.st.ImageAnnotation;
-import org.openmicroscopy.ds.st.Pixels;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 
 /** 
  * 
@@ -88,10 +86,7 @@ public class DatasetMapper
         c.addWantedField("images", "default_pixels");
         
         //Specify which fields we want for the pixels.
-        c.addWantedField("images.default_pixels", "ImageServerID"); 
-        c.addWantedField("images.default_pixels", "Repository");
-        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");      
-
+        PixelsMapper.fieldsForPixels(c, "images.default_pixels");
         if (datasetIDs != null) c.addFilter("id", "IN", datasetIDs);
         return c;
     }
@@ -152,12 +147,8 @@ public class DatasetMapper
 		c.addWantedField("images", "name");
         c.addWantedField("images", "created");
 		c.addWantedField("images", "default_pixels");
-		
 		//Specify which fields we want for the pixels.
-		c.addWantedField("images.default_pixels", "ImageServerID"); 
-		c.addWantedField("images.default_pixels", "Repository");
-		c.addWantedField("images.default_pixels.Repository", "ImageServerURL");		
-
+        PixelsMapper.fieldsForPixels(c, "images.default_pixels");
         //Add filter
 		c.addFilter("owner_id", new Integer(userID));
 		c.addFilter("name", "NOT LIKE", "ImportSet");
@@ -181,10 +172,8 @@ public class DatasetMapper
         c.addWantedField("images", "created");
 		c.addWantedField("images", "default_pixels");
 		
-		//Specify which fields we want for the pixels
-		c.addWantedField("images.default_pixels", "ImageServerID");
-        c.addWantedField("images.default_pixels", "Repository");
-        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");
+		//Specify which fields we want for the pixels.
+        PixelsMapper.fieldsForPixels(c, "images.default_pixels");
         if (datasetIDs != null) c.addFilter("id", "IN", datasetIDs);
         UserMapper.setFilters(c, filters, complexFilters);
 		return c;
@@ -221,10 +210,7 @@ public class DatasetMapper
 		c.addWantedField("images", "default_pixels");
 		
 		//Specify which fields we want for the pixels.
-		c.addWantedField("images.default_pixels", "ImageServerID");
-        c.addWantedField("images.default_pixels", "Repository");
-        c.addWantedField("images.default_pixels.Repository", "ImageServerURL");
-
+        PixelsMapper.fieldsForPixels(c, "images.default_pixels");
 		//Filter by ID.
 		c.addFilter("id", new Integer(id));
 		return c;
@@ -261,7 +247,7 @@ public class DatasetMapper
 		List images = new ArrayList();
 		Iterator i = dataset.getImages().iterator();
 		while (i.hasNext()) 
-			images.add(fillImageSummary((Image) i.next()));
+			images.add(ImageMapper.buildImageSummary((Image) i.next(), null));
 		
 		empty.setImages(images);	
 	}
@@ -300,11 +286,10 @@ public class DatasetMapper
 		
 		if (dsImages != null && dsImages.size() > 0) {
 			Iterator i = dsImages.iterator();
-			Image img;
+            ImageSummary is;
 			while (i.hasNext()) {
-				img = (Image) i.next();
-				ImageSummary is = (ImageSummary) iProto.makeNew();
-				fillImageSummary(img, is);
+				is = (ImageSummary) iProto.makeNew();
+				ImageMapper.buildImageSummary((Image) i.next(), is);
 				images.add(is);
 			}
 			empty.setImages(images);
@@ -361,7 +346,7 @@ public class DatasetMapper
                     if (is == null) {
                         //Make a new DataObject and fill it up.
                         is = (ImageSummary) iProto.makeNew();
-                        fillImageSummary(image, is);
+                        ImageMapper.buildImageSummary(image, is);
                         //Add the image summary object to the list.
                         images.add(is);
                         map.put(imageID, is);
@@ -398,9 +383,10 @@ public class DatasetMapper
                         if (is == null) {
                             //Make a new DataObject and fill it up.
                             is = (ImageSummary) iProto.makeNew();
-                            fillImageSummary(image, is);
+                            ImageMapper.buildImageSummary(image, is);
                             is.setAnnotation(
-                                AnnotationMapper.fillImageAnnotation(annotation));
+                                    AnnotationMapper.fillImageAnnotation(
+                                            annotation));
                             //Add the image summary object to the list.
                             images.add(is);
                             map.put(imageID, is);
@@ -448,7 +434,7 @@ public class DatasetMapper
             image = (Image) i.next();
             //Make a new DataObject and fill it up.
             is = (ImageSummary) iProto.makeNew();
-            fillImageSummary(image, is);
+            ImageMapper.buildImageSummary(image, is);
             id = image.getID();
             is.setAnnotation(AnnotationMapper.fillImageAnnotation(
                     (ImageAnnotation) ids.get(new Integer(id))));
@@ -509,6 +495,12 @@ public class DatasetMapper
 		return datasetsList;
 	}
     
+    /**
+     * 
+     * @param datasets
+     * @param results
+     * @param datasetIDs
+     */
     public static void fillDatasetsTree(List datasets, List results, 
                                         List datasetIDs)
     {
@@ -535,7 +527,7 @@ public class DatasetMapper
                     id = new Integer(img.getID());
                     is = (ImageSummary) imagesMap.get(id);
                     if (is == null) {
-                        is = fillImageSummary(img);
+                        is = ImageMapper.buildImageSummary(img, null);
                         imagesMap.put(id, is);
                     }
                     images.add(is);
@@ -546,6 +538,14 @@ public class DatasetMapper
         }
     }
     
+    /**
+     * 
+     * @param datasets
+     * @param results
+     * @param datasetIDs
+     * @param dsAnnotations
+     * @param isAnnotations
+     */
     public static void fillDatasetsTree(List datasets, List results, 
             List datasetIDs, List dsAnnotations, List isAnnotations)
     {
@@ -579,7 +579,7 @@ public class DatasetMapper
                     id = new Integer(img.getID());
                     is = (ImageSummary) imagesMap.get(id);
                     if (is == null) {
-                        is = fillImageSummary(img);
+                        is = ImageMapper.buildImageSummary(img, null);
                         is.setAnnotation(AnnotationMapper.fillImageAnnotation(
                                 (ImageAnnotation) imgAnnotated.get(id)));
                         imagesMap.put(id, is);
@@ -592,41 +592,4 @@ public class DatasetMapper
         }
     }
     
-    public static ImageSummary fillImageSummary(Image img)
-    {
-        ImageSummary is = new ImageSummary();
-        fillImageSummary(img, is);
-        return is;
-    }
-    
-    private static void fillImageSummary(Image img, ImageSummary is)
-    {
-        is.setID(img.getID());
-        is.setName(img.getName());
-        is.setPixelsIDs(fillListPixelsID(img));
-        is.setDefaultPixels(fillDefaultPixels(img.getDefaultPixels()));
-        is.setDate(PrimitiveTypesMapper.getTimestamp(img.getCreated()));
-    }
-    
-	//	TODO: will be modified as soon as we have a better approach.
-	private static int[] fillListPixelsID(Image image)
-	{
-		int[] ids = new int[1];
-	  	Pixels px = image.getDefaultPixels();
-		ids[0] = px.getID();
-	  	return ids;
-	}
-    
-    private static PixelsDescription fillDefaultPixels(Pixels px)
-    {
-        PixelsDescription pxd = new PixelsDescription();
-        pxd.setID(px.getID());
-        if (px.getImageServerID() != null)
-            pxd.setImageServerID(px.getImageServerID().longValue());
-        if (px.getRepository().getImageServerURL() != null)
-            pxd.setImageServerUrl(px.getRepository().getImageServerURL());
-        pxd.setPixels(px);
-        return pxd;
-    }
-	
 }
