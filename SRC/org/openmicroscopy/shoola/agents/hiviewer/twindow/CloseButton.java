@@ -29,18 +29,18 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.twindow;
 
-import java.awt.Insets;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 
 
 //Java imports
+import java.awt.Insets;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * The close button in the {@link TitleBar}.
@@ -59,17 +59,6 @@ import javax.swing.JButton;
 class CloseButton
     extends JButton
 {
-    
-    //TODO: replace this code with proper code for icons!!!
-    static String DIR = "../graphx/";
-    static ImageIcon CLOSE, CLOSE_OVER;
-    static
-    {
-        java.net.URL imgURL = SizeButton.class.getResource(DIR+"minus.png");
-        CLOSE = new ImageIcon(imgURL);
-        imgURL = SizeButton.class.getResource(DIR+"minus_over.png");
-        CLOSE_OVER = new ImageIcon(imgURL);
-    }
     
     /** 
      * Identifies the close action.
@@ -98,10 +87,11 @@ class CloseButton
      */
     void setActionType(int type)
     {
+        IconManager icons = IconManager.getInstance();
         switch (type) {
             case CLOSE_ACTION:
-                setIcon(CLOSE);
-                setRolloverIcon(CLOSE_OVER);
+                setIcon(icons.getIcon(IconManager.CLOSE));
+                setRolloverIcon(icons.getIcon(IconManager.CLOSE_OVER));
                 setToolTipText(CLOSE_TOOLTIP);
         }
     }
