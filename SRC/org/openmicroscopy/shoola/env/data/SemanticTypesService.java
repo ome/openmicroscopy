@@ -314,12 +314,8 @@ public interface SemanticTypesService
      * Retrieve all category groups.
      * Each CategoryGroup object contains a list of CategorieSummary objects .
      */
-    public List retrieveCategoryGroups()
+    public List retrieveCategoryGroups(boolean annotated)
         throws DSOutOfServiceException, DSAccessException;  
-    
-    public List retrieveCategoryGroups(CategoryGroupData gProto, 
-            CategoryData cProto)
-        throws DSOutOfServiceException, DSAccessException;
 
     /** 
      * Retrieve the categories not contained in the specified group, and 
@@ -334,10 +330,6 @@ public interface SemanticTypesService
      */ 
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException; 
-    
-    public List retrieveCategoriesNotInGroup(CategoryGroupData group, 
-                                            CategoryData cProto)
-        throws DSOutOfServiceException, DSAccessException;
     
     /** 
      * Retrieve a list of images owned by the current user but
@@ -355,26 +347,17 @@ public interface SemanticTypesService
     public List retrieveImagesNotInCategoryGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException;
 
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
+    public List retrieveImagesNotInCategoryGroup(CategoryGroupData group, 
+            Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
     
-    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
-            CategoryData cProto, int catGroupID)
+    public List retrieveImagesNotInCategoryGroup(int catGroupID)
         throws DSOutOfServiceException, DSAccessException;
     
     public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
                                     Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
-    
-    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
-            CategoryData cProto, int catGroupID, Map filters, 
-            Map complexFilters)
-        throws DSOutOfServiceException, DSAccessException;
-    
-    public List retrieveImagesNotInCategoryGroup(CategoryGroupData group, 
-                    Map filters, Map complexFilters)
-        throws DSOutOfServiceException, DSAccessException;
-    
+
     /** 
      * Retrieve a list of images owned by members of the user's group but
      * not contained in the specified category group.
@@ -445,6 +428,42 @@ public interface SemanticTypesService
 
     public List retrieveImagesInSystemNotInCategoryGroup(
             CategoryGroupData group, Map filters, Map complexFilters)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve a CategoryGroup-Category-Images hierarchy for a
+     * specified categoryGroup.
+     * The corresponding DataObjects are:
+     * {@link CategoryGroupData}-{@link CategoryData}-{@link ImageSummary}.
+     * 
+     * @param cgID      Specified categoryGroup.
+     * @param annotated If <code>true</code>, retrieve the annotation for 
+     *                  the images.
+     * @return  Return a {@link CategoryGroupData} object or <code>null</code> 
+     *          if no CategoryGroup is retrieved.
+     * 
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public CategoryGroupData retrieveCategoryGroupTree(int cgID, 
+                                                    boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve a Category-Images hierarchy for a specified category.
+     * The corresponding DataObjects are:
+     * {@link CategoryData}-{@link ImageSummary}.
+     * 
+     * @param cID      Specified category.
+     * @param annotated If <code>true</code>, retrieve the annotation for 
+     *                  the images.
+     * @return  Return a {@link CategoryData} object or <code>null</code> if 
+     *          no Category is retrieved.
+     * 
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public CategoryData retrieveCategoryTree(int cID, boolean annotated)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 

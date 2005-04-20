@@ -1215,13 +1215,13 @@ class DMSAdapter
                             registry.lookup(LookupNames.USER_CREDENTIALS);
         List datasetIDs = ProjectMapper.prepareListDatasetsID(projects);
         List imageIDs = ProjectMapper.prepareListImagesID(projects);
-        if (datasetIDs.size() > LIMIT_FOR_IN) datasetIDs = null;
+        //if (datasetIDs.size() > LIMIT_FOR_IN) datasetIDs = null;
         c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetIDs, 
                 uc.getUserID());
         List dsAnnotations = 
             (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
         //TODO new to use sublist
-        if (imageIDs.size() > LIMIT_FOR_IN) imageIDs = null;
+        //if (imageIDs.size() > LIMIT_FOR_IN) imageIDs = null;
         c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
                 uc.getUserID());
         List isAnnotations = 

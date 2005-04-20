@@ -107,6 +107,155 @@ class STSAdapter
         this.gateway = gateway;
         this.registry = registry;
     }
+
+    /** Save the renderingSettings for the very first time. */
+    private List saveRSFirstTime(int imageID, RenderingDef rDef)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        List l = new ArrayList();
+        ChannelBindings[] channelBindings = rDef.getChannelBindings();
+        int z = rDef.getDefaultZ(), t = rDef.getDefaultT(),
+            model = rDef.getModel();
+        QuantumDef qDef = rDef.getQuantumDef();
+        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd,
+            bitResolution = qDef.bitResolution;
+        RenderingSettings rs;
+        //Need to retrieve the image object.
+        //Define the criteria by which the object graph is pulled out.
+        Criteria c = ImageMapper.buildImageCriteria(imageID);       
+        //Load the graph defined by criteria.
+        Image image = (Image) gateway.retrieveData(Image.class, c);
+        c = UserMapper.getUserStateCriteria();
+        Experimenter experimenter = gateway.getCurrentUser(c);
+        for (int i = 0; i < channelBindings.length; i++) {
+            rs = (RenderingSettings) 
+                gateway.createNewData("RenderingSettings");
+            rs.setImage(image);
+            rs.setExperimenter(experimenter);
+            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
+                            bitResolution, channelBindings[i], rs);
+            l.add(rs);
+        }  
+        return l;
+    }
+
+    /** Save the renderingSettings. */
+    private List saveRS(RenderingDef rDef, List rsList)
+        throws DSAccessException
+    {
+        List l = new ArrayList();
+        ChannelBindings[] channelBindings = rDef.getChannelBindings();
+        int z = rDef.getDefaultZ(), t = rDef.getDefaultT(), 
+            model = rDef.getModel();
+        QuantumDef qDef = rDef.getQuantumDef();
+        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd,
+            bitResolution = qDef.bitResolution;
+        if (channelBindings.length != rsList.size()) 
+            throw new DSAccessException("Data retrieved from DB don't " +
+                "match the parameters passed.");
+        RenderingSettings rs;
+        Iterator j = rsList.iterator();
+        int k;
+        while (j.hasNext()) {
+            rs = (RenderingSettings) j.next();
+            k = rs.getTheC().intValue(); // need to add control
+            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
+                        bitResolution, channelBindings[k], rs);
+            l.add(rs);
+        } 
+        return l;
+    }
+
+    /** Create a basic attribute. */
+    private Attribute createBasicAttribute(String typeName, Criteria c)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Attribute retVal = gateway.createNewData(typeName);
+        String granularity = retVal.getSemanticType().getGranularity();
+        //Build the criteria.
+        if (granularity.equals(STSMapper.DATASET_GRANULARITY))
+            retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
+        else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
+            retVal.setImage((Image) gateway.retrieveData(Image.class, c));
+        else if (granularity.equals(STSMapper.FEATURE_GRANULARITY))
+            retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
+        return retVal; 
+    }
+
+    /** Create a {@link Classification} attribute. */
+    private Object[] buildClassification(Category category, int imgID)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        Object[] results = new Object[2];
+        Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
+                            category.getID());
+        Classification classification = (Classification) 
+                            gateway.retrieveSTSData("Classification",  c);
+        results[0] = Boolean.FALSE;
+        if (classification == null) {
+            results[0] = Boolean.TRUE;
+            c = CategoryMapper.buildClassificationCriteria(imgID, -1);
+            classification = (Classification) 
+                            createBasicAttribute("Classification", c);
+            classification.setCategory(category);
+            classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
+        }
+        classification.setValid(Boolean.TRUE);
+        results[1] = classification;
+        return results;
+    }
+
+    /** Create a CategoryGroup attribute. */
+    private CategoryGroup buildCategoryGroup(CategoryGroupData data)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        CategoryGroup cg = 
+            (CategoryGroup) gateway.createNewData("CategoryGroup");
+        cg.setName(data.getName());
+        cg.setDescription(data.getDescription());
+        return cg;
+    }
+    
+    /** Create a Category attribute. */
+    private Category buildCategory(CategoryData data, CategoryGroup group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        Category category = (Category) gateway.createNewData("Category");
+        category.setName(data.getName());
+        category.setDescription(data.getDescription());
+        category.setCategoryGroup(group);
+        return category;
+    }
+    
+    /** 
+     * Build a CategoryGroupData object. This method is invoked when a new 
+     * CategoryGroup is created.
+     * 
+     * @param group
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    private CategoryGroupData buildCategoryGroupData(CategoryGroup group)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(group.getID(), 
+                                        uc.getUserID());
+        CategoryGroup cg = (CategoryGroup)
+            gateway.retrieveSTSData("CategoryGroup", c);
+        if (cg == null) return null;
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        List l = new ArrayList();
+        l.add(cg);
+        List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                uc.getUserID(), null);
+        if (results.size() == 0) return null;
+        return (CategoryGroupData) results.get(0);
+    }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
     public List getAvailableImageTypes()
@@ -418,8 +567,7 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroups(CategoryGroupData gProto, 
-                    CategoryData cProto)
+    public List retrieveCategoryGroups(boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
         //Retrieve the user ID.
@@ -428,21 +576,22 @@ class STSAdapter
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, 
                                         uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
-        List result = new ArrayList();
-        if (l != null || l.size() > 0) {
-            if (gProto == null) gProto = new CategoryGroupData();
-            if (cProto == null) cProto = new CategoryData();
-            CategoryMapper.fillCategoryGroup(gProto, cProto, l, result, 
+        if (l == null || l.size() == 0) return new ArrayList();
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        if (!annotated)
+            return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                                                    uc.getUserID(), null);
+        List isAnnotations = null;
+        List imageIDs = CategoryMapper.prepareListImagesID(l);
+        if (imageIDs.size() > 0) {
+            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
                     uc.getUserID());
-        }  
-        return result;
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroups()
-        throws DSOutOfServiceException, DSAccessException
-    {
-       return retrieveCategoryGroups(null, null);
+            isAnnotations = 
+                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        }
+        return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                uc.getUserID(), isAnnotations);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -453,29 +602,10 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
-                            CategoryData cProto, int catGroupID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveImagesNotInCategoryGroup(gProto, cProto, catGroupID, 
-                                                null, null);
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesNotInCategoryGroup(int catGroupID)
         throws DSOutOfServiceException, DSAccessException
     {
-        return retrieveImagesNotInCategoryGroup(null, null, catGroupID, null, 
-                                                null);
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
-                                            Map complexFilters)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveImagesNotInCategoryGroup(null, null, catGroupID, filters,
-                                                complexFilters);
+        return retrieveImagesNotInCategoryGroup(catGroupID, null, null);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -512,8 +642,7 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(CategoryGroupData gProto, 
-            CategoryData cProto, int catGroupID, Map filters, 
+    public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
             Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -523,15 +652,12 @@ class STSAdapter
                                     uc.getUserID());
         CategoryGroup group = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
-        if (group != null) {
-            if (gProto == null) gProto = new CategoryGroupData();
-            if (cProto == null) cProto = new CategoryData();
-            CategoryGroupData 
-                data = CategoryMapper.fillCategoryGroup(
-                    gProto, cProto, group, uc.getUserID());
-            if (data != null) return retrieveImagesNotInCategoryGroup(data);
-        }
-        return new ArrayList();
+        if (group == null) return new ArrayList();
+        CategoryGroupData 
+                data = CategoryMapper.fillCategoryGroup(new CategoryGroupData(),
+                        new CategoryData(), group, uc.getUserID(), null);
+        if (data == null) return new ArrayList();
+        return retrieveImagesNotInCategoryGroup(data);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -679,8 +805,7 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoriesNotInGroup(CategoryGroupData group, 
-                        CategoryData cProto)
+    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
         throws DSOutOfServiceException, DSAccessException
     {
         if (group == null)
@@ -688,25 +813,13 @@ class STSAdapter
                     "be null");
         UserCredentials uc = (UserCredentials)
             registry.lookup(LookupNames.USER_CREDENTIALS);
-        //List of categorySummary objects
-        List result = new ArrayList();
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
                         group.getID(), uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
-        
-        if (l != null || l.size() > 0) {
-            if (cProto == null) cProto = new CategoryData();
-            CategoryMapper.fillCategoryWithClassifications(cProto, l, result, 
-                                                            group);
-        }
-        return result;
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoriesNotInGroup(CategoryGroupData group)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveCategoriesNotInGroup(group, null);
+        if (l == null || l.size() == 0) return new ArrayList();
+        CategoryData cProto = new CategoryData();
+        return CategoryMapper.fillCategoryWithClassifications(group, cProto, l, 
+                null);
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -910,6 +1023,65 @@ class STSAdapter
         return HierarchyMapper.fillICGHierarchy(classifications, map);                            
     }
     
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public CategoryGroupData retrieveCategoryGroupTree(int cgID, 
+                                                    boolean annotated)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the user ID.
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, 
+                                        uc.getUserID());
+        CategoryGroup cg = 
+            (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+        if (cg == null) return null;
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        List l = new ArrayList();
+        l.add(cg);
+        if (!annotated) {
+            List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                    uc.getUserID(), null);
+            if (results.size() == 0) return null;
+            return (CategoryGroupData) results.get(0);
+        }
+        List isAnnotations = null;
+        List imageIDs = CategoryMapper.prepareListImagesID(cg);
+        if (imageIDs.size() > 0) {
+            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
+                    uc.getUserID());
+            isAnnotations = 
+                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        }
+        List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                uc.getUserID(), isAnnotations);
+        if (results.size() == 0) return null;
+        return (CategoryGroupData) results.get(0);
+        
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public CategoryData retrieveCategoryTree(int cID, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        UserCredentials uc = (UserCredentials)
+                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        Criteria c = CategoryMapper.buildCategoryCriteria(cID, uc.getUserID());
+        Category cat = (Category) gateway.retrieveSTSData("Category", c);
+        if (!annotated) 
+            return CategoryMapper.fillCategoryTree(cat, null);
+        List isAnnotations = null;
+        List imageIDs = CategoryMapper.prepareListImagesID(cat);
+        if (imageIDs.size() > 0) {
+            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
+                    uc.getUserID());
+            isAnnotations = 
+                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        }
+        return CategoryMapper.fillCategoryTree(cat, isAnnotations);
+    }
+
     /** Implemented as specified in {@link DataManagementService}. */
     public ChannelData[] getChannelData(int imageID)
         throws DSOutOfServiceException, DSAccessException
@@ -1005,156 +1177,5 @@ class STSAdapter
             gateway.updateAttributes(l);
         }
     }
-    
-    /** Save the renderingSettings for the very first time. */
-    private List saveRSFirstTime(int imageID, RenderingDef rDef)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        List l = new ArrayList();
-        ChannelBindings[] channelBindings = rDef.getChannelBindings();
-        int z = rDef.getDefaultZ(), t = rDef.getDefaultT(),
-            model = rDef.getModel();
-        QuantumDef qDef = rDef.getQuantumDef();
-        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd,
-            bitResolution = qDef.bitResolution;
-        RenderingSettings rs;
-        //Need to retrieve the image object.
-        //Define the criteria by which the object graph is pulled out.
-        Criteria cImage = ImageMapper.buildImageCriteria(imageID);       
-        //Load the graph defined by criteria.
-        Image image = (Image) gateway.retrieveData(Image.class, cImage);
-        Criteria cExp = UserMapper.getUserStateCriteria();
-        Experimenter experimenter = gateway.getCurrentUser(cExp);
-        for (int i = 0; i < channelBindings.length; i++) {
-            rs = (RenderingSettings) 
-                gateway.createNewData("RenderingSettings");
-            rs.setImage(image);
-            rs.setExperimenter(experimenter);
-            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
-                            bitResolution, channelBindings[i], rs);
-            l.add(rs);
-        }  
-        return l;
-    }
-
-    /** Save the renderingSettings. */
-    private List saveRS(RenderingDef rDef, List rsList)
-        throws DSAccessException
-    {
-        List l = new ArrayList();
-        ChannelBindings[] channelBindings = rDef.getChannelBindings();
-        int z = rDef.getDefaultZ(), t = rDef.getDefaultT(), 
-            model = rDef.getModel();
-        QuantumDef qDef = rDef.getQuantumDef();
-        int cdStart = qDef.cdStart, cdEnd = qDef.cdEnd,
-            bitResolution = qDef.bitResolution;
-        RenderingSettings rs;
-        Iterator j = rsList.iterator();
-        int k;
-        if (channelBindings.length != rsList.size()) 
-            throw new DSAccessException("Data retrieved from DB don't " +
-                "match the parameters passed.");
-        while (j.hasNext()) {
-            rs = (RenderingSettings) j.next();
-            k = rs.getTheC().intValue(); // need to add control
-            ImageMapper.fillInRenderingSettings(z, t, model, cdStart, cdEnd,
-                        bitResolution, channelBindings[k], rs);
-            l.add(rs);
-        } 
-        return l;
-    }
-
-    /** Create a basic attribute. */
-    private Attribute createBasicAttribute(String typeName, Criteria c)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        Attribute retVal = gateway.createNewData(typeName);
-        String granularity = retVal.getSemanticType().getGranularity();
-        //Build the criteria.
-        if (granularity.equals(STSMapper.DATASET_GRANULARITY))
-            retVal.setDataset((Dataset) gateway.retrieveData(Dataset.class, c));
-        else if (granularity.equals(STSMapper.IMAGE_GRANULARITY))
-            retVal.setImage((Image) gateway.retrieveData(Image.class, c));
-        else if (granularity.equals(STSMapper.FEATURE_GRANULARITY))
-            retVal.setFeature((Feature) gateway.retrieveData(Feature.class, c));
-        return retVal; 
-    }
-
-    /** Create a {@link Classification} attribute. */
-    private Object[] buildClassification(Category category, int imgID)
-        throws DSOutOfServiceException, DSAccessException 
-    {
-        Object[] results = new Object[2];
-        Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
-                            category.getID());
-        Classification classification = (Classification) 
-                            gateway.retrieveSTSData("Classification",  c);
-        results[0] = Boolean.FALSE;
-        if (classification == null) {
-            results[0] = Boolean.TRUE;
-            c = CategoryMapper.buildClassificationCriteria(imgID, -1);
-            classification = (Classification) 
-                            createBasicAttribute("Classification", c);
-            classification.setCategory(category);
-            classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
-        }
-        classification.setValid(Boolean.TRUE);
-        results[1] = classification;
-        return results;
-    }
-
-    /** Create a CategoryGroup attribute. */
-    private CategoryGroup buildCategoryGroup(CategoryGroupData data)
-        throws DSOutOfServiceException, DSAccessException 
-    {
-        CategoryGroup cg = 
-            (CategoryGroup) gateway.createNewData("CategoryGroup");
-        cg.setName(data.getName());
-        cg.setDescription(data.getDescription());
-        return cg;
-    }
-    
-    /** Create a Category attribute. */
-    private Category buildCategory(CategoryData data, CategoryGroup group)
-        throws DSOutOfServiceException, DSAccessException 
-    {
-        Category category = (Category) gateway.createNewData("Category");
-        category.setName(data.getName());
-        category.setDescription(data.getDescription());
-        category.setCategoryGroup(group);
-        return category;
-    }
-    
-    /** 
-     * Build a CategoryGroupData object. This method isinvoked when a new 
-     * CategoryGroup is created.
-     * 
-     * @param group
-     * @return
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
-     */
-    private CategoryGroupData buildCategoryGroupData(CategoryGroup group)
-        throws DSOutOfServiceException, DSAccessException 
-    {
-        //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(group.getID(), 
-                                        uc.getUserID());
-        CategoryGroup cg = (CategoryGroup)
-            gateway.retrieveSTSData("CategoryGroup", c);
-        List result = new ArrayList();
-        if (cg == null) return null;
-        CategoryGroupData gProto = new CategoryGroupData();
-        CategoryData cProto = new CategoryData();
-        List l = new ArrayList();
-        l.add(cg);
-        CategoryMapper.fillCategoryGroup(gProto, cProto, l, result, 
-                uc.getUserID());
-       
-        return (CategoryGroupData) result.get(0);
-    }
-
     
 }

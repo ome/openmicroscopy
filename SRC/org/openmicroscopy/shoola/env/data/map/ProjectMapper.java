@@ -177,7 +177,7 @@ public class ProjectMapper
         return ids;
     }
     
-    /** Return of Object ID corresponding to the image ID. */
+    /** Return List of Image ID. */
     public static List prepareListImagesID(List projects)
     {
         Map map = new HashMap();
@@ -241,8 +241,7 @@ public class ProjectMapper
 		}
 		empty.setDatasets(datasets);			
 	}
-
-	
+    
 	/**
 	 * Create list of project summary objects.
 	 * 
