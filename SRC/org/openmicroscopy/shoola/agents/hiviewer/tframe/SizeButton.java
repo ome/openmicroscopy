@@ -32,14 +32,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.tframe;
 
 //Java imports
 import java.awt.Insets;
-
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * The sizing button in the {@link TitleBar}.
@@ -58,23 +57,7 @@ import javax.swing.JButton;
 class SizeButton
     extends JButton
 {
-    
-    //TODO: replace this code with proper code for icons!!!
-    static String DIR = "../graphx/";
-    static ImageIcon MINUS, PLUS, MINUS_OVER, PLUS_OVER;
-    static
-    {
-        java.net.URL imgURL = SizeButton.class.getResource(DIR+"minus.png");
-        MINUS = new ImageIcon(imgURL);
-        imgURL = SizeButton.class.getResource(DIR+"minus_over.png");
-        MINUS_OVER = new ImageIcon(imgURL);
-        imgURL = SizeButton.class.getResource(DIR+"plus.png");
-        PLUS = new ImageIcon(imgURL);
-        imgURL = SizeButton.class.getResource(DIR+"plus_over.png");
-        PLUS_OVER = new ImageIcon(imgURL);
-    }
-    
-    
+        
     /** 
      * Identifies the collapse action.
      * @see #setActionType(int) 
@@ -113,15 +96,16 @@ class SizeButton
      */
     void setActionType(int type)
     {
+        IconManager icons = IconManager.getInstance();
         switch (type) {
             case COLLAPSE:
-                setIcon(MINUS);
-                setRolloverIcon(MINUS_OVER);
+                setIcon(icons.getIcon(IconManager.MINUS));
+                setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));
                 setToolTipText(COLLAPSE_TOOLTIP);
                 break;
             case EXPAND:
-                setIcon(PLUS);
-                setRolloverIcon(PLUS_OVER);
+                setIcon(icons.getIcon(IconManager.PLUS));
+                setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
                 setToolTipText(EXPAND_TOOLTIP);
         }
     }
@@ -131,5 +115,5 @@ class SizeButton
     
     /** Overridden to make sure no focus is painted on top of the icon. */
     public void requestFocus() {}
-
+    
 }
