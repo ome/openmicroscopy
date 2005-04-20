@@ -49,10 +49,7 @@ import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ClassifyImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategory;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseDataset;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseProject;
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -964,7 +961,7 @@ public class DataManager
         else if (object instanceof DatasetSummary) 
             id = ((DatasetSummary) object).getID();
         if (id != -1)
-            registry.getEventBus().post(new BrowseDataset(id));
+            registry.getEventBus().post(new Browse(id, Browse.DATASET));
 	}
 
     /** 
@@ -982,7 +979,7 @@ public class DataManager
         else if (object instanceof ProjectSummary) 
             id = ((ProjectSummary) object).getID();
         if (id != -1)
-            registry.getEventBus().post(new BrowseProject(id));
+            registry.getEventBus().post(new Browse(id, Browse.PROJECT));
     }
 
     /** 
@@ -993,7 +990,8 @@ public class DataManager
     void browseCategoryGroup(CategoryGroupData data)
     {
         if (data != null)
-            registry.getEventBus().post(new BrowseCategoryGroup(data));
+            registry.getEventBus().post(
+                    new Browse(data.getID(), Browse.CATEGORY_GROUP));
     }
     
     /** 
@@ -1005,7 +1003,8 @@ public class DataManager
     void browseCategory(CategoryData data)
     {
         if (data != null)
-            registry.getEventBus().post(new BrowseCategory(data));
+            registry.getEventBus().post(
+                    new Browse(data.getID(), Browse.CATEGORY));
     }
     
     //Post an event to bring the ZoomBrowser. ???

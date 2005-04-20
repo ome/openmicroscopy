@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup
+ * org.openmicroscopy.shoola.agents.events.hiviewer.Browse
  *
  *------------------------------------------------------------------------------
  *
@@ -30,20 +30,16 @@
 package org.openmicroscopy.shoola.agents.events.hiviewer;
 
 
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Encapsulates a request to display all categories within a given categoryGroup
- * and all images within each category.
  * 
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,30 +51,62 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class BrowseCategoryGroup
+public class Browse
     extends RequestEvent
 {
     
-    /** The DataObject representing the CategoryGroup. */
-    private CategoryGroupData   hierarchyObject;
+    /** Event ID corresponding to a browse Project event. */
+    public static final int PROJECT = 0;
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param CategoryGroupData     The specified categoryGroup. 
-     */
+    /** Event ID corresponding to a browse Dataset event. */
+    public static final int DATASET = 1;
     
-    public BrowseCategoryGroup(CategoryGroupData hierarchyObject)
-    {
-        this.hierarchyObject = hierarchyObject;
-    }
+    /** Event ID corresponding to a browse categoryGroup event. */
+    public static final int CATEGORY_GROUP = 2;
+    
+    /** Event ID corresponding to a browse category event. */
+    public static final int CATEGORY = 3;
+    
 
-    /**
-     * The hierarchy object.
-     * 
-     * @return  See above.
+    /** ID of the top element in the hierarchy. */
+    private int hierarchyObjectID;
+    
+    /** 
+     * Index of the top element in the hierarchy e.g.
+     * if eventIndex = PROJECT, this means that we want to browse the selected
+     * project.
      */
-    public CategoryGroupData getHierarchyObject() { return hierarchyObject; }
+    private int eventIndex;
+    
+    public Browse(int hierarchyObjectID, int index)
+    {
+        if (!checkEventIndex(index))
+            throw new IllegalArgumentException("event index not vali");
+        this.hierarchyObjectID = hierarchyObjectID;
+        eventIndex = index;
+    }
+    
+    /** Check if the specified index is valid. */
+    private boolean checkEventIndex(int index)
+    {
+        boolean b = false;
+        switch (index) {
+            case PROJECT:
+                b = true; break;
+            case DATASET:
+                b = true; break;
+            case CATEGORY_GROUP:
+                b = true; break;
+            case CATEGORY:
+                b = true; break;    
+        }
+        return b;
+    }
+    
+    /** Returns the browse event index. */
+    public int getEventIndex() { return eventIndex; }
+    
+    /** Returns the id of the corresponding dataObject. */
+    public int getHierarchyObjectID() { return hierarchyObjectID; }
     
 }
-
