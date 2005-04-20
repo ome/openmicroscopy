@@ -108,6 +108,16 @@ class STSAdapter
         this.registry = registry;
     }
 
+    /** Retrieve list of imageAnnotations. */
+    private List getImageAnnotations(List ids, int uID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (ids != null && ids.size() == 0) return null;
+        Criteria c= AnnotationMapper.buildImageAnnotationCriteria(ids, uID);
+        return 
+            (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+    }
+    
     /** Save the renderingSettings for the very first time. */
     private List saveRSFirstTime(int imageID, RenderingDef rDef)
         throws DSOutOfServiceException, DSAccessException
@@ -582,14 +592,8 @@ class STSAdapter
         if (!annotated)
             return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
                                                     uc.getUserID(), null);
-        List isAnnotations = null;
         List imageIDs = CategoryMapper.prepareListImagesID(l);
-        if (imageIDs.size() > 0) {
-            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
-                    uc.getUserID());
-            isAnnotations = 
-                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-        }
+        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
         return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
                 uc.getUserID(), isAnnotations);
     }
@@ -1046,14 +1050,8 @@ class STSAdapter
             if (results.size() == 0) return null;
             return (CategoryGroupData) results.get(0);
         }
-        List isAnnotations = null;
         List imageIDs = CategoryMapper.prepareListImagesID(cg);
-        if (imageIDs.size() > 0) {
-            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
-                    uc.getUserID());
-            isAnnotations = 
-                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-        }
+        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
         List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
                 uc.getUserID(), isAnnotations);
         if (results.size() == 0) return null;
@@ -1071,14 +1069,8 @@ class STSAdapter
         Category cat = (Category) gateway.retrieveSTSData("Category", c);
         if (!annotated) 
             return CategoryMapper.fillCategoryTree(cat, null);
-        List isAnnotations = null;
         List imageIDs = CategoryMapper.prepareListImagesID(cat);
-        if (imageIDs.size() > 0) {
-            c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
-                    uc.getUserID());
-            isAnnotations = 
-                (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-        }
+        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
         return CategoryMapper.fillCategoryTree(cat, isAnnotations);
     }
 

@@ -121,7 +121,25 @@ class DMSAdapter
 		this.gateway = gateway;
 		this.registry = registry;
 	}
+    
+    private List getDatasetAnnotations(List ids, int uID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (ids.size() == 0) return null;
+        Criteria c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, uID);
+        return (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+    }
 
+    /** Retrieve list of imageAnnotations. */
+    private List getImageAnnotations(List ids, int uID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (ids != null && ids.size() == 0) return null;
+        Criteria c= AnnotationMapper.buildImageAnnotationCriteria(ids, uID);
+        return 
+            (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+    }
+    
     /** Implemented as specified in {@link DataManagementService}. */
     public UserDetails getUserDetails()
         throws DSOutOfServiceException, DSAccessException
@@ -242,11 +260,9 @@ class DMSAdapter
         List ids = ProjectMapper.prepareListDatasetsID(projects);
         if (ids != null && ids.size() != 0) {
             //if (ids.size() > LIMIT_FOR_IN) ids = null;
-            c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, 
-                    uc.getUserID());
-            List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+            List dsAnnotations = getDatasetAnnotations(ids, uc.getUserID());
             return ProjectMapper.fillListAnnotatedDatasets(projects, pProto, 
-                            dProto, l);
+                            dProto, dsAnnotations);
         }
         //Projects contain no datasets, this is the case for the
         //initial project for example.
@@ -341,14 +357,10 @@ class DMSAdapter
             Iterator i = images.iterator();
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
-            //TODO use subList!
-            //if (ids.size() > LIMIT_FOR_IN) ids = null;
-            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
-                    uc.getUserID());
-            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-            return ImageMapper.fillListImages(images, iProto, l);
+            List imgAnnotations = getImageAnnotations(ids, uc.getUserID());
+            return ImageMapper.fillListImages(images, iProto, imgAnnotations);
         }
-        return ImageMapper.fillListImages(images, iProto);
+        return ImageMapper.fillListImages(images, iProto, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -400,14 +412,10 @@ class DMSAdapter
                                 registry.lookup(LookupNames.USER_CREDENTIALS);
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
-            //TODO
-            //if (ids.size() > LIMIT_FOR_IN) ids = null;
-            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
-                    uc.getUserID());
-            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-            return ImageMapper.fillListImages(images, iProto, l);
+            List imgAnnotations = getImageAnnotations(ids, uc.getUserID());
+            return ImageMapper.fillListImages(images, iProto, imgAnnotations);
         }
-        return ImageMapper.fillListImages(images, iProto);
+        return ImageMapper.fillListImages(images, iProto, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -468,15 +476,11 @@ class DMSAdapter
             UserCredentials uc = (UserCredentials)
             registry.lookup(LookupNames.USER_CREDENTIALS);
             List ids = DatasetMapper.prepareListImagesID(datasets);
-            //TODO sublist
-            //if (ids.size() > LIMIT_FOR_IN) ids = null;
-            c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
-                    uc.getUserID());
-            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            List l = getImageAnnotations(ids, uc.getUserID());     
             return DatasetMapper.fillImagesInUserDatasets(datasets, iProto, l, 
                                         datasetsIDs);
         }
-        return DatasetMapper.fillImagesInUserDatasets(datasets, iProto,
+        return DatasetMapper.fillImagesInUserDatasets(datasets, iProto, null,
                                             datasetsIDs);
     }
     
@@ -576,10 +580,10 @@ class DMSAdapter
             if (ids.size() > LIMIT_FOR_IN) ids = null;
             c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
                     uc.getUserID());
-            List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+            List l = getImageAnnotations(ids, uc.getUserID());
             return ImageMapper.fillListImages(images, iProto, l);
         }
-        return ImageMapper.fillListImages(images, iProto);
+        return ImageMapper.fillListImages(images, iProto, null);
     }
     
     /** Implemented as specified in {@link DataManagementService}. */
@@ -663,9 +667,8 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		Dataset	dataset = (Dataset) gateway.retrieveData(Dataset.class, c);
 		//Put the server data into the corresponding client object.
-		if (dataset != null)
-            return DatasetMapper.fillListImages(dataset, retVal);
-		return new ArrayList();
+		if (dataset == null) return new ArrayList();
+        return DatasetMapper.fillListImages(dataset, retVal);
 	}
 	
     /** Implemented as specified in {@link DataManagementService}. */
@@ -699,13 +702,8 @@ class DMSAdapter
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
         List ids = DatasetMapper.prepareListImagesID(dataset);
-        //TODO: sublist?
-        //if (ids.size() > LIMIT_FOR_IN) ids = null;
-        c = AnnotationMapper.buildImageAnnotationCriteria(ids, uc.getUserID());
-        //if (ids != null && ids.size() != 0) {
-        List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        List l = getImageAnnotations(ids, uc.getUserID());
         DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, images);
-        //}  
         return images;
     }
     
@@ -991,24 +989,6 @@ class DMSAdapter
 		dProto.setName(d.getName());
 		return dProto;
 	}
-	
-	/** Implemented as specified in {@link DataManagementService}. */
-	public void createAnalysisChain(AnalysisChainData retVal)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		//Create a new chain Object
-		Criteria c = UserMapper.getUserStateCriteria(); 
-		AnalysisChain chain = 
-				(AnalysisChain) gateway.createNewData(AnalysisChain.class);
-		chain.setName(retVal.getName());
-		chain.setDescription(retVal.getDescription());
-		chain.setOwner(gateway.getCurrentUser(c));
-		gateway.markForUpdate(chain);
-		markChainNodes(chain,retVal.getNodes());		
-		markChainLinks(chain,retVal.getLinks());
-		gateway.updateMarkedData();
-		retVal.setID(chain.getID());
-	}
 
 	/** Implemented as specified in {@link DataManagementService}. */
 	public ProjectSummary createProject(ProjectData retVal)
@@ -1168,9 +1148,8 @@ class DMSAdapter
             map.put(id, is);
             ids.add(id);
         }
-        
-        
-        if (ids.size() > LIMIT_FOR_IN) ids = null;
+        //TODO: use subLits
+        //if (ids.size() > LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
@@ -1181,12 +1160,8 @@ class DMSAdapter
         
         UserCredentials uc = (UserCredentials)
         registry.lookup(LookupNames.USER_CREDENTIALS);
-        c = AnnotationMapper.buildDatasetAnnotationCriteria(null, 
-                            uc.getUserID());
-        List dsAnnotations = 
-            (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        List dsAnnotations = getDatasetAnnotations(null, uc.getUserID());
         return HierarchyMapper.fillIDPHierarchy(images, map, dsAnnotations);
-
     }
 
     /** Implemented as specified in {@link DataManagementService}. */
@@ -1213,19 +1188,12 @@ class DMSAdapter
         //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
+        int uID = uc.getUserID();
+       
         List datasetIDs = ProjectMapper.prepareListDatasetsID(projects);
         List imageIDs = ProjectMapper.prepareListImagesID(projects);
-        //if (datasetIDs.size() > LIMIT_FOR_IN) datasetIDs = null;
-        c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetIDs, 
-                uc.getUserID());
-        List dsAnnotations = 
-            (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
-        //TODO new to use sublist
-        //if (imageIDs.size() > LIMIT_FOR_IN) imageIDs = null;
-        c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
-                uc.getUserID());
-        List isAnnotations = 
-            (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        List dsAnnotations = getDatasetAnnotations(datasetIDs, uID);
+        List isAnnotations = getImageAnnotations(imageIDs, uID);
         ProjectMapper.fillProjectsTree(projects, results, projectIDs, 
                                     dsAnnotations, isAnnotations);
         return results;
@@ -1271,15 +1239,10 @@ class DMSAdapter
         //Retrieve the user ID.
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
+        int uID = uc.getUserID();
         List ids = DatasetMapper.prepareListImagesID(datasets);
-        if (ids.size() > LIMIT_FOR_IN) ids = null;
-        c = AnnotationMapper.buildImageAnnotationCriteria(ids, uc.getUserID());
-        List isAnnotations = 
-            (List) gateway.retrieveListSTSData("ImageAnnotation", c);
-        c = AnnotationMapper.buildDatasetAnnotationCriteria(datasetIDs, 
-                uc.getUserID());
-        List dsAnnotations = 
-            (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        List isAnnotations = getImageAnnotations(ids, uID);
+        List dsAnnotations = getDatasetAnnotations(datasetIDs, uID);
         DatasetMapper.fillDatasetsTree(datasets, results, datasetIDs, 
                 dsAnnotations, isAnnotations);
         return results;
@@ -1393,5 +1356,23 @@ class DMSAdapter
                                             null, null);
 	}
     
+    /** Implemented as specified in {@link DataManagementService}. */
+    public void createAnalysisChain(AnalysisChainData retVal)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Create a new chain Object
+        Criteria c = UserMapper.getUserStateCriteria(); 
+        AnalysisChain chain = 
+                (AnalysisChain) gateway.createNewData(AnalysisChain.class);
+        chain.setName(retVal.getName());
+        chain.setDescription(retVal.getDescription());
+        chain.setOwner(gateway.getCurrentUser(c));
+        gateway.markForUpdate(chain);
+        markChainNodes(chain,retVal.getNodes());        
+        markChainLinks(chain,retVal.getLinks());
+        gateway.updateMarkedData();
+        retVal.setID(chain.getID());
+    }
+
 }
 

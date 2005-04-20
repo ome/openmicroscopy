@@ -298,29 +298,7 @@ public class ImageMapper
         empty.setPixelsIDs(fillListPixelsID(defaultPix));    
         empty.setPixels(fillPixels(defaultPix));	
 	}
-	
-	/**
-	 * Fill in the image summary object.
-	 * @param images
-	 * @param iProto
-	 * @return
-	 */
-	public static List fillListImages(List images, ImageSummary iProto)
-	{
-		List imagesList = new ArrayList();  //The returned summary list.
-		Iterator i = images.iterator();
-		ImageSummary is;
-		//For each d in datasets...
-		while (i.hasNext()) {
-			//Make a new DataObject and fill it up.
-            is = (ImageSummary) iProto.makeNew();
-			buildImageSummary((Image) i.next(), is);
-			//Add the images to the list of returned images
-			imagesList.add(is);
-		}
-		return imagesList;
-	}
-	
+
     /**
      * 
      * @param images
@@ -344,13 +322,10 @@ public class ImageMapper
             img = (Image) i.next();
             id = img.getID();
             annotation = (ImageAnnotation) ids.get(new Integer(id));
-            if (annotation != null) {
-                is = (ImageSummary) iProto.makeNew();
-                buildImageSummary(img, is);
-                is.setAnnotation(
-                        AnnotationMapper.fillImageAnnotation(annotation));
-                imagesList.add(is);
-            }
+            is = (ImageSummary) iProto.makeNew();
+            buildImageSummary(img, is);
+            is.setAnnotation(AnnotationMapper.fillImageAnnotation(annotation));
+            imagesList.add(is);
         }
         return imagesList;
     }

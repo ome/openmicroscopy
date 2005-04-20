@@ -324,39 +324,14 @@ public class DatasetMapper
         return results;
     }
     
-    public static List fillImagesInUserDatasets(List datasets, 
-                    ImageSummary iProto, List datasetIDs)
-    {
-        List images = new ArrayList();
-        HashMap map = new HashMap();
-        Iterator d = datasets.iterator();
-        Iterator i;
-        Image image;
-        ImageSummary is;
-        Integer imageID;
-        Dataset dDTO;
-        while (d.hasNext()) {
-            dDTO = (Dataset) d.next();
-            if (datasetIDs.contains(new Integer(dDTO.getID()))) {
-                i = dDTO.getImages().iterator();
-                while (i.hasNext()) {
-                    image = (Image) i.next();
-                    imageID = new Integer(image.getID());
-                    is = (ImageSummary) map.get(imageID);
-                    if (is == null) {
-                        //Make a new DataObject and fill it up.
-                        is = (ImageSummary) iProto.makeNew();
-                        ImageMapper.buildImageSummary(image, is);
-                        //Add the image summary object to the list.
-                        images.add(is);
-                        map.put(imageID, is);
-                    }
-                } 
-            }
-        }
-        return images;
-    }
-    
+    /**
+     * 
+     * @param datasets
+     * @param iProto
+     * @param annotations
+     * @param datasetIDs
+     * @return
+     */
     public static List fillImagesInUserDatasets(List datasets, 
                         ImageSummary iProto, List annotations, List datasetIDs)
     {
@@ -411,7 +386,7 @@ public class DatasetMapper
         datasets.add(dataset);
         List d = new ArrayList();
         d.add(new Integer(dataset.getID()));
-        return fillImagesInUserDatasets(datasets, iProto, d);
+        return fillImagesInUserDatasets(datasets, iProto, null, d);
 	}
 	
     /**
