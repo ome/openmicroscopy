@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
@@ -40,6 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * 
@@ -59,9 +61,10 @@ public class ThumbnailProvider
     implements Thumbnail
 {
     
-    static final int        THUMB_MAX_WIDTH = 64;  //TODO: should be 96.
-    static final int        THUMB_MAX_HEIGHT = 64; //TODO: should be 96.
+    static final int            THUMB_MAX_WIDTH = 96;  //TODO: should be 96.
+    static final int            THUMB_MAX_HEIGHT = 96; //TODO: should be 96.
     
+    private static final double SCALING_FACTOR = 0.5;
     
     private ImageSummary    imgInfo;
     private int             width;  //of displayThumb. 
@@ -70,26 +73,36 @@ public class ThumbnailProvider
     private BufferedImage   displayThumb;
     private ImageNode       display;
     
-    
     //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
     //but we need size b/f img is retrieved -- b/c we vis tree need to be
     //laid out.  Sort this out.
     private void computeDims()
     {
         PixelsDescription pxd = imgInfo.getDefaultPixels();
-        int sizeX = THUMB_MAX_WIDTH, sizeY = THUMB_MAX_HEIGHT;
+        int sizeX = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
+        int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
-        else if (ratio > 1) sizeY *= ratio;
+        else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         width = sizeX;
         height = sizeY;
+    }
+    
+    /** Scale down the original thumbnail. */
+    private BufferedImage buildDisplayImage(BufferedImage image)
+    {
+        AffineTransform at = new AffineTransform();
+        at.scale(SCALING_FACTOR, SCALING_FACTOR);
+        BufferedImage 
+            displayImage= Factory.magnifyImage(image, SCALING_FACTOR, at, 0);
+        return displayImage;
     }
     
     void setFullScaleThumb(BufferedImage t)
     {
         fullScaleThumb = t;
-        //TODO: scale down to 64x64.
-        displayThumb = t;  //TODO: set to scaled down version.
+        //Scale down to 48x48.
+        displayThumb = buildDisplayImage(t);  //TODO: set to scaled down version.
         if (display != null) display.repaint();
     }
     
