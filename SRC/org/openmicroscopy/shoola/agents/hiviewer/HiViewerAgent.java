@@ -206,9 +206,9 @@ public class HiViewerAgent
         HiViewer hiViewer = presentation.createHiViewer();
         HiLoader loader = null;
         switch (index) {
-            case HiViewerCtrl.VIEW_IN_PDI:
-                loader = new CGCILoader(this, hiViewer, images); break;
             case HiViewerCtrl.VIEW_IN_CGCI:
+                loader = new CGCILoader(this, hiViewer, images); break;
+            case HiViewerCtrl.VIEW_IN_PDI:
                 loader = new PDILoader(this, hiViewer, images);
         }
         if (loader != null) loader.load();
