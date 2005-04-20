@@ -61,8 +61,8 @@ public class ThumbnailProvider
     implements Thumbnail
 {
     
-    static final int            THUMB_MAX_WIDTH = 48;  //TODO: should be 96.
-    static final int            THUMB_MAX_HEIGHT = 48; //TODO: should be 96.
+    static final int            THUMB_MAX_WIDTH = 96; 
+    static final int            THUMB_MAX_HEIGHT = 96;
     
     private static final double SCALING_FACTOR = 0.5;
     
