@@ -74,7 +74,7 @@ public class ZoomInAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
+        IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ZOOM_IN));
     }
     

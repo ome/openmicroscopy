@@ -72,7 +72,7 @@ public class FindWithTitleAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
+        IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.FILTER_W_TITLE));
     }
 

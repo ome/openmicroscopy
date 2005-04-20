@@ -83,7 +83,7 @@ public class HiViewer
     {
         super("Hierarchy Viewer", reg.getTaskBar());
         this.actions = actions;
-        IconManager iconMng = IconManager.getInstance(reg);
+        IconManager iconMng = IconManager.getInstance();
         statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
         popupMenu = new PopupMenu(actions);
         setJMenuBar(createMenuBar());

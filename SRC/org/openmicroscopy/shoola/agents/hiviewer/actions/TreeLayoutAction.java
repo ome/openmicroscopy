@@ -74,7 +74,7 @@ public class TreeLayoutAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.makeParagraph(null, description,
                         UIUtilities.TABLE_WIDTH));
-        IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
+        IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.TREE_LAYOUT));
     }
 
