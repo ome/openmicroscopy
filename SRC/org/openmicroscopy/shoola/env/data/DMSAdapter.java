@@ -111,7 +111,7 @@ class DMSAdapter
     //ISSUE: Don't use the IN clause for filtering results.
     // e.g. filtering by imageID, don't pass a list of imageID with 
     //size > limit. The server may crash otherwise.
-    static final int    LIMIT_FOR_IN = 50;
+    static final int    LIMIT_FOR_IN = 1000;
     
 	private OMEDSGateway		gateway;
 	private Registry			registry;
@@ -199,14 +199,9 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		List projects = (List) gateway.retrieveListData(Project.class, c);
 	  	
-		//List of project summary objects.
-		List projectsDS = null;
-		if (projects != null) 
-			//Put the server data into the corresponding client object.
-    		projectsDS = ProjectMapper.fillUserProjectsWithDatasetData(
-    					projects, pProto, dProto);
-    	//can be null
-    	return projectsDS;
+        if (projects == null || projects.size() == 0) return new ArrayList();
+		return ProjectMapper.fillUserProjectsWithDatasetData(projects, pProto, 
+                                                            dProto);
 	}
 
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -243,10 +238,10 @@ class DMSAdapter
         List projects = (List) gateway.retrieveListData(Project.class, c);
         
         //Put the server data into the corresponding client object.
-        if (projects == null) return new ArrayList();
+        if (projects == null || projects.size() == 0) return new ArrayList();
         List ids = ProjectMapper.prepareListDatasetsID(projects);
         if (ids != null && ids.size() != 0) {
-            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            //if (ids.size() > LIMIT_FOR_IN) ids = null;
             c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, 
                     uc.getUserID());
             List l = (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
@@ -275,14 +270,8 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
 	  	
-		//List of dataset summary objects.
-		List datasetsDS = null;
-		//Put the server data into the corresponding client object.
-		if (datasets != null) 
-			datasetsDS = DatasetMapper.fillUserDatasets(datasets, dProto);
-    
-		//can be null
-		return datasetsDS;
+        if (datasets == null || datasets.size() == 0) return new ArrayList();
+		return DatasetMapper.fillUserDatasets(datasets, dProto);
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -312,15 +301,8 @@ class DMSAdapter
 		//Load the graph defined by criteria.
 		List datasets = (List) gateway.retrieveListData(Dataset.class, c);
 	  	
-		//List of dataset summary objects.
-		List datasetsDS = null;
-		//Put the server data into the corresponding client object.
-		if (datasets != null) 
-		    datasetsDS = 
-				DatasetMapper.fillFullUserDatasets(datasets, dProto,iProto);
-    
-		//can be null
-		return datasetsDS;
+        if (datasets == null || datasets.size() == 0) return new ArrayList();
+		return DatasetMapper.fillFullUserDatasets(datasets, dProto, iProto);
 	}
 
     /** Implemented as specified in {@link DataManagementService}. */
@@ -348,7 +330,7 @@ class DMSAdapter
 
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
-        if (images == null)  return new ArrayList();
+        if (images == null || images.size() == 0)  return new ArrayList();
         
         Boolean b = null;
         if (filters != null)
@@ -359,7 +341,8 @@ class DMSAdapter
             Iterator i = images.iterator();
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
-            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            //TODO use subList!
+            //if (ids.size() > LIMIT_FOR_IN) ids = null;
             c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
                     uc.getUserID());
             List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
@@ -417,7 +400,8 @@ class DMSAdapter
                                 registry.lookup(LookupNames.USER_CREDENTIALS);
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
-            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            //TODO
+            //if (ids.size() > LIMIT_FOR_IN) ids = null;
             c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
                     uc.getUserID());
             List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
@@ -484,7 +468,8 @@ class DMSAdapter
             UserCredentials uc = (UserCredentials)
             registry.lookup(LookupNames.USER_CREDENTIALS);
             List ids = DatasetMapper.prepareListImagesID(datasets);
-            if (ids.size() > LIMIT_FOR_IN) ids = null;
+            //TODO sublist
+            //if (ids.size() > LIMIT_FOR_IN) ids = null;
             c = AnnotationMapper.buildImageAnnotationCriteria(ids, 
                     uc.getUserID());
             List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
@@ -575,7 +560,7 @@ class DMSAdapter
 
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
-        if (images == null) return new ArrayList();
+        if (images == null || images.size() == 0) return new ArrayList();
         Boolean b = null;
         if (filters != null)
             b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
@@ -714,7 +699,8 @@ class DMSAdapter
         UserCredentials uc = (UserCredentials)
                             registry.lookup(LookupNames.USER_CREDENTIALS);
         List ids = DatasetMapper.prepareListImagesID(dataset);
-        if (ids.size() > LIMIT_FOR_IN) ids = null;
+        //TODO: sublist?
+        //if (ids.size() > LIMIT_FOR_IN) ids = null;
         c = AnnotationMapper.buildImageAnnotationCriteria(ids, uc.getUserID());
         //if (ids != null && ids.size() != 0) {
         List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
@@ -1182,6 +1168,8 @@ class DMSAdapter
             map.put(id, is);
             ids.add(id);
         }
+        
+        
         if (ids.size() > LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildIDPHierarchyCriteria(ids);
         //Load the graph defined by criteria.
@@ -1206,9 +1194,11 @@ class DMSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria c;
-        if (projectIDs.size() > LIMIT_FOR_IN) 
-            c = ProjectMapper.buildProjectsTreeCriteria(null);
-        else c = ProjectMapper.buildProjectsTreeCriteria(projectIDs);
+        //TODO NEED SubList
+        //if (projectIDs.size() > LIMIT_FOR_IN) 
+        //    c = ProjectMapper.buildProjectsTreeCriteria(null);
+        //else 
+        c = ProjectMapper.buildProjectsTreeCriteria(projectIDs);
         List projects = (List) gateway.retrieveListData(Project.class, c);
 
         List results = new ArrayList();
@@ -1216,7 +1206,8 @@ class DMSAdapter
         if (projects == null || projects.size() == 0) return results;
         
         if (!annotated) {
-            ProjectMapper.fillProjectsTree(projects, results, projectIDs);
+            ProjectMapper.fillProjectsTree(projects, results, projectIDs, null, 
+                    null);
             return results;
         }
         //Retrieve the user ID.
@@ -1229,6 +1220,7 @@ class DMSAdapter
                 uc.getUserID());
         List dsAnnotations = 
             (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
+        //TODO new to use sublist
         if (imageIDs.size() > LIMIT_FOR_IN) imageIDs = null;
         c = AnnotationMapper.buildImageAnnotationCriteria(imageIDs, 
                 uc.getUserID());
@@ -1265,9 +1257,10 @@ class DMSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         Criteria c;
-        if (datasetIDs.size() > LIMIT_FOR_IN) 
-            c = DatasetMapper.buildDatasetsTree(null);
-        else c = DatasetMapper.buildDatasetsTree(datasetIDs);
+        //if (datasetIDs.size() > LIMIT_FOR_IN) 
+        //    c = DatasetMapper.buildDatasetsTree(null);
+        //else 
+        c = DatasetMapper.buildDatasetsTree(datasetIDs);
         List datasets = (List) gateway.retrieveListData(Dataset.class, c);
         List results = new ArrayList();
         if (datasets == null || datasets.size() == 0) return results;

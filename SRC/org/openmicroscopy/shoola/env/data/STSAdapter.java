@@ -319,8 +319,8 @@ class STSAdapter
         Criteria c = AnnotationMapper.buildImageAnnotationCriteria(imageID);
         List l = (List) gateway.retrieveListSTSData("ImageAnnotation", c);
         TreeMap map = new TreeMap();
-        if (l != null && l.size() > 0) 
-            AnnotationMapper.fillImageAnnotations(l, map);
+        if (l == null || l.size() == 0) return map;
+        AnnotationMapper.fillImageAnnotations(l, map);
         return map;
     }
     
@@ -898,13 +898,14 @@ class STSAdapter
         }
         UserCredentials uc = (UserCredentials)
             registry.lookup(LookupNames.USER_CREDENTIALS);
-        if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
+        //TODO
+        //if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
                                         uc.getUserID());
         List classifications = 
             (List) gateway.retrieveListSTSData("Classification", c);
         
-        if (classifications == null) return null;
+        if (classifications == null) return new ArrayList();
 
         return HierarchyMapper.fillICGHierarchy(classifications, map);                            
     }
