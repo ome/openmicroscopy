@@ -212,6 +212,16 @@ public class TinyFrame
         firePropertyChange(HIGHLIGHT_PROPERTY, oldValue, highlight);
     }
     
+    /** 
+     * Returns the minimunSize of the TitleBar. 
+     * 
+     * @return See above.
+     * */
+    public Dimension getTitleBarMinimumSize()
+    {
+        return uiDelegate.titleBar.getMinimumSize();
+    }
+    
     /**
      * Returns the size this frame should have to fully display the internal
      * desktop at its preferred size.
