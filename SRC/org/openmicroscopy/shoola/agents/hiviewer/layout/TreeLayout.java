@@ -73,7 +73,6 @@ class TreeLayout
      */
     public void visit(ImageNode node)
     {
-        // TODO Auto-generated method stub
 
     }
 
@@ -82,7 +81,6 @@ class TreeLayout
      */
     public void visit(ImageSet node)
     {
-        // TODO Auto-generated method stub
 
     }
 
