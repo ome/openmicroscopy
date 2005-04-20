@@ -93,6 +93,7 @@ public class HiViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        IconManager.intializeSingleton(registry);
         control = new HiViewerCtrl(this);
         EventBus bus = registry.getEventBus();
         bus.register(this, Browse.class);
