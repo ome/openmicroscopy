@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
@@ -127,8 +128,8 @@ public class HierarchyLoader
         return new BatchCall("Loading category group tree: "+id) {
             public void doCall() throws Exception
             {
-                DataManagementService dms = context.getDataManagementService();
-                //TODO: Hook it up when DMS is ready.
+                SemanticTypesService sts = context.getSemanticTypesService();
+                rootNode = sts.retrieveCategoryGroupTree(id, true);
             }
         };
     }
@@ -144,8 +145,8 @@ public class HierarchyLoader
         return new BatchCall("Loading category tree: "+id) {
             public void doCall() throws Exception
             {
-                DataManagementService dms = context.getDataManagementService();
-                //TODO: Hook it up when DMS is ready.
+                SemanticTypesService sts = context.getSemanticTypesService();
+                rootNode = sts.retrieveCategoryTree(id, true);
             }
         };
     }
