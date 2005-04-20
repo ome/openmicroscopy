@@ -130,7 +130,7 @@ class SquaryLayout
         int n = node.getChildrenDisplay().size();
         if (n == 0) {   //node with no child
             node.getInternalDesktop().setPreferredSize(
-                    node.getTitleMinimumSize());
+                    node.getTitleBarMinimumSize());
             node.setVisible(true);
             return;
         }
