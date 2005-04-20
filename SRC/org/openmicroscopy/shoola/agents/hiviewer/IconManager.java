@@ -161,12 +161,20 @@ public class IconManager
     private static IconManager  singleton;
     
     
-    /** Returns the <code>IconManager</code> object. */
-    public static IconManager getInstance(Registry registry)
+    /**
+     * Creates the singleton.
+     * This method has to be called by the agent <i>before</i> any other
+     * class tries to access {@link #getInstance()}.
+     * 
+     * @param registry This agent's registry.
+     */
+    static void intializeSingleton(Registry registry)
     {
-        if (singleton == null) singleton = new IconManager(registry);
-        return singleton;
+        singleton = new IconManager(registry);
     }
+    
+    /** Returns the <code>IconManager</code> object. */
+    public static IconManager getInstance() { return singleton; }
     
     /**
      * Creates a new instance and configures the parameters.
