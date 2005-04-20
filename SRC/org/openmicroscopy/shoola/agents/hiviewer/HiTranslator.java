@@ -340,17 +340,17 @@ public class HiTranslator
     }
     
     /** 
-     * Transforms a list of {@link DataObject}s into theirs corresponding 
-     * visualization object. The elements of the list can be either 
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set can be either 
      * {@link ProjectSummary}, {@link DatasetSummaryLinked},
      * {@link CategoryGroupData}, {@link CategoryData} or 
      * {@link ImageSummary}.
      * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
      * 
-     * @param dataObjects   List of dataObjects to transform.
+     * @param dataObjects The data objects to transform.
      * @return See above.
      */
-    public static Set transformHierarchy(List dataObjects)
+    public static Set transformHierarchy(Set dataObjects)
     {
         if (dataObjects == null) throw new NullPointerException("No objects.");
         Set results = new HashSet();
@@ -395,9 +395,9 @@ public class HiTranslator
     public static Set transform(DataObject ho)
     {
         if (ho == null) throw new NullPointerException("No objects.");
-        List l = new ArrayList();
-        l.add(ho);
-        return transformHierarchy(l);
+        Set s = new HashSet();
+        s.add(ho);
+        return transformHierarchy(s);
     }
    
 }
