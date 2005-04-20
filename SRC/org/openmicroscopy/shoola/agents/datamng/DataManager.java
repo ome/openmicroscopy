@@ -1049,7 +1049,7 @@ public class DataManager
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveCategoryGroups();  
+            return sts.retrieveCategoryGroups(true);  
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
